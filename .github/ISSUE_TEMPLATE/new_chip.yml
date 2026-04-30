@@ -1,0 +1,59 @@
+name: New Chip Driver
+description: Request a new peripheral chip driver
+title: "chip: <ChipName>"
+labels: ["chip", "needs-spec"]
+body:
+  - type: input
+    id: chip_name
+    attributes:
+      label: Chip name
+      placeholder: e.g. BME280
+    validations:
+      required: true
+
+  - type: input
+    id: manufacturer
+    attributes:
+      label: Manufacturer
+      placeholder: e.g. Bosch
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: Category
+      placeholder: e.g. temperature/humidity sensor, IMU, ADC
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: transports
+    attributes:
+      label: Supported transports
+      options:
+        - label: I²C
+        - label: SPI
+        - label: Other (describe in notes)
+
+  - type: input
+    id: datasheet
+    attributes:
+      label: Datasheet
+      description: Filename in datasheets/ or a URL
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: stages
+    attributes:
+      label: Implementation stages requested
+      options:
+        - label: Minimal
+        - label: Full
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Anything else relevant — specific features needed, known errata, etc.

@@ -1,0 +1,27 @@
+name: New Transport
+description: Request a new transport implementation
+title: "transport: <TransportName>"
+labels: ["transport", "needs-spec"]
+body:
+  - type: input
+    id: transport_name
+    attributes:
+      label: Transport name
+      placeholder: e.g. SPI, I²C, UART, CAN
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Target platforms
+      options:
+        - label: MicroPython
+        - label: Arduino
+        - label: Other (describe in notes)
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Protocol reference, specific hardware constraints, or other relevant details.
