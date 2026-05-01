@@ -25,9 +25,21 @@ Implementations:
 | Direct conversation | Ad-hoc exploration or one-off requests |
 
 ### Flow (all entry points)
-1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<chipname>.pdf`
-2. Claude Code reads the datasheet and produces a spec in `specs/` using the appropriate template
-3. OpenCode implements against that spec in the appropriate language directories
+1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<category>/<chipname>.pdf`
+2. Claude Code reads the datasheet and produces a spec in `specs/<category>/` using the appropriate template
+3. Claude Code posts a **"Ready for implementation"** comment on the issue containing the spec path, branch name, and stages — this is what OpenCode uses to find its work
+4. OpenCode implements against the spec on the feature branch
+
+The comment format:
+```
+## Ready for implementation
+
+- **Spec:** `specs/<category>/<chip>.md`
+- **Branch:** `feature/<chip>`
+- **Stages:** Minimal, Full
+
+See `AGENTS.md` for implementation guidance.
+```
 
 ### Spec templates
 - `specs/_template_chip.md` — for new chip drivers

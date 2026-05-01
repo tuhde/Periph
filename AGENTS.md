@@ -12,7 +12,14 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 
 ## Finding the work
 
-- Spec: `specs/<category>/<chip>.md`
+When given an issue number, find the "Ready for implementation" comment on that issue. It contains:
+
+- **Spec** — path to the spec file (e.g. `specs/power/ina226.md`)
+- **Branch** — the feature branch to check out and commit to
+- **Stages** — which stages (Minimal, Full) are requested
+
+Then:
+
 - Python output: `python/periph/chips/<category>/<chip>.py`
 - C++ output: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
 - Remove `.gitkeep` from the target directory when adding the first real file
