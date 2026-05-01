@@ -1,1 +1,1 @@
-from .transport import Transport, I2CTransport
+from .transport import Transport, I2CTransport, SPITransport
