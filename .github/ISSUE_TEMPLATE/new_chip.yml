@@ -54,6 +54,7 @@ body:
       options:
         - label: I²C
         - label: SPI
+        - label: SMBus
         - label: Other (describe in notes)
 
   - type: input
