@@ -39,10 +39,18 @@ body:
   - type: input
     id: datasheet
     attributes:
-      label: Datasheet
-      description: Filename in datasheets/ or a URL
+      label: Datasheet URL
+      description: Link to the manufacturer datasheet. If you have a PDF, attach it below in the Notes field.
     validations:
-      required: true
+      required: false
+
+  - type: textarea
+    id: datasheet_attach
+    attributes:
+      label: Datasheet attachment
+      description: |
+        Attach the datasheet PDF by dragging it here or clicking the attachment icon.
+        Providing either a URL above or an attachment here is required.
 
   - type: checkboxes
     id: stages

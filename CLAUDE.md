@@ -25,8 +25,9 @@ Implementations:
 | Direct conversation | Ad-hoc exploration or one-off requests |
 
 ### Flow (all entry points)
-1. Claude Code reads the datasheet from `datasheets/` and produces a spec in `specs/` using the appropriate template
-2. OpenCode implements against that spec in the appropriate language directories
+1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<chipname>.pdf`
+2. Claude Code reads the datasheet and produces a spec in `specs/` using the appropriate template
+3. OpenCode implements against that spec in the appropriate language directories
 
 ### Spec templates
 - `specs/_template_chip.md` — for new chip drivers
