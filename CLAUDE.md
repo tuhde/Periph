@@ -49,22 +49,55 @@ The Full class inherits Minimal and adds the rest — it never duplicates. Specs
 ## Repository layout
 
 ```
-specs/        # Chip and transport specs (produced by Claude Code, consumed by OpenCode)
-datasheets/   # Raw manufacturer datasheets
+specs/                  # Chip and transport specs (produced by Claude Code, consumed by OpenCode)
+  <category>/           # One subdirectory per category (see below)
+  _template_chip.md
+  _template_transport.md
+datasheets/
+  <category>/           # Mirrors specs/ category structure
 python/
   periph/
-    transport/  # Abstract base + SPI/I2C implementations
-    chips/      # One module per chip
+    transport/          # Abstract base + SPI/I2C implementations
+    chips/
+      <category>/       # One module per chip, grouped by category
   tests/
 cpp/
   src/
-    transport/  # Pure virtual Transport interface + SPI/I2C implementations
-    chips/      # One header+source per chip
+    transport/          # Pure virtual Transport interface + SPI/I2C implementations
+    chips/
+      <category>/       # One header+source per chip, grouped by category
   examples/
-  library.properties  # Arduino library metadata
+  library.properties    # Arduino library metadata
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
+
+### Chip categories
+
+Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, and `cpp/src/chips/`:
+
+| Directory | Covers |
+|-----------|--------|
+| `accelerometer` | Standalone accelerometers |
+| `adc_dac` | ADC and DAC converters |
+| `color` | Color sensors |
+| `display` | Display drivers |
+| `environmental` | Combined temperature + humidity + pressure |
+| `gas` | Gas sensors |
+| `gpio` | GPIO expanders |
+| `gyroscope` | Standalone gyroscopes |
+| `humidity` | Standalone humidity sensors |
+| `imu` | Combined accelerometer + gyroscope |
+| `led` | LED drivers |
+| `light` | Light and UV sensors |
+| `magnetometer` | Magnetometers |
+| `motor` | Motor drivers |
+| `power` | Power management |
+| `pressure` | Standalone pressure sensors |
+| `rtc` | Real-time clocks |
+| `temperature` | Standalone temperature sensors |
+| `tof` | Time-of-flight / distance sensors |
+| `other` | Anything that doesn't fit above |
 
 ## Status
 

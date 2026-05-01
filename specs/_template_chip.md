@@ -1,8 +1,8 @@
 # Chip Spec: <ChipName>
 
 **Manufacturer:** <Manufacturer>  
-**Datasheet:** `datasheets/<filename>`  
-**Category:** <e.g. temperature sensor, IMU, ADC, RTC>  
+**Datasheet:** `datasheets/<category>/<filename>`  
+**Category:** <category directory, e.g. environmental, imu, temperature>  
 **Transports:** <SPI | I²C | both>
 
 ## Overview
