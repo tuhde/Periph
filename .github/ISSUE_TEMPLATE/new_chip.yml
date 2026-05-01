@@ -19,11 +19,31 @@ body:
     validations:
       required: true
 
-  - type: input
+  - type: dropdown
     id: category
     attributes:
       label: Category
-      placeholder: e.g. temperature/humidity sensor, IMU, ADC
+      options:
+        - Accelerometer
+        - ADC / DAC
+        - Color sensor
+        - Display driver
+        - Environmental (temperature + humidity + pressure)
+        - Gas sensor
+        - GPIO expander
+        - Gyroscope
+        - Humidity sensor
+        - IMU (accelerometer + gyroscope)
+        - LED driver
+        - Light / UV sensor
+        - Magnetometer
+        - Motor driver
+        - Power management
+        - Pressure sensor
+        - RTC (real-time clock)
+        - Temperature sensor
+        - ToF / distance sensor
+        - Other
     validations:
       required: true
 
