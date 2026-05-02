@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-color",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for color sensor chips",
+  "keywords": ["node-red", "color", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

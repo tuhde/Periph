@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-gyroscope",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for gyroscope chips",
+  "keywords": ["node-red", "gyroscope", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

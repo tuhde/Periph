@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-accelerometer",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for accelerometer chips",
+  "keywords": ["node-red", "accelerometer", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

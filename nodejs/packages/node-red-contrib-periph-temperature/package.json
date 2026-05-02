@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-temperature",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for temperature sensor chips",
+  "keywords": ["node-red", "temperature", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

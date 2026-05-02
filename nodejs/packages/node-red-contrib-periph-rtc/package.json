@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-rtc",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for real-time clock chips",
+  "keywords": ["node-red", "rtc", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

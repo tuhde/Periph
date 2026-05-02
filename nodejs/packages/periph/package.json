@@ -1,0 +1,8 @@
+{
+  "name": "periph",
+  "version": "0.1.0",
+  "description": "JavaScript drivers for peripheral chips (I2C, SPI)",
+  "main": "src/index.js",
+  "keywords": ["i2c", "spi", "sensor", "peripheral", "hardware"],
+  "license": "MIT"
+}

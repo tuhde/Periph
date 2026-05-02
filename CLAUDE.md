@@ -9,7 +9,7 @@ A multi-language library for peripheral chips (sensors, actuators, etc.) connect
 Implementations:
 - **Python** — targeting MicroPython
 - **C++** — targeting Arduino
-- More implementations planned
+- **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 
 ## Workflow
 
@@ -80,13 +80,29 @@ cpp/
       <category>/       # One header+source per chip, grouped by category
   examples/
   library.properties    # Arduino library metadata
+nodejs/
+  package.json          # npm workspaces root
+  packages/
+    periph/             # Single plain JS driver package (name: "periph")
+      src/
+        transport/      # I2C, SPI transport wrappers
+        chips/
+          <category>/   # One module per chip, grouped by category
+    node-red-contrib-periph-<category>/  # Per-category Node-RED node packages
+      index.js          # Auto-discovers and registers nodes in nodes/
+      nodes/
+        <chip>/
+          <chip>.js     # Node-RED runtime node (wraps periph driver)
+          <chip>.html   # Node-RED editor UI (config panel)
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
 
+The `adc_dac` directory maps to the package name `node-red-contrib-periph-adc-dac` (underscore → hyphen).
+
 ### Chip categories
 
-Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, and `cpp/src/chips/`:
+Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `cpp/src/chips/`, `nodejs/packages/periph/src/chips/`, and `nodejs/packages/node-red-contrib-periph-<category>/`:
 
 | Directory | Covers |
 |-----------|--------|

@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-light",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for light sensor chips",
+  "keywords": ["node-red", "light", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

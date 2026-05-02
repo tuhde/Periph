@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-environmental",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for environmental sensor chips",
+  "keywords": ["node-red", "environmental", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}
