@@ -72,6 +72,9 @@ python/
     transport/          # Abstract base + SPI/I2C implementations
     chips/
       <category>/       # One module per chip, grouped by category
+  examples/
+    <category>/
+      <chip>/           # minimal.py, complete.py, demo.py
   tests/
 cpp/
   src/
@@ -79,7 +82,27 @@ cpp/
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
+    <Chip>_Minimal/     # <Chip>_Minimal.ino  (Arduino: dir name must match .ino)
+    <Chip>_Complete/    # <Chip>_Complete.ino
+    <Chip>_Demo/        # <Chip>_Demo.ino
   library.properties    # Arduino library metadata
+nodejs/
+  package.json          # npm workspaces root
+  packages/
+    periph/             # Single plain JS driver package (name: "periph")
+      src/
+        transport/      # I2C, SPI transport wrappers
+        chips/
+          <category>/   # One module per chip, grouped by category
+      examples/
+        <category>/
+          <chip>/       # minimal.js, complete.js, demo.js
+    node-red-contrib-periph-<category>/  # Per-category Node-RED node packages
+      index.js          # Auto-discovers and registers nodes in nodes/
+      nodes/
+        <chip>/
+          <chip>.js     # Node-RED runtime node (wraps periph driver)
+          <chip>.html   # Node-RED editor UI (config panel)
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.

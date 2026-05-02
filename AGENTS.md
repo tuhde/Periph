@@ -20,8 +20,13 @@ When given an issue number, find the "Ready for implementation" comment on that 
 
 Then:
 
-- Python output: `python/periph/chips/<category>/<chip>.py`
-- C++ output: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
+- Python driver: `python/periph/chips/<category>/<chip>.py`
+- Python examples: `python/examples/<category>/<chip>/minimal.py`, `complete.py`, `demo.py`
+- C++ driver: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
+- C++ examples: `cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino`, `<Chip>_Complete/`, `<Chip>_Demo/`
+- Node.js driver: `nodejs/packages/periph/src/chips/<category>/<chip>.js`
+- Node.js examples: `nodejs/packages/periph/examples/<category>/<chip>/minimal.js`, `complete.js`, `demo.js`
+- Node-RED node: `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js` and `<chip>.html`
 - Remove `.gitkeep` from the target directory when adding the first real file
 
 ## Transport interface
@@ -94,6 +99,20 @@ Full never duplicates Minimal — it only adds.
 - Register constants as `static constexpr uint8_t` in the class header
 - 16-bit register reads: receive two bytes, combine as `(buf[0] << 8) | buf[1]`
 - Signed 16-bit: cast as `static_cast<int16_t>((buf[0] << 8) | buf[1])`
+
+## Examples
+
+Each chip has three examples per language, written alongside the driver (same branch):
+
+| File | Uses | Shows |
+|------|------|-------|
+| `minimal` | `*Minimal` class | Construct with transport, read primary values in a loop, print to serial/stdout |
+| `complete` | `*Full` class | Every method in the API, including configuration and alerts |
+| `demo` | `*Full` class | The scenario described in the spec's Examples section — something that demonstrates real-world utility |
+
+The demo scenario is specified in the chip spec. The minimal and complete examples are fully implied by the API tables.
+
+For Arduino examples, the directory name must exactly match the `.ino` filename: `INA226_Minimal/INA226_Minimal.ino`.
 
 ## Commit convention
 

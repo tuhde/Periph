@@ -77,6 +77,25 @@ Goal: expose complete chip functionality. Extends Minimal.
 value = raw * <scale> + <offset>
 ```
 
+## Node-RED
+
+Node name: `periph-<chip>`  
+Package: `node-red-contrib-periph-<category>`
+
+| Input trigger | Output `msg.payload` fields | Notes |
+|---------------|-----------------------------|-------|
+| any message   | `{ <key>: <value>, ... }`   | <!-- List the readings exposed --> |
+
+<!-- Describe the config panel fields (I2C address, bus number, etc.) -->
+
+## Examples
+
+### Demo
+
+<!-- Describe the scenario the demo example should implement. Be specific:
+     what it measures, what it prints/does, what makes it interesting to watch.
+     The minimal and complete examples are implied by the API tables above. -->
+
 ## Timing Constraints
 
 <!-- Any delays, startup times, or measurement durations the driver must respect. -->
