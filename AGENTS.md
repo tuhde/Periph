@@ -114,6 +114,13 @@ The demo scenario is specified in the chip spec. The minimal and complete exampl
 
 For Arduino examples, the directory name must exactly match the `.ino` filename: `INA226_Minimal/INA226_Minimal.ino`.
 
+## Documentation
+
+The spec is the reference documentation. No separate docs directory.
+
+- `minimal` and `complete` examples: no comments
+- `demo` example: one short comment per logical block explaining *why*, not what — e.g. `# configure for 16x averaging to reduce noise`, not `# set AVG bits`
+
 ## Commit convention
 
 One commit per stage (Minimal, Full). Message format:

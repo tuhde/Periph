@@ -134,6 +134,14 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, an
 | `tof` | Time-of-flight / distance sensors |
 | `other` | Anything that doesn't fit above |
 
+## Documentation
+
+The spec (`specs/<category>/<chip>.md`) is the reference documentation for each chip — register maps, initialization sequences, API tables, and data conversion formulas all live there.
+
+No separate `docs/` directory. The three example tiers serve as usage documentation:
+- `minimal` and `complete` — clean code, no comments
+- `demo` — one short comment per logical block explaining *why* (not what); the narrative entry point for new users
+
 ## Status
 
 No build system configured yet. Update this file with build, lint, and test commands once established.

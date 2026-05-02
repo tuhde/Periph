@@ -94,7 +94,8 @@ Package: `node-red-contrib-periph-<category>`
 
 <!-- Describe the scenario the demo example should implement. Be specific:
      what it measures, what it prints/does, what makes it interesting to watch.
-     The minimal and complete examples are implied by the API tables above. -->
+     The minimal and complete examples are implied by the API tables above.
+     The demo gets one short comment per logical block explaining WHY (not what). -->
 
 ## Timing Constraints
 
