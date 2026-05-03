@@ -14,5 +14,6 @@ class I2CTransport(Transport):
 
     def write_read(self, data, n):
         buf = bytearray(n)
-        self._bus.writeto_then_readfrom(self._addr, data, buf)
+        self._bus.writeto(self._addr, data, False)  # False = no STOP → repeated start
+        self._bus.readfrom_into(self._addr, buf)
         return bytes(buf)
