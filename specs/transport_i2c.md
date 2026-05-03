@@ -35,7 +35,7 @@ Address is set at construction time — a transport instance represents one devi
 
 ## Platform Notes
 
-### MicroPython
+### MicroPython (primary target)
 
 Wraps `machine.I2C`. Method mapping:
 
@@ -43,9 +43,15 @@ Wraps `machine.I2C`. Method mapping:
 |----------|-------------|
 | `write` | `i2c.writeto(addr, data)` |
 | `read` | `i2c.readfrom(addr, n)` |
-| `write_read` | `i2c.writeto_then_readfrom(addr, data, buf)` |
+| `write_read` | `i2c.writeto(addr, data, False)` + `i2c.readfrom_into(addr, buf)` |
+
+`False` on `writeto` suppresses the STOP condition, so the following `readfrom_into` issues a repeated START. Do not use `writeto_then_readfrom` — that is a CircuitPython (`busio.I2C`) method and does not exist in `machine.I2C`.
 
 Constructor accepts a `machine.I2C` or `machine.SoftI2C` instance.
+
+### CircuitPython (untested)
+
+CircuitPython may work but is not a supported target. Its `busio.I2C` API differs: `readfrom_into` instead of `readfrom`, and `writeto_then_readfrom` for combined transactions. No compatibility shims are provided.
 
 ### Arduino
 

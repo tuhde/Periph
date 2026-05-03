@@ -78,7 +78,9 @@ public:
 
 Full never duplicates Minimal — it only adds.
 
-## Python conventions (MicroPython)
+## Python conventions (MicroPython primary, CircuitPython untested)
+
+Target is MicroPython. CircuitPython may work but is not tested — do not use CircuitPython-specific APIs (e.g. `busio.I2C.writeto_then_readfrom`, `busio.I2C.readfrom_into` without `stop`).
 
 - No f-strings, no walrus operator, no `match` statements — MicroPython lags CPython
 - Avoid heap allocation in frequently-called methods; reuse `bytearray` buffers where practical

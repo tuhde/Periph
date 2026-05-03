@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I²C, or other transports.
 
 Implementations:
-- **Python** — targeting MicroPython
+- **Python** — targeting MicroPython (primary); CircuitPython may work but is mostly untested
 - **C++** — targeting Arduino
 - More implementations planned
 
