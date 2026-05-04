@@ -37,6 +37,7 @@ public:
     static constexpr uint16_t BUL  = 0x1000;
     static constexpr uint16_t POL  = 0x0800;
     static constexpr uint16_t CNVR = 0x0400;
+    static constexpr uint16_t AFF  = 0x0010;
 
     INA226Full(Transport& transport, float r_shunt = 0.1f, float max_current = 2.0f);
 

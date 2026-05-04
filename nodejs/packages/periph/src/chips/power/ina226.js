@@ -50,6 +50,7 @@ class INA226Full extends INA226Minimal {
     static BUL  = 0x1000;
     static POL  = 0x0800;
     static CNVR = 0x0400;
+    static AFF  = 0x0010;
 
     constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
         super(transport, rShunt, maxCurrent);

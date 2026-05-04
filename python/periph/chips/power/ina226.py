@@ -48,6 +48,7 @@ class INA226Full(INA226Minimal):
     BUL  = 0x1000
     POL  = 0x0800
     CNVR = 0x0400
+    AFF  = 0x0010
 
     _REG_MASK   = 0x06
     _REG_ALERT  = 0x07
