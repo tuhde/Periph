@@ -7,7 +7,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`) | Active |
-| C++ | Arduino | Active |
+| C++ | Arduino, Linux GCC | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 
 ## Supported transports
@@ -31,6 +31,12 @@ Drivers are platform-agnostic — they depend only on the transport abstraction.
 from periph.transport.i2c_micropython import I2CTransport   # machine.I2C
 from periph.transport.i2c_circuitpython import I2CTransport # busio.I2C
 from periph.transport.i2c_linux import I2CTransport         # /dev/i2c-N
+```
+
+**C++**
+```cpp
+#include "I2CTransport.h"         // Arduino Wire
+#include "I2CTransportLinux.h"    // Linux /dev/i2c-N via ioctl
 ```
 
 **Node.js**
@@ -61,6 +67,22 @@ The spec (`specs/<category>/<chip>.md`) is the reference documentation — regis
 ## Node-RED
 
 Per-category Node-RED packages are available under `nodejs/packages/node-red-contrib-periph-<category>`. To use locally, add the package directory to `nodesDir` in your Node-RED `settings.js`.
+
+## Testing
+
+Each chip has hardware tests for all platforms. Copy the relevant `testconfig.example` to `testconfig` and fill in your values, then run:
+
+| Platform | Runner | Notes |
+|----------|--------|-------|
+| Arduino | `cpp/test_arduino.sh power/ina226` | Compiles, uploads, reads serial |
+| Linux GCC | `cpp/test_linux.sh power/ina226` | Builds with g++, runs on host |
+| MicroPython | `python/test_mp.sh power/ina226` | `mpremote` mount — nothing written to board |
+| CircuitPython | `python/test_cp.sh power/ina226` | Copies via CIRCUITPY drive, runs via raw REPL |
+| Linux kernel (Python) | `python/test_linux.sh power/ina226` | Runs on host via `smbus2` |
+| Node.js | `nodejs/test.sh power/ina226` | Runs on host via `i2c-bus` |
+
+All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
+`--compile-only` is supported by the Arduino and Linux GCC runners.
 
 ## Architecture and workflow
 
