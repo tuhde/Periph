@@ -20,10 +20,13 @@ When given an issue number, find the "Ready for implementation" comment on that 
 
 Then:
 
-- Python output: `python/periph/chips/<category>/<chip>.py`
-- C++ output: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
-- Node.js driver output: `nodejs/packages/periph/src/chips/<category>/<chip>.js`
-- Node-RED node output: `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js` and `<chip>.html`
+- Python driver: `python/periph/chips/<category>/<chip>.py`
+- Python examples: `python/examples/<category>/<chip>/minimal.py`, `complete.py`, `demo.py`
+- C++ driver: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
+- C++ examples: `cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino`, `<Chip>_Complete/<Chip>_Complete.ino`, `<Chip>_Demo/<Chip>_Demo.ino`
+- Node.js driver: `nodejs/packages/periph/src/chips/<category>/<chip>.js`
+- Node.js examples: `nodejs/packages/periph/examples/<category>/<chip>/minimal.js`, `complete.js`, `demo.js`
+- Node-RED node: `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js` and `<chip>.html`
 - Remove `.gitkeep` from the target directory when adding the first real file
 
 ## Transport interface
@@ -191,6 +194,27 @@ module.exports = function(RED) {
 The `index.js` at the package root auto-discovers nodes — never edit it manually.
 
 When a new node is added, update the `"node-red": { "nodes": {} }` field in the package's `package.json` to register the node name and file path.
+
+## Examples
+
+Each chip has three examples per language (same branch as the driver):
+
+| File | Class | Content |
+|------|-------|---------|
+| `minimal` | `*Minimal` | Construct with transport, read primary values in a loop, print to serial/stdout. No comments. |
+| `complete` | `*Full` | Every method in the API called once — configuration, alerts, shutdown/wake, IDs. No comments. |
+| `demo` | `*Full` | The scenario from the spec's Demo section. One short why-comment per logical block. |
+
+The demo scenario is defined in the chip spec. The minimal and complete examples are fully implied by the API tables — implement them mechanically.
+
+For C++ (Arduino), the directory name must exactly match the `.ino` filename: `INA226_Minimal/INA226_Minimal.ino`.
+
+## Documentation
+
+The spec is the reference documentation. No separate docs directory.
+
+- `minimal` and `complete` examples: no comments
+- `demo` example: one short comment per logical block explaining *why* — e.g. `# configure for 16x averaging to reduce noise`, not `# set AVG bits`
 
 ## Commit convention
 
