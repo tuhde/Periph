@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "description": "Node-RED nodes for power monitor chips",
   "keywords": ["node-red", "power", "i2c", "spi", "sensor", "peripheral"],
+  "main": "index.js",
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "ina226": "nodes/ina226/ina226.js"
+    }
   },
   "dependencies": {
     "periph": "*"
