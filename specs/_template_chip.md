@@ -88,6 +88,15 @@ Package: `node-red-contrib-periph-<category>`
 
 <!-- Describe the config panel fields (I2C address, bus number, etc.) -->
 
+## Examples
+
+### Demo
+
+<!-- Describe the scenario the demo example should implement. Be specific:
+     what it measures, what it prints/does, what makes it interesting to watch.
+     The minimal and complete examples are implied by the API tables above.
+     The demo gets one short why-comment per logical block. -->
+
 ## Timing Constraints
 
 <!-- Any delays, startup times, or measurement durations the driver must respect. -->

@@ -69,9 +69,12 @@ datasheets/
   <category>/           # Mirrors specs/ category structure
 python/
   periph/
-    transport/          # Abstract base + SPI/I2C implementations (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py)
+    transport/          # Abstract base + platform transports (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py)
     chips/
       <category>/       # One module per chip, grouped by category
+  examples/
+    <category>/
+      <chip>/           # minimal.py, complete.py, demo.py
   tests/
 cpp/
   src/
@@ -79,6 +82,9 @@ cpp/
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
+    <Chip>_Minimal/     # <Chip>_Minimal.ino  (dir name must match .ino filename)
+    <Chip>_Complete/    # <Chip>_Complete.ino
+    <Chip>_Demo/        # <Chip>_Demo.ino
   library.properties    # Arduino library metadata
 nodejs/
   package.json          # npm workspaces root
@@ -88,6 +94,9 @@ nodejs/
         transport/      # I2C, SPI transport wrappers
         chips/
           <category>/   # One module per chip, grouped by category
+      examples/
+        <category>/
+          <chip>/       # minimal.js, complete.js, demo.js
     node-red-contrib-periph-<category>/  # Per-category Node-RED node packages
       index.js          # Auto-discovers and registers nodes in nodes/
       nodes/
@@ -126,6 +135,24 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `temperature` | Standalone temperature sensors |
 | `tof` | Time-of-flight / distance sensors |
 | `other` | Anything that doesn't fit above |
+
+## Examples
+
+Each chip has three examples per language, placed under the `examples/` tree:
+
+| Tier | Class used | Purpose |
+|------|-----------|---------|
+| `minimal` | `*Minimal` | Simplest possible usage — construct, read primary values in a loop |
+| `complete` | `*Full` | Every method in the API exercised |
+| `demo` | `*Full` | A real-world scenario from the spec's Demo section — why-comments per logical block |
+
+The `minimal` and `complete` examples have no comments. The `demo` example has one short comment per logical block explaining *why*, not what.
+
+## Documentation
+
+The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.
+
+The three example tiers serve as usage documentation: `minimal` and `complete` are clean code; `demo` is the narrative entry point for new users.
 
 ## Status
 
