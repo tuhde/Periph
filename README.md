@@ -40,9 +40,9 @@ const { I2CTransport } = require('periph/src/transport/i2c');  // /dev/i2c-N via
 
 ## Supported chips
 
-| Chip | Category | Python | C++ | Node.js | Node-RED |
-|------|----------|--------|-----|---------|----------|
-| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ |
+| Chip | Category | Python | C++ | Node.js | Node-RED | Examples |
+|------|----------|--------|-----|---------|----------|---------|
+| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED |
 
 ## Examples
 
