@@ -25,6 +25,7 @@ Each chip driver is implemented in two stages:
 
 Drivers are platform-agnostic — they depend only on the transport abstraction. Choose the transport for your target:
 
+
 **Python**
 ```python
 from periph.transport.i2c_micropython import I2CTransport   # machine.I2C
@@ -42,6 +43,20 @@ const { I2CTransport } = require('periph/src/transport/i2c');  // /dev/i2c-N via
 | Chip | Category | Python | C++ | Node.js | Node-RED |
 |------|----------|--------|-----|---------|----------|
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ |
+
+## Examples
+
+Each chip has three examples per language:
+
+| Tier | Purpose |
+|------|---------|
+| `minimal` | Simplest usage — construct, read primary values in a loop |
+| `complete` | Every method in the API exercised |
+| `demo` | A real-world scenario with why-comments per logical block |
+
+## Documentation
+
+The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, conversion formulas. No separate docs directory; the examples serve as usage documentation.
 
 ## Node-RED
 
