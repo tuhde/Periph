@@ -6,7 +6,7 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
-      "periph-power": "index.js"
+      "ina226": "nodes/ina226/ina226.js"
     }
   },
   "dependencies": {
