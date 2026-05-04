@@ -24,7 +24,7 @@ setInterval(() => {
     console.log(v.toFixed(3) + 'V   ' + i.toFixed(4) + 'A   ' + p.toFixed(4) + 'W');
 
     // reading alertFlags clears the latch — do this after printing measurements
-    if (ina.alertFlags() & INA226Full.POL) {
+    if (ina.alertFlags() & INA226Full.AFF) {
         console.log('ALERT: power limit exceeded');
     }
 }, 1000);

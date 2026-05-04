@@ -3,7 +3,7 @@ from periph.transport.i2c_micropython import I2CTransport
 from periph.chips.power.ina226 import INA226Full
 import time
 
-i2c = I2C(1, freq=400000)
+i2c = I2C(2, freq=400000)
 transport = I2CTransport(i2c, 0x40)
 ina = INA226Full(transport)
 

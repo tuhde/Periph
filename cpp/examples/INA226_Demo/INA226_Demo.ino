@@ -27,7 +27,7 @@ void loop() {
     Serial.print(ina.power(),   4); Serial.println("W");
 
     // reading alert_flags clears the latch — do this after printing measurements
-    if (ina.alert_flags() & INA226Full::POL) {
+    if (ina.alert_flags() & INA226Full::AFF) {
         Serial.println("ALERT: power limit exceeded");
     }
 

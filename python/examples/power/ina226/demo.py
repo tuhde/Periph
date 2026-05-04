@@ -3,7 +3,7 @@ from periph.transport.i2c_micropython import I2CTransport
 from periph.chips.power.ina226 import INA226Full
 import time
 
-i2c = I2C(1, freq=400000)
+i2c = I2C(2, freq=400000)
 transport = I2CTransport(i2c, 0x40)
 ina = INA226Full(transport)
 
@@ -25,7 +25,7 @@ while True:
     print('%-10.3f %-10.4f %-10.4f' % (v, i, p))
 
     # reading alert_flags clears the latch — do this after printing measurements
-    if ina.alert_flags() & INA226Full.POL:
+    if ina.alert_flags() & INA226Full.AFF:
         print('ALERT: power limit exceeded')
 
     time.sleep(1)
