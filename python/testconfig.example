@@ -1,0 +1,41 @@
+# Periph Python test configuration
+# Copy this file to testconfig and fill in your values.
+# testconfig is gitignored — never commit it.
+
+# ------------------------------------------------------------------
+# MicroPython (mpremote)
+# ------------------------------------------------------------------
+# Serial port. Use 'auto' to let mpremote detect the board.
+MP_PORT=auto
+
+# I2C bus number (machine.I2C first argument)
+MP_I2C_ID=0
+
+# GPIO pin numbers for SDA and SCL. Required — check your board's pinout.
+MP_SDA=
+MP_SCL=
+
+# I2C clock frequency in Hz
+MP_I2C_FREQ=400000
+
+# ------------------------------------------------------------------
+# CircuitPython (mpremote or direct serial)
+# ------------------------------------------------------------------
+# Serial port for the CircuitPython board's REPL
+CP_PORT=auto
+
+# Board pin names as they appear in the 'board' module (e.g. board.SDA, board.SCL)
+CP_SDA=board.SDA
+CP_SCL=board.SCL
+
+# ------------------------------------------------------------------
+# Linux (smbus2 / /dev/i2c-N)
+# ------------------------------------------------------------------
+# I2C bus number (the N in /dev/i2c-N)
+LINUX_I2C_BUS=1
+
+# ------------------------------------------------------------------
+# Common
+# ------------------------------------------------------------------
+# I2C address of the device under test
+I2C_ADDR=0x40
