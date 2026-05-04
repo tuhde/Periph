@@ -1,4 +1,5 @@
 #pragma once
+#ifdef __linux__
 #include <stdint.h>
 #include <stddef.h>
 #include "Transport.h"
@@ -17,3 +18,4 @@ private:
     int     _fd;
     uint8_t _addr;
 };
+#endif // __linux__

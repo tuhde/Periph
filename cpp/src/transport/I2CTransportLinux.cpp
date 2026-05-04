@@ -1,3 +1,4 @@
+#ifdef __linux__
 #include "I2CTransportLinux.h"
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
@@ -47,3 +48,4 @@ void I2CTransportLinux::write_read(const uint8_t* data, size_t data_len,
 
     if (ioctl(_fd, I2C_RDWR, &rdwr) < 0) perror("ioctl I2C_RDWR");
 }
+#endif // __linux__
