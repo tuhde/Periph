@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I²C, or other transports.
 
 Implementations:
-- **Python** — targeting MicroPython (primary); CircuitPython may work but is mostly untested
+- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`)
 - **C++** — targeting Arduino
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 
@@ -69,7 +69,7 @@ datasheets/
   <category>/           # Mirrors specs/ category structure
 python/
   periph/
-    transport/          # Abstract base + SPI/I2C implementations
+    transport/          # Abstract base + SPI/I2C implementations (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py)
     chips/
       <category>/       # One module per chip, grouped by category
   tests/
