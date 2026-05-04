@@ -40,7 +40,9 @@ if [ -z "$TARGET" ]; then
     exit 1
 fi
 
-SKETCH="$SCRIPT_DIR/tests/$TARGET/${TARGET##*/}_test"
+CHIP="${TARGET##*/}"
+CATEGORY="${TARGET%/*}"
+SKETCH="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
 
 if [ ! -d "$SKETCH" ]; then
     echo "ERROR: sketch not found: $SKETCH"
@@ -48,14 +50,20 @@ if [ ! -d "$SKETCH" ]; then
 fi
 
 # --- build-properties for pin defines ------------------------------------
+EXTRA_FLAGS=""
+[ -n "$I2C_SDA"  ] && EXTRA_FLAGS="$EXTRA_FLAGS -DTEST_SDA=$I2C_SDA"
+[ -n "$I2C_SCL"  ] && EXTRA_FLAGS="$EXTRA_FLAGS -DTEST_SCL=$I2C_SCL"
+[ -n "$I2C_FREQ" ] && EXTRA_FLAGS="$EXTRA_FLAGS -DTEST_I2C_FREQ=$I2C_FREQ"
+
 BUILD_PROPS=()
-[ -n "$I2C_SDA"  ] && BUILD_PROPS+=(--build-property "compiler.cpp.extra_flags=-DTEST_SDA=$I2C_SDA")
-[ -n "$I2C_SCL"  ] && BUILD_PROPS+=( --build-property "compiler.cpp.extra_flags=-DTEST_SCL=$I2C_SCL")
-[ -n "$I2C_FREQ" ] && BUILD_PROPS+=(--build-property "compiler.cpp.extra_flags=-DTEST_I2C_FREQ=$I2C_FREQ")
+[ -n "$EXTRA_FLAGS" ] && BUILD_PROPS=(--build-property "compiler.cpp.extra_flags=$EXTRA_FLAGS")
 
 # --- compile -------------------------------------------------------------
 echo "=== Compiling $TARGET for $FQBN ==="
-arduino-cli compile --fqbn "$FQBN" "${BUILD_PROPS[@]}" "$SKETCH"
+arduino-cli compile --fqbn "$FQBN" \
+    --library "$SCRIPT_DIR/src/transport" \
+    --library "$SCRIPT_DIR/src/chips/$CATEGORY" \
+    "${BUILD_PROPS[@]}" "$SKETCH"
 echo "Compile OK"
 
 [ "$COMPILE_ONLY" -eq 1 ] && exit 0

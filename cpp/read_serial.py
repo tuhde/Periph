@@ -13,10 +13,21 @@ def main():
         print("ERROR: pyserial not installed. Run: pip install pyserial")
         sys.exit(2)
 
-    time.sleep(2)  # wait for board reset after upload
-
     passed = failed = 0
-    with serial.Serial(port, 115200, timeout=1) as s:
+    # Open port immediately; board has delay(2000) in setup() so we have time.
+    # Retry opening in case the USB CDC port briefly disappears after reset.
+    deadline_open = time.time() + 5
+    s = None
+    while time.time() < deadline_open:
+        try:
+            s = serial.Serial(port, 115200, timeout=1)
+            break
+        except serial.SerialException:
+            time.sleep(0.2)
+    if s is None:
+        print(f"ERROR: could not open {port}")
+        sys.exit(2)
+    with s:
         deadline = time.time() + timeout
         while time.time() < deadline:
             line = s.readline().decode('utf-8', errors='replace').strip()
