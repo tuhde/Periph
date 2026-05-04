@@ -80,15 +80,36 @@ public:
 
 Full never duplicates Minimal — it only adds.
 
-## Python conventions (MicroPython primary, CircuitPython untested)
+## Python conventions
 
-Target is MicroPython. CircuitPython may work but is not tested — do not use CircuitPython-specific APIs (e.g. `busio.I2C.writeto_then_readfrom`, `busio.I2C.readfrom_into` without `stop`).
+Three supported targets: **MicroPython** (primary), **CircuitPython**, **Linux kernel** (via `smbus2`).
+
+### Chip drivers (all platforms)
+
+Chip drivers are platform-agnostic — they only call the transport interface. Write them to the most restrictive common denominator so they run on all three targets:
 
 - No f-strings, no walrus operator, no `match` statements — MicroPython lags CPython
 - Avoid heap allocation in frequently-called methods; reuse `bytearray` buffers where practical
 - Use `struct.pack` / `struct.unpack` for multi-byte register values
 - No type annotations — MicroPython does not enforce them and they add overhead
 - Constants as class-level variables prefixed with `_` (e.g. `_REG_CONFIG = 0x00`)
+
+### Transport implementations
+
+Each platform has its own transport file. Use platform-native APIs:
+
+| File | Platform | Bus object |
+|------|----------|------------|
+| `i2c_micropython.py` | MicroPython | `machine.I2C` / `machine.SoftI2C` |
+| `i2c_circuitpython.py` | CircuitPython | `busio.I2C` |
+| `i2c_linux.py` | Linux kernel | `smbus2.SMBus` or bus number (int) |
+
+Users import the transport for their target:
+```python
+from periph.transport.i2c_micropython import I2CTransport    # MicroPython
+from periph.transport.i2c_circuitpython import I2CTransport  # CircuitPython
+from periph.transport.i2c_linux import I2CTransport          # Linux
+```
 
 ## C++ conventions (Arduino)
 

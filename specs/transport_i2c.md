@@ -35,7 +35,7 @@ Address is set at construction time — a transport instance represents one devi
 
 ## Platform Notes
 
-### MicroPython (primary target)
+### MicroPython
 
 Wraps `machine.I2C`. Method mapping:
 
@@ -49,9 +49,27 @@ Wraps `machine.I2C`. Method mapping:
 
 Constructor accepts a `machine.I2C` or `machine.SoftI2C` instance.
 
-### CircuitPython (untested)
+### CircuitPython
 
-CircuitPython may work but is not a supported target. Its `busio.I2C` API differs: `readfrom_into` instead of `readfrom`, and `writeto_then_readfrom` for combined transactions. No compatibility shims are provided.
+Wraps `busio.I2C`. The bus must be locked before each operation and unlocked after.
+
+| Contract | CircuitPython |
+|----------|---------------|
+| `write` | `try_lock()` → `writeto(addr, data)` → `unlock()` |
+| `read` | `try_lock()` → `readfrom_into(addr, buf)` → `unlock()` |
+| `write_read` | `try_lock()` → `writeto_then_readfrom(addr, data, buf)` → `unlock()` |
+
+Constructor accepts a `busio.I2C` instance.
+
+### Linux kernel
+
+Wraps `smbus2`. Constructor accepts either a bus number (int, opens `/dev/i2c-N` itself) or an already-opened `smbus2.SMBus` instance. Call `close()` to release the bus when done.
+
+| Contract | smbus2 |
+|----------|--------|
+| `write` | `i2c_rdwr(i2c_msg.write(addr, data))` |
+| `read` | `i2c_rdwr(i2c_msg.read(addr, n))` |
+| `write_read` | `i2c_rdwr(i2c_msg.write(...), i2c_msg.read(...))` — combined transfer, repeated start |
 
 ### Arduino
 
