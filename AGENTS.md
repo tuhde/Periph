@@ -27,6 +27,7 @@ Then:
 - Node.js driver: `nodejs/packages/periph/src/chips/<category>/<chip>.js`
 - Node.js examples: `nodejs/packages/periph/examples/<category>/<chip>/minimal.js`, `complete.js`, `demo.js`
 - Node-RED node: `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js` and `<chip>.html`
+- Node-RED example: `nodejs/packages/node-red-contrib-periph-<category>/examples/<chip>/demo.json`
 - Remove `.gitkeep` from the target directory when adding the first real file
 
 ## Transport interface
@@ -208,6 +209,8 @@ Each chip has three examples per language (same branch as the driver):
 The demo scenario is defined in the chip spec. The minimal and complete examples are fully implied by the API tables — implement them mechanically.
 
 For C++ (Arduino), the directory name must exactly match the `.ino` filename: `INA226_Minimal/INA226_Minimal.ino`.
+
+Node-RED gets one example per chip: `examples/<chip>/demo.json` — an importable flow showing the node wired in a realistic scenario. No minimal or complete flows.
 
 ## Documentation
 
