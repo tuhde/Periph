@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-tof",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for time-of-flight sensor chips",
+  "keywords": ["node-red", "tof", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

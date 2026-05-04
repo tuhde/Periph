@@ -22,6 +22,8 @@ Then:
 
 - Python output: `python/periph/chips/<category>/<chip>.py`
 - C++ output: `cpp/src/chips/<category>/<Chip>.h` and `cpp/src/chips/<category>/<Chip>.cpp`
+- Node.js driver output: `nodejs/packages/periph/src/chips/<category>/<chip>.js`
+- Node-RED node output: `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js` and `<chip>.html`
 - Remove `.gitkeep` from the target directory when adding the first real file
 
 ## Transport interface
@@ -96,6 +98,78 @@ Target is MicroPython. CircuitPython may work but is not tested — do not use C
 - Register constants as `static constexpr uint8_t` in the class header
 - 16-bit register reads: receive two bytes, combine as `(buf[0] << 8) | buf[1]`
 - Signed 16-bit: cast as `static_cast<int16_t>((buf[0] << 8) | buf[1])`
+
+## Node.js transport interface
+
+JS chip drivers use the same three-method contract, in camelCase:
+
+```js
+transport.write(buffer)                        // Buffer
+transport.read(length)                         // returns Buffer
+transport.writeRead(writeBuffer, readLength)   // returns Buffer
+```
+
+Big-endian 16-bit register reads:
+```js
+const raw = transport.writeRead(Buffer.from([REG_ADDR]), 2);
+const value = raw.readUInt16BE(0);   // unsigned
+const value = raw.readInt16BE(0);    // signed (2's complement)
+```
+
+## Node.js driver structure
+
+Plain JS driver (in `nodejs/packages/periph/src/chips/<category>/<chip>.js`):
+
+```js
+'use strict';
+
+class INA226Minimal {
+    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
+        this._transport = transport;
+        this._currentLsb = maxCurrent / 32768;
+        this._cal = Math.trunc(0.00512 / (this._currentLsb * rShunt));
+        this._writeReg(REG_CONFIG, CONFIG_DEFAULT);
+        this._writeReg(REG_CAL, this._cal);
+    }
+    _writeReg(reg, value) { ... }
+    _readReg(reg) { ... }
+}
+
+class INA226Full extends INA226Minimal { ... }
+
+module.exports = { INA226Minimal, INA226Full };
+```
+
+- CommonJS (`require`/`module.exports`) — required for Node-RED compatibility
+- camelCase for methods and properties; UPPER_SNAKE for constants
+- No TypeScript, no ES modules syntax
+
+## Node-RED node structure
+
+Each chip has two files in `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/`:
+
+**`<chip>.js`** — runtime node, registered as `periph-<chip>`:
+```js
+'use strict';
+module.exports = function(RED) {
+    function INA226Node(config) {
+        RED.nodes.createNode(this, config);
+        const transport = /* build from config */;
+        const sensor = new (require('periph/src/chips/<category>/<chip>')).INA226Minimal(transport);
+        this.on('input', function(msg) {
+            msg.payload = { voltage: sensor.voltage(), current: sensor.current(), power: sensor.power() };
+            this.send(msg);
+        });
+    }
+    RED.nodes.registerType('periph-ina226', INA226Node);
+};
+```
+
+**`<chip>.html`** — editor UI: defines the node's config panel, label, and color using `RED.nodes.registerType`.
+
+The `index.js` at the package root auto-discovers nodes — never edit it manually.
+
+When a new node is added, update the `"node-red": { "nodes": {} }` field in the package's `package.json` to register the node name and file path.
 
 ## Commit convention
 

@@ -1,0 +1,7 @@
+{
+  "name": "periph-workspace",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}

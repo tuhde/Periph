@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-other",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for miscellaneous peripheral chips",
+  "keywords": ["node-red", "other", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-magnetometer",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for magnetometer chips",
+  "keywords": ["node-red", "magnetometer", "i2c", "spi", "sensor", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}
