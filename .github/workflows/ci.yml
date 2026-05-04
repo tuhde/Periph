@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Arduino — compile-only (no hardware required)
+  # -----------------------------------------------------------------------
+  arduino:
+    name: Arduino compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Arduino board packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.arduino15
+          key: arduino15-esp32-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: arduino15-esp32-
+
+      - name: Install arduino-cli
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Install ESP32 core
+        run: |
+          arduino-cli config init --overwrite
+          arduino-cli config add board_manager.additional_urls \
+            https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+
+      - name: Compile test sketches
+        run: cpp/test_arduino.sh --compile-only power/ina226
+
+  # -----------------------------------------------------------------------
+  # Linux GCC — compile-only (no hardware required)
+  # -----------------------------------------------------------------------
+  linux-gcc:
+    name: Linux GCC compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile test programs
+        run: cpp/test_linux.sh --compile-only power/ina226
+
+  # -----------------------------------------------------------------------
+  # Python — syntax check across all chip drivers and tests
+  # -----------------------------------------------------------------------
+  python:
+    name: Python syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check syntax
+        run: |
+          find python/periph python/tests python/examples -name '*.py' \
+            | xargs python3 -m py_compile
+
+  # -----------------------------------------------------------------------
+  # Node.js — install deps, check syntax, verify chip driver loads
+  # -----------------------------------------------------------------------
+  nodejs:
+    name: Node.js
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: nodejs/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: nodejs
+
+      - name: Syntax check
+        run: |
+          find nodejs/packages/periph/src nodejs/tests -name '*.js' \
+            | xargs -I{} node --check {}
+
+      - name: Verify chip drivers load
+        run: |
+          node -e "const m = require('./nodejs/packages/periph/src/chips/power/ina226'); \
+                   if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
