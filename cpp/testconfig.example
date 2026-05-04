@@ -1,0 +1,43 @@
+# Periph Arduino test configuration
+# Copy this file to testconfig and fill in your values.
+# testconfig is gitignored — never commit it.
+
+# ------------------------------------------------------------------
+# Board
+# ------------------------------------------------------------------
+# Full board FQBN. Examples:
+#   esp32:esp32:esp32s3           Generic ESP32-S3
+#   esp32:esp32:adafruit_feather_esp32s3
+#   STMicroelectronics:stm32:Nucleo_144
+FQBN=esp32:esp32:esp32s3
+
+# Serial port the board appears on
+PORT=/dev/ttyACM0
+
+# Upload speed (baud). Leave empty to use the core default.
+UPLOAD_SPEED=
+
+# ------------------------------------------------------------------
+# I²C
+# ------------------------------------------------------------------
+# GPIO pin numbers for SDA and SCL. Required — check your board's pinout.
+I2C_SDA=
+I2C_SCL=
+
+# I²C clock frequency in Hz
+I2C_FREQ=400000
+
+# ------------------------------------------------------------------
+# SPI
+# ------------------------------------------------------------------
+# GPIO pin numbers for MOSI, MISO, SCK, and CS.
+SPI_MOSI=
+SPI_MISO=
+SPI_SCK=
+SPI_CS=
+
+# ------------------------------------------------------------------
+# Test timeouts
+# ------------------------------------------------------------------
+# Seconds to wait for a test sketch to finish reporting over Serial
+SERIAL_TIMEOUT=15
