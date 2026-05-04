@@ -4,5 +4,8 @@
   "description": "JavaScript drivers for peripheral chips (I2C, SPI)",
   "main": "src/index.js",
   "keywords": ["i2c", "spi", "sensor", "peripheral", "hardware"],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "i2c-bus": "^5.2.2"
+  }
 }
