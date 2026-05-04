@@ -41,3 +41,9 @@ SPI_CS=
 # ------------------------------------------------------------------
 # Seconds to wait for a test sketch to finish reporting over Serial
 SERIAL_TIMEOUT=15
+
+# ------------------------------------------------------------------
+# Linux GCC (test_linux.sh)
+# ------------------------------------------------------------------
+# I²C bus number (the N in /dev/i2c-N)
+LINUX_I2C_BUS=1
