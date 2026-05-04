@@ -88,6 +88,10 @@ Package: `node-red-contrib-periph-<category>`
 
 <!-- Describe the config panel fields (I2C address, bus number, etc.) -->
 
+### Demo flow
+
+<!-- Describe the Node-RED demo flow: which nodes are wired together and what the flow demonstrates. -->
+
 ## Examples
 
 ### Demo

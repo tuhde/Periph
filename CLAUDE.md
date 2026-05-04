@@ -103,6 +103,9 @@ nodejs/
         <chip>/
           <chip>.js     # Node-RED runtime node (wraps periph driver)
           <chip>.html   # Node-RED editor UI (config panel)
+      examples/
+        <chip>/
+          demo.json     # Importable Node-RED flow demonstrating the node
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
