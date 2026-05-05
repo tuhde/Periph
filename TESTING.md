@@ -6,21 +6,21 @@ Hardware tests for each chip run on all supported platforms and produce identica
 
 1. Copy the testconfig example for the platform(s) you want to test:
    ```
-   cp cpp/testconfig.example    cpp/testconfig
-   cp python/testconfig.example python/testconfig
-   cp nodejs/testconfig.example nodejs/testconfig
-   cp zephyr/testconfig.example zephyr/testconfig
+   cp cpp/testconfig.example         cpp/testconfig
+   cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
+   cp python/testconfig.example      python/testconfig
+   cp nodejs/testconfig.example      nodejs/testconfig
    ```
 2. Fill in your board's values (pins, port, bus number).
 3. Run the relevant runner:
    ```
-   cpp/test_arduino.sh      power/ina226
-   cpp/test_linux.sh        power/ina226
-   python/test_mp.sh        power/ina226
-   python/test_cp.sh        power/ina226
-   python/test_linux.sh     power/ina226
-   nodejs/test.sh           power/ina226
-   zephyr/test_zephyr.sh    power/ina226
+   cpp/test_arduino.sh    power/ina226
+   cpp/test_linux.sh      power/ina226
+   cpp/test_zephyr.sh     power/ina226
+   python/test_mp.sh      power/ina226
+   python/test_cp.sh      power/ina226
+   python/test_linux.sh   power/ina226
+   nodejs/test.sh         power/ina226
    ```
 
 `testconfig` files are gitignored — never commit them.
@@ -123,11 +123,11 @@ Runs directly on the host. No board required.
 
 ---
 
-### Zephyr RTOS (`zephyr/test_zephyr.sh`)
+### Zephyr RTOS (`cpp/test_zephyr.sh`)
 
 **Prerequisites:** `west` and a Zephyr workspace (`ZEPHYR_BASE` set or `west init` done)
 
-**Config:** `zephyr/testconfig`
+**Config:** `cpp/testconfig_zephyr`
 
 | Variable | Description |
 |----------|-------------|
@@ -136,12 +136,12 @@ Runs directly on the host. No board required.
 | `I2C_ADDR` | Device I²C address (hex) |
 | `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
 
-The runner calls `west build` then `west flash`, and reads serial output using `cpp/read_serial.py`. Supports `--compile-only` (skips flash and serial):
+The runner calls `west build` then `west flash`, and reads serial output using `cpp/read_serial_zephyr.py`. Supports `--compile-only` (skips flash and serial):
 ```
-zephyr/test_zephyr.sh --compile-only power/ina226
+cpp/test_zephyr.sh --compile-only power/ina226
 ```
 
-**Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `zephyr/tests/power/ina226_test/boards/<board>.overlay` with the correct alias.
+**Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay` with the correct alias.
 
 ---
 
@@ -157,7 +157,7 @@ Add one test file per platform following the naming convention:
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel | `python/tests/<category>/<chip>_test_linux.py` |
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
-| Zephyr RTOS | `zephyr/tests/<category>/<chip>_test/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
+| Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
 
 Use `INA226` as the reference implementation. Every test must:
 
@@ -277,17 +277,16 @@ cmake_minimum_required(VERSION 3.20)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(<chip>_test)
 
-set(CPP_SRC ${CMAKE_CURRENT_SOURCE_DIR}/../../../..)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 target_sources(app PRIVATE
     src/main.cpp
-    ${CPP_SRC}/cpp/src/chips/<category>/<Chip>.cpp
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
 )
 
 target_include_directories(app PRIVATE
-    ${CPP_SRC}/cpp/src/transport
-    ${CPP_SRC}/cpp/src/chips/<category>
-    ${CPP_SRC}/zephyr/src/transport
+    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/chips/<category>
 )
 ```
 
@@ -332,4 +331,4 @@ int main(void) {
 }
 ```
 
-The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `zephyr/tests/<category>/<chip>_test/boards/<board>.overlay`.
+The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay`.

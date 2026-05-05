@@ -4,7 +4,7 @@
 # Example: test_zephyr.sh --compile-only power/ina226
 #
 # Requires: west, ZEPHYR_BASE set (or a west workspace initialised)
-# Config:   zephyr/testconfig (copy from testconfig.example)
+# Config:   cpp/testconfig_zephyr (copy from testconfig_zephyr.example)
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -18,7 +18,7 @@ TARGET="${1:?Usage: $0 [--compile-only] <category/chip>}"
 CHIP="${TARGET##*/}"
 CATEGORY="${TARGET%/*}"
 
-TESTCONFIG="$SCRIPT_DIR/testconfig"
+TESTCONFIG="$SCRIPT_DIR/testconfig_zephyr"
 if [[ -f "$TESTCONFIG" ]]; then
     # shellcheck source=/dev/null
     source "$TESTCONFIG"
@@ -26,10 +26,10 @@ fi
 
 BOARD="${ZEPHYR_BOARD:-}"
 if [[ -z "$BOARD" && "$COMPILE_ONLY" == false ]]; then
-    echo "Error: ZEPHYR_BOARD not set in testconfig" >&2; exit 2
+    echo "Error: ZEPHYR_BOARD not set in testconfig_zephyr" >&2; exit 2
 fi
 
-TEST_APP="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
+TEST_APP="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_zephyr"
 if [[ ! -d "$TEST_APP" ]]; then
     echo "Error: test app not found: $TEST_APP" >&2; exit 2
 fi
@@ -49,13 +49,13 @@ fi
 
 PORT="${ZEPHYR_PORT:-}"
 if [[ -z "$PORT" ]]; then
-    echo "Error: ZEPHYR_PORT not set in testconfig" >&2; exit 2
+    echo "Error: ZEPHYR_PORT not set in testconfig_zephyr" >&2; exit 2
 fi
 
 echo "Flashing..."
 west flash -d "$BUILD_DIR" --esp-device "$PORT"
 
-# read_serial.py opens the port then resets via RTS so we catch output from
-# the very start of boot, regardless of how fast the board comes up.
+# read_serial_zephyr.py opens the port then resets via RTS so we catch output
+# from the very start of boot, regardless of how fast the board comes up.
 echo "Reading output..."
-python3 "$SCRIPT_DIR/read_serial.py" "$PORT" 115200 "${SERIAL_TIMEOUT:-20}"
+python3 "$SCRIPT_DIR/read_serial_zephyr.py" "$PORT" 115200 "${SERIAL_TIMEOUT:-20}"
