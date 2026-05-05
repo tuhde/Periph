@@ -10,7 +10,8 @@ Hardware tests for each chip run on all supported platforms and produce identica
    cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
    cp python/testconfig.example      python/testconfig
    cp nodejs/testconfig.example      nodejs/testconfig
-   cp rust/testconfig.example        rust/testconfig
+   cp rust/testconfig.example            rust/testconfig
+   cp rust/testconfig_esp32s3.example    rust/testconfig_esp32s3
    ```
 2. Fill in your board's values (pins, port, bus number).
 3. Run the relevant runner:
@@ -23,6 +24,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    python/test_linux.sh   power/ina226
    nodejs/test.sh         power/ina226
    rust/test_linux.sh     power/ina226
+   rust/test_esp32s3.sh   power/ina226
    ```
 
 `testconfig` files are gitignored — never commit them.
@@ -162,6 +164,30 @@ Builds with `cargo build --release` and runs the binary directly. Supports `--co
 ```
 rust/test_linux.sh --compile-only power/ina226
 ```
+
+---
+
+### Rust ESP32-S3 (`rust/test_esp32s3.sh`)
+
+**Prerequisites:**
+- `rustup` with the `esp` toolchain: `cargo install espup && espup install`
+- `cargo-espflash`: `cargo install cargo-espflash`
+- `pyserial`: `pip install pyserial`
+
+**Config:** `rust/testconfig_esp32s3`
+
+| Variable | Description |
+|----------|-------------|
+| `ESP32S3_PORT` | Serial port, e.g. `/dev/ttyACM0` |
+| `I2C_ADDR` | Device I²C address (hex, default `0x40`) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
+
+The runner builds with `cargo build --release` using the `esp` toolchain (selected automatically via `rust-toolchain.toml`), flashes with `cargo espflash flash`, and reads serial output using `rust/read_serial_esp32s3.py`. Supports `--compile-only`:
+```
+rust/test_esp32s3.sh --compile-only power/ina226
+```
+
+SDA/SCL pin assignments are constants in `src/main.rs` (default GPIO1/GPIO2). The test crate is standalone — not part of the `rust/` workspace — because it requires the `esp` toolchain.
 
 ---
 

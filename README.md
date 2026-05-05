@@ -90,6 +90,7 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Node.js | `nodejs/test.sh power/ina226` | Runs on host via `i2c-bus` |
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
 | Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
+| Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
 `--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.

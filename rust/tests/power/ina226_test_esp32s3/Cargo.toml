@@ -1,0 +1,23 @@
+[package]
+name = "ina226_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "ina226_test_esp32s3"
+path = "src/main.rs"
+
+[dependencies]
+periph          = { path = "../../../periph" }
+esp-hal         = { version = "0.23", features = ["esp32s3"] }
+esp-backtrace   = { version = "0.15", features = ["esp32s3", "panic-halt", "println"] }
+esp-println     = { version = "0.13", features = ["esp32s3", "usb-serial-jtag"] }
+
+[profile.dev]
+opt-level = "s"
+debug = true
+
+[profile.release]
+opt-level = "s"
+debug = true
+lto = "off"

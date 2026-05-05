@@ -1,0 +1,11 @@
+# Copy to rust/testconfig_esp32s3 and fill in your values.
+# testconfig_esp32s3 is gitignored — never commit it.
+
+# Serial port for flashing and reading output
+ESP32S3_PORT=/dev/ttyACM0
+
+# Device I2C address in hex
+I2C_ADDR=0x40
+
+# Seconds to wait for test output (default 20)
+# SERIAL_TIMEOUT=20
