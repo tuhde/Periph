@@ -50,6 +50,8 @@ Create a feature branch (`feature/<chip>`) and implement against the spec:
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/minimal.js`, `complete.js`, `demo.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js`, `<chip>.html` |
 | Node-RED flow | `nodejs/packages/node-red-contrib-periph-<category>/examples/<chip>/demo.json` |
+| Rust driver | `rust/periph/src/chips/<category>/<chip>.rs` (add `pub mod` to `mod.rs`) |
+| Rust examples | `rust/examples/<chip>_minimal/`, `<chip>_complete/`, `<chip>_demo/` |
 
 When adding the first file to a directory that contains only `.gitkeep`, remove the `.gitkeep`.
 
@@ -87,6 +89,13 @@ Full detail is in `AGENTS.md`. The key rules:
 - CommonJS only (`require` / `module.exports`)
 - camelCase methods, UPPER_SNAKE constants
 
+**Rust**
+- Library crate is `no_std` — no `std`, no heap allocation in drivers
+- Generic over `embedded-hal::i2c::I2c` trait; all methods return `Result<T, I2C::Error>`
+- `Ina226Minimal<I2C>` stores the `I2C` instance (owns the bus); `Ina226Full<I2C>` wraps it via composition
+- Alert constants (`SOL`, `SUL`, etc.) are `pub const u16` at module level
+- Add new workspace members to `rust/Cargo.toml`
+
 ## Running tests
 
 See [TESTING.md](TESTING.md).
@@ -96,6 +105,8 @@ Compile-only checks (no hardware needed):
 ```
 cpp/test_arduino.sh  --compile-only power/ina226
 cpp/test_linux.sh    --compile-only power/ina226
+cpp/test_zephyr.sh   --compile-only power/ina226
+rust/test_linux.sh   --compile-only power/ina226
 ```
 
 ## Reporting issues

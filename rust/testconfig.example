@@ -1,0 +1,8 @@
+# Copy to rust/testconfig and fill in your values.
+# testconfig is gitignored — never commit it.
+
+# Linux I2C bus number (e.g. 1 for /dev/i2c-1)
+I2C_BUS=1
+
+# Device I2C address in hex
+I2C_ADDR=0x40

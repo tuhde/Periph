@@ -6,3 +6,7 @@ python/_testconfig.py
 nodejs/testconfig
 cpp/testconfig_zephyr
 .claude/
+rust/testconfig
+rust/testconfig_esp32s3
+rust/target/
+rust/tests/power/ina226_test_esp32s3/target/

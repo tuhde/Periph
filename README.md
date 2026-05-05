@@ -9,6 +9,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`) | Active |
 | C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
+| Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
 
 ## Supported transports
 
@@ -45,11 +46,17 @@ from periph.transport.i2c_linux import I2CTransport         # /dev/i2c-N
 const { I2CTransport } = require('periph/src/transport/i2c');  // /dev/i2c-N via i2c-bus
 ```
 
+**Rust**
+```rust
+use linux_embedded_hal::I2cdev;
+use periph::chips::power::{Ina226Minimal, Ina226Full};
+```
+
 ## Supported chips
 
-| Chip | Category | Python | C++ | Node.js | Node-RED | Examples |
-|------|----------|--------|-----|---------|----------|---------|
-| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED |
+| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Examples |
+|------|----------|--------|-----|---------|----------|------|---------|
+| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
 
 ## Examples
 
@@ -82,6 +89,8 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Linux kernel (Python) | `python/test_linux.sh power/ina226` | Runs on host via `smbus2` |
 | Node.js | `nodejs/test.sh power/ina226` | Runs on host via `i2c-bus` |
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
+| Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
+| Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
 `--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.
