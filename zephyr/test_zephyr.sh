@@ -53,7 +53,9 @@ if [[ -z "$PORT" ]]; then
 fi
 
 echo "Flashing..."
-west flash -d "$BUILD_DIR"
+west flash -d "$BUILD_DIR" --esp-device "$PORT"
 
+# read_serial.py opens the port then resets via RTS so we catch output from
+# the very start of boot, regardless of how fast the board comes up.
 echo "Reading output..."
-python3 "$SCRIPT_DIR/../cpp/read_serial.py" "$PORT" 115200 "${SERIAL_TIMEOUT:-20}"
+python3 "$SCRIPT_DIR/read_serial.py" "$PORT" 115200 "${SERIAL_TIMEOUT:-20}"
