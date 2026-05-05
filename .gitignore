@@ -6,3 +6,5 @@ python/_testconfig.py
 nodejs/testconfig
 cpp/testconfig_zephyr
 .claude/
+rust/testconfig
+rust/target/

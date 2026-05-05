@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = [
+    "periph",
+    "examples/ina226_minimal",
+    "examples/ina226_complete",
+    "examples/ina226_demo",
+    "tests/power/ina226_test",
+]
+
+[workspace.dependencies]
+embedded-hal = "1.0"
+linux-embedded-hal = "0.4"
+periph = { path = "periph" }

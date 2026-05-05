@@ -90,3 +90,28 @@ jobs:
         run: |
           node -e "const m = require('./nodejs/packages/periph/src/chips/power/ina226'); \
                    if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
+
+  # -----------------------------------------------------------------------
+  # Rust — compile-only (no hardware required)
+  # -----------------------------------------------------------------------
+  rust:
+    name: Rust compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: cargo-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: cargo-
+
+      - name: Compile workspace
+        run: cargo build --manifest-path rust/Cargo.toml

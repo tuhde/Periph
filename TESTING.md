@@ -10,6 +10,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
    cp python/testconfig.example      python/testconfig
    cp nodejs/testconfig.example      nodejs/testconfig
+   cp rust/testconfig.example        rust/testconfig
    ```
 2. Fill in your board's values (pins, port, bus number).
 3. Run the relevant runner:
@@ -21,6 +22,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    python/test_cp.sh      power/ina226
    python/test_linux.sh   power/ina226
    nodejs/test.sh         power/ina226
+   rust/test_linux.sh     power/ina226
    ```
 
 `testconfig` files are gitignored — never commit them.
@@ -145,6 +147,24 @@ cpp/test_zephyr.sh --compile-only power/ina226
 
 ---
 
+### Rust Linux (`rust/test_linux.sh`)
+
+**Prerequisites:** `cargo` (stable), `linux/i2c-dev.h` kernel driver (`i2c-dev` module)
+
+**Config:** `rust/testconfig`
+
+| Variable | Description |
+|----------|-------------|
+| `I2C_BUS` | Bus number for `/dev/i2c-N` |
+| `I2C_ADDR` | Device I²C address (hex) |
+
+Builds with `cargo build --release` and runs the binary directly. Supports `--compile-only`:
+```
+rust/test_linux.sh --compile-only power/ina226
+```
+
+---
+
 ## Writing tests for a new chip
 
 Add one test file per platform following the naming convention:
@@ -158,6 +178,7 @@ Add one test file per platform following the naming convention:
 | Linux kernel | `python/tests/<category>/<chip>_test_linux.py` |
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
 | Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
+| Rust Linux | `rust/tests/<category>/<chip>_test/src/main.rs` + `Cargo.toml` |
 
 Use `INA226` as the reference implementation. Every test must:
 
@@ -332,3 +353,52 @@ int main(void) {
 ```
 
 The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay`.
+
+### Rust Linux test template
+
+`Cargo.toml`:
+```toml
+[package]
+name = "<chip>_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true }
+linux-embedded-hal = { workspace = true }
+```
+
+`src/main.rs`:
+```rust
+use linux_embedded_hal::I2cdev;
+use periph::chips::<category>::<Chip>Full;
+
+macro_rules! check_true {
+    ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
+        if $cond { println!("PASS {}", $label); $passed += 1; }
+        else      { println!("FAIL {}", $label); $failed += 1; }
+    };
+}
+
+fn main() {
+    let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
+    let addr: u8 = std::env::var("I2C_ADDR")
+        .ok()
+        .and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
+        .unwrap_or(0x40);
+
+    let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+    let mut chip = <Chip>Full::new(dev, addr, 0.1, 2.0).expect("init <Chip>");
+
+    let mut passed = 0i32;
+    let mut failed = 0i32;
+
+    // ... checks ...
+    check_true!(true, "example_check", passed, failed);
+
+    println!("===DONE: {} passed, {} failed===", passed, failed);
+    std::process::exit(if failed == 0 { 0 } else { 1 });
+}
+```
+
+Also add the new crate to the workspace `members` list in `rust/Cargo.toml`.
