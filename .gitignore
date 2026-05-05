@@ -4,3 +4,4 @@ cpp/testconfig
 python/testconfig
 python/_testconfig.py
 nodejs/testconfig
+zephyr/testconfig
