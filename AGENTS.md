@@ -18,6 +18,22 @@ When given an issue number, find the "Ready for implementation" comment on that 
 - **Branch** — the feature branch to check out and commit to
 - **Stages** — which stages (Minimal, Full) are requested
 
+Only pick up issues labelled `needs-implementation`. An issue labelled `needs-spec` is still waiting on Claude Code; do not start coding against it. An issue labelled `in-progress` is already being worked on.
+
+## Issue label workflow
+
+OpenCode is responsible for keeping the labels on its issue in sync with reality. Use `gh issue edit <num> --add-label X --remove-label Y`.
+
+| State | Labels | When |
+|-------|--------|------|
+| Ready to start | `needs-implementation` | Set by Claude Code when the spec lands |
+| Picked up | `in-progress` (remove `needs-implementation`) | First thing you do after checking out the branch |
+| Minimal stage merged | `in-progress`, `stage:minimal` | After committing the Minimal stage on the feature branch |
+| Full stage merged | `in-progress`, `stage:minimal`, `stage:full` | After committing the Full stage |
+| Finished | `done` (remove `in-progress`) | After all platforms across all stages are committed and the branch is ready for review |
+
+The `chip` / `transport` label stays on the issue throughout — those describe what the issue *is*, not its state.
+
 ## Where things go
 
 Every chip is implemented across all four languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
