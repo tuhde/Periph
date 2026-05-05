@@ -2,17 +2,13 @@
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::{
-    i2c::master::{Config, I2c},
-    prelude::*,
-};
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
 use periph::chips::power::{Ina226Full, BOL};
 
-#[cfg(not(feature = "custom-pins"))]
-const TEST_SDA: u8 = 1;
-#[cfg(not(feature = "custom-pins"))]
-const TEST_SCL: u8 = 2;
+esp_app_desc!();
+
 const TEST_ADDR: u8 = 0x40;
 
 macro_rules! check_true {
@@ -27,11 +23,12 @@ macro_rules! check_true {
     };
 }
 
-#[esp_hal::entry]
+#[esp_hal::main]
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     let i2c = I2c::new(peripherals.I2C0, Config::default())
+        .unwrap()
         .with_sda(peripherals.GPIO1)
         .with_scl(peripherals.GPIO2);
 

@@ -8,10 +8,11 @@ name = "ina226_test_esp32s3"
 path = "src/main.rs"
 
 [dependencies]
-periph          = { path = "../../../periph" }
-esp-hal         = { version = "0.23", features = ["esp32s3"] }
-esp-backtrace   = { version = "0.15", features = ["esp32s3", "panic-halt", "println"] }
-esp-println     = { version = "0.13", features = ["esp32s3", "usb-serial-jtag"] }
+periph                  = { path = "../../../periph" }
+esp-hal                 = { version = "1.1", features = ["esp32s3"] }
+esp-backtrace           = { version = "0.19", features = ["esp32s3", "panic-handler", "println"] }
+esp-println             = { version = "0.17", features = ["esp32s3"] }
+esp-bootloader-esp-idf  = { version = "0.5", features = ["esp32s3"] }
 
 [profile.dev]
 opt-level = "s"

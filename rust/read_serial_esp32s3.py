@@ -1,33 +1,50 @@
 #!/usr/bin/env python3
 """Read serial output from an ESP32-S3 USB CDC port after flashing.
 
-Usage: read_serial_esp32s3.py <port> <baud> <timeout_secs>
+Usage: read_serial_esp32s3.py <port_hint> <baud> <timeout_secs>
 
-Waits for the USB CDC device to (re-)enumerate after a flash reset, then
+Waits for the USB CDC device to (re-)enumerate after a watchdog reset, then
 reads lines until ===DONE: ... === appears or the timeout expires.
 Exits 0 on full pass, 1 on failures, 2 on timeout.
 """
-import os, sys, time
+import glob, os, sys, time
 import serial
 
-port    = sys.argv[1]
-baud    = int(sys.argv[2])
-timeout = int(sys.argv[3])
+port_hint = sys.argv[1]
+baud      = int(sys.argv[2])
+timeout   = int(sys.argv[3])
 
-# Wait for USB CDC to re-enumerate (espflash resets the board after flashing)
-deadline_enum = time.time() + 15
-while not os.path.exists(port):
-    if time.time() > deadline_enum:
-        print(f'ERROR: {port} did not appear within 15 s', file=sys.stderr)
-        sys.exit(2)
-    time.sleep(0.2)
+def wait_for_port(hint, total_deadline):
+    # First let any existing port disappear (watchdog reset disconnects USB)
+    time.sleep(1.0)
+    # Then wait for it to reappear (may be same or different ACM number)
+    while time.time() < total_deadline:
+        if os.path.exists(hint):
+            return hint
+        candidates = sorted(glob.glob('/dev/ttyACM*'))
+        if candidates:
+            return candidates[-1]
+        time.sleep(0.2)
+    return None
 
-time.sleep(0.5)  # let the CDC interface settle
+port = wait_for_port(port_hint, time.time() + 15)
+if port is None:
+    print('ERROR: no ACM serial port found within 15 s', file=sys.stderr)
+    sys.exit(2)
 
-try:
-    s = serial.Serial(port, baud, timeout=1)
-except serial.SerialException as e:
-    print(f'ERROR: could not open {port}: {e}', file=sys.stderr)
+# Small extra settle time after port appears
+time.sleep(0.5)
+
+for attempt in range(5):
+    try:
+        s = serial.Serial(port, baud, timeout=1, dsrdtr=False, rtscts=False)
+        s.setDTR(False)
+        s.setRTS(False)
+        break
+    except serial.SerialException:
+        time.sleep(0.5)
+else:
+    print(f'ERROR: could not open {port}', file=sys.stderr)
     sys.exit(2)
 
 deadline = time.time() + timeout
