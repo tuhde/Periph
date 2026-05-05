@@ -6,19 +6,21 @@ Hardware tests for each chip run on all supported platforms and produce identica
 
 1. Copy the testconfig example for the platform(s) you want to test:
    ```
-   cp cpp/testconfig.example    cpp/testconfig
-   cp python/testconfig.example python/testconfig
-   cp nodejs/testconfig.example nodejs/testconfig
+   cp cpp/testconfig.example         cpp/testconfig
+   cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
+   cp python/testconfig.example      python/testconfig
+   cp nodejs/testconfig.example      nodejs/testconfig
    ```
 2. Fill in your board's values (pins, port, bus number).
 3. Run the relevant runner:
    ```
-   cpp/test_arduino.sh  power/ina226
-   cpp/test_linux.sh    power/ina226
-   python/test_mp.sh    power/ina226
-   python/test_cp.sh    power/ina226
-   python/test_linux.sh power/ina226
-   nodejs/test.sh       power/ina226
+   cpp/test_arduino.sh    power/ina226
+   cpp/test_linux.sh      power/ina226
+   cpp/test_zephyr.sh     power/ina226
+   python/test_mp.sh      power/ina226
+   python/test_cp.sh      power/ina226
+   python/test_linux.sh   power/ina226
+   nodejs/test.sh         power/ina226
    ```
 
 `testconfig` files are gitignored — never commit them.
@@ -121,6 +123,28 @@ Runs directly on the host. No board required.
 
 ---
 
+### Zephyr RTOS (`cpp/test_zephyr.sh`)
+
+**Prerequisites:** `west` and a Zephyr workspace (`ZEPHYR_BASE` set or `west init` done)
+
+**Config:** `cpp/testconfig_zephyr`
+
+| Variable | Description |
+|----------|-------------|
+| `ZEPHYR_BOARD` | Board identifier, e.g. `nrf52840dk/nrf52840`, `rpi_pico` |
+| `ZEPHYR_PORT` | Serial port for reading test output |
+| `I2C_ADDR` | Device I²C address (hex) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
+
+The runner calls `west build` then `west flash`, and reads serial output using `cpp/read_serial_zephyr.py`. Supports `--compile-only` (skips flash and serial):
+```
+cpp/test_zephyr.sh --compile-only power/ina226
+```
+
+**Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay` with the correct alias.
+
+---
+
 ## Writing tests for a new chip
 
 Add one test file per platform following the naming convention:
@@ -133,6 +157,7 @@ Add one test file per platform following the naming convention:
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel | `python/tests/<category>/<chip>_test_linux.py` |
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
+| Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
 
 Use `INA226` as the reference implementation. Every test must:
 
@@ -243,3 +268,67 @@ transport.close();
 console.log(`===DONE: ${passed} passed, ${failed} failed===`);
 process.exit(failed === 0 ? 0 : 1);
 ```
+
+### Zephyr RTOS test template
+
+`CMakeLists.txt`:
+```cmake
+cmake_minimum_required(VERSION 3.20)
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(<chip>_test)
+
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+
+target_sources(app PRIVATE
+    src/main.cpp
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+)
+
+target_include_directories(app PRIVATE
+    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/chips/<category>
+)
+```
+
+`prj.conf`:
+```
+CONFIG_I2C=y
+CONFIG_CPP=y
+CONFIG_STD_CPP17=y
+CONFIG_NEWLIB_LIBC=y
+CONFIG_FPU=y
+```
+
+`src/main.cpp`:
+```cpp
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include "I2CTransportZephyr.h"
+#include "<Chip>.h"
+
+#ifndef INA226_I2C_NODE
+#define INA226_I2C_NODE DT_NODELABEL(i2c0)
+#endif
+#ifndef INA226_ADDR
+#define INA226_ADDR 0x40
+#endif
+
+static int passed = 0, failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printk("PASS %s\n", label); passed++; }
+    else       { printk("FAIL %s\n", label); failed++; }
+}
+
+int main(void) {
+    const struct device *dev = DEVICE_DT_GET(INA226_I2C_NODE);
+    I2CTransportZephyr transport(dev, INA226_ADDR);
+    <Chip>Full chip(transport);
+    // ... checks ...
+    printk("===DONE: %d passed, %d failed===\n", passed, failed);
+    return failed == 0 ? 0 : 1;
+}
+```
+
+The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay`.

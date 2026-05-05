@@ -80,3 +80,15 @@ Wraps `Wire` (or any `TwoWire` instance for boards with multiple I²C buses).
 | `write` | `beginTransmission` → `write` → `endTransmission` |
 | `read` | `requestFrom` → `read` loop |
 | `write_read` | `endTransmission(false)` (repeated start) → `requestFrom` → `read` loop |
+
+### Zephyr RTOS
+
+Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a `const struct device *` obtained via `DEVICE_DT_GET()` and a 7-bit address.
+
+| Contract | Zephyr |
+|----------|--------|
+| `write` | `i2c_write(dev, data, len, addr)` |
+| `read` | `i2c_read(dev, buf, len, addr)` |
+| `write_read` | `i2c_write_read(dev, addr, write_buf, write_len, read_buf, read_len)` |
+
+`prj.conf` must enable `CONFIG_I2C=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The I²C device node (`i2c0` by default) must be enabled in the board's devicetree or an overlay.

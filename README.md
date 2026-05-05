@@ -7,7 +7,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`) | Active |
-| C++ | Arduino, Linux GCC | Active |
+| C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 
 ## Supported transports
@@ -37,6 +37,7 @@ from periph.transport.i2c_linux import I2CTransport         # /dev/i2c-N
 ```cpp
 #include "I2CTransport.h"         // Arduino Wire
 #include "I2CTransportLinux.h"    // Linux /dev/i2c-N via ioctl
+#include "I2CTransportZephyr.h"   // Zephyr RTOS I2C subsystem
 ```
 
 **Node.js**
@@ -80,9 +81,10 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | CircuitPython | `python/test_cp.sh power/ina226` | Copies via CIRCUITPY drive, runs via raw REPL |
 | Linux kernel (Python) | `python/test_linux.sh power/ina226` | Runs on host via `smbus2` |
 | Node.js | `nodejs/test.sh power/ina226` | Runs on host via `i2c-bus` |
+| Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
-`--compile-only` is supported by the Arduino and Linux GCC runners.
+`--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.
 
 ## Architecture and workflow
 
