@@ -15,10 +15,25 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 When given an issue number, find the "Ready for implementation" comment on that issue. It contains:
 
 - **Spec** — path to the spec file (e.g. `specs/power/ina226.md`)
-- **Branch** — the feature branch to check out and commit to
+- **Branch** — the base feature branch (e.g. `feature/ina226`)
 - **Stages** — which stages (Minimal, Full) are requested
 
 Only pick up issues labelled `needs-implementation`. An issue labelled `needs-spec` is still waiting on Claude Code; do not start coding against it. An issue labelled `in-progress` is already being worked on.
+
+## Branch naming
+
+Do **not** commit directly to the feature branch. Create your own implementation branch from it:
+
+```
+implementation/oc-<model>-<chip>
+```
+
+- `<model>` — the LLM you are running on, lowercase, hyphens for spaces (e.g. `gpt-4o`, `claude-sonnet-4-5`, `gemini-2-5-pro`)
+- `<chip>` — lowercase chip or transport name (e.g. `ina226`, `neopixel`)
+
+Example: `implementation/oc-gpt-4o-ina226`
+
+Check out the base feature branch, create your implementation branch from it, and open a PR targeting the feature branch when done.
 
 ## Issue label workflow
 
@@ -27,10 +42,10 @@ OpenCode is responsible for keeping the labels on its issue in sync with reality
 | State | Labels | When |
 |-------|--------|------|
 | Ready to start | `needs-implementation` | Set by Claude Code when the spec lands |
-| Picked up | `in-progress` (remove `needs-implementation`) | First thing you do after checking out the branch |
-| Minimal stage merged | `in-progress`, `stage:minimal` | After committing the Minimal stage on the feature branch |
+| Picked up | `in-progress` (remove `needs-implementation`) | First thing you do after creating your implementation branch |
+| Minimal stage merged | `in-progress`, `stage:minimal` | After committing the Minimal stage on your implementation branch |
 | Full stage merged | `in-progress`, `stage:minimal`, `stage:full` | After committing the Full stage |
-| Finished | `done` (remove `in-progress`) | After all platforms across all stages are committed and the branch is ready for review |
+| Finished | `done` (remove `in-progress`) | After all platforms across all stages are committed and the PR is open |
 
 The `chip` / `transport` label stays on the issue throughout — those describe what the issue *is*, not its state.
 
