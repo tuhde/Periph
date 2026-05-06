@@ -8,6 +8,9 @@ members = [
     "examples/ina226_minimal",
     "examples/ina226_complete",
     "examples/ina226_demo",
+    "examples/ina219_minimal",
+    "examples/ina219_complete",
+    "examples/ina219_demo",
     "tests/power/ina226_test",
 ]
 
