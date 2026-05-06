@@ -12,6 +12,7 @@ members = [
     "examples/ina219_complete",
     "examples/ina219_demo",
     "tests/power/ina226_test",
+    "tests/power/ina219_test",
 ]
 
 [workspace.dependencies]
