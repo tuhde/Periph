@@ -13,9 +13,12 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 ## Supported transports
 
-- I²C
-- SPI
-- SMBus
+| Transport | Status |
+|-----------|--------|
+| I²C | Implemented |
+| SPI | Implemented |
+| SMBus | Implemented |
+| NeoPixel (WS2812B / single-wire NZR) | Spec ready, implementation pending |
 
 ## Structure
 
