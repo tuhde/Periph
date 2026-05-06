@@ -80,11 +80,7 @@ body:
       label: Implementation stages requested
       options:
         - label: Minimal
-          required: false
-          checked: true
         - label: Full
-          required: false
-          checked: true
 
   - type: textarea
     id: notes

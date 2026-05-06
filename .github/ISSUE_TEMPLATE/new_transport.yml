@@ -17,32 +17,14 @@ body:
       label: Target platforms
       options:
         - label: "Python — MicroPython"
-          required: false
-          checked: true
         - label: "Python — CircuitPython"
-          required: false
-          checked: true
         - label: "Python — Linux (smbus2 / spidev)"
-          required: false
-          checked: true
         - label: "C++ — Arduino"
-          required: false
-          checked: true
         - label: "C++ — Zephyr RTOS"
-          required: false
-          checked: true
         - label: "C++ — Linux (GCC)"
-          required: false
-          checked: true
         - label: "Node.js — Linux"
-          required: false
-          checked: true
         - label: "Rust — embedded-hal (bare-metal / ESP32-S3)"
-          required: false
-          checked: true
         - label: "Rust — Linux (spidev / i2c-dev)"
-          required: false
-          checked: true
         - label: Other (describe in notes)
 
   - type: input
