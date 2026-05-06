@@ -25,15 +25,19 @@ Only pick up issues labelled `needs-implementation`. An issue labelled `needs-sp
 Do **not** commit directly to the feature branch. Create your own implementation branch from it:
 
 ```
-impl/<chip>-oc-<model>
+impl/<chip>/OC-<model>
 ```
 
 - `<chip>` — lowercase chip or transport name (e.g. `ina226`, `neopixel`)
 - `<model>` — the LLM you are running on, lowercase, hyphens for spaces (e.g. `gpt-4o`, `claude-sonnet-4-5`, `gemini-2-5-pro`)
 
-Example: `impl/ina226-oc-gpt-4o`
+Example: `impl/ina226/OC-gpt-4o`
 
 Check out the base feature branch, create your implementation branch from it, and open a PR targeting the feature branch when done.
+
+### Reimplementation by a different model
+
+If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `feature/<chip>` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
 
 ## Issue label workflow
 
