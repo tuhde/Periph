@@ -37,3 +37,52 @@ float INA219Minimal::current() {
 float INA219Minimal::power() {
     return _read_reg(REG_POWER) * 20.0f * _current_lsb;
 }
+
+// INA219Full
+
+INA219Full::INA219Full(Transport& transport, float r_shunt, float max_current)
+    : INA219Minimal(transport, r_shunt, max_current) {}
+
+void INA219Full::configure(uint8_t brng, uint8_t pga, uint8_t badc, uint8_t sadc, uint8_t mode) {
+    uint16_t config = ((uint16_t)(brng & 0x01) << 13)
+                    | ((uint16_t)(pga & 0x03) << 11)
+                    | ((uint16_t)(badc & 0x0F) << 7)
+                    | ((uint16_t)(sadc & 0x0F) << 3)
+                    | (mode & 0x07);
+    _mode = mode & 0x07;
+    _config = config;
+    _write_reg(REG_CONFIG, config);
+    _write_reg(REG_CAL, _cal);
+}
+
+bool INA219Full::conversion_ready() {
+    return (_read_reg(REG_BUS) & 0x0002) != 0;
+}
+
+bool INA219Full::overflow() {
+    return (_read_reg(REG_BUS) & 0x0001) != 0;
+}
+
+void INA219Full::reset() {
+    _write_reg(REG_CONFIG, 0x8000);
+    if (_config != 0xFFFFu) {
+        _write_reg(REG_CONFIG, _config);
+    }
+    _write_reg(REG_CAL, _cal);
+}
+
+void INA219Full::shutdown() {
+    uint16_t config = _read_reg(REG_CONFIG);
+    _mode = config & 0x07;
+    _write_reg(REG_CONFIG, config & 0xFFF8u);
+}
+
+void INA219Full::wake() {
+    uint16_t config = _read_reg(REG_CONFIG);
+    _write_reg(REG_CONFIG, (config & 0xFFF8u) | _mode);
+}
+
+void INA219Full::trigger() {
+    uint16_t config = _read_reg(REG_CONFIG);
+    _write_reg(REG_CONFIG, config);
+}

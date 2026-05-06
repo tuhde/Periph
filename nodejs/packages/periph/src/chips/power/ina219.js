@@ -36,4 +36,76 @@ class INA219Minimal {
     power()        { return this._readReg(_REG_POWER) * 20 * this._currentLsb; }
 }
 
-module.exports = { INA219Minimal };
+class INA219Full extends INA219Minimal {
+    static PGA_1  = 0;
+    static PGA_2  = 1;
+    static PGA_4  = 2;
+    static PGA_8  = 3;
+
+    static BRNG_16V = 0;
+    static BRNG_32V = 1;
+
+    static ADC_9BIT      = 0x00;
+    static ADC_10BIT     = 0x01;
+    static ADC_11BIT     = 0x02;
+    static ADC_12BIT     = 0x03;
+    static ADC_AVG_2     = 0x09;
+    static ADC_AVG_4     = 0x0A;
+    static ADC_AVG_8     = 0x0B;
+    static ADC_AVG_16    = 0x0C;
+    static ADC_AVG_32    = 0x0D;
+    static ADC_AVG_64    = 0x0E;
+    static ADC_AVG_128   = 0x0F;
+
+    static MODE_POWERDOWN       = 0;
+    static MODE_SHUNT_TRIG      = 1;
+    static MODE_BUS_TRIG        = 2;
+    static MODE_SHUNT_BUS_TRIG  = 3;
+    static MODE_ADC_OFF         = 4;
+    static MODE_SHUNT_CONT      = 5;
+    static MODE_BUS_CONT        = 6;
+    static MODE_SHUNT_BUS_CONT  = 7;
+
+    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
+        super(transport, rShunt, maxCurrent);
+        this._mode = INA219Full.MODE_SHUNT_BUS_CONT;
+        this._config = null;
+    }
+
+    configure(brng = 1, pga = 3, badc = 0x03, sadc = 0x03, mode = 7) {
+        const config = ((brng & 0x01) << 13) | ((pga & 0x03) << 11) | ((badc & 0x0F) << 7) | ((sadc & 0x0F) << 3) | (mode & 0x07);
+        this._mode = mode & 0x07;
+        this._config = config;
+        this._writeReg(_REG_CONFIG, config);
+        this._writeReg(_REG_CAL, this._cal);
+    }
+
+    conversionReady() { return !!(this._readReg(_REG_BUS) & 0x0002); }
+    overflow()        { return !!(this._readReg(_REG_BUS) & 0x0001); }
+
+    reset() {
+        this._writeReg(_REG_CONFIG, 0x8000);
+        if (this._config !== null) {
+            this._writeReg(_REG_CONFIG, this._config);
+        }
+        this._writeReg(_REG_CAL, this._cal);
+    }
+
+    shutdown() {
+        const config = this._readReg(_REG_CONFIG);
+        this._mode = config & 0x07;
+        this._writeReg(_REG_CONFIG, config & 0xFFF8);
+    }
+
+    wake() {
+        const config = this._readReg(_REG_CONFIG);
+        this._writeReg(_REG_CONFIG, (config & 0xFFF8) | this._mode);
+    }
+
+    trigger() {
+        const config = this._readReg(_REG_CONFIG);
+        this._writeReg(_REG_CONFIG, config);
+    }
+}
+
+module.exports = { INA219Minimal, INA219Full };
