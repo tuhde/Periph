@@ -8,8 +8,9 @@ A multi-language library for peripheral chips (sensors, actuators, etc.) connect
 
 Implementations:
 - **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`)
-- **C++** — targeting Arduino
+- **C++** — Arduino, Linux GCC, and Zephyr RTOS
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
+- **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
 
 ## Workflow
 
@@ -82,7 +83,7 @@ python/
   tests/
 cpp/
   src/
-    transport/          # Pure virtual Transport interface + SPI/I2C implementations
+    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino + Linux + Zephyr variants)
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
@@ -90,12 +91,20 @@ cpp/
     <Chip>_Complete/    # <Chip>_Complete.ino
     <Chip>_Demo/        # <Chip>_Demo.ino
   library.properties    # Arduino library metadata
+zephyr/
+  src/
+    transport/          # Zephyr transport headers (header-only, included from examples/tests)
+  examples/
+    <Chip>_Minimal/     # src/main.cpp, CMakeLists.txt, prj.conf
+    <Chip>_Complete/
+    <Chip>_Demo/
+  tests/
 nodejs/
   package.json          # npm workspaces root
   packages/
     periph/             # Single plain JS driver package (name: "periph")
       src/
-        transport/      # I2C, SPI transport wrappers
+        transport/      # I2C, SPI, NeoPixel transport wrappers
         chips/
           <category>/   # One module per chip, grouped by category
       examples/
@@ -110,6 +119,21 @@ nodejs/
       examples/
         <chip>/
           demo.json     # Importable Node-RED flow demonstrating the node
+rust/
+  Cargo.toml            # Workspace root (library crate + Linux examples/tests; ESP32-S3 test excluded)
+  periph/
+    src/
+      transport/        # embedded-hal transport wrappers (neopixel, etc.)
+      chips/
+        <category>/     # One module per chip; no_std, generic over embedded-hal traits
+  examples/
+    <chip>_minimal/     # Cargo.toml + src/main.rs  (Linux host)
+    <chip>_complete/
+    <chip>_demo/
+  tests/
+    <category>/
+      <chip>_test/      # Linux integration test crate
+      <chip>_test_esp32s3/  # ESP32-S3 smoke test (excluded from workspace)
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.

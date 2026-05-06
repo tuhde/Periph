@@ -55,6 +55,7 @@ body:
         - label: I²C
         - label: SPI
         - label: SMBus
+        - label: NeoPixel (WS2812B / single-wire NZR)
         - label: Other (describe in notes)
 
   - type: input
