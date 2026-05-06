@@ -54,6 +54,7 @@ See `AGENTS.md` for implementation guidance.
 
 ### Spec templates
 - `specs/_template_chip.md` — for new chip drivers
+- `specs/_template_chip_io_expander.md` — for IO expander chips (adds GPIO interface section)
 - `specs/_template_transport.md` — for new transport implementations
 
 ## Implementation stages
