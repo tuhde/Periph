@@ -5,9 +5,13 @@
 
 ## Overview
 
-The NeoPixel transport drives cascaded WS2812B-compatible addressable LEDs over a single data line using a timing-encoded NZR protocol. It is **write-only**: pixels accept data but never respond. Each `write()` transmits a raw byte buffer then holds the line low for ≥50 µs (the reset/latch pulse).
+The NeoPixel transport drives cascaded WS2812B-compatible addressable LEDs over a single data line using a timing-encoded NZR protocol. It is **write-only**: pixels accept data but never respond.
 
-Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. The byte payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The transport sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
+All platforms use the same **SPI bit-encoding** approach: each NeoPixel bit is encoded as 3 SPI bits at 2.4 MHz and shifted out on the MOSI line. No platform-specific timing libraries are used. The encoding algorithm, configuration parameters, and reset handling are identical across all nine platforms.
+
+**Hardware constraint:** the NeoPixel DIN pin must be connected to the SPI MOSI pin. SCK, MISO, and CS are unused by the strip.
+
+Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. Payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The transport sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
 
 ## Protocol
 
@@ -23,7 +27,7 @@ Each NeoPixel bit is a fixed-period pulse (TH + TL = 1.25 µs ± 600 ns, transmi
 | T1L | Bit-1 low time | 0.45 µs | ±150 ns |
 | RES | Reset / latch (line low) | ≥50 µs | — |
 
-Data is transmitted MSB-first within each byte. The reset pulse is always appended by `write()` after the last byte — callers never send it explicitly.
+Data is transmitted MSB-first within each byte. The reset pulse is always appended by `write()` after the last byte.
 
 ### Pixel Format (from datasheet)
 
@@ -39,193 +43,134 @@ NeoPixel is write-only. No `read` or `write_read` operation exists.
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `write` | `data: bytes` | — | Transmit all bytes, then hold line low ≥50 µs |
+| `write` | `data: bytes` | — | Encode and transmit all bytes, then hold MOSI low ≥50 µs |
 
 `len(data)` must be a multiple of `bytes_per_pixel` for the strip to update correctly, but the transport does not validate this.
+
+## SPI Bit-Encoding
+
+All platforms use this encoding. Each NeoPixel bit maps to 3 SPI bits at **2.4 MHz** (one SPI bit = 416.7 ns):
+
+| NeoPixel bit | SPI bits | Effective timing |
+|---|---|---|
+| 0 | `100` | 417 ns high, 833 ns low (T0H ✓, T0L ✓) |
+| 1 | `110` | 833 ns high, 417 ns low (T1H ✓, T1L ✓) |
+
+Each NeoPixel byte (8 bits) → 24 SPI bits → 3 SPI bytes, packed MSB-first.  
+For a buffer of `n` NeoPixel bytes: output `3n` encoded SPI bytes, then **16 zero bytes** (≈53 µs) for the reset.
+
+SPI configuration: mode 0 (CPOL=0, CPHA=0), MSB-first, 2.4 MHz.
+
+**Classic AVR Arduino note (16 MHz CPU):** the SPI clock divider only produces 2 MHz or 4 MHz. Use **2 MHz** (`SPI_CLOCK_DIV8`). At 2 MHz, T1H = 1000 ns vs the datasheet maximum of 950 ns — technically out of spec, but accepted by real WS2812B hardware in practice. All modern Arduino boards (Zero, Due, MKR, Nano 33, Nano Every) achieve 2.4 MHz without issue.
+
+### Encoding reference (Python)
+
+```python
+def encode(data: bytes) -> bytes:
+    out = bytearray(len(data) * 3 + 16)  # 16 trailing zeros = reset
+    for i, byte in enumerate(data):
+        bits = 0
+        for bit in range(7, -1, -1):
+            bits = (bits << 3) | (0b110 if (byte >> bit) & 1 else 0b100)
+        out[i*3:(i+1)*3] = bits.to_bytes(3, 'big')
+    return bytes(out)
+```
 
 ## Configuration Parameters
 
 | Parameter | Platform | Type | Description |
 |-----------|----------|------|-------------|
-| `pin` | MicroPython | `machine.Pin` | Data output pin (configured as output) |
-| `pin` | CircuitPython | `digitalio.DigitalInOut` | Data output pin |
-| `bus_num`, `device_num` | Linux Python / Node.js | `int` | SPI bus/device for bit-encoding (`/dev/spidevB.D`) |
-| `pin` | Arduino | `uint8_t` | Data output pin number |
-| `bpp` | Arduino | `uint8_t` | Bytes per pixel: 3 (RGB/GRB) or 4 (RGBW/GRBW); default 3 |
-| `dev` | Zephyr | `const struct device *` | LED strip device from `DEVICE_DT_GET` |
-| `bpp` | Zephyr | `uint8_t` | Bytes per pixel: 3 or 4 |
-| `spi` | Rust (embedded-hal) | `impl SpiBus` | SPI bus for `ws2812-spi` encoding |
-
-## SPI Bit-Encoding (Linux, Node.js, Rust Linux)
-
-Platforms without direct bit-bang capability encode each NeoPixel bit as 3 SPI bits at **2.4 MHz** (one SPI bit = 416.7 ns):
-
-| NeoPixel bit | SPI bit pattern | Effective timing |
-|---|---|---|
-| 0 | `100` | ~417 ns high, ~833 ns low (≈ T0H/T0L) |
-| 1 | `110` | ~833 ns high, ~417 ns low (≈ T1H/T1L) |
-
-Each NeoPixel byte (8 bits) → 24 SPI bits → 3 SPI bytes. Each NeoPixel bit is encoded MSB-first, packing the 3-bit codes MSB-first into the SPI bytes.
-
-For a buffer of `n` NeoPixel bytes: output `3n` encoded SPI bytes, then **16 zero bytes** (≈ 53 µs at 2.4 MHz) for the reset pulse.
-
-Encoding one NeoPixel byte `b` into 3 SPI bytes (Python reference):
-```python
-def encode_byte(b):
-    out = 0
-    for i in range(7, -1, -1):
-        out = (out << 3) | (0b110 if (b >> i) & 1 else 0b100)
-    return out.to_bytes(3, 'big')
-```
+| `spi` | MicroPython | `machine.SPI` or `machine.SoftSPI` | SPI instance configured at 2.4 MHz, mode 0 |
+| `spi` | CircuitPython | `busio.SPI` | SPI instance; `configure()` called in `write()` |
+| `bus_num`, `device_num` | Linux Python | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0 |
+| `spi` | Arduino | `SPIClass&` | SPI bus (`SPI` or any `SPIClass`); speed set via `SPISettings` |
+| `dev`, `config` | Zephyr | `const struct device *`, `struct spi_config` | SPI controller and config at 2.4 MHz |
+| `bus_num`, `device_num` | Node.js | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0 |
+| `spi` | Rust (embedded-hal) | `impl SpiBus` | Any `embedded_hal::spi::SpiBus` at 2.4 MHz |
+| `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` SPI bus at 2.4 MHz |
 
 ## Platform Notes
 
+All implementations follow the same structure:
+1. Encode the input buffer with the 3-bit SPI encoding (see above)
+2. Write the encoded buffer (including 16 trailing zero bytes) to the SPI bus in a single transfer
+3. No CS toggling is needed; CS can be a dummy pin or left disconnected
+
 ### MicroPython
 
-Use `machine.bitstream()` — the MicroPython built-in for NZR-style timing. After the call returns the line idles low; Python overhead is typically sufficient for the ≥50 µs reset, but add `time.sleep_us(50)` in `write()` to be safe.
+Constructor accepts a `machine.SPI` or `machine.SoftSPI` instance. The SPI instance must be pre-configured at 2.4 MHz, mode 0, MSB-first before being passed to the transport. Use `machine.SoftSPI` to drive any GPIO pin as MOSI.
 
 ```python
-import machine, time
-
-timing = (400, 850, 800, 450)  # (T0H_ns, T0L_ns, T1H_ns, T1L_ns)
-machine.bitstream(self._pin, 0, timing, data)
-time.sleep_us(50)
+spi = machine.SoftSPI(baudrate=2_400_000, polarity=0, phase=0,
+                      sck=machine.Pin(18), mosi=machine.Pin(19), miso=machine.Pin(20))
+transport = NeoPixelTransport(spi)
 ```
 
 File: `python/periph/transport/neopixel_micropython.py`
 
 ### CircuitPython
 
-Use the built-in `neopixel_write` module. It handles all timing internally; the line idles low after the last bit. No explicit reset sleep is needed if successive `write()` calls are naturally spaced >50 µs apart (they almost always are in Python).
-
-```python
-import neopixel_write
-neopixel_write.neopixel_write(self._pin, bytearray(data))
-```
+Constructor accepts a `busio.SPI` instance. Call `spi.try_lock()` / `spi.configure(baudrate=2_400_000, polarity=0, phase=0)` / `spi.unlock()` inside `write()` around the transfer. No CS pin is needed.
 
 File: `python/periph/transport/neopixel_circuitpython.py`
 
 ### Linux
 
-Use `spidev` with SPI bit-encoding (see [SPI Bit-Encoding](#spi-bit-encoding-linux-nodejs-rust-linux)). Open the SPI device at 2.4 MHz, mode 0. Build the encoded buffer and send it in one `xfer2()` call (which includes the 16 trailing zero bytes).
-
-```python
-import spidev
-
-spi = spidev.SpiDev()
-spi.open(bus_num, device_num)
-spi.mode = 0
-spi.max_speed_hz = 2_400_000
-
-# write(data):
-encoded = encode(data)  # 3*len(data) + 16 zero bytes
-spi.xfer2(list(encoded))
-```
+Wraps `spidev.SpiDev`, opened at 2.4 MHz, mode 0. `write()` encodes the buffer and calls `spi.xfer2(list(encoded))`. Provide `close()` to release the device.
 
 File: `python/periph/transport/neopixel_linux.py`
 
 ### Arduino
 
-Use the `Adafruit_NeoPixel` library. The transport owns an internal `Adafruit_NeoPixel` instance. `write(data, len)` updates the strip length if it has changed (via `updateLength()`), copies `data` directly into the library's pixel buffer (`getPixels()`), then calls `show()`.
+Constructor accepts a `SPIClass&`. `write(data, len)` calls `SPI.beginTransaction(SPISettings(2400000, MSBFIRST, SPI_MODE0))`, transfers the encoded buffer byte-by-byte or with `transfer(buf, len)`, then calls `SPI.endTransaction()`. No CS pin is used.
 
-Constructor parameters: `pin` (Arduino pin number), `bpp` (3 for `NEO_GRB + NEO_KHZ800`, 4 for `NEO_GRBW + NEO_KHZ800`). Strip LED type is derived from `bpp`.
-
-```cpp
-// NeoPixelTransport(uint8_t pin, uint8_t bpp = 3)
-// write(const uint8_t* data, size_t len):
-//   _strip.updateLength(len / _bpp);
-//   memcpy(_strip.getPixels(), data, len);
-//   _strip.show();
-```
+For classic 16 MHz AVR boards, pass `SPISettings(2000000, MSBFIRST, SPI_MODE0)` instead (see timing note above).
 
 Files: `cpp/src/transport/NeoPixelTransport.h`, `cpp/src/transport/NeoPixelTransport.cpp`
 
 ### Zephyr RTOS
 
-Use Zephyr's native WS2812 LED strip driver. Enable via `CONFIG_LED_STRIP=y` and either `CONFIG_WS2812_STRIP_SPI=y` or `CONFIG_WS2812_STRIP_GPIO=y` in `prj.conf`. The devicetree node must declare `chain-length` and `color-mapping`.
+Constructor accepts `const struct device *` and `struct spi_config`. Set `config.frequency = 2400000`, `config.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER`. `write()` encodes the buffer and calls `spi_write()` with a single `spi_buf_set`.
 
-`write(data, len)` converts the raw byte buffer into a `struct led_rgb[]` array (or `uint8_t[][bpp]` for RGBW) and calls:
-
-```c
-#include <zephyr/drivers/led_strip.h>
-
-// 3-byte (RGB) variant:
-led_strip_update_rgb(dev, pixels, n_pixels);
-
-// 4-byte (RGBW) variant — if driver supports channels:
-led_strip_update_channels(dev, channels, n_pixels * 4);
-```
-
-For `bpp == 3`: populate `struct led_rgb` with the raw R, G, B bytes from `data` (no reordering — the chip driver sends bytes already in the strip's native order).  
-For `bpp == 4`: call `led_strip_update_channels()` treating each group of 4 bytes as one pixel's channels.
-
-`prj.conf` minimum:
-```
-CONFIG_LED_STRIP=y
-CONFIG_WS2812_STRIP=y
-CONFIG_WS2812_STRIP_SPI=y   # or CONFIG_WS2812_STRIP_GPIO=y
-```
+`prj.conf`: `CONFIG_SPI=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/NeoPixelTransportZephyr.h`
 
 ### Node.js
 
-Use SPI bit-encoding via the existing `spi-device` package. Open the SPI device at 2.4 MHz. Encode the pixel buffer in JavaScript, then send via `transferSync`.
-
-```js
-// encode(data) → Buffer of 3*len(data) + 16 zero bytes
-const spi = require('spi-device');
-const device = spi.openSync(busNumber, deviceNumber, { maxSpeedHz: 2_400_000 });
-
-// write(data):
-const sendBuffer = encode(Buffer.from(data));
-device.transferSync([{ sendBuffer, byteLength: sendBuffer.length }]);
-```
+Constructor accepts `busNumber` and `deviceNumber`. Opens the `spi-device` at 2.4 MHz, mode 0. `write()` encodes the buffer in JavaScript and sends it via `transferSync`.
 
 File: `nodejs/packages/periph/src/transport/neopixel.js`
 
 ### Rust (embedded-hal, bare-metal / ESP32-S3)
 
-Use the `ws2812-spi` crate, which encodes NeoPixel bits over any `embedded_hal::spi::SpiBus` at the correct rate. Chip drivers pass an iterator of `smart_leds::RGB8` (or `RGBA8` for 32-bit) values.
+Constructor wraps any `embedded_hal::spi::SpiBus` configured at 2.4 MHz. `write()` encodes the pixel buffer into a `Vec<u8>` (or a fixed-size stack buffer if `alloc` is unavailable) and calls `spi.write(&encoded)`.
 
 ```rust
-use ws2812_spi::Ws2812;
-use smart_leds::SmartLedsWrite;
-
-let mut ws = Ws2812::new(spi_bus);
-ws.write(pixel_iter)?;
-```
-
-Configure the SPI bus at **3.2 MHz** (the rate `ws2812-spi` uses for its internal encoding — do not change this).
-
-`Cargo.toml`:
-```toml
-ws2812-spi = "0.4"
-smart-leds = "0.4"
-embedded-hal = "1"
+impl<SPI: SpiBus> NeoPixelTransport<SPI> {
+    pub fn write(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        let encoded = encode(data); // returns heapless::Vec or Vec
+        self.spi.write(&encoded)
+    }
+}
 ```
 
 File: `rust/periph/src/transport/neopixel.rs`
 
 ### Rust Linux
 
-Same as the embedded-hal variant, but back the SPI bus with `linux-embedded-hal`:
+Same as the embedded-hal variant. Use `linux-embedded-hal`'s `SpidevBus` configured at 2.4 MHz as the `SpiBus` implementation:
 
 ```rust
 use linux_embedded_hal::SpidevBus;
-use ws2812_spi::Ws2812;
-use smart_leds::SmartLedsWrite;
 
 let spi = SpidevBus::open("/dev/spidev0.0")?;
-// configure speed to 3.2 MHz via SpidevOptions before wrapping
-let mut ws = Ws2812::new(spi);
-ws.write(pixel_iter)?;
+// configure 2.4 MHz, mode 0 via SpidevOptions before passing to transport
+let transport = NeoPixelTransport::new(spi);
 ```
 
 `Cargo.toml`:
 ```toml
-ws2812-spi = "0.4"
-smart-leds = "0.4"
 linux-embedded-hal = "0.4"
 embedded-hal = "1"
 ```
