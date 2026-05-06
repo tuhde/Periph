@@ -16,8 +16,15 @@ body:
     attributes:
       label: Target platforms
       options:
-        - label: MicroPython
-        - label: Arduino
+        - label: "Python — MicroPython"
+        - label: "Python — CircuitPython"
+        - label: "Python — Linux (smbus2 / spidev)"
+        - label: "C++ — Arduino"
+        - label: "C++ — Zephyr RTOS"
+        - label: "C++ — Linux (GCC)"
+        - label: "Node.js — Linux"
+        - label: "Rust — embedded-hal (bare-metal / ESP32-S3)"
+        - label: "Rust — Linux (spidev / i2c-dev)"
         - label: Other (describe in notes)
 
   - type: textarea
