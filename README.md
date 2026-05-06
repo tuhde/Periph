@@ -61,6 +61,8 @@ use periph::chips::power::{Ina226Minimal, Ina226Full};
 |------|----------|--------|-----|---------|----------|------|---------|
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
 
+More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
+
 ## Examples
 
 Each chip has three examples per language:
