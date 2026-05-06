@@ -34,6 +34,7 @@ body:
         - Gyroscope
         - Humidity sensor
         - IMU (accelerometer + gyroscope)
+        - IO Expander
         - LED driver
         - Light / UV sensor
         - Magnetometer

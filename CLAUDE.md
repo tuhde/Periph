@@ -156,6 +156,7 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `gyroscope` | Standalone gyroscopes |
 | `humidity` | Standalone humidity sensors |
 | `imu` | Combined accelerometer + gyroscope |
+| `io_expander` | IO expanders |
 | `led` | LED drivers |
 | `light` | Light and UV sensors |
 | `magnetometer` | Magnetometers |

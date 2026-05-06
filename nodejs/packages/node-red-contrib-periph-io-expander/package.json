@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-io-expander",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for IO expander chips",
+  "keywords": ["node-red", "io-expander", "i2c", "spi", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}
