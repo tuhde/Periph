@@ -25,13 +25,13 @@ Only pick up issues labelled `needs-implementation`. An issue labelled `needs-sp
 Do **not** commit directly to the feature branch. Create your own implementation branch from it:
 
 ```
-implementation/oc-<model>-<chip>
+impl/<chip>-oc-<model>
 ```
 
-- `<model>` — the LLM you are running on, lowercase, hyphens for spaces (e.g. `gpt-4o`, `claude-sonnet-4-5`, `gemini-2-5-pro`)
 - `<chip>` — lowercase chip or transport name (e.g. `ina226`, `neopixel`)
+- `<model>` — the LLM you are running on, lowercase, hyphens for spaces (e.g. `gpt-4o`, `claude-sonnet-4-5`, `gemini-2-5-pro`)
 
-Example: `implementation/oc-gpt-4o-ina226`
+Example: `impl/ina226-oc-gpt-4o`
 
 Check out the base feature branch, create your implementation branch from it, and open a PR targeting the feature branch when done.
 
