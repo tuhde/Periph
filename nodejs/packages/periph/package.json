@@ -6,6 +6,7 @@
   "keywords": ["i2c", "spi", "sensor", "peripheral", "hardware"],
   "license": "MIT",
   "dependencies": {
-    "i2c-bus": "^5.2.2"
+    "i2c-bus": "^5.2.2",
+    "spi-device": "^3.1.0"
   }
 }
