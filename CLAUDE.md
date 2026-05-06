@@ -24,19 +24,25 @@ Implementations:
 | `backlog.md` | Offline or batch work; Claude Code processes pending items |
 | Direct conversation | Ad-hoc exploration or one-off requests |
 
-### Flow (all entry points)
+### Flow for chip issues
 1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<category>/<chipname>.pdf`
-2. Claude Code reads the datasheet and produces a spec in `specs/<category>/` using the appropriate template
-3. Claude Code posts a **"Ready for implementation"** comment on the issue containing the spec path, branch name, and stages — this is what OpenCode uses to find its work
+2. Claude Code reads the datasheet and produces a spec in `specs/<category>/` using `specs/_template_chip.md`
+3. Claude Code posts a **"Ready for implementation"** comment on the issue — this is what OpenCode uses to find its work
 4. OpenCode implements against the spec on the feature branch
 
-The comment format:
+### Flow for transport issues
+1. Claude Code obtains the protocol reference from the issue (PDF attachment or URL); if it is a well-known standard with no single document, Claude Code uses its own knowledge
+2. Claude Code produces a spec at `specs/transport_<name>.md` using `specs/_template_transport.md`; no datasheet is committed (transports live outside `datasheets/`)
+3. Claude Code posts a **"Ready for implementation"** comment on the issue
+4. OpenCode implements the transport across all applicable platforms; it does **not** implement any chip driver
+
+### Ready-for-implementation comment format
 ```
 ## Ready for implementation
 
-- **Spec:** `specs/<category>/<chip>.md`
-- **Branch:** `feature/<chip>`
-- **Stages:** Minimal, Full
+- **Spec:** `specs/<category>/<chip>.md`   ← or `specs/transport_<name>.md`
+- **Branch:** `feature/<chip>`             ← or `feature/transport-<name>`
+- **Stages:** Minimal, Full               ← chips only; transports have no stages
 
 See `AGENTS.md` for implementation guidance.
 ```
@@ -44,8 +50,6 @@ See `AGENTS.md` for implementation guidance.
 ### Spec templates
 - `specs/_template_chip.md` — for new chip drivers
 - `specs/_template_transport.md` — for new transport implementations
-
-Completed specs are named `specs/<chipname>.md` or `specs/transport_<name>.md`.
 
 ## Implementation stages
 

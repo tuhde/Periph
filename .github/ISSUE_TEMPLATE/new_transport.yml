@@ -27,8 +27,22 @@ body:
         - label: "Rust — Linux (spidev / i2c-dev)"
         - label: Other (describe in notes)
 
+  - type: input
+    id: reference_url
+    attributes:
+      label: Protocol reference URL
+      description: Link to the protocol specification, standard, or application note. Leave blank if attaching a PDF below.
+
+  - type: textarea
+    id: reference_attach
+    attributes:
+      label: Protocol reference attachment
+      description: |
+        Attach a specification PDF by dragging it here or clicking the attachment icon.
+        Providing either a URL above or an attachment here is strongly recommended.
+
   - type: textarea
     id: notes
     attributes:
       label: Notes
-      description: Protocol reference, specific hardware constraints, or other relevant details.
+      description: Specific hardware constraints, known quirks, or anything else relevant.
