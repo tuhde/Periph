@@ -2,6 +2,7 @@
 resolver = "2"
 exclude = [
     "tests/power/ina226_test_esp32s3",
+    "tests/adc_dac/mcp4725_test_esp32s3",
 ]
 members = [
     "periph",
@@ -9,6 +10,10 @@ members = [
     "examples/ina226_complete",
     "examples/ina226_demo",
     "tests/power/ina226_test",
+    "examples/mcp4725_minimal",
+    "examples/mcp4725_complete",
+    "examples/mcp4725_demo",
+    "tests/adc_dac/mcp4725_test",
 ]
 
 [workspace.dependencies]
