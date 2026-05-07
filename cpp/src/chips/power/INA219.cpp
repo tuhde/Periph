@@ -3,7 +3,7 @@
 INA219Minimal::INA219Minimal(Transport& transport, float r_shunt, float max_current)
     : _transport(transport) {
     _current_lsb = max_current / 32768.0f;
-    _cal = (uint16_t)((0.04096f / (_current_lsb * r_shunt)) & 0xFFFE);
+    _cal = (uint16_t)(0.04096f / (_current_lsb * r_shunt)) & 0xFFFE;
     _write_reg(REG_CAL, _cal);
 }
 
