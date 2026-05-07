@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for display driver chips",
   "keywords": ["node-red", "display", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "periph-pcf8576": "nodes/pcf8576/pcf8576.js"
+    }
   },
   "dependencies": {
     "periph": "*"

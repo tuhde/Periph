@@ -1,0 +1,62 @@
+<script type="text/javascript">
+    RED.nodes.registerType('pcf8576-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '38', required: true }
+        },
+        label: function() {
+            return this.name || ('PCF8576 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf8576-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCF8576">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I2C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="38" style="width:80px"> &nbsp;default: 38 (0x38)
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8576', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'pcf8576-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-desktop',
+        label:   function() { return this.name || 'PCF8576'; },
+        paletteLabel: 'PCF8576'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8576">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8576">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8576">
+    <p>Drives a PCF8576 LCD segment driver over I2C.</p>
+    <p>Send <code>msg.payload = { digits: [0,1,2,...] }</code> to display digits (0-9, null for blank).
+    Or <code>{ address: N, data: [b1, b2, ...] }</code> for raw write.</p>
+    <p>The device is configured via a <b>pcf8576-device</b> config node.</p>
+</script>

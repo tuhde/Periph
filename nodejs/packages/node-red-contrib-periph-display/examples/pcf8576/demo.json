@@ -1,0 +1,57 @@
+[
+    {
+        "id": "tab-pcf8576-demo",
+        "type": "tab",
+        "label": "PCF8576 LCD Display",
+        "disabled": false,
+        "info": "Displays hours and minutes on a 4-digit 7-segment LCD driven by PCF8576."
+    },
+    {
+        "id": "cfg-pcf8576",
+        "type": "pcf8576-device",
+        "name": "LCD",
+        "bus": "1",
+        "address": "38"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-pcf8576-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["fmt-time"]]
+    },
+    {
+        "id": "fmt-time",
+        "type": "function",
+        "name": "extract digits",
+        "func": "const now = new Date();\nconst h = now.getHours();\nconst m = now.getMinutes();\nconst digits = [\n    Math.floor(h / 10) % 10,\n    h % 10,\n    Math.floor(m / 10) % 10,\n    m % 10\n];\nmsg.payload = { digits: digits };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-pcf8576-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["pcf8576-write"]]
+    },
+    {
+        "id": "pcf8576-write",
+        "type": "periph-pcf8576",
+        "name": "PCF8576",
+        "device": "cfg-pcf8576",
+        "z": "tab-pcf8576-demo",
+        "x": 480,
+        "y": 160,
+        "wires": []
+    }
+]
