@@ -6,6 +6,7 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
+      "ina219": "nodes/ina219/ina219.js",
       "ina226": "nodes/ina226/ina226.js"
     }
   },

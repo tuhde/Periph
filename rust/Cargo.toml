@@ -1,13 +1,18 @@
 [workspace]
 resolver = "2"
 exclude = [
+    "tests/power/ina219_test_esp32s3",
     "tests/power/ina226_test_esp32s3",
 ]
 members = [
     "periph",
+    "examples/ina219_minimal",
+    "examples/ina219_complete",
+    "examples/ina219_demo",
     "examples/ina226_minimal",
     "examples/ina226_complete",
     "examples/ina226_demo",
+    "tests/power/ina219_test",
     "tests/power/ina226_test",
 ]
 
