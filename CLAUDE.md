@@ -140,6 +140,16 @@ Each chip driver depends only on the transport abstraction, never on a concrete 
 
 The `adc_dac` directory maps to the package name `node-red-contrib-periph-adc-dac` (underscore → hyphen).
 
+### Adding a new category
+
+When creating a new category, the Node-RED package directory (`nodejs/packages/node-red-contrib-periph-<category>/`) includes a `package.json` that registers it as an npm workspace member. After creating the directory, run:
+
+```sh
+cd nodejs && npm install
+```
+
+Then commit the updated `nodejs/package-lock.json` **in the same commit** as the new package directory. Omitting this step causes all impl branches cut after the category commit to fail with a stale lockfile.
+
 ### Chip categories
 
 Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `cpp/src/chips/`, `nodejs/packages/periph/src/chips/`, and `nodejs/packages/node-red-contrib-periph-<category>/`:
