@@ -43,6 +43,7 @@ body:
         - Motor driver
         - Power management
         - Pressure sensor
+        - RFID / NFC module
         - RTC (real-time clock)
         - Temperature sensor
         - ToF / distance sensor

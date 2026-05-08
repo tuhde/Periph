@@ -165,6 +165,7 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `motor` | Motor drivers |
 | `power` | Power management |
 | `pressure` | Standalone pressure sensors |
+| `rfid` | RFID and NFC reader/writer modules |
 | `rtc` | Real-time clocks |
 | `temperature` | Standalone temperature sensors |
 | `tof` | Time-of-flight / distance sensors |
