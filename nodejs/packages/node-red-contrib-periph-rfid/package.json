@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-rfid",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for RFID and NFC peripheral chips",
+  "keywords": ["node-red", "rfid", "nfc", "spi", "i2c", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}
