@@ -1,8 +1,8 @@
 # Chip Spec: RFM9x (RFM95/96/97/98W)
 
 **Manufacturer:** HOPERF  
-**Datasheet:** `datasheets/other/RFM9x.pdf`  
-**Category:** other  
+**Datasheet:** `datasheets/comms/RFM9x.pdf`  
+**Category:** comms  
 **Transports:** SPI
 
 ## Variants
@@ -346,7 +346,7 @@ T_packet   = T_preamble + T_payload
 ## Node-RED
 
 Node name: `periph-rfm9x`  
-Package: `node-red-contrib-periph-other`
+Package: `node-red-contrib-periph-comms`
 
 | Input trigger | Output `msg.payload` fields | Notes |
 |---------------|-----------------------------|-------|
