@@ -179,15 +179,35 @@ Each chip has three examples per language, placed under the `examples/` tree:
 |------|-----------|---------|
 | `minimal` | `*Minimal` | Simplest possible usage — construct, read primary values in a loop |
 | `complete` | `*Full` | Every method in the API exercised |
-| `demo` | `*Full` | A real-world scenario from the spec's Demo section — why-comments per logical block |
+| `demo` | `*Full` | A real-world scenario from the spec's Demo section |
 
-The `minimal` and `complete` examples have no comments. The `demo` example has one short comment per logical block explaining *why*, not what.
+The three tiers use an additive comment system — each tier includes everything from the tier below it:
+
+**Tier-1 (all three tiers)** — every call gets a trailing signature comment:
+```
+# <short verb phrase>, (<params>) → <type> <unit>   ← for calls that return a value
+# <short verb phrase>, (<param>=<default> <unit>, …)  ← for void calls and constructors
+```
+
+**Tier-2 (complete adds)** — a second line immediately below each call explaining what it does:
+```python
+v = ina.voltage()    # Read bus voltage, () → float V
+                     # converts raw bus register to volts (1.25 mV LSB)
+```
+
+**Tier-3 (demo adds)** — a multi-line block comment at each logical section boundary explaining context and purpose (the Tier-2 per-call line is dropped in demo):
+```python
+# --- Configure for noise-sensitive power rail monitoring ---
+# 128-sample averaging suppresses switching noise on a noisy 5 V rail;
+# continuous mode avoids re-triggering overhead between measurements.
+ina.configure(avg=7, vbus_ct=4, vsh_ct=4, mode=7)  # Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode 0–7) → None
+```
 
 ## Documentation
 
 The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.
 
-The three example tiers serve as usage documentation: `minimal` and `complete` are clean code; `demo` is the narrative entry point for new users.
+Source files carry full inline API documentation in the platform-native format (Python docstrings, C++ Doxygen, JSDoc, Rust `///`). The three example tiers serve as usage documentation, with the demo as the narrative entry point for new users.
 
 ## Status
 

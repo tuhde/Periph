@@ -10,6 +10,10 @@ OpenCode implements. It does not modify specs, datasheets, CLAUDE.md, or transpo
 
 The spec in `specs/<category>/<chip>.md` is the single source of truth. Implement exactly what it defines — no more, no less.
 
+**Documentation is part of implementation.** A platform is not done until its driver, tests, examples, and inline documentation are all complete. Submitting code without documentation is the same as submitting incomplete code.
+
+The per-chip implementation checklist lives in the chip's spec file (`specs/<category>/<chip>.md`). Tick each box as the item is committed; the PR may not be opened until every box is ticked.
+
 ## Finding the work
 
 When given an issue number, find the "Ready for implementation" comment on that issue. It contains:
@@ -372,11 +376,13 @@ There is **no** ESP32-S3 example crate — only an ESP32-S3 *test* crate. Embedd
 
 Each chip has three examples per language (same branch as the driver):
 
-| File | Class | Content |
-|------|-------|---------|
-| `minimal` | `*Minimal` | Construct with transport, read primary values in a loop, print to serial/stdout. No comments. |
-| `complete` | `*Full` | Every method in the API called once — configuration, alerts, shutdown/wake, IDs. No comments. |
-| `demo` | `*Full` | The scenario from the spec's Demo section. One short why-comment per logical block. |
+| File | Class | Content | Comments |
+|------|-------|---------|---------|
+| `minimal` | `*Minimal` | Construct with transport, read primary values in a loop, print to serial/stdout. | Tier-1 signature comment on every call. |
+| `complete` | `*Full` | Every method in the API called once — configuration, alerts, shutdown/wake, IDs. | Tier-1 + Tier-2 (what-it-does line below each call). |
+| `demo` | `*Full` | The scenario from the spec's Demo section. | Tier-1 + Tier-3 (context block at each logical section boundary). |
+
+See `## Documentation → Example tiers` below for the exact comment format.
 
 The demo scenario is defined in the chip spec. The minimal and complete examples are fully implied by the API tables — implement them mechanically.
 
@@ -408,10 +414,172 @@ All tests print `PASS <label>` / `FAIL <label>` lines and end with `===DONE: N p
 
 ## Documentation
 
-The spec is the reference documentation. No separate docs directory.
+### Source files — inline API documentation
 
-- `minimal` and `complete` examples: no comments
-- `demo` example: one short comment per logical block explaining *why* — e.g. `# configure for 16x averaging to reduce noise`, not `# set AVG bits`
+Every public class, constructor, and method must be documented inline using the platform-native format. Tool-generated docs (Sphinx, Doxygen, JSDoc, `cargo doc`) must work without extra configuration.
+
+**Python** — Google-style docstrings on every class and public method:
+```python
+class INA219Minimal:
+    """Power monitor: measures bus voltage, shunt current, and power.
+
+    Configured at construction for continuous shunt+bus conversion with
+    sensible defaults. Primary use case: read V, I, P in a loop.
+    """
+
+    def voltage(self):
+        """Read bus voltage.
+
+        Returns:
+            float: Bus voltage in volts.
+        """
+```
+
+**C++** — Doxygen `/** */` in headers, one `@brief` per class and per method:
+```cpp
+/** @brief Power monitor: measures bus voltage, shunt current, and power. */
+class INA219Minimal {
+public:
+    /**
+     * @brief Construct and initialise the INA219.
+     * @param transport  I²C transport bound to the chip's address.
+     * @param r_shunt    Shunt resistor value in ohms (default 0.1).
+     * @param max_current Maximum expected current in amps (default 2.0).
+     */
+    INA219Minimal(Transport& transport, float r_shunt = 0.1f, float max_current = 2.0f);
+
+    /**
+     * @brief Read bus voltage.
+     * @return Bus voltage in volts.
+     */
+    float voltage();
+};
+```
+
+**Node.js** — JSDoc `/** */` on every class and exported method:
+```js
+/**
+ * Power monitor: measures bus voltage, shunt current, and power.
+ */
+class INA219Minimal {
+    /**
+     * @param {object} transport - I²C transport bound to the chip's address.
+     * @param {number} [rShunt=0.1] - Shunt resistor in ohms.
+     * @param {number} [maxCurrent=2.0] - Maximum expected current in amps.
+     */
+    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) { ... }
+
+    /**
+     * Read bus voltage.
+     * @returns {number} Bus voltage in volts.
+     */
+    voltage() { ... }
+}
+```
+
+**Rust** — `///` rustdoc on every `pub` item; `//!` module doc at the top of each file:
+```rust
+//! INA219 power monitor driver.
+
+/// Power monitor: measures bus voltage, shunt current, and power.
+pub struct Ina219Minimal<I2C> { ... }
+
+impl<I2C: I2c> Ina219Minimal<I2C> {
+    /// Construct and initialise the INA219.
+    ///
+    /// # Arguments
+    /// * `i2c` — I²C bus (driver takes ownership).
+    /// * `addr` — 7-bit I²C address (typically `0x40`).
+    /// * `r_shunt` — Shunt resistor in ohms.
+    /// * `max_current` — Maximum expected current in amps.
+    pub fn new(i2c: I2C, addr: u8, r_shunt: f32, max_current: f32) -> Result<Self, I2C::Error> { ... }
+
+    /// Read bus voltage.
+    ///
+    /// Returns bus voltage in volts.
+    pub fn voltage(&mut self) -> Result<f32, I2C::Error> { ... }
+}
+```
+
+**Node-RED** — `<script type="text/html" data-help-name="…">` section in the `.html` file, following the [Node-RED help style guide](https://nodered.org/docs/creating-nodes/help-style-guide):
+```html
+<script type="text/html" data-help-name="periph-ina219">
+    <p>Reads bus voltage, load current, and power from an INA219 power monitor.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Bus voltage in V.</dd>
+        <dt>payload.current <span class="property-type">number</span></dt>
+        <dd>Load current in A.</dd>
+        <dt>payload.power <span class="property-type">number</span></dt>
+        <dd>Power in W.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x40</code>),
+    the shunt resistor value, and the maximum expected current.</p>
+</script>
+```
+
+### Example tiers — comment format
+
+The three example tiers use an **additive** comment system.
+
+**Tier-1 signature comment** — present on every call in all three tiers. Trailing, on the same line as the call:
+
+```
+# <short verb phrase>, (<params>) → <type> <unit>   ← return-value calls
+# <short verb phrase>, (<param>=<default> <unit>, …)  ← void calls and constructors
+```
+
+Parameter list follows the method signature (names, defaults, units) — not the call-site values.
+
+**Minimal — Tier-1 only:**
+```python
+ina = INA219Full(transport)                          # Create INA219 driver, (transport, r_shunt=0.1 Ω, max_current=2.0 A)
+v   = ina.voltage()                                  # Read bus voltage, () → float V
+i   = ina.current()                                  # Read load current, () → float A
+ok  = ina.conversion_ready()                         # Check conversion done, () → bool
+ina.shutdown()                                       # Put chip into power-down mode, () → None
+```
+
+**Complete — Tier-1 + Tier-2** (one additional line immediately below each call, explaining what it does):
+```python
+v = ina.voltage()                                    # Read bus voltage, () → float V
+                                                     # converts raw bus register to volts (1.25 mV LSB)
+ina.configure(avg=4, vbus_ct=4, vsh_ct=4, mode=7)   # Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode 0–7) → None
+                                                     # sets averaging count, conversion time, and operating mode
+ina.set_alert(INA219Full.POL, limit=1.5)             # Set alert threshold, (function, limit, polarity=False, latch=False) → None
+                                                     # arms the ALERT pin when the computed power exceeds limit W
+```
+
+**Demo — Tier-1 on each call + Tier-3 block at each logical section boundary** (Tier-2 per-call lines are omitted):
+```python
+# --- Configure for noise-sensitive power rail monitoring ---
+# 128-sample averaging suppresses switching noise on a noisy 5 V rail;
+# continuous mode avoids re-triggering overhead between measurements.
+ina.configure(avg=7, vbus_ct=4, vsh_ct=4, mode=7)   # Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode 0–7) → None
+
+# --- Sample 10 times and characterise idle vs loaded power ---
+# User is prompted to connect a load at n=5 so both states appear in one run.
+for n in range(10):
+    while not ina.conversion_ready():                # Check conversion done, () → bool
+        pass
+    v = ina.voltage()                                # Read bus voltage, () → float V
+    i = ina.current()                                # Read load current, () → float A
+```
+
+The Tier-1 comment format is the same across all languages; adjust the comment character (`//` for C++/JS/Rust) and the type name to match the language.
+
+For **C++**, the return type is usually already visible in the declaration, so the comment may use just the unit: `// Read bus voltage, () → V`.
+
+For **Rust**, include the `Result` unwrapping in the format: `// Read bus voltage, () → f32 V`.
+
+For **Node-RED** `demo.json`, there are no inline comments. The tab node's `info` field is the Tier-3 equivalent — a paragraph explaining the scenario, what to observe, and what to adjust.
 
 ## Commit convention
 
