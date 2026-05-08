@@ -27,6 +27,7 @@ body:
         - Accelerometer
         - ADC / DAC
         - Color sensor
+        - Communications (LoRa, RF, etc.)
         - Display driver
         - Environmental (temperature + humidity + pressure)
         - Gas sensor
