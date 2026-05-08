@@ -1,0 +1,13 @@
+{
+  "name": "node-red-contrib-periph-comms",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for communications peripheral chips",
+  "keywords": ["node-red", "comms", "lora", "radio", "spi", "i2c", "peripheral"],
+  "node-red": {
+    "nodes": {}
+  },
+  "dependencies": {
+    "periph": "*"
+  },
+  "license": "MIT"
+}

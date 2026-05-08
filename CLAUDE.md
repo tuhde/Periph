@@ -149,6 +149,7 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `accelerometer` | Standalone accelerometers |
 | `adc_dac` | ADC and DAC converters |
 | `color` | Color sensors |
+| `comms` | Wireless and wired communication modules (LoRa, RF, etc.) |
 | `display` | Display drivers |
 | `environmental` | Combined temperature + humidity + pressure |
 | `gas` | Gas sensors |
