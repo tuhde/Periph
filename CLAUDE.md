@@ -153,6 +153,7 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `display` | Display drivers |
 | `environmental` | Combined temperature + humidity + pressure |
 | `gas` | Gas sensors |
+| `gnss` | GNSS / GPS modules |
 | `gpio` | GPIO expanders |
 | `gyroscope` | Standalone gyroscopes |
 | `humidity` | Standalone humidity sensors |

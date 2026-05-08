@@ -31,6 +31,7 @@ body:
         - Display driver
         - Environmental (temperature + humidity + pressure)
         - Gas sensor
+        - GNSS / GPS module
         - GPIO expander
         - Gyroscope
         - Humidity sensor
