@@ -26,7 +26,7 @@ int main(void) {
     config.frequency = 2400000;
     config.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER;
 
-    NeoPixelTransportZephyr transport(spi_dev, config);
+    NeopixelTransportZephyr transport(spi_dev, config);
 
     transport.write((const uint8_t*)"\x00\x00\x00", 3);
     check_true("write_black_no_error", true);

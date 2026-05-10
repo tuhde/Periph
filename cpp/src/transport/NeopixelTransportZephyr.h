@@ -2,29 +2,23 @@
 #include <zephyr/drivers/spi.h>
 #include "Transport.h"
 
-class NeoPixelTransportZephyr : public Transport {
+/** @brief NeoPixel transport for Zephyr RTOS. */
+class NeopixelTransportZephyr : public Transport {
 public:
-    NeoPixelTransportZephyr(const struct device* dev, const struct spi_config& config)
+    /**
+     * @brief Construct a NeoPixel transport.
+     * @param dev SPI device pointer.
+     * @param config SPI configuration.
+     */
+    NeopixelTransportZephyr(const struct device* dev, const struct spi_config& config)
         : _dev(dev), _config(config) {}
 
-    void write(const uint8_t* data, size_t len) override {
-        size_t encoded_len = len * 3 + 16;
-        uint8_t encoded[256];
-        if (encoded_len > sizeof(encoded)) return;
-        for (size_t i = 0; i < len; i++) {
-            uint8_t byte = data[i];
-            for (int bit = 7; bit >= 0; bit--) {
-                size_t idx = i * 3 + (7 - bit);
-                encoded[idx] = ((byte >> bit) & 1) ? 0b110 : 0b100;
-            }
-        }
-        for (size_t i = 0; i < 16; i++) {
-            encoded[len * 3 + i] = 0x00;
-        }
-        struct spi_buf tx_buf = { .buf = encoded, .len = encoded_len };
-        struct spi_buf_set tx = { .buffers = &tx_buf, .count = 1 };
-        spi_write(_dev, &_config, &tx);
-    }
+    /**
+     * @brief Encode and transmit NeoPixel data.
+     * @param data Pointer to pixel data.
+     * @param len Number of bytes (3/pixel for RGB, 4/pixel for RGBW).
+     */
+    void write(const uint8_t* data, size_t len) override;
 
 private:
     const struct device* _dev;
