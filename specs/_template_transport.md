@@ -39,3 +39,34 @@ All transport implementations must provide these operations:
 ### Arduino
 
 <!-- Arduino-specific implementation notes. -->
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] `python/periph/transport/<transport>_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/<transport>_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/<transport>_linux.py` — Google-style docstring on class and every public method
+- [ ] Tests (MicroPython)
+- [ ] Tests (CircuitPython)
+- [ ] Tests (Linux)
+
+### C++
+- [ ] `cpp/src/transport/<Transport>Transport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/<Transport>Transport.cpp`
+- [ ] `cpp/src/transport/<Transport>TransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/<Transport>TransportLinux.cpp`
+- [ ] `cpp/src/transport/<Transport>TransportZephyr.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+
+### Node.js
+- [ ] `nodejs/packages/periph/src/transport/<transport>.js` — JSDoc on class and every exported method
+- [ ] Tests
+
+### Rust
+- [ ] `rust/periph/src/transport/<transport>.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Tests (Linux)
+- [ ] Tests (ESP32-S3)

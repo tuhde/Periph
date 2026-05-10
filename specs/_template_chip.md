@@ -98,8 +98,12 @@ Package: `node-red-contrib-periph-<category>`
 
 <!-- Describe the scenario the demo example should implement. Be specific:
      what it measures, what it prints/does, what makes it interesting to watch.
-     The minimal and complete examples are implied by the API tables above.
-     The demo gets one short why-comment per logical block. -->
+     The minimal and complete examples are fully implied by the API tables above.
+
+     Comment rules (see AGENTS.md § Example tiers for the full spec):
+     - All three tiers: trailing Tier-1 signature comment on every call.
+     - Complete adds: a Tier-2 "what it does" line immediately below each call.
+     - Demo uses: Tier-3 block comments at logical section boundaries instead of Tier-2 lines. -->
 
 ## Timing Constraints
 
@@ -108,3 +112,49 @@ Package: `node-red-contrib-periph-<category>`
 ## Implementation Notes
 
 <!-- Quirks, errata, or non-obvious datasheet behavior. -->
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] Driver `python/periph/chips/<category>/<chip>.py` — Google-style docstring on every class and public method
+- [ ] Examples `python/examples/<category>/<chip>/minimal.py` — Tier-1 signature comment on every call
+- [ ] Examples `python/examples/<category>/<chip>/complete.py` — Tier-1 + Tier-2
+- [ ] Examples `python/examples/<category>/<chip>/demo.py` — Tier-1 + Tier-3
+- [ ] Tests `python/tests/<category>/<chip>_test.py` (MicroPython)
+- [ ] Tests `python/tests/<category>/<chip>_test_cp.py` (CircuitPython)
+- [ ] Tests `python/tests/<category>/<chip>_test_linux.py` (Linux)
+
+### C++
+- [ ] Driver `cpp/src/chips/<category>/<Chip>.h` — Doxygen `/** @brief */` on every class and public method
+- [ ] Driver `cpp/src/chips/<category>/<Chip>.cpp`
+- [ ] Examples `cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/<Chip>_Complete/<Chip>_Complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/<Chip>_Demo/<Chip>_Demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/<Chip>_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/<Chip>_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/<Chip>_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Tests `cpp/tests/<category>/<chip>_test/<chip>_test.ino` (Arduino)
+- [ ] Tests `cpp/tests/<category>/<chip>_test_linux/<chip>_test_linux.cpp` (Linux GCC)
+- [ ] Tests `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` (Zephyr)
+
+### Node.js
+- [ ] Driver `nodejs/packages/periph/src/chips/<category>/<chip>.js` — JSDoc on every class and exported method
+- [ ] Examples `nodejs/packages/periph/examples/<category>/<chip>/minimal.js` — Tier-1
+- [ ] Examples `nodejs/packages/periph/examples/<category>/<chip>/complete.js` — Tier-1 + Tier-2
+- [ ] Examples `nodejs/packages/periph/examples/<category>/<chip>/demo.js` — Tier-1 + Tier-3
+- [ ] Tests `nodejs/tests/<category>/<chip>_test.js`
+
+### Node-RED
+- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.js`
+- [ ] Node editor `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/<chip>.html` — `data-help-name` section with inputs, outputs, and config description
+- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-<category>/examples/<chip>/demo.json` — tab `info` field describes the scenario
+
+### Rust
+- [ ] Driver `rust/periph/src/chips/<category>/<chip>.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Examples `rust/examples/<chip>_minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/<chip>_complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/<chip>_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Tests `rust/tests/<category>/<chip>_test/src/main.rs` (Linux)
+- [ ] Tests `rust/tests/<category>/<chip>_test_esp32s3/src/main.rs` (ESP32-S3)
