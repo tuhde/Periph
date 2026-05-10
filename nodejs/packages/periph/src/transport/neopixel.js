@@ -2,7 +2,17 @@
 
 const spi = require('spi-device');
 
+/**
+ * NeoPixel transport using SPI bit-banging.
+ *
+ * Drives WS2812B-compatible addressable LEDs over a single data line using
+ * timing-encoded NZR protocol via SPI MOSI at 800 Kbps.
+ */
 class NeoPixelTransport {
+    /**
+     * @param {number} busNumber - SPI bus number.
+     * @param {number} deviceNumber - SPI device number.
+     */
     constructor(busNumber, deviceNumber) {
         this._device = spi.openSync(busNumber, deviceNumber, {
             mode: spi.MODE0,
@@ -25,6 +35,10 @@ class NeoPixelTransport {
         return out;
     }
 
+    /**
+     * Encode and transmit NeoPixel data.
+     * @param {Buffer} data - Pixel data (3 bytes/pixel for RGB, 4 for RGBW).
+     */
     write(data) {
         const sendBuffer = this._encode(data);
         this._device.transferSync([{ sendBuffer, byteLength: sendBuffer.length }]);

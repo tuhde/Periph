@@ -2,6 +2,12 @@ from .base import Transport
 
 
 def _encode(data):
+    """Encode NeoPixel data bytes to SPI bitstream.
+
+    Each NeoPixel bit is encoded as 3 SPI bits:
+    - 0: 0b100 (417ns high, 833ns low)
+    - 1: 0b110 (833ns high, 417ns low)
+    """
     out = bytearray(len(data) * 3 + 16)
     for i, byte in enumerate(data):
         bits = 0
@@ -12,9 +18,28 @@ def _encode(data):
 
 
 class NeoPixelTransport(Transport):
+    """NeoPixel transport using SPI bit-banging.
+
+    Drives WS2812B-compatible addressable LEDs over a single data line using
+    timing-encoded NZR protocol via SPI MOSI at 800 Kbps.
+
+    The caller is responsible for color ordering and bytes-per-pixel.
+    """
+
     def __init__(self, spi):
+        """Construct a NeoPixel transport.
+
+        Args:
+            spi: machine.SPI or machine.SoftSPI instance configured at
+                 2.4 MHz, mode 0, MSB-first.
+        """
         self._spi = spi
 
     def write(self, data):
+        """Encode and transmit NeoPixel data.
+
+        Args:
+            data: bytes of pixel data (3 bytes/pixel for RGB, 4 for RGBW).
+        """
         encoded = _encode(data)
         self._spi.write(encoded)
