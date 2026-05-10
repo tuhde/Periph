@@ -2,6 +2,7 @@
 resolver = "2"
 exclude = [
     "tests/power/ina226_test_esp32s3",
+    "tests/transport/neopixel_test_esp32s3",
 ]
 members = [
     "periph",
@@ -9,9 +10,11 @@ members = [
     "examples/ina226_complete",
     "examples/ina226_demo",
     "tests/power/ina226_test",
+    "tests/transport/neopixel_test",
 ]
 
 [workspace.dependencies]
 embedded-hal = "1.0"
 linux-embedded-hal = "0.4"
+heapless = "0.7"
 periph = { path = "periph" }
