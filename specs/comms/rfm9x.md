@@ -396,3 +396,49 @@ Two-node link test on a desk: configure the driver at 868 MHz (or 433 MHz for RF
 - **Bandwidth and LF band:** 250 kHz and 500 kHz are not supported on the 169 MHz sub-band. The driver validates BW against the variant's frequency range and raises `ValueError` if incompatible.
 - **RSSI on LF band:** The −137 offset shown in the HopeRF datasheet matches the underlying SX1276 HF formula. Some SX1276 documentation uses −164 for LF band. Calibrate against a known signal level if absolute RSSI accuracy matters for LF variants.
 - **SPI max rate:** 10 MHz. The SPI clock must be stable before NSS goes low and must stop before NSS goes high again on each frame.
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] Driver `python/periph/chips/comms/rfm9x.py` — Google-style docstring on every class and public method
+- [ ] Examples `python/examples/comms/rfm9x/minimal.py` — Tier-1 signature comment on every call
+- [ ] Examples `python/examples/comms/rfm9x/complete.py` — Tier-1 + Tier-2
+- [ ] Examples `python/examples/comms/rfm9x/demo.py` — Tier-1 + Tier-3
+- [ ] Tests `python/tests/comms/rfm9x_test.py` (MicroPython)
+- [ ] Tests `python/tests/comms/rfm9x_test_cp.py` (CircuitPython)
+- [ ] Tests `python/tests/comms/rfm9x_test_linux.py` (Linux)
+
+### C++
+- [ ] Driver `cpp/src/chips/comms/RFM9x.h` — Doxygen `/** @brief */` on every class and public method
+- [ ] Driver `cpp/src/chips/comms/RFM9x.cpp`
+- [ ] Examples `cpp/examples/RFM9x_Minimal/RFM9x_Minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/RFM9x_Complete/RFM9x_Complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/RFM9x_Demo/RFM9x_Demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/RFM9x_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/RFM9x_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/RFM9x_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Tests `cpp/tests/comms/rfm9x_test/rfm9x_test.ino` (Arduino)
+- [ ] Tests `cpp/tests/comms/rfm9x_test_linux/rfm9x_test_linux.cpp` (Linux GCC)
+- [ ] Tests `cpp/tests/comms/rfm9x_test_zephyr/src/main.cpp` (Zephyr)
+
+### Node.js
+- [ ] Driver `nodejs/packages/periph/src/chips/comms/rfm9x.js` — JSDoc on every class and exported method
+- [ ] Examples `nodejs/packages/periph/examples/comms/rfm9x/minimal.js` — Tier-1
+- [ ] Examples `nodejs/packages/periph/examples/comms/rfm9x/complete.js` — Tier-1 + Tier-2
+- [ ] Examples `nodejs/packages/periph/examples/comms/rfm9x/demo.js` — Tier-1 + Tier-3
+- [ ] Tests `nodejs/tests/comms/rfm9x_test.js`
+
+### Node-RED
+- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-comms/nodes/rfm9x/rfm9x.js`
+- [ ] Node editor `nodejs/packages/node-red-contrib-periph-comms/nodes/rfm9x/rfm9x.html` — `data-help-name` section with inputs, outputs, and config description
+- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-comms/examples/rfm9x/demo.json` — tab `info` field describes the scenario
+
+### Rust
+- [ ] Driver `rust/periph/src/chips/comms/rfm9x.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Examples `rust/examples/rfm9x_minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/rfm9x_complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/rfm9x_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Tests `rust/tests/comms/rfm9x_test/src/main.rs` (Linux)
+- [ ] Tests `rust/tests/comms/rfm9x_test_esp32s3/src/main.rs` (ESP32-S3)
