@@ -194,3 +194,34 @@ spidev = "0.5"
 embedded-hal = "1"
 embedded-hal-bus = "0.2"
 ```
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] `python/periph/transport/spi_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/spi_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/spi_linux.py` — Google-style docstring on class and every public method
+- [ ] Tests (MicroPython)
+- [ ] Tests (CircuitPython)
+- [ ] Tests (Linux)
+
+### C++
+- [ ] `cpp/src/transport/SpiTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/SpiTransport.cpp`
+- [ ] `cpp/src/transport/SpiTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/SpiTransportLinux.cpp`
+- [ ] `cpp/src/transport/SpiTransportZephyr.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+
+### Node.js
+- [ ] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
+- [ ] Tests
+
+### Rust
+- [ ] `rust/periph/src/transport/spi.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Tests (Linux)
+- [ ] Tests (ESP32-S3)

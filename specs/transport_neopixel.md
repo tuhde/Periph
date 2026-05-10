@@ -174,3 +174,34 @@ let transport = NeoPixelTransport::new(spi);
 linux-embedded-hal = "0.4"
 embedded-hal = "1"
 ```
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] `python/periph/transport/neopixel_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/neopixel_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/neopixel_linux.py` — Google-style docstring on class and every public method
+- [ ] Tests (MicroPython)
+- [ ] Tests (CircuitPython)
+- [ ] Tests (Linux)
+
+### C++
+- [ ] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/NeopixelTransport.cpp`
+- [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
+- [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+
+### Node.js
+- [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method
+- [ ] Tests
+
+### Rust
+- [ ] `rust/periph/src/transport/neopixel.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Tests (Linux)
+- [ ] Tests (ESP32-S3)

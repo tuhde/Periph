@@ -54,3 +54,34 @@ Wraps `TwoWire`. Constructor signature:
 `SMBusTransport(TwoWire& bus, uint8_t addr, bool pec = false)`
 
 PEC errors set an internal error flag readable via `bool valid()` after each operation.
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] `python/periph/transport/smbus_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/smbus_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/smbus_linux.py` — Google-style docstring on class and every public method
+- [ ] Tests (MicroPython)
+- [ ] Tests (CircuitPython)
+- [ ] Tests (Linux)
+
+### C++
+- [ ] `cpp/src/transport/SmbusTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/SmbusTransport.cpp`
+- [ ] `cpp/src/transport/SmbusTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/SmbusTransportLinux.cpp`
+- [ ] `cpp/src/transport/SmbusTransportZephyr.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+
+### Node.js
+- [ ] `nodejs/packages/periph/src/transport/smbus.js` — JSDoc on class and every exported method
+- [ ] Tests
+
+### Rust
+- [ ] `rust/periph/src/transport/smbus.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Tests (Linux)
+- [ ] Tests (ESP32-S3)

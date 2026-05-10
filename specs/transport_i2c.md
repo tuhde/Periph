@@ -92,3 +92,34 @@ Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a 
 | `write_read` | `i2c_write_read(dev, addr, write_buf, write_len, read_buf, read_len)` |
 
 `prj.conf` must enable `CONFIG_I2C=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The I²C device node (`i2c0` by default) must be enabled in the board's devicetree or an overlay.
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] `python/periph/transport/i2c_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/i2c_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/i2c_linux.py` — Google-style docstring on class and every public method
+- [ ] Tests (MicroPython)
+- [ ] Tests (CircuitPython)
+- [ ] Tests (Linux)
+
+### C++
+- [ ] `cpp/src/transport/I2cTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/I2cTransport.cpp`
+- [ ] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/I2cTransportLinux.cpp`
+- [ ] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+
+### Node.js
+- [ ] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method
+- [ ] Tests
+
+### Rust
+- [ ] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Tests (Linux)
+- [ ] Tests (ESP32-S3)
