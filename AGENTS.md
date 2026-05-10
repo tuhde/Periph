@@ -6,7 +6,9 @@ Read [CLAUDE.md](CLAUDE.md) first for repo layout, category structure, and the M
 
 ## Role
 
-OpenCode implements. It does not modify specs, datasheets, CLAUDE.md, or transport implementations unless a spec explicitly requires a transport change.
+OpenCode implements. It does not modify specs, datasheets, or CLAUDE.md.
+
+OpenCode may extend an existing transport implementation by adding methods if a chip driver requires a capability not yet present. Any addition must be documented with the same inline format as the rest of the file (docstring / Doxygen / JSDoc / `///`) and must be consistent with the transport's interface contract in `specs/transport_<name>.md`.
 
 The spec in `specs/<category>/<chip>.md` is the single source of truth. Implement exactly what it defines — no more, no less.
 
@@ -583,10 +585,25 @@ For **Node-RED** `demo.json`, there are no inline comments. The tab node's `info
 
 ## Commit convention
 
-One commit per stage (Minimal, Full). Message format:
+One commit per stage per platform. Message format:
 
 ```
-Add INA226Minimal for MicroPython and Arduino
+Add INA226Minimal for Python/MicroPython
 
 Co-Authored-By: OpenCode <noreply@opencode.ai>
 ```
+
+Use these platform labels consistently:
+
+| Platform | Label |
+|----------|-------|
+| Python MicroPython | `Python/MicroPython` |
+| Python CircuitPython | `Python/CircuitPython` |
+| Python Linux | `Python/Linux` |
+| C++ Arduino | `C++/Arduino` |
+| C++ Linux GCC | `C++/Linux` |
+| C++ Zephyr | `C++/Zephyr` |
+| Node.js | `Node.js` |
+| Node-RED | `Node-RED` |
+| Rust Linux | `Rust/Linux` |
+| Rust ESP32-S3 | `Rust/ESP32-S3` |
