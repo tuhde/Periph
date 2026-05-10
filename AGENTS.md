@@ -14,7 +14,10 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 
 **Documentation is part of implementation.** A platform is not done until its driver, tests, examples, and inline documentation are all complete. Submitting code without documentation is the same as submitting incomplete code.
 
-The per-chip implementation checklist lives in the chip's spec file (`specs/<category>/<chip>.md`). Tick each box as the item is committed; the PR may not be opened until every box is ticked.
+**The implementation checklist is mandatory.** Every chip and transport spec contains an `## Implementation Checklist` section. This is not optional reading — it is the definition of done. Open it before writing a single line of code and tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+- Chip checklist: `specs/<category>/<chip>.md` → `## Implementation Checklist`
+- Transport checklist: `specs/transport_<name>.md` → `## Implementation Checklist`
 
 ## Finding the work
 
@@ -82,6 +85,8 @@ For test file paths and runner scripts, see [TESTING.md](TESTING.md). When addin
 Remove `.gitkeep` from a target directory when adding the first real file.
 
 ## Transport interface
+
+> **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
 
 Chip drivers must only call the three transport methods. Never import or reference a concrete transport class.
 
