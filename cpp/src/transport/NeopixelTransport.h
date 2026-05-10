@@ -4,13 +4,13 @@
 #include "Transport.h"
 
 /** @brief NeoPixel transport using SPI bit-banging. */
-class NeoPixelTransport : public Transport {
+class NeopixelTransport : public Transport {
 public:
     /**
      * @brief Construct a NeoPixel transport.
      * @param bus SPI bus (SPIClass&).
      */
-    NeoPixelTransport(SPIClass& bus)
+    NeopixelTransport(SPIClass& bus)
         : _bus(bus) {}
 
     /**

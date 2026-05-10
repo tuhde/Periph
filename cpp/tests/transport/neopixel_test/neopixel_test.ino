@@ -2,7 +2,7 @@
 #define TEST_SPI_BUS SPI
 #endif
 
-NeoPixelTransport transport(TEST_SPI_BUS);
+NeopixelTransport transport(TEST_SPI_BUS);
 
 static int passed = 0;
 static int failed = 0;
