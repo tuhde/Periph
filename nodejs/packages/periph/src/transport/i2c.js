@@ -38,11 +38,15 @@ class I2CTransport {
     }
 
     /**
-     * Write a register address then read data back (repeated start).
+     * Write a single register address byte then read data back (repeated start).
      *
-     * Uses readI2cBlockSync with the first byte of data as the register address.
+     * Uses readI2cBlockSync, which accepts exactly one command byte. Only
+     * data[0] is sent; any additional bytes in data are ignored. This is a
+     * library constraint: i2c-bus v5 has no synchronous multi-message transfer
+     * API (I2C_RDWR with multiple messages), so multi-byte writes before the
+     * repeated start are not supported in synchronous mode.
      *
-     * @param {Buffer|Uint8Array} data - Register address byte(s) to send.
+     * @param {Buffer|Uint8Array} data - Register address to send; only data[0] is used.
      * @param {number}            n    - Number of bytes to read back.
      * @returns {Buffer} Data received from the device.
      */
