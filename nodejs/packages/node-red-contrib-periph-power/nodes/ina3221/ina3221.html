@@ -1,0 +1,82 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ina3221-device', {
+        category: 'config',
+        defaults: {
+            name:   { value: '' },
+            bus:    { value: '1', required: true, validate: RED.validators.number() },
+            address:{ value: '40', required: true },
+            rShunt: { value: '0.1', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('INA3221 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ina3221-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="INA3221">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="40" style="width:80px"> &nbsp;default: 40 (0x40)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rShunt">R<sub>shunt</sub> (Ω)</label>
+        <input type="number" id="node-config-input-rShunt" min="0.001" step="0.001" style="width:100px">
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ina3221', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ina3221-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-bolt',
+        label:   function() { return this.name || 'INA3221'; },
+        paletteLabel: 'INA3221'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ina3221">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="INA3221">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ina3221">
+    <p>Reads bus voltage, shunt voltage, current, and power from an INA3221 three-channel power monitor over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>ina3221-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.ch1 <span class="property-type">object</span></dt>
+        <dd>Channel 1 readings: voltage, shuntVoltage, current, power.</dd>
+        <dt>payload.ch2 <span class="property-type">object</span></dt>
+        <dd>Channel 2 readings: voltage, shuntVoltage, current, power.</dd>
+        <dt>payload.ch3 <span class="property-type">object</span></dt>
+        <dd>Channel 3 readings: voltage, shuntVoltage, current, power.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure bus number, I²C address (default <code>0x40</code>), and shunt resistance
+    in the device config node. The INA3221's three channels can monitor three separate
+    power rails simultaneously.</p>
+</script>

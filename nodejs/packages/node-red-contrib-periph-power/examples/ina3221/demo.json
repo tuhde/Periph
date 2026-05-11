@@ -1,0 +1,77 @@
+[
+    {
+        "id": "n1",
+        "type": "periph-ina3221",
+        "name": "INA3221 Monitor",
+        "device": "c1",
+        "wires": [["n2_ch1", "n2_ch2", "n2_ch3"]],
+        "z": "ina3221_demo"
+    },
+    {
+        "id": "c1",
+        "type": "ina3221-device",
+        "name": "",
+        "bus": "1",
+        "address": "40",
+        "rShunt": "0.1",
+        "z": "ina3221_demo"
+    },
+    {
+        "id": "n2_ch1",
+        "type": "ui_chart",
+        "name": "CH1 Voltage",
+        "z": "ina3221_demo",
+        "group": "g1",
+        "order": 1,
+        "wires": []
+    },
+    {
+        "id": "n2_ch2",
+        "type": "ui_chart",
+        "name": "CH2 Voltage",
+        "z": "ina3221_demo",
+        "group": "g1",
+        "order": 2,
+        "wires": []
+    },
+    {
+        "id": "n2_ch3",
+        "type": "ui_chart",
+        "name": "CH3 Voltage",
+        "z": "ina3221_demo",
+        "group": "g1",
+        "order": 3,
+        "wires": []
+    },
+    {
+        "id": "n3",
+        "type": "inject",
+        "name": "Tick",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "wires": [["n1"]],
+        "z": "ina3221_demo"
+    },
+    {
+        "id": "g1",
+        "type": "ui_group",
+        "name": "INA3221 Channels",
+        "z": "ina3221_demo",
+        "tab": "t1"
+    },
+    {
+        "id": "t1",
+        "type": "ui_tab",
+        "name": "Power Monitor",
+        "z": "ina3221_demo"
+    },
+    {
+        "id": "ina3221_demo",
+        "type": "tab",
+        "label": "INA3221 Three-Rail Monitor"
+    }
+]

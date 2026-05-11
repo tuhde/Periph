@@ -6,7 +6,8 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
-      "ina226": "nodes/ina226/ina226.js"
+      "ina226": "nodes/ina226/ina226.js",
+      "periph-ina3221": "nodes/ina3221/ina3221.js"
     }
   },
   "dependencies": {
