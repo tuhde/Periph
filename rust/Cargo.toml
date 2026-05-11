@@ -2,9 +2,15 @@
 resolver = "2"
 members = [
     "periph",
+    "tests/transport/spi_test",
+]
+exclude = [
+    "tests/transport/spi_test_esp32s3",
 ]
 
 [workspace.dependencies]
 embedded-hal = "1.0"
 linux-embedded-hal = "0.4"
 periph = { path = "periph" }
+spidev = "0.5"
+embedded-hal-bus = "0.2"
