@@ -1,0 +1,76 @@
+[
+    {
+        "id": "tab-ina226-demo",
+        "type": "tab",
+        "label": "INA226 Power Monitor",
+        "disabled": false,
+        "info": "Reads voltage, current, and power from an INA226 every second and displays a formatted string in the debug panel."
+    },
+    {
+        "id": "cfg-ina226",
+        "type": "ina226-device",
+        "name": "INA226",
+        "bus": "1",
+        "address": "40",
+        "rShunt": "0.1",
+        "maxCurrent": "2.0"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-ina226-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-ina226"]]
+    },
+    {
+        "id": "read-ina226",
+        "type": "ina226",
+        "name": "INA226",
+        "device": "cfg-ina226",
+        "z": "tab-ina226-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["fmt-readings"]]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nmsg.payload = p.voltage.toFixed(3) + 'V  ' + p.current.toFixed(4) + 'A  ' + p.power.toFixed(4) + 'W';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ina226-demo",
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-ina226-demo",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    }
+]

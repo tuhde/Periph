@@ -98,25 +98,25 @@ Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/i2c_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/i2c_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/i2c_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/i2c_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/i2c_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/i2c_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
 - [ ] Tests (CircuitPython)
 - [ ] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/I2cTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/I2cTransport.cpp`
-- [ ] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/I2cTransportLinux.cpp`
-- [ ] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/I2cTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/I2cTransport.cpp`
+- [x] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/I2cTransportLinux.cpp`
+- [x] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method
 - [ ] Tests
 
 ### Rust
