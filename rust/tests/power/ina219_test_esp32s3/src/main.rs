@@ -50,7 +50,7 @@ fn main() -> ! {
     let sv_ok = chip.shunt_voltage().map(|v| v >= -0.320 && v <= 0.320).unwrap_or(false);
     check_true!(sv_ok, "shunt_voltage_range", passed, failed);
 
-    let i_ok = chip.current().map(|v| v >= -2.0 && i <= 2.0).unwrap_or(false);
+    let i_ok = chip.current().map(|v| v >= -2.0 && v <= 2.0).unwrap_or(false);
     check_true!(i_ok, "current_range", passed, failed);
 
     let p_ok = chip.power().map(|v| v >= 0.0 && v <= 80.0).unwrap_or(false);
