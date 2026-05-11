@@ -35,14 +35,7 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut chip = match Ina3221Full::new(i2c, TEST_ADDR, 0.1) {
-        Ok(c) => c,
-        Err(_) => {
-            println!("FAIL init: could not reach INA3221 at 0x{:02X}", TEST_ADDR);
-            println!("===DONE: 0 passed, 1 failed===");
-            loop {}
-        }
-    };
+    let mut chip = Ina3221Full::new(i2c, TEST_ADDR, 0.1);
 
     check_true!(
         chip.manufacturer_id().map(|v| v == 0x5449).unwrap_or(false),

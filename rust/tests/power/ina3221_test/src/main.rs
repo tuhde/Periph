@@ -21,7 +21,7 @@ fn main() {
         .unwrap_or(0x40);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut chip = Ina3221Full::new(dev, addr, 0.1).expect("init INA3221");
+    let mut chip = Ina3221Full::new(dev, addr, 0.1);
 
     let mut passed = 0i32;
     let mut failed = 0i32;
