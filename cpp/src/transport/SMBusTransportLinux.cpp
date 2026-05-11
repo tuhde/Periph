@@ -5,18 +5,23 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
+#include <stdexcept>
+#include <string>
 
 SMBusTransportLinux::SMBusTransportLinux(int bus, uint8_t addr, bool pec)
     : _addr(addr), _pec(pec) {
     char path[32];
     snprintf(path, sizeof(path), "/dev/i2c-%d", bus);
     _fd = open(path, O_RDWR);
-    if (_fd < 0) { perror(path); exit(1); }
-    if (ioctl(_fd, I2C_SLAVE, addr) < 0) { perror("ioctl I2C_SLAVE"); close(_fd); exit(1); }
+    if (_fd < 0)
+        throw std::runtime_error(std::string("Failed to open ") + path + ": " + strerror(errno));
+    if (ioctl(_fd, I2C_SLAVE, addr) < 0) {
+        close(_fd);
+        throw std::runtime_error(std::string("I2C_SLAVE on ") + path + ": " + strerror(errno));
+    }
 }
 
 SMBusTransportLinux::~SMBusTransportLinux() {
@@ -41,9 +46,9 @@ void SMBusTransportLinux::write(const uint8_t* data, size_t len) {
         uint8_t buf[len + 1];
         memcpy(buf, data, len);
         buf[len] = crc;
-        ::write(_fd, buf, len + 1);
+        if (::write(_fd, buf, len + 1) < 0) perror("SMBus write");
     } else {
-        ::write(_fd, data, len);
+        if (::write(_fd, data, len) < 0) perror("SMBus write");
     }
 }
 
@@ -51,14 +56,14 @@ void SMBusTransportLinux::read(uint8_t* buf, size_t len) {
     _valid = true;
     if (_pec) {
         uint8_t tmp[len + 1];
-        ::read(_fd, tmp, len + 1);
+        if (::read(_fd, tmp, len + 1) < 0) perror("SMBus read");
         memcpy(buf, tmp, len);
         uint8_t addr_byte = (_addr << 1) | 1;
         uint8_t crc = _crc8(&addr_byte, 1);
         crc = _crc8(buf, len, crc);
         _valid = (crc == tmp[len]);
     } else {
-        ::read(_fd, buf, len);
+        if (::read(_fd, buf, len) < 0) perror("SMBus read");
     }
 }
 

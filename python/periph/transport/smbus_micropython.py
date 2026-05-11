@@ -84,7 +84,8 @@ class SMBusTransport(Transport):
             OSError: On PEC mismatch or bus timeout.
         """
         buf = bytearray(n + 1 if self._pec else n)
-        self._bus.writeto_then_readfrom(self._addr, bytes(data), buf)
+        self._bus.writeto(self._addr, bytes(data), False)  # False = no STOP → repeated start
+        self._bus.readfrom_into(self._addr, buf)
         if self._pec:
             expected = _crc8(
                 bytes([self._addr << 1]) + bytes(data) +
