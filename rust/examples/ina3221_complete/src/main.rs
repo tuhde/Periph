@@ -18,9 +18,9 @@ fn main() {
 
     for ch in 1..=3 {
         println!("ch{} voltage: {:.3}V", ch, chip.voltage(ch).expect("voltage"));              // Read bus voltage, (channel) → f32 V
-        println!("ch{} shunt: {:.6}V", chip.shunt_voltage(ch).expect("shunt_voltage"));        // Read shunt voltage, (channel) → f32 V
-        println!("ch{} current: {:.4}A", chip.current(ch).expect("current"));                   // Read load current, (channel) → f32 A
-        println!("ch{} power: {:.4}W", chip.power(ch).expect("power"));                        // Read power, (channel) → f32 W
+        println!("ch{} shunt: {:.6}V", ch, chip.shunt_voltage(ch).expect("shunt_voltage"));        // Read shunt voltage, (channel) → f32 V
+        println!("ch{} current: {:.4}A", ch, chip.current(ch).expect("current"));                   // Read load current, (channel) → f32 A
+        println!("ch{} power: {:.4}W", ch, chip.power(ch).expect("power"));                        // Read power, (channel) → f32 W
     }
 
     println!("conversion_ready: {:?}", chip.conversion_ready().expect("conversion_ready"));  // Check conversion done, () → bool
