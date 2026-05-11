@@ -1,14 +1,7 @@
 [workspace]
 resolver = "2"
-exclude = [
-    "tests/power/ina226_test_esp32s3",
-]
 members = [
     "periph",
-    "examples/ina226_minimal",
-    "examples/ina226_complete",
-    "examples/ina226_demo",
-    "tests/power/ina226_test",
 ]
 
 [workspace.dependencies]

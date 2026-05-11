@@ -60,7 +60,7 @@ PEC errors set an internal error flag readable via `bool valid()` after each ope
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/smbus_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/smbus_micropython.py` — Google-style docstring on class and every public method
 - [ ] `python/periph/transport/smbus_circuitpython.py` — Google-style docstring on class and every public method
 - [ ] `python/periph/transport/smbus_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
@@ -68,10 +68,10 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SmbusTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SmbusTransport.cpp`
-- [x] `cpp/src/transport/SmbusTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SmbusTransportLinux.cpp`
+- [ ] `cpp/src/transport/SmbusTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/SmbusTransport.cpp`
+- [ ] `cpp/src/transport/SmbusTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/SmbusTransportLinux.cpp`
 - [ ] `cpp/src/transport/SmbusTransportZephyr.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)

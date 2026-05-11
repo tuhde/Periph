@@ -200,25 +200,25 @@ embedded-hal-bus = "0.2"
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/spi_micropython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/spi_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/spi_linux.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/spi_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/spi_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/transport/spi_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
 - [ ] Tests (CircuitPython)
 - [ ] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SpiTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SpiTransport.cpp`
-- [x] `cpp/src/transport/SpiTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SpiTransportLinux.cpp`
-- [x] `cpp/src/transport/SpiTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SpiTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/SpiTransport.cpp`
+- [ ] `cpp/src/transport/SpiTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/SpiTransportLinux.cpp`
+- [ ] `cpp/src/transport/SpiTransportZephyr.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
+- [ ] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
 - [ ] Tests
 
 ### Rust
