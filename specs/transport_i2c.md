@@ -120,6 +120,6 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests
 
 ### Rust
-- [ ] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)

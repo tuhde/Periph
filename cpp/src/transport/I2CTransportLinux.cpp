@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <stdexcept>
 #include <string>
@@ -27,11 +28,11 @@ I2CTransportLinux::~I2CTransportLinux() {
 }
 
 void I2CTransportLinux::write(const uint8_t* data, size_t len) {
-    ::write(_fd, data, len);
+    if (::write(_fd, data, len) < 0) perror("I2C write");
 }
 
 void I2CTransportLinux::read(uint8_t* buf, size_t len) {
-    ::read(_fd, buf, len);
+    if (::read(_fd, buf, len) < 0) perror("I2C read");
 }
 
 void I2CTransportLinux::write_read(const uint8_t* data, size_t data_len,
