@@ -4,9 +4,10 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
+#include <cerrno>
 #include <cstring>
+#include <stdexcept>
+#include <string>
 
 SPITransportLinux::SPITransportLinux(int bus_num, int device_num,
                                      uint8_t mode, uint32_t max_speed_hz)
@@ -15,11 +16,16 @@ SPITransportLinux::SPITransportLinux(int bus_num, int device_num,
     char path[32];
     snprintf(path, sizeof(path), "/dev/spidev%d.%d", bus_num, device_num);
     _fd = open(path, O_RDWR);
-    if (_fd < 0) { perror(path); exit(1); }
-    if (ioctl(_fd, SPI_IOC_WR_MODE, &mode) < 0)
-        { perror("SPI_IOC_WR_MODE"); close(_fd); exit(1); }
-    if (ioctl(_fd, SPI_IOC_WR_MAX_SPEED_HZ, &max_speed_hz) < 0)
-        { perror("SPI_IOC_WR_MAX_SPEED_HZ"); close(_fd); exit(1); }
+    if (_fd < 0)
+        throw std::runtime_error(std::string("Failed to open ") + path + ": " + strerror(errno));
+    if (ioctl(_fd, SPI_IOC_WR_MODE, &mode) < 0) {
+        close(_fd);
+        throw std::runtime_error(std::string("SPI_IOC_WR_MODE on ") + path + ": " + strerror(errno));
+    }
+    if (ioctl(_fd, SPI_IOC_WR_MAX_SPEED_HZ, &max_speed_hz) < 0) {
+        close(_fd);
+        throw std::runtime_error(std::string("SPI_IOC_WR_MAX_SPEED_HZ on ") + path + ": " + strerror(errno));
+    }
 }
 
 SPITransportLinux::~SPITransportLinux() {

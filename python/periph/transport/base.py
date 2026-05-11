@@ -31,7 +31,7 @@ class Transport:
         raise NotImplementedError
 
     def write_read(self, data, n):
-        """Write then read without releasing the bus (repeated start).
+        """Write then read without releasing the bus between phases.
 
         Args:
             data: Bytes to write (typically a register address).

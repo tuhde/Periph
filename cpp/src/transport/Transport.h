@@ -24,10 +24,11 @@ public:
      */
     virtual void read(uint8_t* buf, size_t len) = 0;
 
-    /** @brief Write then read without releasing the bus (repeated start).
+    /** @brief Write then read without releasing the bus between phases.
      *
-     *  Sends @p data_len bytes, then reads @p buf_len bytes, all within one
-     *  bus ownership window — no STOP is issued between the write and read phases.
+     *  Sends @p data_len bytes, then reads @p buf_len bytes within one
+     *  continuous bus transaction — the bus is not released between the
+     *  write and read phases.
      *
      *  @param data     Command/address bytes to send.
      *  @param data_len Number of bytes in @p data.

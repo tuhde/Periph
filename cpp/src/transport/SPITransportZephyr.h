@@ -1,5 +1,6 @@
 #pragma once
 #include <zephyr/drivers/spi.h>
+#include <cstring>
 #include "Transport.h"
 
 /** @brief SPI transport for Zephyr RTOS (wraps the spi driver API).
@@ -49,11 +50,12 @@ public:
      */
     void write_read(const uint8_t* data, size_t data_len,
                     uint8_t* buf, size_t buf_len) override {
-        // TX: send command bytes, then clock zeros (buf=nullptr) during read phase.
         // RX: discard (buf=nullptr) during command phase, capture during read phase.
+        uint8_t tx_pad[buf_len];
+        memset(tx_pad, 0, buf_len);
         struct spi_buf tx_bufs[2] = {
             { .buf = const_cast<uint8_t*>(data), .len = data_len },
-            { .buf = nullptr,                     .len = buf_len  },
+            { .buf = tx_pad,                      .len = buf_len  },
         };
         struct spi_buf rx_bufs[2] = {
             { .buf = nullptr, .len = data_len },
