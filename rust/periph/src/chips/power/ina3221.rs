@@ -274,9 +274,9 @@ impl<I2C: I2c> Ina3221Full<I2C> {
         let cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG)?;
         let bit = 14 - (ch as u8 - 1);
         let cfg = if enabled {
-            cfg | (1u << bit)
+            cfg | (1u16 << bit)
         } else {
-            cfg & !(1u << bit)
+            cfg & !(1u16 << bit)
         };
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, cfg)
     }
@@ -291,7 +291,7 @@ impl<I2C: I2c> Ina3221Full<I2C> {
         let ch = channel_valid(channel);
         let cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG)?;
         let bit = 14 - (ch as u8 - 1);
-        Ok((cfg & (1u << bit)) != 0)
+        Ok((cfg & (1u16 << bit)) != 0)
     }
 
     /// Read the Conversion Ready Flag (CVRF).
@@ -309,7 +309,7 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     /// * `latch`   — If `true`, use latched mode (default `false`).
     pub fn set_critical_alert(&mut self, channel: u8, limit_v: f32, latch: bool) -> Result<(), I2C::Error> {
         let ch = channel_valid(channel);
-        let raw = ((limit_v / 40e-6) as i32 << 3) as u16 & 0xFFF8;
+        let raw = (((limit_v / 40e-6) as i32) << 3) as u16 & 0xFFF8;
         write_reg(&mut self.inner.i2c, self.inner.addr, CRIT_REGS[ch as usize - 1], raw)?;
         let cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN)?;
         let cfg = if latch { cfg | 0x0400 } else { cfg & !0x0400 };
@@ -324,7 +324,7 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     /// * `latch`   — If `true`, use latched mode (default `false`).
     pub fn set_warning_alert(&mut self, channel: u8, limit_v: f32, latch: bool) -> Result<(), I2C::Error> {
         let ch = channel_valid(channel);
-        let raw = ((limit_v / 40e-6) as i32 << 3) as u16 & 0xFFF8;
+        let raw = (((limit_v / 40e-6) as i32) << 3) as u16 & 0xFFF8;
         write_reg(&mut self.inner.i2c, self.inner.addr, WARN_REGS[ch as usize - 1], raw)?;
         let cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN)?;
         let cfg = if latch { cfg | 0x0800 } else { cfg & !0x0800 };
@@ -350,10 +350,10 @@ impl<I2C: I2c> Ina3221Full<I2C> {
         let mut cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN)? & !0xE000;
         for &ch in channels {
             let _ = channel_valid(ch);
-            cfg |= 1u << (15 - (ch - 1));
+            cfg |= 1u16 << (15 - (ch - 1));
         }
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN, cfg)?;
-        let raw = ((limit_v / 40e-6) as i32 << 1) as u16 & 0xFFFE;
+        let raw = (((limit_v / 40e-6) as i32) << 1) as u16 & 0xFFFE;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_SUM_LIMIT, raw)
     }
 
@@ -371,8 +371,8 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     /// * `upper_v` — Upper bus voltage limit in volts.
     /// * `lower_v` — Lower bus voltage limit in volts.
     pub fn set_power_valid_limits(&mut self, upper_v: f32, lower_v: f32) -> Result<(), I2C::Error> {
-        let raw_upper = ((upper_v / 8e-3) as i32 << 3) as u16 & 0xFFF8;
-        let raw_lower = ((lower_v / 8e-3) as i32 << 3) as u16 & 0xFFF8;
+        let raw_upper = (((upper_v / 8e-3) as i32) << 3) as u16 & 0xFFF8;
+        let raw_lower = (((lower_v / 8e-3) as i32) << 3) as u16 & 0xFFF8;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_PV_UPPER, raw_upper)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_PV_LOWER, raw_lower)
     }
