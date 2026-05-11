@@ -5,16 +5,21 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
 #include <cerrno>
+#include <cstring>
+#include <stdexcept>
+#include <string>
 
 I2CTransportLinux::I2CTransportLinux(int bus, uint8_t addr) : _addr(addr) {
     char path[32];
     snprintf(path, sizeof(path), "/dev/i2c-%d", bus);
     _fd = open(path, O_RDWR);
-    if (_fd < 0) { perror(path); exit(1); }
-    if (ioctl(_fd, I2C_SLAVE, addr) < 0) { perror("ioctl I2C_SLAVE"); close(_fd); exit(1); }
+    if (_fd < 0)
+        throw std::runtime_error(std::string("Failed to open ") + path + ": " + strerror(errno));
+    if (ioctl(_fd, I2C_SLAVE, addr) < 0) {
+        close(_fd);
+        throw std::runtime_error(std::string("I2C_SLAVE on ") + path + ": " + strerror(errno));
+    }
 }
 
 I2CTransportLinux::~I2CTransportLinux() {
