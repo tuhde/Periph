@@ -98,11 +98,24 @@ class INA219Full extends INA219Minimal {
     static MODE_BUS_CONT       = 6;
     static MODE_SHUNT_BUS_CONT = 7;
 
+    /**
+     * @param {object} transport          - Configured I²C or SMBus transport.
+     * @param {number} [rShunt=0.1]       - Shunt resistor value in ohms.
+     * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
+     */
     constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
         super(transport, rShunt, maxCurrent);
         this._savedMode = INA219Full.MODE_SHUNT_BUS_CONT;
     }
 
+    /**
+     * Write the Configuration Register.
+     * @param {number} [brng=1]  - Bus voltage range: 0 = 16 V FSR, 1 = 32 V FSR.
+     * @param {number} [pga=3]  - Shunt PGA gain: 0 = ÷1, 1 = ÷2, 2 = ÷4, 3 = ÷8.
+     * @param {number} [badc=0x03] - Bus ADC resolution/averaging: 0x00–0x0F.
+     * @param {number} [sadc=0x03] - Shunt ADC resolution/averaging: 0x00–0x0F.
+     * @param {number} [mode=7] - Operating mode 0–7.
+     */
     configure(brng = 1, pga = 3, badc = 0x03, sadc = 0x03, mode = 7) {
         const config = ((brng & 1) << 13) | ((pga & 3) << 11) | ((badc & 0x0F) << 7) | ((sadc & 0x0F) << 3) | (mode & 7);
         this._savedMode = mode & 7;

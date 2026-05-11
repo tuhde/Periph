@@ -29,6 +29,13 @@ class INA219Minimal:
     _REG_CAL     = 0x05
 
     def __init__(self, transport, r_shunt=0.1, max_current=2.0):
+        """Initialize INA219Minimal and program the Calibration Register.
+
+        Args:
+            transport: Configured I²C or SMBus transport pointing at the device.
+            r_shunt: Shunt resistor value in ohms (default 0.1).
+            max_current: Maximum expected current in amperes (default 2.0).
+        """
         self._transport = transport
         self._current_lsb = max_current / 32768
         self._cal = int(0.04096 / (self._current_lsb * r_shunt)) & 0xFFFE
@@ -122,6 +129,13 @@ class INA219Full(INA219Minimal):
     MODE_SHUNT_BUS_CONT  = 7
 
     def __init__(self, transport, r_shunt=0.1, max_current=2.0):
+        """Initialize INA219Full.
+
+        Args:
+            transport: Configured I²C or SMBus transport pointing at the device.
+            r_shunt: Shunt resistor value in ohms (default 0.1).
+            max_current: Maximum expected current in amperes (default 2.0).
+        """
         super().__init__(transport, r_shunt, max_current)
         self._saved_mode = self.MODE_SHUNT_BUS_CONT
 
