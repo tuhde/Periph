@@ -37,5 +37,5 @@ LINUX_I2C_BUS=1
 # ------------------------------------------------------------------
 # Common
 # ------------------------------------------------------------------
-# I2C address of the device under test
-I2C_ADDR=0x40
+# I2C address of the device under test (optional — falls back to chip_defaults)
+# I2C_ADDR=0x40
