@@ -51,7 +51,7 @@ pub struct NeoPixelTransport<SPI> {
     spi: SPI,
 }
 
-impl<SPI> NeoPixelTransport<SPI> {
+impl<SPI: embedded_hal::spi::SpiBus> NeoPixelTransport<SPI> {
     /// Construct and initialise the NeoPixel transport.
     ///
     /// # Arguments

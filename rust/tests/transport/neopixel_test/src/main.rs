@@ -1,4 +1,4 @@
-use linux_embedded_hal::Spidev;
+use linux_embedded_hal::SpidevBus;
 use periph::transport::neopixel::NeoPixelTransport;
 
 macro_rules! check_true {
@@ -23,7 +23,7 @@ fn main() {
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
 
-    let dev = Spidev::open(format!("/dev/spidev{}.{}", spi_bus, spi_device))
+    let dev = SpidevBus::open(format!("/dev/spidev{}.{}", spi_bus, spi_device))
         .expect("open spidev");
     let mut transport = NeoPixelTransport::new(dev);
 

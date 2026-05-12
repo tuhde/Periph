@@ -1,0 +1,101 @@
+[
+  {
+    "id": "ws2812b-demo-tab",
+    "type": "tab",
+    "label": "WS2812B Demo",
+    "info": "Cycles through six colours on a WS2812B LED strip using inject nodes. Each inject fires every 2 seconds with a different { r, g, b } payload, and an on-demand inject sends { command: 'off' } to turn the strip off. Demonstrates solid-colour fill and the off command."
+  },
+  {
+    "id": "ws2812b-device-1",
+    "type": "ws2812b-device",
+    "name": "WS2812B strip",
+    "spiBus": "0",
+    "spiDevice": "0",
+    "pixelCount": "30",
+    "brightness": "180"
+  },
+  {
+    "id": "inject-red",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Red",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":0,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-orange",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Orange",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":80,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-yellow",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Yellow",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":200,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-green",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Green",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":255,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-blue",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Blue",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":0,\"b\":255}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-violet",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Violet",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":148,\"g\":0,\"b\":211}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "inject-off",
+    "type": "inject",
+    "z": "ws2812b-demo-tab",
+    "name": "Off",
+    "props": [{ "p": "payload" }],
+    "payload": "{\"command\":\"off\"}",
+    "payloadType": "json",
+    "wires": [["ws2812b-node"]]
+  },
+  {
+    "id": "ws2812b-node",
+    "type": "periph-ws2812b",
+    "z": "ws2812b-demo-tab",
+    "name": "WS2812B",
+    "device": "ws2812b-device-1",
+    "wires": []
+  }
+]

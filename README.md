@@ -19,6 +19,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | I²C | Implemented |
 | SPI | Implemented |
 | SMBus | Implemented |
+| NeoPixel (WS2812B / single-wire NZR) | Implemented |
 
 ## Structure
 
@@ -81,6 +82,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
 
 More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
 
