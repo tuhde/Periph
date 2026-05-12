@@ -1,0 +1,6 @@
+# Default I2C addresses for chips used in hardware tests.
+# Format: <chip_name>  <hex_address>
+# Scripts use this when I2C_ADDR is not set in testconfig.
+
+bmp180   0x77
+ina226   0x40

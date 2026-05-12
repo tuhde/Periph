@@ -22,7 +22,8 @@ if [[ -f "$TESTCONFIG" ]]; then
     source "$TESTCONFIG"
 fi
 
-TEST_DIR="$SCRIPT_DIR/tests/$TARGET/${CHIP}_test"
+CATEGORY="${TARGET%/*}"
+TEST_DIR="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
 if [[ ! -d "$TEST_DIR" ]]; then
     echo "Error: test not found: $TEST_DIR" >&2; exit 2
 fi
@@ -35,7 +36,14 @@ if [[ "$COMPILE_ONLY" == true ]]; then
 fi
 
 I2C_BUS="${I2C_BUS:-1}"
-I2C_ADDR="${I2C_ADDR:-0x40}"
+
+if [[ -z "${I2C_ADDR:-}" ]]; then
+    I2C_ADDR=$(awk -v c="$CHIP" '$1==c{print $2; exit}' "$SCRIPT_DIR/../chip_defaults" 2>/dev/null || true)
+    if [[ -z "${I2C_ADDR:-}" ]]; then
+        echo "Error: I2C_ADDR not set in testconfig and no default found for '$CHIP' in chip_defaults" >&2
+        exit 1
+    fi
+fi
 
 echo "Running $TARGET..."
 I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \

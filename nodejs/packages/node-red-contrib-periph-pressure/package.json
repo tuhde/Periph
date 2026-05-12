@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for pressure sensor chips",
   "keywords": ["node-red", "pressure", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "bmp180": "nodes/bmp180/bmp180.js"
+    }
   },
   "dependencies": {
     "periph": "*"
