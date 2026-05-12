@@ -84,6 +84,8 @@ For test file paths and runner scripts, see [TESTING.md](TESTING.md). When addin
 
 Remove `.gitkeep` from a target directory when adding the first real file.
 
+For chips with I²C or SMBus transport, add the chip's default I²C address to `chip_defaults`.
+
 ## Transport interface
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
