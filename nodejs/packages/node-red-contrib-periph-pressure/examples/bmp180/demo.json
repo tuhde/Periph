@@ -1,0 +1,66 @@
+[
+    {
+        "id": "bmp180-device-1",
+        "type": "bmp180-device",
+        "name": "BMP180 @ i2c-1",
+        "bus": "1",
+        "oss": "0"
+    },
+    {
+        "id": "bmp180-read-1",
+        "type": "periph-bmp180",
+        "name": "BMP180",
+        "device": "bmp180-device-1",
+        "seaLevelHpa": "1013.25",
+        "wires": [["debug-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["bmp180-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "calibrate-here",
+        "type": "inject",
+        "name": "Calibrate to here",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["calibrate-function-1"]]
+    },
+    {
+        "id": "calibrate-function-1",
+        "type": "function",
+        "name": "Recompute sea-level",
+        "func": "const hpa = flow.get('bmp180-sea-level') || 1013.25;\nconst alt = msg.payload.altitude;\nconst newHpa = msg.payload.pressure / Math.pow(1 - alt / 44330, 5.255);\nflow.set('bmp180-sea-level', newHpa);\nnode.status({text: 'sea-level=' + newHpa.toFixed(1) + ' hPa'});\nreturn msg;",
+        "outputs": "1",
+        "noerr": "0",
+        "x": 480,
+        "y": 320,
+        "wires": [["bmp180-read-1"]]
+    }
+]

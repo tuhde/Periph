@@ -1,0 +1,93 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bmp180-device', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bus:  { value: '1', required: true, validate: RED.validators.number() },
+            oss:  { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('BMP180 @ 0x77 (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bmp180-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BMP180">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-oss">Oversampling mode</label>
+        <select id="node-config-input-oss" style="width:180px">
+            <option value="0">ULP (4.5 ms)</option>
+            <option value="1">Standard (7.5 ms)</option>
+            <option value="2">High Resolution (13.5 ms)</option>
+            <option value="3">Ultra High Resolution (25.5 ms)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-bmp180', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:         { value: '' },
+            device:       { value: '', type: 'bmp180-device', required: true },
+            seaLevelHpa:  { value: '1013.25' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'BMP180'; },
+        paletteLabel: 'BMP180'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-bmp180">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BMP180">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelHpa">Sea-level pressure (hPa)</label>
+        <input type="number" id="node-input-seaLevelHpa" min="800" max="1100" step="0.01" style="width:100px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-bmp180">
+    <p>Reads bus voltage, load current, and power from an INA219 power monitor.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>bmp180-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in hPa.</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and oversampling mode in the device config node.
+    The sea-level reference pressure defaults to <code>1013.25</code> hPa and can be
+    adjusted in the read node config panel.</p>
+</script>

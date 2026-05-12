@@ -4,6 +4,7 @@ exclude = [
     "tests/power/ina226_test_esp32s3",
     "tests/power/ina219_test_esp32s3",
     "tests/power/ina3221_test_esp32s3",
+    "tests/pressure/bmp180_test_esp32s3",
 ]
 members = [
     "periph",
@@ -19,6 +20,10 @@ members = [
     "examples/ina3221_complete",
     "examples/ina3221_demo",
     "tests/power/ina3221_test",
+    "examples/bmp180_minimal",
+    "examples/bmp180_complete",
+    "examples/bmp180_demo",
+    "tests/pressure/bmp180_test",
 ]
 
 [workspace.dependencies]
