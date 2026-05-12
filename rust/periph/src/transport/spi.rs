@@ -38,13 +38,15 @@
 //! ])?;
 //! ```
 //!
-//! ## Linux host (`spidev` crate)
+//! ## Linux host (`linux-embedded-hal` + `spidev` crates)
 //!
-//! `spidev` implements `SpiBus`, not `SpiDevice`. Wrap it with
-//! `embedded_hal_bus::spi::ExclusiveDevice` to obtain a type that implements
-//! [`SpiDevice`]:
+//! `spidev::Spidev` does not implement `SpiBus` directly. Use
+//! `linux_embedded_hal::SpidevBus`, which wraps `Spidev` and implements
+//! `SpiBus`. Wrap it with `embedded_hal_bus::spi::ExclusiveDevice` to obtain
+//! a type that implements [`SpiDevice`]:
 //!
 //! ```rust,ignore
+//! use linux_embedded_hal::SpidevBus;
 //! use spidev::{Spidev, SpidevOptions, SpiModeFlags};
 //! use embedded_hal_bus::spi::ExclusiveDevice;
 //!
@@ -55,13 +57,15 @@
 //!         .mode(SpiModeFlags::SPI_MODE_0)
 //!         .build(),
 //! )?;
-//! let device = ExclusiveDevice::new_no_delay(spi, cs)?;
+//! let bus = SpidevBus(spi);  // SpidevBus implements SpiBus
+//! let device = ExclusiveDevice::new_no_delay(bus, cs)?;
 //! // `device` implements SpiDevice — pass it to chip driver constructors
 //! ```
 //!
 //! `Cargo.toml` dependencies for Linux examples and tests:
 //!
 //! ```toml
+//! linux-embedded-hal = "0.4"
 //! spidev = "0.5"
 //! embedded-hal = "1"
 //! embedded-hal-bus = "0.2"

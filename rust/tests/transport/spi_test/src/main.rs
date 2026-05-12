@@ -1,5 +1,6 @@
 use embedded_hal::spi::{Operation, SpiDevice};
 use embedded_hal_bus::spi::ExclusiveDevice;
+use linux_embedded_hal::SpidevBus;
 use spidev::{SpiModeFlags, Spidev, SpidevOptions};
 
 macro_rules! check_true {
@@ -39,7 +40,9 @@ fn main() {
     )
     .expect("configure spidev");
 
-    let mut device = ExclusiveDevice::new_no_delay(spi, NullCs).expect("create SpiDevice");
+    // SpidevBus wraps Spidev and implements embedded-hal SpiBus.
+    let bus = SpidevBus(spi);
+    let mut device = ExclusiveDevice::new_no_delay(bus, NullCs).expect("create SpiDevice");
 
     let mut passed = 0i32;
     let mut failed = 0i32;
