@@ -22,7 +22,8 @@ if [[ -f "$TESTCONFIG" ]]; then
     source "$TESTCONFIG"
 fi
 
-TEST_DIR="$SCRIPT_DIR/tests/$TARGET/${CHIP}_test"
+CATEGORY="${TARGET%/*}"
+TEST_DIR="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
 if [[ ! -d "$TEST_DIR" ]]; then
     echo "Error: test not found: $TEST_DIR" >&2; exit 2
 fi

@@ -75,17 +75,17 @@ fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<(i32,i32,i32,i3
     let mut buf = [0u8; 22];
     i2c.write_read(addr, &[REG_CAL_START], &mut buf)?;
 
-    let ac1 = (buf[0] as i16) as i32;
-    let ac2 = (buf[2] as i16) as i32;
-    let ac3 = (buf[4] as i16) as i32;
-    let ac4 = buf[6] as i32;
-    let ac5 = buf[8] as i32;
-    let ac6 = buf[10] as i32;
-    let b1  = (buf[12] as i16) as i32;
-    let b2  = (buf[14] as i16) as i32;
-    let mb  = (buf[16] as i16) as i32;
-    let mc  = (buf[18] as i16) as i32;
-    let md  = (buf[20] as i16) as i32;
+    let ac1 = i16::from_be_bytes([buf[0],  buf[1]])  as i32;
+    let ac2 = i16::from_be_bytes([buf[2],  buf[3]])  as i32;
+    let ac3 = i16::from_be_bytes([buf[4],  buf[5]])  as i32;
+    let ac4 = u16::from_be_bytes([buf[6],  buf[7]])  as i32;
+    let ac5 = u16::from_be_bytes([buf[8],  buf[9]])  as i32;
+    let ac6 = u16::from_be_bytes([buf[10], buf[11]]) as i32;
+    let b1  = i16::from_be_bytes([buf[12], buf[13]]) as i32;
+    let b2  = i16::from_be_bytes([buf[14], buf[15]]) as i32;
+    let mb  = i16::from_be_bytes([buf[16], buf[17]]) as i32;
+    let mc  = i16::from_be_bytes([buf[18], buf[19]]) as i32;
+    let md  = i16::from_be_bytes([buf[20], buf[21]]) as i32;
 
     if ac1 == 0 || ac1 == -1 || ac2 == 0 || ac2 == -1 || ac3 == 0 || ac3 == -1
         || ac4 == 0 || ac4 == -1 || ac5 == 0 || ac5 == -1 || ac6 == 0 || ac6 == -1

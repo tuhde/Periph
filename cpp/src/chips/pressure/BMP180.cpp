@@ -1,5 +1,11 @@
 #include "BMP180.h"
 #include <stdlib.h>
+#include <cmath>
+
+#ifndef ARDUINO
+#include <unistd.h>
+static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
+#endif
 
 BMP180Minimal::BMP180Minimal(Transport& transport)
     : _transport(transport) {

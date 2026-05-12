@@ -76,8 +76,8 @@ protected:
     void     _write_reg(uint8_t reg, uint8_t value);
     uint16_t _read_raw_temp();
     uint32_t _read_raw_pressure();
-    int32_t  _compensate_temp(uint16_t ut);
-    int32_t  _compensate_pressure(uint32_t up);
+    int32_t  _compensate_temp(int32_t ut);
+    int32_t  _compensate_pressure(int32_t up);
     float    _compensate_temp_f(int32_t b5);
     float    _compensate_pressure_f(int32_t up);
 };
