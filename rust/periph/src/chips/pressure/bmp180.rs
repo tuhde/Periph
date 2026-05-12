@@ -38,7 +38,7 @@ fn delay_ms(ms: u32) {
     #[cfg(feature = "std")]
     std::thread::sleep(std::time::Duration::from_millis(ms as u64));
     #[cfg(not(feature = "std"))]
-    cortex_m::asm::wfi();
+    let _ = ms;
 }
 
 /// Oversampling mode constant: Ultra Low Power (4.5 ms, oss=0).
@@ -50,28 +50,28 @@ pub const OSS_HIGH_RES: u8 = 2;
 /// Oversampling mode constant: Ultra High Resolution (25.5 ms, oss=3).
 pub const OSS_ULTRA_HIGH_RES: u8 = 3;
 
-fn read_reg(i2c: &mut impl I2c, addr: u8, reg: u8) -> Result<u16, I2c::Error> {
+fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
     i2c.write_read(addr, &[reg], &mut buf)?;
     Ok((buf[0] as u16) << 8 | buf[1] as u16)
 }
 
-fn read_reg_u8(i2c: &mut impl I2c, addr: u8, reg: u8) -> Result<u8, I2c::Error> {
+fn read_reg_u8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
     i2c.write_read(addr, &[reg], &mut buf)?;
     Ok(buf[0])
 }
 
-fn write_reg(i2c: &mut impl I2c, addr: u8, reg: u8, value: u16) -> Result<(), I2c::Error> {
+fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u16) -> Result<(), I2C::Error> {
     let buf = [reg, (value >> 8) as u8, (value & 0xFF) as u8];
     i2c.write(addr, &buf)
 }
 
-fn write_reg_u8(i2c: &mut impl I2c, addr: u8, reg: u8, value: u8) -> Result<(), I2c::Error> {
+fn write_reg_u8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
     i2c.write(addr, &[reg, value])
 }
 
-fn read_calibration(i2c: &mut impl I2c, addr: u8) -> Result<(i32,i32,i32,i32,i32,i32,i32,i32,i32,i32,i32), I2c::Error> {
+fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<(i32,i32,i32,i32,i32,i32,i32,i32,i32,i32,i32), I2C::Error> {
     let mut buf = [0u8; 22];
     i2c.write_read(addr, &[REG_CAL_START], &mut buf)?;
 
@@ -115,7 +115,7 @@ fn compensate_pressure(up: i32, oss: i32, ac1: i32, ac2: i32, ac3: i32, ac4: i32
     let b4 = ((ac4 as u32 * (x3 + 32768) as u32) >> 15) as i32;
     let b7 = ((up - b3) as u32 * (50000u32 >> oss)) as i32;
 
-    let p = if b7 < 0x80000000 {
+    let p = if b7 >= 0 {
         ((b7 * 2) as u32 / b4 as u32) as i32
     } else {
         ((b7 as u32 / b4 as u32) * 2) as i32
@@ -216,7 +216,9 @@ impl<I2C: I2c> Bmp180Full<I2C> {
     /// * `i2c` — Configured I²C bus.
     /// * `oss` — Oversampling mode 0–3 (default 0 = ULP).
     pub fn new(i2c: I2C, addr: u8, oss: u8) -> Result<Self, I2C::Error> {
-        Ok(Self { inner: Bmp180Minimal::new(i2c, addr)? })
+        let mut inner = Bmp180Minimal::new(i2c, addr)?;
+        inner.oss = oss & 0x03;
+        Ok(Self { inner })
     }
 
     /// Read the current oversampling mode.
@@ -242,7 +244,7 @@ impl<I2C: I2c> Bmp180Full<I2C> {
     /// Returns altitude in metres.
     pub fn altitude(&mut self, sea_level_hpa: f32) -> Result<f32, I2C::Error> {
         let p = self.inner.pressure()?;
-        Ok(44330.0 * (1.0 - (p / sea_level_hpa).powf(1.0 / 5.255)))
+        Ok(44330.0 * (1.0 - libm::powf(p / sea_level_hpa, 1.0 / 5.255)))
     }
 
     /// Compute sea-level pressure for a known altitude.
@@ -253,7 +255,7 @@ impl<I2C: I2c> Bmp180Full<I2C> {
     /// Returns sea-level pressure in hPa.
     pub fn sea_level_pressure(&mut self, altitude_m: f32) -> Result<f32, I2C::Error> {
         let p = self.inner.pressure()?;
-        Ok(p / (1.0 - altitude_m / 44330.0).powf(5.255))
+        Ok(p / libm::powf(1.0 - altitude_m / 44330.0, 5.255))
     }
 
     /// Read the chip ID register.
