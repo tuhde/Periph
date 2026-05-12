@@ -59,7 +59,11 @@ use periph::chips::power::{Ina226Minimal, Ina226Full};
 
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Examples |
 |------|----------|--------|-----|---------|----------|------|---------|
+| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
+| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
+| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
+| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
 
 More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
 
