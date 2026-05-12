@@ -9,7 +9,7 @@
  * or write_read to check whether PEC matched.
  *
  * @param bus  TwoWire instance to use (typically the global ::Wire).
- * @param addr 7-bit device address (0x08–0x77).
+ * @param addr 7-bit device address (0x08–0x77); sets valid() = false if out of range.
  * @param pec  Enable Packet Error Code (CRC-8) checking (default false).
  */
 class SMBusTransport : public Transport {

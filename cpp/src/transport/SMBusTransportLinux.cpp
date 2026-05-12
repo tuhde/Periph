@@ -13,6 +13,8 @@
 
 SMBusTransportLinux::SMBusTransportLinux(int bus, uint8_t addr, bool pec)
     : _addr(addr), _pec(pec) {
+    if (addr < 0x08 || addr > 0x77)
+        throw std::runtime_error("SMBus address must be in range 0x08-0x77");
     char path[32];
     snprintf(path, sizeof(path), "/dev/i2c-%d", bus);
     _fd = open(path, O_RDWR);
@@ -43,27 +45,32 @@ void SMBusTransportLinux::write(const uint8_t* data, size_t len) {
         uint8_t addr_byte = _addr << 1;
         uint8_t crc = _crc8(&addr_byte, 1);
         crc = _crc8(data, len, crc);
-        uint8_t buf[len + 1];
+        // +1 for PEC byte; chip drivers must not exceed this bound
+        uint8_t buf[256];
         memcpy(buf, data, len);
         buf[len] = crc;
-        if (::write(_fd, buf, len + 1) < 0) perror("SMBus write");
+        if (::write(_fd, buf, len + 1) < 0)
+            throw std::runtime_error(std::string("SMBus write: ") + strerror(errno));
     } else {
-        if (::write(_fd, data, len) < 0) perror("SMBus write");
+        if (::write(_fd, data, len) < 0)
+            throw std::runtime_error(std::string("SMBus write: ") + strerror(errno));
     }
 }
 
 void SMBusTransportLinux::read(uint8_t* buf, size_t len) {
     _valid = true;
     if (_pec) {
-        uint8_t tmp[len + 1];
-        if (::read(_fd, tmp, len + 1) < 0) perror("SMBus read");
+        uint8_t tmp[256];
+        if (::read(_fd, tmp, len + 1) < 0)
+            throw std::runtime_error(std::string("SMBus read: ") + strerror(errno));
         memcpy(buf, tmp, len);
         uint8_t addr_byte = (_addr << 1) | 1;
         uint8_t crc = _crc8(&addr_byte, 1);
         crc = _crc8(buf, len, crc);
         _valid = (crc == tmp[len]);
     } else {
-        if (::read(_fd, buf, len) < 0) perror("SMBus read");
+        if (::read(_fd, buf, len) < 0)
+            throw std::runtime_error(std::string("SMBus read: ") + strerror(errno));
     }
 }
 
@@ -71,7 +78,7 @@ void SMBusTransportLinux::write_read(const uint8_t* data, size_t data_len,
                                       uint8_t* buf, size_t buf_len) {
     _valid = true;
     size_t read_len = _pec ? buf_len + 1 : buf_len;
-    uint8_t read_buf[read_len];
+    uint8_t read_buf[256];
 
     struct i2c_msg msgs[2];
     msgs[0].addr  = _addr;
@@ -88,7 +95,8 @@ void SMBusTransportLinux::write_read(const uint8_t* data, size_t data_len,
     rdwr.msgs  = msgs;
     rdwr.nmsgs = 2;
 
-    if (ioctl(_fd, I2C_RDWR, &rdwr) < 0) { perror("ioctl I2C_RDWR"); return; }
+    if (ioctl(_fd, I2C_RDWR, &rdwr) < 0)
+        throw std::runtime_error(std::string("SMBus write_read: ") + strerror(errno));
 
     memcpy(buf, read_buf, buf_len);
 
