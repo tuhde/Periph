@@ -104,7 +104,7 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
     /// eeprom_power_down, eeprom_ready).
     pub fn read(&mut self) -> Result<(u16, f32, u8, u16, u8, bool), I2C::Error> {
         let mut buf = [0u8; 5];
-        self.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
+        self.inner.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
         let code = (((buf[1] & 0x0F) as u16) << 8) | buf[2] as u16;
         let voltage_fraction = code as f32 / 4095.0;
         let power_down = (buf[0] >> 2) & 0x03;
@@ -125,12 +125,12 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
 
     /// Send General Call Wake-Up (0x00, 0x09) to clear power-down bits.
     pub fn wake_up(&mut self) -> Result<(), I2C::Error> {
-        self.i2c.write(ADDR_GENERAL_CALL, &[GC_WAKE])
+        self.inner.i2c.write(ADDR_GENERAL_CALL, &[GC_WAKE])
     }
 
     /// Send General Call Reset (0x00, 0x06) to trigger internal POR.
     pub fn reset(&mut self) -> Result<(), I2C::Error> {
-        self.i2c.write(ADDR_GENERAL_CALL, &[GC_RESET])
+        self.inner.i2c.write(ADDR_GENERAL_CALL, &[GC_RESET])
     }
 
     /// Check if the EEPROM write operation is complete.
@@ -138,7 +138,7 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
     /// Returns true when a pending EEPROM write has finished.
     pub fn is_eeprom_ready(&mut self) -> Result<bool, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
+        self.inner.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
         Ok((buf[0] & 0x80) != 0)
     }
 
@@ -148,12 +148,12 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
             (code >> 4) as u8,
             ((code & 0x0F) << 4) as u8,
         ];
-        self.i2c.write(self.inner.addr, &buf)
+        self.inner.i2c.write(self.inner.addr, &buf)
     }
 
     fn _read_dac_code(&mut self) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
+        self.inner.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
         Ok(((buf[0] & 0x0F) as u16) << 8 | buf[1] as u16)
     }
 }
