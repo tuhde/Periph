@@ -3,6 +3,31 @@ from periph.chips.led.ws2812b import WS2812BFull
 import machine
 import time
 
+
+def _hsv_to_rgb(h, s, v):
+    if s == 0.0:
+        c = int(v * 255)
+        return c, c, c
+    i = int(h * 6.0)
+    f = h * 6.0 - i
+    p = int(v * (1.0 - s) * 255)
+    q = int(v * (1.0 - s * f) * 255)
+    t = int(v * (1.0 - s * (1.0 - f)) * 255)
+    vv = int(v * 255)
+    i = i % 6
+    if i == 0:
+        return vv, t, p
+    if i == 1:
+        return q, vv, p
+    if i == 2:
+        return p, vv, t
+    if i == 3:
+        return p, q, vv
+    if i == 4:
+        return t, p, vv
+    return vv, p, q
+
+
 N_PIXELS = 30
 RAINBOW_DURATION_S = 10
 STROBE_DURATION_S  = 2
@@ -68,27 +93,3 @@ while True:
         print('rainbow hue_offset={:.3f}'.format(hue_offset))
         last_print = now
     time.sleep(FRAME_DELAY)
-
-
-def _hsv_to_rgb(h, s, v):
-    if s == 0.0:
-        c = int(v * 255)
-        return c, c, c
-    i = int(h * 6.0)
-    f = h * 6.0 - i
-    p = int(v * (1.0 - s) * 255)
-    q = int(v * (1.0 - s * f) * 255)
-    t = int(v * (1.0 - s * (1.0 - f)) * 255)
-    vv = int(v * 255)
-    i = i % 6
-    if i == 0:
-        return vv, t, p
-    if i == 1:
-        return q, vv, p
-    if i == 2:
-        return p, vv, t
-    if i == 3:
-        return p, q, vv
-    if i == 4:
-        return t, p, vv
-    return vv, p, q
