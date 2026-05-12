@@ -1,0 +1,227 @@
+# Chip Spec: DHT11
+
+**Manufacturer:** ASAIR (Aosong Electronics)  
+**Datasheet:** `datasheets/humidity/dht11.pdf`  
+**Category:** humidity  
+**Transports:** Custom single-wire GPIO (1-wire bidirectional, DATA pin)
+
+## Overview
+
+The DHT11 is a low-cost combined temperature and humidity sensor with a factory-calibrated digital output. An internal 8-bit microcontroller handles signal conditioning and protocol, delivering 40-bit readings over a single bidirectional data line. Temperature accuracy is ±2°C over –20 to 60°C; humidity accuracy is ±5%RH over 5 to 95%RH. The maximum sampling rate is one reading every 2 seconds. Each read returns the result of the sensor's most recent completed measurement, not a fresh instantaneous conversion.
+
+## Transport Configuration
+
+### Custom Single-Wire GPIO (1-wire bidirectional)
+
+The DHT11 uses a single bidirectional DATA pin with a 4.7 kΩ pull-up resistor to VCC. No transport abstraction object is used; the driver accepts the pin directly.
+
+| Platform | DATA pin type | Direction switching |
+|----------|---------------|---------------------|
+| MicroPython | `machine.Pin` | `pin.init(Pin.OUT)` / `pin.init(Pin.IN)` |
+| CircuitPython | `digitalio.DigitalInOut` | `pin.direction = Direction.OUTPUT/INPUT` |
+| Linux | `gpiod.Chip` + line number (int) | Request new line handle per phase |
+| Arduino | `int` pin number | `pinMode(pin, OUTPUT/INPUT)` |
+| Linux GCC | `gpiod_chip *` + line offset (int) | Re-request line per phase |
+| Zephyr | `gpio_dt_spec` | `gpio_pin_configure_dt(&spec, GPIO_INPUT/OUTPUT)` |
+| Rust | Platform-specific (see notes) | No standard `IoPin` in embedded-hal 1.0 |
+
+## Protocol
+
+The DHT11 has no register map. A single transaction consists of: a host start signal, a sensor response, and 40 data bits.
+
+### Communication Sequence
+
+**Step 1 — Host start signal**
+1. Configure DATA as output; drive LOW for ≥ 18 ms (max 30 ms)
+2. Release DATA (configure as input); pull-up brings line HIGH
+3. Wait 10–20 µs for sensor to respond
+
+**Step 2 — Sensor response**
+1. Sensor pulls DATA LOW for ~83 µs
+2. Sensor drives DATA HIGH for ~87 µs
+3. Data transmission begins immediately after the high pulse
+
+**Step 3 — Receive 40 bits (MSB first)**
+
+Each bit starts with a 54 µs LOW pulse, followed by a HIGH pulse whose duration encodes the bit value:
+
+| High pulse duration | Bit value |
+|---------------------|-----------|
+| 23–27 µs | 0 |
+| 68–74 µs | 1 |
+
+Threshold for decoding: measure the duration of the HIGH pulse — if < ~40 µs → 0, if > ~40 µs → 1.
+
+**Step 4 — End**
+After all 40 bits, sensor pulls DATA LOW for 54 µs, then releases; pull-up brings line HIGH. Sensor then starts its next internal measurement cycle.
+
+### Data Frame (40 bits)
+
+| Bits | Field | Notes |
+|------|-------|-------|
+| [39:32] | Humidity integer (8-bit) | %RH integer part |
+| [31:24] | Humidity decimal (8-bit) | Always 0x00 for DHT11 |
+| [23:16] | Temperature integer (8-bit) | °C integer part |
+| [15:8] | Temperature decimal (8-bit) | Fractional °C; bit 7 = sign (1 = negative) |
+| [7:0] | Checksum (8-bit) | = (byte0 + byte1 + byte2 + byte3) & 0xFF |
+
+## Initialization Sequence
+
+1. Configure DATA as input; ensure 4.7 kΩ pull-up to VCC is present
+2. Wait ≥ 1 second after power-up before issuing the first read (sensor internal stabilisation)
+3. Record timestamp; device is ready for first read
+
+## Implementation Stages
+
+Each chip is implemented in two stages. The Full class extends Minimal — it inherits everything and adds the rest.
+
+### Minimal
+
+Goal: read temperature and humidity with a single call. Enforces the 2-second minimum interval by caching and returning the previous result when called too soon.
+
+| Operation | Parameters | Returns | Notes |
+|-----------|------------|---------|-------|
+| `init` | `data_pin` | — | Store pin; record power-up timestamp |
+| `read` | — | `(float, float)` | Returns `(temperature_C, humidity_RH)`; performs full protocol sequence; raises error on checksum failure |
+
+**Sensible defaults:** Single read attempt; raises exception on checksum mismatch; caller responsible for respecting ≥ 2 s interval.
+
+### Full
+
+Goal: expose complete sensor functionality. Extends Minimal.
+
+| Operation | Parameters | Returns | Notes |
+|-----------|------------|---------|-------|
+| *(inherits Minimal)* | | | |
+| `read_temperature` | — | float | Returns temperature in °C; internally calls `read` |
+| `read_humidity` | — | float | Returns humidity in %RH; internally calls `read` |
+| `read_retry` | `max_retries: int` (default 3) | `(float, float)` | Retry up to `max_retries` times on checksum error; raises after all retries exhausted |
+| `read_raw` | — | `bytes` | Returns raw 5-byte frame without interpretation; raises on checksum error |
+
+**Additional functionality:**
+- Separate `read_temperature()` / `read_humidity()` convenience methods
+- Automatic retry with configurable attempt count
+- Access to raw 5-byte frame for custom post-processing
+
+## Data Conversion
+
+```
+# Received bytes: [hum_int, hum_dec, temp_int, temp_dec, checksum]
+
+# Checksum validation
+checksum_ok = (hum_int + hum_dec + temp_int + temp_dec) & 0xFF == checksum
+
+# Humidity (DHT11: hum_dec is always 0)
+humidity_RH = hum_int + hum_dec / 10.0
+
+# Temperature
+sign = -1 if (temp_dec & 0x80) else 1
+temp_dec_value = temp_dec & 0x7F
+temperature_C = sign * (temp_int + temp_dec_value / 10.0)
+```
+
+**Examples from datasheet:**
+
+Example 1: `[0x35, 0x00, 0x18, 0x04, 0x51]`
+- Humidity: 0x35 = 53, 0x00 = 0.0 → **53.0 %RH**
+- Temperature: 0x18 = 24, 0x04 = 0.4°C, sign bit = 0 → **24.4°C**
+- Checksum: (53+0+24+4) & 0xFF = 81 = 0x51 ✓
+
+Example 2 (negative temperature): `[..., temp_int, temp_dec_with_sign_bit]`
+- -10.1°C: temp_int = 0x0A = 10, temp_dec = 0x81 (0x01 with bit 7 set) = 0.1
+- Result: -(10 + 0.1) = **-10.1°C**
+
+## Node-RED
+
+Node name: `periph-dht11`  
+Package: `node-red-contrib-periph-humidity`
+
+| Input trigger | Output `msg.payload` fields | Notes |
+|---------------|-----------------------------|-------|
+| any message | `{ "temperature_c": float, "humidity_rh": float }` | |
+
+Config panel fields:
+- **DATA pin** — GPIO pin number for the single-wire data line
+- **Retries** — number of retry attempts on checksum error (default 3)
+
+### Demo flow
+
+An inject node fires every 5 seconds and triggers a `periph-dht11` read. The output connects to a debug node (logging the full payload) and two dashboard gauge nodes (node-red-dashboard): one for temperature in °C and one for humidity in %RH.
+
+## Examples
+
+### Demo
+
+Indoor comfort monitor: read temperature and humidity every 5 seconds and print a one-line status showing both values plus a comfort assessment (`"dry"` if RH < 30%, `"comfortable"` if 30–60%, `"humid"` if > 60%). Use `read_retry(max_retries=3)` to handle occasional checksum errors gracefully. When a read fails after all retries, print a warning and continue. This scenario demonstrates reliable real-world polling with error recovery.
+
+## Timing Constraints
+
+| Symbol | Parameter | Min | Typ | Max | Unit |
+|--------|-----------|-----|-----|-----|------|
+| T_be | Host start signal LOW | 18 | 20 | 30 | ms |
+| T_go | Host releases bus | 10 | 13 | 20 | µs |
+| T_rel | Sensor response LOW | 81 | 83 | 85 | µs |
+| T_reh | Sensor response HIGH | 85 | 87 | 88 | µs |
+| T_LOW | Bit LOW pulse (both 0 and 1) | 52 | 54 | 56 | µs |
+| T_H0 | Bit '0' HIGH pulse | 23 | 24 | 27 | µs |
+| T_H1 | Bit '1' HIGH pulse | 68 | 71 | 74 | µs |
+| T_en | Sensor releases bus (end) | 52 | 54 | 56 | µs |
+| — | Minimum read interval | 2 | — | — | s |
+| — | Power-up stabilisation | 1 | — | — | s |
+
+## Implementation Notes
+
+- **Read returns previous result:** The sensor runs an internal conversion cycle continuously. Each read request retrieves the result of the most recently completed conversion, not a fresh one. If the last read was a long time ago, call `read()` twice in succession (with a 2-second gap between calls) and use the second result for real-time accuracy.
+- **Minimum sampling interval:** Do not initiate a new read sooner than 2 seconds after the previous one. The Minimal `read()` implementation does not enforce this automatically — callers must manage timing. The Full implementation may add a timestamp guard if desired but is not required to.
+- **Bit decoding strategy:** Rather than measuring both the LOW and HIGH pulse lengths, it is sufficient to wait for the LOW pulse to end, then measure only the HIGH pulse duration. A threshold of ~40 µs reliably distinguishes bit-0 (23–27 µs) from bit-1 (68–74 µs).
+- **Linux timing:** The strict µs-level timing makes reliable bit-bang on Linux challenging without a real-time kernel or kernel driver. Implementations should use the `gpiod` library and minimise Python/userspace overhead. Frame reads may sporadically fail on a loaded system; the `read_retry()` method mitigates this. A kernel `dht11` driver exists as an alternative (exposed via IIO sysfs), but the driver here implements the userspace bit-bang protocol.
+- **Pull-up resistor:** A 4.7 kΩ pull-up to VCC on the DATA line is required. For cable lengths > 5 m, reduce the pull-up value. At 3.3 V, keep cable runs short to avoid voltage drop causing measurement errors.
+- **Humidity decimal byte:** For the DHT11, byte 1 (humidity decimal) is always 0x00. The conversion formula includes it for completeness and forward compatibility with the DHT22, which uses this byte.
+- **Power supply noise:** Switching power supplies can induce temperature measurement jumps. Decouple VCC with 100 nF close to the sensor. Use a linear regulator if temperature stability is critical.
+- **Rust bidirectional pin:** `embedded-hal` 1.0 has no `IoPin` trait. On Linux, use `linux-embedded-hal`'s `CdevPin` which can be re-requested with different directions. On ESP32-S3, use `esp-hal`'s `AnyFlex` or equivalent flexible GPIO. The Rust driver should accept a generic parameter that provides both `InputPin` and `OutputPin`, switching between them by re-borrowing or using platform-specific methods.
+
+## Implementation Checklist
+
+Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Python
+- [ ] Driver `python/periph/chips/humidity/dht11.py` — Google-style docstring on every class and public method
+- [ ] Examples `python/examples/humidity/dht11/minimal.py` — Tier-1 signature comment on every call
+- [ ] Examples `python/examples/humidity/dht11/complete.py` — Tier-1 + Tier-2
+- [ ] Examples `python/examples/humidity/dht11/demo.py` — Tier-1 + Tier-3
+- [ ] Tests `python/tests/humidity/dht11_test.py` (MicroPython)
+- [ ] Tests `python/tests/humidity/dht11_test_cp.py` (CircuitPython)
+- [ ] Tests `python/tests/humidity/dht11_test_linux.py` (Linux)
+
+### C++
+- [ ] Driver `cpp/src/chips/humidity/DHT11.h` — Doxygen `/** @brief */` on every class and public method
+- [ ] Driver `cpp/src/chips/humidity/DHT11.cpp`
+- [ ] Examples `cpp/examples/DHT11_Minimal/DHT11_Minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/DHT11_Complete/DHT11_Complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/DHT11_Demo/DHT11_Demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/DHT11_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/DHT11_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/DHT11_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Tests `cpp/tests/humidity/dht11_test/dht11_test.ino` (Arduino)
+- [ ] Tests `cpp/tests/humidity/dht11_test_linux/dht11_test_linux.cpp` (Linux GCC)
+- [ ] Tests `cpp/tests/humidity/dht11_test_zephyr/src/main.cpp` (Zephyr)
+
+### Node.js
+- [ ] Driver `nodejs/packages/periph/src/chips/humidity/dht11.js` — JSDoc on every class and exported method
+- [ ] Examples `nodejs/packages/periph/examples/humidity/dht11/minimal.js` — Tier-1
+- [ ] Examples `nodejs/packages/periph/examples/humidity/dht11/complete.js` — Tier-1 + Tier-2
+- [ ] Examples `nodejs/packages/periph/examples/humidity/dht11/demo.js` — Tier-1 + Tier-3
+- [ ] Tests `nodejs/tests/humidity/dht11_test.js`
+
+### Node-RED
+- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-humidity/nodes/dht11/dht11.js`
+- [ ] Node editor `nodejs/packages/node-red-contrib-periph-humidity/nodes/dht11/dht11.html` — `data-help-name` section with inputs, outputs, and config description
+- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-humidity/examples/dht11/demo.json` — tab `info` field describes the scenario
+
+### Rust
+- [ ] Driver `rust/periph/src/chips/humidity/dht11.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] Examples `rust/examples/dht11_minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/dht11_complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/dht11_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Tests `rust/tests/humidity/dht11_test/src/main.rs` (Linux)
+- [ ] Tests `rust/tests/humidity/dht11_test_esp32s3/src/main.rs` (ESP32-S3)
