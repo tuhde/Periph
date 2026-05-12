@@ -8,6 +8,7 @@ exclude = [
     "tests/adc_dac/mcp4725_test_esp32s3",
     "tests/transport/smbus_test_esp32s3",
     "tests/transport/spi_test_esp32s3",
+    "tests/transport/neopixel_test_esp32s3",
 ]
 members = [
     "periph",
@@ -33,6 +34,7 @@ members = [
     "tests/adc_dac/mcp4725_test",
     "tests/transport/smbus_test",
     "tests/transport/spi_test",
+    "tests/transport/neopixel_test",
 ]
 
 [workspace.dependencies]
