@@ -146,8 +146,7 @@ class BMP180Minimal {
      */
     pressure() {
         const ut = this._readRawTemp();
-        const b5 = this._compensateTemp(ut);
-        (void)b5;
+        this._compensateTemp(ut);
         const up = this._readRawPressure();
         const p_pa = this._compensatePressure(up);
         return p_pa / 100.0;
