@@ -17,7 +17,6 @@ else
 fi
 
 LINUX_I2C_BUS="${LINUX_I2C_BUS:-1}"
-I2C_ADDR="${I2C_ADDR:-0x40}"
 
 # --- parse args ----------------------------------------------------------
 TARGET="${1:-}"
@@ -29,6 +28,16 @@ fi
 
 CHIP="${TARGET##*/}"
 CATEGORY="${TARGET%/*}"
+
+# --- resolve I2C address -------------------------------------------------
+if [ -z "${I2C_ADDR:-}" ]; then
+    I2C_ADDR=$(awk -v c="$CHIP" '$1==c{print $2; exit}' "$SCRIPT_DIR/../chip_defaults" 2>/dev/null || true)
+    if [ -z "${I2C_ADDR:-}" ]; then
+        echo "ERROR: I2C_ADDR not set in testconfig and no default found for '$CHIP' in chip_defaults" >&2
+        exit 1
+    fi
+fi
+
 TEST_FILE="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux.py"
 
 if [ ! -f "$TEST_FILE" ]; then
