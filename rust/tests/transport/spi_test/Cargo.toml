@@ -1,0 +1,10 @@
+[package]
+name = "spi_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true }
+embedded-hal = { workspace = true }
+embedded-hal-bus = { workspace = true }
+spidev = { workspace = true }

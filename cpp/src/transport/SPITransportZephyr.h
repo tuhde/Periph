@@ -51,8 +51,7 @@ public:
     void write_read(const uint8_t* data, size_t data_len,
                     uint8_t* buf, size_t buf_len) override {
         // RX: discard (buf=nullptr) during command phase, capture during read phase.
-        uint8_t tx_pad[buf_len];
-        memset(tx_pad, 0, buf_len);
+        uint8_t tx_pad[256] = {};  // SPI payload max; zeroed for dummy TX bytes
         struct spi_buf tx_bufs[2] = {
             { .buf = const_cast<uint8_t*>(data), .len = data_len },
             { .buf = tx_pad,                      .len = buf_len  },

@@ -203,25 +203,25 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `python/periph/transport/spi_micropython.py` — Google-style docstring on class and every public method
 - [x] `python/periph/transport/spi_circuitpython.py` — Google-style docstring on class and every public method
 - [x] `python/periph/transport/spi_linux.py` — Google-style docstring on class and every public method
-- [ ] Tests (MicroPython)
-- [ ] Tests (CircuitPython)
-- [ ] Tests (Linux)
+- [x] Tests (MicroPython)
+- [x] Tests (CircuitPython)
+- [x] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SpiTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SpiTransport.cpp`
-- [x] `cpp/src/transport/SpiTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SpiTransportLinux.cpp`
-- [x] `cpp/src/transport/SpiTransportZephyr.h` — Doxygen (header-only)
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
+- [x] `cpp/src/transport/SPITransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/SPITransport.cpp`
+- [x] `cpp/src/transport/SPITransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/SPITransportLinux.cpp`
+- [x] `cpp/src/transport/SPITransportZephyr.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
-- [ ] Tests
+- [x] Tests
 
 ### Rust
 - [x] `rust/periph/src/transport/spi.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Tests (Linux)
-- [ ] Tests (ESP32-S3)
+- [x] Tests (Linux)
+- [x] Tests (ESP32-S3)

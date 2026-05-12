@@ -38,7 +38,8 @@ void SPITransportLinux::write(const uint8_t* data, size_t len) {
     tr.len           = static_cast<uint32_t>(len);
     tr.speed_hz      = _speed_hz;
     tr.bits_per_word = 8;
-    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0) perror("SPI_IOC_MESSAGE write");
+    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0)
+        throw std::runtime_error(std::string("SPI write: ") + strerror(errno));
 }
 
 void SPITransportLinux::read(uint8_t* buf, size_t len) {
@@ -47,7 +48,8 @@ void SPITransportLinux::read(uint8_t* buf, size_t len) {
     tr.len           = static_cast<uint32_t>(len);
     tr.speed_hz      = _speed_hz;
     tr.bits_per_word = 8;
-    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0) perror("SPI_IOC_MESSAGE read");
+    if (ioctl(_fd, SPI_IOC_MESSAGE(1), &tr) < 0)
+        throw std::runtime_error(std::string("SPI read: ") + strerror(errno));
 }
 
 void SPITransportLinux::write_read(const uint8_t* data, size_t data_len,
@@ -65,6 +67,7 @@ void SPITransportLinux::write_read(const uint8_t* data, size_t data_len,
     tr[1].speed_hz      = _speed_hz;
     tr[1].bits_per_word = 8;
 
-    if (ioctl(_fd, SPI_IOC_MESSAGE(2), tr) < 0) perror("SPI_IOC_MESSAGE write_read");
+    if (ioctl(_fd, SPI_IOC_MESSAGE(2), tr) < 0)
+        throw std::runtime_error(std::string("SPI write_read: ") + strerror(errno));
 }
 #endif // __linux__
