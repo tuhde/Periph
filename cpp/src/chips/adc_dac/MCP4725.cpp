@@ -17,7 +17,7 @@ void MCP4725Minimal::set_raw(uint16_t code) {
 
 void MCP4725Minimal::_fast_write(uint16_t code, uint8_t pd_mode) {
     uint8_t buf[2] = {
-        (uint8_t)((pd_mode & 0x03) << 4) | (uint8_t)((code >> 8) & 0x0F),
+        (uint8_t)(((pd_mode & 0x03) << 4) | ((code >> 8) & 0x0F)),
         (uint8_t)(code & 0xFF)
     };
     _transport.write(buf, 2);

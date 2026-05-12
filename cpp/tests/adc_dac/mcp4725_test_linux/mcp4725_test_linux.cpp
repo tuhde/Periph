@@ -61,8 +61,6 @@ int main() {
     bool ready = dac.is_eeprom_ready();
     check_true("is_eeprom_ready returns bool", true);
 
-    transport.close();
-
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }
