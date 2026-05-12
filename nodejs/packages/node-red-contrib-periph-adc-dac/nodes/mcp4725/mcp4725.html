@@ -1,0 +1,77 @@
+<script type="text/javascript">
+    RED.nodes.registerType('mcp4725-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '60', required: true }
+        },
+        label: function() {
+            return this.name || ('MCP4725 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mcp4725-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MCP4725">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="60" style="width:80px"> &nbsp;default: 60 (0x60)
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp4725', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:      { value: '' },
+            device:    { value: '', type: 'mcp4725-device', required: true },
+            inputMode: { value: 'fraction' }
+        },
+        inputs:  1,
+        outputs: 0,
+        icon:    'font-awesome/fa-wave-square',
+        label:   function() { return this.name || 'MCP4725'; },
+        paletteLabel: 'MCP4725'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp4725">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputMode"><i class="fa fa-cog"></i> Input mode</label>
+        <select id="node-input-inputMode" style="width:150px">
+            <option value="fraction">fraction (0.0–1.0)</option>
+            <option value="raw">raw (0–4095)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP4725">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp4725">
+    <p>Sets the output voltage of an MCP4725 12-bit DAC over I²C.</p>
+    <p>Any input message triggers a DAC write. The device is configured via a <b>mcp4725-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">number</span></dt>
+        <dd>When input mode is <code>fraction</code>: value between 0.0 and 1.0 representing the output as a fraction of V_DD. When input mode is <code>raw</code>: raw 12-bit DAC code (0–4095).</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure bus number and I²C address (default <code>0x60</code>) in the device config node. The input mode determines whether incoming values are interpreted as normalized fractions or raw 12-bit codes.</p>
+</script>
