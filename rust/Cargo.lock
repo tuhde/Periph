@@ -290,7 +290,7 @@ dependencies = [
  "nb",
  "nix 0.27.1",
  "serialport",
- "spidev 0.6.1",
+ "spidev",
  "sysfs_gpio",
 ]
 
@@ -479,19 +479,9 @@ version = "0.1.0"
 dependencies = [
  "embedded-hal",
  "embedded-hal-bus",
+ "linux-embedded-hal",
  "periph",
- "spidev 0.5.2",
-]
-
-[[package]]
-name = "spidev"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a204ca68d7f2109ffaf6326b79d8abf0014870625b78c8aff1941a5e4b9ff7d"
-dependencies = [
- "bitflags 1.3.2",
- "libc",
- "nix 0.23.2",
+ "spidev",
 ]
 
 [[package]]

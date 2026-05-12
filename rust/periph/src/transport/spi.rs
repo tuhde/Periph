@@ -66,7 +66,7 @@
 //!
 //! ```toml
 //! linux-embedded-hal = "0.4"
-//! spidev = "0.5"
+//! spidev = "0.6"
 //! embedded-hal = "1"
 //! embedded-hal-bus = "0.2"
 //! ```

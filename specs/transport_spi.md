@@ -190,7 +190,7 @@ let device = ExclusiveDevice::new_no_delay(spi, cs_pin)?;
 
 `Cargo.toml` dependencies:
 ```toml
-spidev = "0.5"
+spidev = "0.6"
 embedded-hal = "1"
 embedded-hal-bus = "0.2"
 ```

@@ -39,5 +39,5 @@ members = [
 embedded-hal = "1.0"
 linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
-spidev = "0.5"
+spidev = "0.6"
 periph = { path = "periph" }
