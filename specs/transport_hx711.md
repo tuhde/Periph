@@ -183,28 +183,28 @@ embedded-hal = "1"
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/hx711_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/hx711_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/hx711_linux.py` — Google-style docstring on class and every public method
-- [ ] Tests (MicroPython)
-- [ ] Tests (CircuitPython)
-- [ ] Tests (Linux)
+- [x] `python/periph/transport/hx711_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/hx711_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/hx711_linux.py` — Google-style docstring on class and every public method
+- [x] Tests (MicroPython)
+- [x] Tests (CircuitPython)
+- [x] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/HX711Transport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/HX711Transport.cpp`
-- [ ] `cpp/src/transport/HX711TransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/HX711TransportLinux.cpp`
-- [ ] `cpp/src/transport/HX711TransportZephyr.h` — Doxygen (header-only)
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
+- [x] `cpp/src/transport/HX711Transport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/HX711Transport.cpp`
+- [x] `cpp/src/transport/HX711TransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/HX711TransportLinux.cpp`
+- [x] `cpp/src/transport/HX711TransportZephyr.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method
-- [ ] Tests
+- [x] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method
+- [x] Tests
 
 ### Rust
-- [ ] `rust/periph/src/transport/hx711.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Tests (Linux)
-- [ ] Tests (ESP32-S3)
+- [x] `rust/periph/src/transport/hx711.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Tests (Linux)
+- [x] Tests (ESP32-S3)
