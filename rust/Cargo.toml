@@ -17,6 +17,7 @@ exclude = [
     "tests/magnetometer/as5600_test_esp32s3",
     "tests/io_expander/mcp23017_test_esp32s3",
     "tests/io_expander/pcf8575_test_esp32s3",
+    "tests/adc_dac/hx711_test_esp32s3",
 ]
 members = [
     "periph",
@@ -72,6 +73,7 @@ members = [
     "examples/pcf8575_complete",
     "examples/pcf8575_demo",
     "tests/io_expander/pcf8575_test",
+    "tests/transport/hx711_test",
 ]
 
 [workspace.dependencies]
@@ -82,4 +84,5 @@ linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
 spidev = "0.6"
 serialport = "4"
+gpiocdev = "0.6"
 periph = { path = "periph" }
