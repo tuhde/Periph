@@ -17,6 +17,7 @@ exclude = [
     "tests/magnetometer/as5600_test_esp32s3",
     "tests/io_expander/mcp23017_test_esp32s3",
     "tests/io_expander/pcf8575_test_esp32s3",
+    "tests/transport/hx711_test_esp32s3",
     "tests/adc_dac/hx711_test_esp32s3",
 ]
 members = [
@@ -74,6 +75,10 @@ members = [
     "examples/pcf8575_demo",
     "tests/io_expander/pcf8575_test",
     "tests/transport/hx711_test",
+    "tests/adc_dac/hx711_test",
+    "examples/hx711_minimal",
+    "examples/hx711_complete",
+    "examples/hx711_demo",
 ]
 
 [workspace.dependencies]
