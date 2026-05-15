@@ -1,0 +1,62 @@
+<script type="text/html" data-help-name="periph-rfm9x">
+    <p>Reads and transmits LoRa packets using an RFM9x module (RFM95/96/97/98W).</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">Buffer | string</span></dt>
+        <dd>Transmit this payload as a LoRa packet. Any other message triggers a receive.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.data <span class="property-type">Buffer</span></dt>
+        <dd>Received packet data.</dd>
+        <dt>payload.rssi <span class="property-type">number</span></dt>
+        <dd>Signal strength in dBm.</dd>
+        <dt>payload.snr <span class="property-type">number</span></dt>
+        <dd>Signal-to-noise ratio in dB.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>SPI Bus</dt>
+        <dd>SPI bus number (default 0).</dd>
+        <dt>SPI CS</dt>
+        <dd>Chip-select GPIO pin number.</dd>
+        <dt>Variant</dt>
+        <dd>RFM95W, RFM96W, RFM97W, or RFM98W.</dd>
+        <dt>Frequency (Hz)</dt>
+        <dd>Carrier frequency in Hz (validated against variant range).</dd>
+        <dt>Spreading Factor</dt>
+        <dd>SF 6-12 (RFM97W max 9).</dd>
+        <dt>Bandwidth</dt>
+        <dd>Signal bandwidth in kHz (7.8, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250, 500).</dd>
+        <dt>Coding Rate</dt>
+        <dd>Coding rate: 4/5, 4/6, 4/7, or 4/8.</dd>
+        <dt>TX Power (dBm)</dt>
+        <dd>Output power 2-20 dBm.</dd>
+        <dt>CRC</dt>
+        <dd>Enable CRC generation and verification (default on).</dd>
+    </dl>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('periph-rfm9x', {
+        category: 'comms',
+        defaults: {
+            spiBus: { value: '0' },
+            spiDevice: { value: '0' },
+            spiCs: { value: '0' },
+            variant: { value: 'RFM95W' },
+            frequency: { value: '868000000' },
+            sf: { value: '7' },
+            bandwidth: { value: '125' },
+            codingRate: { value: '5' },
+            txPower: { value: '17' },
+            crc: { value: 'true' }
+        },
+        label: function() { return 'RFM9x'; },
+        color: '#A8D9FF',
+        inputs: 1,
+        outputs: 1,
+        icon: 'radio.png',
+        inputLabels: function(i) { return 'TX/RX'; },
+        outputLabels: function(i) { return 'received'; }
+    });
+</script>

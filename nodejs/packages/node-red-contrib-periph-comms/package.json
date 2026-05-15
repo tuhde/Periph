@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for communications peripheral chips",
   "keywords": ["node-red", "comms", "lora", "radio", "spi", "i2c", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "rfm9x": "nodes/rfm9x/rfm9x.js"
+    }
   },
   "dependencies": {
     "periph": "*"

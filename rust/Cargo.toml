@@ -22,6 +22,7 @@ exclude = [
     "tests/environmental/aht21_test_esp32s3",
     "tests/gas/ens160_test_esp32s3",
     "tests/light/apds9960_test_esp32s3",
+    "tests/comms/rfm9x_test_esp32s3",
 ]
 members = [
     "periph",
@@ -94,6 +95,10 @@ members = [
     "examples/apds9960_complete",
     "examples/apds9960_demo",
     "tests/light/apds9960_test",
+    "examples/rfm9x_minimal",
+    "examples/rfm9x_complete",
+    "examples/rfm9x_demo",
+    "tests/comms/rfm9x_test",
 ]
 
 [workspace.dependencies]
