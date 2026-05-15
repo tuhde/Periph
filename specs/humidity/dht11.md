@@ -3,7 +3,7 @@
 **Manufacturer:** ASAIR (Aosong Electronics)  
 **Datasheet:** `datasheets/humidity/dht11.pdf`  
 **Category:** humidity  
-**Transports:** Custom single-wire GPIO (1-wire bidirectional, DATA pin)
+**Transports:** DHTxx single-wire (see `specs/transport_dhtxx.md`)
 
 ## Overview
 
@@ -11,49 +11,24 @@ The DHT11 is a low-cost combined temperature and humidity sensor with a factory-
 
 ## Transport Configuration
 
-### Custom Single-Wire GPIO (1-wire bidirectional)
+### DHTxx Single-Wire
 
-The DHT11 uses a single bidirectional DATA pin with a 4.7 kΩ pull-up resistor to VCC. No transport abstraction object is used; the driver accepts the pin directly.
+The DHT11 uses the DHTxx single-wire transport. The driver accepts a transport instance; the transport handles all GPIO direction switching, timing, and bit decoding. See `specs/transport_dhtxx.md` for the full protocol, timing constraints, and per-platform implementation details.
 
-| Platform | DATA pin type | Direction switching |
-|----------|---------------|---------------------|
-| MicroPython | `machine.Pin` | `pin.init(Pin.OUT)` / `pin.init(Pin.IN)` |
-| CircuitPython | `digitalio.DigitalInOut` | `pin.direction = Direction.OUTPUT/INPUT` |
-| Linux | `gpiod.Chip` + line number (int) | Request new line handle per phase |
-| Arduino | `int` pin number | `pinMode(pin, OUTPUT/INPUT)` |
-| Linux GCC | `gpiod_chip *` + line offset (int) | Re-request line per phase |
-| Zephyr | `gpio_dt_spec` | `gpio_pin_configure_dt(&spec, GPIO_INPUT/OUTPUT)` |
-| Rust | Platform-specific (see notes) | No standard `IoPin` in embedded-hal 1.0 |
+| Platform | Transport class | Transport file |
+|----------|----------------|----------------|
+| MicroPython | `DHTxxTransport` | `python/periph/transport/dhtxx_micropython.py` |
+| CircuitPython | `DHTxxTransport` | `python/periph/transport/dhtxx_circuitpython.py` |
+| Linux | `DHTxxTransport` | `python/periph/transport/dhtxx_linux.py` |
+| Arduino | `DHTxxTransport` | `cpp/src/transport/DHTxxTransport.h` |
+| Linux GCC | `DHTxxTransportLinux` | `cpp/src/transport/DHTxxTransportLinux.h` |
+| Zephyr | `DHTxxTransportZephyr` | `cpp/src/transport/DHTxxTransportZephyr.h` |
+| Rust (Linux) | `DHTxxTransportLinux` | `rust/periph/src/transport/dhtxx.rs` |
+| Rust (ESP32-S3) | `DHTxxTransportEsp32s3` | `rust/periph/src/transport/dhtxx.rs` |
 
 ## Protocol
 
-The DHT11 has no register map. A single transaction consists of: a host start signal, a sensor response, and 40 data bits.
-
-### Communication Sequence
-
-**Step 1 — Host start signal**
-1. Configure DATA as output; drive LOW for ≥ 18 ms (max 30 ms)
-2. Release DATA (configure as input); pull-up brings line HIGH
-3. Wait 10–20 µs for sensor to respond
-
-**Step 2 — Sensor response**
-1. Sensor pulls DATA LOW for ~83 µs
-2. Sensor drives DATA HIGH for ~87 µs
-3. Data transmission begins immediately after the high pulse
-
-**Step 3 — Receive 40 bits (MSB first)**
-
-Each bit starts with a 54 µs LOW pulse, followed by a HIGH pulse whose duration encodes the bit value:
-
-| High pulse duration | Bit value |
-|---------------------|-----------|
-| 23–27 µs | 0 |
-| 68–74 µs | 1 |
-
-Threshold for decoding: measure the duration of the HIGH pulse — if < ~40 µs → 0, if > ~40 µs → 1.
-
-**Step 4 — End**
-After all 40 bits, sensor pulls DATA LOW for 54 µs, then releases; pull-up brings line HIGH. Sensor then starts its next internal measurement cycle.
+The DHT11 has no register map. The driver calls `transport.read()` to obtain the raw 5-byte frame, then validates the checksum and decodes the values. The full communication sequence (start signal, sensor response, bit timing) is defined in `specs/transport_dhtxx.md`.
 
 ### Data Frame (40 bits)
 
@@ -67,9 +42,10 @@ After all 40 bits, sensor pulls DATA LOW for 54 µs, then releases; pull-up brin
 
 ## Initialization Sequence
 
-1. Configure DATA as input; ensure 4.7 kΩ pull-up to VCC is present
-2. Wait ≥ 1 second after power-up before issuing the first read (sensor internal stabilisation)
-3. Record timestamp; device is ready for first read
+1. Construct a DHTxx transport instance for the data pin (see `specs/transport_dhtxx.md`); ensure a 4.7 kΩ pull-up to VCC is present on the DATA line
+2. Pass the transport to the driver constructor
+3. Wait ≥ 1 second after power-up before issuing the first read (sensor internal stabilisation)
+4. Record timestamp; device is ready for first read
 
 ## Implementation Stages
 
@@ -81,8 +57,8 @@ Goal: read temperature and humidity with a single call. Enforces the 2-second mi
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | `data_pin` | — | Store pin; record power-up timestamp |
-| `read` | — | `(float, float)` | Returns `(temperature_C, humidity_RH)`; performs full protocol sequence; raises error on checksum failure |
+| `init` | `transport` | — | Store transport; record power-up timestamp |
+| `read` | — | `(float, float)` | Returns `(temperature_C, humidity_RH)`; calls `transport.read()`, validates checksum, decodes frame; raises error on checksum failure |
 
 **Sensible defaults:** Single read attempt; raises exception on checksum mismatch; caller responsible for respecting ≥ 2 s interval.
 
@@ -158,31 +134,25 @@ Indoor comfort monitor: read temperature and humidity every 5 seconds and print 
 
 | Symbol | Parameter | Min | Typ | Max | Unit |
 |--------|-----------|-----|-----|-----|------|
-| T_be | Host start signal LOW | 18 | 20 | 30 | ms |
-| T_go | Host releases bus | 10 | 13 | 20 | µs |
-| T_rel | Sensor response LOW | 81 | 83 | 85 | µs |
-| T_reh | Sensor response HIGH | 85 | 87 | 88 | µs |
-| T_LOW | Bit LOW pulse (both 0 and 1) | 52 | 54 | 56 | µs |
-| T_H0 | Bit '0' HIGH pulse | 23 | 24 | 27 | µs |
-| T_H1 | Bit '1' HIGH pulse | 68 | 71 | 74 | µs |
-| T_en | Sensor releases bus (end) | 52 | 54 | 56 | µs |
 | — | Minimum read interval | 2 | — | — | s |
 | — | Power-up stabilisation | 1 | — | — | s |
+
+Full protocol timing (start signal, response pulses, bit widths) is defined in `specs/transport_dhtxx.md`.
 
 ## Implementation Notes
 
 - **Read returns previous result:** The sensor runs an internal conversion cycle continuously. Each read request retrieves the result of the most recently completed conversion, not a fresh one. If the last read was a long time ago, call `read()` twice in succession (with a 2-second gap between calls) and use the second result for real-time accuracy.
 - **Minimum sampling interval:** Do not initiate a new read sooner than 2 seconds after the previous one. The Minimal `read()` implementation does not enforce this automatically — callers must manage timing. The Full implementation may add a timestamp guard if desired but is not required to.
-- **Bit decoding strategy:** Rather than measuring both the LOW and HIGH pulse lengths, it is sufficient to wait for the LOW pulse to end, then measure only the HIGH pulse duration. A threshold of ~40 µs reliably distinguishes bit-0 (23–27 µs) from bit-1 (68–74 µs).
-- **Linux timing:** The strict µs-level timing makes reliable bit-bang on Linux challenging without a real-time kernel or kernel driver. Implementations should use the `gpiod` library and minimise Python/userspace overhead. Frame reads may sporadically fail on a loaded system; the `read_retry()` method mitigates this. A kernel `dht11` driver exists as an alternative (exposed via IIO sysfs), but the driver here implements the userspace bit-bang protocol.
 - **Pull-up resistor:** A 4.7 kΩ pull-up to VCC on the DATA line is required. For cable lengths > 5 m, reduce the pull-up value. At 3.3 V, keep cable runs short to avoid voltage drop causing measurement errors.
 - **Humidity decimal byte:** For the DHT11, byte 1 (humidity decimal) is always 0x00. The conversion formula includes it for completeness and forward compatibility with the DHT22, which uses this byte.
 - **Power supply noise:** Switching power supplies can induce temperature measurement jumps. Decouple VCC with 100 nF close to the sensor. Use a linear regulator if temperature stability is critical.
-- **Rust bidirectional pin:** `embedded-hal` 1.0 has no `IoPin` trait. On Linux, use `linux-embedded-hal`'s `CdevPin` which can be re-requested with different directions. On ESP32-S3, use `esp-hal`'s `AnyFlex` or equivalent flexible GPIO. The Rust driver should accept a generic parameter that provides both `InputPin` and `OutputPin`, switching between them by re-borrowing or using platform-specific methods.
+- **Linux read reliability:** Frame reads may sporadically fail on a loaded non-RTOS system; the `read_retry()` method mitigates this. See `specs/transport_dhtxx.md` for details.
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+The DHTxx transport must be implemented first; its checklist is in `specs/transport_dhtxx.md`.
 
 ### Python
 - [ ] Driver `python/periph/chips/humidity/dht11.py` — Google-style docstring on every class and public method
