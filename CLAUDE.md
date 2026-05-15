@@ -205,6 +205,12 @@ v = ina.voltage()    # Read bus voltage, () → float V
 ina.configure(avg=7, vbus_ct=4, vsh_ct=4, mode=7)  # Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode 0–7) → None
 ```
 
+## Units
+
+All values use SI units exclusively — no imperial units, no non-SI conventional units. Examples: meters (not feet/inches), kilograms (not pounds), Pascals (not PSI or bar), Celsius or Kelvin (not Fahrenheit), seconds (not minutes/hours unless a compound unit like km/h is standard), volts, amperes, ohms, etc.
+
+This applies to specs, source code, comments, examples, and documentation.
+
 ## Documentation
 
 The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.
