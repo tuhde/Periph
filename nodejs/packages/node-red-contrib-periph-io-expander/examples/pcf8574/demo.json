@@ -1,0 +1,68 @@
+[
+    {
+        "id": "tab_pcf8574_demo",
+        "type": "tab",
+        "label": "PCF8574 Demo",
+        "info": "Button-controlled LED mirror using the PCF8574 IO expander.\n\nHardware:\n- P0–P3: LEDs (anode → VCC, cathode → pin; active-low)\n- P4–P7: push buttons (pin → GND when pressed)\n\nHow it works:\n1. An Inject node fires every 200 ms.\n2. The PCF8574 node receives { port: 0 } and returns the full 8-bit port byte.\n3. A Function node extracts bits 4–7 (buttons), inverts them, and sends { pin: N, value: V } for each LED (P0–P3).\n4. Four separate PCF8574 nodes (one per LED) write the individual pin values.\n5. A Debug node shows the raw port byte.\n\nTo observe: press any button and watch the corresponding LED toggle."
+    },
+    {
+        "id": "inject_poll",
+        "type": "inject",
+        "z": "tab_pcf8574_demo",
+        "name": "Poll 200ms",
+        "repeat": "0.2",
+        "payload": "{\"port\":0}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["pcf8574_read"]]
+    },
+    {
+        "id": "pcf8574_read",
+        "type": "periph-pcf8574",
+        "z": "tab_pcf8574_demo",
+        "name": "PCF8574 read",
+        "bus": "1",
+        "address": "20",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn_mirror", "debug_port"]]
+    },
+    {
+        "id": "fn_mirror",
+        "type": "function",
+        "z": "tab_pcf8574_demo",
+        "name": "Mirror buttons→LEDs",
+        "func": "const port = msg.payload.value;\nconst buttons = (port >> 4) & 0x0F;\nconst leds = (~buttons) & 0x0F;\nconst msgs = [];\nfor (let i = 0; i < 4; i++) {\n    msgs.push({ payload: { pin: i, value: (leds >> i) & 1 } });\n}\nreturn [msgs[0], msgs[1], msgs[2], msgs[3]];",
+        "outputs": 4,
+        "x": 540,
+        "y": 100,
+        "wires": [["pcf8574_p0"], ["pcf8574_p1"], ["pcf8574_p2"], ["pcf8574_p3"]]
+    },
+    {
+        "id": "pcf8574_p0", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P0", "bus": "1", "address": "20", "x": 760, "y": 60, "wires": [[]]
+    },
+    {
+        "id": "pcf8574_p1", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P1", "bus": "1", "address": "20", "x": 760, "y": 100, "wires": [[]]
+    },
+    {
+        "id": "pcf8574_p2", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P2", "bus": "1", "address": "20", "x": 760, "y": 140, "wires": [[]]
+    },
+    {
+        "id": "pcf8574_p3", "type": "periph-pcf8574", "z": "tab_pcf8574_demo",
+        "name": "PCF8574 P3", "bus": "1", "address": "20", "x": 760, "y": 180, "wires": [[]]
+    },
+    {
+        "id": "debug_port",
+        "type": "debug",
+        "z": "tab_pcf8574_demo",
+        "name": "Port byte",
+        "active": true,
+        "x": 540,
+        "y": 160,
+        "wires": []
+    }
+]
