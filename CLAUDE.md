@@ -28,9 +28,10 @@ Implementations:
 ### Flow for chip issues
 1. Claude Code obtains the datasheet from the issue (download PDF attachment or fetch URL) and commits it to `datasheets/<category>/<chipname>.pdf`
 2. Claude Code reads the datasheet and produces a spec in `specs/<category>/` using `specs/_template_chip.md`
-3. Claude Code posts a **"Ready for implementation"** comment on the issue — this is what OpenCode uses to find its work
-4. Claude Code removes the label `needs-spec` and adds the label `needs-implementation` and all relevant `transport:*` labels in the issue.
-5. OpenCode implements against the spec on the feature branch
+3. Claude Code creates a wiki page `<ChipName>.md` with key parameters, address table, quick-start snippets, and platform matrix; adds it to the wiki sidebar and links it from the Supported-Chips and Home pages
+4. Claude Code posts a **"Ready for implementation"** comment on the issue — this is what OpenCode uses to find its work
+5. Claude Code removes the label `needs-spec` and adds the label `needs-implementation` and all relevant `transport:*` labels in the issue.
+6. OpenCode implements against the spec on the feature branch
 
 ### Flow for transport issues
 1. Claude Code obtains the protocol reference from the issue (PDF attachment or URL); if it is a well-known standard with no single document, Claude Code uses its own knowledge
