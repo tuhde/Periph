@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>it.uhde</groupId>
+    <artifactId>periph</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>periph-transport</module>
+        <module>periph-java</module>
+        <module>periph-kotlin</module>
+        <module>periph-groovy</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pi4j.version>2.7.0</pi4j.version>
+        <kotlin.version>2.0.21</kotlin.version>
+        <groovy.version>4.0.24</groovy.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.pi4j</groupId>
+                <artifactId>pi4j-core</artifactId>
+                <version>${pi4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.pi4j</groupId>
+                <artifactId>pi4j-plugin-raspberrypi</artifactId>
+                <version>${pi4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.pi4j</groupId>
+                <artifactId>pi4j-plugin-linuxfs</artifactId>
+                <version>${pi4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>it.uhde</groupId>
+                <artifactId>periph-transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
