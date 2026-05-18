@@ -167,17 +167,19 @@ jvm/
           <category>/   # One class per chip, grouped by category
       test/groovy/
     pom.xml
-  examples/
+  examples/             # JBang scripts — run with: jbang Minimal.java (or .kt / .groovy)
     java/
       <category>/
-        <chip>/         # Minimal.java, Complete.java, Demo.java
+        <chip>/         # Minimal.java, Complete.java, Demo.java  (//DEPS it.uhde:periph-java:...)
     kotlin/
       <category>/
-        <chip>/         # Minimal.kt, Complete.kt, Demo.kt
+        <chip>/         # Minimal.kt, Complete.kt, Demo.kt        (//DEPS it.uhde:periph-kotlin:...)
     groovy/
       <category>/
-        <chip>/         # Minimal.groovy, Complete.groovy, Demo.groovy
-  tests/
+        <chip>/         # Minimal.groovy, Complete.groovy, Demo.groovy (//DEPS it.uhde:periph-groovy:...)
+  tests/                # JBang integration test scripts (run on Pi hardware)
+    <category>/
+      <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
