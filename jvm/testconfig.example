@@ -2,8 +2,21 @@
 # Copy this file to testconfig and fill in your values.
 # testconfig is gitignored — never commit it.
 
+# ── I²C chips ────────────────────────────────────────────────────────────────
+
 # I²C bus number (e.g. 1 for /dev/i2c-1)
 I2C_BUS=1
 
 # Device I²C address in hex (optional — falls back to chip_defaults)
 # I2C_ADDR=0x60
+
+# ── SPI / NeoPixel chips ─────────────────────────────────────────────────────
+
+# SPI bus number (e.g. 0 for /dev/spidev0.x)
+SPI_BUS=0
+
+# SPI device / chip-select number (e.g. 0 for /dev/spidevx.0)
+SPI_DEVICE=0
+
+# Number of pixels in the LED strip (NeoPixel chips only)
+PIXEL_COUNT=30
