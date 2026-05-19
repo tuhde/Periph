@@ -10,6 +10,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
+| Java / Kotlin / Groovy | Raspberry Pi via Pi4J (JVM 17+, JBang examples) | Active |
 
 ## Supported transports
 
@@ -55,15 +56,33 @@ use linux_embedded_hal::I2cdev;
 use periph::chips::power::{Ina226Minimal, Ina226Full};
 ```
 
+**Java / Kotlin / Groovy**
+```java
+// Java
+import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.chips.power.Ina226Minimal;
+```
+```kotlin
+// Kotlin
+import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.chips.power.Ina226Minimal
+```
+```groovy
+// Groovy
+import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.chips.power.Ina226Minimal
+```
+
 ## Supported chips
 
-| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Examples |
-|------|----------|--------|-----|---------|----------|------|---------|
-| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
-| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
-| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
-| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
-| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust |
+| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Examples |
+|------|----------|--------|-----|---------|----------|------|-----|---------|
+| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | | Python · C++ · Node.js · Node-RED · Rust |
 
 More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
 
@@ -100,6 +119,7 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
 | Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
 | Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
+| JVM (Pi hardware) | `jvm/test.sh power/ina226 [--lang kotlin\|groovy]` | Runs via JBang on Raspberry Pi |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
 `--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.
