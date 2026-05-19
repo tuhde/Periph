@@ -2,6 +2,7 @@ package it.uhde.periph.transport;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
+import com.pi4j.io.spi.SpiChipSelect;
 import com.pi4j.io.spi.SpiMode;
 
 import java.io.IOException;
@@ -30,10 +31,11 @@ public final class NeoPixelTransport implements Transport {
      * @param deviceNum SPI device number / chip select (e.g. 0 for /dev/spidevx.0)
      */
     public NeoPixelTransport(Context pi4j, int busNum, int deviceNum) {
+        SpiChipSelect cs = SpiChipSelect.values()[deviceNum];
         var config = Spi.newConfigBuilder(pi4j)
                 .id("neopixel-spi-" + busNum + "-" + deviceNum)
                 .bus(busNum)
-                .chipSelect(deviceNum)
+                .chipSelect(cs)
                 .baud(2_400_000)
                 .mode(SpiMode.MODE_0)
                 .build();
