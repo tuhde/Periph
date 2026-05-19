@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.NeoPixelTransport;
 import it.uhde.periph.chips.led.WS2812BFull;
 
@@ -24,8 +22,7 @@ public class WS2812BTest {
         int deviceNum = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE", "0"));
         int pixels    = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "30"));
 
-        var pi4j = Pi4J.newAutoContext();
-        try (var transport = new NeoPixelTransport(pi4j, busNum, deviceNum)) {
+        try (var transport = new NeoPixelTransport(busNum, deviceNum)) {
 
             var strip = new WS2812BFull(transport, pixels);
 
@@ -105,8 +102,6 @@ public class WS2812BTest {
             strip.off();
             checkTrue("off() at end accepted", true);
 
-        } finally {
-            pi4j.shutdown();
         }
 
         System.out.printf("===DONE: %d passed, %d failed===%n", passed, failed);

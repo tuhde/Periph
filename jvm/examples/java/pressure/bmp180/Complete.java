@@ -1,18 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.pressure.Bmp180Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        var pi4j = Pi4J.newAutoContext();                                // initialise Pi4J, () → Context
-        try (var transport = new I2CTransport(pi4j, 1, 0x77)) {        // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CTransport
+        try (var transport = new I2CTransport(1, 0x77)) {        // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CTransport
             var sensor = new Bmp180Full(transport);                      // construct driver, verifies chip ID and loads calibration, (transport) → Bmp180Full
 
             int id = sensor.chipId();                                    // read chip ID register 0xD0, () → int
@@ -54,8 +51,6 @@ public class Complete {
 
             System.out.println("oversampling after reset: " + sensor.oversampling()); // read current OSS setting, () → int
                                                                                         // reset() restores chip but local field retains 0 since it was set after construction
-        } finally {
-            pi4j.shutdown();
         }
     }
 }

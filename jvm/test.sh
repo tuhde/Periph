@@ -2,7 +2,7 @@
 # Usage:
 #   ./test.sh <category>/<chip> [--lang java|kotlin|groovy]
 #
-# Runs a JVM (jbang) hardware test on the Pi via Pi4J.
+# Runs a JVM (jbang) hardware test on the Pi via Linux FFM (no Pi4J).
 # Reads testconfig from the same directory if present.
 # Defaults to Java; pass --lang kotlin or --lang groovy for the other variants.
 #
@@ -79,9 +79,9 @@ fi
 
 # --- run -----------------------------------------------------------------
 if [ "$TRANSPORT" = "i2c" ]; then
-    echo "=== Running $TARGET on JVM/$LANG_OPT / Pi4J (I2C bus $I2C_BUS, addr $I2C_ADDR) ==="
+    echo "=== Running $TARGET on JVM/$LANG_OPT (I2C bus $I2C_BUS, addr $I2C_ADDR) ==="
     I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" jbang "$TEST_FILE"
 else
-    echo "=== Running $TARGET on JVM/$LANG_OPT / Pi4J (SPI bus $SPI_BUS, device $SPI_DEVICE, pixels $PIXEL_COUNT) ==="
+    echo "=== Running $TARGET on JVM/$LANG_OPT (SPI bus $SPI_BUS, device $SPI_DEVICE, pixels $PIXEL_COUNT) ==="
     SPI_BUS="$SPI_BUS" SPI_DEVICE="$SPI_DEVICE" PIXEL_COUNT="$PIXEL_COUNT" jbang "$TEST_FILE"
 fi

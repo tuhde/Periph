@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.pressure.Bmp180Full;
 
@@ -24,8 +22,7 @@ public class Bmp180Test {
         // BMP180 has a fixed I²C address of 0x77; I2C_ADDR is intentionally ignored.
         int addr = 0x77;
 
-        var pi4j = Pi4J.newAutoContext();
-        try (var transport = new I2CTransport(pi4j, bus, addr)) {
+        try (var transport = new I2CTransport(bus, addr)) {
 
             var sensor = new Bmp180Full(transport);
 
@@ -66,8 +63,6 @@ public class Bmp180Test {
             checkTrue("temperature() after reset in range [-20, 85] °C",
                       tAfter >= -20.0 && tAfter <= 85.0);
 
-        } finally {
-            pi4j.shutdown();
         }
 
         System.out.printf("===DONE: %d passed, %d failed===%n", passed, failed);

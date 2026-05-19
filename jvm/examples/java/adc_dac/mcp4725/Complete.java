@@ -1,19 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.adc_dac.Mcp4725Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        var pi4j = Pi4J.newAutoContext();                               // initialise Pi4J, () → Context
-        try (var transport = new I2CTransport(pi4j, 1, 0x60);         // open device transport, (bus, address) → I2CTransport
-             var gcTransport = new I2CTransport(pi4j, 1, 0x00)) {     // open general call transport, (bus, address=0x00) → I2CTransport
+        try (var transport = new I2CTransport(1, 0x60);         // open device transport, (bus, address) → I2CTransport
+             var gcTransport = new I2CTransport(1, 0x00)) {     // open general call transport, (bus, address=0x00) → I2CTransport
 
             var dac = new Mcp4725Full(transport, gcTransport);         // construct driver, (transport, generalCall) → Mcp4725Full
 
@@ -47,8 +44,6 @@ public class Complete {
                                                                         // true when no EEPROM write is in progress
             System.out.println("EEPROM ready: " + ready);
 
-        } finally {
-            pi4j.shutdown();
         }
     }
 }

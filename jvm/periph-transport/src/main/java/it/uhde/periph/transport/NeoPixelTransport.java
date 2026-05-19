@@ -1,14 +1,11 @@
 package it.uhde.periph.transport;
 
-import com.pi4j.context.Context;
-import com.pi4j.io.spi.Spi;
-import com.pi4j.io.spi.SpiChipSelect;
-import com.pi4j.io.spi.SpiMode;
-
 import java.io.IOException;
+import java.lang.foreign.*;
+import java.lang.invoke.*;
 
 /**
- * NeoPixel transport for WS2812B-compatible addressable LEDs, backed by Pi4J SPI.
+ * NeoPixel transport for WS2812B-compatible addressable LEDs, using Linux spidev via FFM.
  *
  * <p>Each NeoPixel bit is encoded as 3 SPI bits at 2.4 MHz (bit-0 → {@code 100},
  * bit-1 → {@code 110}). A 16-byte zero reset is appended after every frame
@@ -21,25 +18,82 @@ import java.io.IOException;
  */
 public final class NeoPixelTransport implements Transport {
 
-    private final Spi spi;
+    private static final int O_RDWR = 2;
+
+    // ioctl request codes for ARM Linux (from linux/spi/spidev.h)
+    private static final long SPI_IOC_WR_MODE          = 0x40016b01L;
+    private static final long SPI_IOC_WR_BITS_PER_WORD = 0x40016b03L;
+    private static final long SPI_IOC_WR_MAX_SPEED_HZ  = 0x40046b04L;
+
+    private static final MethodHandle openMH;
+    private static final MethodHandle ioctlPtrMH;
+    private static final MethodHandle writeMH;
+    private static final MethodHandle closeMH;
+
+    static {
+        var linker = Linker.nativeLinker();
+        var lookup  = linker.defaultLookup();
+        openMH = linker.downcallHandle(
+            lookup.find("open").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT,
+                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+        ioctlPtrMH = linker.downcallHandle(
+            lookup.find("ioctl").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT,
+                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
+        writeMH = linker.downcallHandle(
+            lookup.find("write").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
+                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
+        closeMH = linker.downcallHandle(
+            lookup.find("close").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+    }
+
+    private final int fd;
 
     /**
      * Open an SPI device for NeoPixel output.
      *
-     * @param pi4j      active Pi4J context (caller retains ownership)
-     * @param busNum    SPI bus number (e.g. 0 for /dev/spidev0.x)
+     * @param busNum    SPI bus number (e.g. 1 for /dev/spidev1.x)
      * @param deviceNum SPI device number / chip select (e.g. 0 for /dev/spidevx.0)
+     * @throws IOException if the device cannot be opened or configured
      */
-    public NeoPixelTransport(Context pi4j, int busNum, int deviceNum) {
-        SpiChipSelect cs = SpiChipSelect.values()[deviceNum];
-        var config = Spi.newConfigBuilder(pi4j)
-                .id("neopixel-spi-" + busNum + "-" + deviceNum)
-                .bus(busNum)
-                .chipSelect(cs)
-                .baud(2_400_000)
-                .mode(SpiMode.MODE_0)
-                .build();
-        this.spi = pi4j.create(config);
+    public NeoPixelTransport(int busNum, int deviceNum) throws IOException {
+        this.fd = openDevice(busNum, deviceNum);
+    }
+
+    private static int openDevice(int busNum, int deviceNum) throws IOException {
+        int fd = -1;
+        try (var arena = Arena.ofConfined()) {
+            var path = arena.allocateFrom("/dev/spidev" + busNum + "." + deviceNum);
+            fd = (int) openMH.invoke(path, O_RDWR);
+            if (fd < 0) throw new IOException(
+                "open(/dev/spidev" + busNum + "." + deviceNum + ") failed");
+
+            var u8  = arena.allocate(ValueLayout.JAVA_BYTE);
+            var u32 = arena.allocate(ValueLayout.JAVA_INT);
+
+            u8.set(ValueLayout.JAVA_BYTE, 0, (byte) 0); // SPI_MODE_0
+            int rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_MODE, u8);
+            if (rc < 0) throw new IOException("SPI_IOC_WR_MODE ioctl failed: " + rc);
+
+            u8.set(ValueLayout.JAVA_BYTE, 0, (byte) 8); // 8 bits per word
+            rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_BITS_PER_WORD, u8);
+            if (rc < 0) throw new IOException("SPI_IOC_WR_BITS_PER_WORD ioctl failed: " + rc);
+
+            u32.set(ValueLayout.JAVA_INT, 0, 2_400_000); // 2.4 MHz
+            rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_WR_MAX_SPEED_HZ, u32);
+            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+
+            return fd;
+        } catch (IOException e) {
+            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            throw e;
+        } catch (Throwable t) {
+            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            throw new IOException(t);
+        }
     }
 
     /**
@@ -51,11 +105,16 @@ public final class NeoPixelTransport implements Transport {
      */
     @Override
     public void write(byte[] data) throws IOException {
-        try {
-            byte[] encoded = encode(data);
-            spi.write(encoded, 0, encoded.length);
-        } catch (Exception e) {
-            throw new IOException(e);
+        byte[] encoded = encode(data);
+        try (var arena = Arena.ofConfined()) {
+            var buf = arena.allocate(encoded.length);
+            buf.copyFrom(MemorySegment.ofArray(encoded));
+            long n = (long) writeMH.invoke(fd, buf, (long) encoded.length);
+            if (n < 0) throw new IOException("write() failed: " + n);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
         }
     }
 
@@ -74,9 +133,9 @@ public final class NeoPixelTransport implements Transport {
     @Override
     public void close() throws IOException {
         try {
-            spi.close();
-        } catch (Exception e) {
-            throw new IOException(e);
+            closeMH.invoke(fd);
+        } catch (Throwable t) {
+            throw new IOException(t);
         }
     }
 

@@ -2,4 +2,4 @@
 # Format: <chip>  <transport>  <spi_bus>  <spi_device>  <extra_params...>
 # NeoPixel: chip  neopixel  spi_bus  spi_device  pixel_count
 
-ws2812b  neopixel  0  0  30
+ws2812b  neopixel  1  0  4
