@@ -11,6 +11,7 @@ Implementations:
 - **C++** — Arduino, Linux GCC, and Zephyr RTOS
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
+- **Java / Kotlin / Groovy** — JVM target: Raspberry Pi via Pi4J; transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
 
 ## Workflow
 
@@ -137,6 +138,48 @@ rust/
     <category>/
       <chip>_test/      # Linux integration test crate
       <chip>_test_esp32s3/  # ESP32-S3 smoke test (excluded from workspace)
+jvm/
+  pom.xml               # Parent POM: groupId=it.uhde, artifactId=periph, multi-module
+  periph-transport/     # Java-only transport library (JPMS module: it.uhde.periph.transport)
+    src/main/java/
+      module-info.java          # exports it.uhde.periph.transport; requires com.pi4j
+      it/uhde/periph/transport/ # Transport interface + Pi4J I2C/SPI implementations
+    pom.xml
+  periph-java/          # Java chip drivers (JPMS module: it.uhde.periph)
+    src/
+      main/java/
+        module-info.java        # exports it.uhde.periph.chips.*; requires it.uhde.periph.transport
+        it/uhde/periph/chips/
+          <category>/   # One class per chip, grouped by category
+      test/java/
+    pom.xml
+  periph-kotlin/        # Kotlin chip drivers (kotlin-maven-plugin; no JPMS)
+    src/
+      main/kotlin/
+        it/uhde/periph/chips/
+          <category>/   # One class per chip, grouped by category
+      test/kotlin/
+    pom.xml
+  periph-groovy/        # Groovy chip drivers (gmavenplus-plugin; no JPMS)
+    src/
+      main/groovy/
+        it/uhde/periph/chips/
+          <category>/   # One class per chip, grouped by category
+      test/groovy/
+    pom.xml
+  examples/             # JBang scripts — run with: jbang Minimal.java (or .kt / .groovy)
+    java/
+      <category>/
+        <chip>/         # Minimal.java, Complete.java, Demo.java  (//DEPS it.uhde:periph-java:...)
+    kotlin/
+      <category>/
+        <chip>/         # Minimal.kt, Complete.kt, Demo.kt        (//DEPS it.uhde:periph-kotlin:...)
+    groovy/
+      <category>/
+        <chip>/         # Minimal.groovy, Complete.groovy, Demo.groovy (//DEPS it.uhde:periph-groovy:...)
+  tests/                # JBang integration test scripts (run on Pi hardware)
+    <category>/
+      <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
