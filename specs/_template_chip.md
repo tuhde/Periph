@@ -113,6 +113,12 @@ Package: `node-red-contrib-periph-<category>`
 
 <!-- Quirks, errata, or non-obvious datasheet behavior. -->
 
+## Sigrok Decoder
+
+<!-- One paragraph describing what the sigrok decoder annotates: which registers,
+     which bit fields, which computed values are shown. Mention input transport
+     (i2c or logic), the decoder id, and the addresses / channels it matches. -->
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -158,3 +164,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `rust/examples/<chip>_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/<category>/<chip>_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/<category>/<chip>_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### Sigrok
+- [ ] Decoder `sigrok/<chip>/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
