@@ -1,61 +1,114 @@
 package it.uhde.periph.transport;
 
-import com.pi4j.context.Context;
-import com.pi4j.io.i2c.I2C;
-
 import java.io.IOException;
+import java.lang.foreign.*;
+import java.lang.invoke.*;
 
 /**
- * I²C transport backed by Pi4J (Linux /dev/i2c-N via the linuxfs plugin).
+ * I²C transport backed by Linux i2c-dev via FFM (no native libraries required).
  *
- * <p>One instance represents one device address on one bus. Create a separate
- * instance for every distinct address, including the I²C General Call address
- * (0x00) when needed.
+ * <p>Opens {@code /dev/i2c-<bus>} and sets the device address with {@code I2C_SLAVE} ioctl.
+ * Subsequent {@link #write} / {@link #read} calls map directly to libc {@code write} /
+ * {@code read}. {@link #writeRead} issues a stop-then-start between them; use a
+ * platform-specific transport if the chip requires a true repeated-start.
  */
 public final class I2CTransport implements Transport {
 
-    private final I2C device;
+    private static final int O_RDWR = 2;
+    private static final long I2C_SLAVE = 0x0703L;
+
+    private static final MethodHandle openMH;
+    private static final MethodHandle ioctlValueMH;
+    private static final MethodHandle writeMH;
+    private static final MethodHandle readMH;
+    private static final MethodHandle closeMH;
+
+    static {
+        var linker = Linker.nativeLinker();
+        var lookup  = linker.defaultLookup();
+        openMH = linker.downcallHandle(
+            lookup.find("open").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT,
+                ValueLayout.ADDRESS, ValueLayout.JAVA_INT));
+        ioctlValueMH = linker.downcallHandle(
+            lookup.find("ioctl").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT,
+                ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_LONG));
+        writeMH = linker.downcallHandle(
+            lookup.find("write").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
+                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
+        readMH = linker.downcallHandle(
+            lookup.find("read").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
+                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
+        closeMH = linker.downcallHandle(
+            lookup.find("close").orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
+    }
+
+    private final int fd;
 
     /**
      * Open an I²C device.
      *
-     * @param pi4j    active Pi4J context (caller retains ownership)
      * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
      * @param address 7-bit device address
+     * @throws IOException if the device cannot be opened or the address ioctl fails
      */
-    public I2CTransport(Context pi4j, int bus, int address) {
-        var config = I2C.newConfigBuilder(pi4j)
-                .id("i2c-" + bus + "-" + Integer.toHexString(address))
-                .bus(bus)
-                .device(address)
-                .build();
-        this.device = pi4j.create(config);
+    public I2CTransport(int bus, int address) throws IOException {
+        this.fd = openDevice(bus, address);
+    }
+
+    private static int openDevice(int bus, int address) throws IOException {
+        int fd = -1;
+        try (var arena = Arena.ofConfined()) {
+            var path = arena.allocateFrom("/dev/i2c-" + bus);
+            fd = (int) openMH.invoke(path, O_RDWR);
+            if (fd < 0) throw new IOException("open(/dev/i2c-" + bus + ") failed");
+            int rc = (int) ioctlValueMH.invoke(fd, I2C_SLAVE, (long) address);
+            if (rc < 0) throw new IOException("I2C_SLAVE ioctl failed: " + rc);
+            return fd;
+        } catch (IOException e) {
+            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            throw e;
+        } catch (Throwable t) {
+            if (fd >= 0) { try { closeMH.invoke(fd); } catch (Throwable ignored) {} }
+            throw new IOException(t);
+        }
     }
 
     @Override
     public void write(byte[] data) throws IOException {
-        try {
-            device.write(data, 0, data.length);
-        } catch (Exception e) {
-            throw new IOException(e);
+        try (var arena = Arena.ofConfined()) {
+            var buf = arena.allocate(data.length);
+            buf.copyFrom(MemorySegment.ofArray(data));
+            long n = (long) writeMH.invoke(fd, buf, (long) data.length);
+            if (n < 0) throw new IOException("write() failed: " + n);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
         }
     }
 
     @Override
     public byte[] read(int n) throws IOException {
-        try {
-            byte[] buf = new byte[n];
-            device.read(buf, 0, n);
-            return buf;
-        } catch (Exception e) {
-            throw new IOException(e);
+        try (var arena = Arena.ofConfined()) {
+            var buf = arena.allocate(n);
+            long got = (long) readMH.invoke(fd, buf, (long) n);
+            if (got < 0) throw new IOException("read() failed: " + got);
+            return buf.toArray(ValueLayout.JAVA_BYTE);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
         }
     }
 
     /**
      * Writes then reads as two separate bus transactions (stop + start between them).
-     * Pi4J's linuxfs plugin does not expose a true repeated-start for raw I²C;
-     * for chips that require it, use a platform-specific transport instead.
+     * For chips requiring a true repeated-start, use a platform-specific transport.
      */
     @Override
     public byte[] writeRead(byte[] data, int n) throws IOException {
@@ -66,9 +119,9 @@ public final class I2CTransport implements Transport {
     @Override
     public void close() throws IOException {
         try {
-            device.close();
-        } catch (Exception e) {
-            throw new IOException(e);
+            closeMH.invoke(fd);
+        } catch (Throwable t) {
+            throw new IOException(t);
         }
     }
 }

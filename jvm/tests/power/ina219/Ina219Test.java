@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.power.Ina219Full;
 
@@ -24,8 +22,7 @@ public class Ina219Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x40").replaceFirst("^0[xX]", ""), 16);
 
-        var pi4j = Pi4J.newAutoContext();
-        try (var transport = new I2CTransport(pi4j, bus, addr)) {
+        try (var transport = new I2CTransport(bus, addr)) {
 
             var ina = new Ina219Full(transport, 0.1, 2.0);
 
@@ -79,8 +76,6 @@ public class Ina219Test {
             checkTrue("voltage() after wake in range [0, 36] V",
                       vAfterWake >= 0.0 && vAfterWake <= 36.0);
 
-        } finally {
-            pi4j.shutdown();
         }
 
         System.out.printf("===DONE: %d passed, %d failed===%n", passed, failed);

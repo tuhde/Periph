@@ -36,7 +36,7 @@ impl<I2C: I2c> Mcp4725Minimal<I2C> {
     /// (EEPROM unchanged).
     pub fn set_voltage(&mut self, fraction: f32) -> Result<(), I2C::Error> {
         let f = fraction.max(0.0).min(1.0);
-        let code = (f * 4095.0).round() as u16;
+        let code = (f * 4095.0)as u16;
         self._fast_write(code, 0)
     }
 
@@ -86,7 +86,7 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
     /// Writes both the DAC register and EEPROM so the value survives power cycles.
     pub fn set_voltage_eeprom(&mut self, fraction: f32) -> Result<(), I2C::Error> {
         let f = fraction.max(0.0).min(1.0);
-        let code = (f * 4095.0).round() as u16;
+        let code = (f * 4095.0)as u16;
         self._write_dac_eeprom(code, 0)
     }
 

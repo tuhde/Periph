@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.pressure.Bmp180Full;
 
@@ -23,8 +21,7 @@ public class Demo {
     private static final long   INTERVAL_MS = 1000;
 
     public static void main(String[] args) throws Exception {
-        var pi4j = Pi4J.newAutoContext();                               // initialise Pi4J, () → Context
-        try (var transport = new I2CTransport(pi4j, 1, 0x77)) {       // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CTransport
+        try (var transport = new I2CTransport(1, 0x77)) {       // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CTransport
             var sensor = new Bmp180Full(transport);                     // construct driver, verifies chip ID, reads calibration, (transport) → Bmp180Full
 
             // --- Configure for low-power continuous monitoring ---
@@ -87,8 +84,6 @@ public class Demo {
             System.out.printf("Altitude:    min=%.1f m  max=%.1f m  mean=%.1f m%n",
                     minA, maxA, sumA / SAMPLES);
 
-        } finally {
-            pi4j.shutdown();
         }
     }
 }

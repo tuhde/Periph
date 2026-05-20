@@ -1,0 +1,5 @@
+# Default SPI/NeoPixel parameters for chips used in JVM hardware tests.
+# Format: <chip>  <transport>  <spi_bus>  <spi_device>  <extra_params...>
+# NeoPixel: chip  neopixel  spi_bus  spi_device  pixel_count
+
+ws2812b  neopixel  0  0  4

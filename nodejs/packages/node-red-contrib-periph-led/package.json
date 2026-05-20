@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for LED driver chips",
   "keywords": ["node-red", "led", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "ws2812b": "nodes/ws2812b/ws2812b.js"
+    }
   },
   "dependencies": {
     "periph": "*"

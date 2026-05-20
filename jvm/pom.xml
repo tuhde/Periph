@@ -17,30 +17,14 @@
     </modules>
 
     <properties>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>22</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <pi4j.version>2.7.0</pi4j.version>
         <kotlin.version>2.0.21</kotlin.version>
         <groovy.version>4.0.24</groovy.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.pi4j</groupId>
-                <artifactId>pi4j-core</artifactId>
-                <version>${pi4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.pi4j</groupId>
-                <artifactId>pi4j-plugin-raspberrypi</artifactId>
-                <version>${pi4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.pi4j</groupId>
-                <artifactId>pi4j-plugin-linuxfs</artifactId>
-                <version>${pi4j.version}</version>
-            </dependency>
             <dependency>
                 <groupId>it.uhde</groupId>
                 <artifactId>periph-transport</artifactId>

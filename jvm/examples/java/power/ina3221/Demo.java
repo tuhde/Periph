@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.power.Ina3221Full;
 
@@ -25,8 +23,7 @@ public class Demo {
     private static final double ALERT_MUL = 1.5;
 
     public static void main(String[] args) throws Exception {
-        var pi4j = Pi4J.newAutoContext();                                    // initialise Pi4J, () → Context
-        try (var transport = new I2CTransport(pi4j, 1, 0x40)) {            // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
+        try (var transport = new I2CTransport(1, 0x40)) {            // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
 
             // --- Construct driver with 0.1 Ω shunt on all rails ---
             // Using a common shunt value simplifies wiring; per-channel values can
@@ -108,8 +105,6 @@ public class Demo {
             if ((flags & Ina3221Full.CF3) != 0) System.out.println("  Critical alert fired on CH3");
             if ((flags & Ina3221Full.SF)  != 0) System.out.println("  Summation alert fired");
 
-        } finally {
-            pi4j.shutdown();
         }
     }
 }

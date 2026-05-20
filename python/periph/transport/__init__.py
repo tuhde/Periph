@@ -14,3 +14,8 @@ from .base import Transport
 #   from periph.transport.smbus_micropython import SMBusTransport   (machine.I2C)
 #   from periph.transport.smbus_circuitpython import SMBusTransport (busio.I2C)
 #   from periph.transport.smbus_linux import SMBusTransport         (smbus2 / /dev/i2c-N)
+
+# NeoPixel transports are platform-specific — import the one matching your target:
+#   from periph.transport.neopixel_micropython import NeoPixelTransport   (machine.SPI)
+#   from periph.transport.neopixel_circuitpython import NeoPixelTransport (busio.SPI)
+#   from periph.transport.neopixel_linux import NeoPixelTransport         (spidev / /dev/spidevB.D)

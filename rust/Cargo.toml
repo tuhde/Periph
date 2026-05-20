@@ -8,6 +8,8 @@ exclude = [
     "tests/adc_dac/mcp4725_test_esp32s3",
     "tests/transport/smbus_test_esp32s3",
     "tests/transport/spi_test_esp32s3",
+    "tests/transport/neopixel_test_esp32s3",
+    "tests/led/ws2812b_test_esp32s3",
 ]
 members = [
     "periph",
@@ -33,10 +35,16 @@ members = [
     "tests/adc_dac/mcp4725_test",
     "tests/transport/smbus_test",
     "tests/transport/spi_test",
+    "tests/transport/neopixel_test",
+    "examples/ws2812b_minimal",
+    "examples/ws2812b_complete",
+    "examples/ws2812b_demo",
+    "tests/led/ws2812b_test",
 ]
 
 [workspace.dependencies]
 embedded-hal = "1.0"
+heapless = "0.8"
 linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
 spidev = "0.6"

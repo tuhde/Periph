@@ -11,21 +11,4 @@
     </parent>
 
     <artifactId>periph-transport</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-plugin-raspberrypi</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.pi4j</groupId>
-            <artifactId>pi4j-plugin-linuxfs</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-    </dependencies>
 </project>

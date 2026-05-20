@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J;
 import it.uhde.periph.transport.I2CTransport;
 import it.uhde.periph.chips.adc_dac.Mcp4725Full;
 
@@ -21,8 +19,7 @@ public class Demo {
     private static final long   STEP_MS = 100;
 
     public static void main(String[] args) throws Exception {
-        var pi4j = Pi4J.newAutoContext();                              // initialise Pi4J, () → Context
-        try (var transport = new I2CTransport(pi4j, 1, 0x60)) {      // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
+        try (var transport = new I2CTransport(1, 0x60)) {      // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
             var dac = new Mcp4725Full(transport, null);               // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4725Full
 
             // --- Ramp up from 0 V to VDD ---
@@ -49,8 +46,6 @@ public class Demo {
             // Avoids leaving the rail at an arbitrary level when the process ends.
             dac.setRaw(0);                                             // set output to 0 V, (code=0–4095) → void
 
-        } finally {
-            pi4j.shutdown();
         }
     }
 }

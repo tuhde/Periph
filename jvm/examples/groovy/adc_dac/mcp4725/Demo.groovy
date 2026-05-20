@@ -1,11 +1,9 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
-//DEPS com.pi4j:pi4j-core:2.7.0
-//DEPS com.pi4j:pi4j-plugin-raspberrypi:2.7.0
-//DEPS com.pi4j:pi4j-plugin-linuxfs:2.7.0
 
-import com.pi4j.Pi4J
 import it.uhde.periph.transport.I2CTransport
 import it.uhde.periph.chips.adc_dac.Mcp4725Full
 
@@ -19,39 +17,34 @@ final VDD     = 3.3
 final STEPS   = 20
 final STEP_MS = 100
 
-def pi4j = Pi4J.newAutoContext()                              // initialise Pi4J, () → Context
+def transport = new I2CTransport(1, 0x60)          // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
 try {
-    def transport = new I2CTransport(pi4j, 1, 0x60)          // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
-    try {
-        def dac = new Mcp4725Full(transport, null)            // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4725Full
+    def dac = new Mcp4725Full(transport, null)            // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4725Full
 
-        // --- Ramp up from 0 V to VDD ---
-        // Each step covers 1/20 of full scale (~165 mV on a 3.3 V rail).
-        // 100 ms per step gives a 2-second rise time — slow enough to observe
-        // on a multimeter and fast enough to show a clean ramp on an oscilloscope.
-        (0..STEPS).each { i ->
-            double fraction = i / STEPS
-            dac.setVoltage(fraction)                          // set output level, (fraction=0.0–1.0) → void
-            printf("↑ fraction=%.2f  V≈%.3f V%n", fraction, fraction * VDD)
-            Thread.sleep(STEP_MS)
-        }
-
-        // --- Ramp down from VDD back to 0 V ---
-        // Descending half of the triangle wave.
-        ((STEPS - 1)..0).each { i ->
-            double fraction = i / STEPS
-            dac.setVoltage(fraction)                          // set output level, (fraction=0.0–1.0) → void
-            printf("↓ fraction=%.2f  V≈%.3f V%n", fraction, fraction * VDD)
-            Thread.sleep(STEP_MS)
-        }
-
-        // --- Return output to 0 V before exit ---
-        // Avoids leaving the rail at an arbitrary level when the process ends.
-        dac.setRaw(0)                                         // set output to 0 V, (code=0–4095) → void
-
-    } finally {
-        transport.close()
+    // --- Ramp up from 0 V to VDD ---
+    // Each step covers 1/20 of full scale (~165 mV on a 3.3 V rail).
+    // 100 ms per step gives a 2-second rise time — slow enough to observe
+    // on a multimeter and fast enough to show a clean ramp on an oscilloscope.
+    (0..STEPS).each { i ->
+        double fraction = i / STEPS
+        dac.setVoltage(fraction)                          // set output level, (fraction=0.0–1.0) → void
+        printf("↑ fraction=%.2f  V≈%.3f V%n", fraction, fraction * VDD)
+        Thread.sleep(STEP_MS)
     }
+
+    // --- Ramp down from VDD back to 0 V ---
+    // Descending half of the triangle wave.
+    ((STEPS - 1)..0).each { i ->
+        double fraction = i / STEPS
+        dac.setVoltage(fraction)                          // set output level, (fraction=0.0–1.0) → void
+        printf("↓ fraction=%.2f  V≈%.3f V%n", fraction, fraction * VDD)
+        Thread.sleep(STEP_MS)
+    }
+
+    // --- Return output to 0 V before exit ---
+    // Avoids leaving the rail at an arbitrary level when the process ends.
+    dac.setRaw(0)                                         // set output to 0 V, (code=0–4095) → void
+
 } finally {
-    pi4j.shutdown()
+    transport.close()
 }
