@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "description": "Node-RED nodes for IO expander chips",
   "keywords": ["node-red", "io-expander", "i2c", "spi", "peripheral"],
+  "main": "index.js",
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "periph-pcf8574": "nodes/pcf8574/pcf8574.js"
+    }
   },
   "dependencies": {
     "periph": "*"
