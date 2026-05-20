@@ -9,8 +9,11 @@ import it.uhde.periph.chips.led.WS2812BMinimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
-        try (var transport = new NeoPixelTransport(0, 0)) {      // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new WS2812BMinimal(transport, 30);              // construct driver, (transport, n=30) → WS2812BMinimal
+        int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
+        int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
+        int pixelCount = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
+        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+            var strip = new WS2812BMinimal(transport, pixelCount);         // construct driver, (transport, n) → WS2812BMinimal
 
             strip.fill(255, 0, 0);    // fill strip red, (r=0–255, g=0–255, b=0–255) → void
             Thread.sleep(1000);

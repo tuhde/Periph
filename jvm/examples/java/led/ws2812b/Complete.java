@@ -9,8 +9,11 @@ import it.uhde.periph.chips.led.WS2812BFull;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        try (var transport = new NeoPixelTransport(0, 0)) {      // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new WS2812BFull(transport, 30);                 // construct driver, (transport, n=30) → WS2812BFull
+        int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
+        int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
+        int pixelCount = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
+        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+            var strip = new WS2812BFull(transport, pixelCount);            // construct driver, (transport, n) → WS2812BFull
 
             strip.fill(255, 0, 0);                                       // fill entire strip red and send, (r=0–255, g=0–255, b=0–255) → void
                                                                          // inherited from WS2812BMinimal; fills buffer in GRB order and calls transport.write()

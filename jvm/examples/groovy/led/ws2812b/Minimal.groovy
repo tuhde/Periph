@@ -7,9 +7,12 @@
 import it.uhde.periph.transport.NeoPixelTransport
 import it.uhde.periph.chips.led.WS2812BMinimal
 
-def transport = new NeoPixelTransport(0, 0)              // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
+def spiBus     = (System.getenv("SPI_BUS")     ?: "0").toInteger()
+def spiDevice  = (System.getenv("SPI_DEVICE")  ?: "0").toInteger()
+def pixelCount = (System.getenv("PIXEL_COUNT") ?: "4").toInteger()
+def transport = new NeoPixelTransport(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
 try {
-    def strip = new WS2812BMinimal(transport, 30)               // construct driver, (transport, n=30) → WS2812BMinimal
+    def strip = new WS2812BMinimal(transport, pixelCount)   // construct driver, (transport, n) → WS2812BMinimal
 
     strip.fill(255, 0, 0)    // fill strip red, (r=0–255, g=0–255, b=0–255) → void
     Thread.sleep(1000)

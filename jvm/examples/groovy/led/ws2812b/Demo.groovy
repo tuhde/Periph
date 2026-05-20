@@ -7,15 +7,17 @@
 import it.uhde.periph.transport.NeoPixelTransport
 import it.uhde.periph.chips.led.WS2812BFull
 
-final int    PIXELS    = 30
 final long   FRAME_MS  = 33    // ~30 fps
 final int    RAINBOW_S = 10
 final int    STROBE_S  = 2
 final int    STROBE_HZ = 10
 
-def transport = new NeoPixelTransport(0, 0)              // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
+def spiBus     = (System.getenv("SPI_BUS")     ?: "0").toInteger()
+def spiDevice  = (System.getenv("SPI_DEVICE")  ?: "0").toInteger()
+def PIXELS     = (System.getenv("PIXEL_COUNT") ?: "4").toInteger()
+def transport = new NeoPixelTransport(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
 try {
-    def strip = new WS2812BFull(transport, PIXELS)              // construct driver, (transport, n=30) → WS2812BFull
+    def strip = new WS2812BFull(transport, PIXELS)              // construct driver, (transport, n) → WS2812BFull
 
     // --- Rainbow rotation for 10 seconds ---
     // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour

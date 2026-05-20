@@ -24,10 +24,12 @@ public final class NeoPixelTransport implements Transport {
     private static final long SPI_IOC_WR_MODE          = 0x40016b01L;
     private static final long SPI_IOC_WR_BITS_PER_WORD = 0x40016b03L;
     private static final long SPI_IOC_WR_MAX_SPEED_HZ  = 0x40046b04L;
+    // _IOW('k', 0, char[sizeof(spi_ioc_transfer)=32])
+    private static final long SPI_IOC_MESSAGE_1        = 0x40206b00L;
+    private static final int  SPI_IOC_XFER_SIZE        = 32;
 
     private static final MethodHandle openMH;
     private static final MethodHandle ioctlPtrMH;
-    private static final MethodHandle writeMH;
     private static final MethodHandle closeMH;
 
     static {
@@ -41,10 +43,6 @@ public final class NeoPixelTransport implements Transport {
             lookup.find("ioctl").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT,
                 ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.ADDRESS));
-        writeMH = linker.downcallHandle(
-            lookup.find("write").orElseThrow(),
-            FunctionDescriptor.of(ValueLayout.JAVA_LONG,
-                ValueLayout.JAVA_INT, ValueLayout.ADDRESS, ValueLayout.JAVA_LONG));
         closeMH = linker.downcallHandle(
             lookup.find("close").orElseThrow(),
             FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
@@ -97,8 +95,8 @@ public final class NeoPixelTransport implements Transport {
     }
 
     /**
-     * Encode {@code data} with the 3-bit SPI scheme and transmit, followed by
-     * 16 zero-bytes (≈53 µs reset pulse).
+     * Encode {@code data} with the 3-bit SPI scheme and transmit as a single
+     * SPI_IOC_MESSAGE transfer (continuous CS, no inter-byte gaps).
      *
      * @param data raw GRB bytes to send (n pixels × 3 bytes each)
      * @throws IOException on SPI error
@@ -107,10 +105,19 @@ public final class NeoPixelTransport implements Transport {
     public void write(byte[] data) throws IOException {
         byte[] encoded = encode(data);
         try (var arena = Arena.ofConfined()) {
-            var buf = arena.allocate(encoded.length);
-            buf.copyFrom(MemorySegment.ofArray(encoded));
-            long n = (long) writeMH.invoke(fd, buf, (long) encoded.length);
-            if (n < 0) throw new IOException("write() failed: " + n);
+            var txBuf = arena.allocate(encoded.length);
+            txBuf.copyFrom(MemorySegment.ofArray(encoded));
+
+            // spi_ioc_transfer struct (36 bytes, kernel >= 5.5)
+            var xfer = arena.allocate(SPI_IOC_XFER_SIZE);
+            xfer.set(ValueLayout.JAVA_LONG, 0,  txBuf.address()); // tx_buf
+            xfer.set(ValueLayout.JAVA_LONG, 8,  0L);              // rx_buf
+            xfer.set(ValueLayout.JAVA_INT,  16, encoded.length);  // len
+            xfer.set(ValueLayout.JAVA_INT,  20, 2_400_000);       // speed_hz
+            // remaining fields (delay, bits_per_word, cs_change, etc.) left 0 → kernel defaults
+
+            int rc = (int) ioctlPtrMH.invoke(fd, SPI_IOC_MESSAGE_1, xfer);
+            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE ioctl failed: " + rc);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -139,9 +146,14 @@ public final class NeoPixelTransport implements Transport {
         }
     }
 
-    // Each input byte → 3 SPI bytes (24 bits); 16 trailing zeros = ≥50 µs reset
+    // BCM2835 SPI0 uses DMA (gap-free) for transfers >= 96 bytes; below that it
+    // falls back to polling mode which has inter-byte MOSI gaps that corrupt
+    // NeoPixel timing. Pad to at least 96 bytes with trailing zeros (extra reset).
+    // Each input byte → 3 SPI bytes (24 bits); 16 trailing zeros = ≥50 µs reset.
+    private static final int BCM2835_DMA_MIN_LEN = 96;
+
     private static byte[] encode(byte[] data) {
-        byte[] out = new byte[data.length * 3 + 16];
+        byte[] out = new byte[Math.max(data.length * 3 + 16, BCM2835_DMA_MIN_LEN)];
         for (int i = 0; i < data.length; i++) {
             int b = data[i] & 0xFF;
             int bits = 0;

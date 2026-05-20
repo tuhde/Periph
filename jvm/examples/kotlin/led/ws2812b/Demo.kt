@@ -7,15 +7,17 @@
 import it.uhde.periph.transport.NeoPixelTransport
 import it.uhde.periph.chips.led.WS2812BFull
 
-private const val PIXELS    = 30
 private const val FRAME_MS  = 33L   // ~30 fps
 private const val RAINBOW_S = 10
 private const val STROBE_S  = 2
 private const val STROBE_HZ = 10
 
 fun main() {
-    NeoPixelTransport(0, 0).use { transport ->               // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
-        val strip = WS2812BFull(transport, PIXELS)                  // construct driver, (transport, n=30) → WS2812BFull
+    val spiBus     = System.getenv("SPI_BUS")?.toInt()     ?: 0
+    val spiDevice  = System.getenv("SPI_DEVICE")?.toInt()  ?: 0
+    val PIXELS     = System.getenv("PIXEL_COUNT")?.toInt() ?: 4
+    NeoPixelTransport(spiBus, spiDevice).use { transport ->  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+        val strip = WS2812BFull(transport, PIXELS)                  // construct driver, (transport, n) → WS2812BFull
 
         // --- Rainbow rotation for 10 seconds ---
         // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour

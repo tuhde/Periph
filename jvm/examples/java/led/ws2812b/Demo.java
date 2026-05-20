@@ -16,15 +16,17 @@ import it.uhde.periph.chips.led.WS2812BFull;
  */
 public class Demo {
 
-    private static final int    PIXELS    = 30;
     private static final long   FRAME_MS  = 33;   // ~30 fps
     private static final int    RAINBOW_S = 10;
     private static final int    STROBE_S  = 2;
     private static final int    STROBE_HZ = 10;
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new NeoPixelTransport(0, 0)) {      // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new WS2812BFull(transport, PIXELS);             // construct driver, (transport, n=30) → WS2812BFull
+        int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
+        int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
+        int PIXELS     = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
+        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+            var strip = new WS2812BFull(transport, PIXELS);               // construct driver, (transport, n) → WS2812BFull
 
             // --- Rainbow rotation for 10 seconds ---
             // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour

@@ -8,8 +8,11 @@ import it.uhde.periph.transport.NeoPixelTransport
 import it.uhde.periph.chips.led.WS2812BFull
 
 fun main() {
-    NeoPixelTransport(0, 0).use { transport ->               // open SPI bus 0 device 0, (busNum, deviceNum) → NeoPixelTransport
-        val strip = WS2812BFull(transport, 30)                      // construct driver, (transport, n=30) → WS2812BFull
+    val spiBus     = System.getenv("SPI_BUS")?.toInt()     ?: 0
+    val spiDevice  = System.getenv("SPI_DEVICE")?.toInt()  ?: 0
+    val pixelCount = System.getenv("PIXEL_COUNT")?.toInt() ?: 4
+    NeoPixelTransport(spiBus, spiDevice).use { transport ->  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+        val strip = WS2812BFull(transport, pixelCount)              // construct driver, (transport, n) → WS2812BFull
 
         strip.fill(255, 0, 0)                                        // fill entire strip red and send, (r=0–255, g=0–255, b=0–255) → Unit
                                                                      // inherited from WS2812BMinimal; fills buffer in GRB order and calls transport.write()
