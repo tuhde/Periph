@@ -147,6 +147,14 @@ The SK6812RGBW requires a ≥80 µs reset pulse, compared to ≥50 µs for the W
 - **Cascade note:** the driver controls all `n` pixels in one strip. Multiple strips on separate SPI buses require separate driver instances.
 - **rotate() stride:** rotation operates on whole pixels (4-byte units), not individual bytes, so a step of 1 shifts one pixel, not one byte.
 
+## Sigrok Decoder
+
+Two-layer stack: `logic → neopixel (reset_us=80) → sk6812rgbw`.
+
+The `neopixel` transport decoder handles all NZR timing (shared with WS2812B). For SK6812RGBW, set its `reset_us` option to `80` (the chip requires ≥80 µs vs WS2812B's ≥50 µs).
+
+The `sk6812rgbw` chip decoder (id `sk6812rgbw`, input `['neopixel']`) groups bytes into 32-bit GRBW pixels and annotates each pixel with its index, R/G/B/W values (reordered from GRBW to RGBW for readability), and a `#RRGGBBWW` hex colour string. Emits a warning on incomplete pixels at reset.
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -210,3 +218,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Complete.groovy` — Tier-1 + Tier-2
 - [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Demo.groovy` — Tier-1 + Tier-3
 - [x] Tests `jvm/tests/led/sk6812rgbw/SK6812RGBWTest.java`
+
+### Sigrok
+- [x] Decoder `sigrok/sk6812rgbw/__init__.py`
+- [x] Decoder `sigrok/sk6812rgbw/pd.py` — neopixel input (set reset_us=80 on that layer); groups 4 bytes → GRBW pixel; R/G/B/W + #RRGGBBWW annotation
