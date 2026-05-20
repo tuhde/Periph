@@ -10,6 +10,7 @@ exclude = [
     "tests/transport/spi_test_esp32s3",
     "tests/transport/neopixel_test_esp32s3",
     "tests/led/ws2812b_test_esp32s3",
+    "tests/led/sk6812rgbw_test_esp32s3",
 ]
 members = [
     "periph",
@@ -40,6 +41,10 @@ members = [
     "examples/ws2812b_complete",
     "examples/ws2812b_demo",
     "tests/led/ws2812b_test",
+    "examples/sk6812rgbw_minimal",
+    "examples/sk6812rgbw_complete",
+    "examples/sk6812rgbw_demo",
+    "tests/led/sk6812rgbw_test",
 ]
 
 [workspace.dependencies]

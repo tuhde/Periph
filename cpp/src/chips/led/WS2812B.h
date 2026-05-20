@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../../transport/Transport.h"
+#include "NeoPixelColor.h"
 
 /** @brief WS2812B addressable RGB LED strip — minimal interface.
  *
@@ -106,6 +107,4 @@ public:
 private:
     uint8_t _brightness;
 
-    static void _hsv_to_rgb(float h, float s, float v,
-                             uint8_t& r, uint8_t& g, uint8_t& b);
 };
