@@ -19,8 +19,16 @@
 //! is not safe. Use only from a single execution context.
 
 use core::cell::{Cell, RefCell};
-use embedded_hal::digital::{ErrorType, InputPin, OutputPin, StatefulOutputPin};
+use embedded_hal::digital::{ErrorKind, ErrorType, InputPin, OutputPin, StatefulOutputPin};
 use embedded_hal::i2c::I2c;
+
+/// Wraps an I²C error so it satisfies `embedded_hal::digital::Error`.
+#[derive(Debug)]
+pub struct PinError<E>(pub E);
+
+impl<E: embedded_hal::i2c::Error> embedded_hal::digital::Error for PinError<E> {
+    fn kind(&self) -> ErrorKind { ErrorKind::Other }
+}
 
 // ============================================================
 // Pcf8574Minimal
@@ -106,31 +114,31 @@ pub struct ExPin<'a, I2C> {
 }
 
 impl<I2C: I2c> ErrorType for ExPin<'_, I2C> {
-    type Error = I2C::Error;
+    type Error = PinError<I2C::Error>;
 }
 
 impl<I2C: I2c> OutputPin for ExPin<'_, I2C> {
     /// Set pin high — releases to quasi-input mode (weak pull-up, ~100 µA).
     ///
     /// This is NOT a strong drive high; external loads must use active-low wiring.
-    fn set_high(&mut self) -> Result<(), I2C::Error> {
-        self.chip.set_pin(self.n, true)
+    fn set_high(&mut self) -> Result<(), PinError<I2C::Error>> {
+        self.chip.set_pin(self.n, true).map_err(PinError)
     }
 
     /// Drive pin low — strong sink up to 25 mA.
-    fn set_low(&mut self) -> Result<(), I2C::Error> {
-        self.chip.set_pin(self.n, false)
+    fn set_low(&mut self) -> Result<(), PinError<I2C::Error>> {
+        self.chip.set_pin(self.n, false).map_err(PinError)
     }
 }
 
 impl<I2C: I2c> InputPin for ExPin<'_, I2C> {
     /// Read the actual logic level at the pin.
-    fn is_high(&mut self) -> Result<bool, I2C::Error> {
-        Ok((self.chip.read_port()? >> self.n) & 1 == 1)
+    fn is_high(&mut self) -> Result<bool, PinError<I2C::Error>> {
+        Ok((self.chip.read_port().map_err(PinError)? >> self.n) & 1 == 1)
     }
 
     /// Read the actual logic level at the pin.
-    fn is_low(&mut self) -> Result<bool, I2C::Error> {
+    fn is_low(&mut self) -> Result<bool, PinError<I2C::Error>> {
         Ok(!self.is_high()?)
     }
 }
@@ -139,12 +147,12 @@ impl<I2C: I2c> StatefulOutputPin for ExPin<'_, I2C> {
     /// Return whether the shadow register has this pin set high.
     ///
     /// Reads from the in-memory shadow; no bus transaction.
-    fn is_set_high(&mut self) -> Result<bool, I2C::Error> {
+    fn is_set_high(&mut self) -> Result<bool, PinError<I2C::Error>> {
         Ok((self.chip.shadow.get() >> self.n) & 1 == 1)
     }
 
     /// Return whether the shadow register has this pin set low.
-    fn is_set_low(&mut self) -> Result<bool, I2C::Error> {
+    fn is_set_low(&mut self) -> Result<bool, PinError<I2C::Error>> {
         Ok(!self.is_set_high()?)
     }
 }
