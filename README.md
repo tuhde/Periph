@@ -11,6 +11,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
 | Java / Kotlin / Groovy | Raspberry Pi via Pi4J (JVM 17+, JBang examples) | Active |
+| Sigrok | PulseView, sigrok-cli (protocol decoders in `sigrok/`) | Active |
 
 ## Supported transports
 
@@ -75,14 +76,14 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 ## Supported chips
 
-| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Examples |
-|------|----------|--------|-----|---------|----------|------|-----|---------|
-| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
-| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
-| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
-| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
-| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
-| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | Python · C++ · Node.js · Node-RED · Rust · JVM |
+| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
+|------|----------|--------|-----|---------|----------|------|-----|--------|
+| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
 
@@ -103,6 +104,20 @@ The spec (`specs/<category>/<chip>.md`) is the reference documentation — regis
 ## Node-RED
 
 Per-category Node-RED packages are available under `nodejs/packages/node-red-contrib-periph-<category>`. To use locally, add the package directory to `nodesDir` in your Node-RED `settings.js`.
+
+## Sigrok decoders
+
+Protocol decoders for [sigrok](https://sigrok.org) (PulseView, sigrok-cli) are in `sigrok/<chip>/`. Each decoder annotates I²C or SPI captures with register names, bit fields, and computed values for the chip it targets.
+
+To use a decoder, point sigrok at the `sigrok/` directory:
+
+```sh
+sigrok-cli --input-file capture.sr \
+  --protocol-decoder-path sigrok/ \
+  --protocol-decoder pcf8574
+```
+
+In PulseView, add the `sigrok/` path under *Preferences → Decoders* and then stack the chip decoder on top of the I²C decoder.
 
 ## Testing
 
