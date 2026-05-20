@@ -152,61 +152,61 @@ The SK6812RGBW requires a ≥80 µs reset pulse, compared to ≥50 µs for the W
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/led/sk6812rgbw.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/led/sk6812rgbw/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/led/sk6812rgbw/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/led/sk6812rgbw/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/led/sk6812rgbw_test.py` (MicroPython)
-- [ ] Tests `python/tests/led/sk6812rgbw_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/led/sk6812rgbw_test_linux.py` (Linux)
+- [x] Driver `python/periph/chips/led/sk6812rgbw.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/led/sk6812rgbw/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/led/sk6812rgbw/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/led/sk6812rgbw/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/led/sk6812rgbw_test.py` (MicroPython)
+- [x] Tests `python/tests/led/sk6812rgbw_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/led/sk6812rgbw_test_linux.py` (Linux)
 
 ### C++
-- [ ] Driver `cpp/src/chips/led/SK6812RGBW.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/led/SK6812RGBW.cpp`
-- [ ] Examples `cpp/examples/SK6812RGBW_Minimal/SK6812RGBW_Minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/SK6812RGBW_Complete/SK6812RGBW_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/SK6812RGBW_Demo/SK6812RGBW_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/SK6812RGBW_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/SK6812RGBW_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/SK6812RGBW_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/led/sk6812rgbw_test/sk6812rgbw_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/led/sk6812rgbw_test_linux/sk6812rgbw_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/led/sk6812rgbw_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Driver `cpp/src/chips/led/SK6812RGBW.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/led/SK6812RGBW.cpp`
+- [x] Examples `cpp/examples/SK6812RGBW_Minimal/SK6812RGBW_Minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/SK6812RGBW_Complete/SK6812RGBW_Complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/SK6812RGBW_Demo/SK6812RGBW_Demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/SK6812RGBW_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/SK6812RGBW_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/SK6812RGBW_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/led/sk6812rgbw_test/sk6812rgbw_test.ino` (Arduino)
+- [x] Tests `cpp/tests/led/sk6812rgbw_test_linux/sk6812rgbw_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/led/sk6812rgbw_test_zephyr/src/main.cpp` (Zephyr)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/led/sk6812rgbw.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/led/sk6812rgbw_test.js`
+- [x] Driver `nodejs/packages/periph/src/chips/led/sk6812rgbw.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/led/sk6812rgbw_test.js`
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-led/nodes/sk6812rgbw/sk6812rgbw.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-led/nodes/sk6812rgbw/sk6812rgbw.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-led/examples/sk6812rgbw/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-led/nodes/sk6812rgbw/sk6812rgbw.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-led/nodes/sk6812rgbw/sk6812rgbw.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-led/examples/sk6812rgbw/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/led/sk6812rgbw.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/sk6812rgbw_minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/sk6812rgbw_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/sk6812rgbw_demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/led/sk6812rgbw_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/led/sk6812rgbw_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Driver `rust/periph/src/chips/led/sk6812rgbw.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/sk6812rgbw_minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/sk6812rgbw_complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/sk6812rgbw_demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/led/sk6812rgbw_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/led/sk6812rgbw_test_esp32s3/src/main.rs` (ESP32-S3)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/led/SK6812RGBWMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/led/SK6812RGBWFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/led/SK6812RGBWMinimal.groovy` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/led/SK6812RGBWFull.groovy` — Javadoc on every class and public method
-- [ ] Examples `jvm/examples/java/led/sk6812rgbw/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/led/sk6812rgbw/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/led/sk6812rgbw/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/led/sk6812rgbw/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/led/sk6812rgbw/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/led/sk6812rgbw/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/led/sk6812rgbw/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/led/sk6812rgbw/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/led/sk6812rgbw/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/led/sk6812rgbw/SK6812RGBWTest.java`
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/led/SK6812RGBWMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/led/SK6812RGBWFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/led/SK6812RGBWMinimal.groovy` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/led/SK6812RGBWFull.groovy` — Javadoc on every class and public method
+- [x] Examples `jvm/examples/java/led/sk6812rgbw/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/led/sk6812rgbw/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/led/sk6812rgbw/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/led/sk6812rgbw/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/led/sk6812rgbw/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/led/sk6812rgbw/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/led/sk6812rgbw/SK6812RGBWTest.java`
