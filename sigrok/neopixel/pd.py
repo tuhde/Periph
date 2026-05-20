@@ -76,23 +76,28 @@ class Decoder(srd.Decoder):
         byte_count   = 0
         byte_ss      = None
 
+        # Prime: position ourselves at the first rising edge.
+        # Every subsequent iteration of the loop starts with self.samplenum
+        # already sitting on a rising edge — no second wait at the top.
+        self.wait({0: 'r'})
+
         while True:
-            # Rising edge = start of a bit's high pulse
-            self.wait({0: 'r'})
+            # Invariant: self.samplenum is at a rising edge (start of high pulse).
             bit_ss = self.samplenum
             if byte_ss is None:
                 byte_ss = bit_ss
 
-            # Wait for falling edge; if the reset window expires first it is
-            # a protocol error (a valid bit ends well before reset time)
+            # Measure the high-pulse duration.
             self.wait([{0: 'f'}, {'skip': self.reset_samples}])
 
             if not self.matched[0]:
+                # No falling edge before reset window — protocol error.
                 self._warn(bit_ss, self.samplenum, 'No falling edge within reset window')
                 current_byte = 0
                 bit_count    = 0
                 byte_count   = 0
                 byte_ss      = None
+                self.wait({0: 'r'})  # re-prime
                 continue
 
             bit_es   = self.samplenum
@@ -114,12 +119,11 @@ class Decoder(srd.Decoder):
                 bit_count    = 0
                 byte_ss      = None
 
-            # After the falling edge: wait for the next rising edge (next bit)
-            # or a long low (reset / latch pulse)
+            # Wait for the next rising edge (next bit) or a long low (reset).
             self.wait([{0: 'r'}, {'skip': self.reset_samples}])
 
             if not self.matched[0]:
-                # Reset detected
+                # Reset / latch pulse detected.
                 reset_ss = bit_es
                 reset_es = self.samplenum
 
@@ -130,7 +134,8 @@ class Decoder(srd.Decoder):
 
                 self.put(reset_ss, reset_es, self.out_ann,
                          [ANN_RESET,
-                          ['Reset — %d byte%s' % (byte_count, 's' if byte_count != 1 else ''),
+                          ['Reset — %d byte%s' % (byte_count,
+                                                   's' if byte_count != 1 else ''),
                            'RST %dB' % byte_count]])
                 self.put(reset_ss, reset_es, self.out_python, ['RESET', byte_count])
 
@@ -138,19 +143,8 @@ class Decoder(srd.Decoder):
                 bit_count    = 0
                 byte_count   = 0
                 byte_ss      = None
-                # The matched rising edge is the first bit of the next frame;
-                # jump straight back to the high-pulse measurement
-                bit_ss   = self.samplenum
-                byte_ss  = bit_ss
-                self.wait([{0: 'f'}, {'skip': self.reset_samples}])
-                if not self.matched[0]:
-                    self._warn(bit_ss, self.samplenum, 'No falling edge after reset')
-                    byte_ss = None
-                    continue
-                bit_es   = self.samplenum
-                high_dur = bit_es - bit_ss
-                bit_val  = 1 if high_dur > self.threshold_samples else 0
-                self.put(bit_ss, bit_es, self.out_ann, [ANN_BIT, [str(bit_val)]])
-                current_byte = bit_val
-                bit_count    = 1
-                byte_ss      = bit_ss
+                # Re-prime for the next frame.
+                self.wait({0: 'r'})
+
+            # matched[0]: self.samplenum is already at the next rising edge.
+            # Loop back — bit_ss = self.samplenum at the top captures it directly.
