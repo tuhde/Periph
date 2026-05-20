@@ -26,7 +26,6 @@ fun main() {
         strip.brightness = 200                                       // dim to ~78% for rainbow, (value=0–255) → Unit
         var hueOffset = 0.0
         val rainbowEnd = System.currentTimeMillis() + RAINBOW_S * 1000L
-        var lastPrint  = System.currentTimeMillis()
 
         while (System.currentTimeMillis() < rainbowEnd) {
             val colors = List(PIXELS) { p ->
@@ -37,10 +36,6 @@ fun main() {
             strip.setPixels(colors)                                   // load rainbow frame into buffer (w=0), (colors: List<IntArray[r,g,b,w]>) → Unit
             strip.show()                                              // transmit frame to strip, () → Unit
             hueOffset = (hueOffset + 1.0 / 300) % 1.0
-            if (System.currentTimeMillis() - lastPrint >= 1000) {
-                println("hue offset: %.3f".format(hueOffset))
-                lastPrint = System.currentTimeMillis()
-            }
             Thread.sleep(FRAME_MS)
         }
 

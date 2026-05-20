@@ -35,7 +35,6 @@ public class Demo {
             strip.setBrightness(200);                                    // set brightness to ~78%, (value=0–255) → void
             double hueOffset = 0.0;
             long rainbowEnd = System.currentTimeMillis() + RAINBOW_S * 1000L;
-            long lastPrint  = System.currentTimeMillis();
 
             while (System.currentTimeMillis() < rainbowEnd) {
                 int[][] colors = new int[PIXELS][4];
@@ -48,10 +47,6 @@ public class Demo {
                 strip.show();                                             // transmit frame to strip, () → void
 
                 hueOffset = (hueOffset + 1.0 / 300) % 1.0;
-                if (System.currentTimeMillis() - lastPrint >= 1000) {
-                    System.out.printf("hue offset: %.3f%n", hueOffset);
-                    lastPrint = System.currentTimeMillis();
-                }
                 Thread.sleep(FRAME_MS);
             }
 

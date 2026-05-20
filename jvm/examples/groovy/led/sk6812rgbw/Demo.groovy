@@ -26,7 +26,6 @@ try {
     strip.setBrightness(200)                                           // dim to ~78% for rainbow, (value=0–255) → void
     double hueOffset = 0.0
     long rainbowEnd = System.currentTimeMillis() + RAINBOW_S * 1000L
-    long lastPrint  = System.currentTimeMillis()
 
     while (System.currentTimeMillis() < rainbowEnd) {
         def colors = (0..<PIXELS).collect { p ->
@@ -38,10 +37,6 @@ try {
         strip.show()                                                   // transmit frame to strip, () → void
 
         hueOffset = (hueOffset + 1.0 / 300) % 1.0
-        if (System.currentTimeMillis() - lastPrint >= 1000) {
-            printf("hue offset: %.3f%n", hueOffset)
-            lastPrint = System.currentTimeMillis()
-        }
         Thread.sleep(FRAME_MS)
     }
 
