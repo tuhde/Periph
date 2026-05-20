@@ -1,0 +1,90 @@
+[
+  {
+    "id": "sk6812rgbw-demo-tab",
+    "type": "tab",
+    "label": "SK6812RGBW Demo",
+    "info": "Cycles through five colours including the dedicated white channel on an SK6812RGBW LED strip. Inject nodes fire every 2 seconds with different { r, g, b, w } payloads. A warm-white inject combines all four channels (r=255, g=200, b=150, w=255) to showcase the high-CRI native W element. An on-demand inject sends { command: 'off' } to turn the strip off."
+  },
+  {
+    "id": "sk6812rgbw-device-1",
+    "type": "sk6812rgbw-device",
+    "name": "SK6812RGBW strip",
+    "spiBus": "0",
+    "spiDevice": "0",
+    "pixelCount": "30",
+    "brightness": "180"
+  },
+  {
+    "id": "inject-red",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "Red",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":0,\"b\":0,\"w\":0}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "inject-green",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "Green",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":255,\"b\":0,\"w\":0}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "inject-blue",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "Blue",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":0,\"b\":255,\"w\":0}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "inject-white-w",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "White (W only)",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":0,\"b\":0,\"w\":255}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "inject-warm",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "Warm white (RGB+W)",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":200,\"b\":150,\"w\":255}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "inject-off",
+    "type": "inject",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "Off",
+    "props": [{ "p": "payload" }],
+    "payload": "{\"command\":\"off\"}",
+    "payloadType": "json",
+    "wires": [["sk6812rgbw-node"]]
+  },
+  {
+    "id": "sk6812rgbw-node",
+    "type": "periph-sk6812rgbw",
+    "z": "sk6812rgbw-demo-tab",
+    "name": "SK6812RGBW",
+    "device": "sk6812rgbw-device-1",
+    "wires": []
+  }
+]

@@ -1,0 +1,96 @@
+<script type="text/javascript">
+    RED.nodes.registerType('sk6812rgbw-device', {
+        category: 'config',
+        defaults: {
+            name:        { value: '' },
+            spiBus:      { value: '0', required: true, validate: RED.validators.number() },
+            spiDevice:   { value: '0', required: true, validate: RED.validators.number() },
+            pixelCount:  { value: '30', required: true, validate: RED.validators.number() },
+            brightness:  { value: '255', validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('SK6812RGBW spi' + this.spiBus + '.' + this.spiDevice +
+                   ' ×' + this.pixelCount);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="sk6812rgbw-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="SK6812RGBW">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-spiBus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.x)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiDevice"><i class="fa fa-microchip"></i> SPI device</label>
+        <input type="number" id="node-config-input-spiDevice" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevx.DEVICE)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pixelCount"><i class="fa fa-lightbulb-o"></i> Pixel count</label>
+        <input type="number" id="node-config-input-pixelCount" min="1" style="width:80px"> &nbsp;number of LEDs in the strip
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-brightness"><i class="fa fa-sun-o"></i> Brightness</label>
+        <input type="number" id="node-config-input-brightness" min="0" max="255" style="width:80px"> &nbsp;0–255 (default 255)
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-sk6812rgbw', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'sk6812rgbw-device', required: true }
+        },
+        inputs:  1,
+        outputs: 0,
+        icon:    'font-awesome/fa-lightbulb-o',
+        label:   function() { return this.name || 'SK6812RGBW'; },
+        paletteLabel: 'SK6812RGBW'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-sk6812rgbw">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SK6812RGBW">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-sk6812rgbw">
+    <p>Controls an SK6812RGBW addressable RGBW LED strip over SPI (NeoPixel protocol).</p>
+    <p>Any input message triggers a strip update. Configure SPI bus, device, pixel count,
+    and default brightness in the <b>sk6812rgbw-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.r, payload.g, payload.b, payload.w <span class="property-type">number</span></dt>
+        <dd>Fill entire strip with a solid RGBW colour (0–255 each). <code>w</code> defaults to 0.</dd>
+        <dt>payload.color <span class="property-type">string</span></dt>
+        <dd>Fill entire strip with a hex colour string, e.g. <code>"#FF0000"</code> (w=0).</dd>
+        <dt>payload.pixel + payload.r/g/b/w <span class="property-type">number</span></dt>
+        <dd>Set a single pixel by index and show. <code>w</code> defaults to 0.</dd>
+        <dt>payload.pixels <span class="property-type">array</span></dt>
+        <dd>Set all pixels from an array of <code>[r, g, b]</code> or <code>[r, g, b, w]</code> arrays and show.</dd>
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd><code>"off"</code> — turn off the entire strip.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>The SK6812RGBW uses a NeoPixel-compatible protocol encoded as SPI bit-banging at 2.4 MHz.
+    The DIN pin of the strip must be connected to the SPI MOSI pin.
+    SCK, MISO, and CS are unused.</p>
+    <p>The dedicated white (W) channel activates a separate white LED element for higher CRI
+    than RGB mixing alone. Set <code>w=255</code> with RGB channels at 0 for pure white, or
+    combine all four channels for warm, saturated colours.</p>
+    <p>Global brightness is set in the config node and applied non-destructively at each
+    transmission — the stored pixel values are never modified.</p>
+</script>
