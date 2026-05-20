@@ -1,0 +1,14 @@
+{
+  "include": [
+    "python/periph",
+    "python/examples",
+    "python/tests"
+  ],
+  "exclude": [
+    "python/**/__pycache__"
+  ],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "warning"
+}
