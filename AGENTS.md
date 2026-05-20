@@ -190,6 +190,188 @@ impl<I2C: I2c> Ina226Full<I2C> {
 }
 ```
 
+## IO Expander drivers
+
+IO expander chips follow the same two-stage pattern as other chips, but their primary API is a **GPIO facade**: the driver exposes individual `Pin` proxy objects that implement each platform's native GPIO interface. Users interact with pins exactly as they would with hardware GPIO.
+
+The spec for every IO expander chip uses `specs/_template_chip_io_expander.md` instead of the standard chip template.
+
+### Pin proxy pattern
+
+The driver class (`<Chip>Minimal`, `<Chip>Full`) owns the transport and exposes a `pin(n)` factory. Each call returns a `Pin` proxy object that holds a back-reference to the driver and the pin index. Pin objects do not cache state — every read/write goes to the chip over the transport.
+
+Platform details follow.
+
+### Python — MicroPython
+
+Implement an inner `Pin` class in the same file as the driver. It mirrors `machine.Pin` so existing code that accepts a `machine.Pin` also accepts an IO expander pin.
+
+```python
+class PCF8574Minimal:
+    IN  = 0
+    OUT = 1
+    PULL_UP = 2
+    IRQ_RISING  = 0x01
+    IRQ_FALLING = 0x02
+
+    def pin(self, n):
+        return self._Pin(self, n)
+
+    class _Pin:
+        def __init__(self, chip, n, mode=0):
+            self._chip = chip
+            self._n = n
+            self._mode = mode
+
+        def init(self, mode, pull=None): ...
+        def value(self, x=None):
+            if x is None:
+                return (self._chip.read_port(self._n // 8) >> (self._n % 8)) & 1
+            else:
+                self._chip._set_pin(self._n, x)
+        def on(self):     self.value(1)
+        def off(self):    self.value(0)
+        def toggle(self): self.value(1 - self.value())
+```
+
+Full adds `irq(handler, trigger)`. Interrupt delivery on MicroPython uses the chip's INT pin connected to a hardware `machine.Pin` IRQ; pass that pin to `<Chip>Full.__init__` and configure it in `irq()`.
+
+### Python — CircuitPython
+
+Implement a `_Pin` class matching `digitalio.DigitalInOut`. Mirror the property names exactly so the pin is a drop-in for CircuitPython GPIO:
+
+```python
+import digitalio
+
+class _Pin:
+    def __init__(self, chip, n):
+        self._chip = chip
+        self._n = n
+        self._direction = digitalio.Direction.INPUT
+
+    @property
+    def direction(self): return self._direction
+    @direction.setter
+    def direction(self, d):
+        self._direction = d
+        self._chip._set_direction(self._n, d == digitalio.Direction.OUTPUT)
+
+    @property
+    def value(self):
+        return bool((self._chip.read_port(self._n // 8) >> (self._n % 8)) & 1)
+    @value.setter
+    def value(self, v): self._chip._set_pin(self._n, int(v))
+
+    def switch_to_input(self, pull=None): self.direction = digitalio.Direction.INPUT
+    def switch_to_output(self, value=False, drive_mode=digitalio.DriveMode.PUSH_PULL):
+        self.direction = digitalio.Direction.OUTPUT
+        self.value = value
+    def deinit(self): pass
+```
+
+Full adds `pull` and `drive_mode` properties.
+
+### Python — Linux
+
+Use the same `_Pin` interface as MicroPython (not CircuitPython) so a single mental model covers both embedded targets. The Linux target is host-only; if the chip supports interrupts, deliver them via a polling thread in `irq()` rather than requiring a hardware INT line.
+
+### C++
+
+Define `IOExpanderPin` as a nested class (or a separate header `IOExpanderPin.h` if it grows large). Reuse Arduino GPIO constants so the API is immediately familiar:
+
+```cpp
+class PCF8574Minimal {
+public:
+    class IOExpanderPin {
+    public:
+        IOExpanderPin(PCF8574Minimal& chip, uint8_t n) : _chip(chip), _n(n) {}
+        void mode(uint8_t m);        // INPUT, OUTPUT, INPUT_PULLUP
+        void write(uint8_t v);       // HIGH, LOW
+        uint8_t read();
+        void high()   { write(HIGH); }
+        void low()    { write(LOW);  }
+        void toggle() { write(!read()); }
+    private:
+        PCF8574Minimal& _chip;
+        uint8_t _n;
+    };
+
+    IOExpanderPin pin(uint8_t n) { return IOExpanderPin(*this, n); }
+};
+```
+
+The same `IOExpanderPin` class compiles on Arduino, Linux GCC, and Zephyr. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
+
+Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterrupt()` to `IOExpanderPin`. `mode` uses Arduino constants: `RISING`, `FALLING`, `CHANGE`, `HIGH`, `LOW`.
+
+### Node.js
+
+Implement a `_Pin` class matching the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` subset. This lets IO expander pins work with any code written against `onoff`:
+
+```js
+class _Pin {
+    constructor(chip, n, direction) {
+        this._chip = chip;
+        this._n = n;
+        this._direction = direction;  // 'in' | 'out'
+    }
+    get direction() { return this._direction; }
+    readSync()           { return (this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1; }
+    writeSync(v)         { this._chip._setPin(this._n, v); }
+    read(cb)             { try { cb(null, this.readSync()); } catch(e) { cb(e); } }
+    write(v, cb)         { try { this.writeSync(v); cb(null); } catch(e) { cb(e); } }
+    unexport()           {}
+}
+```
+
+Full adds `watch(callback)` / `unwatch()` for interrupt-driven input. Deliver interrupts via `epoll` on the INT pin (Linux `gpio` sysfs or `gpiod`) or via polling if no INT line is available — document which in the spec.
+
+### Rust
+
+The driver wraps its I2C bus in `core::cell::RefCell<I2C>` so multiple `Pin` objects can hold a shared `&'_` reference without fighting the borrow checker. Each pin operation borrows and releases the `RefCell` atomically — this is single-threaded and safe on embedded targets, but must not be used from multiple ISR contexts simultaneously (document this with a `# Safety` note).
+
+```rust
+use core::cell::RefCell;
+use embedded_hal::i2c::I2c;
+use embedded_hal::digital::{OutputPin, InputPin, Error, ErrorType};
+
+pub struct Pcf8574Minimal<I2C> {
+    i2c: RefCell<I2C>,
+    addr: u8,
+    out_state: u8,
+}
+
+pub struct ExPin<'a, I2C> {
+    chip: &'a Pcf8574Minimal<I2C>,
+    n: u8,
+}
+
+impl<I2C> Pcf8574Minimal<I2C> {
+    pub fn pin(&self, n: u8) -> ExPin<'_, I2C> { ExPin { chip: self, n } }
+}
+
+impl<I2C: I2c> ErrorType for ExPin<'_, I2C> {
+    type Error = I2C::Error;
+}
+
+impl<I2C: I2c> OutputPin for ExPin<'_, I2C> {
+    fn set_high(&mut self) -> Result<(), I2C::Error> { self.chip.set_pin(self.n, true) }
+    fn set_low(&mut self)  -> Result<(), I2C::Error> { self.chip.set_pin(self.n, false) }
+}
+
+impl<I2C: I2c> InputPin for ExPin<'_, I2C> {
+    fn is_high(&mut self) -> Result<bool, I2C::Error> { ... }
+    fn is_low(&mut self)  -> Result<bool, I2C::Error> { ... }
+}
+```
+
+Full adds `embedded_hal::digital::StatefulOutputPin` where the chip can read back output latch state.
+
+Re-export pin types from the category `mod.rs`:
+```rust
+pub use pcf8574::{Pcf8574Minimal, Pcf8574Full, ExPin};
+```
+
 ## Python conventions
 
 Three supported targets: **MicroPython** (primary), **CircuitPython**, **Linux kernel** (via `smbus2`). The chip driver is the same single file for all three; each target has its own transport.

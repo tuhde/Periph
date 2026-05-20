@@ -1,0 +1,66 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8574', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1',  required: true, validate: RED.validators.number() },
+            address: { value: '20', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || ('PCF8574 @ 0x' + this.address + ' (bus ' + this.bus + ')'); },
+        paletteLabel: 'PCF8574'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8574">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8574">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
+        &nbsp;PCF8574: 20–27 &nbsp;PCF8574A: 38–3F
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8574">
+    <p>Controls and reads an 8-bit PCF8574 I/O expander over I²C.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0 drives low; 1 releases to quasi-high/input).<br>
+            <code>{ pin: N }</code> — read pin N; reply sent on output.<br>
+            <code>{ port: 0 }</code> — read all 8 pins; reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–7), present when reading a single pin.</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 8-bit bitmask when reading a port.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Port index (always 0 for PCF8574), present when reading a full port.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (Linux <code>/dev/i2c-N</code>) and the 7-bit device address in hex
+    (PCF8574: <code>20</code>–<code>27</code>; PCF8574A: <code>38</code>–<code>3F</code>; default <code>20</code>).</p>
+
+    <h3>Notes</h3>
+    <p>The PCF8574 has no push-pull high drive. Writing 1 to a pin enables the internal
+    ~100 µA pull-up; writing 0 sinks up to 25 mA. LEDs must be wired active-low
+    (cathode to pin, anode to VCC). The PCF8574A address range (38–3F) overlaps
+    with many OLED display modules — check for conflicts.</p>
+</script>
