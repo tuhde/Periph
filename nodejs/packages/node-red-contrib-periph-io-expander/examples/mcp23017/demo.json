@@ -1,0 +1,154 @@
+[
+    {
+        "id": "tab_mcp23017_demo",
+        "type": "tab",
+        "label": "MCP23017 Demo",
+        "info": "Bidirectional port control using the MCP23017 16-bit IO expander.\n\nHardware:\n- GPA0–GPA6: seven LEDs (anode → VCC via 220Ω, cathode → pin; active-high)\n- GPB0–GPB6: seven push buttons (pin → GND when pressed; internal pull-ups enabled)\n\nHow it works:\n1. Three Inject nodes send periodic pattern writes to PORTA (GPA0–GPA6): a Knight Rider\n   scanner (sequence 0→6→0), an alternating bit pattern, and a rotating bit pattern.\n2. A fourth Inject node reads both ports every 500 ms and sends the hex values to a\n   Debug node showing PORTA and PORTB as a pair (e.g. \"A=0x01 B=0x80\").\n3. A Function node between the poll inject and the MCP23017 node splits the combined\n   request into separate reads: { port: 0 } for PORTA and { port: 1 } for PORTB.\n4. A second MCP23017 node reads PORTB (GPB0–GPB6) and a third writes the poll result\n   back as output.\n\nTo observe: watch the LEDs cycle through patterns; press buttons on GPB0–GPB6 and\nsee PORTB values change. GPA7 and GPB7 are output-only (always driven high)."
+    },
+    {
+        "id": "inject_poll",
+        "type": "inject",
+        "z": "tab_mcp23017_demo",
+        "name": "Poll 500ms",
+        "repeat": "0.5",
+        "payload": "{\"port\":0}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 160,
+        "wires": [["mcp23017_read_a"]]
+    },
+    {
+        "id": "mcp23017_read_a",
+        "type": "periph-mcp23017",
+        "z": "tab_mcp23017_demo",
+        "name": "Read PORTA",
+        "bus": "1",
+        "address": "20",
+        "x": 340,
+        "y": 160,
+        "wires": [["fn_combine"]]
+    },
+    {
+        "id": "fn_combine",
+        "type": "function",
+        "z": "tab_mcp23017_demo",
+        "name": "Read PORTB too",
+        "func": "const porta = msg.payload.value;\nreturn [\n    { payload: { port: 1 } },  // read PORTB\n    { payload: { porta: porta } }  // pass PORTA through\n];",
+        "outputs": 2,
+        "x": 540,
+        "y": 160,
+        "wires": [["mcp23017_read_b"], ["fn_display"]]
+    },
+    {
+        "id": "mcp23017_read_b",
+        "type": "periph-mcp23017",
+        "z": "tab_mcp23017_demo",
+        "name": "Read PORTB",
+        "bus": "1",
+        "address": "20",
+        "x": 760,
+        "y": 160,
+        "wires": [["fn_display"]]
+    },
+    {
+        "id": "fn_display",
+        "type": "function",
+        "z": "tab_mcp23017_demo",
+        "name": "Format hex pair",
+        "func": "if (msg.payload.porta !== undefined) {\n    node.porta = msg.payload.porta;\n    return null;\n}\nif (msg.payload.port !== undefined) {\n    const portb = msg.payload.value;\n    const porta = node.porta;\n    msg.payload = 'A=0x' + (porta !== undefined ? porta.toString(16).padStart(2,'0') : '??') + ' B=0x' + portb.toString(16).padStart(2,'0');\n    node.porta = undefined;\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "x": 980,
+        "y": 160,
+        "wires": [["debug_ports"]]
+    },
+    {
+        "id": "debug_ports",
+        "type": "debug",
+        "z": "tab_mcp23017_demo",
+        "name": "Port values",
+        "active": true,
+        "x": 1200,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "inject_knight",
+        "type": "inject",
+        "z": "tab_mcp23017_demo",
+        "name": "Knight Rider",
+        "repeat": "0.1",
+        "payload": "{\"port\":0,\"values\":[1,2,4,8,16,32,64,32,16,8,4,2]}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 60,
+        "wires": [["fn_knight"]]
+    },
+    {
+        "id": "fn_knight",
+        "type": "function",
+        "z": "tab_mcp23017_demo",
+        "name": "Knight pattern",
+        "func": "const values = msg.payload.values;\nconst i = Math.floor(Date.now() / 100) % values.length;\nconst mask = values[i] | (1 << 7);  // GPA7 output-only high\nreturn { payload: { port: 0, value: mask } };",
+        "outputs": 1,
+        "x": 340,
+        "y": 60,
+        "wires": [["mcp23017_write"]]
+    },
+    {
+        "id": "inject_alt",
+        "type": "inject",
+        "z": "tab_mcp23017_demo",
+        "name": "Alternating",
+        "repeat": "0.4",
+        "payload": "{\"port\":0,\"values\":[0x55,0xAA]}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["fn_alt"]]
+    },
+    {
+        "id": "fn_alt",
+        "type": "function",
+        "z": "tab_mcp23017_demo",
+        "name": "Alt pattern",
+        "func": "const values = msg.payload.values;\nconst i = Math.floor(Date.now() / 400) % values.length;\nconst mask = values[i] | (1 << 7);  // GPA7 output-only high\nreturn { payload: { port: 0, value: mask } };",
+        "outputs": 1,
+        "x": 340,
+        "y": 100,
+        "wires": [["mcp23017_write"]]
+    },
+    {
+        "id": "inject_rotate",
+        "type": "inject",
+        "z": "tab_mcp23017_demo",
+        "name": "Rotating bit",
+        "repeat": "0.15",
+        "payload": "{\"port\":0,\"values\":[1,2,4,8,16,32]}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 140,
+        "wires": [["fn_rotate"]]
+    },
+    {
+        "id": "fn_rotate",
+        "type": "function",
+        "z": "tab_mcp23017_demo",
+        "name": "Rotate pattern",
+        "func": "const values = msg.payload.values;\nconst i = Math.floor(Date.now() / 150) % values.length;\nconst mask = values[i] | (1 << 7);  // GPA7 output-only high\nreturn { payload: { port: 0, value: mask } };",
+        "outputs": 1,
+        "x": 340,
+        "y": 140,
+        "wires": [["mcp23017_write"]]
+    },
+    {
+        "id": "mcp23017_write",
+        "type": "periph-mcp23017",
+        "z": "tab_mcp23017_demo",
+        "name": "Write PORTA",
+        "bus": "1",
+        "address": "20",
+        "x": 540,
+        "y": 100,
+        "wires": []
+    }
+]

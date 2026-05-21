@@ -1,0 +1,65 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp23017', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1',  required: true, validate: RED.validators.number() },
+            address: { value: '20', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || ('MCP23017 @ 0x' + this.address + ' (bus ' + this.bus + ')'); },
+        paletteLabel: 'MCP23017'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp23017">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP23017">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
+        &nbsp;0x20–0x27
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp23017">
+    <p>Controls and reads a 16-bit MCP23017 I/O expander over I²C.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0=low, 1=high).<br>
+            <code>{ pin: N }</code> — read pin N; reply sent on output.<br>
+            <code>{ port: 0|1 }</code> — read all 8 pins of port 0 (PORTA) or port 1 (PORTB); reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–15), present when reading a single pin.</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 8-bit bitmask when reading a port.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Port index (0=PORTA, 1=PORTB), present when reading a full port.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (Linux <code>/dev/i2c-N</code>) and the 7-bit device address in hex
+    (default <code>20</code>, range <code>20</code>–<code>27</code>).</p>
+
+    <h3>Notes</h3>
+    <p>PORTA = pins 0–7 (GPA0–GPA7), PORTB = pins 8–15 (GPB0–GPB7). GPA7 and GPB7 are
+    output-only on the hardware. Internal 100 kΩ pull-ups can be enabled on input pins
+    via the driver API; the node exposes per-pin set and read operations.</p>
+</script>
