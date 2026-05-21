@@ -33,8 +33,7 @@ class Pcf8575Minimal:
         self._transport = transport
         self._addr = addr
         self._shadow = [0xFF, 0xFF]
-        self._write_port(0, 0xFF)
-        self._write_port(1, 0xFF)
+        self._write_both()
 
     # ------------------------------------------------------------------
     # Internal helpers
