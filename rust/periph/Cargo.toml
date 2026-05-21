@@ -5,9 +5,12 @@ edition = "2021"
 
 [dependencies]
 embedded-hal = "1.0"
+embedded-io  = "0.6"
 libm = "0.2"
 heapless = "0.8"
+serialport = { version = "4", optional = true }
 
 [features]
 default = []
 std = []
+uart-linux = ["std", "dep:serialport"]
