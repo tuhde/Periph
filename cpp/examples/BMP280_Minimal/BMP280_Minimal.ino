@@ -11,7 +11,9 @@ void setup() {
 }
 
 void loop() {
-    Serial.print(bmp.temperature());  Serial.print(" C  ");
-    Serial.print(bmp.pressure());     Serial.println(" hPa");
+    Serial.print(bmp.temperature());               // Read temperature, () → float C
+    Serial.print(" C  ");
+    Serial.print(bmp.pressure());                  // Read pressure, () → float hPa
+    Serial.println(" hPa");
     delay(1000);
 }
