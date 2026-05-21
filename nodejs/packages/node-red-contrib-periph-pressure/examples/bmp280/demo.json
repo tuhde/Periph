@@ -1,5 +1,12 @@
 [
     {
+        "id": "tab-bmp280-demo",
+        "type": "tab",
+        "label": "BMP280 Barometric Pressure",
+        "disabled": false,
+        "info": "Reads temperature, pressure, and altitude from a BMP280 every 5 seconds in weather-monitoring mode (forced, ×1/×1, filter off). A second inject node reconfigures the chip to indoor-navigation mode (normal, ×16/×2, filter coeff 16) to demonstrate the IIR filter's noise reduction on the altitude signal."
+    },
+    {
         "id": "bmp280-device-1",
         "type": "bmp280-device",
         "name": "BMP280 @ i2c-1",
@@ -9,7 +16,8 @@
         "osrs_p": "1",
         "mode": "1",
         "filter": "0",
-        "t_sb": "0"
+        "t_sb": "0",
+        "z": "tab-bmp280-demo"
     },
     {
         "id": "bmp280-read-1",
@@ -17,6 +25,7 @@
         "name": "BMP280",
         "device": "bmp280-device-1",
         "seaLevelHpa": "1013.25",
+        "z": "tab-bmp280-demo",
         "wires": [["debug-1"]]
     },
     {
@@ -29,6 +38,7 @@
         "repeat": "5",
         "crontab": "",
         "onceDelay": "0.1",
+        "z": "tab-bmp280-demo",
         "wires": [["bmp280-read-1"]]
     },
     {
@@ -41,6 +51,7 @@
         "tostatus": "false",
         "complete": "payload",
         "targetType": "msg",
+        "z": "tab-bmp280-demo",
         "x": 480,
         "y": 200,
         "wires": []
@@ -55,6 +66,7 @@
         "repeat": "0",
         "crontab": "",
         "onceDelay": "0.1",
+        "z": "tab-bmp280-demo",
         "wires": [["calibrate-function-1"]]
     },
     {
@@ -64,6 +76,7 @@
         "func": "const hpa = flow.get('bmp280-sea-level') || 1013.25;\nconst alt = msg.payload.altitude;\nconst newHpa = msg.payload.pressure / Math.pow(1 - alt / 44330, 5.255);\nflow.set('bmp280-sea-level', newHpa);\nnode.status({text: 'sea-level=' + newHpa.toFixed(1) + ' hPa'});\nreturn msg;",
         "outputs": "1",
         "noerr": "0",
+        "z": "tab-bmp280-demo",
         "x": 480,
         "y": 320,
         "wires": [["bmp280-read-1"]]
@@ -78,17 +91,7 @@
         "repeat": "0",
         "crontab": "",
         "onceDelay": "0.1",
-        "wires": [["config-msg-1"]]
-    },
-    {
-        "id": "config-msg-1",
-        "type": "function",
-        "name": "Reconfigure to normal/filter16",
-        "func": "msg.config = {\n    address: '76',\n    osrs_t: 5,    // ×16\n    osrs_p: 2,    // ×2\n    mode: 3,      // normal\n    filter: 4,    // coeff 16\n    t_sb: 4       // 500 ms\n};\nreturn msg;",
-        "outputs": "1",
-        "noerr": "0",
-        "x": 340,
-        "y": 440,
+        "z": "tab-bmp280-demo",
         "wires": [["bmp280-device-2"]]
     },
     {
@@ -101,7 +104,8 @@
         "osrs_p": "2",
         "mode": "3",
         "filter": "4",
-        "t_sb": "4"
+        "t_sb": "4",
+        "z": "tab-bmp280-demo"
     },
     {
         "id": "bmp280-read-2",
@@ -109,6 +113,7 @@
         "name": "BMP280 (indoor-nav)",
         "device": "bmp280-device-2",
         "seaLevelHpa": "1013.25",
+        "z": "tab-bmp280-demo",
         "wires": [["debug-2"]]
     },
     {
@@ -121,6 +126,7 @@
         "tostatus": "false",
         "complete": "payload",
         "targetType": "msg",
+        "z": "tab-bmp280-demo",
         "x": 620,
         "y": 440,
         "wires": []
