@@ -1,0 +1,65 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-java:1.0-SNAPSHOT
+
+import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.chips.io_expander.Mcp23017Minimal;
+import it.uhde.periph.chips.io_expander.Mcp23017Full;
+
+public class Complete {
+    public static void main(String[] args) throws Exception {
+        try (var transport = new I2CTransport(1, 0x20)) {             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
+            var chip = new Mcp23017Full(transport, 0x20);               // construct full driver, (transport, addr=0x20) → Mcp23017Full
+
+            var p0 = chip.pin(0);                                      // get full pin proxy, (n) → Pin
+                                                                // GPA0 as output
+            System.out.println("GPA0 direction = output");
+
+            p0.setHigh();                                              // drive high, () → void
+            p0.setLow();                                               // drive low, () → void
+
+            boolean level = p0.read();                                 // read actual level, () → boolean
+            System.out.println("GPA0 level: " + level);
+
+            int porta = chip.readPort(0);                             // read all 8 pins, (port=0) → int bitmask
+            int portb = chip.readPort(1);                             // read all 8 pins, (port=1) → int bitmask
+            System.out.printf("PORTA=0x%02X  PORTB=0x%02X%n", porta, portb);
+
+            chip.writePort(0, 0b00001111);                            // write all 8 pins, (port, mask) → void
+                                                                // GPA0–GPA3 outputs, GPA4–GPA6 inputs, GPA7 output
+            chip.writePort(1, 0b11110000);                            // write all 8 pins, (port, mask) → void
+                                                                // GPB0–GPB3 outputs, GPB4–GPB7 outputs
+
+            chip.configurePullup(1, 0b01111111);                       // enable pull-ups, (port=1, mask) → void
+                                                                // GPB0–GPB6 pull-ups enabled
+
+            chip.configurePullup(0, 0x55);                            // enable pull-ups, (port=0, mask) → void
+                                                                // GPA0, GPA2, GPA4, GPA6 pull-ups
+
+            chip.configurePolarity(0, 0x00);                          // configure polarity, (port=0, mask) → void
+
+            int flags = chip.readInterruptFlags(0);                   // read interrupt flags, (port=0) → int
+            System.out.println("INT flags PORTA: 0x" + Integer.toHexString(flags));
+
+            int changed = chip.clearInterrupt(0);                     // read and clear interrupt, (port=0) → int
+            System.out.println("changed on init: 0x" + Integer.toHexString(changed));
+
+            var p1  = chip.pin(1);                                     // get full pin proxy, (n) → Pin
+            var p15 = chip.pin(15);                                    // get full pin proxy, (n) → Pin
+                                                                // GPB7 as output (output-only)
+
+            chip.writePort(0, 0x80);                                  // write all 8 pins, (port=0, mask=0x80) → void
+                                                                // GPA7 high
+            chip.writePort(1, 0x00);                                  // write all 8 pins, (port=1, mask=0x00) → void
+                                                                // all PORTB pins low
+
+            int porta2 = chip.readPort(0);                            // read all 8 pins, (port=0) → int bitmask
+            int portb2 = chip.readPort(1);                             // read all 8 pins, (port=1) → int bitmask
+            System.out.printf("PORTA=0x%02X  PORTB=0x%02X%n", porta2, portb2);
+
+            System.out.println("All API methods exercised.");
+        }
+    }
+}
