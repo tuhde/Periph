@@ -42,9 +42,23 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `de_pin` | Arduino | `int` | `-1` | RS-485 DE pin number; `-1` disables RS-485 mode |
 | `dev` | Zephyr | `const struct device *` | — | UART device from devicetree (`DEVICE_DT_GET`) |
 | `de_gpio` | Zephyr | `struct gpio_dt_spec` | zero-init | RS-485 DE GPIO spec; `port == NULL` disables RS-485 mode |
+| `port` | Linux (C++) | `const char*` | — | Serial device path (e.g. `/dev/ttyS0`) |
+| `baudrate` | Linux (C++) | `int` | 9600 | Baud rate |
+| `data_bits` | Linux (C++) | `int` | 8 | Data bits (5–8) |
+| `stop_bits` | Linux (C++) | `int` | 1 | Stop bits (1 or 2); termios does not support 1.5 |
+| `parity` | Linux (C++) | `char` | `'N'` | Parity: `'N'` none, `'E'` even, `'O'` odd |
+| `timeout_ms` | Linux (C++) | `int` | 1000 | Read timeout in milliseconds |
+| `de_pin_num` | Linux (C++) | `int` | `-1` | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `path` | Node.js | `str` | — | Serial device path (e.g. `/dev/ttyS0`) |
 | `baudRate` | Node.js | `int` | 9600 | Baud rate |
 | `de_pin_num` | Node.js | `int` | `null` | GPIO line number for RS-485 DE; enables RS-485 mode when set |
+| `port` | JVM | `String` | — | Serial device path (e.g. `/dev/ttyS0`, `/dev/ttyUSB0`) |
+| `baudRate` | JVM | `int` | 9600 | Baud rate |
+| `dataBits` | JVM | `int` | 8 | Data bits (5–8) |
+| `stopBits` | JVM | `float` | 1.0 | Stop bits (1, 1.5, or 2) |
+| `parity` | JVM | `char` | `'N'` | Parity: `'N'` none, `'E'` even, `'O'` odd |
+| `timeoutMs` | JVM | `int` | 1000 | Read timeout in milliseconds |
+| `dePinNum` | JVM | `int` | `-1` | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `U` (generic) | Rust | `impl Read + Write` | — | Any type implementing `embedded_io::Read + embedded_io::Write` |
 
 For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
@@ -153,6 +167,24 @@ TX-complete detection: register a UART interrupt callback via `uart_irq_callback
 
 File: `cpp/src/transport/UARTTransportZephyr.h`
 
+### Linux GCC (C++)
+
+Wraps the POSIX `termios` API. Constructor opens the serial device with `open(path, O_RDWR | O_NOCTTY)` and configures it via `tcgetattr` / `tcsetattr` (raw mode, baud rate, data bits, parity, stop bits).
+
+| Contract | Linux (C++) |
+|----------|-------------|
+| `write` | RS-485 managed by kernel or GPIO → `::write(fd, data, len)` → `tcdrain(fd)` |
+| `read` | `::read(fd, buf, n)` with VTIME-based timeout |
+| `write_read` | `write(data, len)` → `read(buf, n)` |
+
+For RS-485, prefer kernel RS-485 mode via `ioctl(fd, TIOCSRS485, &rs485)` with the `serial_rs485` struct (`SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND`). Fall back to libgpiod (`gpiod_line_set_value`) when the kernel driver lacks RS-485 support and `de_pin_num != -1`.
+
+`tcdrain(fd)` blocks until the kernel transmit buffer is empty — safe to deassert DE immediately after.
+
+`stop_bits` accepts 1 or 2; termios does not support 1.5 stop bits.
+
+Files: `cpp/src/transport/UARTTransportLinux.h`, `cpp/src/transport/UARTTransportLinux.cpp`
+
 ### Node.js (Linux)
 
 Wraps the `serialport` npm package. Constructor opens the port asynchronously and accumulates incoming bytes in an internal buffer. For RS-485 DE, uses the `onoff` package for GPIO toggling.
@@ -166,6 +198,22 @@ Wraps the `serialport` npm package. Constructor opens the port asynchronously an
 `port.drain()` resolves after the OS has transmitted all bytes — safe to deassert DE immediately after on Linux.
 
 File: `nodejs/packages/periph/src/transport/uart.js`
+
+### JVM (Linux)
+
+Uses the FFM API (Java 21+) to call libc functions directly — the same approach as `I2CTransport`. Opens the serial device with `open(path, O_RDWR | O_NOCTTY)` and configures it via `tcgetattr` / `tcsetattr` (raw mode, VMIN=0, VTIME for blocking reads with timeout).
+
+| Contract | JVM (FFM) |
+|----------|-----------|
+| `write` | RS-485 managed by kernel or GPIO → `write(fd, data, len)` → `tcdrain(fd)` |
+| `read` | `read(fd, buf, n)` with VTIME-based timeout |
+| `writeRead` | `write(data)` → `read(n)` |
+
+For RS-485, prefer kernel RS-485 mode via `ioctl(fd, TIOCSRS485, rs485Addr)` where `rs485Addr` is a `MemorySegment` holding a `serial_rs485` struct with `SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND`. Fall back to manual GPIO toggling via FFM when `dePinNum != -1` and the kernel driver lacks RS-485 support.
+
+`tcdrain(fd)` blocks until the kernel transmit buffer is empty — safe to deassert DE immediately after.
+
+File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java`
 
 ### Rust
 
@@ -234,11 +282,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/UartTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/UartTransport.cpp`
-- [ ] `cpp/src/transport/UartTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/UartTransportLinux.cpp`
-- [ ] `cpp/src/transport/UartTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/UARTTransport.cpp`
+- [ ] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/UARTTransportLinux.cpp`
+- [ ] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
@@ -246,6 +294,10 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/uart.js` — JSDoc on class and every exported method
 - [ ] Tests
+
+### JVM
+- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java` — Javadoc on class and every public method
+- [ ] Tests (Linux)
 
 ### Rust
 - [ ] `rust/periph/src/transport/uart.rs` — `//!` module doc + `///` on every `pub` item
