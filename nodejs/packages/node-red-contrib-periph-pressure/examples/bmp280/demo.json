@@ -1,0 +1,128 @@
+[
+    {
+        "id": "bmp280-device-1",
+        "type": "bmp280-device",
+        "name": "BMP280 @ i2c-1",
+        "bus": "1",
+        "address": "76",
+        "osrs_t": "1",
+        "osrs_p": "1",
+        "mode": "1",
+        "filter": "0",
+        "t_sb": "0"
+    },
+    {
+        "id": "bmp280-read-1",
+        "type": "periph-bmp280",
+        "name": "BMP280",
+        "device": "bmp280-device-1",
+        "seaLevelHpa": "1013.25",
+        "wires": [["debug-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["bmp280-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "calibrate-here",
+        "type": "inject",
+        "name": "Calibrate to here",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["calibrate-function-1"]]
+    },
+    {
+        "id": "calibrate-function-1",
+        "type": "function",
+        "name": "Recompute sea-level",
+        "func": "const hpa = flow.get('bmp280-sea-level') || 1013.25;\nconst alt = msg.payload.altitude;\nconst newHpa = msg.payload.pressure / Math.pow(1 - alt / 44330, 5.255);\nflow.set('bmp280-sea-level', newHpa);\nnode.status({text: 'sea-level=' + newHpa.toFixed(1) + ' hPa'});\nreturn msg;",
+        "outputs": "1",
+        "noerr": "0",
+        "x": 480,
+        "y": 320,
+        "wires": [["bmp280-read-1"]]
+    },
+    {
+        "id": "inject-config-1",
+        "type": "inject",
+        "name": "Switch to indoor-nav preset",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["config-msg-1"]]
+    },
+    {
+        "id": "config-msg-1",
+        "type": "function",
+        "name": "Reconfigure to normal/filter16",
+        "func": "msg.config = {\n    address: '76',\n    osrs_t: 5,    // ×16\n    osrs_p: 2,    // ×2\n    mode: 3,      // normal\n    filter: 4,    // coeff 16\n    t_sb: 4       // 500 ms\n};\nreturn msg;",
+        "outputs": "1",
+        "noerr": "0",
+        "x": 340,
+        "y": 440,
+        "wires": [["bmp280-device-2"]]
+    },
+    {
+        "id": "bmp280-device-2",
+        "type": "bmp280-device",
+        "name": "BMP280 indoor-nav",
+        "bus": "1",
+        "address": "76",
+        "osrs_t": "5",
+        "osrs_p": "2",
+        "mode": "3",
+        "filter": "4",
+        "t_sb": "4"
+    },
+    {
+        "id": "bmp280-read-2",
+        "type": "periph-bmp280",
+        "name": "BMP280 (indoor-nav)",
+        "device": "bmp280-device-2",
+        "seaLevelHpa": "1013.25",
+        "wires": [["debug-2"]]
+    },
+    {
+        "id": "debug-2",
+        "type": "debug",
+        "name": "Indoor-nav output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 620,
+        "y": 440,
+        "wires": []
+    }
+]
