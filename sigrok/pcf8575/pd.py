@@ -37,7 +37,7 @@ class Decoder(srd.Decoder):
 
     def reset(self):
         self.state      = 'IDLE'
-        self.addr      = None
+        self.addr       = None
         self.is_read    = False
         self.ss_block   = None
         self.data_bytes = []
@@ -48,56 +48,55 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
 
-            if ptype in ('START', 'START REPEAT'):
-                self.state      = 'GET_ADDR'
-                self.ss_block   = self.ss
-                self.data_bytes = []
+        if ptype in ('START', 'START REPEAT'):
+            self.state      = 'GET_ADDR'
+            self.ss_block   = ss
+            self.data_bytes = []
 
-            elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
-                addr = pdata[0]
-                if addr not in ADDRS:
-                    self.state = 'IDLE'
-                    continue
-                self.addr    = addr
-                self.is_read = (ptype == 'ADDRESS READ')
-                self.state   = 'GET_DATA'
-
-            elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
-                self.data_bytes.append(pdata[0])
-
-            elif ptype == 'STOP':
-                if self.state != 'GET_DATA':
-                    self.state = 'IDLE'
-                    continue
-
-                if len(self.data_bytes) != 2:
-                    self._warn(self.ss_block, self.es,
-                               'PCF8575 expects exactly 2 data bytes, got %d' % len(self.data_bytes))
-                    self.state = 'IDLE'
-                    continue
-
-                byte0 = self.data_bytes[0]  # Port 0: P07–P00
-                byte1 = self.data_bytes[1]  # Port 1: P17–P10
-                hx    = '0x%02X 0x%02X' % (byte0, byte1)
-                pins0 = _fmt_port_pins(0, byte0)
-                pins1 = _fmt_port_pins(1, byte1)
-
-                if self.is_read:
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_READ,
-                              ['PCF8575 Read %s: P1=%s  P0=%s' % (hx, pins1, pins0),
-                               'R %s' % hx,
-                               'R']])
-                else:
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_WRITE,
-                              ['PCF8575 Write %s: P1=%s  P0=%s' % (hx, pins1, pins0),
-                               'W %s' % hx,
-                               'W']])
-
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ADDRS:
                 self.state = 'IDLE'
-                self.data_bytes = []
+                return
+            self.addr    = addr
+            self.is_read = (ptype == 'ADDRESS READ')
+            self.state   = 'GET_DATA'
+
+        elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
+            self.data_bytes.append(pdata)
+
+        elif ptype == 'STOP':
+            if self.state != 'GET_DATA':
+                self.state = 'IDLE'
+                return
+
+            if len(self.data_bytes) != 2:
+                self._warn(self.ss_block, es,
+                           'PCF8575 expects exactly 2 data bytes, got %d' % len(self.data_bytes))
+                self.state = 'IDLE'
+                return
+
+            byte0 = self.data_bytes[0]  # Port 0: P07–P00
+            byte1 = self.data_bytes[1]  # Port 1: P17–P10
+            hx    = '0x%02X 0x%02X' % (byte0, byte1)
+            pins0 = _fmt_port_pins(0, byte0)
+            pins1 = _fmt_port_pins(1, byte1)
+
+            if self.is_read:
+                self.put(self.ss_block, es, self.out_ann,
+                         [ANN_READ,
+                          ['PCF8575 Read %s: P1=%s  P0=%s' % (hx, pins1, pins0),
+                           'R %s' % hx,
+                           'R']])
+            else:
+                self.put(self.ss_block, es, self.out_ann,
+                         [ANN_WRITE,
+                          ['PCF8575 Write %s: P1=%s  P0=%s' % (hx, pins1, pins0),
+                           'W %s' % hx,
+                           'W']])
+
+            self.state = 'IDLE'
+            self.data_bytes = []
