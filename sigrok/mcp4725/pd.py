@@ -149,41 +149,41 @@ class Decoder(srd.Decoder):
         else:
             self.put(ss, es, self.out_ann, [ANN_GC, ['General Call: 0x%02X' % cmd]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
 
-            if ptype in ('START', 'START REPEAT'):
-                self.databuf  = []
-                self.is_read  = False
-                self.is_gc    = False
-                self.ss_block = self.ss
-                self.state    = 'GET_ADDR'
+        if ptype in ('START', 'START REPEAT'):
+            self.databuf  = []
+            self.is_read  = False
+            self.is_gc    = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
 
-            elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
-                addr = pdata[0]
-                if addr == GC_ADDR:
-                    self.is_gc   = True
-                    self.is_read = False
-                    self.state   = 'GET_DATA'
-                elif addr in ADDRS:
-                    self.addr    = addr
-                    self.is_read = (ptype == 'ADDRESS READ')
-                    self.is_gc   = False
-                    self.state   = 'GET_DATA'
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr == GC_ADDR:
+                self.is_gc   = True
+                self.is_read = False
+                self.state   = 'GET_DATA'
+            elif addr in ADDRS:
+                self.addr    = addr
+                self.is_read = (ptype == 'ADDRESS READ')
+                self.is_gc   = False
+                self.state   = 'GET_DATA'
+            else:
+                self.state = 'IDLE'
+
+        elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
+            self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            if self.state == 'GET_DATA':
+                if self.is_gc:
+                    self._decode_gc(self.ss_block, es)
+                elif self.is_read:
+                    self._decode_read(self.ss_block, es)
                 else:
-                    self.state = 'IDLE'
-
-            elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
-                self.databuf.append(pdata[0])
-
-            elif ptype == 'STOP':
-                if self.state == 'GET_DATA':
-                    if self.is_gc:
-                        self._decode_gc(self.ss_block, self.es)
-                    elif self.is_read:
-                        self._decode_read(self.ss_block, self.es)
-                    else:
-                        self._decode_write(self.ss_block, self.es)
-                self.state   = 'IDLE'
-                self.databuf = []
+                    self._decode_write(self.ss_block, es)
+            self.state   = 'IDLE'
+            self.databuf = []

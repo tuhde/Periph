@@ -41,32 +41,31 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
 
-            if ptype == 'BYTE':
-                if self.ss_pixel is None:
-                    self.ss_pixel = self.ss
-                self.pixel_buf.append(pdata)
+        if ptype == 'BYTE':
+            if self.ss_pixel is None:
+                self.ss_pixel = ss
+            self.pixel_buf.append(pdata)
 
-                if len(self.pixel_buf) == BYTES_PER_PIXEL:
-                    g, r, b = self.pixel_buf
-                    self.put(self.ss_pixel, self.es, self.out_ann,
-                             [ANN_PIXEL,
-                              ['Pixel %d: R=%d G=%d B=%d #%02X%02X%02X' %
-                               (self.pixel_idx, r, g, b, r, g, b),
-                               'P%d #%02X%02X%02X' % (self.pixel_idx, r, g, b),
-                               '#%02X%02X%02X' % (r, g, b)]])
-                    self.pixel_idx += 1
-                    self.pixel_buf  = []
-                    self.ss_pixel   = None
+            if len(self.pixel_buf) == BYTES_PER_PIXEL:
+                g, r, b = self.pixel_buf
+                self.put(self.ss_pixel, es, self.out_ann,
+                         [ANN_PIXEL,
+                          ['Pixel %d: R=%d G=%d B=%d #%02X%02X%02X' %
+                           (self.pixel_idx, r, g, b, r, g, b),
+                           'P%d #%02X%02X%02X' % (self.pixel_idx, r, g, b),
+                           '#%02X%02X%02X' % (r, g, b)]])
+                self.pixel_idx += 1
+                self.pixel_buf  = []
+                self.ss_pixel   = None
 
-            elif ptype == 'RESET':
-                if self.pixel_buf:
-                    self._warn(self.ss, self.es,
-                               'Reset with incomplete pixel (%d of %d bytes)' %
-                               (len(self.pixel_buf), BYTES_PER_PIXEL))
-                self.pixel_buf = []
-                self.pixel_idx = 0
-                self.ss_pixel  = None
+        elif ptype == 'RESET':
+            if self.pixel_buf:
+                self._warn(ss, es,
+                           'Reset with incomplete pixel (%d of %d bytes)' %
+                           (len(self.pixel_buf), BYTES_PER_PIXEL))
+            self.pixel_buf = []
+            self.pixel_idx = 0
+            self.ss_pixel  = None
