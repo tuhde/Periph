@@ -10,7 +10,7 @@ const _REG_DATA      = 0xF7;
 
 const _CHIP_ID         = 0x58;
 const _RESET_CMD       = 0xB6;
-const _CTRL_MEAS_DEFAULT = 0x29;
+const _CTRL_MEAS_DEFAULT = 0x25;
 
 function _delay(ms) {
     const start = Date.now();
@@ -32,6 +32,7 @@ class BMP280Minimal {
         this._transport = transport;
         this._addr = addr;
         this._t_fine = null;
+        this._ctrlMeasCache = _CTRL_MEAS_DEFAULT;
         this._loadCalibration();
         this._writeCtrlMeas(_CTRL_MEAS_DEFAULT);
         this._writeConfig(0x00);
@@ -77,37 +78,38 @@ class BMP280Minimal {
     }
 
     _compensateTemp(adc_T) {
-        const T1 = this._dig_T1;
-        const T2 = this._dig_T2;
-        const T3 = this._dig_T3;
-        let var1 = (((adc_T >> 3) - (T1 << 1)) * T2) >> 11;
-        let var2 = (((((adc_T >> 4) - T1) * ((adc_T >> 4) - T1)) >> 12) * T3) >> 14;
-        this._t_fine = var1 + var2;
-        return ((this._t_fine * 5 + 128) >> 8) / 100.0;
+        const T1 = BigInt(this._dig_T1);
+        const T2 = BigInt(this._dig_T2);
+        const T3 = BigInt(this._dig_T3);
+        const t  = BigInt(adc_T);
+        const var1 = (((t >> 3n) - (T1 << 1n)) * T2) >> 11n;
+        const var2 = (((((t >> 4n) - T1) * ((t >> 4n) - T1)) >> 12n) * T3) >> 14n;
+        this._t_fine = Number(var1 + var2);
+        return Number(((var1 + var2) * 5n + 128n) >> 8n) / 100.0;
     }
 
     _compensatePressure(adc_P) {
-        const tf = this._t_fine !== null ? this._t_fine : 0;
-        const P1 = this._dig_P1, P2 = this._dig_P2, P3 = this._dig_P3;
-        const P4 = this._dig_P4, P5 = this._dig_P5, P6 = this._dig_P6;
-        const P7 = this._dig_P7, P8 = this._dig_P8, P9 = this._dig_P9;
-        let var1 = tf - 128000;
+        const tf = BigInt(this._t_fine !== null ? this._t_fine : 0);
+        const P1 = BigInt(this._dig_P1), P2 = BigInt(this._dig_P2), P3 = BigInt(this._dig_P3);
+        const P4 = BigInt(this._dig_P4), P5 = BigInt(this._dig_P5), P6 = BigInt(this._dig_P6);
+        const P7 = BigInt(this._dig_P7), P8 = BigInt(this._dig_P8), P9 = BigInt(this._dig_P9);
+        let var1 = tf - 128000n;
         let var2 = var1 * var1 * P6;
-        var2 = var2 + ((var1 * P5) << 17);
-        var2 = var2 + (P4 << 35);
-        var1 = ((var1 * var1 * P3) >> 8) + ((var1 * P2) << 12);
-        var1 = (((1 << 47) + var1) * P1) >> 33;
-        if (var1 === 0) return 0.0;
-        let p = 1048576 - adc_P;
-        p = (((p << 31) - var2) * 3125) / var1;
-        var1 = (P9 * (p >> 13) * (p >> 13)) >> 25;
-        var2 = (P8 * p) >> 19;
-        p = ((p + var1 + var2) >> 8) + (P7 << 4);
-        return (p / 256.0) / 100.0;
+        var2 = var2 + ((var1 * P5) << 17n);
+        var2 = var2 + (P4 << 35n);
+        var1 = ((var1 * var1 * P3) >> 8n) + ((var1 * P2) << 12n);
+        var1 = (((1n << 47n) + var1) * P1) >> 33n;
+        if (var1 === 0n) return 0.0;
+        let p = BigInt(1048576) - BigInt(adc_P);
+        p = (((p << 31n) - var2) * 3125n) / var1;
+        var1 = (P9 * (p >> 13n) * (p >> 13n)) >> 25n;
+        var2 = (P8 * p) >> 19n;
+        p = ((p + var1 + var2) >> 8n) + (P7 << 4n);
+        return Number(p) / 25600.0;
     }
 
     _triggerMeasurement() {
-        this._writeCtrlMeas(0x25 | (1 << 5));
+        this._writeCtrlMeas(this._ctrlMeasCache);
         _delay(7);
     }
 
@@ -121,8 +123,7 @@ class BMP280Minimal {
      */
     temperature() {
         this._triggerMeasurement();
-        const [adc_T, adc_P] = this._triggerReadBurst();
-        (void)adc_P;
+        const [adc_T] = this._triggerReadBurst();
         return this._compensateTemp(adc_T);
     }
 
@@ -193,7 +194,8 @@ class BMP280Full extends BMP280Minimal {
         this._mode = mode;
         this._filter = filter;
         this._t_sb = t_sb;
-        this._writeCtrlMeas(this._ctrlMeasValue());
+        this._ctrlMeasCache = this._ctrlMeasValue();
+        this._writeCtrlMeas(this._ctrlMeasCache);
         this._writeConfig(this._configValue());
     }
 
@@ -220,7 +222,8 @@ class BMP280Full extends BMP280Minimal {
         if (mode !== undefined) this._mode = mode;
         if (filter !== undefined) this._filter = filter;
         if (t_sb !== undefined) this._t_sb = t_sb;
-        this._writeCtrlMeas(this._ctrlMeasValue());
+        this._ctrlMeasCache = this._ctrlMeasValue();
+        this._writeCtrlMeas(this._ctrlMeasCache);
         this._writeConfig(this._configValue());
     }
 
@@ -233,7 +236,8 @@ class BMP280Full extends BMP280Minimal {
     setOversampling(osrs_t, osrs_p) {
         this._osrs_t = osrs_t;
         this._osrs_p = osrs_p;
-        this._writeCtrlMeas(this._ctrlMeasValue());
+        this._ctrlMeasCache = this._ctrlMeasValue();
+        this._writeCtrlMeas(this._ctrlMeasCache);
     }
 
     /**
@@ -243,7 +247,8 @@ class BMP280Full extends BMP280Minimal {
      */
     setMode(mode) {
         this._mode = mode;
-        this._writeCtrlMeas(this._ctrlMeasValue());
+        this._ctrlMeasCache = this._ctrlMeasValue();
+        this._writeCtrlMeas(this._ctrlMeasCache);
     }
 
     /**

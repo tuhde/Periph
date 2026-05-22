@@ -9,7 +9,7 @@ static inline void delay_ms(unsigned long ms) { delay(ms); }
 #endif
 
 BMP280Minimal::BMP280Minimal(Transport& transport, uint8_t addr)
-    : _transport(transport), _addr(addr), _t_fine(0) {
+    : _transport(transport), _addr(addr), _t_fine(0), _ctrl_meas_cache(CTRL_MEAS_DEFAULT) {
     _load_calibration();
     _write_ctrl_meas(CTRL_MEAS_DEFAULT);
     _write_config(0x00);
@@ -36,18 +36,18 @@ void BMP280Minimal::_load_calibration() {
     uint8_t raw[24];
     _read_reg(REG_CAL_START, raw, 24);
 
-    _dig_T1 = (uint16_t)((raw[0] << 8) | raw[1]);
-    _dig_T2 = (int16_t)((raw[2] << 8) | raw[3]);
-    _dig_T3 = (int16_t)((raw[4] << 8) | raw[5]);
-    _dig_P1 = (uint16_t)((raw[6] << 8) | raw[7]);
-    _dig_P2 = (int16_t)((raw[8] << 8) | raw[9]);
-    _dig_P3 = (int16_t)((raw[10] << 8) | raw[11]);
-    _dig_P4 = (int16_t)((raw[12] << 8) | raw[13]);
-    _dig_P5 = (int16_t)((raw[14] << 8) | raw[15]);
-    _dig_P6 = (int16_t)((raw[16] << 8) | raw[17]);
-    _dig_P7 = (int16_t)((raw[18] << 8) | raw[19]);
-    _dig_P8 = (int16_t)((raw[20] << 8) | raw[21]);
-    _dig_P9 = (int16_t)((raw[22] << 8) | raw[23]);
+    _dig_T1 = (uint16_t)(raw[0]  | (raw[1]  << 8));
+    _dig_T2 = (int16_t) (raw[2]  | (raw[3]  << 8));
+    _dig_T3 = (int16_t) (raw[4]  | (raw[5]  << 8));
+    _dig_P1 = (uint16_t)(raw[6]  | (raw[7]  << 8));
+    _dig_P2 = (int16_t) (raw[8]  | (raw[9]  << 8));
+    _dig_P3 = (int16_t) (raw[10] | (raw[11] << 8));
+    _dig_P4 = (int16_t) (raw[12] | (raw[13] << 8));
+    _dig_P5 = (int16_t) (raw[14] | (raw[15] << 8));
+    _dig_P6 = (int16_t) (raw[16] | (raw[17] << 8));
+    _dig_P7 = (int16_t) (raw[18] | (raw[19] << 8));
+    _dig_P8 = (int16_t) (raw[20] | (raw[21] << 8));
+    _dig_P9 = (int16_t) (raw[22] | (raw[23] << 8));
 }
 
 void BMP280Minimal::_trigger_read_burst(int32_t& adc_T, int32_t& adc_P) {
@@ -68,7 +68,7 @@ float BMP280Minimal::_compensate_temp(int32_t adc_T) {
 
     _t_fine = (int32_t)(var1 + var2);
 
-    return ((int64_t)_t_fine * 5 + 128) >> 8) / 100.0f;
+    return (float)(((int64_t)_t_fine * 5 + 128) >> 8) / 100.0f;
 }
 
 float BMP280Minimal::_compensate_pressure(int32_t adc_P) {
@@ -93,7 +93,7 @@ float BMP280Minimal::_compensate_pressure(int32_t adc_P) {
 }
 
 void BMP280Minimal::_trigger_measurement() {
-    _write_ctrl_meas(0x25 | (1 << 5));
+    _write_ctrl_meas(_ctrl_meas_cache);
     delay_ms(7);
 }
 
@@ -121,7 +121,8 @@ BMP280Full::BMP280Full(Transport& transport, uint8_t addr,
     : BMP280Minimal(transport, addr),
       _osrs_t(osrs_t), _osrs_p(osrs_p), _mode(mode),
       _filter(filter), _t_sb(t_sb) {
-    _write_ctrl_meas(_ctrl_meas_value());
+    _ctrl_meas_cache = _ctrl_meas_value();
+    _write_ctrl_meas(_ctrl_meas_cache);
     _write_config(_config_value());
 }
 
@@ -139,19 +140,22 @@ void BMP280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t
     if (mode == 0 || mode == 1 || mode == 3) _mode = mode;
     if (filter < 5) _filter = filter;
     if (t_sb < 8) _t_sb = t_sb;
-    _write_ctrl_meas(_ctrl_meas_value());
+    _ctrl_meas_cache = _ctrl_meas_value();
+    _write_ctrl_meas(_ctrl_meas_cache);
     _write_config(_config_value());
 }
 
 void BMP280Full::set_oversampling(uint8_t osrs_t, uint8_t osrs_p) {
     if (osrs_t < 6) _osrs_t = osrs_t;
     if (osrs_p < 6) _osrs_p = osrs_p;
-    _write_ctrl_meas(_ctrl_meas_value());
+    _ctrl_meas_cache = _ctrl_meas_value();
+    _write_ctrl_meas(_ctrl_meas_cache);
 }
 
 void BMP280Full::set_mode(uint8_t mode) {
     if (mode == 0 || mode == 1 || mode == 3) _mode = mode;
-    _write_ctrl_meas(_ctrl_meas_value());
+    _ctrl_meas_cache = _ctrl_meas_value();
+    _write_ctrl_meas(_ctrl_meas_cache);
 }
 
 void BMP280Full::set_filter(uint8_t coeff) {

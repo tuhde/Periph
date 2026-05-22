@@ -22,7 +22,7 @@ const REG_DATA: u8 = 0xF7;
 
 const CHIP_ID: u8 = 0x58;
 const RESET_CMD: u8 = 0xB6;
-const CTRL_MEAS_DEFAULT: u8 = 0x29;
+const CTRL_MEAS_DEFAULT: u8 = 0x25;
 
 fn delay_ms(ms: u32) {
     #[cfg(feature = "std")]
@@ -106,6 +106,7 @@ pub struct Bmp280Minimal<I2C> {
     i2c: I2C,
     addr: u8,
     t_fine: i32,
+    ctrl_meas_cache: u8,
     dig_T1: u16, dig_T2: i16, dig_T3: i16,
     dig_P1: u16, dig_P2: i16, dig_P3: i16,
     dig_P4: i16, dig_P5: i16, dig_P6: i16,
@@ -119,7 +120,7 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
     /// * `i2c` — I²C bus implementing [`embedded_hal::i2c::I2c`].
     /// * `addr` — 7-bit I²C address (default 0x76, alternate 0x77).
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let mut s = Self { i2c, addr, t_fine: 0,
+        let mut s = Self { i2c, addr, t_fine: 0, ctrl_meas_cache: CTRL_MEAS_DEFAULT,
             dig_T1: 0, dig_T2: 0, dig_T3: 0,
             dig_P1: 0, dig_P2: 0, dig_P3: 0,
             dig_P4: 0, dig_P5: 0, dig_P6: 0,
@@ -158,7 +159,7 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
     }
 
     fn trigger_measurement(&mut self) -> Result<(), I2C::Error> {
-        write_reg_u8(&mut self.i2c, self.addr, REG_CTRL_MEAS, 0x25 | (1 << 5))?;
+        write_reg_u8(&mut self.i2c, self.addr, REG_CTRL_MEAS, self.ctrl_meas_cache)?;
         delay_ms(7);
         Ok(())
     }
@@ -167,8 +168,9 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
         let T1 = self.dig_T1 as i64;
         let T2 = self.dig_T2 as i64;
         let T3 = self.dig_T3 as i64;
-        let mut var1 = (((adc_T >> 3) - (T1 << 1)) * T2) >> 11;
-        let mut var2 = (((((adc_T >> 4) - T1) * ((adc_T >> 4) - T1)) >> 12) * T3) >> 14;
+        let t  = adc_T as i64;
+        let var1 = (((t >> 3) - (T1 << 1)) * T2) >> 11;
+        let var2 = (((((t >> 4) - T1) * ((t >> 4) - T1)) >> 12) * T3) >> 14;
         self.t_fine = (var1 + var2) as i32;
         ((self.t_fine as i64 * 5 + 128) >> 8) as f32 / 100.0
     }
@@ -251,7 +253,9 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// * `t_sb` — Standby time in normal mode 0–7 (default 0 = 0.5 ms).
     pub fn new(i2c: I2C, addr: u8, osrs_t: u8, osrs_p: u8, mode: u8, filter: u8, t_sb: u8) -> Result<Self, I2C::Error> {
         let mut inner = Bmp280Minimal::new(i2c, addr)?;
-        write_reg_u8(&mut inner.i2c, addr, REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)?;
+        let ctrl = (osrs_t << 5) | (osrs_p << 2) | mode;
+        inner.ctrl_meas_cache = ctrl;
+        write_reg_u8(&mut inner.i2c, addr, REG_CTRL_MEAS, ctrl)?;
         write_reg_u8(&mut inner.i2c, addr, REG_CONFIG, (t_sb << 5) | (filter << 2))?;
         Ok(Self { inner, osrs_t, osrs_p, mode, filter, t_sb })
     }
@@ -280,8 +284,11 @@ impl<I2C: I2c> Bmp280Full<I2C> {
         self.mode = mode;
         self.filter = filter;
         self.t_sb = t_sb;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, self.ctrl_meas_value())?;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, self.config_value())?;
+        let ctrl = self.ctrl_meas_value();
+        self.inner.ctrl_meas_cache = ctrl;
+        let cfg = self.config_value();
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, ctrl)?;
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, cfg)?;
         Ok(())
     }
 
@@ -293,7 +300,9 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     pub fn set_oversampling(&mut self, osrs_t: u8, osrs_p: u8) -> Result<(), I2C::Error> {
         self.osrs_t = osrs_t;
         self.osrs_p = osrs_p;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, self.ctrl_meas_value())
+        let ctrl = self.ctrl_meas_value();
+        self.inner.ctrl_meas_cache = ctrl;
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, ctrl)
     }
 
     /// Update power mode.
@@ -302,7 +311,9 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// * `mode` — 0=sleep, 1=forced, 3=normal.
     pub fn set_mode(&mut self, mode: u8) -> Result<(), I2C::Error> {
         self.mode = mode;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, self.ctrl_meas_value())
+        let ctrl = self.ctrl_meas_value();
+        self.inner.ctrl_meas_cache = ctrl;
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, ctrl)
     }
 
     /// Update IIR filter coefficient.
@@ -311,7 +322,8 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// * `coeff` — 0=off, 1=×2, 2=×4, 3=×8, 4=×16.
     pub fn set_filter(&mut self, coeff: u8) -> Result<(), I2C::Error> {
         self.filter = coeff;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, self.config_value())
+        let cfg = self.config_value();
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, cfg)
     }
 
     /// Update standby time (only relevant in normal mode).
@@ -320,7 +332,8 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// * `t_sb` — 0=0.5ms, 1=62.5ms, 2=125ms, 3=250ms, 4=500ms, 5=1s, 6=2s, 7=4s.
     pub fn set_standby(&mut self, t_sb: u8) -> Result<(), I2C::Error> {
         self.t_sb = t_sb;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, self.config_value())
+        let cfg = self.config_value();
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, cfg)
     }
 
     /// Read status register.
@@ -366,8 +379,10 @@ impl<I2C: I2c> Bmp280Full<I2C> {
         write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_RESET, RESET_CMD)?;
         delay_ms(2);
         self.inner.load_calibration()?;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, self.ctrl_meas_value())?;
-        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, self.config_value())?;
+        let ctrl = self.ctrl_meas_value();
+        let cfg  = self.config_value();
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, ctrl)?;
+        write_reg_u8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, cfg)?;
         Ok(())
     }
 

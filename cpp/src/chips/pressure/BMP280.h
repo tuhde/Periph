@@ -40,7 +40,7 @@ protected:
 
     static constexpr uint8_t  CHIP_ID          = 0x58;
     static constexpr uint8_t  RESET_CMD        = 0xB6;
-    static constexpr uint8_t  CTRL_MEAS_DEFAULT = 0x29;
+    static constexpr uint8_t  CTRL_MEAS_DEFAULT = 0x25;
 
     Transport& _transport;
     uint8_t   _addr;
@@ -60,11 +60,14 @@ protected:
     int16_t  _dig_P8 = 0;
     int16_t  _dig_P9 = 0;
 
+    uint8_t  _ctrl_meas_cache;
+
     void     _load_calibration();
     void     _write_reg(uint8_t reg, uint8_t value);
     void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _write_ctrl_meas(uint8_t value);
     void     _write_config(uint8_t value);
+    void     _trigger_measurement();
     void     _trigger_read_burst(int32_t& adc_T, int32_t& adc_P);
     float    _compensate_temp(int32_t adc_T);
     float    _compensate_pressure(int32_t adc_P);

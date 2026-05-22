@@ -11,6 +11,7 @@ module.exports = function(RED) {
             const transport = new I2CTransport(parseInt(config.bus), parseInt(config.address, 16));
             node.driver    = new BMP280Full(
                 transport,
+                parseInt(config.address, 16) || 0x76,
                 parseInt(config.osrs_t) || 1,
                 parseInt(config.osrs_p) || 1,
                 parseInt(config.mode) || 1,
