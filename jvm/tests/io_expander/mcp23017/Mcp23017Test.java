@@ -78,6 +78,21 @@ public class Mcp23017Test {
             chip.writePort(0, 0x00);
             chip.writePort(1, 0x00);
 
+            // --- Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n] ---
+            for (int n = 0; n < 8; n++) chip.pin(n).setOutput();
+
+            chip.writePort(0, 0xAA);  // PA0=0, avoids contention with PB7 output
+            int pb = chip.readPort(1);
+            checkEq("loopback_0xAA", pb & 0x7F, 0x55);
+
+            chip.writePort(0, 0xFE);  // PA0=0, PA1–PA7=1
+            pb = chip.readPort(1);
+            checkEq("loopback_0xFE", pb & 0x7F, 0x7F);
+
+            chip.writePort(0, 0x00);
+            pb = chip.readPort(1);
+            checkEq("loopback_0x00", pb & 0x7F, 0x00);
+
             // --- Mcp23017Full ---
             var transport2 = new I2CTransport(bus, addr);
             var full = new Mcp23017Full(transport2, addr);

@@ -27,14 +27,18 @@ public class Mcp23017Minimal {
     protected final int addr;
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
-    protected final int[] shadow = new int[2];
+    public final int[] shadow = new int[2];
 
-    private static final int REG_IODIRA = 0x00;
-    private static final int REG_IODIRB = 0x01;
-    private static final int REG_GPIOA  = 0x12;
-    private static final int REG_GPIOB  = 0x13;
-    private static final int REG_OLATA  = 0x14;
-    private static final int REG_OLATB  = 0x15;
+    protected static final int REG_IODIRA = 0x00;
+    protected static final int REG_IODIRB = 0x01;
+    protected static final int REG_IPOLA  = 0x02;
+    protected static final int REG_IPOLB  = 0x03;
+    protected static final int REG_GPPUA  = 0x0C;
+    protected static final int REG_GPPUB  = 0x0D;
+    protected static final int REG_GPIOA  = 0x12;
+    protected static final int REG_GPIOB  = 0x13;
+    protected static final int REG_OLATA  = 0x14;
+    protected static final int REG_OLATB  = 0x15;
 
     /**
      * Construct the driver and initialise all pins.
@@ -50,21 +54,25 @@ public class Mcp23017Minimal {
     public Mcp23017Minimal(Transport transport, int addr) throws IOException {
         this.transport = transport;
         this.addr     = addr;
-        writeReg(REG_OLATA, 0x00);
-        writeReg(REG_OLATB, 0x00);
+        writeReg(REG_OLATA,  0x00);
+        writeReg(REG_OLATB,  0x00);
         writeReg(REG_IODIRA, 0x7F);
         writeReg(REG_IODIRB, 0x7F);
+        writeReg(REG_IPOLA,  0x00);
+        writeReg(REG_IPOLB,  0x00);
+        writeReg(REG_GPPUA,  0x00);
+        writeReg(REG_GPPUB,  0x00);
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void writeReg(int reg, int value) throws IOException {
+    protected void writeReg(int reg, int value) throws IOException {
         transport.write(new byte[]{ (byte) reg, (byte) (value & 0xFF) });
     }
 
-    private int readReg(int reg) throws IOException {
+    protected int readReg(int reg) throws IOException {
         byte[] buf = transport.writeRead(new byte[]{ (byte) reg }, 1);
         return buf[0] & 0xFF;
     }

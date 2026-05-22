@@ -1,6 +1,6 @@
 'use strict';
-const { I2CTransport } = require('../packages/periph/src/transport/i2c');
-const { Mcp23017Minimal, Mcp23017Full } = require('../packages/periph/src/chips/io_expander/mcp23017');
+const { I2CTransport } = require('../../packages/periph/src/transport/i2c');
+const { Mcp23017Minimal, Mcp23017Full } = require('../../packages/periph/src/chips/io_expander/mcp23017');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',    10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x20', 16);
@@ -56,6 +56,21 @@ checkEq('input_direction_portb', p8.direction, 'in');
 
 const p15 = chip.pin(15, 'out');
 checkEq('input_direction_gpb7', p15.direction, 'out');
+
+// --- Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n] ---
+chip.configureDirection(0, 0x00);     // PA all outputs
+
+chip.writePort(0, 0xAA);              // PA0=0, avoids contention with PB7 output
+let pb = chip.readPort(1);
+checkEq('loopback_0xAA', pb & 0x7F, 0x55);
+
+chip.writePort(0, 0xFE);              // PA0=0, PA1–PA7=1
+pb = chip.readPort(1);
+checkEq('loopback_0xFE', pb & 0x7F, 0x7F);
+
+chip.writePort(0, 0x00);
+pb = chip.readPort(1);
+checkEq('loopback_0x00', pb & 0x7F, 0x00);
 
 // Full
 const full = new Mcp23017Full(transport);

@@ -16,16 +16,18 @@ import java.util.function.IntConsumer;
 public class Mcp23017Full extends Mcp23017Minimal {
 
     private final int[] prev = new int[2];
-    private IntConsumer callback;
+    private final IntConsumer[] portCallbacks = new IntConsumer[2];
     private Thread pollThread;
     private volatile boolean running;
 
-    private static final int REG_GPPUA   = 0x0C;
-    private static final int REG_GPPUB   = 0x0D;
-    private static final int REG_INTFA   = 0x0E;
-    private static final int REG_INTFB   = 0x0F;
-    private static final int REG_INTCAPA = 0x10;
-    private static final int REG_INTCAPB = 0x11;
+    private static final int REG_GPINTENA = 0x04;
+    private static final int REG_GPINTENB = 0x05;
+    private static final int REG_INTCONA  = 0x08;
+    private static final int REG_INTCONB  = 0x09;
+    private static final int REG_INTFA    = 0x0E;
+    private static final int REG_INTFB    = 0x0F;
+    private static final int REG_INTCAPA  = 0x10;
+    private static final int REG_INTCAPB  = 0x11;
 
     /**
      * Construct the full driver.
@@ -63,7 +65,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public void configurePullup(int port, int mask) throws IOException {
-        writeReg(REG_GPPUA + port, mask & 0xFF);
+        writeReg(REG_GPPUA + (port & 1), mask & 0xFF);
     }
 
     /**
@@ -74,7 +76,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public void configurePolarity(int port, int mask) throws IOException {
-        writeReg(0x02 + port, mask & 0xFF);
+        writeReg(REG_IPOLA + (port & 1), mask & 0xFF);
     }
 
     /**
@@ -89,12 +91,11 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @param callback     called with (port, changedMask) on any input change
      */
     public void configureInterrupt(int port, String intGpioPath, IntConsumer callback) {
-        this.callback = callback;
-        this.running  = true;
-        // Enable interrupt-on-change for all 8 pins of the port
-        try { writeReg(0x04 + port, 0xFF); } catch (IOException e) { return; }
-        try { writeReg(0x08 + port, 0x00); } catch (IOException e) { } // IOCON left at default
-        startPolling();
+        portCallbacks[port & 1] = callback;
+        this.running = true;
+        try { writeReg(REG_GPINTENA + (port & 1), 0xFF); } catch (IOException e) { return; }
+        try { writeReg(REG_INTCONA  + (port & 1), 0x00); } catch (IOException e) { }
+        if (pollThread == null) startPolling();
     }
 
     private void startPolling() {
@@ -103,14 +104,13 @@ public class Mcp23017Full extends Mcp23017Minimal {
                 try {
                     int changedA = clearInterrupt(0);
                     int changedB = clearInterrupt(1);
-                    if (callback != null) {
-                        if (changedA != 0) callback.accept(0, changedA);
-                        if (changedB != 0) callback.accept(1, changedB);
-                    }
+                    if (changedA != 0 && portCallbacks[0] != null) portCallbacks[0].accept(changedA);
+                    if (changedB != 0 && portCallbacks[1] != null) portCallbacks[1].accept(changedB);
                 } catch (IOException e) { /* ignore */ }
                 try { Thread.sleep(5); } catch (InterruptedException e) { break; }
             }
         });
+        pollThread.setDaemon(true);
         pollThread.start();
     }
 
@@ -124,10 +124,10 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public int clearInterrupt(int port) throws IOException {
-        int captured = readReg(REG_INTCAPA + port);
-        int current  = readReg(REG_GPIOA  + port);
-        int changed  = (current ^ prev[port]) & 0xFF;
-        prev[port]   = current;
+        readReg(REG_INTCAPA + (port & 1));
+        int current = readReg(REG_GPIOA + (port & 1));
+        int changed = (current ^ prev[port & 1]) & 0xFF;
+        prev[port & 1]  = current;
         return changed;
     }
 
@@ -139,7 +139,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public int readInterruptFlags(int port) throws IOException {
-        return readReg(REG_INTFA + port);
+        return readReg(REG_INTFA + (port & 1));
     }
 
     /**
@@ -149,7 +149,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      */
     public void stopInterrupt(int port) {
         running = false;
-        try { writeReg(0x04 + port, 0x00); } catch (IOException e) { /* ignore */ }
+        try { writeReg(REG_GPINTENA + (port & 1), 0x00); } catch (IOException e) { /* ignore */ }
         if (pollThread != null) {
             pollThread.interrupt();
             pollThread = null;

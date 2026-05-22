@@ -27,10 +27,14 @@ class Mcp23017Minimal {
     protected final int addr
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
-    protected final int[] shadow = new int[2]
+    public final int[] shadow = new int[2]
 
     protected static final int REG_IODIRA = 0x00
     protected static final int REG_IODIRB = 0x01
+    protected static final int REG_IPOLA  = 0x02
+    protected static final int REG_IPOLB  = 0x03
+    protected static final int REG_GPPUA  = 0x0C
+    protected static final int REG_GPPUB  = 0x0D
     protected static final int REG_GPIOA  = 0x12
     protected static final int REG_GPIOB  = 0x13
     protected static final int REG_OLATA  = 0x14
@@ -49,21 +53,25 @@ class Mcp23017Minimal {
     Mcp23017Minimal(Transport transport, int addr = 0x20) {
         this.transport = transport
         this.addr     = addr
-        writeReg(REG_OLATA, 0x00)
-        writeReg(REG_OLATB, 0x00)
+        writeReg(REG_OLATA,  0x00)
+        writeReg(REG_OLATB,  0x00)
         writeReg(REG_IODIRA, 0x7F)
         writeReg(REG_IODIRB, 0x7F)
+        writeReg(REG_IPOLA,  0x00)
+        writeReg(REG_IPOLB,  0x00)
+        writeReg(REG_GPPUA,  0x00)
+        writeReg(REG_GPPUB,  0x00)
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private void writeReg(int reg, int value) {
+    protected void writeReg(int reg, int value) {
         transport.write([(byte) reg, (byte) (value & 0xFF)] as byte[])
     }
 
-    private int readReg(int reg) {
+    protected int readReg(int reg) {
         byte[] buf = transport.writeRead([(byte) reg] as byte[], 1)
         return buf[0] & 0xFF
     }

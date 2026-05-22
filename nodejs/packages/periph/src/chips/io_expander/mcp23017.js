@@ -1,5 +1,27 @@
 'use strict';
 
+const REG_IODIRA  = 0x00;
+const REG_IODIRB  = 0x01;
+const REG_IPOLA   = 0x02;
+const REG_IPOLB   = 0x03;
+const REG_GPINTENA = 0x04;
+const REG_GPINTENB = 0x05;
+const REG_DEFVALA  = 0x06;
+const REG_DEFVALB  = 0x07;
+const REG_INTCONA  = 0x08;
+const REG_INTCONB  = 0x09;
+const REG_IOCON    = 0x0A;
+const REG_GPPUA    = 0x0C;
+const REG_GPPUB    = 0x0D;
+const REG_INTFA    = 0x0E;
+const REG_INTFB    = 0x0F;
+const REG_INTCAPA  = 0x10;
+const REG_INTCAPB  = 0x11;
+const REG_GPIOA    = 0x12;
+const REG_GPIOB    = 0x13;
+const REG_OLATA    = 0x14;
+const REG_OLATB    = 0x15;
+
 /**
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
  *
@@ -23,10 +45,14 @@ class Mcp23017Minimal {
         this._addr      = addr;
         this._shadow    = [0, 0];
 
-        this._writeReg(0x14, 0x00);
-        this._writeReg(0x15, 0x00);
-        this._writeReg(0x00, 0x7F);
-        this._writeReg(0x01, 0x7F);
+        this._writeReg(REG_OLATA,  0x00);
+        this._writeReg(REG_OLATB,  0x00);
+        this._writeReg(REG_IODIRA, 0x7F);
+        this._writeReg(REG_IODIRB, 0x7F);
+        this._writeReg(REG_IPOLA,  0x00);
+        this._writeReg(REG_IPOLB,  0x00);
+        this._writeReg(REG_GPPUA,  0x00);
+        this._writeReg(REG_GPPUB,  0x00);
     }
 
     _writeReg(reg, value) {
@@ -38,11 +64,11 @@ class Mcp23017Minimal {
     }
 
     _writePort(port, mask) {
-        this._writeReg(0x14 + port, mask & 0xFF);
+        this._writeReg(REG_OLATA + port, mask & 0xFF);
     }
 
     _readPort(port) {
-        return this._readReg(0x12 + port);
+        return this._readReg(REG_GPIOA + port);
     }
 
     _setPin(n, value) {
@@ -89,6 +115,15 @@ class Mcp23017Minimal {
     writePort(port = 0, mask = 0x00) {
         this._shadow[port] = mask & 0xFF;
         this._writePort(port, this._shadow[port]);
+    }
+
+    /**
+     * Configure the direction (IODIR) of a full port.
+     * @param {number} port - 0 = PORTA (IODIRA), 1 = PORTB (IODIRB).
+     * @param {number} mask - 8-bit mask; bit = 1 → input, 0 → output.
+     */
+    configureDirection(port, mask) {
+        this._writeReg(REG_IODIRA + (port & 1), mask & 0xFF);
     }
 }
 
@@ -204,7 +239,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @param {number} mask - 8-bit mask: 1 = enable 100 kΩ pull-up.
      */
     configurePullup(port = 0, mask = 0x00) {
-        this._writeReg(0x0C + port, mask & 0xFF);
+        this._writeReg(REG_GPPUA + port, mask & 0xFF);
     }
 
     /**
@@ -214,7 +249,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @param {number} mask - 8-bit mask: 1 = invert GPIO read.
      */
     configurePolarity(port = 0, mask = 0x00) {
-        this._writeReg(0x02 + port, mask & 0xFF);
+        this._writeReg(REG_IPOLA + port, mask & 0xFF);
     }
 
     /**
@@ -232,8 +267,8 @@ class Mcp23017Full extends Mcp23017Minimal {
         this._callback = callback;
         if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
 
-        this._writeReg(0x04 + port, 0xFF);
-        this._writeReg(0x08 + port, 0x00);
+        this._writeReg(REG_GPINTENA + port, 0xFF);
+        this._writeReg(REG_INTCONA  + port, 0x00);
 
         if (intGpioPath) {
             try {
@@ -281,8 +316,8 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {number} 8-bit changed-pin bitmask for the port.
      */
     clearInterrupt(port = 0) {
-        const captured = this._readReg(0x10 + port);
-        const current  = this._readReg(0x12 + port);
+        const captured = this._readReg(REG_INTCAPA + port);
+        const current  = this._readReg(REG_GPIOA   + port);
         const changed  = (current ^ this._prev[port]) & 0xFF;
         this._prev[port] = current;
         return changed;
@@ -295,7 +330,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {number} 8-bit interrupt-flag bitmask.
      */
     readInterruptFlags(port = 0) {
-        return this._readReg(0x0E + port);
+        return this._readReg(REG_INTFA + port);
     }
 
     /**
@@ -304,7 +339,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
      */
     stopInterrupt(port = 0) {
-        this._writeReg(0x04 + port, 0x00);
+        this._writeReg(REG_GPINTENA + port, 0x00);
         if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
     }
 }
@@ -330,7 +365,7 @@ class _FullPin extends _Pin {
     watch(handler) {
         const n = this._n;
         if (!this._chip._watchers[n]) this._chip._watchers[n] = [];
-        this._chip._watchers[n].push(() => { handler(null, this.readSync()); });
+        this._chip._watchers[n].push(handler);
     }
 
     /**

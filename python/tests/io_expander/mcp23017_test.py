@@ -65,6 +65,22 @@ check_eq('pin15_off_shadow', chip._shadow[1] & 0x80, 0x00)
 p15.on()
 check_eq('pin15_on_shadow', chip._shadow[1] & 0x80, 0x80)
 
+# --- Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n] ---
+for n in range(8):
+    chip.pin(n, Mcp23017Minimal.OUT)
+
+chip.write_port(0, 0xAA)          # PA0=0, avoids contention with PB7 output
+pb = chip.read_port(1)
+check_eq('loopback_0xAA', pb & 0x7F, 0x55)
+
+chip.write_port(0, 0xFE)          # PA0=0, PA1–PA7=1
+pb = chip.read_port(1)
+check_eq('loopback_0xFE', pb & 0x7F, 0x7F)
+
+chip.write_port(0, 0x00)
+pb = chip.read_port(1)
+check_eq('loopback_0x00', pb & 0x7F, 0x00)
+
 full = Mcp23017Full(transport)
 check_eq('full_init_iodira', full._direction[0], 0x7F)
 check_eq('full_init_iodirb', full._direction[1], 0x7F)

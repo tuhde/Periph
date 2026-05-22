@@ -19,14 +19,18 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
     private val prev = intArrayOf(0, 0)
     private var callback: ((Int, Int) -> Unit)? = null
     private var pollThread: Thread? = null
-    private volatile var running = false
+    @Volatile private var running = false
 
-    private val REG_GPPUA   = 0x0C
-    private val REG_GPPUB   = 0x0D
-    private val REG_INTFA   = 0x0E
-    private val REG_INTFB   = 0x0F
-    private val REG_INTCAPA = 0x10
-    private val REG_INTCAPB = 0x11
+    companion object {
+        private const val REG_GPINTENA = 0x04
+        private const val REG_GPINTENB = 0x05
+        private const val REG_INTCONA  = 0x08
+        private const val REG_INTCONB  = 0x09
+        private const val REG_INTFA    = 0x0E
+        private const val REG_INTFB    = 0x0F
+        private const val REG_INTCAPA  = 0x10
+        private const val REG_INTCAPB  = 0x11
+    }
 
     /**
      * Return a [Pin] proxy for pin [n] (0–15).
@@ -47,7 +51,7 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
      * @param mask 8-bit mask; bit n = 1 enables pull-up on pin n
      */
     fun configurePullup(port: Int, mask: Int) {
-        writeReg(REG_GPPUA + port, mask and 0xFF)
+        writeReg(Mcp23017Minimal.REG_GPPUA + port, mask and 0xFF)
     }
 
     /**
@@ -57,7 +61,7 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
      * @param mask 8-bit mask; bit n = 1 inverts the GPIO read for pin n
      */
     fun configurePolarity(port: Int, mask: Int) {
-        writeReg(0x02 + port, mask and 0xFF)
+        writeReg(Mcp23017Minimal.REG_IPOLA + port, mask and 0xFF)
     }
 
     /**
@@ -70,8 +74,8 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
         this.callback = callback
         this.running  = true
         try {
-            writeReg(0x04 + port, 0xFF)
-            writeReg(0x08 + port, 0x00)
+            writeReg(REG_GPINTENA + port, 0xFF)
+            writeReg(REG_INTCONA  + port, 0x00)
         } catch (_: IOException) { }
         startPolling()
     }
@@ -102,7 +106,7 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
     @Throws(IOException::class)
     fun clearInterrupt(port: Int): Int {
         val captured = readReg(REG_INTCAPA + port)
-        val current  = readReg(REG_GPIOA   + port)
+        val current  = readReg(Mcp23017Minimal.REG_GPIOA + port)
         val changed  = (current xor prev[port]) and 0xFF
         prev[port]   = current
         return changed
@@ -124,7 +128,7 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
      */
     fun stopInterrupt(port: Int) {
         running = false
-        try { writeReg(0x04 + port, 0x00) } catch (_: IOException) { }
+        try { writeReg(REG_GPINTENA + port, 0x00) } catch (_: IOException) { }
         pollThread?.interrupt()
         pollThread = null
     }
@@ -152,7 +156,7 @@ open class Mcp23017Full(transport: it.uhde.periph.transport.Transport, addr: Int
         fun setPullUp(pullUp: Boolean) {
             val port = n shr 3
             val bit  = n and 7
-            val reg  = REG_GPPUA + port
+            val reg  = Mcp23017Minimal.REG_GPPUA + port
             val cur  = chip.readReg(reg)
             chip.writeReg(reg, if (pullUp) cur or (1 shl bit) else cur and (1 shl bit).inv())
         }

@@ -323,6 +323,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "mcp23017_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mcp23017_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mcp23017_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mcp23017_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "mcp4725_complete"
 version = "0.1.0"
 dependencies = [
@@ -424,6 +460,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "pcf8574_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8574_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8574_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8574_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "periph"
 version = "0.1.0"
 dependencies = [
@@ -491,6 +562,38 @@ name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+
+[[package]]
+name = "sk6812rgbw_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "sk6812rgbw_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "sk6812rgbw_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "sk6812rgbw_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
 
 [[package]]
 name = "smbus_test"

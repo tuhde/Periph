@@ -36,6 +36,8 @@ class Mcp23017Minimal:
 
     _REG_IODIRA = 0x00
     _REG_IODIRB = 0x01
+    _REG_IPOLA  = 0x02
+    _REG_IPOLB  = 0x03
     _REG_GPPUA  = 0x0C
     _REG_GPPUB  = 0x0D
     _REG_GPIOA  = 0x12
@@ -52,6 +54,10 @@ class Mcp23017Minimal:
         self._write_reg(self._REG_OLATB, 0x00)
         self._write_reg(self._REG_IODIRA, 0x7F)
         self._write_reg(self._REG_IODIRB, 0x7F)
+        self._write_reg(self._REG_IPOLA, 0x00)
+        self._write_reg(self._REG_IPOLB, 0x00)
+        self._write_reg(self._REG_GPPUA, 0x00)
+        self._write_reg(self._REG_GPPUB, 0x00)
 
     def _write_reg(self, reg, value):
         self._transport.write(bytes([reg, value]))
@@ -62,10 +68,10 @@ class Mcp23017Minimal:
 
     def _write_port(self, port, mask):
         self._shadow[port & 1] = mask & 0xFF
-        self._write_reg(0x14 + (port & 1), mask)
+        self._write_reg(self._REG_OLATA + (port & 1), mask)
 
     def _read_port_raw(self, port):
-        return self._read_reg(0x12 + (port & 1), 1)[0]
+        return self._read_reg(self._REG_GPIOA + (port & 1), 1)[0]
 
     def _set_pin(self, n, value):
         port = n >> 3
@@ -124,8 +130,8 @@ class Mcp23017Minimal:
         GPA7 (n=7) and GPB7 (n=15) are output-only.
         """
 
-        IN  = Mcp23017Minimal.IN
-        OUT = Mcp23017Minimal.OUT
+        IN  = 0
+        OUT = 1
 
         def __init__(self, chip, n):
             self._chip = chip
@@ -147,7 +153,7 @@ class Mcp23017Minimal:
             else:
                 dir_mask = self._chip._direction[port] & ~(1 << bit)
             self._chip._direction[port] = dir_mask
-            self._chip._write_reg(0x00 + port, dir_mask)
+            self._chip._write_reg(self._chip._REG_IODIRA + port, dir_mask)
 
         def value(self, x=None):
             """Read or write the pin.
@@ -204,7 +210,7 @@ class Mcp23017Minimal:
             else:
                 dir_mask = self._chip._direction[port] & ~(1 << bit)
             self._chip._direction[port] = dir_mask
-            self._chip._write_reg(0x00 + port, dir_mask)
+            self._chip._write_reg(self._chip._REG_IODIRA + port, dir_mask)
 
         @property
         def value(self):
@@ -264,6 +270,10 @@ class Mcp23017Full(Mcp23017Minimal):
         self._write_reg(self._REG_OLATB, 0x00)
         self._write_reg(self._REG_IODIRA, 0x7F)
         self._write_reg(self._REG_IODIRB, 0x7F)
+        self._write_reg(self._REG_IPOLA, 0x00)
+        self._write_reg(self._REG_IPOLB, 0x00)
+        self._write_reg(self._REG_GPPUA, 0x00)
+        self._write_reg(self._REG_GPPUB, 0x00)
         self._callback = None
         self._int_pin = None
         self._poll_thread = None
@@ -280,7 +290,7 @@ class Mcp23017Full(Mcp23017Minimal):
             mask: 8-bit mask; bit n = 1 enables pull-up on pin n.
         """
         self._pullup[port & 1] = mask & 0xFF
-        self._write_reg(0x0C + (port & 1), mask)
+        self._write_reg(self._REG_GPPUA + (port & 1), mask)
 
     def configure_polarity(self, port, mask):
         """Set input polarity inversion per pin.
@@ -289,7 +299,7 @@ class Mcp23017Full(Mcp23017Minimal):
             port: Port index, 0 = PORTA, 1 = PORTB.
             mask: 8-bit mask; bit n = 1 inverts GPIO read for pin n.
         """
-        self._write_reg(0x02 + (port & 1), mask)
+        self._write_reg(self._REG_IPOLA + (port & 1), mask)
 
     def configure_interrupt(self, port, int_pin, callback, mode='change', mirror=False):
         """Enable interrupt for a port.
@@ -327,7 +337,7 @@ class Mcp23017Full(Mcp23017Minimal):
             port: Port index, 0 = PORTA, 1 = PORTB.
             mask: 8-bit default compare value.
         """
-        self._write_reg(0x06 + (port & 1), mask)
+        self._write_reg(self._REG_DEFVALA + (port & 1), mask)
 
     def clear_interrupt(self, port):
         """Read INTCAP and return captured port state; clears INT for the port.
@@ -338,7 +348,7 @@ class Mcp23017Full(Mcp23017Minimal):
         Returns:
             int: 8-bit captured port bitmask at the moment of interrupt.
         """
-        return self._read_reg(0x10 + (port & 1), 1)[0]
+        return self._read_reg(self._REG_INTCAPA + (port & 1), 1)[0]
 
     def read_interrupt_flags(self, port):
         """Read INTFA/INTFB without clearing the interrupt.
@@ -349,7 +359,7 @@ class Mcp23017Full(Mcp23017Minimal):
         Returns:
             int: 8-bit interrupt flag mask.
         """
-        return self._read_reg(0x0E + (port & 1), 1)[0]
+        return self._read_reg(self._REG_INTFA + (port & 1), 1)[0]
 
     def stop_interrupt(self, port):
         """Disable interrupt for the port.
@@ -427,4 +437,4 @@ class Mcp23017Full(Mcp23017Minimal):
             else:
                 cur &= ~(1 << bit)
             self._chip._pullup[port] = cur
-            self._chip._write_reg(0x0C + port, cur)
+            self._chip._write_reg(self._chip._REG_GPPUA + port, cur)

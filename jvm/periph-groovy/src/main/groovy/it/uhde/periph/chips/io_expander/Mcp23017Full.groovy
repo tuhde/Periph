@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
+import it.uhde.periph.transport.Transport
 
 /**
  * MCP23017 full interface — extends [Mcp23017Minimal] with pull-up
@@ -20,12 +21,14 @@ class Mcp23017Full extends Mcp23017Minimal {
     private Thread pollThread
     private volatile boolean running = false
 
-    private static final int REG_GPPUA   = 0x0C
-    private static final int REG_GPPUB   = 0x0D
-    private static final int REG_INTFA   = 0x0E
-    private static final int REG_INTFB   = 0x0F
-    private static final int REG_INTCAPA = 0x10
-    private static final int REG_INTCAPB = 0x11
+    private static final int REG_GPINTENA = 0x04
+    private static final int REG_GPINTENB = 0x05
+    private static final int REG_INTCONA  = 0x08
+    private static final int REG_INTCONB  = 0x09
+    private static final int REG_INTFA    = 0x0E
+    private static final int REG_INTFB    = 0x0F
+    private static final int REG_INTCAPA  = 0x10
+    private static final int REG_INTCAPB  = 0x11
 
     /**
      * Construct the full driver.
@@ -69,7 +72,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @param mask 8-bit mask; bit n = 1 inverts the GPIO read for pin n
      */
     void configurePolarity(int port, int mask) {
-        writeReg(0x02 + port, mask & 0xFF)
+        writeReg(REG_IPOLA + port, mask & 0xFF)
     }
 
     /**
@@ -84,8 +87,8 @@ class Mcp23017Full extends Mcp23017Minimal {
         this.callback = callback
         this.running  = true
         try {
-            writeReg(0x04 + port, 0xFF)
-            writeReg(0x08 + port, 0x00)
+            writeReg(REG_GPINTENA + port, 0xFF)
+            writeReg(REG_INTCONA  + port, 0x00)
         } catch (IOException e) { }
         startPolling()
     }
@@ -138,7 +141,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      */
     void stopInterrupt(int port) {
         running = false
-        try { writeReg(0x04 + port, 0x00) } catch (IOException e) { }
+        try { writeReg(REG_GPINTENA + port, 0x00) } catch (IOException e) { }
         if (pollThread) {
             pollThread.interrupt()
             pollThread = null

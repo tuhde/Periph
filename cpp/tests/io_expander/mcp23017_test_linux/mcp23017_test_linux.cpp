@@ -11,7 +11,7 @@
 
 static int passed = 0, failed = 0;
 
-static void check_true(bool cond, const char *label) {
+static void check_true(const char *label, bool cond) {
     if (cond) { printf("PASS %s\n", label); passed++; }
     else       { printf("FAIL %s\n", label); failed++; }
 }
@@ -41,7 +41,7 @@ int main() {
     p7.mode(OUTPUT);
     p7.low();
     check_eq("pin7_off", mcp._shadow[0] & 0x80, 0x00);
-    p7.on();
+    p7.high();
     check_eq("pin7_on", mcp._shadow[0] & 0x80, 0x80);
     p7.toggle();
     check_eq("pin7_toggle", mcp._shadow[0] & 0x80, 0x00);
@@ -50,8 +50,23 @@ int main() {
     p15.mode(OUTPUT);
     p15.low();
     check_eq("pin15_off", mcp._shadow[1] & 0x80, 0x00);
-    p15.on();
+    p15.high();
     check_eq("pin15_on", mcp._shadow[1] & 0x80, 0x80);
+
+    // Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n]
+    for (uint8_t n = 0; n <= 7; n++) { auto p = mcp.pin(n); p.mode(OUTPUT); }
+
+    mcp.write_port(0, 0xAA);  // PA0=0, avoids contention with PB7 output
+    uint8_t pb = mcp.read_port(1);
+    check_eq("loopback_0xAA", pb & 0x7F, 0x55);
+
+    mcp.write_port(0, 0xFE);  // PA0=0, PA1–PA7=1
+    pb = mcp.read_port(1);
+    check_eq("loopback_0xFE", pb & 0x7F, 0x7F);
+
+    mcp.write_port(0, 0x00);
+    pb = mcp.read_port(1);
+    check_eq("loopback_0x00", pb & 0x7F, 0x00);
 
     MCP23017Full full(transport);
     check_eq("full_init_iodira", full._direction[0], 0x7F);

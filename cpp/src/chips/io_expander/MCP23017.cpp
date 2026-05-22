@@ -11,10 +11,14 @@ static inline void delay_ms(unsigned long ms) { delay(ms); }
 
 MCP23017Minimal::MCP23017Minimal(Transport& transport, uint8_t addr)
     : _transport(transport), _addr(addr) {
-    _write_reg(REG_OLATA, 0x00);
-    _write_reg(REG_OLATB, 0x00);
+    _write_reg(REG_OLATA,  0x00);
+    _write_reg(REG_OLATB,  0x00);
     _write_reg(REG_IODIRA, 0x7F);
     _write_reg(REG_IODIRB, 0x7F);
+    _write_reg(REG_IPOLA,  0x00);
+    _write_reg(REG_IPOLB,  0x00);
+    _write_reg(REG_GPPUA,  0x00);
+    _write_reg(REG_GPPUB,  0x00);
 }
 
 void MCP23017Minimal::_write_reg(uint8_t reg, uint8_t value) {
@@ -30,11 +34,11 @@ uint8_t MCP23017Minimal::_read_reg(uint8_t reg) {
 
 void MCP23017Minimal::_write_port(uint8_t port, uint8_t mask) {
     _shadow[port & 1] = mask;
-    _write_reg(0x14 + (port & 1), mask);
+    _write_reg(REG_OLATA + (port & 1), mask);
 }
 
 uint8_t MCP23017Minimal::_read_port_raw(uint8_t port) {
-    return _read_reg(0x12 + (port & 1));
+    return _read_reg(REG_GPIOA + (port & 1));
 }
 
 void MCP23017Minimal::_set_pin(uint8_t n, uint8_t value) {
@@ -60,7 +64,7 @@ void MCP23017Minimal::IOExpanderPin::mode(uint8_t m) {
         dir_mask &= ~(1 << _bit);
     }
     _chip._direction[_port] = dir_mask;
-    _chip._write_reg(0x00 + _port, dir_mask);
+    _chip._write_reg(REG_IODIRA + _port, dir_mask);
 }
 
 void MCP23017Minimal::IOExpanderPin::write(uint8_t v) {
@@ -96,7 +100,7 @@ void MCP23017Full::IOExpanderPin::mode(uint8_t m) {
     if (m == INPUT_PULLUP) {
         uint8_t pull = _full_chip._pullup[_port] | (1 << _bit);
         _full_chip._pullup[_port] = pull;
-        _full_chip._write_reg(0x0C + _port, pull);
+        _full_chip._write_reg(REG_GPPUA + _port, pull);
     }
 }
 
@@ -117,12 +121,12 @@ MCP23017Full::IOExpanderPin MCP23017Full::pin(uint8_t n) {
 void MCP23017Full::configure_pullup(uint8_t port, uint8_t mask) {
     port &= 1;
     _pullup[port] = mask;
-    _write_reg(0x0C + port, mask);
+    _write_reg(REG_GPPUA + port, mask);
 }
 
 void MCP23017Full::configure_polarity(uint8_t port, uint8_t mask) {
     port &= 1;
-    _write_reg(0x02 + port, mask);
+    _write_reg(REG_IPOLA + port, mask);
 }
 
 void MCP23017Full::configure_interrupt(uint8_t port, int int_gpio_pin,
@@ -131,27 +135,27 @@ void MCP23017Full::configure_interrupt(uint8_t port, int int_gpio_pin,
     port &= 1;
     _callback = callback;
     uint8_t intcon_val = (mode && mode[0] == 'd') ? 0xFF : 0x00;
-    _write_reg(0x08 + port, intcon_val);
-    _write_reg(0x04 + port, 0xFF);
+    _write_reg(REG_INTCONA  + port, intcon_val);
+    _write_reg(REG_GPINTENA + port, 0xFF);
     uint8_t iocon = _read_reg(REG_IOCON);
     if (mirror) iocon |= (1 << 6);
     _write_reg(REG_IOCON, iocon);
 }
 
 void MCP23017Full::set_default_value(uint8_t port, uint8_t mask) {
-    _write_reg(0x06 + (port & 1), mask);
+    _write_reg(REG_DEFVALA + (port & 1), mask);
 }
 
 uint8_t MCP23017Full::clear_interrupt(uint8_t port) {
-    return _read_reg(0x10 + (port & 1));
+    return _read_reg(REG_INTCAPA + (port & 1));
 }
 
 uint8_t MCP23017Full::read_interrupt_flags(uint8_t port) {
-    return _read_reg(0x0E + (port & 1));
+    return _read_reg(REG_INTFA + (port & 1));
 }
 
 void MCP23017Full::stop_interrupt(uint8_t port) {
-    _write_reg(0x04 + (port & 1), 0x00);
+    _write_reg(REG_GPINTENA + (port & 1), 0x00);
 }
 
 void MCP23017Full::_dispatch(MCP23017Full* chip, uint8_t changed) {

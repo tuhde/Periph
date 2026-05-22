@@ -1,25 +1,15 @@
 """MCP23017 hardware test — Linux (smbus2 /dev/i2c-N).
 
-Requires environment variables or _testconfig.py:
-    I2C_BUS, ADDR
+Configuration via environment variables (set directly or via test_linux.sh + testconfig):
+    LINUX_I2C_BUS  — I²C bus number (default 1)
+    I2C_ADDR       — device address in hex (default 0x20)
 """
 import os
 import sys
 import time
 
-try:
-    import smbus2 as smbus
-    _HAVE_SMBUS = True
-except ImportError:
-    _HAVE_SMBUS = False
-
-try:
-    import _testconfig as cfg
-    I2C_BUS = getattr(cfg, 'I2C_BUS', int(os.environ.get('I2C_BUS', 1)))
-    ADDR = getattr(cfg, 'ADDR', int(os.environ.get('ADDR', '0x20'), 16))
-except Exception:
-    I2C_BUS = int(os.environ.get('I2C_BUS', 1))
-    ADDR = int(os.environ.get('ADDR', '0x20'), 16)
+I2C_BUS = int(os.environ.get('LINUX_I2C_BUS', 1))
+ADDR    = int(os.environ.get('I2C_ADDR', '0x20'), 16)
 
 from periph.transport.i2c_linux import I2CTransport
 from periph.chips.io_expander.mcp23017 import Mcp23017Minimal, Mcp23017Full
@@ -82,6 +72,22 @@ p15.off()
 check_eq('pin15_off', chip._shadow[1] & 0x80, 0x00)
 p15.on()
 check_eq('pin15_on', chip._shadow[1] & 0x80, 0x80)
+
+# --- Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n] ---
+for n in range(8):
+    chip.pin(n, Mcp23017Minimal.OUT)
+
+chip.write_port(0, 0xAA)          # PA0=0, avoids contention with PB7 output
+pb = chip.read_port(1)
+check_eq('loopback_0xAA', pb & 0x7F, 0x55)
+
+chip.write_port(0, 0xFE)          # PA0=0, PA1–PA7=1
+pb = chip.read_port(1)
+check_eq('loopback_0xFE', pb & 0x7F, 0x7F)
+
+chip.write_port(0, 0x00)
+pb = chip.read_port(1)
+check_eq('loopback_0x00', pb & 0x7F, 0x00)
 
 full = Mcp23017Full(transport)
 check_eq('full_init_iodira', full._direction[0], 0x7F)

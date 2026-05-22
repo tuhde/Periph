@@ -35,14 +35,27 @@ use embedded_hal::i2c::I2c;
 // Register addresses (IOCON.BANK = 0)
 // ============================================================
 
-const REG_IODIRA: u8 = 0x00;
-const REG_IODIRB: u8 = 0x01;
-const REG_GPPUA:  u8 = 0x0C;
-const REG_GPPUB:  u8 = 0x0D;
-const REG_GPIOA:  u8 = 0x12;
-const REG_GPIOB:  u8 = 0x13;
-const REG_OLATA:  u8 = 0x14;
-const REG_OLATB:  u8 = 0x15;
+const REG_IODIRA:  u8 = 0x00;
+const REG_IODIRB:  u8 = 0x01;
+const REG_IPOLA:   u8 = 0x02;
+const REG_IPOLB:   u8 = 0x03;
+const REG_GPINTENA: u8 = 0x04;
+const REG_GPINTENB: u8 = 0x05;
+const REG_DEFVALA:  u8 = 0x06;
+const REG_DEFVALB:  u8 = 0x07;
+const REG_INTCONA:  u8 = 0x08;
+const REG_INTCONB:  u8 = 0x09;
+const REG_IOCON:    u8 = 0x0A;
+const REG_GPPUA:    u8 = 0x0C;
+const REG_GPPUB:    u8 = 0x0D;
+const REG_INTFA:    u8 = 0x0E;
+const REG_INTFB:    u8 = 0x0F;
+const REG_INTCAPA:  u8 = 0x10;
+const REG_INTCAPB:  u8 = 0x11;
+const REG_GPIOA:    u8 = 0x12;
+const REG_GPIOB:    u8 = 0x13;
+const REG_OLATA:    u8 = 0x14;
+const REG_OLATB:    u8 = 0x15;
 
 // ============================================================
 // Errors
@@ -68,7 +81,7 @@ impl<E: embedded_hal::i2c::Error> embedded_hal::digital::Error for PinError<E> {
 pub struct Mcp23017Minimal<I2C> {
     i2c:    RefCell<I2C>,
     addr:   u8,
-    shadow: [Cell<u8>; 2],
+    pub shadow: [Cell<u8>; 2],
 }
 
 impl<I2C: I2c> Mcp23017Minimal<I2C> {
@@ -86,10 +99,14 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
             addr,
             shadow: [Cell::new(0), Cell::new(0)],
         };
-        chip.write_reg(REG_OLATA, 0)?;
-        chip.write_reg(REG_OLATB, 0)?;
+        chip.write_reg(REG_OLATA,  0x00)?;
+        chip.write_reg(REG_OLATB,  0x00)?;
         chip.write_reg(REG_IODIRA, 0x7F)?;
         chip.write_reg(REG_IODIRB, 0x7F)?;
+        chip.write_reg(REG_IPOLA,  0x00)?;
+        chip.write_reg(REG_IPOLB,  0x00)?;
+        chip.write_reg(REG_GPPUA,  0x00)?;
+        chip.write_reg(REG_GPPUB,  0x00)?;
         Ok(chip)
     }
 
@@ -103,6 +120,15 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
         let mut buf = [0u8; 1];
         self.i2c.borrow_mut().write_read(self.addr, &[reg], &mut buf)?;
         Ok(buf[0])
+    }
+
+    /// Configure the direction (IODIR) of a full port.
+    ///
+    /// # Arguments
+    /// * `port` — 0 = PORTA (IODIRA), 1 = PORTB (IODIRB).
+    /// * `mask` — 8-bit mask; bit = 1 → input, 0 → output.
+    pub fn configure_direction(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
+        self.write_reg(REG_IODIRA + port, mask)
     }
 
     /// Write all 8 output pins of a port via the output latch.
@@ -124,7 +150,7 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
     /// # Arguments
     /// * `port` — 0 = PORTA (GPIOA), 1 = PORTB (GPIOB).
     pub fn read_port(&self, port: u8) -> Result<u8, I2C::Error> {
-        self.read_reg(GPIOA + port)
+        self.read_reg(REG_GPIOA + port)
     }
 
     /// Return an [`ExPin`] proxy for pin `n` (0–15).
@@ -217,10 +243,10 @@ impl<I2C: I2c> StatefulOutputPin for ExPin<'_, I2C> {
 /// epoll is used instead.
 pub struct Mcp23017Full<I2C> {
     inner:  Mcp23017Minimal<I2C>,
-    prev:   [Cell<u8>; 2],
+    pub prev:   [Cell<u8>; 2],
     flags:  Cell<u8>,
     #[allow(dead_code)]
-    callback: Cell<Option<Box<dyn Fn(u8, u8) + Send + 'static>>>,
+    callback: Cell<Option<fn(u8, u8)>>,
     poll_timer: Cell<Option<core::time::Duration>>,
 }
 
@@ -274,7 +300,7 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
     /// * `port` — 0 = PORTA (IPOLA), 1 = PORTB (IPOLB).
     /// * `mask` — 8-bit mask: bit n = 1 inverts the GPIO read for pin n.
     pub fn configure_polarity(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
-        self.inner.write_reg(0x02 + port, mask)
+        self.inner.write_reg(REG_IPOLA + port, mask)
     }
 
     /// Read and clear the interrupt for a port, returning the changed-pin bitmask.
@@ -287,8 +313,8 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
     /// Returns an 8-bit mask where bit n = 1 means pin n changed since the
     /// last call to `clear_interrupt`.
     pub fn clear_interrupt(&self, port: u8) -> Result<u8, I2C::Error> {
-        let captured = self.inner.read_reg(0x10 + port)?;
-        let current  = self.inner.read_reg(GPIOA + port)?;
+        let captured = self.inner.read_reg(REG_INTCAPA + port)?;
+        let current  = self.inner.read_reg(REG_GPIOA   + port)?;
         let changed  = (current ^ self.prev[port as usize].get()) & 0xFF;
         self.prev[port as usize].set(current);
         Ok(changed)
@@ -301,6 +327,6 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
     ///
     /// Returns an 8-bit mask where bit n = 1 means pin n triggered an interrupt.
     pub fn read_interrupt_flags(&self, port: u8) -> Result<u8, I2C::Error> {
-        self.inner.read_reg(0x0E + port)
+        self.inner.read_reg(REG_INTFA + port)
     }
 }

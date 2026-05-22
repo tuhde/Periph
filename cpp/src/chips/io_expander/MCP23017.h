@@ -85,6 +85,8 @@ public:
 protected:
     static constexpr uint8_t REG_IODIRA = 0x00;
     static constexpr uint8_t REG_IODIRB = 0x01;
+    static constexpr uint8_t REG_IPOLA  = 0x02;
+    static constexpr uint8_t REG_IPOLB  = 0x03;
     static constexpr uint8_t REG_GPPUA  = 0x0C;
     static constexpr uint8_t REG_GPPUB  = 0x0D;
     static constexpr uint8_t REG_GPIOA  = 0x12;
@@ -94,8 +96,11 @@ protected:
 
     Transport& _transport;
     uint8_t   _addr;
-    uint8_t   _shadow[2] = {0, 0};
+
+public:
+    uint8_t   _shadow[2]    = {0, 0};
     uint8_t   _direction[2] = {0x7F, 0x7F};
+protected:
 
     void _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
@@ -207,8 +212,6 @@ public:
     void stop_interrupt(uint8_t port);
 
 protected:
-    static constexpr uint8_t REG_IPOLA    = 0x02;
-    static constexpr uint8_t REG_IPOLB    = 0x03;
     static constexpr uint8_t REG_GPINTENA = 0x04;
     static constexpr uint8_t REG_GPINTENB = 0x05;
     static constexpr uint8_t REG_DEFVALA  = 0x06;
@@ -221,7 +224,9 @@ protected:
     static constexpr uint8_t REG_INTCAPA  = 0x10;
     static constexpr uint8_t REG_INTCAPB  = 0x11;
 
+public:
     uint8_t _pullup[2] = {0, 0};
+protected:
     void (*_callback)(uint8_t) = nullptr;
 
     static void _dispatch(MCP23017Full* chip, uint8_t changed);

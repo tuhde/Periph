@@ -22,33 +22,41 @@ import it.uhde.periph.transport.Transport
 open class Mcp23017Minimal(protected val transport: Transport, val addr: Int = 0x20) {
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
-    protected val shadow = intArrayOf(0, 0)
+    val shadow = intArrayOf(0, 0)
 
     companion object {
-        private const val REG_IODIRA = 0x00
-        private const val REG_IODIRB = 0x01
-        private const val REG_GPIOA  = 0x12
-        private const val REG_GPIOB  = 0x13
-        private const val REG_OLATA  = 0x14
-        private const val REG_OLATB  = 0x15
+        internal const val REG_IODIRA = 0x00
+        internal const val REG_IODIRB = 0x01
+        internal const val REG_IPOLA  = 0x02
+        internal const val REG_IPOLB  = 0x03
+        internal const val REG_GPPUA  = 0x0C
+        internal const val REG_GPPUB  = 0x0D
+        internal const val REG_GPIOA  = 0x12
+        internal const val REG_GPIOB  = 0x13
+        internal const val REG_OLATA  = 0x14
+        internal const val REG_OLATB  = 0x15
     }
 
     init {
-        writeReg(REG_OLATA, 0x00)
-        writeReg(REG_OLATB, 0x00)
+        writeReg(REG_OLATA,  0x00)
+        writeReg(REG_OLATB,  0x00)
         writeReg(REG_IODIRA, 0x7F)
         writeReg(REG_IODIRB, 0x7F)
+        writeReg(REG_IPOLA,  0x00)
+        writeReg(REG_IPOLB,  0x00)
+        writeReg(REG_GPPUA,  0x00)
+        writeReg(REG_GPPUB,  0x00)
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    private fun writeReg(reg: Int, value: Int) {
+    internal fun writeReg(reg: Int, value: Int) {
         transport.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte()))
     }
 
-    private fun readReg(reg: Int): Int {
+    internal fun readReg(reg: Int): Int {
         return transport.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
     }
 
@@ -85,7 +93,7 @@ open class Mcp23017Minimal(protected val transport: Transport, val addr: Int = 0
      * @param n pin index (0–15)
      * @return Pin proxy backed by this driver
      */
-    fun pin(n: Int): Pin = Pin(this, n)
+    open fun pin(n: Int): Pin = Pin(this, n)
 
     // -------------------------------------------------------------------------
     // Internal pin operations

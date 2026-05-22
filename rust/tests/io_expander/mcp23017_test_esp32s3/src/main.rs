@@ -97,6 +97,21 @@ fn main() -> ! {
     chip.write_port(0, 0x00).ok();
     chip.write_port(1, 0x00).ok();
 
+    // Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n]
+    chip.configure_direction(0, 0x00).ok();  // PA all outputs
+
+    chip.write_port(0, 0xAA).ok();           // PA0=0, avoids contention with PB7 output
+    let pb = chip.read_port(1).unwrap_or(0xFF);
+    check_eq!(pb & 0x7F, 0x55, "loopback_aa", passed, failed);
+
+    chip.write_port(0, 0xFE).ok();           // PA0=0, PA1–PA7=1
+    let pb = chip.read_port(1).unwrap_or(0xFF);
+    check_eq!(pb & 0x7F, 0x7F, "loopback_fe", passed, failed);
+
+    chip.write_port(0, 0x00).ok();
+    let pb = chip.read_port(1).unwrap_or(0xFF);
+    check_eq!(pb & 0x7F, 0x00, "loopback_00", passed, failed);
+
     // --- Mcp23017Full ---
     let i2c2 = I2c::new(peripherals.I2C1, Config::default())
         .unwrap()
