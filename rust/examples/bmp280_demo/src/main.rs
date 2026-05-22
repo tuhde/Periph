@@ -16,7 +16,7 @@ fn main() {
         let t = bmp.temperature().expect("read temperature");             // Read temperature, () → f32 C
         let p = bmp.pressure().expect("read pressure");                   // Read pressure, () → f32 hPa
         let a = bmp.altitude(1013.25).expect("compute altitude");         // Compute altitude, (sea_level_hpa=1013.25) → f32 m
-        println!("{:4d}s: {:.2f} C   {:.2f} hPa   {:.2f} m", n, t, p, a);
+        println!("{:4}s: {:.2} C   {:.2} hPa   {:.2} m", n, t, p, a);
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
 
@@ -32,9 +32,9 @@ fn main() {
         let a = bmp.altitude(1013.25).expect("compute altitude");         // Compute altitude, (sea_level_hpa=1013.25) → f32 m
         let da = (a - prev_alt) * 100.0;
         if n > 0 {
-            println!("{:4d}:  {:.4f}   {:+.1f} cm", n, a, da);
+            println!("{:4}:  {:.4}   {:+.1} cm", n, a, da);
         } else {
-            println!("{:4d}:  {:.4f}", n, a);
+            println!("{:4}:  {:.4}", n, a);
         }
         prev_alt = a;
         std::thread::sleep(std::time::Duration::from_secs(1));
