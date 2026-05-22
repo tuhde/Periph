@@ -7,7 +7,7 @@ class Pcf8575Full(transport: Transport) : Pcf8575Minimal(transport) {
     private var prev = intArrayOf(0xFF, 0xFF)
     private var callback: ((Int) -> Unit)? = null
     private var pollThread: Thread? = null
-    private var pollStop = false
+    @Volatile private var pollStop = false
 
     init {
         val buf = transport.read(2)
@@ -18,8 +18,7 @@ class Pcf8575Full(transport: Transport) : Pcf8575Minimal(transport) {
     fun configureInterrupt(callback: (Int) -> Unit) {
         this.callback = callback
         pollStop = false
-        pollThread = Thread { pollLoop() }
-        pollThread?.daemon = true
+        pollThread = Thread { pollLoop() }.also { it.isDaemon = true }
         pollThread?.start()
     }
 
@@ -30,14 +29,14 @@ class Pcf8575Full(transport: Transport) : Pcf8575Minimal(transport) {
                 val ch0 = (current[0].toInt() xor prev[0]) and 0xFF
                 val ch1 = (current[1].toInt() xor prev[1]) and 0xFF
                 val changed = ch0 or (ch1 shl 8)
-                if (changed != 0 && callback != null) {
+                if (changed != 0) {
                     prev[0] = current[0].toInt() and 0xFF
                     prev[1] = current[1].toInt() and 0xFF
-                    callback.invoke(changed)
+                    callback?.invoke(changed)
                 }
                 Thread.sleep(5)
             }
-        } catch (e: Exception) { }
+        } catch (_: Exception) { }
     }
 
     fun clearInterrupt(): Int {
@@ -52,5 +51,6 @@ class Pcf8575Full(transport: Transport) : Pcf8575Minimal(transport) {
     fun stopInterrupt() {
         pollStop = true
         pollThread?.interrupt()
+        pollThread = null
     }
 }
