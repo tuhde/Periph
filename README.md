@@ -79,6 +79,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|-----|--------|
 | BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
