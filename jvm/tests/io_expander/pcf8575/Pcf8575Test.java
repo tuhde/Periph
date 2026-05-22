@@ -62,6 +62,21 @@ public class Pcf8575Test {
             boolean v = p0.read();
             checkTrue("pin_read_returns_boolean", v == true || v == false);
 
+            // --- Loopback: port 0 (outputs) → port 1 (inputs); P0x ↔ P1(7-x) ---
+            chip.writePort(1, 0xFF);
+
+            chip.writePort(0, 0xAA);
+            checkEq("loopback_0xAA", chip.readPort(1), 0x55);
+
+            chip.writePort(0, 0xF0);
+            checkEq("loopback_0xF0", chip.readPort(1), 0x0F);
+
+            chip.writePort(0, 0x00);
+            checkEq("loopback_0x00", chip.readPort(1), 0x00);
+
+            chip.writePort(0, 0xFF);
+            chip.writePort(1, 0xFF);
+
             // --- Full: clear_interrupt returns int in [0, 65535] ---
             var full = new Pcf8575Full(transport);
             int changed = full.clearInterrupt();

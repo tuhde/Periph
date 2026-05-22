@@ -116,7 +116,7 @@ void PCF8575Full::_dispatch(PCF8575Full* chip, uint8_t changed) {
         chip->_callback(changed);
 }
 
-void PCF8575Full::configure_interrupt(int int_gpio_pin, void (*callback)(uint8_t)) {
+void PCF8575Full::configure_interrupt(int int_gpio_pin, std::function<void(uint8_t)> callback) {
     _callback = callback;
 
 #ifdef __linux__

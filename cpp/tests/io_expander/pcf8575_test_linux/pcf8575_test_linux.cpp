@@ -1,32 +1,27 @@
+#ifndef TEST_I2C_BUS
+#define TEST_I2C_BUS 1
+#endif
+#ifndef TEST_ADDR
+#define TEST_ADDR 0x20
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
-#include "PCF8575.h"
 
-class LinuxI2CTransport {
-public:
-    LinuxI2CTransport(int bus_num, uint8_t addr) {
-        char path[32];
-        snprintf(path, sizeof(path), "/dev/i2c-%d", bus_num);
-        fd = open(path, O_RDWR);
-        this->addr = addr;
-    }
-    void write(const uint8_t* data, size_t len) {
-        ::write(fd, data, len);
-    }
-    void read(uint8_t* buf, size_t len) {
-        ::ioctl(fd, I2C_SLAVE, addr);
-        ::read(fd, buf, len);
-    }
-    ~LinuxI2CTransport() { close(fd); }
-private:
-    int fd;
-    uint8_t addr;
-};
+#ifndef OUTPUT
+#define INPUT        0
+#define OUTPUT       1
+#define INPUT_PULLUP 2
+#define HIGH         1
+#define LOW          0
+#define RISING       1
+#define FALLING      2
+#define CHANGE       3
+#endif
+
+#include "I2CTransportLinux.h"
+#include "PCF8575.h"
 
 static int passed = 0;
 static int failed = 0;
@@ -42,10 +37,7 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    int bus_num = std::getenv("I2C_BUS") ? std::atoi(std::getenv("I2C_BUS")) : 1;
-    uint8_t addr = std::getenv("I2C_ADDR") ? std::atoi(std::getenv("I2C_ADDR")) : 0x20;
-
-    LinuxI2CTransport transport(bus_num, addr);
+    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
     PCF8575Minimal chip(transport);
 
     check_eq("init_shadow_0", chip._shadow[0], 0xFF);
@@ -73,6 +65,21 @@ int main() {
     check_eq("pin_toggle_shadow", chip._shadow[0] & 0x01, 0x00);
     p0.write(HIGH);
     check_eq("pin_write_high_shadow", chip._shadow[0] & 0x01, 0x01);
+
+    chip.write_port(0, 0xFF);
+    chip.write_port(1, 0xFF);
+
+    // Loopback: port 0 (outputs) → port 1 (inputs); P0x ↔ P1(7-x)
+    chip.write_port(1, 0xFF);
+
+    chip.write_port(0, 0xAA);
+    check_eq("loopback_0xAA", chip.read_port(1), 0x55);
+
+    chip.write_port(0, 0xF0);
+    check_eq("loopback_0xF0", chip.read_port(1), 0x0F);
+
+    chip.write_port(0, 0x00);
+    check_eq("loopback_0x00", chip.read_port(1), 0x00);
 
     chip.write_port(0, 0xFF);
     chip.write_port(1, 0xFF);

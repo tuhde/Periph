@@ -1,6 +1,18 @@
 #pragma once
 #include <stdint.h>
+#include <functional>
 #include "../../transport/Transport.h"
+
+#ifndef OUTPUT
+#define INPUT        0
+#define OUTPUT       1
+#define INPUT_PULLUP 2
+#define HIGH         1
+#define LOW          0
+#define RISING       1
+#define FALLING      2
+#define CHANGE       3
+#endif
 
 /** @brief PCF8575 16-bit quasi-bidirectional I/O port expander — minimal interface.
  *
@@ -151,7 +163,7 @@ public:
      *         sysfs GPIO number on Linux, or pin index on Zephyr).
      *  @param callback void(*)(uint8_t changed_mask); called on any input change.
      */
-    void configure_interrupt(int int_gpio_pin, void (*callback)(uint8_t));
+    void configure_interrupt(int int_gpio_pin, std::function<void(uint8_t)> callback);
 
     /** @brief Read both ports and return 16-bit bitmask of pins that changed.
      *  @return 16-bit bitmask; bits 0–7 = Port 0 changed, bits 8–15 = Port 1 changed.
@@ -160,7 +172,7 @@ public:
 
 private:
     uint8_t  _prev[2] = {0xFF, 0xFF};
-    void   (*_callback)(uint8_t) = nullptr;
+    std::function<void(uint8_t)> _callback;
 
     static void _dispatch(PCF8575Full* chip, uint8_t changed);
 };

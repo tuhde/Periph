@@ -1,7 +1,7 @@
 """PCF8575 hardware test — Linux kernel.
 
 Run on host with:
-    I2C_BUS=1 I2C_ADDR=0x20 python3 pcf8575_test_linux.py
+    LINUX_I2C_BUS=1 I2C_ADDR=0x20 python3 pcf8575_test_linux.py
 """
 import os
 import sys
@@ -39,7 +39,7 @@ def check_eq(label, got, expected):
         failed += 1
 
 
-bus_num = int(os.environ.get('I2C_BUS', 1))
+bus_num = int(os.environ.get('LINUX_I2C_BUS', 1))
 addr = int(os.environ.get('I2C_ADDR', '0x20'), 0)
 
 transport = I2CTransport(bus_num, addr)
@@ -83,6 +83,21 @@ port0_after = chip.read_port(0)
 port1_after = chip.read_port(1)
 check_true('read_after_all_input_0', 0 <= port0_after <= 0xFF)
 check_true('read_after_all_input_1', 0 <= port1_after <= 0xFF)
+
+# --- Loopback: port 0 (outputs) → port 1 (inputs); P0x ↔ P1(7-x) ---
+chip.write_port(1, 0xFF)
+
+chip.write_port(0, 0xAA)
+check_eq('loopback_0xAA', chip.read_port(1), 0x55)
+
+chip.write_port(0, 0xF0)
+check_eq('loopback_0xF0', chip.read_port(1), 0x0F)
+
+chip.write_port(0, 0x00)
+check_eq('loopback_0x00', chip.read_port(1), 0x00)
+
+chip.write_port(0, 0xFF)
+chip.write_port(1, 0xFF)
 
 full = Pcf8575Full(transport)
 changed = full.clear_interrupt()

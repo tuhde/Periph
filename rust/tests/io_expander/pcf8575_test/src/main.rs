@@ -83,6 +83,24 @@ fn main() {
     check_true!(p8.is_set_high().unwrap(), "shadow_restored_p8", passed, failed);
     drop(p8);
 
+    // Loopback: port 0 (outputs) → port 1 (inputs); P0x ↔ P1(7-x)
+    chip1.write_port(1, 0xFF).unwrap();
+
+    chip1.write_port(0, 0xAA).unwrap();
+    let lb0 = chip1.read_port(1).unwrap();
+    check_eq!(lb0, 0x55u8, "loopback_0xAA", passed, failed);
+
+    chip1.write_port(0, 0xF0).unwrap();
+    let lb1 = chip1.read_port(1).unwrap();
+    check_eq!(lb1, 0x0Fu8, "loopback_0xF0", passed, failed);
+
+    chip1.write_port(0, 0x00).unwrap();
+    let lb2 = chip1.read_port(1).unwrap();
+    check_eq!(lb2, 0x00u8, "loopback_0x00", passed, failed);
+
+    chip1.write_port(0, 0xFF).unwrap();
+    chip1.write_port(1, 0xFF).unwrap();
+
     // --- Pcf8575Full ---
     let dev2 = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus (full)");
     let chip2 = Pcf8575Full::new(dev2, addr).expect("init PCF8575 full");
