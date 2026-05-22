@@ -30,7 +30,8 @@ open class Bmp280Minimal @JvmOverloads constructor(
         const val REG_CTRL_MEAS = 0xF4
         const val REG_CONFIG    = 0xF5
         const val REG_DATA      = 0xF7
-        const val CHIP_ID       = 0x58
+        const val CHIP_ID         = 0x58
+        const val CHIP_ID_BME280  = 0x60  // same P/T interface; humidity not supported
     }
 
     // Calibration coefficients
@@ -58,9 +59,10 @@ open class Bmp280Minimal @JvmOverloads constructor(
     init {
         // Verify chip ID
         val id = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
-        if (id[0].toInt() and 0xFF != CHIP_ID) {
+        val chipId = id[0].toInt() and 0xFF
+        if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw IOException(
-                "BMP280 not found: expected chip ID 0x58, got 0x${(id[0].toInt() and 0xFF).toString(16)}"
+                "BMP280/BME280 not found: expected 0x58 or 0x60, got 0x${chipId.toString(16)}"
             )
         }
         readCalibration()

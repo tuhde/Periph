@@ -29,8 +29,9 @@ public class Bmp280Minimal {
     protected static final int REG_CONFIG     = 0xF5;
     protected static final int REG_DATA       = 0xF7;
 
-    // Chip ID
-    protected static final int CHIP_ID = 0x58;
+    // Chip ID — 0x58 = BMP280, 0x60 = BME280 (same P/T interface; humidity not supported)
+    protected static final int CHIP_ID      = 0x58;
+    protected static final int CHIP_ID_BME280 = 0x60;
 
     protected final Transport transport;
 
@@ -80,10 +81,11 @@ public class Bmp280Minimal {
 
         // Verify chip ID
         byte[] id = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
-        if ((id[0] & 0xFF) != CHIP_ID) {
+        int chipId = id[0] & 0xFF;
+        if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw new IOException(
-                    "BMP280 not found: expected chip ID 0x58, got 0x"
-                    + Integer.toHexString(id[0] & 0xFF));
+                    "BMP280/BME280 not found: expected 0x58 or 0x60, got 0x"
+                    + Integer.toHexString(chipId));
         }
 
         readCalibration();

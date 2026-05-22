@@ -19,15 +19,15 @@ public class Bmp280Test {
 
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
-        int addr = Integer.parseInt(System.getenv().getOrDefault("I2C_ADDR", "0x76"), 16);
+        int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
 
         try (var transport = new I2CTransport(bus, addr)) {
 
             var sensor = new Bmp280Full(transport);
 
-            // chipId() — must return 0x58 for BMP280
+            // chipId() — 0x58 = BMP280, 0x60 = BME280 (same P/T interface)
             int id = sensor.chipId();
-            checkTrue("chipId() == 0x58", id == 0x58);
+            checkTrue("chipId() == 0x58 or 0x60", id == 0x58 || id == 0x60);
 
             // temperature() — must be in sensor operating range
             double t = sensor.temperature();

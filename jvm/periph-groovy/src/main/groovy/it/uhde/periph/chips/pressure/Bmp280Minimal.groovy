@@ -28,7 +28,8 @@ class Bmp280Minimal {
     static final int REG_CTRL_MEAS = 0xF4
     static final int REG_CONFIG    = 0xF5
     static final int REG_DATA      = 0xF7
-    static final int CHIP_ID       = 0x58
+    static final int CHIP_ID         = 0x58
+    static final int CHIP_ID_BME280  = 0x60  // same P/T interface; humidity not supported
 
     protected final Transport transport
 
@@ -77,10 +78,11 @@ class Bmp280Minimal {
         this.transport = transport
 
         byte[] id = transport.writeRead([(byte) REG_ID] as byte[], 1)
-        if ((id[0] & 0xFF) != CHIP_ID) {
+        int chipId = id[0] & 0xFF
+        if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw new IOException(
-                "BMP280 not found: expected chip ID 0x58, got 0x" +
-                Integer.toHexString(id[0] & 0xFF))
+                "BMP280/BME280 not found: expected 0x58 or 0x60, got 0x" +
+                Integer.toHexString(chipId))
         }
 
         readCalibration()
@@ -154,7 +156,7 @@ class Bmp280Minimal {
         var1 = ((1L << 47) + var1) * ((long) digP1 & 0xFFFFL) >> 33
         if (var1 == 0L) return 0.0
         long p = 1048576L - (long) adcP
-        p = ((p << 31) - var2) * 3125L / var1
+        p = (((p << 31) - var2) * 3125L / var1).toLong()
         var1 = ((long) digP9 * (p >> 13) * (p >> 13)) >> 25
         var2 = ((long) digP8 * p) >> 19
         p = ((p + var1 + var2) >> 8) + ((long) digP7 << 4)
