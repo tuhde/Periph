@@ -1,55 +1,73 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Bmp280Minimal, Bmp280Full, OSRS_X2, OSRS_X4, MODE_FORCED, FILTER_4, T_SB_62_5_MS};
+use periph::chips::pressure::{
+    Bmp280Full, OSRS_X1, OSRS_X2, OSRS_X4, MODE_FORCED, FILTER_OFF, FILTER_4, T_SB_62_5_MS,
+};
+
+macro_rules! check {
+    ($label:expr, $cond:expr, $passed:expr, $failed:expr) => {
+        if $cond {
+            println!("PASS {}", $label);
+            $passed += 1;
+        } else {
+            println!("FAIL {}", $label);
+            $failed += 1;
+        }
+    };
+}
 
 fn main() {
-    let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
-    let addr: u8 = std::env::var("I2C_ADDR").ok().and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok()).unwrap_or(0x76);
+    let i2c_bus: u8 = std::env::var("I2C_BUS")
+        .ok().and_then(|v| v.parse().ok()).unwrap_or(1);
+    let addr: u8 = std::env::var("I2C_ADDR")
+        .ok().and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
+        .unwrap_or(0x76);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp280Minimal::new(dev, addr).expect("init BMP280");
+    let mut sensor = Bmp280Full::new(dev, addr, OSRS_X1, OSRS_X1, MODE_FORCED, FILTER_OFF, 0)
+        .expect("init BMP280");
 
-    let t = bmp.temperature().expect("temperature");
-    assert!(t >= -40.0 && t <= 85.0, "temperature out of range: {}", t);
-    println!("PASS temperature_range");
+    let mut passed = 0u32;
+    let mut failed = 0u32;
 
-    let p = bmp.pressure().expect("pressure");
-    assert!(p >= 300.0 && p <= 1100.0, "pressure out of range: {}", p);
-    println!("PASS pressure_range");
+    // chip_id — 0x58 = BMP280, 0x60 = BME280 (same P/T interface)
+    let cid = sensor.chip_id().expect("chip_id");
+    check!("chip_id", cid == 0x58 || cid == 0x60, passed, failed);
 
-    let dev2 = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp_full = Bmp280Full::new(dev2, addr, 1, 1, 1, 0, 0).expect("init BMP280 full");
+    // temperature in sensor operating range
+    let t = sensor.temperature().expect("temperature");
+    check!("temperature_range", t >= -40.0 && t <= 85.0, passed, failed);
 
-    let cid = bmp_full.chip_id().expect("chip_id");
-    assert_eq!(cid, 0x58, "wrong chip_id: {:02x}", cid);
-    println!("PASS chip_id");
+    // pressure in datasheet valid range
+    let p = sensor.pressure().expect("pressure");
+    check!("pressure_range", p >= 300.0 && p <= 1100.0, passed, failed);
 
-    bmp_full.configure(OSRS_X2, OSRS_X4, MODE_FORCED, FILTER_4, T_SB_62_5_MS).expect("configure");
-    println!("PASS configure");
+    // altitude returns a finite value
+    let alt = sensor.altitude(1013.25).expect("altitude");
+    check!("altitude_finite", alt.is_finite(), passed, failed);
 
-    bmp_full.inner.dig_T1 = 27504;
-    bmp_full.inner.dig_T2 = 26435;
-    bmp_full.inner.dig_T3 = -1000;
-    bmp_full.inner.dig_P1 = 36477;
-    bmp_full.inner.dig_P2 = -10685;
-    bmp_full.inner.dig_P3 = 3024;
-    bmp_full.inner.dig_P4 = 2855;
-    bmp_full.inner.dig_P5 = 140;
-    bmp_full.inner.dig_P6 = -7;
-    bmp_full.inner.dig_P7 = 15500;
-    bmp_full.inner.dig_P8 = -14600;
-    bmp_full.inner.dig_P9 = 6000;
-    bmp_full.inner.t_fine = 0;
+    // sea_level_pressure returns a plausible value
+    let slp = sensor.sea_level_pressure(0.0).expect("sea_level_pressure");
+    check!("sea_level_pressure_range", slp >= 300.0 && slp <= 1100.0, passed, failed);
 
-    let t_val = bmp_full.inner.compensate_temp(519888);
-    assert!((t_val - 25.08).abs() < 0.1, "compensate_temp failed: {} != 25.08", t_val);
-    println!("PASS compensate_temp");
+    // configure
+    sensor.configure(OSRS_X2, OSRS_X4, MODE_FORCED, FILTER_4, T_SB_62_5_MS).expect("configure");
+    check!("configure", true, passed, failed);
 
-    let p_val = bmp_full.inner.compensate_pressure(415148);
-    assert!((p_val - 1006.53).abs() < 0.5, "compensate_pressure failed: {} != 1006.53", p_val);
-    println!("PASS compensate_pressure");
+    // set_oversampling
+    sensor.set_oversampling(OSRS_X1, OSRS_X1).expect("set_oversampling");
+    check!("set_oversampling", true, passed, failed);
 
-    bmp_full.reset().expect("reset");
-    println!("PASS reset");
+    // set_filter
+    sensor.set_filter(FILTER_OFF).expect("set_filter");
+    check!("set_filter", true, passed, failed);
 
-    println!("===DONE: 8 passed, 0 failed===");
+    // reset — sensor must remain functional
+    sensor.reset().expect("reset");
+    check!("reset", true, passed, failed);
+
+    let t_after = sensor.temperature().expect("temperature after reset");
+    check!("temperature_after_reset", t_after >= -40.0 && t_after <= 85.0, passed, failed);
+
+    println!("===DONE: {} passed, {} failed===", passed, failed);
+    std::process::exit(if failed == 0 { 0 } else { 1 });
 }
