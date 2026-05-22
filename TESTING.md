@@ -25,9 +25,12 @@ Hardware tests for each chip run on all supported platforms and produce identica
    nodejs/test.sh         power/ina226
    rust/test_linux.sh     power/ina226
    rust/test_esp32s3.sh   power/ina226
+   I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/power/ina226/Ina226Test.java
    ```
 
 `testconfig` files are gitignored — never commit them.
+
+The JVM test requires no config file — pass `I2C_BUS` and `I2C_ADDR` as environment variables directly on the command line. The sigrok decoder has no automated runner; see the [Sigrok decoders](#sigrok-decoders-pulseview) section below.
 
 ---
 
@@ -191,6 +194,42 @@ SDA/SCL pin assignments are constants in `src/main.rs` (default GPIO1/GPIO2). Th
 
 ---
 
+### JVM — Java/Kotlin/Groovy (`jbang`)
+
+**Prerequisites:** JBang (`sdk install jbang` or `curl -Ls https://sh.jbang.dev | bash`), Java 22+, Pi4J native libraries on the Raspberry Pi
+
+**Config:** none — pass variables inline as environment variables.
+
+| Variable | Description |
+|----------|-------------|
+| `I2C_BUS` | I²C bus number (default `1`) |
+| `I2C_ADDR` | Device I²C address in hex (default `0x40`) |
+
+JVM tests run directly on Raspberry Pi hardware. The JBang shebang line makes the script self-executing; the `--enable-native-access=ALL-UNNAMED` flag is required for Pi4J. No build step is needed — JBang resolves dependencies from Maven Central on first run.
+
+Run a test:
+```
+I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/power/ina226/Ina226Test.java
+```
+
+There is no `--compile-only` flag. To verify the script compiles without hardware, omit `I2C_BUS`/`I2C_ADDR` — the defaults will be used and the test will fail if no device is present, but the JVM will still type-check the source.
+
+---
+
+### Sigrok decoders (PulseView) {#sigrok-decoders-pulseview}
+
+**Prerequisites:** PulseView with the decoder installed (`sigrok/<chip>/` copied or symlinked into the sigrok protocol-decoder search path)
+
+**No automated runner.** Verification is manual:
+
+1. Open the `.sr` session file from `sigrok/tests/<chip>/` in PulseView.
+2. Add the chip's decoder stacked on the `I2C` decoder.
+3. Confirm that annotations match the register values shown in the session.
+
+The `.sr` file is committed alongside the decoder. One session file per chip is sufficient; it should exercise at least one write and one read of the chip's primary registers.
+
+---
+
 ## Writing tests for a new chip
 
 Add one test file per platform following the naming convention:
@@ -205,6 +244,7 @@ Add one test file per platform following the naming convention:
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
 | Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
 | Rust Linux | `rust/tests/<category>/<chip>_test/src/main.rs` + `Cargo.toml` |
+| JVM | `jvm/tests/<category>/<chip>/<Chip>Test.java` |
 
 Use `INA226` as the reference implementation. Every test must:
 
@@ -428,3 +468,66 @@ fn main() {
 ```
 
 Also add the new crate to the workspace `members` list in `rust/Cargo.toml`.
+
+### JVM test template
+
+One JBang script per chip. The file name is `<Chip>Test.java` (title-case chip name + `Test`). Use `INA226` as the reference.
+
+```java
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-java:1.0-SNAPSHOT
+
+import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.chips.<category>.<Chip>Full;
+
+public class <Chip>Test {
+
+    static int passed = 0;
+    static int failed = 0;
+
+    static void checkTrue(String label, boolean condition) {
+        if (condition) { System.out.println("PASS " + label); passed++; }
+        else           { System.out.println("FAIL " + label); failed++; }
+    }
+
+    static void checkEq(String label, int got, int expected) {
+        if (got == expected) { System.out.println("PASS " + label); passed++; }
+        else { System.out.println("FAIL " + label + ": got " + got + ", expected " + expected); failed++; }
+    }
+
+    public static void main(String[] args) throws Exception {
+        int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS", "1"));
+        int addr = Integer.parseInt(
+                System.getenv().getOrDefault("I2C_ADDR", "0x40").replaceFirst("^0[xX]", ""), 16);
+
+        try (var transport = new I2CTransport(bus, addr)) {
+            var chip = new <Chip>Full(transport);
+
+            // --- checks ---
+            // checkTrue("description", chip.someMethod() >= 0);
+
+            System.out.printf("===DONE: %d passed, %d failed===%n", passed, failed);
+        }
+        System.exit(failed == 0 ? 0 : 1);
+    }
+}
+```
+
+Run with: `I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/<category>/<chip>/<Chip>Test.java`
+
+The JVM test only covers the Java driver. Kotlin and Groovy drivers share the same transport and are exercised by the same hardware paths; separate Kotlin/Groovy test scripts are not required.
+
+### Sigrok decoder test
+
+A sigrok decoder test is a captured session file, not a script. Create `sigrok/tests/<chip>/` and commit one `.sr` file recorded from real hardware:
+
+```
+sigrok/tests/<chip>/<Chip>-Test.sr
+```
+
+The session must capture at least one complete write and one complete read of the chip's primary registers. Filename convention: title-case chip name, hyphen, `Test`, `.sr` extension (e.g. `INA226-Test.sr`).
+
+There is no runner script. Verify by opening the `.sr` file in PulseView with the decoder loaded and confirming the annotations are correct.

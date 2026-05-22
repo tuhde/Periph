@@ -40,6 +40,7 @@ body:
         - LED driver
         - Light / UV sensor
         - Magnetometer
+        - Memory (EEPROM, Flash, FRAM, SRAM)
         - Motor driver
         - Power management
         - Pressure sensor

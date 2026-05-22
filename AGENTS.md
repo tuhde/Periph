@@ -79,8 +79,15 @@ Every chip is implemented across all four languages and every supported platform
 | Node-RED demo flow | `nodejs/packages/node-red-contrib-periph-<category>/examples/<chip>/demo.json` |
 | Rust driver (no_std, embedded-hal) | `rust/periph/src/chips/<category>/<chip>.rs` |
 | Rust examples (Linux) | `rust/examples/<chip>_{minimal,complete,demo}/{Cargo.toml,src/main.rs}` |
+| JVM Java driver | `jvm/periph-java/src/main/java/it/uhde/periph/chips/<category>/<Chip>Minimal.java` and `<Chip>Full.java` |
+| JVM Kotlin driver | `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/<category>/<Chip>Minimal.kt` and `<Chip>Full.kt` |
+| JVM Groovy driver | `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/<category>/<Chip>Minimal.groovy` and `<Chip>Full.groovy` |
+| JVM examples (Java) | `jvm/examples/java/<category>/<chip>/{Minimal,Complete,Demo}.java` |
+| JVM examples (Kotlin) | `jvm/examples/kotlin/<category>/<chip>/{Minimal,Complete,Demo}.kt` |
+| JVM examples (Groovy) | `jvm/examples/groovy/<category>/<chip>/{Minimal,Complete,Demo}.groovy` |
+| Sigrok decoder | `sigrok/<chip>/pd.py` and `sigrok/<chip>/__init__.py` |
 
-For test file paths and runner scripts, see [TESTING.md](TESTING.md). When adding a chip, every platform's test must be added too — Linux, MicroPython, CircuitPython, Arduino, Zephyr, Node.js, Rust Linux, and Rust ESP32-S3.
+For test file paths and runner scripts, see [TESTING.md](TESTING.md). When adding a chip, every platform's test must be added too — Linux, MicroPython, CircuitPython, Arduino, Zephyr, Node.js, Rust Linux, Rust ESP32-S3, and JVM.
 
 Remove `.gitkeep` from a target directory when adding the first real file.
 
@@ -563,6 +570,375 @@ fn main() {
 
 There is **no** ESP32-S3 example crate — only an ESP32-S3 *test* crate. Embedded smoke testing happens via `rust/test_esp32s3.sh` (see TESTING.md).
 
+## JVM Java/Kotlin/Groovy conventions
+
+Three languages, one transport library. The chip driver is implemented independently in each language; all three depend only on `periph-transport` (Java) and never on each other.
+
+Target platform: **Raspberry Pi via Pi4J** (all three languages use the same `I2CTransport`).
+
+### Transport interface
+
+All fallible methods throw `IOException`. The three method signatures match the abstract `Transport` interface in `periph-transport`:
+
+```java
+// Java / Groovy
+transport.write(byte[] data) throws IOException;
+transport.read(int n) throws IOException;               // returns byte[]
+transport.writeRead(byte[] data, int n) throws IOException;  // returns byte[]
+```
+
+```kotlin
+// Kotlin — same signatures; IOException is an unchecked exception in Kotlin
+transport.write(ByteArray)
+transport.read(Int): ByteArray
+transport.writeRead(ByteArray, Int): ByteArray
+```
+
+Register reads follow the big-endian pattern:
+
+```java
+// Java / Groovy — unsigned 16-bit
+byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+int value = ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
+
+// Java / Groovy — signed 16-bit
+int value = (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
+```
+
+```kotlin
+// Kotlin — unsigned 16-bit
+val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+val value = ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
+
+// Kotlin — signed 16-bit
+val value = (((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)).toShort().toInt()
+```
+
+### Class structure
+
+**Java** — classical public inheritance; register constants as `protected static final int`:
+
+```java
+public class Ina226Minimal {
+    protected static final int REG_CONFIG = 0x00;
+    protected static final int DEFAULT_CONFIG = 0x4127;
+
+    protected final Transport transport;
+    protected final double currentLsb;
+    protected final int cal;
+
+    public Ina226Minimal(Transport transport) throws IOException { this(transport, 0.1, 2.0); }
+    public Ina226Minimal(Transport transport, double rShunt, double maxCurrent) throws IOException { ... }
+
+    public double voltage() throws IOException { ... }
+    protected void writeReg(int reg, int val) throws IOException { ... }
+    protected int  readReg(int reg)           throws IOException { ... }
+    protected int  readRegSigned(int reg)     throws IOException { ... }
+}
+
+public class Ina226Full extends Ina226Minimal {
+    public Ina226Full(Transport transport, double rShunt, double maxCurrent) throws IOException {
+        super(transport, rShunt, maxCurrent);
+    }
+    // Full-only methods only
+}
+```
+
+**Kotlin** — `open class` for Minimal; constants in `companion object`; `@JvmOverloads` on constructors with defaults:
+
+```kotlin
+open class Ina226Minimal @JvmOverloads constructor(
+    protected val transport: Transport,
+    rShunt: Double = 0.1,
+    maxCurrent: Double = 2.0
+) {
+    companion object {
+        const val REG_CONFIG    = 0x00
+        const val DEFAULT_CONFIG = 0x4127
+    }
+
+    protected val currentLsb: Double = maxCurrent / 32768.0
+    protected val cal: Int = (0.00512 / (currentLsb * rShunt)).toInt()
+
+    init { writeReg(REG_CONFIG, DEFAULT_CONFIG); writeReg(REG_CAL, cal) }
+
+    fun voltage(): Double = readReg(REG_BUS) * 1.25e-3
+
+    protected fun writeReg(reg: Int, value: Int) { ... }
+    protected fun readReg(reg: Int): Int { ... }
+    protected fun readRegSigned(reg: Int): Int { ... }
+}
+
+class Ina226Full @JvmOverloads constructor(
+    transport: Transport,
+    rShunt: Double = 0.1,
+    maxCurrent: Double = 2.0
+) : Ina226Minimal(transport, rShunt, maxCurrent) {
+    // Full-only methods only
+}
+```
+
+**Groovy** — `@CompileStatic` for type safety; otherwise mirrors the Java structure:
+
+```groovy
+@CompileStatic
+class Ina226Minimal {
+    protected static final int REG_CONFIG    = 0x00
+    protected static final int DEFAULT_CONFIG = 0x4127
+
+    protected final Transport transport
+    protected final double currentLsb
+    protected final int    cal
+
+    Ina226Minimal(Transport transport)                              { this(transport, 0.1d, 2.0d) }
+    Ina226Minimal(Transport transport, double rShunt, double maxCurrent) {
+        this.transport  = transport
+        this.currentLsb = maxCurrent / 32768.0d
+        this.cal        = (int)(0.00512d / (currentLsb * rShunt))
+        writeReg(REG_CONFIG, DEFAULT_CONFIG)
+        writeReg(REG_CAL, cal)
+    }
+
+    double voltage() { readReg(REG_BUS) * 1.25e-3d }
+
+    protected void writeReg(int reg, int val) { ... }
+    protected int  readReg(int reg)           { ... }
+    protected int  readRegSigned(int reg)     { ... }
+}
+
+@CompileStatic
+class Ina226Full extends Ina226Minimal {
+    Ina226Full(Transport transport, double rShunt, double maxCurrent) {
+        super(transport, rShunt, maxCurrent)
+    }
+    // Full-only methods only
+}
+```
+
+- Always annotate Groovy chip driver classes with `@CompileStatic`.
+- Use `double` (not `Double`) for primitive fields.
+- Both driver classes go in **separate files** — never combine Minimal and Full in one `.java`, `.kt`, or `.groovy` file.
+
+### Inline documentation
+
+**Java** — Javadoc `/** */` with `@param`, `@return`, `@throws`:
+
+```java
+/**
+ * Read the bus voltage.
+ *
+ * @return bus voltage in V (1.25 mV LSB, unsigned 16-bit)
+ * @throws IOException on I²C error
+ */
+public double voltage() throws IOException { ... }
+```
+
+**Kotlin** — KDoc `/** */` with `@param`, `@return`; use Markdown headers (not HTML):
+
+```kotlin
+/**
+ * Read the bus voltage.
+ *
+ * @return bus voltage in V (1.25 mV LSB, unsigned 16-bit)
+ */
+fun voltage(): Double = ...
+```
+
+**Groovy** — Groovydoc (same syntax as Javadoc, `/** */` with `@param`, `@return`):
+
+```groovy
+/**
+ * Read the bus voltage.
+ *
+ * @return bus voltage in V (1.25 mV LSB, unsigned 16-bit)
+ */
+double voltage() { ... }
+```
+
+### Examples — JBang scripts
+
+All JVM examples are standalone JBang scripts. Use these headers exactly:
+
+```java
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-java:1.0-SNAPSHOT        // or periph-kotlin / periph-groovy
+```
+
+For Kotlin examples, the JBang shebang and dependency lines are identical; file extension is `.kt`.  
+For Groovy examples, same headers but `.groovy` extension and `//DEPS it.uhde:periph-groovy:1.0-SNAPSHOT`.
+
+Resource management:
+
+- **Java:** `try (var transport = new I2CTransport(bus, addr)) { ... }` — `AutoCloseable`, try-with-resources
+- **Kotlin:** `I2CTransport(bus, addr).use { transport -> ... }` — `Closeable.use { }`
+- **Groovy:** `try { ... } finally { transport.close() }` — explicit finally block
+
+### Tests — JBang scripts
+
+JVM tests use the same JBang headers as examples. All three languages use `I2C_BUS` / `I2C_ADDR` environment variables, and print the standard `PASS`/`FAIL`/`===DONE===` output:
+
+```java
+int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
+int addr = Integer.parseInt(
+        System.getenv().getOrDefault("I2C_ADDR", "0x40").replaceFirst("^0[xX]", ""), 16);
+```
+
+The test file name is `<Chip>Test.java` (or `.kt` / `.groovy`). Run with `jbang <Chip>Test.java`. No runner script — tests are executed directly on Raspberry Pi hardware.
+
+---
+
+## Sigrok decoders
+
+A sigrok protocol decoder sits on top of the `i2c` (or `spi`) sigrok decoder and annotates bus transactions with chip-specific register names and decoded field values. Decoders are Python 3, constrained to the `sigrokdecode` API; no external packages.
+
+### File layout
+
+```
+sigrok/<chip>/
+    pd.py          # decoder implementation
+    __init__.py    # re-exports Decoder
+sigrok/tests/<chip>/
+    <Chip>-Test.sr # captured sigrok session used for manual verification
+```
+
+No Minimal/Full stages — one decoder per chip. The decoder covers all registers defined in the chip spec.
+
+### Decoder skeleton
+
+```python
+import sigrokdecode as srd
+
+ADDRS = set(range(0x40, 0x50))   # chip's valid I²C addresses
+
+REGS = {
+    0x00: 'Config',
+    0x01: 'Value',
+    # ...
+}
+
+ANN_WRITE   = 0
+ANN_READ    = 1
+ANN_WARNING = 2
+
+
+class Decoder(srd.Decoder):
+    api_version = 3
+    id = 'chipname'            # lowercase, matches directory name
+    name = 'ChipName'
+    longname = 'ChipName full description'
+    desc = 'Decode ChipName I2C register transactions.'
+    license = 'gplv2+'
+    inputs = ['i2c']
+    outputs = ['chipname']
+    tags = ['IC', 'Category']  # e.g. 'Sensor', 'Power', 'DAC', 'IO'
+
+    annotations = (
+        ('reg-write', 'Register write'),
+        ('reg-read',  'Register read'),
+        ('warning',   'Warning'),
+    )
+    annotation_rows = (
+        ('data',     'Data',     (ANN_WRITE, ANN_READ)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
+    )
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.state    = 'IDLE'
+        self.addr     = None
+        self.is_read  = False
+        self.reg_ptr  = None
+        self.databuf  = []
+        self.ss_block = None
+
+    def start(self):
+        self.out_ann = self.register(srd.OUTPUT_ANN)
+
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT'):
+            self._finish_transaction()
+            self.databuf  = []
+            self.is_read  = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
+
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            if pdata not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr    = pdata
+            self.is_read = (ptype == 'ADDRESS READ')
+            self.state   = 'GET_DATA_READ' if self.is_read else 'GET_REG_PTR'
+
+        elif ptype == 'DATA WRITE':
+            if self.state == 'GET_REG_PTR':
+                self.reg_ptr = pdata
+                self.databuf = []
+                self.state   = 'GET_DATA_WRITE'
+            elif self.state == 'GET_DATA_WRITE':
+                self.databuf.append(pdata)
+
+        elif ptype == 'DATA READ':
+            if self.state == 'GET_DATA_READ':
+                self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            self._finish_transaction()
+            self.state   = 'IDLE'
+            self.databuf = []
+```
+
+### `__init__.py`
+
+Always just re-exports `Decoder`:
+
+```python
+"""
+<ChipName> sigrok protocol decoder.
+
+<One-line description of what it decodes.>
+"""
+
+from .pd import Decoder
+```
+
+### Annotation conventions
+
+- Provide at least two strings per `put()` call: a long form and a short form. sigrok shows the shortest one that fits.
+- Use `0x%02X` for single-byte values, `0x%04X` for 16-bit values.
+- Emit a `WARNING` annotation for unexpected read/write lengths, unknown addresses, or protocol violations — never raise exceptions.
+- All numeric values in annotations use SI units (µV, mV, V, µA, mA, A, etc.).
+
+### `START REPEAT` handling
+
+For chips that use a repeated-start read (write register pointer, repeated start, read data), preserve `reg_ptr` across the repeated start instead of resetting it:
+
+```python
+if ptype in ('START', 'START REPEAT'):
+    if ptype == 'START REPEAT' and self.state == 'GET_REG_PTR':
+        pass  # pointer already set; keep databuf and state
+    else:
+        self._finish_transaction()
+        self.databuf  = []
+        self.is_read  = False
+    self.ss_block = ss
+    self.state    = 'GET_ADDR'
+```
+
+### Tests
+
+The `sigrok/tests/<chip>/` directory holds one `.sr` session file captured from real hardware. There is no automated runner — open the `.sr` file in PulseView with the decoder loaded and verify that annotations match the expected register values. The `.sr` file is committed alongside the decoder.
+
+---
+
 ## Examples
 
 Each chip has three examples per language (same branch as the driver):
@@ -600,6 +976,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
 | Rust Linux | `rust/tests/<category>/<chip>_test/{Cargo.toml,src/main.rs}` |
 | Rust ESP32-S3 | `rust/tests/<category>/<chip>_test_esp32s3/{Cargo.toml,src/main.rs,.cargo/config.toml,rust-toolchain.toml}` |
+| JVM | `jvm/tests/<category>/<chip>/<Chip>Test.java` |
 
 All tests print `PASS <label>` / `FAIL <label>` lines and end with `===DONE: N passed, N failed===`. See [TESTING.md](TESTING.md) for the full templates and runner scripts.
 
@@ -796,3 +1173,7 @@ Use these platform labels consistently:
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |
 | Rust ESP32-S3 | `Rust/ESP32-S3` |
+| JVM Java | `JVM/Java` |
+| JVM Kotlin | `JVM/Kotlin` |
+| JVM Groovy | `JVM/Groovy` |
+| Sigrok decoder | `Sigrok` |
