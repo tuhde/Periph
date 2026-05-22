@@ -1,6 +1,6 @@
 use linux_embedded_hal::I2cdev;
 use periph::chips::io_expander::Mcp23017Full;
-use embedded_hal::digital::{OutputPin, InputPin};
+use embedded_hal::digital::{OutputPin, InputPin, StatefulOutputPin};
 use std::thread::sleep;
 use std::time::Duration;
 
