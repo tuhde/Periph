@@ -3,6 +3,7 @@
 # Scripts use this when I2C_ADDR is not set in testconfig.
 
 bmp180   0x77
+bmp280   0x76
 ina219   0x40
 ina226   0x40
 ina3221  0x40

@@ -5,7 +5,8 @@
   "keywords": ["node-red", "pressure", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
     "nodes": {
-      "bmp180": "nodes/bmp180/bmp180.js"
+      "bmp180": "nodes/bmp180/bmp180.js",
+      "bmp280": "nodes/bmp280/bmp280.js"
     }
   },
   "dependencies": {

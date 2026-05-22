@@ -53,6 +53,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "bmp280_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp280_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp280_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp280_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -487,6 +519,42 @@ dependencies = [
 
 [[package]]
 name = "pcf8574_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8575_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8575_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8575_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8575_test"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
