@@ -1,0 +1,70 @@
+{
+  "id": "pcf8575-demo",
+  "type": "tab",
+  "label": "PCF8575 Demo",
+  "info": "16-bit IO expander demo. Port 0 (P00–P07) drives active-low LEDs; Port 1 (P10–P17) reads push buttons with internal pull-up. Every 200ms the buttons are mirrored to the LEDs. Use inject nodes to read individual pins or ports manually.",
+  "nodes": [
+    {
+      "id": "pcf8575-1",
+      "type": "periph-pcf8575",
+      "z": "pcf8575-demo",
+      "bus": "1",
+      "address": "20",
+      "name": "PCF8575",
+      "wires": [[]]
+    },
+    {
+      "id": "inject-periodic",
+      "type": "inject",
+      "z": "pcf8575-demo",
+      "name": "Tick (200ms)",
+      "topic": "",
+      "payload": "",
+      "payloadType": "date",
+      "repeat": "0.2",
+      "crontab": "",
+      "once": true,
+      "onceDelay": "",
+      "wires": [["pcf8575-1"]]
+    },
+    {
+      "id": "read-port0",
+      "type": "inject",
+      "z": "pcf8575-demo",
+      "name": "Read Port 0",
+      "topic": "",
+      "payload": "{\"port\": 0}",
+      "payloadType": "json",
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": "",
+      "wires": [["pcf8575-1"]]
+    },
+    {
+      "id": "read-port1",
+      "type": "inject",
+      "z": "pcf8575-demo",
+      "name": "Read Port 1",
+      "topic": "",
+      "payload": "{\"port\": 1}",
+      "payloadType": "json",
+      "repeat": "",
+      "crontab": "",
+      "once": false,
+      "onceDelay": "",
+      "wires": [["pcf8575-1"]]
+    },
+    {
+      "id": "debug-out",
+      "type": "debug",
+      "z": "pcf8575-demo",
+      "name": "",
+      "active": true,
+      "console": "true",
+      "complete": "false",
+      "statusVal": "",
+      "wires": []
+    }
+  ]
+}

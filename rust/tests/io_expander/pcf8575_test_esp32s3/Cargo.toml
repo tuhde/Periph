@@ -1,0 +1,9 @@
+[package]
+name = "pcf8575_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+esp-hal = "0.22"
+embedded-hal = "1.0"
+periph = { path = "../../../../periph" }
