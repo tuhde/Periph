@@ -71,12 +71,14 @@ class Decoder(srd.Decoder):
         self.reset()
 
     def reset(self):
-        self.state    = 'IDLE'
-        self.addr     = None
-        self.is_read  = False
-        self.reg_byte = None
+        self.state     = 'IDLE'
+        self.addr      = None
+        self.reg_byte  = None
         self.data_byte = None
-        self.ss_block = None
+        self.ptr_reg   = None   # register saved from pointer-set phase for subsequent reads
+        self.ss_block  = None
+        self.ss        = None
+        self.es        = None
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
@@ -84,68 +86,86 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARN, [msg]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def _emit(self, ss_block, es, rw, reg, val):
+        self.put(ss_block, es, self.out_ann,
+                 [ANN_REG, ['%s %s [0x%02X] = %s' % (rw, REGISTERS[reg], reg, _ann_reg(reg, val)),
+                            '%s [0x%02X]' % (rw, reg)]])
 
-            if ptype in ('START', 'START REPEAT'):
-                self.state    = 'GET_ADDR'
-                self.ss_block = self.ss
-                self.reg_byte  = None
-                self.data_byte = None
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
 
-            elif ptype in ('ADDRESS WRITE', 'ADDRESS READ'):
-                addr = pdata[0]
-                if addr not in ADDRS:
-                    self.state = 'IDLE'
-                    continue
-                self.addr    = addr
-                self.is_read = (ptype == 'ADDRESS READ')
-                self.state   = 'GET_REG'
-                self.data_byte = None
+        if ptype == 'START':
+            self.state     = 'IDLE'
+            self.ss_block  = ss
+            self.reg_byte  = None
+            self.data_byte = None
+            # ptr_reg preserved: separate-transaction reads follow a prior STOP
 
-            elif ptype == 'DATA WRITE' and self.state == 'GET_REG':
-                self.reg_byte = pdata[0]
-                if self.is_read:
-                    self.state = 'WAIT_STOP'
-                else:
-                    self.state = 'GET_DATA'
+        elif ptype == 'START REPEAT':
+            if self.state == 'WAIT_DATA_W':
+                # ADDRESS WRITE + DATA WRITE(reg) + REPEAT: pointer set for repeated-start read
+                self.ptr_reg = self.reg_byte
+            self.state     = 'IDLE'
+            self.ss_block  = ss
+            self.reg_byte  = None
+            self.data_byte = None
 
-            elif ptype == 'DATA WRITE' and self.state == 'GET_DATA':
-                self._warn(self.ss, self.es, 'Unexpected extra byte in write transaction')
+        elif ptype == 'ADDRESS WRITE':
+            addr = pdata
+            if addr not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr  = addr
+            self.state = 'WAIT_REG'
+
+        elif ptype == 'ADDRESS READ':
+            addr = pdata
+            if addr not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr      = addr
+            self.reg_byte  = self.ptr_reg   # may be None if no prior pointer-set
+            self.state     = 'WAIT_DATA_R'
+
+        elif ptype == 'DATA WRITE':
+            if self.state == 'WAIT_REG':
+                self.reg_byte = pdata
+                self.state    = 'WAIT_DATA_W'
+            elif self.state == 'WAIT_DATA_W':
+                self.data_byte = pdata
+                self.state     = 'WAIT_STOP_W'
+            else:
                 self.state = 'IDLE'
 
-            elif ptype == 'DATA READ' and self.state in ('WAIT_STOP', 'GET_DATA'):
-                if self.state == 'WAIT_STOP':
-                    self.data_byte = pdata[0]
-                    self.state = 'GET_STOP'
-                else:
-                    self._warn(self.ss, self.es, 'Unexpected extra read byte')
+        elif ptype == 'DATA READ':
+            if self.state == 'WAIT_DATA_R':
+                self.data_byte = pdata
+                self.state     = 'WAIT_STOP_R'
+            else:
+                self.state = 'IDLE'
 
-            elif ptype == 'STOP':
-                if self.state not in ('GET_DATA', 'GET_STOP'):
-                    self.state = 'IDLE'
-                    continue
+        elif ptype == 'STOP':
+            if self.state == 'WAIT_STOP_W':
+                reg = self.reg_byte
+                if reg in REGISTERS:
+                    val = self.data_byte if self.data_byte is not None else 0
+                    self._emit(self.ss_block, es, 'W', reg, val)
+                    if reg in READONLY:
+                        self._warn(ss, es, 'Write to read-only register %s' % REGISTERS[reg])
+                self.ptr_reg = None
 
-                if self.is_read:
-                    if self.reg_byte not in REGISTERS:
-                        self.state = 'IDLE'
-                        continue
-                    reg  = self.reg_byte
-                    data = self.data_byte if self.data_byte is not None else 0
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_REG, ['R %s [0x%02X]' % (REGISTERS.get(reg, 'REG'), reg),
-                                         'R [0x%02X]' % reg]])
-                else:
-                    if self.reg_byte not in REGISTERS:
-                        self.state = 'IDLE'
-                        continue
-                    reg  = self.reg_byte
-                    data = self.data_byte if self.data_byte is not None else 0
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_REG, ['W %s [0x%02X]' % (REGISTERS.get(reg, 'REG'), reg),
-                                         'W [0x%02X]' % reg]])
+            elif self.state == 'WAIT_DATA_W':
+                # ADDRESS WRITE + DATA WRITE(reg) + STOP: pointer-set only, save for next read
+                self.ptr_reg = self.reg_byte
 
-                self.state    = 'IDLE'
-                self.reg_byte  = None
-                self.data_byte = None
+            elif self.state == 'WAIT_STOP_R':
+                reg = self.reg_byte
+                if reg is not None and reg in REGISTERS:
+                    val = self.data_byte if self.data_byte is not None else 0
+                    self._emit(self.ss_block, es, 'R', reg, val)
+                self.ptr_reg = None
+
+            self.state     = 'IDLE'
+            self.reg_byte  = None
+            self.data_byte = None
