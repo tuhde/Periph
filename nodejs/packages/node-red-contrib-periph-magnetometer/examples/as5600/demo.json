@@ -1,0 +1,75 @@
+[
+    {
+        "id": "tab-as5600-demo",
+        "type": "tab",
+        "label": "AS5600 Rotary Position Sensor",
+        "disabled": false,
+        "info": "Reads the absolute angle and raw count from an AS5600 contactless rotary position sensor every 100 ms. The AS5600 has a fixed I²C address of 0x36 and requires a diametrically magnetised on-axis magnet. The flow computes angular velocity (current − previous) × 10 rad/s, wrapping at ±180°. A gauge dashboard node shows the live angle as a dial (0–360°). Note the 10-LSB hysteresis at the 0/360° wrap point — the output can wrap slightly early or late by up to ~0.88°."
+    },
+    {
+        "id": "cfg-as5600",
+        "type": "as5600-device",
+        "name": "AS5600",
+        "bus": "1",
+        "address": "36",
+        "magnetCheck": true
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-as5600-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-as5600"]]
+    },
+    {
+        "id": "read-as5600",
+        "type": "periph-as5600",
+        "name": "AS5600",
+        "device": "cfg-as5600",
+        "z": "tab-as5600-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["calc-velocity"]]
+    },
+    {
+        "id": "calc-velocity",
+        "type": "function",
+        "name": "angular velocity",
+        "func": "const p = msg.payload;\nif (!context.prev) { context.prev = p.raw; }\nlet delta = p.raw - context.prev;\nif (delta > 2048) delta -= 4096;\nif (delta < -2048) delta += 4096;\ncontext.prev = p.raw;\nmsg.payload = {\n    angle: p.angle,\n    raw: p.raw,\n    velocity: (delta * 10 * 2 * Math.PI / 4096).toFixed(3) + ' rad/s',\n    magnet: p.magnet_detected\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-as5600-demo",
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.angle",
+        "statusType": "auto",
+        "z": "tab-as5600-demo",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    }
+]

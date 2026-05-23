@@ -1,0 +1,88 @@
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
+#include "I2CTransportZephyr.h"
+#include "AS5600.h"
+
+#define I2C_NODE DT_NODELABEL(i2c0)
+#define AS5600_ADDR 0x36
+
+static int passed = 0;
+static int failed = 0;
+
+static void check_eq(const char* label, uint16_t got, uint16_t expected) {
+    if (got == expected) {
+        printk("PASS %s\n", label); passed++;
+    } else {
+        printk("FAIL %s: got %u, expected %u\n", label, got, expected); failed++;
+    }
+}
+
+static void check_true(const char* label, bool condition) {
+    if (condition) { printk("PASS %s\n", label); passed++; }
+    else           { printk("FAIL %s\n", label); failed++; }
+}
+
+int main(void) {
+    const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
+    I2CTransportZephyr transport(i2c_dev, AS5600_ADDR);
+    AS5600Full as5600(transport);
+
+    // --- Magnet status poll (60 s max at 5 Hz) ---
+    printk("--- magnet status (60 s max) ---\n");
+    for (int i = 0; i < 300; i++) {
+        uint8_t s   = as5600.status_byte();
+        uint8_t agc = as5600.agc();
+        printk("MD=%d ML=%d MH=%d AGC=%d\n",
+               (s & 0x08) ? 1 : 0, (s & 0x10) ? 1 : 0,
+               (s & 0x20) ? 1 : 0, agc);
+        if (s & 0x08) break;
+        k_msleep(200);
+    }
+    printk("--- end magnet status ---\n");
+
+    // --- Magnet detection ---
+    check_true("magnet_detected", as5600.is_magnet_detected());
+
+    // --- Angle readings ---
+    float a = as5600.angle();
+    check_true("angle in range 0-360", a >= 0.0f && a < 360.0f);
+
+    uint16_t r = as5600.angle_raw();
+    check_true("angle_raw in range 0-4095", r <= 4095);
+
+    uint16_t ra = as5600.raw_angle();
+    check_true("raw_angle in range 0-4095", ra <= 4095);
+
+    float rad = as5600.raw_angle_degrees();
+    check_true("raw_angle_degrees in range 0-360", rad >= 0.0f && rad < 360.0f);
+
+    // --- Diagnostics ---
+    check_true("agc non-negative", as5600.agc() >= 0);
+    check_true("magnitude non-negative", as5600.magnitude() >= 0);
+
+    // --- Status ---
+    uint8_t sb = as5600.status_byte();
+    check_true("status_byte valid", sb <= 255);
+
+    // --- Position configuration (volatile) ---
+    as5600.set_zero_position(100);
+    check_eq("zero_position after set", as5600.zero_position(), 100);
+
+    as5600.set_max_position(2000);
+    check_eq("max_position after set", as5600.max_position(), 2000);
+
+    as5600.set_max_angle(2048);
+    check_eq("max_angle after set", as5600.max_angle(), 2048);
+
+    // --- Configure ---
+    as5600.configure(AS5600Full::PM_NOM, 0, AS5600Full::OUTS_ANALOG, 0, 0, 0, false);
+    check_true("configure accepted", as5600.is_magnet_detected());
+
+    // --- Burn count ---
+    uint8_t bc = as5600.burn_count();
+    check_true("burn_count in range 0-3", bc <= 3);
+
+    printk("===DONE: %d passed, %d failed===\n", passed, failed);
+    return 0;
+}

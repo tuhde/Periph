@@ -12,6 +12,7 @@ exclude = [
     "tests/led/ws2812b_test_esp32s3",
     "tests/led/sk6812rgbw_test_esp32s3",
     "tests/io_expander/pcf8574_test_esp32s3",
+    "tests/magnetometer/as5600_test_esp32s3",
 ]
 members = [
     "periph",
@@ -50,6 +51,10 @@ members = [
     "examples/pcf8574_complete",
     "examples/pcf8574_demo",
     "tests/io_expander/pcf8574_test",
+    "examples/as5600_minimal",
+    "examples/as5600_complete",
+    "examples/as5600_demo",
+    "tests/magnetometer/as5600_test",
 ]
 
 [workspace.dependencies]
