@@ -3,7 +3,9 @@
 **Manufacturer:** Normand Electronic  
 **Datasheet:** `datasheets/led/SK6812RGBW.pdf`  
 **Category:** led  
-**Transports:** NeoPixel (WS2812B single-wire NZR via SPI bit-encoding)
+**Transports:** NeoPixel (WS2812B single-wire NZR via SPI bit-encoding)  
+**Base spec:** `specs/led/_neopixel_rgbw_base.md` — shared API, implementation notes, Node-RED conventions  
+**Chip-specific values:** wire order GRBW (`channel_order = (1, 0, 2, 3)`); reset ≥80 µs (`reset_bytes = 24`)
 
 ## Overview
 
@@ -222,3 +224,10 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Sigrok
 - [x] Decoder `sigrok/sk6812rgbw/__init__.py`
 - [x] Decoder `sigrok/sk6812rgbw/pd.py` — neopixel input (set reset_us=80 on that layer); groups 4 bytes → GRBW pixel; R/G/B/W + #RRGGBBWW annotation
+
+### Base class refactor (added with WS2814 issue #89)
+- [ ] Refactor `python/periph/chips/led/sk6812rgbw.py` to extend `_NeoPixelRGBWMinimal` / `_NeoPixelRGBWFull`
+- [ ] Refactor `cpp/src/chips/led/SK6812RGBW.h/.cpp` to extend `NeoPixelRGBWBase`
+- [ ] Refactor `nodejs/packages/periph/src/chips/led/sk6812rgbw.js` to extend `NeoPixelRGBWBase`
+- [ ] Refactor `rust/periph/src/chips/led/sk6812rgbw.rs` to wrap `NeoPixelRGBWBase<T>`
+- [ ] Refactor JVM SK6812RGBW drivers (Java/Kotlin/Groovy) to extend `NeoPixelRGBWMinimal` / `NeoPixelRGBWFull`
