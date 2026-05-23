@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for magnetometer chips",
   "keywords": ["node-red", "magnetometer", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "as5600": "nodes/as5600/as5600.js"
+    }
   },
   "dependencies": {
     "periph": "*"
