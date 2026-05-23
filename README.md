@@ -21,6 +21,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | SPI | Implemented |
 | SMBus | Implemented |
 | NeoPixel (WS2812B / single-wire NZR) | Implemented |
+| UART (+ RS-485 variant) | Implemented |
 
 ## Structure
 
@@ -79,11 +80,14 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|-----|--------|
 | BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 

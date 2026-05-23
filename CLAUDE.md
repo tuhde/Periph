@@ -209,6 +209,7 @@ Categories are shared across `specs/`, `datasheets/`, `python/periph/chips/`, `c
 | `led` | LED drivers |
 | `light` | Light and UV sensors |
 | `magnetometer` | Magnetometers |
+| `memory` | Memory chips (EEPROM, Flash, FRAM, SRAM) |
 | `motor` | Motor drivers |
 | `power` | Power management |
 | `pressure` | Standalone pressure sensors |

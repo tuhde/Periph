@@ -1,0 +1,9 @@
+[package]
+name = "pcf8575_minimal"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+linux-embedded-hal = "0.4"
+embedded-hal = "1.0"
+periph = { path = "../../periph" }

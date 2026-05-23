@@ -173,48 +173,48 @@ class Decoder(srd.Decoder):
                 self._warn(self.ss_block, self.es,
                            'Unexpected write length %d for %s' % (len(self.databuf), name))
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
 
-            if ptype in ('START', 'START REPEAT'):
-                if self.state == 'GET_DATA_READ' and ptype == 'START REPEAT':
-                    pass  # keep accumulated read data; repeated-start precedes the read phase
-                else:
-                    self._finish_transaction()
-                    self.databuf  = []
-                    self.is_read  = False
-                self.ss_block = self.ss
-                self.state    = 'GET_ADDR'
+        if ptype in ('START', 'START REPEAT'):
+            if self.state == 'GET_DATA_READ' and ptype == 'START REPEAT':
+                pass  # keep accumulated read data; repeated-start precedes the read phase
+            else:
+                self._finish_transaction()
+                self.databuf  = []
+                self.is_read  = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
 
-            elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
-                addr = pdata[0]
-                if addr not in ADDRS:
-                    self.state = 'IDLE'
-                    continue
-                self.addr    = addr
-                self.is_read = (ptype == 'ADDRESS READ')
-                if self.is_read:
-                    self.databuf = []
-                    self.state   = 'GET_DATA_READ'
-                else:
-                    self.state = 'GET_REG_PTR'
-
-            elif ptype == 'DATA WRITE':
-                byte = pdata[0]
-                if self.state == 'GET_REG_PTR':
-                    self.reg_ptr = byte
-                    self.databuf = []
-                    self.state   = 'GET_DATA_WRITE'
-                elif self.state == 'GET_DATA_WRITE':
-                    self.databuf.append(byte)
-
-            elif ptype == 'DATA READ':
-                if self.state == 'GET_DATA_READ':
-                    self.databuf.append(pdata[0])
-
-            elif ptype == 'STOP':
-                if self.state in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
-                    self._finish_transaction()
-                self.state   = 'IDLE'
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr    = addr
+            self.is_read = (ptype == 'ADDRESS READ')
+            if self.is_read:
                 self.databuf = []
+                self.state   = 'GET_DATA_READ'
+            else:
+                self.state = 'GET_REG_PTR'
+
+        elif ptype == 'DATA WRITE':
+            byte = pdata
+            if self.state == 'GET_REG_PTR':
+                self.reg_ptr = byte
+                self.databuf = []
+                self.state   = 'GET_DATA_WRITE'
+            elif self.state == 'GET_DATA_WRITE':
+                self.databuf.append(byte)
+
+        elif ptype == 'DATA READ':
+            if self.state == 'GET_DATA_READ':
+                self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            if self.state in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
+                self._finish_transaction()
+            self.state   = 'IDLE'
+            self.databuf = []

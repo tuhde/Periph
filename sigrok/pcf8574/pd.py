@@ -54,51 +54,51 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
 
-            if ptype in ('START', 'START REPEAT'):
-                self.state    = 'GET_ADDR'
-                self.ss_block = self.ss
-                self.databyte = None
+        if ptype in ('START', 'START REPEAT'):
+            self.state    = 'GET_ADDR'
+            self.ss_block = ss
+            self.databyte = None
 
-            elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
-                addr = pdata[0]
-                if addr not in ALL_ADDRS:
-                    self.state = 'IDLE'
-                    continue
-                self.addr    = addr
-                self.is_read = (ptype == 'ADDRESS READ')
-                self.state   = 'GET_DATA'
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            addr = pdata
+            if addr not in ALL_ADDRS:
+                self.state = 'IDLE'
+                return
+            self.addr    = addr
+            self.is_read = (ptype == 'ADDRESS READ')
+            self.state   = 'GET_DATA'
 
-            elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
-                if self.databyte is not None:
-                    self._warn(self.ss, self.es, 'Unexpected extra data byte')
-                self.databyte = pdata[0]
+        elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
+            if self.databyte is not None:
+                self._warn(ss, es, 'Unexpected extra data byte')
+            self.databyte = pdata
 
-            elif ptype == 'STOP':
-                if self.state != 'GET_DATA' or self.databyte is None:
-                    self.state = 'IDLE'
-                    continue
+        elif ptype == 'STOP':
+            if self.state != 'GET_DATA' or self.databyte is None:
+                self.state = 'IDLE'
+                return
 
-                byte  = self.databyte
-                hx    = '0x%02X' % byte
-                pins  = _fmt_pins(byte)
-                chip  = _chip_name(self.addr)
+            byte  = self.databyte
+            hx    = '0x%02X' % byte
+            pins  = _fmt_pins(byte)
+            chip  = _chip_name(self.addr)
 
-                if self.is_read:
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_READ,
-                              ['%s Read %s: %s' % (chip, hx, pins),
-                               'R %s' % hx,
-                               'R']])
-                else:
-                    self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_WRITE,
-                              ['%s Write %s: %s' % (chip, hx, pins),
-                               'W %s' % hx,
-                               'W']])
+            if self.is_read:
+                self.put(self.ss_block, es, self.out_ann,
+                         [ANN_READ,
+                          ['%s Read %s: %s' % (chip, hx, pins),
+                           'R %s' % hx,
+                           'R']])
+            else:
+                self.put(self.ss_block, es, self.out_ann,
+                         [ANN_WRITE,
+                          ['%s Write %s: %s' % (chip, hx, pins),
+                           'W %s' % hx,
+                           'W']])
 
-                self.state    = 'IDLE'
-                self.databyte = None
+            self.state    = 'IDLE'
+            self.databyte = None

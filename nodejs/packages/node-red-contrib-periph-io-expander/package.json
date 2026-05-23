@@ -6,7 +6,9 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
-      "periph-pcf8574": "nodes/pcf8574/pcf8574.js"
+      "periph-pcf8574": "nodes/pcf8574/pcf8574.js",
+      "periph-mcp23017": "nodes/mcp23017/mcp23017.js",
+      "periph-pcf8575": "nodes/pcf8575/pcf8575.js"
     }
   },
   "dependencies": {

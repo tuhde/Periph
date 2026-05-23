@@ -1,0 +1,66 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8575', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1',  required: true, validate: RED.validators.number() },
+            address: { value: '20', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || ('PCF8575 @ 0x' + this.address + ' (bus ' + this.bus + ')'); },
+        paletteLabel: 'PCF8575'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8575">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8575">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
+        &nbsp;PCF8575: 20–27
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8575">
+    <p>Controls and reads a 16-bit PCF8575 I/O expander over I²C.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0 drives low; 1 releases to quasi-high/input).<br>
+            <code>{ pin: N }</code> — read pin N (0–15); reply sent on output.<br>
+            <code>{ port: 0|1 }</code> — read all 8 pins of port 0 or 1; reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–15), present when reading a single pin.</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 8-bit bitmask when reading a port.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Port index (0 or 1), present when reading a full port.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (Linux <code>/dev/i2c-N</code>) and the 7-bit device address in hex
+    (PCF8575: <code>20</code>–<code>27</code>; default <code>20</code>).</p>
+
+    <h3>Notes</h3>
+    <p>The PCF8575 has no push-pull high drive. Writing 1 to a pin enables the internal
+    ~100 µA pull-up; writing 0 sinks up to 25 mA. LEDs must be wired active-low
+    (cathode to pin, anode to VCC). Port 0 is P00–P07; Port 1 is P10–P17.
+    The 2-byte I²C protocol always transfers both ports.</p>
+</script>

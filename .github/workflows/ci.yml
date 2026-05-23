@@ -123,6 +123,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install system dependencies
+        run: sudo apt-get install -y libudev-dev
+
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 

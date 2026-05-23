@@ -202,45 +202,45 @@ class Decoder(srd.Decoder):
                  [ANN_REG_WRITE,
                   ['Write %s: %s' % (name, hex_bytes), 'W 0x%02X' % reg]])
 
-    def decode(self):
-        while True:
-            ptype, pdata = self.wait()
+    def decode(self, ss, es, data):
+        ptype, pdata = data
+        self.ss, self.es = ss, es
 
-            if ptype in ('START', 'START REPEAT'):
-                if ptype == 'START REPEAT' and self.state == 'GET_REG_PTR':
-                    pass
-                else:
-                    self._finish_transaction()
-                    self.databuf  = []
-                    self.is_read  = False
-                self.ss_block = self.ss
-                self.state    = 'GET_ADDR'
-
-            elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
-                if pdata[0] != ADDR:
-                    self.state = 'IDLE'
-                    continue
-                self.is_read = (ptype == 'ADDRESS READ')
-                if self.is_read:
-                    self.databuf = []
-                    self.state   = 'GET_DATA_READ'
-                else:
-                    self.state = 'GET_REG_PTR'
-
-            elif ptype == 'DATA WRITE':
-                byte = pdata[0]
-                if self.state == 'GET_REG_PTR':
-                    self.reg_ptr = byte
-                    self.databuf = []
-                    self.state   = 'GET_DATA_WRITE'
-                elif self.state == 'GET_DATA_WRITE':
-                    self.databuf.append(byte)
-
-            elif ptype == 'DATA READ':
-                if self.state == 'GET_DATA_READ':
-                    self.databuf.append(pdata[0])
-
-            elif ptype == 'STOP':
+        if ptype in ('START', 'START REPEAT'):
+            if ptype == 'START REPEAT' and self.state == 'GET_REG_PTR':
+                pass
+            else:
                 self._finish_transaction()
-                self.state   = 'IDLE'
+                self.databuf  = []
+                self.is_read  = False
+            self.ss_block = ss
+            self.state    = 'GET_ADDR'
+
+        elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
+            if pdata != ADDR:
+                self.state = 'IDLE'
+                return
+            self.is_read = (ptype == 'ADDRESS READ')
+            if self.is_read:
                 self.databuf = []
+                self.state   = 'GET_DATA_READ'
+            else:
+                self.state = 'GET_REG_PTR'
+
+        elif ptype == 'DATA WRITE':
+            byte = pdata
+            if self.state == 'GET_REG_PTR':
+                self.reg_ptr = byte
+                self.databuf = []
+                self.state   = 'GET_DATA_WRITE'
+            elif self.state == 'GET_DATA_WRITE':
+                self.databuf.append(byte)
+
+        elif ptype == 'DATA READ':
+            if self.state == 'GET_DATA_READ':
+                self.databuf.append(pdata)
+
+        elif ptype == 'STOP':
+            self._finish_transaction()
+            self.state   = 'IDLE'
+            self.databuf = []

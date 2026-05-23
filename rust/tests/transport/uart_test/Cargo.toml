@@ -1,0 +1,9 @@
+[package]
+name = "uart_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph     = { workspace = true, features = ["uart-linux"] }
+embedded-io = { workspace = true }
+serialport = { workspace = true }
