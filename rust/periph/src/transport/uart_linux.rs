@@ -20,7 +20,7 @@
 //! embedded-io = "0.6"
 //! ```
 
-use embedded_io::{ErrorType, Read, Write};
+use embedded_io::{ErrorKind, ErrorType, Read, Write};
 use serialport::SerialPort;
 use std::io;
 
@@ -44,22 +44,31 @@ impl LinuxUart {
     }
 }
 
+fn io_to_embedded(e: io::Error) -> ErrorKind {
+    match e.kind() {
+        io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock => ErrorKind::TimedOut,
+        io::ErrorKind::BrokenPipe | io::ErrorKind::ConnectionReset => ErrorKind::BrokenPipe,
+        io::ErrorKind::NotConnected | io::ErrorKind::ConnectionRefused => ErrorKind::NotConnected,
+        _ => ErrorKind::Other,
+    }
+}
+
 impl ErrorType for LinuxUart {
-    type Error = io::Error;
+    type Error = ErrorKind;
 }
 
 impl Read for LinuxUart {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::Error> {
-        io::Read::read(&mut self.0, buf)
+        io::Read::read(&mut self.0, buf).map_err(io_to_embedded)
     }
 }
 
 impl Write for LinuxUart {
     fn write(&mut self, buf: &[u8]) -> Result<usize, Self::Error> {
-        io::Write::write(&mut self.0, buf)
+        io::Write::write(&mut self.0, buf).map_err(io_to_embedded)
     }
 
     fn flush(&mut self) -> Result<(), Self::Error> {
-        io::Write::flush(&mut self.0)
+        io::Write::flush(&mut self.0).map_err(io_to_embedded)
     }
 }
