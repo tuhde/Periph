@@ -76,5 +76,5 @@ heapless = "0.8"
 linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
 spidev = "0.6"
-serialport = { version = "4", default-features = false }
+serialport = "4"
 periph = { path = "periph" }
