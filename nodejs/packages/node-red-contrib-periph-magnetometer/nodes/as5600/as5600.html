@@ -1,0 +1,84 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('as5600-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '36', required: true },
+            magnetCheck: { value: true }
+        },
+        label: function() {
+            return this.name || ('AS5600 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="as5600-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AS5600">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="36" style="width:80px"> &nbsp;default: 36 (0x36)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-magnetCheck">Magnet check on startup</label>
+        <input type="checkbox" id="node-config-input-magnetCheck" style="width:auto"> &nbsp;verify MD=1 at init
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-as5600', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'as5600-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-magnet',
+        label:   function() { return this.name || 'AS5600'; },
+        paletteLabel: 'AS5600'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-as5600">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AS5600">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-as5600">
+    <p>Reads the absolute angle, raw count, and magnet detection status from an AS5600
+    contactless rotary position sensor over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an
+    <b>as5600-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.angle <span class="property-type">number</span></dt>
+        <dd>Angle in degrees (0.0–360.0), scaled by any OTP-programmed ZPOS/MPOS range.</dd>
+        <dt>payload.raw <span class="property-type">number</span></dt>
+        <dd>Raw 12-bit angle count (0–4095), unaffected by ZPOS/MPOS.</dd>
+        <dt>payload.magnet_detected <span class="property-type">boolean</span></dt>
+        <dd>True if a magnet is detected (STATUS.MD=1, Bz ≥ 8 mT).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's fixed 7-bit address (default <code>0x36</code>).
+    Enable "Magnet check on startup" to verify that a magnet is present when the node
+    initialises — the AS5600 has no chip ID register, so MD=1 is the only presence check.</p>
+</script>
