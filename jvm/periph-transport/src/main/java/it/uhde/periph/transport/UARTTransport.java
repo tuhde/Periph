@@ -15,8 +15,9 @@ import java.lang.invoke.*;
  * <p>For RS-485, the transport first tries kernel RS-485 mode via
  * {@code ioctl(fd, TIOCSRS485, ...)} with {@code SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND}.
  * If the kernel driver does not support it and {@code dePinNum != -1}, it falls back
- * to manual GPIO toggling via {@code /dev/gpiochipN} (ioctl GPIOHANDLE_REQUEST +
- * GPIOHANDLE_SET_LINE_VALUES_IOCTL).
+ * to manual GPIO toggling via the Linux GPIO character device
+ * ({@code GPIO_GET_LINEHANDLE_IOCTL} + {@code GPIOHANDLE_SET_LINE_VALUES_IOCTL} on
+ * {@code /dev/gpiochip0}).
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
@@ -84,6 +85,24 @@ public final class UARTTransport implements Transport {
     // struct serial_rs485 is 64 bytes on Linux
     private static final int  SERIAL_RS485_SIZE = 64;
 
+    // GPIO character device ioctls (_IOWR(0xB4, ...))
+    // GPIO_GET_LINEHANDLE_IOCTL: _IOWR(0xB4, 3, struct gpiohandle_request) — 364 bytes
+    private static final long GPIO_GET_LINEHANDLE_IOCTL       = 0xC16CB403L;
+    // GPIOHANDLE_SET_LINE_VALUES_IOCTL: _IOWR(0xB4, 9, struct gpiohandle_data) — 64 bytes
+    private static final long GPIOHANDLE_SET_LINE_VALUES_IOCTL = 0xC040B409L;
+    private static final int  GPIOHANDLE_REQUEST_OUTPUT       = 2;
+    // struct gpiohandle_request layout (364 bytes total):
+    //   lineoffsets[64] u32 @ 0, flags u32 @ 256, default_values[64] u8 @ 260,
+    //   consumer_label[32] char @ 324, lines u32 @ 356, fd int @ 360
+    private static final int GR_SIZE     = 364;
+    private static final int GR_OFFSETS  = 0;
+    private static final int GR_FLAGS    = 256;
+    private static final int GR_DEFAULTS = 260;
+    private static final int GR_LINES    = 356;
+    private static final int GR_FD       = 360;
+    // struct gpiohandle_data: values[64] u8 (64 bytes)
+    private static final int GD_SIZE     = 64;
+
     private static final MethodHandle openMH;
     private static final MethodHandle ioctlAddrMH;
     private static final MethodHandle ioctlLongMH;
@@ -147,6 +166,7 @@ public final class UARTTransport implements Transport {
     private final int fd;
     private final boolean rs485Kernel;
     private final int dePinNum;
+    private final int gpioFd;
 
     /**
      * Open a UART device.
@@ -166,6 +186,7 @@ public final class UARTTransport implements Transport {
         this.fd          = result[0];
         this.rs485Kernel = result[1] != 0;
         this.dePinNum    = dePinNum;
+        this.gpioFd      = (!rs485Kernel && dePinNum >= 0) ? openGpioLine(dePinNum) : -1;
     }
 
     /**
@@ -280,15 +301,60 @@ public final class UARTTransport implements Transport {
         }
     }
 
+    /** Open /dev/gpiochip0 and request dePinNum as an output line; returns the line fd or -1. */
+    private static int openGpioLine(int dePinNum) {
+        try (var arena = Arena.ofConfined()) {
+            var chipPath = arena.allocateFrom("/dev/gpiochip0");
+            int chipFd = (int) openMH.invoke(chipPath, O_RDWR);
+            if (chipFd < 0) return -1;
+            try {
+                var req = arena.allocate(GR_SIZE, 4);
+                req.fill((byte) 0);
+                req.set(ValueLayout.JAVA_INT, GR_OFFSETS, dePinNum);
+                req.set(ValueLayout.JAVA_INT, GR_FLAGS,   GPIOHANDLE_REQUEST_OUTPUT);
+                req.set(ValueLayout.JAVA_BYTE, GR_DEFAULTS, (byte) 0);
+                req.set(ValueLayout.JAVA_INT, GR_LINES,   1);
+                int rc = (int) ioctlAddrMH.invoke(chipFd, GPIO_GET_LINEHANDLE_IOCTL, req);
+                if (rc < 0) return -1;
+                return req.get(ValueLayout.JAVA_INT, GR_FD);
+            } finally {
+                closeMH.invoke(chipFd);
+            }
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    private void deSet(int value) {
+        if (gpioFd < 0) return;
+        try (var arena = Arena.ofConfined()) {
+            var data = arena.allocate(GD_SIZE, 1);
+            data.fill((byte) 0);
+            data.set(ValueLayout.JAVA_BYTE, 0, (byte) value);
+            ioctlAddrMH.invoke(gpioFd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, data);
+        } catch (Throwable ignored) {}
+    }
+
+    /**
+     * Transmit bytes over UART.
+     *
+     * <p>In RS-485 mode, asserts DE before writing and deasserts it only after
+     * {@code tcdrain()} confirms the kernel TX buffer is empty.
+     *
+     * @param data bytes to transmit
+     * @throws IOException if the write or drain fails
+     */
     @Override
     public void write(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
+            if (!rs485Kernel) deSet(1);
             var buf = arena.allocate(data.length);
             buf.copyFrom(MemorySegment.ofArray(data));
             long n = (long) writeMH.invoke(fd, buf, (long) data.length);
             if (n < 0) throw new IOException("write() failed: " + n);
             int rc = (int) tcdrainMH.invoke(fd);
             if (rc < 0) throw new IOException("tcdrain() failed");
+            if (!rs485Kernel) deSet(0);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -296,6 +362,14 @@ public final class UARTTransport implements Transport {
         }
     }
 
+    /**
+     * Receive {@code n} bytes over UART; blocks until all bytes arrive or the
+     * VTIME-based read timeout expires.
+     *
+     * @param n number of bytes to read
+     * @return bytes received
+     * @throws IOException if a read timeout or I/O error occurs
+     */
     @Override
     public byte[] read(int n) throws IOException {
         try (var arena = Arena.ofConfined()) {
@@ -315,8 +389,15 @@ public final class UARTTransport implements Transport {
     }
 
     /**
-     * Writes then reads as two sequential operations (write drains via tcdrain,
-     * then read begins).
+     * Transmit bytes then receive {@code n} bytes as two sequential operations;
+     * {@code tcdrain()} separates the write and read phases.
+     *
+     * <p>In RS-485 mode DE is asserted only during the transmit phase.
+     *
+     * @param data bytes to transmit
+     * @param n    number of bytes to receive
+     * @return bytes received
+     * @throws IOException if the write, drain, or read fails
      */
     @Override
     public byte[] writeRead(byte[] data, int n) throws IOException {
@@ -324,10 +405,17 @@ public final class UARTTransport implements Transport {
         return read(n);
     }
 
+    /**
+     * Release the serial port file descriptor and, if applicable, the DE GPIO
+     * line handle.
+     *
+     * @throws IOException if the underlying {@code close()} call fails
+     */
     @Override
     public void close() throws IOException {
         try {
             closeMH.invoke(fd);
+            if (gpioFd >= 0) closeMH.invoke(gpioFd);
         } catch (Throwable t) {
             throw new IOException(t);
         }

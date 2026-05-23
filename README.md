@@ -21,6 +21,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | SPI | Implemented |
 | SMBus | Implemented |
 | NeoPixel (WS2812B / single-wire NZR) | Implemented |
+| UART (+ RS-485 variant) | Implemented |
 
 ## Structure
 

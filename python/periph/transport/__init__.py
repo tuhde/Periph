@@ -19,3 +19,8 @@ from .base import Transport
 #   from periph.transport.neopixel_micropython import NeoPixelTransport   (machine.SPI)
 #   from periph.transport.neopixel_circuitpython import NeoPixelTransport (busio.SPI)
 #   from periph.transport.neopixel_linux import NeoPixelTransport         (spidev / /dev/spidevB.D)
+
+# UART transports are platform-specific — import the one matching your target:
+#   from periph.transport.uart_micropython import UARTTransport   (machine.UART)
+#   from periph.transport.uart_circuitpython import UARTTransport (busio.UART)
+#   from periph.transport.uart_linux import UARTTransport         (pyserial / /dev/ttyS0)
