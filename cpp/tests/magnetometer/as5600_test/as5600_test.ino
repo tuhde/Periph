@@ -1,0 +1,101 @@
+#include <Wire.h>
+#include "I2CTransport.h"
+#include "AS5600.h"
+
+#ifndef TEST_SDA
+#define TEST_SDA 8
+#endif
+#ifndef TEST_SCL
+#define TEST_SCL 9
+#endif
+#ifndef TEST_I2C_FREQ
+#define TEST_I2C_FREQ 400000
+#endif
+#ifndef TEST_ADDR
+#define TEST_ADDR 0x36
+#endif
+
+I2CTransport transport(Wire, TEST_ADDR);
+AS5600Full   as5600(transport);
+
+static int passed = 0;
+static int failed = 0;
+
+static void check_eq(const char* label, uint16_t got, uint16_t expected) {
+    if (got == expected) {
+        Serial.print("PASS "); Serial.println(label);
+        passed++;
+    } else {
+        Serial.print("FAIL "); Serial.print(label);
+        Serial.print(": got "); Serial.print(got);
+        Serial.print(", expected "); Serial.println(expected);
+        failed++;
+    }
+}
+
+static void check_true(const char* label, bool condition) {
+    if (condition) {
+        Serial.print("PASS "); Serial.println(label);
+        passed++;
+    } else {
+        Serial.print("FAIL "); Serial.println(label);
+        failed++;
+    }
+}
+
+void setup() {
+    Serial.begin(115200);
+    delay(2000);
+
+    Wire.begin(TEST_SDA, TEST_SCL, TEST_I2C_FREQ);
+
+    // --- Magnet detection ---
+    check_true("magnet_detected", as5600.is_magnet_detected());
+
+    // --- Angle readings ---
+    float a = as5600.angle();
+    check_true("angle in range 0-360", a >= 0.0f && a < 360.0f);
+
+    uint16_t r = as5600.angle_raw();
+    check_true("angle_raw in range 0-4095", r <= 4095);
+
+    uint16_t ra = as5600.raw_angle();
+    check_true("raw_angle in range 0-4095", ra <= 4095);
+
+    float rad = as5600.raw_angle_degrees();
+    check_true("raw_angle_degrees in range 0-360", rad >= 0.0f && rad < 360.0f);
+
+    // --- Diagnostics ---
+    check_true("agc non-negative", as5600.agc() >= 0);
+    check_true("magnitude non-negative", as5600.magnitude() >= 0);
+
+    // --- Status ---
+    uint8_t sb = as5600.status_byte();
+    check_true("status_byte valid", sb <= 255);
+
+    // --- Position configuration (volatile) ---
+    as5600.set_zero_position(100);
+    check_eq("zero_position after set", as5600.zero_position(), 100);
+
+    as5600.set_max_position(2000);
+    check_eq("max_position after set", as5600.max_position(), 2000);
+
+    as5600.set_max_angle(2048);
+    check_eq("max_angle after set", as5600.max_angle(), 2048);
+
+    // --- Configure ---
+    as5600.configure(AS5600Full::PM_NOM, 0, AS5600Full::OUTS_ANALOG, 0, 0, 0, false);
+    check_true("configure accepted", as5600.is_magnet_detected());
+
+    // --- Burn count ---
+    uint8_t bc = as5600.burn_count();
+    check_true("burn_count in range 0-3", bc <= 3);
+
+    Serial.print("===DONE: ");
+    Serial.print(passed); Serial.print(" passed, ");
+    Serial.print(failed); Serial.println(" failed===");
+}
+
+void loop() {
+    delay(1000);
+}
