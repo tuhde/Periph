@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 exclude = [
+    "tests/transport/uart_test_esp32s3",
     "tests/power/ina226_test_esp32s3",
     "tests/power/ina219_test_esp32s3",
     "tests/power/ina3221_test_esp32s3",
@@ -18,6 +19,7 @@ exclude = [
 ]
 members = [
     "periph",
+    "tests/transport/uart_test",
     "examples/ina226_minimal",
     "examples/ina226_complete",
     "examples/ina226_demo",
@@ -69,8 +71,10 @@ members = [
 
 [workspace.dependencies]
 embedded-hal = "1.0"
+embedded-io = "0.6"
 heapless = "0.8"
 linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
 spidev = "0.6"
+serialport = "4"
 periph = { path = "periph" }

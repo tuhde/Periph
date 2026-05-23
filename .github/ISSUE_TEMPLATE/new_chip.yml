@@ -61,6 +61,7 @@ body:
         - label: SPI
         - label: SMBus
         - label: NeoPixel (WS2812B / single-wire NZR)
+        - label: UART
         - label: Other (describe in notes)
 
   - type: input
