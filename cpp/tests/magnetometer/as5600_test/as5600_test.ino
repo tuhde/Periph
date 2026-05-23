@@ -49,6 +49,21 @@ void setup() {
 
     Wire.begin(TEST_SDA, TEST_SCL, TEST_I2C_FREQ);
 
+    // --- Magnet status poll (60 s max at 5 Hz) ---
+    Serial.println("--- magnet status (60 s max) ---");
+    unsigned long deadline = millis() + 60000UL;
+    while (millis() < deadline) {
+        uint8_t s   = as5600.status_byte();
+        uint8_t agc = as5600.agc();
+        Serial.print("MD="); Serial.print((s & 0x08) ? 1 : 0);
+        Serial.print(" ML="); Serial.print((s & 0x10) ? 1 : 0);
+        Serial.print(" MH="); Serial.print((s & 0x20) ? 1 : 0);
+        Serial.print(" AGC="); Serial.println(agc);
+        if (s & 0x08) break;
+        delay(200);
+    }
+    Serial.println("--- end magnet status ---");
+
     // --- Magnet detection ---
     check_true("magnet_detected", as5600.is_magnet_detected());
 

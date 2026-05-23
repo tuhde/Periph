@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+use embedded_hal::i2c::I2c as _;
 use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::i2c::master::{Config, I2c};
@@ -31,6 +32,22 @@ fn main() -> ! {
         .unwrap()
         .with_sda(peripherals.GPIO1)
         .with_scl(peripherals.GPIO2);
+
+    let mut delay = esp_hal::delay::Delay::new();
+
+    println!("--- magnet status (60 s max) ---");
+    for _ in 0..300 {
+        let mut buf = [0u8; 1];
+        i2c.write_read(TEST_ADDR, &[0x0Bu8], &mut buf).ok();
+        let s = buf[0];
+        i2c.write_read(TEST_ADDR, &[0x1Au8], &mut buf).ok();
+        let agc = buf[0];
+        let md = s & 0x08 != 0; let ml = s & 0x10 != 0; let mh = s & 0x20 != 0;
+        println!("MD={} ML={} MH={} AGC={}", md as u8, ml as u8, mh as u8, agc);
+        if md { break; }
+        delay.delay_millis(200u32);
+    }
+    println!("--- end magnet status ---");
 
     let mut passed = 0i32;
     let mut failed = 0i32;

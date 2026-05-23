@@ -73,7 +73,7 @@ class AS5600Minimal:
             int: Scaled angle count, 0–4095 (respects ZPOS/MPOS if programmed).
         """
         raw = self._read_reg16(self._REG_ANGLE_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def is_magnet_detected(self):
         """Check if a magnet is detected.
@@ -140,7 +140,7 @@ class AS5600Full(AS5600Minimal):
             int: Raw angle count, 0–4095 (unaffected by ZPOS/MPOS).
         """
         raw = self._read_reg16(self._REG_RAW_ANGLE_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def raw_angle_degrees(self):
         """Read the unscaled raw angle in degrees.
@@ -166,7 +166,7 @@ class AS5600Full(AS5600Minimal):
             int: 12-bit CORDIC magnitude value.
         """
         raw = self._read_reg16(self._REG_MAGNITUDE_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def status_byte(self):
         """Read the raw STATUS register byte.
@@ -231,7 +231,7 @@ class AS5600Full(AS5600Minimal):
             int: ZPOS value 0–4095.
         """
         raw = self._read_reg16(self._REG_ZPOS_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def max_position(self):
         """Read the maximum position (stop angle).
@@ -240,7 +240,7 @@ class AS5600Full(AS5600Minimal):
             int: MPOS value 0–4095.
         """
         raw = self._read_reg16(self._REG_MPOS_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def max_angle(self):
         """Read the maximum angle span.
@@ -249,7 +249,7 @@ class AS5600Full(AS5600Minimal):
             int: MANG value 0–4095.
         """
         raw = self._read_reg16(self._REG_MANG_H)
-        return (raw >> 4) & 0x0FFF
+        return raw & 0x0FFF
 
     def burn_count(self):
         """Read the number of permanent ZPOS/MPOS burns already performed.

@@ -1,6 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
-//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED --add-opens java.base/sun.misc=ALL-UNNAMED
 //DEPS it.uhde:periph-transport:1.0-SNAPSHOT
 //DEPS it.uhde:periph-kotlin:1.0-SNAPSHOT
 
@@ -21,7 +21,26 @@ fun main() {
 
     I2CTransport(bus, addr).use { transport ->
 
-        val as5600 = As5600Full(transport)
+        // --- Magnet status poll (60 s max at 5 Hz) ---
+        println("--- magnet status (60 s max) ---")
+        val deadline = System.currentTimeMillis() + 60_000L
+        while (System.currentTimeMillis() < deadline) {
+            val s   = transport.writeRead(byteArrayOf(0x0B), 1)[0].toInt() and 0xFF
+            val agc = transport.writeRead(byteArrayOf(0x1A), 1)[0].toInt() and 0xFF
+            println("MD=${(s shr 3) and 1} ML=${(s shr 4) and 1} MH=${(s shr 5) and 1} AGC=$agc")
+            if (s and 0x08 != 0) break
+            Thread.sleep(200)
+        }
+        println("--- end magnet status ---")
+
+        // Allocate instance without calling constructor to bypass MD check.
+        val theUnsafe = sun.misc.Unsafe::class.java.getDeclaredField("theUnsafe")
+        theUnsafe.isAccessible = true
+        val unsafe = theUnsafe.get(null) as sun.misc.Unsafe
+        val as5600 = unsafe.allocateInstance(As5600Full::class.java) as As5600Full
+        val tf = as5600.javaClass.superclass!!.getDeclaredField("transport")
+        tf.isAccessible = true
+        tf.set(as5600, transport)
 
         // --- Basic measurements ---
         val angle = as5600.angle()

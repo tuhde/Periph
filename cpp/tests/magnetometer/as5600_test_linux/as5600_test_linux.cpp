@@ -30,6 +30,19 @@ int main() {
     I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
     AS5600Full as5600(transport);
 
+    // --- Magnet status poll (60 s max at 5 Hz) ---
+    printf("--- magnet status (60 s max) ---\n");
+    for (int i = 0; i < 300; i++) {
+        uint8_t s   = as5600.status_byte();
+        uint8_t agc = as5600.agc();
+        printf("MD=%d ML=%d MH=%d AGC=%d\n",
+               (s & 0x08) ? 1 : 0, (s & 0x10) ? 1 : 0,
+               (s & 0x20) ? 1 : 0, agc);
+        if (s & 0x08) break;
+        usleep(200000);
+    }
+    printf("--- end magnet status ---\n");
+
     // --- Magnet detection ---
     check_true("magnet_detected", as5600.is_magnet_detected());
 

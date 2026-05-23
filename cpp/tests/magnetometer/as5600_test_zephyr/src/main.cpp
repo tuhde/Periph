@@ -28,6 +28,19 @@ int main(void) {
     I2CTransportZephyr transport(i2c_dev, AS5600_ADDR);
     AS5600Full as5600(transport);
 
+    // --- Magnet status poll (60 s max at 5 Hz) ---
+    printk("--- magnet status (60 s max) ---\n");
+    for (int i = 0; i < 300; i++) {
+        uint8_t s   = as5600.status_byte();
+        uint8_t agc = as5600.agc();
+        printk("MD=%d ML=%d MH=%d AGC=%d\n",
+               (s & 0x08) ? 1 : 0, (s & 0x10) ? 1 : 0,
+               (s & 0x20) ? 1 : 0, agc);
+        if (s & 0x08) break;
+        k_msleep(200);
+    }
+    printk("--- end magnet status ---\n");
+
     // --- Magnet detection ---
     check_true("magnet_detected", as5600.is_magnet_detected());
 

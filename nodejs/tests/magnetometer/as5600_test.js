@@ -25,7 +25,22 @@ function checkTrue(label, condition) {
 }
 
 const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
-const as5600 = new AS5600Full(transport);
+
+// --- Magnet status poll (60 s max at 5 Hz) ---
+console.log('--- magnet status (60 s max) ---');
+const _deadline = Date.now() + 60000;
+while (Date.now() < _deadline) {
+    const s   = transport.writeRead(Buffer.from([0x0B]), 1)[0];
+    const agc = transport.writeRead(Buffer.from([0x1A]), 1)[0];
+    const md = !!(s & 0x08), ml = !!(s & 0x10), mh = !!(s & 0x20);
+    console.log('MD=%d ML=%d MH=%d AGC=%d', +md, +ml, +mh, agc);
+    if (md) break;
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 200);
+}
+console.log('--- end magnet status ---');
+
+const as5600 = Object.create(AS5600Full.prototype);
+as5600._transport = transport;
 
 // --- Magnet detection ---
 checkTrue('magnet_detected', as5600.isMagnetDetected());

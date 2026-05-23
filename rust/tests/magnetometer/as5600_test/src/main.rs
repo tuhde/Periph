@@ -1,3 +1,4 @@
+use embedded_hal::i2c::I2c as _;
 use linux_embedded_hal::I2cdev;
 use periph::chips::magnetometer::As5600Full;
 
@@ -20,7 +21,23 @@ fn main() {
         .and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
         .unwrap_or(0x36);
 
-    let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+    let mut dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+
+    println!("--- magnet status (60 s max) ---");
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
+    loop {
+        let mut buf = [0u8; 1];
+        dev.write_read(addr, &[0x0Bu8], &mut buf).ok();
+        let s = buf[0];
+        dev.write_read(addr, &[0x1Au8], &mut buf).ok();
+        let agc = buf[0];
+        let md = s & 0x08 != 0; let ml = s & 0x10 != 0; let mh = s & 0x20 != 0;
+        println!("MD={} ML={} MH={} AGC={}", md as u8, ml as u8, mh as u8, agc);
+        if md || std::time::Instant::now() >= deadline { break; }
+        std::thread::sleep(std::time::Duration::from_millis(200));
+    }
+    println!("--- end magnet status ---");
+
     let mut chip = As5600Full::new(dev, addr).expect("init AS5600");
 
     let mut passed = 0i32;

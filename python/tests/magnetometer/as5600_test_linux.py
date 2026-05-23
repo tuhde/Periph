@@ -31,7 +31,22 @@ def check_true(label, condition):
 
 
 transport = I2CTransport(I2C_BUS, I2C_ADDR)
-as5600 = AS5600Full(transport)
+
+# Poll magnet status for up to 60 s at 5 Hz before running tests.
+print('--- magnet status (60 s max) ---')
+for _ in range(300):
+    s   = transport.write_read(bytes([0x0B]), 1)[0]
+    agc = transport.write_read(bytes([0x1A]), 1)[0]
+    md = bool(s & 0x08); ml = bool(s & 0x10); mh = bool(s & 0x20)
+    print('MD={} ML={} MH={} AGC={}'.format(int(md), int(ml), int(mh), agc))
+    if md:
+        break
+    time.sleep(0.2)
+print('--- end magnet status ---')
+
+# Construct driver without the MD guard so tests run regardless.
+as5600 = AS5600Full.__new__(AS5600Full)
+as5600._transport = transport
 
 # --- Magnet detection ---
 check_true('magnet_detected', as5600.is_magnet_detected())

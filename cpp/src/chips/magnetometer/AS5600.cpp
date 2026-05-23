@@ -36,7 +36,7 @@ float AS5600Minimal::angle() {
 
 uint16_t AS5600Minimal::angle_raw() {
     uint16_t raw = _read_reg16(REG_ANGLE_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 bool AS5600Minimal::is_magnet_detected() {
@@ -58,7 +58,7 @@ AS5600Full::AS5600Full(Transport& transport)
 
 uint16_t AS5600Full::raw_angle() {
     uint16_t raw = _read_reg16(REG_RAW_ANGLE_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 float AS5600Full::raw_angle_degrees() {
@@ -71,7 +71,7 @@ uint8_t AS5600Full::agc() {
 
 uint16_t AS5600Full::magnitude() {
     uint16_t raw = _read_reg16(REG_MAGNITUDE_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 uint8_t AS5600Full::status_byte() {
@@ -104,17 +104,17 @@ void AS5600Full::set_max_angle(uint16_t span) {
 
 uint16_t AS5600Full::zero_position() {
     uint16_t raw = _read_reg16(REG_ZPOS_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 uint16_t AS5600Full::max_position() {
     uint16_t raw = _read_reg16(REG_MPOS_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 uint16_t AS5600Full::max_angle() {
     uint16_t raw = _read_reg16(REG_MANG_H);
-    return (raw >> 4) & 0x0FFF;
+    return raw & 0x0FFF;
 }
 
 uint8_t AS5600Full::burn_count() {
