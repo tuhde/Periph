@@ -2,6 +2,9 @@
 name = "periph"
 version = "0.1.0"
 edition = "2021"
+description = "Multi-language peripheral driver library for SPI, I2C, and other transports"
+license = "MIT"
+repository = "https://github.com/tuhde/Periph"
 
 [dependencies]
 embedded-hal = "1.0"
