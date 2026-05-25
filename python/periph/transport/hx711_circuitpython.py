@@ -52,7 +52,7 @@ class HX711Transport:
         raw = 0
         for _ in range(num_pulses):
             self._sck.value = True
-            raw = (raw << 1) | (0 if self._dout.value else 1)
+            raw = (raw << 1) | (1 if self._dout.value else 0)
             self._sck.value = False
         raw >>= num_pulses - 24
         if raw >= 0x800000:

@@ -53,7 +53,7 @@ class HX711Transport {
         let raw = 0;
         for (let i = 0; i < numPulses; i++) {
             this._sck.writeSync(1);
-            raw = (raw << 1) | (this._dout.readSync() === 0 ? 1 : 0);
+            raw = (raw << 1) | this._dout.readSync();
             this._sck.writeSync(0);
         }
         raw >>>= numPulses - 24;

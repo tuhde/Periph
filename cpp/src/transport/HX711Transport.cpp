@@ -17,7 +17,7 @@ int32_t HX711Transport::read_raw(uint8_t num_pulses) {
     uint32_t raw = 0;
     for (uint8_t i = 0; i < num_pulses; i++) {
         digitalWrite(_sck, HIGH);
-        raw = (raw << 1) | (digitalRead(_dout) ? 0u : 1u);
+        raw = (raw << 1) | (uint32_t)digitalRead(_dout);
         digitalWrite(_sck, LOW);
     }
     raw >>= num_pulses - 24;

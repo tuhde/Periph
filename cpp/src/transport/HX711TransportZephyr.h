@@ -48,7 +48,7 @@ public:
         uint32_t raw = 0;
         for (uint8_t i = 0; i < num_pulses; i++) {
             gpio_pin_set_dt(&_sck, 1);
-            raw = (raw << 1) | static_cast<uint32_t>(gpio_pin_get_dt(&_dout) == 0 ? 1 : 0);
+            raw = (raw << 1) | static_cast<uint32_t>(gpio_pin_get_dt(&_dout));
             gpio_pin_set_dt(&_sck, 0);
         }
         raw >>= num_pulses - 24;
