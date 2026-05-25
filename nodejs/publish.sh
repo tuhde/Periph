@@ -1,25 +1,56 @@
 #!/usr/bin/env bash
-# Publish all periph npm packages to npmjs.com.
+# Publish periph npm packages to npmjs.com.
 # Mirrors the nodejs-publish job in .github/workflows/release.yml.
 #
-# Usage:  ./publish.sh <version>          e.g. ./publish.sh 1.2.3
-#                                              ./publish.sh v1.2.3
+# Usage:  ./publish.sh <version> [package]
+#
+#   <version>   required — e.g. 1.2.3 or v1.2.3
+#   [package]   optional — publish only this package; omit to publish all
+#               accepted forms:
+#                 periph                           core driver package
+#                 node-red-contrib-periph-power    full npm name
+#                 power                            category short name
+#
 # Auth:   npm login   OR   export NODE_AUTH_TOKEN=<token>
 
 set -euo pipefail
 
-VERSION="${1:?Usage: $(basename "$0") <version>}"
-VERSION="${VERSION#v}"          # strip leading 'v' if present
+VERSION="${1:?Usage: $(basename "$0") <version> [package]}"
+VERSION="${VERSION#v}"
+FILTER="${2:-}"
 
-cd "$(dirname "$0")"           # run from nodejs/ regardless of call site
+cd "$(dirname "$0")"
 
 CONTRIB_DIRS=( packages/node-red-contrib-periph-*/ )
-TOTAL=$(( ${#CONTRIB_DIRS[@]} + 1 ))   # +1 for periph core
 
-echo "=== periph npm publish — v${VERSION} (${TOTAL} packages) ==="
+# ── Resolve a package arg to its npm name ─────────────────────────────────────
+# Accepts: exact npm name, directory name, or category short name (e.g. "power")
+resolve_package() {
+    python3 - "$1" <<'PYEOF'
+import json, pathlib, sys
+target = sys.argv[1]
+for f in sorted(pathlib.Path('packages').glob('*/package.json')):
+    pkg = json.load(f.open())
+    name = pkg['name']
+    if name == target or f.parent.name == target or name.endswith('-' + target):
+        print(name)
+        sys.exit(0)
+print(f'error: package not found: {target}', file=sys.stderr)
+sys.exit(1)
+PYEOF
+}
+
+# ── Validate filter early ─────────────────────────────────────────────────────
+if [[ -n "$FILTER" ]]; then
+    PACKAGE=$(resolve_package "$FILTER")
+    echo "=== periph npm publish — v${VERSION} (${PACKAGE} only) ==="
+else
+    TOTAL=$(( ${#CONTRIB_DIRS[@]} + 1 ))
+    echo "=== periph npm publish — v${VERSION} (${TOTAL} packages) ==="
+fi
 echo ""
 
-# ── 1. Stamp version in every package.json ───────────────────────────────────
+# ── 1. Stamp version in every package.json ────────────────────────────────────
 echo "Stamping version..."
 python3 - "$VERSION" <<'PYEOF'
 import json, pathlib, sys
@@ -31,7 +62,7 @@ for f in sorted(pathlib.Path('packages').glob('*/package.json')):
     print(f'  {f.parent.name}')
 PYEOF
 
-# ── 2. Generate placeholder READMEs (skips packages that already have one) ───
+# ── 2. Generate placeholder READMEs ───────────────────────────────────────────
 echo ""
 echo "READMEs..."
 python3 - <<'PYEOF'
@@ -55,35 +86,46 @@ for d in sorted(pathlib.Path('packages').glob('node-red-contrib-periph-*/')):
     )
     print(f'  {d.name}  (generated)')
 PYEOF
-
-# ── 3. Publish periph core ────────────────────────────────────────────────────
 echo ""
-echo "Publishing periph (core)..."
-npm publish --workspace periph --access public
 
-# ── 4. Publish Node-RED contrib packages ─────────────────────────────────────
-echo ""
-echo "Publishing contrib packages (10 s between each)..."
-failed=()
-for d in "${CONTRIB_DIRS[@]}"; do
-    name=$(python3 -c "import json; print(json.load(open('${d}package.json'))['name'])")
+# ── 3. Publish ────────────────────────────────────────────────────────────────
+publish_one() {
+    local name="$1" no_sleep="${2:-}"
     printf '  %-52s' "$name"
     if out=$(npm publish --workspace "$name" --access public 2>&1); then
         echo "OK"
+        return 0
     else
         echo "SKIPPED"
         echo "$out" | sed 's/^/      /'
-        failed+=("$name")
+        return 1
     fi
-    sleep 10
-done
+}
 
-# ── Summary ───────────────────────────────────────────────────────────────────
-echo ""
-skipped=${#failed[@]}
-published=$(( TOTAL - skipped ))
-echo "=== Done: ${published}/${TOTAL} published ==="
-if (( skipped > 0 )); then
-    echo "Skipped (already at this version or error):"
-    printf '  %s\n' "${failed[@]}"
+if [[ -n "$FILTER" ]]; then
+    # ── Single package ────────────────────────────────────────────────────────
+    echo "Publishing..."
+    publish_one "$PACKAGE"
+    echo ""
+    echo "=== Done ==="
+else
+    # ── All packages ──────────────────────────────────────────────────────────
+    echo "Publishing periph (core)..."
+    publish_one periph
+    echo ""
+    echo "Publishing contrib packages (10 s between each)..."
+    failed=()
+    for d in "${CONTRIB_DIRS[@]}"; do
+        name=$(python3 -c "import json; print(json.load(open('${d}package.json'))['name'])")
+        publish_one "$name" || failed+=("$name")
+        sleep 10
+    done
+    echo ""
+    skipped=${#failed[@]}
+    published=$(( TOTAL - skipped ))
+    echo "=== Done: ${published}/${TOTAL} published ==="
+    if (( skipped > 0 )); then
+        echo "Skipped:"
+        printf '  %s\n' "${failed[@]}"
+    fi
 fi
