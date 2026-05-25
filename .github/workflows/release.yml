@@ -208,6 +208,63 @@ jobs:
           path: jvm-jars/
 
   # -----------------------------------------------------------------------
+  # Arduino branch — sync cpp/ into the arduino orphan branch, tag it
+  # The arduino branch has library.properties at root (required by LM).
+  # Tagged arduino-vX.Y.Z so the Arduino Library Manager can track it.
+  # -----------------------------------------------------------------------
+  arduino-branch:
+    needs: meta
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up arduino branch
+        run: |
+          git fetch origin arduino
+          git worktree add /tmp/arduino-worktree arduino
+
+      - name: Sync cpp/ into arduino branch
+        run: |
+          VERSION="${{ needs.meta.outputs.version }}"
+          AW=/tmp/arduino-worktree
+
+          # Clear existing content (keep .git)
+          find "$AW" -mindepth 1 -not -path "$AW/.git" -not -path "$AW/.git/*" -delete
+
+          # Copy src/ and examples/ (Arduino only, no Zephyr)
+          cp -r cpp/src "$AW/src"
+          mkdir -p "$AW/examples"
+          for d in cpp/examples/*/; do
+            name=$(basename "$d")
+            [[ "$name" == *_Zephyr ]] && continue
+            cp -r "$d" "$AW/examples/$name"
+          done
+
+          # Stamp version in library.properties
+          sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
+
+      - name: Commit and tag arduino branch
+        run: |
+          VERSION="${{ needs.meta.outputs.version }}"
+          TAG="arduino-v${VERSION}"
+          AW=/tmp/arduino-worktree
+
+          cd "$AW"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: release ${TAG}"
+          fi
+          git tag "$TAG"
+          git push origin arduino
+          git push origin "$TAG"
+
+  # -----------------------------------------------------------------------
   # INSTALL.md — stamp version and commit back to main
   # -----------------------------------------------------------------------
   update-install-md:
@@ -242,7 +299,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [python-build, arduino-build, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write
