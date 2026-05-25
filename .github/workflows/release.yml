@@ -42,6 +42,9 @@ jobs:
         run: |
           pip install --quiet build
           python -m build python/
+          VERSION="${{ needs.meta.outputs.version }}"
+          mv python/dist/periph-${VERSION}.tar.gz \
+             python/dist/periph-python-${VERSION}.tar.gz
 
       - uses: actions/upload-artifact@v4
         with:
@@ -67,12 +70,12 @@ jobs:
           mkdir -p arduino-pkg/Periph
           cp -r cpp/src cpp/examples cpp/library.properties arduino-pkg/Periph/
           cd arduino-pkg
-          zip -r ../Periph-${{ needs.meta.outputs.version }}.zip Periph/
+          zip -r ../Periph-cpp-${{ needs.meta.outputs.version }}.zip Periph/
 
       - uses: actions/upload-artifact@v4
         with:
           name: arduino-dist
-          path: Periph-*.zip
+          path: Periph-cpp-*.zip
 
   # -----------------------------------------------------------------------
   # Node.js — publish all workspace packages to npm
