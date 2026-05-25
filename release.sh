@@ -148,5 +148,6 @@ git worktree remove /tmp/periph-arduino
 git push all arduino
 git push all "$ARDUINO_TAG"
 echo "  ${ARDUINO_TAG} pushed"
+
 echo ""
 echo "=== done — GitHub Actions release workflow triggered by ${TAG} ==="
