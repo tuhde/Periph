@@ -130,6 +130,7 @@ jobs:
             name=$(jq -r '.name' "$d/package.json")
             npm publish --workspace "$name" --access public || \
               echo "WARNING: $name publish failed or is already at this version"
+            sleep 10
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
