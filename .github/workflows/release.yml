@@ -96,6 +96,32 @@ jobs:
             jq --arg v "$VERSION" '.version = $v' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
           done
 
+      - name: Generate READMEs for placeholder packages
+        run: |
+          for d in nodejs/packages/node-red-contrib-periph-*/; do
+            [ -f "$d/README.md" ] && continue
+            name=$(jq -r '.name' "$d/package.json")
+            desc=$(jq -r '.description' "$d/package.json")
+            cat > "$d/README.md" <<EOF
+# $name
+
+$desc — part of the [Periph](https://github.com/tuhde/Periph) library.
+
+> **Coming soon.** Nodes will be added as chips in this category are implemented.
+
+## Install
+
+\`\`\`sh
+npm install $name
+\`\`\`
+
+## Links
+
+- [GitHub](https://github.com/tuhde/Periph)
+- [All supported chips](https://github.com/tuhde/Periph#supported-chips)
+EOF
+          done
+
       - name: Publish periph core
         working-directory: nodejs/packages/periph
         run: npm publish --access public
