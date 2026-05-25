@@ -105,11 +105,49 @@ git add \
 git commit -m "chore: release ${TAG}"
 echo "  $(git rev-parse --short HEAD)  chore: release ${TAG}"
 
-# ── Tag and push ──────────────────────────────────────────────────────────────
+# ── Tag and push main ─────────────────────────────────────────────────────────
 echo ""
-echo "=== tagging and pushing ==="
+echo "=== tagging and pushing main ==="
 git tag "$TAG"
 git push all main
 git push all "$TAG"
+
+# ── Update arduino branch ──────────────────────────────────────────────────────
+echo ""
+echo "=== updating arduino branch ==="
+ARDUINO_TAG="arduino-v${VERSION}"
+
+git worktree add /tmp/periph-arduino arduino
+AW=/tmp/periph-arduino
+
+# Clear existing content (keep .git)
+find "$AW" -mindepth 1 -not -path "$AW/.git" -not -path "$AW/.git/*" -delete
+
+# Copy src/ and examples/ (Arduino only, no Zephyr)
+cp -r cpp/src "$AW/src"
+mkdir -p "$AW/examples"
+for d in cpp/examples/*/; do
+  name=$(basename "$d")
+  [[ "$name" == *_Zephyr ]] && continue
+  cp -r "$d" "$AW/examples/$name"
+done
+
+# library.properties with stamped version
+sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
+
+cd "$AW"
+git add -A
+if ! git diff --staged --quiet; then
+  git commit -m "chore: release ${ARDUINO_TAG}"
+fi
+git tag "$ARDUINO_TAG"
+cd "$ROOT"
+
+git worktree remove /tmp/periph-arduino
+
+git push all arduino
+git push all "$ARDUINO_TAG"
+echo "  ${ARDUINO_TAG} pushed"
+
 echo ""
 echo "=== done — GitHub Actions release workflow triggered by ${TAG} ==="
