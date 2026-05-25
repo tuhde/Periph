@@ -97,41 +97,39 @@ jobs:
           done
 
       - name: Generate READMEs for placeholder packages
+        shell: python3 {0}
         run: |
-          for d in nodejs/packages/node-red-contrib-periph-*/; do
-            [ -f "$d/README.md" ] && continue
-            name=$(jq -r '.name' "$d/package.json")
-            desc=$(jq -r '.description' "$d/package.json")
-            cat > "$d/README.md" <<EOF
-# $name
-
-$desc — part of the [Periph](https://github.com/tuhde/Periph) library.
-
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
-
-## Install
-
-\`\`\`sh
-npm install $name
-\`\`\`
-
-## Links
-
-- [GitHub](https://github.com/tuhde/Periph)
-- [All supported chips](https://github.com/tuhde/Periph#supported-chips)
-EOF
-          done
+          import json, pathlib
+          for d in sorted(pathlib.Path('nodejs/packages').glob('node-red-contrib-periph-*/')):
+              if (d / 'README.md').exists():
+                  continue
+              pkg = json.loads((d / 'package.json').read_text())
+              name, desc = pkg['name'], pkg['description']
+              (d / 'README.md').write_text(
+                  f'# {name}\n\n'
+                  f'{desc} — part of the [Periph](https://github.com/tuhde/Periph) library.\n\n'
+                  f'> **Coming soon.** Nodes will be added as chips in this category'
+                  f' are implemented.\n\n'
+                  f'## Install\n\n'
+                  f'```sh\nnpm install {name}\n```\n\n'
+                  f'## Links\n\n'
+                  f'- [GitHub](https://github.com/tuhde/Periph)\n'
+                  f'- [All supported chips](https://github.com/tuhde/Periph#supported-chips)\n'
+              )
 
       - name: Publish periph core
-        working-directory: nodejs/packages/periph
-        run: npm publish --access public
+        working-directory: nodejs
+        run: npm publish --workspace periph --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Node-RED contrib packages
+        working-directory: nodejs
         run: |
-          for d in nodejs/packages/node-red-contrib-periph-*/; do
-            (cd "$d" && npm publish --access public)
+          for d in packages/node-red-contrib-periph-*/; do
+            name=$(jq -r '.name' "$d/package.json")
+            npm publish --workspace "$name" --access public || \
+              echo "WARNING: $name publish failed or is already at this version"
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
