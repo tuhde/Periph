@@ -183,12 +183,41 @@ jobs:
           path: jvm-jars/
 
   # -----------------------------------------------------------------------
+  # INSTALL.md — stamp version and commit back to main
+  # -----------------------------------------------------------------------
+  update-install-md:
+    needs: meta
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Stamp version
+        run: |
+          OLD=$(grep -oP '(?<=<!-- periph-version: )[^ >]+(?= -->)' INSTALL.md)
+          NEW="${{ needs.meta.outputs.version }}"
+          sed -i "s/${OLD//./\\.}/${NEW}/g" INSTALL.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add INSTALL.md
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: update INSTALL.md to v${{ needs.meta.outputs.version }} [skip ci]"
+            git push origin main
+          fi
+
+  # -----------------------------------------------------------------------
   # Release — create GitHub release and attach all file artifacts
   # nodejs-publish and rust-publish are listed as dependencies so the
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [python-build, arduino-build, nodejs-publish, rust-publish, jvm-build]
+    needs: [python-build, arduino-build, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write
