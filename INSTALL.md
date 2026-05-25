@@ -1,14 +1,14 @@
-<!-- periph-version: 0.1.0 -->
+<!-- periph-version: 1.0.1 -->
 # Installing Periph
 
-Version **0.1.0** · [Release notes](../../releases/tag/v0.1.0)
+Version **1.0.1** · [Release notes](../../releases/tag/v1.0.1)
 
 ---
 
 ## Python
 
 ```sh
-pip install periph==0.1.0
+pip install periph==1.0.1
 ```
 
 On Linux, install the SMBus transport dependency as well:
@@ -22,7 +22,7 @@ pip install smbus2
 ## Node.js
 
 ```sh
-npm install periph@0.1.0
+npm install periph@1.0.1
 ```
 
 ---
@@ -32,8 +32,8 @@ npm install periph@0.1.0
 Install category packages via Node-RED's **Manage Palette**, or from the command line in your Node-RED user directory:
 
 ```sh
-npm install node-red-contrib-periph-temperature@0.1.0
-npm install node-red-contrib-periph-power@0.1.0
+npm install node-red-contrib-periph-temperature@1.0.1
+npm install node-red-contrib-periph-power@1.0.1
 ```
 
 Available categories: `accelerometer` · `adc-dac` · `color` · `comms` · `display` · `environmental` · `gas` · `gnss` · `gpio` · `gyroscope` · `humidity` · `io-expander` · `led` · `light` · `magnetometer` · `memory` · `motor` · `power` · `pressure` · `rfid` · `rtc` · `temperature` · `tof`
@@ -43,28 +43,28 @@ Available categories: `accelerometer` · `adc-dac` · `color` · `comms` · `dis
 ## Rust
 
 ```sh
-cargo add periph@0.1.0
+cargo add periph@1.0.1
 ```
 
 Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "0.1.0"
+periph = "1.0.1"
 ```
 
 ---
 
 ## C++ / Arduino
 
-Download [`Periph-0.1.0.zip`](../../releases/download/v0.1.0/Periph-0.1.0.zip) from the release assets and install in the Arduino IDE:
+Download [`Periph-1.0.1.zip`](../../releases/download/v1.0.1/Periph-1.0.1.zip) from the release assets and install in the Arduino IDE:
 
 **Sketch → Include Library → Add .ZIP Library…**
 
 Or via `arduino-cli`:
 
 ```sh
-arduino-cli lib install --zip-path Periph-0.1.0.zip
+arduino-cli lib install --zip-path Periph-1.0.1.zip
 ```
 
 For Linux GCC or Zephyr, copy `cpp/src/` into your project and include the relevant headers.
@@ -73,23 +73,23 @@ For Linux GCC or Zephyr, copy `cpp/src/` into your project and include the relev
 
 ## Java / Kotlin / Groovy (JVM)
 
-Download the JARs from the [release assets](../../releases/tag/v0.1.0):
+Download the JARs from the [release assets](../../releases/tag/v1.0.1):
 
 | JAR | Required by |
 |-----|-------------|
-| `periph-transport-0.1.0.jar` | all JVM languages |
-| `periph-java-0.1.0.jar` | Java |
-| `periph-kotlin-0.1.0.jar` | Kotlin |
-| `periph-groovy-0.1.0.jar` | Groovy |
+| `periph-transport-1.0.1.jar` | all JVM languages |
+| `periph-java-1.0.1.jar` | Java |
+| `periph-kotlin-1.0.1.jar` | Kotlin |
+| `periph-groovy-1.0.1.jar` | Groovy |
 
 Install into your local Maven repository:
 
 ```sh
-mvn install:install-file -Dfile=periph-transport-0.1.0.jar \
-    -DgroupId=it.uhde -DartifactId=periph-transport -Dversion=0.1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=periph-transport-1.0.1.jar \
+    -DgroupId=it.uhde -DartifactId=periph-transport -Dversion=1.0.1 -Dpackaging=jar
 
-mvn install:install-file -Dfile=periph-java-0.1.0.jar \
-    -DgroupId=it.uhde -DartifactId=periph-java -Dversion=0.1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=periph-java-1.0.1.jar \
+    -DgroupId=it.uhde -DartifactId=periph-java -Dversion=1.0.1 -Dpackaging=jar
 ```
 
 Then declare in `pom.xml`:
@@ -98,18 +98,18 @@ Then declare in `pom.xml`:
 <dependency>
     <groupId>it.uhde</groupId>
     <artifactId>periph-transport</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.1</version>
 </dependency>
 <dependency>
     <groupId>it.uhde</groupId>
     <artifactId>periph-java</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
 For JBang, run the `install:install-file` commands above first, then reference in your script:
 
 ```java
-//DEPS it.uhde:periph-transport:0.1.0
-//DEPS it.uhde:periph-java:0.1.0
+//DEPS it.uhde:periph-transport:1.0.1
+//DEPS it.uhde:periph-java:1.0.1
 ```
