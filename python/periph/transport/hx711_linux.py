@@ -1,8 +1,10 @@
 import time
 
+from gpiod.line import Value
+
 
 class HX711Transport:
-    """HX711 GPIO bit-bang transport for Linux (wraps gpiod lines).
+    """HX711 GPIO bit-bang transport for Linux (wraps a gpiod v2 LineRequest).
 
     Implements the 2-wire bit-bang protocol used exclusively by the HX711
     24-bit ADC. DOUT is sampled on each rising edge of PD_SCK; the pulse
@@ -12,14 +14,16 @@ class HX711Transport:
     CPU core.
 
     Args:
-        dout:   gpiod.Line requested as INPUT (active_low=False).
-        pd_sck: gpiod.Line requested as OUTPUT.
+        request:        gpiod.LineRequest owning both lines.
+        dout_offset:    GPIO line offset for DOUT (input from chip).
+        pd_sck_offset:  GPIO line offset for PD_SCK (clock / power-down output).
     """
 
-    def __init__(self, dout, pd_sck):
-        self._dout = dout
-        self._sck = pd_sck
-        self._sck.set_value(0)
+    def __init__(self, request, dout_offset, pd_sck_offset):
+        self._req  = request
+        self._dout = dout_offset
+        self._sck  = pd_sck_offset
+        self._req.set_value(self._sck, Value.INACTIVE)
 
     def is_ready(self):
         """Return True if a conversion result is available (DOUT is LOW).
@@ -29,7 +33,7 @@ class HX711Transport:
         Returns:
             bool: True when DOUT is LOW (data ready).
         """
-        return self._dout.get_value() == 0
+        return self._req.get_value(self._dout) == Value.INACTIVE
 
     def read_raw(self, num_pulses):
         """Block until data is ready, then clock out a conversion.
@@ -52,13 +56,13 @@ class HX711Transport:
         """
         if num_pulses not in (25, 26, 27):
             raise ValueError("num_pulses must be 25, 26, or 27")
-        while self._dout.get_value() != 0:
+        while self._req.get_value(self._dout) != Value.INACTIVE:
             time.sleep(0.001)
         raw = 0
         for _ in range(num_pulses):
-            self._sck.set_value(1)
-            raw = (raw << 1) | self._dout.get_value()
-            self._sck.set_value(0)
+            self._req.set_value(self._sck, Value.ACTIVE)
+            raw = (raw << 1) | self._req.get_value(self._dout).value
+            self._req.set_value(self._sck, Value.INACTIVE)
         raw >>= num_pulses - 24
         if raw >= 0x800000:
             raw -= 0x1000000
@@ -66,7 +70,7 @@ class HX711Transport:
 
     def power_down(self):
         """Enter power-down mode by holding PD_SCK HIGH for >60 µs."""
-        self._sck.set_value(1)
+        self._req.set_value(self._sck, Value.ACTIVE)
         time.sleep(0.000065)
 
     def power_up(self):
@@ -75,9 +79,8 @@ class HX711Transport:
         Drives PD_SCK LOW. The chip resets to Channel A, Gain 128. The first
         conversion after power-up must be discarded.
         """
-        self._sck.set_value(0)
+        self._req.set_value(self._sck, Value.INACTIVE)
 
     def close(self):
         """Release both GPIO lines back to the kernel."""
-        self._dout.release()
-        self._sck.release()
+        self._req.release()

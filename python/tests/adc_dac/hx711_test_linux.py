@@ -2,6 +2,7 @@ import os
 import sys
 
 import gpiod
+from gpiod.line import Direction, Value
 from periph.transport.hx711_linux import HX711Transport
 from periph.chips.adc_dac.hx711 import HX711Full
 
@@ -23,13 +24,17 @@ def check_true(label, condition):
         failed += 1
 
 
-chip_dev = gpiod.Chip(CHIP)
-dout_line   = chip_dev.get_line(DOUT)
-pd_sck_line = chip_dev.get_line(PD_SCK)
-dout_line.request(consumer='hx711_chip_test', type=gpiod.LINE_REQ_DIR_IN)
-pd_sck_line.request(consumer='hx711_chip_test', type=gpiod.LINE_REQ_DIR_OUT)
+request = gpiod.request_lines(
+    CHIP,
+    consumer='hx711_chip_test',
+    config={
+        DOUT:   gpiod.LineSettings(direction=Direction.INPUT),
+        PD_SCK: gpiod.LineSettings(direction=Direction.OUTPUT,
+                                   output_value=Value.INACTIVE),
+    },
+)
 
-transport = HX711Transport(dout_line, pd_sck_line)
+transport = HX711Transport(request, DOUT, PD_SCK)
 chip = HX711Full(transport)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
