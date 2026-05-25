@@ -18,6 +18,8 @@ bool HX711TransportLinux::is_ready() {
 }
 
 int32_t HX711TransportLinux::read_raw(uint8_t num_pulses) {
+    if (num_pulses != 25 && num_pulses != 26 && num_pulses != 27)
+        return INT32_MIN;
     while (gpiod_line_get_value(_dout) != 0)
         usleep(1000);
     uint32_t raw = 0;

@@ -49,7 +49,10 @@ class HX711Transport {
     readRaw(numPulses = 25) {
         if (numPulses !== 25 && numPulses !== 26 && numPulses !== 27)
             throw new Error('numPulses must be 25, 26, or 27');
-        while (this._dout.readSync() !== 0) {}
+        while (this._dout.readSync() !== 0) {
+            const end = Date.now() + 1;
+            while (Date.now() < end) {}
+        }
         let raw = 0;
         for (let i = 0; i < numPulses; i++) {
             this._sck.writeSync(1);

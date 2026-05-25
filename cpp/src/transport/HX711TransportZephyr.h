@@ -44,6 +44,8 @@ public:
      *  @return           Signed 24-bit ADC value.
      */
     int32_t read_raw(uint8_t num_pulses = 25) {
+        if (num_pulses != 25 && num_pulses != 26 && num_pulses != 27)
+            return INT32_MIN;
         while (gpio_pin_get_dt(&_dout) != 0) {}
         uint32_t raw = 0;
         for (uint8_t i = 0; i < num_pulses; i++) {
