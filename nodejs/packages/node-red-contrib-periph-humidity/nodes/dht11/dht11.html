@@ -1,0 +1,38 @@
+<script type="text/html" data-help-name="periph-dht11">
+    <p>Reads temperature and humidity from a DHT11 sensor.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.humidity_rh <span class="property-type">number</span></dt>
+        <dd>Relative humidity in percent.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <dl class="message-properties">
+        <dt>dataPin <span class="property-type">number</span></dt>
+        <dd>GPIO pin number for the data line (default 4).</dd>
+        <dt>retries <span class="property-type">number</span></dt>
+        <dd>Number of retry attempts on checksum error (default 3).</dd>
+    </dl>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('periph-dht11', {
+        category: 'hardware',
+        color: '#a0a0a0',
+        defaults: {
+            dataPin: { value: 4 },
+            retries: { value: 3 },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'node-red-contrib-periph-humidity/icons/dht11.png',
+        label: function() {
+            return 'DHT11 GPIO ' + this.dataPin;
+        },
+    });
+</script>
