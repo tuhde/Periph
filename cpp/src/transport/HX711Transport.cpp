@@ -15,12 +15,17 @@ bool HX711Transport::is_ready() {
 int32_t HX711Transport::read_raw(uint8_t num_pulses) {
     if (num_pulses != 25 && num_pulses != 26 && num_pulses != 27)
         return INT32_MIN;
-    while (digitalRead(_dout) != LOW) {}
+    unsigned long deadline = millis() + 1000UL;
+    while (digitalRead(_dout) != LOW) {
+        if (millis() >= deadline) return INT32_MIN;
+    }
     uint32_t raw = 0;
     for (uint8_t i = 0; i < num_pulses; i++) {
         digitalWrite(_sck, HIGH);
-        raw = (raw << 1) | (uint32_t)digitalRead(_dout);
+        delayMicroseconds(1);
         digitalWrite(_sck, LOW);
+        delayMicroseconds(1);
+        raw = (raw << 1) | (uint32_t)digitalRead(_dout);
     }
     raw >>= num_pulses - 24;
     if (raw & 0x800000u)

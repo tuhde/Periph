@@ -20,11 +20,12 @@ This transport is chip-specific — no other device uses this protocol.
 
 ### Read Sequence
 
-1. Poll DOUT until LOW (conversion ready)
-2. Send exactly N positive pulses on PD_SCK (N = 25, 26, or 27)
-3. Sample DOUT on each rising edge; data is valid within 0.1 µs of the rising edge
+1. Ensure PD_SCK is LOW before starting
+2. Poll DOUT until LOW (conversion ready); timeout after 1 second and return an error if it never goes LOW
+3. Send exactly N positive pulses on PD_SCK (N = 25, 26, or 27), sampling DOUT at each falling edge (HIGH→LOW transition); data is valid within 0.1 µs of the falling edge
 4. Data is MSB-first, bits 23–0; after bit 0, the 25th pulse drives DOUT back HIGH
 5. N programs the channel and gain for the **next** conversion
+6. Leave PD_SCK LOW after the last pulse
 
 ### Pulse Count → Channel/Gain
 
@@ -68,7 +69,7 @@ signed range: -8 388 608 to +8 388 607
 |-----------|------------|---------|-------|
 | `init` | `dout`, `pd_sck` | — | Configure pins; drive PD_SCK LOW |
 | `is_ready` | — | bool | True if DOUT is LOW; non-blocking |
-| `read_raw` | `num_pulses: int` (25, 26, or 27) | int | Block until DOUT LOW; clock out N pulses; return signed 24-bit value |
+| `read_raw` | `num_pulses: int` (25, 26, or 27) | int | Wait up to 1 s for DOUT LOW (error on timeout); clock out N pulses sampling DOUT at each falling edge; leave PD_SCK LOW; return signed 24-bit value |
 | `power_down` | — | — | Hold PD_SCK HIGH for >60 µs |
 | `power_up` | — | — | Drive PD_SCK LOW; chip resets to Channel A, Gain 128 |
 | `close` | — | — | Release / de-configure pins |
@@ -100,7 +101,7 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 
 ## Platform Notes
 
-All platforms implement the same bit-bang loop: toggle PD_SCK HIGH → sample DOUT → toggle PD_SCK LOW, repeated N times. The only platform-specific differences are the GPIO API and the polling sleep on Linux.
+All platforms implement the same bit-bang loop: toggle PD_SCK HIGH → toggle PD_SCK LOW → sample DOUT at the falling edge, repeated N times. The only platform-specific differences are the GPIO API and the polling sleep on Linux.
 
 ### MicroPython
 
@@ -158,10 +159,11 @@ impl<DI: InputPin, CK: OutputPin> HX711Transport<DI, CK> {
         let mut raw: u32 = 0;
         for _ in 0..num_pulses {
             self.pd_sck.set_high()?;
-            raw = (raw << 1) | if self.dout.is_low()? { 1 } else { 0 };
             self.pd_sck.set_low()?;
+            raw = (raw << 1) | if self.dout.is_high()? { 1 } else { 0 };  // sample at falling edge
         }
         raw >>= num_pulses - 24;        // discard the extra gain-select pulses
+        // PD_SCK is already LOW (last loop iteration ended with set_low)
         Ok(if raw >= 0x800000 { raw as i32 - 0x1000000 } else { raw as i32 })
     }
 }

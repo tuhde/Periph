@@ -4,7 +4,7 @@
 /** @brief HX711 GPIO bit-bang transport for Arduino.
  *
  * Implements the 2-wire bit-bang protocol used exclusively by the HX711
- * 24-bit ADC. DOUT is sampled on each rising edge of PD_SCK; the pulse
+ * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
  * count selects the channel and gain for the next conversion.
  *
  * @param dout_pin   Arduino pin number for DOUT (input from chip).
@@ -22,15 +22,16 @@ public:
      */
     bool is_ready();
 
-    /** @brief Block until data is ready, then clock out a conversion.
+    /** @brief Wait up to 1 s for data ready, then clock out a conversion.
      *
-     *  Sends exactly num_pulses rising edges on PD_SCK and samples DOUT on
-     *  each one. The pulse count programs the channel and gain for the next
-     *  conversion: 25 → Channel A Gain 128, 26 → Channel B Gain 32,
-     *  27 → Channel A Gain 64.
+     *  Polls DOUT until LOW (conversion ready), then sends exactly num_pulses
+     *  pulses on PD_SCK, sampling DOUT at each falling edge (HIGH→LOW
+     *  transition). Leaves PD_SCK LOW after the last pulse. The pulse count
+     *  programs the channel and gain for the next conversion:
+     *  25 → Channel A Gain 128, 26 → Channel B Gain 32, 27 → Channel A Gain 64.
      *
      *  @param num_pulses Number of PD_SCK pulses (must be 25, 26, or 27).
-     *  @return           Signed 24-bit ADC value.
+     *  @return           Signed 24-bit ADC value, or INT32_MIN on timeout/error.
      */
     int32_t read_raw(uint8_t num_pulses = 25);
 

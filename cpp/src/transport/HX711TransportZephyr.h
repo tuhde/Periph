@@ -5,7 +5,7 @@
 /** @brief HX711 GPIO bit-bang transport for Zephyr RTOS.
  *
  * Implements the 2-wire bit-bang protocol used exclusively by the HX711
- * 24-bit ADC. DOUT is sampled on each rising edge of PD_SCK; the pulse
+ * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
  * count selects the channel and gain for the next conversion.
  *
  * prj.conf must enable CONFIG_GPIO=y, CONFIG_CPP=y, CONFIG_STD_CPP17=y.
@@ -33,25 +33,31 @@ public:
         return gpio_pin_get_dt(&_dout) == 0;
     }
 
-    /** @brief Block until data is ready, then clock out a conversion.
+    /** @brief Wait up to 1 s for data ready, then clock out a conversion.
      *
-     *  Sends exactly num_pulses rising edges on PD_SCK and samples DOUT on
-     *  each one. The pulse count programs the channel and gain for the next
-     *  conversion: 25 → Channel A Gain 128, 26 → Channel B Gain 32,
-     *  27 → Channel A Gain 64.
+     *  Polls DOUT until LOW (conversion ready), then sends exactly num_pulses
+     *  pulses on PD_SCK, sampling DOUT at each falling edge (HIGH→LOW
+     *  transition). Leaves PD_SCK LOW after the last pulse. The pulse count
+     *  programs the channel and gain for the next conversion:
+     *  25 → Channel A Gain 128, 26 → Channel B Gain 32, 27 → Channel A Gain 64.
      *
      *  @param num_pulses Number of PD_SCK pulses (must be 25, 26, or 27).
-     *  @return           Signed 24-bit ADC value.
+     *  @return           Signed 24-bit ADC value, or INT32_MIN on timeout/error.
      */
     int32_t read_raw(uint8_t num_pulses = 25) {
         if (num_pulses != 25 && num_pulses != 26 && num_pulses != 27)
             return INT32_MIN;
-        while (gpio_pin_get_dt(&_dout) != 0) {}
+        int64_t deadline = k_uptime_get() + 1000LL;
+        while (gpio_pin_get_dt(&_dout) != 0) {
+            if (k_uptime_get() >= deadline) return INT32_MIN;
+        }
         uint32_t raw = 0;
         for (uint8_t i = 0; i < num_pulses; i++) {
             gpio_pin_set_dt(&_sck, 1);
-            raw = (raw << 1) | static_cast<uint32_t>(gpio_pin_get_dt(&_dout));
+            k_usleep(1);
             gpio_pin_set_dt(&_sck, 0);
+            k_usleep(1);
+            raw = (raw << 1) | static_cast<uint32_t>(gpio_pin_get_dt(&_dout));
         }
         raw >>= num_pulses - 24;
         if (raw & 0x800000u)

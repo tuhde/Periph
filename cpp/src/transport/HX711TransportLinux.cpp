@@ -20,13 +20,17 @@ bool HX711TransportLinux::is_ready() {
 int32_t HX711TransportLinux::read_raw(uint8_t num_pulses) {
     if (num_pulses != 25 && num_pulses != 26 && num_pulses != 27)
         return INT32_MIN;
-    while (gpiod_line_get_value(_dout) != 0)
+    for (int polls = 0; gpiod_line_get_value(_dout) != 0; ++polls) {
+        if (polls >= 1000) return INT32_MIN;
         usleep(1000);
+    }
     uint32_t raw = 0;
     for (uint8_t i = 0; i < num_pulses; i++) {
         gpiod_line_set_value(_sck, 1);
-        raw = (raw << 1) | static_cast<uint32_t>(gpiod_line_get_value(_dout));
+        usleep(1);
         gpiod_line_set_value(_sck, 0);
+        usleep(1);
+        raw = (raw << 1) | static_cast<uint32_t>(gpiod_line_get_value(_dout));
     }
     raw >>= num_pulses - 24;
     if (raw & 0x800000u)

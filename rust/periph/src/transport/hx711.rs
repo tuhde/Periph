@@ -51,6 +51,8 @@ pub enum HX711Error<DE, CE> {
     Clock(CE),
     /// `num_pulses` was not 25, 26, or 27.
     InvalidPulseCount,
+    /// DOUT did not go LOW within 1 second (conversion not ready).
+    Timeout,
 }
 
 /// HX711 GPIO bit-bang transport.
@@ -85,43 +87,54 @@ where
         self.dout.is_low().map_err(HX711Error::Dout)
     }
 
-    /// Block until data is ready, then clock out a conversion.
+    /// Wait up to 1 s for data ready, then clock out a conversion.
     ///
-    /// Reads 24 data bits by pulsing PD_SCK 24 times and sampling DOUT on each
-    /// rising edge. Then sends `num_pulses - 24` additional pulses to program
-    /// the channel and gain for the **next** conversion. On bare-metal this
-    /// spin-polls DOUT; on Linux insert a sleep in the caller's wait loop if
-    /// CPU usage matters.
+    /// Polls DOUT until LOW (conversion ready), then sends `num_pulses` PD_SCK
+    /// pulses, sampling DOUT at each falling edge (HIGH→LOW transition). Leaves
+    /// PD_SCK LOW after the last pulse. Sends `num_pulses - 24` extra pulses
+    /// after the 24 data bits to program the channel and gain for the **next**
+    /// conversion.
     ///
-    /// # Arguments
-    ///
-    /// * `num_pulses` – Total PD_SCK pulses (25, 26, or 27).
-    ///
-    /// # Returns
-    ///
-    /// Signed 24-bit ADC value.
+    /// On `std` targets, returns [`HX711Error::Timeout`] if DOUT does not go
+    /// LOW within 1 second. On `no_std` bare-metal, spins indefinitely.
     ///
     /// # Errors
     ///
     /// Returns [`HX711Error::InvalidPulseCount`] if `num_pulses` is not 25, 26,
-    /// or 27. Returns [`HX711Error::Dout`] or [`HX711Error::Clock`] on GPIO
-    /// failure.
+    /// or 27. Returns [`HX711Error::Timeout`] (std only) if DOUT stays HIGH for
+    /// more than 1 second. Returns [`HX711Error::Dout`] or
+    /// [`HX711Error::Clock`] on GPIO failure.
     pub fn read_raw(&mut self, num_pulses: u8) -> Result<i32, HX711Error<DI::Error, CK::Error>> {
         if !matches!(num_pulses, 25 | 26 | 27) {
             return Err(HX711Error::InvalidPulseCount);
         }
-        while self.dout.is_high().map_err(HX711Error::Dout)? {}
+        #[cfg(feature = "std")]
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(1);
+        while self.dout.is_high().map_err(HX711Error::Dout)? {
+            #[cfg(feature = "std")]
+            if std::time::Instant::now() >= deadline {
+                return Err(HX711Error::Timeout);
+            }
+        }
 
         let mut raw: u32 = 0;
         for _ in 0..24 {
             self.pd_sck.set_high().map_err(HX711Error::Clock)?;
-            let bit = self.dout.is_high().map_err(HX711Error::Dout)? as u32;
+            #[cfg(feature = "std")]
+            std::thread::sleep(std::time::Duration::from_micros(1));
             self.pd_sck.set_low().map_err(HX711Error::Clock)?;
+            #[cfg(feature = "std")]
+            std::thread::sleep(std::time::Duration::from_micros(1));
+            let bit = self.dout.is_high().map_err(HX711Error::Dout)? as u32;
             raw = (raw << 1) | bit;
         }
         for _ in 24..num_pulses {
             self.pd_sck.set_high().map_err(HX711Error::Clock)?;
+            #[cfg(feature = "std")]
+            std::thread::sleep(std::time::Duration::from_micros(1));
             self.pd_sck.set_low().map_err(HX711Error::Clock)?;
+            #[cfg(feature = "std")]
+            std::thread::sleep(std::time::Duration::from_micros(1));
         }
 
         if raw >= 0x800000 {
