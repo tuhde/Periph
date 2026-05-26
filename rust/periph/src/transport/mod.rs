@@ -1,3 +1,4 @@
+pub mod hx711;
 pub mod i2c;
 pub mod smbus;
 pub mod neopixel;

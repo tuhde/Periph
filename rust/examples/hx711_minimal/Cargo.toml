@@ -1,0 +1,10 @@
+[package]
+name = "hx711_minimal"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true, features = ["std"] }
+linux-embedded-hal = { workspace = true }
+embedded-hal = { workspace = true }
+gpiocdev = { workspace = true }

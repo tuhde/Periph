@@ -1,0 +1,82 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-hx711', {
+        category:     'Peripheral',
+        color:        '#a6bbcf',
+        defaults: {
+            name:        { value: '' },
+            doutPin:     { value: '5',   required: true, validate: RED.validators.number() },
+            pdSckPin:    { value: '6',   required: true, validate: RED.validators.number() },
+            gain:        { value: '128' },
+            scaleFactor: { value: '1.0' },
+            tareOffset:  { value: '0' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-weight-hanging',
+        label:   function() { return this.name || 'HX711'; },
+        paletteLabel: 'HX711'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-hx711">
+    <div class="form-row">
+        <label for="node-input-doutPin"><i class="fa fa-microchip"></i> DOUT pin</label>
+        <input type="number" id="node-input-doutPin" min="0" style="width:80px"> &nbsp;GPIO number (BCM)
+    </div>
+    <div class="form-row">
+        <label for="node-input-pdSckPin"><i class="fa fa-microchip"></i> PD_SCK pin</label>
+        <input type="number" id="node-input-pdSckPin" min="0" style="width:80px"> &nbsp;GPIO number (BCM)
+    </div>
+    <div class="form-row">
+        <label for="node-input-gain"><i class="fa fa-sliders-h"></i> Gain</label>
+        <select id="node-input-gain" style="width:200px">
+            <option value="128">128 — Channel A (default)</option>
+            <option value="64">64 — Channel A</option>
+            <option value="32">32 — Channel B</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-scaleFactor"><i class="fa fa-balance-scale"></i> Scale factor</label>
+        <input type="text" id="node-input-scaleFactor" style="width:120px"> &nbsp;counts per unit weight
+    </div>
+    <div class="form-row">
+        <label for="node-input-tareOffset"><i class="fa fa-crosshairs"></i> Tare offset</label>
+        <input type="text" id="node-input-tareOffset" style="width:120px"> &nbsp;or send <code>msg.payload = "tare"</code>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HX711">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-hx711">
+    <p>Reads weight from an HX711 24-bit ADC connected to a load cell via two GPIO pins.</p>
+    <p>Any input message triggers a raw ADC read. Sending <code>msg.payload = "tare"</code> captures
+    the current reading as the zero offset instead of producing output.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message triggers a weight reading. If <code>payload</code> is the string
+        <code>"tare"</code>, the node captures the current average (10 readings) as the
+        zero offset and produces no output message.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.raw <span class="property-type">number</span></dt>
+        <dd>Signed 24-bit ADC value (-8 388 608 to +8 388 607).</dd>
+        <dt>payload.weight <span class="property-type">number</span></dt>
+        <dd>Calibrated weight: <code>(raw - tareOffset) / scaleFactor</code>.
+        Returns <code>0.0</code> when scale factor is 1.0 and offset is 0.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p><b>DOUT pin</b> and <b>PD_SCK pin</b> are BCM GPIO numbers (Raspberry Pi / Linux GPIO).</p>
+    <p><b>Gain</b> selects the input channel and amplifier gain: 128 and 64 use Channel A;
+    32 uses Channel B (fixed gain).</p>
+    <p><b>Scale factor</b> is the number of ADC counts per unit weight. Calibrate by placing a
+    known weight on the scale: <code>factor = (readAverage() - tareOffset) / knownWeight</code>.</p>
+    <p><b>Tare offset</b> sets the initial zero point. You can also zero the scale at any time
+    by injecting a message with <code>payload = "tare"</code>.</p>
+</script>
