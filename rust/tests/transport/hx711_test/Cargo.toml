@@ -1,5 +1,5 @@
 [package]
-name = "hx711_test"
+name = "hx711_transport_test"
 version = "0.1.0"
 edition = "2021"
 
