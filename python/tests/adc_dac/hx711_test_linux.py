@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import gpiod
 from gpiod.line import Direction, Value
@@ -36,23 +37,29 @@ request = gpiod.request_lines(
 
 transport = HX711Transport(request, DOUT, PD_SCK)
 chip = HX711Full(transport)
+time.sleep(0.01)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
 
 raw = chip.read_raw()
+time.sleep(0.01)
 check_true('read_raw returns int', isinstance(raw, int))
 check_true('read_raw in 24-bit signed range', -8388608 <= raw <= 8388607)
 
 chip.set_gain(128)
+time.sleep(0.01)
 check_true('set_gain(128) accepted', True)
 
 chip.set_gain(64)
+time.sleep(0.01)
 check_true('set_gain(64) accepted', True)
 
 chip.set_gain(32)
+time.sleep(0.01)
 check_true('set_gain(32) accepted', True)
 
 chip.set_gain(128)
+time.sleep(0.01)
 
 try:
     chip.set_gain(99)
@@ -61,10 +68,12 @@ except ValueError:
     check_true('set_gain(99) raises ValueError', True)
 
 avg = chip.read_average(3)
+time.sleep(0.01)
 check_true('read_average returns int', isinstance(avg, int))
 check_true('read_average in 24-bit signed range', -8388608 <= avg <= 8388607)
 
 chip.tare(3)
+time.sleep(0.01)
 check_true('tare accepted', True)
 
 offset = chip.get_offset()
@@ -78,13 +87,18 @@ check_true('get_scale returns float', isinstance(scale, float))
 check_true('get_scale returns 420.0', scale == 420.0)
 
 weight = chip.read_weight(1)
+time.sleep(0.01)
 check_true('read_weight returns float', isinstance(weight, float))
 
 chip.power_down()
 check_true('power_down accepted', True)
 
 chip.power_up()
+time.sleep(0.01)
 check_true('power_up accepted', True)
+
+chip.power_down()
+check_true('final power_down accepted', True)
 
 transport.close()
 
