@@ -117,19 +117,19 @@ File: `python/periph/transport/hx711_circuitpython.py`
 
 ### Linux Python
 
-Use `gpiod` (libgpiod Python bindings). Insert `time.sleep(0.001)` between DOUT polls in `is_ready` and at the top of the `read_raw` wait loop to avoid spinning a CPU core. Call `line.release()` in `close()`.
+Use `gpiod` (libgpiod Python bindings). Insert `time.sleep(0.001)` between DOUT polls in the `read_raw` wait loop to avoid spinning a CPU core. **Do not insert explicit delays between clock edges**: `time.sleep(0.000001)` on Linux sleeps 50–100 µs due to scheduler granularity, which exceeds the 50 µs T3 maximum and triggers power-down. The gpiod call overhead (~1–5 µs) is sufficient. Call `request.release()` in `close()`.
 
 File: `python/periph/transport/hx711_linux.py`
 
 ### Arduino
 
-Use `digitalRead(dout)` and `digitalWrite(pd_sck, HIGH/LOW)`. No delay needed between clock edges on typical MCUs — the instruction cycle is short enough to stay within T3/T4 minimums while staying well under the 50 µs maximum.
+Use `digitalRead(dout)` and `digitalWrite(pd_sck, HIGH/LOW)`. Add `delayMicroseconds(1)` between edges — MCU instruction cycles are sub-µs, so an explicit 1 µs delay is needed to meet the T3/T4 0.2 µs minimums.
 
 Files: `cpp/src/transport/HX711Transport.h`, `cpp/src/transport/HX711Transport.cpp`
 
 ### Linux GCC
 
-Use `gpiod_line_get_value()` and `gpiod_line_set_value()`. Insert a 1 ms `usleep` between DOUT polls. Release lines in destructor / `close()`.
+Use `gpiod_line_get_value()` and `gpiod_line_set_value()`. Insert a 1 ms `usleep` between DOUT polls. **Do not insert explicit delays between clock edges**: Linux scheduler granularity makes `usleep(1)` sleep 50–100 µs in practice, which exceeds the 50 µs T3 maximum and triggers power-down. The `gpiod` syscall overhead (~1–5 µs) is sufficient. Release lines in destructor / `close()`.
 
 Files: `cpp/src/transport/HX711TransportLinux.h`, `cpp/src/transport/HX711TransportLinux.cpp`
 
@@ -173,7 +173,7 @@ File: `rust/periph/src/transport/hx711.rs`
 
 ### Rust Linux
 
-Same implementation. Use `linux-embedded-hal`'s `CdevPin` as the `InputPin` / `OutputPin`. Insert a 1 ms `std::thread::sleep` inside the DOUT poll loop.
+Same implementation. Use `linux-embedded-hal`'s `CdevPin` as the `InputPin` / `OutputPin`. **Do not insert explicit delays between clock edges** (same reason as Linux GCC: `std::thread::sleep(1µs)` sleeps 50–100 µs). The `embedded-hal` GPIO call overhead is sufficient.
 
 ```toml
 linux-embedded-hal = "0.4"

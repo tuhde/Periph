@@ -66,9 +66,7 @@ class HX711Transport:
         raw = 0
         for _ in range(num_pulses):
             self._req.set_value(self._sck, Value.ACTIVE)
-            time.sleep(0.000001)
             self._req.set_value(self._sck, Value.INACTIVE)
-            time.sleep(0.000001)
             raw = (raw << 1) | self._req.get_value(self._dout).value
         raw >>= num_pulses - 24
         if raw >= 0x800000:

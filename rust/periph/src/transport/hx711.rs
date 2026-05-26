@@ -120,21 +120,13 @@ where
         let mut raw: u32 = 0;
         for _ in 0..24 {
             self.pd_sck.set_high().map_err(HX711Error::Clock)?;
-            #[cfg(feature = "std")]
-            std::thread::sleep(std::time::Duration::from_micros(1));
             self.pd_sck.set_low().map_err(HX711Error::Clock)?;
-            #[cfg(feature = "std")]
-            std::thread::sleep(std::time::Duration::from_micros(1));
             let bit = self.dout.is_high().map_err(HX711Error::Dout)? as u32;
             raw = (raw << 1) | bit;
         }
         for _ in 24..num_pulses {
             self.pd_sck.set_high().map_err(HX711Error::Clock)?;
-            #[cfg(feature = "std")]
-            std::thread::sleep(std::time::Duration::from_micros(1));
             self.pd_sck.set_low().map_err(HX711Error::Clock)?;
-            #[cfg(feature = "std")]
-            std::thread::sleep(std::time::Duration::from_micros(1));
         }
 
         if raw >= 0x800000 {

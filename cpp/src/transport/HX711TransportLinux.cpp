@@ -27,9 +27,7 @@ int32_t HX711TransportLinux::read_raw(uint8_t num_pulses) {
     uint32_t raw = 0;
     for (uint8_t i = 0; i < num_pulses; i++) {
         gpiod_line_set_value(_sck, 1);
-        usleep(1);
         gpiod_line_set_value(_sck, 0);
-        usleep(1);
         raw = (raw << 1) | static_cast<uint32_t>(gpiod_line_get_value(_dout));
     }
     raw >>= num_pulses - 24;
