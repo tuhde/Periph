@@ -1,3 +1,4 @@
+use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::adc_dac::{Hx711Full, Hx711Minimal};
 use periph::transport::hx711::{HX711Error, HX711Transport};
@@ -28,19 +29,17 @@ fn main() {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let chip = gpiocdev::Chip::new(&chip_path).expect("open gpio chip");
+    let mut chip = Chip::new(&chip_path).expect("open gpio chip");
 
     // --- Hx711Minimal ---
     {
-        let dout_line = chip
-            .request_line(gpiocdev::Request::input([dout_offset]).consumer("hx711_test_minimal"))
-            .expect("request dout");
-        let pd_sck_line = chip
-            .request_line(gpiocdev::Request::output([pd_sck_offset]).consumer("hx711_test_minimal"))
-            .expect("request pd_sck");
+        let dout_handle = chip.get_line(dout_offset).expect("get dout line")
+            .request(LineRequestFlags::INPUT, 0, "hx711_test_minimal").expect("request dout");
+        let pd_sck_handle = chip.get_line(pd_sck_offset).expect("get pd_sck line")
+            .request(LineRequestFlags::OUTPUT, 0, "hx711_test_minimal").expect("request pd_sck");
 
-        let dout   = CdevPin::new(dout_line,   dout_offset).expect("dout pin");
-        let pd_sck = CdevPin::new(pd_sck_line, pd_sck_offset).expect("pd_sck pin");
+        let dout   = CdevPin::new(dout_handle).expect("dout pin");
+        let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
         let transport = HX711Transport::new(dout, pd_sck);
         let mut minimal = Hx711Minimal::new(transport).expect("init Hx711Minimal");
@@ -62,15 +61,13 @@ fn main() {
 
     // --- Hx711Full ---
     {
-        let dout_line = chip
-            .request_line(gpiocdev::Request::input([dout_offset]).consumer("hx711_test_full"))
-            .expect("request dout");
-        let pd_sck_line = chip
-            .request_line(gpiocdev::Request::output([pd_sck_offset]).consumer("hx711_test_full"))
-            .expect("request pd_sck");
+        let dout_handle = chip.get_line(dout_offset).expect("get dout line")
+            .request(LineRequestFlags::INPUT, 0, "hx711_test_full").expect("request dout");
+        let pd_sck_handle = chip.get_line(pd_sck_offset).expect("get pd_sck line")
+            .request(LineRequestFlags::OUTPUT, 0, "hx711_test_full").expect("request pd_sck");
 
-        let dout   = CdevPin::new(dout_line,   dout_offset).expect("dout pin");
-        let pd_sck = CdevPin::new(pd_sck_line, pd_sck_offset).expect("pd_sck pin");
+        let dout   = CdevPin::new(dout_handle).expect("dout pin");
+        let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
         let transport = HX711Transport::new(dout, pd_sck);
         let mut full = Hx711Full::new(transport).expect("init Hx711Full");

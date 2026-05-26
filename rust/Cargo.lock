@@ -3,6 +3,39 @@
 version = 4
 
 [[package]]
+name = "as5600_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "as5600_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "as5600_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "as5600_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -201,6 +234,56 @@ checksum = "0bfb9eb618601c89945a70e254898da93b13be0388091d42117462b265bb3fad"
 dependencies = [
  "hash32",
  "stable_deref_trait",
+]
+
+[[package]]
+name = "hx711_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx711_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx711_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx711_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx711_transport_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
 ]
 
 [[package]]

@@ -89,5 +89,5 @@ linux-embedded-hal = "0.4"
 embedded-hal-bus = "0.2"
 spidev = "0.6"
 serialport = "4"
-gpiocdev = "0.6"
+gpio-cdev = "0.6"
 periph = { path = "periph" }

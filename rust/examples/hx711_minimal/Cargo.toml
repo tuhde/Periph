@@ -7,4 +7,4 @@ edition = "2021"
 periph = { workspace = true, features = ["std"] }
 linux-embedded-hal = { workspace = true }
 embedded-hal = { workspace = true }
-gpiocdev = { workspace = true }
+gpio-cdev = { workspace = true }

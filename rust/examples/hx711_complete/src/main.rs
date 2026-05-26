@@ -1,3 +1,4 @@
+use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::adc_dac::Hx711Full;
 use periph::transport::hx711::HX711Transport;
@@ -7,16 +8,14 @@ fn main() {
     let dout_offset: u32  = std::env::var("HX711_DOUT").ok().and_then(|v| v.parse().ok()).unwrap_or(5);
     let sck_offset:  u32  = std::env::var("HX711_PD_SCK").ok().and_then(|v| v.parse().ok()).unwrap_or(6);
 
-    let chip = gpiocdev::Chip::new(&chip_path).expect("open gpio chip");
-    let dout_line = chip
-        .request_line(gpiocdev::Request::input([dout_offset]).consumer("hx711_complete"))
-        .expect("request dout");
-    let sck_line = chip
-        .request_line(gpiocdev::Request::output([sck_offset]).consumer("hx711_complete"))
-        .expect("request pd_sck");
+    let mut chip = Chip::new(&chip_path).expect("open gpio chip");
+    let dout_handle = chip.get_line(dout_offset).expect("get dout line")
+        .request(LineRequestFlags::INPUT, 0, "hx711_complete").expect("request dout");
+    let sck_handle = chip.get_line(sck_offset).expect("get sck line")
+        .request(LineRequestFlags::OUTPUT, 0, "hx711_complete").expect("request pd_sck");
 
-    let dout   = CdevPin::new(dout_line, dout_offset).expect("dout pin");
-    let pd_sck = CdevPin::new(sck_line,  sck_offset).expect("pd_sck pin");
+    let dout   = CdevPin::new(dout_handle).expect("dout pin");
+    let pd_sck = CdevPin::new(sck_handle).expect("pd_sck pin");
 
     let transport = HX711Transport::new(dout, pd_sck);
     let mut chip = Hx711Full::new(transport).expect("init HX711");  // Create HX711 driver — discards first conversion, (transport) → Result<Hx711Full, _>
