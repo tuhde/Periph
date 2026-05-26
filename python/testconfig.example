@@ -35,6 +35,18 @@ CP_SCL=board.SCL
 LINUX_I2C_BUS=1
 
 # ------------------------------------------------------------------
+# DHTxx single-wire GPIO pin (all platforms)
+# ------------------------------------------------------------------
+# DATA pin for DHT11/DHT22 sensors
+DATA_PIN=4
+
+# gpiod chip number (Linux kernel only)
+DHTXX_CHIP_NUM=0
+
+# gpiod line number (Linux kernel only)
+DHTXX_LINE_NUM=4
+
+# ------------------------------------------------------------------
 # Common
 # ------------------------------------------------------------------
 # I2C address of the device under test (optional — falls back to chip_defaults)
