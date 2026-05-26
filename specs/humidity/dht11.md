@@ -195,3 +195,31 @@ The DHTxx transport must be implemented first; its checklist is in `specs/transp
 - [ ] Examples `rust/examples/dht11_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/humidity/dht11_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/humidity/dht11_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### JVM (Java)
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/DHT11Minimal.java` — Javadoc on class and every public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/DHT11Full.java` — Javadoc on class and every public method
+- [ ] Examples `jvm/examples/java/humidity/dht11/Minimal.java` — JBang, Tier-1
+- [ ] Examples `jvm/examples/java/humidity/dht11/Complete.java` — JBang, Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/humidity/dht11/Demo.java` — JBang, Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/humidity/dht11/DHT11Test.java` — JBang integration test (Pi hardware)
+
+### JVM (Kotlin)
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/DHT11Minimal.kt` — KDoc on class and every public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/DHT11Full.kt` — KDoc on class and every public method
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Minimal.kt` — JBang, Tier-1
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Complete.kt` — JBang, Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Demo.kt` — JBang, Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/humidity/dht11/DHT11Test.kt` — JBang integration test (Pi hardware)
+
+### JVM (Groovy)
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/DHT11Minimal.groovy` — Groovydoc on class and every public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/DHT11Full.groovy` — Groovydoc on class and every public method
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Minimal.groovy` — JBang, Tier-1
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Complete.groovy` — JBang, Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Demo.groovy` — JBang, Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/humidity/dht11/DHT11Test.groovy` — JBang integration test (Pi hardware)
+
+### Sigrok
+- [ ] Decoder `sigrok/dht11/__init__.py`
+- [ ] Decoder `sigrok/dht11/pd.py` — Decodes start signal, sensor response, 40-bit data frame, and checksum validation; temperature and humidity annotations in human-readable units
