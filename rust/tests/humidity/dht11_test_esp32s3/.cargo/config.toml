@@ -1,0 +1,4 @@
+[build]
+target = "xtensa-esp32s3-elf"
+[target.xtensa-esp32s3-elf]
+runner = "espflash"
