@@ -8,6 +8,7 @@ ANN_BIT       = 1
 ANN_CONV      = 2
 ANN_POWERDOWN = 3
 ANN_WARNING   = 4
+ANN_WAKEUP    = 5
 
 DEFAULT_GAIN = ('A', 128)
 
@@ -36,6 +37,12 @@ class Decoder(srd.Decoder):
         {'id': 'inter_pulse_ms',
          'desc': 'Max gap between pulses within one conversion (ms)',
          'default': 5},
+        {'id': 'show_wakeup',
+         'desc': 'Show wake-up time annotation (PD_SCK LOW → DOUT LOW)',
+         'default': 'no', 'values': ('yes', 'no')},
+        {'id': 'show_bits',
+         'desc': 'Show individual bit annotations',
+         'default': 'no', 'values': ('yes', 'no')},
     )
     annotations = (
         ('ready',      'Ready'),
@@ -43,12 +50,13 @@ class Decoder(srd.Decoder):
         ('conversion', 'Conversion'),
         ('powerdown',  'Power-down'),
         ('warning',    'Warning'),
+        ('wakeup',     'Wake-up'),
     )
     annotation_rows = (
         ('ready',       'Ready',       (ANN_READY,)),
         ('bits',        'Bits',        (ANN_BIT,)),
         ('conversions', 'Conversions', (ANN_CONV,)),
-        ('power',       'Power',       (ANN_POWERDOWN,)),
+        ('power',       'Power',       (ANN_POWERDOWN, ANN_WAKEUP)),
         ('warnings',    'Warnings',    (ANN_WARNING,)),
     )
 
@@ -77,6 +85,7 @@ class Decoder(srd.Decoder):
         inter_pulse_samples = int(self.samplerate * self.options['inter_pulse_ms'] * 1e-3)
 
         current_gain = DEFAULT_GAIN
+        wakeup_ss    = None
 
         while True:
             # Wait for DOUT LOW (level — catches both fresh falling edges and
@@ -94,13 +103,24 @@ class Decoder(srd.Decoder):
                     self.put(pd_ss, pd_es, self.out_ann,
                              [ANN_POWERDOWN, ['Power-down', 'PD']])
                     self.put(pd_ss, pd_es, self.out_python, ['POWERDOWN', None])
-                    # Wait for SCK to go LOW (power-up).
+                    # Wait for SCK to go LOW (power-up); start wake-up timer.
                     self.wait({1: 'f'})
+                    wakeup_ss    = self.samplenum
                     current_gain = DEFAULT_GAIN
                 continue
 
             # DOUT fell LOW — conversion result is available.
             ready_ss = self.samplenum
+
+            if wakeup_ss is not None:
+                if self.options['show_wakeup'] == 'yes':
+                    dur_ms = (ready_ss - wakeup_ss) / self.samplerate * 1000
+                    self.put(wakeup_ss, ready_ss, self.out_ann,
+                             [ANN_WAKEUP, [
+                                 'Wake-up: %.1f ms' % dur_ms,
+                                 '%.1f ms' % dur_ms,
+                             ]])
+                wakeup_ss = None
 
             # Wait for first SCK rising edge; pin values tell us DOUT at that moment.
             pins = self.wait({1: 'r'})
@@ -115,12 +135,12 @@ class Decoder(srd.Decoder):
             aborted     = False
 
             while True:
-                bit_ss   = self.samplenum
-                dout_val = pins[0]  # DOUT sampled at the rising edge
+                bit_ss = self.samplenum
 
                 # Wait for SCK falling edge; bail if SCK stays HIGH > 60 µs.
                 pins = self.wait([{1: 'f'}, {'skip': pd_samples}])
-                bit_es = self.samplenum
+                bit_es   = self.samplenum
+                dout_val = pins[0]  # DOUT sampled at the falling edge
 
                 if not self.matched[0]:
                     self._warn(bit_ss, bit_es,
@@ -140,7 +160,8 @@ class Decoder(srd.Decoder):
 
                 if pulse_count <= 24:
                     raw = (raw << 1) | dout_val
-                    self.put(bit_ss, bit_es, self.out_ann, [ANN_BIT, [str(dout_val)]])
+                    if self.options['show_bits'] == 'yes':
+                        self.put(bit_ss, bit_es, self.out_ann, [ANN_BIT, [str(dout_val)]])
 
                 if pulse_count >= 27:
                     break
@@ -154,15 +175,19 @@ class Decoder(srd.Decoder):
                 continue
 
             if pulse_count in GAIN_MAP:
-                signed      = raw - 0x1000000 if raw >= 0x800000 else raw
-                ch, gain    = current_gain
-                current_gain = GAIN_MAP[pulse_count]
+                signed       = raw - 0x1000000 if raw >= 0x800000 else raw
+                ch, gain     = current_gain
+                next_ch, next_gain = GAIN_MAP[pulse_count]
+                current_gain = (next_ch, next_gain)
 
                 self.put(conv_ss, last_es, self.out_ann,
                          [ANN_CONV, [
-                             'Ch%s G%d: %d (0x%06X)' % (ch, gain, signed, raw & 0xFFFFFF),
-                             'Ch%s G%d: %d' % (ch, gain, signed),
-                             '%d' % signed,
+                             '%s-%d: %d (0x%06X)  Next: Channel %s Gain %d' % (
+                                 ch, gain, signed, raw & 0xFFFFFF, next_ch, next_gain),
+                             '%s-%d: %d (0x%06X)  Next: %s-%d' % (
+                                 ch, gain, signed, raw & 0xFFFFFF, next_ch, next_gain),
+                             '%s-%d: %d  Next: %s-%d' % (ch, gain, signed, next_ch, next_gain),
+                             '%s-%d: %d' % (ch, gain, signed),
                          ]])
                 self.put(conv_ss, last_es, self.out_python,
                          ['CONVERSION', (signed, ch, gain)])
