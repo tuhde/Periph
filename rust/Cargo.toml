@@ -20,6 +20,7 @@ exclude = [
     "tests/transport/hx711_test_esp32s3",
     "tests/adc_dac/hx711_test_esp32s3",
     "tests/environmental/aht21_test_esp32s3",
+    "tests/gas/ens160_test_esp32s3",
 ]
 members = [
     "periph",
@@ -84,6 +85,10 @@ members = [
     "examples/aht21_complete",
     "examples/aht21_demo",
     "tests/environmental/aht21_test",
+    "examples/ens160_minimal",
+    "examples/ens160_complete",
+    "examples/ens160_demo",
+    "tests/gas/ens160_test",
 ]
 
 [workspace.dependencies]

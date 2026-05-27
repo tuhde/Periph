@@ -1,0 +1,91 @@
+[
+    {
+        "id": "ens160-device-1",
+        "type": "ens160-device",
+        "name": "ENS160 @ i2c-1",
+        "bus": "1",
+        "addr": "0x52"
+    },
+    {
+        "id": "ens160-read-1",
+        "type": "periph-ens160",
+        "name": "ENS160 Air Quality",
+        "device": "ens160-device-1",
+        "wires": [["debug-1", "aqi-function-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 10 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "10",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["ens160-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "aqi-function-1",
+        "type": "function",
+        "name": "Format AQI message",
+        "func": "const labels = {1: 'Excellent', 2: 'Good', 3: 'Moderate', 4: 'Poor', 5: 'Unhealthy'};\nconst aqi = msg.payload.aqi;\nconst label = labels[aqi] || 'Unknown';\nmsg.payload = {\n    aqi: aqi,\n    label: label,\n    tvoc: msg.payload.tvocPpb + ' ppb',\n    eco2: msg.payload.eco2Ppm + ' ppm'\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 260,
+        "wires": [["gauge-1"]]
+    },
+    {
+        "id": "gauge-1",
+        "type": "ui_gauge",
+        "name": "AQI Gauge",
+        "group": "ens160-group-1",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "gtype": "gage",
+        "title": "Air Quality Index",
+        "label": "AQI",
+        "format": "{{value}}",
+        "min": 1,
+        "max": 5,
+        "colors": ["#00b500", "#fdd000", "#f70909"],
+        "seg1": "2",
+        "seg2": "4",
+        "x": 680,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "ens160-group-1",
+        "type": "ui_group",
+        "name": "ENS160 Air Quality Monitor",
+        "tab": "ens160-tab-1",
+        "order": 1,
+        "disp": true,
+        "width": 12
+    },
+    {
+        "id": "ens160-tab-1",
+        "type": "ui_tab",
+        "name": "ENS160 Demo",
+        "icon": "dashboard",
+        "order": 1,
+        "info": "This flow demonstrates the ENS160 digital multi-gas sensor for indoor air quality monitoring.\n\nAn inject node fires every 10 seconds, triggering the ENS160 node to read air quality. The output includes AQI (1-5 scale), TVOC (ppb), and eCO2 (ppm).\n\nA function node formats the AQI with a human-readable label (Excellent/Good/Moderate/Poor/Unhealthy) and feeds a gauge widget showing the color-coded AQI value.\n\nThe ENS160 requires ~3 minutes warm-up after power-on before VALIDITY_FLAG reaches 0. During warm-up, the node outputs a warning with the current status."
+    }
+]
