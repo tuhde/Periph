@@ -30,6 +30,27 @@ public:
      */
     float pressure();
 
+    // Calibration coefficients and compensation functions are public to allow
+    // unit tests to inject known datasheet values and verify the algorithm.
+    uint16_t _dig_T1 = 0;
+    int16_t  _dig_T2 = 0;
+    int16_t  _dig_T3 = 0;
+    uint16_t _dig_P1 = 0;
+    int16_t  _dig_P2 = 0;
+    int16_t  _dig_P3 = 0;
+    int16_t  _dig_P4 = 0;
+    int16_t  _dig_P5 = 0;
+    int16_t  _dig_P6 = 0;
+    int16_t  _dig_P7 = 0;
+    int16_t  _dig_P8 = 0;
+    int16_t  _dig_P9 = 0;
+
+    uint8_t   _osrs_t = 1;
+    uint8_t   _osrs_p = 1;
+
+    float    _compensate_temp(uint32_t adc_T);
+    float    _compensate_pressure(uint32_t adc_P);
+
 protected:
     static constexpr uint8_t REG_CAL_START  = 0x88;
     static constexpr uint8_t REG_ID         = 0xD0;
@@ -47,31 +68,14 @@ protected:
     Transport& _transport;
     bool      _spi;
     uint8_t   _mode   = 0;
-    uint8_t   _osrs_t = 1;
-    uint8_t   _osrs_p = 1;
     uint8_t   _filter = 0;
     uint8_t   _t_sb   = 0;
     int32_t   _t_fine = 0;
-
-    uint16_t _dig_T1 = 0;
-    int16_t  _dig_T2 = 0;
-    int16_t  _dig_T3 = 0;
-    uint16_t _dig_P1 = 0;
-    int16_t  _dig_P2 = 0;
-    int16_t  _dig_P3 = 0;
-    int16_t  _dig_P4 = 0;
-    int16_t  _dig_P5 = 0;
-    int16_t  _dig_P6 = 0;
-    int16_t  _dig_P7 = 0;
-    int16_t  _dig_P8 = 0;
-    int16_t  _dig_P9 = 0;
 
     void     _read_calibration();
     void     _write_reg(uint8_t reg, uint8_t value);
     void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _trigger_and_read(uint32_t& adc_P, uint32_t& adc_T);
-    float    _compensate_temp(uint32_t adc_T);
-    float    _compensate_pressure(uint32_t adc_P);
 };
 
 /** @brief BMP280 full interface — extends BMP280Minimal with configuration and altitude helpers.
