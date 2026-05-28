@@ -334,3 +334,25 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `rust/examples/adxl345_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/accelerometer/adxl345_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/accelerometer/adxl345_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/accelerometer/Adxl345Minimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/accelerometer/Adxl345Full.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/accelerometer/Adxl345Minimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/accelerometer/Adxl345Full.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/accelerometer/Adxl345Minimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/accelerometer/Adxl345Full.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/accelerometer/adxl345/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/accelerometer/adxl345/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/accelerometer/adxl345/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/accelerometer/adxl345/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/accelerometer/adxl345/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/accelerometer/adxl345/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/accelerometer/adxl345/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/accelerometer/adxl345/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/accelerometer/adxl345/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/accelerometer/adxl345/Adxl345Test.java` (Pi hardware, JBang)
+
+### Sigrok
+- [ ] Decoder `sigrok/adxl345/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [ ] Decoder `sigrok/adxl345/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
