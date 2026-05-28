@@ -1,0 +1,74 @@
+[
+    {
+        "id": "tab-apds9960-demo",
+        "type": "tab",
+        "label": "APDS-9960 Light Sensor",
+        "disabled": false,
+        "info": "Reads ambient light and color (RGBC) from an APDS-9960 every second. A function node computes an approximate lux value and normalizes red/green/blue as percentages of the clear channel. The debug panel shows formatted values. Cover the sensor with a hand to see values drop; expose to bright light to see them rise. Adjust the inject interval or add a chart node for live history."
+    },
+    {
+        "id": "cfg-apds9960",
+        "type": "apds9960-device",
+        "name": "APDS-9960",
+        "bus": "1",
+        "address": "39"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-apds9960-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-apds9960"]]
+    },
+    {
+        "id": "read-apds9960",
+        "type": "apds9960",
+        "name": "APDS-9960",
+        "device": "cfg-apds9960",
+        "z": "tab-apds9960-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["fmt-readings"]]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "compute lux",
+        "func": "const p = msg.payload;\nconst lux = (-0.32466 * p.red + 1.57837 * p.green + -0.73191 * p.blue).toFixed(0);\nconst rPct = (p.clear > 0 ? (p.red / p.clear * 100).toFixed(1) : '0.0');\nconst gPct = (p.clear > 0 ? (p.green / p.clear * 100).toFixed(1) : '0.0');\nconst bPct = (p.clear > 0 ? (p.blue / p.clear * 100).toFixed(1) : '0.0');\nmsg.payload = 'C=' + p.clear + ' R=' + p.red + '(' + rPct + '%) G=' + p.green + '(' + gPct + '%) B=' + p.blue + '(' + bPct + '%) lux~' + lux;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-apds9960-demo",
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-apds9960-demo",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    }
+]
