@@ -386,6 +386,24 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `rust/tests/pressure/lps33hw_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/pressure/lps33hw_test_esp32s3/src/main.rs` (ESP32-S3)
 
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps33hwMinimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps33hwFull.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps33hwMinimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps33hwFull.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps33hwMinimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps33hwFull.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/pressure/lps33hw/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/pressure/lps33hw/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/pressure/lps33hw/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/pressure/lps33hw/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/pressure/lps33hw/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/pressure/lps33hw/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/pressure/lps33hw/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/pressure/lps33hw/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/pressure/lps33hw/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/pressure/lps33hw/Lps33hwTest.java` (Pi hardware, JBang)
+
 ### Sigrok
 - [ ] Decoder `sigrok/lps33hw/__init__.py` — module docstring describing transport input, addresses, and what is annotated
 - [ ] Decoder `sigrok/lps33hw/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
