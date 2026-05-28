@@ -277,6 +277,24 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `rust/tests/io_expander/<chip>_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/io_expander/<chip>_test_esp32s3/src/main.rs` (ESP32-S3)
 
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/io_expander/<Chip>Minimal.java` — Javadoc on every class and public method; includes `Pin` inner class
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/io_expander/<Chip>Full.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/io_expander/<Chip>Minimal.kt` — KDoc on every class and public method; includes `Pin` inner class
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/io_expander/<Chip>Full.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/io_expander/<Chip>Minimal.groovy` — Groovydoc on every class and public method; includes `Pin` inner class
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/io_expander/<Chip>Full.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/io_expander/<chip>/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/io_expander/<chip>/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/io_expander/<chip>/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/io_expander/<chip>/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/io_expander/<chip>/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/io_expander/<chip>/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/io_expander/<chip>/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/io_expander/<chip>/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/io_expander/<chip>/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/io_expander/<chip>/<Chip>Test.java` (Pi hardware, JBang)
+
 ### Sigrok
 - [ ] Decoder `sigrok/<chip>/__init__.py` — module docstring describing transport input, addresses, and what is annotated
 - [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
