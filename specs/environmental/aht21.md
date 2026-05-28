@@ -188,43 +188,43 @@ A weather station logger. The demo initializes the sensor, prints a startup mess
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/environmental/aht21.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/environmental/aht21/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/environmental/aht21/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/environmental/aht21/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/environmental/aht21_test.py` (MicroPython)
-- [ ] Tests `python/tests/environmental/aht21_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/environmental/aht21_test_linux.py` (Linux)
+- [x] Driver `python/periph/chips/environmental/aht21.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/environmental/aht21/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/environmental/aht21/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/environmental/aht21/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/environmental/aht21_test.py` (MicroPython)
+- [x] Tests `python/tests/environmental/aht21_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/environmental/aht21_test_linux.py` (Linux)
 
 ### C++
-- [ ] Driver `cpp/src/chips/environmental/AHT21.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/environmental/AHT21.cpp`
-- [ ] Examples `cpp/examples/AHT21_Minimal/AHT21_Minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/AHT21_Complete/AHT21_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/AHT21_Demo/AHT21_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/AHT21_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/AHT21_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/AHT21_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/environmental/aht21_test/aht21_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/environmental/aht21_test_linux/aht21_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/environmental/aht21_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Driver `cpp/src/chips/environmental/AHT21.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/environmental/AHT21.cpp`
+- [x] Examples `cpp/examples/AHT21_Minimal/AHT21_Minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/AHT21_Complete/AHT21_Complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/AHT21_Demo/AHT21_Demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/AHT21_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/AHT21_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/AHT21_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/environmental/aht21_test/aht21_test.ino` (Arduino)
+- [x] Tests `cpp/tests/environmental/aht21_test_linux/aht21_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/environmental/aht21_test_zephyr/src/main.cpp` (Zephyr)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/environmental/aht21.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht21/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht21/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/environmental/aht21/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/environmental/aht21_test.js`
+- [x] Driver `nodejs/packages/periph/src/chips/environmental/aht21.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht21/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht21/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/environmental/aht21/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/environmental/aht21_test.js`
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht21/aht21.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht21/aht21.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-environmental/examples/aht21/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht21/aht21.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-environmental/nodes/aht21/aht21.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-environmental/examples/aht21/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/environmental/aht21.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/aht21_minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/aht21_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/aht21_demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/environmental/aht21_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/environmental/aht21_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Driver `rust/periph/src/chips/environmental/aht21.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/aht21_minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/aht21_complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/aht21_demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/environmental/aht21_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/environmental/aht21_test_esp32s3/src/main.rs` (ESP32-S3)
