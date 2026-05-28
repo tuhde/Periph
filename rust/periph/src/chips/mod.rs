@@ -3,6 +3,7 @@ pub mod environmental;
 pub mod gas;
 pub mod io_expander;
 pub mod led;
+pub mod light;
 pub mod magnetometer;
 pub mod power;
 pub mod pressure;
