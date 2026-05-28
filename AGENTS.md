@@ -64,7 +64,7 @@ The `chip` / `transport` label stays on the issue throughout — those describe 
 
 ## Where things go
 
-Every chip is implemented across all four languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
+Every chip is implemented across all five languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
 
 | Artifact | Path |
 |----------|------|
@@ -574,7 +574,7 @@ There is **no** ESP32-S3 example crate — only an ESP32-S3 *test* crate. Embedd
 
 Three languages, one transport library. The chip driver is implemented independently in each language; all three depend only on `periph-transport` (Java) and never on each other.
 
-Target platform: **Raspberry Pi via Pi4J** (all three languages use the same `I2CTransport`).
+Target platform: **Linux host via i2c-dev / FFM** (all three languages use the same `I2CTransport`).
 
 ### Transport interface
 
