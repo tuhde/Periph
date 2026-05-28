@@ -403,29 +403,23 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `rust/tests/pressure/lps22df_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/pressure/lps22df_test_esp32s3/src/main.rs` (ESP32-S3)
 
-### JVM (Java)
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps22dfMinimal.java`
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps22dfFull.java`
-- [ ] Examples `jvm/examples/java/pressure/lps22df/Minimal.java` — JBang, Tier-1
-- [ ] Examples `jvm/examples/java/pressure/lps22df/Complete.java` — JBang, Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/pressure/lps22df/Demo.java` — JBang, Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/pressure/lps22df/Lps22dfTest.java` — JBang integration test (Pi hardware)
-
-### JVM (Kotlin)
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps22dfMinimal.kt`
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps22dfFull.kt`
-- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Minimal.kt` — JBang, Tier-1
-- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Complete.kt` — JBang, Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Demo.kt` — JBang, Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/pressure/lps22df/Lps22dfTest.kt` — JBang integration test (Pi hardware)
-
-### JVM (Groovy)
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps22dfMinimal.groovy`
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps22dfFull.groovy`
-- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Minimal.groovy` — JBang, Tier-1
-- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Complete.groovy` — JBang, Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Demo.groovy` — JBang, Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/pressure/lps22df/Lps22dfTest.groovy` — JBang integration test (Pi hardware)
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps22dfMinimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps22dfFull.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps22dfMinimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/pressure/Lps22dfFull.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps22dfMinimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/pressure/Lps22dfFull.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/pressure/lps22df/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/pressure/lps22df/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/pressure/lps22df/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/pressure/lps22df/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/pressure/lps22df/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/pressure/lps22df/Lps22dfTest.java` (Pi hardware, JBang)
 
 ### Sigrok
 - [ ] Decoder `sigrok/lps22df/__init__.py` — module docstring describing transport input, addresses, and what is annotated
