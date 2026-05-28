@@ -228,3 +228,27 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `rust/examples/aht21_demo/src/main.rs` — Tier-1 + Tier-3
 - [x] Tests `rust/tests/environmental/aht21_test/src/main.rs` (Linux)
 - [x] Tests `rust/tests/environmental/aht21_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### JVM
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/Aht21Minimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/environmental/Aht21Full.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/Aht21Minimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/environmental/Aht21Full.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/Aht21Minimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/environmental/Aht21Full.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/environmental/aht21/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/environmental/aht21/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/environmental/aht21/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/environmental/aht21/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/environmental/aht21/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/environmental/aht21/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/environmental/aht21/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/environmental/aht21/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/environmental/aht21/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/environmental/aht21/Aht21Test.java`
+- [x] Tests `jvm/tests/environmental/aht21/Aht21Test.kt`
+- [x] Tests `jvm/tests/environmental/aht21/Aht21Test.groovy`
+
+### Sigrok
+- [x] Decoder `sigrok/aht21/pd.py`
+- [x] Init `sigrok/aht21/__init__.py`
