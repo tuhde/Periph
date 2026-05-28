@@ -442,3 +442,25 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `rust/examples/rfm9x_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/comms/rfm9x_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/comms/rfm9x_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/comms/Rfm9xMinimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/comms/Rfm9xFull.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/comms/Rfm9xMinimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/comms/Rfm9xFull.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/comms/Rfm9xMinimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/comms/Rfm9xFull.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/comms/rfm9x/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/comms/rfm9x/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/comms/rfm9x/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/comms/rfm9x/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/comms/rfm9x/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/comms/rfm9x/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/comms/rfm9x/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/comms/rfm9x/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/comms/rfm9x/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/comms/rfm9x/Rfm9xTest.java` (Pi hardware, JBang)
+
+### Sigrok
+- [ ] Decoder `sigrok/rfm9x/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [ ] Decoder `sigrok/rfm9x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
