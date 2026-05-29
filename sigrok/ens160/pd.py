@@ -48,12 +48,13 @@ class Decoder(srd.Decoder):
         self.data = []
         self.ss = None
         self.es = None
+        self.ss_block = None
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
 
     def putx(self, data):
-        self.put(self.ss, self.es, self.out_ann, data)
+        self.put(self.ss_block, self.es, self.out_ann, data)
 
     def putw(self, msg):
         self.putx([2, [msg]])
@@ -64,6 +65,7 @@ class Decoder(srd.Decoder):
         self.ss, self.es = ss, es
 
         if cmd == 'START':
+            self.ss_block = ss
             self.state = 'ADDRESS'
             self.data = []
         elif cmd == 'ADDRESS READ':
