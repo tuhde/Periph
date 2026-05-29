@@ -44,3 +44,7 @@ class Transport:
             NotImplementedError: Subclasses must implement this method.
         """
         raise NotImplementedError
+
+    def close(self):
+        """Release any resources held by this transport. No-op by default."""
+        pass

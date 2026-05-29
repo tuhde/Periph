@@ -1,9 +1,8 @@
+import sys
 import time
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
-from periph.chips.environmental.aht21 import AHT21Full
 
-from machine import I2C, Pin
+from periph.transport.i2c_auto import I2CTransport
+from periph.chips.environmental.aht21 import AHT21Full
 
 passed = 0
 failed = 0
@@ -19,8 +18,7 @@ def check_true(label, condition):
         failed += 1
 
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x38)
 aht = AHT21Full(transport)
 
 check_true('is_calibrated', aht.is_calibrated())
@@ -42,11 +40,17 @@ check_true('crc temperature range', rc['temperature_c'] >= -40.0 and rc['tempera
 check_true('crc humidity range', rc['humidity_pct'] >= 0.0 and rc['humidity_pct'] <= 100.0)
 
 aht.soft_reset()
-time.sleep_ms(50)
+time.sleep(0.05)
 check_true('calibrated after reset', aht.is_calibrated())
 
 r2 = aht.read()
 check_true('read after reset: temperature range', r2['temperature_c'] >= -40.0 and r2['temperature_c'] <= 120.0)
 check_true('read after reset: humidity range', r2['humidity_pct'] >= 0.0 and r2['humidity_pct'] <= 100.0)
 
+transport.close()
+
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
+try:
+    sys.exit(0 if failed == 0 else 1)
+except AttributeError:
+    pass  # MicroPython has no sys.exit

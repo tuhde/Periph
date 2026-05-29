@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.environmental.aht21 import AHT21Minimal
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x38)
+transport = I2CTransport(0x38)                                         # Create I²C transport, (addr=0x38) → Transport
 aht = AHT21Minimal(transport)                                          # Create AHT21 driver, (transport) → None
 
 while True:
