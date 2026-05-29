@@ -452,18 +452,20 @@ Adapt capitalisation to the language convention (snake_case Python/Rust, camelCa
 
 **Python (MicroPython / CircuitPython)**
 `on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, InputPin.FALLING)`.
+`off_interrupt` calls `self._conn.int_pin.off_edge(self._int_handler)` to remove only this chip's handler.
 `_int_handler` calls `poll_interrupt()` and dispatches to the stored callback.
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
 Keep the handler short — no I/O beyond the register read.
+Multiple chips may share one `InputPin`; each registers its own `_int_handler` independently.
 
 **Python (Linux)**
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
 
 **C++**
-Use `conn.intPin()` to access the `InputPin*`. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
+Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
 
 **Node.js**
-`onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
+`onInterrupt` calls `this._conn.intPin.onEdge(this._intHandler, …)`. `offInterrupt` calls `this._conn.intPin.offEdge(this._intHandler)`. `pollInterrupt` is `async`.
 If `this._conn.intPin` is `null`, start a 5 ms `setInterval` polling fallback.
 
 **Rust**
