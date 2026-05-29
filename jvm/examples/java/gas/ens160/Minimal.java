@@ -1,0 +1,27 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-java:1.0-SNAPSHOT
+
+import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.chips.gas.Ens160Minimal;
+
+public class Minimal {
+    public static void main(String[] args) throws Exception {
+        try (var transport = new I2CTransport(1, 0x52)) {       // open I²C bus 1, device 0x52, (bus, address=0x52) → I2CTransport
+            var sensor = new Ens160Minimal(transport);                  // construct driver, verifies PART_ID and starts STANDARD mode, (transport) → Ens160Minimal
+
+            System.out.println("Waiting for sensor warm-up...");
+            while (true) {                                              // Wait for valid data, () → blocks until warm
+                try { sensor.readAirQuality(); break; } catch (Exception e) { Thread.sleep(1000); }
+            }
+
+            for (int i = 0; i < 10; i++) {
+                double[] data = sensor.readAirQuality();                // read air quality, () → double[] {aqi, tvocPpb, eco2Ppm}
+                System.out.printf("AQI=%.0f TVOC=%.0f ppb eCO2=%.0f ppm%n", data[0], data[1], data[2]);
+                Thread.sleep(1000);
+            }
+        }
+    }
+}

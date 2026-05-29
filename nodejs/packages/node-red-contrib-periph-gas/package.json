@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for gas sensor chips",
   "keywords": ["node-red", "gas", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "ens160": "nodes/ens160/ens160.js"
+    }
   },
   "dependencies": {
     "periph": "*"
