@@ -12,15 +12,13 @@ sensor = ENS160Full(transport)                               # Create ENS160 dri
 # reaches 0. During warm-up, readings are unreliable. The driver surfaces the
 # status so the application can display progress to the user.
 print('Waiting for sensor warm-up...')
-while sensor.status() != 0:                                  # Poll validity, () → int 0–3
-    s = sensor.status()
-    if s == 1:
-        print('Warm-up in progress...')
-    elif s == 2:
-        print('Initial start-up (first power-on, up to 1 hour)...')
-    else:
-        print('No valid output')
-    time.sleep(1)
+while True:                                                   # Wait for valid data, () → blocks until warm
+    try:
+        sensor.read_air_quality()
+        break
+    except RuntimeError as e:
+        print(str(e))
+        time.sleep(1)
 print('Sensor ready!')
 
 # --- Set compensation from external sensor ---

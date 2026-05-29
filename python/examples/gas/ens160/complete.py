@@ -16,8 +16,12 @@ sensor.configure_interrupt(enabled=True, active_high=False, push_pull=False, on_
                                                              # sets INTn pin behavior for new data notification
 
 print('Waiting for warm-up...')
-while sensor.status() != 0:                                  # Poll validity, () → int 0–3
-    time.sleep(1)
+while True:                                                   # Wait for valid data, () → blocks until warm
+    try:
+        sensor.read_air_quality()
+        break
+    except RuntimeError:
+        time.sleep(1)
 
 tvoc = sensor.read_tvoc()                                    # Read TVOC, () → float ppb
 eco2 = sensor.read_eco2()                                    # Read eCO2, () → float ppm
