@@ -729,6 +729,33 @@ FALLING)` call means the handler fires only when this pin transitions high → l
 At most one handler per pin at a time. A second `watch()` call replaces the first
 (log a debug-level warning).
 
+### 8.4 OutputPin composability
+
+An output-configured IO expander pin satisfies the `OutputPin` interface (§6) and can be
+passed directly as `en_pin` to another chip's `Connection`. This enables cascaded power
+control where one IO expander output gates an entire sensor's bus access.
+
+```python
+# Python example — IO expander pin as en_pin for a downstream chip
+expander = PCF8574Minimal(Connection(expander_bus))
+en = expander.pin(0)
+en.init(Pin.OUT)                     # configure as output
+sensor_conn = Connection(sensor_bus, en_pin=en)
+sensor_conn.enable()                 # drives IO expander pin 0 high
+```
+
+| Language | Mechanism |
+|----------|-----------|
+| Python | `_Pin` has `set(high: bool)` → `on()` / `off()`; duck-types as `OutputPin` on all targets |
+| C++ | `IOExpanderPin` inherits from `OutputPin`; implements `set(bool high)` → `high()` / `low()` |
+| Node.js | `_Pin` has `async set(high)` → `this.writeSync(high ? 1 : 0)` |
+| JVM | `Pin` implements `OutputPin`; `set(boolean high)` → delegates to write |
+| Rust | `ExPin<Output>` implements `embedded_hal::digital::OutputPin` — already compatible; no extra work |
+
+The IO expander must be initialised and its `Connection` enabled before the downstream
+chip's `Connection.enable()` is called, since the EN pin write goes over the expander's
+bus.
+
 ---
 
 ## 9. Interrupt Capability Levels
