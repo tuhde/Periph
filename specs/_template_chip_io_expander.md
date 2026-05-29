@@ -112,7 +112,10 @@ Goal: expose all chip pins as GPIO objects with direction control and value read
 | Set low | `pin.off()` | `pin.value = False` | `pin.low()` | `pin.writeSync(0)` | `pin.set_low()?` |
 | Read | `pin.value()` | `pin.value` | `pin.read()` | `pin.readSync()` | `pin.is_high()?` |
 | Toggle | `pin.toggle()` | *(manual)* | `pin.toggle()` | *(manual)* | *(manual)* |
+| As `OutputPin` | `pin` (duck-typed) | `pin` (duck-typed) | `pin` (`OutputPin*`) | `pin` (duck-typed) | `pin` (`ExPin<Output>`) |
 | Release / close | — | `pin.deinit()` | — | `pin.unexport()` | *(drop)* |
+
+Output-configured pins implement the project's `OutputPin` interface (`set(high)` / `embedded_hal::digital::OutputPin` in Rust) and can be used directly as `en_pin` in another chip's `Connection`.
 
 ### Full
 
@@ -146,15 +149,19 @@ This section defines the per-platform contracts for Pin objects. See `AGENTS.md`
 
 Pin objects implement a compatible subset of `machine.Pin`. The `id` parameter to `Pin.__init__` is replaced by the chip's `pin(n)` factory — users never instantiate Pin directly.
 
-Required interface (Minimal): `init(mode)`, `value([x])`, `on()`, `off()`, `toggle()`  
+Required interface (Minimal): `init(mode)`, `value([x])`, `on()`, `off()`, `toggle()`, `set(high: bool)`  
 Full adds: `init(mode, pull)`, `watch(handler, trigger)`, `unwatch()` — trigger constants `RISING`, `FALLING`, `CHANGE`
+
+`set(high)` delegates to `on()` / `off()` and satisfies the `OutputPin` duck-type contract.
 
 ### Python — CircuitPython
 
 Pin objects implement `digitalio.DigitalInOut`.
 
-Required interface (Minimal): `direction` (read/write), `value` (read/write), `switch_to_input()`, `switch_to_output()`  
+Required interface (Minimal): `direction` (read/write), `value` (read/write), `switch_to_input()`, `switch_to_output()`, `set(high: bool)`  
 Full adds: `pull` (read/write), `drive_mode` (read/write)
+
+`set(high)` assigns `self.value = high` and satisfies the `OutputPin` duck-type contract.
 
 ### Python — Linux
 
@@ -166,7 +173,7 @@ Pin objects expose an `IOExpanderPin` proxy class. Arduino GPIO constants are re
 
 Required interface (Minimal):
 ```cpp
-class IOExpanderPin {
+class IOExpanderPin : public OutputPin {   // inherits: virtual void set(bool high) = 0
 public:
     void mode(uint8_t mode);         // INPUT, OUTPUT
     void write(uint8_t value);       // HIGH, LOW
@@ -174,6 +181,7 @@ public:
     void high();
     void low();
     void toggle();
+    void set(bool high) override;    // OutputPin impl → high() / low()
 };
 ```
 Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `watch(callback, trigger)` / `unwatch()` using `InputPin::RISING`, `::FALLING`, `::CHANGE`.
@@ -184,8 +192,28 @@ The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — gua
 
 Pin objects implement the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` interface subset so they are drop-in replacements.
 
-Required interface (Minimal): `readSync()`, `writeSync(value)`, `read(callback)`, `write(value, callback)`, `direction` property, `unexport()`  
+Required interface (Minimal): `readSync()`, `writeSync(value)`, `read(callback)`, `write(value, callback)`, `direction` property, `unexport()`, `async set(high)` → `writeSync(high ? 1 : 0)`  
 Full adds: `watch(callback)`, `unwatch(callback)`, `setActiveLow(invert)`
+
+`set(high)` satisfies the `OutputPin` duck-type contract so a pin can be passed as `enPin` in a `Connection`.
+
+### JVM
+
+`Pin` is an inner class of the driver that implements the project's `OutputPin` interface when configured as an output, and exposes a read method when configured as an input.
+
+```java
+class Pin implements OutputPin {        // OutputPin: void set(boolean high)
+    void setDirection(boolean output);  // configure as input or output
+    boolean read();                     // read current level (input or output latch)
+    @Override void set(boolean high);   // OutputPin impl → write HIGH / LOW over I²C
+    @Override void close();             // AutoCloseable — no-op for virtual pins
+    // Full adds:
+    void watch(Consumer<Boolean> handler, EdgeTrigger trigger);
+    void unwatch();
+}
+```
+
+Because `Pin implements OutputPin`, a pin configured as output can be passed directly as `enPin` to another chip's `Connection`.
 
 ### Rust
 
