@@ -328,7 +328,7 @@ class _Pin {
 }
 ```
 
-Full adds `watch(callback, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery uses `this._conn.intPin` (an `EpollGpioPin` or `PollingGpioPin`); if `intPin` is null, `on_interrupt` falls back to a 5 ms polling interval.
+Full adds `watch(callback, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery uses `this._conn.intPin` (an `EpollInputPin` or `PollingInputPin`); if `intPin` is null, `on_interrupt` falls back to a 5 ms polling interval.
 
 ### Rust
 
@@ -383,7 +383,7 @@ All chip constructors accept a single `Connection` object. Construct the underly
 **Python:**
 ```python
 from periph.transport.i2c_linux import I2CLinux
-from periph.transport.gpio import LinuxSysfsPin
+from periph.transport.input_pin import LinuxSysfsPin
 from periph.transport.output_pin import LinuxOutputPin
 from periph.transport.connection import Connection
 
@@ -451,7 +451,7 @@ Adapt capitalisation to the language convention (snake_case Python/Rust, camelCa
 ### Per-language implementation rules
 
 **Python (MicroPython / CircuitPython)**
-`on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, GpioPin.FALLING)`.
+`on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, InputPin.FALLING)`.
 `_int_handler` calls `poll_interrupt()` and dispatches to the stored callback.
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
 Keep the handler short — no I/O beyond the register read.
@@ -460,7 +460,7 @@ Keep the handler short — no I/O beyond the register read.
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
 
 **C++**
-Use `conn.intPin()` to access the `GpioPin*`. Platform `#ifdef` guards belong exclusively in `GpioPinLinux.h` / `GpioPinArduino.h` / `GpioPinZephyr.h`.
+Use `conn.intPin()` to access the `InputPin*`. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
@@ -472,7 +472,7 @@ Document in the driver docstring: caller is responsible for wiring this into an 
 
 **JVM**
 `onInterrupt(IntConsumer)` is the driver-level API.
-If `connection.intPin()` is `null`, default to `new PollingGpioPin(5)` internally.
+If `connection.intPin()` is `null`, default to `new PollingInputPin(5)` internally.
 
 ### Interrupt sources (Level 2/3 chips)
 
