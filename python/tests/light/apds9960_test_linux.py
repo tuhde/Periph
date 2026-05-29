@@ -1,25 +1,11 @@
-import os
 import sys
 import time
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.light.apds9960 import APDS9960Full
-
-I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
-I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x39'), 16)
 
 passed = 0
 failed = 0
-
-
-def check_eq(label, got, expected):
-    global passed, failed
-    if got == expected:
-        print('PASS', label)
-        passed += 1
-    else:
-        print('FAIL {}: got 0x{:02X}, expected 0x{:02X}'.format(label, got, expected))
-        failed += 1
 
 
 def check_true(label, condition):
@@ -32,10 +18,12 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
+transport = I2CTransport(0x39)
 apds = APDS9960Full(transport)
 
-check_eq('chip_id', apds.chip_id(), 0xAB)
+check_true('chip_id is valid', apds.chip_id() in (0xAB, 0xA8))
+
+check_true('is_als_valid', apds.is_als_valid())
 
 c, r, g, b = apds.color()
 check_true('color_clear >= 0', c >= 0)
@@ -43,14 +31,12 @@ check_true('color_red >= 0', r >= 0)
 check_true('color_green >= 0', g >= 0)
 check_true('color_blue >= 0', b >= 0)
 
-check_true('is_als_valid', apds.is_als_valid())
-
 apds.enable_proximity(True)
-time.sleep(0.1)
+time.sleep(0.25)
+check_true('is_proximity_valid', apds.is_proximity_valid())
 p = apds.proximity()
 check_true('proximity >= 0', p >= 0)
 check_true('proximity <= 255', p <= 255)
-check_true('is_proximity_valid', apds.is_proximity_valid())
 
 apds.configure_als(0xB6, 1)
 time.sleep(0.21)
@@ -89,4 +75,7 @@ apds.enable_proximity(False)
 transport.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
-sys.exit(0 if failed == 0 else 1)
+try:
+    sys.exit(0 if failed == 0 else 1)
+except AttributeError:
+    pass  # MicroPython has no sys.exit

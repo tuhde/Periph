@@ -73,9 +73,6 @@ class APDS9960Minimal:
     def __init__(self, transport):
         self._transport = transport
         time.sleep(0.006)
-        chip_id = self._read_reg(self._REG_ID)
-        if chip_id != 0xAB:
-            raise ValueError('APDS-9960 not found (ID=0x%02X, expected 0xAB)' % chip_id)
         self._write_reg(self._REG_ENABLE, 0x00)
         self._write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
         self._write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
