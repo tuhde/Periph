@@ -93,53 +93,48 @@ Remove `.gitkeep` from a target directory when adding the first real file.
 
 For chips with I²C or SMBus transport, add the chip's default I²C address to `chip_defaults`.
 
-## Transport interface
+## Connection interface
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
 
-Chip drivers must only call the three transport methods. Never import or reference a concrete transport class.
+Chip drivers accept a single `Connection` object and must only call `connection.read()` / `connection.write()`. Never access the underlying bus transport directly; never import or reference a concrete transport class. See `specs/feature_connection_design.md` for the full design.
 
 ```python
 # Python
-transport.write(data: bytes)
-transport.read(n: int) -> bytes
-transport.write_read(data: bytes, n: int) -> bytes
+connection.read(reg: int, length: int) -> bytes   # write reg address, read length bytes
+connection.write(reg: int, data: bytes | int)     # write reg address + data
 ```
 
 ```cpp
-// C++ — same signatures used on Arduino, Linux, and Zephyr
-transport.write(const uint8_t* data, size_t len);
-transport.read(uint8_t* buf, size_t len);
-transport.write_read(const uint8_t* data, size_t data_len, uint8_t* buf, size_t buf_len);
+// C++ — same signatures on Arduino, Linux, and Zephyr
+connection.read(uint8_t reg, uint8_t* buf, size_t len);
+connection.write(uint8_t reg, const uint8_t* data, size_t len);
 ```
 
 ```js
-// Node.js — camelCase, Buffers
-transport.write(buffer)                       // Buffer in
-transport.read(length)                        // returns Buffer
-transport.writeRead(writeBuffer, readLength)  // returns Buffer
+// Node.js — camelCase, Buffers, async
+await connection.read(reg, length)   // returns Buffer
+await connection.write(reg, data)    // data: Buffer | number
 ```
 
 ```rust
-// Rust — generic over embedded-hal 1.0; the chip driver owns the bus
-use embedded_hal::i2c::I2c;
-i2c.write(addr, &buf)?;
-i2c.read(addr, &mut buf)?;
-i2c.write_read(addr, &reg, &mut buf)?;   // combined write-then-read
+// Rust — Connection<BUS>; chip driver stores conn: Connection<I2C>
+self.conn.read(self.addr, REG_ADDR, &mut buf)?;
+self.conn.write(self.addr, REG_ADDR, &data)?;
 ```
 
-All INA226-style register reads follow this pattern:
+All register reads follow this pattern:
 
 ```python
 # Python
-raw = transport.write_read(bytes([REG_ADDR]), 2)
+raw   = self._conn.read(REG_ADDR, 2)
 value = (raw[0] << 8) | raw[1]                # big-endian, unsigned
 value = struct.unpack('>h', raw)[0]            # big-endian, signed
 ```
 
 ```js
 // Node.js
-const raw = transport.writeRead(Buffer.from([REG_ADDR]), 2);
+const raw   = await this._conn.read(REG_ADDR, 2);
 const value = raw.readUInt16BE(0);             // unsigned
 const value = raw.readInt16BE(0);              // signed
 ```
@@ -147,7 +142,7 @@ const value = raw.readInt16BE(0);              // signed
 ```rust
 // Rust
 let mut buf = [0u8; 2];
-i2c.write_read(addr, &[REG_ADDR], &mut buf)?;
+self.conn.read(self.addr, REG_ADDR, &mut buf)?;
 let value = ((buf[0] as u16) << 8) | buf[1] as u16;   // unsigned
 let value = value as i16;                              // signed
 ```
@@ -159,24 +154,25 @@ Full extends Minimal by **adding** API surface; it never re-implements what Mini
 ```python
 # Python — inheritance
 class INA226Minimal:
-    def __init__(self, transport, ...): ...
+    def __init__(self, connection): ...
+    # store as self._conn
 
 class INA226Full(INA226Minimal):
-    def __init__(self, transport, ...):
-        super().__init__(transport, ...)
+    def __init__(self, connection):
+        super().__init__(connection)
 ```
 
 ```cpp
 // C++ — public inheritance
 class INA226Minimal {
 public:
-    INA226Minimal(Transport& transport, ...);
+    INA226Minimal(Connection& conn, ...);
 protected:
-    Transport& _transport;
+    Connection& _conn;
 };
 class INA226Full : public INA226Minimal {
 public:
-    INA226Full(Transport& transport, ...);
+    INA226Full(Connection& conn, ...);
 };
 ```
 
@@ -190,7 +186,8 @@ module.exports = { INA226Minimal, INA226Full };
 // Rust — composition, since Rust has no inheritance.
 // Full owns a Minimal and re-exports its methods as one-line delegates,
 // then adds its own. This is the Rust analog of "Full never duplicates Minimal".
-pub struct Ina226Full<I2C> { inner: Ina226Minimal<I2C>, mode: u8 }
+pub struct Ina226Minimal<I2C> { conn: Connection<I2C>, addr: u8, ... }
+pub struct Ina226Full<I2C>    { inner: Ina226Minimal<I2C>, mode: u8 }
 impl<I2C: I2c> Ina226Full<I2C> {
     pub fn voltage(&mut self) -> Result<f32, I2C::Error> { self.inner.voltage() }
     // ... and Full-only methods below
@@ -241,7 +238,7 @@ class PCF8574Minimal:
         def toggle(self): self.value(1 - self.value())
 ```
 
-Full adds `irq(handler, trigger)`. Interrupt delivery on MicroPython uses the chip's INT pin connected to a hardware `machine.Pin` IRQ; pass that pin to `<Chip>Full.__init__` and configure it in `irq()`.
+Full adds `watch(handler, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery on MicroPython uses the chip's INT pin; pass a `MicroPythonPin` as `int_pin` in the `Connection` constructor and it will be available as `self._conn.int_pin` inside the driver.
 
 ### Python — CircuitPython
 
@@ -280,7 +277,7 @@ Full adds `pull` and `drive_mode` properties.
 
 ### Python — Linux
 
-Use the same `_Pin` interface as MicroPython (not CircuitPython) so a single mental model covers both embedded targets. The Linux target is host-only; if the chip supports interrupts, deliver them via a polling thread in `irq()` rather than requiring a hardware INT line.
+Use the same `_Pin` interface as MicroPython (not CircuitPython) so a single mental model covers both embedded targets. The Linux target is host-only; if the chip supports interrupts, deliver them via `LinuxPollingPin` (5 ms thread) by default when `Connection.int_pin` is `None`, or via `LinuxSysfsPin` when a GPIO number is wired.
 
 ### C++
 
@@ -331,7 +328,7 @@ class _Pin {
 }
 ```
 
-Full adds `watch(callback)` / `unwatch()` for interrupt-driven input. Deliver interrupts via `epoll` on the INT pin (Linux `gpio` sysfs or `gpiod`) or via polling if no INT line is available — document which in the spec.
+Full adds `watch(callback, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery uses `this._conn.intPin` (an `EpollGpioPin` or `PollingGpioPin`); if `intPin` is null, `on_interrupt` falls back to a 5 ms polling interval.
 
 ### Rust
 
@@ -377,6 +374,115 @@ Full adds `embedded_hal::digital::StatefulOutputPin` where the chip can read bac
 Re-export pin types from the category `mod.rs`:
 ```rust
 pub use pcf8574::{Pcf8574Minimal, Pcf8574Full, ExPin};
+```
+
+## Connection construction and power management
+
+All chip constructors accept a single `Connection` object. Construct the underlying bus transport as usual, then wrap it:
+
+**Python:**
+```python
+from periph.transport.i2c_linux import I2CLinux
+from periph.transport.gpio import LinuxSysfsPin
+from periph.transport.output_pin import LinuxOutputPin
+from periph.transport.connection import Connection
+
+bus  = I2CLinux(bus=1, address=0x68)
+conn = Connection(bus)                                      # bus only
+conn = Connection(bus, int_pin=LinuxSysfsPin(17))           # with INT pin
+conn = Connection(bus, en_pin=LinuxOutputPin(18))           # with EN pin
+conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
+```
+
+**C++:**
+```cpp
+Connection conn(bus);                        // bus only
+Connection conn(bus, &gpioPin);              // with INT pin
+Connection conn(bus, &gpioPin, &enPin);      // with INT + EN pin
+```
+
+**Node.js:**
+```js
+const conn = new Connection(bus);
+const conn = new Connection(bus, intPin, enPin);
+```
+
+**JVM:**
+```java
+Connection conn = new Connection(new I2CTransport(bus, addr));
+Connection conn = new Connection(new I2CTransport(bus, addr), gpioPin, enPin);
+```
+
+**Rust** — `Connection` wraps bus + enabled state only; INT and EN pins are managed by the caller directly via `embedded_hal::digital` traits.
+```rust
+let conn = Connection::new(i2c);
+```
+
+### Enable / disable
+
+`conn.enable()` / `conn.disable()` are the unified on/off switch. When disabled, all `connection.read()` / `connection.write()` calls are silently no-ops (reads return zeros). If an `en_pin` is wired, the pin is driven accordingly. Chip drivers do not need any code changes to support this — gating is transparent.
+
+```python
+conn.disable()    # stop all bus access; drive EN pin low if wired
+conn.enable()     # resume; drive EN pin high if wired
+conn.is_enabled() # query state
+```
+
+## Interrupt support
+
+Interrupts are implemented in the `Full` driver class for all chips with an INT output.
+Level 1 = single fixed condition; Level 2 = selectable sources; Level 3 = multiple INT lines.
+See `specs/feature_connection_design.md` for design rationale and the full platform matrix.
+
+### Vocabulary
+
+Adapt capitalisation to the language convention (snake_case Python/Rust, camelCase JS/JVM/C++).
+
+| Concept | Method |
+|---------|--------|
+| Subscribe to INT assertions | `on_interrupt(callback)` |
+| Unsubscribe | `off_interrupt()` |
+| Read & clear status | `poll_interrupt() -> int` |
+| Enable one interrupt source | `enable_interrupt(source)` — Level 2/3 only |
+| Disable one interrupt source | `disable_interrupt(source)` — Level 2/3 only |
+| Per-pin subscribe | `watch(handler, trigger)` — IO expanders only |
+| Per-pin unsubscribe | `unwatch()` — IO expanders only |
+
+### Per-language implementation rules
+
+**Python (MicroPython / CircuitPython)**
+`on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, GpioPin.FALLING)`.
+`_int_handler` calls `poll_interrupt()` and dispatches to the stored callback.
+If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
+Keep the handler short — no I/O beyond the register read.
+
+**Python (Linux)**
+Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
+
+**C++**
+Use `conn.intPin()` to access the `GpioPin*`. Platform `#ifdef` guards belong exclusively in `GpioPinLinux.h` / `GpioPinArduino.h` / `GpioPinZephyr.h`.
+
+**Node.js**
+`onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
+If `this._conn.intPin` is `null`, start a 5 ms `setInterval` polling fallback.
+
+**Rust**
+Full drivers expose only `poll_interrupt() -> Result<u8, E>`.
+Document in the driver docstring: caller is responsible for wiring this into an ISR or polling loop.
+
+**JVM**
+`onInterrupt(IntConsumer)` is the driver-level API.
+If `connection.intPin()` is `null`, default to `new PollingGpioPin(5)` internally.
+
+### Interrupt sources (Level 2/3 chips)
+
+Define a companion `<Chip>Source` constants class / object / enum in the same file as the driver. One constant per condition, values matching the chip's interrupt-status register bit layout. Threshold values and other parameters are set via separate `Full` setter methods, not through `enable_interrupt`.
+
+```python
+class Mpu6050Source:
+    DATA_READY    = 0x01
+    MOTION        = 0x40
+    FIFO_OVERFLOW = 0x10
 ```
 
 ## Python conventions
@@ -465,9 +571,9 @@ CONFIG_FPU=y
 
 The example uses `DEVICE_DT_GET(DT_NODELABEL(i2c0))` by default; this works on most boards. For boards with a different I²C node label, ship a board overlay rather than hard-coding.
 
-## Node.js transport interface
+## Node.js connection interface
 
-JS chip drivers use the same three-method contract, in camelCase (see Transport interface section above).
+JS chip drivers use `connection.read(reg, length)` / `connection.write(reg, data)` in camelCase (see Connection interface section above).
 
 ## Node.js driver structure
 
@@ -477,15 +583,15 @@ Plain JS driver (in `nodejs/packages/periph/src/chips/<category>/<chip>.js`):
 'use strict';
 
 class INA226Minimal {
-    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
-        this._transport = transport;
+    constructor(connection, rShunt = 0.1, maxCurrent = 2.0) {
+        this._conn = connection;
         this._currentLsb = maxCurrent / 32768;
         this._cal = Math.trunc(0.00512 / (this._currentLsb * rShunt));
         this._writeReg(REG_CONFIG, CONFIG_DEFAULT);
         this._writeReg(REG_CAL, this._cal);
     }
-    _writeReg(reg, value) { ... }
-    _readReg(reg) { ... }
+    async _writeReg(reg, value) { await this._conn.write(reg, value); }
+    async _readReg(reg) { return this._conn.read(reg, 2); }
 }
 
 class INA226Full extends INA226Minimal { ... }
@@ -531,7 +637,7 @@ Two supported targets: **Linux** (host, via `linux-embedded-hal`) and **ESP32-S3
 ### Chip drivers
 
 - The driver crate is `no_std`. Do not import `std`, `alloc`, or anything outside `core` and `embedded-hal`.
-- Generic over the I²C bus: `pub struct <Chip>Minimal<I2C> { i2c: I2C, addr: u8, ... }` with `impl<I2C: I2c> <Chip>Minimal<I2C> { ... }`. The chip **owns** the bus.
+- Generic over the I²C bus via `Connection`: `pub struct <Chip>Minimal<I2C> { conn: Connection<I2C>, addr: u8, ... }` with `impl<I2C: I2c> <Chip>Minimal<I2C> { ... }`. The chip owns the `Connection`, which owns the bus.
 - All fallible methods return `Result<T, I2C::Error>` — propagate the bus error type, never wrap it. Use `?` everywhere.
 - Struct names use Rust title-case: `Ina226Minimal`, `Ina226Full` (not `INA226Minimal`).
 - Register addresses are file-private `const u8`; public bit/flag constants are `pub const u16` (or appropriate width) at module scope, **not** inside an `impl`.
@@ -553,6 +659,7 @@ Linux Rust examples use `linux-embedded-hal::I2cdev` directly — there is no se
 
 ```rust
 use linux_embedded_hal::I2cdev;
+use periph::transport::Connection;
 use periph::chips::<category>::<Chip>Minimal;
 
 fn main() {
@@ -562,8 +669,9 @@ fn main() {
         .and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
         .unwrap_or(0x40);
 
-    let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut chip = <Chip>Minimal::new(dev, addr, 0.1, 2.0).expect("init");
+    let dev  = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+    let conn = Connection::new(dev);
+    let mut chip = <Chip>Minimal::new(conn, addr, 0.1, 2.0).expect("init");
     // ... primary-value loop ...
 }
 ```
@@ -576,29 +684,27 @@ Three languages, one transport library. The chip driver is implemented independe
 
 Target platform: **Linux host via i2c-dev / FFM** (all three languages use the same `I2CTransport`).
 
-### Transport interface
+### Connection interface
 
-All fallible methods throw `IOException`. The three method signatures match the abstract `Transport` interface in `periph-transport`:
+Chip drivers receive a `Connection` and call its two methods. All fallible methods throw `IOException`.
 
 ```java
 // Java / Groovy
-transport.write(byte[] data) throws IOException;
-transport.read(int n) throws IOException;               // returns byte[]
-transport.writeRead(byte[] data, int n) throws IOException;  // returns byte[]
+conn.read(int reg, int length) throws IOException;    // returns byte[]
+conn.write(int reg, byte[] data) throws IOException;
 ```
 
 ```kotlin
 // Kotlin — same signatures; IOException is an unchecked exception in Kotlin
-transport.write(ByteArray)
-transport.read(Int): ByteArray
-transport.writeRead(ByteArray, Int): ByteArray
+conn.read(reg: Int, length: Int): ByteArray
+conn.write(reg: Int, data: ByteArray)
 ```
 
 Register reads follow the big-endian pattern:
 
 ```java
 // Java / Groovy — unsigned 16-bit
-byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+byte[] b = conn.read(reg, 2);
 int value = ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
 
 // Java / Groovy — signed 16-bit
@@ -607,7 +713,7 @@ int value = (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
 
 ```kotlin
 // Kotlin — unsigned 16-bit
-val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+val b = conn.read(reg, 2)
 val value = ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
 
 // Kotlin — signed 16-bit
@@ -623,12 +729,12 @@ public class Ina226Minimal {
     protected static final int REG_CONFIG = 0x00;
     protected static final int DEFAULT_CONFIG = 0x4127;
 
-    protected final Transport transport;
+    protected final Connection conn;
     protected final double currentLsb;
     protected final int cal;
 
-    public Ina226Minimal(Transport transport) throws IOException { this(transport, 0.1, 2.0); }
-    public Ina226Minimal(Transport transport, double rShunt, double maxCurrent) throws IOException { ... }
+    public Ina226Minimal(Connection conn) throws IOException { this(conn, 0.1, 2.0); }
+    public Ina226Minimal(Connection conn, double rShunt, double maxCurrent) throws IOException { ... }
 
     public double voltage() throws IOException { ... }
     protected void writeReg(int reg, int val) throws IOException { ... }
@@ -637,8 +743,8 @@ public class Ina226Minimal {
 }
 
 public class Ina226Full extends Ina226Minimal {
-    public Ina226Full(Transport transport, double rShunt, double maxCurrent) throws IOException {
-        super(transport, rShunt, maxCurrent);
+    public Ina226Full(Connection conn, double rShunt, double maxCurrent) throws IOException {
+        super(conn, rShunt, maxCurrent);
     }
     // Full-only methods only
 }
@@ -648,7 +754,7 @@ public class Ina226Full extends Ina226Minimal {
 
 ```kotlin
 open class Ina226Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val conn: Connection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
 ) {
@@ -670,10 +776,10 @@ open class Ina226Minimal @JvmOverloads constructor(
 }
 
 class Ina226Full @JvmOverloads constructor(
-    transport: Transport,
+    conn: Connection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
-) : Ina226Minimal(transport, rShunt, maxCurrent) {
+) : Ina226Minimal(conn, rShunt, maxCurrent) {
     // Full-only methods only
 }
 ```
@@ -686,13 +792,13 @@ class Ina226Minimal {
     protected static final int REG_CONFIG    = 0x00
     protected static final int DEFAULT_CONFIG = 0x4127
 
-    protected final Transport transport
+    protected final Connection conn
     protected final double currentLsb
     protected final int    cal
 
-    Ina226Minimal(Transport transport)                              { this(transport, 0.1d, 2.0d) }
-    Ina226Minimal(Transport transport, double rShunt, double maxCurrent) {
-        this.transport  = transport
+    Ina226Minimal(Connection conn)                              { this(conn, 0.1d, 2.0d) }
+    Ina226Minimal(Connection conn, double rShunt, double maxCurrent) {
+        this.conn       = conn
         this.currentLsb = maxCurrent / 32768.0d
         this.cal        = (int)(0.00512d / (currentLsb * rShunt))
         writeReg(REG_CONFIG, DEFAULT_CONFIG)
@@ -708,8 +814,8 @@ class Ina226Minimal {
 
 @CompileStatic
 class Ina226Full extends Ina226Minimal {
-    Ina226Full(Transport transport, double rShunt, double maxCurrent) {
-        super(transport, rShunt, maxCurrent)
+    Ina226Full(Connection conn, double rShunt, double maxCurrent) {
+        super(conn, rShunt, maxCurrent)
     }
     // Full-only methods only
 }
@@ -772,9 +878,9 @@ For Groovy examples, same headers but `.groovy` extension and `//DEPS it.uhde:pe
 
 Resource management:
 
-- **Java:** `try (var transport = new I2CTransport(bus, addr)) { ... }` — `AutoCloseable`, try-with-resources
-- **Kotlin:** `I2CTransport(bus, addr).use { transport -> ... }` — `Closeable.use { }`
-- **Groovy:** `try { ... } finally { transport.close() }` — explicit finally block
+- **Java:** `try (var conn = new Connection(new I2CTransport(bus, addr))) { ... }` — `AutoCloseable`, try-with-resources
+- **Kotlin:** `Connection(I2CTransport(bus, addr)).use { conn -> ... }` — `Closeable.use { }`
+- **Groovy:** `def conn = new Connection(new I2CTransport(bus, addr)); try { ... } finally { conn.close() }` — explicit finally block
 
 ### Tests — JBang scripts
 
