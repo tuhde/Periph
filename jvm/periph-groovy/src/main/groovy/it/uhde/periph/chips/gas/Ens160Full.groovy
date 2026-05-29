@@ -40,8 +40,8 @@ class Ens160Full extends Ens160Minimal {
      * @param rhPercent   Ambient relative humidity in percent (0–100).
      */
     void setCompensation(double tempCelsius, double rhPercent) {
-        int tempRaw = (int) Math.round((tempCelsius + 273.15) * 64)
-        int rhRaw = (int) Math.round(rhPercent * 512)
+        int tempRaw = (int) Math.round((double)((tempCelsius + 273.15) * 64))
+        int rhRaw = (int) Math.round((double)(rhPercent * 512))
         writeRegLE16(REG_TEMP_IN, tempRaw)
         writeRegLE16(REG_RH_IN, rhRaw)
     }
