@@ -535,8 +535,8 @@ public enum EdgeTrigger { RISING, FALLING, CHANGE }
 
 | Class | Mechanism |
 |-------|-----------|
-| `Pi4JInputPin` | Pi4J `DigitalInput` listener (BCM pin numbering) |
-| `PollingInputPin` | 5 ms `ScheduledExecutorService` |
+| `SysfsInputPin` | sysfs GPIO input (`/sys/class/gpio/gpioN/value`) |
+| `PollingInputPin` | 5 ms `ScheduledExecutorService` (default) |
 
 ---
 
@@ -605,8 +605,7 @@ public interface OutputPin extends AutoCloseable {
 
 | Class | Mechanism |
 |-------|-----------|
-| `Pi4JOutputPin` | Pi4J `DigitalOutput` (BCM pin numbering) |
-| `SysfsOutputPin` | sysfs GPIO write |
+| `SysfsOutputPin` | sysfs GPIO output (`/sys/class/gpio/gpioN/value`) |
 
 ---
 
@@ -695,7 +694,7 @@ imu.on_interrupt(handler)
 | Node.js (epoll) | `EpollInputPin` | Requires native `epoll` dependency |
 | Node.js (polling) | `PollingInputPin` | Fallback |
 | Rust | None (user-managed) | Call `poll_interrupt()` from own ISR or polling loop |
-| JVM (Pi4J) | `Pi4JInputPin` | BCM pin numbering |
+| JVM (sysfs) | `SysfsInputPin` | sysfs GPIO, requires prior `gpio export N` |
 | JVM (polling) | `PollingInputPin` via `ScheduledExecutorService` | Default |
 
 ---
@@ -790,11 +789,12 @@ boxing requires `std` (unavailable on ESP32-S3). The existing Rust pattern alrea
 omits callbacks for interrupts; keeping EN pin management caller-side is consistent
 with that approach.
 
-### 10.3 Why JVM defaults to polling for both InputPin and OutputPin
+### 10.3 Why JVM defaults to polling for InputPin
 
-Pi4J requires explicit GPIO setup per host environment. The polling and sysfs defaults
-work out of the box on any Raspberry Pi; Pi4J implementations are opt-in for
-latency-sensitive use cases.
+Sysfs GPIO access requires the pin to be exported first (`gpio export N` or equivalent).
+`PollingInputPin` (5 ms `ScheduledExecutorService`) works out of the box on any
+Raspberry Pi without any prior GPIO setup; `SysfsInputPin` is opt-in for lower latency
+when the INT line is wired and exported.
 
 ### 10.4 Delivery latency summary
 
@@ -1036,11 +1036,10 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 | `rust/periph/src/transport/connection.rs` | Rust | `Connection<BUS>` struct (bus + enabled state) |
 | `jvm/periph-transport/…/transport/Connection.java` | Java | `Connection` class |
 | `jvm/periph-transport/…/transport/InputPin.java` | Java | `InputPin` interface + `EdgeTrigger` enum |
-| `jvm/periph-transport/…/transport/PollingInputPin.java` | Java | 5 ms polling `InputPin` |
-| `jvm/periph-transport/…/transport/Pi4JInputPin.java` | Java | Pi4J `DigitalInput` listener |
+| `jvm/periph-transport/…/transport/PollingInputPin.java` | Java | 5 ms polling `InputPin` (default) |
+| `jvm/periph-transport/…/transport/SysfsInputPin.java` | Java | sysfs GPIO input |
 | `jvm/periph-transport/…/transport/OutputPin.java` | Java | `OutputPin` interface |
-| `jvm/periph-transport/…/transport/SysfsOutputPin.java` | Java | sysfs GPIO write |
-| `jvm/periph-transport/…/transport/Pi4JOutputPin.java` | Java | Pi4J `DigitalOutput` |
+| `jvm/periph-transport/…/transport/SysfsOutputPin.java` | Java | sysfs GPIO output |
 
 ---
 
@@ -1056,26 +1055,23 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 3. **Rust Linux host — polling thread** — Should a `std`-gated wrapper add polling-
    thread delivery for `poll_interrupt`? Out of scope for v1; revisit if requested.
 
-4. **JVM pin numbering** — Pi4J uses BCM pin numbers. Document explicitly so users
-   don't pass physical pin numbers.
-
-5. **MCP23017 INTCAP register** — `INTCAP` latches pin state at interrupt time. Should
+4. **MCP23017 INTCAP register** — `INTCAP` latches pin state at interrupt time. Should
    `poll_interrupt` return both capture and flag register, or flags only? Proposal:
    return flags only; expose `read_capture(port)` separately.
 
-6. **`enable_interrupt` arity** — single source per call vs. accepting a list. Proposal:
+5. **`enable_interrupt` arity** — single source per call vs. accepting a list. Proposal:
    single source for v1, revisit if performance matters.
 
-7. **`Connection.disable()` behaviour** — currently silent (reads return zeros, writes
+6. **`Connection.disable()` behaviour** — currently silent (reads return zeros, writes
    dropped). An alternative is to raise a `ConnectionDisabledError`. Silent is safer
    for embedded loops; an exception aids debugging in host applications. Could be a
    constructor-time flag.
 
-8. **Rust EN pin as `WithEnPin` wrapper** — a `WithEnPin<BUS, EN>` newtype around
+7. **Rust EN pin as `WithEnPin` wrapper** — a `WithEnPin<BUS, EN>` newtype around
    `Connection` would allow consistent `enable()` / `disable()` semantics in Rust
    without bloating every chip's type signature. Out of scope for v1.
 
-9. **`Transport` rename sweep** — the rename from `Transport` to `Connection` touches
+8. **`Transport` rename sweep** — the rename from `Transport` to `Connection` touches
    every chip driver and every example. A mechanical find-and-replace is sufficient
    but must be applied consistently: `transport` (variable) → `connection`,
    `Transport` (type) → `Connection`.
