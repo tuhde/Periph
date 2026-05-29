@@ -51,6 +51,30 @@
 | Interrupt modes | edge (rising / falling / both) / level (high / low) |
 | Drive strength | yes / no |
 
+## Interrupt
+
+| Property | Value |
+|----------|-------|
+| INT pin | active-low, open-drain — requires external pull-up |
+| Level | 1 or 3 (see `specs/feature_connection_design.md`) |
+| Condition | Any input pin changed state |
+| Clear mechanism | read INTF / INTCAP register |
+
+### Full driver interrupt API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `on_interrupt` | `on_interrupt(callback)` | Subscribe; callback(status: int) — status is a changed-pin bitmask |
+| `off_interrupt` | `off_interrupt()` | Unsubscribe |
+| `poll_interrupt` | `poll_interrupt() -> int` | Read & clear interrupt-status register |
+
+### Pin interrupt API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `watch` | `watch(handler, trigger=CHANGE)` | Subscribe to this pin's edge events |
+| `unwatch` | `unwatch()` | Unsubscribe |
+
 ## Initialization Sequence
 
 1. <step>
@@ -71,7 +95,7 @@ Goal: expose all chip pins as GPIO objects with direction control and value read
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | transport | — | Reset to all-inputs with safe defaults |
+| `init` | connection | — | Reset to all-inputs with safe defaults |
 | `pin` | `n: int` | Pin | Return a Pin proxy for pin number `n` (0-based) |
 | `read_port` | `port: int` | int | Read all 8 pins of a port as a bitmask |
 | `write_port` | `port: int`, `mask: int` | — | Write all 8 output pins of a port at once |
@@ -99,8 +123,9 @@ Goal: expose complete chip functionality. Extends Minimal.
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
 | *(inherits Minimal)* | | | |
-| `configure_interrupt` | `port`, `trigger`, `callback` | — | Enable interrupt output; trigger: RISING, FALLING, BOTH, LEVEL_HIGH, LEVEL_LOW |
-| `clear_interrupt` | — | int | Read and clear interrupt flag register; returns bitmask of triggered pins |
+| `on_interrupt` | `callback` | — | Subscribe; callback(status: int) fires on each INT assertion; status is a bitmask of changed pins |
+| `off_interrupt` | — | — | Unsubscribe |
+| `poll_interrupt` | — | int | Read & clear interrupt-status register; returns changed-pin bitmask |
 
 **Pin API additions — Full**
 
@@ -108,7 +133,8 @@ Goal: expose complete chip functionality. Extends Minimal.
 |-----------|-------------|---------------|-----|---------|------|
 | Set pull | `pin.init(pull=Pin.PULL_UP)` | `pin.pull = Pull.UP` | `pin.mode(INPUT_PULLUP)` | *(via driver)* | *(trait: `embedded_hal::digital::InputPin`)* |
 | Set drive mode | *(via driver)* | `pin.drive_mode = DriveMode.OPEN_DRAIN` | `pin.mode(OUTPUT_OPEN_DRAIN)` | *(via driver)* | *(via driver)* |
-| Attach interrupt | `pin.irq(handler, Pin.IRQ_RISING)` | *(via driver)* | `pin.attachInterrupt(handler, RISING)` | `pin.watch(handler)` | *(via driver callback)* |
+| Subscribe to edge | `pin.watch(handler, CHANGE)` | `pin.watch(handler, CHANGE)` | `pin.watch(handler, CHANGE)` | `pin.watch(cb, 'change')` | *(n/a)* |
+| Unsubscribe | `pin.unwatch()` | `pin.unwatch()` | `pin.unwatch()` | `pin.unwatch()` | *(n/a)* |
 
 **Additional configuration options:** <!-- pull resistors, polarity inversion, drive strength, per-pin interrupt mask, etc. -->
 
@@ -121,7 +147,7 @@ This section defines the per-platform contracts for Pin objects. See `AGENTS.md`
 Pin objects implement a compatible subset of `machine.Pin`. The `id` parameter to `Pin.__init__` is replaced by the chip's `pin(n)` factory — users never instantiate Pin directly.
 
 Required interface (Minimal): `init(mode)`, `value([x])`, `on()`, `off()`, `toggle()`  
-Full adds: `init(mode, pull)`, `irq(handler, trigger)` — constants `Pin.PULL_UP`, `Pin.PULL_DOWN`, `Pin.IRQ_RISING`, `Pin.IRQ_FALLING`
+Full adds: `init(mode, pull)`, `watch(handler, trigger)`, `unwatch()` — trigger constants `RISING`, `FALLING`, `CHANGE`
 
 ### Python — CircuitPython
 
@@ -150,7 +176,7 @@ public:
     void toggle();
 };
 ```
-Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `attachInterrupt(callback, mode)` / `detachInterrupt()`.
+Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `watch(callback, trigger)` / `unwatch()` using `GpioPin::RISING`, `::FALLING`, `::CHANGE`.
 
 The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — guarded with platform `#ifdef` only where interrupt delivery differs.
 

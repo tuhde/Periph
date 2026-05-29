@@ -21,6 +21,15 @@
 - **Bit order:** MSB first
 - **CS active:** low
 
+## Pin Configuration
+
+<!-- Include only if the chip has an INT or EN pin. Remove entirely for chips with no external GPIO signals beyond the bus. -->
+
+| Pin | Active | Notes |
+|-----|--------|-------|
+| INT | low, open-drain | interrupt output — requires external pull-up |
+| EN  | high | enable / power; float or drive high to power chip |
+
 ## Register Map
 
 | Address | Name | R/W | Reset | Description |
@@ -42,17 +51,55 @@
 2. <step>
 3. Wait <N> ms for <reason>
 
+## Interrupt
+
+<!-- Remove this section for Level-0 chips (no INT output).
+     Level 1 = single fixed condition; Level 2 = selectable sources; Level 3 = multiple INT lines.
+     See specs/feature_connection_design.md for the full design. -->
+
+| Property | Value |
+|----------|-------|
+| INT pin | active-low, open-drain — requires external pull-up |
+| Level | 1 / 2 / 3 |
+| Condition(s) | e.g. data-ready; threshold exceeded; alarm |
+| Clear mechanism | read status register / write clear bit |
+
+### Interrupt sources
+<!-- Only for Level 2/3 chips. Delete for Level 1. -->
+
+| Constant | Value | Condition |
+|----------|-------|-----------|
+| `SOURCE_DATA_READY` | `0x01` | New measurement available |
+| `SOURCE_THRESHOLD`  | `0x02` | Configured threshold crossed |
+
+### Full driver interrupt API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `on_interrupt` | `on_interrupt(callback)` | Subscribe; callback receives status int |
+| `off_interrupt` | `off_interrupt()` | Unsubscribe |
+| `poll_interrupt` | `poll_interrupt() -> int` | Read & clear interrupt-status register |
+| `enable_interrupt` | `enable_interrupt(source)` | Enable one interrupt source *(Level 2/3 only)* |
+| `disable_interrupt` | `disable_interrupt(source)` | Disable one interrupt source *(Level 2/3 only)* |
+
+### Status register bit layout
+
+| Bit | Constant | Meaning |
+|-----|----------|---------|
+| 0 | `SOURCE_DATA_READY` | New sample ready |
+| 1 | `SOURCE_THRESHOLD` | Threshold crossed |
+
 ## Implementation Stages
 
 Each chip is implemented in two stages. The Full class extends Minimal — it inherits everything and adds the rest.
 
 ### Minimal
 
-Goal: expose the chip's primary use case with a simple, user-friendly interface. No configuration required beyond the transport.
+Goal: expose the chip's primary use case with a simple, user-friendly interface. No configuration required beyond the connection.
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | transport | — | Runs initialization sequence with sensible defaults |
+| `init` | connection | — | Runs initialization sequence with sensible defaults |
 | `read_<value>` | — | float | Unit: <e.g. °C> |
 
 **Sensible defaults:** <!-- List the register settings baked in for Minimal -->
