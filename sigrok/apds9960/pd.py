@@ -199,7 +199,7 @@ class Decoder(srd.Decoder):
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_READ, ['GFLVL %d datasets' % val, 'GFLVL=%d' % val]])
                 elif reg == 0x92:
-                    ok = ' (APDS-9960)' if val == 0xAB else ' (expected 0xAB!)'
+                    ok = ' (APDS-9960)' if val in (0xAB, 0xA8) else ' (unknown!)'
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_READ, ['ID 0x%02X%s' % (val, ok), 'ID=0x%02X' % val]])
                 else:
