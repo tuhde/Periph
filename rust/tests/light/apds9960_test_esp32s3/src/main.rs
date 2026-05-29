@@ -3,6 +3,7 @@
 
 use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
 use periph::chips::light::Apds9960Full;
@@ -35,7 +36,8 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut chip = match Apds9960Full::new(i2c, TEST_ADDR) {
+    let mut delay = Delay::new();
+    let mut chip = match Apds9960Full::new(i2c, TEST_ADDR, &mut delay) {
         Ok(c) => c,
         Err(_) => {
             println!("FAIL init: could not reach APDS-9960 at 0x{:02X}", TEST_ADDR);

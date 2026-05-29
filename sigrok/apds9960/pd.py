@@ -108,10 +108,10 @@ def _decode_status(raw):
     return 'STATUS 0x%02X [%s]' % (raw, ', '.join(flags) if flags else 'none')
 
 
-def _decode_ppulse(raw):
+def _decode_ppulse(raw, name='PPULSE'):
     plen = (raw >> 6) & 3
     count = (raw & 0x3F) + 1
-    return 'PPULSE 0x%02X (%d pulses, %s)' % (raw, count, PLEN.get(plen, str(plen)))
+    return '%s 0x%02X (%d pulses, %s)' % (name, raw, count, PLEN.get(plen, str(plen)))
 
 
 def _decode_config1(raw):
@@ -174,7 +174,7 @@ class Decoder(srd.Decoder):
                          [ANN_READ,
                           ['RGBC burst: C=%d R=%d G=%d B=%d' % (c, r, g, b),
                            'C=%d R=%d G=%d B=%d' % (c, r, g, b)]])
-            elif reg == 0xFC and len(self.databuf) % 4 == 0:
+            elif reg == 0xFC and len(self.databuf) >= 4 and len(self.databuf) % 4 == 0:
                 datasets = len(self.databuf) // 4
                 parts = []
                 for i in range(datasets):
@@ -237,7 +237,7 @@ class Decoder(srd.Decoder):
                              [ANN_WRITE, [_decode_control(val), 'CTRL 0x%02X' % val]])
                 elif reg == 0x8E or reg == 0xA6:
                     self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_WRITE, [_decode_ppulse(val), '%s 0x%02X' % (name, val)]])
+                             [ANN_WRITE, [_decode_ppulse(val, name), '%s 0x%02X' % (name, val)]])
                 elif reg == 0x8D:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_WRITE, [_decode_config1(val), 'CFG1 0x%02X' % val]])
@@ -291,4 +291,5 @@ class Decoder(srd.Decoder):
         elif ptype == 'STOP':
             self._finish_transaction()
             self.state   = 'IDLE'
+            self.reg_ptr = None
             self.databuf = []

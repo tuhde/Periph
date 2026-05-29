@@ -102,21 +102,36 @@ class APDS9960Minimal {
 
     /**
      * Read the red channel.
+     *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
      * @returns {number} Raw red channel count, 0-65535.
      */
-    colorRed()   { return this._readReg16LE(_REG_RDATAL); }
+    colorRed() {
+        const raw = this._transport.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        return raw[2] | (raw[3] << 8);
+    }
 
     /**
      * Read the green channel.
+     *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
      * @returns {number} Raw green channel count, 0-65535.
      */
-    colorGreen() { return this._readReg16LE(_REG_GDATAL); }
+    colorGreen() {
+        const raw = this._transport.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        return raw[4] | (raw[5] << 8);
+    }
 
     /**
      * Read the blue channel.
+     *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
      * @returns {number} Raw blue channel count, 0-65535.
      */
-    colorBlue()  { return this._readReg16LE(_REG_BDATAL); }
+    colorBlue() {
+        const raw = this._transport.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        return raw[6] | (raw[7] << 8);
+    }
 
     /**
      * Read all four RGBC channels in one burst.

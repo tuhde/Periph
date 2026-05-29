@@ -5,6 +5,7 @@
 //! returns an 8-bit count; the gesture engine captures directional hand
 //! movement using four dedicated photodiodes and a 32-dataset FIFO.
 
+use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
 const REG_ENABLE: u8 = 0x80;
@@ -61,18 +62,19 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     /// Create a new `Apds9960Minimal` and initialize the ALS/Color engine.
     ///
     /// # Arguments
-    /// * `i2c`  — Configured I²C bus implementing [`embedded_hal::i2c::I2c`].
-    /// * `addr` — 7-bit device address (always `0x39`).
-    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let id = read_reg(&mut i2c, addr, REG_ID)?;
-        if id != 0xAB {
-            return Err(read_reg(&mut i2c, addr, REG_ID).unwrap_err());
-        }
+    /// * `i2c`   — Configured I²C bus implementing [`embedded_hal::i2c::I2c`].
+    /// * `addr`  — 7-bit device address (always `0x39`).
+    /// * `delay` — Delay provider; used for the 6 ms power-up wait and 200 ms
+    ///             integration-cycle wait. Call [`chip_id`] after construction to
+    ///             verify the device identity (expects `0xAB`).
+    pub fn new(mut i2c: I2C, addr: u8, delay: &mut impl DelayNs) -> Result<Self, I2C::Error> {
+        delay.delay_ms(6);
         write_reg(&mut i2c, addr, REG_ENABLE, 0x00)?;
         write_reg(&mut i2c, addr, REG_ATIME, ATIME_DEFAULT)?;
         write_reg(&mut i2c, addr, REG_CONTROL, CONTROL_DEFAULT)?;
         write_reg(&mut i2c, addr, REG_CONFIG2, CONFIG2_DEFAULT)?;
         write_reg(&mut i2c, addr, REG_ENABLE, 0x03)?;
+        delay.delay_ms(210);
         Ok(Self { i2c, addr })
     }
 
@@ -85,23 +87,32 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
 
     /// Read the red channel.
     ///
+    /// Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
     /// Returns raw red channel count, 0–65535.
     pub fn color_red(&mut self) -> Result<u16, I2C::Error> {
-        read_reg16_le(&mut self.i2c, self.addr, REG_RDATAL)
+        let mut buf = [0u8; 8];
+        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        Ok((buf[2] as u16) | ((buf[3] as u16) << 8))
     }
 
     /// Read the green channel.
     ///
+    /// Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
     /// Returns raw green channel count, 0–65535.
     pub fn color_green(&mut self) -> Result<u16, I2C::Error> {
-        read_reg16_le(&mut self.i2c, self.addr, REG_GDATAL)
+        let mut buf = [0u8; 8];
+        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        Ok((buf[4] as u16) | ((buf[5] as u16) << 8))
     }
 
     /// Read the blue channel.
     ///
+    /// Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
     /// Returns raw blue channel count, 0–65535.
     pub fn color_blue(&mut self) -> Result<u16, I2C::Error> {
-        read_reg16_le(&mut self.i2c, self.addr, REG_BDATAL)
+        let mut buf = [0u8; 8];
+        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        Ok((buf[6] as u16) | ((buf[7] as u16) << 8))
     }
 
     /// Read all four RGBC channels in one burst.
@@ -132,8 +143,8 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     /// Create a new `Apds9960Full` and initialize the ALS/Color engine.
     ///
     /// Same arguments as [`Apds9960Minimal::new`].
-    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let inner = Apds9960Minimal::new(i2c, addr)?;
+    pub fn new(i2c: I2C, addr: u8, delay: &mut impl DelayNs) -> Result<Self, I2C::Error> {
+        let inner = Apds9960Minimal::new(i2c, addr, delay)?;
         Ok(Self { inner })
     }
 

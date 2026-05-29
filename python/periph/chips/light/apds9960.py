@@ -72,7 +72,7 @@ class APDS9960Minimal:
 
     def __init__(self, transport):
         self._transport = transport
-        time.sleep_ms(6)
+        time.sleep(0.006)
         chip_id = self._read_reg(self._REG_ID)
         if chip_id != 0xAB:
             raise ValueError('APDS-9960 not found (ID=0x%02X, expected 0xAB)' % chip_id)
@@ -81,7 +81,7 @@ class APDS9960Minimal:
         self._write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
         self._write_reg(self._REG_CONFIG2, self._CONFIG2_DEFAULT)
         self._write_reg(self._REG_ENABLE, 0x03)
-        time.sleep_ms(210)
+        time.sleep(0.210)
 
     def _write_reg(self, reg, value):
         self._transport.write(bytes([reg, value]))
@@ -104,26 +104,35 @@ class APDS9960Minimal:
     def color_red(self):
         """Read the red channel.
 
+        Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+
         Returns:
             int: Raw red channel count, 0-65535.
         """
-        return self._read_reg16_le(self._REG_RDATAL)
+        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        return raw[2] | (raw[3] << 8)
 
     def color_green(self):
         """Read the green channel.
 
+        Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+
         Returns:
             int: Raw green channel count, 0-65535.
         """
-        return self._read_reg16_le(self._REG_GDATAL)
+        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        return raw[4] | (raw[5] << 8)
 
     def color_blue(self):
         """Read the blue channel.
 
+        Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+
         Returns:
             int: Raw blue channel count, 0-65535.
         """
-        return self._read_reg16_le(self._REG_BDATAL)
+        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        return raw[6] | (raw[7] << 8)
 
     def color(self):
         """Read all four RGBC channels in one burst.

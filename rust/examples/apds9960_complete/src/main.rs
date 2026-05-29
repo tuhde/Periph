@@ -1,4 +1,4 @@
-use linux_embedded_hal::I2cdev;
+use linux_embedded_hal::{Delay, I2cdev};
 use periph::chips::light::Apds9960Full;
 
 fn main() {
@@ -9,7 +9,8 @@ fn main() {
         .unwrap_or(0x39);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut chip = Apds9960Full::new(dev, addr).expect("init APDS9960");
+    let mut delay = Delay;
+    let mut chip = Apds9960Full::new(dev, addr, &mut delay).expect("init APDS9960");
 
     println!("chip_id: 0x{:02X}", chip.chip_id().unwrap());
 

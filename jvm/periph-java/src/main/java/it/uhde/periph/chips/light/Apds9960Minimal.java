@@ -103,31 +103,40 @@ public class Apds9960Minimal {
     /**
      * Read the red channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw red channel count, 0-65535
      * @throws IOException on I²C error
      */
     public int colorRed() throws IOException {
-        return readReg16LE(REG_RDATAL);
+        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        return (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
     }
 
     /**
      * Read the green channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw green channel count, 0-65535
      * @throws IOException on I²C error
      */
     public int colorGreen() throws IOException {
-        return readReg16LE(REG_GDATAL);
+        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        return (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
     }
 
     /**
      * Read the blue channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw blue channel count, 0-65535
      * @throws IOException on I²C error
      */
     public int colorBlue() throws IOException {
-        return readReg16LE(REG_BDATAL);
+        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        return (raw[6] & 0xFF) | ((raw[7] & 0xFF) << 8);
     }
 
     /**

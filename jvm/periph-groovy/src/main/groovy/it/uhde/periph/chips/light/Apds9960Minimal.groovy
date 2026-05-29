@@ -78,7 +78,7 @@ class Apds9960Minimal {
      */
     Apds9960Minimal(Transport transport) {
         this.transport = transport
-        Thread.sleep(6)
+        try { Thread.sleep(6) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         int id = readReg(REG_ID)
         if (id != 0xAB) throw new IOException("APDS-9960 not found (ID=0x${Integer.toHexString(id)}, expected 0xAB)")
         writeReg(REG_ENABLE, 0x00)
@@ -86,7 +86,7 @@ class Apds9960Minimal {
         writeReg(REG_CONTROL, CONTROL_DEFAULT)
         writeReg(REG_CONFIG2, CONFIG2_DEFAULT)
         writeReg(REG_ENABLE, 0x03)
-        Thread.sleep(210)
+        try { Thread.sleep(210) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
     }
 
     /**
@@ -101,28 +101,37 @@ class Apds9960Minimal {
     /**
      * Read the red channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw red channel count, 0-65535
      */
     int colorRed() {
-        readReg16LE(REG_RDATAL)
+        byte[] raw = transport.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8)
     }
 
     /**
      * Read the green channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw green channel count, 0-65535
      */
     int colorGreen() {
-        readReg16LE(REG_GDATAL)
+        byte[] raw = transport.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8)
     }
 
     /**
      * Read the blue channel.
      *
+     * <p>Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw blue channel count, 0-65535
      */
     int colorBlue() {
-        readReg16LE(REG_BDATAL)
+        byte[] raw = transport.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        (raw[6] & 0xFF) | ((raw[7] & 0xFF) << 8)
     }
 
     /**

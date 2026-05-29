@@ -1,4 +1,5 @@
 #include "APDS9960.h"
+#include <assert.h>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -18,7 +19,7 @@ APDS9960Minimal::APDS9960Minimal(Transport& transport)
     : _transport(transport) {
     DELAY_MS(6);
     uint8_t id = _read_reg(REG_ID);
-    (void)id;
+    assert(id == 0xAB);
     _write_reg(REG_ENABLE, 0x00);
     _write_reg(REG_ATIME, ATIME_DEFAULT);
     _write_reg(REG_CONTROL, CONTROL_DEFAULT);
@@ -49,15 +50,24 @@ uint16_t APDS9960Minimal::color_clear() {
 }
 
 uint16_t APDS9960Minimal::color_red() {
-    return _read_reg16_le(REG_RDATAL);
+    uint8_t reg = REG_CDATAL;
+    uint8_t buf[8];
+    _transport.write_read(&reg, 1, buf, 8);
+    return (uint16_t)buf[2] | ((uint16_t)buf[3] << 8);
 }
 
 uint16_t APDS9960Minimal::color_green() {
-    return _read_reg16_le(REG_GDATAL);
+    uint8_t reg = REG_CDATAL;
+    uint8_t buf[8];
+    _transport.write_read(&reg, 1, buf, 8);
+    return (uint16_t)buf[4] | ((uint16_t)buf[5] << 8);
 }
 
 uint16_t APDS9960Minimal::color_blue() {
-    return _read_reg16_le(REG_BDATAL);
+    uint8_t reg = REG_CDATAL;
+    uint8_t buf[8];
+    _transport.write_read(&reg, 1, buf, 8);
+    return (uint16_t)buf[6] | ((uint16_t)buf[7] << 8);
 }
 
 void APDS9960Minimal::color(uint16_t& clear, uint16_t& red, uint16_t& green, uint16_t& blue) {
@@ -217,7 +227,8 @@ bool APDS9960Full::gesture_available() {
 
 uint8_t APDS9960Full::read_gesture_fifo(uint8_t* buf, uint8_t max_len) {
     uint8_t level = _read_reg(REG_GFLVL);
-    if (level == 0 || level > max_len) level = max_len;
+    if (level == 0) return 0;
+    if (level > max_len) level = max_len;
     uint8_t reg = REG_GFIFO_U;
     for (uint8_t i = 0; i < level; i++) {
         _transport.write_read(&reg, 1, buf + i * 4, 4);

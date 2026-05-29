@@ -69,7 +69,7 @@ open class Apds9960Minimal(
     }
 
     init {
-        Thread.sleep(6)
+        try { Thread.sleep(6) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         val id = readReg(REG_ID)
         if (id != 0xAB) throw java.io.IOException("APDS-9960 not found (ID=0x${id.toString(16)}, expected 0xAB)")
         writeReg(REG_ENABLE, 0x00)
@@ -77,7 +77,7 @@ open class Apds9960Minimal(
         writeReg(REG_CONTROL, CONTROL_DEFAULT)
         writeReg(REG_CONFIG2, CONFIG2_DEFAULT)
         writeReg(REG_ENABLE, 0x03)
-        Thread.sleep(210)
+        try { Thread.sleep(210) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
     }
 
     /**
@@ -90,23 +90,38 @@ open class Apds9960Minimal(
     /**
      * Read the red channel.
      *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw red channel count, 0-65535
      */
-    fun colorRed(): Int = readReg16LE(REG_RDATAL)
+    fun colorRed(): Int {
+        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        return (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
+    }
 
     /**
      * Read the green channel.
      *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw green channel count, 0-65535
      */
-    fun colorGreen(): Int = readReg16LE(REG_GDATAL)
+    fun colorGreen(): Int {
+        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        return (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
+    }
 
     /**
      * Read the blue channel.
      *
+     * Burst-reads all 8 bytes from CDATAL to trigger the atomic latch.
+     *
      * @return raw blue channel count, 0-65535
      */
-    fun colorBlue(): Int = readReg16LE(REG_BDATAL)
+    fun colorBlue(): Int {
+        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        return (raw[6].toInt() and 0xFF) or ((raw[7].toInt() and 0xFF) shl 8)
+    }
 
     /**
      * Read all four RGBC channels in one burst.
