@@ -419,6 +419,23 @@ public class Connection implements AutoCloseable {
 }
 ```
 
+### 4.6 Shared InputPin (wired-AND INT lines)
+
+When multiple chips share one physical INT GPIO (open-drain outputs wired together),
+pass the same `InputPin` instance to all `Connection` objects. Each chip driver calls
+`on_interrupt()` independently and registers its own internal handler; all handlers are
+called on every edge, and each reads its own chip's interrupt-status register.
+
+```python
+int_pin = LinuxSysfsPin(17)                         # one physical GPIO
+conn_imu  = Connection(i2c_imu,  int_pin=int_pin)
+conn_rtc  = Connection(i2c_rtc,  int_pin=int_pin)
+
+imu.on_interrupt(lambda s: handle_imu(s))
+rtc.on_interrupt(lambda s: handle_rtc(s))
+# Both handlers are now registered on int_pin; firing it polls both chips.
+```
+
 ---
 
 ## 5. InputPin — INT Line Delivery
@@ -426,6 +443,13 @@ public class Connection implements AutoCloseable {
 `InputPin` is an input-only abstraction that delivers edge notifications from a chip's
 INT line. It is intentionally minimal: it only signals that *an* edge occurred. The
 chip driver always calls `poll_interrupt()` to determine the cause.
+
+**Multiple handlers are supported.** `on_edge` appends to an ordered list; `off_edge`
+removes one specific handler by identity. This enables the common hardware pattern of
+multiple chips with open-drain INT outputs wired to a single GPIO: each chip's
+`Connection` holds the same `InputPin` instance and registers its own internal handler.
+When the edge fires, all handlers are called in registration order; each then calls
+`poll_interrupt()` on its own chip to identify the source.
 
 ### 5.1 Python (`python/periph/transport/input_pin.py`)
 
@@ -439,12 +463,13 @@ class InputPin(ABC):
 
     @abstractmethod
     def on_edge(self, handler, trigger=FALLING):
-        """Register handler() for edge events. Called from IRQ or polling thread.
-        handler takes no arguments; the chip driver calls poll_interrupt()."""
+        """Append handler() to the edge-notification list for the given trigger.
+        handler takes no arguments; the chip driver calls poll_interrupt().
+        Multiple handlers may be registered; all are called in registration order."""
 
     @abstractmethod
-    def off_edge(self):
-        """Deregister handler and release resources."""
+    def off_edge(self, handler):
+        """Remove a specific handler from the list. No-op if not registered."""
 ```
 
 | Class | Platform | Mechanism |
@@ -464,7 +489,7 @@ public:
     static constexpr uint8_t CHANGE  = 2;
 
     virtual void onEdge(void (*handler)(), uint8_t trigger = FALLING) = 0;
-    virtual void offEdge() = 0;
+    virtual void offEdge(void (*handler)()) = 0;
     virtual ~InputPin() = default;
 };
 ```
@@ -480,7 +505,7 @@ public:
 ```js
 class InputPin {
     async onEdge(callback, trigger = 'falling') { throw new Error('abstract'); }
-    async offEdge() { throw new Error('abstract'); }
+    async offEdge(callback) { throw new Error('abstract'); }
 }
 ```
 
@@ -502,7 +527,7 @@ public interface EdgeHandler { void onEdge(); }
 
 public interface InputPin extends AutoCloseable {
     void onEdge(EdgeHandler handler, EdgeTrigger trigger);
-    void offEdge();
+    void offEdge(EdgeHandler handler);
 }
 
 public enum EdgeTrigger { RISING, FALLING, CHANGE }
