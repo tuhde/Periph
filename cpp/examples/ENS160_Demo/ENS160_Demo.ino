@@ -35,16 +35,15 @@ void setup() {
     // reaches 0. During warm-up, readings are unreliable. The driver surfaces the
     // status so the application can display progress to the user.
     Serial.println("Waiting for sensor warm-up...");
-    while (sensor.status() != 0) {                       // Poll validity, () → uint8_t 0–3
-        uint8_t s = sensor.status();
-        if (s == 1) {
-            Serial.println("Warm-up in progress...");
-        } else if (s == 2) {
-            Serial.println("Initial start-up (first power-on, up to 1 hour)...");
-        } else {
-            Serial.println("No valid output");
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        while (!sensor.read_air_quality(_aqi, _tvoc, _eco2)) {  // Wait for valid data, () → blocks until warm
+            uint8_t s = sensor.status();
+            if (s == 1) Serial.println("Warm-up in progress...");
+            else if (s == 2) Serial.println("Initial start-up (first power-on, up to 1 hour)...");
+            else Serial.println("No valid output");
+            delay(1000);
         }
-        delay(1000);
     }
     Serial.println("Sensor ready!");
 

@@ -27,16 +27,13 @@ fn main() {
     // reaches 0. During warm-up, readings are unreliable. The driver surfaces the
     // status so the application can display progress to the user.
     println!("Waiting for sensor warm-up...");
-    while sensor.status().unwrap() != 0 {                // Poll validity, () → u8 0–3
-        let s = sensor.status().unwrap();
-        if s == 1 {
-            println!("Warm-up in progress...");
-        } else if s == 2 {
-            println!("Initial start-up (first power-on, up to 1 hour)...");
-        } else {
-            println!("No valid output");
-        }
-        std::thread::sleep(std::time::Duration::from_secs(1));
+    loop {                                               // Wait for valid data, () → blocks until warm
+        let status = sensor.wait_for_new_data(2000).unwrap();
+        let validity = (status >> 2) & 0x03;
+        if validity == 0 { break; }
+        if validity == 1 { println!("Warm-up in progress..."); }
+        else if validity == 2 { println!("Initial start-up (first power-on, up to 1 hour)..."); }
+        else { println!("No valid output"); }
     }
     println!("Sensor ready!");
 

@@ -22,8 +22,9 @@ fn main() {
                                                                                        // sets INTn pin behavior for new data notification
 
     println!("Waiting for warm-up...");
-    while sensor.status().unwrap() != 0 {                    // Poll validity, () → u8 0–3
-        std::thread::sleep(std::time::Duration::from_secs(1));
+    loop {                                                        // Wait for valid data, () → blocks until warm
+        let status = sensor.wait_for_new_data(2000).unwrap();
+        if (status >> 2) & 0x03 == 0 { break; }
     }
 
     let tvoc = sensor.read_tvoc().expect("read tvoc");       // Read TVOC, () → f32 ppb

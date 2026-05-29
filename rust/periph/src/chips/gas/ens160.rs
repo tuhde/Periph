@@ -110,6 +110,22 @@ impl<I2C: I2c> Ens160Minimal<I2C> {
         Ok(Self { i2c, addr })
     }
 
+    /// Poll DEVICE_STATUS until NEWDAT is set or `timeout_ms` elapses.
+    ///
+    /// Returns the raw DEVICE_STATUS byte. On timeout the last-read byte is returned
+    /// (NEWDAT bit may be clear). Use bits [3:2] for VALIDITY_FLAG.
+    pub fn wait_for_new_data(&mut self, timeout_ms: u32) -> Result<u8, I2C::Error> {
+        let mut elapsed = 0u32;
+        loop {
+            let status = read_device_status(&mut self.i2c, self.addr)?;
+            if status & 0x02 != 0 || elapsed >= timeout_ms {
+                return Ok(status);
+            }
+            delay_ms(10);
+            elapsed += 10;
+        }
+    }
+
     /// Read the VALIDITY_FLAG from DEVICE_STATUS.
     ///
     /// Returns validity flag (0=OK, 1=Warm-up, 2=Initial Start-up, 3=No valid output).
@@ -282,6 +298,14 @@ impl<I2C: I2c> Ens160Full<I2C> {
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_IDLE)?;
         delay_ms(1);
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_STANDARD)
+    }
+
+    /// Poll DEVICE_STATUS until NEWDAT is set or `timeout_ms` elapses.
+    ///
+    /// Returns the raw DEVICE_STATUS byte. On timeout the last-read byte is returned
+    /// (NEWDAT bit may be clear). Use bits [3:2] for VALIDITY_FLAG.
+    pub fn wait_for_new_data(&mut self, timeout_ms: u32) -> Result<u8, I2C::Error> {
+        self.inner.wait_for_new_data(timeout_ms)
     }
 
     /// Read the VALIDITY_FLAG from DEVICE_STATUS.

@@ -15,16 +15,14 @@ const sensor = new ENS160Full(transport);                // Create ENS160 driver
 // reaches 0. During warm-up, readings are unreliable. The driver surfaces the
 // status so the application can display progress to the user.
 console.log('Waiting for sensor warm-up...');
-while (sensor.status() !== 0) {                          // Poll validity, () → number 0–3
-    const s = sensor.status();
-    if (s === 1) {
-        console.log('Warm-up in progress...');
-    } else if (s === 2) {
-        console.log('Initial start-up (first power-on, up to 1 hour)...');
-    } else {
-        console.log('No valid output');
+while (true) {                                           // Wait for valid data, () → blocks until warm
+    try { sensor.readAirQuality(); break; } catch (e) {
+        const s = sensor.status();
+        if (s === 1) console.log('Warm-up in progress...');
+        else if (s === 2) console.log('Initial start-up (first power-on, up to 1 hour)...');
+        else console.log('No valid output');
+        _delay(1000);
     }
-    _delay(1000);
 }
 console.log('Sensor ready!');
 

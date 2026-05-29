@@ -29,23 +29,19 @@ public class Ens160Test {
             checkTrue("status() in range [0, 3]", status >= 0 && status <= 3);
 
             System.out.println("Waiting for warm-up (may take up to 3 minutes)...");
-            int timeout = 180;
-            while (sensor.status() != 0 && timeout > 0) {
-                Thread.sleep(1000);
-                timeout--;
+            boolean warmupOk = false;
+            for (int i = 0; i < 240; i++) {
+                try { sensor.readAirQuality(); warmupOk = true; break; } catch (Exception e) { Thread.sleep(1000); }
             }
-            if (sensor.status() == 0) {
-                checkTrue("warmup_complete", true);
-            } else {
-                System.out.println("FAIL warmup_timeout");
-                failed++;
-            }
+            checkTrue("warmup_complete", warmupOk);
 
-            double[] data = sensor.readAirQuality();
-            checkTrue("readAirQuality() returns 3 values", data.length == 3);
-            checkTrue("aqi in range [1, 5]", data[0] >= 1 && data[0] <= 5);
-            checkTrue("tvocPpb >= 0", data[1] >= 0);
-            checkTrue("eco2Ppm >= 400", data[2] >= 400);
+            if (warmupOk) {
+                double[] data = sensor.readAirQuality();
+                checkTrue("readAirQuality() returns 3 values", data.length == 3);
+                checkTrue("aqi in range [1, 5]", data[0] >= 1 && data[0] <= 5);
+                checkTrue("tvocPpb >= 0", data[1] >= 0);
+                checkTrue("eco2Ppm >= 400", data[2] >= 400);
+            }
 
             sensor.setCompensation(25.0, 50.0);
             checkTrue("setCompensation() accepted", true);

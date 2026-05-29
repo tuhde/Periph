@@ -41,8 +41,11 @@ void setup() {
                                                           // sets INTn pin behavior for new data notification
 
     Serial.println("Waiting for warm-up...");
-    while (sensor.status() != 0) {                       // Poll validity, () → uint8_t 0–3
-        delay(1000);
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        while (!sensor.read_air_quality(_aqi, _tvoc, _eco2)) {  // Wait for valid data, () → blocks until warm
+            delay(1000);
+        }
     }
 
     float tvoc = sensor.read_tvoc();                     // Read TVOC, () → float ppb

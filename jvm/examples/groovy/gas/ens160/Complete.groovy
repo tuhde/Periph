@@ -22,8 +22,8 @@ try {
                                                                  // sets INTn pin behavior for new data notification
 
     println("Waiting for warm-up...")
-    while (sensor.status() != 0) {                              // poll validity, () → int 0–3
-        Thread.sleep(1000)
+    while (true) {                                              // Wait for valid data, () → blocks until warm
+        try { sensor.readAirQuality(); break } catch (Exception e) { Thread.sleep(1000) }
     }
 
     double tvoc = sensor.readTvoc()                             // read TVOC, () → double ppb

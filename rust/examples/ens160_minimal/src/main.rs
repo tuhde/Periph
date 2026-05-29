@@ -12,9 +12,9 @@ fn main() {
     let mut sensor = Ens160Minimal::new(dev, addr).expect("init ENS160"); // Create ENS160 driver, (i2c, addr=0x52)
 
     println!("Waiting for sensor warm-up...");
-    while sensor.status().unwrap() != 0 {                // Poll validity, () → u8 0–3
-        println!("Status: {}", sensor.status().unwrap());
-        std::thread::sleep(std::time::Duration::from_secs(1));
+    loop {                                                    // Wait for valid data, () → blocks until warm
+        let status = sensor.wait_for_new_data(2000).unwrap();
+        if (status >> 2) & 0x03 == 0 { break; }
     }
 
     for _ in 0..10 {

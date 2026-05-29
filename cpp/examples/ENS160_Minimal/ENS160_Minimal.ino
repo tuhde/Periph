@@ -25,10 +25,11 @@ void setup() {
     ENS160Minimal sensor(transport);                     // Create ENS160 driver, (transport)
 
     Serial.println("Waiting for sensor warm-up...");
-    while (sensor.status() != 0) {                       // Poll validity, () → uint8_t 0–3
-        Serial.print("Status: ");
-        Serial.println(sensor.status());
-        delay(1000);
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        while (!sensor.read_air_quality(_aqi, _tvoc, _eco2)) {  // Wait for valid data, () → blocks until warm
+            delay(1000);
+        }
     }
 
     for (int i = 0; i < 10; i++) {

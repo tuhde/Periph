@@ -22,24 +22,22 @@ int main(void) {
     const struct device *dev = DEVICE_DT_GET(ENS160_I2C_NODE);
     I2CTransportZephyr transport(dev, ENS160_ADDR);
 
-    ENS160Minimal sensor(transport);
+    ENS160Full sensor(transport);
     check_true(true, "init");
 
     uint8_t status = sensor.status();
     check_true(status <= 3, "status_valid_range");
 
     printk("Waiting for warm-up...\n");
-    int timeout = 180;
-    while (sensor.status() != 0 && timeout > 0) {
-        k_sleep(K_SECONDS(1));
-        timeout--;
+    bool warmup_ok = false;
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        for (int i = 0; i < 240; i++) {
+            if (sensor.read_air_quality(_aqi, _tvoc, _eco2)) { warmup_ok = true; break; }
+            k_sleep(K_SECONDS(1));
+        }
     }
-    if (sensor.status() == 0) {
-        check_true(true, "warmup_complete");
-    } else {
-        printk("FAIL warmup_timeout\n");
-        failed++;
-    }
+    check_true(warmup_ok, "warmup_complete");
 
     uint8_t aqi;
     float tvoc_ppb, eco2_ppm;
@@ -49,29 +47,26 @@ int main(void) {
     check_true(tvoc_ppb >= 0, "tvoc_non_negative");
     check_true(eco2_ppm >= 400, "eco2_minimum");
 
-    ENS160Full sensor_full(transport);
-    check_true(true, "full_init");
-
-    sensor_full.set_compensation(25.0f, 50.0f);
+    sensor.set_compensation(25.0f, 50.0f);
     check_true(true, "set_compensation");
 
-    float tvoc = sensor_full.read_tvoc();
+    float tvoc = sensor.read_tvoc();
     check_true(tvoc >= 0, "read_tvoc");
 
-    float eco2 = sensor_full.read_eco2();
+    float eco2 = sensor.read_eco2();
     check_true(eco2 >= 400, "read_eco2");
 
-    uint8_t aqi2 = sensor_full.read_aqi();
+    uint8_t aqi2 = sensor.read_aqi();
     check_true(aqi2 >= 1 && aqi2 <= 5, "read_aqi");
 
     float temp_actual, rh_actual;
-    sensor_full.read_compensation_actuals(temp_actual, rh_actual);
+    sensor.read_compensation_actuals(temp_actual, rh_actual);
     check_true(true, "read_compensation_actuals");
 
-    sensor_full.sleep();
+    sensor.sleep();
     check_true(true, "sleep");
     k_sleep(K_SECONDS(1));
-    sensor_full.wake();
+    sensor.wake();
     check_true(true, "wake");
 
     printk("===DONE: %d passed, %d failed===\n", passed, failed);

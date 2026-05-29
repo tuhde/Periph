@@ -19,8 +19,8 @@ sensor.configureInterrupt(true, false, false, true, false);  // Configure interr
                                                           // sets INTn pin behavior for new data notification
 
 console.log('Waiting for warm-up...');
-while (sensor.status() !== 0) {                          // Poll validity, () → number 0–3
-    _delay(1000);
+while (true) {                                           // Wait for valid data, () → blocks until warm
+    try { sensor.readAirQuality(); break; } catch (e) { _delay(1000); }
 }
 
 const tvoc = sensor.readTvoc();                          // Read TVOC, () → number ppb

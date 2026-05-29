@@ -12,9 +12,8 @@ fun main() {
         val sensor = Ens160Minimal(transport)                   // construct driver, verifies PART_ID and starts STANDARD mode, (transport) → Ens160Minimal
 
         println("Waiting for sensor warm-up...")
-        while (sensor.status() != 0) {                          // poll validity, () → Int 0–3
-            println("Status: ${sensor.status()}")
-            Thread.sleep(1000)
+        while (true) {                                          // Wait for valid data, () → blocks until warm
+            try { sensor.readAirQuality(); break } catch (e: Exception) { Thread.sleep(1000) }
         }
 
         for (i in 0 until 10) {

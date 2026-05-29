@@ -22,8 +22,8 @@ fun main() {
                                                                      // sets INTn pin behavior for new data notification
 
         println("Waiting for warm-up...")
-        while (sensor.status() != 0) {                              // poll validity, () → Int 0–3
-            Thread.sleep(1000)
+        while (true) {                                              // Wait for valid data, () → blocks until warm
+            try { sensor.readAirQuality(); break } catch (e: Exception) { Thread.sleep(1000) }
         }
 
         val tvoc = sensor.readTvoc()                                // read TVOC, () → Double ppb

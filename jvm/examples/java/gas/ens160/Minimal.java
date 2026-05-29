@@ -13,9 +13,8 @@ public class Minimal {
             var sensor = new Ens160Minimal(transport);                  // construct driver, verifies PART_ID and starts STANDARD mode, (transport) → Ens160Minimal
 
             System.out.println("Waiting for sensor warm-up...");
-            while (sensor.status() != 0) {                              // poll validity, () → int 0–3
-                System.out.println("Status: " + sensor.status());
-                Thread.sleep(1000);
+            while (true) {                                              // Wait for valid data, () → blocks until warm
+                try { sensor.readAirQuality(); break; } catch (Exception e) { Thread.sleep(1000); }
             }
 
             for (int i = 0; i < 10; i++) {

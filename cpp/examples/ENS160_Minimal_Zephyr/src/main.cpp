@@ -24,9 +24,11 @@ int main(void) {
     ENS160Minimal sensor(transport);                     // Create ENS160 driver, (transport)
 
     printk("Waiting for sensor warm-up...\n");
-    while (sensor.status() != 0) {                       // Poll validity, () → uint8_t 0–3
-        printk("Status: %d\n", sensor.status());
-        k_sleep(K_SECONDS(1));
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        while (!sensor.read_air_quality(_aqi, _tvoc, _eco2)) {  // Wait for valid data, () → blocks until warm
+            k_sleep(K_SECONDS(1));
+        }
     }
 
     for (int i = 0; i < 10; i++) {

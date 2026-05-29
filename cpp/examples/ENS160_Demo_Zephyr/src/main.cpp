@@ -31,16 +31,15 @@ int main(void) {
     // The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG
     // reaches 0. During warm-up, readings are unreliable.
     printk("Waiting for sensor warm-up...\n");
-    while (sensor.status() != 0) {                       // Poll validity, () → uint8_t 0–3
-        uint8_t s = sensor.status();
-        if (s == 1) {
-            printk("Warm-up in progress...\n");
-        } else if (s == 2) {
-            printk("Initial start-up (first power-on, up to 1 hour)...\n");
-        } else {
-            printk("No valid output\n");
+    {
+        uint8_t _aqi; float _tvoc, _eco2;
+        while (!sensor.read_air_quality(_aqi, _tvoc, _eco2)) {  // Wait for valid data, () → blocks until warm
+            uint8_t s = sensor.status();
+            if (s == 1) printk("Warm-up in progress...\n");
+            else if (s == 2) printk("Initial start-up (first power-on, up to 1 hour)...\n");
+            else printk("No valid output\n");
+            k_sleep(K_SECONDS(1));
         }
-        k_sleep(K_SECONDS(1));
     }
     printk("Sensor ready!\n");
 

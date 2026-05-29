@@ -9,9 +9,8 @@ const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
 const sensor = new ENS160Minimal(transport);             // Create ENS160 driver, (transport)
 
 console.log('Waiting for sensor warm-up...');
-while (sensor.status() !== 0) {                          // Poll validity, () → number 0–3
-    console.log('Status: ' + sensor.status());
-    _delay(1000);
+while (true) {                                           // Wait for valid data, () → blocks until warm
+    try { sensor.readAirQuality(); break; } catch (e) { _delay(1000); }
 }
 
 for (let i = 0; i < 10; i++) {

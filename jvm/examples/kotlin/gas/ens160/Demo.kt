@@ -25,14 +25,15 @@ fun main() {
         // reaches 0. During warm-up, readings are unreliable. The driver surfaces the
         // status so the application can display progress to the user.
         println("Waiting for sensor warm-up...")
-        while (sensor.status() != 0) {                          // poll validity, () → Int 0–3
-            val s = sensor.status()
-            when (s) {
-                1 -> println("Warm-up in progress...")
-                2 -> println("Initial start-up (first power-on, up to 1 hour)...")
-                else -> println("No valid output")
+        while (true) {                                          // Wait for valid data, () → blocks until warm
+            try { sensor.readAirQuality(); break } catch (e: Exception) {
+                when (sensor.status()) {
+                    1 -> println("Warm-up in progress...")
+                    2 -> println("Initial start-up (first power-on, up to 1 hour)...")
+                    else -> println("No valid output")
+                }
+                Thread.sleep(1000)
             }
-            Thread.sleep(1000)
         }
         println("Sensor ready!")
 
