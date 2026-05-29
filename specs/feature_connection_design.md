@@ -65,7 +65,7 @@ a bus scan safe) using a consistent API regardless of the underlying hardware me
    RTCs, accelerometers, and IO expanders.
 3. **Consistent naming** — one vocabulary adapted to each language's convention.
 4. **Separated concerns** — INT-pin delivery (hardware IRQ vs. polling thread vs. epoll)
-   is handled by a thin `GpioPin` abstraction in the `Connection`; chip drivers never
+   is handled by a thin `InputPin` abstraction in the `Connection`; chip drivers never
    contain platform-specific interrupt code.
 5. **Transparent power gating** — `Connection.enable()` / `disable()` drives the
    hardware EN pin if wired and gates all bus access; chip drivers require no changes to
@@ -137,7 +137,7 @@ It bundles three concerns:
 | Field | Type | Required | Purpose |
 |-------|------|----------|---------|
 | `bus` | platform bus transport | yes | I²C / SPI byte access |
-| `int_pin` | `GpioPin` | no | edge notifications from chip's INT line |
+| `int_pin` | `InputPin` | no | edge notifications from chip's INT line |
 | `en_pin` | `OutputPin` | no | hardware enable / power control |
 
 It also maintains an internal `enabled` boolean (default `true`). All `read` / `write`
@@ -151,13 +151,13 @@ they never call into the raw platform transport directly.
 
 ```python
 from dataclasses import dataclass, field
-from .gpio import GpioPin
+from .input_pin import InputPin
 from .output_pin import OutputPin
 
 @dataclass
 class Connection:
     bus: object          # I2CTransport, SPITransport, etc.
-    int_pin: GpioPin | None = None
+    int_pin: InputPin | None = None
     en_pin: OutputPin | None = None
     _enabled: bool = field(default=True, init=False, repr=False)
 
@@ -189,7 +189,7 @@ Usage:
 
 ```python
 from periph.transport.i2c_linux import I2CLinux
-from periph.transport.gpio import LinuxSysfsPin
+from periph.transport.input_pin import LinuxSysfsPin
 from periph.transport.output_pin import LinuxOutputPin
 from periph.transport.connection import Connection
 from periph.chips.imu.mpu6050 import Mpu6050Full
@@ -221,7 +221,7 @@ class Mpu6050Full(Mpu6050Minimal):
 ```cpp
 #pragma once
 #include "Transport.h"
-#include "GpioPin.h"
+#include "InputPin.h"
 #include "OutputPin.h"
 #include <cstdint>
 #include <cstring>
@@ -229,7 +229,7 @@ class Mpu6050Full(Mpu6050Minimal):
 class Connection {
 public:
     Connection(Transport& bus,
-               GpioPin*   intPin = nullptr,
+               InputPin*   intPin = nullptr,
                OutputPin* enPin  = nullptr)
         : _bus(bus), _intPin(intPin), _enPin(enPin), _enabled(true) {}
 
@@ -245,7 +245,7 @@ public:
 
     bool isEnabled() const { return _enabled; }
 
-    GpioPin*   intPin() const { return _intPin; }
+    InputPin*   intPin() const { return _intPin; }
     OutputPin* enPin()  const { return _enPin;  }
 
     void read(uint8_t reg, uint8_t* buf, size_t len) {
@@ -260,7 +260,7 @@ public:
 
 private:
     Transport& _bus;
-    GpioPin*   _intPin;
+    InputPin*   _intPin;
     OutputPin* _enPin;
     bool       _enabled;
 };
@@ -289,7 +289,7 @@ public:
 class Connection {
     /**
      * @param {object}    bus    I2CTransport or SPITransport instance
-     * @param {GpioPin?}  intPin optional interrupt input pin
+     * @param {InputPin?}  intPin optional interrupt input pin
      * @param {OutputPin?} enPin optional enable/power output pin
      */
     constructor(bus, intPin = null, enPin = null) {
@@ -329,7 +329,7 @@ module.exports = { Connection };
 
 ### 4.4 Rust — simplified Connection
 
-Rust targets `no_std` (ESP32-S3) and `std` (Linux) equally. Bundling `GpioPin` and
+Rust targets `no_std` (ESP32-S3) and `std` (Linux) equally. Bundling `InputPin` and
 `OutputPin` as generic type parameters would require 2–3 additional type parameters on
 every chip struct, significantly increasing complexity with marginal gain given that Rust
 is already callback-free for interrupts.
@@ -384,7 +384,7 @@ let imu  = Mpu6050Minimal::new(conn);
 ```java
 public class Connection implements AutoCloseable {
     private final Transport bus;
-    private final GpioPin   intPin;   // nullable
+    private final InputPin   intPin;   // nullable
     private final OutputPin enPin;    // nullable
     private volatile boolean enabled = true;
 
@@ -392,7 +392,7 @@ public class Connection implements AutoCloseable {
         this(bus, null, null);
     }
 
-    public Connection(Transport bus, GpioPin intPin, OutputPin enPin) {
+    public Connection(Transport bus, InputPin intPin, OutputPin enPin) {
         this.bus    = bus;
         this.intPin = intPin;
         this.enPin  = enPin;
@@ -402,7 +402,7 @@ public class Connection implements AutoCloseable {
     public void disable() { enabled = false; if (enPin != null) enPin.set(false); }
     public boolean isEnabled() { return enabled; }
 
-    public GpioPin   intPin() { return intPin; }
+    public InputPin   intPin() { return intPin; }
     public OutputPin enPin()  { return enPin;  }
 
     public byte[] read(int reg, int length) {
@@ -421,18 +421,18 @@ public class Connection implements AutoCloseable {
 
 ---
 
-## 5. GpioPin — INT Line Delivery
+## 5. InputPin — INT Line Delivery
 
-`GpioPin` is an input-only abstraction that delivers edge notifications from a chip's
+`InputPin` is an input-only abstraction that delivers edge notifications from a chip's
 INT line. It is intentionally minimal: it only signals that *an* edge occurred. The
 chip driver always calls `poll_interrupt()` to determine the cause.
 
-### 5.1 Python (`python/periph/transport/gpio.py`)
+### 5.1 Python (`python/periph/transport/input_pin.py`)
 
 ```python
 from abc import ABC, abstractmethod
 
-class GpioPin(ABC):
+class InputPin(ABC):
     RISING  = 1
     FALLING = 2
     CHANGE  = 3
@@ -454,10 +454,10 @@ class GpioPin(ABC):
 | `LinuxPollingPin` | Linux (no GPIO hw) | 5 ms `threading.Thread` loop |
 | `LinuxSysfsPin` | Linux (sysfs GPIO) | `select.select()` on `/sys/class/gpio/gpioN/value` |
 
-### 5.2 C++ (`cpp/src/transport/GpioPin.h`)
+### 5.2 C++ (`cpp/src/transport/InputPin.h`)
 
 ```cpp
-class GpioPin {
+class InputPin {
 public:
     static constexpr uint8_t FALLING = 0;
     static constexpr uint8_t RISING  = 1;
@@ -465,20 +465,20 @@ public:
 
     virtual void onEdge(void (*handler)(), uint8_t trigger = FALLING) = 0;
     virtual void offEdge() = 0;
-    virtual ~GpioPin() = default;
+    virtual ~InputPin() = default;
 };
 ```
 
 | Class | File | Platform | Mechanism |
 |-------|------|----------|-----------|
-| `ArduinoGpioPin` | `GpioPinArduino.h` | Arduino | `attachInterrupt(digitalPinToInterrupt(…))` |
-| `LinuxGpioPin` | `GpioPinLinux.h` | Linux GCC | `poll()` thread on sysfs |
-| `ZephyrGpioPin` | `GpioPinZephyr.h` | Zephyr | `gpio_add_callback()` |
+| `ArduinoInputPin` | `InputPinArduino.h` | Arduino | `attachInterrupt(digitalPinToInterrupt(…))` |
+| `LinuxInputPin` | `InputPinLinux.h` | Linux GCC | `poll()` thread on sysfs |
+| `ZephyrInputPin` | `InputPinZephyr.h` | Zephyr | `gpio_add_callback()` |
 
-### 5.3 Node.js (`nodejs/packages/periph/src/transport/gpio.js`)
+### 5.3 Node.js (`nodejs/packages/periph/src/transport/input_pin.js`)
 
 ```js
-class GpioPin {
+class InputPin {
     async onEdge(callback, trigger = 'falling') { throw new Error('abstract'); }
     async offEdge() { throw new Error('abstract'); }
 }
@@ -486,21 +486,21 @@ class GpioPin {
 
 | Class | Mechanism |
 |-------|-----------|
-| `EpollGpioPin` | `epoll` on sysfs or `gpiod` |
-| `PollingGpioPin` | 5 ms `setInterval` fallback |
+| `EpollInputPin` | `epoll` on sysfs or `gpiod` |
+| `PollingInputPin` | 5 ms `setInterval` fallback |
 
-### 5.4 Rust — no GpioPin abstraction
+### 5.4 Rust — no InputPin abstraction
 
 Rust drivers expose only `poll_interrupt()`. The application registers a hardware ISR
 via the HAL or RTOS and calls `poll_interrupt()` from within it.
 
-### 5.5 JVM (`jvm/periph-transport/…/transport/GpioPin.java`)
+### 5.5 JVM (`jvm/periph-transport/…/transport/InputPin.java`)
 
 ```java
 @FunctionalInterface
 public interface EdgeHandler { void onEdge(); }
 
-public interface GpioPin extends AutoCloseable {
+public interface InputPin extends AutoCloseable {
     void onEdge(EdgeHandler handler, EdgeTrigger trigger);
     void offEdge();
 }
@@ -510,8 +510,8 @@ public enum EdgeTrigger { RISING, FALLING, CHANGE }
 
 | Class | Mechanism |
 |-------|-----------|
-| `Pi4JGpioPin` | Pi4J `DigitalInput` listener (BCM pin numbering) |
-| `PollingGpioPin` | 5 ms `ScheduledExecutorService` |
+| `Pi4JInputPin` | Pi4J `DigitalInput` listener (BCM pin numbering) |
+| `PollingInputPin` | 5 ms `ScheduledExecutorService` |
 
 ---
 
@@ -590,7 +590,7 @@ public interface OutputPin extends AutoCloseable {
 ### 7.1 Core methods (all chips with INT output)
 
 All languages implement the same three-method contract on `Full` drivers. Only
-`poll_interrupt` is mandatory in Rust; the other two require a `GpioPin` in `Connection`.
+`poll_interrupt` is mandatory in Rust; the other two require a `InputPin` in `Connection`.
 
 | Method | Returns | Description |
 |--------|---------|-------------|
@@ -660,18 +660,18 @@ imu.on_interrupt(handler)
 
 | Platform | Delivery | Notes |
 |----------|----------|-------|
-| MicroPython | Hardware IRQ via `GpioPin.on_edge` | Handler runs in IRQ context — keep it short |
+| MicroPython | Hardware IRQ via `InputPin.on_edge` | Handler runs in IRQ context — keep it short |
 | CircuitPython | Same | |
 | Python Linux (no GPIO) | 5 ms polling thread | Default when `int_pin=None` |
 | Python Linux (sysfs) | `select()` on sysfs fd | Lower latency, opt-in |
-| Arduino | Hardware IRQ via `ArduinoGpioPin` | Handler runs in ISR — keep it short |
+| Arduino | Hardware IRQ via `ArduinoInputPin` | Handler runs in ISR — keep it short |
 | Linux GCC | `poll()` thread | |
 | Zephyr | `gpio_add_callback()` | |
-| Node.js (epoll) | `EpollGpioPin` | Requires native `epoll` dependency |
-| Node.js (polling) | `PollingGpioPin` | Fallback |
+| Node.js (epoll) | `EpollInputPin` | Requires native `epoll` dependency |
+| Node.js (polling) | `PollingInputPin` | Fallback |
 | Rust | None (user-managed) | Call `poll_interrupt()` from own ISR or polling loop |
-| JVM (Pi4J) | `Pi4JGpioPin` | BCM pin numbering |
-| JVM (polling) | `PollingGpioPin` via `ScheduledExecutorService` | Default |
+| JVM (Pi4J) | `Pi4JInputPin` | BCM pin numbering |
+| JVM (polling) | `PollingInputPin` via `ScheduledExecutorService` | Default |
 
 ---
 
@@ -688,8 +688,8 @@ filtering before dispatching to its registered handler.
 
 | Language | Subscribe | Unsubscribe | Trigger argument |
 |----------|-----------|-------------|-----------------|
-| Python | `pin.watch(handler, trigger=CHANGE)` | `pin.unwatch()` | `GpioPin.RISING`, `.FALLING`, `.CHANGE` |
-| C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `GpioPin::RISING`, `::FALLING`, `::CHANGE` |
+| Python | `pin.watch(handler, trigger=CHANGE)` | `pin.unwatch()` | `InputPin.RISING`, `.FALLING`, `.CHANGE` |
+| C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `InputPin::RISING`, `::FALLING`, `::CHANGE` |
 | Node.js | `pin.watch(callback, trigger='change')` | `pin.unwatch()` | `'rising'`, `'falling'`, `'change'` |
 | JVM | `pin.watch(handler, EdgeTrigger.CHANGE)` | `pin.unwatch()` | `EdgeTrigger` enum |
 
@@ -765,7 +765,7 @@ boxing requires `std` (unavailable on ESP32-S3). The existing Rust pattern alrea
 omits callbacks for interrupts; keeping EN pin management caller-side is consistent
 with that approach.
 
-### 10.3 Why JVM defaults to polling for both GpioPin and OutputPin
+### 10.3 Why JVM defaults to polling for both InputPin and OutputPin
 
 Pi4J requires explicit GPIO setup per host environment. The polling and sysfs defaults
 work out of the box on any Raspberry Pi; Pi4J implementations are opt-in for
@@ -855,7 +855,7 @@ construction section.
 ## Connection (replaces Transport)
 
 All chip constructors accept a single `Connection` object, which bundles the bus
-transport, an optional INT pin (`GpioPin`), and an optional EN pin (`OutputPin`).
+transport, an optional INT pin (`InputPin`), and an optional EN pin (`OutputPin`).
 See `specs/feature_connection_design.md` for the full design.
 
 Construct the bus transport as before (unchanged), then wrap it:
@@ -916,7 +916,7 @@ Adapt capitalisation: snake_case for Python/Rust, camelCase for C++/JS/JVM.
 ### Per-language implementation rules
 
 **Python (MicroPython / CircuitPython)**
-`on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, GpioPin.FALLING)`.
+`on_interrupt` calls `self._conn.int_pin.on_edge(self._int_handler, InputPin.FALLING)`.
 `_int_handler` calls `poll_interrupt()` and dispatches to the stored callback.
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` instead.
 Keep the handler short — no I/O beyond the register read.
@@ -926,8 +926,8 @@ Expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency; default to
 `LinuxPollingPin` (5 ms thread) when no `int_pin` is provided.
 
 **C++**
-Use `conn.intPin()` to access the `GpioPin*`. Platform `#ifdef` guards belong
-exclusively in `GpioPinLinux.h` / `GpioPinArduino.h` / `GpioPinZephyr.h`.
+Use `conn.intPin()` to access the `InputPin*`. Platform `#ifdef` guards belong
+exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
@@ -939,7 +939,7 @@ or polling loop.
 
 **JVM**
 `onInterrupt(IntConsumer)` is the driver-level API.
-Default `int_pin` to `new PollingGpioPin(5)` when no `GpioPin` is provided in the
+Default `int_pin` to `new PollingInputPin(5)` when no `InputPin` is provided in the
 `Connection`.
 
 ### Interrupt sources (Level 2/3 chips)
@@ -958,11 +958,11 @@ methods.
 
 | Change | Python | C++ | Node.js | Rust | JVM |
 |--------|--------|-----|---------|------|-----|
-| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, GpioPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, GpioPin)` |
+| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, InputPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, InputPin)` |
 | `configure_interrupt` → | `on_interrupt(cb)` | `onInterrupt(cb)` | `onInterrupt(cb)` | — | `onInterrupt(IntConsumer)` |
 | `clear_interrupt` → | `poll_interrupt()` | `pollInterrupt()` | `pollInterrupt()` | `poll_interrupt()` | `pollInterrupt()` |
 | `pin.irq` → | `pin.watch()` | `pin.watch()` | already `watch` | — | add `pin.watch()` |
-| INT-pin delivery | Move to `Connection` / `GpioPin` impl | Same | Same | N/A | Same |
+| INT-pin delivery | Move to `Connection` / `InputPin` impl | Same | Same | N/A | Same |
 | Platform guards | Remove from chip driver | Same | Same | N/A | Same |
 
 No `enable_interrupt` / `disable_interrupt` — PCF8574 is Level 1.
@@ -994,25 +994,25 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 | File | Language | Purpose |
 |------|----------|---------|
 | `python/periph/transport/connection.py` | Python | `Connection` dataclass |
-| `python/periph/transport/gpio.py` | Python | `GpioPin` ABC + `MicroPythonPin`, `CircuitPythonPin`, `LinuxPollingPin`, `LinuxSysfsPin` |
+| `python/periph/transport/input_pin.py` | Python | `InputPin` ABC + `MicroPythonPin`, `CircuitPythonPin`, `LinuxPollingPin`, `LinuxSysfsPin` |
 | `python/periph/transport/output_pin.py` | Python | `OutputPin` ABC + `MicroPythonOutputPin`, `CircuitPythonOutputPin`, `LinuxOutputPin` |
 | `cpp/src/transport/Connection.h` | C++ | `Connection` class |
-| `cpp/src/transport/GpioPin.h` | C++ | `GpioPin` base class |
-| `cpp/src/transport/GpioPinArduino.h` | C++ | `attachInterrupt` implementation |
-| `cpp/src/transport/GpioPinLinux.h` | C++ | `poll()` thread implementation |
-| `cpp/src/transport/GpioPinZephyr.h` | C++ | `gpio_add_callback` implementation |
+| `cpp/src/transport/InputPin.h` | C++ | `InputPin` base class |
+| `cpp/src/transport/InputPinArduino.h` | C++ | `attachInterrupt` implementation |
+| `cpp/src/transport/InputPinLinux.h` | C++ | `poll()` thread implementation |
+| `cpp/src/transport/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
 | `cpp/src/transport/OutputPin.h` | C++ | `OutputPin` base class |
 | `cpp/src/transport/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
 | `cpp/src/transport/OutputPinLinux.h` | C++ | sysfs GPIO implementation |
 | `cpp/src/transport/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
 | `nodejs/packages/periph/src/transport/connection.js` | Node.js | `Connection` class |
-| `nodejs/packages/periph/src/transport/gpio.js` | Node.js | `GpioPin`, `EpollGpioPin`, `PollingGpioPin` |
+| `nodejs/packages/periph/src/transport/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
 | `nodejs/packages/periph/src/transport/output_pin.js` | Node.js | `OutputPin`, `SysfsOutputPin`, `GpiodOutputPin` |
 | `rust/periph/src/transport/connection.rs` | Rust | `Connection<BUS>` struct (bus + enabled state) |
 | `jvm/periph-transport/…/transport/Connection.java` | Java | `Connection` class |
-| `jvm/periph-transport/…/transport/GpioPin.java` | Java | `GpioPin` interface + `EdgeTrigger` enum |
-| `jvm/periph-transport/…/transport/PollingGpioPin.java` | Java | 5 ms polling `GpioPin` |
-| `jvm/periph-transport/…/transport/Pi4JGpioPin.java` | Java | Pi4J `DigitalInput` listener |
+| `jvm/periph-transport/…/transport/InputPin.java` | Java | `InputPin` interface + `EdgeTrigger` enum |
+| `jvm/periph-transport/…/transport/PollingInputPin.java` | Java | 5 ms polling `InputPin` |
+| `jvm/periph-transport/…/transport/Pi4JInputPin.java` | Java | Pi4J `DigitalInput` listener |
 | `jvm/periph-transport/…/transport/OutputPin.java` | Java | `OutputPin` interface |
 | `jvm/periph-transport/…/transport/SysfsOutputPin.java` | Java | sysfs GPIO write |
 | `jvm/periph-transport/…/transport/Pi4JOutputPin.java` | Java | Pi4J `DigitalOutput` |

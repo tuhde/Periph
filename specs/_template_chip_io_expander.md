@@ -176,7 +176,7 @@ public:
     void toggle();
 };
 ```
-Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `watch(callback, trigger)` / `unwatch()` using `GpioPin::RISING`, `::FALLING`, `::CHANGE`.
+Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `watch(callback, trigger)` / `unwatch()` using `InputPin::RISING`, `::FALLING`, `::CHANGE`.
 
 The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — guarded with platform `#ifdef` only where interrupt delivery differs.
 
