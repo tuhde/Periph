@@ -1,0 +1,78 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9960-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '39', required: true }
+        },
+        label: function() {
+            return this.name || ('APDS-9960 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9960-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="APDS-9960">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="39" style="width:80px"> &nbsp;default: 39 (0x39)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9960', {
+        category:  'Peripheral',
+        color:     '#c0d8a0',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'apds9960-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sun-o',
+        label:   function() { return this.name || 'APDS-9960'; },
+        paletteLabel: 'APDS-9960'
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9960">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="APDS-9960">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="apds9960">
+    <p>Reads ambient light and color (RGBC) from an APDS-9960 sensor over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>apds9960-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">number</span></dt>
+        <dd>Clear (unfiltered) channel count, 0-65535.</dd>
+        <dt>payload.red <span class="property-type">number</span></dt>
+        <dd>Red channel count, 0-65535.</dd>
+        <dt>payload.green <span class="property-type">number</span></dt>
+        <dd>Green channel count, 0-65535.</dd>
+        <dt>payload.blue <span class="property-type">number</span></dt>
+        <dd>Blue channel count, 0-65535.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's 7-bit address (default <code>0x39</code>) in the device config node.
+    The driver uses ATIME=0xB6 (~200 ms integration) and AGAIN=4x by default.</p>
+</script>

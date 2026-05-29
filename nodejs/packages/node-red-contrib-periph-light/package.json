@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for light sensor chips",
   "keywords": ["node-red", "light", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "apds9960": "nodes/apds9960/apds9960.js"
+    }
   },
   "dependencies": {
     "periph": "*"
