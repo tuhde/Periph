@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "description": "Node-RED nodes for environmental sensor chips",
   "keywords": ["node-red", "environmental", "i2c", "spi", "sensor", "peripheral"],
+  "main": "index.js",
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "aht21": "nodes/aht21/aht21.js"
+    }
   },
   "dependencies": {
     "periph": "*"

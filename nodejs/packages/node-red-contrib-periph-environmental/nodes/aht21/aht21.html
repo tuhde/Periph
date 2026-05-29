@@ -1,0 +1,75 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('aht21-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '38', required: true }
+        },
+        label: function() {
+            return this.name || ('AHT21 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="aht21-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AHT21">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="38" style="width:80px"> &nbsp;default: 38 (0x38)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('aht21', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'aht21-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-thermometer-half',
+        label:   function() { return this.name || 'AHT21'; },
+        paletteLabel: 'AHT21'
+    });
+</script>
+
+<script type="text/html" data-template-name="aht21">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AHT21">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="aht21">
+    <p>Reads temperature and humidity from an AHT21 environmental sensor over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>aht21-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.humidity_pct <span class="property-type">number</span></dt>
+        <dd>Relative humidity in percent.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure the I²C bus number and the chip's fixed address (default <code>0x38</code>)
+    in the device config node. The AHT21 has no configurable address — only one AHT21
+    can be on a single I²C bus.</p>
+</script>

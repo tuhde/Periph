@@ -1,4 +1,5 @@
 pub mod adc_dac;
+pub mod environmental;
 pub mod io_expander;
 pub mod led;
 pub mod magnetometer;
