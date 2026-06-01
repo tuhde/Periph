@@ -69,3 +69,105 @@ protected:
     int16_t _read_reg16_signed(uint8_t reg);
     void    _read_burst(uint8_t reg, uint8_t* buf, uint8_t len);
 };
+
+/** @brief MPU-6050 full interface — extends MPU6050Minimal with configuration and FIFO support.
+ *
+ * Adds gyroscope and accelerometer full-scale configuration, DLPF settings,
+ * sample rate control, temperature reading, raw data access, data-ready polling,
+ * sleep/standby control, and FIFO management.
+ *
+ * @param transport   Configured I²C transport pointing at the device.
+ */
+class MPU6050Full : public MPU6050Minimal {
+public:
+    MPU6050Full(Transport& transport);
+
+    /** @brief Set gyroscope full-scale range.
+     *  @param full_scale  Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
+     */
+    void configure_gyro(uint8_t full_scale = 0);
+
+    /** @brief Set accelerometer full-scale range.
+     *  @param full_scale  Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
+     */
+    void configure_accel(uint8_t full_scale = 0);
+
+    /** @brief Set digital low-pass filter bandwidth.
+     *  @param dlpf  Filter setting 0–6 (0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
+     *               3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz; gyro/accel BW).
+     */
+    void configure_dlpf(uint8_t dlpf = 3);
+
+    /** @brief Set sample rate divider.
+     *  @param divider  SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider)
+     *                  when DLPF is active.
+     */
+    void configure_sample_rate(uint8_t divider = 4);
+
+    /** @brief Read die temperature.
+     *  @return Temperature in °C.
+     */
+    float temperature();
+
+    /** @brief Read raw 3-axis accelerometer values.
+     *  @param[out] x  Raw X value (16-bit signed).
+     *  @param[out] y  Raw Y value (16-bit signed).
+     *  @param[out] z  Raw Z value (16-bit signed).
+     */
+    void accel_raw(int16_t& x, int16_t& y, int16_t& z);
+
+    /** @brief Read raw 3-axis gyroscope values.
+     *  @param[out] x  Raw X value (16-bit signed).
+     *  @param[out] y  Raw Y value (16-bit signed).
+     *  @param[out] z  Raw Z value (16-bit signed).
+     */
+    void gyro_raw(int16_t& x, int16_t& y, int16_t& z);
+
+    /** @brief Check if new sensor data is available.
+     *  @return true when DATA_RDY_INT is set in INT_STATUS.
+     */
+    bool data_ready();
+
+    /** @brief Set or clear the SLEEP bit in PWR_MGMT_1.
+     *  @param sleep  true to enter sleep mode, false to wake.
+     */
+    void set_sleep(bool sleep = true);
+
+    /** @brief Put individual axes into standby mode.
+     *  @param xa  X accelerometer standby.
+     *  @param ya  Y accelerometer standby.
+     *  @param za  Z accelerometer standby.
+     *  @param xg  X gyroscope standby.
+     *  @param yg  Y gyroscope standby.
+     *  @param zg  Z gyroscope standby.
+     */
+    void set_standby(bool xa = false, bool ya = false, bool za = false,
+                     bool xg = false, bool yg = false, bool zg = false);
+
+    /** @brief Read the number of bytes in the FIFO buffer.
+     *  @return FIFO byte count (0–1024).
+     */
+    uint16_t fifo_count();
+
+    /** @brief Read all available data from the FIFO buffer.
+     *  @param[out] buf  Buffer to receive FIFO data.
+     *  @param      len  Maximum bytes to read.
+     *  @return Number of bytes actually read.
+     */
+    uint16_t read_fifo(uint8_t* buf, uint16_t len);
+
+    /** @brief Configure and enable FIFO sources.
+     *  @param gyro   Enable gyroscope data in FIFO.
+     *  @param accel  Enable accelerometer data in FIFO.
+     *  @param temp   Enable temperature data in FIFO.
+     */
+    void enable_fifo(bool gyro = true, bool accel = true, bool temp = false);
+
+    /** @brief Reset the FIFO buffer by setting FIFO_RST in USER_CTRL. */
+    void reset_fifo();
+
+    /** @brief Read the WHO_AM_I register.
+     *  @return Device identity; expect 0x68.
+     */
+    uint8_t who_am_i();
+};
