@@ -107,4 +107,160 @@ class MPU6050Minimal {
     }
 }
 
-module.exports = { MPU6050Minimal };
+/**
+ * MPU-6050 full interface — extends MPU6050Minimal with configuration and FIFO support.
+ *
+ * Adds gyroscope and accelerometer full-scale configuration, DLPF settings,
+ * sample rate control, temperature reading, raw data access, data-ready polling,
+ * sleep/standby control, and FIFO management.
+ */
+class MPU6050Full extends MPU6050Minimal {
+    /**
+     * @param {object} transport - Configured I²C transport.
+     */
+    constructor(transport) {
+        super(transport);
+    }
+
+    /**
+     * Set gyroscope full-scale range.
+     * @param {number} [fullScale=0] - Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
+     */
+    configureGyro(fullScale = 0) {
+        this._gyroFs = fullScale & 0x03;
+        this._writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+    }
+
+    /**
+     * Set accelerometer full-scale range.
+     * @param {number} [fullScale=0] - Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
+     */
+    configureAccel(fullScale = 0) {
+        this._accelFs = fullScale & 0x03;
+        this._writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+    }
+
+    /**
+     * Set digital low-pass filter bandwidth.
+     * @param {number} [dlpf=3] - Filter setting 0–6 (0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
+     *                            3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz; gyro/accel BW).
+     */
+    configureDlpf(dlpf = 3) {
+        this._writeReg(_REG_CONFIG, dlpf & 0x07);
+    }
+
+    /**
+     * Set sample rate divider.
+     * @param {number} [divider=4] - SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider)
+     *                               when DLPF is active.
+     */
+    configureSampleRate(divider = 4) {
+        this._writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
+    }
+
+    /**
+     * Read die temperature.
+     * @returns {number} Temperature in °C.
+     */
+    temperature() {
+        const raw = this._readReg16Signed(_REG_TEMP_OUT_H);
+        return raw / 340.0 + 36.53;
+    }
+
+    /**
+     * Read raw 3-axis accelerometer values.
+     * @returns {number[]} [x, y, z] raw 16-bit signed values.
+     */
+    accelRaw() {
+        const buf = this._readBurst(_REG_ACCEL_XOUT_H, 6);
+        return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
+    }
+
+    /**
+     * Read raw 3-axis gyroscope values.
+     * @returns {number[]} [x, y, z] raw 16-bit signed values.
+     */
+    gyroRaw() {
+        const buf = this._readBurst(_REG_GYRO_XOUT_H, 6);
+        return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
+    }
+
+    /**
+     * Check if new sensor data is available.
+     * @returns {boolean} True when DATA_RDY_INT is set in INT_STATUS.
+     */
+    dataReady() {
+        return !!(this._readReg(_REG_INT_STATUS) & 0x01);
+    }
+
+    /**
+     * Set or clear the SLEEP bit in PWR_MGMT_1.
+     * @param {boolean} [sleep=true] - True to enter sleep mode, false to wake.
+     */
+    setSleep(sleep = true) {
+        let val = this._readReg(_REG_PWR_MGMT_1);
+        if (sleep) {
+            val |= 0x40;
+        } else {
+            val &= ~0x40;
+        }
+        this._writeReg(_REG_PWR_MGMT_1, val);
+    }
+
+    /**
+     * Put individual axes into standby mode.
+     * @param {boolean} [xa=false] - X accelerometer standby.
+     * @param {boolean} [ya=false] - Y accelerometer standby.
+     * @param {boolean} [za=false] - Z accelerometer standby.
+     * @param {boolean} [xg=false] - X gyroscope standby.
+     * @param {boolean} [yg=false] - Y gyroscope standby.
+     * @param {boolean} [zg=false] - Z gyroscope standby.
+     */
+    setStandby(xa = false, ya = false, za = false, xg = false, yg = false, zg = false) {
+        const val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
+                    ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0);
+        this._writeReg(_REG_PWR_MGMT_2, val);
+    }
+
+    /**
+     * Read the number of bytes in the FIFO buffer.
+     * @returns {number} FIFO byte count (0–1024).
+     */
+    fifoCount() {
+        const buf = this._readBurst(_REG_FIFO_COUNTH, 2);
+        return ((buf[0] & 0x1F) << 8) | buf[1];
+    }
+
+    /**
+     * Read all available data from the FIFO buffer.
+     * @returns {Buffer} FIFO data.
+     */
+    readFifo() {
+        const count = this.fifoCount();
+        if (count === 0) return Buffer.alloc(0);
+        return this._readBurst(_REG_FIFO_R_W, count);
+    }
+
+    /**
+     * Configure and enable FIFO sources.
+     * @param {boolean} [gyro=true] - Enable gyroscope data in FIFO.
+     * @param {boolean} [accel=true] - Enable accelerometer data in FIFO.
+     * @param {boolean} [temp=false] - Enable temperature data in FIFO.
+     */
+    enableFifo(gyro = true, accel = true, temp = false) {
+        const fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
+        this._writeReg(_REG_FIFO_EN, fifoEn);
+        const userCtrl = this._readReg(_REG_USER_CTRL);
+        this._writeReg(_REG_USER_CTRL, userCtrl | 0x40);
+    }
+
+    /**
+     * Reset the FIFO buffer by setting FIFO_RST in USER_CTRL.
+     */
+    resetFifo() {
+        const userCtrl = this._readReg(_REG_USER_CTRL);
+        this._writeReg(_REG_USER_CTRL, userCtrl | 0x04);
+    }
+}
+
+module.exports = { MPU6050Minimal, MPU6050Full };
