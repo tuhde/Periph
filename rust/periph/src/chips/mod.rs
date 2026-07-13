@@ -1,6 +1,7 @@
 pub mod adc_dac;
 pub mod environmental;
 pub mod gas;
+pub mod imu;
 pub mod io_expander;
 pub mod led;
 pub mod light;

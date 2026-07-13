@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for IMU chips",
   "keywords": ["node-red", "imu", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "mpu6050": "nodes/mpu6050/mpu6050.js"
+    }
   },
   "dependencies": {
     "periph": "*"
