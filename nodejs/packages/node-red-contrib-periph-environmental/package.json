@@ -6,7 +6,8 @@
   "main": "index.js",
   "node-red": {
     "nodes": {
-      "aht21": "nodes/aht21/aht21.js"
+      "aht21": "nodes/aht21/aht21.js",
+      "bme680": "nodes/bme680/bme680.js"
     }
   },
   "dependencies": {

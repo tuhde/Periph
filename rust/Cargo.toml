@@ -23,6 +23,7 @@ exclude = [
     "tests/gas/ens160_test_esp32s3",
     "tests/light/apds9960_test_esp32s3",
     "tests/imu/mpu6050_test_esp32s3",
+    "tests/environmental/bme680_test_esp32s3",
 ]
 members = [
     "periph",
@@ -99,6 +100,10 @@ members = [
     "examples/mpu6050_complete",
     "examples/mpu6050_demo",
     "tests/imu/mpu6050_test",
+    "examples/bme680_minimal",
+    "examples/bme680_complete",
+    "examples/bme680_demo",
+    "tests/environmental/bme680_test",
 ]
 
 [workspace.dependencies]
