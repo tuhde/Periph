@@ -1,18 +1,19 @@
+<!-- Config node: one instance per physical device -->
 <script type="text/javascript">
     RED.nodes.registerType('bmp280-device', {
         category: 'config',
         defaults: {
-            name:     { value: '' },
-            bus:      { value: '1', required: true, validate: RED.validators.number() },
-            address:  { value: '76', required: true },
-            osrs_t:   { value: '1', required: true },
-            osrs_p:   { value: '1', required: true },
-            mode:     { value: '1', required: true },
-            filter:   { value: '0', required: true },
-            t_sb:     { value: '0', required: true }
+            name:   { value: '' },
+            bus:    { value: '1', required: true, validate: RED.validators.number() },
+            addr:   { value: '0x76', required: true },
+            osrsT:  { value: '1', required: true, validate: RED.validators.number() },
+            osrsP:  { value: '1', required: true, validate: RED.validators.number() },
+            mode:   { value: '1', required: true, validate: RED.validators.number() },
+            filter: { value: '0', required: true, validate: RED.validators.number() },
+            tSb:    { value: '0', required: true, validate: RED.validators.number() }
         },
         label: function() {
-            return this.name || ('BMP280 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+            return this.name || ('BMP280 @ ' + this.addr + ' (bus ' + this.bus + ')');
         }
     });
 </script>
@@ -27,12 +28,15 @@
         <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
     </div>
     <div class="form-row">
-        <label for="node-config-input-address">Address (hex)</label>
-        <input type="text" id="node-config-input-address" placeholder="76" style="width:80px"> &nbsp;default: 76 (0x76)
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x76">0x76 (SDO=GND)</option>
+            <option value="0x77">0x77 (SDO=VDDIO)</option>
+        </select>
     </div>
     <div class="form-row">
-        <label for="node-config-input-osrs_t">Temp oversampling</label>
-        <select id="node-config-input-osrs_t" style="width:180px">
+        <label for="node-config-input-osrsT">Temperature oversampling</label>
+        <select id="node-config-input-osrsT" style="width:180px">
             <option value="0">Skip</option>
             <option value="1" selected>×1</option>
             <option value="2">×2</option>
@@ -42,8 +46,8 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-config-input-osrs_p">Pressure oversampling</label>
-        <select id="node-config-input-osrs_p" style="width:180px">
+        <label for="node-config-input-osrsP">Pressure oversampling</label>
+        <select id="node-config-input-osrsP" style="width:180px">
             <option value="0">Skip</option>
             <option value="1" selected>×1</option>
             <option value="2">×2</option>
@@ -55,36 +59,36 @@
     <div class="form-row">
         <label for="node-config-input-mode">Power mode</label>
         <select id="node-config-input-mode" style="width:180px">
-            <option value="0">Sleep</option>
             <option value="1" selected>Forced</option>
             <option value="3">Normal</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-config-input-filter">IIR filter</label>
+        <label for="node-config-input-filter">IIR filter coefficient</label>
         <select id="node-config-input-filter" style="width:180px">
             <option value="0" selected>Off</option>
-            <option value="1">×2</option>
-            <option value="2">×4</option>
-            <option value="3">×8</option>
-            <option value="4">×16</option>
+            <option value="1">2</option>
+            <option value="2">4</option>
+            <option value="3">8</option>
+            <option value="4">16</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-config-input-t_sb">Standby time</label>
-        <select id="node-config-input-t_sb" style="width:180px">
+        <label for="node-config-input-tSb">Standby time (normal mode)</label>
+        <select id="node-config-input-tSb" style="width:180px">
             <option value="0" selected>0.5 ms</option>
             <option value="1">62.5 ms</option>
             <option value="2">125 ms</option>
             <option value="3">250 ms</option>
             <option value="4">500 ms</option>
-            <option value="5">1 s</option>
-            <option value="6">2 s</option>
-            <option value="7">4 s</option>
+            <option value="5">1000 ms</option>
+            <option value="6">2000 ms</option>
+            <option value="7">4000 ms</option>
         </select>
     </div>
 </script>
 
+<!-- Read node: trigger → measurements -->
 <script type="text/javascript">
     RED.nodes.registerType('periph-bmp280', {
         category:  'Peripheral',
@@ -118,7 +122,7 @@
 </script>
 
 <script type="text/html" data-help-name="periph-bmp280">
-    <p>Reads temperature, pressure, and altitude from a BMP280 barometric pressure sensor over I²C.</p>
+    <p>Reads temperature, pressure, and altitude from a BMP280 barometric pressure sensor.</p>
     <p>Any input message triggers a measurement. The device is configured via a <b>bmp280-device</b> config node.</p>
 
     <h3>Inputs</h3>
@@ -138,9 +142,9 @@
     </dl>
 
     <h3>Configuration</h3>
-    <p>Set the I²C bus number and the chip's 7-bit address (default <code>0x76</code>,
-    alternate <code>0x77</code>) in the device config node. Temperature and pressure oversampling,
-    power mode, IIR filter, and standby time control the measurement quality vs power trade-off.
+    <p>Set the I²C bus number, I²C address (<code>0x76</code> or <code>0x77</code>),
+    temperature and pressure oversampling, power mode (Forced or Normal),
+    IIR filter coefficient, and standby time in the device config node.
     The sea-level reference pressure defaults to <code>1013.25</code> hPa and can be
     adjusted in the read node config panel.</p>
 </script>

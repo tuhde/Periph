@@ -8,15 +8,15 @@ module.exports = function(RED) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
-            const transport = new I2CTransport(parseInt(config.bus), parseInt(config.address, 16));
-            node.driver    = new BMP280Full(
-                transport,
-                parseInt(config.address, 16) || 0x76,
-                parseInt(config.osrs_t) || 1,
-                parseInt(config.osrs_p) || 1,
-                parseInt(config.mode) || 1,
+            const addr = parseInt(config.addr) || 0x76;
+            const transport = new I2CTransport(parseInt(config.bus), addr);
+            node.driver    = new BMP280Full(transport);
+            node.driver.configure(
+                parseInt(config.osrsT) || 1,
+                parseInt(config.osrsP) || 1,
+                parseInt(config.mode)  || 1,
                 parseInt(config.filter) || 0,
-                parseInt(config.t_sb) || 0
+                parseInt(config.tSb)   || 0
             );
             node.transport = transport;
         } catch (e) {
@@ -41,11 +41,10 @@ module.exports = function(RED) {
             }
             try {
                 const d = node.device.driver;
-                const seaLevelHpa = parseFloat(config.seaLevelHpa) || 1013.25;
                 msg.payload = {
                     temperature: d.temperature(),
-                    pressure:    d.pressure(),
-                    altitude:    d.altitude(seaLevelHpa)
+                    pressure:     d.pressure(),
+                    altitude:    d.altitude(parseFloat(config.seaLevelHpa) || 1013.25)
                 };
                 send(msg);
                 done();

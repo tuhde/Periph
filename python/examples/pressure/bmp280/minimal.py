@@ -1,12 +1,16 @@
-from machine import I2C, Pin
+import machine
+import _testconfig as cfg
 from periph.transport.i2c_micropython import I2CTransport
 from periph.chips.pressure.bmp280 import BMP280Minimal
+from machine import Pin
 
-i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400000)         # Create I2C bus, (id, sda, scl, freq=400000 Hz)
-transport = I2CTransport(i2c, 0x76)                          # Create I2C transport, (i2c, addr=0x76)
-chip = BMP280Minimal(transport)                              # Create BMP280 driver, (transport, addr=0x76)
+i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
+transport = I2CTransport(i2c, cfg.ADDR)
+bmp = BMP280Minimal(transport)                           # Create BMP280 driver, (transport, bus_type='i2c')
 
-t = chip.temperature()                                      # Read temperature, () → float °C
-p = chip.pressure()                                          # Read pressure, () → float hPa
-
-print('T={:.2f}C  P={:.2f}hPa'.format(t, p))
+for _ in range(5):
+    t = bmp.temperature()                                # Read temperature, () → float °C
+    p = bmp.pressure()                                   # Read pressure, () → float hPa
+    print('{} C, {} hPa'.format(t, p))
+    machine.sleep(1000)
+print('===DONE: 0 passed, 0 failed===')
