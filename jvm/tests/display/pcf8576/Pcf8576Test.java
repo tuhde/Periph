@@ -5,6 +5,7 @@
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
 import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.chips.display.Pcf8576Minimal;
 import it.uhde.periph.chips.display.Pcf8576Full;
 
 public class Pcf8576Test {

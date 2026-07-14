@@ -44,6 +44,11 @@ class Pcf8576Full extends Pcf8576Minimal {
     private boolean enabled = true
     private int bias = BIAS_1_3_FULL
 
+    /**
+     * Construct the full driver and initialise the chip with defaults.
+     *
+     * @param transport I2C transport bound to the PCF8576 address
+     */
     Pcf8576Full(Transport transport) {
         super(transport)
     }
@@ -76,6 +81,11 @@ class Pcf8576Full extends Pcf8576Minimal {
 
     /**
      * Reconfigure drive mode and bias at runtime.
+     *
+     * @param backplanes number of backplanes — 1 (static), 2 (1:2), 3 (1:3),
+     *                   4 (1:4 multiplex)
+     * @param bias       0 = 1/3 bias (recommended for 1:3 and 1:4 multiplex),
+     *                   1 = 1/2 bias
      */
     void setMode(int backplanes, int bias) {
         this.backplanes = backplanes
@@ -83,18 +93,35 @@ class Pcf8576Full extends Pcf8576Minimal {
         applyMode()
     }
 
-    /** Set the blink frequency. */
+    /**
+     * Set the blink frequency.
+     *
+     * @param frequency     0 = off, 1 = ~2 Hz, 2 = ~1 Hz, 3 = ~0.5 Hz
+     * @param alternateBank true to enable alternate-RAM-bank blinking
+     *                      (static and 1:2 multiplex only)
+     */
     void setBlink(int frequency, boolean alternateBank) {
         int ab = alternateBank ? 0x04 : 0x00
         sendCommands(CMD_BLINK_SELECT | ab | (frequency & 0x03))
     }
 
-    /** Select the active RAM bank. */
+    /**
+     * Select the active RAM bank.
+     *
+     * @param inputBank  0 (rows 0-1) or 1 (rows 2-3)
+     * @param outputBank 0 (rows 0-1) or 1 (rows 2-3).
+     *                   Only meaningful in static and 1:2 multiplex modes.
+     */
     void setBank(int inputBank, int outputBank) {
         sendCommands(CMD_BANK_SELECT | ((inputBank & 1) << 1) | (outputBank & 1))
     }
 
-    /** Change the subaddress counter for cascaded displays. */
+    /**
+     * Change the subaddress counter for cascaded displays.
+     *
+     * @param subaddress 0-7; must match the A0/A1/A2 pin state of the target
+     *                   device on the bus
+     */
     void deviceSelect(int subaddress) {
         sendCommands(CMD_DEVICE_SELECT | (subaddress & 0x07))
     }

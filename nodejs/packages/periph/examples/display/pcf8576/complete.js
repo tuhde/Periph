@@ -19,7 +19,7 @@ lcd.setBank(PCF8576Full.BANK_0, PCF8576Full.BANK_0);      // Select RAM bank, (i
                                                           // selects rows 0-1 for both input and output
 
 const digits = [5, 6, 7, 8];
-const out = digits.map(d => PCF8576Full.SEVEN_SEG[d]);
+const out = digits.map(d => PCF8576Full.SEVEN_SEG[d]);    // Encode 7-segment digit, (digit 0–9) → number
 lcd.writeRaw(0, out);                                     // Write raw bytes, (address 0–39, data) → void
                                                           // sets data pointer to 0 and writes all four digits
 

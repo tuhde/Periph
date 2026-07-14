@@ -28,10 +28,10 @@ void setup() {
     PCF8576Minimal lcd(transport);
     PCF8576Full lcd_full(transport);
 
-    check_true(lcd._cmd_mode(false, PCF8576Minimal::BIAS_1_3, PCF8576Minimal::MODE_1_4) == 0x40, "mode_set_off");
-    check_true(lcd._cmd_mode(true,  PCF8576Minimal::BIAS_1_3, PCF8576Minimal::MODE_1_4) == 0x48, "mode_set_on");
-    check_true(lcd._cmd_mode(true,  PCF8576Minimal::BIAS_1_3, PCF8576Minimal::MODE_STATIC) == 0x49, "mode_set_static");
-    check_true(lcd._cmd_mode(true,  PCF8576Minimal::BIAS_1_2, PCF8576Minimal::MODE_1_4) == 0x4C, "mode_set_half_bias");
+    check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_OFF | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x40, "mode_set_off");
+    check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x48, "mode_set_on");
+    check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_STATIC) == 0x49, "mode_set_static");
+    check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_2 | PCF8576Minimal::MODE_1_4) == 0x4C, "mode_set_half_bias");
 
     check_true(PCF8576Minimal::SEVEN_SEG[0] == 0xED, "seven_seg_0");
     check_true(PCF8576Minimal::SEVEN_SEG[9] == 0xEB, "seven_seg_9");

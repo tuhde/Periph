@@ -44,6 +44,11 @@ class Pcf8576Minimal {
     protected final Transport transport
     protected int backplanes = MODE_1_4
 
+    /**
+     * Construct the driver and initialise the chip with defaults.
+     *
+     * @param transport I2C transport bound to the PCF8576 address
+     */
     Pcf8576Minimal(Transport transport) {
         this.transport = transport
         doClear()
@@ -98,6 +103,10 @@ class Pcf8576Minimal {
 
     /**
      * Write one 7-segment byte at column {@code position * 2}.
+     *
+     * @param position digit index, 0-19. Maps to RAM address {@code position * 2}
+     * @param segments 7-segment byte (a/c/b/DP/f/e/g/d packed, MSB-first).
+     *                 Add 0x10 to set the decimal point.
      */
     void setDigit7seg(int position, int segments) {
         writeRaw(position * 2, new byte[]{(byte) (segments & 0xFF)} as byte[])

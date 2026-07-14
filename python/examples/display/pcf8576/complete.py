@@ -20,7 +20,7 @@ lcd.set_bank(PCF8576Full.BANK_0, PCF8576Full.BANK_0)     # Select RAM bank, (inp
 digits = [5, 6, 7, 8]
 out = bytearray()
 for d in digits:
-    out.append(PCF8576Full._SEVEN_SEG[d])
+    out.append(PCF8576Full._SEVEN_SEG[d])               # Encode 7-segment digit, (digit 0–9) → int byte
 lcd.write_raw(0, bytes(out))                             # Write raw bytes, (address 0–39, data bytes) → None
                                                          # sets data pointer to 0 and writes all four digits
 lcd.disable()                                            # Disable display output, () → None
