@@ -1,0 +1,8 @@
+[package]
+name = "bme680_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true, features = ["std"] }
+linux-embedded-hal = { workspace = true }
