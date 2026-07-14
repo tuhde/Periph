@@ -1,0 +1,170 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bme280-device', {
+        category: 'config',
+        defaults: {
+            name:   { value: '' },
+            bus:    { value: '1', required: true, validate: RED.validators.number() },
+            addr:   { value: '0x76', required: true },
+            osrsT:  { value: '1', required: true, validate: RED.validators.number() },
+            osrsP:  { value: '1', required: true, validate: RED.validators.number() },
+            osrsH:  { value: '1', required: true, validate: RED.validators.number() },
+            mode:   { value: '0', required: true, validate: RED.validators.number() },
+            filter: { value: '0', required: true, validate: RED.validators.number() },
+            tSb:    { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('BME280 @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bme280-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BME280">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x76">0x76 (SDO=GND)</option>
+            <option value="0x77">0x77 (SDO=VDDIO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrsT">Temperature oversampling</label>
+        <select id="node-config-input-osrsT" style="width:180px">
+            <option value="0">Skip</option>
+            <option value="1" selected>×1</option>
+            <option value="2">×2</option>
+            <option value="3">×4</option>
+            <option value="4">×8</option>
+            <option value="5">×16</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrsP">Pressure oversampling</label>
+        <select id="node-config-input-osrsP" style="width:180px">
+            <option value="0">Skip</option>
+            <option value="1" selected>×1</option>
+            <option value="2">×2</option>
+            <option value="3">×4</option>
+            <option value="4">×8</option>
+            <option value="5">×16</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrsH">Humidity oversampling</label>
+        <select id="node-config-input-osrsH" style="width:180px">
+            <option value="0">Skip</option>
+            <option value="1" selected>×1</option>
+            <option value="2">×2</option>
+            <option value="3">×4</option>
+            <option value="4">×8</option>
+            <option value="5">×16</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode">Power mode</label>
+        <select id="node-config-input-mode" style="width:180px">
+            <option value="0" selected>Sleep</option>
+            <option value="1">Forced (one-shot)</option>
+            <option value="3">Normal (continuous)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-filter">IIR filter coefficient</label>
+        <select id="node-config-input-filter" style="width:180px">
+            <option value="0" selected>Off</option>
+            <option value="1">2</option>
+            <option value="2">4</option>
+            <option value="3">8</option>
+            <option value="4">16</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-tSb">Standby time (normal mode)</label>
+        <select id="node-config-input-tSb" style="width:180px">
+            <option value="0" selected>0.5 ms</option>
+            <option value="1">62.5 ms</option>
+            <option value="2">125 ms</option>
+            <option value="3">250 ms</option>
+            <option value="4">500 ms</option>
+            <option value="5">1000 ms</option>
+            <option value="6">10 ms (BME280 only)</option>
+            <option value="7">20 ms (BME280 only)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-bme280', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:         { value: '' },
+            device:       { value: '', type: 'bme280-device', required: true },
+            seaLevelHpa:  { value: '1013.25' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'BME280'; },
+        paletteLabel: 'BME280'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-bme280">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BME280">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelHpa">Sea-level pressure (hPa)</label>
+        <input type="number" id="node-input-seaLevelHpa" min="800" max="1100" step="0.01" style="width:100px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-bme280">
+    <p>Reads temperature, pressure, humidity, altitude, and dew point
+    from a BME280 combined humidity + pressure + temperature sensor.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>bme280-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in hPa.</dd>
+        <dt>payload.humidity <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH.</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+        <dt>payload.dew_point <span class="property-type">number | null</span></dt>
+        <dd>Dew point in degrees Celsius (Magnus-Tetens approximation), or null if humidity is non-positive.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x76</code> or <code>0x77</code>),
+    temperature, pressure, and humidity oversampling, power mode (sleep / forced / normal),
+    IIR filter coefficient, and standby time in the device config node.
+    Note that the BME280's <code>t_sb</code> codes 6 and 7 mean <b>10 ms</b> and <b>20 ms</b>
+    (not 2000 ms / 4000 ms as on the BMP280).
+    The sea-level reference pressure defaults to <code>1013.25</code> hPa and can be
+    adjusted in the read node config panel.</p>
+</script>
