@@ -34,6 +34,8 @@ public:
     void set_all(const float* fractions);
 
 protected:
+    static constexpr uint8_t CMD_MULTI_WRITE_BASE  = 0x40; // [0 1 0 0 0 DAC1 DAC0 UDAC]
+
     Transport& _transport;
 
     /** @brief Multi-Write: writes one channel's volatile DAC register.
@@ -122,7 +124,6 @@ public:
     void reset();
 
 private:
-    static constexpr uint8_t CMD_MULTI_WRITE_BASE  = 0x40; // [0 1 0 0 0 DAC1 DAC0 UDAC]
     static constexpr uint8_t CMD_SINGLE_WRITE      = 0x58; // [0 1 0 1 1 DAC1 DAC0 UDAC]
     static constexpr uint8_t CMD_SEQUENTIAL_BASE   = 0x50; // [0 1 0 1 0 DAC1 DAC0 UDAC]
     static constexpr uint8_t CMD_WRITE_VREF        = 0x80; // [1 0 0 X Vref_A Vref_B Vref_C Vref_D]
