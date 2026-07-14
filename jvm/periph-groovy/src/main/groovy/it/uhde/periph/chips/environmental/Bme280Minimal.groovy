@@ -63,10 +63,25 @@ class Bme280Minimal {
     protected int ctrlMeas = 0x25
     protected int config   = 0x00
 
+    /**
+     * Construct the driver at the default address (0x76), verify the chip ID,
+     * and load calibration data.
+     *
+     * @param transport I²C transport bound to address 0x76
+     * @throws IOException on I²C error, wrong chip ID, or invalid calibration
+     */
     Bme280Minimal(Transport transport) throws IOException {
         this(transport, 0x76)
     }
 
+    /**
+     * Construct the driver at the given address, verify the chip ID, and load
+     * calibration data.
+     *
+     * @param transport I²C transport bound to the given address
+     * @param addr      I²C device address (0x76 or 0x77)
+     * @throws IOException on I²C error, wrong chip ID, or invalid calibration
+     */
     Bme280Minimal(Transport transport, int addr) throws IOException {
         this.transport = transport
 
@@ -134,7 +149,7 @@ class Bme280Minimal {
         var1 = ((1L << 47) + var1) * ((long) digP1 & 0xFFFFL) >> 33
         if (var1 == 0) return 0.0
         long p = 1048576L - (long) adcP
-        p = ((p << 31) - var2) * 3125L / var1
+        p = (((p << 31) - var2) * 3125L / var1).toLong()
         var1 = ((long) digP9 * (p >> 13) * (p >> 13)) >> 25
         var2 = ((long) digP8 * p) >> 19
         p = ((p + var1 + var2) >> 8) + ((long) digP7 << 4)
@@ -156,12 +171,30 @@ class Bme280Minimal {
         return (v >> 12) / 1024.0
     }
 
+    /**
+     * Read the temperature.
+     *
+     * <p>Triggers a forced-mode measurement and returns the result in degrees
+     * Celsius. Also updates tFine for subsequent pressure/humidity reads.
+     *
+     * @return temperature in °C
+     * @throws IOException on I²C error
+     */
     double temperature() throws IOException {
         byte[] raw = triggerAndRead()
         int adcT = ((raw[3] & 0xFF) << 12) | ((raw[4] & 0xFF) << 4) | ((raw[5] & 0xFF) >> 4)
         return compensateTemperature(adcT)
     }
 
+    /**
+     * Read the pressure.
+     *
+     * <p>Triggers a forced-mode measurement, compensates temperature first (to
+     * populate tFine), then compensates pressure. Returns the result in hPa.
+     *
+     * @return pressure in hPa
+     * @throws IOException on I²C error
+     */
     double pressure() throws IOException {
         byte[] raw = triggerAndRead()
         int adcP = ((raw[0] & 0xFF) << 12) | ((raw[1] & 0xFF) << 4) | ((raw[2] & 0xFF) >> 4)
@@ -170,6 +203,15 @@ class Bme280Minimal {
         return compensatePressure(adcP)
     }
 
+    /**
+     * Read the humidity.
+     *
+     * <p>Triggers a forced-mode measurement, compensates temperature first (to
+     * populate tFine), then compensates humidity. Returns the result in %RH.
+     *
+     * @return relative humidity in %RH
+     * @throws IOException on I²C error
+     */
     double humidity() throws IOException {
         byte[] raw = triggerAndRead()
         int adcH = ((raw[6] & 0xFF) << 8) | (raw[7] & 0xFF)

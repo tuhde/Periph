@@ -1,6 +1,6 @@
 'use strict';
-const { I2CTransport } = require('../../../packages/periph/src/transport/i2c');
-const { BME280Full } = require('../../../packages/periph/src/chips/environmental/bme280');
+const { I2CTransport } = require('../../../src/transport/i2c');
+const { BME280Full } = require('../../../src/chips/environmental/bme280');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x76', 16);
