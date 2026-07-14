@@ -91,5 +91,17 @@ fun main() {
 
         println("temperature after reset: %.2f °C".format(sensor.temperature())) // read temperature, () → Double °C
                                                                                     // verifies the sensor is functional after reset
+
+        val alt = sensor.altitude()                                 // compute altitude at default sea-level pressure (1013.25 hPa), () → Double m
+                                                                    // barometric formula: 44330 × (1 − (P/P₀)^(1/5.255))
+        println("altitude: %.1f m".format(alt))
+
+        val altRef = sensor.altitude(1013.0)                        // compute altitude for a given sea-level pressure, (seaLevelHpa) → Double m
+                                                                    // use a locally calibrated reference for better accuracy
+        println("altitude (ref 1013 hPa): %.1f m".format(altRef))
+
+        val dp = sensor.dewPoint()                                  // compute dew point via Magnus-Tetens approximation, () → Double °C
+                                                                    // triggers a TPHG cycle; dew point below 0 °C indicates dry air
+        println("dew point: %.2f °C".format(dp))
     }
 }

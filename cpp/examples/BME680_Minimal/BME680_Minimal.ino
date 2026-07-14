@@ -10,13 +10,6 @@
 #include "../../src/transport/I2CTransport.h"
 #include "../../src/chips/environmental/BME680.h"
 
-static int passed = 0, failed = 0;
-
-static void check_true(bool cond, const char *label) {
-    if (cond) { Serial.print("PASS "); Serial.println(label); passed++; }
-    else       { Serial.print("FAIL "); Serial.println(label); failed++; }
-}
-
 void setup() {
     Serial.begin(115200);
     delay(2000);
@@ -40,11 +33,7 @@ void setup() {
         delay(5000);
     }
 
-    Serial.print("===DONE: ");
-    Serial.print(passed);
-    Serial.print(" passed, ");
-    Serial.print(failed);
-    Serial.println(" failed===");
+    Serial.println("===DONE: 0 passed, 0 failed===");
 }
 
 void loop() { delay(1000); }

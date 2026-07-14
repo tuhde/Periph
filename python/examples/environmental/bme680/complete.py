@@ -5,7 +5,7 @@ from periph.chips.environmental.bme680 import BME680Full
 from machine import Pin
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(i2c, cfg.ADDR)              # Open I²C transport, (i2c, addr)
 bme = BME680Full(transport)                              # Create BME680 driver, (transport)
 cid = bme.chip_id()                                     # Read chip ID, () → int
                                                          # returns 0x61 for BME680

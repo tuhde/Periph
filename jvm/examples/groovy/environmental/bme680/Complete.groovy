@@ -91,6 +91,22 @@ try {
 
     printf("temperature after reset: %.2f °C%n", sensor.temperature()) // read temperature, () → double °C
                                                                           // verifies the sensor is functional after reset
+
+    double alt = sensor.altitude()                              // compute altitude at default sea-level pressure (1013.25 hPa), () → double m
+                                                                // barometric formula: 44330 × (1 − (P/P₀)^(1/5.255))
+    printf("altitude: %.1f m%n", alt)
+
+    double altRef = sensor.altitude(1013.0)                    // compute altitude for a given sea-level pressure, (seaLevelHpa) → double m
+                                                                // use a locally calibrated reference for better accuracy
+    printf("altitude (ref 1013 hPa): %.1f m%n", altRef)
+
+    double slp = sensor.seaLevelPressure(alt)                  // back-calculate sea-level pressure from known altitude, (altitudeM m) → double hPa
+                                                                // inverse of altitude(); useful to report normalised pressure to a weather station
+    printf("sea-level pressure: %.2f hPa%n", slp)
+
+    double dp = sensor.dewPoint()                               // compute dew point via Magnus-Tetens approximation, () → double °C
+                                                                // triggers a TPHG cycle; dew point below 0 °C indicates dry air
+    printf("dew point: %.2f °C%n", dp)
 } finally {
     transport.close()
 }

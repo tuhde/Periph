@@ -25,6 +25,7 @@ bme.setHeaterOff(false);                                // Control heater overri
 bme.setAmbientTemperature(25.0);                        // Override ambient for heater calc, (tempC) → undefined
                                                         // re-applies the active heater profile
 const st = bme.status();                               // Read status register, () → number
+                                                        // bit 7 = new_data, bit 6 = gas_measuring, bit 5 = measuring
 const r = bme.readAll();                                // Read all sensors in one cycle, () → object
                                                         // returns {temperature, pressure, humidity, gasResistance}
 const gv = bme.gasValid();                             // Check gas validity, () → boolean

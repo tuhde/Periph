@@ -19,8 +19,8 @@ int main(void) {
     // Polls all four sensors once every 5 seconds for 5 minutes (60 ticks).
     // At tick 30, the user is prompted to expose the sensor to a VOC source.
     BME680Full bme(transport);                           // Create BME680 driver, (transport)
-    bme.configure(BME680Full::OSRS_X2, BME680Full::OSRS_X16, BME680Full::OSRS_X1, BME680Full::MODE_FORCED, BME680Full::FILTER_15);  // Configure chip, (osrs_t=×2, osrs_p=×16, osrs_h=×1, mode=forced, filter=15) → None
-    bme.set_heater(320, 150);                           // Configure heater profile 0, (temp_c=320, duration_ms=150) → None
+    bme.configure(BME680Full::OSRS_X2, BME680Full::OSRS_X16, BME680Full::OSRS_X1, BME680Full::MODE_FORCED, BME680Full::FILTER_15);  // Configure chip, (osrs_t=×2, osrs_p=×16, osrs_h=×1, mode=forced, filter=15) → void
+    bme.set_heater(320, 150);                           // Configure heater profile 0, (temp_c=320, duration_ms=150) → void
 
     float t_min = 999, t_max = -999, t_sum = 0;
     float g_min = 1e12, g_max = 0;

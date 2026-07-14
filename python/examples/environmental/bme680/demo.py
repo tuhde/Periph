@@ -5,7 +5,7 @@ from periph.chips.environmental.bme680 import BME680Full
 from machine import Pin
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(i2c, cfg.ADDR)              # Open I²C transport, (i2c, addr)
 
 # --- Room air quality probe: 4-in-1 sensor polling with VOC event ---
 # Polls all four sensors once every 5 seconds for 5 minutes (60 ticks).
