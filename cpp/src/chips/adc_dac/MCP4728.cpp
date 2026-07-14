@@ -73,8 +73,9 @@ void MCP4728Full::set_all_eeprom(const float* fractions, const uint8_t* vrefs, c
         if (code > 4095) code = 4095;
         uint8_t v = vrefs[i] ? 1 : 0;
         uint8_t g = (gains[i] == 2) ? 1 : 0;
-        // Per-channel byte layout (Multi-Write): [V_REF PD1 PD0 Gx D11-D8]
-        buf[1 + i * 2]     = (uint8_t)(((v & 0x01) << 7) | ((code >> 8) & 0x0F));
+        // Per-channel byte layout (Multi-Write format): [V_REF PD1 PD0 Gx D11-D8]
+        // PD bits are always 0 here (no power-down is set in this command).
+        buf[1 + i * 2]     = (uint8_t)(((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F));
         buf[1 + i * 2 + 1] = (uint8_t)(code & 0xFF);
     }
     _transport.write(buf, 9);

@@ -138,7 +138,8 @@ class MCP4728Full(MCP4728Minimal):
             vref: 0 = external (V_DD), 1 = internal (2.048 V).
             gain: 1 = ×1, 2 = ×2 (ignored when vref = external).
         """
-        code = self._fraction_to_code(fraction, vref, gain)
+        f = max(0.0, min(1.0, float(fraction)))
+        code = int(round(f * 4095))
         self._single_write(channel, code, vref, pd=0, gain=gain, udac=0)
 
     def set_raw_eeprom(self, channel, code, vref, gain):
@@ -172,10 +173,14 @@ class MCP4728Full(MCP4728Minimal):
         # Command byte: Sequential Write starting at channel 0
         out[0] = self._CMD_SEQUENTIAL_BASE | 0x00  # DAC1=DAC0=0 (A), UDAC=0
         for i in range(4):
-            code = self._fraction_to_code(fractions[i], vrefs[i], gains[i])
-            v = int(max(0, min(1, vrefs[i])))
+            f = max(0.0, min(1.0, float(fractions[i])))
+            code = int(round(f * 4095))
+            if code > 4095:
+                code = 4095
+            v = 1 if vrefs[i] else 0
             g = 1 if gains[i] == 2 else 0
-            out[1 + i * 2] = ((v & 0x01) << 7) | ((code >> 8) & 0x0F)
+            # Per-channel byte layout (Multi-Write format): [V_REF PD1 PD0 Gx D11-D8]
+            out[1 + i * 2] = ((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F)
             out[1 + i * 2 + 1] = code & 0xFF
         self._transport.write(bytes(out))
 
@@ -309,12 +314,3 @@ class MCP4728Full(MCP4728Minimal):
     @staticmethod
     def _p2(pd):
         return (pd >> 1) & 0x01
-
-    @staticmethod
-    def _fraction_to_code(fraction, vref, gain):
-        f = max(0.0, min(1.0, float(fraction)))
-        # All configurations map 0.0–1.0 across the 12-bit range.
-        # Gain is ignored for VREF_EXTERNAL per spec.
-        if vref == MCP4728Full.VREF_INTERNAL and gain == MCP4728Full.GAIN_X2:
-            return int(round(f * 4095))
-        return int(round(f * 4095))

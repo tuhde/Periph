@@ -1,0 +1,12 @@
+[package]
+name = "mcp4728_test"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "mcp4728_test"
+path = "src/main.rs"
+
+[dependencies]
+periph = { workspace = true }
+linux-embedded-hal = { workspace = true }

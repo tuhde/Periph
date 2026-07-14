@@ -160,8 +160,10 @@ class MCP4728Full extends MCP4728Minimal {
             let f = Math.max(0.0, Math.min(1.0, fractions[i]));
             const code = Math.max(0, Math.min(4095, Math.round(f * 4095)));
             const v = vrefs[i] ? 1 : 0;
-            // Per-channel byte layout: [V_REF PD1 PD0 Gx D11-D8]
-            buf[1 + i * 2]     = ((v & 0x01) << 7) | ((code >> 8) & 0x0F);
+            const g = (gains[i] === 2) ? 1 : 0;
+            // Per-channel byte layout (Multi-Write format): [V_REF PD1 PD0 Gx D11-D8]
+            // PD bits are always 0 here (no power-down is set in this command).
+            buf[1 + i * 2]     = ((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F);
             buf[1 + i * 2 + 1] = code & 0xFF;
         }
         this._transport.write(buf);
