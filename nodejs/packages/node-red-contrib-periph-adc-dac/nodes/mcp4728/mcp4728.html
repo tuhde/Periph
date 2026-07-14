@@ -1,0 +1,108 @@
+<script type="text/javascript">
+    RED.nodes.registerType('mcp4728-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '60', required: true }
+        },
+        label: function() {
+            return this.name || ('MCP4728 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mcp4728-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MCP4728">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="60" style="width:80px"> &nbsp;default: 60 (0x60)
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp4728', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:      { value: '' },
+            device:    { value: '', type: 'mcp4728-device', required: true },
+            channel:   { value: 'A' },
+            inputMode: { value: 'fraction' },
+            vref:      { value: 'external' },
+            gain:      { value: 'x1' },
+            persist:   { value: false }
+        },
+        inputs:  1,
+        outputs: 0,
+        icon:    'font-awesome/fa-wave-square',
+        label:   function() { return this.name || 'MCP4728'; },
+        paletteLabel: 'MCP4728'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp4728">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-channel"><i class="fa fa-sitemap"></i> Channel</label>
+        <select id="node-input-channel" style="width:100px">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputMode"><i class="fa fa-cog"></i> Input mode</label>
+        <select id="node-input-inputMode" style="width:150px">
+            <option value="fraction">fraction (0.0–1.0)</option>
+            <option value="raw">raw (0–4095)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-vref"><i class="fa fa-bolt"></i> V_REF</label>
+        <select id="node-input-vref" style="width:150px">
+            <option value="external">External (V_DD)</option>
+            <option value="internal">Internal (2.048 V)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gain"><i class="fa fa-arrows-h"></i> Gain</label>
+        <select id="node-input-gain" style="width:100px">
+            <option value="x1">×1</option>
+            <option value="x2">×2</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-persist"><i class="fa fa-save"></i> Persist to EEPROM</label>
+        <input type="checkbox" id="node-input-persist" style="width:auto;margin-top:0">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP4728">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp4728">
+    <p>Sets the output voltage of one channel (A–D) of an MCP4728 quad-channel 12-bit DAC over I²C.</p>
+    <p>Any input message triggers a DAC write. The device is configured via an <b>mcp4728-device</b> config node. Pass a 4-element array as <code>msg.payload</code> to update all four channels simultaneously via Fast Write.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">number | number[4]</span></dt>
+        <dd>When input mode is <code>fraction</code>: value between 0.0 and 1.0 representing the output as a fraction of the configured full-scale. When input mode is <code>raw</code>: raw 12-bit DAC code (0–4095). When <code>payload</code> is an array of 4 numbers, the array is applied to channels A–D simultaneously.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure bus number and I²C address (default <code>0x60</code>) in the device config node. The input mode determines whether incoming values are interpreted as normalized fractions or raw 12-bit codes. Selecting <i>Persist to EEPROM</i> uses Single Write instead of Multi-Write and updates the nonvolatile EEPROM; the value then survives a power cycle (takes up to 50 ms).</p>
+</script>
