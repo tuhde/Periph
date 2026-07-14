@@ -4,5 +4,6 @@ pub mod gas;
 pub mod io_expander;
 pub mod led;
 pub mod magnetometer;
+pub mod memory;
 pub mod power;
 pub mod pressure;
