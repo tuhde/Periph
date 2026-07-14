@@ -148,8 +148,8 @@ class Decoder(srd.Decoder):
         cmd = buf[0]
         upper = (cmd >> 5) & 0x07
 
-        # 100 xxx = Write V_REF / Gain / Power-Down broadcast commands
-        if (cmd & 0xE0) == 0x80:
+        # 1xx xxx = Write V_REF / Gain / Power-Down broadcast commands
+        if (cmd & 0x80) == 0x80:
             if upper == 0b100:
                 if len(buf) != 1:
                     self._warn(ss, es,
@@ -220,7 +220,7 @@ class Decoder(srd.Decoder):
                     ch_idx = (dac + i) % 4
                     parts.append(_format_channel_state(
                         CHANNELS[ch_idx], code, vref, pd, gx))
-                s = 'Sequential Write %d→D: %s' % (ch_letter, ' | '.join(parts))
+                s = 'Sequential Write %s→D: %s' % (ch_letter, ' | '.join(parts))
                 s += ' UDAC=%d' % udac
                 self._emit(ANN_WRITE, ss, es,
                            [s, 'SW %d 0x%02X' % (n, buf[0])])
