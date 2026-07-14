@@ -23,7 +23,9 @@ public class Demo {
     private static final int    VOC_TICK    = 30;
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x76)) {       // open I²C bus 1, device 0x76 (SDO low), (bus, address=0x76) → I2CTransport
+        int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
+        int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
+        try (var transport = new I2CTransport(bus, addr)) {      // open I²C bus, (bus, address=0x76) → I2CTransport
             var sensor = new Bme680Full(transport);                     // construct driver, verifies chip ID, reads calibration, (transport) → Bme680Full
 
             // --- Configure for room air quality monitoring ---

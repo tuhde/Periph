@@ -20,7 +20,9 @@ final int    SAMPLES     = 60
 final long   INTERVAL_MS = 5000
 final int    VOC_TICK    = 30
 
-def transport = new I2CTransport(1, 0x76)            // open I²C bus 1, device 0x76 (SDO low), (bus, address=0x76) → I2CTransport
+def bus  = (System.getenv("I2C_BUS")  ?: "1").toInteger()
+def addr = Integer.decode(System.getenv("I2C_ADDR") ?: "0x76")
+def transport = new I2CTransport(bus, addr)          // open I²C bus, (bus, address=0x76) → I2CTransport
 try {
     def sensor = new Bme680Full(transport)                  // construct driver, verifies chip ID, reads calibration, (transport) → Bme680Full
 

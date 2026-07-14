@@ -101,7 +101,7 @@ protected:
     uint8_t   _filter = 0;
     uint8_t   _gas_enabled = 1;
     uint8_t   _nb_conv = 0;
-    uint8_t   _heat_temp = 320;
+    int16_t   _heat_temp = 320;
     uint16_t  _heat_dur = 150;
 
     void     _read_calibration();

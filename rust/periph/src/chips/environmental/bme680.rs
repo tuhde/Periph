@@ -237,16 +237,16 @@ fn compensate_pressure(adc_p: u32, t_fine: i32, cal: &Calibration) -> f32 {
 }
 
 fn compensate_humidity(hum_adc: u16, t_fine: i32, cal: &Calibration) -> f32 {
-    let temp_scaled = t_fine as i32;
-    let par_h1 = cal.par_h1 as i32;
-    let par_h2 = cal.par_h2 as i32;
-    let par_h3 = cal.par_h3 as i32;
-    let par_h4 = cal.par_h4 as i32;
-    let par_h5 = cal.par_h5 as i32;
-    let par_h6 = cal.par_h6 as i32;
-    let par_h7 = cal.par_h7 as i32;
+    let temp_scaled = t_fine as i64;
+    let par_h1 = cal.par_h1 as i64;
+    let par_h2 = cal.par_h2 as i64;
+    let par_h3 = cal.par_h3 as i64;
+    let par_h4 = cal.par_h4 as i64;
+    let par_h5 = cal.par_h5 as i64;
+    let par_h6 = cal.par_h6 as i64;
+    let par_h7 = cal.par_h7 as i64;
 
-    let var1 = hum_adc as i32 - ((par_h1 << 4) + (((temp_scaled * par_h3) / 100) >> 1));
+    let var1 = hum_adc as i64 - ((par_h1 << 4) + (((temp_scaled * par_h3) / 100) >> 1));
     let var2 = (par_h2 * (((temp_scaled * par_h4) / 100) +
                           (((temp_scaled * ((temp_scaled * par_h5) / 100)) >> 6) / 100) +
                           (1 << 14))) >> 10;

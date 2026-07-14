@@ -134,17 +134,17 @@ open class Bme680Minimal @JvmOverloads constructor(
 
         parT2 = ((b1[1].toInt() and 0xFF) shl 8) or (b1[0].toInt() and 0xFF)
         if (parT2 > 32767) parT2 -= 65536
-        parT3 = signExtend8(b1[2].toInt())
+        parT3 = b1[2].toInt()
         parP1 = ((b1[5].toInt() and 0xFF) shl 8) or (b1[4].toInt() and 0xFF)
         parP2 = ((b1[7].toInt() and 0xFF) shl 8) or (b1[6].toInt() and 0xFF)
         if (parP2 > 32767) parP2 -= 65536
-        parP3 = signExtend8(b1[8].toInt())
+        parP3 = b1[8].toInt()
         parP4 = ((b1[11].toInt() and 0xFF) shl 8) or (b1[10].toInt() and 0xFF)
         if (parP4 > 32767) parP4 -= 65536
         parP5 = ((b1[13].toInt() and 0xFF) shl 8) or (b1[12].toInt() and 0xFF)
         if (parP5 > 32767) parP5 -= 65536
-        parP7 = signExtend8(b1[14].toInt())
-        parP6 = signExtend8(b1[15].toInt())
+        parP7 = b1[14].toInt()
+        parP6 = b1[15].toInt()
         parP8 = ((b1[19].toInt() and 0xFF) shl 8) or (b1[18].toInt() and 0xFF)
         if (parP8 > 32767) parP8 -= 65536
         parP9 = ((b1[21].toInt() and 0xFF) shl 8) or (b1[20].toInt() and 0xFF)
@@ -153,19 +153,19 @@ open class Bme680Minimal @JvmOverloads constructor(
 
         parH2 = ((b2[0].toInt() and 0xFF) shl 4) or ((b2[1].toInt() and 0xFF) shr 4)
         parH1 = ((b2[2].toInt() and 0xFF) shl 4) or (b2[1].toInt() and 0x0F)
-        parH3 = signExtend8(b2[3].toInt())
-        parH4 = signExtend8(b2[4].toInt())
-        parH5 = signExtend8(b2[5].toInt())
+        parH3 = b2[3].toInt()
+        parH4 = b2[4].toInt()
+        parH5 = b2[5].toInt()
         parH6 = b2[6].toInt() and 0xFF
-        parH7 = signExtend8(b2[7].toInt())
+        parH7 = b2[7].toInt()
         parT1 = ((b2[9].toInt() and 0xFF) shl 8) or (b2[8].toInt() and 0xFF)
         parG2 = ((b2[11].toInt() and 0xFF) shl 8) or (b2[10].toInt() and 0xFF)
         if (parG2 > 32767) parG2 -= 65536
-        parG1 = signExtend8(b2[12].toInt())
-        parG3 = signExtend8(b2[13].toInt())
+        parG1 = b2[12].toInt()
+        parG3 = b2[13].toInt()
 
         val rhv = transport.writeRead(byteArrayOf(REG_RES_HEAT_VAL.toByte()), 1)
-        resHeatVal = signExtend8(rhv[0].toInt())
+        resHeatVal = rhv[0].toInt()
         val rhr = transport.writeRead(byteArrayOf(REG_RES_HEAT_RNG.toByte()), 1)
         resHeatRange = (rhr[0].toInt() and 0xFF) shr 4 and 0x03
         val rse = transport.writeRead(byteArrayOf(REG_RANGE_SW_ERR.toByte()), 1)
@@ -341,7 +341,6 @@ open class Bme680Minimal @JvmOverloads constructor(
         }
     }
 
-    private fun signExtend8(v: Int): Int = if (v and 0x80 != 0) v - 256 else v
     private fun signExtend4(v: Int): Int = if (v and 0x08 != 0) v - 16 else v
 
     /**

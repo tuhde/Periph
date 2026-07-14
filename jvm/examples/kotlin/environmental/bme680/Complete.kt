@@ -8,7 +8,9 @@ import it.uhde.periph.transport.I2CTransport
 import it.uhde.periph.chips.environmental.Bme680Full
 
 fun main() {
-    I2CTransport(1, 0x76).use { transport ->                 // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CTransport
+    val bus  = System.getenv("I2C_BUS")?.toIntOrNull() ?: 1
+    val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.toInt(16) ?: 0x76
+    I2CTransport(bus, addr).use { transport ->               // open I²C bus, (bus, address=0x76) → I2CTransport
         val sensor = Bme680Full(transport)                          // construct driver, verifies chip ID and loads calibration, (transport) → Bme680Full
 
         val id = sensor.chipId()                                    // read chip ID register 0xD0, () → Int

@@ -121,7 +121,7 @@ class BME680Minimal:
         rhr = self._res_heat_range
         rhv = self._res_heat_val
 
-        var1 = ((ambient_temp * par_g3) // 10) << 8
+        var1 = int((ambient_temp * par_g3) // 10) << 8
         var2 = (par_g1 + 784) * (((((par_g2 + 154009) * target_temp * 5) // 100) + 3276800) // 10)
         var3 = var1 + (var2 >> 1)
         var4 = var3 // (rhr + 4)

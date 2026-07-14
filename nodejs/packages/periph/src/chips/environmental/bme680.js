@@ -219,15 +219,15 @@ class BME680Minimal {
         const parH6 = this._parH6;
         const parH7 = this._parH7;
 
-        const var1 = humAdc - ((parH1 << 4) + (((tempScaled * parH3) / 100 | 0) >> 1));
-        const var2 = (parH2 * (((tempScaled * parH4) / 100 | 0) +
-                               ((((tempScaled * ((tempScaled * parH5) / 100 | 0)) >> 6) / 100 | 0)) +
-                               (1 << 14))) >> 10;
+        const var1 = humAdc - ((parH1 << 4) + (Math.floor((tempScaled * parH3) / 100) >> 1));
+        const h5   = Math.floor(tempScaled * Math.floor((tempScaled * parH5) / 100) / 64);
+        const var2 = Math.floor(parH2 * (Math.floor((tempScaled * parH4) / 100) +
+                                         Math.floor(h5 / 100) + (1 << 14)) / 1024);
         const var3 = var1 * var2;
-        const var4 = ((parH6 << 7) + ((tempScaled * parH7) / 100 | 0)) >> 4;
-        const var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
-        const var6 = (var4 * var5) >> 1;
-        let humComp = (((var3 + var6) >> 10) * 1000) >> 12;
+        const var4 = Math.floor(((parH6 << 7) + Math.floor((tempScaled * parH7) / 100)) / 16);
+        const var5 = Math.floor(Math.floor(var3 / 16384) * Math.floor(var3 / 16384) / 1024);
+        const var6 = Math.floor(var4 * var5 / 2);
+        let humComp = Math.floor(Math.floor((var3 + var6) / 1024) * 1000 / 4096);
         if (humComp < 0) humComp = 0;
         if (humComp > 100000) humComp = 100000;
         return humComp / 1000.0;
@@ -235,11 +235,11 @@ class BME680Minimal {
 
     _compensateGas(gasAdc, gasRange) {
         const rse = this._rangeSwitchingError;
-        const var1 = ((1340 + 5 * rse) * CONST_ARRAY1[gasRange]) >> 16;
+        const var1 = Math.floor((1340 + 5 * rse) * CONST_ARRAY1[gasRange] / 65536);
         const var2 = ((gasAdc << 15) - (1 << 24)) + var1;
         if (var2 === 0) return NaN;
-        const gasRes = ((CONST_ARRAY2[gasRange] * var1) >> 9) + (var2 >> 1);
-        return (gasRes / var2) | 0;
+        const gasRes = Math.floor(CONST_ARRAY2[gasRange] * var1 / 512) + Math.floor(var2 / 2);
+        return Math.floor(gasRes / var2);
     }
 
     /**

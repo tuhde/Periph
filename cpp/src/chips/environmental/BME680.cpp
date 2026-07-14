@@ -255,7 +255,7 @@ void BME680Full::set_filter(uint8_t coeff) {
 }
 
 void BME680Full::set_heater(int16_t temp_c, uint16_t duration_ms) {
-    _heat_temp = (uint8_t)temp_c;
+    _heat_temp = temp_c;
     _heat_dur = duration_ms;
     _setup_heater(0, temp_c, duration_ms);
     _write_reg(REG_CTRL_GAS_1, (1 << 4) | 0);

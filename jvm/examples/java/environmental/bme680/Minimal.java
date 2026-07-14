@@ -9,10 +9,12 @@ import it.uhde.periph.chips.environmental.Bme680Minimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x76)) {       // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CTransport
+        int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
+        int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
+        try (var transport = new I2CTransport(bus, addr)) {             // open I²C bus, (bus, address=0x76) → I2CTransport
             var sensor = new Bme680Minimal(transport);                  // construct driver, verifies chip ID and loads calibration, (transport) → Bme680Minimal
 
-            while (true) {
+            for (int i = 0; i < 5; i++) {
                 double t = sensor.temperature();                        // read temperature, () → double °C
                 double p = sensor.pressure();                           // read pressure, () → double hPa
                 double h = sensor.humidity();                           // read humidity, () → double %RH
