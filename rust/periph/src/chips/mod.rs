@@ -1,4 +1,5 @@
 pub mod adc_dac;
+pub mod display;
 pub mod environmental;
 pub mod gas;
 pub mod imu;
