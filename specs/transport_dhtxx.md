@@ -31,6 +31,7 @@ All transport implementations must provide these operations:
 | `chip` | Linux GCC | `gpiod_chip *` | Open gpiod chip handle |
 | `line_num` | Linux GCC | `int` | gpiod line offset |
 | `spec` | Zephyr | `gpio_dt_spec` | GPIO devicetree spec; transport calls `gpio_pin_configure_dt` |
+| `data_pin` | Node.js | `number` | GPIO pin number; transport switches direction internally via `onoff` |
 | `P` | Rust | platform-specific | See Rust platform notes |
 | `chipPath` | JVM | `String` | gpiochip device path (e.g. `/dev/gpiochip0`) |
 | `lineOffset` | JVM | `int` | GPIO line offset on that chip |
@@ -146,6 +147,14 @@ Uses `zephyr/drivers/gpio.h`. Direction switching: `gpio_pin_configure_dt(&spec,
 `prj.conf` must enable `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/DHTxxTransportZephyr.h`
+
+### Node.js
+
+Uses the `onoff` package (legacy sysfs GPIO, `/sys/class/gpio`). Direction switching: destroy and recreate the `Gpio` instance with the new direction, or construct with `{ reconfigureDirection: true }` and call `unexport()`/re-instantiate — `onoff` does not expose an in-place direction change on an already-open instance. Timing: `process.hrtime.bigint()` with busy-wait loops; V8's non-deterministic GC pauses make this the least timing-reliable of the Linux targets. Same non-RTOS reliability caveats as the other Linux transports apply, more acutely.
+
+The open-drain two-pin variant (see above) is **not available** via `onoff` — it exposes no open-drain / drive-mode option, only `activeLow` and `reconfigureDirection`. A second output pin without open-drain would actively drive HIGH and could contend with the sensor and the pull-up, so it is not a safe substitute. Supporting the variant here would require replacing `onoff` with a library that exposes gpiod v2 line-request flags (as the other four Linux implementations use directly). Separately, `onoff`'s sysfs interface is deprecated and already absent on some current kernels (e.g. recent Raspberry Pi OS), which is a pre-existing risk to Node's GPIO transports generally, independent of DHTxx.
+
+File: `nodejs/packages/periph/src/transport/dhtxx.js`
 
 ### Rust
 
