@@ -24,3 +24,8 @@ from .base import Transport
 #   from periph.transport.uart_micropython import UARTTransport   (machine.UART)
 #   from periph.transport.uart_circuitpython import UARTTransport (busio.UART)
 #   from periph.transport.uart_linux import UARTTransport         (pyserial / /dev/ttyS0)
+
+# DHT11 pin adapters are platform-specific — import the one matching your target:
+#   from periph.transport.dht11_micropython import DHT11Pin      (machine.Pin)
+#   from periph.transport.dht11_circuitpython import DHT11Pin    (digitalio.DigitalInOut)
+#   from periph.transport.dht11_linux import DHT11Pin            (gpiod + line offset)
