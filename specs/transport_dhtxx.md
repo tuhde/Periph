@@ -34,6 +34,21 @@ All transport implementations must provide these operations:
 | `P` | Rust | platform-specific | See Rust platform notes |
 | `chipPath` | JVM | `String` | gpiochip device path (e.g. `/dev/gpiochip0`) |
 | `lineOffset` | JVM | `int` | GPIO line offset on that chip |
+| `line_num_out` | Linux (optional) | `int` | Second gpiod line offset, open-drain output; enables the two-pin variant (see below) |
+| `line_num_out` | Linux GCC (optional) | `int` | Second gpiod line offset, open-drain output; enables the two-pin variant (see below) |
+| `P2` | Rust (Linux, optional) | `CdevPin` | Second open-drain output pin; enables the two-pin variant (see below) |
+| `lineOffsetOut` | JVM (optional) | `int` | Second gpiod line offset, open-drain output; enables the two-pin variant (see below) |
+
+## Two-Pin Variant (Linux Only, Optional)
+
+On Linux, direction switching goes through the kernel's gpiod request lifecycle — releasing and re-requesting the line via ioctl — which is expensive enough to threaten the 10–20 µs `T_go` window and contributes to the read flakiness noted under each Linux platform's notes below. Embedded targets (MicroPython, CircuitPython, Arduino, Zephyr, ESP32-S3) reconfigure a pin's direction with a direct register write and have no equivalent cost, so this variant is Linux-only and does not apply to them.
+
+The four Linux-based implementations (Python, Linux GCC, Rust, JVM) may optionally accept a second GPIO line wired to the same physical DATA net instead of switching a single line's direction:
+
+- One line requested once, as **input**, for the transport's lifetime.
+- One line requested once, as **output** with the open-drain drive flag (`GPIOD_LINE_DRIVE_OPEN_DRAIN`), for the transport's lifetime. Driving it LOW pulls the bus low; driving it HIGH releases it — open-drain never actively drives HIGH, so it cannot contend with the sensor or the input line sharing the net.
+
+"Releasing the bus" then becomes a single `gpiod_line_set_value` call instead of a release-and-re-request, removing GPIO reconfiguration from the timing-critical part of the transaction entirely. Support is optional: an implementation may offer only the single-pin form, only the two-pin form, or both, selected by whether the second line parameter is supplied at construction.
 
 ## Protocol Sequence
 
@@ -106,6 +121,8 @@ Uses the `gpiod` Python library (`python-gpiod`). Direction switching requires r
 
 µs-level timing on a non-RTOS kernel is inherently imprecise under load. Read failures are expected on a busy system; callers should use the chip driver's retry mechanism rather than relying on single-shot reads.
 
+Optionally accepts `line_num_out` for the two-pin open-drain variant (see above), which avoids the release/re-request entirely.
+
 File: `python/periph/transport/dhtxx_linux.py`
 
 ### Arduino
@@ -117,6 +134,8 @@ Files: `cpp/src/transport/DHTxxTransport.h`, `cpp/src/transport/DHTxxTransport.c
 ### Linux GCC
 
 Uses libgpiod C API (`gpiod_chip_open_by_number`, `gpiod_chip_get_line`). Direction switching requires releasing and re-requesting the line: `gpiod_line_release` then `gpiod_line_request_output` / `gpiod_line_request_input`. Timing: `clock_gettime(CLOCK_MONOTONIC)` with busy-wait loops. Same non-RTOS reliability caveats as the Linux Python transport apply.
+
+Optionally accepts a second `line_num_out`, requested once with `gpiod_line_request_output_flags(..., GPIOD_LINE_REQUEST_FLAG_OPEN_DRAIN)`, for the two-pin variant (see above) — avoids the release/re-request entirely.
 
 Files: `cpp/src/transport/DHTxxTransportLinux.h`, `cpp/src/transport/DHTxxTransportLinux.cpp`
 
@@ -132,7 +151,7 @@ File: `cpp/src/transport/DHTxxTransportZephyr.h`
 
 `embedded-hal` 1.0 defines no `IoPin` (bidirectional) trait, so this transport cannot be generic over a standard trait. Two platform-specific structs are provided instead:
 
-- **Linux (`DHTxxTransportLinux`):** Accepts `linux-embedded-hal`'s `CdevPin`. Direction switching is done by re-requesting the line with the appropriate direction via the `CdevPin` API. Dependency: `linux-embedded-hal`.
+- **Linux (`DHTxxTransportLinux`):** Accepts `linux-embedded-hal`'s `CdevPin`. Direction switching is done by re-requesting the line with the appropriate direction via the `CdevPin` API. Dependency: `linux-embedded-hal`. Optionally accepts a second `CdevPin` requested as open-drain output (`Flags::OPEN_DRAIN`) for the two-pin variant (see above), avoiding the release/re-request entirely.
 - **ESP32-S3 (`DHTxxTransportEsp32s3`):** Accepts `esp-hal`'s `AnyFlex` GPIO. Direction switching via `.into_input()` / `.into_output_push_pull()`.
 
 Both structs expose the same `read() → Result<[u8; 5], TransportError>` method.
@@ -144,6 +163,8 @@ File: `rust/periph/src/transport/dhtxx.rs`
 Uses libgpiod v2 via FFM (Java 21+, no native libraries required) — the same approach as `I2CTransport`. libgpiod v2 does not allow changing the direction of an already-requested line, so direction switching releases the line (`gpiod_line_request_release`) and re-requests it with `GPIOD_LINE_DIRECTION_OUTPUT` / `GPIOD_LINE_DIRECTION_INPUT`. Timing: `System.nanoTime()` with busy-wait loops. Same non-RTOS reliability caveats as the Linux Python/C++ transports apply.
 
 A single `DHTxxTransport` class implements the full contract (`read() → byte[5]`) — chip drivers depend only on this class, never on GPIO details, so any DHTxx-family chip (DHT11, DHT22, ...) shares the same transport.
+
+Optionally accepts a second `lineOffsetOut`, requested once as output with `GPIOD_LINE_DRIVE_OPEN_DRAIN`, for the two-pin variant (see above) — avoids the release/re-request entirely.
 
 File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java`
 
