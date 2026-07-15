@@ -6,7 +6,9 @@
 #
 # What this script does:
 #   1. Stamps <version> in pyproject.toml, library.properties, Cargo.toml,
-#      pom.xml, all package.json files, and INSTALL.md
+#      jvm/pom.xml (+ each child module's <parent> version), JVM JBang
+#      //DEPS lines under jvm/examples and jvm/tests, all package.json
+#      files (+ regenerated package-lock.json), and INSTALL.md
 #   2. Commits the changes on main
 #   3. Creates tag v<version> and pushes branch + tag to all remotes
 #
@@ -72,9 +74,34 @@ sed('rust/periph/Cargo.toml', r'^version = ".*"', f'version = "{version}"')
 
 # JVM: first <version> element only (the parent POM version)
 pom = root / 'jvm/pom.xml'
+pom_text = pom.read_text()
+old_jvm_version = re.search(r'<version>([^<]+)</version>', pom_text).group(1)
 pom.write_text(re.sub(r'<version>[^<]+</version>', f'<version>{version}</version>',
-                       pom.read_text(), count=1))
+                       pom_text, count=1))
 print('  jvm/pom.xml')
+
+# JVM: child modules each hardcode the parent version in their own <parent> block
+jvm_modules = ['periph-transport', 'periph-java', 'periph-kotlin', 'periph-groovy']
+for module in jvm_modules:
+    sed(f'jvm/{module}/pom.xml',
+        r'(?s)(<parent>.*?<version>)[^<]+(</version>.*?</parent>)',
+        lambda m: f'{m.group(1)}{version}{m.group(2)}')
+print(f'  jvm/*/pom.xml  ({len(jvm_modules)} child modules)')
+
+# JVM: JBang example/test scripts pin //DEPS it.uhde:periph-<module>:<version>
+jbang_files = sorted((root / 'jvm/examples').rglob('*')) + sorted((root / 'jvm/tests').rglob('*'))
+jbang_pattern = re.compile(
+    r'(//DEPS it\.uhde:periph-(?:transport|java|kotlin|groovy):)' + re.escape(old_jvm_version))
+jbang_touched = 0
+for f in jbang_files:
+    if not f.is_file():
+        continue
+    text = f.read_text()
+    new_text = jbang_pattern.sub(rf'\g<1>{version}', text)
+    if new_text != text:
+        f.write_text(new_text)
+        jbang_touched += 1
+print(f'  jvm/examples/**, jvm/tests/**  ({jbang_touched} //DEPS files)')
 
 # Node.js: all package.json files under nodejs/packages/
 pkg_files = sorted((root / 'nodejs/packages').glob('*/package.json'))
@@ -92,6 +119,11 @@ install.write_text(content.replace(old, version))
 print('  INSTALL.md')
 PYEOF
 
+# Node.js: regenerate package-lock.json so it matches the stamped package.json
+# versions (npm ci fails on a stale lockfile otherwise)
+echo "  nodejs/package-lock.json"
+(cd "$ROOT/nodejs" && npm install --package-lock-only --workspaces --no-audit --no-fund >/dev/null)
+
 # ── Commit ────────────────────────────────────────────────────────────────────
 echo ""
 echo "=== committing ==="
@@ -100,6 +132,13 @@ git add \
     cpp/library.properties \
     rust/periph/Cargo.toml \
     jvm/pom.xml \
+    jvm/periph-transport/pom.xml \
+    jvm/periph-java/pom.xml \
+    jvm/periph-kotlin/pom.xml \
+    jvm/periph-groovy/pom.xml \
+    jvm/examples \
+    jvm/tests \
+    nodejs/package-lock.json \
     INSTALL.md \
     -- 'nodejs/packages/*/package.json'
 git commit -m "chore: release ${TAG}"
