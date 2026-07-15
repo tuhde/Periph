@@ -1,4 +1,4 @@
-#include "BMP280.h"
+#include "BME280.h"
 #include <stdlib.h>
 #include <cmath>
 
@@ -7,16 +7,17 @@
 static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 
-BMP280Minimal::BMP280Minimal(Transport& transport, bool spi)
+BME280Minimal::BME280Minimal(Transport& transport, bool spi)
     : _transport(transport), _spi(spi) {
     _read_calibration();
-    _write_reg(REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
+    _write_reg(REG_CTRL_HUM, _osrs_h);
+    _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | 0);
     _write_reg(REG_CONFIG, 0);
 }
 
-void BMP280Minimal::_read_calibration() {
-    uint8_t buf[24];
-    _read_reg(REG_CAL_START, buf, 24);
+void BME280Minimal::_read_calibration() {
+    uint8_t buf[26];
+    _read_reg(REG_CAL_START, buf, 26);
 
     _dig_T1 = (uint16_t)(buf[0] | (buf[1] << 8));
     _dig_T2 = (int16_t)(buf[2] | (buf[3] << 8));
@@ -30,39 +31,57 @@ void BMP280Minimal::_read_calibration() {
     _dig_P7 = (int16_t)(buf[18] | (buf[19] << 8));
     _dig_P8 = (int16_t)(buf[20] | (buf[21] << 8));
     _dig_P9 = (int16_t)(buf[22] | (buf[23] << 8));
+    _dig_H1 = buf[25];
+
+    uint8_t h[7];
+    _read_reg(REG_CAL_H2, h, 7);
+    _dig_H2 = (int16_t)(h[0] | (h[1] << 8));
+    _dig_H3 = h[2];
+
+    int16_t h4_raw = (int16_t)((h[3] << 4) | (h[4] & 0x0F));
+    if (h4_raw & 0x0800) h4_raw = (int16_t)(h4_raw | 0xF000);
+    _dig_H4 = h4_raw;
+
+    int16_t h5_raw = (int16_t)((h[5] << 4) | ((h[4] >> 4) & 0x0F));
+    if (h5_raw & 0x0800) h5_raw = (int16_t)(h5_raw | 0xF000);
+    _dig_H5 = h5_raw;
+
+    _dig_H6 = (int8_t)h[6];
 }
 
-void BMP280Minimal::_write_reg(uint8_t reg, uint8_t value) {
+void BME280Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t addr = _spi ? (reg & 0x7F) : reg;
     uint8_t buf[2] = { addr, value };
     _transport.write(buf, 2);
 }
 
-void BMP280Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
+void BME280Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
     uint8_t addr = reg;
     _transport.write_read(&addr, 1, buf, len);
 }
 
-void BMP280Minimal::_trigger_and_read(uint32_t& adc_P, uint32_t& adc_T) {
+void BME280Minimal::_trigger_and_read(uint32_t& adc_P, uint32_t& adc_T, uint16_t& adc_H) {
     if (_mode != 3) {
+        _write_reg(REG_CTRL_HUM, _osrs_h);
         uint8_t ctrl = (_osrs_t << 5) | (_osrs_p << 2) | 1;
         _write_reg(REG_CTRL_MEAS, ctrl);
         delay(MEAS_TIME_MS);
     }
-    uint8_t raw[6];
-    _read_reg(REG_DATA_START, raw, 6);
+    uint8_t raw[8];
+    _read_reg(REG_DATA_START, raw, 8);
     adc_P = ((uint32_t)raw[0] << 12) | ((uint32_t)raw[1] << 4) | (raw[2] >> 4);
     adc_T = ((uint32_t)raw[3] << 12) | ((uint32_t)raw[4] << 4) | (raw[5] >> 4);
+    adc_H = ((uint16_t)raw[6] << 8) | raw[7];
 }
 
-float BMP280Minimal::_compensate_temp(uint32_t adc_T) {
+float BME280Minimal::_compensate_temp(uint32_t adc_T) {
     int64_t var1 = ((((int64_t)adc_T >> 3) - ((int64_t)_dig_T1 << 1)) * (int64_t)_dig_T2) >> 11;
     int64_t var2 = ((((((int64_t)adc_T >> 4) - (int64_t)_dig_T1) * (((int64_t)adc_T >> 4) - (int64_t)_dig_T1)) >> 12) * (int64_t)_dig_T3) >> 14;
     _t_fine = (int32_t)(var1 + var2);
     return (float)(((_t_fine * 5 + 128) >> 8)) / 100.0f;
 }
 
-float BMP280Minimal::_compensate_pressure(uint32_t adc_P) {
+float BME280Minimal::_compensate_pressure(uint32_t adc_P) {
     int64_t t_fine = _t_fine;
     int64_t var1 = t_fine - 128000;
     int64_t var2 = var1 * var1 * (int64_t)_dig_P6;
@@ -79,82 +98,122 @@ float BMP280Minimal::_compensate_pressure(uint32_t adc_P) {
     return (float)(p / 256.0) / 100.0f;
 }
 
-float BMP280Minimal::temperature() {
+float BME280Minimal::_compensate_humidity(uint16_t adc_H) {
+    int32_t v_x1 = (((int32_t)adc_H << 14) - ((int32_t)_dig_H4 << 20) - ((int32_t)_dig_H5 * (_t_fine - 76800)) + 16384) >> 15;
+    int32_t v = ((_t_fine - 76800) * (int32_t)_dig_H6) >> 10;
+    v = (v * ((((_t_fine - 76800) * (int32_t)_dig_H3) >> 11) + 32768)) >> 10;
+    v = v + 2097152;
+    v = ((v * (int32_t)_dig_H2) + 8192) >> 14;
+    v = v_x1 * v;
+    int32_t v_x2 = (v >> 15) * (v >> 15);
+    v_x2 = (v_x2 >> 7) * (int32_t)_dig_H1;
+    v = v - (v_x2 >> 4);
+    if (v < 0) v = 0;
+    if (v > 419430400) v = 419430400;
+    return (float)(v >> 12) / 1024.0f;
+}
+
+float BME280Minimal::temperature() {
     uint32_t adc_P, adc_T;
-    _trigger_and_read(adc_P, adc_T);
+    uint16_t adc_H;
+    _trigger_and_read(adc_P, adc_T, adc_H);
     return _compensate_temp(adc_T);
 }
 
-float BMP280Minimal::pressure() {
+float BME280Minimal::pressure() {
     uint32_t adc_P, adc_T;
-    _trigger_and_read(adc_P, adc_T);
+    uint16_t adc_H;
+    _trigger_and_read(adc_P, adc_T, adc_H);
     _compensate_temp(adc_T);
     return _compensate_pressure(adc_P);
 }
 
-// BMP280Full
-
-BMP280Full::BMP280Full(Transport& transport, bool spi)
-    : BMP280Minimal(transport, spi) {
+float BME280Minimal::humidity() {
+    uint32_t adc_P, adc_T;
+    uint16_t adc_H;
+    _trigger_and_read(adc_P, adc_T, adc_H);
+    _compensate_temp(adc_T);
+    return _compensate_humidity(adc_H);
 }
 
-void BMP280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t filter, uint8_t t_sb) {
+// BME280Full
+
+BME280Full::BME280Full(Transport& transport, bool spi)
+    : BME280Minimal(transport, spi) {
+}
+
+void BME280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h, uint8_t mode, uint8_t filter, uint8_t t_sb) {
     _osrs_t = osrs_t;
     _osrs_p = osrs_p;
+    _osrs_h = osrs_h;
     _mode = mode;
     _filter = filter;
     _t_sb = t_sb;
+    _write_reg(REG_CTRL_HUM, osrs_h);
     _write_reg(REG_CONFIG, (t_sb << 5) | (filter << 2));
     _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode);
 }
 
-void BMP280Full::set_oversampling(uint8_t osrs_t, uint8_t osrs_p) {
+void BME280Full::set_oversampling(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h) {
     _osrs_t = osrs_t;
     _osrs_p = osrs_p;
+    _osrs_h = osrs_h;
+    _write_reg(REG_CTRL_HUM, osrs_h);
     _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | _mode);
 }
 
-void BMP280Full::set_mode(uint8_t mode) {
+void BME280Full::set_mode(uint8_t mode) {
     _mode = mode;
     _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | mode);
 }
 
-void BMP280Full::set_filter(uint8_t coeff) {
+void BME280Full::set_filter(uint8_t coeff) {
     _filter = coeff;
     _write_reg(REG_CONFIG, (_t_sb << 5) | (coeff << 2));
 }
 
-void BMP280Full::set_standby(uint8_t t_sb) {
+void BME280Full::set_standby(uint8_t t_sb) {
     _t_sb = t_sb;
     _write_reg(REG_CONFIG, (t_sb << 5) | (_filter << 2));
 }
 
-uint8_t BMP280Full::status() {
+uint8_t BME280Full::status() {
     uint8_t buf[1];
     _read_reg(REG_STATUS, buf, 1);
     return buf[0];
 }
 
-float BMP280Full::altitude(float sea_level_hpa) {
+float BME280Full::altitude(float sea_level_hpa) {
     float p = pressure();
     return 44330.0f * (1.0f - powf(p / sea_level_hpa, 0.1903f));
 }
 
-float BMP280Full::sea_level_pressure(float altitude_m) {
+float BME280Full::sea_level_pressure(float altitude_m) {
     float p = pressure();
     return p / powf(1.0f - (altitude_m / 44330.0f), 5.255f);
 }
 
-uint8_t BMP280Full::chip_id() {
+float BME280Full::dew_point() {
+    float t = temperature();
+    float h = humidity();
+    if (h <= 0.0f) return -INFINITY;
+    float a = 17.27f;
+    float b = 237.7f;
+    float alpha = (a * t) / (b + t) + logf(h / 100.0f);
+    return (b * alpha) / (a - alpha);
+}
+
+uint8_t BME280Full::chip_id() {
     uint8_t buf[1];
     _read_reg(REG_ID, buf, 1);
     return buf[0];
 }
 
-void BMP280Full::reset() {
+void BME280Full::reset() {
     _write_reg(REG_RESET, RESET_CMD);
     delay(2);
     _read_calibration();
+    _write_reg(REG_CTRL_HUM, _osrs_h);
     _write_reg(REG_CONFIG, (_t_sb << 5) | (_filter << 2));
     _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | _mode);
 }

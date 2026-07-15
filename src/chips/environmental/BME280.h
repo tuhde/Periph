@@ -2,19 +2,24 @@
 #include <stdint.h>
 #include "../../transport/Transport.h"
 
-/** @brief BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
+/** @brief BME280 combined humidity + pressure + temperature sensor — minimal interface.
  *
- *  Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- *  beyond the transport. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
+ *  Provides calibrated temperature (°C), pressure (hPa), and humidity (%RH)
+ *  with no configuration beyond the transport. I²C address is 0x76 (SDO=GND)
+ *  or 0x77 (SDO=VDDIO). 0x77 collides with the BMP180/BMP280/BMP388.
  *
- *  Default: forced mode, osrs_t=×1, osrs_p=×1, IIR filter off.
+ *  Sibling of the BMP280 driver: register-compatible for pressure and
+ *  temperature, plus an integrated humidity front-end (its own calibration
+ *  block, control register, output registers, and compensation formula).
+ *
+ *  Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off.
  *
  *  @param transport Configured I²C or SPI transport pointing at the device.
  *  @param spi       Set true for SPI bus (masks bit 7 on writes).
  */
-class BMP280Minimal {
+class BME280Minimal {
 public:
-    explicit BMP280Minimal(Transport& transport, bool spi = false);
+    explicit BME280Minimal(Transport& transport, bool spi = false);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -23,12 +28,20 @@ public:
 
     /** @brief Read calibrated pressure.
      *
-     *  Reads both ADCs and refreshes t_fine.
+     *  Reads all three ADCs and refreshes t_fine.
      *  Self-contained — may be called without a prior temperature() call.
      *
      *  @return Pressure in hPa.
      */
     float pressure();
+
+    /** @brief Read calibrated humidity.
+     *
+     *  Reads all three ADCs and refreshes t_fine.
+     *
+     *  @return Relative humidity in %RH.
+     */
+    float humidity();
 
     // Calibration coefficients and compensation functions are public to allow
     // unit tests to inject known datasheet values and verify the algorithm.
@@ -44,26 +57,37 @@ public:
     int16_t  _dig_P7 = 0;
     int16_t  _dig_P8 = 0;
     int16_t  _dig_P9 = 0;
+    uint8_t  _dig_H1 = 0;
+    int16_t  _dig_H2 = 0;
+    uint8_t  _dig_H3 = 0;
+    int16_t  _dig_H4 = 0;
+    int16_t  _dig_H5 = 0;
+    int8_t   _dig_H6 = 0;
 
     uint8_t   _osrs_t = 1;
     uint8_t   _osrs_p = 1;
+    uint8_t   _osrs_h = 1;
 
     float    _compensate_temp(uint32_t adc_T);
     float    _compensate_pressure(uint32_t adc_P);
+    float    _compensate_humidity(uint16_t adc_H);
 
 protected:
     static constexpr uint8_t REG_CAL_START  = 0x88;
+    static constexpr uint8_t REG_H1         = 0xA1;
     static constexpr uint8_t REG_ID         = 0xD0;
     static constexpr uint8_t REG_RESET      = 0xE0;
+    static constexpr uint8_t REG_CAL_H2     = 0xE1;
+    static constexpr uint8_t REG_CTRL_HUM   = 0xF2;
     static constexpr uint8_t REG_STATUS     = 0xF3;
     static constexpr uint8_t REG_CTRL_MEAS  = 0xF4;
     static constexpr uint8_t REG_CONFIG     = 0xF5;
     static constexpr uint8_t REG_DATA_START = 0xF7;
 
-    static constexpr uint8_t CHIP_ID        = 0x58;
+    static constexpr uint8_t CHIP_ID        = 0x60;
     static constexpr uint8_t RESET_CMD      = 0xB6;
 
-    static constexpr uint32_t MEAS_TIME_MS  = 7;
+    static constexpr uint32_t MEAS_TIME_MS  = 9;
 
     Transport& _transport;
     bool      _spi;
@@ -75,18 +99,19 @@ protected:
     void     _read_calibration();
     void     _write_reg(uint8_t reg, uint8_t value);
     void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
-    void     _trigger_and_read(uint32_t& adc_P, uint32_t& adc_T);
+    void     _trigger_and_read(uint32_t& adc_P, uint32_t& adc_T, uint16_t& adc_H);
 };
 
-/** @brief BMP280 full interface — extends BMP280Minimal with configuration and altitude helpers.
+/** @brief BME280 full interface — extends BME280Minimal with configuration, dew point, and altitude helpers.
  *
- *  Adds power-mode control, oversampling, IIR filter, standby time,
- *  and altitude / sea-level pressure conversion.
+ *  Adds power-mode control, oversampling for all three channels, IIR filter,
+ *  standby time, altitude / sea-level pressure conversion, dew point, and
+ *  chip ID / soft reset.
  *
  *  @param transport Configured I²C or SPI transport pointing at the device.
  *  @param spi       Set true for SPI bus (masks bit 7 on writes).
  */
-class BMP280Full : public BMP280Minimal {
+class BME280Full : public BME280Minimal {
 public:
     static constexpr uint8_t OSRS_SKIP = 0;
     static constexpr uint8_t OSRS_X1   = 1;
@@ -105,34 +130,37 @@ public:
     static constexpr uint8_t FILTER_8   = 3;
     static constexpr uint8_t FILTER_16  = 4;
 
-    static constexpr uint8_t T_SB_0_5_MS   = 0;
-    static constexpr uint8_t T_SB_62_5_MS  = 1;
-    static constexpr uint8_t T_SB_125_MS   = 2;
-    static constexpr uint8_t T_SB_250_MS   = 3;
-    static constexpr uint8_t T_SB_500_MS   = 4;
-    static constexpr uint8_t T_SB_1000_MS  = 5;
-    static constexpr uint8_t T_SB_2000_MS  = 6;
-    static constexpr uint8_t T_SB_4000_MS  = 7;
+    static constexpr uint8_t T_SB_0_5_MS    = 0;
+    static constexpr uint8_t T_SB_62_5_MS   = 1;
+    static constexpr uint8_t T_SB_125_MS    = 2;
+    static constexpr uint8_t T_SB_250_MS    = 3;
+    static constexpr uint8_t T_SB_500_MS    = 4;
+    static constexpr uint8_t T_SB_1000_MS   = 5;
+    static constexpr uint8_t T_SB_10_MS     = 6;
+    static constexpr uint8_t T_SB_20_MS     = 7;
 
     static constexpr uint8_t STATUS_MEASURING = 0x08;
     static constexpr uint8_t STATUS_IM_UPDATE = 0x01;
 
-    explicit BMP280Full(Transport& transport, bool spi = false);
+    explicit BME280Full(Transport& transport, bool spi = false);
 
-    /** @brief Write both ctrl_meas and config registers.
+    /** @brief Write ctrl_hum, config, and ctrl_meas registers in the correct order.
      *  @param osrs_t Temperature oversampling (0–5).
      *  @param osrs_p Pressure oversampling (0–5).
+     *  @param osrs_h Humidity oversampling (0–5).
      *  @param mode   Power mode (0=sleep, 1=forced, 3=normal).
      *  @param filter IIR filter coefficient (0–4).
-     *  @param t_sb   Standby time in normal mode (0–7).
+     *  @param t_sb   Standby time in normal mode (0–7; codes 6/7 mean 10 ms / 20 ms,
+     *                not 2000 ms / 4000 ms as on the BMP280).
      */
-    void configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t filter, uint8_t t_sb);
+    void configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h, uint8_t mode, uint8_t filter, uint8_t t_sb);
 
-    /** @brief Update temperature and pressure oversampling.
+    /** @brief Update temperature, pressure, and humidity oversampling.
      *  @param osrs_t Temperature oversampling (0–5).
      *  @param osrs_p Pressure oversampling (0–5).
+     *  @param osrs_h Humidity oversampling (0–5).
      */
-    void set_oversampling(uint8_t osrs_t, uint8_t osrs_p);
+    void set_oversampling(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h);
 
     /** @brief Update power mode.
      *  @param mode Power mode (0=sleep, 1=forced, 3=normal).
@@ -145,7 +173,8 @@ public:
     void set_filter(uint8_t coeff);
 
     /** @brief Update standby time for normal mode.
-     *  @param t_sb Standby time value (0–7).
+     *  @param t_sb Standby time value (0–7). On the BME280 codes 6/7 mean
+     *              10 ms / 20 ms (not 2000 ms / 4000 ms).
      */
     void set_standby(uint8_t t_sb);
 
@@ -166,8 +195,13 @@ public:
      */
     float sea_level_pressure(float altitude_m);
 
+    /** @brief Compute dew point from current temperature and humidity.
+     *  @return Dew point in degrees Celsius.
+     */
+    float dew_point();
+
     /** @brief Read the chip ID register.
-     *  @return Chip ID; expect 0x58.
+     *  @return Chip ID; expect 0x60.
      */
     uint8_t chip_id();
 
