@@ -60,7 +60,7 @@ OpenCode is responsible for keeping the labels on its issue in sync with reality
 | Picked up | `in-progress` (remove `needs-implementation`) | First thing you do after creating your implementation branch |
 | Minimal stage merged | `in-progress`, `stage:minimal` | After committing the Minimal stage on your implementation branch |
 | Full stage merged | `in-progress`, `stage:minimal`, `stage:full` | After committing the Full stage |
-| Finished | `done` (remove `in-progress`) | After all platforms across all stages are committed and the PR is open |
+| Finished | `done`, `needs-testing` (remove `in-progress`) | After all platforms across all stages are committed and the PR is open |
 
 The `chip` / `transport` label stays on the issue throughout — those describe what the issue *is*, not its state.
 
