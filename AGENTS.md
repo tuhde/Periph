@@ -44,6 +44,8 @@ Example: `impl/ina226/OC-gpt-4o`
 
 Check out the base feature branch, create your implementation branch from it, and open a PR targeting the feature branch when done.
 
+**Label the PR itself**, not just the issue: `gh pr edit <num> --add-label chip` (or `transport`), plus any `transport:*` labels the issue carries. GitHub's release-notes generator (`.github/release.yml`) groups the changelog by PR label, not issue label, so an unlabeled PR falls into the catch-all "Other Changes" section of the next release.
+
 ### Reimplementation by a different model
 
 If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `feature/<chip>` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.

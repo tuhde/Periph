@@ -302,7 +302,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [meta, python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -313,5 +313,6 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          name: "Periph v${{ needs.meta.outputs.version }}"
           files: artifacts/**
           generate_release_notes: true
