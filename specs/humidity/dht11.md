@@ -25,6 +25,7 @@ The DHT11 uses the DHTxx single-wire transport. The driver accepts a transport i
 | Zephyr | `DHTxxTransportZephyr` | `cpp/src/transport/DHTxxTransportZephyr.h` |
 | Rust (Linux) | `DHTxxTransportLinux` | `rust/periph/src/transport/dhtxx.rs` |
 | Rust (ESP32-S3) | `DHTxxTransportEsp32s3` | `rust/periph/src/transport/dhtxx.rs` |
+| JVM (Linux) | `DHTxxTransport` | `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java` |
 
 ## Protocol
 

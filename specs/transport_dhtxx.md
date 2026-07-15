@@ -32,6 +32,8 @@ All transport implementations must provide these operations:
 | `line_num` | Linux GCC | `int` | gpiod line offset |
 | `spec` | Zephyr | `gpio_dt_spec` | GPIO devicetree spec; transport calls `gpio_pin_configure_dt` |
 | `P` | Rust | platform-specific | See Rust platform notes |
+| `chipPath` | JVM | `String` | gpiochip device path (e.g. `/dev/gpiochip0`) |
+| `lineOffset` | JVM | `int` | GPIO line offset on that chip |
 
 ## Protocol Sequence
 
@@ -137,6 +139,14 @@ Both structs expose the same `read() → Result<[u8; 5], TransportError>` method
 
 File: `rust/periph/src/transport/dhtxx.rs`
 
+### JVM (Linux)
+
+Uses libgpiod v2 via FFM (Java 21+, no native libraries required) — the same approach as `I2CTransport`. libgpiod v2 does not allow changing the direction of an already-requested line, so direction switching releases the line (`gpiod_line_request_release`) and re-requests it with `GPIOD_LINE_DIRECTION_OUTPUT` / `GPIOD_LINE_DIRECTION_INPUT`. Timing: `System.nanoTime()` with busy-wait loops. Same non-RTOS reliability caveats as the Linux Python/C++ transports apply.
+
+A single `DHTxxTransport` class implements the full contract (`read() → byte[5]`) — chip drivers depend only on this class, never on GPIO details, so any DHTxx-family chip (DHT11, DHT22, ...) shares the same transport.
+
+File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -169,8 +179,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (ESP32-S3)
 
 ### JVM
-- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHT11Pin.java` — Javadoc on interface and every method
-- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHT11PinLinux.java` — Javadoc on class and every public method
+- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java` — Javadoc on class and every public method
 - [ ] Tests (Pi hardware, JBang)
 
 ### Sigrok
