@@ -24,6 +24,7 @@ exclude = [
     "tests/environmental/bme280_test_esp32s3",
     "tests/gas/ens160_test_esp32s3",
     "tests/memory/24aa02uid_test_esp32s3",
+    "tests/humidity/dht11_test_esp32s3",
     "tests/light/apds9960_test_esp32s3",
     "tests/imu/mpu6050_test_esp32s3",
     "tests/environmental/bme680_test_esp32s3",
@@ -124,6 +125,10 @@ members = [
     "examples/pcf8576_complete",
     "examples/pcf8576_demo",
     "tests/display/pcf8576_test",
+    "examples/dht11_minimal",
+    "examples/dht11_complete",
+    "examples/dht11_demo",
+    "tests/humidity/dht11_test",
 ]
 
 [workspace.dependencies]

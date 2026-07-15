@@ -1,0 +1,10 @@
+[package]
+name = "dht11_demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true, features = ["std"] }
+linux-embedded-hal = { workspace = true }
+embedded-hal = { workspace = true }
+gpio-cdev = { workspace = true }

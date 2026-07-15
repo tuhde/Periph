@@ -2,6 +2,7 @@ pub mod adc_dac;
 pub mod display;
 pub mod environmental;
 pub mod gas;
+pub mod humidity;
 pub mod imu;
 pub mod io_expander;
 pub mod led;
