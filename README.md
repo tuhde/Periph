@@ -79,6 +79,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|-----|--------|
+| 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
