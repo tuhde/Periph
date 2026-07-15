@@ -1,16 +1,17 @@
 'use strict';
 
+const _REG_CAL_START  = 0x88;
 const _REG_ID         = 0xD0;
 const _REG_RESET      = 0xE0;
 const _REG_STATUS     = 0xF3;
 const _REG_CTRL_MEAS  = 0xF4;
 const _REG_CONFIG     = 0xF5;
-const _REG_CAL_START  = 0x88;
-const _REG_DATA      = 0xF7;
+const _REG_DATA_START = 0xF7;
 
-const _CHIP_ID         = 0x58;
-const _RESET_CMD       = 0xB6;
-const _CTRL_MEAS_DEFAULT = 0x25;
+const _CHIP_ID        = 0x58;
+const _RESET_CMD      = 0xB6;
+
+const _MEAS_TIME_MS   = 7;
 
 function _delay(ms) {
     const start = Date.now();
@@ -21,159 +22,149 @@ function _delay(ms) {
  * BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
  *
  * Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- * beyond the transport. Default configuration: forced mode, oversampling ×1 for
- * both channels, IIR filter off.
+ * beyond the transport. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
  *
- * @param {object} transport - Configured I²C transport.
- * @param {number} [addr=0x76] - 7-bit I²C address (default 0x76, alternate 0x77).
+ * Default: forced mode, osrs_t=×1, osrs_p=×1, IIR filter off.
+ *
+ * @param {object} transport - Configured I²C or SPI transport.
+ * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
  */
 class BMP280Minimal {
-    constructor(transport, addr = 0x76) {
+    constructor(transport, busType = 'i2c') {
         this._transport = transport;
-        this._addr = addr;
-        this._t_fine = null;
-        this._ctrlMeasCache = _CTRL_MEAS_DEFAULT;
-        this._loadCalibration();
-        this._writeCtrlMeas(_CTRL_MEAS_DEFAULT);
-        this._writeConfig(0x00);
+        this._busType = busType;
+        this._mode = 0;
+        this._osrsT = 1;
+        this._osrsP = 1;
+        this._filter = 0;
+        this._tSb = 0;
+        this._tFine = 0;
+        this._readCalibration();
+        this._writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
+        this._writeReg(_REG_CONFIG, 0);
+    }
+
+    _readCalibration() {
+        const data = this._transport.writeRead(Buffer.from([_REG_CAL_START]), 24);
+        this._digT1 = data.readUInt16LE(0);
+        this._digT2 = data.readInt16LE(2);
+        this._digT3 = data.readInt16LE(4);
+        this._digP1 = data.readUInt16LE(6);
+        this._digP2 = data.readInt16LE(8);
+        this._digP3 = data.readInt16LE(10);
+        this._digP4 = data.readInt16LE(12);
+        this._digP5 = data.readInt16LE(14);
+        this._digP6 = data.readInt16LE(16);
+        this._digP7 = data.readInt16LE(18);
+        this._digP8 = data.readInt16LE(20);
+        this._digP9 = data.readInt16LE(22);
     }
 
     _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value]));
+        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
+        this._transport.write(Buffer.from([addr, value]));
     }
 
-    _readReg(reg, len) {
-        return this._transport.writeRead(Buffer.from([reg]), len);
+    _readReg(reg, n) {
+        return this._transport.writeRead(Buffer.from([reg]), n);
     }
 
-    _writeCtrlMeas(value) {
-        this._writeReg(_REG_CTRL_MEAS, value);
+    _triggerAndRead() {
+        if (this._mode !== 3) {
+            const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
+            this._writeReg(_REG_CTRL_MEAS, ctrl);
+            _delay(_MEAS_TIME_MS);
+        }
+        const raw = this._readReg(_REG_DATA_START, 6);
+        const adcP = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
+        const adcT = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
+        return { adcP, adcT };
     }
 
-    _writeConfig(value) {
-        this._writeReg(_REG_CONFIG, value);
+    _compensateTemp(adcT) {
+        const digT1 = this._digT1;
+        const digT2 = this._digT2;
+        const digT3 = this._digT3;
+        let var1 = (((adcT >> 3) - (digT1 << 1)) * digT2) >> 11;
+        let var2 = (((((adcT >> 4) - digT1) * ((adcT >> 4) - digT1)) >> 12) * digT3) >> 14;
+        this._tFine = var1 + var2;
+        return ((this._tFine * 5 + 128) >> 8) / 100.0;
     }
 
-    _loadCalibration() {
-        const raw = this._readReg(_REG_CAL_START, 24);
-        this._dig_T1 = raw.readUInt16LE(0);
-        this._dig_T2 = raw.readInt16LE(2);
-        this._dig_T3 = raw.readInt16LE(4);
-        this._dig_P1 = raw.readUInt16LE(6);
-        this._dig_P2 = raw.readInt16LE(8);
-        this._dig_P3 = raw.readInt16LE(10);
-        this._dig_P4 = raw.readInt16LE(12);
-        this._dig_P5 = raw.readInt16LE(14);
-        this._dig_P6 = raw.readInt16LE(16);
-        this._dig_P7 = raw.readInt16LE(18);
-        this._dig_P8 = raw.readInt16LE(20);
-        this._dig_P9 = raw.readInt16LE(22);
-    }
+    _compensatePressure(adcP) {
+        const tFine = BigInt(this._tFine);
+        const digP1 = BigInt(this._digP1);
+        const digP2 = BigInt(this._digP2);
+        const digP3 = BigInt(this._digP3);
+        const digP4 = BigInt(this._digP4);
+        const digP5 = BigInt(this._digP5);
+        const digP6 = BigInt(this._digP6);
+        const digP7 = BigInt(this._digP7);
+        const digP8 = BigInt(this._digP8);
+        const digP9 = BigInt(this._digP9);
 
-    _triggerReadBurst() {
-        const raw = this._readReg(_REG_DATA, 6);
-        const adc_P = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
-        const adc_T = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
-        return [adc_T, adc_P];
-    }
-
-    _compensateTemp(adc_T) {
-        const T1 = BigInt(this._dig_T1);
-        const T2 = BigInt(this._dig_T2);
-        const T3 = BigInt(this._dig_T3);
-        const t  = BigInt(adc_T);
-        const var1 = (((t >> 3n) - (T1 << 1n)) * T2) >> 11n;
-        const var2 = (((((t >> 4n) - T1) * ((t >> 4n) - T1)) >> 12n) * T3) >> 14n;
-        this._t_fine = Number(var1 + var2);
-        return Number(((var1 + var2) * 5n + 128n) >> 8n) / 100.0;
-    }
-
-    _compensatePressure(adc_P) {
-        const tf = BigInt(this._t_fine !== null ? this._t_fine : 0);
-        const P1 = BigInt(this._dig_P1), P2 = BigInt(this._dig_P2), P3 = BigInt(this._dig_P3);
-        const P4 = BigInt(this._dig_P4), P5 = BigInt(this._dig_P5), P6 = BigInt(this._dig_P6);
-        const P7 = BigInt(this._dig_P7), P8 = BigInt(this._dig_P8), P9 = BigInt(this._dig_P9);
-        let var1 = tf - 128000n;
-        let var2 = var1 * var1 * P6;
-        var2 = var2 + ((var1 * P5) << 17n);
-        var2 = var2 + (P4 << 35n);
-        var1 = ((var1 * var1 * P3) >> 8n) + ((var1 * P2) << 12n);
-        var1 = (((1n << 47n) + var1) * P1) >> 33n;
+        let var1 = tFine - 128000n;
+        let var2 = var1 * var1 * digP6;
+        var2 = var2 + ((var1 * digP5) << 17n);
+        var2 = var2 + (digP4 << 35n);
+        var1 = ((var1 * var1 * digP3) >> 8n) + ((var1 * digP2) << 12n);
+        var1 = (((1n << 47n) + var1) * digP1) >> 33n;
         if (var1 === 0n) return 0.0;
-        let p = BigInt(1048576) - BigInt(adc_P);
+        let p = 1048576n - BigInt(adcP);
         p = (((p << 31n) - var2) * 3125n) / var1;
-        var1 = (P9 * (p >> 13n) * (p >> 13n)) >> 25n;
-        var2 = (P8 * p) >> 19n;
-        p = ((p + var1 + var2) >> 8n) + (P7 << 4n);
-        return Number(p) / 25600.0;
-    }
-
-    _triggerMeasurement() {
-        this._writeCtrlMeas(this._ctrlMeasCache);
-        _delay(7);
+        var1 = (digP9 * (p >> 13n) * (p >> 13n)) >> 25n;
+        var2 = (digP8 * p) >> 19n;
+        p = ((p + var1 + var2) >> 8n) + (digP7 << 4n);
+        return Number(p) / 256.0 / 100.0;
     }
 
     /**
      * Read calibrated temperature.
-     *
-     * Triggers a forced-mode conversion and returns temperature in °C.
-     * Caches t_fine for use in subsequent pressure() calls.
-     *
      * @returns {number} Temperature in degrees Celsius.
      */
     temperature() {
-        this._triggerMeasurement();
-        const [adc_T] = this._triggerReadBurst();
-        return this._compensateTemp(adc_T);
+        const { adcP, adcT } = this._triggerAndRead();
+        return this._compensateTemp(adcT);
     }
 
     /**
      * Read calibrated pressure.
      *
-     * Triggers a forced-mode conversion and returns pressure in hPa.
-     * Re-reads the temperature ADC alongside pressure to refresh t_fine.
+     * Reads both ADCs and refreshes t_fine.
+     * Self-contained — may be called without a prior temperature() call.
      *
      * @returns {number} Pressure in hPa.
      */
     pressure() {
-        this._triggerMeasurement();
-        const [adc_T, adc_P] = this._triggerReadBurst();
-        this._compensateTemp(adc_T);
-        return this._compensatePressure(adc_P);
+        const { adcP, adcT } = this._triggerAndRead();
+        this._compensateTemp(adcT);
+        return this._compensatePressure(adcP);
     }
 }
 
 /**
  * BMP280 full interface — extends BMP280Minimal with configuration and altitude helpers.
  *
- * Adds power-mode control, oversampling settings, IIR filter, standby time,
- * status read, altitude / sea-level helpers, chip_id, and reset.
- *
- * @param {object} transport - Configured I²C transport.
- * @param {number} [addr=0x76] - 7-bit I²C address.
- * @param {number} [osrs_t=1] - Temperature oversampling 0–5 (default ×1).
- * @param {number} [osrs_p=1] - Pressure oversampling 0–5 (default ×1).
- * @param {number} [mode=1] - Power mode (default forced).
- * @param {number} [filter=0] - IIR filter coefficient (default off).
- * @param {number} [t_sb=0] - Standby time in normal mode 0–7 (default 0.5 ms).
+ * @param {object} transport - Configured I²C or SPI transport.
+ * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
  */
 class BMP280Full extends BMP280Minimal {
-    static OSRS_SKIP  = 0;
-    static OSRS_X1    = 1;
-    static OSRS_X2    = 2;
-    static OSRS_X4    = 3;
-    static OSRS_X8    = 4;
-    static OSRS_X16   = 5;
+    static OSRS_SKIP = 0;
+    static OSRS_X1   = 1;
+    static OSRS_X2   = 2;
+    static OSRS_X4   = 3;
+    static OSRS_X8   = 4;
+    static OSRS_X16  = 5;
 
-    static MODE_SLEEP   = 0;
-    static MODE_FORCED  = 1;
-    static MODE_NORMAL  = 3;
+    static MODE_SLEEP  = 0;
+    static MODE_FORCED = 1;
+    static MODE_NORMAL = 3;
 
-    static FILTER_OFF  = 0;
-    static FILTER_2    = 1;
-    static FILTER_4    = 2;
-    static FILTER_8    = 3;
-    static FILTER_16   = 4;
+    static FILTER_OFF = 0;
+    static FILTER_2   = 1;
+    static FILTER_4   = 2;
+    static FILTER_8   = 3;
+    static FILTER_16  = 4;
 
     static T_SB_0_5_MS   = 0;
     static T_SB_62_5_MS  = 1;
@@ -187,102 +178,77 @@ class BMP280Full extends BMP280Minimal {
     static STATUS_MEASURING = 0x08;
     static STATUS_IM_UPDATE = 0x01;
 
-    constructor(transport, addr = 0x76, osrs_t = 1, osrs_p = 1, mode = 1, filter = 0, t_sb = 0) {
-        super(transport, addr);
-        this._osrs_t = osrs_t;
-        this._osrs_p = osrs_p;
+    constructor(transport, busType = 'i2c') {
+        super(transport, busType);
+    }
+
+    /**
+     * Write both ctrl_meas and config registers.
+     * @param {number} osrsT - Temperature oversampling (0–5).
+     * @param {number} osrsP - Pressure oversampling (0–5).
+     * @param {number} mode - Power mode (0=sleep, 1=forced, 3=normal).
+     * @param {number} filter - IIR filter coefficient (0–4).
+     * @param {number} tSb - Standby time in normal mode (0–7).
+     */
+    configure(osrsT, osrsP, mode, filter, tSb) {
+        this._osrsT = osrsT;
+        this._osrsP = osrsP;
         this._mode = mode;
         this._filter = filter;
-        this._t_sb = t_sb;
-        this._ctrlMeasCache = this._ctrlMeasValue();
-        this._writeCtrlMeas(this._ctrlMeasCache);
-        this._writeConfig(this._configValue());
-    }
-
-    _ctrlMeasValue() {
-        return (this._osrs_t << 5) | (this._osrs_p << 2) | this._mode;
-    }
-
-    _configValue() {
-        return (this._t_sb << 5) | (this._filter << 2);
+        this._tSb = tSb;
+        this._writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
+        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
-     * Update chip configuration.
-     *
-     * @param {number} [osrs_t] - Temperature oversampling 0–5.
-     * @param {number} [osrs_p] - Pressure oversampling 0–5.
-     * @param {number} [mode] - Power mode (0=sleep, 1=forced, 3=normal).
-     * @param {number} [filter] - IIR filter coefficient (0=off, 1, 2, 3, 4=×16).
-     * @param {number} [t_sb] - Standby time in normal mode (0–7).
+     * Update temperature and pressure oversampling.
+     * @param {number} osrsT - Temperature oversampling (0–5).
+     * @param {number} osrsP - Pressure oversampling (0–5).
      */
-    configure(osrs_t, osrs_p, mode, filter, t_sb) {
-        if (osrs_t !== undefined) this._osrs_t = osrs_t;
-        if (osrs_p !== undefined) this._osrs_p = osrs_p;
-        if (mode !== undefined) this._mode = mode;
-        if (filter !== undefined) this._filter = filter;
-        if (t_sb !== undefined) this._t_sb = t_sb;
-        this._ctrlMeasCache = this._ctrlMeasValue();
-        this._writeCtrlMeas(this._ctrlMeasCache);
-        this._writeConfig(this._configValue());
-    }
-
-    /**
-     * Update oversampling settings.
-     *
-     * @param {number} osrs_t - Temperature oversampling 0–5.
-     * @param {number} osrs_p - Pressure oversampling 0–5.
-     */
-    setOversampling(osrs_t, osrs_p) {
-        this._osrs_t = osrs_t;
-        this._osrs_p = osrs_p;
-        this._ctrlMeasCache = this._ctrlMeasValue();
-        this._writeCtrlMeas(this._ctrlMeasCache);
+    setOversampling(osrsT, osrsP) {
+        this._osrsT = osrsT;
+        this._osrsP = osrsP;
+        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
     }
 
     /**
      * Update power mode.
-     *
-     * @param {number} mode - 0=sleep, 1=forced, 3=normal.
+     * @param {number} mode - Power mode (0=sleep, 1=forced, 3=normal).
      */
     setMode(mode) {
         this._mode = mode;
-        this._ctrlMeasCache = this._ctrlMeasValue();
-        this._writeCtrlMeas(this._ctrlMeasCache);
+        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
     }
 
     /**
      * Update IIR filter coefficient.
-     *
-     * @param {number} coeff - 0=off, 1=×2, 2=×4, 3=×8, 4=×16.
+     * @param {number} coeff - Filter coefficient (0–4).
      */
     setFilter(coeff) {
         this._filter = coeff;
-        this._writeConfig(this._configValue());
+        this._writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
     }
 
     /**
-     * Update standby time (only relevant in normal mode).
-     *
-     * @param {number} t_sb - 0=0.5ms, 1=62.5ms, 2=125ms, 3=250ms, 4=500ms, 5=1s, 6=2s, 7=4s.
+     * Update standby time for normal mode.
+     * @param {number} tSb - Standby time value (0–7).
      */
-    setStandby(t_sb) {
-        this._t_sb = t_sb;
-        this._writeConfig(this._configValue());
+    setStandby(tSb) {
+        this._tSb = tSb;
+        this._writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
     }
 
     /**
-     * Read status register.
-     *
-     * @returns {number} Status byte; check STATUS_MEASURING and STATUS_IM_UPDATE bits.
+     * Read the status register.
+     * @returns {number} Status byte; bit 3 = measuring, bit 0 = im_update.
      */
     status() {
-        return this._readReg(_REG_STATUS, 1)[0];
+        const data = this._readReg(_REG_STATUS, 1);
+        return data[0];
     }
 
     /**
-     * Compute altitude above sea level from current pressure.
-     *
+     * Compute altitude above sea level from the current pressure.
      * @param {number} [seaLevelHpa=1013.25] - Reference sea-level pressure in hPa.
      * @returns {number} Altitude in metres.
      */
@@ -292,8 +258,7 @@ class BMP280Full extends BMP280Minimal {
     }
 
     /**
-     * Compute sea-level pressure for a known altitude.
-     *
+     * Compute sea-level pressure from current pressure and known altitude.
      * @param {number} altitudeM - Altitude in metres.
      * @returns {number} Sea-level pressure in hPa.
      */
@@ -303,25 +268,23 @@ class BMP280Full extends BMP280Minimal {
     }
 
     /**
-     * Read chip ID register.
-     *
-     * @returns {number} Chip ID; expect 0x58 for BMP280.
+     * Read the chip ID register.
+     * @returns {number} Chip ID; expect 0x58.
      */
     chipId() {
-        return this._readReg(_REG_ID, 1)[0];
+        const data = this._readReg(_REG_ID, 1);
+        return data[0];
     }
 
     /**
-     * Perform soft reset and re-read calibration coefficients.
-     *
-     * Re-applies the current ctrl_meas and config settings.
+     * Perform a soft reset, re-read calibration, and re-apply configuration.
      */
     reset() {
         this._writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
-        this._loadCalibration();
-        this._writeCtrlMeas(this._ctrlMeasValue());
-        this._writeConfig(this._configValue());
+        this._readCalibration();
+        this._writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
+        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
     }
 }
 

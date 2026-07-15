@@ -1,8 +1,11 @@
 pub mod adc_dac;
+pub mod display;
 pub mod environmental;
 pub mod gas;
+pub mod imu;
 pub mod io_expander;
 pub mod led;
+pub mod light;
 pub mod magnetometer;
 pub mod memory;
 pub mod power;

@@ -1,0 +1,103 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpu6050-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '68', required: true },
+            gyroFs:   { value: '0', required: true, validate: RED.validators.number() },
+            accelFs:  { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('MPU6050 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mpu6050-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MPU6050">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="68" style="width:80px"> &nbsp;default: 68 (0x68)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gyroFs">Gyro range</label>
+        <select id="node-config-input-gyroFs" style="width:150px">
+            <option value="0">±250 dps</option>
+            <option value="1">±500 dps</option>
+            <option value="2">±1000 dps</option>
+            <option value="3">±2000 dps</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-accelFs">Accel range</label>
+        <select id="node-config-input-accelFs" style="width:150px">
+            <option value="0">±2 g</option>
+            <option value="1">±4 g</option>
+            <option value="2">±8 g</option>
+            <option value="3">±16 g</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('mpu6050', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mpu6050-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-compass',
+        label:   function() { return this.name || 'MPU6050'; },
+        paletteLabel: 'MPU6050'
+    });
+</script>
+
+<script type="text/html" data-template-name="mpu6050">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MPU6050">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="mpu6050">
+    <p>Reads 3-axis acceleration and 3-axis angular rate from an MPU6050 IMU over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>mpu6050-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.ax <span class="property-type">number</span></dt>
+        <dd>X acceleration in m/s².</dd>
+        <dt>payload.ay <span class="property-type">number</span></dt>
+        <dd>Y acceleration in m/s².</dd>
+        <dt>payload.az <span class="property-type">number</span></dt>
+        <dd>Z acceleration in m/s².</dd>
+        <dt>payload.gx <span class="property-type">number</span></dt>
+        <dd>X angular rate in rad/s.</dd>
+        <dt>payload.gy <span class="property-type">number</span></dt>
+        <dd>Y angular rate in rad/s.</dd>
+        <dt>payload.gz <span class="property-type">number</span></dt>
+        <dd>Z angular rate in rad/s.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x68</code>),
+    the gyroscope full-scale range (±250/±500/±1000/±2000 dps), and the accelerometer
+    full-scale range (±2/±4/±8/±16 g) in the device config node.</p>
+</script>

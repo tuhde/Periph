@@ -10,7 +10,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
-| Java / Kotlin / Groovy | Raspberry Pi via Pi4J (JVM 17+, JBang examples) | Active |
+| Java / Kotlin / Groovy | Linux host via `/dev/i2c-N` (FFM, no native libraries; JVM 17+, JBang examples) | Active |
 | Sigrok | PulseView, sigrok-cli (protocol decoders in `sigrok/`) | Active |
 
 ## Supported transports
@@ -79,16 +79,25 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|-----|--------|
+| AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 

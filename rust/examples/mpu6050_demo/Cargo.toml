@@ -1,0 +1,9 @@
+[package]
+name = "mpu6050_demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true }
+linux-embedded-hal = { workspace = true }
+libm = "0.2"
