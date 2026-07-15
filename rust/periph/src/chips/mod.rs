@@ -7,5 +7,6 @@ pub mod io_expander;
 pub mod led;
 pub mod light;
 pub mod magnetometer;
+pub mod memory;
 pub mod power;
 pub mod pressure;

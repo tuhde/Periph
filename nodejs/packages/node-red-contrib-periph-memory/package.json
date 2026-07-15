@@ -4,7 +4,9 @@
   "description": "Node-RED nodes for memory chips",
   "keywords": ["node-red", "memory", "eeprom", "flash", "i2c", "spi", "peripheral"],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "24aa02uid": "nodes/24aa02uid/24aa02uid.js"
+    }
   },
   "dependencies": {
     "periph": "*"
