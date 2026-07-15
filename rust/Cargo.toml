@@ -124,6 +124,10 @@ members = [
     "examples/pcf8576_complete",
     "examples/pcf8576_demo",
     "tests/display/pcf8576_test",
+    "examples/dht11_minimal",
+    "examples/dht11_complete",
+    "examples/dht11_demo",
+    "tests/humidity/dht11_test",
 ]
 
 [workspace.dependencies]

@@ -1,3 +1,4 @@
+pub mod dhtxx;
 pub mod hx711;
 pub mod i2c;
 pub mod smbus;
