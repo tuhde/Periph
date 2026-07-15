@@ -195,3 +195,25 @@ The DHTxx transport must be implemented first; its checklist is in `specs/transp
 - [ ] Examples `rust/examples/dht11_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/humidity/dht11_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/humidity/dht11_test_esp32s3/src/main.rs` (ESP32-S3)
+
+### JVM
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/Dht11Minimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/Dht11Full.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/Dht11Minimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/humidity/Dht11Full.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/Dht11Minimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/humidity/Dht11Full.groovy` — Groovydoc on every class and public method
+- [ ] Examples `jvm/examples/java/humidity/dht11/Minimal.java` — Tier-1
+- [ ] Examples `jvm/examples/java/humidity/dht11/Complete.java` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/java/humidity/dht11/Demo.java` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Minimal.kt` — Tier-1
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Complete.kt` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/kotlin/humidity/dht11/Demo.kt` — Tier-1 + Tier-3
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Minimal.groovy` — Tier-1
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Complete.groovy` — Tier-1 + Tier-2
+- [ ] Examples `jvm/examples/groovy/humidity/dht11/Demo.groovy` — Tier-1 + Tier-3
+- [ ] Tests `jvm/tests/humidity/dht11/Dht11Test.java` (Pi hardware, JBang)
+
+### Sigrok
+- [ ] Decoder `sigrok/dhtxx/__init__.py` — shared DHTxx single-wire transport decoder; see `specs/transport_dhtxx.md`
+- [ ] Decoder `sigrok/dhtxx/pd.py` — logic input; framing/data-byte/checksum `OUTPUT_ANN`; stack base for DHT11/DHT22 chip decoders

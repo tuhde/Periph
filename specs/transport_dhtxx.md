@@ -167,3 +167,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `rust/periph/src/transport/dhtxx.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
+
+### JVM
+- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHT11Pin.java` — Javadoc on interface and every method
+- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHT11PinLinux.java` — Javadoc on class and every public method
+- [ ] Tests (Pi hardware, JBang)
+
+### Sigrok
+- [ ] Decoder `sigrok/dhtxx/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
+- [ ] Decoder `sigrok/dhtxx/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` only
