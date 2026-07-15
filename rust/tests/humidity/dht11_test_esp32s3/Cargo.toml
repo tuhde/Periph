@@ -1,0 +1,8 @@
+[package]
+name = "dht11_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { path = "../../../../periph" }
+embedded-hal = "1.0"
