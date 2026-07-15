@@ -1,0 +1,61 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-dht11', {
+        category:     'Peripheral',
+        color:        '#a6bbcf',
+        defaults: {
+            name:    { value: '' },
+            dataPin: { value: '4', required: true, validate: RED.validators.number() },
+            retries: { value: '3' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tint',
+        label:   function() { return this.name || 'DHT11'; },
+        paletteLabel: 'DHT11'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-dht11">
+    <div class="form-row">
+        <label for="node-input-dataPin"><i class="fa fa-microchip"></i> DATA pin</label>
+        <input type="number" id="node-input-dataPin" min="0" style="width:80px"> &nbsp;GPIO number (BCM)
+    </div>
+    <div class="form-row">
+        <label for="node-input-retries"><i class="fa fa-refresh"></i> Retries</label>
+        <input type="number" id="node-input-retries" min="1" max="10" style="width:80px"> &nbsp;checksum error retries (default 3)
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DHT11">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-dht11">
+    <p>Reads temperature and relative humidity from a DHT11 sensor connected
+    to a single GPIO pin (DATA). An external 4.7 kΩ pull-up to VCC is required
+    on the DATA line.</p>
+    <p>Any input message triggers a sensor read. The driver retries the read
+    up to <b>Retries</b> times on a checksum or timeout error before giving up.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in °C (-20 to 60).</dd>
+        <dt>payload.humidity_rh <span class="property-type">number</span></dt>
+        <dd>Relative humidity in %RH (0 to 100).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p><b>DATA pin</b> is the BCM GPIO number connected to the DHT11's DATA line.</p>
+    <p><b>Retries</b> is the maximum number of attempts when a checksum error
+    or sensor timeout occurs. The DHT11 protocol is timing-sensitive and may
+    sporadically fail under load; the retry counter absorbs transient errors.</p>
+    <p>Callers must respect the 2-second minimum sampling interval between
+    reads; the node does not enforce this automatically.</p>
+</script>
