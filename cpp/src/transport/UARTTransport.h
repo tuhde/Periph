@@ -37,6 +37,12 @@ public:
      */
     void read(uint8_t* buf, size_t len) override;
 
+    /** @brief Number of bytes currently buffered in the hardware/driver RX
+     *         FIFO, available to read() without blocking.
+     *  @return Byte count currently queued.
+     */
+    size_t available() const override { return _serial.available(); }
+
     /** @brief Transmit bytes then receive @p buf_len bytes.
      *
      *  In RS-485 mode DE is asserted only during the transmit phase.

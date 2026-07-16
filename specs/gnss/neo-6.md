@@ -329,19 +329,19 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests `python/tests/gnss/neo6_test_linux_spi.py` (Linux — SPI)
 
 ### C++
-- [ ] Driver `cpp/src/chips/gnss/NEO6.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/gnss/NEO6.cpp`
-- [ ] Examples `cpp/examples/NEO6_Minimal/NEO6_Minimal.ino` — Tier-1 (UART; comment shows DDC/SPI swap)
-- [ ] Examples `cpp/examples/NEO6_Complete/NEO6_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/NEO6_Demo/NEO6_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/NEO6_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/NEO6_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/NEO6_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/gnss/neo6_test/neo6_test.ino` (Arduino — UART)
-- [ ] Tests `cpp/tests/gnss/neo6_test_linux/neo6_test_linux.cpp` (Linux GCC — UART)
-- [ ] Tests `cpp/tests/gnss/neo6_test_linux_i2c/neo6_test_linux_i2c.cpp` (Linux GCC — I²C)
-- [ ] Tests `cpp/tests/gnss/neo6_test_linux_spi/neo6_test_linux_spi.cpp` (Linux GCC — SPI)
-- [ ] Tests `cpp/tests/gnss/neo6_test_zephyr/src/main.cpp` (Zephyr — UART)
+- [x] Driver `cpp/src/chips/gnss/NEO6.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/gnss/NEO6.cpp`
+- [x] Examples `cpp/examples/NEO6_Minimal/NEO6_Minimal.ino` — Tier-1 (UART; comment shows DDC/SPI swap)
+- [x] Examples `cpp/examples/NEO6_Complete/NEO6_Complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/NEO6_Demo/NEO6_Demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/NEO6_Minimal_Zephyr/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/NEO6_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/NEO6_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/gnss/neo6_test/neo6_test.ino` (Arduino — UART)
+- [x] Tests `cpp/tests/gnss/neo6_test_linux/neo6_test_linux.cpp` (Linux GCC — UART)
+- [x] Tests `cpp/tests/gnss/neo6_test_linux_i2c/neo6_test_linux_i2c.cpp` (Linux GCC — I²C)
+- [x] Tests `cpp/tests/gnss/neo6_test_linux_spi/neo6_test_linux_spi.cpp` (Linux GCC — SPI)
+- [x] Tests `cpp/tests/gnss/neo6_test_zephyr/src/main.cpp` (Zephyr — UART)
 
 ### Node.js
 - [x] Driver `nodejs/packages/periph/src/chips/gnss/neo6.js` — JSDoc on every class and exported method
