@@ -19,6 +19,7 @@ exclude = [
     "tests/io_expander/pcf8575_test_esp32s3",
     "tests/transport/hx711_test_esp32s3",
     "tests/adc_dac/hx711_test_esp32s3",
+    "tests/adc_dac/pcf8591_test_esp32s3",
 ]
 members = [
     "periph",
@@ -79,6 +80,10 @@ members = [
     "examples/hx711_minimal",
     "examples/hx711_complete",
     "examples/hx711_demo",
+    "examples/pcf8591_minimal",
+    "examples/pcf8591_complete",
+    "examples/pcf8591_demo",
+    "tests/adc_dac/pcf8591_test",
 ]
 
 [workspace.dependencies]
