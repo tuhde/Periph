@@ -93,9 +93,18 @@ class NEO6Minimal:
                 b = self._transport.read(1)
             except OSError:
                 return None
+        elif self._bus_type == 'i2c':
+            # DDC random-read: set the register pointer to 0xFF, then read
+            # one stream byte. The pointer saturates at 0xFF once set, so
+            # re-sending it on every byte is redundant but harmless.
+            b = self._transport.write_read(b'\xff', 1)
         else:
-            # Empty write phase: the response is a true 1:1 full-duplex
-            # capture, so no incoming byte is ever discarded.
+            # SPI has no register-address concept, so the write phase must
+            # stay empty: write_read(prefix, n) clocks prefix's response
+            # bytes and discards them, and any non-empty prefix here would
+            # throw away a real byte of the module's output stream. An
+            # empty prefix makes the whole call one true 1:1 full-duplex
+            # transfer, so no incoming byte is ever discarded.
             b = self._transport.write_read(b'', 1)
         return b[0] if b else None
 
