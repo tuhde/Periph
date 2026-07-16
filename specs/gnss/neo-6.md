@@ -368,19 +368,19 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests `rust/tests/gnss/neo6_test_esp32s3/src/main.rs` (ESP32-S3 — UART; written against the ina226 esp32s3 template but not compiled — no esp toolchain in this sandbox, crate is workspace-excluded)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/gnss/Neo6.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/gnss/Neo6.kt`
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/gnss/Neo6.groovy`
-- [ ] Examples `jvm/examples/java/gnss/neo6/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/gnss/neo6/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/gnss/neo6/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/gnss/neo6/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/gnss/neo6/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/gnss/neo6/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/gnss/neo6/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/gnss/neo6/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/gnss/neo6/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/gnss/neo6/Neo6Test.java`
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/gnss/Neo6Minimal.java` + `Neo6Full.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/gnss/Neo6Minimal.kt` + `Neo6Full.kt`
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/gnss/Neo6Minimal.groovy` + `Neo6Full.groovy`
+- [x] Examples `jvm/examples/java/gnss/neo6/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/gnss/neo6/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/gnss/neo6/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/gnss/neo6/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/gnss/neo6/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/gnss/neo6/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/gnss/neo6/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/gnss/neo6/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/gnss/neo6/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/gnss/neo6/Neo6Test.java`
 
 ### Sigrok
 - [x] Decoder `sigrok/neo6/__init__.py` — module docstring describing transport input, addresses, and what is annotated
