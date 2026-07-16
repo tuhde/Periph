@@ -344,18 +344,18 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `cpp/tests/gnss/neo6_test_zephyr/src/main.cpp` (Zephyr — UART)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/gnss/neo6.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/gnss/neo6/minimal.js` — Tier-1 (UART; comment shows DDC/SPI swap)
-- [ ] Examples `nodejs/packages/periph/examples/gnss/neo6/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/gnss/neo6/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/gnss/neo6_test_uart.js` (UART)
-- [ ] Tests `nodejs/tests/gnss/neo6_test_i2c.js` (I²C)
-- [ ] Tests `nodejs/tests/gnss/neo6_test_spi.js` (SPI)
+- [x] Driver `nodejs/packages/periph/src/chips/gnss/neo6.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/gnss/neo6/minimal.js` — Tier-1 (UART; comment shows DDC/SPI swap)
+- [x] Examples `nodejs/packages/periph/examples/gnss/neo6/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/gnss/neo6/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/gnss/neo6_test_uart.js` (UART)
+- [x] Tests `nodejs/tests/gnss/neo6_test_i2c.js` (I²C)
+- [x] Tests `nodejs/tests/gnss/neo6_test_spi.js` (SPI)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-gnss/nodes/neo6/neo6.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-gnss/nodes/neo6/neo6.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-gnss/examples/neo6/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-gnss/nodes/neo6/neo6.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-gnss/nodes/neo6/neo6.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-gnss/examples/neo6/demo.json` — tab `info` field describes the scenario
 
 ### Rust
 - [ ] Driver `rust/periph/src/chips/gnss/neo6.rs` — `//!` module doc + `///` on every `pub` item

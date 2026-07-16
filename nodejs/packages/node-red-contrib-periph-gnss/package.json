@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "neo6": "nodes/neo6/neo6.js"
+    }
   },
   "dependencies": {
     "periph": "*"
