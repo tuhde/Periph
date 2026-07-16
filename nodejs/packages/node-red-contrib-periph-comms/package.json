@@ -12,7 +12,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "rda5807m": "nodes/rda5807m/rda5807m.js"
+    }
   },
   "dependencies": {
     "periph": "*"

@@ -14,7 +14,9 @@ npm install node-red-contrib-periph-comms
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `periph-rda5807m` | input | Controls an RDA5807M single-chip FM stereo radio tuner over I&sup2;C: tune, seek, volume, and mute, with frequency/signal status on every trigger. |
 
 ## Links
 

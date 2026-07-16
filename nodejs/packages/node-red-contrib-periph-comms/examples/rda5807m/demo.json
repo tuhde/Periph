@@ -1,0 +1,72 @@
+[
+    {
+        "id": "tab-rda5807m-demo",
+        "type": "tab",
+        "label": "RDA5807M FM Tuner",
+        "disabled": false,
+        "info": "Seeks to the next FM station every 3 seconds and prints the resulting frequency, signal strength, and stereo/mono status to the debug panel — like pressing \"seek\" on a real radio, watched live."
+    },
+    {
+        "id": "cfg-rda5807m",
+        "type": "periph-rda5807m",
+        "name": "RDA5807M",
+        "bus": "1",
+        "address": "10",
+        "band": "2",
+        "space": "0",
+        "frequency": "87.5",
+        "volume": "10",
+        "z": "tab-rda5807m-demo",
+        "x": 320,
+        "y": 160,
+        "wires": [["fmt-readings"]]
+    },
+    {
+        "id": "inj-seek",
+        "type": "inject",
+        "name": "seek up every 3 s",
+        "repeat": "3",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "{\"command\":\"seek\",\"direction\":\"up\"}",
+        "payloadType": "json",
+        "z": "tab-rda5807m-demo",
+        "x": 130,
+        "y": 160,
+        "wires": [["cfg-rda5807m"]]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format",
+        "func": "const p = msg.payload;\nif (p.frequency === null || p.frequency === undefined) {\n    msg.payload = 'no station found (band limit reached)';\n} else {\n    msg.payload = p.frequency.toFixed(2) + ' MHz  RSSI=' + (p.rssi !== undefined ? p.rssi : '?') +\n                  '  ' + (p.stereo ? 'stereo' : 'mono');\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-rda5807m-demo",
+        "x": 500,
+        "y": 160,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-rda5807m-demo",
+        "x": 670,
+        "y": 160,
+        "wires": []
+    }
+]

@@ -50,6 +50,7 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
+| RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 
