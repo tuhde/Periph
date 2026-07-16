@@ -318,15 +318,15 @@ Tick each box as the item is committed. The PR may not be opened until every box
 > **Transport convention for examples:** all examples use UART as the canonical transport. Each example file includes a comment block at the top showing the one-line swap for I²C (DDC) or SPI. Tests multiply by transport on Linux; UART is the primary transport for embedded-platform tests.
 
 ### Python
-- [ ] Driver `python/periph/chips/gnss/neo6.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/gnss/neo6/minimal.py` — Tier-1 signature comment on every call (UART transport; comment shows DDC/SPI swap)
-- [ ] Examples `python/examples/gnss/neo6/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/gnss/neo6/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/gnss/neo6_test.py` (MicroPython — UART)
-- [ ] Tests `python/tests/gnss/neo6_test_cp.py` (CircuitPython — UART)
-- [ ] Tests `python/tests/gnss/neo6_test_linux_uart.py` (Linux — UART)
-- [ ] Tests `python/tests/gnss/neo6_test_linux_i2c.py` (Linux — I²C/DDC)
-- [ ] Tests `python/tests/gnss/neo6_test_linux_spi.py` (Linux — SPI)
+- [x] Driver `python/periph/chips/gnss/neo6.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/gnss/neo6/minimal.py` — Tier-1 signature comment on every call (UART transport; comment shows DDC/SPI swap)
+- [x] Examples `python/examples/gnss/neo6/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/gnss/neo6/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/gnss/neo6_test.py` (MicroPython — UART)
+- [x] Tests `python/tests/gnss/neo6_test_cp.py` (CircuitPython — UART)
+- [x] Tests `python/tests/gnss/neo6_test_linux_uart.py` (Linux — UART)
+- [x] Tests `python/tests/gnss/neo6_test_linux_i2c.py` (Linux — I²C/DDC)
+- [x] Tests `python/tests/gnss/neo6_test_linux_spi.py` (Linux — SPI)
 
 ### C++
 - [ ] Driver `cpp/src/chips/gnss/NEO6.h` — Doxygen `/** @brief */` on every class and public method
