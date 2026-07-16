@@ -14,11 +14,11 @@ npm install node-red-contrib-periph-io-expander
 
 ## Nodes
 
-| Node | Description |
-|------|-------------|
-| `periph-mcp23017` | Read/write MCP23017 16-bit GPIO expander |
-| `periph-pcf8574` | Read/write PCF8574 8-bit GPIO expander |
-| `periph-pcf8575` | Read/write PCF8575 16-bit GPIO expander |
+| Node | Kind | Description |
+|------|------|-------------|
+| `periph-mcp23017` | input | Controls and reads a 16-bit MCP23017 I/O expander over I²C. |
+| `periph-pcf8574` | input | Controls and reads an 8-bit PCF8574 I/O expander over I²C. |
+| `periph-pcf8575` | input | Controls and reads a 16-bit PCF8575 I/O expander over I²C. |
 
 ## Links
 

@@ -30,18 +30,28 @@ Each chip exposes two classes:
 
 | Chip | Category | Require path |
 |------|----------|-------------|
+| 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
+| APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
-| BMP180 | Pressure | `periph/src/chips/pressure/bmp180` |
-| BMP280 | Pressure | `periph/src/chips/pressure/bmp280` |
+| BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
+| BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
+| BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
+| BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
+| ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
+| HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
-| INA3221 | Power monitor (3-ch) | `periph/src/chips/power/ina3221` |
-| MCP23017 | IO expander (16-bit) | `periph/src/chips/io_expander/mcp23017` |
-| MCP4725 | 12-bit DAC | `periph/src/chips/adc_dac/mcp4725` |
-| PCF8574 | IO expander (8-bit) | `periph/src/chips/io_expander/pcf8574` |
-| PCF8575 | IO expander (16-bit) | `periph/src/chips/io_expander/pcf8575` |
-| SK6812RGBW | LED (addressable RGBW) | `periph/src/chips/led/sk6812rgbw` |
-| WS2812B | LED (addressable RGB) | `periph/src/chips/led/ws2812b` |
+| INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
+| MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
+| MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
+| MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
+| MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
+| PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
+| PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
+| PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
+| SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 
 ## Links
 

@@ -95,6 +95,9 @@ jobs:
           node -e "const m = require('./nodejs/packages/periph/src/chips/power/ina226'); \
                    if (!m.INA226Minimal || !m.INA226Full) process.exit(1)"
 
+      - name: Check periph / Node-RED package READMEs are up to date
+        run: node nodejs/scripts/generate-readmes.js --check
+
   # -----------------------------------------------------------------------
   # Java / Kotlin / Groovy — compile-only (no hardware required)
   # -----------------------------------------------------------------------

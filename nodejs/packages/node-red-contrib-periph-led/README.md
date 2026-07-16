@@ -1,6 +1,6 @@
 # node-red-contrib-periph-led
 
-Node-RED nodes for addressable LED chips — part of the [Periph](https://github.com/tuhde/Periph) library.
+Node-RED nodes for LED driver chips — part of the [Periph](https://github.com/tuhde/Periph) library.
 
 ## Install
 
@@ -16,10 +16,10 @@ npm install node-red-contrib-periph-led
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `sk6812rgbw-device` | config | SPI bus and strand length for SK6812RGBW |
-| `periph-sk6812rgbw` | output | Write RGBW pixel data to an SK6812RGBW strand |
-| `ws2812b-device` | config | SPI bus and strand length for WS2812B |
-| `periph-ws2812b` | output | Write RGB pixel data to a WS2812B strand |
+| `sk6812rgbw-device` | config | SPI bus and device index for a SK6812RGBW |
+| `periph-sk6812rgbw` | output | Controls an SK6812RGBW addressable RGBW LED strip over SPI (NeoPixel protocol). |
+| `ws2812b-device` | config | SPI bus and device index for a WS2812B |
+| `periph-ws2812b` | output | Controls a WS2812B addressable RGB LED strip over SPI (NeoPixel protocol). |
 
 ## Links
 
