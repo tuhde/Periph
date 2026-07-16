@@ -383,5 +383,5 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `jvm/tests/gnss/neo6/Neo6Test.java`
 
 ### Sigrok
-- [ ] Decoder `sigrok/neo6/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/neo6/pd.py` — annotates NMEA sentence fields (sentence ID, lat, lon, fix, sats, HDOP, speed, course, UTC time/date); produces `OUTPUT_ANN` only
+- [x] Decoder `sigrok/neo6/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/neo6/pd.py` — annotates NMEA sentence fields (sentence ID, lat, lon, fix, sats, HDOP, speed, course, UTC time/date); produces `OUTPUT_ANN` only
