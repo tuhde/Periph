@@ -5,7 +5,8 @@
   "keywords": ["node-red", "adc-dac", "i2c", "spi", "sensor", "peripheral"],
   "node-red": {
     "nodes": {
-      "mcp4725": "nodes/mcp4725/mcp4725.js"
+      "mcp4725": "nodes/mcp4725/mcp4725.js",
+      "pcf8591": "nodes/pcf8591/pcf8591.js"
     }
   },
   "dependencies": {

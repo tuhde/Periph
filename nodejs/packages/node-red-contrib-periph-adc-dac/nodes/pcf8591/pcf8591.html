@@ -1,0 +1,68 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8591', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '48', required: true },
+            inputMode: { value: '4 single-ended' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || 'PCF8591'; },
+        paletteLabel: 'PCF8591'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8591">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8591">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="48" style="width:80px"> &nbsp;default: 48 (0x48)
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputMode"><i class="fa fa-cog"></i> Input mode</label>
+        <select id="node-input-inputMode" style="width:200px">
+            <option value="4 single-ended">4 single-ended</option>
+            <option value="3 differential">3 differential</option>
+            <option value="mixed">mixed</option>
+            <option value="2 differential">2 differential</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8591">
+    <p>Reads the four analog inputs of a PCF8591 8-bit ADC/DAC over I²C. Default address is <code>0x48</code>; any address in the range <code>0x48</code>–<code>0x4F</code> is valid depending on the A0/A1/A2 pin states.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a read of all four channels.</dd>
+        <dt>payload.dac <span class="property-type">number</span> (optional)</dt>
+        <dd>If set, the value (0–255) is written to the on-chip DAC before the ADC read.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.ch0 <span class="property-type">number</span></dt>
+        <dd>Raw 8-bit ADC value of channel 0 (0–255).</dd>
+        <dt>payload.ch1 <span class="property-type">number</span></dt>
+        <dd>Raw 8-bit ADC value of channel 1 (0–255).</dd>
+        <dt>payload.ch2 <span class="property-type">number</span></dt>
+        <dd>Raw 8-bit ADC value of channel 2 (0–255).</dd>
+        <dt>payload.ch3 <span class="property-type">number</span></dt>
+        <dd>Raw 8-bit ADC value of channel 3 (0–255).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x48</code>), and the analog input mode (default: 4 single-ended inputs).</p>
+</script>
