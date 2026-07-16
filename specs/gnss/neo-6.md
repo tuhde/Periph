@@ -358,14 +358,14 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Demo flow `nodejs/packages/node-red-contrib-periph-gnss/examples/neo6/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/gnss/neo6.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/neo6_minimal/src/main.rs` — Tier-1 (UART; comment shows DDC/SPI swap)
-- [ ] Examples `rust/examples/neo6_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/neo6_demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/gnss/neo6_test_uart/src/main.rs` (Linux — UART)
-- [ ] Tests `rust/tests/gnss/neo6_test_i2c/src/main.rs` (Linux — I²C)
-- [ ] Tests `rust/tests/gnss/neo6_test_spi/src/main.rs` (Linux — SPI)
-- [ ] Tests `rust/tests/gnss/neo6_test_esp32s3/src/main.rs` (ESP32-S3 — UART)
+- [x] Driver `rust/periph/src/chips/gnss/neo6.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/neo6_minimal/src/main.rs` — Tier-1 (UART; comment shows DDC/SPI swap)
+- [x] Examples `rust/examples/neo6_complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/neo6_demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/gnss/neo6_test_uart/src/main.rs` (Linux — UART)
+- [x] Tests `rust/tests/gnss/neo6_test_i2c/src/main.rs` (Linux — I²C)
+- [x] Tests `rust/tests/gnss/neo6_test_spi/src/main.rs` (Linux — SPI)
+- [x] Tests `rust/tests/gnss/neo6_test_esp32s3/src/main.rs` (ESP32-S3 — UART; written against the ina226 esp32s3 template but not compiled — no esp toolchain in this sandbox, crate is workspace-excluded)
 
 ### JVM
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/gnss/Neo6.java` — Javadoc on every class and public method
