@@ -1,0 +1,98 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-neo6', {
+        category: 'periph',
+        color: '#a6d8ff',
+        defaults: {
+            name:    { value: '' },
+            busType: { value: 'uart', required: true },
+            port:    { value: '/dev/ttyS0' },
+            baud:    { value: '9600', validate: RED.validators.number() },
+            bus:     { value: '1', validate: RED.validators.number() },
+            device:  { value: '0', validate: RED.validators.number() },
+            addr:    { value: '0x42' }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-map-marker',
+        label: function() {
+            return this.name || 'NEO-6 (' + this.busType + ')';
+        },
+        oneditprepare: function() {
+            function updateVisibility() {
+                const busType = $('#node-input-busType').val();
+                $('.neo6-uart-row').toggle(busType === 'uart');
+                $('.neo6-i2c-row').toggle(busType === 'i2c');
+                $('.neo6-spi-row').toggle(busType === 'spi');
+            }
+            $('#node-input-busType').on('change', updateVisibility);
+            updateVisibility();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-neo6">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="NEO-6">
+    </div>
+    <div class="form-row">
+        <label for="node-input-busType"><i class="fa fa-random"></i> Transport</label>
+        <select id="node-input-busType" style="width:150px">
+            <option value="uart">UART</option>
+            <option value="i2c">I&sup2;C (DDC)</option>
+            <option value="spi">SPI</option>
+        </select>
+    </div>
+    <div class="form-row neo6-uart-row">
+        <label for="node-input-port"><i class="fa fa-plug"></i> Serial port</label>
+        <input type="text" id="node-input-port" placeholder="/dev/ttyS0">
+    </div>
+    <div class="form-row neo6-uart-row">
+        <label for="node-input-baud"><i class="fa fa-tachometer"></i> Baud rate</label>
+        <input type="number" id="node-input-baud" style="width:100px">
+    </div>
+    <div class="form-row neo6-i2c-row neo6-spi-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> Bus number</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px">
+    </div>
+    <div class="form-row neo6-spi-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI CS/device</label>
+        <input type="number" id="node-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row neo6-i2c-row">
+        <label for="node-input-addr"><i class="fa fa-microchip"></i> I&sup2;C address</label>
+        <input type="text" id="node-input-addr" style="width:100px" placeholder="0x42">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-neo6">
+    <p>Reads NMEA position, altitude, and fix status from a u-blox NEO-6 GNSS receiver over UART, I&sup2;C (DDC), or SPI.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers the node to drain currently buffered bytes and report the latest parsed fix.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.lat <span class="property-type">number | null</span></dt>
+        <dd>Latitude in decimal degrees, positive north. <code>null</code> until a fix is acquired.</dd>
+        <dt>payload.lon <span class="property-type">number | null</span></dt>
+        <dd>Longitude in decimal degrees, positive east. <code>null</code> until a fix is acquired.</dd>
+        <dt>payload.alt <span class="property-type">number | null</span></dt>
+        <dd>Altitude above mean sea level, in meters.</dd>
+        <dt>payload.fix <span class="property-type">number</span></dt>
+        <dd>GGA fix quality: 0 = no fix, 1 = GPS, 2 = DGPS.</dd>
+        <dt>payload.satellites <span class="property-type">number</span></dt>
+        <dd>Number of satellites used in the fix.</dd>
+        <dt>payload.speed <span class="property-type">number | null</span></dt>
+        <dd>Speed over ground in m/s.</dd>
+        <dt>payload.course <span class="property-type">number | null</span></dt>
+        <dd>Course over ground in degrees, 0-360.</dd>
+        <dt>payload.time / payload.date <span class="property-type">string | null</span></dt>
+        <dd>UTC time (<code>hhmmss.ss</code>) and date (<code>ddmmyy</code>) of the last fix sentence.</dd>
+        <dt>payload.hdop <span class="property-type">number | null</span></dt>
+        <dd>Horizontal dilution of precision.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>Select the transport (UART, I&sup2;C/DDC, or SPI) and set the matching serial port / bus number / I&sup2;C address (default <code>0x42</code>). Achieving a fix requires a clear sky view and can take up to ~26 s (cold start).</p>
+</script>

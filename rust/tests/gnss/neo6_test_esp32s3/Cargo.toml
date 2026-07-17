@@ -1,0 +1,24 @@
+[package]
+name = "neo6_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "neo6_test_esp32s3"
+path = "src/main.rs"
+
+[dependencies]
+periph                  = { path = "../../../periph" }
+esp-hal                 = { version = "1.1", features = ["esp32s3"] }
+esp-backtrace           = { version = "0.19", features = ["esp32s3", "panic-handler", "println"] }
+esp-println             = { version = "0.17", features = ["esp32s3"] }
+esp-bootloader-esp-idf  = { version = "0.5", features = ["esp32s3"] }
+
+[profile.dev]
+opt-level = "s"
+debug = true
+
+[profile.release]
+opt-level = "s"
+debug = true
+lto = "off"

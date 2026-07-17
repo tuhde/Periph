@@ -51,6 +51,13 @@ public:
      */
     void read(uint8_t* buf, size_t len) override;
 
+    /** @brief Number of bytes currently buffered in the kernel RX buffer,
+     *         available to read() without blocking. Returns 0 (rather than
+     *         throwing) if the underlying ioctl() fails.
+     *  @return Byte count currently queued.
+     */
+    size_t available() const override;
+
     /** @brief Transmit then receive; DE is asserted only during transmit.
      *  @param data     Command bytes to send.
      *  @param data_len Number of bytes in @p data.

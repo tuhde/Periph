@@ -1,0 +1,75 @@
+[
+    {
+        "id": "neo6-tab-1",
+        "type": "tab",
+        "label": "NEO-6 GPS Logger Demo",
+        "disabled": false,
+        "info": "Injects a timestamp trigger every second into the periph-neo6 node, which reads the current NMEA fix over UART. A Function node formats the output as a '$lat,$lon' CSV string once a fix is available (and shows a waiting indicator with the satellite count while there is none), feeding a WorldMap node that plots the live position. A Debug node logs the full raw fix object (lat, lon, alt, fix, satellites, speed, course, time, date, hdop) to the sidebar.\n\nCold-start TTFF is ~26 s typical outdoors with a clear sky view; the fix quality field stays 0 until then, so expect the WorldMap marker to appear a little after the flow is deployed.",
+        "locked": false
+    },
+    {
+        "id": "neo6-read-1",
+        "type": "periph-neo6",
+        "z": "neo6-tab-1",
+        "name": "NEO-6 GPS",
+        "busType": "uart",
+        "port": "/dev/ttyS0",
+        "baud": "9600",
+        "bus": "1",
+        "device": "0",
+        "addr": "0x42",
+        "x": 260,
+        "y": 200,
+        "wires": [["neo6-format-1", "debug-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "z": "neo6-tab-1",
+        "name": "Every second",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "x": 80,
+        "y": 200,
+        "wires": [["neo6-read-1"]]
+    },
+    {
+        "id": "neo6-format-1",
+        "type": "function",
+        "z": "neo6-tab-1",
+        "name": "Format as CSV",
+        "func": "if (msg.payload.fix === 0) {\n    node.status({ fill: 'yellow', shape: 'ring', text: 'waiting for fix (' + msg.payload.satellites + ' sats)' });\n    return null;\n}\nnode.status({ fill: 'green', shape: 'dot', text: 'fix: ' + msg.payload.fix });\nmsg.payload = msg.payload.lat.toFixed(6) + ',' + msg.payload.lon.toFixed(6);\nreturn msg;",
+        "outputs": 1,
+        "x": 480,
+        "y": 240,
+        "wires": [["worldmap-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "z": "neo6-tab-1",
+        "name": "Raw fix data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "worldmap-1",
+        "type": "worldmap",
+        "z": "neo6-tab-1",
+        "name": "GPS logger position",
+        "x": 700,
+        "y": 240,
+        "wires": []
+    }
+]
