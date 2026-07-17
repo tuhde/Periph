@@ -85,25 +85,98 @@ $GPGGA,hhmmss.ss,lat,N,lon,E,FS,NoSV,HDOP,msl,M,Altref,M,DiffAge,DiffStation*cs<
 | 8 | HDOP | Horizontal dilution of precision |
 | 9–10 | MSL Altitude | Meters above mean sea level |
 | 11–12 | Geoid Separation | Meters |
+| 13 | Age of Diff Corr | Seconds since last DGPS update; blank if not using DGPS |
+| 14 | Diff Station ID | Reference station ID, 0000–1023; blank if not using DGPS |
 
 **RMC — Recommended Minimum Data**
 
 ```
-$GPRMC,hhmmss.ss,status,lat,N,lon,E,spd,cog,ddmmyy,,,mode*cs<CR><LF>
+$GPRMC,hhmmss.ss,status,lat,N,lon,E,spd,cog,ddmmyy,mv,mvE,mode*cs<CR><LF>
 ```
 
 | Field | Name | Description |
 |-------|------|-------------|
+| 1 | UTC Time | `hhmmss.ss` |
 | 2 | Status | A=valid, V=warning |
+| 3–4 | Latitude | `ddmm.mmmm,N` (degrees + decimal minutes, N/S) |
+| 5–6 | Longitude | `dddmm.mmmm,E` (degrees + decimal minutes, E/W) |
 | 7 | Speed | Knots over ground (must convert to m/s: × 0.514444) |
 | 8 | Course | Degrees over ground, 0–360 |
 | 9 | Date | `ddmmyy` |
+| 10–11 | Magnetic Variation | Degrees + E/W; blank if not available |
+| 12 | Mode | A=autonomous, D=DGPS, E=estimated, N=not valid (NMEA 2.3+; blank on older firmware) |
 
-**GSA** — DOP and active satellites (PDOP, HDOP, VDOP, fix type 1/2/3)  
-**GSV** — Satellites in view (PRN, elevation °, azimuth °, SNR dBHz per SV)  
-**VTG** — Course and speed over ground (also gives speed in km/h)  
-**GLL** — Latitude/longitude with status  
-**TXT** — Text messages (startup notices, software version)
+**GSA — DOP and Active Satellites**
+
+```
+$GPGSA,mode1,mode2,sv1,sv2,...,sv12,PDOP,HDOP,VDOP*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Selection Mode | M=manual, A=automatic |
+| 2 | Fix Type | 1=no fix, 2=2D, 3=3D |
+| 3–14 | Satellites Used | PRN of each satellite in the solution (up to 12 slots; blank where unused) |
+| 15 | PDOP | Position dilution of precision |
+| 16 | HDOP | Horizontal dilution of precision |
+| 17 | VDOP | Vertical dilution of precision |
+
+**GSV — Satellites in View**
+
+```
+$GPGSV,numMsg,msgNum,numSV,{PRN,elev,azim,SNR}×4*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Number of Messages | Total sentences in this GSV group |
+| 2 | Message Number | Sequence number within the group (1-based) |
+| 3 | Satellites in View | Total count across the whole group |
+| 4, 8, 12, 16 | Satellite PRN | Satellite ID, one per SV block (up to 4 blocks per sentence) |
+| 5, 9, 13, 17 | Elevation | Degrees, 0–90 |
+| 6, 10, 14, 18 | Azimuth | Degrees, 0–359 |
+| 7, 11, 15, 19 | SNR | dBHz, 0–99; blank if not tracking |
+
+**VTG — Course and Speed Over Ground**
+
+```
+$GPVTG,cogt,T,cogm,M,sogn,N,sogk,K,mode*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1–2 | Course (True) | Degrees, `T` reference |
+| 3–4 | Course (Magnetic) | Degrees, `M` reference; blank if not available |
+| 5–6 | Speed | Knots, `N` unit |
+| 7–8 | Speed | km/h, `K` unit (must convert to m/s: ÷ 3.6) |
+| 9 | Mode | A=autonomous, D=DGPS, E=estimated, N=not valid (NMEA 2.3+; blank on older firmware) |
+
+**GLL — Latitude/Longitude**
+
+```
+$GPGLL,lat,N,lon,E,hhmmss.ss,status,mode*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1–2 | Latitude | `ddmm.mmmm,N` (degrees + decimal minutes, N/S) |
+| 3–4 | Longitude | `dddmm.mmmm,E` (degrees + decimal minutes, E/W) |
+| 5 | UTC Time | `hhmmss.ss` |
+| 6 | Status | A=valid, V=invalid |
+| 7 | Mode | A=autonomous, D=DGPS, E=estimated, N=not valid (NMEA 2.3+; blank on older firmware) |
+
+**TXT — Text Transmission**
+
+```
+$GPTXT,numMsg,msgNum,msgType,text*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Number of Messages | Total sentences in this TXT group |
+| 2 | Message Number | Sequence number within the group |
+| 3 | Severity | 00=error, 01=warning, 02=notice, 07=user |
+| 4 | Text | Free-form ASCII message (startup notice, firmware version, etc.) |
 
 ### NMEA Coordinate Conversion
 
@@ -116,6 +189,99 @@ decimal_degrees = floor(raw / 100) + (raw mod 100) / 60
 Apply a negative sign for `S` latitude or `W` longitude.
 
 Example: `4717.11399,N` → 47 + 17.11399 / 60 = 47.285233°
+
+### PUBX Proprietary Sentences
+
+u-blox NEO-6 modules also support u-blox-proprietary NMEA-framed sentences, identified by the address field `PUBX` (`P` = proprietary, `UBX` = manufacturer mnemonic) instead of a talker ID + 3-letter sentence ID. The first data field after the address carries a 2-digit message ID identifying the sentence type. These share the ASCII `$...*XX<CR><LF>` framing and checksum with standard NMEA but are not part of the default sentence set — the three output messages (00, 03, 04) are enabled individually via UBX CFG-MSG on class `0xF1` (e.g. `0xF1 0x00` enables PUBX,00); 40 and 41 are host→receiver configuration commands, always accepted as input regardless of CFG-MSG state.
+
+**PUBX,00 — POSITION** (output)
+
+```
+$PUBX,00,hhmmss.ss,lat,N,long,E,altRef,navStat,hAcc,vAcc,SOG,COG,vVel,ageC,HDOP,VDOP,TDOP,numSvs,reserved,DR*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | UTC Time | `hhmmss.ss` |
+| 2–3 | Latitude | `ddmm.mmmmm,N` (degrees + decimal minutes, N/S) |
+| 4–5 | Longitude | `dddmm.mmmmm,E` (degrees + decimal minutes, E/W) |
+| 6 | Altitude | Meters above the WGS84 ellipsoid |
+| 7 | Nav Status | `NF`=no fix, `DR`=dead reckoning only, `G2`=2D GPS, `G3`=3D GPS, `D2`=2D differential, `D3`=3D differential, `RK`=GPS+DR combined, `TT`=time only |
+| 8 | Horizontal Accuracy | Meters |
+| 9 | Vertical Accuracy | Meters |
+| 10 | Speed Over Ground | km/h (must convert to m/s: ÷ 3.6) |
+| 11 | Course Over Ground | Degrees, 0–360 |
+| 12 | Vertical Velocity | m/s, downward positive |
+| 13 | Age of Diff Corrections | Seconds; blank if not using DGPS |
+| 14 | HDOP | Horizontal dilution of precision |
+| 15 | VDOP | Vertical dilution of precision |
+| 16 | TDOP | Time dilution of precision |
+| 17 | Satellites Used | Count |
+| 18 | Reserved | — |
+| 19 | Dead Reckoning | 0=not used, 1=used |
+
+**PUBX,03 — SVSTATUS** (output)
+
+```
+$PUBX,03,numSv,{sv,status,azi,ele,cno,lck}×numSv*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Number of Satellites | Count of `{sv,status,azi,ele,cno,lck}` blocks that follow |
+| 2, 8, 14, ... | Satellite ID | SV PRN (GPS 1–32, SBAS 120–158, ...) |
+| 3, 9, 15, ... | Status | `-`=not used, `U`=used in solution, `e`=ephemeris available but not used |
+| 4, 10, 16, ... | Azimuth | Degrees, 0–359 |
+| 5, 11, 17, ... | Elevation | Degrees, 0–90 |
+| 6, 12, 18, ... | SNR | dBHz |
+| 7, 13, 19, ... | Lock Time | Seconds, capped at 63 |
+
+**PUBX,04 — TIME** (output)
+
+```
+$PUBX,04,hhmmss.ss,ddmmyy,utcTow,utcWk,leapSec,clkBias,clkDrift,tpGran*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | UTC Time | `hhmmss.ss` |
+| 2 | UTC Date | `ddmmyy` |
+| 3 | UTC Time of Week | Seconds |
+| 4 | UTC Week Number | GPS week |
+| 5 | Leap Seconds | Trailing `D` if the value is a firmware default rather than receiver-confirmed |
+| 6 | Clock Bias | Nanoseconds |
+| 7 | Clock Drift | ns/s |
+| 8 | Time Pulse Granularity | Nanoseconds |
+
+**PUBX,40 — RATE** (input, configures NMEA sentence rates)
+
+```
+$PUBX,40,msgId,rddc,rus1,rus2,rusb,rspi,reserved*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Message ID | Target NMEA sentence: 00=GGA, 01=GLL, 02=GSA, 03=GSV, 04=RMC, 05=VTG, 06=GRS, 07=GST, 08=ZDA, 09=GBS |
+| 2 | Rate on DDC | Output every N navigation cycles, 0=off |
+| 3 | Rate on UART1 | Output every N navigation cycles, 0=off |
+| 4 | Rate on UART2 | Output every N navigation cycles, 0=off |
+| 5 | Rate on USB | Output every N navigation cycles, 0=off |
+| 6 | Rate on SPI | Output every N navigation cycles, 0=off |
+| 7 | Reserved | — |
+
+**PUBX,41 — CONFIG** (input, configures port protocol/baud rate)
+
+```
+$PUBX,41,portId,inProto,outProto,baudrate,autobauding*cs<CR><LF>
+```
+
+| Field | Name | Description |
+|-------|------|-------------|
+| 1 | Port ID | 0=DDC, 1=UART1, 2=UART2, 3=USB, 4=SPI |
+| 2 | Input Protocols | Hex bitmask: bit 0=UBX, bit 1=NMEA, bit 5=RTCM |
+| 3 | Output Protocols | Hex bitmask: bit 0=UBX, bit 1=NMEA |
+| 4 | Baud Rate | bd (UART ports only) |
+| 5 | Autobauding | 0=disabled, 1=enabled |
 
 ### UBX Protocol
 
@@ -168,6 +334,135 @@ Key messages used by the driver:
 | 12 | U4 | msss | ms since startup/reset |
 
 **Important:** `gpsFix` alone does not confirm a valid position. The `gpsFixOk` flag in `flags` must also be set.
+
+**NAV-SOL payload (52 bytes):**
+
+| Offset | Type | Scale | Name | Unit | Description |
+|--------|------|-------|------|------|-------------|
+| 0 | U4 | — | iTOW | ms | GPS millisecond time of week |
+| 4 | I4 | — | fTOW | ns | Fractional part of iTOW |
+| 8 | I2 | — | week | — | GPS week number |
+| 10 | U1 | — | gpsFix | — | Fix type (same encoding as NAV-STATUS `gpsFix`) |
+| 11 | X1 | — | flags | — | Fix status bitmask |
+| 12 | I4 | — | ecefX | cm | ECEF X coordinate |
+| 16 | I4 | — | ecefY | cm | ECEF Y coordinate |
+| 20 | I4 | — | ecefZ | cm | ECEF Z coordinate |
+| 24 | U4 | — | pAcc | cm | 3D position accuracy estimate |
+| 28 | I4 | — | ecefVX | cm/s | ECEF X velocity |
+| 32 | I4 | — | ecefVY | cm/s | ECEF Y velocity |
+| 36 | I4 | — | ecefVZ | cm/s | ECEF Z velocity |
+| 40 | U4 | — | sAcc | cm/s | Speed accuracy estimate |
+| 44 | U2 | 0.01 | pDOP | — | Position dilution of precision |
+| 46 | U1 | — | reserved1 | — | Reserved |
+| 47 | U1 | — | numSV | — | Number of satellites used in the solution |
+| 48 | U4 | — | reserved2 | — | Reserved |
+
+**NAV-SVINFO payload (8-byte header + 12 bytes × `numCh`):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U4 | iTOW | GPS ms time of week |
+| 4 | U1 | numCh | Number of channels (repeat blocks) that follow |
+| 5 | X1 | globalFlags | Chip type indicator |
+| 6 | U2 | reserved2 | Reserved |
+
+Per-channel repeat block (12 bytes, `numCh` times, starting at offset 8):
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| +0 | U1 | chn | Channel number |
+| +1 | U1 | svid | Satellite ID |
+| +2 | X1 | flags | svUsed / diffCorr / orbitAvail / orbitEph / unhealthy / orbitAlm / orbitAop / smoothed bitmask |
+| +3 | X1 | quality | Signal quality indicator |
+| +4 | U1 | cno | Signal strength, dBHz |
+| +5 | I1 | elev | Elevation, degrees |
+| +6 | I2 | azim | Azimuth, degrees |
+| +8 | I4 | prRes | Pseudorange residual, cm |
+
+**CFG-PRT payload (poll: 0 or 1 bytes; set/response: 20 bytes):**
+
+A 0-byte payload polls all ports; a 1-byte payload (`portID`) polls one port. The 20-byte form:
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U1 | portID | 0=DDC, 1=UART1, 4=SPI |
+| 1 | U1 | reserved0 | Reserved |
+| 2 | X2 | txReady | TX-ready pin configuration bitmask |
+| 4 | X4 | mode | Port-specific mode bitfield (UART: char length/parity/stop bits; DDC: slave address; SPI: SPI mode) |
+| 8 | U4 | baudRate | Baud rate, bd (UART only; meaningless for DDC/SPI) |
+| 12 | X2 | inProtoMask | Input protocols enabled (bit 0=UBX, bit 1=NMEA) |
+| 14 | X2 | outProtoMask | Output protocols enabled (bit 0=UBX, bit 1=NMEA) |
+| 16 | X2 | flags | Extended TX timeout flag |
+| 18 | X2 | reserved5 | Reserved |
+
+**CFG-MSG payload (poll: 2 bytes; set short: 3 bytes; set long: 8 bytes):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U1 | msgClass | Class of the message to (de)configure |
+| 1 | U1 | msgID | ID of the message to (de)configure |
+| 2 | U1 | rate | Send rate on the current target port (3-byte set form only) |
+| 2–7 | U1×6 | rate[6] | Send rate per port: DDC, UART1, UART2, USB, SPI, reserved (8-byte set form only) |
+
+**CFG-RATE payload (6 bytes):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U2 | measRate | Measurement rate, ms |
+| 2 | U2 | navRate | Navigation rate, cycles (always 1 on NEO-6) |
+| 4 | U2 | timeRef | 0=UTC, 1=GPS |
+
+**CFG-NAV5 payload (36 bytes):**
+
+| Offset | Type | Scale | Name | Unit | Description |
+|--------|------|-------|------|------|-------------|
+| 0 | X2 | — | mask | — | Parameters bitmask (which fields below apply) |
+| 2 | U1 | — | dynModel | — | Dynamic platform model, 0–8 |
+| 3 | U1 | — | fixMode | — | 1=2D only, 2=3D only, 3=auto 2D/3D |
+| 4 | I4 | 0.01 | fixedAlt | m | Fixed altitude for 2D fix mode |
+| 8 | U4 | 0.0001 | fixedAltVar | m² | Fixed altitude variance |
+| 12 | I1 | — | minElev | deg | Minimum satellite elevation |
+| 13 | U1 | — | drLimit | s | Dead reckoning time limit |
+| 14 | U2 | 0.1 | pDop | — | Position DOP mask |
+| 16 | U2 | 0.1 | tDop | — | Time DOP mask |
+| 18 | U2 | — | pAcc | m | Position accuracy mask |
+| 20 | U2 | — | tAcc | m | Time accuracy mask |
+| 22 | U1 | — | staticHoldThresh | cm/s | Static hold threshold |
+| 23 | U1 | — | dgpsTimeOut | s | DGPS timeout |
+| 24 | U4 | — | reserved2 | — | Reserved |
+| 28 | U4 | — | reserved3 | — | Reserved |
+| 32 | U4 | — | reserved4 | — | Reserved |
+
+**CFG-CFG payload (12 bytes, or 13 with the optional device mask):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | X4 | clearMask | Sections to clear to firmware defaults |
+| 4 | X4 | saveMask | Sections to save to non-volatile storage |
+| 8 | X4 | loadMask | Sections to load from non-volatile storage |
+| 12 | X1 | deviceMask | Target storage devices (optional 13th byte) |
+
+**CFG-RST payload (4 bytes):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | X2 | navBbrMask | BBR sections to clear |
+| 2 | U1 | resetMode | 0x00=hardware reset, 0x01=controlled software reset, 0x02=controlled software reset (GNSS only), 0x04=hardware reset after shutdown, 0x08=controlled GNSS stop, 0x09=controlled GNSS start |
+| 3 | U1 | reserved1 | Reserved |
+
+**CFG-RXM payload (2 bytes):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U1 | reserved1 | Reserved |
+| 1 | U1 | lpMode | 0=max performance, 1=power save |
+
+**ACK-ACK / ACK-NAK payload (2 bytes):**
+
+| Offset | Type | Name | Description |
+|--------|------|------|-------------|
+| 0 | U1 | clsID | Class ID of the acknowledged/rejected message |
+| 1 | U1 | msgID | Message ID of the acknowledged/rejected message |
 
 ## Initialization Sequence
 
@@ -309,7 +604,16 @@ A portable GPS logger that reads position once per second and writes fix data to
 
 ## Sigrok Decoder
 
-The NEO-6 does not expose a traditional register-mapped bus; the sigrok decoder operates on the byte stream rather than individual registers. For UART captures, use the sigrok `uart` decoder with 9600 8N1, then a custom `neo6_nmea` upper-level decoder that matches the talker ID `GP`, sentence IDs `GGA`/`RMC`/`GSA`/`GSV`, and annotates each comma-separated field with its name and parsed value (decimal-degree coordinates, m/s speed, UTC time). For DDC (I²C) captures, use the sigrok `i2c` decoder with address filter `0x42`, then the same `neo6_nmea` upper-level decoder on the read data bytes, skipping `0xFF` filler.
+The NEO-6 does not expose a traditional register-mapped bus; the sigrok decoder operates on the byte stream rather than individual registers, and the same UART/DDC/SPI byte stream can interleave both protocols the module supports (NMEA ASCII and UBX binary), so the decoder recognises both framings on one input.
+
+For UART captures, use the sigrok `uart` decoder with 9600 8N1, then a custom `neo6_nmea` upper-level decoder that:
+
+- Matches NMEA sentences by talker ID `GP` (framed `$`...`*XX<CR><LF>`) and annotates **every** comma-separated field of **every** sentence type the module emits at its default configuration — GGA, RMC, GSA, GSV, VTG, GLL, TXT — with its name and parsed value: decimal-degree coordinates, m/s speed, ISO 8601 time (`HH:MM:SSZ`) and date (`YYYY-MM-DD`), per-satellite PRN/elevation/azimuth/SNR for GSV, PRN list and PDOP/HDOP/VDOP for GSA, and decoded mode/severity enums where the sentence carries one. Every field is emitted on every occurrence of its sentence, even with no fix — missing values render as `n/a` rather than being omitted. Any NMEA sentence type outside this default set still gets a sentence-level annotation without field breakdown.
+- Matches the proprietary `PUBX` address field (same `$`...`*XX<CR><LF>` framing/checksum) and annotates every field of all five PUBX message types — 00 POSITION, 03 SVSTATUS, 04 TIME, 40 RATE, 41 CONFIG — per the payload tables above, with the same `n/a`/ISO 8601/SI conventions used for standard NMEA. Any other PUBX message ID still gets a sentence-level annotation without field breakdown.
+- Matches UBX binary frames (framed `0xB5 0x62 CLASS ID LENGTH(2B LE) PAYLOAD CK_A CK_B`), validates the 8-bit Fletcher checksum, and annotates every payload field of the driver's key messages — NAV-POSLLH, NAV-STATUS, NAV-SOL, NAV-SVINFO, CFG-PRT, CFG-MSG, CFG-RATE, CFG-NAV5, CFG-CFG, CFG-RST, CFG-RXM, ACK-ACK, ACK-NAK — per the payload tables above, with the same unit conversions (mm→m, cm→m or cm/s, 1e-7°→°) and enum decoding used elsewhere in this decoder. Any other class/ID still gets a sentence-level annotation (class, ID, payload length) with the raw payload shown as hex, but no field breakdown.
+- Emits a warning annotation for any NMEA or PUBX sentence that fails checksum validation or has a malformed address/sentence-ID field, or any UBX frame that fails its checksum, instead of raising.
+
+For DDC (I²C) captures, use the sigrok `i2c` decoder with address filter `0x42`, then the same `neo6_nmea` upper-level decoder on the read data bytes, skipping `0xFF` filler.
 
 ## Implementation Checklist
 
@@ -384,4 +688,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [x] Decoder `sigrok/neo6/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [x] Decoder `sigrok/neo6/pd.py` — annotates NMEA sentence fields (sentence ID, lat, lon, fix, sats, HDOP, speed, course, UTC time/date); produces `OUTPUT_ANN` only
+- [x] Decoder `sigrok/neo6/pd.py` — annotates every field of every default-configuration NMEA sentence type (GGA, RMC, GSA, GSV, VTG, GLL, TXT) with long/short forms, ISO 8601 time/date, SI units, and `n/a` for missing/no-fix values; also recognises the proprietary PUBX sentences (00 POSITION, 03 SVSTATUS, 04 TIME, 40 RATE, 41 CONFIG) with the same field-level detail; also recognises UBX binary frames, validates the Fletcher checksum, and annotates every payload field of the driver's key UBX messages (NAV-POSLLH, NAV-STATUS, NAV-SOL, NAV-SVINFO, CFG-PRT, CFG-MSG, CFG-RATE, CFG-NAV5, CFG-CFG, CFG-RST, CFG-RXM, ACK-ACK, ACK-NAK); produces `OUTPUT_ANN` only
