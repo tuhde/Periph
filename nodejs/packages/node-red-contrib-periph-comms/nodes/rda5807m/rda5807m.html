@@ -1,0 +1,98 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-rda5807m', {
+        category: 'Peripheral',
+        color: '#a6bbcf',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            address:   { value: '10', required: true },
+            band:      { value: '2', required: true },
+            space:     { value: '0', required: true },
+            frequency: { value: '100.0', required: true, validate: RED.validators.number() },
+            volume:    { value: '8', required: true, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-rss',
+        label: function() { return this.name || 'RDA5807M'; },
+        paletteLabel: 'RDA5807M'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-rda5807m">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RDA5807M">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I&sup2;C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="10" style="width:80px"> &nbsp;default: 10 (0x10)
+    </div>
+    <div class="form-row">
+        <label for="node-input-band">Band</label>
+        <select id="node-input-band" style="width:200px">
+            <option value="0">US/Europe (87-108 MHz)</option>
+            <option value="1">Japan (76-91 MHz)</option>
+            <option value="2">World wide (76-108 MHz)</option>
+            <option value="3">East Europe (65-76 MHz)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-space">Channel spacing</label>
+        <select id="node-input-space" style="width:200px">
+            <option value="0">100 kHz</option>
+            <option value="1">200 kHz</option>
+            <option value="2">50 kHz</option>
+            <option value="3">25 kHz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-frequency">Initial frequency (MHz)</label>
+        <input type="number" id="node-input-frequency" min="50" max="115" step="0.1" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-volume">Initial volume (0&ndash;15)</label>
+        <input type="number" id="node-input-volume" min="0" max="15" style="width:80px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-rda5807m">
+    <p>Controls an RDA5807M single-chip FM stereo radio tuner over I&sup2;C: tune, seek, volume, and mute, with frequency/signal status on every trigger.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd>One of <code>tune</code>, <code>seek</code>, <code>volume</code>, <code>mute</code>. Omit for a status-only poll.</dd>
+        <dt>payload.frequency <span class="property-type">number</span></dt>
+        <dd>Target frequency in MHz (for <code>tune</code>).</dd>
+        <dt>payload.direction <span class="property-type">string</span></dt>
+        <dd><code>up</code> or <code>down</code> (for <code>seek</code>, default <code>up</code>).</dd>
+        <dt>payload.level <span class="property-type">number</span></dt>
+        <dd>Volume 0&ndash;15 (for <code>volume</code>).</dd>
+        <dt>payload.enable <span class="property-type">boolean</span></dt>
+        <dd>Mute state (for <code>mute</code>).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.frequency <span class="property-type">number</span></dt>
+        <dd>Currently tuned frequency in MHz (<code>null</code> if a seek failed to find a station).</dd>
+        <dt>payload.stereo <span class="property-type">boolean</span></dt>
+        <dd>True if the current station is being received in stereo.</dd>
+        <dt>payload.station <span class="property-type">boolean</span></dt>
+        <dd>True if the current channel is a real station.</dd>
+        <dt>payload.ready <span class="property-type">boolean</span></dt>
+        <dd>True if the tuner is ready.</dd>
+        <dt>payload.rssi <span class="property-type">number</span></dt>
+        <dd>Raw signal strength, 0 (weakest) to 127 (strongest).</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure the I&sup2;C bus number, address (default <code>0x10</code>), band, channel spacing, initial
+    frequency, and initial volume. RDS/RBDS is enabled automatically; this node does not decode RDS group
+    content beyond what feeds the status output.</p>
+</script>

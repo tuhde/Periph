@@ -28,6 +28,7 @@ exclude = [
     "tests/imu/mpu6050_test_esp32s3",
     "tests/environmental/bme680_test_esp32s3",
     "tests/display/pcf8576_test_esp32s3",
+    "tests/comms/rda5807m_test_esp32s3",
     "tests/gnss/neo6_test_esp32s3",
 ]
 members = [
@@ -125,6 +126,10 @@ members = [
     "examples/pcf8576_complete",
     "examples/pcf8576_demo",
     "tests/display/pcf8576_test",
+    "examples/rda5807m_minimal",
+    "examples/rda5807m_complete",
+    "examples/rda5807m_demo",
+    "tests/comms/rda5807m_test",
     "examples/neo6_minimal",
     "examples/neo6_complete",
     "examples/neo6_demo",
