@@ -100,6 +100,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
