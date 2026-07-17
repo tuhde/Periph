@@ -20,7 +20,7 @@ class Neo6Full @JvmOverloads constructor(
         private const val CLASS_ACK = 0x05
         private const val ID_ACK_NAK = 0x00
         private const val MAX_FRAMES = 400
-        private const val MAX_IDLE = 4000
+        private const val UBX_BYTE_TIMEOUT_MS = 4000
     }
 
     private var speedValue: Double? = null
@@ -102,30 +102,46 @@ class Neo6Full @JvmOverloads constructor(
         return readUbxResponse(msgClass, msgId)
     }
 
+    /**
+     * Wait for one byte, retrying [readByte] (which is non-blocking) until
+     * one arrives or [timeoutMs] of wall-clock time elapses. readByte()
+     * alone cannot be used here: it returns immediately when the UART has
+     * nothing buffered yet, so polling it in a bare loop with no pacing
+     * burns through any iteration budget in microseconds rather than
+     * giving the module real time to transmit.
+     */
+    private fun waitByte(timeoutMs: Int): Int? {
+        val deadline = System.nanoTime() + timeoutMs * 1_000_000L
+        while (true) {
+            val b = readByte()
+            if (b != null) return b
+            if (System.nanoTime() >= deadline) return null
+            try {
+                Thread.sleep(1)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                throw IOException("interrupted while waiting for UBX byte", e)
+            }
+        }
+    }
+
     private fun readUbxResponse(wantClass: Int, wantId: Int): ByteArray {
-        var idle = 0
         var frames = 0
         while (frames < MAX_FRAMES) {
-            val b = readByte()
-            if (b == null) {
-                idle++
-                if (idle > MAX_IDLE) throw IOException("UBX response timeout")
-                continue
-            }
-            idle = 0
+            val b = waitByte(UBX_BYTE_TIMEOUT_MS) ?: throw IOException("UBX response timeout")
             if (b != UBX_SYNC1) continue
-            val sync2 = readByte()
+            val sync2 = waitByte(UBX_BYTE_TIMEOUT_MS)
             if (sync2 == null || sync2 != UBX_SYNC2) continue
-            val cls = readByte()
-            val mid = readByte()
-            val lenLo = readByte()
-            val lenHi = readByte()
+            val cls = waitByte(UBX_BYTE_TIMEOUT_MS)
+            val mid = waitByte(UBX_BYTE_TIMEOUT_MS)
+            val lenLo = waitByte(UBX_BYTE_TIMEOUT_MS)
+            val lenHi = waitByte(UBX_BYTE_TIMEOUT_MS)
             if (cls == null || mid == null || lenLo == null || lenHi == null) continue
             val length = lenLo or (lenHi shl 8)
             val payload = ByteArray(length)
             var got = 0
             while (got < length) {
-                val pb = readByte() ?: break
+                val pb = waitByte(UBX_BYTE_TIMEOUT_MS) ?: break
                 payload[got] = pb.toByte()
                 got++
             }
@@ -133,8 +149,8 @@ class Neo6Full @JvmOverloads constructor(
                 frames++
                 continue
             }
-            val ckA = readByte()
-            val ckB = readByte()
+            val ckA = waitByte(UBX_BYTE_TIMEOUT_MS)
+            val ckB = waitByte(UBX_BYTE_TIMEOUT_MS)
             val checked = ByteArray(4 + length)
             checked[0] = cls.toByte()
             checked[1] = mid.toByte()

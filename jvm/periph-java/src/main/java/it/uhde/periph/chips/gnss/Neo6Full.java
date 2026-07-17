@@ -150,32 +150,50 @@ public class Neo6Full extends Neo6Minimal {
         return readUbxResponse(msgClass, msgId);
     }
 
+    private static final int UBX_BYTE_TIMEOUT_MS = 4000;
+
+    /**
+     * Wait for one byte, retrying {@link #readByte} (which is non-blocking)
+     * until one arrives or {@code timeoutMs} of wall-clock time elapses.
+     * readByte() alone cannot be used here: it returns immediately when the
+     * UART has nothing buffered yet, so polling it in a bare loop with no
+     * pacing burns through any iteration budget in microseconds rather than
+     * giving the module real time to transmit.
+     */
+    private Integer waitByte(int timeoutMs) throws IOException {
+        long deadline = System.nanoTime() + timeoutMs * 1_000_000L;
+        while (true) {
+            Integer b = readByte();
+            if (b != null) return b;
+            if (System.nanoTime() >= deadline) return null;
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("interrupted while waiting for UBX byte", e);
+            }
+        }
+    }
+
     private byte[] readUbxResponse(int wantClass, int wantId) throws IOException {
         final int maxFrames = 400;
-        final int maxIdle = 4000;
-        int idle = 0;
         int frames = 0;
         while (frames < maxFrames) {
-            Integer b = readByte();
-            if (b == null) {
-                idle++;
-                if (idle > maxIdle) throw new IOException("UBX response timeout");
-                continue;
-            }
-            idle = 0;
+            Integer b = waitByte(UBX_BYTE_TIMEOUT_MS);
+            if (b == null) throw new IOException("UBX response timeout");
             if (b != UBX_SYNC1) continue;
-            Integer sync2 = readByte();
+            Integer sync2 = waitByte(UBX_BYTE_TIMEOUT_MS);
             if (sync2 == null || sync2 != UBX_SYNC2) continue;
-            Integer cls = readByte();
-            Integer mid = readByte();
-            Integer lenLo = readByte();
-            Integer lenHi = readByte();
+            Integer cls = waitByte(UBX_BYTE_TIMEOUT_MS);
+            Integer mid = waitByte(UBX_BYTE_TIMEOUT_MS);
+            Integer lenLo = waitByte(UBX_BYTE_TIMEOUT_MS);
+            Integer lenHi = waitByte(UBX_BYTE_TIMEOUT_MS);
             if (cls == null || mid == null || lenLo == null || lenHi == null) continue;
             int length = lenLo | (lenHi << 8);
             byte[] payload = new byte[length];
             int got = 0;
             for (; got < length; got++) {
-                Integer pb = readByte();
+                Integer pb = waitByte(UBX_BYTE_TIMEOUT_MS);
                 if (pb == null) break;
                 payload[got] = (byte) (int) pb;
             }
@@ -183,8 +201,8 @@ public class Neo6Full extends Neo6Minimal {
                 frames++;
                 continue;
             }
-            Integer ckA = readByte();
-            Integer ckB = readByte();
+            Integer ckA = waitByte(UBX_BYTE_TIMEOUT_MS);
+            Integer ckB = waitByte(UBX_BYTE_TIMEOUT_MS);
             byte[] header = new byte[]{(byte) (int) cls, (byte) (int) mid, (byte) (int) lenLo, (byte) (int) lenHi};
             byte[] checked = new byte[4 + length];
             System.arraycopy(header, 0, checked, 0, 4);
