@@ -17,6 +17,10 @@ public class Rda5807mTest {
         else           { System.out.println("FAIL " + label); failed++; }
     }
 
+    // FM_READY deasserts on any register write and takes ~20 ms to settle back;
+    // not documented in the datasheet, measured on real hardware.
+    static final int SETTLE_MS = 30;
+
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS", "1"));
         int addr = Integer.parseInt(
@@ -26,6 +30,7 @@ public class Rda5807mTest {
 
             var fm = new Rda5807mFull(transport, 100.0, 8);
 
+            Thread.sleep(SETTLE_MS);
             checkTrue("is_ready", fm.isReady());
 
             double f = fm.frequency();
@@ -42,6 +47,7 @@ public class Rda5807mTest {
 
             fm.mute(true);
             fm.mute(false);
+            Thread.sleep(SETTLE_MS);
             checkTrue("mute/unmute: is_ready after", fm.isReady());
 
             Double seekFreq = fm.seek(true);
@@ -51,12 +57,12 @@ public class Rda5807mTest {
             checkTrue("rds_ready accepted", fm.rdsReady() || !fm.rdsReady());
 
             fm.configure(Rda5807mFull.BAND_WORLD, Rda5807mFull.SPACE_100K, null, null, null, null, null, null);
+            Thread.sleep(SETTLE_MS);
             checkTrue("after configure: is_ready", fm.isReady());
 
             fm.standby(true);
             Thread.sleep(10);
             fm.standby(false);
-            Thread.sleep(10);
             checkTrue("after standby cycle: is_ready", fm.isReady());
 
             fm.softReset();

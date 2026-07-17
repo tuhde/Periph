@@ -212,6 +212,11 @@ public class Rda5807mFull extends Rda5807mMinimal {
     /**
      * Power the chip down or up.
      *
+     * <p>Powering back up clears the tuner's PLL lock, so waking from standby
+     * blocks briefly for the chip to recover, then re-tunes to the last known
+     * frequency (mirroring the datasheet's power-up sequencing, which the
+     * chip otherwise never recovers from on its own).
+     *
      * @param enable true to power down, false to power up
      * @throws IOException on I²C error
      */
@@ -219,14 +224,20 @@ public class Rda5807mFull extends Rda5807mMinimal {
         if (enable) regs[0] &= ~ENABLE;
         else regs[0] |= ENABLE;
         writeRegs();
+        if (!enable) {
+            sleep(RESET_RECOVERY_MS);
+            setFrequency(currentFreq);
+            sleep(READY_SETTLE_MS);
+        }
     }
 
     /**
      * Pulse the soft-reset bit, then re-apply the current configuration.
      *
-     * <p>A soft reset restores the chip's power-on register defaults, so the
-     * driver's shadow configuration is re-written afterward to restore the
-     * previously configured state.
+     * <p>A soft reset restores the chip's power-on register defaults and
+     * clears the tuner's PLL lock, so this blocks briefly for the chip to
+     * recover, then re-tunes to the last known frequency (the chip never
+     * reacquires lock on its own otherwise).
      *
      * @throws IOException on I²C error
      */
@@ -235,5 +246,16 @@ public class Rda5807mFull extends Rda5807mMinimal {
         writeRegs();
         regs[0] &= ~SOFT_RESET;
         writeRegs();
+        sleep(RESET_RECOVERY_MS);
+        setFrequency(currentFreq);
+        sleep(READY_SETTLE_MS);
+    }
+
+    private static void sleep(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

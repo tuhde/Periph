@@ -36,6 +36,15 @@ class Rda5807mMinimal {
     private static final int STC_TIMEOUT_MS = 500
     private static final int STC_POLL_MS = 1
 
+    // Undocumented, measured on real hardware: after standby wake-up or a soft
+    // reset, the chip needs this long before it will lock onto a subsequent TUNE
+    // (FM_READY otherwise never asserts, even after minutes). Same requirement as
+    // the datasheet's power-up sequencing, just not called out for these two cases.
+    protected static final int RESET_RECOVERY_MS = 250
+    // Undocumented, measured on real hardware: FM_READY lags STC by up to ~20 ms
+    // after any register write.
+    protected static final int READY_SETTLE_MS = 30
+
     protected static final int DHIZ = 0x8000
     protected static final int DMUTE = 0x4000
     protected static final int MONO = 0x2000
@@ -71,6 +80,7 @@ class Rda5807mMinimal {
     protected int band
     protected int space
     protected boolean eastEurope50m
+    protected double currentFreq
 
     /**
      * Construct the driver and tune to the initial frequency.
@@ -99,6 +109,7 @@ class Rda5807mMinimal {
         regs[3] = r5
         regs[4] = r6
         regs[5] = r7
+        currentFreq = frequencyMhz
 
         writeRegs()
         waitStc()
@@ -152,6 +163,7 @@ class Rda5807mMinimal {
     void setFrequency(double frequencyMhz) {
         int chan = freqToChan(band, space, eastEurope50m, frequencyMhz)
         regs[1] = (chan << 6) | TUNE | (band << 2) | space
+        currentFreq = frequencyMhz
         writeRegs()
         waitStc()
         regs[1] &= ~TUNE
@@ -193,6 +205,8 @@ class Rda5807mMinimal {
 
         if ((statusA & SF) != 0) return null
         int readchan = statusA & 0x03FF
-        chanToFreq(band, space, eastEurope50m, readchan)
+        double freq = chanToFreq(band, space, eastEurope50m, readchan)
+        currentFreq = freq
+        freq
     }
 }

@@ -8,12 +8,22 @@
 //! them on every change, since the chip cannot be told to start a write
 //! anywhere else.
 
+use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
 const BAND_BASE_KHZ: [u32; 4] = [87000, 76000, 76000, 65000];
 const SPACE_KHZ: [u32; 4] = [100, 200, 50, 25];
 
 const STC_TIMEOUT_ITERS: u32 = 500;
+
+// Undocumented, measured on real hardware: after standby wake-up or a soft
+// reset, the chip needs this long before it will lock onto a subsequent TUNE
+// (FM_READY otherwise never asserts, even after minutes). Same requirement as
+// the datasheet's power-up sequencing, just not called out for these two cases.
+const RESET_RECOVERY_MS: u32 = 250;
+// Undocumented, measured on real hardware: FM_READY lags STC by up to ~20 ms
+// after any register write.
+const READY_SETTLE_MS: u32 = 30;
 
 /// Band select: `00` = 87-108 MHz (US/Europe).
 pub const BAND_US_EUROPE: u8 = 0;
@@ -119,6 +129,7 @@ pub struct Rda5807mMinimal<I2C> {
     band: u8,
     space: u8,
     east_europe_50m: bool,
+    current_freq: f32,
 }
 
 impl<I2C: I2c> Rda5807mMinimal<I2C> {
@@ -147,13 +158,14 @@ impl<I2C: I2c> Rda5807mMinimal<I2C> {
         wait_stc(&mut i2c, addr)?;
         regs[1] &= !TUNE;
 
-        Ok(Self { i2c, addr, regs, band, space, east_europe_50m })
+        Ok(Self { i2c, addr, regs, band, space, east_europe_50m, current_freq: frequency_mhz })
     }
 
     /// Tune to a frequency, blocking until the tune completes.
     pub fn set_frequency(&mut self, frequency_mhz: f32) -> Result<(), I2C::Error> {
         let chan = freq_to_chan(self.band, self.space, self.east_europe_50m, frequency_mhz);
         self.regs[1] = (chan << 6) | TUNE | ((self.band as u16) << 2) | self.space as u16;
+        self.current_freq = frequency_mhz;
         write_regs(&mut self.i2c, self.addr, &self.regs)?;
         wait_stc(&mut self.i2c, self.addr)?;
         self.regs[1] &= !TUNE;
@@ -196,7 +208,9 @@ impl<I2C: I2c> Rda5807mMinimal<I2C> {
             return Ok(None);
         }
         let readchan = status_a & 0x03FF;
-        Ok(Some(chan_to_freq(self.band, self.space, self.east_europe_50m, readchan)))
+        let freq = chan_to_freq(self.band, self.space, self.east_europe_50m, readchan);
+        self.current_freq = freq;
+        Ok(Some(freq))
     }
 }
 
@@ -366,18 +380,37 @@ impl<I2C: I2c> Rda5807mFull<I2C> {
         Ok(((words[1] >> 9) & 0x7F) as u8)
     }
 
-    /// Power the chip down (`true`) or up (`false`).
-    pub fn standby(&mut self, enable: bool) -> Result<(), I2C::Error> {
+    /// Power the chip down (`true`) or up (`false`). Powering back up clears
+    /// the tuner's PLL lock, so waking from standby blocks briefly for the
+    /// chip to recover, then re-tunes to the last known frequency (mirroring
+    /// the datasheet's power-up sequencing, which the chip otherwise never
+    /// recovers from on its own).
+    pub fn standby<D: DelayNs>(&mut self, enable: bool, delay: &mut D) -> Result<(), I2C::Error> {
         if enable { self.inner.regs[0] &= !ENABLE; } else { self.inner.regs[0] |= ENABLE; }
-        write_regs(&mut self.inner.i2c, self.inner.addr, &self.inner.regs)
+        write_regs(&mut self.inner.i2c, self.inner.addr, &self.inner.regs)?;
+        if !enable {
+            delay.delay_ms(RESET_RECOVERY_MS);
+            let freq = self.inner.current_freq;
+            self.inner.set_frequency(freq)?;
+            delay.delay_ms(READY_SETTLE_MS);
+        }
+        Ok(())
     }
 
-    /// Pulse the soft-reset bit, then re-apply the current configuration
-    /// (a soft reset restores the chip's power-on register defaults).
-    pub fn soft_reset(&mut self) -> Result<(), I2C::Error> {
+    /// Pulse the soft-reset bit, then re-apply the current configuration. A
+    /// soft reset restores the chip's power-on register defaults and clears
+    /// the tuner's PLL lock, so this blocks briefly for the chip to recover,
+    /// then re-tunes to the last known frequency (the chip never reacquires
+    /// lock on its own otherwise).
+    pub fn soft_reset<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), I2C::Error> {
         self.inner.regs[0] |= SOFT_RESET;
         write_regs(&mut self.inner.i2c, self.inner.addr, &self.inner.regs)?;
         self.inner.regs[0] &= !SOFT_RESET;
-        write_regs(&mut self.inner.i2c, self.inner.addr, &self.inner.regs)
+        write_regs(&mut self.inner.i2c, self.inner.addr, &self.inner.regs)?;
+        delay.delay_ms(RESET_RECOVERY_MS);
+        let freq = self.inner.current_freq;
+        self.inner.set_frequency(freq)?;
+        delay.delay_ms(READY_SETTLE_MS);
+        Ok(())
     }
 }

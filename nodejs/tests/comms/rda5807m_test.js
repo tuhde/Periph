@@ -19,9 +19,14 @@ function sleep(ms) {
     while (Date.now() < end) {}
 }
 
+// FM_READY deasserts on any register write and takes ~20 ms to settle back;
+// not documented in the datasheet, measured on real hardware.
+const SETTLE_MS = 30;
+
 const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
 const fm = new RDA5807MFull(transport, 100.0, 8);
 
+sleep(SETTLE_MS);
 checkTrue('is_ready', fm.isReady());
 
 let f = fm.frequency();
@@ -37,6 +42,7 @@ checkTrue('is_stereo is boolean', typeof fm.isStereo() === 'boolean');
 
 fm.mute(true);
 fm.mute(false);
+sleep(SETTLE_MS);
 checkTrue('mute/unmute: is_ready after', fm.isReady());
 
 const seekFreq = fm.seek(true);
@@ -46,12 +52,12 @@ fm.enableRds(true);
 checkTrue('rds_ready is boolean', typeof fm.rdsReady() === 'boolean');
 
 fm.configure({ band: RDA5807MFull.BAND_WORLD, space: RDA5807MFull.SPACE_100K });
+sleep(SETTLE_MS);
 checkTrue('after configure: is_ready', fm.isReady());
 
 fm.standby(true);
 sleep(10);
 fm.standby(false);
-sleep(10);
 checkTrue('after standby cycle: is_ready', fm.isReady());
 
 fm.softReset();

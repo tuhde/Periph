@@ -16,6 +16,21 @@ class Rda5807mFull @JvmOverloads constructor(
     volume: Int = 8
 ) : Rda5807mMinimal(transport, frequencyMhz, volume) {
 
+    companion object {
+        // Kotlin does not expose a superclass companion object's members through
+        // the subclass name, so these are re-declared here for callers using
+        // Rda5807mFull.BAND_*/SPACE_* (Java/Groovy inherit the static fields directly).
+        const val BAND_US_EUROPE = Rda5807mMinimal.BAND_US_EUROPE
+        const val BAND_JAPAN = Rda5807mMinimal.BAND_JAPAN
+        const val BAND_WORLD = Rda5807mMinimal.BAND_WORLD
+        const val BAND_EAST_EUROPE = Rda5807mMinimal.BAND_EAST_EUROPE
+
+        const val SPACE_100K = Rda5807mMinimal.SPACE_100K
+        const val SPACE_200K = Rda5807mMinimal.SPACE_200K
+        const val SPACE_50K = Rda5807mMinimal.SPACE_50K
+        const val SPACE_25K = Rda5807mMinimal.SPACE_25K
+    }
+
     /**
      * Reconfigure tuner-level settings. `null` leaves a field unchanged.
      * Changing [band] or [space] re-tunes to the current frequency, since
@@ -135,20 +150,39 @@ class Rda5807mFull @JvmOverloads constructor(
     /** @return raw RSSI, 0 (weakest) to 127 (strongest), logarithmic. No absolute dBµV mapping is published. */
     fun signalStrength(): Int = (readStatus(4)[1] shr 9) and 0x7F
 
-    /** Power the chip down (true) or up (false). */
+    /**
+     * Power the chip down (true) or up (false).
+     *
+     * Powering back up clears the tuner's PLL lock, so waking from standby
+     * blocks briefly for the chip to recover, then re-tunes to the last
+     * known frequency (mirroring the datasheet's power-up sequencing, which
+     * the chip otherwise never recovers from on its own).
+     */
     fun standby(enable: Boolean) {
         regs[0] = if (enable) regs[0] and ENABLE.inv() else regs[0] or ENABLE
         writeRegs()
+        if (!enable) {
+            Thread.sleep(RESET_RECOVERY_MS)
+            setFrequency(currentFreq)
+            Thread.sleep(READY_SETTLE_MS)
+        }
     }
 
     /**
-     * Pulse the soft-reset bit, then re-apply the current configuration (a
-     * soft reset restores the chip's power-on register defaults).
+     * Pulse the soft-reset bit, then re-apply the current configuration.
+     *
+     * A soft reset restores the chip's power-on register defaults and
+     * clears the tuner's PLL lock, so this blocks briefly for the chip to
+     * recover, then re-tunes to the last known frequency (the chip never
+     * reacquires lock on its own otherwise).
      */
     fun softReset() {
         regs[0] = regs[0] or SOFT_RESET
         writeRegs()
         regs[0] = regs[0] and SOFT_RESET.inv()
         writeRegs()
+        Thread.sleep(RESET_RECOVERY_MS)
+        setFrequency(currentFreq)
+        Thread.sleep(READY_SETTLE_MS)
     }
 }

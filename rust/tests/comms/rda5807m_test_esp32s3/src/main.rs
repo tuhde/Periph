@@ -3,6 +3,7 @@
 
 use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
 use periph::chips::comms::{Rda5807mFull, BAND_WORLD, SPACE_100K};
@@ -32,6 +33,7 @@ fn main() -> ! {
         .with_sda(peripherals.GPIO1)
         .with_scl(peripherals.GPIO2);
 
+    let mut delay = Delay::new();
     let mut passed = 0i32;
     let mut failed = 0i32;
 
@@ -71,11 +73,11 @@ fn main() -> ! {
     fm.configure(Some(BAND_WORLD), Some(SPACE_100K), None, None, None, None, None, None).ok();
     check_true!(fm.is_ready().unwrap_or(false), "after_configure_is_ready", passed, failed);
 
-    fm.standby(true).ok();
-    fm.standby(false).ok();
+    fm.standby(true, &mut delay).ok();
+    fm.standby(false, &mut delay).ok();
     check_true!(fm.is_ready().unwrap_or(false), "after_standby_cycle_is_ready", passed, failed);
 
-    fm.soft_reset().ok();
+    fm.soft_reset(&mut delay).ok();
     check_true!(fm.is_ready().unwrap_or(false), "after_soft_reset_is_ready", passed, failed);
 
     println!("===DONE: {} passed, {} failed===", passed, failed);

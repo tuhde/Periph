@@ -29,6 +29,7 @@ open class Rda5807mMinimal @JvmOverloads constructor(
     protected var band: Int = BAND_WORLD
     protected var space: Int = SPACE_100K
     protected var eastEurope50m: Boolean = false
+    protected var currentFreq: Double = frequencyMhz
 
     protected val regs = IntArray(6)
 
@@ -48,6 +49,15 @@ open class Rda5807mMinimal @JvmOverloads constructor(
 
         private const val STC_TIMEOUT_MS = 500
         private const val STC_POLL_MS = 1L
+
+        // Undocumented, measured on real hardware: after standby wake-up or a soft
+        // reset, the chip needs this long before it will lock onto a subsequent TUNE
+        // (FM_READY otherwise never asserts, even after minutes). Same requirement as
+        // the datasheet's power-up sequencing, just not called out for these two cases.
+        const val RESET_RECOVERY_MS = 250L
+        // Undocumented, measured on real hardware: FM_READY lags STC by up to ~20 ms
+        // after any register write.
+        const val READY_SETTLE_MS = 30L
 
         const val DHIZ = 0x8000
         const val DMUTE = 0x4000
@@ -148,6 +158,7 @@ open class Rda5807mMinimal @JvmOverloads constructor(
     fun setFrequency(frequencyMhz: Double) {
         val chan = freqToChan(band, space, eastEurope50m, frequencyMhz)
         regs[1] = (chan shl 6) or TUNE or (band shl 2) or space
+        currentFreq = frequencyMhz
         writeRegs()
         waitStc()
         regs[1] = regs[1] and TUNE.inv()
@@ -187,6 +198,8 @@ open class Rda5807mMinimal @JvmOverloads constructor(
 
         if (statusA and SF != 0) return null
         val readchan = statusA and 0x03FF
-        return chanToFreq(band, space, eastEurope50m, readchan)
+        val freq = chanToFreq(band, space, eastEurope50m, readchan)
+        currentFreq = freq
+        return freq
     }
 }

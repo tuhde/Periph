@@ -149,21 +149,40 @@ class Rda5807mFull extends Rda5807mMinimal {
         (readStatus(4)[1] >> 9) & 0x7F
     }
 
-    /** Power the chip down (true) or up (false). */
+    /**
+     * Power the chip down (true) or up (false).
+     *
+     * <p>Powering back up clears the tuner's PLL lock, so waking from standby
+     * blocks briefly for the chip to recover, then re-tunes to the last known
+     * frequency (mirroring the datasheet's power-up sequencing, which the
+     * chip otherwise never recovers from on its own).
+     */
     void standby(boolean enable) {
         if (enable) regs[0] &= ~ENABLE
         else regs[0] |= ENABLE
         writeRegs()
+        if (!enable) {
+            Thread.sleep(RESET_RECOVERY_MS)
+            setFrequency(currentFreq)
+            Thread.sleep(READY_SETTLE_MS)
+        }
     }
 
     /**
-     * Pulse the soft-reset bit, then re-apply the current configuration (a
-     * soft reset restores the chip's power-on register defaults).
+     * Pulse the soft-reset bit, then re-apply the current configuration.
+     *
+     * <p>A soft reset restores the chip's power-on register defaults and
+     * clears the tuner's PLL lock, so this blocks briefly for the chip to
+     * recover, then re-tunes to the last known frequency (the chip never
+     * reacquires lock on its own otherwise).
      */
     void softReset() {
         regs[0] |= SOFT_RESET
         writeRegs()
         regs[0] &= ~SOFT_RESET
         writeRegs()
+        Thread.sleep(RESET_RECOVERY_MS)
+        setFrequency(currentFreq)
+        Thread.sleep(READY_SETTLE_MS)
     }
 }

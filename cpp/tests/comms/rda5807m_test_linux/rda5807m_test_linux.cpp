@@ -10,6 +10,10 @@
 #define TEST_ADDR 0x10
 #endif
 
+// FM_READY deasserts on any register write and takes ~20 ms to settle back;
+// not documented in the datasheet, measured on real hardware.
+static const useconds_t SETTLE_US = 30000;
+
 static int passed = 0;
 static int failed = 0;
 
@@ -22,6 +26,7 @@ int main() {
     I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
     RDA5807MFull fm(transport, 100.0f, 8);
 
+    usleep(SETTLE_US);
     check_true("is_ready", fm.is_ready());
 
     float f = fm.frequency();
@@ -37,6 +42,7 @@ int main() {
 
     fm.mute(true);
     fm.mute(false);
+    usleep(SETTLE_US);
     check_true("mute/unmute: is_ready after", fm.is_ready());
 
     float seek_freq;
@@ -47,12 +53,12 @@ int main() {
     check_true("rds_ready is callable", fm.rds_ready() || !fm.rds_ready());
 
     fm.configure(RDA5807MFull::BAND_WORLD, RDA5807MFull::SPACE_100K);
+    usleep(SETTLE_US);
     check_true("after configure: is_ready", fm.is_ready());
 
     fm.standby(true);
     usleep(10000);
     fm.standby(false);
-    usleep(10000);
     check_true("after standby cycle: is_ready", fm.is_ready());
 
     fm.soft_reset();

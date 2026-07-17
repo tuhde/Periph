@@ -20,6 +20,15 @@ static const uint16_t SPACE_KHZ[4] = {100, 200, 50, 25};
 static const uint16_t STC_TIMEOUT_MS = 500;
 static const uint16_t STC_POLL_MS = 1;
 
+// Undocumented, measured on real hardware: after standby wake-up or a soft
+// reset, the chip needs this long before it will lock onto a subsequent TUNE
+// (FM_READY otherwise never asserts, even after minutes). Same requirement as
+// the datasheet's power-up sequencing, just not called out for these two cases.
+static const uint16_t RESET_RECOVERY_MS = 250;
+// Undocumented, measured on real hardware: FM_READY lags STC by up to ~20 ms
+// after any register write.
+static const uint16_t READY_SETTLE_MS = 30;
+
 uint16_t RDA5807MMinimal::_freq_to_chan(uint8_t band, uint8_t space, bool east_europe_50m, float frequency_mhz) {
     uint32_t base = (band == 3 && east_europe_50m) ? 50000 : BAND_BASE_KHZ[band];
     int32_t freq_khz = static_cast<int32_t>(frequency_mhz * 1000.0f + 0.5f);
@@ -35,7 +44,8 @@ float RDA5807MMinimal::_chan_to_freq(uint8_t band, uint8_t space, bool east_euro
 }
 
 RDA5807MMinimal::RDA5807MMinimal(Transport& transport, float frequency_mhz, uint8_t volume)
-    : _transport(transport), _band(BAND_WORLD), _space(SPACE_100K), _east_europe_50m(false) {
+    : _transport(transport), _band(BAND_WORLD), _space(SPACE_100K), _east_europe_50m(false),
+      _current_freq(frequency_mhz) {
     uint16_t ctrl = _DHIZ | _DMUTE | _SKMODE | _NEW_METHOD | _ENABLE;
     uint16_t chan = _freq_to_chan(_band, _space, _east_europe_50m, frequency_mhz);
     uint16_t chan_reg = (chan << 6) | _TUNE | (_band << 2) | _space;
@@ -88,6 +98,7 @@ uint16_t RDA5807MMinimal::_wait_stc() {
 void RDA5807MMinimal::set_frequency(float frequency_mhz) {
     uint16_t chan = _freq_to_chan(_band, _space, _east_europe_50m, frequency_mhz);
     _regs[1] = (chan << 6) | _TUNE | (_band << 2) | _space;
+    _current_freq = frequency_mhz;
     _write_regs();
     _wait_stc();
     _regs[1] &= ~_TUNE;
@@ -129,6 +140,7 @@ bool RDA5807MMinimal::seek(bool up, float& frequency_mhz) {
     if (status_a & _SF) return false;
     uint16_t readchan = status_a & 0x03FF;
     frequency_mhz = _chan_to_freq(_band, _space, _east_europe_50m, readchan);
+    _current_freq = frequency_mhz;
     return true;
 }
 
@@ -255,6 +267,11 @@ void RDA5807MFull::standby(bool enable) {
     if (enable) _regs[0] &= ~_ENABLE;
     else _regs[0] |= _ENABLE;
     _write_regs();
+    if (!enable) {
+        DELAY_MS(RESET_RECOVERY_MS);
+        set_frequency(_current_freq);
+        DELAY_MS(READY_SETTLE_MS);
+    }
 }
 
 void RDA5807MFull::soft_reset() {
@@ -262,4 +279,7 @@ void RDA5807MFull::soft_reset() {
     _write_regs();
     _regs[0] &= ~_SOFT_RESET;
     _write_regs();
+    DELAY_MS(RESET_RECOVERY_MS);
+    set_frequency(_current_freq);
+    DELAY_MS(READY_SETTLE_MS);
 }

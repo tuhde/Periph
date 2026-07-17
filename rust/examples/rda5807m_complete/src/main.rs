@@ -1,3 +1,4 @@
+use linux_embedded_hal::Delay;
 use linux_embedded_hal::I2cdev;
 use periph::chips::comms::{Rda5807mFull, BAND_WORLD, SPACE_100K};
 use std::thread::sleep;
@@ -11,6 +12,7 @@ fn main() {
         .unwrap_or(0x10);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
+    let mut delay = Delay;
     let mut fm = Rda5807mFull::new(dev, addr, 100.0, 8).expect("init RDA5807M");
 
     fm.set_frequency(97.5).unwrap();                    // Tune to frequency, (frequency_mhz) → ()
@@ -42,9 +44,9 @@ fn main() {
     println!("is_ready: {}", fm.is_ready().unwrap());    // Check tuner ready, () → bool
     println!("signal_strength: {}", fm.signal_strength().unwrap()); // Read RSSI, () → u8 0–127
 
-    fm.standby(true).unwrap();                           // Power down/up, (enable) → ()
+    fm.standby(true, &mut delay).unwrap();                // Power down/up, (enable, delay) → ()
     sleep(Duration::from_millis(10));
-    fm.standby(false).unwrap();
+    fm.standby(false, &mut delay).unwrap();
 
-    fm.soft_reset().unwrap();                            // Pulse soft reset, () → ()
+    fm.soft_reset(&mut delay).unwrap();                   // Pulse soft reset, (delay) → ()
 }

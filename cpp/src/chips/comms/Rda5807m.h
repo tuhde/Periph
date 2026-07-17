@@ -95,6 +95,7 @@ protected:
     uint8_t _band;
     uint8_t _space;
     bool _east_europe_50m;
+    float _current_freq;
 
     static uint16_t _freq_to_chan(uint8_t band, uint8_t space, bool east_europe_50m, float frequency_mhz);
     static float _chan_to_freq(uint8_t band, uint8_t space, bool east_europe_50m, uint16_t chan);
@@ -194,15 +195,22 @@ public:
     uint8_t signal_strength();
 
     /** @brief Power the chip down or up.
+     *
+     * Powering back up clears the tuner's PLL lock, so waking from standby
+     * blocks briefly for the chip to recover, then re-tunes to the last
+     * known frequency (mirroring the datasheet's power-up sequencing, which
+     * the chip otherwise never recovers from on its own).
+     *
      *  @param enable true to power down, false to power up.
      */
     void standby(bool enable);
 
     /** @brief Pulse the soft-reset bit, then re-apply the current configuration.
      *
-     * A soft reset restores the chip's power-on register defaults, so the
-     * driver's shadow configuration is re-written afterward to restore the
-     * previously configured state.
+     * A soft reset restores the chip's power-on register defaults and clears
+     * the tuner's PLL lock, so this blocks briefly for the chip to recover,
+     * then re-tunes to the last known frequency (the chip never reacquires
+     * lock on its own otherwise).
      */
     void soft_reset();
 };

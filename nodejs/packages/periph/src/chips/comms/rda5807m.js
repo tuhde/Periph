@@ -6,6 +6,15 @@ const SPACE_KHZ = [100, 200, 50, 25];
 const STC_TIMEOUT_MS = 500;
 const STC_POLL_MS = 1;
 
+// Undocumented, measured on real hardware: after standby wake-up or a soft
+// reset, the chip needs this long before it will lock onto a subsequent TUNE
+// (FM_READY otherwise never asserts, even after minutes). Same requirement as
+// the datasheet's power-up sequencing, just not called out for these two cases.
+const RESET_RECOVERY_MS = 250;
+// Undocumented, measured on real hardware: FM_READY lags STC by up to ~20 ms
+// after any register write.
+const READY_SETTLE_MS = 30;
+
 const DHIZ = 0x8000;
 const DMUTE = 0x4000;
 const MONO = 0x2000;
@@ -99,6 +108,7 @@ class RDA5807MMinimal {
         const r7 = (16 << 10) | BAND_65M_50M | 0x0002;
 
         this._regs = [ctrl, chanReg, r4, r5, r6, r7];
+        this._currentFreq = frequencyMhz;
         this._writeRegs();
         this._waitStc();
         this._regs[1] &= ~TUNE;
@@ -135,6 +145,7 @@ class RDA5807MMinimal {
     setFrequency(frequencyMhz) {
         const chan = freqToChan(this._band, this._space, this._eastEurope50m, frequencyMhz);
         this._regs[1] = (chan << 6) | TUNE | (this._band << 2) | this._space;
+        this._currentFreq = frequencyMhz;
         this._writeRegs();
         this._waitStc();
         this._regs[1] &= ~TUNE;
@@ -182,7 +193,9 @@ class RDA5807MMinimal {
 
         if (statusA & SF) return null;
         const readchan = statusA & 0x03FF;
-        return chanToFreq(this._band, this._space, this._eastEurope50m, readchan);
+        const freq = chanToFreq(this._band, this._space, this._eastEurope50m, readchan);
+        this._currentFreq = freq;
+        return freq;
     }
 }
 
@@ -320,22 +333,40 @@ class RDA5807MFull extends RDA5807MMinimal {
         return (statusB >> 9) & 0x7F;
     }
 
-    /** @param {boolean} enable - True to power down, false to power up. */
+    /**
+     * Power the chip down or up. Powering back up clears the tuner's PLL
+     * lock, so waking from standby blocks briefly for the chip to recover,
+     * then re-tunes to the last known frequency (mirroring the datasheet's
+     * power-up sequencing, which the chip otherwise never recovers from on
+     * its own).
+     * @param {boolean} enable - True to power down, false to power up.
+     */
     standby(enable) {
         if (enable) this._regs[0] &= ~ENABLE;
         else this._regs[0] |= ENABLE;
         this._writeRegs();
+        if (!enable) {
+            sleep(RESET_RECOVERY_MS);
+            this.setFrequency(this._currentFreq);
+            sleep(READY_SETTLE_MS);
+        }
     }
 
     /**
-     * Pulse the soft-reset bit, then re-apply the current configuration
-     * (the chip's power-on defaults would otherwise replace it).
+     * Pulse the soft-reset bit, then re-apply the current configuration.
+     * A soft reset restores the chip's power-on register defaults and
+     * clears the tuner's PLL lock, so this blocks briefly for the chip to
+     * recover, then re-tunes to the last known frequency (the chip never
+     * reacquires lock on its own otherwise).
      */
     softReset() {
         this._regs[0] |= SOFT_RESET;
         this._writeRegs();
         this._regs[0] &= ~SOFT_RESET;
         this._writeRegs();
+        sleep(RESET_RECOVERY_MS);
+        this.setFrequency(this._currentFreq);
+        sleep(READY_SETTLE_MS);
     }
 }
 
