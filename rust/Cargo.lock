@@ -813,6 +813,53 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d5439c4ad607c3c23abf66de8c8bf57ba8adcd1f129e699851a6e43935d339d"
 
 [[package]]
+name = "neo6_complete"
+version = "0.1.0"
+dependencies = [
+ "periph",
+]
+
+[[package]]
+name = "neo6_demo"
+version = "0.1.0"
+dependencies = [
+ "periph",
+]
+
+[[package]]
+name = "neo6_minimal"
+version = "0.1.0"
+dependencies = [
+ "periph",
+]
+
+[[package]]
+name = "neo6_test_i2c"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "neo6_test_spi"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "neo6_test_uart"
+version = "0.1.0"
+dependencies = [
+ "periph",
+]
+
+[[package]]
 name = "neopixel_test"
 version = "0.1.0"
 dependencies = [

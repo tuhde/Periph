@@ -85,6 +85,9 @@ public final class UARTTransport implements Transport {
     // struct serial_rs485 is 64 bytes on Linux
     private static final int  SERIAL_RS485_SIZE = 64;
 
+    // Query pending input byte count without blocking
+    private static final long FIONREAD = 0x541B;
+
     // GPIO character device ioctls (_IOWR(0xB4, ...))
     // GPIO_GET_LINEHANDLE_IOCTL: _IOWR(0xB4, 3, struct gpiohandle_request) — 364 bytes
     private static final long GPIO_GET_LINEHANDLE_IOCTL       = 0xC16CB403L;
@@ -381,6 +384,32 @@ public final class UARTTransport implements Transport {
                 got += (int) r;
             }
             return buf.toArray(ValueLayout.JAVA_BYTE);
+        } catch (IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new IOException(t);
+        }
+    }
+
+    /**
+     * Query the number of bytes currently buffered and ready to read without
+     * blocking (via {@code ioctl(fd, FIONREAD, ...)}).
+     *
+     * <p>Lets a caller avoid ever hitting the {@link #read} timeout path
+     * during normal polling of an intermittently-idle stream (e.g. a GNSS
+     * receiver that bursts sentences once per second): check {@code
+     * available() > 0} before calling {@link #read}, so {@code read} is only
+     * invoked once a byte is already guaranteed present.
+     *
+     * @return number of bytes available to read without blocking
+     * @throws IOException if the underlying ioctl fails
+     */
+    public int available() throws IOException {
+        try (var arena = Arena.ofConfined()) {
+            var countSeg = arena.allocate(ValueLayout.JAVA_INT);
+            int rc = (int) ioctlAddrMH.invoke(fd, FIONREAD, countSeg);
+            if (rc < 0) throw new IOException("ioctl(FIONREAD) failed");
+            return countSeg.get(ValueLayout.JAVA_INT, 0);
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {

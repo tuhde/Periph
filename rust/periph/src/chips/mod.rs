@@ -3,6 +3,7 @@ pub mod comms;
 pub mod display;
 pub mod environmental;
 pub mod gas;
+pub mod gnss;
 pub mod imu;
 pub mod io_expander;
 pub mod led;
