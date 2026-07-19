@@ -236,14 +236,14 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/SiPoTransport.cpp`
-- [ ] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/SiPoTransportLinux.cpp`
-- [ ] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
+- [x] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/SiPoTransport.cpp`
+- [x] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/SiPoTransportLinux.cpp`
+- [x] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
