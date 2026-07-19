@@ -228,12 +228,12 @@ The `sipo` decoder stacks on sigrok's built-in `spi` decoder — SER IN/SRCK are
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/sipo_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/sipo_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/sipo_linux.py` — Google-style docstring on class and every public method
-- [ ] Tests (MicroPython)
-- [ ] Tests (CircuitPython)
-- [ ] Tests (Linux)
+- [x] `python/periph/transport/sipo_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/sipo_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/sipo_linux.py` — Google-style docstring on class and every public method
+- [x] Tests (MicroPython)
+- [x] Tests (CircuitPython)
+- [x] Tests (Linux)
 
 ### C++
 - [ ] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
