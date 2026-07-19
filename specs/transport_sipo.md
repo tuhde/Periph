@@ -255,8 +255,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (ESP32-S3)
 
 ### JVM
-- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
-- [ ] Tests (Pi hardware, JBang)
+- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
+- [x] Tests (Pi hardware, JBang)
 
 ### Sigrok
 - [ ] Decoder `sigrok/sipo/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
