@@ -250,9 +250,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests
 
 ### Rust
-- [ ] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Tests (Linux)
-- [ ] Tests (ESP32-S3)
+- [x] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Tests (Linux)
+- [x] Tests (ESP32-S3)
 
 ### JVM
 - [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
