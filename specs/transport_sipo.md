@@ -246,8 +246,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Zephyr)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
-- [ ] Tests
+- [x] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
+- [x] Tests
 
 ### Rust
 - [ ] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
