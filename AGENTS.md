@@ -154,6 +154,10 @@ let value = ((buf[0] as u16) << 8) | buf[1] as u16;   // unsigned
 let value = value as i16;                              // signed
 ```
 
+## Linux GPIO pin numbering
+
+On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset, as needed internally by Node.js's `onoff` sysfs backend) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first.
+
 ## Class structure
 
 Full extends Minimal by **adding** API surface; it never re-implements what Minimal already does. The mechanism for "extends" varies by language:
