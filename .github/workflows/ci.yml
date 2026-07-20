@@ -40,6 +40,9 @@ jobs:
       - name: Compile test sketches
         run: cpp/test_arduino.sh --compile-only power/ina226
 
+      - name: Check cpp/README.md is up to date
+        run: node cpp/scripts/generate-readme.js --check
+
   # -----------------------------------------------------------------------
   # Linux GCC — compile-only (no hardware required)
   # -----------------------------------------------------------------------

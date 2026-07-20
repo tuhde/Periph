@@ -232,6 +232,10 @@ jobs:
           # Stamp version in library.properties
           sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
 
+          # README, regenerated from library.properties + chip headers
+          node cpp/scripts/generate-readme.js
+          cp cpp/README.md "$AW/README.md"
+
       - name: Commit and tag arduino branch
         run: |
           VERSION="${{ needs.meta.outputs.version }}"
