@@ -221,43 +221,43 @@ File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport
 
 ## Sigrok Decoder
 
-The `sipo` decoder stacks on sigrok's built-in `spi` decoder — SER IN/SRCK are electrically SPI, so it consumes the `spi` PD's `OUTPUT_PYTHON` `DATA` packets for the shifted MOSI byte stream — and additionally takes the `rck` logic channel (required) plus optional `srclr` and `g` channels. It buffers bytes seen since the last RCK rising edge and, on each RCK rising edge, emits a `LATCH` annotation carrying that buffered payload (the new output-register contents). SRCLR LOW pulses are annotated `CLEAR`; G HIGH periods are annotated `OUTPUTS DISABLED`. It emits `OUTPUT_PYTHON` packets — `('LATCH', bytes)`, `('CLEAR', None)` — that chip-level decoders for specific SiPo-based devices can stack on to interpret individual output pins.
+The `sipo` decoder takes `logic` input directly rather than stacking on sigrok's built-in `spi` decoder: libsigrokdecode only supports declaring extra `channels`/`optional_channels` on a decoder whose `inputs` is `['logic']`, not on one stacked on another PD (confirmed against the stock decoder set — none combine a non-`logic` `inputs` with `channels`), and this decoder needs `rck` (plus optional `srclr`/`g`) as directly-sampled channels alongside SER IN/SRCK. It therefore declares `ser_in`, `srck`, and `rck` as required channels and `srclr`/`g` as optional ones, and decodes the SPI mode-0/MSB-first bit stream on `ser_in`/`srck` itself (same framing the built-in `spi` PD uses: one byte per 8 `srck` rising edges, no external frame signal). It buffers bytes seen since the last RCK rising edge and, on each RCK rising edge, emits a `LATCH` annotation carrying that buffered payload (the new output-register contents). SRCLR LOW pulses are annotated `CLEAR`; G HIGH periods are annotated `OUTPUTS DISABLED`. It emits `OUTPUT_PYTHON` packets — `('LATCH', bytes)`, `('CLEAR', None)` — that chip-level decoders for specific SiPo-based devices can stack on to interpret individual output pins.
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/sipo_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/sipo_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/sipo_linux.py` — Google-style docstring on class and every public method
-- [ ] Tests (MicroPython)
-- [ ] Tests (CircuitPython)
-- [ ] Tests (Linux)
+- [x] `python/periph/transport/sipo_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/sipo_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/transport/sipo_linux.py` — Google-style docstring on class and every public method
+- [x] Tests (MicroPython)
+- [x] Tests (CircuitPython)
+- [x] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/SiPoTransport.cpp`
-- [ ] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/SiPoTransportLinux.cpp`
-- [ ] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
+- [x] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/SiPoTransport.cpp`
+- [x] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/SiPoTransportLinux.cpp`
+- [x] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
-- [ ] Tests
+- [x] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
+- [x] Tests
 
 ### Rust
-- [ ] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Tests (Linux)
-- [ ] Tests (ESP32-S3)
+- [x] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Tests (Linux)
+- [x] Tests (ESP32-S3)
 
 ### JVM
-- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
-- [ ] Tests (Pi hardware, JBang)
+- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
+- [x] Tests (Pi hardware, JBang)
 
 ### Sigrok
-- [ ] Decoder `sigrok/sipo/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
-- [ ] Decoder `sigrok/sipo/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` only
+- [x] Decoder `sigrok/sipo/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
+- [x] Decoder `sigrok/sipo/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` only

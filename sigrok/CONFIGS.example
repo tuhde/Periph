@@ -1,0 +1,167 @@
+# Known Logic Analyzer Configurations
+
+Copy this file to `CONFIGS.md` and fill in your own LA wiring per
+transport/chip. `CONFIGS.md` is gitignored — it describes one person's bench
+setup (which LA channel clips onto which pin), not a repo-wide fact, so it
+never gets committed. This file is the template: decoder id, decoder channel
+names, and default samplerate are the same for everyone and stay filled in
+here once known; only the LA-channel-to-pin wiring is per-bench and belongs
+in `CONFIGS.md`.
+
+See `sigrok/PROBING.md` for how to use these configs.
+
+Filled in on request, transport/chip by transport/chip.
+
+## Transports
+
+### I2C
+
+- Decoder: `i2c` (built-in)
+- Decoder channels: `scl`, `sda`
+- Samplerate: `250k` is sufficient for standard/fast-mode I2C
+- Trigger: `sda=f` (SDA falling edge) — matches an I2C START condition, so
+  the capture begins right as a transaction starts instead of on idle bus
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_sda>=SDA,<ch_scl>=SCL \
+    --config samplerate=250k:captureratio=1 \
+    --triggers SDA=f \
+    --output-file i2c.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed —
+  the trigger positions the capture at the transaction, `--time` just bounds
+  the session.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i i2c.sr -P i2c:scl=SCL:sda=SDA -A i2c
+  ```
+
+### SPI
+
+- Decoder: `spi` (built-in)
+- Decoder channels: `clk`, `mosi`, `miso`, `cs#`
+- Samplerate: `2M` is sufficient for typical SPI clock rates used in this repo
+- Trigger: `cs#=f` (CS# falling edge) — CS# is active-low, so this marks the
+  start of a transaction instead of idle bus
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_mosi>=MOSI,<ch_sclk>=SCLK,<ch_miso>=MISO,<ch_cs>=CS# \
+    --config samplerate=2M:captureratio=1 \
+    --triggers CS#=f \
+    --output-file spi.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed —
+  the trigger positions the capture at the transaction, `--time` just bounds
+  the session.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i spi.sr -P spi:clk=SCLK:mosi=MOSI:miso=MISO:cs#=CS# -A spi
+  ```
+
+### UART
+
+- Decoder: `uart` (built-in)
+- Decoder channels: `rx`, `tx`
+- Samplerate: `250k` is sufficient for typical UART baud rates
+- Trigger: none — TXD and RXD are independent lines and either can send
+  first, so there's no single edge that reliably marks "transaction start"
+  the way a bus START condition or CS# does. Time-based capture only.
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_tx>=TXD,<ch_rx>=RXD \
+    --config samplerate=250k \
+    --output-file uart.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i uart.sr -P uart:rx=RXD:tx=TXD -A uart
+  ```
+
+### SiPo
+
+- Decoder: `sipo` (custom, `sigrok/sipo/`) — reads all pins directly, no
+  transport decoder to stack on (`inputs = ['logic']`)
+- Decoder channels: `ser_in`, `srck`, `rck` (required); `srclr`, `g`
+  (optional)
+- Samplerate: `2M` for now (fx2lafw only supports discrete rates — 20k, 25k,
+  50k, 100k, 200k, 250k, 500k, 1M, 2M, 3M, 4M, 6M, 8M, 12M, 16M, 24M, 48M;
+  `5M` is not one of them) — may be too slow for hardware SPI mode.
+- Trigger: none — SRCK/RCK and the optional SRCLR/G lines are independent
+  and any of them could toggle first depending on what the test does, so
+  there's no single edge that reliably marks "activity start". Time-based
+  capture only.
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_ser_in>=SER_IN,<ch_srck>=SRCK,<ch_srclr>=SRCLR#,<ch_rck>=RCK,<ch_g>=G# \
+    --config samplerate=2M \
+    --output-file sipo.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i sipo.sr -P sipo:ser_in=SER_IN:srck=SRCK:rck=RCK:srclr=SRCLR#:g=G# -A sipo
+  ```
+
+### NeoPixel
+
+- Decoder: `neopixel` (custom, `sigrok/neopixel/`) — reads DIN directly, no
+  transport decoder to stack on (`inputs = ['logic']`); stack a chip decoder
+  (`ws2812b`, `sk6812rgbw`) on top for chip-level bytes/pixels
+- Decoder channels: `din`
+- Samplerate: `6M` (nearest fx2lafw-supported rate to the ~5M needed to
+  resolve the ~1.25 µs NZR bit timing accurately — see the SiPo entry above
+  for the full supported-rate list)
+- Trigger: `din=r` (DIN rising edge) — the line idles LOW between resets, so
+  a rising edge marks the start of the first bit pulse
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_din>=DIN \
+    --config samplerate=6M:captureratio=1 \
+    --triggers DIN=r \
+    --output-file neo.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i neo.sr -P neopixel:din=DIN -A neopixel
+  ```
+- Stacked with a chip decoder, e.g. `ws2812b`:
+  ```
+  sigrok-cli -i neo.sr -P neopixel:din=DIN,ws2812b -A neopixel,ws2812b
+  ```
+
+### HX711
+
+- Decoder: `hx711` (custom, `sigrok/hx711/`) — reads DOUT/PD_SCK directly,
+  no transport decoder to stack on (`inputs = ['logic']`)
+- Decoder channels: `dout`, `sck`
+- Samplerate: `2M` — needed for the decoder's 60 µs power-down timeout
+  detection to be accurate
+- Trigger: `sck=f` (PD_SCK falling edge) — marks a clock pulse, so the
+  capture begins on activity instead of idle (DOUT/PD_SCK both idle HIGH/LOW
+  between conversions)
+- Capture command template (fill in your LA channel wiring from `CONFIGS.md`):
+  ```
+  sigrok-cli -d fx2lafw \
+    --channels <ch_dout>=DOUT,<ch_sck>=PD_SCK \
+    --config samplerate=2M:captureratio=1 \
+    --triggers PD_SCK=f \
+    --output-file hx711.sr \
+    --time <duration>
+  ```
+  `<duration>` is the approximate runtime of the test/example being probed.
+- Analyze command (channel names come from the capture, no `-C` needed):
+  ```
+  sigrok-cli -i hx711.sr -P hx711:dout=DOUT:sck=PD_SCK -A hx711
+  ```
