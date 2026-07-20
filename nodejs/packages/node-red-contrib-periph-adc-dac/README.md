@@ -21,6 +21,7 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-mcp4725` | output | Sets the output voltage of an MCP4725 12-bit DAC over I²C. |
 | `mcp4728-device` | config | I²C bus and address for a MCP4728 |
 | `periph-mcp4728` | output | Sets the output voltage of one channel (A–D) of an MCP4728 quad-channel 12-bit DAC over I²C. |
+| `periph-pcf8591` | input | Reads the four analog inputs of a PCF8591 8-bit ADC/DAC over I²C. Default address is 0x48 ; any address in the range 0x48 – 0x4F is valid depending on the A0/A1/A2 pin states. |
 
 ## Links
 
