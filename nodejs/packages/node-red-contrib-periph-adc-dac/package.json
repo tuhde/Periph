@@ -1,11 +1,19 @@
 {
   "name": "node-red-contrib-periph-adc-dac",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Node-RED nodes for ADC and DAC chips",
-  "keywords": ["node-red", "adc-dac", "i2c", "spi", "sensor", "peripheral"],
+  "keywords": [
+    "node-red",
+    "adc-dac",
+    "i2c",
+    "spi",
+    "sensor",
+    "peripheral"
+  ],
   "node-red": {
     "nodes": {
       "mcp4725": "nodes/mcp4725/mcp4725.js",
+      "mcp4728": "nodes/mcp4728/mcp4728.js",
       "pcf8591": "nodes/pcf8591/pcf8591.js"
     }
   },

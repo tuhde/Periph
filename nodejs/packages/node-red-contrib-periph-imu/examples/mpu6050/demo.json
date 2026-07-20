@@ -1,0 +1,76 @@
+[
+    {
+        "id": "tab-mpu6050-demo",
+        "type": "tab",
+        "label": "MPU6050 Motion Logger",
+        "disabled": false,
+        "info": "Reads 3-axis acceleration and angular rate from an MPU6050 every 100 ms. A function node computes roll and pitch from the accelerometer gravity vector and the gyro magnitude. Demonstrates basic tilt estimation from IMU data. Adjust the gyro and accel full-scale ranges in the device config node to match your application's dynamic range."
+    },
+    {
+        "id": "cfg-mpu6050",
+        "type": "mpu6050-device",
+        "name": "MPU6050",
+        "bus": "1",
+        "address": "68",
+        "gyroFs": "1",
+        "accelFs": "1"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-mpu6050-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-mpu6050"]]
+    },
+    {
+        "id": "read-mpu6050",
+        "type": "mpu6050",
+        "name": "MPU6050",
+        "device": "cfg-mpu6050",
+        "z": "tab-mpu6050-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["compute-tilt"]]
+    },
+    {
+        "id": "compute-tilt",
+        "type": "function",
+        "name": "roll/pitch",
+        "func": "const p = msg.payload;\nconst roll = Math.atan2(p.ay, p.az) * 180 / Math.PI;\nconst pitch = Math.atan2(-p.ax, Math.sqrt(p.ay*p.ay + p.az*p.az)) * 180 / Math.PI;\nconst gyroMag = Math.sqrt(p.gx*p.gx + p.gy*p.gy + p.gz*p.gz);\nmsg.payload = 'roll=' + roll.toFixed(1) + '° pitch=' + pitch.toFixed(1) + '° |gyro|=' + gyroMag.toFixed(3) + ' rad/s';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-mpu6050-demo",
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-output"]]
+    },
+    {
+        "id": "dbg-output",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-mpu6050-demo",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    }
+]

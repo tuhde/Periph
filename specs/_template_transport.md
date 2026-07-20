@@ -40,6 +40,14 @@ All transport implementations must provide these operations:
 
 <!-- Arduino-specific implementation notes. -->
 
+## Sigrok Decoder
+
+<!-- One paragraph describing what the sigrok decoder annotates: which signals or channels
+     carry the protocol, what framing / bit fields are decoded, and what computed values are shown.
+     Mention the decoder id and whether it stacks on an existing protocol decoder (e.g. i2c, uart)
+     or decodes raw logic lines directly. Omit this section for standard protocols (I²C, SPI, UART)
+     that sigrok already decodes natively. -->
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -70,3 +78,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `rust/periph/src/transport/<transport>.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
+
+### JVM
+- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/<Transport>Transport.java` — Javadoc on class and every public method
+- [ ] Tests (Pi hardware, JBang)
+
+### Sigrok
+- [ ] Decoder `sigrok/<transport>/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
+- [ ] Decoder `sigrok/<transport>/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` only

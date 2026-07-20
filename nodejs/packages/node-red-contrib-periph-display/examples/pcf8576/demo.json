@@ -1,0 +1,73 @@
+[
+    {
+        "id": "tab-pcf8576-demo",
+        "type": "tab",
+        "label": "PCF8576 Clock",
+        "disabled": false,
+        "info": "Drives a 4-digit 7-segment LCD clock from a PCF8576 over I2C. An inject node fires every second, a function node converts the current time to four individual digits, and the periph-pcf8576 node writes the encoded bytes to the chip's display RAM. The chip handles AC drive waveforms internally — the host only writes segment data. With the demo's 9999-to-0000 countdown variant, the user can verify that all 20 segment positions update at the expected rate and that the chip is reliable over many writes."
+    },
+    {
+        "id": "cfg-pcf8576",
+        "type": "pcf8576-device",
+        "name": "PCF8576",
+        "bus": "1",
+        "address": "38",
+        "backplanes": "4",
+        "bias": "0"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-pcf8576-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["fn-time"]]
+    },
+    {
+        "id": "fn-time",
+        "type": "function",
+        "name": "extract HH:MM",
+        "func": "const d = new Date(msg.payload);\nconst hh = d.getHours();\nconst mm = d.getMinutes();\nmsg.payload = {\n    digits: [Math.floor(hh/10), hh%10, Math.floor(mm/10), mm%10]\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-pcf8576-demo",
+        "x": 290,
+        "y": 160,
+        "wires": [["write-lcd", "dbg-lcd"]]
+    },
+    {
+        "id": "write-lcd",
+        "type": "periph-pcf8576",
+        "name": "Display",
+        "device": "cfg-pcf8576",
+        "z": "tab-pcf8576-demo",
+        "x": 470,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "dbg-lcd",
+        "type": "debug",
+        "name": "digits",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 470,
+        "y": 220,
+        "wires": []
+    }
+]

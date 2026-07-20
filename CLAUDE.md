@@ -11,7 +11,7 @@ Implementations:
 - **C++** — Arduino, Linux GCC, and Zephyr RTOS
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
-- **Java / Kotlin / Groovy** — JVM target: Raspberry Pi via Pi4J; transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
+- **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
 
 ## Workflow
 
@@ -92,18 +92,13 @@ cpp/
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
-    <Chip>_Minimal/     # <Chip>_Minimal.ino  (dir name must match .ino filename)
+    <Chip>_Minimal/     # <Chip>_Minimal.ino  (Arduino; dir name must match .ino filename)
     <Chip>_Complete/    # <Chip>_Complete.ino
     <Chip>_Demo/        # <Chip>_Demo.ino
+    <Chip>_Minimal_Zephyr/   # src/main.cpp, CMakeLists.txt, prj.conf  (Zephyr)
+    <Chip>_Complete_Zephyr/
+    <Chip>_Demo_Zephyr/
   library.properties    # Arduino library metadata
-zephyr/
-  src/
-    transport/          # Zephyr transport headers (header-only, included from examples/tests)
-  examples/
-    <Chip>_Minimal/     # src/main.cpp, CMakeLists.txt, prj.conf
-    <Chip>_Complete/
-    <Chip>_Demo/
-  tests/
 nodejs/
   package.json          # npm workspaces root
   packages/
@@ -143,8 +138,8 @@ jvm/
   pom.xml               # Parent POM: groupId=it.uhde, artifactId=periph, multi-module
   periph-transport/     # Java-only transport library (JPMS module: it.uhde.periph.transport)
     src/main/java/
-      module-info.java          # exports it.uhde.periph.transport; requires com.pi4j
-      it/uhde/periph/transport/ # Transport interface + Pi4J I2C/SPI implementations
+      module-info.java          # exports it.uhde.periph.transport
+      it/uhde/periph/transport/ # Transport interface + Linux i2c-dev implementations (FFM)
     pom.xml
   periph-java/          # Java chip drivers (JPMS module: it.uhde.periph)
     src/
@@ -178,9 +173,15 @@ jvm/
     groovy/
       <category>/
         <chip>/         # Minimal.groovy, Complete.groovy, Demo.groovy (//DEPS it.uhde:periph-groovy:...)
-  tests/                # JBang integration test scripts (run on Pi hardware)
+  tests/                # JBang integration test scripts (run on Linux hardware)
     <category>/
       <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
+sigrok/
+  <chip>/               # Sigrok protocol decoder
+    pd.py               # Decoder implementation
+    __init__.py         # Re-exports Decoder
+  tests/
+    <chip>/             # Captured .sr session for manual verification
 ```
 
 Each chip driver depends only on the transport abstraction, never on a concrete bus.
@@ -261,7 +262,7 @@ This applies to specs, source code, comments, examples, and documentation.
 
 The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.
 
-Source files carry full inline API documentation in the platform-native format (Python docstrings, C++ Doxygen, JSDoc, Rust `///`). The three example tiers serve as usage documentation, with the demo as the narrative entry point for new users.
+Source files carry full inline API documentation in the platform-native format (Python docstrings, C++ Doxygen, JSDoc, Rust `///`, JVM Javadoc/KDoc/Groovydoc). The three example tiers serve as usage documentation, with the demo as the narrative entry point for new users.
 
 ## Status
 

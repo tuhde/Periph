@@ -1,0 +1,6 @@
+pub mod rda5807m;
+pub use rda5807m::{
+    Rda5807mMinimal, Rda5807mFull,
+    BAND_US_EUROPE, BAND_JAPAN, BAND_WORLD, BAND_EAST_EUROPE,
+    SPACE_100K, SPACE_200K, SPACE_50K, SPACE_25K,
+};

@@ -1,0 +1,101 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('pcf8576-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '38', required: true },
+            backplanes: { value: '4', required: true, validate: RED.validators.number() },
+            bias:       { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('PCF8576 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf8576-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCF8576">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">I²C address (hex)</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="38">0x38 (SA0 = VSS)</option>
+            <option value="39">0x39 (SA0 = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-backplanes">Drive mode</label>
+        <select id="node-config-input-backplanes" style="width:180px">
+            <option value="1">Static (1 backplane)</option>
+            <option value="2">1:2 multiplex</option>
+            <option value="3">1:3 multiplex</option>
+            <option value="4" selected>1:4 multiplex</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bias">Bias</label>
+        <select id="node-config-input-bias" style="width:180px">
+            <option value="0" selected>1/3 bias (recommended for 1:3, 1:4)</option>
+            <option value="1">1/2 bias</option>
+        </select>
+    </div>
+</script>
+
+<!-- Write node: trigger → write digits or raw data -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8576', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'pcf8576-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'PCF8576'; },
+        paletteLabel: 'PCF8576'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8576">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8576">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8576">
+    <p>Writes 7-segment digits or raw data to a PCF8576 40x4 universal LCD segment driver over I²C. The chip is write-only; any incoming message triggers a single write to display RAM.</p>
+    <p>The device is configured via a <b>pcf8576-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.digits <span class="property-type">number[]</span></dt>
+        <dd>Array of digit values (0-9 or null for blank). Encodes each with the 7-segment lookup table and writes them starting at RAM address 0. Use null to blank a position.</dd>
+        <dt>payload.address <span class="property-type">number</span> + payload.data <span class="property-type">number[]</span></dt>
+        <dd>Raw write starting at RAM address 0-39. <code>payload.data</code> holds the bytes to write; one byte covers two adjacent columns in 1:4 multiplex mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Pass-through of the original incoming message after the write succeeds.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (0x38 for SA0=VSS or 0x39 for SA0=VDD), the drive mode (1-4 backplanes), and the bias in the device config node.</p>
+    <p>The PCF8576 has no read-back — there is no status output. The driver only uses <code>transport.write()</code>.</p>
+</script>

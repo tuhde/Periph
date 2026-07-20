@@ -99,26 +99,8 @@ jobs:
             jq --arg v "$VERSION" '.version = $v' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
           done
 
-      - name: Generate READMEs for placeholder packages
-        shell: python3 {0}
-        run: |
-          import json, pathlib
-          for d in sorted(pathlib.Path('nodejs/packages').glob('node-red-contrib-periph-*/')):
-              if (d / 'README.md').exists():
-                  continue
-              pkg = json.loads((d / 'package.json').read_text())
-              name, desc = pkg['name'], pkg['description']
-              (d / 'README.md').write_text(
-                  f'# {name}\n\n'
-                  f'{desc} — part of the [Periph](https://github.com/tuhde/Periph) library.\n\n'
-                  f'> **Coming soon.** Nodes will be added as chips in this category'
-                  f' are implemented.\n\n'
-                  f'## Install\n\n'
-                  f'```sh\nnpm install {name}\n```\n\n'
-                  f'## Links\n\n'
-                  f'- [GitHub](https://github.com/tuhde/Periph)\n'
-                  f'- [All supported chips](https://github.com/tuhde/Periph#supported-chips)\n'
-              )
+      - name: Generate periph / Node-RED package READMEs
+        run: node nodejs/scripts/generate-readmes.js
 
       - name: Publish periph core
         working-directory: nodejs
@@ -184,7 +166,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '22'
+          java-version: '25'
           cache: maven
 
       - name: Stamp version
@@ -302,7 +284,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [meta, python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -313,5 +295,6 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
+          name: "Periph v${{ needs.meta.outputs.version }}"
           files: artifacts/**
           generate_release_notes: true

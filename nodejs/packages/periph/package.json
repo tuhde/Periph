@@ -1,9 +1,16 @@
 {
   "name": "periph",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "JavaScript drivers for peripheral chips (I2C, SPI)",
   "main": "src/index.js",
-  "keywords": ["i2c", "spi", "uart", "sensor", "peripheral", "hardware"],
+  "keywords": [
+    "i2c",
+    "spi",
+    "uart",
+    "sensor",
+    "peripheral",
+    "hardware"
+  ],
   "license": "MIT",
   "dependencies": {
     "i2c-bus": "^5.2.2",

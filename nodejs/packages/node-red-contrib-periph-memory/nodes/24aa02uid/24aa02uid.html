@@ -1,0 +1,94 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('24aa02uid-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '50', required: true }
+        },
+        label: function() {
+            return this.name || ('24AA02UID @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="24aa02uid-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="24AA02UID">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="50" style="width:80px"> &nbsp;default: 50 (0x50, fixed)
+    </div>
+</script>
+
+<!-- Read node: trigger → uid / read / write -->
+<script type="text/javascript">
+    RED.nodes.registerType('24aa02uid', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: '24aa02uid-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-id-card',
+        label:   function() { return this.name || '24AA02UID'; },
+        paletteLabel: '24AA02UID'
+    });
+</script>
+
+<script type="text/html" data-template-name="24aa02uid">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="24AA02UID">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="24aa02uid">
+    <p>Reads the factory-programmed 32-bit unique serial number from a 24AA02UID
+    EEPROM, or reads / writes user EEPROM bytes, over I²C.</p>
+    <p>Any input message triggers an operation. The device is configured via a
+    <b>24aa02uid-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>op <span class="property-type">string</span></dt>
+        <dd>Operation: <code>read_uid</code> (default), <code>read</code>, or
+        <code>write</code>. May be passed in <code>msg.op</code>.</dd>
+        <dt>address <span class="property-type">number</span></dt>
+        <dd>Memory address for read/write. Ignored for <code>read_uid</code>.</dd>
+        <dt>length <span class="property-type">number</span></dt>
+        <dd>Number of bytes to read (only for <code>read</code>).</dd>
+        <dt>data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes to write (only for <code>write</code>).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.uid <span class="property-type">string</span></dt>
+        <dd>UID as an 8-character hex string (uppercase). <code>read_uid</code> only.</dd>
+        <dt>payload.uid_int <span class="property-type">number</span></dt>
+        <dd>UID as a 32-bit unsigned integer (big-endian). <code>read_uid</code> only.</dd>
+        <dt>payload.data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes read from the chip. <code>read</code> only.</dd>
+        <dt>payload.ok <span class="property-type">boolean</span></dt>
+        <dd>True on a successful write. <code>write</code> only.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's fixed address (default
+    <code>0x50</code>) in the device config node. The 24AA02UID's address
+    pins are not connected — only one device per bus is supported.</p>
+</script>

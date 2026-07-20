@@ -25,6 +25,8 @@ body:
         - label: "Node.js — Linux"
         - label: "Rust — embedded-hal (bare-metal / ESP32-S3)"
         - label: "Rust — Linux (spidev / i2c-dev)"
+        - label: "JVM (Java / Kotlin / Groovy) — Linux (i2c-dev / FFM)"
+        - label: "Sigrok — protocol decoder"
         - label: Other (describe in notes)
 
   - type: input

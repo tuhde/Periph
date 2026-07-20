@@ -42,7 +42,9 @@ impl/<chip>/OC-<model>
 
 Example: `impl/ina226/OC-gpt-4o`
 
-Check out the base feature branch, create your implementation branch from it, and open a PR targeting the feature branch when done.
+Check out the base feature branch, rebase it to main, create your implementation branch from it, and open a PR targeting the main branch when done. The feature branch stays untouched for later reimplementation by another model.
+
+**Label the PR itself**, not just the issue: `gh pr edit <num> --add-label chip` (or `transport`), plus any `transport:*` labels the issue carries. GitHub's release-notes generator (`.github/release.yml`) groups the changelog by PR label, not issue label, so an unlabeled PR falls into the catch-all "Other Changes" section of the next release.
 
 ### Reimplementation by a different model
 
@@ -58,13 +60,13 @@ OpenCode is responsible for keeping the labels on its issue in sync with reality
 | Picked up | `in-progress` (remove `needs-implementation`) | First thing you do after creating your implementation branch |
 | Minimal stage merged | `in-progress`, `stage:minimal` | After committing the Minimal stage on your implementation branch |
 | Full stage merged | `in-progress`, `stage:minimal`, `stage:full` | After committing the Full stage |
-| Finished | `done` (remove `in-progress`) | After all platforms across all stages are committed and the PR is open |
+| Finished | `done`, `needs-testing` (remove `in-progress`) | After all platforms across all stages are committed and the PR is open |
 
 The `chip` / `transport` label stays on the issue throughout — those describe what the issue *is*, not its state.
 
 ## Where things go
 
-Every chip is implemented across all four languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
+Every chip is implemented across all five languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
 
 | Artifact | Path |
 |----------|------|
@@ -574,7 +576,7 @@ There is **no** ESP32-S3 example crate — only an ESP32-S3 *test* crate. Embedd
 
 Three languages, one transport library. The chip driver is implemented independently in each language; all three depend only on `periph-transport` (Java) and never on each other.
 
-Target platform: **Raspberry Pi via Pi4J** (all three languages use the same `I2CTransport`).
+Target platform: **Linux host via i2c-dev / FFM** (all three languages use the same `I2CTransport`).
 
 ### Transport interface
 

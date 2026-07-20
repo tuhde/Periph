@@ -1,10 +1,22 @@
 {
   "name": "node-red-contrib-periph-environmental",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Node-RED nodes for environmental sensor chips",
-  "keywords": ["node-red", "environmental", "i2c", "spi", "sensor", "peripheral"],
+  "keywords": [
+    "node-red",
+    "environmental",
+    "i2c",
+    "spi",
+    "sensor",
+    "peripheral"
+  ],
+  "main": "index.js",
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "aht21": "nodes/aht21/aht21.js",
+      "bme280": "nodes/bme280/bme280.js",
+      "bme680": "nodes/bme680/bme680.js"
+    }
   },
   "dependencies": {
     "periph": "*"

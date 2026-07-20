@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * Represents one device on a bus. Each instance is bound to a single device address.
- * Implementations wrap a platform-specific bus (e.g. Pi4J I²C).
+ * Implementations wrap a platform-specific bus (e.g. Linux i2c-dev via FFM).
  */
 public interface Transport extends AutoCloseable {
 
