@@ -12,3 +12,4 @@ pub mod magnetometer;
 pub mod memory;
 pub mod power;
 pub mod pressure;
+pub mod rfid;

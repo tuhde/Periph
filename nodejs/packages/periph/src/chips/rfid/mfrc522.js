@@ -487,8 +487,25 @@ class MFRC522Full extends MFRC522Minimal {
      */
     writeBlock(blockAddress, data) {
         if (data.length !== 16) return false;
-        if (!this._valueOp(0xA0, blockAddress, 0, false)) return false;
-        return this._transfer(blockAddress);
+        // Phase 1: 0xA0 + block_address, expect 4-bit ACK
+        const c = Buffer.from([0xA0, blockAddress & 0xFF]);
+        this._writeReg(_REG_TX_MODE, 0x80);
+        this._writeReg(_REG_RX_MODE, 0x80);
+        const crc = this._calcCrc(c);
+        const full = Buffer.concat([c, crc]);
+        const back = this._transceive(full);
+        if (!back || back.length < 1 || (back[0] & 0x0F) !== 0x0A) {
+            this._writeReg(_REG_TX_MODE, 0x00);
+            this._writeReg(_REG_RX_MODE, 0x00);
+            return false;
+        }
+        // Phase 2: 16 data bytes, expect 4-bit ACK
+        const crc2 = this._calcCrc(data);
+        const buf = Buffer.concat([data, crc2]);
+        const back2 = this._transceive(buf);
+        this._writeReg(_REG_TX_MODE, 0x00);
+        this._writeReg(_REG_RX_MODE, 0x00);
+        return back2 !== null && back2.length >= 1 && (back2[0] & 0x0F) === 0x0A;
     }
 
     /**

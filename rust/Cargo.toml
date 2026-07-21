@@ -32,6 +32,7 @@ exclude = [
     "tests/display/pcf8576_test_esp32s3",
     "tests/comms/rda5807m_test_esp32s3",
     "tests/gnss/neo6_test_esp32s3",
+    "tests/rfid/mfrc522_test_esp32s3",
 ]
 members = [
     "periph",
@@ -143,6 +144,10 @@ members = [
     "tests/gnss/neo6_test_uart",
     "tests/gnss/neo6_test_i2c",
     "tests/gnss/neo6_test_spi",
+    "examples/mfrc522_minimal",
+    "examples/mfrc522_complete",
+    "examples/mfrc522_demo",
+    "tests/rfid/mfrc522_test",
 ]
 
 [workspace.dependencies]

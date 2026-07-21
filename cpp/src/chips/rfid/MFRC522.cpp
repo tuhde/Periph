@@ -475,8 +475,38 @@ bool MFRC522Full::_transfer(uint8_t block_address) {
 }
 
 bool MFRC522Full::write_block(uint8_t block_address, const uint8_t* data) {
-    if (!_value_op(0xA0, block_address, 0, false)) return false;
-    return _transfer(block_address);
+    // Phase 1: 0xA0 + block_address, expect 4-bit ACK
+    uint8_t c[2] = {0xA0, block_address};
+    _write_reg(REG_TX_MODE, 0x80);
+    _write_reg(REG_RX_MODE, 0x80);
+    uint8_t crc[2];
+    _calc_crc(c, 2, crc);
+    uint8_t full[4] = {c[0], c[1], crc[0], crc[1]};
+    uint8_t back[4];
+    size_t  back_len = 0;
+    if (!_transceive(full, 4, back, back_len, 4)) {
+        _write_reg(REG_TX_MODE, 0x00);
+        _write_reg(REG_RX_MODE, 0x00);
+        return false;
+    }
+    if (back_len < 1 || (back[0] & 0x0F) != 0x0A) {
+        _write_reg(REG_TX_MODE, 0x00);
+        _write_reg(REG_RX_MODE, 0x00);
+        return false;
+    }
+    // Phase 2: 16 data bytes, expect 4-bit ACK
+    uint8_t crc2[2];
+    _calc_crc(data, 16, crc2);
+    uint8_t buf[18];
+    memcpy(buf, data, 16);
+    buf[16] = crc2[0];
+    buf[17] = crc2[1];
+    back_len = 0;
+    bool ok = _transceive(buf, 18, back, back_len, 4);
+    _write_reg(REG_TX_MODE, 0x00);
+    _write_reg(REG_RX_MODE, 0x00);
+    if (!ok || back_len < 1 || (back[0] & 0x0F) != 0x0A) return false;
+    return true;
 }
 
 bool MFRC522Full::increment_value(uint8_t block_address, uint32_t delta) {
