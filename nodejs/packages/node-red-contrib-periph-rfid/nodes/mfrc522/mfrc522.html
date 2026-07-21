@@ -1,0 +1,56 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mfrc522', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:        { value: '' },
+            bus:         { value: '0', required: true, validate: RED.validators.number() },
+            device:      { value: '0', required: true, validate: RED.validators.number() },
+            speed:       { value: '1000000', required: true, validate: RED.validators.number() },
+            pollInterval:{ value: '500', validate: RED.validators.number() }
+        },
+        inputs:  0,
+        outputs: 1,
+        icon:    'font-awesome/fa-id-card',
+        label:   function() { return this.name || 'MFRC522'; },
+        paletteLabel: 'MFRC522'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mfrc522">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MFRC522">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-speed"><i class="fa fa-cog"></i> SPI speed (Hz)</label>
+        <input type="number" id="node-input-speed" min="0" style="width:120px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-pollInterval"><i class="fa fa-clock-o"></i> Poll interval (ms)</label>
+        <input type="number" id="node-input-pollInterval" min="0" style="width:80px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mfrc522">
+    <p>Detects ISO/IEC 14443 Type A cards in the field of an NXP MFRC522 13.56 MHz RFID/NFC reader and reads their UID. The node polls the chip on the configured interval and only emits a message when the card state changes (card inserted, removed, or a different card presented).</p>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.present <span class="property-type">boolean</span></dt>
+        <dd>True if a card is currently in the field.</dd>
+        <dt>payload.uid <span class="property-type">string</span></dt>
+        <dd>Hex-encoded UID of the card (e.g. <code>"04a1b2c3"</code>), or <code>null</code> when no card is present.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus number, the SPI device (CS) number, the SPI clock frequency (default 1 MHz), and the poll interval in milliseconds (default 500 ms).</p>
+</script>

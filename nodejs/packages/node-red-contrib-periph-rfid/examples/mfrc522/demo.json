@@ -1,0 +1,106 @@
+[
+    {
+        "id": "tab.rfid.mfrc522",
+        "type": "tab",
+        "label": "MFRC522 RFID card detection",
+        "info": "Polls an NXP MFRC522 13.56 MHz RFID/NFC reader on the configured interval and reports card detection events. A flow function formats the UID into a human-readable string for the debug panel; another debug node shows the raw payload on every poll for troubleshooting."
+    },
+    {
+        "id": "inject.mfrc522.poll",
+        "type": "inject",
+        "z": "tab.rfid.mfrc522",
+        "name": "poll every 500 ms",
+        "props": [{ "p": "payload" }],
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 120,
+        "wires": [["node.mfrc522"]]
+    },
+    {
+        "id": "node.mfrc522",
+        "type": "periph-mfrc522",
+        "z": "tab.rfid.mfrc522",
+        "name": "MFRC522 reader",
+        "bus": "0",
+        "device": "0",
+        "speed": "1000000",
+        "pollInterval": "500",
+        "x": 420,
+        "y": 120,
+        "wires": [["switch.mfrc522", "debug.mfrc522.raw"]]
+    },
+    {
+        "id": "switch.mfrc522",
+        "type": "switch",
+        "z": "tab.rfid.mfrc522",
+        "name": "card present?",
+        "property": "payload.present",
+        "propertyType": "msg",
+        "rules": [
+            { "t": "true" }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 680,
+        "y": 120,
+        "wires": [["change.mfrc522.label"]]
+    },
+    {
+        "id": "change.mfrc522.label",
+        "type": "change",
+        "z": "tab.rfid.mfrc522",
+        "name": "format label",
+        "rules": [
+            { "t": "set", "p": "payload", "pt": "msg", "to": "(\"Card detected: \" & msg.payload.uid)", "tot": "jsonata" }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 880,
+        "y": 120,
+        "wires": [["debug.mfrc522.detected"]]
+    },
+    {
+        "id": "debug.mfrc522.detected",
+        "type": "debug",
+        "z": "tab.rfid.mfrc522",
+        "name": "detected",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1080,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "debug.mfrc522.raw",
+        "type": "debug",
+        "z": "tab.rfid.mfrc522",
+        "name": "raw payload",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 200,
+        "wires": []
+    }
+]
