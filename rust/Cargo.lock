@@ -810,6 +810,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "mfrc522_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "mfrc522_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "mfrc522_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "mfrc522_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
 name = "mpu6050_complete"
 version = "0.1.0"
 dependencies = [

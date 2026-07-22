@@ -47,6 +47,7 @@ Each chip exposes two classes:
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
+| MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |

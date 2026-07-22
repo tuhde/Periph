@@ -56,6 +56,7 @@ Each chip exposes two classes:
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
+| MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | Mpu6050 | IMU | `chips/imu/Mpu6050.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |

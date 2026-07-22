@@ -8,5 +8,6 @@ module it.uhde.periph {
     exports it.uhde.periph.chips.memory;
     exports it.uhde.periph.chips.power;
     exports it.uhde.periph.chips.pressure;
+    exports it.uhde.periph.chips.rfid;
     requires it.uhde.periph.transport;
 }
