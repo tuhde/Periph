@@ -41,6 +41,9 @@ SPI is full-duplex: every byte sent has a simultaneous byte received. For `write
 | `dev` | Zephyr | `const struct device *` | SPI controller from devicetree (`DEVICE_DT_GET`) |
 | `config` | Zephyr | `struct spi_config` | Clock frequency, SPI operation flags, CS GPIO spec |
 | `I` (generic) | Rust | `impl SpiDevice` | Any type implementing `embedded_hal::spi::SpiDevice` |
+| `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` via raw ioctl; default mode 0, 1 000 000 Hz |
+| `spi` | Go TinyGo | `machine.SPI` | Configured SPI peripheral (e.g. `machine.SPI0`) |
+| `cs` | Go TinyGo | `machine.Pin` | CS pin, driven manually — TinyGo's `machine.SPI` has no automatic CS the way Zephyr's devicetree does |
 
 CS idles high. Asserted low for the duration of each operation.
 
@@ -195,6 +198,24 @@ embedded-hal = "1"
 embedded-hal-bus = "0.2"
 ```
 
+### Go — Linux
+
+Same raw-ioctl technique as the Go I²C transport: `SPI_IOC_MESSAGE(1)` against `/dev/spidevB.D` via `golang.org/x/sys/unix`, with a hand-built `spi_ioc_transfer` struct mirroring `linux/spi/spidev.h` — no cgo. `WriteRead` sends `len(data)+n` bytes in one transfer (dummy `0x00` TX bytes for the read phase) and discards the first `len(data)` received bytes, same convention as every other Linux SPI transport in this repo.
+
+File: `go/periph/transport/spi_linux.go`
+
+### Go — TinyGo
+
+Wraps a `machine.SPI` value (e.g. `machine.SPI0`). CS is a plain `machine.Pin` the transport drives itself around each call — TinyGo has no devicetree-style automatic CS.
+
+| Contract | TinyGo |
+|----------|--------|
+| `Write` | `cs.Low()` → `spi.Tx(data, nil)` → `cs.High()` |
+| `Read` | `cs.Low()` → `spi.Tx(nil, buf)` → `cs.High()` (dummy `0x00` bytes clocked out) |
+| `WriteRead` | `cs.Low()` → `spi.Tx(data, respBuf)` → `spi.Tx(nil, buf)` → `cs.High()` |
+
+File: `go/periph/transport/spi_tinygo.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -225,3 +246,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `rust/periph/src/transport/spi.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
+
+### Go
+- [ ] `go/periph/transport/spi_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/spi_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)

@@ -63,6 +63,16 @@ Wraps `I2CTransport` (FFM-based, same approach as the Linux I²C transport) and 
 
 On a PEC mismatch, `read` and `writeRead` throw `IOException("SMBus PEC error")`.
 
+### Go
+
+Wraps any `Transport` (typically an `I2CTransport`, whichever of `i2c_linux.go`/`i2c_tinygo.go` the build selected) and adds 7-bit address validation plus software PEC — same approach as the JVM transport. Because it only depends on the `Transport` interface rather than a concrete I²C type, this is the one transport in the Go implementation that needs **no build tag and no separate Linux/TinyGo file** — `SMBusTransport` itself is platform-agnostic.
+
+Constructor: `NewSMBusTransport(t Transport, addr uint8, pec bool) (*SMBusTransport, error)` — returns a non-nil error immediately if `addr` falls in the reserved 0x00–0x07 / 0x78–0x7F range.
+
+On a PEC mismatch, `Read` and `WriteRead` return an error wrapping `"smbus: PEC error"`.
+
+File: `go/periph/transport/smbus.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -97,3 +107,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### JVM
 - [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SMBusTransport.java` — Javadoc on class and every public method
 - [x] Tests (Pi hardware, JBang)
+
+### Go
+- [ ] `go/periph/transport/smbus.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)
