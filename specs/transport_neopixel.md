@@ -9,6 +9,8 @@ The NeoPixel transport drives cascaded WS2812B-compatible addressable LEDs over 
 
 All platforms use the same **SPI bit-encoding** approach: each NeoPixel bit is encoded as 3 SPI bits at 2.4 MHz and shifted out on the MOSI line. No platform-specific timing libraries are used. The encoding algorithm, configuration parameters, and reset handling are identical across all nine platforms.
 
+This is a deliberate choice on `pico-sdk` too: no PIO program is used, even though the RP2040/RP2350 PIO block is the idiomatic way to bit-bang WS2812 timing on this chip. Using the same SPI-encoding trick as every other platform keeps timing/behavior identical everywhere and avoids introducing a `.pio` build step unique to one platform.
+
 **Hardware constraint:** the NeoPixel DIN pin must be connected to the SPI MOSI pin. SCK, MISO, and CS are unused by the strip.
 
 Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. Payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The transport sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
@@ -88,6 +90,7 @@ def encode(data: bytes) -> bytes:
 | `bus_num`, `device_num` | Node.js | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0 |
 | `spi` | Rust (embedded-hal) | `impl SpiBus` | Any `embedded_hal::spi::SpiBus` at 2.4 MHz |
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` SPI bus at 2.4 MHz |
+| `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()` |
 
 ## Platform Notes
 
@@ -135,6 +138,14 @@ Constructor accepts `const struct device *` and `struct spi_config`. Set `config
 `prj.conf`: `CONFIG_SPI=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/NeoPixelTransportZephyr.h`
+
+### Raspberry Pi Pico SDK
+
+Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()`. `write()` encodes the buffer with the same 3-bit SPI encoding as every other platform and calls `spi_write_blocking(spi, encoded, len)`. No CS pin is used — same as every other platform.
+
+Uses `hardware_spi` directly (bare-metal `pico-sdk`, no Arduino core, no RTOS) rather than the RP2040/RP2350 PIO block; see the note in [Overview](#overview) on why this transport does not use PIO.
+
+File: `cpp/src/transport/NeoPixelTransportPicoSDK.h` (header-only)
 
 ### Node.js
 
@@ -193,9 +204,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
 - [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
 - [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/NeoPixelTransportPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
+- [ ] Tests (Pico SDK)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method

@@ -55,6 +55,14 @@ Wraps `TwoWire`. Constructor signature:
 
 PEC errors set an internal error flag readable via `bool valid()` after each operation.
 
+### Raspberry Pi Pico SDK
+
+Wraps `I2CTransportPicoSDK` and adds the same 7-bit address validation and software PEC as `SMBusTransportZephyr`, swapping in the `hardware_i2c` calls the wrapped transport already makes. Constructor signature: `SMBusTransportPicoSDK(i2c_inst_t* i2c, uint8_t addr, bool pec = false)`.
+
+PEC errors are reported the same way as `SMBusTransport` (Arduino): an internal error flag readable via `bool valid()` after each operation — pico-sdk has no exceptions.
+
+File: `cpp/src/transport/SMBusTransportPicoSDK.h` (header-only)
+
 ### JVM (Linux)
 
 Wraps `I2CTransport` (FFM-based, same approach as the Linux I²C transport) and adds address validation plus software PEC. Constructor signature: `SMBusTransport(int bus, int address, boolean pec)`.
@@ -81,9 +89,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SMBusTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SMBusTransportLinux.cpp`
 - [x] `cpp/src/transport/SMBusTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SMBusTransportPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/smbus.js` — JSDoc on class and every exported method

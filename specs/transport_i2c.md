@@ -93,6 +93,22 @@ Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a 
 
 `prj.conf` must enable `CONFIG_I2C=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The I²C device node (`i2c0` by default) must be enabled in the board's devicetree or an overlay.
 
+### Raspberry Pi Pico SDK
+
+Wraps `hardware_i2c` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts an `i2c_inst_t*` (`i2c0` or `i2c1`) already configured via `i2c_init()`, plus the 7-bit address.
+
+| Contract | pico-sdk |
+|----------|----------|
+| `write` | `i2c_write_blocking(i2c, addr, data, len, false)` |
+| `read` | `i2c_read_blocking(i2c, addr, buf, n, false)` |
+| `write_read` | `i2c_write_blocking(i2c, addr, data, len, true)` (`nostop`) → `i2c_read_blocking(i2c, addr, buf, n, false)` |
+
+The `nostop` (4th) parameter `true` on the write phase holds the bus for a repeated start instead of issuing STOP, matching the repeated-start contract every other I²C transport in this repo provides.
+
+Requires the `PICO_SDK_PATH` environment variable and `pico_sdk_init()` in the consuming CMake project, analogous to `ZEPHYR_BASE`/`west build` for Zephyr; link against `hardware_i2c`.
+
+File: `cpp/src/transport/I2CTransportPicoSDK.h` (header-only)
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -111,9 +127,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/I2cTransportLinux.cpp`
 - [x] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/I2CTransportPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
+- [ ] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method

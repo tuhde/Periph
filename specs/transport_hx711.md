@@ -98,6 +98,8 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pd_sck` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Clock / power-down output GPIO |
 | `dout` | Rust | `impl InputPin` | `embedded_hal::digital::InputPin` |
 | `pd_sck` | Rust | `impl OutputPin` | `embedded_hal::digital::OutputPin` |
+| `dout` | Pico SDK | `uint` (GPIO pin number) | Data input pin; `gpio_set_dir(dout, GPIO_IN)` in `init` |
+| `pd_sck` | Pico SDK | `uint` (GPIO pin number) | Clock / power-down output pin; `gpio_set_dir(pd_sck, GPIO_OUT)` in `init` |
 
 ## Platform Notes
 
@@ -140,6 +142,14 @@ Use `gpio_pin_get_dt()` and `gpio_pin_set_dt()`. Configure pins in `init` using 
 `prj.conf`: `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/HX711TransportZephyr.h`
+
+### Raspberry Pi Pico SDK
+
+Direct port of the Zephyr bit-bang loop onto `hardware_gpio` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts GPIO pin numbers for `dout` and `pd_sck`; `gpio_init()` both and set directions (`GPIO_IN` / `GPIO_OUT`) in `init`.
+
+Use `gpio_get(dout)` and `gpio_put(pd_sck, 0/1)`. No explicit delay is needed between clock edges — `gpio_put`/`gpio_get` call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare metal, so the DOUT-ready wait in `read_raw` is a tight `gpio_get(dout)` poll loop (same as Arduino), timed against the 1 s timeout via `time_us_64()`.
+
+File: `cpp/src/transport/HX711TransportPicoSDK.h` (header-only)
 
 ### Node.js
 
@@ -198,9 +208,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/HX711TransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/HX711TransportLinux.cpp`
 - [x] `cpp/src/transport/HX711TransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/HX711TransportPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method
