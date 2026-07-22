@@ -257,7 +257,12 @@ public class DHTxxTransport implements AutoCloseable {
      */
     public byte[] read() throws IOException {
         driveLow();
-        Thread.sleep(START_LOW_MS);
+        try {
+            Thread.sleep(START_LOW_MS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("interrupted while driving DHTxx start pulse", e);
+        }
         releaseBus();
         long elapsed = measurePulse(false, RESPONSE_TIMEOUT_US);
         if (elapsed < 0) {

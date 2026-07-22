@@ -142,6 +142,13 @@ void UARTTransportLinux::read(uint8_t* buf, size_t len) {
     }
 }
 
+size_t UARTTransportLinux::available() const {
+    int n = 0;
+    if (ioctl(_fd, FIONREAD, &n) < 0 || n < 0)
+        return 0;
+    return static_cast<size_t>(n);
+}
+
 void UARTTransportLinux::write_read(const uint8_t* data, size_t data_len,
                                      uint8_t* buf, size_t buf_len) {
     write(data, data_len);

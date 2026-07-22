@@ -37,4 +37,18 @@ public:
      */
     virtual void write_read(const uint8_t* data, size_t data_len,
                             uint8_t* buf, size_t buf_len) = 0;
+
+    /** @brief Number of bytes available to read() without blocking.
+     *
+     *  Default implementation returns SIZE_MAX ("unknown / always assume
+     *  data is ready"), appropriate for transports that never block
+     *  indefinitely (I2C, SPI always return a byte immediately, real or
+     *  idle filler) and for any transport that doesn't track this.
+     *  Buffered/blocking transports such as UART override this to report
+     *  the real RX buffer/FIFO fill level, so callers that need to avoid
+     *  blocking on read() (e.g. a driver polling a streaming protocol)
+     *  can check available() > 0 before calling read().
+     *  @return Byte count currently queued, or SIZE_MAX if not tracked.
+     */
+    virtual size_t available() const { return SIZE_MAX; }
 };

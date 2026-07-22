@@ -55,6 +55,14 @@ Wraps `TwoWire`. Constructor signature:
 
 PEC errors set an internal error flag readable via `bool valid()` after each operation.
 
+### JVM (Linux)
+
+Wraps `I2CTransport` (FFM-based, same approach as the Linux I²C transport) and adds address validation plus software PEC. Constructor signature: `SMBusTransport(int bus, int address, boolean pec)`.
+
+`I2CTransport.writeRead` performs a stop-then-start rather than a true repeated start, and `SMBusTransport` inherits that limitation.
+
+On a PEC mismatch, `read` and `writeRead` throw `IOException("SMBus PEC error")`.
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -85,3 +93,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `rust/periph/src/transport/smbus.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
+
+### JVM
+- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SMBusTransport.java` — Javadoc on class and every public method
+- [x] Tests (Pi hardware, JBang)

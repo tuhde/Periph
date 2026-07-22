@@ -1,0 +1,82 @@
+[
+    {
+        "id": "tab-pcf8591-demo",
+        "type": "tab",
+        "label": "PCF8591 ADC + DAC Demo",
+        "disabled": false,
+        "info": "An Inject node fires every second, triggering the periph-pcf8591 node to read all four analog channels. A Function node maps the four raw 0–255 values to approximate voltages (assuming 3.3 V reference). A Debug node prints the four channel voltages. A second Inject node sends a numeric payload to write a value to the on-chip DAC. The flow shows simultaneous ADC reading and DAC output from a single PCF8591 device."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read ADC (1s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-pcf8591-demo",
+        "x": 140,
+        "y": 100,
+        "wires": [["pcf8591-node"]]
+    },
+    {
+        "id": "pcf8591-node",
+        "type": "periph-pcf8591",
+        "name": "PCF8591",
+        "bus": "1",
+        "address": "48",
+        "inputMode": "4 single-ended",
+        "z": "tab-pcf8591-demo",
+        "x": 360,
+        "y": 100,
+        "wires": [["fn-volts"]]
+    },
+    {
+        "id": "fn-volts",
+        "type": "function",
+        "name": "raw → voltage",
+        "func": "const vref = 3.3;\nmsg.payload = {\n    ch0_v: msg.payload.ch0 * vref / 256.0,\n    ch1_v: msg.payload.ch1 * vref / 256.0,\n    ch2_v: msg.payload.ch2 * vref / 256.0,\n    ch3_v: msg.payload.ch3 * vref / 256.0,\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-pcf8591-demo",
+        "x": 560,
+        "y": 100,
+        "wires": [["dbg-voltages"]]
+    },
+    {
+        "id": "dbg-voltages",
+        "type": "debug",
+        "name": "channel voltages",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-pcf8591-demo",
+        "x": 760,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "inj-dac",
+        "type": "inject",
+        "name": "DAC = 128",
+        "topic": "",
+        "payload": "{\"dac\":128}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-pcf8591-demo",
+        "x": 140,
+        "y": 200,
+        "wires": [["pcf8591-node"]]
+    }
+]

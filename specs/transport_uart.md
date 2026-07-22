@@ -296,8 +296,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests
 
 ### JVM
-- [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java` — Javadoc on class and every public method
-- [ ] Tests (Linux)
+- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java` — Javadoc on class and every public method
+- [x] Tests (Linux)
 
 ### Rust
 - [ ] `rust/periph/src/transport/uart.rs` — `//!` module doc + `///` on every `pub` item
