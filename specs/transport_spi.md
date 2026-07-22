@@ -41,6 +41,7 @@ SPI is full-duplex: every byte sent has a simultaneous byte received. For `write
 | `dev` | Zephyr | `const struct device *` | SPI controller from devicetree (`DEVICE_DT_GET`) |
 | `config` | Zephyr | `struct spi_config` | Clock frequency, SPI operation flags, CS GPIO spec |
 | `I` (generic) | Rust | `impl SpiDevice` | Any type implementing `embedded_hal::spi::SpiDevice` |
+| `dev` | ESP-IDF | `spi_device_handle_t` | SPI device, already added to a bus via `spi_bus_add_device()` with CS configured in `spi_device_interface_config_t.spics_io_num` |
 
 CS idles high. Asserted low for the duration of each operation.
 
@@ -146,6 +147,20 @@ struct spi_config cfg = {
 
 File: `cpp/src/transport/SPITransportZephyr.h`
 
+### ESP-IDF
+
+Wraps ESP-IDF's `driver/spi_master.h`. Constructor accepts an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()`. Unlike Pico SDK — and like Zephyr's devicetree `cs-gpios` — CS is owned by the driver itself: `spi_device_interface_config_t.spics_io_num` is set once at `spi_bus_add_device()` time, and the driver asserts/deasserts it automatically around every transaction. The transport never touches a CS GPIO directly.
+
+| Contract | ESP-IDF |
+|----------|---------|
+| `write` | `spi_device_polling_transmit(dev, &t)` with `t.tx_buffer = data`, `t.length = len * 8` |
+| `read` | `spi_device_polling_transmit(dev, &t)` with `t.rx_buffer = buf`, `t.length = n * 8`, dummy `0x00` TX (`t.tx_buffer = NULL` clocks out zero bits, matching the dummy-byte convention every other platform uses) |
+| `write_read` | Two `spi_device_polling_transmit()` calls sharing one CS assertion: the first sends `data` with `SPI_TRANS_CS_KEEP_ACTIVE` set on the transaction to hold CS low after it completes, the second clocks in `n` bytes and lets CS deassert normally |
+
+`SPI_TRANS_CS_KEEP_ACTIVE` on the first transaction is the native equivalent of Zephyr's two-segment `spi_transceive` buffer set — it keeps the bus held across the command and response phases of a register read without releasing CS in between.
+
+File: `cpp/src/transport/SPITransportESPIDF.h` (header-only)
+
 ### Rust
 
 #### Embedded (embedded-hal `SpiDevice`)
@@ -213,9 +228,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SPITransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SPITransportLinux.cpp`
 - [x] `cpp/src/transport/SPITransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SPITransportESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method

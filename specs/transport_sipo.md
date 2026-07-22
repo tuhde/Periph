@@ -66,6 +66,7 @@ Some platforms already have a first-class software-SPI object with the same inte
 | Node.js | `spi-device` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `onoff` `Gpio`s |
 | Rust (embedded-hal / Linux) | Hardware `impl SpiBus` | caller supplies any bit-banged `impl SpiBus` (e.g. from `embedded-hal-bus`) — no transport code difference |
 | JVM | `/dev/spidevB.D` via FFM ioctl | transport bit-bangs `serInLine`/`srckLine` GPIO chardev lines via FFM ioctl |
+| ESP-IDF | `spi_device_handle_t` via `driver/spi_master.h` | transport bit-bangs `ser_in`/`srck` GPIO pin numbers with `gpio_set_level()` |
 
 Where the transport does its own bit-banging, the loop is the same everywhere (MSB-first, mode 0 — data driven before the rising edge, sampled on it):
 
@@ -118,6 +119,9 @@ No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns 
 | `busNumber`, `deviceNumber` | JVM | `int` | Hardware mode: opens `/dev/spidevB.D` via FFM ioctl, mode 0, 1 MHz — same approach as `NeoPixelTransport` |
 | `serInLine`, `srckLine` | JVM | `int` (GPIO line number) | Software mode: transport bit-bangs these two `/dev/gpiochip0` lines via FFM ioctl instead of opening spidev |
 | `rckLine`, `srclrLine`, `gLine` | JVM | `int` (GPIO line number, or `-1` to disable) | Always required/optional as before; `/dev/gpiochip0` character-device lines via FFM ioctl — same approach as the DE-pin handling in `UARTTransport` |
+| `dev` | ESP-IDF | `spi_device_handle_t` | Hardware mode: SPI device, already added to a bus via `spi_bus_add_device()` at 1 MHz, mode 0 |
+| `ser_in`, `srck` | ESP-IDF | `int` (`gpio_num_t`) | Software mode: transport bit-bangs these two pins instead of using `spi_device_handle_t` |
+| `rck`, `srclr`, `g` | ESP-IDF | `int` (`gpio_num_t`, or `-1` to disable) | Always required/optional as before; `gpio_set_direction(pin, GPIO_MODE_OUTPUT)` in `init` |
 
 ## Platform Notes
 
@@ -172,6 +176,16 @@ Constructor accepts `const struct device *` + `struct spi_config` plus `gpio_dt_
 `prj.conf`: `CONFIG_SPI=y`, `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/SiPoTransportZephyr.h`
+
+### ESP-IDF
+
+Two constructor modes (ESP-IDF has no devicetree, so — like Pico SDK — this is a constructor-overload choice rather than the devicetree choice Zephyr uses):
+- **Hardware:** an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()` at 1 MHz, mode 0, plus GPIO pin numbers for RCK/SRCLR/G. `write()` calls `spi_device_polling_transmit(dev, &t)` with `t.tx_buffer = data`, `t.length = len * 8`.
+- **Software:** `ser_in`/`srck` GPIO pin numbers instead of `spi_device_handle_t`. `write()` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `gpio_set_level()`.
+
+Both then do `gpio_set_level(rck, 1); gpio_set_level(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoTransport` (Arduino) and `SiPoTransportPicoSDK` already use.
+
+File: `cpp/src/transport/SiPoTransportESPIDF.h` (header-only)
 
 ### Node.js
 
@@ -241,9 +255,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SiPoTransportLinux.cpp`
 - [x] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SiPoTransportESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method

@@ -98,6 +98,8 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pd_sck` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Clock / power-down output GPIO |
 | `dout` | Rust | `impl InputPin` | `embedded_hal::digital::InputPin` |
 | `pd_sck` | Rust | `impl OutputPin` | `embedded_hal::digital::OutputPin` |
+| `dout` | ESP-IDF | `int` (`gpio_num_t`) | Data input pin; `gpio_set_direction(dout, GPIO_MODE_INPUT)` in `init` |
+| `pd_sck` | ESP-IDF | `int` (`gpio_num_t`) | Clock / power-down output pin; `gpio_set_direction(pd_sck, GPIO_MODE_OUTPUT)` in `init` |
 
 ## Platform Notes
 
@@ -140,6 +142,14 @@ Use `gpio_pin_get_dt()` and `gpio_pin_set_dt()`. Configure pins in `init` using 
 `prj.conf`: `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
 File: `cpp/src/transport/HX711TransportZephyr.h`
+
+### ESP-IDF
+
+Direct port of the Zephyr bit-bang loop onto `driver/gpio.h`. Constructor accepts GPIO pin numbers for `dout` and `pd_sck`; `gpio_reset_pin()` + `gpio_set_direction()` (`GPIO_MODE_INPUT` / `GPIO_MODE_OUTPUT`) both in `init`.
+
+Use `gpio_get_level(dout)` and `gpio_set_level(pd_sck, 0/1)`. No explicit delay is needed between clock edges — GPIO call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare-metal ESP-IDF tasks pinned to the polling loop, so the DOUT-ready wait in `read_raw` is a tight `gpio_get_level(dout)` poll loop, timed against the 1 s timeout via `esp_timer_get_time()`. Use `esp_rom_delay_us()` rather than `vTaskDelay()` for any sub-tick delay — `vTaskDelay()`'s minimum granularity is one FreeRTOS tick (typically 1–10 ms), far coarser than the 50 µs T3 ceiling this protocol requires.
+
+File: `cpp/src/transport/HX711TransportESPIDF.h` (header-only)
 
 ### Node.js
 
@@ -198,9 +208,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/HX711TransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/HX711TransportLinux.cpp`
 - [x] `cpp/src/transport/HX711TransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/HX711TransportESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method

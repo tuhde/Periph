@@ -60,8 +60,10 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `timeoutMs` | JVM | `int` | 1000 | Read timeout in milliseconds |
 | `dePinNum` | JVM | `int` | `-1` | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `U` (generic) | Rust | `impl Read + Write` | — | Any type implementing `embedded_io::Read + embedded_io::Write` |
+| `port` | ESP-IDF | `uart_port_t` | — | UART port number (`UART_NUM_0`, `UART_NUM_1`, `UART_NUM_2`), already installed via `uart_driver_install()` and configured via `uart_param_config()` |
+| `de_pin` | ESP-IDF | `int` (`gpio_num_t`) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
 
-For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
+For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
 
 For Linux and Node.js, the transport opens and configures the serial port itself using the provided parameters.
 
@@ -166,6 +168,22 @@ TX-complete detection: register a UART interrupt callback via `uart_irq_callback
 `prj.conf` must enable `CONFIG_UART_INTERRUPT_DRIVEN=y`, `CONFIG_GPIO=y` (RS-485), `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The UART device node must be present and enabled in the board's devicetree or an overlay.
 
 File: `cpp/src/transport/UARTTransportZephyr.h`
+
+### ESP-IDF
+
+Wraps ESP-IDF's `driver/uart.h`. Constructor accepts a `uart_port_t` already installed via `uart_driver_install()` and configured via `uart_param_config()`/`uart_set_pin()`, plus an optional DE pin number (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) transports.
+
+| Contract | ESP-IDF |
+|----------|---------|
+| `write` | `gpio_set_level(de, 1)` (RS-485) → `uart_write_bytes(port, data, len)` → `uart_wait_tx_done(port, 1000 / portTICK_PERIOD_MS)` → `gpio_set_level(de, 0)` (RS-485) |
+| `read` | `uart_read_bytes(port, buf, n, 1000 / portTICK_PERIOD_MS)` |
+| `write_read` | `write(data, len)` → `read(buf, n)` |
+
+The 1000 ms timeout matches Arduino's `HardwareSerial` default and Zephyr's 1 s read deadline, keeping behavior consistent across platforms. `uart_wait_tx_done()` blocks until the hardware FIFO is actually empty — safe to deassert DE immediately after, unlike Pico SDK which has no such call and must fall back to a baud-rate-derived delay.
+
+Where the transport exposes an `available()`-style query, use `uart_get_buffered_data_len(port, &n)`, which reports an exact byte count — no platform limitation here, unlike Pico SDK's boolean-only `uart_is_readable()`.
+
+File: `cpp/src/transport/UARTTransportESPIDF.h` (header-only)
 
 ### Linux GCC (C++)
 
@@ -287,9 +305,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
 - [ ] `cpp/src/transport/UARTTransportLinux.cpp`
 - [ ] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/UARTTransportESPIDF.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/uart.js` — JSDoc on class and every exported method

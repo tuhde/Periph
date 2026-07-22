@@ -55,6 +55,14 @@ Wraps `TwoWire`. Constructor signature:
 
 PEC errors set an internal error flag readable via `bool valid()` after each operation.
 
+### ESP-IDF
+
+Wraps `I2CTransportESPIDF` and adds the same 7-bit address validation and software PEC as `SMBusTransportZephyr`, swapping in the driver-ng `i2c_master_transmit`/`i2c_master_receive`/`i2c_master_transmit_receive` calls the wrapped transport already makes. Constructor signature: `SMBusTransportESPIDF(i2c_master_dev_handle_t dev, uint8_t addr, bool pec = false)`.
+
+PEC errors are reported the same way as `SMBusTransport` (Arduino): an internal error flag readable via `bool valid()` after each operation — ESP-IDF C++ code in this repo does not rely on exceptions, consistent with every other embedded platform's SMBus notes.
+
+File: `cpp/src/transport/SMBusTransportESPIDF.h` (header-only)
+
 ### JVM (Linux)
 
 Wraps `I2CTransport` (FFM-based, same approach as the Linux I²C transport) and adds address validation plus software PEC. Constructor signature: `SMBusTransport(int bus, int address, boolean pec)`.
@@ -81,9 +89,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SMBusTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SMBusTransportLinux.cpp`
 - [x] `cpp/src/transport/SMBusTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SMBusTransportESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/smbus.js` — JSDoc on class and every exported method

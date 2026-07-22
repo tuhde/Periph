@@ -93,6 +93,22 @@ Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a 
 
 `prj.conf` must enable `CONFIG_I2C=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The I²C device node (`i2c0` by default) must be enabled in the board's devicetree or an overlay.
 
+### ESP-IDF
+
+Wraps ESP-IDF's driver-ng I²C master API (`driver/i2c_master.h`, ESP-IDF ≥5.1 — the legacy `driver/i2c.h` is out of scope). Constructor accepts an already-configured `i2c_master_dev_handle_t`, matching Zephyr's pattern of taking a pre-configured device handle rather than configuring the bus itself.
+
+| Contract | ESP-IDF |
+|----------|---------|
+| `write` | `i2c_master_transmit(dev, data, len, -1)` |
+| `read` | `i2c_master_receive(dev, buf, n, -1)` |
+| `write_read` | `i2c_master_transmit_receive(dev, data, len, buf, n, -1)` |
+
+`i2c_master_transmit_receive` is a single driver-ng call that performs the write-then-repeated-start-read internally — no separate STOP/repeated-START management needed, unlike the legacy API. The `-1` timeout argument means block indefinitely (`portMAX_DELAY`); pass a finite millisecond value if a timeout is required.
+
+The caller creates the bus (`i2c_new_master_bus`) and adds the device (`i2c_master_bus_add_device`) before constructing the transport — same division of responsibility as Zephyr's devicetree-configured `const struct device *`.
+
+File: `cpp/src/transport/I2CTransportESPIDF.h` (header-only)
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -111,9 +127,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/I2cTransportLinux.cpp`
 - [x] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/I2CTransportESPIDF.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
+- [ ] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method
