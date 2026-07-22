@@ -22,6 +22,8 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | SMBus | Implemented |
 | NeoPixel (WS2812B / single-wire NZR) | Implemented |
 | UART (+ RS-485 variant) | Implemented |
+| HX711 (2-wire bit-bang) | Implemented |
+| DHTxx (single-wire bit-bang) | Implemented |
 
 ## Structure
 
@@ -87,6 +89,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

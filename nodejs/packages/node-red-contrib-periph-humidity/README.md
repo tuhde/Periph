@@ -14,7 +14,10 @@ npm install node-red-contrib-periph-humidity
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `dht11-device` | config | Bus configuration for a DHT11 |
+| `dht11` | input | Reads temperature and humidity from a DHT11 sensor over a single GPIO data line. |
 
 ## Links
 

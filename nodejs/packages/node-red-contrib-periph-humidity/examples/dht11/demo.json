@@ -1,0 +1,8 @@
+[
+  {
+    "id": "dht11_demo_tab",
+    "type": "tab",
+    "label": "DHT11 Demo",
+    "info": "Indoor comfort monitor using a DHT11 sensor.\n\nAn inject node fires every 5 seconds and triggers a `periph-dht11` read. The output connects to a debug node (logging the full payload) and two dashboard gauge nodes (node-red-dashboard): one for temperature in °C and one for humidity in %RH.\n\nConfigure the `dht11-device` config node with the GPIO pin number wired to the DHT11 DATA line (with a 4.7 kΩ pull-up to 3V3). Set the retry count to 3 to gracefully handle occasional checksum errors."
+  }
+]
