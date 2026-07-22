@@ -38,6 +38,7 @@ Each chip exposes two classes:
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
 | BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
+| DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
@@ -46,6 +47,7 @@ Each chip exposes two classes:
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
+| MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |

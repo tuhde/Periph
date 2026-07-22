@@ -1,5 +1,3 @@
-@file:CompileStatic
-
 package it.uhde.periph.chips.rfid
 
 import groovy.transform.CompileStatic
@@ -231,7 +229,7 @@ class Mfrc522Minimal {
     protected int[] selectCardInternal() throws IOException {
         int[] uid = new int[10]
         int len = 0
-        int[][] cascade = [[0x93, 0x93], [0x95, 0x95], [0x97, 0x97]]
+        int[][] cascade = [[0x93, 0x93], [0x95, 0x95], [0x97, 0x97]] as int[][]
         for (int[] level : cascade) {
             int[] part = anticollision(level[0])
             if (part == null) return null

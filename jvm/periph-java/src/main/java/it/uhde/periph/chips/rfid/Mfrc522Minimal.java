@@ -246,7 +246,7 @@ public class Mfrc522Minimal {
         return back[0];
     }
 
-    protected int[] selectCard() throws IOException {
+    protected int[] selectCardInternal() throws IOException {
         int[] uid = new int[10];
         int len = 0;
         int[][] cascade = { { 0x93, 0x93 }, { 0x95, 0x95 }, { 0x97, 0x97 } };
@@ -319,7 +319,7 @@ public class Mfrc522Minimal {
      */
     public byte[] readUid() throws IOException {
         if (!isCardPresent()) return null;
-        int[] uidArr = selectCard();
+        int[] uidArr = selectCardInternal();
         haltCard();
         if (uidArr == null) return null;
         byte[] out = new byte[uidArr.length];

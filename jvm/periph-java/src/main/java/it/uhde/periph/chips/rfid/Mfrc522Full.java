@@ -1,5 +1,7 @@
 package it.uhde.periph.chips.rfid;
 
+import it.uhde.periph.transport.Transport;
+
 import java.io.IOException;
 
 /**
@@ -155,7 +157,7 @@ public class Mfrc522Full extends Mfrc522Minimal {
      */
     public byte[] selectCard() throws IOException {
         if (!wakeupCard()) return null;
-        int[] uidArr = selectCard();
+        int[] uidArr = selectCardInternal();
         if (uidArr == null) return null;
         byte[] out = new byte[uidArr.length];
         for (int i = 0; i < uidArr.length; i++) out[i] = (byte) uidArr[i];

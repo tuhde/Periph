@@ -1,0 +1,74 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('dht11-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            dataPin: { value: '4', required: true, validate: RED.validators.number() },
+            retries: { value: '3', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('DHT11 @ GPIO' + this.dataPin);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="dht11-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="DHT11">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-dataPin"><i class="fa fa-microchip"></i> DATA GPIO</label>
+        <input type="number" id="node-config-input-dataPin" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-retries">Retries</label>
+        <input type="number" id="node-config-input-retries" min="0" step="1" style="width:80px">
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('dht11', {
+        category:  'Peripheral',
+        color:     '#a6bbcf',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'dht11-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tint',
+        label:   function() { return this.name || 'DHT11'; },
+        paletteLabel: 'DHT11'
+    });
+</script>
+
+<script type="text/html" data-template-name="dht11">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DHT11">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="dht11">
+    <p>Reads temperature and humidity from a DHT11 sensor over a single GPIO data line.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>dht11-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.humidity_rh <span class="property-type">number</span></dt>
+        <dd>Humidity in %RH.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Configure the DATA GPIO pin and the retry count in the device config node. The driver uses the
+    DHTxx single-wire transport; a 4.7 kΩ pull-up resistor to VCC must be present on the data line.</p>
+</script>

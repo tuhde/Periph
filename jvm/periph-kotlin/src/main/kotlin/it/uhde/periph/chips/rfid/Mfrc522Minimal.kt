@@ -235,7 +235,7 @@ open class Mfrc522Minimal @JvmOverloads constructor(
         return null
     }
 
-    protected fun haltCard() {
+    protected open fun haltCard() {
         val buf = IntArray(4)
         buf[0] = PICC_HLTA
         buf[1] = 0x00

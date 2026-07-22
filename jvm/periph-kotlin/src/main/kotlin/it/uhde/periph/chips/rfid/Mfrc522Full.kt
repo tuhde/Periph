@@ -1,5 +1,6 @@
 package it.uhde.periph.chips.rfid
 
+import it.uhde.periph.transport.Transport
 import java.io.IOException
 
 /**
@@ -135,7 +136,7 @@ class Mfrc522Full @JvmOverloads constructor(
     }
 
     /** Send HLTA — put the currently selected card into HALT state. */
-    fun haltCard() { super.haltCard() }
+    public override fun haltCard() { super.haltCard() }
 
     /**
      * Run MIFARE Classic Crypto1 authentication.

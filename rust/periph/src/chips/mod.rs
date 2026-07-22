@@ -1,6 +1,7 @@
 pub mod adc_dac;
 pub mod comms;
 pub mod display;
+pub mod humidity;
 pub mod environmental;
 pub mod gas;
 pub mod gnss;

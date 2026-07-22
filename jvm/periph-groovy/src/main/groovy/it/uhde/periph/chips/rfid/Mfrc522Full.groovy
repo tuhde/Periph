@@ -1,8 +1,7 @@
-@file:CompileStatic
-
 package it.uhde.periph.chips.rfid
 
 import groovy.transform.CompileStatic
+import it.uhde.periph.transport.Transport
 
 import java.io.IOException
 
