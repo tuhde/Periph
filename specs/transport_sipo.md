@@ -66,6 +66,8 @@ Some platforms already have a first-class software-SPI object with the same inte
 | Node.js | `spi-device` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `onoff` `Gpio`s |
 | Rust (embedded-hal / Linux) | Hardware `impl SpiBus` | caller supplies any bit-banged `impl SpiBus` (e.g. from `embedded-hal-bus`) — no transport code difference |
 | JVM | `/dev/spidevB.D` via FFM ioctl | transport bit-bangs `serInLine`/`srckLine` GPIO chardev lines via FFM ioctl |
+| Go Linux | `/dev/spidevB.D` via raw ioctl (Go's SPI transport) | transport bit-bangs `serIn`/`srck` `/dev/gpiochip0` lines via raw ioctl |
+| Go TinyGo | `machine.SPI` | transport bit-bangs `serIn`/`srck` `machine.Pin`s |
 
 Where the transport does its own bit-banging, the loop is the same everywhere (MSB-first, mode 0 — data driven before the rising edge, sampled on it):
 
@@ -118,6 +120,12 @@ No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns 
 | `busNumber`, `deviceNumber` | JVM | `int` | Hardware mode: opens `/dev/spidevB.D` via FFM ioctl, mode 0, 1 MHz — same approach as `NeoPixelTransport` |
 | `serInLine`, `srckLine` | JVM | `int` (GPIO line number) | Software mode: transport bit-bangs these two `/dev/gpiochip0` lines via FFM ioctl instead of opening spidev |
 | `rckLine`, `srclrLine`, `gLine` | JVM | `int` (GPIO line number, or `-1` to disable) | Always required/optional as before; `/dev/gpiochip0` character-device lines via FFM ioctl — same approach as the DE-pin handling in `UARTTransport` |
+| `busNum`, `deviceNum` | Go Linux | `int` | Hardware mode: opens `/dev/spidevB.D` via raw ioctl, mode 0, 1 MHz |
+| `serIn`, `srck` | Go Linux | `int` (GPIO line offset) | Software mode: transport bit-bangs these two `/dev/gpiochip0` lines via ioctl instead of opening spidev |
+| `rck`, `srclr`, `g` | Go Linux | `int` (GPIO line offset, or `-1` to disable) | Always required/optional as before |
+| `spi` | Go TinyGo | `machine.SPI` | Hardware mode: SPI peripheral |
+| `serIn`, `srck` | Go TinyGo | `machine.Pin` | Software mode: transport bit-bangs these two pins instead of using `machine.SPI` |
+| `rck`, `srclr`, `g` | Go TinyGo | `machine.Pin` | Always required/optional as before; zero value disables `srclr`/`g` |
 
 ## Platform Notes
 
@@ -219,6 +227,26 @@ For RCK/SRCLR/G in both modes, follow `UARTTransport`'s DE-pin pattern: request 
 
 File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java`
 
+### Go — Linux
+
+Same two-mode structure as every other Linux SiPo transport, built on the same raw-ioctl techniques as the Go I²C/SPI/HX711 transports (no cgo):
+- **Hardware:** `/dev/spidevB.D` via `SPI_IOC_MESSAGE`, mode 0, 1 MHz — reuses the Go Linux SPI transport's ioctl helpers.
+- **Software:** two `/dev/gpiochip0` line offsets (`serIn`, `srck`), bit-banged in `Write` via `GPIOHANDLE_SET_LINE_VALUES_IOCTL`.
+
+RCK/SRCLR/G are `/dev/gpiochip0` lines in both modes, requested the same way as the Go HX711 transport's `dout`/`pdSck`. Release the spidev fd (or bit-bang lines) and RCK/SRCLR/G lines in `Close()`.
+
+File: `go/periph/transport/sipo_linux.go`
+
+### Go — TinyGo
+
+Two constructor modes:
+- **Hardware:** a configured `machine.SPI` plus `machine.Pin`s for RCK/SRCLR/G. `Write` wraps the transfer in `spi.Tx(data, nil)`.
+- **Software:** `serIn`/`srck` `machine.Pin`s instead of `machine.SPI`. `Write` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `pin.Set(...)`.
+
+Both then do `rck.High(); rck.Low()` to latch.
+
+File: `go/periph/transport/sipo_tinygo.go`
+
 ## Sigrok Decoder
 
 The `sipo` decoder takes `logic` input directly rather than stacking on sigrok's built-in `spi` decoder: libsigrokdecode only supports declaring extra `channels`/`optional_channels` on a decoder whose `inputs` is `['logic']`, not on one stacked on another PD (confirmed against the stock decoder set — none combine a non-`logic` `inputs` with `channels`), and this decoder needs `rck` (plus optional `srclr`/`g`) as directly-sampled channels alongside SER IN/SRCK. It therefore declares `ser_in`, `srck`, and `rck` as required channels and `srclr`/`g` as optional ones, and decodes the SPI mode-0/MSB-first bit stream on `ser_in`/`srck` itself (same framing the built-in `spi` PD uses: one byte per 8 `srck` rising edges, no external frame signal). It buffers bytes seen since the last RCK rising edge and, on each RCK rising edge, emits a `LATCH` annotation carrying that buffered payload (the new output-register contents). SRCLR LOW pulses are annotated `CLEAR`; G HIGH periods are annotated `OUTPUTS DISABLED`. It emits `OUTPUT_PYTHON` packets — `('LATCH', bytes)`, `('CLEAR', None)` — that chip-level decoders for specific SiPo-based devices can stack on to interpret individual output pins.
@@ -257,6 +285,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### JVM
 - [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
 - [x] Tests (Pi hardware, JBang)
+
+### Go
+- [ ] `go/periph/transport/sipo_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/sipo_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)
 
 ### Sigrok
 - [x] Decoder `sigrok/sipo/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated

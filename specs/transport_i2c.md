@@ -93,6 +93,34 @@ Wraps the Zephyr I²C subsystem (`zephyr/drivers/i2c.h`). Constructor accepts a 
 
 `prj.conf` must enable `CONFIG_I2C=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The I²C device node (`i2c0` by default) must be enabled in the board's devicetree or an overlay.
 
+### Go — Linux
+
+No cgo: uses `golang.org/x/sys/unix` for the raw `ioctl()` call plus hand-built structs mirroring `linux/i2c-dev.h`'s `struct i2c_msg` / `struct i2c_rdwr_ioctl_data` — Go's `unsafe.Pointer` plays the same role the JVM transport's manual FFM struct layout plays; neither needs a native library.
+
+| Contract | Go Linux |
+|----------|----------|
+| `Write` | one `i2c_msg` (no `I2C_M_RD` flag) via `I2C_RDWR` |
+| `Read` | one `i2c_msg` with `I2C_M_RD` set |
+| `WriteRead` | two `i2c_msg`s in a single `I2C_RDWR` call — combined transfer, repeated start |
+
+Constructor opens `/dev/i2c-N` (`unix.Open`) and takes the 7-bit address; `Close()` calls `unix.Close`.
+
+File: `go/periph/transport/i2c_linux.go`
+
+### Go — TinyGo
+
+Wraps `machine.I2C0` (or any `machine.I2C` value the caller configured and passed in).
+
+| Contract | TinyGo |
+|----------|--------|
+| `Write` | `i2c.Tx(addr, data, nil)` |
+| `Read` | `i2c.Tx(addr, nil, buf)` |
+| `WriteRead` | `i2c.Tx(addr, data, buf)` — `machine.I2C.Tx` is already a combined write-then-read |
+
+Constructor accepts a configured `machine.I2C` value and the 7-bit address; `Close()` is a no-op (`machine.I2C` has no explicit release).
+
+File: `go/periph/transport/i2c_tinygo.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -121,5 +149,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Rust
 - [x] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
+
+### Go
+- [ ] `go/periph/transport/i2c_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/i2c_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)

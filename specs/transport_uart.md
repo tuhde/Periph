@@ -60,6 +60,15 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `timeoutMs` | JVM | `int` | 1000 | Read timeout in milliseconds |
 | `dePinNum` | JVM | `int` | `-1` | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `U` (generic) | Rust | `impl Read + Write` | — | Any type implementing `embedded_io::Read + embedded_io::Write` |
+| `port` | Go Linux | `string` | — | Serial device path (e.g. `/dev/ttyUSB0`) |
+| `baudRate` | Go Linux | `int` | 9600 | Baud rate |
+| `dataBits` | Go Linux | `int` | 8 | Data bits (5–8) |
+| `stopBits` | Go Linux | `int` | 1 | Stop bits (1 or 2); termios does not support 1.5 |
+| `parity` | Go Linux | `byte` | `'N'` | Parity: `'N'` none, `'E'` even, `'O'` odd |
+| `timeout` | Go Linux | `time.Duration` | 1s | Read timeout |
+| `dePinNum` | Go Linux | `int` | -1 | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
+| `uart` | Go TinyGo | `machine.UART` | — | Configured UART instance (e.g. `machine.UART0`) |
+| `dePin` | Go TinyGo | `machine.Pin` | — | RS-485 DE pin; zero value disables RS-485 mode |
 
 For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
 
@@ -215,6 +224,34 @@ For RS-485, prefer kernel RS-485 mode via `ioctl(fd, TIOCSRS485, rs485Addr)` whe
 
 File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java`
 
+### Go — Linux
+
+Same FFM-equivalent technique as the JVM transport, via `golang.org/x/sys/unix` instead: opens the device with `unix.Open(path, unix.O_RDWR|unix.O_NOCTTY, 0)` and configures it with `unix.IoctlGetTermios`/`unix.IoctlSetTermios` (raw mode, baud rate, data bits, parity, stop bits, `VMIN`/`VTIME` for the read timeout).
+
+| Contract | Go Linux |
+|----------|----------|
+| `Write` | RS-485 managed by kernel `TIOCSRS485` ioctl or manual GPIO → `unix.Write(fd, data)` → drain via `unix.IoctlSetInt(fd, unix.TCSBRK, 1)` (this is exactly what glibc's `tcdrain()` does on Linux — wait for TX to empty without sending a break) |
+| `Read` | `unix.Read(fd, buf)`, relying on the VTIME-based timeout already configured on the fd |
+| `WriteRead` | `Write(data)` → `Read(n)` |
+
+For RS-485, prefer kernel mode via `ioctl(fd, TIOCSRS485, ...)` with a hand-built `struct serial_rs485` (`SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND`) — same struct layout as the C++/JVM transports. Fall back to manual GPIO (`/dev/gpiochip0` chardev ioctl, same technique as the Go HX711/SiPo transports) when `dePinNum != -1` and the kernel driver lacks RS-485 support.
+
+File: `go/periph/transport/uart_linux.go`
+
+### Go — TinyGo
+
+Wraps a `machine.UART` value (e.g. `machine.UART0`). TinyGo's `machine.UART` implements `io.Reader`/`io.Writer` directly.
+
+| Contract | TinyGo |
+|----------|--------|
+| `Write` | `dePin.High()` (RS-485) → `uart.Write(data)` → baud-rate-derived delay (TinyGo has no TX-drain call) → `dePin.Low()` (RS-485) |
+| `Read` | `uart.Read(buf)` in a loop until `n` bytes accumulate or a deadline elapses — `machine.UART` has no blocking read-exactly-n call |
+| `WriteRead` | `Write(data)` → `Read(n)` |
+
+Same baud-rate delay formula as the MicroPython/CircuitPython UART transports: `time.Sleep(time.Duration(len(data)*10*1e9/baudRate) + 100*time.Microsecond)` before deasserting DE.
+
+File: `go/periph/transport/uart_tinygo.go`
+
 ### Rust
 
 #### Embedded (`embedded-io Read + Write`)
@@ -303,3 +340,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `rust/periph/src/transport/uart.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
+
+### Go
+- [ ] `go/periph/transport/uart_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/uart_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)
