@@ -44,6 +44,8 @@ SPI is full-duplex: every byte sent has a simultaneous byte received. For `write
 | `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` via raw ioctl; default mode 0, 1 000 000 Hz |
 | `spi` | Go TinyGo | `machine.SPI` | Configured SPI peripheral (e.g. `machine.SPI0`) |
 | `cs` | Go TinyGo | `machine.Pin` | CS pin, driven manually — TinyGo's `machine.SPI` has no automatic CS the way Zephyr's devicetree does |
+| `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), already configured via `spi_init()`/`spi_set_format()` |
+| `cs` | Pico SDK | `uint` (GPIO pin number) | CS pin, driven manually — pico-sdk has no automatic CS the way Zephyr's devicetree `cs-gpios` does |
 
 CS idles high. Asserted low for the duration of each operation.
 
@@ -149,6 +151,20 @@ struct spi_config cfg = {
 
 File: `cpp/src/transport/SPITransportZephyr.h`
 
+### Raspberry Pi Pico SDK
+
+Wraps `hardware_spi` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured via `spi_init()`/`spi_set_format()`, plus a GPIO pin number for CS. pico-sdk has no automatic CS the way Zephyr's devicetree `cs-gpios` does, so CS is a plain GPIO the transport drives itself — the same convention `SPITransport` (Arduino) already uses.
+
+| Contract | pico-sdk |
+|----------|----------|
+| `write` | `gpio_put(cs, 0)` → `spi_write_blocking(spi, data, len)` → `gpio_put(cs, 1)` |
+| `read` | `gpio_put(cs, 0)` → `spi_read_blocking(spi, 0x00, buf, n)` → `gpio_put(cs, 1)` |
+| `write_read` | `gpio_put(cs, 0)` → `spi_write_blocking(spi, data, len)` → `spi_read_blocking(spi, 0x00, buf, n)` → `gpio_put(cs, 1)` |
+
+`spi_read_blocking`'s second argument is the byte repeatedly clocked out on MOSI while reading — `0x00`, the same dummy-TX-byte convention `SPITransport` and `SPITransportZephyr` already use.
+
+File: `cpp/src/transport/SPITransportPicoSDK.h` (header-only)
+
 ### Rust
 
 #### Embedded (embedded-hal `SpiDevice`)
@@ -234,9 +250,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SPITransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SPITransportLinux.cpp`
 - [x] `cpp/src/transport/SPITransportZephyr.h` — Doxygen (header-only)
+- [ ] `cpp/src/transport/SPITransportPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
+- [ ] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
