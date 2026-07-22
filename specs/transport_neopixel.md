@@ -88,6 +88,8 @@ def encode(data: bytes) -> bytes:
 | `bus_num`, `device_num` | Node.js | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0 |
 | `spi` | Rust (embedded-hal) | `impl SpiBus` | Any `embedded_hal::spi::SpiBus` at 2.4 MHz |
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` SPI bus at 2.4 MHz |
+| `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0, via the Go Linux SPI transport's raw-ioctl path |
+| `spi` | Go TinyGo | `machine.SPI` | SPI peripheral configured at 2.4 MHz, mode 0 |
 
 ## Platform Notes
 
@@ -175,6 +177,18 @@ linux-embedded-hal = "0.4"
 embedded-hal = "1"
 ```
 
+### Go — Linux
+
+Wraps the Go Linux SPI transport (`spi_linux.go`) opened at 2.4 MHz, mode 0. `Write` encodes the buffer with the same 3-bits-per-bit scheme as every other implementation, appends the 16 zero reset bytes, and sends it in one `SPI_IOC_MESSAGE` transfer.
+
+File: `go/periph/transport/neopixel_linux.go`
+
+### Go — TinyGo
+
+Uses the `tinygo-org/drivers/ws2812` package rather than hand-rolling the SPI encoding — it already implements WS2812 timing per TinyGo-supported board (typically cycle-counted bit-banged GPIO, not necessarily the SPI trick), so behavior tracks whatever TinyGo's own maintained driver does. Document this divergence in the type's doc comment: TinyGo NeoPixel timing is board-native, not the SPI bit-encoding used by every other platform in this repo.
+
+File: `go/periph/transport/neopixel_tinygo.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -205,3 +219,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `rust/periph/src/transport/neopixel.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
+
+### Go
+- [ ] `go/periph/transport/neopixel_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/neopixel_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)

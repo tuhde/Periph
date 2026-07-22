@@ -12,6 +12,7 @@ Implementations:
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
 - **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
+- **Go** — two targets: Linux host (standard `go build`, raw syscalls via `golang.org/x/sys/unix`, no cgo) and TinyGo (`tinygo build`, bare-metal embedded via the `machine` package; hardware-in-loop tests pinned to a Raspberry Pi Pico W)
 
 ## Workflow
 
@@ -176,6 +177,25 @@ jvm/
   tests/                # JBang integration test scripts (run on Linux hardware)
     <category>/
       <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
+go/
+  go.mod                # Module github.com/tuhde/Periph/go
+  periph/
+    transport/          # Transport interface + <transport>_linux.go / <transport>_tinygo.go pairs, selected by build tags
+    chips/
+      <category>/       # One file per chip, grouped by category; package name drops underscores (adc_dac/ -> package adcdac)
+  examples/
+    <category>/
+      <chip>/
+        minimal/main.go          # go build                     (Linux host)
+        minimal_tinygo/main.go   # tinygo build -target=pico-w  (embedded)
+        complete/main.go
+        complete_tinygo/main.go
+        demo/main.go
+        demo_tinygo/main.go
+  tests/
+    <category>/
+      <chip>_test/          # Linux host
+      <chip>_test_tinygo/   # Raspberry Pi Pico W smoke test
 sigrok/
   <chip>/               # Sigrok protocol decoder
     pd.py               # Decoder implementation

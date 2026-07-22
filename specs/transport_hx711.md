@@ -98,6 +98,10 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pd_sck` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Clock / power-down output GPIO |
 | `dout` | Rust | `impl InputPin` | `embedded_hal::digital::InputPin` |
 | `pd_sck` | Rust | `impl OutputPin` | `embedded_hal::digital::OutputPin` |
+| `dout` | Go Linux | `int` (GPIO line offset) | Data input line, requested on `/dev/gpiochip0` via ioctl |
+| `pdSck` | Go Linux | `int` (GPIO line offset) | Clock / power-down output line, requested on `/dev/gpiochip0` via ioctl |
+| `dout` | Go TinyGo | `machine.Pin` | Data input pin |
+| `pdSck` | Go TinyGo | `machine.Pin` | Clock / power-down output pin |
 
 ## Platform Notes
 
@@ -180,6 +184,18 @@ linux-embedded-hal = "0.4"
 embedded-hal = "1"
 ```
 
+### Go — Linux
+
+Requests both lines on `/dev/gpiochip0` via the GPIO character-device ioctls (`GPIO_GET_LINEHANDLE_IOCTL` / `GPIOHANDLE_SET_LINE_VALUES_IOCTL`) — the same technique the JVM transport uses over FFM, translated to `golang.org/x/sys/unix` plus hand-built structs; no cgo, no `gpiod` bindings. Insert a 1 ms `time.Sleep` between DOUT polls in the wait loop; do **not** add explicit delays between PD_SCK edges — the ioctl call overhead already exceeds the 40 ns/0.2 µs minimums, and any `time.Sleep` of a sub-millisecond duration runs 50–100 µs in practice on Linux, which would trip the 50 µs T3 power-down threshold (same reasoning as every other Linux HX711 transport in this repo).
+
+File: `go/periph/transport/hx711_linux.go`
+
+### Go — TinyGo
+
+Uses `machine.Pin.Get()` / `machine.Pin.Set()` directly. No sleep is needed between polls or clock edges — TinyGo's per-call overhead exceeds the timing minimums, the same way MicroPython's does.
+
+File: `go/periph/transport/hx711_tinygo.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -210,3 +226,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `rust/periph/src/transport/hx711.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
+
+### Go
+- [ ] `go/periph/transport/hx711_linux.go` — Go doc comment on the type and every exported method
+- [ ] `go/periph/transport/hx711_tinygo.go` — Go doc comment on the type and every exported method
+- [ ] Tests (Linux)
+- [ ] Tests (TinyGo / Pico W)
