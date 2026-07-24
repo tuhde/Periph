@@ -148,3 +148,55 @@ jobs:
 
       - name: Compile workspace
         run: cargo build --manifest-path rust/Cargo.toml
+
+  # -----------------------------------------------------------------------
+  # Go — build + vet all packages (no hardware required)
+  # -----------------------------------------------------------------------
+  go-linux:
+    name: Go compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+
+      - name: Build
+        run: go build ./...
+        working-directory: go
+
+      - name: Vet
+        run: go vet ./...
+        working-directory: go
+
+  # -----------------------------------------------------------------------
+  # TinyGo — compile-only for Pico W, one example per transport type
+  # -----------------------------------------------------------------------
+  go-tinygo:
+    name: TinyGo compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: acifani/setup-tinygo@v2
+        with:
+          tinygo-version: '0.41.0'
+
+      - name: Cache TinyGo build cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/tinygo
+          key: tinygo-pico-w-${{ hashFiles('go/go.sum') }}
+          restore-keys: tinygo-pico-w-
+
+      - name: Build examples (Pico W, one per transport)
+        run: |
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/power/ina226/minimal_tinygo       # I2C
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/led/ws2812b/minimal_tinygo        # NeoPixel
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/humidity/dht11/minimal_tinygo     # DHTxx
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/adc_dac/hx711/minimal_tinygo     # HX711
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/rfid/mfrc522/minimal_tinygo      # SPI
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/gnss/neo6/minimal_tinygo         # UART
+        working-directory: go
