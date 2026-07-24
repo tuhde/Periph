@@ -252,3 +252,14 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Sigrok
 - [x] Decoder `sigrok/aht21/pd.py`
 - [x] Init `sigrok/aht21/__init__.py`
+
+### Go
+- [x] Driver `go/periph/chips/environmental/aht21.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/environmental/aht21/minimal/main.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/environmental/aht21/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/environmental/aht21/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/environmental/aht21/minimal_tinygo/main.go` — Tier-1
+- [x] Examples `go/examples/environmental/aht21/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/environmental/aht21/demo_tinygo/main.go` — Tier-1 + Tier-3
+- [x] Tests `go/tests/environmental/aht21_test/main.go` (Linux)
+- [x] Tests `go/tests/environmental/aht21_test_tinygo/main.go` (TinyGo / Pico W)
