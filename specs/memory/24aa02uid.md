@@ -258,3 +258,13 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Sigrok
 - [ ] Decoder `sigrok/24aa02uid/__init__.py` — module docstring describing transport input, addresses, and what is annotated
 - [ ] Decoder `sigrok/24aa02uid/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+
+### Go
+- [x] Driver `go/periph/chips/memory/24aa02uid.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/memory/24aa02uid/minimal/main.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/memory/24aa02uid/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/memory/24aa02uid/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/memory/24aa02uid/minimal_tinygo/main.go` — Tier-1
+- [x] Examples `go/examples/memory/24aa02uid/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Tests `go/tests/memory/24aa02uid_test/main.go` (Linux)
+- [x] Tests `go/tests/memory/24aa02uid_test_tinygo/main.go` (TinyGo / Pico W)
