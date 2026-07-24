@@ -686,6 +686,16 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `jvm/examples/groovy/gnss/neo6/Demo.groovy` — Tier-1 + Tier-3
 - [x] Tests `jvm/tests/gnss/neo6/Neo6Test.java`
 
+### Go
+- [x] Driver `go/periph/chips/gnss/neo6.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/gnss/neo6/minimal/main.go` — Tier-1 (I²C/DDC; comment shows UART/SPI swap)
+- [x] Examples `go/examples/gnss/neo6/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/gnss/neo6/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/gnss/neo6/minimal_tinygo/main.go` — Tier-1 (Pico W I2C1 GP4/GP5)
+- [x] Examples `go/examples/gnss/neo6/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Tests `go/tests/gnss/neo6_test/main.go` — PASS/FAIL/===DONE=== protocol (Linux host, I²C)
+- [x] Tests `go/tests/gnss/neo6_test_tinygo/main.go` — same protocol (Pico W I2C1 GP4/GP5)
+
 ### Sigrok
 - [x] Decoder `sigrok/neo6/__init__.py` — module docstring describing transport input, addresses, and what is annotated
 - [x] Decoder `sigrok/neo6/pd.py` — annotates every field of every default-configuration NMEA sentence type (GGA, RMC, GSA, GSV, VTG, GLL, TXT) with long/short forms, ISO 8601 time/date, SI units, and `n/a` for missing/no-fix values; also recognises the proprietary PUBX sentences (00 POSITION, 03 SVSTATUS, 04 TIME, 40 RATE, 41 CONFIG) with the same field-level detail; also recognises UBX binary frames, validates the Fletcher checksum, and annotates every payload field of the driver's key UBX messages (NAV-POSLLH, NAV-STATUS, NAV-SOL, NAV-SVINFO, CFG-PRT, CFG-MSG, CFG-RATE, CFG-NAV5, CFG-CFG, CFG-RST, CFG-RXM, ACK-ACK, ACK-NAK); produces `OUTPUT_ANN` only

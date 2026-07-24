@@ -522,6 +522,16 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `jvm/examples/groovy/rfid/mfrc522/Demo.groovy` — Tier-1 + Tier-3
 - [ ] Tests `jvm/tests/rfid/mfrc522/MFRC522Test.java` (Pi hardware, JBang)
 
+### Go
+- [x] Driver `go/periph/chips/rfid/mfrc522.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/rfid/mfrc522/minimal/main.go` — Tier-1 (I²C; address 0x28)
+- [x] Examples `go/examples/rfid/mfrc522/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/rfid/mfrc522/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/rfid/mfrc522/minimal_tinygo/main.go` — Tier-1 (Pico W I2C1 GP4/GP5)
+- [x] Examples `go/examples/rfid/mfrc522/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Tests `go/tests/rfid/mfrc522_test/main.go` — PASS/FAIL/===DONE=== protocol (Linux host, I²C)
+- [x] Tests `go/tests/rfid/mfrc522_test_tinygo/main.go` — same protocol (Pico W I2C1 GP4/GP5)
+
 ### Sigrok
 - [ ] Decoder `sigrok/mfrc522/__init__.py` — module docstring describing transport input, addresses, and what is annotated
 - [ ] Decoder `sigrok/mfrc522/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
