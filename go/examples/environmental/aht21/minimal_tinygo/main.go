@@ -2,9 +2,8 @@
 
 // AHT21 minimal example — TinyGo / Raspberry Pi Pico W.
 //
-// Configures machine.I2C0 on the Pico W's default I2C0 pins (GP4 = SDA,
-// GP5 = SCL), constructs the driver, and prints temperature and humidity
-// in a loop.
+// Configures machine.I2C1 on the Pico W with GP4 = SDA and GP5 = SCL,
+// constructs the driver, and prints temperature and humidity in a loop.
 package main
 
 import (
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	i2c := machine.I2C0
+	i2c := machine.I2C1
 	if err := i2c.Configure(machine.I2CConfig{
 		SDA:       machine.GP4,
 		SCL:       machine.GP5,

@@ -2,10 +2,10 @@
 
 // AHT21 hardware test — TinyGo / Raspberry Pi Pico W.
 //
-// Flashed to a Pico W connected to an AHT21 on the default I2C0 pins
-// (GP4 = SDA, GP5 = SCL). Prints PASS/FAIL per check and ends with the
-// standard ===DONE: ... === line. The test runner (go/test_tinygo.sh)
-// reads the serial output and reports exit code 0/1/2 based on the
+// Flashed to a Pico W connected to an AHT21 on I2C1 (GP4 = SDA,
+// GP5 = SCL). Prints PASS/FAIL per check and ends with the standard
+// ===DONE: ... === line. The test runner (go/test_tinygo.sh) reads
+// the serial output and reports exit code 0/1/2 based on the
 // ===DONE=== line.
 package main
 
@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	i2c := machine.I2C0
+	i2c := machine.I2C1
 	if err := i2c.Configure(machine.I2CConfig{
 		SDA:       machine.GP4,
 		SCL:       machine.GP5,

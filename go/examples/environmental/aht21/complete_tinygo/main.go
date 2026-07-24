@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	i2c := machine.I2C0
+	i2c := machine.I2C1
 	if err := i2c.Configure(machine.I2CConfig{
 		SDA:       machine.GP4,
 		SCL:       machine.GP5,
