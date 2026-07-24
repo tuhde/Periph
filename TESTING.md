@@ -196,7 +196,7 @@ SDA/SCL pin assignments are constants in `src/main.rs` (default GPIO1/GPIO2). Th
 
 ### JVM — Java/Kotlin/Groovy (`jbang`)
 
-**Prerequisites:** JBang (`sdk install jbang` or `curl -Ls https://sh.jbang.dev | bash`), Java 22+, Pi4J native libraries on the Raspberry Pi
+**Prerequisites:** JBang (`sdk install jbang` or `curl -Ls https://sh.jbang.dev | bash`), Java 22+
 
 **Config:** none — pass variables inline as environment variables.
 
@@ -205,7 +205,7 @@ SDA/SCL pin assignments are constants in `src/main.rs` (default GPIO1/GPIO2). Th
 | `I2C_BUS` | I²C bus number (default `1`) |
 | `I2C_ADDR` | Device I²C address in hex (default `0x40`) |
 
-JVM tests run directly on Raspberry Pi hardware. The JBang shebang line makes the script self-executing; the `--enable-native-access=ALL-UNNAMED` flag is required for Pi4J. No build step is needed — JBang resolves dependencies from Maven Central on first run.
+JVM tests run directly on Linux hardware. The JBang shebang line makes the script self-executing; the `--enable-native-access=ALL-UNNAMED` flag is required for the FFM (Foreign Function & Memory) API. No build step is needed — JBang resolves dependencies from Maven Central on first run.
 
 Run a test:
 ```

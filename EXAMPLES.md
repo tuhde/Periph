@@ -315,7 +315,7 @@ All JVM examples are self-contained JBang scripts. The shebang line makes them d
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT        ← or periph-kotlin / periph-groovy
 ```
 
-**Prerequisites:** JBang installed, Java 22+, Pi4J native libraries present on the Raspberry Pi. On first run, JBang downloads the Maven dependencies automatically.
+**Prerequisites:** JBang installed, Java 22+. On first run, JBang downloads the Maven dependencies automatically.
 
 ### Running
 
