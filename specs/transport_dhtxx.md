@@ -177,6 +177,20 @@ Optionally accepts a second `lineOffsetOut`, requested once as output with `GPIO
 
 File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java`
 
+### Go — Linux
+
+Requests the data GPIO line on `/dev/gpiochip0` via the GPIO character-device ioctls (`GPIO_GET_LINEHANDLE_IOCTL` / `GPIOHANDLE_SET_LINE_VALUES_IOCTL`) — the same technique the JVM transport uses over FFM, translated to `golang.org/x/sys/unix` plus hand-built structs; no cgo, no `libgpiod` bindings. The transport toggles the line between input and output by switching the `lineoffsets` array handed to the kernel on each request. Same non-RTOS reliability caveats as the JVM/Linux Python/C++ transports apply.
+
+Optionally accepts a second `dataOutLine` (line offset of an open-drain output line wired to the same DATA net), for the two-pin variant — driver reuses the shared GPIO chardev helper at `go/periph/transport/gpio_linux.go`.
+
+File: `go/periph/transport/dhtxx_linux.go`
+
+### Go — TinyGo
+
+Reconfigures a `machine.Pin` between `PinInput` and `PinOutput` for each phase — TinyGo's per-call overhead is small enough that the 10–20 µs `T_go` window is comfortably met, the same way MicroPython and CircuitPython do it.
+
+File: `go/periph/transport/dhtxx_tinygo.go`
+
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
@@ -211,6 +225,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### JVM
 - [ ] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java` — Javadoc on class and every public method
 - [ ] Tests (Pi hardware, JBang)
+
+### Go
+- [x] `go/periph/transport/dhtxx_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/transport/dhtxx_tinygo.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)
 
 ### Sigrok
 - [ ] Decoder `sigrok/dhtxx/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated

@@ -109,6 +109,6 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Pi hardware, JBang)
 
 ### Go
-- [ ] `go/periph/transport/smbus.go` — Go doc comment on the type and every exported method
-- [ ] Tests (Linux)
-- [ ] Tests (TinyGo / Pico W)
+- [x] `go/periph/transport/smbus.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)

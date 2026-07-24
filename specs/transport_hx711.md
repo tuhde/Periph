@@ -228,7 +228,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (ESP32-S3)
 
 ### Go
-- [ ] `go/periph/transport/hx711_linux.go` — Go doc comment on the type and every exported method
-- [ ] `go/periph/transport/hx711_tinygo.go` — Go doc comment on the type and every exported method
-- [ ] Tests (Linux)
-- [ ] Tests (TinyGo / Pico W)
+- [x] `go/periph/transport/hx711_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/transport/hx711_tinygo.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)

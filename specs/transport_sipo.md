@@ -287,10 +287,10 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Pi hardware, JBang)
 
 ### Go
-- [ ] `go/periph/transport/sipo_linux.go` — Go doc comment on the type and every exported method
-- [ ] `go/periph/transport/sipo_tinygo.go` — Go doc comment on the type and every exported method
-- [ ] Tests (Linux)
-- [ ] Tests (TinyGo / Pico W)
+- [x] `go/periph/transport/sipo_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/transport/sipo_tinygo.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)
 
 ### Sigrok
 - [x] Decoder `sigrok/sipo/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated

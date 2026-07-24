@@ -342,7 +342,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (ESP32-S3)
 
 ### Go
-- [ ] `go/periph/transport/uart_linux.go` — Go doc comment on the type and every exported method
-- [ ] `go/periph/transport/uart_tinygo.go` — Go doc comment on the type and every exported method
-- [ ] Tests (Linux)
-- [ ] Tests (TinyGo / Pico W)
+- [x] `go/periph/transport/uart_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/transport/uart_tinygo.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)
