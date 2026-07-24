@@ -201,6 +201,16 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests `rust/tests/led/sk6812rgbw_test/src/main.rs` (Linux)
 - [x] Tests `rust/tests/led/sk6812rgbw_test_esp32s3/src/main.rs` (ESP32-S3)
 
+### Go
+- [x] Driver `go/periph/chips/led/sk6812rgbw.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/led/sk6812rgbw/minimal/main.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/led/sk6812rgbw/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/led/sk6812rgbw/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/led/sk6812rgbw/minimal_tinygo/main.go` — Tier-1
+- [x] Examples `go/examples/led/sk6812rgbw/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Tests `go/tests/led/sk6812rgbw_test/main.go` (Linux)
+- [x] Tests `go/tests/led/sk6812rgbw_test_tinygo/main.go` (TinyGo / Pico W)
+
 ### JVM
 - [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWMinimal.java` — Javadoc on every class and public method
 - [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWFull.java` — Javadoc on every class and public method

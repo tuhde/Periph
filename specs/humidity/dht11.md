@@ -197,6 +197,16 @@ The DHTxx transport must be implemented first; its checklist is in `specs/transp
 - [ ] Tests `rust/tests/humidity/dht11_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/humidity/dht11_test_esp32s3/src/main.rs` (ESP32-S3)
 
+### Go
+- [x] Driver `go/periph/chips/humidity/dht11.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/humidity/dht11/minimal/main.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/humidity/dht11/complete/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/humidity/dht11/demo/main.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/humidity/dht11/minimal_tinygo/main.go` — Tier-1
+- [x] Examples `go/examples/humidity/dht11/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Tests `go/tests/humidity/dht11_test/main.go` (Linux)
+- [x] Tests `go/tests/humidity/dht11_test_tinygo/main.go` (TinyGo / Pico W)
+
 ### JVM
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/Dht11Minimal.java` — Javadoc on every class and public method
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/humidity/Dht11Full.java` — Javadoc on every class and public method
