@@ -151,9 +151,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
 
 ### Go
-- [ ] `go/periph/transport/i2c_linux.go` — Go doc comment on the type and every exported method
-- [ ] `go/periph/transport/i2c_tinygo.go` — Go doc comment on the type and every exported method
-- [ ] Tests (Linux)
-- [ ] Tests (TinyGo / Pico W)
-- [ ] Tests (Linux)
-- [ ] Tests (ESP32-S3)
+- [x] `go/periph/transport/i2c_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/transport/i2c_tinygo.go` — Go doc comment on the type and every exported method
+- [x] Tests (Linux)
+- [x] Tests (TinyGo / Pico W)
