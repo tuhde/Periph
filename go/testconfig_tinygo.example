@@ -1,0 +1,14 @@
+# Copy to go/testconfig_tinygo and fill in your values.
+# testconfig_tinygo is gitignored — never commit it.
+
+# Mount point of the Pico W's UF2 mass-storage volume.
+# The path depends on your distro; the default works on most Linux
+# desktops where udisks2 mounts removable drives under /media/$USER.
+# Hold BOOTSEL while plugging in the Pico W to enter this mode.
+UF2_MOUNT=/media/$USER/RPI-RP2
+
+# USB CDC serial port exposed by the Pico W after it boots from flash.
+SERIAL_PORT=/dev/ttyACM0
+
+# Seconds to wait for the ===DONE=== line on serial.
+SERIAL_TIMEOUT=20

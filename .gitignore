@@ -9,6 +9,8 @@ cpp/testconfig_zephyr
 rust/testconfig
 rust/testconfig_esp32s3
 jvm/testconfig
+go/testconfig
+go/testconfig_tinygo
 rust/target/
 rust/tests/power/ina226_test_esp32s3/target/
 jvm/**/target/
