@@ -352,3 +352,67 @@ Each language closes the transport differently:
 - **Groovy:** `try { ... } finally { transport.close() }` — explicit `finally`
 
 All three guarantee the I²C file descriptor is closed on exit, including on exception.
+
+---
+
+## Go
+
+**File layout:**
+```
+go/examples/<category>/<chip>/minimal/main.go
+go/examples/<category>/<chip>/complete/main.go
+go/examples/<category>/<chip>/demo/main.go
+
+go/examples/<category>/<chip>/minimal_tinygo/main.go
+go/examples/<category>/<chip>/complete_tinygo/main.go
+go/examples/<category>/<chip>/demo_tinygo/main.go
+```
+
+Each example is its own `main` package. Linux examples carry the build tag `//go:build linux && !tinygo`; TinyGo examples carry `//go:build tinygo`.
+
+**Prerequisites (Linux):** Go ≥ 1.24, `/dev/i2c-N` kernel driver (`modprobe i2c-dev`).
+
+**Prerequisites (TinyGo):** TinyGo ≥ 0.41, `tinygo` on PATH, Raspberry Pi Pico W.
+
+### Linux
+
+Run directly from the repo root:
+
+```
+go run ./go/examples/<category>/<chip>/minimal
+```
+
+Override the default I²C bus or address:
+
+```
+I2C_BUS=0 I2C_ADDR=0x40 go run ./go/examples/<category>/<chip>/minimal
+```
+
+Build a binary:
+
+```
+go build -o minimal ./go/examples/<category>/<chip>/minimal
+```
+
+### TinyGo (Pico W)
+
+Build a UF2 image and flash it (Pico W must be in BOOTSEL mode):
+
+```
+tinygo build -target=pico-w -o out.uf2 ./go/examples/<category>/<chip>/minimal_tinygo
+cp out.uf2 /media/$USER/RPI-RP2/
+```
+
+Pin assignments (SDA = GP4, SCL = GP5 on I2C1) are hardcoded in each file. Edit `machine.GP4` / `machine.GP5` to match your wiring.
+
+Serial output appears at 115200 baud:
+
+```
+minicom -D /dev/ttyACM0 -b 115200
+```
+
+### Transport and address
+
+**Linux:** The bus number and address are read from `I2C_BUS` / `I2C_ADDR` environment variables, with sensible chip-specific defaults baked in. `I2C_ADDR` accepts both decimal and `0x`-prefixed hex.
+
+**TinyGo:** Bus and address are hardcoded (`machine.I2C1`, `0x40`). Edit them in the file before building.

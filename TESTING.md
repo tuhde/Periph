@@ -12,6 +12,8 @@ Hardware tests for each chip run on all supported platforms and produce identica
    cp nodejs/testconfig.example      nodejs/testconfig
    cp rust/testconfig.example            rust/testconfig
    cp rust/testconfig_esp32s3.example    rust/testconfig_esp32s3
+   cp go/testconfig.example              go/testconfig
+   cp go/testconfig_tinygo.example       go/testconfig_tinygo
    ```
 2. Fill in your board's values (pins, port, bus number).
 3. Run the relevant runner:
@@ -25,6 +27,8 @@ Hardware tests for each chip run on all supported platforms and produce identica
    nodejs/test.sh         power/ina226
    rust/test_linux.sh     power/ina226
    rust/test_esp32s3.sh   power/ina226
+   go/test_linux.sh       power/ina226
+   go/test_tinygo.sh      power/ina226
    I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/power/ina226/Ina226Test.java
    ```
 
@@ -216,6 +220,56 @@ There is no `--compile-only` flag. To verify the script compiles without hardwar
 
 ---
 
+### Go Linux (`go/test_linux.sh`)
+
+**Prerequisites:** Go ≥ 1.24, `linux/i2c-dev.h` kernel driver (`modprobe i2c-dev`)
+
+**Config:** `go/testconfig`
+
+| Variable | Description |
+|----------|-------------|
+| `I2C_BUS` | Bus number for `/dev/i2c-N` (default `1`) |
+| `I2C_ADDR` | Device I²C address in hex (optional — falls back to `chip_defaults`) |
+
+Builds a native binary and runs it directly on the host. No board required. Supports `--compile-only`:
+```
+go/test_linux.sh --compile-only power/ina226
+```
+
+Run a test:
+```
+go/test_linux.sh power/ina226
+```
+
+---
+
+### Go TinyGo / Pico W (`go/test_tinygo.sh`)
+
+**Prerequisites:**
+- TinyGo ≥ 0.41 (`tinygo` on PATH)
+- Raspberry Pi Pico W in BOOTSEL mode (UF2 mount visible)
+- `pyserial` (`pip install pyserial`)
+
+**Config:** `go/testconfig_tinygo`
+
+| Variable | Description |
+|----------|-------------|
+| `UF2_MOUNT` | Path to the Pico W UF2 drive (default `/media/$USER/RPI-RP2`) |
+| `SERIAL_PORT` | Serial port for output (default `/dev/ttyACM0`) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default `20`) |
+
+The runner builds a UF2 with `tinygo build -target=pico-w`, copies it to the UF2 mount, and reads serial output via `go/read_serial_tinygo.py`. Supports `--compile-only` (skips flash and serial):
+```
+go/test_tinygo.sh --compile-only power/ina226
+```
+
+Run a test (Pico W must be in BOOTSEL mode):
+```
+go/test_tinygo.sh power/ina226
+```
+
+---
+
 ### Sigrok decoders (PulseView) {#sigrok-decoders-pulseview}
 
 **Prerequisites:** PulseView with the decoder installed (`sigrok/<chip>/` copied or symlinked into the sigrok protocol-decoder search path)
@@ -244,6 +298,8 @@ Add one test file per platform following the naming convention:
 | Node.js | `nodejs/tests/<category>/<chip>_test.js` |
 | Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
 | Rust Linux | `rust/tests/<category>/<chip>_test/src/main.rs` + `Cargo.toml` |
+| Go Linux | `go/tests/<category>/<chip>_test/main.go` |
+| Go TinyGo | `go/tests/<category>/<chip>_test_tinygo/main.go` |
 | JVM | `jvm/tests/<category>/<chip>/<Chip>Test.java` |
 
 Use `INA226` as the reference implementation. Every test must:
@@ -519,6 +575,60 @@ public class <Chip>Test {
 Run with: `I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/<category>/<chip>/<Chip>Test.java`
 
 The JVM test only covers the Java driver. Kotlin and Groovy drivers share the same transport and are exercised by the same hardware paths; separate Kotlin/Groovy test scripts are not required.
+
+### Go Linux test template
+
+`go/tests/<category>/<chip>_test/main.go`:
+
+```go
+//go:build linux && !tinygo
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/tuhde/Periph/go/periph/chips/<category>"
+	"github.com/tuhde/Periph/go/periph/transport"
+)
+
+func main() {
+	bus, _ := strconv.Atoi(envOr("I2C_BUS", "1"))
+	addr64, _ := strconv.ParseUint(envOr("I2C_ADDR", "0x40"), 0, 8)
+
+	tr, err := transport.NewI2CTransport(bus, uint8(addr64))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "transport:", err); os.Exit(2)
+	}
+	defer tr.Close()
+
+	chip, err := <category>.New<Chip>Full(tr)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "new:", err); os.Exit(2)
+	}
+
+	passed, failed := 0, 0
+	check := func(label string, cond bool) {
+		if cond { fmt.Println("PASS", label); passed++ } else { fmt.Println("FAIL", label); failed++ }
+	}
+
+	// --- checks ---
+	v, err := chip.SomeMethod()
+	check("some_method_range", err == nil && v >= 0)
+
+	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
+	if failed != 0 { os.Exit(1) }
+}
+
+func envOr(k, def string) string {
+	if v, ok := os.LookupEnv(k); ok { return v }
+	return def
+}
+```
+
+The TinyGo test (`<chip>_test_tinygo/main.go`) follows the same structure but uses `//go:build tinygo`, opens the transport via `transport.NewI2CTransport(machine.I2C1, addr)`, and replaces `os.Exit` with `panic` (TinyGo lacks `os.Exit`). Use `INA226` as the reference implementation for both variants.
 
 ### Sigrok decoder test
 
