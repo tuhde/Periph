@@ -66,7 +66,7 @@ The `chip` / `transport` label stays on the issue throughout — those describe 
 
 ## Where things go
 
-Every chip is implemented across all five languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
+Every chip is implemented across all six languages and every supported platform within each language. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
 
 | Artifact | Path |
 |----------|------|
@@ -87,9 +87,11 @@ Every chip is implemented across all five languages and every supported platform
 | JVM examples (Java) | `jvm/examples/java/<category>/<chip>/{Minimal,Complete,Demo}.java` |
 | JVM examples (Kotlin) | `jvm/examples/kotlin/<category>/<chip>/{Minimal,Complete,Demo}.kt` |
 | JVM examples (Groovy) | `jvm/examples/groovy/<category>/<chip>/{Minimal,Complete,Demo}.groovy` |
+| Go driver | `go/periph/chips/<category>/<chip>.go` |
+| Go examples (host + TinyGo) | `go/examples/<category>/<chip>/{minimal,minimal_tinygo,complete,complete_tinygo,demo,demo_tinygo}/main.go` |
 | Sigrok decoder | `sigrok/<chip>/pd.py` and `sigrok/<chip>/__init__.py` |
 
-For test file paths and runner scripts, see [TESTING.md](TESTING.md). When adding a chip, every platform's test must be added too — Linux, MicroPython, CircuitPython, Arduino, Zephyr, Node.js, Rust Linux, Rust ESP32-S3, and JVM.
+For test file paths and runner scripts, see [TESTING.md](TESTING.md). When adding a chip, every platform's test must be added too — Linux, MicroPython, CircuitPython, Arduino, Zephyr, Node.js, Rust Linux, Rust ESP32-S3, JVM, Go Linux, and Go TinyGo.
 
 Remove `.gitkeep` from a target directory when adding the first real file.
 
@@ -130,6 +132,16 @@ i2c.read(addr, &mut buf)?;
 i2c.write_read(addr, &reg, &mut buf)?;   // combined write-then-read
 ```
 
+```go
+// Go — identical signatures on the Linux and TinyGo implementation of a given
+// transport; the chip driver only ever sees the Transport interface
+type Transport interface {
+    Write(data []byte) error
+    Read(n int) ([]byte, error)
+    WriteRead(data []byte, n int) ([]byte, error)
+}
+```
+
 All INA226-style register reads follow this pattern:
 
 ```python
@@ -152,6 +164,16 @@ let mut buf = [0u8; 2];
 i2c.write_read(addr, &[REG_ADDR], &mut buf)?;
 let value = ((buf[0] as u16) << 8) | buf[1] as u16;   // unsigned
 let value = value as i16;                              // signed
+```
+
+```go
+// Go
+raw, err := transport.WriteRead([]byte{regAddr}, 2)
+if err != nil {
+    return 0, err
+}
+value := uint16(raw[0])<<8 | uint16(raw[1])          // unsigned
+value := int16(uint16(raw[0])<<8 | uint16(raw[1]))   // signed
 ```
 
 ## Linux GPIO pin numbering
@@ -201,6 +223,24 @@ impl<I2C: I2c> Ina226Full<I2C> {
     pub fn voltage(&mut self) -> Result<f32, I2C::Error> { self.inner.voltage() }
     // ... and Full-only methods below
 }
+```
+
+```go
+// Go — struct embedding, since Go has no inheritance either.
+// Embedding promotes every one of Minimal's methods onto Full automatically —
+// no delegate methods to write by hand, unlike Rust's composition.
+type Ina226Full struct {
+    Ina226Minimal
+    mode uint8
+}
+func NewIna226Full(t Transport, rShunt, maxCurrent float64) (*Ina226Full, error) {
+    m, err := NewIna226Minimal(t, rShunt, maxCurrent)
+    if err != nil {
+        return nil, err
+    }
+    return &Ina226Full{Ina226Minimal: *m}, nil
+}
+// Full-only methods only — f.Voltage() is already promoted from the embedded Ina226Minimal
 ```
 
 ## IO Expander drivers
@@ -384,6 +424,31 @@ Re-export pin types from the category `mod.rs`:
 ```rust
 pub use pcf8574::{Pcf8574Minimal, Pcf8574Full, ExPin};
 ```
+
+### Go
+
+No borrow checker, so no `RefCell` equivalent is needed: `Pin` just holds a plain pointer back to the chip and the pin index, and Go allows that alias freely.
+
+```go
+type Pin struct {
+    chip *PCF8574Minimal
+    n    uint8
+}
+
+func (c *PCF8574Minimal) Pin(n uint8) Pin { return Pin{chip: c, n: n} }
+
+func (p Pin) Get() (bool, error) { return p.chip.readPin(p.n) }
+func (p Pin) Set(v bool) error   { return p.chip.setPin(p.n, v) }
+func (p Pin) Toggle() error {
+    v, err := p.Get()
+    if err != nil {
+        return err
+    }
+    return p.Set(!v)
+}
+```
+
+Full adds `WatchInterrupt(handler func(bool)) error` / `Unwatch() error`. Deliver interrupts via a polling goroutine reading the chip's INT pin (Linux: `/dev/gpiochip*` edge-event ioctl; TinyGo: `machine.Pin.SetInterrupt`) unless the chip only supports software polling, in which case document that in the spec instead of pretending it's edge-driven.
 
 ## Python conventions
 
@@ -793,6 +858,92 @@ int addr = Integer.parseInt(
 ```
 
 The test file name is `<Chip>Test.java` (or `.kt` / `.groovy`). Run with `jbang <Chip>Test.java`. No runner script — tests are executed directly on Raspberry Pi hardware.
+
+---
+
+## Go conventions
+
+Two supported targets: **Linux host** (standard `go build`, raw syscalls via `golang.org/x/sys/unix` — no cgo) and **TinyGo embedded** (`tinygo build`, via the `machine` package; hardware-in-loop tests are pinned to a Raspberry Pi Pico W, `-target=pico-w`). The chip driver (`go/periph/chips/<category>/<chip>.go`) is a single file shared by both targets — it only calls the `Transport` interface, never a concrete transport type.
+
+Module path: `github.com/tuhde/Periph/go`.
+
+### Chip drivers
+
+- Every fallible method returns `(T, error)` — Go has no exceptions. Constructors return `(*Chip, error)`.
+- `Full` cannot inherit from `Minimal` — Go has no classes. Use **struct embedding**: `type <Chip>Full struct { <Chip>Minimal }`. Embedding promotes every one of Minimal's methods onto Full automatically — no delegate methods to write by hand, unlike Rust's composition-plus-forwarding (see the Class structure section above for a full example).
+- Struct names use Go title-case matching the chip name, with initialisms kept upper-case per Go convention: `INA226Minimal`, `INA226Full` (not `Ina226Minimal`).
+- Register addresses are unexported package-level `const` (`regConfig = 0x00`); public bit/flag constants are exported `const` at package scope, grouped in a `const ( ... )` block — never inside a method.
+- Helper functions (`readReg`, `writeReg`, `readRegSigned`) are unexported methods on the Minimal struct.
+- Go has no constructor overloading and no default arguments — exactly one constructor per stage, `New<Chip>Minimal(transport Transport, ...) (*<Chip>Minimal, error)` and `New<Chip>Full(transport Transport, ...) (*<Chip>Full, error)`, with a fixed argument list. Document the spec's default values and have callers pass them explicitly; do not simulate optional arguments with a variadic-options struct unless the chip spec already calls for a config struct.
+
+### Transport interface
+
+```go
+// go/periph/transport/transport.go — no build tag; implemented identically by
+// every *_linux.go / *_tinygo.go pair
+type Transport interface {
+    Write(data []byte) error
+    Read(n int) ([]byte, error)
+    WriteRead(data []byte, n int) ([]byte, error)
+}
+```
+
+Both the Linux and TinyGo implementation of a given transport export the **same type name** (e.g. `I2CTransport`), gated by a `//go:build` tag on the file — `linux && !tinygo` vs `tinygo`. Unlike every other language here, there is no separate import path or generic type parameter to pick the platform: the build itself resolves which `I2CTransport` gets compiled in. Chip drivers and examples import `"github.com/tuhde/Periph/go/periph/transport"` and reference `transport.Transport` only; only an example's `main()` ever names a concrete transport type.
+
+### Transport implementations
+
+| File | Build tag | Underlying API |
+|------|-----------|-----------------|
+| `<transport>_linux.go` | `linux && !tinygo` | Raw `ioctl()`/`syscall` via `golang.org/x/sys/unix` against the relevant `/dev` node — no cgo |
+| `<transport>_tinygo.go` | `tinygo` | TinyGo's `machine` package |
+
+See each `specs/transport_<name>.md` → "Go — Linux" / "Go — TinyGo" for the exact calls per transport. `SMBusTransport` is the one exception: since it wraps the `Transport` interface rather than a concrete bus type, it needs no build tag at all (see `specs/transport_smbus.md`).
+
+### Workspace layout
+
+Single Go module at `go/go.mod`. Both build targets live in the same module — TinyGo consumes ordinary Go modules directly, unlike Rust, which excludes its ESP32-S3 test crate from the Cargo workspace entirely.
+
+Package names drop underscores even where the category directory keeps them: directory `chips/adc_dac/` declares `package adcdac`. Directory and package name are allowed to differ in Go, and `go vet`/`staticcheck` flag underscored package names.
+
+### Examples
+
+Every chip gets **both** a host and a TinyGo example per tier — unlike Rust, which only ships Linux examples and reserves the embedded target for hardware tests. The `_tinygo` directory suffix marks the embedded variant, mirroring how C++'s Zephyr examples are suffixed `_Zephyr` rather than by a specific board, since board choice is a `tinygo build -target=` flag, not a compile-time fork:
+
+```
+go/examples/<category>/<chip>/
+  minimal/main.go          # go build                     (Linux host)
+  minimal_tinygo/main.go   # tinygo build -target=pico-w  (embedded)
+  complete/main.go
+  complete_tinygo/main.go
+  demo/main.go
+  demo_tinygo/main.go
+```
+
+Every example is `package main` with a `func main()`. Every fallible call is checked and `panic()`s on error — idiomatic for example/demo code and consistent with the fail-loudly style already used in every other language's demos:
+
+```go
+v, err := chip.Voltage()   // Read bus voltage, () → (float64 V, error)
+if err != nil {
+    panic(err)
+}
+```
+
+The Tier-1 trailing signature comment format extends to `# <verb phrase>, (<params>) → (<type>, error)` to reflect the `(value, error)` return shape.
+
+Host examples open the transport directly (e.g. `/dev/i2c-1` via a bus-number flag or environment variable, matching every other Linux example in this repo); TinyGo examples construct straight off the `machine` package (e.g. `machine.I2C0.Configure(...)`) since there is no OS-level device path to open.
+
+### Tests
+
+Hardware-in-loop tests follow the same host/TinyGo split as examples: `go/tests/<category>/<chip>_test/` and `go/tests/<category>/<chip>_test_tinygo/`. See [TESTING.md](TESTING.md) for the runner contract (`PASS`/`FAIL`/`===DONE===`) both must produce; the TinyGo variant is flashed to the pinned Pico W the same way `test_zephyr.sh`/`test_esp32s3.sh` flash their respective boards.
+
+### Inline documentation
+
+Standard Go doc comments — a sentence starting with the identifier name, directly above the declaration, no special tags:
+
+```go
+// Voltage reads the bus voltage. Converts the raw bus register to volts (1.25 mV LSB).
+func (c *INA226Minimal) Voltage() (float64, error) { ... }
+```
 
 ---
 

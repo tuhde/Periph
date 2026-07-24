@@ -10,7 +10,8 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
-| Java / Kotlin / Groovy | Linux host via `/dev/i2c-N` (FFM, no native libraries; JVM 17+, JBang examples) | Active |
+| Go | Linux (`go build`, `golang.org/x/sys/unix`) and TinyGo (Raspberry Pi Pico W) | Active |
+| Java / Kotlin / Groovy | Linux host via `/dev/i2c-N` (FFM, no native libraries; JVM 22+, JBang examples) | Active |
 | Sigrok | PulseView, sigrok-cli (protocol decoders in `sigrok/`) | Active |
 
 ## Supported transports
@@ -60,6 +61,25 @@ use linux_embedded_hal::I2cdev;
 use periph::chips::power::{Ina226Minimal, Ina226Full};
 ```
 
+**Go**
+```go
+// Linux
+import (
+    "github.com/tuhde/Periph/go/periph/transport"
+    "github.com/tuhde/Periph/go/periph/chips/power"
+)
+tr, _ := transport.NewI2CTransport(1, 0x40)          // /dev/i2c-1, address 0x40
+```
+```go
+// TinyGo (Pico W)
+import (
+    "machine"
+    "github.com/tuhde/Periph/go/periph/transport"
+    "github.com/tuhde/Periph/go/periph/chips/power"
+)
+tr := transport.NewI2CTransport(machine.I2C1, 0x40)  // I2C1 bus, address 0x40
+```
+
 **Java / Kotlin / Groovy**
 ```java
 // Java
@@ -79,33 +99,33 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 ## Supported chips
 
-| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | JVM | Sigrok |
-|------|----------|--------|-----|---------|----------|------|-----|--------|
-| 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Go | JVM | Sigrok |
+|------|----------|--------|-----|---------|----------|------|----|-----|--------|
+| 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AHT21 | Temperature/humidity | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| APDS9960 | Proximity/ALS/gesture | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| AS5600 | Magnetometer | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMP180 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| WS2812B | LED (addressable RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 More chips are in progress — see the [open issues](../../issues) for what's being specced and implemented.
 
@@ -156,7 +176,9 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
 | Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
 | Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
-| JVM (Pi hardware) | `jvm/test.sh power/ina226 [--lang kotlin\|groovy]` | Runs via JBang on Raspberry Pi |
+| Go (Linux) | `go/test_linux.sh power/ina226` | Builds with go, runs on host |
+| Go (TinyGo / Pico W) | `go/test_tinygo.sh power/ina226` | Builds with tinygo, flashes to Pico W, reads serial |
+| JVM (Linux) | `jvm/test.sh power/ina226 [--lang kotlin\|groovy]` | Runs via JBang on Linux host |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
 `--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.
