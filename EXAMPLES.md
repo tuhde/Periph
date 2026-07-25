@@ -114,15 +114,15 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 ## C++
 
-The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across Arduino, Linux GCC, and Zephyr. Each platform has its own transport and example entry point.
+The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across all C++ platforms. Each platform has its own transport header and example entry point.
 
 ### Arduino
 
 **File layout:**
 ```
-cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino
-cpp/examples/<Chip>_Complete/<Chip>_Complete.ino
-cpp/examples/<Chip>_Demo/<Chip>_Demo.ino
+cpp/examples/arduino/<category>/<Chip>/minimal/minimal.ino
+cpp/examples/arduino/<category>/<Chip>/complete/complete.ino
+cpp/examples/arduino/<category>/<Chip>/demo/demo.ino
 ```
 
 The directory name must exactly match the `.ino` filename — this is an Arduino IDE requirement.
@@ -130,8 +130,8 @@ The directory name must exactly match the `.ino` filename — this is an Arduino
 Open in the Arduino IDE, or compile and upload with `arduino-cli`:
 
 ```
-arduino-cli compile --fqbn esp32:esp32:esp32s3 cpp/examples/BMP280_Minimal
-arduino-cli upload  --fqbn esp32:esp32:esp32s3 --port /dev/ttyACM0 cpp/examples/BMP280_Minimal
+arduino-cli compile --fqbn esp32:esp32:esp32s3 cpp/examples/arduino/pressure/BMP280/minimal/minimal.ino
+arduino-cli upload  --fqbn esp32:esp32:esp32s3 --port /dev/ttyACM0 cpp/examples/arduino/pressure/BMP280/minimal/minimal.ino
 ```
 
 The library path is passed via `arduino-cli`'s `--library` flag or by symlinking `cpp/src` into the Arduino libraries directory.
@@ -148,15 +148,15 @@ Pin numbers (`Wire.begin(SDA, SCL)`) are hardcoded in the sketch; edit them to m
 
 **File layout:**
 ```
-cpp/examples/<Chip>_Minimal_Zephyr/src/main.cpp
-cpp/examples/<Chip>_Minimal_Zephyr/CMakeLists.txt
-cpp/examples/<Chip>_Minimal_Zephyr/prj.conf
+cpp/examples/zephyr/<category>/<Chip>/minimal/main.cpp
+cpp/examples/zephyr/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/zephyr/<category>/<Chip>/minimal/prj.conf
 ```
 
 Each Zephyr example is a standalone application. Build and flash with `west`:
 
 ```
-cd cpp/examples/BMP280_Minimal_Zephyr
+cd cpp/examples/zephyr/pressure/BMP280/minimal
 west build -b <board>
 west flash
 ```
@@ -164,7 +164,7 @@ west flash
 The example uses `DT_NODELABEL(i2c0)` by default. For boards with a different I²C node label, add a board overlay:
 
 ```
-cpp/examples/BMP280_Minimal_Zephyr/boards/<board>.overlay
+cpp/examples/zephyr/pressure/BMP280/minimal/boards/<board>.overlay
 ```
 
 Monitor serial output:
@@ -173,6 +173,70 @@ Monitor serial output:
 west espressif monitor     # ESP32-S3
 minicom -D /dev/ttyACM0 -b 115200
 ```
+
+### ESP-IDF (ESP32)
+
+**File layout:**
+```
+cpp/examples/espidf/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/espidf/<category>/<Chip>/minimal/main/CMakeLists.txt
+cpp/examples/espidf/<category>/<Chip>/minimal/main/main.cpp
+cpp/examples/espidf/<category>/<Chip>/minimal/sdkconfig.defaults
+```
+
+Each ESP-IDF example is a standalone application. Build and flash with `idf.py`:
+
+```
+cd cpp/examples/espidf/pressure/BMP280/minimal
+idf.py build
+idf.py -p /dev/ttyUSB0 flash
+```
+
+The default `sdkconfig.defaults` targets `esp32`. For other ESP32 variants (esp32s3, esp32c3, etc.) override the target:
+
+```
+idf.py set-target esp32s3
+idf.py build
+```
+
+Monitor serial output:
+
+```
+idf.py -p /dev/ttyUSB0 monitor
+```
+
+Pin numbers (`I2C_MASTER_SDA_IO`, `I2C_MASTER_SCL_IO`) are defined as constants at the top of `main/main.cpp`; edit them to match your board.
+
+### Pico SDK (Raspberry Pi Pico)
+
+**File layout:**
+```
+cpp/examples/picosdk/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/picosdk/<category>/<Chip>/minimal/src/main.cpp
+```
+
+Each Pico SDK example is a standalone CMake project. Build with CMake:
+
+```
+cd cpp/examples/picosdk/pressure/BMP280/minimal
+mkdir build && cd build
+cmake .. -DPICO_SDK_PATH=/path/to/pico-sdk
+make -j4
+```
+
+Flash the resulting `.uf2` by holding BOOTSEL while plugging in the Pico, then copying the file to the `RPI-RP2` drive:
+
+```
+cp build/bmp280_minimal_picosdk.uf2 /media/$USER/RPI-RP2/
+```
+
+Monitor serial output (USB CDC):
+
+```
+minicom -D /dev/ttyACM0 -b 115200
+```
+
+Pin numbers (I²C SDA/SCL, SPI MOSI/MISO/SCK/CS) are defined as constants at the top of `src/main.cpp`; edit them to match your wiring.
 
 ### Linux GCC
 
@@ -315,7 +379,7 @@ All JVM examples are self-contained JBang scripts. The shebang line makes them d
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT        ← or periph-kotlin / periph-groovy
 ```
 
-**Prerequisites:** JBang installed, Java 22+, Pi4J native libraries present on the Raspberry Pi. On first run, JBang downloads the Maven dependencies automatically.
+**Prerequisites:** JBang installed, Java 22+. On first run, JBang downloads the Maven dependencies automatically.
 
 ### Running
 
@@ -352,3 +416,67 @@ Each language closes the transport differently:
 - **Groovy:** `try { ... } finally { transport.close() }` — explicit `finally`
 
 All three guarantee the I²C file descriptor is closed on exit, including on exception.
+
+---
+
+## Go
+
+**File layout:**
+```
+go/examples/linux/<category>/<chip>/minimal/minimal.go
+go/examples/linux/<category>/<chip>/complete/complete.go
+go/examples/linux/<category>/<chip>/demo/demo.go
+
+go/examples/tinygo/<category>/<chip>/minimal/minimal.go
+go/examples/tinygo/<category>/<chip>/complete/complete.go
+go/examples/tinygo/<category>/<chip>/demo/demo.go
+```
+
+Each example is its own `main` package (Go requires one per directory). Linux examples carry the build tag `//go:build linux && !tinygo`; TinyGo examples carry `//go:build tinygo`.
+
+**Prerequisites (Linux):** Go ≥ 1.24, `/dev/i2c-N` kernel driver (`modprobe i2c-dev`).
+
+**Prerequisites (TinyGo):** TinyGo ≥ 0.41, `tinygo` on PATH, Raspberry Pi Pico W.
+
+### Linux
+
+Run directly from the repo root:
+
+```
+go run ./go/examples/linux/<category>/<chip>/minimal
+```
+
+Override the default I²C bus or address:
+
+```
+I2C_BUS=0 I2C_ADDR=0x40 go run ./go/examples/linux/<category>/<chip>/minimal
+```
+
+Build a binary:
+
+```
+go build -o minimal ./go/examples/linux/<category>/<chip>/minimal
+```
+
+### TinyGo (Pico W)
+
+Build a UF2 image and flash it (Pico W must be in BOOTSEL mode):
+
+```
+tinygo build -target=pico-w -o out.uf2 ./go/examples/tinygo/<category>/<chip>/minimal
+cp out.uf2 /media/$USER/RPI-RP2/
+```
+
+Pin assignments (SDA = GP4, SCL = GP5 on I2C1) are hardcoded in each file. Edit `machine.GP4` / `machine.GP5` to match your wiring.
+
+Serial output appears at 115200 baud:
+
+```
+minicom -D /dev/ttyACM0 -b 115200
+```
+
+### Transport and address
+
+**Linux:** The bus number and address are read from `I2C_BUS` / `I2C_ADDR` environment variables, with sensible chip-specific defaults baked in. `I2C_ADDR` accepts both decimal and `0x`-prefixed hex.
+
+**TinyGo:** Bus and address are hardcoded (`machine.I2C1`, `0x40`). Edit them in the file before building.

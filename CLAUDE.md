@@ -12,6 +12,7 @@ Implementations:
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
 - **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
+- **Go** — two targets: Linux host (standard `go build`, raw syscalls via `golang.org/x/sys/unix`, no cgo) and TinyGo (`tinygo build`, bare-metal embedded via the `machine` package; hardware-in-loop tests pinned to a Raspberry Pi Pico W)
 
 ## Workflow
 
@@ -88,16 +89,34 @@ python/
   tests/
 cpp/
   src/
-    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino + Linux + Zephyr variants)
+    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants)
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
-    <Chip>_Minimal/     # <Chip>_Minimal.ino  (Arduino; dir name must match .ino filename)
-    <Chip>_Complete/    # <Chip>_Complete.ino
-    <Chip>_Demo/        # <Chip>_Demo.ino
-    <Chip>_Minimal_Zephyr/   # src/main.cpp, CMakeLists.txt, prj.conf  (Zephyr)
-    <Chip>_Complete_Zephyr/
-    <Chip>_Demo_Zephyr/
+    arduino/
+      <category>/
+        <Chip>/
+          minimal/      # minimal.ino  (dir name must match .ino filename)
+          complete/     # complete.ino
+          demo/         # demo.ino
+    zephyr/
+      <category>/
+        <Chip>/
+          minimal/      # main.cpp, CMakeLists.txt, prj.conf  (standalone Zephyr app)
+          complete/
+          demo/
+    espidf/
+      <category>/
+        <Chip>/
+          minimal/      # CMakeLists.txt, main/CMakeLists.txt, main/main.cpp, sdkconfig.defaults
+          complete/
+          demo/
+    picosdk/
+      <category>/
+        <Chip>/
+          minimal/      # CMakeLists.txt, src/main.cpp
+          complete/
+          demo/
   library.properties    # Arduino library metadata
 nodejs/
   package.json          # npm workspaces root
@@ -127,9 +146,19 @@ rust/
       chips/
         <category>/     # One module per chip; no_std, generic over embedded-hal traits
   examples/
-    <chip>_minimal/     # Cargo.toml + src/main.rs  (Linux host)
-    <chip>_complete/
-    <chip>_demo/
+    linux/
+      <category>/
+        <chip>/
+          minimal/      # Cargo.toml + src/main.rs  (Linux host; in workspace)
+          complete/
+          demo/
+    embedded/           # excluded from workspace; build per-crate
+      esp32s3/          # current target; rp2040/, stm32f4/, etc. added here as needed
+        <category>/
+          <chip>/
+            minimal/    # Cargo.toml + src/main.rs + rust-toolchain.toml + .cargo/config.toml
+            complete/
+            demo/
   tests/
     <category>/
       <chip>_test/      # Linux integration test crate
@@ -176,6 +205,29 @@ jvm/
   tests/                # JBang integration test scripts (run on Linux hardware)
     <category>/
       <chip>/           # <chip>Test.java (or .kt / .groovy)  (//DEPS it.uhde:periph-java:...)
+go/
+  go.mod                # Module github.com/tuhde/Periph/go
+  periph/
+    transport/          # Transport interface + <transport>_linux.go / <transport>_tinygo.go pairs, selected by build tags
+    chips/
+      <category>/       # One file per chip, grouped by category; package name drops underscores (adc_dac/ -> package adcdac)
+  examples/
+    linux/
+      <category>/
+        <chip>/
+          minimal/minimal.go     # go build ./go/examples/linux/.../<chip>/minimal/
+          complete/complete.go
+          demo/demo.go
+    tinygo/
+      <category>/
+        <chip>/
+          minimal/minimal.go     # tinygo build -target=pico-w ./go/examples/tinygo/.../<chip>/minimal/
+          complete/complete.go
+          demo/demo.go
+  tests/
+    <category>/
+      <chip>_test/          # Linux host
+      <chip>_test_tinygo/   # Raspberry Pi Pico W smoke test
 sigrok/
   <chip>/               # Sigrok protocol decoder
     pd.py               # Decoder implementation
