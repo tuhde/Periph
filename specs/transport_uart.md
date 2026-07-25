@@ -300,16 +300,16 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/UARTTransport.cpp`
-- [ ] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/UARTTransportLinux.cpp`
-- [ ] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/UARTTransportESPIDF.h` — Doxygen (header-only)
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
-- [ ] Tests (ESP-IDF)
+- [x] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/UARTTransport.cpp`
+- [x] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/UARTTransportLinux.cpp`
+- [x] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/UARTTransportESPIDF.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
+- [x] Tests (ESP-IDF)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/uart.js` — JSDoc on class and every exported method

@@ -255,11 +255,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SiPoTransportLinux.cpp`
 - [x] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/SiPoTransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/SiPoTransportESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
-- [ ] Tests (ESP-IDF)
+- [x] Tests (ESP-IDF)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method

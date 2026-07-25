@@ -203,17 +203,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux)
 
 ### C++
-- [ ] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/NeopixelTransport.cpp`
-- [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
-- [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/NeoPixelTransportESPIDF.h` — Doxygen (header-only); both SPI and RMT constructor modes
-- [ ] Tests (Arduino)
-- [ ] Tests (Linux GCC)
-- [ ] Tests (Zephyr)
-- [ ] Tests (ESP-IDF, SPI mode)
-- [ ] Tests (ESP-IDF, RMT mode)
+- [x] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/transport/NeopixelTransport.cpp`
+- [x] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
+- [x] `cpp/src/transport/NeopixelTransportLinux.cpp`
+- [x] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/NeoPixelTransportESPIDF.h` — Doxygen (header-only); both SPI and RMT constructor modes
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
+- [x] Tests (ESP-IDF, SPI mode)
+- [x] Tests (ESP-IDF, RMT mode)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method
