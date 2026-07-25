@@ -8,6 +8,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    ```
    cp cpp/testconfig.example         cpp/testconfig
    cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
+   cp cpp/testconfig_picosdk.example cpp/testconfig_picosdk
    cp python/testconfig.example      python/testconfig
    cp nodejs/testconfig.example      nodejs/testconfig
    cp rust/testconfig.example            rust/testconfig
@@ -21,6 +22,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    cpp/test_arduino.sh    power/ina226
    cpp/test_linux.sh      power/ina226
    cpp/test_zephyr.sh     power/ina226
+   cpp/test_picosdk.sh    power/ina226
    python/test_mp.sh      power/ina226
    python/test_cp.sh      power/ina226
    python/test_linux.sh   power/ina226
@@ -153,6 +155,31 @@ cpp/test_zephyr.sh --compile-only power/ina226
 ```
 
 **Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay` with the correct alias.
+
+---
+
+### Raspberry Pi Pico SDK (`cpp/test_picosdk.sh`)
+
+**Prerequisites:** `pico-sdk` (`PICO_SDK_PATH` set or `~/pico-sdk` discovered by `pico_sdk_init.cmake`), `picotool` on `PATH`, `pyserial` (`pip install pyserial`)
+
+**Config:** `cpp/testconfig_picosdk` (copy from `testconfig_picosdk.example`)
+
+| Variable | Description |
+|----------|-------------|
+| `PICO_SDK_PATH` | Path to your local pico-sdk checkout (auto-discovered if unset) |
+| `PICO_BOARD` | Board identifier — `pico` (RP2040, default), `picow`, `pico2`, `pico2_w` |
+| `PICOSDK_PORT` | USB-CDC serial port, e.g. `/dev/ttyACM0` (Linux), `/dev/tty.usbmodem*` (macOS) |
+| `I2C_ADDR` | Device I²C address (hex) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
+
+The runner builds each test as a standalone pico-sdk CMake project (mirroring how every Zephyr example is a separate `west build` app), flashes the resulting UF2 via `picotool load -x`, and reads the USB-CDC serial output. Supports `--compile-only` (skips flash and serial):
+```
+cpp/test_picosdk.sh --compile-only power/ina226
+```
+
+Pins: each chip's test app hard-codes its default I²C pins (`GP4` SDA / `GP5` SCL on `i2c0`) and SPI pins (`GP3` MOSI on `spi0`). To override, edit the per-chip `CMakeLists.txt` or wire a board-specific overlay.
+
+**Note on `i2c_init` frequency:** the generated tests configure `i2c0` at 100 kHz (the standard-mode rate that every chip in this repo supports). Bump to 400 kHz by editing the per-test `i2c_init(...)` call if your device supports fast-mode.
 
 ---
 
@@ -475,6 +502,78 @@ int main(void) {
 ```
 
 The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay`.
+
+### Raspberry Pi Pico SDK test template
+
+`CMakeLists.txt`:
+```cmake
+cmake_minimum_required(VERSION 3.13)
+include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+project(<chip>_test_picosdk CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+pico_sdk_init()
+
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+
+add_executable(<chip>_test_picosdk
+    src/main.cpp
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+)
+
+target_include_directories(<chip>_test_picosdk PRIVATE
+    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/chips/<category>
+)
+
+target_link_libraries(<chip>_test_picosdk PRIVATE
+    pico_stdlib
+    hardware_i2c   # or hardware_spi / hardware_uart / hardware_gpio
+)
+
+pico_enable_stdio_usb(<chip>_test_picosdk 1)
+pico_enable_stdio_uart(<chip>_test_picosdk 0)
+
+pico_add_extra_outputs(<chip>_test_picosdk)
+```
+
+`src/main.cpp`:
+```cpp
+#include <stdio.h>
+#include <hardware/gpio.h>
+#include "pico/stdlib.h"
+#include "I2CTransportPicoSDK.h"   // or SPITransportPicoSDK.h / UARTTransportPicoSDK.h
+#include "<Chip>.h"
+
+i2c_init(i2c0, 100 * 1000);          // 100 kHz, standard mode
+gpio_set_function(4, GPIO_FUNC_I2C); // SDA = GP4
+gpio_set_function(5, GPIO_FUNC_I2C); // SCL = GP5
+gpio_pull_up(4);
+gpio_pull_up(5);
+
+I2CTransportPicoSDK transport(i2c0, 0x40);  // 7-bit address
+<Chip>Full chip(transport);
+
+int passed = 0, failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printf("PASS %s\n", label); passed++; }
+    else       { printf("FAIL %s\n", label); failed++; }
+}
+
+int main(void) {
+    stdio_init_all();
+    sleep_ms(2000);  // let USB CDC enumerate
+    // ... checks using chip.<method>() ...
+    printf("===DONE: %d passed, %d failed===\n", passed, failed);
+    return failed == 0 ? 0 : 1;
+}
+```
+
+The default I²C pins (`GP4`/`GP5` on `i2c0`) match pico-sdk's documented defaults — wire your device to those and the test will work without further configuration.
 
 ### Rust Linux test template
 

@@ -72,9 +72,10 @@ Every chip is implemented across all six languages and every supported platform 
 |----------|------|
 | Python driver (all 3 targets) | `python/periph/chips/<category>/<chip>.py` |
 | Python examples | `python/examples/<category>/<chip>/{minimal,complete,demo}.py` |
-| C++ driver (Arduino + Linux + Zephyr) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
+| C++ driver (Arduino + Linux + Zephyr + Pico SDK) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
 | C++ Arduino examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}/<Chip>_{Minimal,Complete,Demo}.ino` |
 | C++ Zephyr examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}_Zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
+| C++ Pico SDK examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}_PicoSDK/{src/main.cpp,CMakeLists.txt}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
@@ -481,7 +482,7 @@ from periph.transport.i2c_linux import I2CTransport          # Linux
 
 ## C++ conventions
 
-Three supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**. The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all three; each target has its own transport.
+Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
 
 ### Chip drivers
 
@@ -499,8 +500,26 @@ Three supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**. The chip d
 | `I2CTransport.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
 | `I2CTransportLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
 | `I2CTransportZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
+| `I2CTransportPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
 | `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
+| `SMBusTransportPicoSDK.h` | PEC-capable variant | wraps `I2CTransportPicoSDK` + software CRC-8 |
 | `SPITransport.h/.cpp` | Arduino SPI | |
+| `SPITransportPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
+| `UARTTransport.h/.cpp` | Arduino | `HardwareSerial&` |
+| `UARTTransportLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
+| `UARTTransportZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
+| `UARTTransportPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
+| `NeoPixelTransport.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
+| `NeoPixelTransportZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
+| `NeoPixelTransportPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
+| `HX711Transport.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
+| `HX711TransportLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
+| `HX711TransportZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
+| `HX711TransportPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
+| `SiPoTransport.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
+| `SiPoTransportLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
+| `SiPoTransportZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
+| `SiPoTransportPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
 
 Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
@@ -535,6 +554,44 @@ CONFIG_FPU=y
 ```
 
 The example uses `DEVICE_DT_GET(DT_NODELABEL(i2c0))` by default; this works on most boards. For boards with a different I²C node label, ship a board overlay rather than hard-coding.
+
+### Pico SDK examples
+
+Each Pico SDK example is a standalone pico-sdk CMake project: `cpp/examples/<Chip>_<Tier>_PicoSDK/` containing `src/main.cpp` and `CMakeLists.txt`. The CMake file pulls the chip driver source from `cpp/src/chips/<category>/`:
+
+```cmake
+cmake_minimum_required(VERSION 3.13)
+include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+project(<chip>_minimal_picosdk CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+pico_sdk_init()
+
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+
+add_executable(<chip>_minimal_picosdk
+    src/main.cpp
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+)
+target_include_directories(<chip>_minimal_picosdk PRIVATE
+    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/chips/<category>
+)
+target_link_libraries(<chip>_minimal_picosdk PRIVATE
+    pico_stdlib
+    hardware_i2c   # or hardware_spi / hardware_uart / hardware_gpio
+)
+pico_enable_stdio_usb(<chip>_minimal_picosdk 1)
+pico_enable_stdio_uart(<chip>_minimal_picosdk 0)
+pico_add_extra_outputs(<chip>_minimal_picosdk)
+```
+
+Each example configures its own bus at file scope (e.g. `i2c_init(i2c0, 100 * 1000)` and `gpio_set_function(4, GPIO_FUNC_I2C)` for the SDA pin) before constructing the chip driver. The example is built with `cmake -S … -B build` and produces a UF2 in `build/`; flash it with `picotool load -x`.
+
+The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL on `i2c0`). Override the pins by editing the file-scope `i2c_init` / `gpio_set_function` block at the top of `main.cpp`.
 
 ## Node.js transport interface
 
@@ -1127,6 +1184,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Arduino | `cpp/tests/<category>/<chip>_test/<chip>_test.ino` |
 | Linux GCC | `cpp/tests/<category>/<chip>_test_linux/<chip>_test_linux.cpp` |
 | Zephyr | `cpp/tests/<category>/<chip>_test_zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
+| Pico SDK | `cpp/tests/<category>/<chip>_test_picosdk/{src/main.cpp,CMakeLists.txt}` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -1326,6 +1384,7 @@ Use these platform labels consistently:
 | C++ Arduino | `C++/Arduino` |
 | C++ Linux GCC | `C++/Linux` |
 | C++ Zephyr | `C++/Zephyr` |
+| C++ Pico SDK | `C++/PicoSDK` |
 | Node.js | `Node.js` |
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |
