@@ -193,10 +193,10 @@ jobs:
 
       - name: Build examples (Pico W, one per transport)
         run: |
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/power/ina226/minimal_tinygo       # I2C
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/led/ws2812b/minimal_tinygo        # NeoPixel
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/humidity/dht11/minimal_tinygo     # DHTxx
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/adc_dac/hx711/minimal_tinygo     # HX711
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/rfid/mfrc522/minimal_tinygo      # SPI
-          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/gnss/neo6/minimal_tinygo         # UART
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/power/ina226/minimal       # I2C
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/led/ws2812b/minimal        # NeoPixel
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/humidity/dht11/minimal     # DHTxx
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/adc_dac/hx711/minimal      # HX711
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/rfid/mfrc522/minimal       # SPI
+          tinygo build -target=pico-w -o /tmp/out.uf2 ./examples/tinygo/gnss/neo6/minimal          # UART
         working-directory: go
