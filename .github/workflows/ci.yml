@@ -122,6 +122,58 @@ jobs:
         working-directory: jvm
 
   # -----------------------------------------------------------------------
+  # ESP-IDF — compile-only (no hardware required).
+  # Builds one example per transport to catch the regressions the
+  # full retrofill would otherwise let through CI. The full chip
+  # coverage matrix lives in `cpp/test_espidf.sh --compile-only`,
+  # which we run against one chip per transport below.
+  # -----------------------------------------------------------------------
+  esp-idf:
+    name: ESP-IDF compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install ESP-IDF
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+          mkdir -p /opt/esp
+          cd /opt/esp
+          git clone --depth 1 -b v5.1.5 https://github.com/espressif/esp-idf.git
+          (cd esp-idf && git submodule update --init --depth 1)
+          (cd esp-idf && ./install.sh)
+          echo "IDF_PATH=/opt/esp/esp-idf" >> $GITHUB_ENV
+          echo "/opt/esp/esp-idf/tools" >> $GITHUB_PATH
+
+      - name: Build I2C example
+        run: cpp/test_espidf.sh --compile-only environmental/aht21
+        env:
+          ESPIDF_TARGET: esp32
+
+      - name: Build SPI example
+        run: cpp/test_espidf.sh --compile-only pressure/bmp280
+        env:
+          ESPIDF_TARGET: esp32
+
+      - name: Build UART example
+        run: cpp/test_espidf.sh --compile-only gnss/neo6
+        env:
+          ESPIDF_TARGET: esp32
+
+      - name: Build NeoPixel example
+        run: cpp/test_espidf.sh --compile-only led/ws2812b
+        env:
+          ESPIDF_TARGET: esp32
+
+      - name: Build HX711 example
+        run: cpp/test_espidf.sh --compile-only adc_dac/hx711
+        env:
+          ESPIDF_TARGET: esp32
+
+  # -----------------------------------------------------------------------
   # Rust — compile-only (no hardware required)
   # -----------------------------------------------------------------------
   rust:
