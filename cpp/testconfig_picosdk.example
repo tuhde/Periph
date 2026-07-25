@@ -1,0 +1,46 @@
+# Periph Raspberry Pi Pico SDK test configuration
+# Copy this file to testconfig_picosdk and fill in your values.
+# testconfig_picosdk is gitignored — never commit it.
+
+# ------------------------------------------------------------------
+# pico-sdk
+# ------------------------------------------------------------------
+# Path to your local pico-sdk checkout. If unset, the build will still
+# try to find it via the standard `pico_sdk_init.cmake` discovery rules
+# (PICO_SDK_PATH, ~/pico-sdk, /opt/pico-sdk, etc.).
+# PICO_SDK_PATH=/opt/pico-sdk
+
+# Board identifier. Default is "pico" (RP2040). Other options:
+#   pico       — Raspberry Pi Pico (RP2040)
+#   picow      — Raspberry Pi Pico W (RP2040 + CYW43439)
+#   pico2      — Raspberry Pi Pico 2 (RP2350)
+#   pico2_w    — Raspberry Pi Pico 2 W
+PICO_BOARD=pico
+
+# ------------------------------------------------------------------
+# Flashing
+# ------------------------------------------------------------------
+# USB-CDC serial port exposed by the Pico. On Linux this is typically
+# /dev/ttyACM0 after picotool reboots the device. On macOS it looks like
+# /dev/tty.usbmodem*; on Windows, COM5, COM6, etc.
+PICOSDK_PORT=/dev/ttyACM0
+
+# ------------------------------------------------------------------
+# I²C / SPI / GPIO defaults
+# ------------------------------------------------------------------
+# I²C bus used by tests that take an address. Most Pico pins are valid for
+# I²C; common defaults are SDA=GP4, SCL=GP5 (I2C0).
+# I2C_SDA=4
+# I2C_SCL=5
+
+# Chip-select GPIO pin for SPI tests (e.g. MFRC522, BME280-spi, BMP280-spi).
+# SPI_CS=17
+
+# I²C address of the device under test (hex). Per-chip defaults live in
+# chip_defaults at the repo root.
+# I2C_ADDR=0x40
+
+# ------------------------------------------------------------------
+# Test timeouts
+# ------------------------------------------------------------------
+SERIAL_TIMEOUT=20

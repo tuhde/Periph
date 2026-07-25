@@ -5,6 +5,7 @@ python/testconfig
 python/_testconfig.py
 nodejs/testconfig
 cpp/testconfig_zephyr
+cpp/testconfig_picosdk
 .claude/
 rust/testconfig
 rust/testconfig_esp32s3
