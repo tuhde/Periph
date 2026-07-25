@@ -8,6 +8,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    ```
    cp cpp/testconfig.example         cpp/testconfig
    cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
+   cp cpp/testconfig_espidf.example  cpp/testconfig_espidf
    cp python/testconfig.example      python/testconfig
    cp nodejs/testconfig.example      nodejs/testconfig
    cp rust/testconfig.example            rust/testconfig
@@ -21,6 +22,7 @@ Hardware tests for each chip run on all supported platforms and produce identica
    cpp/test_arduino.sh    power/ina226
    cpp/test_linux.sh      power/ina226
    cpp/test_zephyr.sh     power/ina226
+   cpp/test_espidf.sh     power/ina226
    python/test_mp.sh      power/ina226
    python/test_cp.sh      power/ina226
    python/test_linux.sh   power/ina226
@@ -153,6 +155,31 @@ cpp/test_zephyr.sh --compile-only power/ina226
 ```
 
 **Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay` with the correct alias.
+
+---
+
+### ESP-IDF (`cpp/test_espidf.sh`)
+
+**Prerequisites:** ESP-IDF ≥5.1 with `IDF_PATH` exported (or its `export.sh` sourced), `idf.py` on `PATH`, `pyserial` (`pip install pyserial`)
+
+**Config:** `cpp/testconfig_espidf` (copy from `testconfig_espidf.example`)
+
+| Variable | Description |
+|----------|-------------|
+| `IDF_TARGET` | Target chip — `esp32` (default), `esp32s2`, `esp32s3`, `esp32c3`, `esp32c6`, `esp32h2` |
+| `ESPIDF_PORT` | USB-CDC serial port, e.g. `/dev/ttyUSB0` (Linux), `/dev/tty.usbserial-*` (macOS) |
+| `I2C_ADDR` | Device I²C address (hex) |
+| `SPI_CS` | SPI chip-select GPIO pin (for SPI-mode tests) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
+
+The runner builds each test as a standalone ESP-IDF project (mirroring how every Zephyr example is a separate `west build` app), flashes via `idf.py -p <port> flash`, and reads the USB-CDC serial output. Supports `--compile-only` (skips flash and serial):
+```
+cpp/test_espidf.sh --compile-only power/ina226
+```
+
+Pins: each chip's test app hard-codes its default I²C pins (`GPIO21` SDA / `GPIO22` SCL on `I2C_NUM_0`) and SPI pins (`MOSI=GPIO13`, `SCK=GPIO14` on `SPI2_HOST` for NeoPixel). To override, edit the per-chip `main/CMakeLists.txt` or the bus-config block at the top of `main.cpp`.
+
+**Note on the I²C frequency:** the generated tests configure `I2C_NUM_0` at 400 kHz (fast-mode, the rate every chip in this repo supports). Drop to 100 kHz by editing the per-test `scl_speed_hz` field if your device is standard-mode only.
 
 ---
 
@@ -475,6 +502,81 @@ int main(void) {
 ```
 
 The `DT_NODELABEL(i2c0)` default works for most boards. For boards that use a different I²C node label, add a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay`.
+
+### ESP-IDF test template
+
+Top-level `CMakeLists.txt`:
+```cmake
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(<chip>_test_espidf)
+```
+
+`sdkconfig.defaults`:
+```
+CONFIG_IDF_TARGET="esp32"
+CONFIG_COMPILER_CXX_EXCEPTIONS=n
+CONFIG_COMPILER_CXX_RTTI=n
+```
+
+`main/CMakeLists.txt`:
+```cmake
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+
+idf_component_register(
+    SRCS "main.cpp"
+        ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+    INCLUDE_DIRS "."
+        ${CPP_DIR}/src/transport
+        ${CPP_DIR}/src/chips/<category>
+    REQUIRES driver
+)
+```
+
+`main/main.cpp`:
+```cpp
+#include <stdio.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/i2c_master.h"
+#include "I2CTransportESPIDF.h"
+#include "<Chip>.h"
+
+static int passed = 0, failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printf("PASS %s\n", label); passed++; }
+    else       { printf("FAIL %s\n", label); failed++; }
+}
+
+extern "C" void app_main(void) {
+    i2c_master_bus_config_t bus_cfg = {
+        .i2c_port = I2C_NUM_0,
+        .sda_io_num = static_cast<gpio_num_t>(21),
+        .scl_io_num = static_cast<gpio_num_t>(22),
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .glitch_ignore_cnt = 7,
+        .flags = { .enable_internal_pullup = true },
+    };
+    i2c_master_bus_handle_t bus;
+    i2c_new_master_bus(&bus_cfg, &bus);
+
+    i2c_device_config_t dev_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address  = 0x40,
+        .scl_speed_hz    = 400000,
+    };
+    i2c_master_dev_handle_t dev;
+    i2c_master_bus_add_device(bus, &dev_cfg, &dev);
+
+    I2CTransportESPIDF transport(dev);
+    <Chip>Full chip(transport);
+    // ... checks ...
+    printf("===DONE: %d passed, %d failed===\n", passed, failed);
+}
+```
+
+The default `GPIO21` SDA / `GPIO22` SCL on `I2C_NUM_0` works on most ESP32 boards. To use a different pin pair or move to `I2C_NUM_1`, edit the bus-config block at the top of `main.cpp`.
 
 ### Rust Linux test template
 

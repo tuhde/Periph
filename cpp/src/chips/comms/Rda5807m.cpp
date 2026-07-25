@@ -14,6 +14,13 @@
 #define DELAY_MS(ms) k_sleep(K_MSEC(ms))
 #endif
 
+#ifdef ESP_PLATFORM
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#undef DELAY_MS
+#define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
+#endif
+
 static const uint32_t BAND_BASE_KHZ[4] = {87000, 76000, 76000, 65000};
 static const uint16_t SPACE_KHZ[4] = {100, 200, 50, 25};
 

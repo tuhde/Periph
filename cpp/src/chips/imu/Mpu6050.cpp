@@ -1,9 +1,24 @@
 #include "Mpu6050.h"
 
+#if defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
+#elif defined(__linux__)
+#include <unistd.h>
+#define DELAY_MS(ms) usleep((ms) * 1000)
+#elif defined(CONFIG_ZEPHYR)
+#include <zephyr/kernel.h>
+#define DELAY_MS(ms) k_sleep(K_MSEC(ms))
+#else
+#include <Arduino.h>
+#define DELAY_MS(ms) delay(ms)
+#endif
+
 MPU6050Minimal::MPU6050Minimal(Transport& transport)
     : _transport(transport) {
     _write_reg(REG_PWR_MGMT_1, 0x80);
-    delay(100);
+    DELAY_MS(100);
     _write_reg(REG_PWR_MGMT_1, 0x01);
     uint8_t who = _read_reg(REG_WHO_AM_I);
     if (who != WHO_AM_I_VALUE) {
@@ -13,7 +28,7 @@ MPU6050Minimal::MPU6050Minimal(Transport& transport)
     _write_reg(REG_ACCEL_CONFIG, 0x00);
     _write_reg(REG_CONFIG, 0x03);
     _write_reg(REG_SMPLRT_DIV, 0x04);
-    delay(35);
+    DELAY_MS(35);
 }
 
 void MPU6050Minimal::_write_reg(uint8_t reg, uint8_t value) {

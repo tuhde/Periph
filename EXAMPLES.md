@@ -114,7 +114,7 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 ## C++
 
-The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across Arduino, Linux GCC, and Zephyr. Each platform has its own transport and example entry point.
+The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across all C++ platforms. Each platform has its own transport header and example entry point.
 
 ### Arduino
 
@@ -173,6 +173,70 @@ Monitor serial output:
 west espressif monitor     # ESP32-S3
 minicom -D /dev/ttyACM0 -b 115200
 ```
+
+### ESP-IDF (ESP32)
+
+**File layout:**
+```
+cpp/examples/espidf/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/espidf/<category>/<Chip>/minimal/main/CMakeLists.txt
+cpp/examples/espidf/<category>/<Chip>/minimal/main/main.cpp
+cpp/examples/espidf/<category>/<Chip>/minimal/sdkconfig.defaults
+```
+
+Each ESP-IDF example is a standalone application. Build and flash with `idf.py`:
+
+```
+cd cpp/examples/espidf/pressure/BMP280/minimal
+idf.py build
+idf.py -p /dev/ttyUSB0 flash
+```
+
+The default `sdkconfig.defaults` targets `esp32`. For other ESP32 variants (esp32s3, esp32c3, etc.) override the target:
+
+```
+idf.py set-target esp32s3
+idf.py build
+```
+
+Monitor serial output:
+
+```
+idf.py -p /dev/ttyUSB0 monitor
+```
+
+Pin numbers (`I2C_MASTER_SDA_IO`, `I2C_MASTER_SCL_IO`) are defined as constants at the top of `main/main.cpp`; edit them to match your board.
+
+### Pico SDK (Raspberry Pi Pico)
+
+**File layout:**
+```
+cpp/examples/picosdk/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/picosdk/<category>/<Chip>/minimal/src/main.cpp
+```
+
+Each Pico SDK example is a standalone CMake project. Build with CMake:
+
+```
+cd cpp/examples/picosdk/pressure/BMP280/minimal
+mkdir build && cd build
+cmake .. -DPICO_SDK_PATH=/path/to/pico-sdk
+make -j4
+```
+
+Flash the resulting `.uf2` by holding BOOTSEL while plugging in the Pico, then copying the file to the `RPI-RP2` drive:
+
+```
+cp build/bmp280_minimal_picosdk.uf2 /media/$USER/RPI-RP2/
+```
+
+Monitor serial output (USB CDC):
+
+```
+minicom -D /dev/ttyACM0 -b 115200
+```
+
+Pin numbers (I²C SDA/SCL, SPI MOSI/MISO/SCK/CS) are defined as constants at the top of `src/main.cpp`; edit them to match your wiring.
 
 ### Linux GCC
 

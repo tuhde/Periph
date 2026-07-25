@@ -89,7 +89,7 @@ python/
   tests/
 cpp/
   src/
-    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino + Linux + Zephyr variants)
+    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants)
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
@@ -103,6 +103,18 @@ cpp/
       <category>/
         <Chip>/
           minimal/      # main.cpp, CMakeLists.txt, prj.conf  (standalone Zephyr app)
+          complete/
+          demo/
+    espidf/
+      <category>/
+        <Chip>/
+          minimal/      # CMakeLists.txt, main/CMakeLists.txt, main/main.cpp, sdkconfig.defaults
+          complete/
+          demo/
+    picosdk/
+      <category>/
+        <Chip>/
+          minimal/      # CMakeLists.txt, src/main.cpp
           complete/
           demo/
   library.properties    # Arduino library metadata

@@ -15,6 +15,13 @@
 #define DELAY_MS(ms) k_sleep(K_MSEC(ms))
 #endif
 
+#ifdef ESP_PLATFORM
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#undef DELAY_MS
+#define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
+#endif
+
 APDS9960Minimal::APDS9960Minimal(Transport& transport)
     : _transport(transport) {
     DELAY_MS(6);

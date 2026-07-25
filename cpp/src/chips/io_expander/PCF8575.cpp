@@ -15,6 +15,9 @@ static std::atomic<bool>      _linux_irq_stop{false};
 static struct gpio_callback   _zephyr_cb_data;
 static PCF8575Full*           _zephyr_chip_ptr = nullptr;
 static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t);
+#elif defined(ESP_PLATFORM)
+#include <driver/gpio.h>
+static PCF8575Full*           _espidf_chip_ptr = nullptr;
 #else
 #include <Arduino.h>
 static PCF8575Full*  _arduino_chip_ptr = nullptr;
@@ -146,6 +149,10 @@ void PCF8575Full::configure_interrupt(int int_gpio_pin, std::function<void(uint8
     (void)int_gpio_pin;
     _zephyr_chip_ptr = this;
 
+#elif defined(ESP_PLATFORM)
+    (void)int_gpio_pin;
+    _espidf_chip_ptr = this;
+
 #else
     _arduino_chip_ptr = this;
     ::attachInterrupt(digitalPinToInterrupt(int_gpio_pin), _arduino_isr, FALLING);
@@ -190,6 +197,13 @@ static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_
     if (!_zephyr_chip_ptr) return;
     uint8_t changed = _zephyr_chip_ptr->clear_interrupt();
     if (changed) PCF8575Full::_dispatch(_zephyr_chip_ptr, changed);
+}
+
+#elif defined(ESP_PLATFORM)
+static void _espidf_dispatch_from_isr(void* arg) {
+    PCF8575Full* chip = static_cast<PCF8575Full*>(arg);
+    uint8_t changed = chip->clear_interrupt();
+    if (changed) PCF8575Full::_dispatch(chip, changed);
 }
 
 #else

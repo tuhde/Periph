@@ -6,6 +6,10 @@ static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
 #elif defined(CONFIG_ZEPHYR)
 #include <zephyr/kernel.h>
 static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
+#elif defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 #else
 #include <Arduino.h>
 static void _delay_ms(unsigned ms) { delay(ms); }
