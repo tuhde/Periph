@@ -1,0 +1,47 @@
+# Periph native ESP-IDF test configuration
+# Copy this file to testconfig_espidf and fill in your values.
+# testconfig_espidf is gitignored — never commit it.
+
+# ------------------------------------------------------------------
+# ESP-IDF
+# ------------------------------------------------------------------
+# Path to your local ESP-IDF checkout. The runner uses it to find
+# idf.py. IDF_PATH is normally set by the `export.sh` script shipped
+# with ESP-IDF; you can also point at it here for headless CI.
+# IDF_PATH=/opt/esp-idf
+
+# Target chip. Default is "esp32". Other options:
+#   esp32     — original ESP32
+#   esp32s2   — ESP32-S2
+#   esp32s3   — ESP32-S3
+#   esp32c3   — ESP32-C3 (single core, RISC-V)
+#   esp32c6   — ESP32-C6
+#   esp32h2   — ESP32-H2
+ESPIDF_TARGET=esp32
+
+# ------------------------------------------------------------------
+# Flashing
+# ------------------------------------------------------------------
+# USB-CDC serial port exposed by the ESP32. On Linux this is typically
+# /dev/ttyUSB0; on macOS /dev/tty.usbserial-*; on Windows, COM5, COM6, etc.
+ESPIDF_PORT=/dev/ttyUSB0
+
+# ------------------------------------------------------------------
+# I²C / SPI / GPIO defaults
+# ------------------------------------------------------------------
+# I²C bus used by tests that take an address. Most ESP32 GPIOs are
+# valid; common defaults are SDA=GPIO21, SCL=GPIO22 (ESP32 I2C0).
+# I2C_SDA=21
+# I2C_SCL=22
+
+# Chip-select GPIO pin for SPI tests (e.g. MFRC522, BME280-spi, BMP280-spi).
+# SPI_CS=5
+
+# I²C address of the device under test (hex). Per-chip defaults live in
+# chip_defaults at the repo root.
+# I2C_ADDR=0x40
+
+# ------------------------------------------------------------------
+# Test timeouts
+# ------------------------------------------------------------------
+SERIAL_TIMEOUT=20
