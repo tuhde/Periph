@@ -1,4 +1,4 @@
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.adc_dac.pcf8591 import PCF8591Full
 import time
 

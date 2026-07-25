@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.light.apds9960 import APDS9960Minimal
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x39)
+transport = I2CTransport(0x39)
 apds = APDS9960Minimal(transport)                          # Create APDS9960 driver, (transport) → APDS9960Minimal
 
 while True:

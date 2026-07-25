@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.dhtxx_micropython import DHTxxTransport
+from periph.transport.dhtxx_auto import DHTxxTransport
 from periph.chips.humidity.dht11 import DHT11Full
-from machine import Pin
 
-data_pin = Pin(cfg.DHT11_PIN, Pin.IN)
-transport = DHTxxTransport(data_pin)
+transport = DHTxxTransport(4)
 dht = DHT11Full(transport, 3)                       # Create DHT11 driver, (transport, max_retries=3)
 
 # --- Indoor comfort monitor ---

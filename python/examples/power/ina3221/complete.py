@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.power.ina3221 import INA3221Full
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x40)
+transport = I2CTransport(0x40)
 ina = INA3221Full(transport)                         # Create INA3221 driver, (transport, r_shunt=0.1 Ω)
 
 for ch in (1, 2, 3):

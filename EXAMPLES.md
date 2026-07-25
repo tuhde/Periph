@@ -120,9 +120,9 @@ The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across 
 
 **File layout:**
 ```
-cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino
-cpp/examples/<Chip>_Complete/<Chip>_Complete.ino
-cpp/examples/<Chip>_Demo/<Chip>_Demo.ino
+cpp/examples/arduino/<category>/<Chip>/minimal/minimal.ino
+cpp/examples/arduino/<category>/<Chip>/complete/complete.ino
+cpp/examples/arduino/<category>/<Chip>/demo/demo.ino
 ```
 
 The directory name must exactly match the `.ino` filename — this is an Arduino IDE requirement.
@@ -130,8 +130,8 @@ The directory name must exactly match the `.ino` filename — this is an Arduino
 Open in the Arduino IDE, or compile and upload with `arduino-cli`:
 
 ```
-arduino-cli compile --fqbn esp32:esp32:esp32s3 cpp/examples/BMP280_Minimal
-arduino-cli upload  --fqbn esp32:esp32:esp32s3 --port /dev/ttyACM0 cpp/examples/BMP280_Minimal
+arduino-cli compile --fqbn esp32:esp32:esp32s3 cpp/examples/arduino/pressure/BMP280/minimal/minimal.ino
+arduino-cli upload  --fqbn esp32:esp32:esp32s3 --port /dev/ttyACM0 cpp/examples/arduino/pressure/BMP280/minimal/minimal.ino
 ```
 
 The library path is passed via `arduino-cli`'s `--library` flag or by symlinking `cpp/src` into the Arduino libraries directory.
@@ -148,15 +148,15 @@ Pin numbers (`Wire.begin(SDA, SCL)`) are hardcoded in the sketch; edit them to m
 
 **File layout:**
 ```
-cpp/examples/<Chip>_Minimal_Zephyr/src/main.cpp
-cpp/examples/<Chip>_Minimal_Zephyr/CMakeLists.txt
-cpp/examples/<Chip>_Minimal_Zephyr/prj.conf
+cpp/examples/zephyr/<category>/<Chip>/minimal/main.cpp
+cpp/examples/zephyr/<category>/<Chip>/minimal/CMakeLists.txt
+cpp/examples/zephyr/<category>/<Chip>/minimal/prj.conf
 ```
 
 Each Zephyr example is a standalone application. Build and flash with `west`:
 
 ```
-cd cpp/examples/BMP280_Minimal_Zephyr
+cd cpp/examples/zephyr/pressure/BMP280/minimal
 west build -b <board>
 west flash
 ```
@@ -164,7 +164,7 @@ west flash
 The example uses `DT_NODELABEL(i2c0)` by default. For boards with a different I²C node label, add a board overlay:
 
 ```
-cpp/examples/BMP280_Minimal_Zephyr/boards/<board>.overlay
+cpp/examples/zephyr/pressure/BMP280/minimal/boards/<board>.overlay
 ```
 
 Monitor serial output:
@@ -359,16 +359,16 @@ All three guarantee the I²C file descriptor is closed on exit, including on exc
 
 **File layout:**
 ```
-go/examples/<category>/<chip>/minimal/main.go
-go/examples/<category>/<chip>/complete/main.go
-go/examples/<category>/<chip>/demo/main.go
+go/examples/linux/<category>/<chip>/minimal/minimal.go
+go/examples/linux/<category>/<chip>/complete/complete.go
+go/examples/linux/<category>/<chip>/demo/demo.go
 
-go/examples/<category>/<chip>/minimal_tinygo/main.go
-go/examples/<category>/<chip>/complete_tinygo/main.go
-go/examples/<category>/<chip>/demo_tinygo/main.go
+go/examples/tinygo/<category>/<chip>/minimal/minimal.go
+go/examples/tinygo/<category>/<chip>/complete/complete.go
+go/examples/tinygo/<category>/<chip>/demo/demo.go
 ```
 
-Each example is its own `main` package. Linux examples carry the build tag `//go:build linux && !tinygo`; TinyGo examples carry `//go:build tinygo`.
+Each example is its own `main` package (Go requires one per directory). Linux examples carry the build tag `//go:build linux && !tinygo`; TinyGo examples carry `//go:build tinygo`.
 
 **Prerequisites (Linux):** Go ≥ 1.24, `/dev/i2c-N` kernel driver (`modprobe i2c-dev`).
 
@@ -379,19 +379,19 @@ Each example is its own `main` package. Linux examples carry the build tag `//go
 Run directly from the repo root:
 
 ```
-go run ./go/examples/<category>/<chip>/minimal
+go run ./go/examples/linux/<category>/<chip>/minimal
 ```
 
 Override the default I²C bus or address:
 
 ```
-I2C_BUS=0 I2C_ADDR=0x40 go run ./go/examples/<category>/<chip>/minimal
+I2C_BUS=0 I2C_ADDR=0x40 go run ./go/examples/linux/<category>/<chip>/minimal
 ```
 
 Build a binary:
 
 ```
-go build -o minimal ./go/examples/<category>/<chip>/minimal
+go build -o minimal ./go/examples/linux/<category>/<chip>/minimal
 ```
 
 ### TinyGo (Pico W)
@@ -399,7 +399,7 @@ go build -o minimal ./go/examples/<category>/<chip>/minimal
 Build a UF2 image and flash it (Pico W must be in BOOTSEL mode):
 
 ```
-tinygo build -target=pico-w -o out.uf2 ./go/examples/<category>/<chip>/minimal_tinygo
+tinygo build -target=pico-w -o out.uf2 ./go/examples/tinygo/<category>/<chip>/minimal
 cp out.uf2 /media/$USER/RPI-RP2/
 ```
 

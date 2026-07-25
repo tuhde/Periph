@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.environmental.bme280 import BME280Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x76)
 bme = BME280Full(transport)                            # Create BME280 driver, (transport, bus_type='i2c')
 cid = bme.chip_id()                                    # Read chip ID, () → int
                                                          # returns 0x60 for BME280

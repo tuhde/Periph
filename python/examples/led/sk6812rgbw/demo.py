@@ -1,6 +1,5 @@
-from periph.transport.neopixel_micropython import NeoPixelTransport
+from periph.transport.neopixel_auto import NeoPixelTransport
 from periph.chips.led.sk6812rgbw import SK6812RGBWFull
-import machine
 import time
 
 
@@ -29,9 +28,7 @@ WARM_WHITE_DURATION = 2
 FPS              = 30
 FRAME_DELAY      = 1.0 / FPS
 
-spi = machine.SoftSPI(baudrate=2_400_000, polarity=0, phase=0,  # Create SoftSPI for NeoPixel, (baudrate=2400000, polarity=0, phase=0, sck=Pin, mosi=Pin, miso=Pin)
-                      sck=machine.Pin(18), mosi=machine.Pin(19), miso=machine.Pin(20))
-transport = NeoPixelTransport(spi)                               # Create NeoPixel transport, (spi)
+transport = NeoPixelTransport(mosi=19, sck=18, miso=20)                               # Create NeoPixel transport, (spi)
 strip = SK6812RGBWFull(transport, N_PIXELS)                      # Create SK6812RGBW full driver, (transport, n=N_PIXELS pixels)
 strip.brightness = 180                                           # Set global brightness, (value=0–255) → None
 

@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.pressure.bmp180 import BMP180Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, 0x77)
+transport = I2CTransport(0x77)
 bmp = BMP180Full(transport)                             # Create BMP180 driver, (transport, oss=0)
 cid = bmp.chip_id()                                    # Read chip ID, () → int
                                                      # returns 0x55 for BMP180

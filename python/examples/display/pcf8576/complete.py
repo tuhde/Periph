@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.display.pcf8576 import PCF8576Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x38)
 lcd = PCF8576Full(transport)                             # Create PCF8576 driver, (transport)
 lcd.clear()                                              # Blank the display, () → None
                                                          # zeros all 40 columns of display RAM

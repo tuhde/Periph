@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.pressure.bmp280 import BMP280Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x76)
 bmp = BMP280Full(transport)                              # Create BMP280 driver, (transport, bus_type='i2c')
 cid = bmp.chip_id()                                     # Read chip ID, () → int
                                                          # returns 0x58 for BMP280

@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.environmental.bme280 import BME280Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x76)
 
 # --- Weather monitoring preset: forced mode, ×1/×1/×1, filter off ---
 # BME280 datasheet "weather monitoring" preset: minimum power, single-shot,

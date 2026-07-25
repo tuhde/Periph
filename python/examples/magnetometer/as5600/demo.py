@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.magnetometer.as5600 import AS5600Full
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x36)
+transport = I2CTransport(0x36)
 as5600 = AS5600Full(transport)
 
 # --- Motor feedback monitor: read angle 10 times per second ---

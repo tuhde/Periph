@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.environmental.bme680 import BME680Minimal
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)              # Open I²C transport, (i2c, addr)
+transport = I2CTransport(0x76)              # Open I²C transport, (i2c, addr)
 bme = BME680Minimal(transport)                           # Create BME680 driver, (transport)
 
 for _ in range(5):

@@ -1,9 +1,7 @@
-from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.io_expander.mcp23017 import Mcp23017Minimal
 
-i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400000)           # Create I2C bus, (id, sda, scl, freq=400000 Hz)
-transport = I2CTransport(i2c, 0x20)                            # Create I2C transport, (i2c, addr=0x20)
+transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
 chip = Mcp23017Minimal(transport)                             # Create MCP23017 driver, (transport, addr=0x20)
 
 p0 = chip.pin(0, Mcp23017Minimal.IN)                          # Get pin 0 as input, (n, mode=IN)

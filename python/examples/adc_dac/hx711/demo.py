@@ -1,6 +1,5 @@
 import time
-from machine import Pin
-from periph.transport.hx711_micropython import HX711Transport
+from periph.transport.hx711_auto import HX711Transport
 from periph.chips.adc_dac.hx711 import HX711Full
 
 # Kitchen scale demo: tare at startup, then print weight continuously.
@@ -9,9 +8,7 @@ from periph.chips.adc_dac.hx711 import HX711Full
 # weight W grams; (3) SCALE_FACTOR = (read_average() - get_offset()) / W.
 SCALE_FACTOR = 420.0   # ADC counts per gram (example, calibrate for your setup)
 
-dout   = Pin(5, Pin.IN)
-pd_sck = Pin(6, Pin.OUT)
-transport = HX711Transport(dout, pd_sck)        # Create HX711 transport, (dout, pd_sck)
+transport = HX711Transport(5, 6)        # Create HX711 transport, (dout, pd_sck)
 chip = HX711Full(transport)                     # Create HX711 driver — discards first conversion, (transport)
 
 print('Taring — keep scale empty...')

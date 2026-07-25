@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.imu.mpu6050 import MPU6050Full
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x68)
+transport = I2CTransport(0x68)
 imu = MPU6050Full(transport)                             # Create MPU6050 driver, (transport) → None
 
 ax, ay, az = imu.accel()                                # Read 3-axis acceleration, () → (float, float, float) m/s²

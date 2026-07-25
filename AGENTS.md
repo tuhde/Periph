@@ -73,14 +73,15 @@ Every chip is implemented across all six languages and every supported platform 
 | Python driver (all 3 targets) | `python/periph/chips/<category>/<chip>.py` |
 | Python examples | `python/examples/<category>/<chip>/{minimal,complete,demo}.py` |
 | C++ driver (Arduino + Linux + Zephyr) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
-| C++ Arduino examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}/<Chip>_{Minimal,Complete,Demo}.ino` |
-| C++ Zephyr examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}_Zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
+| C++ Arduino examples | `cpp/examples/arduino/<category>/<Chip>/{minimal,complete,demo}/{minimal,complete,demo}.ino` |
+| C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
 | Node-RED demo flow | `nodejs/packages/node-red-contrib-periph-<category>/examples/<chip>/demo.json` |
 | Rust driver (no_std, embedded-hal) | `rust/periph/src/chips/<category>/<chip>.rs` |
-| Rust examples (Linux) | `rust/examples/<chip>_{minimal,complete,demo}/{Cargo.toml,src/main.rs}` |
+| Rust examples (Linux) | `rust/examples/linux/<category>/<chip>/{minimal,complete,demo}/{Cargo.toml,src/main.rs}` |
+| Rust examples (ESP32-S3) | `rust/examples/embedded/esp32s3/<category>/<chip>/{minimal,complete,demo}/{Cargo.toml,src/main.rs,rust-toolchain.toml,.cargo/config.toml}` |
 | JVM Java driver | `jvm/periph-java/src/main/java/it/uhde/periph/chips/<category>/<Chip>Minimal.java` and `<Chip>Full.java` |
 | JVM Kotlin driver | `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/<category>/<Chip>Minimal.kt` and `<Chip>Full.kt` |
 | JVM Groovy driver | `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/<category>/<Chip>Minimal.groovy` and `<Chip>Full.groovy` |
@@ -88,7 +89,8 @@ Every chip is implemented across all six languages and every supported platform 
 | JVM examples (Kotlin) | `jvm/examples/kotlin/<category>/<chip>/{Minimal,Complete,Demo}.kt` |
 | JVM examples (Groovy) | `jvm/examples/groovy/<category>/<chip>/{Minimal,Complete,Demo}.groovy` |
 | Go driver | `go/periph/chips/<category>/<chip>.go` |
-| Go examples (host + TinyGo) | `go/examples/<category>/<chip>/{minimal,minimal_tinygo,complete,complete_tinygo,demo,demo_tinygo}/main.go` |
+| Go examples (Linux host) | `go/examples/linux/<category>/<chip>/{minimal,complete,demo}/<tier>.go` |
+| Go examples (TinyGo) | `go/examples/tinygo/<category>/<chip>/{minimal,complete,demo}/<tier>.go` |
 | Sigrok decoder | `sigrok/<chip>/pd.py` and `sigrok/<chip>/__init__.py` |
 
 For test file paths and runner scripts, see [TESTING.md](TESTING.md). When adding a chip, every platform's test must be added too — Linux, MicroPython, CircuitPython, Arduino, Zephyr, Node.js, Rust Linux, Rust ESP32-S3, JVM, Go Linux, and Go TinyGo.
@@ -506,17 +508,17 @@ Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino 
 
 ### Zephyr examples
 
-Each Zephyr example is a separate Zephyr application directory: `cpp/examples/<Chip>_<Tier>_Zephyr/` containing `src/main.cpp`, `CMakeLists.txt`, and `prj.conf`. The CMake file pulls the chip driver source from `cpp/src/chips/<category>/`:
+Each Zephyr example is a standalone Zephyr application at `cpp/examples/zephyr/<category>/<Chip>/<tier>/` containing `main.cpp`, `CMakeLists.txt`, and `prj.conf`. `CPP_DIR` is five levels up (pointing to `cpp/`):
 
 ```cmake
 cmake_minimum_required(VERSION 3.20)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(<chip>_minimal_zephyr)
+project(<chip>_<tier>_zephyr)
 
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
 
 target_sources(app PRIVATE
-    src/main.cpp
+    main.cpp
     ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
 )
 target_include_directories(app PRIVATE
@@ -524,6 +526,8 @@ target_include_directories(app PRIVATE
     ${CPP_DIR}/src/chips/<category>
 )
 ```
+
+Header-only chips (HX711) omit the `.cpp` line from `target_sources`.
 
 Standard `prj.conf`:
 ```
@@ -534,7 +538,7 @@ CONFIG_NEWLIB_LIBC=y
 CONFIG_FPU=y
 ```
 
-The example uses `DEVICE_DT_GET(DT_NODELABEL(i2c0))` by default; this works on most boards. For boards with a different I²C node label, ship a board overlay rather than hard-coding.
+Build: `cd cpp/examples/zephyr/<category>/<Chip>/<tier> && west build -b <board>`
 
 ## Node.js transport interface
 
@@ -612,10 +616,10 @@ Two supported targets: **Linux** (host, via `linux-embedded-hal`) and **ESP32-S3
 
 ### Workspace layout
 
-The `rust/Cargo.toml` workspace contains the library crate, the three Linux examples, and the Linux test crate. The ESP32-S3 test crate is **excluded** from the workspace (it requires the Espressif `esp` toolchain selected via `rust-toolchain.toml`); add it under `[workspace] exclude = [...]` rather than `members`. See `rust/tests/power/ina226_test_esp32s3/` for the standalone-crate template.
+The `rust/Cargo.toml` workspace contains the library crate, all Linux examples (via `"examples/linux/*/*/*"` glob), and the Linux test crates. All `embedded/` example crates and all `_esp32s3` test crates are **excluded** from the workspace (they require the Espressif `esp` toolchain and cannot be mixed with the standard workspace build); add them under `[workspace] exclude = [...]`.
 
 When adding a new chip, update `rust/Cargo.toml`:
-- Add `examples/<chip>_minimal`, `examples/<chip>_complete`, `examples/<chip>_demo`, and `tests/<category>/<chip>_test` to `members`.
+- Add `tests/<category>/<chip>_test` to `members` (Linux examples are picked up automatically by the glob).
 - Add `tests/<category>/<chip>_test_esp32s3` to `exclude`.
 
 ### Examples
@@ -907,16 +911,18 @@ Package names drop underscores even where the category directory keeps them: dir
 
 ### Examples
 
-Every chip gets **both** a host and a TinyGo example per tier — unlike Rust, which only ships Linux examples and reserves the embedded target for hardware tests. The `_tinygo` directory suffix marks the embedded variant, mirroring how C++'s Zephyr examples are suffixed `_Zephyr` rather than by a specific board, since board choice is a `tinygo build -target=` flag, not a compile-time fork:
+Every chip gets **both** a Linux host and a TinyGo example per tier. Platform lives at the top of the tree; each tier is its own directory (Go requires one `main` package per directory), and the file is named after the tier rather than the generic `main.go`:
 
 ```
-go/examples/<category>/<chip>/
-  minimal/main.go          # go build                     (Linux host)
-  minimal_tinygo/main.go   # tinygo build -target=pico-w  (embedded)
-  complete/main.go
-  complete_tinygo/main.go
-  demo/main.go
-  demo_tinygo/main.go
+go/examples/
+  linux/<category>/<chip>/
+    minimal/minimal.go     # go build ./go/examples/linux/.../<chip>/minimal/
+    complete/complete.go
+    demo/demo.go
+  tinygo/<category>/<chip>/
+    minimal/minimal.go     # tinygo build -target=pico-w ./go/examples/tinygo/.../<chip>/minimal/
+    complete/complete.go
+    demo/demo.go
 ```
 
 Every example is `package main` with a `func main()`. Every fallible call is checked and `panic()`s on error — idiomatic for example/demo code and consistent with the fail-loudly style already used in every other language's demos:
@@ -1110,9 +1116,9 @@ See `## Documentation → Example tiers` below for the exact comment format.
 
 The demo scenario is defined in the chip spec. The minimal and complete examples are fully implied by the API tables — implement them mechanically.
 
-For C++ Arduino, the directory name must exactly match the `.ino` filename: `INA226_Minimal/INA226_Minimal.ino`.
+For C++ Arduino, the directory name must exactly match the `.ino` filename: `cpp/examples/arduino/<category>/<Chip>/minimal/minimal.ino`.
 
-For C++ Zephyr, each example is a standalone Zephyr app directory `<Chip>_<Tier>_Zephyr/` (see Zephyr examples above).
+For C++ Zephyr, each example is a standalone Zephyr app at `cpp/examples/zephyr/<category>/<Chip>/<tier>/` (see Zephyr examples above).
 
 For Rust, each example is its own crate at `rust/examples/<chip>_<tier>/` with a `Cargo.toml` and `src/main.rs`.
 

@@ -1,11 +1,7 @@
-import machine
-import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.display.pcf8576 import PCF8576Full
-from machine import Pin
 
-i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+transport = I2CTransport(0x38)
 
 # --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
 # The PCF8576 drives four 7-segment digits from a single I2C bus; the host

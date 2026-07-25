@@ -1,11 +1,8 @@
 import time
-from periph.transport.spi_micropython import SPITransport
+from periph.transport.spi_auto import SPITransport
 from periph.chips.rfid.mfrc522 import MFRC522Full
-from machine import SPI, Pin
 
-spi = SPI(1, baudrate=1000000, polarity=0, phase=0)
-cs  = Pin('P9', Pin.OUT)
-transport = SPITransport(spi, cs)                          # Create SPI transport, (bus, cs)
+transport = SPITransport(bus=1, cs_pin=9)                          # Create SPI transport, (bus, cs)
 mfrc = MFRC522Full(transport)                              # Create MFRC522 driver, (transport, bus_type='spi')
 
 chip_type, version = mfrc.version()                       # Read version register, () → tuple (chip_type, version)

@@ -1,11 +1,9 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.imu.mpu6050 import MPU6050Full
 import math
 import time
 
-i2c = I2C(2, freq=400000)
-transport = I2CTransport(i2c, 0x68)
+transport = I2CTransport(0x68)
 
 # --- Configure for motion logging with moderate dynamic range ---
 # ±4g captures typical tilting and handling forces without clipping;

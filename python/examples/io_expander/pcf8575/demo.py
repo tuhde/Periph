@@ -11,15 +11,13 @@ from Port 1 (P10–P17, bits 8–15 of the full 16-bit value), inverts it
 Prints both the raw port bytes in hex and the decoded button/LED states
 so the quasi-bidirectional read-back behavior and 2-byte protocol are visible.
 """
-from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.io_expander.pcf8575 import Pcf8575Full
 import time
 
 # --- Initialise bus and driver ---
 # PCF8575 is I²C only, 400 kHz Fast mode; start with all pins as inputs.
-i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400000)           # Create I2C bus, (id, sda, scl, freq=400000 Hz)
-transport = I2CTransport(i2c, 0x20)                            # Create I2C transport, (i2c, addr=0x20)
+transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
 chip = Pcf8575Full(transport)                                   # Create PCF8575 full driver, (transport, addr=0x20)
 
 # --- Configure output pins for LEDs (P00–P07 → drive low) ---

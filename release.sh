@@ -162,13 +162,17 @@ AW=/tmp/periph-arduino
 # Clear existing content (keep .git)
 find "$AW" -mindepth 1 -not -path "$AW/.git" -not -path "$AW/.git/*" -delete
 
-# Copy src/ and examples/ (Arduino only, no Zephyr)
+# Copy src/ and examples/ (Arduino only)
+# Reconstruct flat <Chip>_<Tier>/<Chip>_<Tier>.ino layout expected by Arduino IDE
 cp -r cpp/src "$AW/src"
 mkdir -p "$AW/examples"
-for d in cpp/examples/*/; do
-  name=$(basename "$d")
-  [[ "$name" == *_Zephyr ]] && continue
-  cp -r "$d" "$AW/examples/$name"
+find cpp/examples/arduino -name "*.ino" | while read ino; do
+  chip=$(dirname "$ino" | xargs dirname | xargs basename)
+  tier=$(basename "$(dirname "$ino")")
+  tier_cap=$(echo "$tier" | sed 's/./\u&/')
+  sketch="${chip}_${tier_cap}"
+  mkdir -p "$AW/examples/$sketch"
+  cp "$ino" "$AW/examples/$sketch/$sketch.ino"
 done
 
 # library.properties with stamped version

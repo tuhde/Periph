@@ -1,10 +1,8 @@
-from machine import I2C
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.comms.rda5807m import RDA5807MFull
 import time
 
-i2c = I2C(0, freq=400000)
-transport = I2CTransport(i2c, 0x10)
+transport = I2CTransport(0x10)
 fm = RDA5807MFull(transport, frequency_mhz=87.5, volume=10)
 
 # --- FM band scanner ---

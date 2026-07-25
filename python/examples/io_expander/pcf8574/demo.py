@@ -10,15 +10,13 @@ Every 200 ms the demo reads the full port byte, extracts the button nibble
 result to the output nibble (P0–P3). Prints the raw port byte and the decoded
 states so the quasi-bidirectional read-back behavior is visible.
 """
-from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.transport.i2c_auto import I2CTransport
 from periph.chips.io_expander.pcf8574 import Pcf8574Full
 import time
 
 # --- Initialise bus and driver ---
 # PCF8574 is I²C only, 100 kHz max; start with all pins as inputs.
-i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=100000)           # Create I2C bus, (id, sda, scl, freq=100000 Hz)
-transport = I2CTransport(i2c, 0x20)                            # Create I2C transport, (i2c, addr=0x20)
+transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
 chip = Pcf8574Full(transport)                                   # Create PCF8574 full driver, (transport, addr=0x20)
 
 # --- Configure output pins for LEDs (P0–P3 → drive low) ---
