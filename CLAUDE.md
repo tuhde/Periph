@@ -93,6 +93,12 @@ cpp/
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
+    linux/
+      <category>/
+        <Chip>/
+          minimal/      # main.cpp  (compiled with g++ directly)
+          complete/
+          demo/
     arduino/
       <category>/
         <Chip>/

@@ -116,6 +116,45 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across all C++ platforms. Each platform has its own transport header and example entry point.
 
+### Linux GCC
+
+**File layout:**
+```
+cpp/examples/linux/<category>/<Chip>/minimal/main.cpp
+cpp/examples/linux/<category>/<Chip>/complete/main.cpp
+cpp/examples/linux/<category>/<Chip>/demo/main.cpp
+```
+
+Each example is a single standalone `.cpp` file. Compile and run directly:
+
+```
+g++ -std=c++17 \
+    -Icpp/src/transport -Icpp/src/chips/pressure \
+    cpp/examples/linux/pressure/BMP280/minimal/main.cpp \
+    cpp/src/chips/pressure/BMP280.cpp \
+    cpp/src/transport/I2CTransportLinux.cpp \
+    -o bmp280_minimal
+./bmp280_minimal
+```
+
+Override the default bus or address with environment variables:
+
+```
+I2C_BUS=0 I2C_ADDR=0x76 ./bmp280_minimal
+```
+
+Link the transport that matches the chip:
+
+| Chip family | Transport source | Extra flags |
+|-------------|-----------------|-------------|
+| I²C (most chips) | `I2CTransportLinux.cpp` | — |
+| SPI (`MFRC522`) | `SPITransportLinux.cpp` | — |
+| NeoPixel (`WS2812B`, `SK6812RGBW`) | `NeoPixelTransportLinux.cpp` | — |
+| GPIO bit-bang (`HX711`, `DHT11`) | `HX711TransportLinux.cpp` / `DHTxxTransportLinux.cpp` | `-lgpiod` |
+| UART (`NEO6`) | `UARTTransportLinux.cpp` | — |
+
+The test suite (`cpp/tests/`) provides the same chip coverage with pass/fail assertions; run them via `cpp/test_linux.sh` — see [TESTING.md](TESTING.md).
+
 ### Arduino
 
 **File layout:**
@@ -237,26 +276,6 @@ minicom -D /dev/ttyACM0 -b 115200
 ```
 
 Pin numbers (I²C SDA/SCL, SPI MOSI/MISO/SCK/CS) are defined as constants at the top of `src/main.cpp`; edit them to match your wiring.
-
-### Linux GCC
-
-The C++ driver also compiles natively on Linux. There are no standalone Linux GCC example programs — the Linux path is exercised through the test suite (`cpp/tests/`). To use the driver in a custom Linux program, include the driver header and link against `I2CTransportLinux`:
-
-```cpp
-#include "I2CTransportLinux.h"
-#include "BMP280.h"
-
-I2CTransportLinux transport(1, 0x76);   // bus 1, address 0x76
-BMP280Minimal bmp(transport);
-```
-
-Compile with:
-
-```
-g++ -std=c++17 -Icpp/src/transport -Icpp/src/chips/pressure your_program.cpp \
-    cpp/src/chips/pressure/BMP280.cpp cpp/src/transport/I2CTransportLinux.cpp \
-    -o your_program
-```
 
 ---
 
