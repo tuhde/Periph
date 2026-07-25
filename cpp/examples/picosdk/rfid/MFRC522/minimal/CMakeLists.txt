@@ -22,7 +22,7 @@ target_include_directories(mfrc522_minimal_picosdk PRIVATE
 
 target_link_libraries(mfrc522_minimal_picosdk PRIVATE
     pico_stdlib
-    hardware_i2c)
+    hardware_spi)
 
 pico_enable_stdio_usb(mfrc522_minimal_picosdk 1)
 pico_enable_stdio_uart(mfrc522_minimal_picosdk 0)

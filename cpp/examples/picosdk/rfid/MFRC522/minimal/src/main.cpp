@@ -1,50 +1,33 @@
 #include <stdio.h>
-#include <math.h>
-#include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include <hardware/spi.h>
+#include "SPITransportPicoSDK.h"
 #include "MFRC522.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x28);
-MFRC522Minimal mfrc(transport, /*bus_type=*/0);
+static const uint MOSI_PIN = 19;
+static const uint MISO_PIN = 16;
+static const uint SCLK_PIN = 18;
+static const uint CS_PIN   = 17;
 
 int main(void) {
-    static int passed = 0, failed = 0;
-
     stdio_init_all();
     sleep_ms(2000);
 
-    for (int i = 0; i < 10; i++) {
+    spi_init(spi0, 1000000);
+    gpio_set_function(MOSI_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(MISO_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(SCLK_PIN, GPIO_FUNC_SPI);
+
+    SPITransportPicoSDK transport(spi0, CS_PIN);
+    MFRC522Minimal mfrc(transport);                                // Create MFRC522 driver, (transport)
+
+    while (1) {
         bool present = mfrc.is_card_present();                     // Detect card in field, () → bool
         uint8_t uid[10];
-        size_t  uid_len = 0;
-        bool ok = mfrc.read_uid(uid, uid_len);                     // Read card UID (REQA → anticollision → HLTA), (out, len) → bool
-        printf("present=");
-        printf("%d", present);
-        printf(" uid=");
-        for (size_t j = 0; j < uid_len; j++) {
-            if (uid[j] < 0x10) printf("0");
-            printf("0x%X", (unsigned)uid[j]);
-        }
-        printf("\n");
+        size_t uid_len = 0;
+        mfrc.read_uid(uid, uid_len);                               // Read card UID (REQA → anticollision → HLTA), (out, len) → bool
+        printf("present=%d\n", present);
         sleep_ms(500);
     }
-
-    printf("===DONE: ");
-    printf("%d", passed);
-    printf(" passed, ");
-    printf("%d", failed);
-    printf(" failed===\n");
-    while (true) {
-    sleep_ms(1000); 
-        sleep_ms(10);
-    }
-
     return 0;
 }
