@@ -72,9 +72,10 @@ Every chip is implemented across all five languages and every supported platform
 |----------|------|
 | Python driver (all 3 targets) | `python/periph/chips/<category>/<chip>.py` |
 | Python examples | `python/examples/<category>/<chip>/{minimal,complete,demo}.py` |
-| C++ driver (Arduino + Linux + Zephyr) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
+| C++ driver (Arduino + Linux + Zephyr + ESP-IDF) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
 | C++ Arduino examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}/<Chip>_{Minimal,Complete,Demo}.ino` |
 | C++ Zephyr examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}_Zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
+| C++ ESP-IDF examples | `cpp/examples/<Chip>_{Minimal,Complete,Demo}_ESPIDF/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
@@ -416,7 +417,7 @@ from periph.transport.i2c_linux import I2CTransport          # Linux
 
 ## C++ conventions
 
-Three supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**. The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all three; each target has its own transport.
+Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.1; bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
 
 ### Chip drivers
 
@@ -434,8 +435,11 @@ Three supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**. The chip d
 | `I2CTransport.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
 | `I2CTransportLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
 | `I2CTransportZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
+| `I2CTransportESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.1), header-only |
 | `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
+| `SMBusTransportESPIDF.h` | PEC-capable variant | wraps `I2CTransportESPIDF` + software CRC-8 |
 | `SPITransport.h/.cpp` | Arduino SPI | |
+| `SPITransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
 
 Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
@@ -470,6 +474,41 @@ CONFIG_FPU=y
 ```
 
 The example uses `DEVICE_DT_GET(DT_NODELABEL(i2c0))` by default; this works on most boards. For boards with a different I²C node label, ship a board overlay rather than hard-coding.
+
+### ESP-IDF examples
+
+Each ESP-IDF example is a standalone ESP-IDF project: `cpp/examples/<Chip>_<Tier>_ESPIDF/` containing a top-level `CMakeLists.txt`, `sdkconfig.defaults`, and a `main/` component directory with its own `CMakeLists.txt` and `main.cpp`. The example entry point is `extern "C" void app_main(void)`. The main component's `CMakeLists.txt` pulls the chip driver source from `cpp/src/chips/<category>/` and registers the example as a single-component ESP-IDF app:
+
+```cmake
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+
+idf_component_register(
+    SRCS "main.cpp"
+        ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+    INCLUDE_DIRS "."
+        ${CPP_DIR}/src/transport
+        ${CPP_DIR}/src/chips/<category>
+    REQUIRES driver
+)
+```
+
+The top-level `CMakeLists.txt` uses the standard ESP-IDF `project.cmake` include:
+```cmake
+cmake_minimum_required(VERSION 3.16)
+include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+project(<chip>_minimal_espidf)
+```
+
+`sdkconfig.defaults` enables C++ but disables exceptions and RTTI (consistent with every other platform's C++ conventions):
+```
+CONFIG_IDF_TARGET="esp32"
+CONFIG_COMPILER_CXX_EXCEPTIONS=n
+CONFIG_COMPILER_CXX_RTTI=n
+```
+
+The example configures its own bus at file scope — `i2c_master_bus_config_t` + `i2c_new_master_bus()` for I²C, `spi_bus_initialize()` for SPI, `uart_driver_install()` + `uart_param_config()` + `uart_set_pin()` for UART, `gpio_set_direction()` for HX711 GPIO bit-bang — before constructing the chip driver. Built with `idf.py build` and flashed with `idf.py -p <port> flash`.
+
+Default I²C pins are `GPIO21` (SDA) and `GPIO22` (SCL) on `I2C_NUM_0`; default SPI is `SPI2_HOST` at 2.4 MHz (NeoPixel); default UART is `UART_NUM_1` at 9600 baud (NEO-6 GPS); default HX711 GPIO is `GPIO19` (DOUT) and `GPIO18` (PD_SCK). Override by editing the file-scope bus-config block at the top of `main.cpp`.
 
 ## Node.js transport interface
 
@@ -976,6 +1015,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Arduino | `cpp/tests/<category>/<chip>_test/<chip>_test.ino` |
 | Linux GCC | `cpp/tests/<category>/<chip>_test_linux/<chip>_test_linux.cpp` |
 | Zephyr | `cpp/tests/<category>/<chip>_test_zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
+| ESP-IDF | `cpp/tests/<category>/<chip>_test_espidf/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -1175,6 +1215,7 @@ Use these platform labels consistently:
 | C++ Arduino | `C++/Arduino` |
 | C++ Linux GCC | `C++/Linux` |
 | C++ Zephyr | `C++/Zephyr` |
+| C++ ESP-IDF | `C++/ESP-IDF` |
 | Node.js | `Node.js` |
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |
