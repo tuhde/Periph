@@ -155,11 +155,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/I2cTransportLinux.cpp`
 - [x] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/I2CTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/I2CTransportPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
-- [ ] Tests (Pico SDK)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method

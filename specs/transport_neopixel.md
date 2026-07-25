@@ -218,11 +218,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
 - [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
 - [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/NeoPixelTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/NeoPixelTransportPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
-- [ ] Tests (Pico SDK)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method

@@ -99,11 +99,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] `cpp/src/transport/SMBusTransportLinux.h` — Doxygen
 - [x] `cpp/src/transport/SMBusTransportLinux.cpp`
 - [x] `cpp/src/transport/SMBusTransportZephyr.h` — Doxygen (header-only)
-- [ ] `cpp/src/transport/SMBusTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/SMBusTransportPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
-- [ ] Tests (Pico SDK)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/smbus.js` — JSDoc on class and every exported method
