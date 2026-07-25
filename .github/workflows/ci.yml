@@ -56,6 +56,61 @@ jobs:
         run: cpp/test_linux.sh --compile-only power/ina226
 
   # -----------------------------------------------------------------------
+  # Raspberry Pi Pico SDK — compile-only (no hardware required).
+  # Builds one example per transport to catch the regressions the
+  # full retrofill would otherwise let through CI. The full chip
+  # coverage matrix lives in `cpp/test_picosdk.sh --compile-only`,
+  # which we run against every chip's test app below.
+  # -----------------------------------------------------------------------
+  pico-sdk:
+    name: Pico SDK compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install pico-sdk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-arm-none-eabi gcc g++ python3
+          git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git /opt/pico-sdk
+          (cd /opt/pico-sdk && git submodule update --init --depth 1)
+          echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
+
+      - name: Install picotool
+        run: |
+          git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/picotool.git /tmp/picotool
+          (cd /tmp/picotool && cmake -B build -S . && cmake --build build -j)
+          sudo cp /tmp/picotool/build/picotool /usr/local/bin/
+          sudo cp -r /tmp/picotool/data /usr/local/share/picotool 2>/dev/null || true
+
+      - name: Build I2C example
+        run: cpp/test_picosdk.sh --compile-only power/ina226
+        env:
+          PICO_BOARD: pico
+
+      - name: Build SPI example
+        run: cpp/test_picosdk.sh --compile-only pressure/bmp280
+        env:
+          PICO_BOARD: pico
+
+      - name: Build UART example
+        run: cpp/test_picosdk.sh --compile-only comms/rda5807m
+        env:
+          PICO_BOARD: pico
+
+      - name: Build NeoPixel example
+        run: cpp/test_picosdk.sh --compile-only led/ws2812b
+        env:
+          PICO_BOARD: pico
+
+      - name: Build HX711 example
+        run: cpp/test_picosdk.sh --compile-only adc_dac/hx711
+        env:
+          PICO_BOARD: pico
+
+  # -----------------------------------------------------------------------
   # Python — syntax check across all chip drivers and tests
   # -----------------------------------------------------------------------
   python:
