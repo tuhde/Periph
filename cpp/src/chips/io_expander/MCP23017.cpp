@@ -1,6 +1,10 @@
 #include "MCP23017.h"
 
-#ifndef ARDUINO
+#ifdef ESP_PLATFORM
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+static inline void delay_ms(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif !defined(ARDUINO)
 #include <unistd.h>
 static inline void delay_ms(unsigned long ms) { usleep(ms * 1000UL); }
 #else

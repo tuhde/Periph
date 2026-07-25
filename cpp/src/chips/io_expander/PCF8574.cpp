@@ -15,6 +15,9 @@ static std::atomic<bool>      _linux_irq_stop{false};
 static struct gpio_callback   _zephyr_cb_data;
 static PCF8574Full*           _zephyr_chip_ptr = nullptr;
 static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t);
+#elif defined(ESP_PLATFORM)
+#include <driver/gpio.h>
+static PCF8574Full*           _espidf_chip_ptr = nullptr;
 #else
 // Arduino
 #include <Arduino.h>
@@ -140,6 +143,13 @@ void PCF8574Full::configure_interrupt(int int_gpio_pin, void (*callback)(uint8_t
     // Application must provide the INT gpio_dt_spec and call gpio_add_callback
     // after this function. See the Zephyr example for the wiring.
 
+#elif defined(ESP_PLATFORM)
+    (void)int_gpio_pin;
+    _espidf_chip_ptr = this;
+    // Application must provide the INT gpio_num_t and call
+    // gpio_isr_handler_add with _espidf_dispatch_from_isr after this
+    // function. See the ESP-IDF example for the wiring.
+
 #else
     // Arduino
     _arduino_chip_ptr = this;
@@ -192,6 +202,16 @@ static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_
     if (!_zephyr_chip_ptr) return;
     uint8_t changed = _zephyr_chip_ptr->clear_interrupt();
     if (changed) PCF8574Full::_dispatch(_zephyr_chip_ptr, changed);
+}
+
+#elif defined(ESP_PLATFORM)
+// ESP-IDF GPIO ISR is installed by the application via gpio_isr_handler_add
+// after configure_interrupt() returns. The chip pointer is held in
+// _espidf_chip_ptr for the application-installed handler to dispatch.
+static void _espidf_dispatch_from_isr(void* arg) {
+    PCF8574Full* chip = static_cast<PCF8574Full*>(arg);
+    uint8_t changed = chip->clear_interrupt();
+    if (changed) PCF8574Full::_dispatch(chip, changed);
 }
 
 #else
