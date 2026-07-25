@@ -69,11 +69,15 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `dePinNum` | Go Linux | `int` | -1 | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `uart` | Go TinyGo | `machine.UART` | — | Configured UART instance (e.g. `machine.UART0`) |
 | `dePin` | Go TinyGo | `machine.Pin` | — | RS-485 DE pin; zero value disables RS-485 mode |
+| `uart` | Pico SDK | `uart_inst_t*` | — | UART peripheral (`uart0` or `uart1`), already configured via `uart_init()` |
+| `de_pin` | Pico SDK | `int` (GPIO pin number) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
 
 | `port` | ESP-IDF | `uart_port_t` | — | UART port number (`UART_NUM_0`, `UART_NUM_1`, `UART_NUM_2`), already installed via `uart_driver_install()` and configured via `uart_param_config()` |
 | `de_pin` | ESP-IDF | `int` (`gpio_num_t`) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
 
 For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
+
+For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Pico SDK, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
 
 For Linux and Node.js, the transport opens and configures the serial port itself using the provided parameters.
 
@@ -194,6 +198,24 @@ The 1000 ms timeout matches Arduino's `HardwareSerial` default and Zephyr's 1 s 
 Where the transport exposes an `available()`-style query, use `uart_get_buffered_data_len(port, &n)`, which reports an exact byte count — no platform limitation here, unlike Pico SDK's boolean-only `uart_is_readable()`.
 
 File: `cpp/src/transport/UARTTransportESPIDF.h` (header-only)
+
+### Raspberry Pi Pico SDK
+
+Wraps `hardware_uart` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts a `uart_inst_t*` (`uart0` or `uart1`) already configured via `uart_init()`, plus an optional GPIO pin number for RS-485 DE (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) transports.
+
+| Contract | pico-sdk |
+|----------|----------|
+| `write` | `gpio_put(de, 1)` (RS-485) → `uart_write_blocking(uart, data, len)` → baud-rate-derived delay → `gpio_put(de, 0)` (RS-485) |
+| `read` | `uart_read_blocking(uart, buf, n)` — blocks until exactly n bytes have arrived |
+| `write_read` | `write(data, len)` → `read(buf, n)` |
+
+pico-sdk exposes no TX-drain / TX-complete call and no RX byte-count API — only `uart_is_writable()` / `uart_is_readable()`, which report a single byte's readiness as a boolean, not a count. Two consequences:
+- Before deasserting DE, use the same baud-rate-derived delay as the MicroPython/CircuitPython UART transports: `sleep_us(len * 10 * 1'000'000 / baudrate + 100)` (the factor of 10 covers start + 8 data + stop bit; the 100 µs margin covers stop-bit propagation).
+- Where the transport exposes an `available()`-style query, it can only return 1 or 0 (`uart_is_readable()`) — a coarser contract than Zephyr's exact ring-buffer count. Document this divergence on the method.
+
+`uart_read_blocking` already blocks until exactly `n` bytes have arrived, so `read()` needs no manual polling loop.
+
+File: `cpp/src/transport/UARTTransportPicoSDK.h` (header-only)
 
 ### Linux GCC (C++)
 
@@ -348,6 +370,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
+
+- [ ] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/UARTTransport.cpp`
+- [ ] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/UARTTransportLinux.cpp`
+- [ ] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/UARTTransportPicoSDK.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/uart.js` — JSDoc on class and every exported method

@@ -76,6 +76,7 @@ Every chip is implemented across all six languages and every supported platform 
 | C++ Arduino examples | `cpp/examples/arduino/<category>/<Chip>/{minimal,complete,demo}/{minimal,complete,demo}.ino` |
 | C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |
 | C++ ESP-IDF examples | `cpp/examples/espidf/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
+| C++ Pico SDK examples | `cpp/examples/picosdk/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,src/main.cpp}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
@@ -485,6 +486,7 @@ from periph.transport.i2c_linux import I2CTransport          # Linux
 ## C++ conventions
 
 Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.1; bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
+Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
 
 ### Chip drivers
 
@@ -507,6 +509,26 @@ Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF**
 | `SMBusTransportESPIDF.h` | PEC-capable variant | wraps `I2CTransportESPIDF` + software CRC-8 |
 | `SPITransport.h/.cpp` | Arduino SPI | |
 | `SPITransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
+| `I2CTransportPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
+| `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
+| `SMBusTransportPicoSDK.h` | PEC-capable variant | wraps `I2CTransportPicoSDK` + software CRC-8 |
+| `SPITransport.h/.cpp` | Arduino SPI | |
+| `SPITransportPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
+| `UARTTransport.h/.cpp` | Arduino | `HardwareSerial&` |
+| `UARTTransportLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
+| `UARTTransportZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
+| `UARTTransportPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
+| `NeoPixelTransport.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
+| `NeoPixelTransportZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
+| `NeoPixelTransportPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
+| `HX711Transport.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
+| `HX711TransportLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
+| `HX711TransportZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
+| `HX711TransportPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
+| `SiPoTransport.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
+| `SiPoTransportLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
+| `SiPoTransportZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
+| `SiPoTransportPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
 
 Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
@@ -578,6 +600,44 @@ CONFIG_COMPILER_CXX_RTTI=n
 The example configures its own bus at file scope — `i2c_master_bus_config_t` + `i2c_new_master_bus()` for I²C, `spi_bus_initialize()` for SPI, `uart_driver_install()` + `uart_param_config()` + `uart_set_pin()` for UART, `gpio_set_direction()` for HX711 GPIO bit-bang — before constructing the chip driver. Built with `idf.py build` and flashed with `idf.py -p <port> flash`.
 
 Default I²C pins are `GPIO21` (SDA) and `GPIO22` (SCL) on `I2C_NUM_0`; default SPI is `SPI2_HOST` at 2.4 MHz (NeoPixel); default UART is `UART_NUM_1` at 9600 baud (NEO-6 GPS); default HX711 GPIO is `GPIO19` (DOUT) and `GPIO18` (PD_SCK). Override by editing the file-scope bus-config block at the top of `main.cpp`.
+
+### Pico SDK examples
+
+Each Pico SDK example is a standalone pico-sdk CMake project under `cpp/examples/picosdk/<category>/<Chip>/<tier>/`, containing `src/main.cpp` and `CMakeLists.txt`. The CMake file pulls the chip driver source from `cpp/src/chips/<category>/`:
+
+```cmake
+cmake_minimum_required(VERSION 3.13)
+include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
+
+project(<chip>_minimal_picosdk CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+pico_sdk_init()
+
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
+
+add_executable(<chip>_minimal_picosdk
+    src/main.cpp
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+)
+target_include_directories(<chip>_minimal_picosdk PRIVATE
+    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/chips/<category>
+)
+target_link_libraries(<chip>_minimal_picosdk PRIVATE
+    pico_stdlib
+    hardware_i2c   # or hardware_spi / hardware_uart / hardware_gpio
+)
+pico_enable_stdio_usb(<chip>_minimal_picosdk 1)
+pico_enable_stdio_uart(<chip>_minimal_picosdk 0)
+pico_add_extra_outputs(<chip>_minimal_picosdk)
+```
+
+Each example configures its own bus at file scope (e.g. `i2c_init(i2c0, 100 * 1000)` and `gpio_set_function(4, GPIO_FUNC_I2C)` for the SDA pin) before constructing the chip driver. The example is built with `cmake -S … -B build` and produces a UF2 in `build/`; flash it with `picotool load -x`.
+
+The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL on `i2c0`). Override the pins by editing the file-scope `i2c_init` / `gpio_set_function` block at the top of `main.cpp`.
 
 ## Node.js transport interface
 
@@ -1173,6 +1233,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Linux GCC | `cpp/tests/<category>/<chip>_test_linux/<chip>_test_linux.cpp` |
 | Zephyr | `cpp/tests/<category>/<chip>_test_zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
 | ESP-IDF | `cpp/tests/<category>/<chip>_test_espidf/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
+| Pico SDK | `cpp/tests/<category>/<chip>_test_picosdk/{src/main.cpp,CMakeLists.txt}` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -1373,6 +1434,7 @@ Use these platform labels consistently:
 | C++ Linux GCC | `C++/Linux` |
 | C++ Zephyr | `C++/Zephyr` |
 | C++ ESP-IDF | `C++/ESP-IDF` |
+| C++ Pico SDK | `C++/PicoSDK` |
 | Node.js | `Node.js` |
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |

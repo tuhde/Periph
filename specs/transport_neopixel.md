@@ -11,6 +11,8 @@ All platforms use the same **SPI bit-encoding** approach: each NeoPixel bit is e
 
 **ESP-IDF is the one platform with a second, optional mode.** In addition to the SPI bit-encoding path every other platform uses, `NeoPixelTransportESPIDF` also offers a constructor that drives the strip over the ESP32's native RMT peripheral — the hardware-idiomatic way to generate WS2812 timing on this chip. The caller picks the mode at construction time; `write()`'s behavior from the chip driver's point of view (encode-and-transmit-then-latch) is identical either way. See [ESP-IDF](#esp-idf) below.
 
+This is a deliberate choice on `pico-sdk` too: no PIO program is used, even though the RP2040/RP2350 PIO block is the idiomatic way to bit-bang WS2812 timing on this chip. Using the same SPI-encoding trick as every other platform keeps timing/behavior identical everywhere and avoids introducing a `.pio` build step unique to one platform.
+
 **Hardware constraint:** the NeoPixel DIN pin must be connected to the SPI MOSI pin. SCK, MISO, and CS are unused by the strip.
 
 Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. Payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The transport sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
@@ -92,6 +94,7 @@ def encode(data: bytes) -> bytes:
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` SPI bus at 2.4 MHz |
 | `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0, via the Go Linux SPI transport's raw-ioctl path |
 | `spi` | Go TinyGo | `machine.SPI` | SPI peripheral configured at 2.4 MHz, mode 0 |
+| `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()` |
 
 | `dev` | ESP-IDF (SPI mode) | `spi_device_handle_t` | SPI device, already added to a bus via `spi_bus_add_device()`, configured at 2.4 MHz, mode 0 |
 | `rmt_chan`, `encoder` | ESP-IDF (RMT mode) | `rmt_channel_handle_t`, `rmt_encoder_handle_t` | RMT TX channel and a bytes encoder configured with WS2812 T0H/T0L/T1H/T1L timing (see [Bit Timing](#bit-timing)) |
@@ -153,6 +156,14 @@ Two constructor modes:
 Both modes produce the same on-the-wire signal; which one a caller picks only affects which ESP32 peripheral and CPU/DMA path is used. RMT is the more idiomatic choice on this chip and offloads encoding to hardware, at the cost of a different (and ESP32-only) construction path and an RMT encoder as an extra build-time dependency; SPI mode keeps `NeoPixelTransportESPIDF` mechanically identical to every sibling platform's transport. Document which mode was used to construct the instance in the class's doc comment, since `write()`'s signature is identical either way.
 
 File: `cpp/src/transport/NeoPixelTransportESPIDF.h` (header-only)
+
+### Raspberry Pi Pico SDK
+
+Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()`. `write()` encodes the buffer with the same 3-bit SPI encoding as every other platform and calls `spi_write_blocking(spi, encoded, len)`. No CS pin is used — same as every other platform.
+
+Uses `hardware_spi` directly (bare-metal `pico-sdk`, no Arduino core, no RTOS) rather than the RP2040/RP2350 PIO block; see the note in [Overview](#overview) on why this transport does not use PIO.
+
+File: `cpp/src/transport/NeoPixelTransportPicoSDK.h` (header-only)
 
 ### Node.js
 
@@ -229,6 +240,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF, SPI mode)
 - [x] Tests (ESP-IDF, RMT mode)
+
+- [ ] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/transport/NeopixelTransport.cpp`
+- [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
+- [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
+- [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/transport/NeoPixelTransportPicoSDK.h` — Doxygen (header-only)
+- [ ] Tests (Arduino)
+- [ ] Tests (Linux GCC)
+- [ ] Tests (Zephyr)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method

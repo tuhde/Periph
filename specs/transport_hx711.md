@@ -102,6 +102,8 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pdSck` | Go Linux | `int` (GPIO line offset) | Clock / power-down output line, requested on `/dev/gpiochip0` via ioctl |
 | `dout` | Go TinyGo | `machine.Pin` | Data input pin |
 | `pdSck` | Go TinyGo | `machine.Pin` | Clock / power-down output pin |
+| `dout` | Pico SDK | `uint` (GPIO pin number) | Data input pin; `gpio_set_dir(dout, GPIO_IN)` in `init` |
+| `pd_sck` | Pico SDK | `uint` (GPIO pin number) | Clock / power-down output pin; `gpio_set_dir(pd_sck, GPIO_OUT)` in `init` |
 
 | `dout` | ESP-IDF | `int` (`gpio_num_t`) | Data input pin; `gpio_set_direction(dout, GPIO_MODE_INPUT)` in `init` |
 | `pd_sck` | ESP-IDF | `int` (`gpio_num_t`) | Clock / power-down output pin; `gpio_set_direction(pd_sck, GPIO_MODE_OUTPUT)` in `init` |
@@ -155,6 +157,14 @@ Direct port of the Zephyr bit-bang loop onto `driver/gpio.h`. Constructor accept
 Use `gpio_get_level(dout)` and `gpio_set_level(pd_sck, 0/1)`. No explicit delay is needed between clock edges — GPIO call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare-metal ESP-IDF tasks pinned to the polling loop, so the DOUT-ready wait in `read_raw` is a tight `gpio_get_level(dout)` poll loop, timed against the 1 s timeout via `esp_timer_get_time()`. Use `esp_rom_delay_us()` rather than `vTaskDelay()` for any sub-tick delay — `vTaskDelay()`'s minimum granularity is one FreeRTOS tick (typically 1–10 ms), far coarser than the 50 µs T3 ceiling this protocol requires.
 
 File: `cpp/src/transport/HX711TransportESPIDF.h` (header-only)
+
+### Raspberry Pi Pico SDK
+
+Direct port of the Zephyr bit-bang loop onto `hardware_gpio` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts GPIO pin numbers for `dout` and `pd_sck`; `gpio_init()` both and set directions (`GPIO_IN` / `GPIO_OUT`) in `init`.
+
+Use `gpio_get(dout)` and `gpio_put(pd_sck, 0/1)`. No explicit delay is needed between clock edges — `gpio_put`/`gpio_get` call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare metal, so the DOUT-ready wait in `read_raw` is a tight `gpio_get(dout)` poll loop (same as Arduino), timed against the 1 s timeout via `time_us_64()`.
+
+File: `cpp/src/transport/HX711TransportPicoSDK.h` (header-only)
 
 ### Node.js
 
@@ -230,6 +240,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
+
+- [x] `cpp/src/transport/HX711TransportPicoSDK.h` — Doxygen (header-only)
+- [x] Tests (Arduino)
+- [x] Tests (Linux GCC)
+- [x] Tests (Zephyr)
+- [x] Tests (Pico SDK)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method
