@@ -139,7 +139,7 @@ File: `go/periph/transport/i2c_tinygo.go`
 
 ### ESP-IDF
 
-Wraps ESP-IDF's driver-ng I²C master API (`driver/i2c_master.h`, ESP-IDF ≥5.1 — the legacy `driver/i2c.h` is out of scope). Constructor accepts an already-configured `i2c_master_dev_handle_t`, matching Zephyr's pattern of taking a pre-configured device handle rather than configuring the bus itself.
+Wraps ESP-IDF's driver-ng I²C master API (`driver/i2c_master.h`, ESP-IDF ≥5.2 — the legacy `driver/i2c.h` is out of scope). Constructor accepts an already-configured `i2c_master_dev_handle_t`, matching Zephyr's pattern of taking a pre-configured device handle rather than configuring the bus itself.
 
 | Contract | ESP-IDF |
 |----------|---------|

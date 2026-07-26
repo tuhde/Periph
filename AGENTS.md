@@ -485,7 +485,7 @@ from periph.transport.i2c_linux import I2CTransport          # Linux
 
 ## C++ conventions
 
-Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.1; bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
+Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
 Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
 
 ### Chip drivers
@@ -504,7 +504,7 @@ Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry
 | `I2CTransport.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
 | `I2CTransportLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
 | `I2CTransportZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
-| `I2CTransportESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.1), header-only |
+| `I2CTransportESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.2), header-only |
 | `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
 | `SMBusTransportESPIDF.h` | PEC-capable variant | wraps `I2CTransportESPIDF` + software CRC-8 |
 | `SPITransport.h/.cpp` | Arduino SPI | |

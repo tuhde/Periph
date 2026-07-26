@@ -46,7 +46,17 @@ export PICO_BOARD="${PICO_BOARD:-pico}"
 BUILD_DIR="$TEST_APP/build"
 rm -rf "$BUILD_DIR"
 echo "Building $TARGET for $PICO_BOARD..."
-cmake -S "$TEST_APP" -B "$BUILD_DIR" -DPICO_BOARD="$PICO_BOARD"
+
+# picotool is only needed to sign/embed and flash the UF2; skip requiring it
+# for --compile-only runs (e.g. CI) so we don't hit pico-sdk's picotool
+# auto-fetch-and-build-from-source path, which needs network access and its
+# own working host toolchain setup.
+CMAKE_EXTRA_ARGS=()
+if [[ "$COMPILE_ONLY" == true ]]; then
+    CMAKE_EXTRA_ARGS+=(-DPICO_NO_PICOTOOL=1)
+fi
+
+cmake -S "$TEST_APP" -B "$BUILD_DIR" -DPICO_BOARD="$PICO_BOARD" "${CMAKE_EXTRA_ARGS[@]}"
 cmake --build "$BUILD_DIR" -- -j"$(nproc 2>/dev/null || echo 2)"
 
 if [[ "$COMPILE_ONLY" == true ]]; then
