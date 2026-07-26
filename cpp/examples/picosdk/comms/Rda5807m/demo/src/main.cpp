@@ -13,7 +13,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CTransportPicoSDK transport(i2c0, 0x10);
-    Rda5807mFull rda5807m(transport, /*frequency_mhz=*/100.0f, /*volume=*/5);
+    RDA5807MFull rda5807m(transport, /*frequency_mhz=*/100.0f, /*volume=*/5);
 
     stdio_init_all();
 
