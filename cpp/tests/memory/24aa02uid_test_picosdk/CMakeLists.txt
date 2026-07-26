@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 pico_sdk_init()
 
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(24aa02uid_test_picosdk
     src/main.cpp

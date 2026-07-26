@@ -8,11 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 pico_sdk_init()
 
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(hx711_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/adc_dac/HX711.cpp
 )
 
 target_include_directories(hx711_test_picosdk PRIVATE

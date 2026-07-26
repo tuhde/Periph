@@ -8,11 +8,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 pico_sdk_init()
 
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(dht11_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/humidity/dht11.cpp
+    ${CPP_DIR}/src/chips/humidity/DHT11.cpp
 )
 
 target_include_directories(dht11_test_picosdk PRIVATE

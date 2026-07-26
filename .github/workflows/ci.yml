@@ -204,27 +204,27 @@ jobs:
           echo "/opt/esp/esp-idf/tools" >> $GITHUB_PATH
 
       - name: Build I2C example
-        run: cpp/test_espidf.sh --compile-only environmental/aht21
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only environmental/aht21
         env:
           ESPIDF_TARGET: esp32
 
       - name: Build SPI example
-        run: cpp/test_espidf.sh --compile-only pressure/bmp280
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only pressure/bmp280
         env:
           ESPIDF_TARGET: esp32
 
       - name: Build UART example
-        run: cpp/test_espidf.sh --compile-only gnss/neo6
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only gnss/neo6
         env:
           ESPIDF_TARGET: esp32
 
       - name: Build NeoPixel example
-        run: cpp/test_espidf.sh --compile-only led/ws2812b
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only led/ws2812b
         env:
           ESPIDF_TARGET: esp32
 
       - name: Build HX711 example
-        run: cpp/test_espidf.sh --compile-only adc_dac/hx711
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only adc_dac/hx711
         env:
           ESPIDF_TARGET: esp32
 
