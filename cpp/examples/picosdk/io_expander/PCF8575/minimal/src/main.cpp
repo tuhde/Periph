@@ -5,16 +5,16 @@
 #include "I2CTransportPicoSDK.h"
 #include "PCF8575.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x20);
-PCF8575Minimal chip(transport, /*addr=*/0x20);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x20);
+    PCF8575Minimal chip(transport, /*addr=*/0x20);
+
     PCF8575Minimal::IOExpanderPin p0 = chip.pin(0);                // Get pin proxy, (n=0) → IOExpanderPin
     PCF8575Minimal::IOExpanderPin p8 = chip.pin(8);                // Get pin proxy, (n=8) → IOExpanderPin
 

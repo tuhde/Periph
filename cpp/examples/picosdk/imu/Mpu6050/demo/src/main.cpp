@@ -5,19 +5,17 @@
 #include "I2CTransportPicoSDK.h"
 #include "Mpu6050.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x68);
-Mpu6050Full mpu6050(transport);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x68);
+    Mpu6050Full mpu6050(transport);
 
     stdio_init_all();
-
 
     // --- Configure for motion logging with moderate dynamic range ---
     // ±4g captures typical tilting and handling forces without clipping;

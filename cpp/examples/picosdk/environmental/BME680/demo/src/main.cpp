@@ -5,20 +5,18 @@
 #include "I2CTransportPicoSDK.h"
 #include "BME680.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x77);
-BME680Full bme(transport);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x77);
+    BME680Full bme(transport);
 
     stdio_init_all();
     sleep_ms(2000);
-
 
     // --- Room air quality probe: 4-in-1 sensor polling with VOC event ---
     // Polls all four sensors once every 5 seconds for 5 minutes (60 ticks).

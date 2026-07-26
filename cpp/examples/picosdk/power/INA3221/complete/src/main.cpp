@@ -5,19 +5,17 @@
 #include "I2CTransportPicoSDK.h"
 #include "INA3221.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x40);
-INA3221Full ina(transport, /*r_shunt=*/0.1f);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x40);
+    INA3221Full ina(transport, /*r_shunt=*/0.1f);
 
     stdio_init_all();
-
 
     printf("0x%X\n", (unsigned)ina.manufacturer_id());       // Read Manufacturer ID, () → int 0x5449
                                                        // Texas Instruments ID

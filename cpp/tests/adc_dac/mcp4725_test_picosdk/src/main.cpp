@@ -4,15 +4,6 @@
 #include "I2CTransportPicoSDK.h"
 #include "MCP4725.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x60);
-MCP4725Full dac(transport);
-
 int passed = 0;
 int failed = 0;
 
@@ -27,6 +18,15 @@ static void check_near(float v, float lo, float hi, const char *label) {
 }
 
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x60);
+    MCP4725Full dac(transport);
+
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
     check_true(true, "i2c probe ok");

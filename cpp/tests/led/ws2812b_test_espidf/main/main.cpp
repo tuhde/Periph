@@ -50,8 +50,8 @@ extern "C" void app_main(void) {
 
     NeoPixelTransportESPIDF transport(spi_dev);
     WS2812BFull inst(transport, 8);  // Create WS2812B driver
-    inst.fill(0, 0, 0, 0);
-    inst.fill(255, 0, 0, 0);
+    inst.fill(0, 0, 0);
+    inst.fill(255, 0, 0);
     inst.off();
     check_true(true, "neopixel write ok");
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

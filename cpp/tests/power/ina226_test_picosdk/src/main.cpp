@@ -4,15 +4,6 @@
 #include "I2CTransportPicoSDK.h"
 #include "INA226.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x40);
-INA226Full ina(transport, /*r_shunt=*/0.1f, /*max_current=*/2.0f);
-
 int passed = 0;
 int failed = 0;
 
@@ -27,6 +18,15 @@ static void check_near(float v, float lo, float hi, const char *label) {
 }
 
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x40);
+    INA226Full ina(transport, /*r_shunt=*/0.1f, /*max_current=*/2.0f);
+
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
     check_near(ina.voltage(),       0.0f, 40.0f,  "voltage range");

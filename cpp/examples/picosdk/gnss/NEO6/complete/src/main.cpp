@@ -5,14 +5,13 @@
 #include "UARTTransportPicoSDK.h"
 #include "NEO6.h"
 
-// UART0 on GP0 (TX) / GP1 (RX) — pico-sdk default UART pins.
-uart_init(uart0, 9600);
-gpio_set_function(0, GPIO_FUNC_UART);
-gpio_set_function(1, GPIO_FUNC_UART);
-UARTTransportPicoSDK transport(uart0, 9600);
-NEO6Full gps(transport, /*bus_type=*/0);
-
 int main(void) {
+    // UART0 on GP0 (TX) / GP1 (RX) — pico-sdk default UART pins.
+    uart_init(uart0, 9600);
+    gpio_set_function(0, GPIO_FUNC_UART);
+    gpio_set_function(1, GPIO_FUNC_UART);
+    UARTTransportPicoSDK transport(uart0, 9600);
+    NEO6Full gps(transport, /*bus_type=*/0);
 
     stdio_init_all();
 

@@ -5,20 +5,18 @@
 #include "I2CTransportPicoSDK.h"
 #include "PCF8576.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x70);
-PCF8576Full lcd(transport);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x70);
+    PCF8576Full lcd(transport);
 
     stdio_init_all();
     sleep_ms(2000);
-
 
     // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
     // The PCF8576 drives four 7-segment digits from a single I2C bus; the host

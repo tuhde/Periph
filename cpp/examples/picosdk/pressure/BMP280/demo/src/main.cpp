@@ -5,21 +5,20 @@
 #include "I2CTransportPicoSDK.h"
 #include "BMP280.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x76);
-BMP280Full bmp(transport, /*spi=*/false);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x76);
+    BMP280Full bmp(transport, /*spi=*/false);
+
     static int passed = 0, failed = 0;
 
     stdio_init_all();
     sleep_ms(2000);
-
 
     // --- Weather monitoring preset: lowest power, forced mode ---
     // BMP280 datasheet Table 7: ×1/×1, filter off, forced mode.

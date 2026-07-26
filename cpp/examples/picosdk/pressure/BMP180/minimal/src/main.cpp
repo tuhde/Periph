@@ -5,21 +5,20 @@
 #include "I2CTransportPicoSDK.h"
 #include "BMP180.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x77);
-BMP180Minimal bmp(transport);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x77);
+    BMP180Minimal bmp(transport);
+
     static int passed = 0, failed = 0;
 
     stdio_init_all();
     sleep_ms(2000);
-
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                   // Read temperature, () → float C

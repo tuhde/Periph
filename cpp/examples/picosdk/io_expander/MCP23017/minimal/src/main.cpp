@@ -5,19 +5,17 @@
 #include "I2CTransportPicoSDK.h"
 #include "MCP23017.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x20);
-MCP23017Minimal mcp(transport, /*addr=*/0x20);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x20);
+    MCP23017Minimal mcp(transport, /*addr=*/0x20);
 
     stdio_init_all();
-
 
     auto p0 = mcp.pin(0);                                     // Get pin 0, () → IOExpanderPin
     auto p7 = mcp.pin(7);                                     // Get pin 7 (GPA7 output-only), () → IOExpanderPin

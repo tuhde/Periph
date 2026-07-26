@@ -5,14 +5,14 @@
 #include "NeoPixelTransportPicoSDK.h"
 #include "SK6812RGBW.h"
 
-// SPI0 on GP3 (MOSI) — NeoPixel DIN must be on the SPI MOSI pin;
-// SCK, MISO, and CS are unused by the strip.
-spi_init(spi0, 2'400'000);
-gpio_set_function(3, GPIO_FUNC_SPI);
-NeoPixelTransportPicoSDK transport(spi0);
-SK6812RGBWFull strip(transport, /*n_pixels=*/8);
-
 int main(void) {
+    // SPI0 on GP3 (MOSI) — NeoPixel DIN must be on the SPI MOSI pin;
+    // SCK, MISO, and CS are unused by the strip.
+    spi_init(spi0, 2'400'000);
+    gpio_set_function(3, GPIO_FUNC_SPI);
+    NeoPixelTransportPicoSDK transport(spi0);
+    SK6812RGBWFull strip(transport, /*n_pixels=*/8);
+
     static const size_t N_PIXELS          = 30;
     static const unsigned long FRAME_MS   = 33;   // ~30 fps
     static const unsigned long RAINBOW_MS = 10000;

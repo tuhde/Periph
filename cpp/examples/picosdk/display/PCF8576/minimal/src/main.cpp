@@ -5,20 +5,18 @@
 #include "I2CTransportPicoSDK.h"
 #include "PCF8576.h"
 
-// I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
-i2c_init(i2c0, 100 * 1000);
-gpio_set_function(4, GPIO_FUNC_I2C);
-gpio_set_function(5, GPIO_FUNC_I2C);
-gpio_pull_up(4);
-gpio_pull_up(5);
-I2CTransportPicoSDK transport(i2c0, 0x70);
-PCF8576Minimal lcd(transport);
-
 int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CTransportPicoSDK transport(i2c0, 0x70);
+    PCF8576Minimal lcd(transport);
 
     stdio_init_all();
     sleep_ms(2000);
-
 
     static const uint8_t digits[] = {1, 2, 3, 4};
     for (uint8_t i = 0; i < 4; i++) {
