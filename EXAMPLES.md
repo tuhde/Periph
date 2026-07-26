@@ -336,15 +336,21 @@ The flow's tab `info` field describes the scenario, what to observe, and what to
 
 **File layout:**
 ```
-rust/examples/<chip>_minimal/Cargo.toml
-rust/examples/<chip>_minimal/src/main.rs
-rust/examples/<chip>_complete/Cargo.toml
-rust/examples/<chip>_complete/src/main.rs
-rust/examples/<chip>_demo/Cargo.toml
-rust/examples/<chip>_demo/src/main.rs
+rust/examples/linux/<category>/<chip>/minimal/Cargo.toml
+rust/examples/linux/<category>/<chip>/minimal/src/main.rs
+rust/examples/linux/<category>/<chip>/complete/Cargo.toml
+rust/examples/linux/<category>/<chip>/complete/src/main.rs
+rust/examples/linux/<category>/<chip>/demo/Cargo.toml
+rust/examples/linux/<category>/<chip>/demo/src/main.rs
+
+rust/examples/embedded/esp32s3/<category>/<chip>/minimal/Cargo.toml
+rust/examples/embedded/esp32s3/<category>/<chip>/minimal/src/main.rs
+rust/examples/embedded/esp32s3/<category>/<chip>/minimal/rust-toolchain.toml
+rust/examples/embedded/esp32s3/<category>/<chip>/minimal/.cargo/config.toml
+(complete/, demo/ follow the same layout)
 ```
 
-Each example is its own Cargo crate, a member of the `rust/` workspace.
+Each Linux example is its own Cargo crate, a member of the `rust/` workspace (`examples/linux/*/*/*` glob). Each ESP32-S3 example is a standalone crate excluded from the workspace — it needs the `esp` Rust toolchain, which is incompatible with the workspace's standard build.
 
 Run on Linux (Raspberry Pi or any Linux host with `/dev/i2c-N`):
 
@@ -367,7 +373,13 @@ cargo build -p bmp280_minimal
 cargo build -p bmp280_minimal --release
 ```
 
-There are no Rust ESP32-S3 *example* crates — only an ESP32-S3 *test* crate per chip. Embedded Rust development uses the test crate as the entry point; see [TESTING.md](TESTING.md).
+Build an ESP32-S3 example (requires `espup` — see [TESTING.md](TESTING.md) for toolchain setup):
+
+```
+cd rust/examples/embedded/esp32s3/pressure/bmp280/minimal
+cargo build --release
+espflash flash --monitor target/xtensa-esp32s3-none-elf/release/bmp280_minimal_esp32s3
+```
 
 ---
 
