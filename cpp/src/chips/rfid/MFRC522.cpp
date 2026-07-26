@@ -2,8 +2,13 @@
 #include <string.h>
 
 #ifndef ARDUINO
+#if __has_include(<pico/time.h>)
+#include <pico/time.h>
+static inline void arduino_delay(unsigned long ms) { sleep_ms(ms); }
+#else
 #include <unistd.h>
 static inline void arduino_delay(unsigned long ms) { usleep(ms * 1000UL); }
+#endif
 #endif
 
 void MFRC522Minimal::_delay_ms(unsigned long ms) {

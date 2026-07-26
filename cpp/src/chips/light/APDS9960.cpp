@@ -4,6 +4,9 @@
 #ifdef __linux__
 #include <unistd.h>
 #define DELAY_MS(ms) usleep((ms) * 1000)
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+#define DELAY_MS(ms) sleep_ms(ms)
 #else
 #include <Arduino.h>
 #define DELAY_MS(ms) delay(ms)

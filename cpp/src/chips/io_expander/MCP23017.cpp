@@ -4,6 +4,9 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static inline void delay_ms(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+static inline void delay_ms(unsigned long ms) { sleep_ms(ms); }
 #elif !defined(ARDUINO)
 #include <unistd.h>
 static inline void delay_ms(unsigned long ms) { usleep(ms * 1000UL); }

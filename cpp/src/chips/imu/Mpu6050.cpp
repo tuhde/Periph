@@ -10,6 +10,9 @@
 #elif defined(CONFIG_ZEPHYR)
 #include <zephyr/kernel.h>
 #define DELAY_MS(ms) k_sleep(K_MSEC(ms))
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+#define DELAY_MS(ms) sleep_ms(ms)
 #else
 #include <Arduino.h>
 #define DELAY_MS(ms) delay(ms)

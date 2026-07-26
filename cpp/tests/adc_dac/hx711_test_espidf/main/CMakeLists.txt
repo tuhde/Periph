@@ -5,5 +5,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/transport
         ${CPP_DIR}/src/chips/adc_dac
-    REQUIRES driver
+    REQUIRES driver esp_timer esp_rom
 )

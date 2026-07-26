@@ -10,6 +10,9 @@ static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+static void _delay_ms(unsigned ms) { sleep_ms(ms); }
 #else
 #include <Arduino.h>
 static void _delay_ms(unsigned ms) { delay(ms); }
