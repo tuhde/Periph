@@ -439,7 +439,7 @@ func (p Pin) Toggle() error {
 }
 ```
 
-Full adds `WatchInterrupt(handler func(bool)) error` / `Unwatch() error`. Deliver interrupts via a polling goroutine reading the chip's INT pin (Linux: `/dev/gpiochip*` edge-event ioctl; TinyGo: `machine.Pin.SetInterrupt`) unless the chip only supports software polling, in which case document that in the spec instead of pretending it's edge-driven.
+Full adds `Watch(trigger Trigger, handler func(bool)) error` / `Unwatch() error` — the unified per-pin vocabulary (see Interrupt support below). Deliver interrupts via `transport.GpioInputPin` reading the chip's INT pin (Linux: `/dev/gpiochip*` edge-event ioctl; TinyGo: `machine.Pin.SetInterrupt`), falling back to `transport.PollingInputPin` when no INT pin is wired, unless the chip only supports software polling, in which case document that in the spec instead of pretending it's edge-driven.
 
 ## Connection construction and power management
 
@@ -459,7 +459,7 @@ conn = Connection(bus, en_pin=LinuxOutputPin(18))           # with EN pin
 conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
-**C++:**
+**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
 ```cpp
 Connection conn(bus);                        // bus only
 Connection conn(bus, &gpioPin);              // with INT pin
@@ -481,6 +481,13 @@ Connection conn = new Connection(new I2CTransport(bus, addr), gpioPin, enPin);
 **Rust** — `Connection` wraps bus + enabled state only; INT and EN pins are managed by the caller directly via `embedded_hal::digital` traits.
 ```rust
 let conn = Connection::new(i2c);
+```
+
+**Go** (identical on Linux and TinyGo) — `Connection` is a plain struct; build it with a composite literal instead of a constructor call:
+```go
+conn := &transport.Connection{Bus: bus}                                   // bus only
+conn := &transport.Connection{Bus: bus, IntPin: intPin}                   // with INT pin
+conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}     // with INT + EN pin
 ```
 
 ### Enable / disable
@@ -527,7 +534,7 @@ Multiple chips may share one `InputPin`; each registers its own `_int_handler` i
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
 
 **C++**
-Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
+Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` / `InputPinESPIDF.h` / `InputPinPicoSDK.h` — never in the chip driver.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(this._intHandler, …)`. `offInterrupt` calls `this._conn.intPin.offEdge(this._intHandler)`. `pollInterrupt` is `async`.
@@ -540,6 +547,9 @@ Document in the driver docstring: caller is responsible for wiring this into an 
 **JVM**
 `onInterrupt(IntConsumer)` is the driver-level API.
 If `connection.intPin()` is `null`, default to `new PollingInputPin(5)` internally.
+
+**Go**
+`OnInterrupt(cb) error` calls `conn.IntPin.OnEdge(transport.Falling, handler)` and stores the returned unsubscribe closure; `OffInterrupt() error` calls it. Go function values are not comparable, so `InputPin` has no `OffEdge` — `OnEdge` returns the unsubscribe closure directly instead. If `conn.IntPin` is `nil`, start a `transport.PollingInputPin` goroutine as fallback. Every fallible method returns `error`, per Go convention elsewhere in this file.
 
 ### Interrupt sources (Level 2/3 chips)
 

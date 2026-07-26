@@ -419,7 +419,70 @@ public class Connection implements AutoCloseable {
 }
 ```
 
-### 4.6 Shared InputPin (wired-AND INT lines)
+### 4.6 Go (`go/periph/transport/connection.go`)
+
+Go has no constructor overloading or default arguments (AGENTS.md already rules out a
+variadic-options struct for chip constructors); `Connection` is a plain struct with
+exported fields, built with a composite literal instead — the field names double as the
+named-argument syntax other languages get from keyword args:
+
+```go
+package transport
+
+type Connection struct {
+    Bus      Transport
+    IntPin   InputPin  // nil if unused
+    EnPin    OutputPin // nil if unused
+    disabled bool       // zero value = enabled, so a bare Connection{Bus: bus} works
+}
+
+func (c *Connection) Enable() {
+    c.disabled = false
+    if c.EnPin != nil {
+        c.EnPin.Set(true)
+    }
+}
+
+func (c *Connection) Disable() {
+    c.disabled = true
+    if c.EnPin != nil {
+        c.EnPin.Set(false)
+    }
+}
+
+func (c *Connection) IsEnabled() bool { return !c.disabled }
+
+func (c *Connection) Read(reg byte, length int) ([]byte, error) {
+    if c.disabled {
+        return make([]byte, length), nil
+    }
+    return c.Bus.WriteRead([]byte{reg}, length)
+}
+
+func (c *Connection) Write(reg byte, data []byte) error {
+    if c.disabled {
+        return nil
+    }
+    return c.Bus.Write(append([]byte{reg}, data...))
+}
+```
+
+Usage — the struct-literal field names read like Python's keyword arguments:
+
+```go
+bus  := transport.NewI2CTransport(1, 0x68)
+conn := &transport.Connection{Bus: bus}                                   // bus only
+conn := &transport.Connection{Bus: bus, IntPin: intPin}                   // with INT pin
+conn := &transport.Connection{Bus: bus, EnPin: enPin}                     // with EN pin
+conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}
+
+chip, err := mpu6050.NewMpu6050Full(conn)
+```
+
+Chip constructors: `New<Chip>Minimal(conn *transport.Connection, ...) (*<Chip>Minimal, error)`,
+same as today except `conn *transport.Connection` replaces `t transport.Transport`.
+
+### 4.7 Shared InputPin (wired-AND INT lines)
 
 When multiple chips share one physical INT GPIO (open-drain outputs wired together),
 pass the same `InputPin` instance to all `Connection` objects. Each chip driver calls
@@ -496,9 +559,14 @@ public:
 
 | Class | File | Platform | Mechanism |
 |-------|------|----------|-----------|
-| `ArduinoInputPin` | `InputPinArduino.h` | Arduino | `attachInterrupt(digitalPinToInterrupt(…))` |
-| `LinuxInputPin` | `InputPinLinux.h` | Linux GCC | `poll()` thread on sysfs |
-| `ZephyrInputPin` | `InputPinZephyr.h` | Zephyr | `gpio_add_callback()` |
+| `InputPinArduino` | `InputPinArduino.h` | Arduino | `attachInterrupt(digitalPinToInterrupt(…))` |
+| `InputPinLinux` | `InputPinLinux.h` | Linux GCC | `poll()` thread on sysfs |
+| `InputPinZephyr` | `InputPinZephyr.h` | Zephyr | `gpio_add_callback()` |
+| `InputPinESPIDF` | `InputPinESPIDF.h` | ESP-IDF | `gpio_install_isr_service()` + `gpio_isr_handler_add()` |
+| `InputPinPicoSDK` | `InputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_set_irq_enabled_with_callback()` |
+
+Class names follow the same `<Base>ESPIDF` / `<Base>PicoSDK` suffix convention already used by
+every C++ transport (`I2CTransportESPIDF`, `I2CTransportPicoSDK`, …).
 
 ### 5.3 Node.js (`nodejs/packages/periph/src/transport/input_pin.js`)
 
@@ -538,6 +606,43 @@ public enum EdgeTrigger { RISING, FALLING, CHANGE }
 | `SysfsInputPin` | sysfs GPIO input (`/sys/class/gpio/gpioN/value`) |
 | `PollingInputPin` | 5 ms `ScheduledExecutorService` (default) |
 
+### 5.6 Go (`go/periph/transport/input_pin.go`)
+
+Go function values are not comparable, so there is no way to implement `off_edge(handler)`
+by matching a stored handler against the one passed in — the pattern every other language
+uses. `OnEdge` instead returns an unsubscribe closure directly, which is the idiomatic Go
+equivalent (the same shape as `context.CancelFunc`):
+
+```go
+package transport
+
+type Trigger int
+
+const (
+    Rising Trigger = iota
+    Falling
+    Change
+)
+
+// InputPin delivers edge notifications from a chip's INT line.
+type InputPin interface {
+    // OnEdge registers handler to run on each edge matching trigger and
+    // returns a function that removes it. Multiple handlers may be
+    // registered concurrently — e.g. several chips sharing one INT line.
+    OnEdge(trigger Trigger, handler func()) (unsubscribe func())
+}
+```
+
+| Type | File | Build tag | Platform | Mechanism |
+|------|------|-----------|----------|-----------|
+| `GpioInputPin` | `input_pin_linux.go` | `linux && !tinygo` | Go Linux | `/dev/gpiochip*` edge-event ioctl |
+| `GpioInputPin` | `input_pin_tinygo.go` | `tinygo` | Go TinyGo | `machine.Pin.SetInterrupt` |
+| `PollingInputPin` | `input_pin_polling.go` | none | Go Linux (no GPIO) | ticker-driven goroutine, 5 ms default |
+
+`GpioInputPin` exports the same type name on both platforms, gated by build tag — the same
+pattern every Go transport already uses (see AGENTS.md § Transport interface). Only an
+example's `main()` ever names the concrete type; chip drivers see `transport.InputPin` only.
+
 ---
 
 ## 6. OutputPin — Enable / Power Control
@@ -574,9 +679,11 @@ public:
 
 | Class | File | Platform | Mechanism |
 |-------|------|----------|-----------|
-| `ArduinoOutputPin` | `OutputPinArduino.h` | Arduino | `digitalWrite(pin, HIGH/LOW)` |
-| `LinuxOutputPin` | `OutputPinLinux.h` | Linux GCC | sysfs GPIO |
-| `ZephyrOutputPin` | `OutputPinZephyr.h` | Zephyr | `gpio_pin_set()` |
+| `OutputPinArduino` | `OutputPinArduino.h` | Arduino | `digitalWrite(pin, HIGH/LOW)` |
+| `OutputPinLinux` | `OutputPinLinux.h` | Linux GCC | sysfs GPIO |
+| `OutputPinZephyr` | `OutputPinZephyr.h` | Zephyr | `gpio_pin_set()` |
+| `OutputPinESPIDF` | `OutputPinESPIDF.h` | ESP-IDF | `gpio_set_level()` |
+| `OutputPinPicoSDK` | `OutputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_put()` |
 
 ### 6.3 Node.js (`nodejs/packages/periph/src/transport/output_pin.js`)
 
@@ -607,6 +714,22 @@ public interface OutputPin extends AutoCloseable {
 |-------|-----------|
 | `SysfsOutputPin` | sysfs GPIO output (`/sys/class/gpio/gpioN/value`) |
 
+### 6.6 Go (`go/periph/transport/output_pin.go`)
+
+```go
+package transport
+
+// OutputPin drives a chip's hardware enable or power pin.
+type OutputPin interface {
+    Set(high bool) error
+}
+```
+
+| Type | File | Build tag | Platform | Mechanism |
+|------|------|-----------|----------|-----------|
+| `GpioOutputPin` | `output_pin_linux.go` | `linux && !tinygo` | Go Linux | `/dev/gpiochip*` `SetValue` |
+| `GpioOutputPin` | `output_pin_tinygo.go` | `tinygo` | Go TinyGo | `machine.Pin.Set` (configured `machine.PinOutput`) |
+
 ---
 
 ## 7. Driver-Level Interrupt API
@@ -631,11 +754,14 @@ Language-idiomatic forms:
 | Node.js | `onInterrupt(cb)` | `offInterrupt()` | `async pollInterrupt() -> int` | `function(int)` |
 | Rust | — | — | `poll_interrupt() -> Result<u8, E>` | — |
 | JVM | `onInterrupt(IntConsumer)` | `offInterrupt()` | `int pollInterrupt()` | `IntConsumer` |
+| Go | `OnInterrupt(cb) error` | `OffInterrupt() error` | `PollInterrupt() (uint8, error)` | `func(uint8)` |
 
 `on_interrupt` wires `connection.int_pin` to an internal handler that calls
 `poll_interrupt()` and dispatches to the user callback. If `connection.int_pin` is
-`None` / `nullptr` / `null`, `on_interrupt` starts a fallback polling timer (except
-Rust — polling is always caller-managed).
+`None` / `nullptr` / `null` / `nil`, `on_interrupt` starts a fallback polling timer
+(except Rust — polling is always caller-managed). In Go, `OnInterrupt` calls
+`IntPin.OnEdge` internally and stores the returned unsubscribe closure so `OffInterrupt`
+has something to call.
 
 ### 7.2 Interrupt source configuration (chips with selectable sources)
 
@@ -688,14 +814,19 @@ imu.on_interrupt(handler)
 | CircuitPython | Same | |
 | Python Linux (no GPIO) | 5 ms polling thread | Default when `int_pin=None` |
 | Python Linux (sysfs) | `select()` on sysfs fd | Lower latency, opt-in |
-| Arduino | Hardware IRQ via `ArduinoInputPin` | Handler runs in ISR — keep it short |
+| Arduino | Hardware IRQ via `InputPinArduino` | Handler runs in ISR — keep it short |
 | Linux GCC | `poll()` thread | |
 | Zephyr | `gpio_add_callback()` | |
+| ESP-IDF | Hardware IRQ via `InputPinESPIDF` | `gpio_install_isr_service()` + `gpio_isr_handler_add()` |
+| Pico SDK | Hardware IRQ via `InputPinPicoSDK` | `gpio_set_irq_enabled_with_callback()` |
 | Node.js (epoll) | `EpollInputPin` | Requires native `epoll` dependency |
 | Node.js (polling) | `PollingInputPin` | Fallback |
 | Rust | None (user-managed) | Call `poll_interrupt()` from own ISR or polling loop |
 | JVM (sysfs) | `SysfsInputPin` | sysfs GPIO, requires prior `gpio export N` |
 | JVM (polling) | `PollingInputPin` via `ScheduledExecutorService` | Default |
+| Go Linux (gpiochip) | `GpioInputPin` | `/dev/gpiochip*` edge-event ioctl |
+| Go Linux (polling) | `PollingInputPin` | Fallback when no GPIO chip line is wired |
+| Go TinyGo | Hardware IRQ via `GpioInputPin` | `machine.Pin.SetInterrupt()` |
 
 ---
 
@@ -716,8 +847,12 @@ filtering before dispatching to its registered handler.
 | C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `InputPin::RISING`, `::FALLING`, `::CHANGE` |
 | Node.js | `pin.watch(callback, trigger='change')` | `pin.unwatch()` | `'rising'`, `'falling'`, `'change'` |
 | JVM | `pin.watch(handler, EdgeTrigger.CHANGE)` | `pin.unwatch()` | `EdgeTrigger` enum |
+| Go | `pin.Watch(trigger, handler) error` | `pin.Unwatch() error` | `transport.Rising`, `.Falling`, `.Change` |
 
 Rust has no pin-level subscribe.
+
+Go's existing IO-expander guidance (AGENTS.md § IO Expander drivers → Go) names this method
+`WatchInterrupt`; rename it to `Watch` to match the unified vocabulary above.
 
 ### 8.2 Trigger filtering
 
@@ -751,6 +886,7 @@ sensor_conn.enable()                 # drives IO expander pin 0 high
 | Node.js | `_Pin` has `async set(high)` → `this.writeSync(high ? 1 : 0)` |
 | JVM | `Pin` implements `OutputPin`; `set(boolean high)` → delegates to write |
 | Rust | `ExPin<Output>` implements `embedded_hal::digital::OutputPin` — already compatible; no extra work |
+| Go | `Pin.Set(high bool) error` already matches `OutputPin`'s method set structurally — already compatible; no extra work |
 
 The IO expander must be initialised and its `Connection` enabled before the downstream
 chip's `Connection.enable()` is called, since the EN pin write goes over the expander's
@@ -791,18 +927,18 @@ IO-expander per-pin `watch` / `unwatch` is an additional layer above Level 1 or 
 
 ### 10.1 Feature parity matrix
 
-| Capability | Py MicroPy | Py CP | Py Linux | C++ Arduino | C++ Linux | C++ Zephyr | Node.js | Rust | JVM |
-|-----------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| `Connection` object | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓ |
-| `enable` / `disable` (software gate) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `en_pin` (hardware) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗† | ✓ |
-| `on_interrupt` / `off_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
-| `poll_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enable_interrupt` / `disable_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Hardware-edge delivery | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ |
-| Polling-thread delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✓ |
-| `epoll` / sysfs delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ |
-| `pin.watch` / `unwatch` *(IO expanders)* | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
+| Capability | Py MicroPy | Py CP | Py Linux | C++ Arduino | C++ Linux | C++ Zephyr | C++ ESP-IDF | C++ Pico SDK | Node.js | Rust | JVM | Go Linux | Go TinyGo |
+|-----------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `Connection` object | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓ | ✓ | ✓ |
+| `enable` / `disable` (software gate) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `en_pin` (hardware) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗† | ✓ | ✓ | ✓ |
+| `on_interrupt` / `off_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
+| `poll_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enable_interrupt` / `disable_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Hardware-edge delivery | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Polling-thread delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | ✗ |
+| `epoll` / sysfs / gpiochip delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| `pin.watch` / `unwatch` *(IO expanders)* | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
 
 ✓ = supported after this feature, ✗ = not supported (by design)  
 \* Rust `Connection` carries bus + enabled state only; no pin fields.  
@@ -827,9 +963,19 @@ when the INT line is wired and exported.
 
 | Delivery | Typical latency | Jitter |
 |----------|----------------|--------|
-| Hardware IRQ (MicroPython, Arduino, Zephyr) | < 10 µs | very low |
-| epoll / sysfs (Linux GCC, Node.js) | < 1 ms | low |
-| Polling thread 5 ms (Python Linux, JVM, Node.js fallback) | 0–5 ms | ±5 ms |
+| Hardware IRQ (MicroPython, Arduino, Zephyr, ESP-IDF, Pico SDK, Go TinyGo) | < 10 µs | very low |
+| epoll / sysfs / gpiochip (Linux GCC, Node.js, Go Linux) | < 1 ms | low |
+| Polling thread 5 ms (Python Linux, JVM, Node.js fallback, Go Linux fallback) | 0–5 ms | ±5 ms |
+
+### 10.5 Why Go's InputPin has no separate `OffEdge`
+
+Go function values are not comparable (`==` on two `func` values is a compile error unless
+one side is `nil`), so `off_edge(handler)` cannot be implemented by matching a stored
+handler against the one passed back in — the approach every other language uses. `OnEdge`
+returns an unsubscribe closure instead (`func() (unsubscribe func())`), which captures the
+handler's identity by closing over it rather than comparing it. This is the same shape as
+`context.CancelFunc` and is idiomatic Go; `Connection`-level `OffInterrupt()` simply calls
+the closure it got back from `OnEdge` when `OnInterrupt` was called.
 
 ---
 
@@ -917,7 +1063,7 @@ Construct the bus transport as before (unchanged), then wrap it:
 conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
-**C++:**
+**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
 ```cpp
 Connection conn(bus, &gpioPin, &enPin);
 ```
@@ -935,6 +1081,11 @@ Connection conn = new Connection(bus, gpioPin, enPin);
 **Rust:**
 ```rust
 let conn = Connection::new(i2c);  // bus only; manage pins directly
+```
+
+**Go** (identical on Linux and TinyGo):
+```go
+conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}
 ```
 
 ### Enable / disable
@@ -979,7 +1130,8 @@ Expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency; default to
 
 **C++**
 Use `conn.intPin()` to access the `InputPin*`. Platform `#ifdef` guards belong
-exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h`.
+exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` /
+`InputPinESPIDF.h` / `InputPinPicoSDK.h` — never in the chip driver.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
@@ -993,6 +1145,12 @@ or polling loop.
 `onInterrupt(IntConsumer)` is the driver-level API.
 Default `int_pin` to `new PollingInputPin(5)` when no `InputPin` is provided in the
 `Connection`.
+
+**Go**
+`OnInterrupt(cb)` calls `conn.IntPin.OnEdge(transport.Falling, handler)` and stores the
+returned unsubscribe closure; `OffInterrupt()` calls it. If `conn.IntPin` is `nil`, start
+a ticker-driven polling goroutine instead. Every fallible method returns `error`, per Go
+convention elsewhere in this codebase.
 
 ### Interrupt sources (Level 2/3 chips)
 
@@ -1008,14 +1166,14 @@ methods.
 
 ### 13.1 PCF8574
 
-| Change | Python | C++ | Node.js | Rust | JVM |
-|--------|--------|-----|---------|------|-----|
-| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, InputPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, InputPin)` |
-| `configure_interrupt` → | `on_interrupt(cb)` | `onInterrupt(cb)` | `onInterrupt(cb)` | — | `onInterrupt(IntConsumer)` |
-| `clear_interrupt` → | `poll_interrupt()` | `pollInterrupt()` | `pollInterrupt()` | `poll_interrupt()` | `pollInterrupt()` |
-| `pin.irq` → | `pin.watch()` | `pin.watch()` | already `watch` | — | add `pin.watch()` |
-| INT-pin delivery | Move to `Connection` / `InputPin` impl | Same | Same | N/A | Same |
-| Platform guards | Remove from chip driver | Same | Same | N/A | Same |
+| Change | Python | C++ | Node.js | Rust | JVM | Go |
+|--------|--------|-----|---------|------|-----|-----|
+| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, InputPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, InputPin)` | `*Connection` replaces `transport.Transport` |
+| `configure_interrupt` → | `on_interrupt(cb)` | `onInterrupt(cb)` | `onInterrupt(cb)` | — | `onInterrupt(IntConsumer)` | add `OnInterrupt(cb) error` (no prior equivalent) |
+| `clear_interrupt` → | `poll_interrupt()` | `pollInterrupt()` | `pollInterrupt()` | `poll_interrupt()` | `pollInterrupt()` | `ClearInterrupt()` → `PollInterrupt()` |
+| `pin.irq` → | `pin.watch()` | `pin.watch()` | already `watch` | — | add `pin.watch()` | `WatchInterrupt()` → `Watch()`, add `Unwatch()` |
+| INT-pin delivery | Move to `Connection` / `InputPin` impl | Same | Same | N/A | Same | Same |
+| Platform guards | Remove from chip driver | Same | Same | N/A | Same | Same (build-tag files instead of `#ifdef`) |
 
 No `enable_interrupt` / `disable_interrupt` — PCF8574 is Level 1.
 
@@ -1039,6 +1197,10 @@ entire ports, not selectable event types.
 
 Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is internal.
 
+Go mirrors this with `OnInterrupt(cb func(port int, status uint8)) error`,
+`OnInterruptPort(port int, cb func(uint8)) error`, `OffInterrupt() error` /
+`OffInterruptPort(port int) error`, and `PollInterrupt(port int) (uint8, error)`.
+
 ---
 
 ## 14. New Files Summary
@@ -1053,10 +1215,14 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 | `cpp/src/transport/InputPinArduino.h` | C++ | `attachInterrupt` implementation |
 | `cpp/src/transport/InputPinLinux.h` | C++ | `poll()` thread implementation |
 | `cpp/src/transport/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
+| `cpp/src/transport/InputPinESPIDF.h` | C++ | `gpio_install_isr_service` / `gpio_isr_handler_add` implementation |
+| `cpp/src/transport/InputPinPicoSDK.h` | C++ | `gpio_set_irq_enabled_with_callback` implementation |
 | `cpp/src/transport/OutputPin.h` | C++ | `OutputPin` base class |
 | `cpp/src/transport/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
 | `cpp/src/transport/OutputPinLinux.h` | C++ | sysfs GPIO implementation |
 | `cpp/src/transport/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
+| `cpp/src/transport/OutputPinESPIDF.h` | C++ | `gpio_set_level` implementation |
+| `cpp/src/transport/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |
 | `nodejs/packages/periph/src/transport/connection.js` | Node.js | `Connection` class |
 | `nodejs/packages/periph/src/transport/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
 | `nodejs/packages/periph/src/transport/output_pin.js` | Node.js | `OutputPin`, `SysfsOutputPin`, `GpiodOutputPin` |
@@ -1067,6 +1233,14 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 | `jvm/periph-transport/…/transport/SysfsInputPin.java` | Java | sysfs GPIO input |
 | `jvm/periph-transport/…/transport/OutputPin.java` | Java | `OutputPin` interface |
 | `jvm/periph-transport/…/transport/SysfsOutputPin.java` | Java | sysfs GPIO output |
+| `go/periph/transport/connection.go` | Go | `Connection` struct |
+| `go/periph/transport/input_pin.go` | Go | `InputPin` interface + `Trigger` type, no build tag |
+| `go/periph/transport/input_pin_linux.go` | Go | `GpioInputPin` (`linux && !tinygo`) — `/dev/gpiochip*` edge-event ioctl |
+| `go/periph/transport/input_pin_tinygo.go` | Go | `GpioInputPin` (`tinygo`) — `machine.Pin.SetInterrupt` |
+| `go/periph/transport/input_pin_polling.go` | Go | `PollingInputPin`, no build tag |
+| `go/periph/transport/output_pin.go` | Go | `OutputPin` interface, no build tag |
+| `go/periph/transport/output_pin_linux.go` | Go | `GpioOutputPin` (`linux && !tinygo`) |
+| `go/periph/transport/output_pin_tinygo.go` | Go | `GpioOutputPin` (`tinygo`) |
 
 ---
 
@@ -1101,4 +1275,12 @@ Pin-level `watch` / `unwatch` is unchanged in concept; INTA/INTB routing is inte
 8. **`Transport` rename sweep** — the rename from `Transport` to `Connection` touches
    every chip driver and every example. A mechanical find-and-replace is sufficient
    but must be applied consistently: `transport` (variable) → `connection`,
-   `Transport` (type) → `Connection`.
+   `Transport` (type) → `Connection`. In Go this also means the existing
+   `ClearInterrupt` → `PollInterrupt` and `WatchInterrupt` → `Watch` renames on
+   PCF8574/PCF8575/MCP23017 (§13.1, §13.3).
+
+9. **Go `InputPin.OnEdge` returns a closure instead of a paired `OffEdge`** (§5.6,
+   §10.5) — this is the one place the vocabulary diverges structurally across
+   languages, forced by Go's lack of comparable function values. Confirm this is an
+   acceptable, well-documented exception rather than a sign the vocabulary itself
+   needs a closure-based `on_interrupt` everywhere for consistency.
