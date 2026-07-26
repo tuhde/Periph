@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(RED) {
-    const Gpio               = require('onoff').Gpio;
+    const { Default }        = require('opengpio');
     const { HX711Transport } = require('periph/src/transport/hx711');
     const { HX711Full }      = require('periph/src/chips/adc_dac/hx711');
 
@@ -10,8 +10,9 @@ module.exports = function(RED) {
         const node = this;
 
         try {
-            const dout   = new Gpio(parseInt(config.doutPin),  'in');
-            const pd_sck = new Gpio(parseInt(config.pdSckPin), 'out');
+            const chip   = parseInt(config.gpioChip || 0);
+            const dout   = Default.input({ chip, line: parseInt(config.doutPin) });
+            const pd_sck = Default.output({ chip, line: parseInt(config.pdSckPin) });
             node.transport = new HX711Transport(dout, pd_sck);
             node.driver    = new HX711Full(node.transport);
 

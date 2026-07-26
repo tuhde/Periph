@@ -182,7 +182,7 @@ value := int16(uint16(raw[0])<<8 | uint16(raw[1]))   // signed
 
 ## Linux GPIO pin numbering
 
-On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset, as needed internally by Node.js's `onoff` sysfs backend) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first.
+On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first. Node.js host GPIO access goes through [`opengpio`](https://www.npmjs.com/package/opengpio) (libgpiod character-device API, `{chip, line}` addressing), which uses this convention natively.
 
 ## Class structure
 
@@ -363,25 +363,28 @@ Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterr
 
 ### Node.js
 
-Implement a `_Pin` class matching the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` subset. This lets IO expander pins work with any code written against `onoff`:
+Implement a `_Pin` class matching the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape: a boolean `.value` property instead of onoff-style `readSync()`/`writeSync()`/callback-style `read()`/`write()`. Direction is fixed at construction (opengpio models input and output as distinct classes, not one object with a mutable direction), and `set value` on an `'in'` pin throws, matching opengpio's `Input`. This lets IO expander pins work as drop-in `Output`/`Input` substitutes for any code written against `opengpio` — including this project's own bit-bang transports (`SiPoTransport`, `HX711Transport`), which take real GPIO line objects shaped this way:
 
 ```js
 class _Pin {
-    constructor(chip, n, direction) {
+    constructor(chip, n, direction) {  // direction: 'in' | 'out', fixed for the pin's lifetime
         this._chip = chip;
         this._n = n;
-        this._direction = direction;  // 'in' | 'out'
+        this._direction = direction;
     }
     get direction() { return this._direction; }
-    readSync()           { return (this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1; }
-    writeSync(v)         { this._chip._setPin(this._n, v); }
-    read(cb)             { try { cb(null, this.readSync()); } catch(e) { cb(e); } }
-    write(v, cb)         { try { this.writeSync(v); cb(null); } catch(e) { cb(e); } }
-    unexport()           {}
+    get value() {
+        return ((this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1) === 1;
+    }
+    set value(v) {
+        if (this._direction !== 'out') throw new Error('cannot set value on an input pin');
+        this._chip._setPin(this._n, v ? 1 : 0);
+    }
+    stop() {}   // no-op; shadow register state lives on the chip instance
 }
 ```
 
-Full adds `watch(callback)` / `unwatch()` for interrupt-driven input. Deliver interrupts via `epoll` on the INT pin (Linux `gpio` sysfs or `gpiod`) or via polling if no INT line is available — document which in the spec.
+Full adds `watch()` returning a `node:events` `EventEmitter` (matching opengpio's `Watch` class) that emits `'rise'` / `'fall'` / `'change'` on every relevant transition and exposes the same `.value` getter and `.stop()`. Deliver interrupts via `epoll` on the INT pin (Linux `gpio` sysfs or `gpiod`) or via polling if no INT line is available — document which in the spec.
 
 ### Rust
 

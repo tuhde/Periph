@@ -9,8 +9,9 @@ const { SerialPort } = require('serialport');
  * incoming bytes in an internal buffer. All operations return Promises.
  * Call close() when done to release the port.
  *
- * For RS-485 DE toggling, pass de_pin_num and install the `onoff` package.
- * The GPIO is asserted high before each write and deasserted after drain.
+ * For RS-485 DE toggling, pass de_gpio ({chip, line}) and install the
+ * `opengpio` package. The GPIO is asserted high before each write and
+ * deasserted after drain.
  */
 class UARTTransport {
     /**
@@ -18,15 +19,15 @@ class UARTTransport {
      * @param {object}  [options]
      * @param {number}  [options.baudRate=9600]    - Baud rate.
      * @param {number}  [options.timeoutMs=1000]   - Read timeout in milliseconds.
-     * @param {number|null} [options.de_pin_num=null] - GPIO line for RS-485 DE; null disables.
+     * @param {{chip: number, line: number}|null} [options.de_gpio=null] - gpiod chip+line for RS-485 DE; null disables.
      */
     constructor(path, options = {}) {
-        this._baudRate   = options.baudRate  ?? 9600;
-        this._timeoutMs  = options.timeoutMs ?? 1000;
-        this._de_pin_num = options.de_pin_num ?? null;
-        this._rxBuf      = Buffer.alloc(0);
-        this._rxWaiters  = [];
-        this._de         = null;
+        this._baudRate  = options.baudRate  ?? 9600;
+        this._timeoutMs = options.timeoutMs ?? 1000;
+        this._de_gpio   = options.de_gpio ?? null;
+        this._rxBuf     = Buffer.alloc(0);
+        this._rxWaiters = [];
+        this._de        = null;
 
         this._port = new SerialPort({ path, baudRate: this._baudRate, autoOpen: false });
         this._openPromise = new Promise((resolve, reject) => {
@@ -38,13 +39,13 @@ class UARTTransport {
             this._drainWaiters();
         });
 
-        if (this._de_pin_num !== null) {
+        if (this._de_gpio !== null) {
             try {
-                const { Gpio } = require('onoff');
-                this._de = new Gpio(this._de_pin_num, 'out');
-                this._de.writeSync(0);
+                const { Default } = require('opengpio');
+                this._de = Default.output(this._de_gpio);
+                this._de.value = false;
             } catch (_) {
-                // onoff unavailable — RS-485 DE toggling disabled.
+                // opengpio unavailable — RS-485 DE toggling disabled.
             }
         }
     }
@@ -93,14 +94,14 @@ class UARTTransport {
     async write(data) {
         await this._openPromise;
         const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
-        if (this._de) this._de.writeSync(1);
+        if (this._de) this._de.value = true;
         await new Promise((resolve, reject) => {
             this._port.write(buf, err => { if (err) reject(err); else resolve(); });
         });
         await new Promise((resolve, reject) => {
             this._port.drain(err => { if (err) reject(err); else resolve(); });
         });
-        if (this._de) this._de.writeSync(0);
+        if (this._de) this._de.value = false;
     }
 
     /**
@@ -135,8 +136,8 @@ class UARTTransport {
             this._port.close(err => { if (err) reject(err); else resolve(); });
         });
         if (this._de) {
-            this._de.writeSync(0);
-            this._de.unexport();
+            this._de.value = false;
+            this._de.stop();
             this._de = null;
         }
     }

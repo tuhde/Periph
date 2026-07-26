@@ -1,5 +1,7 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
+
 const REG_IODIRA  = 0x00;
 const REG_IODIRB  = 0x01;
 const REG_IPOLA   = 0x02;
@@ -26,7 +28,7 @@ const REG_OLATB    = 0x15;
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
  *
  * Provides access to 16 GPIO pins (GPA0–GPA7 and GPB0–GPB7) via a pin()
- * factory. Each returned pin implements the onoff Gpio interface subset.
+ * factory. Each returned pin implements the opengpio Input/Output shape.
  *
  * At construction, all pins initialise as inputs except GPA7 and GPB7
  * which are output-only on the hardware and are forced to output mode.
@@ -89,7 +91,7 @@ class Mcp23017Minimal {
      *
      * @param {number} n - Pin index (0–15).
      * @param {string} [direction='in'] - Initial direction: 'in' or 'out'.
-     * @returns {_Pin} Pin proxy implementing the onoff Gpio subset.
+     * @returns {_Pin} Pin proxy implementing the opengpio Input/Output shape.
      */
     pin(n, direction = 'in') {
         return new _Pin(this, n, direction);
@@ -128,7 +130,7 @@ class Mcp23017Minimal {
 }
 
 /**
- * GPIO proxy for a single MCP23017 pin — onoff Gpio interface subset.
+ * GPIO proxy for a single MCP23017 pin — opengpio Input/Output shape.
  *
  * Obtain via Mcp23017Minimal.pin(n). Do not instantiate directly.
  */
@@ -136,7 +138,7 @@ class _Pin {
     /**
      * @param {Mcp23017Minimal} chip - Parent driver instance.
      * @param {number} n - Pin index (0–15).
-     * @param {string} direction - 'in' or 'out'.
+     * @param {string} direction - 'in' or 'out'; fixed for the pin's lifetime.
      */
     constructor(chip, n, direction) {
         this._chip      = chip;
@@ -144,56 +146,29 @@ class _Pin {
         this._direction = direction;
     }
 
-    /** @type {string} Current pin direction ('in' or 'out'). */
+    /** @type {string} Pin direction ('in' or 'out'). */
     get direction() { return this._direction; }
 
     /**
-     * Read pin synchronously.
-     * @returns {number} 0 or 1.
+     * Current pin state.
+     * @returns {boolean} true (HIGH) or false (LOW).
      */
-    readSync() {
-        return (this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1;
+    get value() {
+        return ((this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1) === 1;
     }
 
     /**
-     * Write pin synchronously.
-     * @param {number} value - 0 or 1.
+     * Drive the pin. Only valid on pins created with direction 'out'.
+     * @param {boolean} value
+     * @throws {Error} If this pin is direction 'in'.
      */
-    writeSync(value) {
+    set value(value) {
+        if (this._direction !== 'out') throw new Error('cannot set value on an input pin');
         this._chip._setPin(this._n, value ? 1 : 0);
     }
 
-    /**
-     * Read pin asynchronously.
-     * @param {function} callback - Node-style callback(err, value).
-     */
-    read(callback) {
-        try { callback(null, this.readSync()); } catch (e) { callback(e); }
-    }
-
-    /**
-     * Write pin asynchronously.
-     * @param {number} value - 0 or 1.
-     * @param {function} callback - Node-style callback(err).
-     */
-    write(value, callback) {
-        try { this.writeSync(value); callback(null); } catch (e) { callback(e); }
-    }
-
-    /**
-     * Set pin direction.
-     * @param {string} direction - 'in' or 'out'.
-     * @param {function} callback - Node-style callback(err).
-     */
-    setDirection(direction, callback) {
-        try {
-            this._direction = direction;
-            if (callback) callback(null);
-        } catch (e) { if (callback) callback(e); }
-    }
-
     /** Release the pin (no-op; shadow state preserved). */
-    unexport() {}
+    stop() {}
 }
 
 /**
@@ -299,10 +274,15 @@ class Mcp23017Full extends Mcp23017Minimal {
 
     _dispatch(port, changed) {
         if (this._callback) this._callback(port, changed);
-        for (const [n, handlers] of Object.entries(this._watchers)) {
-            const pinPort = Number(n) >> 3;
-            if (pinPort === port && ((changed >> (Number(n) & 7)) & 1)) {
-                handlers.forEach(h => h(null, this._chip ? this._chip._readPort(port) : 0));
+        const current = this._readPort(port);
+        for (const [n, watchers] of Object.entries(this._watchers)) {
+            const pinN = Number(n);
+            if ((pinN >> 3) === port && ((changed >> (pinN & 7)) & 1)) {
+                const value = ((current >> (pinN & 7)) & 1) === 1;
+                watchers.forEach(w => {
+                    w.emit('change', value);
+                    w.emit(value ? 'rise' : 'fall', value);
+                });
             }
         }
     }
@@ -345,7 +325,7 @@ class Mcp23017Full extends Mcp23017Minimal {
 }
 
 /**
- * Full GPIO proxy — adds watch/unwatch for interrupt-driven input.
+ * Full GPIO proxy — adds watch() for interrupt-driven input.
  */
 class _FullPin extends _Pin {
     /**
@@ -358,30 +338,25 @@ class _FullPin extends _Pin {
     }
 
     /**
-     * Register a handler for pin state changes.
+     * Start watching this pin for state changes.
+     *
      * Requires configureInterrupt() to have been called on the driver.
-     * @param {function} handler - Called on pin change.
+     * Matches opengpio's Watch class: an EventEmitter emitting 'rise' /
+     * 'fall' / 'change', plus a `value` getter and `stop()`.
+     *
+     * @returns {EventEmitter} Watcher emitting 'rise', 'fall', 'change'.
      */
-    watch(handler) {
+    watch() {
         const n = this._n;
+        const watcher = new EventEmitter();
+        Object.defineProperty(watcher, 'value', { get: () => this.value });
+        watcher.stop = () => {
+            const list = this._chip._watchers[n];
+            if (list) this._chip._watchers[n] = list.filter(w => w !== watcher);
+        };
         if (!this._chip._watchers[n]) this._chip._watchers[n] = [];
-        this._chip._watchers[n].push(handler);
-    }
-
-    /**
-     * Remove a previously registered handler.
-     * @param {function} handler - The handler to remove.
-     */
-    unwatch(handler) {
-        const n = this._n;
-        if (this._chip._watchers[n]) {
-            this._chip._watchers[n] = this._chip._watchers[n].filter(h => h !== handler);
-        }
-    }
-
-    /** Remove all handlers for this pin. */
-    unwatchAll() {
-        this._chip._watchers[this._n] = [];
+        this._chip._watchers[n].push(watcher);
+        return watcher;
     }
 
     /**

@@ -1,11 +1,13 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
+
 /**
  * PCF8575 16-bit quasi-bidirectional I/O port expander — minimal interface.
  *
  * Exposes all 16 pins (P00–P07, P10–P17) as GPIO objects via the pin() factory.
- * Direction is implicit: writeSync(1) puts a pin in input mode (weak pull-up);
- * writeSync(0) drives it low. Two shadow registers track the output latches.
+ * Direction is implicit: value=true puts a pin in input mode (weak pull-up);
+ * value=false drives it low. Two shadow registers track the output latches.
  *
  * Initialises all pins to input mode (shadow = [0xFF, 0xFF]) at construction.
  *
@@ -44,7 +46,7 @@ class Pcf8575Minimal {
      * Return a Pin proxy object for pin n (0–15).
      * @param {number} n - Pin index (0 = P00, 15 = P17).
      * @param {string} [direction='in'] - Initial direction: 'in' or 'out'.
-     * @returns {_Pin} Pin proxy implementing the onoff Gpio subset.
+     * @returns {_Pin} Pin proxy implementing the opengpio Input/Output shape.
      */
     pin(n, direction = 'in') {
         const p = new _Pin(this, n, direction);
@@ -74,13 +76,13 @@ class Pcf8575Minimal {
 }
 
 /**
- * GPIO proxy for a single PCF8575 pin — onoff Gpio interface subset.
+ * GPIO proxy for a single PCF8575 pin — opengpio Input/Output shape.
  *
  * Obtain via Pcf8575Minimal.pin(n). Do not instantiate directly.
  *
  * @param {Pcf8575Minimal} chip - Parent driver instance.
  * @param {number} n - Pin index (0–15).
- * @param {string} direction - 'in' or 'out'.
+ * @param {string} direction - 'in' or 'out'; fixed for the pin's lifetime.
  */
 class _Pin {
     constructor(chip, n, direction) {
@@ -89,59 +91,31 @@ class _Pin {
         this._direction = direction;
     }
 
-    /** @type {string} Current pin direction ('in' or 'out'). */
+    /** @type {string} Pin direction ('in' or 'out'). */
     get direction() { return this._direction; }
 
     /**
-     * Read pin synchronously.
-     * @returns {number} 0 or 1.
+     * Current pin state.
+     * @returns {boolean} true (released to quasi-high input) or false (driven low).
      */
-    readSync() {
+    get value() {
         const port = Math.floor(this._n / 8);
         const bit = this._n % 8;
-        return (this._chip._readPort()[port] >> bit) & 1;
+        return ((this._chip._readPort()[port] >> bit) & 1) === 1;
     }
 
     /**
-     * Write pin synchronously.
-     * @param {number} value - 0 (drive low) or 1 (release to quasi-high input).
+     * Drive the pin. Only valid on pins created with direction 'out'.
+     * @param {boolean} value - true releases to quasi-high input, false drives low.
+     * @throws {Error} If this pin is direction 'in'.
      */
-    writeSync(value) {
+    set value(value) {
+        if (this._direction !== 'out') throw new Error('cannot set value on an input pin');
         this._chip._setPin(this._n, value ? 1 : 0);
     }
 
-    /**
-     * Read pin asynchronously.
-     * @param {function} callback - Node-style callback(err, value).
-     */
-    read(callback) {
-        try { callback(null, this.readSync()); } catch (e) { callback(e); }
-    }
-
-    /**
-     * Write pin asynchronously.
-     * @param {number} value - 0 or 1.
-     * @param {function} callback - Node-style callback(err).
-     */
-    write(value, callback) {
-        try { this.writeSync(value); callback(null); } catch (e) { callback(e); }
-    }
-
-    /**
-     * Set pin direction.
-     * @param {string} direction - 'in' or 'out'.
-     * @param {function} callback - Node-style callback(err).
-     */
-    setDirection(direction, callback) {
-        try {
-            this._direction = direction;
-            this._chip._setPin(this._n, direction === 'in' ? 1 : 0);
-            if (callback) callback(null);
-        } catch (e) { if (callback) callback(e); }
-    }
-
     /** Release the pin (no-op; shadow state preserved). */
-    unexport() {}
+    stop() {}
 }
 
 /**
@@ -149,7 +123,7 @@ class _Pin {
  *
  * Adds configureInterrupt() to attach a callback to the chip's INT line
  * and clearInterrupt() to return the 16-bit changed-pin bitmask.
- * Pin objects gain watch() / unwatch() for per-pin interrupt handlers.
+ * Pin objects gain watch() returning a per-pin interrupt EventEmitter.
  *
  * @param {object} transport - Configured I²C transport.
  * @param {number} [addr=0x20] - 7-bit I²C device address.
@@ -172,7 +146,7 @@ class Pcf8575Full extends Pcf8575Minimal {
      * Return a Full pin proxy for pin n (0–15).
      * @param {number} n - Pin index.
      * @param {string} [direction='in'] - Initial direction.
-     * @returns {_FullPin} Full pin proxy with watch/unwatch support.
+     * @returns {_FullPin} Full pin proxy with watch() support.
      */
     pin(n, direction = 'in') {
         const p = new _FullPin(this, n, direction);
@@ -221,9 +195,17 @@ class Pcf8575Full extends Pcf8575Minimal {
 
     _dispatch(changed) {
         if (this._callback) this._callback(changed);
-        for (const [n, handlers] of Object.entries(this._watchers)) {
-            if ((changed >> n) & 1) {
-                handlers.forEach(h => h(null, this.readSync ? undefined : 0));
+        const current = this._readPort();
+        for (const [n, watchers] of Object.entries(this._watchers)) {
+            const pinN = Number(n);
+            if ((changed >> pinN) & 1) {
+                const port = pinN >> 3;
+                const bit = pinN & 7;
+                const value = ((current[port] >> bit) & 1) === 1;
+                watchers.forEach(w => {
+                    w.emit('change', value);
+                    w.emit(value ? 'rise' : 'fall', value);
+                });
             }
         }
     }
@@ -243,7 +225,7 @@ class Pcf8575Full extends Pcf8575Minimal {
 }
 
 /**
- * Full GPIO proxy — adds watch/unwatch for interrupt-driven input.
+ * Full GPIO proxy — adds watch() for interrupt-driven input.
  *
  * @param {Pcf8575Full} chip - Parent full driver instance.
  * @param {number} n - Pin index.
@@ -255,32 +237,25 @@ class _FullPin extends _Pin {
     }
 
     /**
-     * Register a handler for pin state changes.
+     * Start watching this pin for state changes.
+     *
      * Requires configureInterrupt() to have been called on the driver.
-     * @param {function} handler - Called with (err, value) when pin changes.
+     * Matches opengpio's Watch class: an EventEmitter emitting 'rise' /
+     * 'fall' / 'change', plus a `value` getter and `stop()`.
+     *
+     * @returns {EventEmitter} Watcher emitting 'rise', 'fall', 'change'.
      */
-    watch(handler) {
+    watch() {
         const n = this._n;
+        const watcher = new EventEmitter();
+        Object.defineProperty(watcher, 'value', { get: () => this.value });
+        watcher.stop = () => {
+            const list = this._chip._watchers[n];
+            if (list) this._chip._watchers[n] = list.filter(w => w !== watcher);
+        };
         if (!this._chip._watchers[n]) this._chip._watchers[n] = [];
-        this._chip._watchers[n].push((err) => {
-            handler(err, this.readSync());
-        });
-    }
-
-    /**
-     * Remove a previously registered handler.
-     * @param {function} handler - The handler to remove.
-     */
-    unwatch(handler) {
-        const n = this._n;
-        if (this._chip._watchers[n]) {
-            this._chip._watchers[n] = this._chip._watchers[n].filter(h => h !== handler);
-        }
-    }
-
-    /** Remove all handlers for this pin. */
-    unwatchAll() {
-        this._chip._watchers[this._n] = [];
+        this._chip._watchers[n].push(watcher);
+        return watcher;
     }
 
     /**

@@ -1,6 +1,6 @@
 'use strict';
 
-const Gpio = require('onoff').Gpio;
+const { Default } = require('opengpio');
 const { HX711Transport } = require('../../../src/transport/hx711');
 const { HX711Full } = require('../../../src/chips/adc_dac/hx711');
 
@@ -10,8 +10,8 @@ const { HX711Full } = require('../../../src/chips/adc_dac/hx711');
 // weight W grams; (3) SCALE_FACTOR = (readAverage() - getOffset()) / W.
 const SCALE_FACTOR = 420.0;
 
-const dout   = new Gpio(5, 'in');
-const pd_sck = new Gpio(6, 'out');
+const dout   = Default.input({ chip: 0, line: 5 });
+const pd_sck = Default.output({ chip: 0, line: 6 });
 const transport = new HX711Transport(dout, pd_sck);        // Create HX711 transport, (dout, pd_sck)
 const chip = new HX711Full(transport);                     // Create HX711 driver — discards first conversion, (transport)
 

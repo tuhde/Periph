@@ -156,10 +156,10 @@ The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — gua
 
 ### Node.js
 
-Pin objects implement the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` interface subset so they are drop-in replacements.
+Pin objects implement the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape so they are drop-in replacements.
 
-Required interface (Minimal): `readSync()`, `writeSync(value)`, `read(callback)`, `write(value, callback)`, `direction` property, `unexport()`  
-Full adds: `watch(callback)`, `unwatch(callback)`, `setActiveLow(invert)`
+Required interface (Minimal): boolean `value` getter/setter (setter throws on an `'in'` pin), `direction` property, `stop()`  
+Full adds: `watch()` returning a `node:events` `EventEmitter` (`'rise'`/`'fall'`/`'change'`, plus `value` getter and `stop()`), `setActiveLow(invert)`
 
 ### Rust
 

@@ -1,27 +1,25 @@
 'use strict';
 
-const Gpio = require('onoff').Gpio;
-
 /**
- * HX711 GPIO bit-bang transport for Node.js (wraps onoff Gpio).
+ * HX711 GPIO bit-bang transport for Node.js (wraps opengpio Input/Output).
  *
  * Implements the 2-wire bit-bang protocol used exclusively by the HX711
  * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
  * count selects the channel and gain for the next conversion.
  *
- * The DOUT poll loop uses a synchronous spin (readSync) which is acceptable
+ * The DOUT poll loop uses a synchronous spin (`.value`) which is acceptable
  * for short waits during the clock cycle itself. The blocking wait before the
  * cycle uses setImmediate yielding to avoid monopolising the event loop.
  */
 class HX711Transport {
     /**
-     * @param {object} dout   - onoff Gpio instance configured as 'in'.
-     * @param {object} pd_sck - onoff Gpio instance configured as 'out'.
+     * @param {object} dout   - opengpio Input instance (boolean `.value`).
+     * @param {object} pd_sck - opengpio Output instance (boolean `.value`).
      */
     constructor(dout, pd_sck) {
         this._dout = dout;
         this._sck  = pd_sck;
-        this._sck.writeSync(0);
+        this._sck.value = false;
     }
 
     /**
@@ -32,7 +30,7 @@ class HX711Transport {
      * @returns {boolean} True when DOUT is LOW (data ready).
      */
     isReady() {
-        return this._dout.readSync() === 0;
+        return this._dout.value === false;
     }
 
     /**
@@ -52,7 +50,7 @@ class HX711Transport {
         if (numPulses !== 25 && numPulses !== 26 && numPulses !== 27)
             throw new Error('numPulses must be 25, 26, or 27');
         const deadline = Date.now() + 1000;
-        while (this._dout.readSync() !== 0) {
+        while (this._dout.value !== false) {
             if (Date.now() >= deadline)
                 throw new Error('HX711 DOUT did not go low within 1 second');
             const end = Date.now() + 1;
@@ -61,11 +59,11 @@ class HX711Transport {
         const endOf = (us) => process.hrtime.bigint() + BigInt(us * 1000);
         let raw = 0;
         for (let i = 0; i < numPulses; i++) {
-            this._sck.writeSync(1);
+            this._sck.value = true;
             let t = endOf(1); while (process.hrtime.bigint() < t) {}
-            this._sck.writeSync(0);
+            this._sck.value = false;
             t = endOf(1); while (process.hrtime.bigint() < t) {}
-            raw = (raw << 1) | this._dout.readSync();
+            raw = (raw << 1) | (this._dout.value ? 1 : 0);
         }
         raw >>>= numPulses - 24;
         if (raw >= 0x800000) raw -= 0x1000000;
@@ -78,7 +76,7 @@ class HX711Transport {
      * Uses a busy-spin for the delay since Node.js has no µs sleep.
      */
     powerDown() {
-        this._sck.writeSync(1);
+        this._sck.value = true;
         const end = Date.now() + 1;  // 1 ms >> 60 µs, safe margin
         while (Date.now() < end) {}
     }
@@ -90,15 +88,15 @@ class HX711Transport {
      * conversion after power-up must be discarded.
      */
     powerUp() {
-        this._sck.writeSync(0);
+        this._sck.value = false;
     }
 
     /**
      * Release both GPIO pins. Must be called when the transport is no longer needed.
      */
     close() {
-        this._dout.unexport();
-        this._sck.unexport();
+        this._dout.stop();
+        this._sck.stop();
     }
 }
 

@@ -1,15 +1,16 @@
 'use strict';
 
-const Gpio = require('onoff').Gpio;
+const { Default } = require('opengpio');
 const { SiPoTransport } = require('../../packages/periph/src/transport/sipo');
 
 const MODE = process.env.SIPO_MODE || 'sw';  // 'sw' (bit-bang) or 'hw' (spi-device)
 
-const RCK_PIN    = parseInt(process.env.SIPO_RCK    || '5',  10);
-const SRCLR_PIN  = parseInt(process.env.SIPO_SRCLR  || '6',  10);
-const G_PIN      = parseInt(process.env.SIPO_G      || '13', 10);
-const SER_IN_PIN = parseInt(process.env.SIPO_SER_IN || '19', 10);
-const SRCK_PIN   = parseInt(process.env.SIPO_SRCK   || '26', 10);
+const GPIO_CHIP  = parseInt(process.env.GPIO_CHIP    || '0',  10);
+const RCK_LINE   = parseInt(process.env.SIPO_RCK     || '5',  10);
+const SRCLR_LINE = parseInt(process.env.SIPO_SRCLR   || '6',  10);
+const G_LINE     = parseInt(process.env.SIPO_G       || '13', 10);
+const SER_IN_LINE = parseInt(process.env.SIPO_SER_IN || '19', 10);
+const SRCK_LINE  = parseInt(process.env.SIPO_SRCK    || '26', 10);
 
 const SPI_BUS    = parseInt(process.env.SIPO_SPI_BUS    || '0', 10);
 const SPI_DEVICE = parseInt(process.env.SIPO_SPI_DEVICE || '0', 10);
@@ -22,9 +23,9 @@ function checkTrue(label, condition) {
     else           { console.log('FAIL', label); failed++; }
 }
 
-const rck   = new Gpio(RCK_PIN,   'out');
-const srclr = new Gpio(SRCLR_PIN, 'out');
-const g     = new Gpio(G_PIN,     'out');
+const rck   = Default.output({ chip: GPIO_CHIP, line: RCK_LINE });
+const srclr = Default.output({ chip: GPIO_CHIP, line: SRCLR_LINE });
+const g     = Default.output({ chip: GPIO_CHIP, line: G_LINE });
 
 let transport;
 if (MODE === 'hw') {
@@ -32,8 +33,8 @@ if (MODE === 'hw') {
         srclr, g, busNumber: SPI_BUS, deviceNumber: SPI_DEVICE,
     });
 } else {
-    const serIn = new Gpio(SER_IN_PIN, 'out');
-    const srck = new Gpio(SRCK_PIN, 'out');
+    const serIn = Default.output({ chip: GPIO_CHIP, line: SER_IN_LINE });
+    const srck  = Default.output({ chip: GPIO_CHIP, line: SRCK_LINE });
     transport = new SiPoTransport(rck, { srclr, g, serIn, srck });
 }
 

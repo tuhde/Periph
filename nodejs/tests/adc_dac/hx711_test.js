@@ -1,11 +1,12 @@
 'use strict';
 
-const Gpio = require('onoff').Gpio;
+const { Default } = require('opengpio');
 const { HX711Transport } = require('../../packages/periph/src/transport/hx711');
 const { HX711Full }      = require('../../packages/periph/src/chips/adc_dac/hx711');
 
-const DOUT_PIN   = parseInt(process.env.HX711_DOUT   || '5',  10);
-const PD_SCK_PIN = parseInt(process.env.HX711_PD_SCK || '6',  10);
+const GPIO_CHIP  = parseInt(process.env.GPIO_CHIP    || '0',  10);
+const DOUT_LINE   = parseInt(process.env.HX711_DOUT   || '5',  10);
+const PD_SCK_LINE = parseInt(process.env.HX711_PD_SCK || '6',  10);
 
 let passed = 0;
 let failed = 0;
@@ -15,8 +16,8 @@ function checkTrue(label, condition) {
     else           { console.log('FAIL', label); failed++; }
 }
 
-const dout   = new Gpio(DOUT_PIN,   'in');
-const pd_sck = new Gpio(PD_SCK_PIN, 'out');
+const dout   = Default.input({ chip: GPIO_CHIP, line: DOUT_LINE });
+const pd_sck = Default.output({ chip: GPIO_CHIP, line: PD_SCK_LINE });
 const transport = new HX711Transport(dout, pd_sck);
 const chip = new HX711Full(transport);
 
