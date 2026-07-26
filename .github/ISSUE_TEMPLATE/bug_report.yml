@@ -1,0 +1,72 @@
+name: Bug Report
+description: Report something that isn't working as expected
+title: "bug: <short description>"
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: How can this be reproduced? Include code snippets if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language / implementation
+      options:
+        - Python
+        - C++
+        - Node.js / Node-RED
+        - Rust
+        - JVM (Java / Kotlin / Groovy)
+        - Go
+        - Sigrok
+        - Other / not language-specific
+    validations:
+      required: true
+
+  - type: input
+    id: chip_or_transport
+    attributes:
+      label: Affected chip or transport
+      placeholder: e.g. BME280, I²C transport
+    validations:
+      required: false
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform / hardware
+      placeholder: e.g. Raspberry Pi 4, ESP32-S3, Linux host
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Logs, stack traces, or anything else relevant.
