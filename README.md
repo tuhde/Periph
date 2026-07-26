@@ -7,7 +7,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`) | Active |
-| C++ | Arduino, Linux GCC, Zephyr RTOS | Active |
+| C++ | Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
 | Go | Linux (`go build`, `golang.org/x/sys/unix`) and TinyGo (Raspberry Pi Pico W) | Active |
@@ -48,6 +48,8 @@ from periph.transport.i2c_linux import I2CTransport         # /dev/i2c-N
 #include "I2CTransport.h"         // Arduino Wire
 #include "I2CTransportLinux.h"    // Linux /dev/i2c-N via ioctl
 #include "I2CTransportZephyr.h"   // Zephyr RTOS I2C subsystem
+#include "I2CTransportESPIDF.h"   // ESP-IDF driver-ng i2c_master_dev_handle_t
+#include "I2CTransportPicoSDK.h"  // Raspberry Pi Pico SDK hardware_i2c
 ```
 
 **Node.js**
@@ -174,6 +176,8 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | Linux kernel (Python) | `python/test_linux.sh power/ina226` | Runs on host via `smbus2` |
 | Node.js | `nodejs/test.sh power/ina226` | Runs on host via `i2c-bus` |
 | Zephyr RTOS | `cpp/test_zephyr.sh power/ina226` | Builds with west, flashes, reads serial |
+| ESP-IDF | `cpp/test_espidf.sh power/ina226` | Builds with idf.py, flashes, reads serial |
+| Raspberry Pi Pico SDK | `cpp/test_picosdk.sh power/ina226` | Builds with CMake, flashes UF2, reads serial |
 | Rust (Linux) | `rust/test_linux.sh power/ina226` | Builds with cargo, runs on host |
 | Rust (ESP32-S3) | `rust/test_esp32s3.sh power/ina226` | Builds with esp toolchain, flashes, reads serial |
 | Go (Linux) | `go/test_linux.sh power/ina226` | Builds with go, runs on host |
@@ -181,7 +185,7 @@ Each chip has hardware tests for all platforms. Copy the relevant `testconfig.ex
 | JVM (Linux) | `jvm/test.sh power/ina226 [--lang kotlin\|groovy]` | Runs via JBang on Linux host |
 
 All runners produce `PASS`/`FAIL` lines and a final `===DONE: N passed, N failed===` line.
-`--compile-only` is supported by the Arduino, Linux GCC, and Zephyr runners.
+`--compile-only` is supported by the Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK runners.
 
 ## Architecture and workflow
 

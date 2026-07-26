@@ -8,7 +8,7 @@ A multi-language library for peripheral chips (sensors, actuators, etc.) connect
 
 Implementations:
 - **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`)
-- **C++** — Arduino, Linux GCC, and Zephyr RTOS
+- **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
 - **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy

@@ -115,7 +115,7 @@ transport.write_read(data: bytes, n: int) -> bytes
 ```
 
 ```cpp
-// C++ — same signatures used on Arduino, Linux, and Zephyr
+// C++ — same signatures used on Arduino, Linux, Zephyr, ESP-IDF, and Pico SDK
 transport.write(const uint8_t* data, size_t len);
 transport.read(uint8_t* buf, size_t len);
 transport.write_read(const uint8_t* data, size_t data_len, uint8_t* buf, size_t buf_len);
@@ -357,7 +357,7 @@ public:
 };
 ```
 
-The same `IOExpanderPin` class compiles on Arduino, Linux GCC, and Zephyr. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
+The same `IOExpanderPin` class compiles on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
 
 Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterrupt()` to `IOExpanderPin`. `mode` uses Arduino constants: `RISING`, `FALLING`, `CHANGE`, `HIGH`, `LOW`.
 
@@ -485,8 +485,7 @@ from periph.transport.i2c_linux import I2CTransport          # Linux
 
 ## C++ conventions
 
-Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
-Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all four; each target has its own transport.
+Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own transport.
 
 ### Chip drivers
 
@@ -505,30 +504,42 @@ Four supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **Raspberry
 | `I2CTransportLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
 | `I2CTransportZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
 | `I2CTransportESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.2), header-only |
-| `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
-| `SMBusTransportESPIDF.h` | PEC-capable variant | wraps `I2CTransportESPIDF` + software CRC-8 |
-| `SPITransport.h/.cpp` | Arduino SPI | |
-| `SPITransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
 | `I2CTransportPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
-| `SMBusTransport.h/.cpp`, `SMBusTransportLinux.h/.cpp` | PEC-capable variants | |
-| `SMBusTransportPicoSDK.h` | PEC-capable variant | wraps `I2CTransportPicoSDK` + software CRC-8 |
-| `SPITransport.h/.cpp` | Arduino SPI | |
+| `SMBusTransport.h/.cpp` | Arduino | PEC-capable variant of `I2CTransport` |
+| `SMBusTransportLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CTransportLinux` |
+| `SMBusTransportZephyr.h` | Zephyr RTOS | wraps the Zephyr `i2c` driver API, address validation + PEC, header-only |
+| `SMBusTransportESPIDF.h` | ESP-IDF | wraps `I2CTransportESPIDF` + software CRC-8, header-only |
+| `SMBusTransportPicoSDK.h` | Raspberry Pi Pico SDK | wraps `I2CTransportPicoSDK` + software CRC-8, header-only |
+| `SPITransport.h/.cpp` | Arduino | `SPIClass&` (or any compatible object) |
+| `SPITransportLinux.h/.cpp` | Linux GCC | `/dev/spidevBUS.DEVICE` via `spidev`, CS owned by the kernel driver |
+| `SPITransportZephyr.h` | Zephyr RTOS | wraps the Zephyr `spi` driver API, header-only |
+| `SPITransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
 | `SPITransportPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
 | `UARTTransport.h/.cpp` | Arduino | `HardwareSerial&` |
 | `UARTTransportLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
 | `UARTTransportZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
+| `UARTTransportESPIDF.h` | ESP-IDF | `uart_port_t` installed via `uart_driver_install()`, `gpio_num_t` DE pin for RS-485, header-only |
 | `UARTTransportPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
 | `NeoPixelTransport.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
+| `NeoPixelTransportLinux.h/.cpp` | Linux GCC | SPI bit-encoding via `spidev` |
 | `NeoPixelTransportZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
+| `NeoPixelTransportESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
 | `NeoPixelTransportPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
 | `HX711Transport.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
 | `HX711TransportLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
 | `HX711TransportZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
+| `HX711TransportESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
 | `HX711TransportPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
 | `SiPoTransport.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
 | `SiPoTransportLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
 | `SiPoTransportZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
+| `SiPoTransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoTransportPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
+| `DHTxxTransport.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
+| `DHTxxTransportLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
+| `DHTxxTransportZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
+| `DHTxxTransportESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
+| `DHTxxTransportPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |
 
 Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 

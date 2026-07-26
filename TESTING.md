@@ -164,7 +164,7 @@ cpp/test_zephyr.sh --compile-only power/ina226
 
 ### ESP-IDF (`cpp/test_espidf.sh`)
 
-**Prerequisites:** ESP-IDF ≥5.1 with `IDF_PATH` exported (or its `export.sh` sourced), `idf.py` on `PATH`, `pyserial` (`pip install pyserial`)
+**Prerequisites:** ESP-IDF ≥5.2 with `IDF_PATH` exported (or its `export.sh` sourced), `idf.py` on `PATH`, `pyserial` (`pip install pyserial`)
 
 **Config:** `cpp/testconfig_espidf` (copy from `testconfig_espidf.example`)
 
