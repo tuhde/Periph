@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.environmental.bme680 import BME680Full
 
-transport = I2CTransport(0x76)              # Open I²C transport, (i2c, addr)
-bme = BME680Full(transport)                              # Create BME680 driver, (transport)
+connection = I2CConnection(0x76)              # Open I²C connection, (i2c, addr)
+bme = BME680Full(connection)                              # Create BME680 driver, (connection)
 cid = bme.chip_id()                                     # Read chip ID, () → int
                                                          # returns 0x61 for BME680
 bme.configure(osrs_t=1, osrs_p=1, osrs_h=1, mode=0, filter=0)  # Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1, filter 0–7) → None

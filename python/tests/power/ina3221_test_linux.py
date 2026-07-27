@@ -1,5 +1,5 @@
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.power.ina3221 import INA3221Full
 
 passed = 0
@@ -29,8 +29,8 @@ def check_true(label, condition):
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
 I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x40'), 16)
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-ina = INA3221Full(transport)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+ina = INA3221Full(connection)
 
 check_eq('manufacturer_id', ina.manufacturer_id(), 0x5449)
 check_eq('die_id',          ina.die_id(),          0x3220)
@@ -70,5 +70,5 @@ check_true('wake: voltage non-negative', ina.voltage(1) >= 0.0)
 ina.reset()
 check_eq('reset: mfr_id still valid', ina.manufacturer_id(), 0x5449)
 
-transport.close()
+connection.close()
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

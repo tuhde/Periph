@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.power.ina3221 import INA3221Full
 
 import busio
@@ -30,8 +30,8 @@ def check_true(label, condition):
 
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-ina = INA3221Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+ina = INA3221Full(connection)
 
 check_eq('manufacturer_id', ina.manufacturer_id(), 0x5449)
 check_eq('die_id',          ina.die_id(),          0x3220)

@@ -5,21 +5,21 @@ class MCP4725Minimal:
     """MCP4725 single-channel 12-bit voltage-output DAC — minimal interface.
 
     Provides simple voltage output as a fraction of V_DD with no configuration
-    beyond the transport. Uses Fast Write (2-byte) for DAC register updates.
+    beyond the connection. Uses Fast Write (2-byte) for DAC register updates.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x60–0x61).
+        connection: Configured I²C connection pointing at the device (0x60–0x61).
     """
 
     _CMD_FAST_WRITE = 0x00
 
-    def __init__(self, transport):
-        """Initialize MCP4725Minimal and store the transport.
+    def __init__(self, connection):
+        """Initialize MCP4725Minimal and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        self._transport = transport
+        self._connection = connection
 
     def set_voltage(self, fraction):
         """Set the DAC output as a fraction of V_DD.
@@ -48,7 +48,7 @@ class MCP4725Minimal:
     def _fast_write(self, code, pd_mode=0):
         byte1 = ((pd_mode & 0x03) << 4) | ((code >> 8) & 0x0F)
         byte2 = code & 0xFF
-        self._transport.write(bytes([byte1, byte2]))
+        self._connection.write(bytes([byte1, byte2]))
 
 
 class MCP4725Full(MCP4725Minimal):
@@ -58,7 +58,7 @@ class MCP4725Full(MCP4725Minimal):
     and full register read-back of both DAC and EEPROM contents.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x60–0x61).
+        connection: Configured I²C connection pointing at the device (0x60–0x61).
     """
 
     _CMD_WRITE_DAC_EEPROM = 0x60
@@ -73,13 +73,13 @@ class MCP4725Full(MCP4725Minimal):
     PD_100K_GND    = 2
     PD_500K_GND    = 3
 
-    def __init__(self, transport):
-        """Initialize MCP4725Full and store the transport.
+    def __init__(self, connection):
+        """Initialize MCP4725Full and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        super().__init__(transport)
+        super().__init__(connection)
 
     def set_voltage_eeprom(self, fraction):
         """Set the DAC output and persist to EEPROM.
@@ -112,7 +112,7 @@ class MCP4725Full(MCP4725Minimal):
             dict: Contains code, voltage_fraction, power_down, eeprom_code,
                   eeprom_power_down, and eeprom_ready (bool).
         """
-        buf = self._transport.write_read(bytes([0x00]), 5)
+        buf = self._connection.write_read(bytes([0x00]), 5)
         rdy_bsy = bool(buf[0] & 0x80)
         por = bool(buf[0] & 0x40)
         pd_dac = (buf[0] >> 2) & 0x03
@@ -141,11 +141,11 @@ class MCP4725Full(MCP4725Minimal):
 
     def wake_up(self):
         """Send General Call Wake-Up (0x00, 0x09) to clear power-down bits."""
-        self._transport.write(bytes([self._ADDR_GENERAL_CALL, self._GC_WAKE]))
+        self._connection.write(bytes([self._ADDR_GENERAL_CALL, self._GC_WAKE]))
 
     def reset(self):
         """Send General Call Reset (0x00, 0x06) to trigger internal POR."""
-        self._transport.write(bytes([self._ADDR_GENERAL_CALL, self._GC_RESET]))
+        self._connection.write(bytes([self._ADDR_GENERAL_CALL, self._GC_RESET]))
 
     def is_eeprom_ready(self):
         """Check if the EEPROM write operation is complete.
@@ -153,15 +153,15 @@ class MCP4725Full(MCP4725Minimal):
         Returns:
             bool: True when a pending EEPROM write has finished.
         """
-        buf = self._transport.write_read(bytes([0x00]), 1)
+        buf = self._connection.write_read(bytes([0x00]), 1)
         return bool(buf[0] & 0x80)
 
     def _write_dac_eeprom(self, code, pd_mode=0):
         byte1 = self._CMD_WRITE_DAC_EEPROM | ((pd_mode & 0x03) << 1)
         byte2 = (code >> 4) & 0xFF
         byte3 = (code & 0x0F) << 4
-        self._transport.write(bytes([byte1, byte2, byte3]))
+        self._connection.write(bytes([byte1, byte2, byte3]))
 
     def _read_dac_code(self):
-        buf = self._transport.write_read(bytes([0x00]), 2)
+        buf = self._connection.write_read(bytes([0x00]), 2)
         return ((buf[0] & 0x0F) << 8) | buf[1]

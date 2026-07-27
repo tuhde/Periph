@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.spi_micropython import SPITransport
+from periph.connection.spi_micropython import SPIConnection
 from periph.chips.rfid.mfrc522 import MFRC522Full
 from machine import SPI, Pin
 
@@ -20,8 +20,8 @@ def check_true(label, condition):
 
 spi = SPI(1, baudrate=1000000, polarity=0, phase=0)
 cs  = Pin('P9', Pin.OUT)
-transport = SPITransport(spi, cs)
-mfrc = MFRC522Full(transport)
+connection = SPIConnection(spi, cs)
+mfrc = MFRC522Full(connection)
 
 # --- version ---
 chip_type, version = mfrc.version()

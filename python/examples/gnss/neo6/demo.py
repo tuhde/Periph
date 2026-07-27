@@ -1,23 +1,23 @@
-from periph.transport.uart_auto import UARTTransport
+from periph.connection.uart_auto import UARTConnection
 from periph.chips.gnss.neo6 import NEO6Full
 import time
 
 # To use I2C (DDC) instead of UART:
-#   from periph.transport.i2c_auto import I2CTransport
-#   transport = I2CTransport(0x42, bus=0, freq=100_000)
-#   gps = NEO6Full(transport, bus_type='i2c')
+#   from periph.connection.i2c_auto import I2CConnection
+#   connection = I2CConnection(0x42, bus=0, freq=100_000)
+#   gps = NEO6Full(connection, bus_type='i2c')
 # To use SPI instead of UART:
-#   from periph.transport.spi_auto import SPITransport
-#   transport = SPITransport(bus=1, cs_pin=5, baudrate=200_000)
-#   gps = NEO6Full(transport, bus_type='spi')
+#   from periph.connection.spi_auto import SPIConnection
+#   connection = SPIConnection(bus=1, cs_pin=5, baudrate=200_000)
+#   gps = NEO6Full(connection, bus_type='spi')
 
 # --- Portable GPS logger ---
 # The module self-configures at factory defaults (9600 baud NMEA, 1 Hz); no
 # CFG messages are needed for a basic position log. Runs for 60 seconds,
 # polling update() far faster than the 1 Hz sentence rate so no sentence is
 # missed, and prints one line per second once a fresh GGA has been parsed.
-transport = UARTTransport(port=1, baudrate=9600, tx=4, rx=5)
-gps = NEO6Full(transport)                             # Create NEO-6 driver, (transport, bus_type='uart')
+connection = UARTConnection(port=1, baudrate=9600, tx=4, rx=5)
+gps = NEO6Full(connection)                             # Create NEO-6 driver, (connection, bus_type='uart')
 
 start_ms = time.ticks_ms()
 while time.ticks_diff(time.ticks_ms(), start_ms) < 60_000:

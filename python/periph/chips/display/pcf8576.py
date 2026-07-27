@@ -10,7 +10,7 @@ class PCF8576Minimal:
     default multiplex mode.
 
     Args:
-        transport: Configured I2C transport pointing at the device.
+        connection: Configured I2C connection pointing at the device.
     """
 
     _ADDR_SA0_LOW  = 0x38
@@ -38,8 +38,8 @@ class PCF8576Minimal:
         0xCB, 0xCF, 0xE0, 0xEF, 0xEB,
     ]
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         self._backplanes = 4
         self._clear()
 
@@ -51,7 +51,7 @@ class PCF8576Minimal:
         for c in cmds[:-1]:
             out.append(0x80 | (c & 0x7F))
         out.append(cmds[-1] & 0x7F)
-        self._transport.write(bytes(out))
+        self._connection.write(bytes(out))
 
     def _send_commands_with_data(self, *cmds_and_data):
         out = bytearray()
@@ -64,7 +64,7 @@ class PCF8576Minimal:
                     out.append(item & 0x7F)
                 else:
                     out.append(0x80 | (item & 0x7F))
-        self._transport.write(bytes(out))
+        self._connection.write(bytes(out))
 
     def _clear(self):
         self._send_commands(self._cmd_mode(enable=True))
@@ -121,7 +121,7 @@ class PCF8576Full(PCF8576Minimal):
     for cascaded displays.
 
     Args:
-        transport: Configured I2C transport pointing at the device.
+        connection: Configured I2C connection pointing at the device.
     """
 
     BLINK_OFF     = 0
@@ -140,10 +140,10 @@ class PCF8576Full(PCF8576Minimal):
     BANK_0 = 0
     BANK_1 = 1
 
-    def __init__(self, transport):
+    def __init__(self, connection):
         self._enabled = True
         self._bias = self.BIAS_1_3
-        super().__init__(transport)
+        super().__init__(connection)
 
     def _mode_code(self, backplanes):
         return {

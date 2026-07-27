@@ -6,7 +6,7 @@ Requires _testconfig.py on the device with:
 import time
 import _testconfig as cfg
 from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.io_expander.mcp23017 import Mcp23017Minimal, Mcp23017Full
 
 passed = 0
@@ -34,8 +34,8 @@ def check_eq(label, got, expected):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-chip = Mcp23017Minimal(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+chip = Mcp23017Minimal(connection)
 
 check_eq('init_iodira', chip._direction[0], 0x7F)
 check_eq('init_iodirb', chip._direction[1], 0x7F)
@@ -81,7 +81,7 @@ chip.write_port(0, 0x00)
 pb = chip.read_port(1)
 check_eq('loopback_0x00', pb & 0x7F, 0x00)
 
-full = Mcp23017Full(transport)
+full = Mcp23017Full(connection)
 check_eq('full_init_iodira', full._direction[0], 0x7F)
 check_eq('full_init_iodirb', full._direction[1], 0x7F)
 
@@ -90,13 +90,13 @@ check_eq('pullup_a', full._pullup[0], 0x3F)
 full.configure_polarity(0, 0x00)
 
 full.set_default_value(0, 0x00)
-full.configure_interrupt(0, None, lambda m: None, mode='change')
-full.stop_interrupt(0)
+full.on_interrupt(lambda status: None, port=0, mode='change')
+full.off_interrupt(port=0)
 
-changed = full.clear_interrupt(0)
-check_true('clear_interrupt_range', 0 <= changed <= 0xFF)
+changed = full.poll_interrupt(0)
+check_true('poll_interrupt_range', 0 <= changed <= 0xFF)
 
-flags = full.read_interrupt_flags(0)
+flags = full.poll_interrupt(0)
 check_true('int_flags_range', 0 <= flags <= 0xFF)
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

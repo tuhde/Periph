@@ -1,5 +1,5 @@
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.environmental.bme680 import BME680Minimal, BME680Full
 
 passed = 0
@@ -8,9 +8,9 @@ failed = 0
 I2C_BUS = int(os.environ.get('LINUX_I2C_BUS', '1'))
 I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x76'), 16)
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
 
-bme = BME680Minimal(transport)
+bme = BME680Minimal(connection)
 
 t = bme.temperature()
 if t >= -40 and t <= 85:
@@ -36,7 +36,7 @@ else:
     print('FAIL humidity_range: got {}'.format(h))
     failed += 1
 
-bme_full = BME680Full(transport)
+bme_full = BME680Full(connection)
 if bme_full._osrs_t == 1 and bme_full._osrs_p == 1 and bme_full._osrs_h == 1:
     print('PASS default_oversampling')
     passed += 1
@@ -72,5 +72,5 @@ bme_full.reset()
 print('PASS reset')
 passed += 1
 
-transport.close()
+connection.close()
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

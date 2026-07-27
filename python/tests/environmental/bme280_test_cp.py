@@ -1,16 +1,16 @@
 import busio
 import time
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.environmental.bme280 import BME280Minimal, BME280Full
 
 passed = 0
 failed = 0
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 
-bme = BME280Minimal(transport)
+bme = BME280Minimal(connection)
 
 bme._dig_T1 = 27504
 bme._dig_T2 = 26435
@@ -57,7 +57,7 @@ else:
     print('FAIL humidity_compensation: expected 30-70 %RH, got {}'.format(h))
     failed += 1
 
-bme_full = BME280Full(transport)
+bme_full = BME280Full(connection)
 bme_full._mode = 0
 if bme_full._osrs_t == 1 and bme_full._osrs_p == 1 and bme_full._osrs_h == 1:
     print('PASS default_oversampling')

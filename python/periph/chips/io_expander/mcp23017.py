@@ -27,7 +27,7 @@ class Mcp23017Minimal:
     pins can be set/cleared/toggled without a read-modify-write transaction.
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
         addr: 7-bit I²C device address (default 0x20, range 0x20–0x27).
     """
 
@@ -45,8 +45,8 @@ class Mcp23017Minimal:
     _REG_OLATA  = 0x14
     _REG_OLATB  = 0x15
 
-    def __init__(self, transport, addr=0x20):
-        self._transport = transport
+    def __init__(self, connection, addr=0x20):
+        self._connection = connection
         self._addr = addr
         self._shadow = [0, 0]
         self._direction = [0x7F, 0x7F]
@@ -60,11 +60,11 @@ class Mcp23017Minimal:
         self._write_reg(self._REG_GPPUB, 0x00)
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg, n=1):
-        self._transport.write(bytes([reg]))
-        return self._transport.read(n)
+        self._connection.write(bytes([reg]))
+        return self._connection.read(n)
 
     def _write_port(self, port, mask):
         self._shadow[port & 1] = mask & 0xFF
@@ -236,10 +236,10 @@ class Mcp23017Full(Mcp23017Minimal):
     """MCP23017 full interface — extends minimal with pull-ups, polarity, and interrupts.
 
     Adds per-pin pull-up configuration (GPPU), optional INTA/INTB callbacks,
-    interrupt-on-change mode, default-compare mode, and clear_interrupt().
+    interrupt-on-change mode, default-compare mode, and poll_interrupt().
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
         addr: 7-bit I²C device address (default 0x20).
     """
 
@@ -260,8 +260,8 @@ class Mcp23017Full(Mcp23017Minimal):
     _REG_INTCAPA  = 0x10
     _REG_INTCAPB  = 0x11
 
-    def __init__(self, transport, addr=0x20):
-        self._transport = transport
+    def __init__(self, connection, addr=0x20):
+        self._connection = connection
         self._addr = addr
         self._shadow = [0, 0]
         self._direction = [0x7F, 0x7F]
@@ -274,10 +274,9 @@ class Mcp23017Full(Mcp23017Minimal):
         self._write_reg(self._REG_IPOLB, 0x00)
         self._write_reg(self._REG_GPPUA, 0x00)
         self._write_reg(self._REG_GPPUB, 0x00)
-        self._callback = None
-        self._int_pin = None
-        self._poll_thread = None
-        self._poll_stop = False
+        self._callback = [None, None]
+        self._poll_thread = [None, None]
+        self._poll_stop = [False, False]
 
     def configure_pullup(self, port, mask):
         """Enable/disable per-pin 100 kΩ pull-ups on a port.
@@ -301,34 +300,70 @@ class Mcp23017Full(Mcp23017Minimal):
         """
         self._write_reg(self._REG_IPOLA + (port & 1), mask)
 
-    def configure_interrupt(self, port, int_pin, callback, mode='change', mirror=False):
-        """Enable interrupt for a port.
+    def on_interrupt(self, callback, port=None, int_pin=None, mode='change', mirror=False):
+        """Subscribe to INT assertions.
+
+        Level 3: the chip has two independent INT lines (INTA/INTB), one per
+        port. Subscribing to both ports at once (port=None) is the common
+        case; callback then receives (port: int, status: int). Subscribing a
+        single port passes callback(status: int) instead.
+
+        Delivery: if int_pin is given, it is wired directly (useful when INTA
+        and INTB are wired to two separate GPIOs). Otherwise falls back to
+        connection.int_pin (typical when IOCON.MIRROR ties both lines
+        together into one physical GPIO), or a 5 ms polling thread on Linux
+        if neither is available.
 
         Args:
-            port: Port index, 0 = PORTA, 1 = PORTB.
-            int_pin: Hardware GPIO pin connected to the chip's INT line,
-                     or None to use a 5 ms polling thread (Linux only).
-            callback: Callable(changed_mask: int) called with 8-bit bitmask
-                      of pins that changed when an interrupt fires.
+            callback: Callable(port, status) if port=None, else Callable(status).
+            port: None (default) to subscribe both ports; 0 or 1 for one port.
+            int_pin: Optional InputPin for this call, overriding connection.int_pin.
             mode: 'change' compares against previous pin value;
                   'default' compares against DEFVAL register.
             mirror: If True, sets IOCON.MIRROR so either port's interrupt
                     activates both INTA and INTB.
         """
-        self._callback = callback
-        self._int_pin = int_pin
-        intcon_reg = self._REG_INTCONA + (port & 1)
-        intcon_val = 0 if mode == 'change' else 0xFF
-        self._write_reg(intcon_reg, intcon_val)
-        self._write_reg(self._REG_GPINTENA + (port & 1), 0xFF)
+        ports = [0, 1] if port is None else [port & 1]
+        for p in ports:
+            self._callback[p] = (lambda status, p=p: callback(p, status)) if port is None else callback
+            intcon_val = 0 if mode == 'change' else 0xFF
+            self._write_reg(self._REG_INTCONA + p, intcon_val)
+            self._write_reg(self._REG_GPINTENA + p, 0xFF)
+
         iocon = self._read_reg(self._REG_IOCON, 1)[0]
         if mirror:
             iocon |= (1 << 6)
         self._write_reg(self._REG_IOCON, iocon)
-        if int_pin is None and _LINUX:
-            self._poll_stop = False
-            self._poll_thread = _threading.Thread(target=self._poll_loop, daemon=True)
-            self._poll_thread.start()
+
+        pin = int_pin if int_pin is not None else self._connection.int_pin
+        for p in ports:
+            if pin is not None:
+                from periph.connection.input_pin import InputPin
+                pin.on_edge(lambda p=p: self._int_handler(p), InputPin.FALLING)
+            elif _LINUX:
+                self._poll_stop[p] = False
+                self._poll_thread[p] = _threading.Thread(
+                    target=self._poll_loop, args=(p,), daemon=True)
+                self._poll_thread[p].start()
+
+    def off_interrupt(self, port=None):
+        """Unsubscribe and stop delivery.
+
+        Args:
+            port: None (default) to unsubscribe both ports; 0 or 1 for one port.
+        """
+        ports = [0, 1] if port is None else [port & 1]
+        pin = self._connection.int_pin
+        for p in ports:
+            self._write_reg(self._REG_GPINTENA + p, 0x00)
+            if pin is None:
+                self._poll_stop[p] = True
+            self._callback[p] = None
+
+    def _int_handler(self, port):
+        status = self.poll_interrupt(port)
+        if status and self._callback[port]:
+            self._callback[port](status)
 
     def set_default_value(self, port, mask):
         """Set DEFVAL register for default-compare interrupt mode.
@@ -339,8 +374,30 @@ class Mcp23017Full(Mcp23017Minimal):
         """
         self._write_reg(self._REG_DEFVALA + (port & 1), mask)
 
-    def clear_interrupt(self, port):
-        """Read INTCAP and return captured port state; clears INT for the port.
+    def poll_interrupt(self, port):
+        """Read & clear interrupt status; returns the raw INTF flag register.
+
+        Reads INTFA/INTFB (which pins triggered) then INTCAPA/INTCAPB (which
+        clears the interrupt latch and re-arms it). Note that reading either
+        INTCAP or GPIO clears the interrupt condition on this chip — call
+        poll_interrupt() or read_capture() per event, not both.
+
+        Args:
+            port: Port index, 0 = PORTA, 1 = PORTB.
+
+        Returns:
+            int: 8-bit interrupt flag mask; bit n = 1 if pin n triggered.
+        """
+        flags = self._read_reg(self._REG_INTFA + (port & 1), 1)[0]
+        self._read_reg(self._REG_INTCAPA + (port & 1), 1)
+        return flags
+
+    def read_capture(self, port):
+        """Read INTCAP: the port state latched at the moment of the interrupt.
+
+        Also clears the interrupt latch (see poll_interrupt() docstring) —
+        call this instead of poll_interrupt() when the captured pin state is
+        wanted rather than the flag register.
 
         Args:
             port: Port index, 0 = PORTA, 1 = PORTB.
@@ -350,73 +407,70 @@ class Mcp23017Full(Mcp23017Minimal):
         """
         return self._read_reg(self._REG_INTCAPA + (port & 1), 1)[0]
 
-    def read_interrupt_flags(self, port):
-        """Read INTFA/INTFB without clearing the interrupt.
-
-        Args:
-            port: Port index, 0 = PORTA, 1 = PORTB.
-
-        Returns:
-            int: 8-bit interrupt flag mask.
-        """
-        return self._read_reg(self._REG_INTFA + (port & 1), 1)[0]
-
-    def stop_interrupt(self, port):
-        """Disable interrupt for the port.
-
-        Args:
-            port: Port index, 0 = PORTA, 1 = PORTB.
-        """
-        self._write_reg(self._REG_GPINTENA + (port & 1), 0x00)
-        if self._poll_stop is False:
-            self._poll_stop = True
-
-    def _poll_loop(self):
-        prev = [self._read_port_raw(0), self._read_port_raw(1)]
-        while not self._poll_stop:
-            curr0 = self._read_port_raw(0)
-            curr1 = self._read_port_raw(1)
-            changed0 = curr0 ^ prev[0]
-            changed1 = curr1 ^ prev[1]
-            if changed0 and self._callback:
-                self._callback(changed0)
-            if changed1 and self._callback:
-                self._callback(changed1)
-            prev = [curr0, curr1]
+    def _poll_loop(self, port):
+        prev = self._read_port_raw(port)
+        while not self._poll_stop[port]:
+            curr = self._read_port_raw(port)
+            changed = curr ^ prev
+            if changed and self._callback[port]:
+                self._callback[port](changed)
+            prev = curr
             import time
             time.sleep(0.005)
 
     class _Pin(Mcp23017Minimal._Pin):
-        """Full GPIO proxy — adds irq() for interrupt-driven input."""
+        """Full GPIO proxy — adds watch()/unwatch() for interrupt-driven input."""
 
-        def irq(self, handler, trigger):
-            """Register an interrupt handler for this pin.
+        def watch(self, handler, trigger=None):
+            """Subscribe to this pin's edge events.
 
             Args:
                 handler: Callable(pin) invoked when the pin matches trigger.
-                trigger: Mcp23017Full.IRQ_RISING or IRQ_FALLING.
+                trigger: Mcp23017Full.IRQ_RISING, .IRQ_FALLING, or None
+                    (default) for either edge (CHANGE).
             """
             n = self._n
+            bit = self._bit
             chip = self._chip
-            trigger_val = 1 if trigger == Mcp23017Full.IRQ_RISING else 0
+            trigger_val = None if trigger is None else (1 if trigger == Mcp23017Full.IRQ_RISING else 0)
 
-            def _wrap(changed_mask):
-                if (changed_mask >> n) & 1:
-                    current = (chip._read_port_raw(self._port) >> n) & 1
-                    if current == trigger_val:
+            def _wrap(status):
+                if (status >> bit) & 1:
+                    current = (chip._read_port_raw(self._port) >> bit) & 1
+                    if trigger_val is None or current == trigger_val:
                         handler(self)
 
-            chip._pin_handlers = getattr(chip, '_pin_handlers', {})
-            chip._pin_handlers[n] = _wrap
-            orig_cb = chip._callback
+            chip._pin_handlers = getattr(chip, '_pin_handlers', [{}, {}])
+            chip._pin_handlers[self._port][n] = _wrap
+            self._install_dispatch(chip, self._port)
 
-            def _combined(changed_mask):
+        def unwatch(self):
+            """Unsubscribe this pin's handler. No-op if not registered."""
+            handlers = getattr(self._chip, '_pin_handlers', [{}, {}])
+            handlers[self._port].pop(self._n, None)
+
+        @staticmethod
+        def _install_dispatch(chip, port):
+            """Wire chip._callback[port] to fan out to every registered pin handler.
+
+            Idempotent: only wraps once per port regardless of how many pins
+            call watch(), avoiding the double-dispatch that re-wrapping on
+            every call would otherwise cause.
+            """
+            installed = getattr(chip, '_pin_dispatch_installed', [False, False])
+            chip._pin_dispatch_installed = installed
+            if installed[port]:
+                return
+            installed[port] = True
+            orig_cb = chip._callback[port]
+
+            def _combined(status):
                 if orig_cb:
-                    orig_cb(changed_mask)
-                for fn in chip._pin_handlers.values():
-                    fn(changed_mask)
+                    orig_cb(status)
+                for fn in list(chip._pin_handlers[port].values()):
+                    fn(status)
 
-            chip._callback = _combined
+            chip._callback[port] = _combined
 
     class _CPPin(Mcp23017Minimal._CPPin):
         """Full CircuitPython pin — supports pull-up."""

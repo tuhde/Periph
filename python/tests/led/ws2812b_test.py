@@ -1,5 +1,5 @@
 import _testconfig as cfg
-from periph.transport.neopixel_micropython import NeoPixelTransport
+from periph.connection.neopixel_micropython import NeoPixelConnection
 from periph.chips.led.ws2812b import WS2812BMinimal, WS2812BFull
 
 from machine import SPI, SoftSPI, Pin
@@ -31,10 +31,10 @@ def check_eq(label, got, expected):
 
 spi = SoftSPI(baudrate=2_400_000, polarity=0, phase=0,
               sck=Pin(cfg.SCK), mosi=Pin(cfg.MOSI), miso=Pin(cfg.MISO))
-transport = NeoPixelTransport(spi)
+connection = NeoPixelConnection(spi)
 
 # --- WS2812BMinimal ---
-strip = WS2812BMinimal(transport, 8)
+strip = WS2812BMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -53,7 +53,7 @@ strip.fill(300, -10, 1000)
 check_true('fill clamps out-of-range values', True)
 
 # --- WS2812BFull ---
-full = WS2812BFull(transport, 8)
+full = WS2812BFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 

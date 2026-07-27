@@ -1,8 +1,8 @@
-from periph.transport.dhtxx_auto import DHTxxTransport
+from periph.connection.dhtxx_auto import DHTxxConnection
 from periph.chips.humidity.dht11 import DHT11Minimal
 
-transport = DHTxxTransport(4)
-dht = DHT11Minimal(transport)                       # Create DHT11 driver, (transport)
+connection = DHTxxConnection(4)
+dht = DHT11Minimal(connection)                       # Create DHT11 driver, (connection)
 
 for _ in range(5):
     t, h = dht.read()                              # Read temperature & humidity, () → (float °C, float %RH)

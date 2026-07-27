@@ -1,7 +1,7 @@
 import sys
 import time
 
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.gas.ens160 import ENS160Full
 
 try:
@@ -24,12 +24,12 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(_ADDR)
+connection = I2CConnection(_ADDR)
 
 # Use ENS160Full throughout — it inherits all ENS160Minimal methods.
-# Creating a second driver instance on the same transport would re-run
+# Creating a second driver instance on the same connection would re-run
 # __init__ (IDLE → STANDARD), resetting the warm-up timer.
-sensor = ENS160Full(transport)
+sensor = ENS160Full(connection)
 check_true('init', True)
 
 status = sensor.status()
@@ -80,7 +80,7 @@ time.sleep(0.1)
 sensor.wake()
 check_true('wake', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 try:

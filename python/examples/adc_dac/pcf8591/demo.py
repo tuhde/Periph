@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.adc_dac.pcf8591 import PCF8591Full
 import time
 
-transport = I2CTransport(bus=1, addr=0x48)          # Create I2C transport, (bus, addr)
-adc = PCF8591Full(transport)                         # Create PCF8591 driver, (transport)
+connection = I2CConnection(bus=1, addr=0x48)          # Create I2C connection, (bus, addr)
+adc = PCF8591Full(connection)                         # Create PCF8591 driver, (connection)
 
 # --- Wire a potentiometer across VAGND–VREF with the wiper to AIN0 ---
 # Connect an LED (with series resistor) to AOUT. In a loop, read AIN0, map

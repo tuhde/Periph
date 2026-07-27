@@ -1,6 +1,6 @@
 import _testconfig as cfg
 from machine import UART, Pin
-from periph.transport.uart_micropython import UARTTransport
+from periph.connection.uart_micropython import UARTConnection
 from periph.chips.gnss.neo6 import NEO6Minimal
 
 passed = 0
@@ -21,8 +21,8 @@ def check_true(label, condition):
 # actual fix needs an outdoor antenna and can take up to ~26 s (cold start);
 # this test only requires that well-typed values come back, not a fix.
 uart = UART(cfg.UART_ID, baudrate=9600, tx=Pin(cfg.UART_TX), rx=Pin(cfg.UART_RX), timeout=1000)
-transport = UARTTransport(uart, baudrate=9600)
-gps = NEO6Minimal(transport)
+connection = UARTConnection(uart, baudrate=9600)
+gps = NEO6Minimal(connection)
 
 check_true('fix() starts at 0', gps.fix() == 0)
 check_true('latitude() starts at None', gps.latitude() is None)

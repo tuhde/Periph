@@ -1,5 +1,5 @@
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.display.pcf8576 import PCF8576Minimal, PCF8576Full
 
 passed = 0
@@ -8,9 +8,9 @@ failed = 0
 I2C_BUS = int(os.environ.get('LINUX_I2C_BUS', '1'))
 I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x38'), 16)
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
 
-lcd = PCF8576Minimal(transport)
+lcd = PCF8576Minimal(connection)
 
 expected = 0x40
 got = lcd._cmd_mode(enable=False)
@@ -53,7 +53,7 @@ except Exception as e:
     print('FAIL set_digit_7seg: {}'.format(e))
     failed += 1
 
-lcd_full = PCF8576Full(transport)
+lcd_full = PCF8576Full(connection)
 try:
     lcd_full.enable()
     lcd_full.disable()
@@ -100,5 +100,5 @@ except Exception as e:
     print('FAIL device_select: {}'.format(e))
     failed += 1
 
-transport.close()
+connection.close()
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

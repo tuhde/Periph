@@ -7,7 +7,7 @@ import time
 import board
 import busio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.io_expander.mcp23017 import Mcp23017Minimal, Mcp23017Full
 
 passed = 0
@@ -35,8 +35,8 @@ def check_eq(label, got, expected):
 
 
 i2c = busio.I2C(board.SCL, board.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-chip = Mcp23017Minimal(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+chip = Mcp23017Minimal(connection)
 
 check_eq('init_iodira', chip._direction[0], 0x7F)
 check_eq('init_iodirb', chip._direction[1], 0x7F)
@@ -75,11 +75,11 @@ chip.write_port(0, 0x00)
 pb = chip.read_port(1)
 check_eq('loopback_0x00', pb & 0x7F, 0x00)
 
-full = Mcp23017Full(transport)
+full = Mcp23017Full(connection)
 full.configure_pullup(0, 0x3F)
 check_eq('pullup_a', full._pullup[0], 0x3F)
 
-full.configure_interrupt(0, None, lambda m: None, mode='change')
-full.stop_interrupt(0)
+full.on_interrupt(lambda status: None, port=0, mode='change')
+full.off_interrupt(port=0)
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

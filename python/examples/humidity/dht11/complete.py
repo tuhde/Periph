@@ -1,8 +1,8 @@
-from periph.transport.dhtxx_auto import DHTxxTransport
+from periph.connection.dhtxx_auto import DHTxxConnection
 from periph.chips.humidity.dht11 import DHT11Full
 
-transport = DHTxxTransport(4)
-dht = DHT11Full(transport, 3)                       # Create DHT11 driver, (transport, max_retries=3)
+connection = DHTxxConnection(4)
+dht = DHT11Full(connection, 3)                       # Create DHT11 driver, (connection, max_retries=3)
 
 t = dht.read_temperature()                          # Read temperature, () → float °C
                                                      # returns a fresh conversion each call

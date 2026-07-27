@@ -6,7 +6,7 @@ class MPU6050Minimal:
     """MPU-6050 6-axis MotionTracking device (accelerometer + gyroscope) — minimal interface.
 
     Provides 3-axis acceleration and 3-axis angular rate readings with no
-    configuration beyond the transport. Performs device reset, WHO_AM_I check,
+    configuration beyond the connection. Performs device reset, WHO_AM_I check,
     and enables all sensors at defaults during initialization.
 
     Default configuration (baked in at construction):
@@ -17,7 +17,7 @@ class MPU6050Minimal:
         - Clock: PLL with gyro X reference (CLKSEL=1)
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
     """
 
     _REG_SMPLRT_DIV   = 0x19
@@ -44,8 +44,8 @@ class MPU6050Minimal:
     _ACCEL_SENSITIVITY = (16384.0, 8192.0, 4096.0, 2048.0)
     _GYRO_SENSITIVITY  = (131.0, 65.5, 32.8, 16.4)
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         self._accel_fs = 0
         self._gyro_fs = 0
         self._write_reg(self._REG_PWR_MGMT_1, 0x80)
@@ -62,17 +62,17 @@ class MPU6050Minimal:
         time.sleep(0.035)
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg):
-        return self._transport.write_read(bytes([reg]), 1)[0]
+        return self._connection.write_read(bytes([reg]), 1)[0]
 
     def _read_reg16_signed(self, reg):
-        raw = self._transport.write_read(bytes([reg]), 2)
+        raw = self._connection.write_read(bytes([reg]), 2)
         return struct.unpack('>h', raw)[0]
 
     def _read_burst(self, reg, n):
-        return self._transport.write_read(bytes([reg]), n)
+        return self._connection.write_read(bytes([reg]), n)
 
     def accel(self):
         """Read 3-axis linear acceleration.
@@ -107,11 +107,11 @@ class MPU6050Full(MPU6050Minimal):
     sleep/standby control, and FIFO management.
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
     """
 
-    def __init__(self, transport):
-        super().__init__(transport)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure_gyro(self, full_scale=0):
         """Set gyroscope full-scale range.

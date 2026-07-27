@@ -1,6 +1,6 @@
 import os
 
-from periph.transport.neopixel_linux import NeoPixelTransport
+from periph.connection.neopixel_linux import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWMinimal, SK6812RGBWFull
 
 SPI_BUS    = int(os.environ.get('SPI_BUS',    '0'))
@@ -30,10 +30,10 @@ def check_eq(label, got, expected):
         failed += 1
 
 
-transport = NeoPixelTransport(SPI_BUS, SPI_DEVICE)
+connection = NeoPixelConnection(SPI_BUS, SPI_DEVICE)
 
 # --- SK6812RGBWMinimal ---
-strip = SK6812RGBWMinimal(transport, 8)
+strip = SK6812RGBWMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -54,7 +54,7 @@ strip.fill(300, -10, 1000, 500)
 check_true('fill clamps out-of-range values', True)
 
 # --- SK6812RGBWFull ---
-full = SK6812RGBWFull(transport, 8)
+full = SK6812RGBWFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 
@@ -92,6 +92,6 @@ check_true('fill_hsv(0.667) accepted', True)
 full.off()
 check_true('off() on Full accepted', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

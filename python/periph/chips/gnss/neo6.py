@@ -43,19 +43,19 @@ def _ubx_checksum(data):
 class NEO6Minimal:
     """u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status.
 
-    Reads bytes from the transport and assembles complete NMEA sentences
+    Reads bytes from the connection and assembles complete NMEA sentences
     terminated by CR/LF. Works out of the box with the module's factory
     defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences
     enabled) -- no chip-side configuration is sent.
 
-    The driver is transport-agnostic; pass bus_type to match the transport
+    The driver is connection-agnostic; pass bus_type to match the connection
     given at construction:
 
-    - 'uart' (default): a UART transport. read() blocks with a timeout;
+    - 'uart' (default): a UART connection. read() blocks with a timeout;
       a timeout is treated as "no new byte this call", not an error.
-    - 'i2c': an I2C (DDC) transport. Each byte is fetched with a
+    - 'i2c': an I2C (DDC) connection. Each byte is fetched with a
       random-read to register 0xFF, per the DDC protocol.
-    - 'spi': an SPI transport. Each byte is fetched with a full-duplex
+    - 'spi': an SPI connection. Each byte is fetched with a full-duplex
       transfer; write_read() is called with an empty command so the
       module's real output byte is never discarded mid-transfer.
 
@@ -66,7 +66,7 @@ class NEO6Minimal:
     other corrupted sentence.
 
     Args:
-        transport: Transport instance (UART, I2C, or SPI).
+        connection: Connection instance (UART, I2C, or SPI).
         bus_type: 'uart', 'i2c', or 'spi'; default 'uart'.
     """
 
@@ -75,8 +75,8 @@ class NEO6Minimal:
     _LF = 0x0A
     _MAX_SENTENCE = 96
 
-    def __init__(self, transport, bus_type='uart'):
-        self._transport = transport
+    def __init__(self, connection, bus_type='uart'):
+        self._connection = connection
         self._bus_type = bus_type
         self._buf = bytearray()
         self._in_sentence = False
@@ -90,14 +90,14 @@ class NEO6Minimal:
         """Fetch one byte if available; return None if none is ready yet."""
         if self._bus_type == 'uart':
             try:
-                b = self._transport.read(1)
+                b = self._connection.read(1)
             except OSError:
                 return None
         elif self._bus_type == 'i2c':
             # DDC random-read: set the register pointer to 0xFF, then read
             # one stream byte. The pointer saturates at 0xFF once set, so
             # re-sending it on every byte is redundant but harmless.
-            b = self._transport.write_read(b'\xff', 1)
+            b = self._connection.write_read(b'\xff', 1)
         else:
             # SPI has no register-address concept, so the write phase must
             # stay empty: write_read(prefix, n) clocks prefix's response
@@ -105,7 +105,7 @@ class NEO6Minimal:
             # throw away a real byte of the module's output stream. An
             # empty prefix makes the whole call one true 1:1 full-duplex
             # transfer, so no incoming byte is ever discarded.
-            b = self._transport.write_read(b'', 1)
+            b = self._connection.write_read(b'', 1)
         return b[0] if b else None
 
     def update(self):
@@ -234,8 +234,8 @@ class NEO6Full(NEO6Minimal):
     _ID_ACK_NAK = 0x00
     _ID_ACK_ACK = 0x01
 
-    def __init__(self, transport, bus_type='uart'):
-        super().__init__(transport, bus_type)
+    def __init__(self, connection, bus_type='uart'):
+        super().__init__(connection, bus_type)
         self._speed = None
         self._course = None
         self._utc_time = None
@@ -343,7 +343,7 @@ class NEO6Full(NEO6Minimal):
         body = bytes([msg_class, msg_id, length & 0xFF, (length >> 8) & 0xFF]) + bytes(payload)
         ck_a, ck_b = _ubx_checksum(body)
         frame = bytes([self._UBX_SYNC1, self._UBX_SYNC2]) + body + bytes([ck_a, ck_b])
-        self._transport.write(frame)
+        self._connection.write(frame)
 
     def poll_ubx(self, msg_class, msg_id):
         """Send a poll request and return the response payload.

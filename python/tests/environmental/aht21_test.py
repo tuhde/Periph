@@ -1,7 +1,7 @@
 import sys
 import time
 
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.environmental.aht21 import AHT21Full
 
 passed = 0
@@ -18,8 +18,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(0x38)
-aht = AHT21Full(transport)
+connection = I2CConnection(0x38)
+aht = AHT21Full(connection)
 
 check_true('is_calibrated', aht.is_calibrated())
 check_true('not busy at idle', not aht.is_busy())
@@ -47,7 +47,7 @@ r2 = aht.read()
 check_true('read after reset: temperature range', r2['temperature_c'] >= -40.0 and r2['temperature_c'] <= 120.0)
 check_true('read after reset: humidity range', r2['humidity_pct'] >= 0.0 and r2['humidity_pct'] <= 100.0)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 try:

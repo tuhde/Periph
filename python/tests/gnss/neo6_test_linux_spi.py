@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.spi_linux import SPITransport
+from periph.connection.spi_linux import SPIConnection
 from periph.chips.gnss.neo6 import NEO6Minimal
 
 SPI_BUS    = int(os.environ.get('LINUX_SPI_BUS', '0'))
@@ -26,8 +26,8 @@ def check_true(label, condition):
 # ~26 s (cold start); this test only requires that well-typed values come
 # back. SPI reads use write_read() with an empty command so every response
 # byte is captured (see NEO6Minimal._read_byte).
-transport = SPITransport(SPI_BUS, SPI_DEVICE, mode=0, max_speed_hz=200_000)
-gps = NEO6Minimal(transport, bus_type='spi')
+connection = SPIConnection(SPI_BUS, SPI_DEVICE, mode=0, max_speed_hz=200_000)
+gps = NEO6Minimal(connection, bus_type='spi')
 
 check_true('fix() starts at 0', gps.fix() == 0)
 check_true('latitude() starts at None', gps.latitude() is None)
@@ -44,7 +44,7 @@ if gps.fix() > 0:
 else:
     print('note: no fix acquired during the test window (needs sky view)')
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

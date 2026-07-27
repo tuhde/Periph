@@ -1,9 +1,14 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
+from periph.connection.input_pin import MicroPythonPin
 from periph.chips.io_expander.pcf8574 import Pcf8574Minimal, Pcf8574Full
+from machine import Pin
 import time
 
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Pcf8574Full(transport)                                   # Create PCF8574 full driver, (transport, addr=0x20)
+int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                          # Hardware INT pin, (pin=5, mode=IN, pull=PULL_UP)
+int_pin = MicroPythonPin(int_hw)                              # Wrap as InputPin, (pin) → InputPin
+
+connection = I2CConnection(0x20, int_pin=int_pin)           # Create I2C connection, (i2c, addr=0x20, int_pin=None, en_pin=None)
+chip = Pcf8574Full(connection)                                   # Create PCF8574 full driver, (connection, addr=0x20)
                                                                # initialises all 8 pins as inputs; shadow = 0xFF
 
 # --- Direction and value via pin proxy ---
@@ -38,15 +43,13 @@ state = p4.value()                                             # Read actual lev
                                                                # returns 0 if button pulls P4 low, 1 if floating high
 
 # --- Interrupt-on-change (Full) ---
-int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                          # Hardware INT pin, (pin=5, mode=IN, pull=PULL_UP)
-
 def on_change(changed_mask):                                   # Interrupt callback, (changed_mask: int) → None
     print("changed:", bin(changed_mask))
 
-chip.configure_interrupt(int_hw, on_change)                    # Attach interrupt, (int_pin, callback) → None
-                                                               # hooks IRQ_FALLING on int_hw; fires callback on any input change
+chip.on_interrupt(on_change)                                   # Subscribe to interrupts, (callback) → None
+                                                               # wires connection.int_pin.on_edge(); fires callback on any input change
 
-changed = chip.clear_interrupt()                               # Read port and return changed bitmask, () → int
+changed = chip.poll_interrupt()                                # Read port and return changed bitmask, () → int
                                                                # compares current byte to previous read; clears INT line
 
 time.sleep(1)

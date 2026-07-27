@@ -6,14 +6,14 @@ class BMP180Minimal:
     """BMP180 piezo-resistive pressure + temperature sensor — minimal interface.
 
     Provides calibrated temperature (°C) and pressure (hPa) readings with no
-    configuration beyond the transport. The BMP180 has a fixed I²C address (0x77)
+    configuration beyond the connection. The BMP180 has a fixed I²C address (0x77)
     and no programmable address pin; only one BMP180 can exist on a single bus.
 
     Default configuration (baked in at construction):
         - OSS = 0 (Ultra Low Power, 4.5 ms conversion)
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
     """
 
     _REG_ID         = 0xD0
@@ -33,13 +33,13 @@ class BMP180Minimal:
 
     _CONVERSION_TIME = 0.0045
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         self._oss = 0
         self._read_calibration()
 
     def _read_calibration(self):
-        data = self._transport.write_read(bytes([self._REG_CAL_START]), 22)
+        data = self._connection.write_read(bytes([self._REG_CAL_START]), 22)
         ac1 = struct.unpack('>h', data[0:2])[0]
         ac2 = struct.unpack('>h', data[2:4])[0]
         ac3 = struct.unpack('>h', data[4:6])[0]
@@ -69,12 +69,12 @@ class BMP180Minimal:
         self._md  = md
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_raw_temp(self):
         self._write_reg(self._REG_CTRL_MEAS, self._CMD_TEMP)
         time.sleep(self._CONVERSION_TIME)
-        data = self._transport.write_read(bytes([self._REG_OUT_MSB]), 2)
+        data = self._connection.write_read(bytes([self._REG_OUT_MSB]), 2)
         return (data[0] << 8) | data[1]
 
     def _read_raw_pressure(self):
@@ -82,7 +82,7 @@ class BMP180Minimal:
         self._write_reg(self._REG_CTRL_MEAS, cmd)
         conv_time = (0.0045, 0.0075, 0.0135, 0.0255)[self._oss]
         time.sleep(conv_time)
-        data = self._transport.write_read(bytes([self._REG_OUT_MSB]), 3)
+        data = self._connection.write_read(bytes([self._REG_OUT_MSB]), 3)
         up = ((data[0] << 16) | (data[1] << 8) | data[2]) >> (8 - self._oss)
         return up
 
@@ -165,7 +165,7 @@ class BMP180Full(BMP180Minimal):
         OSS_ULTRA_HIGH_RES — Ultra High Resolution (oss=3, 25.5 ms)
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
         oss: Oversampling mode 0–3 (default 0 = ULP).
     """
 
@@ -174,8 +174,8 @@ class BMP180Full(BMP180Minimal):
     OSS_HIGH_RES       = 2
     OSS_ULTRA_HIGH_RES = 3
 
-    def __init__(self, transport, oss=0):
-        super().__init__(transport)
+    def __init__(self, connection, oss=0):
+        super().__init__(connection)
         self._oss = oss & 0x03
 
     def oversampling(self):
@@ -224,7 +224,7 @@ class BMP180Full(BMP180Minimal):
         Returns:
             int: Chip ID; expect 0x55.
         """
-        data = self._transport.write_read(bytes([self._REG_ID]), 1)
+        data = self._connection.write_read(bytes([self._REG_ID]), 1)
         return data[0]
 
     def reset(self):

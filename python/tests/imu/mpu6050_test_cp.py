@@ -1,7 +1,7 @@
 import time
 import busio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.imu.mpu6050 import MPU6050Full
 
 passed = 0
@@ -29,8 +29,8 @@ def check_true(label, condition):
 
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-imu = MPU6050Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+imu = MPU6050Full(connection)
 
 check_eq('who_am_i', imu._read_reg(imu._REG_WHO_AM_I), 0x68)
 

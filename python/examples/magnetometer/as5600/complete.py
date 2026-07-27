@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.magnetometer.as5600 import AS5600Full
 import time
 
-transport = I2CTransport(0x36)
-as5600 = AS5600Full(transport)                             # Create AS5600 driver, (transport) → AS5600Full
+connection = I2CConnection(0x36)
+as5600 = AS5600Full(connection)                             # Create AS5600 driver, (connection) → AS5600Full
 
 # --- Status and magnet checks ---
 print(as5600.is_magnet_detected())                       # Check magnet present, () → bool

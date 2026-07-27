@@ -1,13 +1,13 @@
-from periph.transport.neopixel_auto import NeoPixelTransport
+from periph.connection.neopixel_auto import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWFull
 import time
 
-transport = NeoPixelTransport(mosi=19, sck=18, miso=20)                               # Create NeoPixel transport, (spi)
-strip = SK6812RGBWFull(transport, 8)                             # Create SK6812RGBW full driver, (transport, n=8 pixels)
+connection = NeoPixelConnection(mosi=19, sck=18, miso=20)                               # Create NeoPixel connection, (spi)
+strip = SK6812RGBWFull(connection, 8)                             # Create SK6812RGBW full driver, (connection, n=8 pixels)
 
 # fill — set all pixels and send immediately
 strip.fill(255, 0, 0)                                            # Fill all pixels with one colour, (r=0–255, g=0–255, b=0–255, w=0–255) → None
-                                                                 # stores GRBW in buffer and calls transport.write()
+                                                                 # stores GRBW in buffer and calls connection.write()
 time.sleep(0.5)
 
 # fill with white channel active
@@ -25,7 +25,7 @@ strip.set_pixel(2, 0, 0, 255)                                    # Set pixel 2 t
 strip.set_pixel(3, 0, 0, 0, 255)                                 # Set pixel 3 to white (no send), (index=0–n-1, r=0–255, g=0–255, b=0–255, w=0–255) → None
                                                                  # w=255 lights the dedicated white element; RGB remain off
 strip.show()                                                     # Transmit buffer to strip, () → None
-                                                                 # applies brightness scaling then calls transport.write()
+                                                                 # applies brightness scaling then calls connection.write()
 time.sleep(0.5)
 
 # set_pixels — write multiple pixels at once
@@ -34,14 +34,14 @@ colors = [(255, 128, 0), (128, 0, 255), (0, 255, 128), (0, 0, 0, 200),
 strip.set_pixels(colors)                                         # Set pixels from list of (r,g,b) or (r,g,b,w) tuples, (colors=list[tuple]) → None
                                                                  # 3-element tuples use w=0; extra entries beyond strip length ignored
 strip.show()                                                     # Transmit buffer to strip, () → None
-                                                                 # applies brightness scaling then calls transport.write()
+                                                                 # applies brightness scaling then calls connection.write()
 time.sleep(0.5)
 
 # brightness — global scale applied at show() time
 strip.brightness = 64                                            # Set global brightness, (value=0–255) → None
                                                                  # stored value is scaled: sent = stored * brightness // 255
 strip.show()                                                     # Transmit buffer to strip, () → None
-                                                                 # applies brightness scaling then calls transport.write()
+                                                                 # applies brightness scaling then calls connection.write()
 time.sleep(0.5)
 strip.brightness = 255                                           # Set global brightness, (value=0–255) → None
                                                                  # stored value is scaled: sent = stored * brightness // 255
@@ -61,13 +61,13 @@ time.sleep(0.5)
 strip.set_pixels([(255, 0, 0, 0)] + [(0, 0, 0, 0)] * 7)         # Set pixels from list of (r,g,b,w) tuples, (colors=list[tuple]) → None
                                                                  # writes entries sequentially from pixel 0; ignores extras beyond strip length
 strip.show()                                                     # Transmit buffer to strip, () → None
-                                                                 # applies brightness scaling then calls transport.write()
+                                                                 # applies brightness scaling then calls connection.write()
 time.sleep(0.5)
 for _ in range(7):
     strip.rotate(1)                                              # Rotate pixel buffer left, (steps=1) → None
                                                                  # shifts buffer by steps whole-pixel (4-byte) positions; wraps around; does not send
     strip.show()                                                 # Transmit buffer to strip, () → None
-                                                                 # applies brightness scaling then calls transport.write()
+                                                                 # applies brightness scaling then calls connection.write()
     time.sleep(0.2)
 
 strip.off()                                                      # Turn off all pixels, () → None

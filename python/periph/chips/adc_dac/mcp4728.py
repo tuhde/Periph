@@ -3,25 +3,25 @@ class MCP4728Minimal:
 
     Provides simple voltage output as a fraction of V_DD for any of the four
     channels (A–D) plus a convenience method to update all four channels
-    simultaneously. No configuration required beyond the transport. V_REF is
+    simultaneously. No configuration required beyond the connection. V_REF is
     fixed at external (V_DD), gain is fixed at ×1, and power-down is off.
     EEPROM is never written by this class.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x60–0x67).
+        connection: Configured I²C connection pointing at the device (0x60–0x67).
     """
 
     _CMD_MULTI_WRITE = 0x40  # C2=0 C1=0 C0=0 — see spec; Multi-Write is 010
     # Multi-Write byte 1: [0 1 0 0 0 DAC1 DAC0 UDAC] = 0x40 | (channel << 1)
     _CMD_FAST_WRITE_BASE = 0x00  # Per-channel fast write: 2 bytes each, A→D
 
-    def __init__(self, transport):
-        """Initialize MCP4728Minimal and store the transport.
+    def __init__(self, connection):
+        """Initialize MCP4728Minimal and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        self._transport = transport
+        self._connection = connection
 
     def set_voltage(self, channel, fraction):
         """Set one channel's DAC output as a fraction of V_DD.
@@ -71,14 +71,14 @@ class MCP4728Minimal:
             # First channel: byte1 = [0 0 PD1 PD0 D11-D8]; channels B-D: same
             out[i * 2] = ((code >> 8) & 0x0F)  # PD1=PD0=0
             out[i * 2 + 1] = code & 0xFF
-        self._transport.write(bytes(out))
+        self._connection.write(bytes(out))
 
     def _multi_write(self, channel, code, vref, pd, gain, udac):
         byte1 = 0x40 | ((channel & 0x03) << 1) | (udac & 0x01)
         byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | \
                 ((gain & 0x01) << 4) | ((code >> 8) & 0x0F)
         byte3 = code & 0xFF
-        self._transport.write(bytes([byte1, byte2, byte3]))
+        self._connection.write(bytes([byte1, byte2, byte3]))
 
 
 class MCP4728Full(MCP4728Minimal):
@@ -90,7 +90,7 @@ class MCP4728Full(MCP4728Minimal):
     read-back of all channel DAC input registers and EEPROM contents.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x60–0x67).
+        connection: Configured I²C connection pointing at the device (0x60–0x67).
     """
 
     _CMD_SINGLE_WRITE    = 0x58  # [0 1 0 1 1 DAC1 DAC0 UDAC]
@@ -115,13 +115,13 @@ class MCP4728Full(MCP4728Minimal):
     GAIN_X1 = 0
     GAIN_X2 = 1
 
-    def __init__(self, transport):
-        """Initialize MCP4728Full and store the transport.
+    def __init__(self, connection):
+        """Initialize MCP4728Full and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        super().__init__(transport)
+        super().__init__(connection)
 
     def set_voltage_eeprom(self, channel, fraction, vref, gain):
         """Set one channel's output and persist to EEPROM.
@@ -182,7 +182,7 @@ class MCP4728Full(MCP4728Minimal):
             # Per-channel byte layout (Multi-Write format): [V_REF PD1 PD0 Gx D11-D8]
             out[1 + i * 2] = ((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F)
             out[1 + i * 2 + 1] = code & 0xFF
-        self._transport.write(bytes(out))
+        self._connection.write(bytes(out))
 
     def set_vref(self, vref_a, vref_b, vref_c, vref_d):
         """Set V_REF for all four channels (volatile register only).
@@ -196,7 +196,7 @@ class MCP4728Full(MCP4728Minimal):
         byte1 = self._CMD_WRITE_VREF | (
             (self._b1(vref_a) << 3) | (self._b1(vref_b) << 2) |
             (self._b1(vref_c) << 1) | self._b1(vref_d))
-        self._transport.write(bytes([byte1]))
+        self._connection.write(bytes([byte1]))
 
     def set_gain(self, gain_a, gain_b, gain_c, gain_d):
         """Set gain for all four channels (volatile register only).
@@ -210,7 +210,7 @@ class MCP4728Full(MCP4728Minimal):
         byte1 = self._CMD_WRITE_GAIN | (
             (self._g(gain_a) << 3) | (self._g(gain_b) << 2) |
             (self._g(gain_c) << 1) | self._g(gain_d))
-        self._transport.write(bytes([byte1]))
+        self._connection.write(bytes([byte1]))
 
     def set_power_down(self, pd_a, pd_b, pd_c, pd_d):
         """Set power-down mode for all four channels (volatile register only).
@@ -226,7 +226,7 @@ class MCP4728Full(MCP4728Minimal):
             (self._p2(pd_b) << 2) | (self._p1(pd_b) << 1))
         byte2 = ((self._p2(pd_c) << 6) | (self._p1(pd_c) << 5) |
                  (self._p2(pd_d) << 4) | (self._p1(pd_d) << 3))
-        self._transport.write(bytes([byte1, byte2]))
+        self._connection.write(bytes([byte1, byte2]))
 
     def read(self):
         """Read all four channels' DAC input registers and EEPROM contents.
@@ -241,7 +241,7 @@ class MCP4728Full(MCP4728Minimal):
                   contains: code, vref, gain, power_down, eeprom_code,
                   eeprom_vref, eeprom_gain, eeprom_power_down, eeprom_ready.
         """
-        buf = self._transport.read(24)
+        buf = self._connection.read(24)
         result = []
         eeprom_ready = bool(buf[0] & 0x80)
         for i in range(4):
@@ -275,20 +275,20 @@ class MCP4728Full(MCP4728Minimal):
         Returns:
             bool: True when no EEPROM write is pending (RDY/BSY = 1).
         """
-        buf = self._transport.read(1)
+        buf = self._connection.read(1)
         return bool(buf[0] & 0x80)
 
     def software_update(self):
         """Send General Call Software Update (0x00, 0x08) to latch all V_OUT."""
-        self._transport.write(bytes([self._ADDR_GENERAL_CALL, self._GC_SOFTWARE_UPD]))
+        self._connection.write(bytes([self._ADDR_GENERAL_CALL, self._GC_SOFTWARE_UPD]))
 
     def wake_up(self):
         """Send General Call Wake-Up (0x00, 0x09) to clear all PD bits."""
-        self._transport.write(bytes([self._ADDR_GENERAL_CALL, self._GC_WAKE]))
+        self._connection.write(bytes([self._ADDR_GENERAL_CALL, self._GC_WAKE]))
 
     def reset(self):
         """Send General Call Reset (0x00, 0x06) to reload EEPROM into all DAC registers."""
-        self._transport.write(bytes([self._ADDR_GENERAL_CALL, self._GC_RESET]))
+        self._connection.write(bytes([self._ADDR_GENERAL_CALL, self._GC_RESET]))
 
     def _single_write(self, channel, code, vref, pd, gain, udac):
         ch = max(0, min(3, channel))
@@ -297,7 +297,7 @@ class MCP4728Full(MCP4728Minimal):
         byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | \
                 ((gain & 0x01) << 4) | ((c >> 8) & 0x0F)
         byte3 = c & 0xFF
-        self._transport.write(bytes([byte1, byte2, byte3]))
+        self._connection.write(bytes([byte1, byte2, byte3]))
 
     @staticmethod
     def _b1(v):

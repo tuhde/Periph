@@ -1,6 +1,6 @@
 import os
 
-from periph.transport.neopixel_linux import NeoPixelTransport
+from periph.connection.neopixel_linux import NeoPixelConnection
 from periph.chips.led.ws2812b import WS2812BMinimal, WS2812BFull
 import time
 
@@ -31,10 +31,10 @@ def check_eq(label, got, expected):
         failed += 1
 
 
-transport = NeoPixelTransport(SPI_BUS, SPI_DEVICE)
+connection = NeoPixelConnection(SPI_BUS, SPI_DEVICE)
 
 # --- WS2812BMinimal ---
-strip = WS2812BMinimal(transport, 8)
+strip = WS2812BMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -52,7 +52,7 @@ strip.fill(300, -10, 1000)
 check_true('fill clamps out-of-range values', True)
 
 # --- WS2812BFull ---
-full = WS2812BFull(transport, 8)
+full = WS2812BFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 
@@ -86,6 +86,6 @@ check_true('fill_hsv(0.667) accepted', True)
 full.off()
 check_true('off() on Full accepted', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

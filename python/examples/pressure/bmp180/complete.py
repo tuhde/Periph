@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp180 import BMP180Full
 
-transport = I2CTransport(0x77)
-bmp = BMP180Full(transport)                             # Create BMP180 driver, (transport, oss=0)
+connection = I2CConnection(0x77)
+bmp = BMP180Full(connection)                             # Create BMP180 driver, (connection, oss=0)
 cid = bmp.chip_id()                                    # Read chip ID, () → int
                                                      # returns 0x55 for BMP180
 oss = bmp.oversampling()                               # Read OSS, () → int 0–3

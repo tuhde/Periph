@@ -5,7 +5,7 @@ class AHT21Minimal:
     """AHT21 temperature and humidity sensor — minimal interface.
 
     Provides temperature and humidity readings with no configuration beyond
-    the transport. Handles power-on initialization, calibration check, and
+    the connection. Handles power-on initialization, calibration check, and
     measurement triggering automatically.
 
     Default configuration (baked in at construction):
@@ -14,7 +14,7 @@ class AHT21Minimal:
         - No CRC verification (reduces complexity; CRC check is Full-only)
 
     Args:
-        transport: Configured I²C transport pointing at the device (address 0x38).
+        connection: Configured I²C connection pointing at the device (address 0x38).
     """
 
     _CMD_TRIGGER = b'\xAC\x33\x00'
@@ -26,24 +26,24 @@ class AHT21Minimal:
     _STATUS_BUSY = 0x80
     _STATUS_CAL = 0x08
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         time.sleep(0.1)
         status = self._read_status()
         if (status & 0x18) != 0x18:
-            self._transport.write(self._CMD_SOFT_RESET)
+            self._connection.write(self._CMD_SOFT_RESET)
             time.sleep(0.02)
             status = self._read_status()
             if (status & 0x18) != 0x18:
-                self._transport.write(self._CMD_CAL_INIT_1)
+                self._connection.write(self._CMD_CAL_INIT_1)
                 time.sleep(0.01)
-                self._transport.write(self._CMD_CAL_INIT_2)
+                self._connection.write(self._CMD_CAL_INIT_2)
                 time.sleep(0.01)
-                self._transport.write(self._CMD_CAL_INIT_3)
+                self._connection.write(self._CMD_CAL_INIT_3)
                 time.sleep(0.01)
 
     def _read_status(self):
-        return self._transport.read(1)[0]
+        return self._connection.read(1)[0]
 
     def read(self):
         """Trigger a measurement and return temperature and humidity.
@@ -56,9 +56,9 @@ class AHT21Minimal:
                 temperature_c: Temperature in degrees Celsius (-50 to 150 °C).
                 humidity_pct: Relative humidity in percent (0 to 100 %RH).
         """
-        self._transport.write(self._CMD_TRIGGER)
+        self._connection.write(self._CMD_TRIGGER)
         time.sleep(0.08)
-        data = self._transport.read(6)
+        data = self._connection.read(6)
         raw_rh = (data[1] << 12) | (data[2] << 4) | (data[3] >> 4)
         raw_t = ((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5]
         humidity_pct = (raw_rh / 1048576.0) * 100.0
@@ -73,11 +73,11 @@ class AHT21Full(AHT21Minimal):
     and individual temperature/humidity readings.
 
     Args:
-        transport: Configured I²C transport pointing at the device (address 0x38).
+        connection: Configured I²C connection pointing at the device (address 0x38).
     """
 
-    def __init__(self, transport):
-        super().__init__(transport)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def read_temperature(self):
         """Trigger a measurement and return temperature only.
@@ -107,9 +107,9 @@ class AHT21Full(AHT21Minimal):
                 humidity_pct: Relative humidity in percent.
                 crc_ok: True if CRC-8 verification passed.
         """
-        self._transport.write(self._CMD_TRIGGER)
+        self._connection.write(self._CMD_TRIGGER)
         time.sleep(0.08)
-        data = self._transport.read(7)
+        data = self._connection.read(7)
         raw_rh = (data[1] << 12) | (data[2] << 4) | (data[3] >> 4)
         raw_t = ((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5]
         humidity_pct = (raw_rh / 1048576.0) * 100.0
@@ -119,7 +119,7 @@ class AHT21Full(AHT21Minimal):
 
     def soft_reset(self):
         """Send the soft reset command and wait 20 ms for recovery."""
-        self._transport.write(self._CMD_SOFT_RESET)
+        self._connection.write(self._CMD_SOFT_RESET)
         time.sleep(0.02)
 
     def is_calibrated(self):

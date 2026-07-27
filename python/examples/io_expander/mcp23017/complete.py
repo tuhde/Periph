@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.io_expander.mcp23017 import Mcp23017Full
 
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Mcp23017Full(transport)                                 # Create MCP23017 driver, (transport, addr=0x20)
+connection = I2CConnection(0x20)                            # Create I2C connection, (i2c, addr=0x20)
+chip = Mcp23017Full(connection)                                 # Create MCP23017 driver, (connection, addr=0x20)
 
 chip.configure_pullup(0, 0x3F)                                 # Enable pull-ups on GPA0–GPA5, (port=0, mask=0x3F) → None
 chip.configure_polarity(0, 0x00)                              # Set normal polarity PORTA, (port=0, mask=0x00) → None
@@ -23,8 +23,8 @@ chip.set_default_value(0, 0x00)                              # Set DEFVAL for PO
 def on_change(mask):
     print("PORTA changed: %02X" % mask)
 
-chip.configure_interrupt(0, None, on_change, mode='default')  # Enable INT on PORTA, (port=0, int_pin=None, callback, mode='default') → None
+chip.on_interrupt(on_change, port=0, mode='default')          # Enable INT on PORTA, (callback, port=0, mode='default') → None
 
-chip.stop_interrupt(0)                                         # Disable INT on PORTA, (port=0) → None
+chip.off_interrupt(port=0)                                     # Disable INT on PORTA, (port=0) → None
 print("Interrupt stopped")
 print("PORTA=%02X  PORTB=%02X" % (chip.read_port(0), chip.read_port(1)))

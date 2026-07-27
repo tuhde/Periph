@@ -1,12 +1,12 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp280 import BMP280Full
 
-transport = I2CTransport(0x76)
+connection = I2CConnection(0x76)
 
 # --- Weather monitoring preset: lowest power, forced mode ---
 # BMP280 datasheet Table 7 setting: ×1/×1, filter off, forced mode.
 # One sample per second for 30 seconds to characterise ambient conditions.
-bmp = BMP280Full(transport)                              # Create BMP280 driver, (transport, bus_type='i2c')
+bmp = BMP280Full(connection)                              # Create BMP280 driver, (connection, bus_type='i2c')
 bmp.configure(osrs_t=1, osrs_p=1, mode=1, filter=0, t_sb=0)  # Configure chip, (osrs_t=×1, osrs_p=×1, mode=forced, filter=off, t_sb=0) → None
 
 temps, pressures, alts = [], [], []

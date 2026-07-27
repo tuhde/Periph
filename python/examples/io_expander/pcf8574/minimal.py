@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.io_expander.pcf8574 import Pcf8574Minimal
 import time
 
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Pcf8574Minimal(transport)                               # Create PCF8574 driver, (transport, addr=0x20)
+connection = I2CConnection(0x20)                            # Create I2C connection, (i2c, addr=0x20)
+chip = Pcf8574Minimal(connection)                               # Create PCF8574 driver, (connection, addr=0x20)
 
 p0 = chip.pin(0)                                               # Get pin proxy, (n) → Pin
 p0.init(Pcf8574Minimal.OUT)                                    # Set direction, (mode=OUT) → None

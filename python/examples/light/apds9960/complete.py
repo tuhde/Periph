@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.light.apds9960 import APDS9960Full
 import time
 
-transport = I2CTransport(0x39)
-apds = APDS9960Full(transport)                             # Create APDS9960 driver, (transport) → APDS9960Full
+connection = I2CConnection(0x39)
+apds = APDS9960Full(connection)                             # Create APDS9960 driver, (connection) → APDS9960Full
 
 print(hex(apds.chip_id()))                                 # Read device ID, () → int
 c, r, g, b = apds.color()                                  # Read all RGBC channels, () → tuple(int, int, int, int)

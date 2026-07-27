@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.power.ina226 import INA226Full
 import time
 
-transport = I2CTransport(0x40)
-ina = INA226Full(transport)
+connection = I2CConnection(0x40)
+ina = INA226Full(connection)
 
 print(hex(ina.manufacturer_id()))
 print(hex(ina.die_id()))

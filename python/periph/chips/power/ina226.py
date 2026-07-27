@@ -5,7 +5,7 @@ class INA226Minimal:
     """INA226 36V, 16-bit current/voltage/power monitor — minimal interface.
 
     Provides bus voltage, shunt voltage, current, and power readings with no
-    configuration beyond the transport and shunt resistor. Writes the
+    configuration beyond the connection and shunt resistor. Writes the
     Calibration Register automatically at construction.
 
     Default configuration (baked in at construction):
@@ -15,7 +15,7 @@ class INA226Minimal:
         - AVG = 0: 1 sample (no averaging)
 
     Args:
-        transport: Configured I²C or SMBus transport pointing at the device.
+        connection: Configured I²C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -30,21 +30,21 @@ class INA226Minimal:
     # AVG=1, VBUSCT=1.1ms, VSHCT=1.1ms, MODE=shunt+bus continuous
     _CONFIG_DEFAULT = 0x4127
 
-    def __init__(self, transport, r_shunt=0.1, max_current=2.0):
-        self._transport = transport
+    def __init__(self, connection, r_shunt=0.1, max_current=2.0):
+        self._connection = connection
         self._current_lsb = max_current / 32768
         self._cal = int(0.00512 / (self._current_lsb * r_shunt))
         self._write_reg(self._REG_CONFIG, self._CONFIG_DEFAULT)
         self._write_reg(self._REG_CAL, self._cal)
 
     def _write_reg(self, reg, value):
-        self._transport.write(struct.pack('>BH', reg, value))
+        self._connection.write(struct.pack('>BH', reg, value))
 
     def _read_reg(self, reg):
-        return struct.unpack('>H', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>H', self._connection.write_read(bytes([reg]), 2))[0]
 
     def _read_reg_signed(self, reg):
-        return struct.unpack('>h', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>h', self._connection.write_read(bytes([reg]), 2))[0]
 
     def voltage(self):
         """Read bus voltage.
@@ -98,7 +98,7 @@ class INA226Full(INA226Minimal):
         CNVR — conversion ready
 
     Args:
-        transport: Configured I²C or SMBus transport pointing at the device.
+        connection: Configured I²C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -116,8 +116,8 @@ class INA226Full(INA226Minimal):
     _REG_MFR_ID = 0xFE
     _REG_DIE_ID = 0xFF
 
-    def __init__(self, transport, r_shunt=0.1, max_current=2.0):
-        super().__init__(transport, r_shunt, max_current)
+    def __init__(self, connection, r_shunt=0.1, max_current=2.0):
+        super().__init__(connection, r_shunt, max_current)
         self._mode = 0x07
 
     def configure(self, avg=0, vbus_ct=4, vsh_ct=4, mode=7):

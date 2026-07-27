@@ -8,7 +8,7 @@ import board
 import busio
 import digitalio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.io_expander.pcf8575 import Pcf8575Minimal, Pcf8575Full
 
 passed = 0
@@ -36,8 +36,8 @@ def check_eq(label, got, expected):
 
 
 i2c = busio.I2C(board.SCL, board.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-chip = Pcf8575Minimal(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+chip = Pcf8575Minimal(connection)
 
 check_eq('init_shadow_0', chip._shadow[0], 0xFF)
 check_eq('init_shadow_1', chip._shadow[1], 0xFF)
@@ -68,9 +68,9 @@ port1_after = chip.read_port(1)
 check_true('read_after_all_input_0', 0 <= port0_after <= 0xFF)
 check_true('read_after_all_input_1', 0 <= port1_after <= 0xFF)
 
-full = Pcf8575Full(transport)
-changed = full.clear_interrupt()
-check_true('clear_interrupt_range', 0 <= changed <= 0xFFFF)
+full = Pcf8575Full(connection)
+changed = full.poll_interrupt()
+check_true('poll_interrupt_range', 0 <= changed <= 0xFFFF)
 
 try:
     p0.pull

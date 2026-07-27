@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.adc_dac.mcp4725 import MCP4725Full
 import time
 
@@ -22,8 +22,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-dac = MCP4725Full(transport)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+dac = MCP4725Full(connection)
 
 dac.set_voltage(0.5)
 check_true('set_voltage(0.5) accepted', True)
@@ -67,7 +67,7 @@ check_true('reset accepted', True)
 ready = dac.is_eeprom_ready()
 check_true('is_eeprom_ready returns bool', isinstance(ready, bool))
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

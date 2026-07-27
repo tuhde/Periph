@@ -1,6 +1,6 @@
 import machine
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.display.pcf8576 import PCF8576Minimal, PCF8576Full
 from machine import Pin
 
@@ -8,9 +8,9 @@ passed = 0
 failed = 0
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 
-lcd = PCF8576Minimal(transport)
+lcd = PCF8576Minimal(connection)
 
 expected = 0x40
 got = lcd._cmd_mode(enable=False)
@@ -81,7 +81,7 @@ except Exception as e:
     print('FAIL clear: {}'.format(e))
     failed += 1
 
-lcd_full = PCF8576Full(transport)
+lcd_full = PCF8576Full(connection)
 try:
     lcd_full.enable()
     lcd_full.disable()

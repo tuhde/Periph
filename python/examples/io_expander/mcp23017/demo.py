@@ -6,12 +6,12 @@ The scanner runs a Knight Rider pattern on the LEDs; button presses override
 the pattern so pressing button N lights LED N. Prints scanner position,
 button mask, and output mask each iteration.
 """
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.io_expander.mcp23017 import Mcp23017Full
 import time
 
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Mcp23017Full(transport)                                 # Create MCP23017 driver, (transport, addr=0x20)
+connection = I2CConnection(0x20)                            # Create I2C connection, (i2c, addr=0x20)
+chip = Mcp23017Full(connection)                                 # Create MCP23017 driver, (connection, addr=0x20)
 
 # GPA7 is output-only; set it low as the rightmost scanner LED position
 # GPA0–GPA6 are inputs (button state mirrors to output)

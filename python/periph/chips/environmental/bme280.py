@@ -7,7 +7,7 @@ class BME280Minimal:
     """BME280 combined humidity + pressure + temperature sensor — minimal interface.
 
     Provides calibrated temperature (°C), pressure (hPa), and humidity (%RH)
-    with no configuration beyond the transport. I²C address is 0x76 (SDO=GND)
+    with no configuration beyond the connection. I²C address is 0x76 (SDO=GND)
     or 0x77 (SDO=VDDIO). 0x77 collides with the BMP180/BMP280/BMP388.
 
     Sibling of the BMP280 driver: register-compatible for pressure and
@@ -21,7 +21,7 @@ class BME280Minimal:
         - spi3w_en = 0
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
         bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
             SPI writes mask bit 7 of the register address.
     """
@@ -42,8 +42,8 @@ class BME280Minimal:
 
     _MEAS_TIME_MS   = 9
 
-    def __init__(self, transport, bus_type='i2c'):
-        self._transport = transport
+    def __init__(self, connection, bus_type='i2c'):
+        self._connection = connection
         self._bus_type = bus_type
         self._mode = 0
         self._osrs_t = 1
@@ -58,7 +58,7 @@ class BME280Minimal:
         self._write_reg(self._REG_CONFIG, 0)
 
     def _read_calibration(self):
-        data = self._transport.write_read(bytes([self._REG_CAL_START]), 26)
+        data = self._connection.write_read(bytes([self._REG_CAL_START]), 26)
         self._dig_T1 = struct.unpack('<H', data[0:2])[0]
         self._dig_T2 = struct.unpack('<h', data[2:4])[0]
         self._dig_T3 = struct.unpack('<h', data[4:6])[0]
@@ -73,7 +73,7 @@ class BME280Minimal:
         self._dig_P9 = struct.unpack('<h', data[22:24])[0]
         self._dig_H1 = data[25]
 
-        h = self._transport.write_read(bytes([self._REG_CAL_H2]), 7)
+        h = self._connection.write_read(bytes([self._REG_CAL_H2]), 7)
         self._dig_H2 = struct.unpack('<h', h[0:2])[0]
         self._dig_H3 = h[2]
         h4_raw = (h[3] << 4) | (h[4] & 0x0F)
@@ -89,10 +89,10 @@ class BME280Minimal:
     def _write_reg(self, reg, value):
         if self._bus_type == 'spi':
             reg = reg & 0x7F
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg, n):
-        return self._transport.write_read(bytes([reg]), n)
+        return self._connection.write_read(bytes([reg]), n)
 
     def _trigger_and_read(self):
         if self._mode != 3:
@@ -209,7 +209,7 @@ class BME280Full(BME280Minimal):
     chip ID / soft reset.
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
         bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
     """
 
@@ -242,8 +242,8 @@ class BME280Full(BME280Minimal):
     STATUS_MEASURING = 0x08
     STATUS_IM_UPDATE = 0x01
 
-    def __init__(self, transport, bus_type='i2c'):
-        super().__init__(transport, bus_type)
+    def __init__(self, connection, bus_type='i2c'):
+        super().__init__(connection, bus_type)
 
     def configure(self, osrs_t=1, osrs_p=1, osrs_h=1, mode=0, filter=0, t_sb=0):
         """Write ctrl_hum, ctrl_meas, and config registers in the correct order.

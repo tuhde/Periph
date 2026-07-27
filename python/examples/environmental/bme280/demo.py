@@ -1,13 +1,13 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.environmental.bme280 import BME280Full
 
-transport = I2CTransport(0x76)
+connection = I2CConnection(0x76)
 
 # --- Weather monitoring preset: forced mode, ×1/×1/×1, filter off ---
 # BME280 datasheet "weather monitoring" preset: minimum power, single-shot,
 # 8 ms typ / 9.3 ms max per cycle. Sleep between samples to demonstrate
 # battery-friendly indoor monitoring.
-bme = BME280Full(transport)                            # Create BME280 driver, (transport, bus_type='i2c')
+bme = BME280Full(connection)                            # Create BME280 driver, (connection, bus_type='i2c')
 bme.configure(osrs_t=1, osrs_p=1, osrs_h=1, mode=1, filter=0, t_sb=0)  # Configure chip, (osrs_t=×1, osrs_p=×1, osrs_h=×1, mode=forced, filter=off, t_sb=0) → None
 
 temps, hums, pressures, alts, dews = [], [], [], [], []

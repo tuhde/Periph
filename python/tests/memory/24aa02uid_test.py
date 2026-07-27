@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.memory._24aa02uid import EEPROM24AA02UIDFull
 
 from machine import I2C, Pin
@@ -34,8 +34,8 @@ def check_eq_hex(label, got, expected):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-eeprom = EEPROM24AA02UIDFull(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+eeprom = EEPROM24AA02UIDFull(connection)
 
 # --- Read the immutable region ---
 uid = eeprom.read_uid()

@@ -1,4 +1,4 @@
-from periph.transport.neopixel_auto import NeoPixelTransport
+from periph.connection.neopixel_auto import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWFull
 import time
 
@@ -28,8 +28,8 @@ WARM_WHITE_DURATION = 2
 FPS              = 30
 FRAME_DELAY      = 1.0 / FPS
 
-transport = NeoPixelTransport(mosi=19, sck=18, miso=20)                               # Create NeoPixel transport, (spi)
-strip = SK6812RGBWFull(transport, N_PIXELS)                      # Create SK6812RGBW full driver, (transport, n=N_PIXELS pixels)
+connection = NeoPixelConnection(mosi=19, sck=18, miso=20)                               # Create NeoPixel connection, (spi)
+strip = SK6812RGBWFull(connection, N_PIXELS)                      # Create SK6812RGBW full driver, (connection, n=N_PIXELS pixels)
 strip.brightness = 180                                           # Set global brightness, (value=0–255) → None
 
 # --- Rainbow rotation using RGB channels (white=0).

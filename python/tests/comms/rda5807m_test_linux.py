@@ -2,7 +2,7 @@ import os
 import sys
 import time
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.comms.rda5807m import RDA5807MFull
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
@@ -26,8 +26,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-fm = RDA5807MFull(transport, frequency_mhz=100.0, volume=8)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+fm = RDA5807MFull(connection, frequency_mhz=100.0, volume=8)
 
 time.sleep(_SETTLE_S)
 check_true('is_ready', fm.is_ready())
@@ -63,7 +63,7 @@ check_true('after standby cycle: is_ready', fm.is_ready())
 fm.soft_reset()
 check_true('after soft_reset: is_ready', fm.is_ready())
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

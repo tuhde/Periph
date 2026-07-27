@@ -2,21 +2,21 @@ class HX711Minimal:
     """HX711 24-bit ADC — minimal interface.
 
     Reads signed 24-bit ADC values using Channel A, Gain 128. No configuration
-    beyond the transport is required. The first conversion after power-up is
+    beyond the connection is required. The first conversion after power-up is
     discarded during construction.
 
     Args:
-        transport: Configured HX711 transport (HX711Transport for the target platform).
+        connection: Configured HX711 connection (HX711Connection for the target platform).
     """
 
-    def __init__(self, transport):
+    def __init__(self, connection):
         """Initialize HX711Minimal and discard the first post-power-up conversion.
 
         Args:
-            transport: Configured HX711 transport.
+            connection: Configured HX711 connection.
         """
-        self._transport = transport
-        self._transport.read_raw(25)
+        self._connection = connection
+        self._connection.read_raw(25)
 
     def is_ready(self):
         """Return True if a conversion result is available (DOUT is LOW).
@@ -26,7 +26,7 @@ class HX711Minimal:
         Returns:
             bool: True when DOUT is LOW (data ready).
         """
-        return self._transport.is_ready()
+        return self._connection.is_ready()
 
     def read_raw(self):
         """Block until data is ready and return a signed 24-bit ADC value.
@@ -36,7 +36,7 @@ class HX711Minimal:
         Returns:
             int: Signed 24-bit ADC value (-8 388 608 to +8 388 607).
         """
-        return self._transport.read_raw(25)
+        return self._connection.read_raw(25)
 
 
 class HX711Full(HX711Minimal):
@@ -46,21 +46,21 @@ class HX711Full(HX711Minimal):
     averaging, tare offset capture, scale factor calibration, and power management.
 
     Args:
-        transport: Configured HX711 transport (HX711Transport for the target platform).
+        connection: Configured HX711 connection (HX711Connection for the target platform).
     """
 
     _GAIN_TO_PULSES = {128: 25, 32: 26, 64: 27}
 
-    def __init__(self, transport):
+    def __init__(self, connection):
         """Initialize HX711Full with default gain 128, offset 0, and scale 1.0.
 
         Args:
-            transport: Configured HX711 transport.
+            connection: Configured HX711 connection.
         """
         self._pulses = 25
         self._offset = 0
         self._scale = 1.0
-        super().__init__(transport)
+        super().__init__(connection)
 
     def read_raw(self):
         """Block until data is ready and return a signed 24-bit ADC value.
@@ -70,7 +70,7 @@ class HX711Full(HX711Minimal):
         Returns:
             int: Signed 24-bit ADC value (-8 388 608 to +8 388 607).
         """
-        return self._transport.read_raw(self._pulses)
+        return self._connection.read_raw(self._pulses)
 
     def set_gain(self, gain):
         """Select the input channel and gain.
@@ -87,7 +87,7 @@ class HX711Full(HX711Minimal):
         if gain not in self._GAIN_TO_PULSES:
             raise ValueError("gain must be 128, 64, or 32")
         self._pulses = self._GAIN_TO_PULSES[gain]
-        self._transport.read_raw(self._pulses)
+        self._connection.read_raw(self._pulses)
 
     def read_average(self, times=10):
         """Return the average of multiple raw ADC readings.
@@ -154,9 +154,9 @@ class HX711Full(HX711Minimal):
     def power_down(self):
         """Enter power-down mode.
 
-        Holds PD_SCK HIGH for >60 µs via the transport.
+        Holds PD_SCK HIGH for >60 µs via the connection.
         """
-        self._transport.power_down()
+        self._connection.power_down()
 
     def power_up(self):
         """Exit power-down mode, reset the chip, and discard the settling conversion.
@@ -165,6 +165,6 @@ class HX711Full(HX711Minimal):
         conversion. Resets the internal pulse count to 25 regardless of the
         previously selected gain.
         """
-        self._transport.power_up()
+        self._connection.power_up()
         self._pulses = 25
-        self._transport.read_raw(25)
+        self._connection.read_raw(25)

@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.power.ina226 import INA226Full
 
 from machine import I2C, Pin
@@ -30,8 +30,8 @@ def check_true(label, condition):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-ina = INA226Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+ina = INA226Full(connection)
 
 check_eq('manufacturer_id', ina.manufacturer_id(), 0x5449)
 check_eq('die_id',          ina.die_id(),          0x2260)

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.memory._24aa02uid import EEPROM24AA02UIDFull
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
@@ -31,8 +31,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-eeprom = EEPROM24AA02UIDFull(transport)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+eeprom = EEPROM24AA02UIDFull(connection)
 
 uid = eeprom.read_uid()
 check_eq('read_uid length', len(uid), 4)
@@ -61,7 +61,7 @@ check_eq('read length', len(read_back), RANGE_LEN)
 
 check_eq('uid unchanged after writes', eeprom.read_uid(), uid)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)
