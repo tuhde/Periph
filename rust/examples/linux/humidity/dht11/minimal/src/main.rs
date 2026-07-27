@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::humidity::Dht11Minimal;
-use periph::transport::dhtxx::DHTxxTransportLinux;
+use periph::connection::dhtxx::DHTxxConnectionLinux;
 
 fn main() {
     let chip_path   = std::env::var("GPIO_CHIP").unwrap_or_else(|_| "/dev/gpiochip0".into());
@@ -12,8 +12,8 @@ fn main() {
         .request(LineRequestFlags::INPUT, 0, "dht11_minimal").expect("request line");
     let pin = CdevPin::new(handle).expect("dht11 pin");
 
-    let transport = DHTxxTransportLinux::new(pin);
-    let mut dht = Dht11Minimal::new(transport);  // Create DHT11 driver, (transport)
+    let connection = DHTxxConnectionLinux::new(pin);
+    let mut dht = Dht11Minimal::new(connection);  // Create DHT11 driver, (connection)
 
     for _ in 0..5 {
         match dht.read() {                        // Read temperature & humidity, () → (f32 °C, f32 %RH)

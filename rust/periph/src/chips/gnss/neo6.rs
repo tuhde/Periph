@@ -1,6 +1,6 @@
 //! NEO-6 — u-blox 6 GNSS/GPS receiver.
 //!
-//! Transport-agnostic NMEA driver: a byte-at-a-time state machine scans for
+//! Connection-agnostic NMEA driver: a byte-at-a-time state machine scans for
 //! `$`, assembles a sentence to the CR/LF terminator, then validates the
 //! `*XX` checksum before parsing. A corrupted sentence (e.g. a stray
 //! idle-filler byte landing mid-sentence on I2C/SPI) just fails the
@@ -57,7 +57,7 @@ pub trait ByteSource {
 }
 
 /// Wraps a UART peripheral (anything implementing `embedded_io::Read +
-/// embedded_io::Write`, e.g. [`crate::transport::uart_linux::LinuxUart`] or
+/// embedded_io::Write`, e.g. [`crate::connection::uart_linux::LinuxUart`] or
 /// an `esp-hal` UART). A read timeout is treated as "no byte yet", not an
 /// error.
 pub struct UartBus<U>(pub U);
@@ -83,7 +83,7 @@ where
     }
 }
 
-/// Wraps an I2C bus for the DDC (Display Data Channel) transport. Each byte
+/// Wraps an I2C bus for the DDC (Display Data Channel) connection. Each byte
 /// read performs a random-read to register `0xFF` (the module's address
 /// counter saturates there once set, so re-sending it on every byte is
 /// redundant but harmless).

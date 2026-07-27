@@ -1,5 +1,5 @@
 use periph::chips::gnss::{Neo6Minimal, UartBus};
-use periph::transport::uart_linux::LinuxUart;
+use periph::connection::uart_linux::LinuxUart;
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {

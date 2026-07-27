@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::adc_dac::Hx711Full;
-use periph::transport::hx711::HX711Transport;
+use periph::connection::hx711::HX711Connection;
 
 // Kitchen scale demo: tare at startup, then print weight continuously.
 // Replace SCALE_FACTOR with the value calibrated for your load cell and V_DD.
@@ -23,8 +23,8 @@ fn main() {
     let dout   = CdevPin::new(dout_handle).expect("dout pin");
     let pd_sck = CdevPin::new(sck_handle).expect("pd_sck pin");
 
-    let transport = HX711Transport::new(dout, pd_sck);
-    let mut chip = Hx711Full::new(transport).expect("init HX711");  // Create HX711 driver — discards first conversion, (transport) → Result<Hx711Full, _>
+    let connection = HX711Connection::new(dout, pd_sck);
+    let mut chip = Hx711Full::new(connection).expect("init HX711");  // Create HX711 driver — discards first conversion, (connection) → Result<Hx711Full, _>
 
     println!("Taring — keep scale empty...");
     chip.tare(10).expect("tare");                                   // Capture zero offset from 10-reading average, (times: u8) → Result<(), _>

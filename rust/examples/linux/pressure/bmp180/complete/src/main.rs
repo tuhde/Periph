@@ -5,7 +5,7 @@ fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp180Full::new(dev, 0x77, 0).expect("init BMP180"); // Create BMP180 driver, (transport, oss=0)
+    let mut bmp = Bmp180Full::new(dev, 0x77, 0).expect("init BMP180"); // Create BMP180 driver, (connection, oss=0)
     let cid = bmp.chip_id().expect("read chip id");                    // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                                  // returns 0x55 for BMP180
     let oss = bmp.oversampling();                                      // Read OSS, () → u8 0–3

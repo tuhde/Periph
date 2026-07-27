@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::humidity::Dht11Full;
-use periph::transport::dhtxx::DHTxxTransportLinux;
+use periph::connection::dhtxx::DHTxxConnectionLinux;
 
 fn comfort(h: f32) -> &'static str {
     if h < 30.0 { "dry" }
@@ -18,8 +18,8 @@ fn main() {
         .request(LineRequestFlags::INPUT, 0, "dht11_demo").expect("request line");
     let pin = CdevPin::new(handle).expect("dht11 pin");
 
-    let transport = DHTxxTransportLinux::new(pin);
-    let mut dht = Dht11Full::new(transport, 3);  // Create DHT11 driver, (transport, max_retries=3)
+    let connection = DHTxxConnectionLinux::new(pin);
+    let mut dht = Dht11Full::new(connection, 3);  // Create DHT11 driver, (connection, max_retries=3)
 
     // --- Indoor comfort monitor ---
     // Reads temperature and humidity every 5 seconds and prints a one-line

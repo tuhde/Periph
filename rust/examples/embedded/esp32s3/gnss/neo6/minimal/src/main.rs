@@ -7,7 +7,7 @@ use esp_hal::delay::Delay;
 use esp_hal::uart::{Config, Uart};
 use esp_println::println;
 use periph::chips::gnss::{Neo6Minimal, UartBus};
-use periph::transport::uart_linux::LinuxUart;
+use periph::connection::uart_linux::LinuxUart;
 
 esp_app_desc!();
 

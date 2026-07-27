@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::humidity::Dht11Error;
-use periph::transport::dhtxx::DHTxxTransportLinux;
+use periph::connection::dhtxx::DHTxxConnectionLinux;
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -21,7 +21,7 @@ fn main() {
     if let Ok(mut chip) = Chip::new(&chip_path) {
         if let Ok(handle) = chip.get_line(line_offset).expect("get line").request(LineRequestFlags::INPUT, 0, "dht11_test") {
             let pin = CdevPin::new(handle).expect("dht11 pin");
-            let _transport = DHTxxTransportLinux::new(pin);
+            let _connection = DHTxxConnectionLinux::new(pin);
             check_true!(true, "dht11_compile_link", passed, failed);
         } else {
             check_true!(true, "dht11_skip_no_hw", passed, failed);

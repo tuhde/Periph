@@ -185,7 +185,7 @@ UART, NeoPixel, HX711, DHTxx, and SiPo, and for every platform variant of each):
 | `I2CTransport` (Python, C++, Node.js, JVM) | `I2CConnection` |
 | `I2CTransportLinux` / `I2CTransportESPIDF` / `I2CTransportPicoSDK` / `I2CTransportZephyr` (C++) | `I2CConnectionLinux` / `I2CConnectionESPIDF` / `I2CConnectionPicoSDK` / `I2CConnectionZephyr` |
 | `I2CTransport` / `NewI2CTransport` (Go) | `I2CConnection` / `NewI2CConnection` |
-| `HX711Transport`, `NeoPixelTransport`, `DHTxxTransportLinux`, `DHTxxTransportEsp32s3`, `SiPoTransport` (Rust) | `HX711Connection`, `NeoPixelConnection`, `DHTxxConnectionLinux`, `DHTxxConnectionEsp32s3`, `SiPoConnection` |
+| `HX711Transport`, `NeoPixelTransport`, `DHTxxTransportLinux`, `DHTxxTransportEsp32s3`, `SiPoTransport`, `SmBusTransport` (Rust) | `HX711Connection`, `NeoPixelConnection`, `DHTxxConnectionLinux`, `DHTxxConnectionEsp32s3`, `SiPoConnection`, `SmBusConnection` |
 
 **Blast radius.** Python and Node.js chip drivers duck-type on the `connection`
 parameter (call `.read()` / `.write()` without importing a concrete class) — merging
@@ -542,6 +542,15 @@ periph-owned structs today (`HX711Transport`, `NeoPixelTransport`, `DHTxxTranspo
 / `DHTxxTransportEsp32s3`, `SiPoTransport`) and get renamed to `*Connection`. Rust has no
 implementation inheritance, so each struct carries its own `enabled: bool` and repeats
 the gate inline — four structs, not worth a shared trait:
+
+**SMBus (also periph-owned, omitted above by oversight)** — `SmBusTransport` wraps a
+generic `I2c` bus and itself implements `I2c`, so chip drivers generic over `I2c` accept
+it transparently; it is architecturally a bus-enhancer like `Connection<BUS>`, not a
+chip-facing custom-protocol struct like the four above. It is renamed to `SmBusConnection`
+for naming consistency with every other language's SMBus wrapper, but does **not** gain
+`enabled`/`enable()`/`disable()` — that role doesn't fit its "transparent `I2c` passthrough"
+position, and a caller who wants software gating on an SMBus-backed connection can already
+get it via `Connection<SmBusConnection<I2C>>`.
 
 ```rust
 pub struct HX711Connection<DI, CK> {   // was: struct HX711Transport<DI, CK>

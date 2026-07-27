@@ -1,6 +1,6 @@
 //! SK6812RGBW addressable RGBW LED strip driver.
 //!
-//! Drives a chain of SK6812RGBW pixels over a [`NeoPixelTransport`].
+//! Drives a chain of SK6812RGBW pixels over a [`NeoPixelConnection`].
 //! Maintains an internal GRBW buffer; [`Sk6812RgbwMinimal::fill`] writes every
 //! pixel and transmits immediately. Each pixel has four channels: red, green,
 //! blue, and white (dedicated white LED element).
@@ -10,7 +10,7 @@
 //! Pixel indices beyond this limit are clamped silently.
 
 use embedded_hal::spi::SpiBus;
-use crate::transport::neopixel::NeoPixelTransport;
+use crate::connection::neopixel::NeoPixelConnection;
 
 /// Maximum supported pixel count for the internal GRBW buffer.
 pub const MAX_PIXELS: usize = 256;
@@ -18,11 +18,11 @@ const MAX_BUF: usize = MAX_PIXELS * 4;
 
 /// SK6812RGBW minimal driver — fill the entire strip with one colour.
 ///
-/// Wraps a [`NeoPixelTransport`] and manages an internal GRBW pixel buffer.
+/// Wraps a [`NeoPixelConnection`] and manages an internal GRBW pixel buffer.
 /// [`fill`](Sk6812RgbwMinimal::fill) updates every pixel and transmits immediately;
 /// [`off`](Sk6812RgbwMinimal::off) is shorthand for `fill(0, 0, 0, 0)`.
 pub struct Sk6812RgbwMinimal<SPI> {
-    transport: NeoPixelTransport<SPI>,
+    conn: NeoPixelConnection<SPI>,
     n: usize,
     buf: heapless::Vec<u8, MAX_BUF>,
 }
@@ -38,7 +38,7 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
         let mut buf = heapless::Vec::new();
         buf.resize_default(n * 4).ok();
         Self {
-            transport: NeoPixelTransport::new(spi),
+            conn: NeoPixelConnection::new(spi),
             n,
             buf,
         }
@@ -47,7 +47,7 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
     /// Fill every pixel with one colour and send to the strip immediately.
     ///
     /// Stores G, R, B, W in the internal buffer (GRBW wire order) then calls
-    /// [`NeoPixelTransport::write`]. `w=0` for RGB-only usage.
+    /// [`NeoPixelConnection::write`]. `w=0` for RGB-only usage.
     pub fn fill(&mut self, r: u8, g: u8, b: u8, w: u8) -> Result<(), SPI::Error> {
         for i in 0..self.n {
             self.buf[i * 4]     = g;
@@ -55,7 +55,7 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
             self.buf[i * 4 + 2] = b;
             self.buf[i * 4 + 3] = w;
         }
-        self.transport.write(&self.buf[..self.n * 4])
+        self.conn.write(&self.buf[..self.n * 4])
     }
 
     /// Turn off all pixels (fill with all zeros and send).
@@ -119,14 +119,14 @@ impl<SPI: SpiBus> Sk6812RgbwFull<SPI> {
         let bri = self.brightness;
         let n4 = self.inner.n * 4;
         if bri == 255 {
-            return self.inner.transport.write(&self.inner.buf[..n4]);
+            return self.inner.conn.write(&self.inner.buf[..n4]);
         }
         let mut scaled: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
         scaled.resize_default(n4).ok();
         for i in 0..n4 {
             scaled[i] = (self.inner.buf[i] as u16 * bri as u16 / 255) as u8;
         }
-        self.inner.transport.write(&scaled[..n4])
+        self.inner.conn.write(&scaled[..n4])
     }
 
     /// Get the global brightness scalar (0–255).

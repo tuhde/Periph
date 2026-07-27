@@ -1,7 +1,7 @@
 //! ENS160 digital multi-gas sensor driver.
 //!
 //! Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
-//! configuration required beyond the transport. The sensor performs automatic
+//! configuration required beyond the connection. The sensor performs automatic
 //! baseline correction and on-chip signal processing.
 //!
 //! Default: STANDARD mode (gas sensing active), polling only, no external

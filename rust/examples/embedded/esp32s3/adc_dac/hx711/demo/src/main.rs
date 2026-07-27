@@ -7,7 +7,7 @@ use esp_hal::delay::Delay;
 use esp_hal::gpio::{Input, Output, Pull};
 use esp_println::println;
 use periph::chips::adc_dac::Hx711Full;
-use periph::transport::hx711::HX711Transport;
+use periph::connection::hx711::HX711Connection;
 
 esp_app_desc!();
 
@@ -17,10 +17,10 @@ fn main() -> ! {
 
     let dout   = Input::new(peripherals.GPIO5, Pull::None);
     let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
-    let transport = HX711Transport::new(dout, pd_sck);
+    let connection = HX711Connection::new(dout, pd_sck);
     let mut delay = Delay::new();
 
-    let mut chip = Hx711Full::new(transport).expect("init HX711");  // Create HX711 driver — discards first conversion, (transport) → Result<Hx711Full, _>
+    let mut chip = Hx711Full::new(connection).expect("init HX711");  // Create HX711 driver — discards first conversion, (connection) → Result<Hx711Full, _>
 
     println!("Taring — keep scale empty...");
     chip.tare(10).expect("tare");                                   // Capture zero offset from 10-reading average, (times: u8) → Result<(), _>

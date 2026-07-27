@@ -5,7 +5,7 @@ fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp180Full::new(dev, 0x77, OSS_ULP).expect("init BMP180"); // Create BMP180 driver, (transport, oss=0 ULP)
+    let mut bmp = Bmp180Full::new(dev, 0x77, OSS_ULP).expect("init BMP180"); // Create BMP180 driver, (connection, oss=0 ULP)
 
     let t0 = bmp.temperature().expect("read temperature");                   // Read temperature, () → f32 C
     let p0 = bmp.pressure().expect("read pressure");                        // Read pressure, () → f32 hPa

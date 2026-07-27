@@ -27,7 +27,7 @@ const WRITE_CYCLE_MS: u32 = 5;
 /// Default configuration (no registers to configure):
 /// - User EEPROM is read/written as raw bytes (no interpretation)
 /// - `write_byte` waits the worst-case write-cycle time before returning
-///   (the C++ Transport interface does not propagate ACK/NACK, so the
+///   (the C++ Connection interface does not propagate ACK/NACK, so the
 ///   bus is not polled)
 /// - All addresses 0x80-0xFF are write-protected; writes are silently
 ///   ignored by the chip.

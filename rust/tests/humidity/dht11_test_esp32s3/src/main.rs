@@ -10,14 +10,14 @@
 use esp_backtrace as _;
 use esp_hal::{delay::Delay, gpio::AnyFlex, main, peripherals::Peripherals};
 use periph::chips::humidity::Dht11MinimalEsp32s3;
-use periph::transport::dhtxx::DHTxxTransportEsp32s3;
+use periph::connection::dhtxx::DHTxxConnectionEsp32s3;
 
 #[main]
 fn main() -> ! {
     let peripherals = Peripherals::take();
     let pin: AnyFlex = peripherals.GPIO4;
-    let transport = DHTxxTransportEsp32s3::new(pin);
-    let mut dht = Dht11MinimalEsp32s3::new(transport);
+    let connection = DHTxxConnectionEsp32s3::new(pin);
+    let mut dht = Dht11MinimalEsp32s3::new(connection);
     let delay = Delay::new();
 
     loop {

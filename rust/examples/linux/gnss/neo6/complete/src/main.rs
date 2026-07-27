@@ -2,7 +2,7 @@
 // To use SPI instead of UART, construct with periph::chips::gnss::SpiBus(spi_device).
 
 use periph::chips::gnss::{Neo6Full, UartBus};
-use periph::transport::uart_linux::LinuxUart;
+use periph::connection::uart_linux::LinuxUart;
 
 fn main() {
     let port = std::env::var("UART_PORT").unwrap_or_else(|_| "/dev/ttyS0".to_string());

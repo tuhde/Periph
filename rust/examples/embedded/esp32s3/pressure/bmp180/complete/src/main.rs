@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp180Full::new(i2c, 0x77, 0).expect("init BMP180"); // Create BMP180 driver, (transport, oss=0)
+    let mut bmp = Bmp180Full::new(i2c, 0x77, 0).expect("init BMP180"); // Create BMP180 driver, (connection, oss=0)
     let cid = bmp.chip_id().expect("read chip id");                    // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                                  // returns 0x55 for BMP180
     let oss = bmp.oversampling();                                      // Read OSS, () → u8 0–3
