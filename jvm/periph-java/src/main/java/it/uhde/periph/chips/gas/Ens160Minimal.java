@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
  * ENS160 digital multi-gas sensor — minimal interface.
  *
  * <p>Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
- * configuration required beyond the transport. The sensor performs automatic
+ * configuration required beyond the connection. The sensor performs automatic
  * baseline correction and on-chip signal processing.
  *
  * <p>Default: STANDARD mode (gas sensing active), polling only, no external
@@ -36,16 +36,16 @@ public class Ens160Minimal {
 
     protected static final int PART_ID_EXPECTED  = 0x0160;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver, verify PART_ID, and start STANDARD mode.
      *
-     * @param transport I²C or SPI transport bound to the device.
+     * @param connection I²C or SPI connection bound to the device.
      * @throws IOException on I²C error or wrong PART_ID.
      */
-    public Ens160Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Ens160Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         writeReg(REG_OPMODE, OPMODE_IDLE);
         try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         int partId = readRegLE16(REG_PART_ID);
@@ -56,15 +56,15 @@ public class Ens160Minimal {
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        transport.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(new byte[]{(byte) reg, (byte) value});
     }
 
     protected void writeRegLE16(int reg, int value) throws IOException {
-        transport.write(new byte[]{(byte) reg, (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)});
+        connection.write(new byte[]{(byte) reg, (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)});
     }
 
     protected byte[] readReg(int reg, int n) throws IOException {
-        return transport.writeRead(new byte[]{(byte) reg}, n);
+        return connection.writeRead(new byte[]{(byte) reg}, n);
     }
 
     protected int readRegLE16(int reg) throws IOException {

@@ -1,21 +1,21 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport
+import it.uhde.periph.connection.NeoPixelConnection
 import it.uhde.periph.chips.led.WS2812BFull
 
 fun main() {
     val spiBus     = System.getenv("SPI_BUS")?.toInt()     ?: 0
     val spiDevice  = System.getenv("SPI_DEVICE")?.toInt()  ?: 0
     val pixelCount = System.getenv("PIXEL_COUNT")?.toInt() ?: 4
-    NeoPixelTransport(spiBus, spiDevice).use { transport ->  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
-        val strip = WS2812BFull(transport, pixelCount)              // construct driver, (transport, n) → WS2812BFull
+    NeoPixelConnection(spiBus, spiDevice).use { connection ->  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
+        val strip = WS2812BFull(connection, pixelCount)              // construct driver, (connection, n) → WS2812BFull
 
         strip.fill(255, 0, 0)                                        // fill entire strip red and send, (r=0–255, g=0–255, b=0–255) → Unit
-                                                                     // inherited from WS2812BMinimal; fills buffer in GRB order and calls transport.write()
+                                                                     // inherited from WS2812BMinimal; fills buffer in GRB order and calls connection.write()
         Thread.sleep(500)
 
         strip.brightness = 128                                       // set brightness to 50%, (value=0–255) → Unit

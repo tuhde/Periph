@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -46,7 +46,7 @@ public class As5600Minimal {
     /** Fixed I²C address. */
     protected static final int I2C_ADDR = 0x36;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver and verify magnet presence.
@@ -54,11 +54,11 @@ public class As5600Minimal {
      * <p>Reads the STATUS register once; if MD=0 (no magnet detected), an
      * {@link IOException} is thrown because angle data would be invalid.
      *
-     * @param transport I²C transport bound to address 0x36
+     * @param connection I²C connection bound to address 0x36
      * @throws IOException if MD=0 (magnet not detected) or on I²C error
      */
-    public As5600Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public As5600Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         int status = readReg8(REG_STATUS);
         if ((status & STATUS_MD) == 0) {
             throw new IOException("AS5600: magnet not detected (MD=0)");
@@ -141,7 +141,7 @@ public class As5600Minimal {
      * @throws IOException on I²C error
      */
     protected void writeReg8(int reg, int val) throws IOException {
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) reg,
                 (byte) (val & 0xFF)
         });
@@ -155,7 +155,7 @@ public class As5600Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg8(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
         return b[0] & 0xFF;
     }
 
@@ -172,7 +172,7 @@ public class As5600Minimal {
      */
     protected void writeReg12(int regHi, int regLo, int val) throws IOException {
         val = val & 0xFFF;
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) regHi,
                 (byte) ((val >> 8) & 0x0F),
                 (byte) (val & 0xFF)
@@ -190,7 +190,7 @@ public class As5600Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg12(int regHi) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) regHi}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) regHi}, 2);
         return ((b[0] & 0x0F) << 8) | (b[1] & 0xFF);
     }
 
@@ -202,7 +202,7 @@ public class As5600Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg16(int regHi) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) regHi}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) regHi}, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 }

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import kotlin.math.roundToInt
 
 /**
@@ -12,7 +12,7 @@ import kotlin.math.roundToInt
  *
  * Default I²C address: 0x60 (A0 pin = GND), 0x61 (A0 pin = VDD).
  */
-open class Mcp4725Minimal(protected val transport: Transport) {
+open class Mcp4725Minimal(protected val connection: Connection) {
 
     /** Last code written; used by subclass [Mcp4725Full.setPowerDown] to preserve the output level. */
     protected var lastCode: Int = 0
@@ -40,7 +40,7 @@ open class Mcp4725Minimal(protected val transport: Transport) {
         val c = code.coerceIn(0, 4095)
         lastCode = c
         // Fast Write: [0 0 PD1 PD0 D11-D8] [D7-D0]  — PD1=PD0=0 (normal mode)
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             ((c shr 8) and 0x0F).toByte(),
             (c and 0xFF).toByte()
         ))

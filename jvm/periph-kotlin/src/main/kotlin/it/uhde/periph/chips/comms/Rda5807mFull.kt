@@ -1,20 +1,20 @@
 package it.uhde.periph.chips.comms
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * RDA5807M — full driver. Extends [Rda5807mMinimal] with band/spacing
  * configuration, RDS, status, and power management.
  *
- * @param transport    I²C transport bound to address 0x10
+ * @param connection    I²C connection bound to address 0x10
  * @param frequencyMhz initial frequency in MHz (default 100.0)
  * @param volume       initial volume, 0 (mute) to 15 (max) (default 8)
  */
 class Rda5807mFull @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     frequencyMhz: Double = 100.0,
     volume: Int = 8
-) : Rda5807mMinimal(transport, frequencyMhz, volume) {
+) : Rda5807mMinimal(connection, frequencyMhz, volume) {
 
     companion object {
         // Kotlin does not expose a superclass companion object's members through

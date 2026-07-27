@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED --add-opens java.base/sun.misc=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.magnetometer.As5600Full
 
 @Field int passed = 0
@@ -19,14 +19,14 @@ def checkTrue(String label, boolean condition) {
 int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
 int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x36').replaceFirst(/^0[xX]/, ''), 16)
 
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
     // --- Magnet status poll (60 s max at 5 Hz) ---
     println('--- magnet status (60 s max) ---')
     long deadline = System.currentTimeMillis() + 60_000L
     while (System.currentTimeMillis() < deadline) {
-        int s   = transport.writeRead([0x0B] as byte[], 1)[0] & 0xFF
-        int agc = transport.writeRead([0x1A] as byte[], 1)[0] & 0xFF
+        int s   = connection.writeRead([0x0B] as byte[], 1)[0] & 0xFF
+        int agc = connection.writeRead([0x1A] as byte[], 1)[0] & 0xFF
         println("MD=${(s >> 3) & 1} ML=${(s >> 4) & 1} MH=${(s >> 5) & 1} AGC=$agc")
         if (s & 0x08) break
         Thread.sleep(200)
@@ -38,9 +38,9 @@ try {
     theUnsafe.accessible = true
     def unsafe = theUnsafe.get(null) as sun.misc.Unsafe
     def as5600 = unsafe.allocateInstance(As5600Full) as As5600Full
-    def tf = as5600.getClass().getSuperclass().getDeclaredField('transport')
+    def tf = as5600.getClass().getSuperclass().getDeclaredField('connection')
     tf.accessible = true
-    tf.set(as5600, transport)
+    tf.set(as5600, connection)
 
     // --- Basic measurements ---
     double angle = as5600.angle()
@@ -118,7 +118,7 @@ try {
     checkTrue('angle() after configure() in range', angle2 >= 0.0d && angle2 < 360.0d)
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.imu.Mpu6050Full
 
 fun main() {
-    I2CTransport(1, 0x68).use { transport ->
-        val imu = Mpu6050Full(transport)                           // Create MPU6050 driver, (transport, addr=0x68) → None
+    I2CConnection(1, 0x68).use { connection ->
+        val imu = Mpu6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
 
         val a = imu.accel()                                        // Read 3-axis acceleration, () → DoubleArray m/s²
                                                                    // converts raw accel register to m/s² (16384 LSB/g at ±2g)

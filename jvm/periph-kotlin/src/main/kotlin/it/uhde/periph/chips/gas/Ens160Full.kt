@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -10,7 +10,7 @@ import java.io.IOException
  * raw sensor resistance, firmware version query, interrupt configuration,
  * and sleep/wake control.
  */
-class Ens160Full(transport: Transport) : Ens160Minimal(transport) {
+class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
 
     companion object {
         /** Validity flag: OK. */

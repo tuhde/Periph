@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.comms
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import kotlin.math.roundToInt
 
 /**
  * RDA5807M — single-chip FM stereo radio tuner with I²C interface (minimal driver).
  *
  * Tunes to a station, adjusts volume, mutes, and seeks the next station. No
- * configuration required beyond the transport.
+ * configuration required beyond the connection.
  *
  * Unlike most chips in this project, the RDA5807M has no register-pointer
  * byte: writes always start at the fixed register 0x02 and reads always start
@@ -17,12 +17,12 @@ import kotlin.math.roundToInt
  *
  * Fixed I²C address: 0x10.
  *
- * @param transport    I²C transport bound to address 0x10
+ * @param connection    I²C connection bound to address 0x10
  * @param frequencyMhz initial frequency in MHz (default 100.0)
  * @param volume       initial volume, 0 (mute) to 15 (max) (default 8)
  */
 open class Rda5807mMinimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     frequencyMhz: Double = 100.0,
     volume: Int = 8
 ) {
@@ -131,11 +131,11 @@ open class Rda5807mMinimal @JvmOverloads constructor(
             buf[i * 2] = (regs[i] shr 8).toByte()
             buf[i * 2 + 1] = (regs[i] and 0xFF).toByte()
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     protected fun readStatus(n: Int): IntArray {
-        val buf = transport.read(n)
+        val buf = connection.read(n)
         val words = IntArray(n / 2)
         for (i in words.indices) {
             words[i] = ((buf[i * 2].toInt() and 0xFF) shl 8) or (buf[i * 2 + 1].toInt() and 0xFF)

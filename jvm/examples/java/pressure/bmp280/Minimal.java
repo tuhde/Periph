@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.pressure.Bmp280Minimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x76)) {       // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CTransport
-            var sensor = new Bmp280Minimal(transport);                  // construct driver, verifies chip ID and loads calibration, (transport) → Bmp280Minimal
+        try (var connection = new I2CConnection(1, 0x76)) {       // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CConnection
+            var sensor = new Bmp280Minimal(connection);                  // construct driver, verifies chip ID and loads calibration, (connection) → Bmp280Minimal
 
             while (true) {
                 double t = sensor.temperature();                        // read temperature, () → double °C

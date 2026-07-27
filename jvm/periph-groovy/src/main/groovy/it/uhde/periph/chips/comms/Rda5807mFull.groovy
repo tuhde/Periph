@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.comms
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * RDA5807M — full driver. Extends {@link Rda5807mMinimal} with band/spacing
@@ -11,12 +11,12 @@ import it.uhde.periph.transport.Transport
 class Rda5807mFull extends Rda5807mMinimal {
 
     /**
-     * @param transport    I²C transport bound to address 0x10
+     * @param connection    I²C connection bound to address 0x10
      * @param frequencyMhz initial frequency in MHz (default 100.0)
      * @param volume       initial volume, 0 (mute) to 15 (max) (default 8)
      */
-    Rda5807mFull(Transport transport, double frequencyMhz = 100.0d, int volume = 8) {
-        super(transport, frequencyMhz, volume)
+    Rda5807mFull(Connection connection, double frequencyMhz = 100.0d, int volume = 8) {
+        super(connection, frequencyMhz, volume)
     }
 
     /**

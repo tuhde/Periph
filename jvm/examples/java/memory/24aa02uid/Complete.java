@@ -1,17 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.memory.Eeprom24Aa02UidFull;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x50)) {            // open I²C bus 1, device 0x50, (bus, address) → I2CTransport
+        try (var connection = new I2CConnection(1, 0x50)) {            // open I²C bus 1, device 0x50, (bus, address) → I2CConnection
 
-            var eeprom = new Eeprom24Aa02UidFull(transport);                  // construct driver, (transport) → Eeprom24Aa02UidFull
+            var eeprom = new Eeprom24Aa02UidFull(connection);                  // construct driver, (connection) → Eeprom24Aa02UidFull
 
             byte[] uid = eeprom.readUid();                                     // read 32-bit unique serial number, () → byte[4]
                                                                               // reads 4 bytes at 0xFC-0xFF

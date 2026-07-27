@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
  * APDS-9960 — digital proximity, ambient light, RGB and gesture sensor (minimal driver).
  *
  * <p>Provides ambient light and color (RGBC) readings with no configuration
- * beyond the transport. The ALS/Color engine is enabled at construction
+ * beyond the connection. The ALS/Color engine is enabled at construction
  * with sensible defaults.
  *
  * <p>Default I²C address: 0x39 (fixed).
@@ -69,16 +69,16 @@ public class Apds9960Minimal {
     protected static final int CONTROL_DEFAULT = 0x01;
     protected static final int CONFIG2_DEFAULT = 0x01;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver.
      *
-     * @param transport I²C transport bound to the APDS-9960 device address (0x39)
+     * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9960Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Apds9960Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         try { Thread.sleep(6); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         int id = readReg(REG_ID);
         if (id != 0xAB) throw new IOException("APDS-9960 not found (ID=0x" + Integer.toHexString(id) + ", expected 0xAB)");
@@ -109,7 +109,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorRed() throws IOException {
-        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
         return (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
     }
 
@@ -122,7 +122,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorGreen() throws IOException {
-        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
         return (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
     }
 
@@ -135,7 +135,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorBlue() throws IOException {
-        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
         return (raw[6] & 0xFF) | ((raw[7] & 0xFF) << 8);
     }
 
@@ -148,7 +148,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int[] color() throws IOException {
-        byte[] raw = transport.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
         int c = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8);
         int r = (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
         int g = (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
@@ -157,16 +157,16 @@ public class Apds9960Minimal {
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        transport.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(new byte[]{(byte) reg, (byte) value});
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
         return b[0] & 0xFF;
     }
 
     protected int readReg16LE(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
         return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8);
     }
 }

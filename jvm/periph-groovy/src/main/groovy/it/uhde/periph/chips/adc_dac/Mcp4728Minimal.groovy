@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.adc_dac
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP4728 — quad-channel 12-bit DAC with I²C interface (minimal driver).
@@ -25,15 +25,15 @@ class Mcp4728Minimal {
     /** Channel D. */
     public static final int CH_D = 3
 
-    protected final Transport transport
+    protected final Connection connection
 
     /**
      * Construct the driver.
      *
-     * @param transport I²C transport bound to the MCP4728 device address
+     * @param connection I²C connection bound to the MCP4728 device address
      */
-    Mcp4728Minimal(Transport transport) {
-        this.transport = transport
+    Mcp4728Minimal(Connection connection) {
+        this.connection = connection
     }
 
     /**
@@ -61,7 +61,7 @@ class Mcp4728Minimal {
         int ch = Math.max(0, Math.min(3, channel))
         int c = Math.max(0, Math.min(4095, code))
         // Multi-Write: [0 1 0 0 0 DAC1 DAC0 UDAC] [V_REF PD1 PD0 Gx D11-D8] [D7-D0]
-        transport.write([(byte) (0x40 | ((ch & 0x03) << 1)),
+        connection.write([(byte) (0x40 | ((ch & 0x03) << 1)),
                          (byte) ((c >> 8) & 0x0F),
                          (byte) (c & 0xFF)] as byte[])
     }
@@ -87,6 +87,6 @@ class Mcp4728Minimal {
             buf[i * 2]     = (byte) ((code >> 8) & 0x0F)
             buf[i * 2 + 1] = (byte) (code & 0xFF)
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 }

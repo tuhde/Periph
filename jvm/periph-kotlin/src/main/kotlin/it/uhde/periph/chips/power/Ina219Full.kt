@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA219 — full driver. Extends [Ina219Minimal] with ADC configuration,
@@ -17,15 +17,15 @@ import it.uhde.periph.transport.Transport
  * Bits  2:0 : MODE — operating mode
  * ```
  *
- * @param transport  I²C transport bound to the INA219 device address
+ * @param connection  I²C connection bound to the INA219 device address
  * @param rShunt     shunt resistance in Ω (default 0.1)
  * @param maxCurrent maximum expected current in A (default 2.0)
  */
 class Ina219Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
-) : Ina219Minimal(transport, rShunt, maxCurrent) {
+) : Ina219Minimal(connection, rShunt, maxCurrent) {
 
     companion object {
         // PGA gain

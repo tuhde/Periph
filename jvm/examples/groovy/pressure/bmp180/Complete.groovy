@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Full
 
-def transport = new I2CTransport(1, 0x77)                // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CTransport
+def connection = new I2CConnection(1, 0x77)                // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CConnection
 try {
-    def sensor = new Bmp180Full(transport)                      // construct driver, verifies chip ID and loads calibration, (transport) → Bmp180Full
+    def sensor = new Bmp180Full(connection)                      // construct driver, verifies chip ID and loads calibration, (connection) → Bmp180Full
 
     int id = sensor.chipId()                                    // read chip ID register 0xD0, () → int
                                                                 // returns 0x55 for BMP180; useful for confirming the device is present
@@ -51,5 +51,5 @@ try {
     println("oversampling after reset: ${sensor.oversampling()}") // read current OSS setting, () → int
                                                                    // reset() restores chip but local field retains 0 since it was set after construction
 } finally {
-    transport.close()
+    connection.close()
 }

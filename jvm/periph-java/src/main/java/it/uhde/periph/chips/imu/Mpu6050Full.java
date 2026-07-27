@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -10,8 +10,8 @@ import java.io.IOException;
  */
 public class Mpu6050Full extends Mpu6050Minimal {
 
-    public Mpu6050Full(Transport transport) throws IOException {
-        super(transport);
+    public Mpu6050Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Mpu6050Full extends Mpu6050Minimal {
      * @throws IOException on I²C error.
      */
     public int[] accelRaw() throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
+        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
         return new int[]{
                 (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
                 (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -89,7 +89,7 @@ public class Mpu6050Full extends Mpu6050Minimal {
      * @throws IOException on I²C error.
      */
     public int[] gyroRaw() throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
+        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
         return new int[]{
                 (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
                 (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -148,7 +148,7 @@ public class Mpu6050Full extends Mpu6050Minimal {
      * @throws IOException on I²C error.
      */
     public int fifoCount() throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{(byte) REG_FIFO_COUNTH}, 2);
+        byte[] buf = connection.writeRead(new byte[]{(byte) REG_FIFO_COUNTH}, 2);
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF);
     }
 
@@ -161,7 +161,7 @@ public class Mpu6050Full extends Mpu6050Minimal {
     public byte[] readFifo() throws IOException {
         int count = fifoCount();
         if (count == 0) return new byte[0];
-        return transport.writeRead(new byte[]{(byte) REG_FIFO_R_W}, count);
+        return connection.writeRead(new byte[]{(byte) REG_FIFO_R_W}, count);
     }
 
     /**

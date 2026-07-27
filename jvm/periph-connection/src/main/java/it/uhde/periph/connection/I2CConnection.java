@@ -1,18 +1,18 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.*;
 
 /**
- * I²C transport backed by Linux i2c-dev via FFM (no native libraries required).
+ * I²C connection backed by Linux i2c-dev via FFM (no native libraries required).
  *
  * <p>Opens {@code /dev/i2c-<bus>} and sets the device address with {@code I2C_SLAVE} ioctl.
  * Subsequent {@link #write} / {@link #read} calls map directly to libc {@code write} /
  * {@code read}. {@link #writeRead} issues a stop-then-start between them; use a
- * platform-specific transport if the chip requires a true repeated-start.
+ * platform-specific connection if the chip requires a true repeated-start.
  */
-public final class I2CTransport implements Transport {
+public final class I2CConnection extends AbstractConnection {
 
     private static final int O_RDWR = 2;
     private static final long I2C_SLAVE = 0x0703L;
@@ -54,10 +54,24 @@ public final class I2CTransport implements Transport {
      *
      * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
      * @param address 7-bit device address
+     * @param intPin  optional INT-line {@link InputPin}, or {@code null}
+     * @param enPin   optional EN-pin {@link OutputPin}, or {@code null}
      * @throws IOException if the device cannot be opened or the address ioctl fails
      */
-    public I2CTransport(int bus, int address) throws IOException {
+    public I2CConnection(int bus, int address, InputPin intPin, OutputPin enPin) throws IOException {
+        super(intPin, enPin);
         this.fd = openDevice(bus, address);
+    }
+
+    /**
+     * Open an I²C device with no INT/EN pins.
+     *
+     * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
+     * @param address 7-bit device address
+     * @throws IOException if the device cannot be opened or the address ioctl fails
+     */
+    public I2CConnection(int bus, int address) throws IOException {
+        this(bus, address, null, null);
     }
 
     private static int openDevice(int bus, int address) throws IOException {
@@ -79,7 +93,7 @@ public final class I2CTransport implements Transport {
     }
 
     @Override
-    public void write(byte[] data) throws IOException {
+    protected void _write(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
             var buf = arena.allocate(data.length);
             buf.copyFrom(MemorySegment.ofArray(data));
@@ -93,7 +107,7 @@ public final class I2CTransport implements Transport {
     }
 
     @Override
-    public byte[] read(int n) throws IOException {
+    protected byte[] _read(int n) throws IOException {
         try (var arena = Arena.ofConfined()) {
             var buf = arena.allocate(n);
             long got = (long) readMH.invoke(fd, buf, (long) n);
@@ -108,12 +122,12 @@ public final class I2CTransport implements Transport {
 
     /**
      * Writes then reads as two separate bus transactions (stop + start between them).
-     * For chips requiring a true repeated-start, use a platform-specific transport.
+     * For chips requiring a true repeated-start, use a platform-specific connection.
      */
     @Override
-    public byte[] writeRead(byte[] data, int n) throws IOException {
-        write(data);
-        return read(n);
+    protected byte[] _writeRead(byte[] data, int n) throws IOException {
+        _write(data);
+        return _read(n);
     }
 
     @Override

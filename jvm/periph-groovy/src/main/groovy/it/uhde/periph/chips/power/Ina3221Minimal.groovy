@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA3221 — 3-channel, high-side measurement, shunt and bus voltage monitor
@@ -25,7 +25,7 @@ class Ina3221Minimal {
     protected static final int[] SHUNT_BASE = [0, 0x01, 0x03, 0x05] as int[]
     protected static final int[] BUS_BASE   = [0, 0x02, 0x04, 0x06] as int[]
 
-    protected final Transport transport
+    protected final Connection connection
     /** Per-channel shunt resistances in Ω (index 0 = channel 1). */
     protected final double[] rShunts
 
@@ -34,24 +34,24 @@ class Ina3221Minimal {
      *
      * <p>No registers are written; the hardware reset defaults are used.
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω applied to all three channels (e.g. 0.1)
      */
-    Ina3221Minimal(Transport transport, double rShunt = 0.1) {
-        this.transport = transport
+    Ina3221Minimal(Connection connection, double rShunt = 0.1) {
+        this.connection = connection
         this.rShunts   = [rShunt, rShunt, rShunt] as double[]
     }
 
     /**
      * Construct the driver with per-channel shunt resistances.
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      * @param rShunts   shunt resistances in Ω for channels 1, 2, and 3 (length must be 3)
      */
-    Ina3221Minimal(Transport transport, double[] rShunts) {
+    Ina3221Minimal(Connection connection, double[] rShunts) {
         if (rShunts == null || rShunts.length != 3)
             throw new IllegalArgumentException('rShunts must have exactly 3 elements')
-        this.transport = transport
+        this.connection = connection
         this.rShunts   = rShunts.clone() as double[]
     }
 
@@ -123,7 +123,7 @@ class Ina3221Minimal {
      * @return raw unsigned 16-bit value
      */
     protected int readReg(int reg) {
-        byte[] b = transport.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
         ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 
@@ -134,7 +134,7 @@ class Ina3221Minimal {
      * @param val 16-bit value to write
      */
     protected void writeReg(int reg, int val) {
-        transport.write([(byte) reg, (byte) ((val >> 8) & 0xFF), (byte) (val & 0xFF)] as byte[])
+        connection.write([(byte) reg, (byte) ((val >> 8) & 0xFF), (byte) (val & 0xFF)] as byte[])
     }
 
     /**

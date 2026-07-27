@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina226Full
 
 /**
@@ -21,8 +21,8 @@ private const val INTERVAL_MS = 1000L
 private const val ALERT_POWER = 1.0  // W
 
 fun main() {
-    I2CTransport(1, 0x40).use { transport ->                 // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
-        val ina = Ina226Full(transport, 0.1, 2.0)                  // construct driver, (transport, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina226Full
+    I2CConnection(1, 0x40).use { connection ->                 // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
+        val ina = Ina226Full(connection, 0.1, 2.0)                  // construct driver, (connection, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina226Full
 
         // --- Configure for noise-sensitive power rail monitoring ---
         // 128-sample averaging suppresses switching noise on a noisy supply;

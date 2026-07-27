@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public class Mcp23017Minimal {
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final int addr;
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
@@ -47,12 +47,12 @@ public class Mcp23017Minimal {
      * to {@code 0x7F} (pins 0–6 as inputs, pins 7 as outputs). Pull-ups are
      * disabled.
      *
-     * @param transport I²C transport bound to the device address
-     * @param addr      7-bit I²C address ({@code 0x20}–{@code 0x27})
+     * @param connection I²C connection bound to the device address
+     * @param addr       7-bit I²C address ({@code 0x20}–{@code 0x27})
      * @throws IOException on I²C error during init
      */
-    public Mcp23017Minimal(Transport transport, int addr) throws IOException {
-        this.transport = transport;
+    public Mcp23017Minimal(Connection connection, int addr) throws IOException {
+        this.connection = connection;
         this.addr     = addr;
         writeReg(REG_OLATA,  0x00);
         writeReg(REG_OLATB,  0x00);
@@ -69,11 +69,11 @@ public class Mcp23017Minimal {
     // -------------------------------------------------------------------------
 
     protected void writeReg(int reg, int value) throws IOException {
-        transport.write(new byte[]{ (byte) reg, (byte) (value & 0xFF) });
+        connection.write(new byte[]{ (byte) reg, (byte) (value & 0xFF) });
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{ (byte) reg }, 1);
+        byte[] buf = connection.writeRead(new byte[]{ (byte) reg }, 1);
         return buf[0] & 0xFF;
     }
 

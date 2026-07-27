@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.light
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * APDS-9960 — full driver. Extends {@link Apds9960Minimal} with proximity, gesture,
@@ -13,10 +13,10 @@ class Apds9960Full extends Apds9960Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C transport bound to the APDS-9960 device address (0x39)
+     * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      */
-    Apds9960Full(Transport transport) {
-        super(transport)
+    Apds9960Full(Connection connection) {
+        super(connection)
     }
 
     /**
@@ -145,21 +145,21 @@ class Apds9960Full extends Apds9960Minimal {
      * Clear the proximity interrupt via address-only write to PICLEAR.
      */
     void clearProximityInterrupt() {
-        transport.write([(byte) REG_PICLEAR] as byte[])
+        connection.write([(byte) REG_PICLEAR] as byte[])
     }
 
     /**
      * Clear the ALS/color interrupt via address-only write to CICLEAR.
      */
     void clearAlsInterrupt() {
-        transport.write([(byte) REG_CICLEAR] as byte[])
+        connection.write([(byte) REG_CICLEAR] as byte[])
     }
 
     /**
      * Clear all non-gesture interrupts via address-only write to AICLEAR.
      */
     void clearAllInterrupts() {
-        transport.write([(byte) REG_AICLEAR] as byte[])
+        connection.write([(byte) REG_AICLEAR] as byte[])
     }
 
     /**
@@ -232,7 +232,7 @@ class Apds9960Full extends Apds9960Minimal {
         if (level == 0) return []
         List<int[]> result = []
         for (int i = 0; i < level; i++) {
-            byte[] raw = transport.writeRead([(byte) REG_GFIFO_U] as byte[], 4)
+            byte[] raw = connection.writeRead([(byte) REG_GFIFO_U] as byte[], 4)
             result.add([raw[0] & 0xFF, raw[1] & 0xFF, raw[2] & 0xFF, raw[3] & 0xFF] as int[])
         }
         result

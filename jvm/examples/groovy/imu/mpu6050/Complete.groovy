@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.imu.Mpu6050Full
 
-def transport = new I2CTransport(1, 0x68)
+def connection = new I2CConnection(1, 0x68)
 try {
-    def imu = new Mpu6050Full(transport)                           // Create MPU6050 driver, (transport, addr=0x68) → None
+    def imu = new Mpu6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
 
     double[] a = imu.accel()                                       // Read 3-axis acceleration, () → double[] m/s²
                                                                    // converts raw accel register to m/s² (16384 LSB/g at ±2g)
@@ -44,5 +44,5 @@ try {
     println "fifo read: ${data.length} bytes"
     imu.resetFifo()                                                 // Reset FIFO buffer, () → None
 } finally {
-    transport.close()
+    connection.close()
 }

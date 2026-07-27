@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.comms;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
  * RDA5807M — single-chip FM stereo radio tuner with I²C interface (minimal driver).
  *
  * <p>Tunes to a station, adjusts volume, mutes, and seeks the next station. No
- * configuration required beyond the transport.
+ * configuration required beyond the connection.
  *
  * <p>Unlike most chips in this project, the RDA5807M has no register-pointer
  * byte: writes always start at the fixed register 0x02 and reads always start
@@ -75,7 +75,7 @@ public class Rda5807mMinimal {
     protected static final int FM_TRUE = 0x0100;
     protected static final int FM_READY = 0x0080;
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final int[] regs = new int[6];
     protected int band;
     protected int space;
@@ -85,13 +85,13 @@ public class Rda5807mMinimal {
     /**
      * Construct the driver and tune to the initial frequency.
      *
-     * @param transport     I²C transport bound to address 0x10
+     * @param connection     I²C connection bound to address 0x10
      * @param frequencyMhz  initial frequency in MHz
      * @param volume        initial volume, 0 (mute) to 15 (max)
      * @throws IOException on I²C error
      */
-    public Rda5807mMinimal(Transport transport, double frequencyMhz, int volume) throws IOException {
-        this.transport = transport;
+    public Rda5807mMinimal(Connection connection, double frequencyMhz, int volume) throws IOException {
+        this.connection = connection;
         this.band = BAND_WORLD;
         this.space = SPACE_100K;
         this.eastEurope50m = false;
@@ -120,11 +120,11 @@ public class Rda5807mMinimal {
     /**
      * Construct the driver with default parameters (100.0 MHz, volume 8).
      *
-     * @param transport I²C transport bound to address 0x10
+     * @param connection I²C connection bound to address 0x10
      * @throws IOException on I²C error
      */
-    public Rda5807mMinimal(Transport transport) throws IOException {
-        this(transport, 100.0, 8);
+    public Rda5807mMinimal(Connection connection) throws IOException {
+        this(connection, 100.0, 8);
     }
 
     private static int freqToChan(int band, int space, boolean eastEurope50m, double frequencyMhz) {
@@ -147,11 +147,11 @@ public class Rda5807mMinimal {
             buf[i * 2] = (byte) (regs[i] >> 8);
             buf[i * 2 + 1] = (byte) (regs[i] & 0xFF);
         }
-        transport.write(buf);
+        connection.write(buf);
     }
 
     protected int[] readStatus(int n) throws IOException {
-        byte[] buf = transport.read(n);
+        byte[] buf = connection.read(n);
         int[] words = new int[n / 2];
         for (int i = 0; i < words.length; i++) {
             words[i] = ((buf[i * 2] & 0xFF) << 8) | (buf[i * 2 + 1] & 0xFF);

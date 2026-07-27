@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina3221Full
 
 var passed = 0
@@ -19,9 +19,9 @@ fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt() ?: 1
     val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.removePrefix("0X")?.toInt(16) ?: 0x40
 
-    I2CTransport(bus, addr).use { transport ->
+    I2CConnection(bus, addr).use { connection ->
 
-        val ina = Ina3221Full(transport)
+        val ina = Ina3221Full(connection)
 
         // --- Minimal methods: all three channels ---
         for (ch in 1..3) {

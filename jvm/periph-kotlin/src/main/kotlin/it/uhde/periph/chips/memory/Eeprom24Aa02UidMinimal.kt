@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * 24AA02UID — 2 Kbit I²C EEPROM with 32-bit unique serial number (minimal driver).
@@ -22,12 +22,12 @@ import it.uhde.periph.transport.Transport
  * ## Configuration defaults
  * - User EEPROM is read/written as raw bytes (no interpretation)
  * - [writeByte] waits the worst-case 5 ms internal write cycle before
- *   returning (the C++ Transport interface does not propagate ACK/NACK)
+ *   returning (the C++ Connection interface does not propagate ACK/NACK)
  * - All addresses 0x80-0xFF are write-protected; writes are silently
  *   ignored by the chip
  */
 open class Eeprom24Aa02UidMinimal(
-    protected val transport: Transport
+    protected val connection: Connection
 ) {
     companion object {
         const val ADDR_UID_BASE  = 0xFC
@@ -44,7 +44,7 @@ open class Eeprom24Aa02UidMinimal(
      * @return 4-byte UID array
      */
     fun readUid(): ByteArray =
-        transport.writeRead(byteArrayOf(ADDR_UID_BASE.toByte()), 4)
+        connection.writeRead(byteArrayOf(ADDR_UID_BASE.toByte()), 4)
 
     /**
      * Read a single byte from user EEPROM at 0x00-0x7F.
@@ -53,7 +53,7 @@ open class Eeprom24Aa02UidMinimal(
      * @return byte value 0-255
      */
     fun readByte(address: Int): Int {
-        val b = transport.writeRead(byteArrayOf(address.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(address.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -68,7 +68,7 @@ open class Eeprom24Aa02UidMinimal(
      * @param value   byte value 0-255
      */
     fun writeByte(address: Int, value: Int) {
-        transport.write(byteArrayOf(address.toByte(), value.toByte()))
+        connection.write(byteArrayOf(address.toByte(), value.toByte()))
         Thread.sleep(WRITE_CYCLE_MS)
     }
 }

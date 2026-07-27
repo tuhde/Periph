@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.transport.DHTxxTransport
+import it.uhde.periph.connection.DHTxxConnection
 import java.io.IOException
 
 /**
@@ -11,16 +11,16 @@ import java.io.IOException
  * unprocessed 5-byte frame.
  */
 class Dht11Full @JvmOverloads constructor(
-    transport: DHTxxTransport,
+    connection: DHTxxConnection,
     private val maxRetries: Int = 3
-) : Dht11Minimal(transport) {
+) : Dht11Minimal(connection) {
 
     /**
      * Read both values, retrying on checksum error.
      *
      * @param maxRetries Maximum number of read attempts. If 0, the constructor default is used.
      * @return Pair of (temperature_C, humidity_RH).
-     * @throws IOException    on transport error.
+     * @throws IOException    on connection error.
      * @throws Dht11Minimal.Dht11Exception if all attempts fail with a checksum error.
      */
     @Throws(IOException::class, Dht11Minimal.Dht11Exception::class)
@@ -44,7 +44,7 @@ class Dht11Full @JvmOverloads constructor(
      */
     @Throws(IOException::class, Dht11Minimal.Dht11Exception::class)
     fun readRaw(): ByteArray {
-        val frame = transport.read()
+        val frame = connection.read()
         decode(frame)
         return frame
     }

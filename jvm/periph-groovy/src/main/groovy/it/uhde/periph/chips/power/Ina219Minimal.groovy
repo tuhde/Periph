@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA219 — zero-drift, bidirectional current/power monitor with I²C interface
@@ -25,7 +25,7 @@ class Ina219Minimal {
     protected static final int REG_CURRENT   = 0x04
     protected static final int REG_CALIBRATE = 0x05
 
-    protected final Transport transport
+    protected final Connection connection
     /** Shunt resistance in Ω — retained for calibration register recalculation. */
     protected final double rShunt
     /** Current register LSB in A/LSB. */
@@ -36,12 +36,12 @@ class Ina219Minimal {
     /**
      * Construct the driver and program the calibration register.
      *
-     * @param transport  I²C transport bound to the INA219 device address
+     * @param connection  I²C connection bound to the INA219 device address
      * @param rShunt     shunt resistance in Ω (default 0.1)
      * @param maxCurrent maximum expected current in A (default 2.0)
      */
-    Ina219Minimal(Transport transport, double rShunt = 0.1, double maxCurrent = 2.0) {
-        this.transport  = transport
+    Ina219Minimal(Connection connection, double rShunt = 0.1, double maxCurrent = 2.0) {
+        this.connection  = connection
         this.rShunt     = rShunt
         this.currentLsb = maxCurrent / 32768.0
         this.powerLsb   = 20.0 * currentLsb
@@ -114,7 +114,7 @@ class Ina219Minimal {
      * @return raw unsigned 16-bit value
      */
     protected int readReg(int reg) {
-        byte[] b = transport.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
         ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 
@@ -125,6 +125,6 @@ class Ina219Minimal {
      * @param val 16-bit value to write
      */
     protected void writeReg(int reg, int val) {
-        transport.write([(byte) reg, (byte) ((val >> 8) & 0xFF), (byte) (val & 0xFF)] as byte[])
+        connection.write([(byte) reg, (byte) ((val >> 8) & 0xFF), (byte) (val & 0xFF)] as byte[])
     }
 }

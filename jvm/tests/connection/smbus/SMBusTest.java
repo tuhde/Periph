@@ -1,14 +1,14 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 
-import it.uhde.periph.transport.SMBusTransport;
+import it.uhde.periph.connection.SMBusConnection;
 
 import java.io.IOException;
 
 /**
- * SMBus transport test — offline address validation plus an online bus scan
+ * SMBus connection test — offline address validation plus an online bus scan
  * and PEC round trip. Configure the bus via the I2C_BUS environment variable
  * (default: 1).
  */
@@ -30,14 +30,14 @@ public class SMBusTest {
         // must be rejected before any bus access.
 
         try {
-            new SMBusTransport(bus, 0x07, false);
+            new SMBusConnection(bus, 0x07, false);
             checkTrue("addr 0x07 rejected", false);
         } catch (IOException e) {
             checkTrue("addr 0x07 rejected", true);
         }
 
         try {
-            new SMBusTransport(bus, 0x78, false);
+            new SMBusConnection(bus, 0x78, false);
             checkTrue("addr 0x78 rejected", false);
         } catch (IOException e) {
             checkTrue("addr 0x78 rejected", true);
@@ -47,7 +47,7 @@ public class SMBusTest {
 
         java.util.List<Integer> found = new java.util.ArrayList<>();
         for (int addr = 0x08; addr < 0x78; addr++) {
-            try (var t = new SMBusTransport(bus, addr, false)) {
+            try (var t = new SMBusConnection(bus, addr, false)) {
                 t.read(1);
                 found.add(addr);
             } catch (IOException e) {
@@ -60,16 +60,16 @@ public class SMBusTest {
 
         // --- online: PEC ---
         // PEC appends a CRC-8 byte to every write. Whether the device under test
-        // accepts the extra byte is not a transport concern; we verify the
-        // transport computes and sends the CRC without crashing.
+        // accepts the extra byte is not a connection concern; we verify the
+        // connection computes and sends the CRC without crashing.
 
         if (!found.isEmpty()) {
-            try (var t = new SMBusTransport(bus, found.get(0), true)) {
+            try (var t = new SMBusConnection(bus, found.get(0), true)) {
                 t.write(new byte[] {0x00});
             } catch (IOException e) {
-                // device rejected CRC-appended byte; transport layer worked correctly
+                // device rejected CRC-appended byte; connection layer worked correctly
             }
-            checkTrue("PEC write: no transport crash", true);
+            checkTrue("PEC write: no connection crash", true);
         }
 
         System.out.printf("===DONE: %d passed, %d failed===%n", passed, failed);

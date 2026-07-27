@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -15,17 +15,17 @@ import java.io.IOException;
  */
 public class Mcp4725Minimal {
 
-    protected final Transport transport;
+    protected final Connection connection;
     /** Last code written; used by subclass setPowerDown to preserve the output level. */
     protected int lastCode = 0;
 
     /**
      * Construct the driver.
      *
-     * @param transport I²C transport bound to the MCP4725 device address
+     * @param connection I²C connection bound to the MCP4725 device address
      */
-    public Mcp4725Minimal(Transport transport) {
-        this.transport = transport;
+    public Mcp4725Minimal(Connection connection) {
+        this.connection = connection;
     }
 
     /**
@@ -54,7 +54,7 @@ public class Mcp4725Minimal {
         code = Math.max(0, Math.min(4095, code));
         lastCode = code;
         // Fast Write: [0 0 PD1 PD0 D11-D8] [D7-D0]  — PD1=PD0=0 (normal mode)
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) ((code >> 8) & 0x0F),
                 (byte) (code & 0xFF)
         });

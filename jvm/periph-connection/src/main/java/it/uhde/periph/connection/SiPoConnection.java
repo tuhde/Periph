@@ -1,20 +1,20 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.*;
 
 /**
- * SiPo (serial-in/parallel-out shift register) transport for cascadable SIPO
+ * SiPo (serial-in/parallel-out shift register) connection for cascadable SIPO
  * shift registers (TPIC6B595, SN74HC595, etc.), using Linux spidev and the
  * GPIO character device via FFM (no native libraries required).
  *
- * <p>SER IN/SRCK are electrically an SPI MOSI/SCK pair. This transport shifts
+ * <p>SER IN/SRCK are electrically an SPI MOSI/SCK pair. This connection shifts
  * data over either a hardware {@code /dev/spidevB.D} device ({@link
  * #hardware}) or a bit-banged pair of {@code /dev/gpiochip0} lines ({@link
  * #software}) — construct via whichever static factory matches the wiring.
  * RCK — and, if configured, SRCLR/G — are always plain GPIO character-device
- * lines, driven the same way as the DE pin in {@link UARTTransport}, regardless
+ * lines, driven the same way as the DE pin in {@link UARTConnection}, regardless
  * of which SPI mode is used.
  *
  * <p>Write-only: {@link #read} and {@link #writeRead} throw {@link
@@ -22,7 +22,7 @@ import java.lang.invoke.*;
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public final class SiPoTransport implements Transport {
+public final class SiPoConnection extends AbstractConnection {
 
     private static final int O_RDWR = 2;
 
@@ -34,7 +34,7 @@ public final class SiPoTransport implements Transport {
     private static final int  SPI_IOC_XFER_SIZE        = 32;
     private static final int  SPI_SPEED_HZ             = 1_000_000;
 
-    // GPIO character device ioctls (_IOWR(0xB4, ...)) — same layout as UARTTransport's DE pin.
+    // GPIO character device ioctls (_IOWR(0xB4, ...)) — same layout as UARTConnection's DE pin.
     private static final long GPIO_GET_LINEHANDLE_IOCTL        = 0xC16CB403L;
     private static final long GPIOHANDLE_SET_LINE_VALUES_IOCTL = 0xC040B409L;
     private static final int  GPIOHANDLE_REQUEST_OUTPUT        = 2;
@@ -77,8 +77,9 @@ public final class SiPoTransport implements Transport {
     private final int srclrFd;  // -1 if not configured
     private final int gFd;      // -1 if not configured
 
-    private SiPoTransport(int spiFd, int serInFd, int srckFd,
-                          int rckFd, int srclrFd, int gFd) throws IOException {
+    private SiPoConnection(int spiFd, int serInFd, int srckFd,
+                          int rckFd, int srclrFd, int gFd, OutputPin enPin) throws IOException {
+        super(null, enPin);
         this.spiFd = spiFd;
         this.serInFd = serInFd;
         this.srckFd = srckFd;
@@ -92,24 +93,26 @@ public final class SiPoTransport implements Transport {
     }
 
     /**
-     * Create a hardware-SPI transport: SER IN/SRCK are the spidev MOSI/SCK pins.
+     * Create a hardware-SPI connection: SER IN/SRCK are the spidev MOSI/SCK pins.
      *
      * @param busNumber    SPI bus number (opens {@code /dev/spidevB.D})
      * @param deviceNumber SPI chip-select line on the bus
      * @param rckLine      {@code /dev/gpiochip0} line number for RCK (register clock)
      * @param srclrLine    {@code /dev/gpiochip0} line number for SRCLR; -1 disables it
      * @param gLine        {@code /dev/gpiochip0} line number for G (output enable); -1 disables it
-     * @return a new hardware-mode transport
+     * @param enPin        optional EN-pin {@link OutputPin}, or {@code null}
+     * @return a new hardware-mode connection
      * @throws IOException if the spidev device or any GPIO line cannot be opened
      */
-    public static SiPoTransport hardware(int busNumber, int deviceNumber,
-                                         int rckLine, int srclrLine, int gLine) throws IOException {
+    public static SiPoConnection hardware(int busNumber, int deviceNumber,
+                                         int rckLine, int srclrLine, int gLine,
+                                         OutputPin enPin) throws IOException {
         int spiFd = openSpiDevice(busNumber, deviceNumber);
         try {
             int rckFd = openGpioLine(rckLine, 0);
             int srclrFd = srclrLine >= 0 ? openGpioLine(srclrLine, 1) : -1;
             int gFd = gLine >= 0 ? openGpioLine(gLine, 0) : -1;
-            return new SiPoTransport(spiFd, -1, -1, rckFd, srclrFd, gFd);
+            return new SiPoConnection(spiFd, -1, -1, rckFd, srclrFd, gFd, enPin);
         } catch (IOException e) {
             try { closeMH.invoke(spiFd); } catch (Throwable ignored) {}
             throw e;
@@ -117,7 +120,23 @@ public final class SiPoTransport implements Transport {
     }
 
     /**
-     * Create a software (bit-banged) transport: SER IN/SRCK are plain
+     * Create a hardware-SPI connection with no EN pin.
+     *
+     * @param busNumber    SPI bus number (opens {@code /dev/spidevB.D})
+     * @param deviceNumber SPI chip-select line on the bus
+     * @param rckLine      {@code /dev/gpiochip0} line number for RCK (register clock)
+     * @param srclrLine    {@code /dev/gpiochip0} line number for SRCLR; -1 disables it
+     * @param gLine        {@code /dev/gpiochip0} line number for G (output enable); -1 disables it
+     * @return a new hardware-mode connection
+     * @throws IOException if the spidev device or any GPIO line cannot be opened
+     */
+    public static SiPoConnection hardware(int busNumber, int deviceNumber,
+                                         int rckLine, int srclrLine, int gLine) throws IOException {
+        return hardware(busNumber, deviceNumber, rckLine, srclrLine, gLine, null);
+    }
+
+    /**
+     * Create a software (bit-banged) connection: SER IN/SRCK are plain
      * {@code /dev/gpiochip0} lines instead of a spidev device.
      *
      * @param serInLine {@code /dev/gpiochip0} line number for SER IN (serial data)
@@ -125,17 +144,35 @@ public final class SiPoTransport implements Transport {
      * @param rckLine   {@code /dev/gpiochip0} line number for RCK (register clock)
      * @param srclrLine {@code /dev/gpiochip0} line number for SRCLR; -1 disables it
      * @param gLine     {@code /dev/gpiochip0} line number for G (output enable); -1 disables it
-     * @return a new software-mode transport
+     * @param enPin     optional EN-pin {@link OutputPin}, or {@code null}
+     * @return a new software-mode connection
      * @throws IOException if any GPIO line cannot be opened
      */
-    public static SiPoTransport software(int serInLine, int srckLine,
-                                         int rckLine, int srclrLine, int gLine) throws IOException {
+    public static SiPoConnection software(int serInLine, int srckLine,
+                                         int rckLine, int srclrLine, int gLine,
+                                         OutputPin enPin) throws IOException {
         int serInFd = openGpioLine(serInLine, 0);
         int srckFd = openGpioLine(srckLine, 0);
         int rckFd = openGpioLine(rckLine, 0);
         int srclrFd = srclrLine >= 0 ? openGpioLine(srclrLine, 1) : -1;
         int gFd = gLine >= 0 ? openGpioLine(gLine, 0) : -1;
-        return new SiPoTransport(-1, serInFd, srckFd, rckFd, srclrFd, gFd);
+        return new SiPoConnection(-1, serInFd, srckFd, rckFd, srclrFd, gFd, enPin);
+    }
+
+    /**
+     * Create a software (bit-banged) connection with no EN pin.
+     *
+     * @param serInLine {@code /dev/gpiochip0} line number for SER IN (serial data)
+     * @param srckLine  {@code /dev/gpiochip0} line number for SRCK (shift register clock)
+     * @param rckLine   {@code /dev/gpiochip0} line number for RCK (register clock)
+     * @param srclrLine {@code /dev/gpiochip0} line number for SRCLR; -1 disables it
+     * @param gLine     {@code /dev/gpiochip0} line number for G (output enable); -1 disables it
+     * @return a new software-mode connection
+     * @throws IOException if any GPIO line cannot be opened
+     */
+    public static SiPoConnection software(int serInLine, int srckLine,
+                                         int rckLine, int srclrLine, int gLine) throws IOException {
+        return software(serInLine, srckLine, rckLine, srclrLine, gLine, null);
     }
 
     private static int openSpiDevice(int busNumber, int deviceNumber) throws IOException {
@@ -219,7 +256,7 @@ public final class SiPoTransport implements Transport {
      * @throws IOException on SPI or GPIO error
      */
     @Override
-    public void write(byte[] data) throws IOException {
+    protected void _write(byte[] data) throws IOException {
         if (spiFd >= 0) {
             writeSpi(data);
         } else {
@@ -287,13 +324,13 @@ public final class SiPoTransport implements Transport {
 
     /** Not supported — SiPo is write-only. */
     @Override
-    public byte[] read(int n) {
+    protected byte[] _read(int n) {
         throw new UnsupportedOperationException("SiPo is write-only");
     }
 
     /** Not supported — SiPo is write-only. */
     @Override
-    public byte[] writeRead(byte[] data, int n) {
+    protected byte[] _writeRead(byte[] data, int n) {
         throw new UnsupportedOperationException("SiPo is write-only");
     }
 

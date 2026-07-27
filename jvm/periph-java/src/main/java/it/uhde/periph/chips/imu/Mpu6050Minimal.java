@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
  * MPU-6050 — 6-axis MotionTracking device (accelerometer + gyroscope), minimal driver.
  *
  * <p>Provides 3-axis acceleration and 3-axis angular rate readings with no
- * configuration beyond the transport. Performs device reset, WHO_AM_I check,
+ * configuration beyond the connection. Performs device reset, WHO_AM_I check,
  * and enables all sensors at defaults during initialization.
  *
  * <p>Default I²C address: 0x68 (AD0=GND), 0x69 (AD0=VCC).
@@ -46,12 +46,12 @@ public class Mpu6050Minimal {
     protected static final double[] ACCEL_SENSITIVITY = {16384.0, 8192.0, 4096.0, 2048.0};
     protected static final double[] GYRO_SENSITIVITY  = {131.0, 65.5, 32.8, 16.4};
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected int accelFs = 0;
     protected int gyroFs = 0;
 
-    public Mpu6050Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Mpu6050Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         writeReg(REG_PWR_MGMT_1, 0x80);
         try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         writeReg(REG_PWR_MGMT_1, 0x01);
@@ -74,7 +74,7 @@ public class Mpu6050Minimal {
      * @throws IOException on I²C error.
      */
     public double[] accel() throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
+        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
         int ax = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF));
         int ay = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF));
         int az = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF));
@@ -89,7 +89,7 @@ public class Mpu6050Minimal {
      * @throws IOException on I²C error.
      */
     public double[] gyro() throws IOException {
-        byte[] buf = transport.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
+        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
         int gx = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF));
         int gy = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF));
         int gz = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF));
@@ -100,16 +100,16 @@ public class Mpu6050Minimal {
     }
 
     protected void writeReg(int reg, int val) throws IOException {
-        transport.write(new byte[]{(byte) reg, (byte) val});
+        connection.write(new byte[]{(byte) reg, (byte) val});
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
         return b[0] & 0xFF;
     }
 
     protected int readReg16Signed(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
         return (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
     }
 }

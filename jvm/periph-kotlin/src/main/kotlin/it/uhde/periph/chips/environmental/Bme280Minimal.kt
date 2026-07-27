@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -19,7 +19,7 @@ import java.io.IOException
  * Configurable I²C address: 0x76 (SDO low, default) or 0x77 (SDO high).
  */
 open class Bme280Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     addr: Int = 0x76
 ) {
 
@@ -66,7 +66,7 @@ open class Bme280Minimal @JvmOverloads constructor(
     protected var config: Int = 0x00
 
     init {
-        val id = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val id = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID) {
             throw IOException("BME280 not found: expected 0x60, got 0x" + Integer.toHexString(chipId))
@@ -74,9 +74,9 @@ open class Bme280Minimal @JvmOverloads constructor(
 
         readCalibration()
 
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
     }
 
     /**
@@ -90,7 +90,7 @@ open class Bme280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val cal = transport.writeRead(byteArrayOf(REG_CALIB.toByte()), 26)
+        val cal = connection.writeRead(byteArrayOf(REG_CALIB.toByte()), 26)
         digT1 = ((cal[1].toInt() and 0xFF) shl 8) or (cal[0].toInt() and 0xFF)
         digT2 = ((cal[3].toInt() and 0xFF) shl 8) or (cal[2].toInt() and 0xFF)
         digT3 = ((cal[5].toInt() and 0xFF) shl 8) or (cal[4].toInt() and 0xFF)
@@ -105,7 +105,7 @@ open class Bme280Minimal @JvmOverloads constructor(
         digP9 = ((cal[23].toInt() and 0xFF) shl 8) or (cal[22].toInt() and 0xFF)
         digH1 = cal[25].toInt() and 0xFF
 
-        val h = transport.writeRead(byteArrayOf(REG_CAL_H2.toByte()), 7)
+        val h = connection.writeRead(byteArrayOf(REG_CAL_H2.toByte()), 7)
         digH2 = ((h[1].toInt() and 0xFF) shl 8) or (h[0].toInt() and 0xFF)
         digH3 = h[2].toInt() and 0xFF
         val h4raw = ((h[3].toInt() and 0xFF) shl 4) or (h[4].toInt() and 0x0F)
@@ -126,10 +126,10 @@ open class Bme280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun triggerAndRead(): ByteArray {
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
         try { Thread.sleep(MEAS_TIME_MS) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
-        return transport.writeRead(byteArrayOf(REG_DATA.toByte()), 8)
+        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 8)
     }
 
     /**

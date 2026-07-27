@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.gas.Ens160Full
 
-def transport = new I2CTransport(1, 0x52)                // open I²C bus 1, device 0x52, (bus, address=0x52) → I2CTransport
+def connection = new I2CConnection(1, 0x52)                // open I²C bus 1, device 0x52, (bus, address=0x52) → I2CConnection
 try {
-    def sensor = new Ens160Full(transport)                      // construct driver, verifies PART_ID and starts STANDARD mode, (transport) → Ens160Full
+    def sensor = new Ens160Full(connection)                      // construct driver, verifies PART_ID and starts STANDARD mode, (connection) → Ens160Full
 
     int[] fw = sensor.getFirmwareVersion()                      // get firmware version, () → int[] {major, minor, release}
                                                                  // switches to IDLE, issues GET_APPVER, returns to STANDARD
@@ -46,5 +46,5 @@ try {
     sensor.wake()                                               // wake and resume sensing, () → void
                                                                  // transitions IDLE then STANDARD
 } finally {
-    transport.close()
+    connection.close()
 }

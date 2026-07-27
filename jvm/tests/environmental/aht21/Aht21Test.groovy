@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Aht21Full
 
 @Field int passed = 0
@@ -19,9 +19,9 @@ def checkTrue(String label, boolean condition) {
 int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
 int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x38').replaceFirst(/^0[xX]/, ''), 16)
 
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
-    def aht = new Aht21Full(transport)
+    def aht = new Aht21Full(connection)
 
     checkTrue('isCalibrated', aht.isCalibrated())
     checkTrue('not busy at idle', !aht.isBusy())
@@ -50,7 +50,7 @@ try {
     checkTrue('read after reset: humidity range', r2[1] >= 0.0d && r2[1] <= 100.0d)
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

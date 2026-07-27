@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA3221 — 3-channel, high-side measurement, shunt and bus voltage monitor
@@ -19,7 +19,7 @@ import it.uhde.periph.transport.Transport
  * Default I²C address: 0x40 (A0=GND, A1=GND).
  */
 open class Ina3221Minimal(
-    protected val transport: Transport,
+    protected val connection: Connection,
     rShunts: DoubleArray = doubleArrayOf(0.1, 0.1, 0.1)
 ) {
     /** Per-channel shunt resistances in Ω (index 0 = channel 1). */
@@ -33,11 +33,11 @@ open class Ina3221Minimal(
     /**
      * Construct with a single shunt resistance applied to all three channels.
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω for all channels (e.g. 0.1)
      */
-    constructor(transport: Transport, rShunt: Double) :
-        this(transport, doubleArrayOf(rShunt, rShunt, rShunt))
+    constructor(connection: Connection, rShunt: Double) :
+        this(connection, doubleArrayOf(rShunt, rShunt, rShunt))
 
     companion object {
         internal val SHUNT_BASE = intArrayOf(0, 0x01, 0x03, 0x05)
@@ -115,7 +115,7 @@ open class Ina3221Minimal(
      * @return raw unsigned 16-bit value
      */
     protected fun readReg(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
@@ -126,7 +126,7 @@ open class Ina3221Minimal(
      * @param val 16-bit value to write
      */
     protected fun writeReg(reg: Int, `val`: Int) {
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             reg.toByte(),
             ((`val` shr 8) and 0xFF).toByte(),
             (`val` and 0xFF).toByte()

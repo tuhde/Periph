@@ -1,17 +1,17 @@
 package it.uhde.periph.chips.rfid
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
  * MFRC522 — 13.56 MHz contactless reader/writer (NXP). Minimal driver.
  *
  * Detects an ISO/IEC 14443 Type A card in the field and reads its UID. No
- * configuration beyond the transport and bus type is required.
+ * configuration beyond the connection and bus type is required.
  *
- * Supports three host transports — I²C, SPI, and UART — all of which
+ * Supports three host connections — I²C, SPI, and UART — all of which
  * expose the same 64-register internal bank; the address-byte framing
- * differs per transport. The driver selects the correct framing from the
+ * differs per connection. The driver selects the correct framing from the
  * `busType` parameter.
  *
  * Default configuration (baked in at construction):
@@ -25,7 +25,7 @@ import java.io.IOException
  * EA=LOW with the lower 3 address bits set by pins ADR_0–ADR_2.
  */
 open class Mfrc522Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     protected val busType: Int = BUS_SPI
 ) {
     init {
@@ -39,7 +39,7 @@ open class Mfrc522Minimal @JvmOverloads constructor(
      * valid 2-byte ATQA.
      *
      * @return true if a card is in the field.
-     * @throws IOException on transport error.
+     * @throws IOException on connection error.
      */
     open fun isCardPresent(): Boolean {
         try {
@@ -58,7 +58,7 @@ open class Mfrc522Minimal @JvmOverloads constructor(
      * is immediately halted, so the next call re-detects it from scratch.
      *
      * @return UID bytes, or `null` if no card answered.
-     * @throws IOException on transport error.
+     * @throws IOException on connection error.
      */
     open fun readUid(): ByteArray? {
         if (!isCardPresent()) return null
@@ -77,13 +77,13 @@ open class Mfrc522Minimal @JvmOverloads constructor(
     }
 
     protected fun writeReg(reg: Int, value: Int) {
-        try { transport.write(byteArrayOf(addrFor(reg, false).toByte(), (value and 0xFF).toByte())) }
+        try { connection.write(byteArrayOf(addrFor(reg, false).toByte(), (value and 0xFF).toByte())) }
         catch (e: IOException) { throw RuntimeException(e) }
     }
 
     protected fun readReg(reg: Int): Int {
         try {
-            val b = transport.writeRead(byteArrayOf(addrFor(reg, true).toByte()), 1)
+            val b = connection.writeRead(byteArrayOf(addrFor(reg, true).toByte()), 1)
             return b[0].toInt() and 0xFF
         } catch (e: IOException) { throw RuntimeException(e) }
     }

@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //GROOVY 4
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.memory.Eeprom24Aa02UidFull
 
-def transport = new I2CTransport(1, (byte) 0x50)                                // open I²C bus 1, device 0x50, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, (byte) 0x50)                                // open I²C bus 1, device 0x50, (bus, address) → I2CConnection
 try {
 
-    def eeprom = new Eeprom24Aa02UidFull(transport)                              // construct driver, (transport) → Eeprom24Aa02UidFull
+    def eeprom = new Eeprom24Aa02UidFull(connection)                              // construct driver, (connection) → Eeprom24Aa02UidFull
 
     def uid = eeprom.readUid()                                                  // read 32-bit unique serial number, () → byte[]
                                                                                   // reads 4 bytes at 0xFC-0xFF
@@ -51,5 +51,5 @@ try {
                                                                                   // splits at 8-byte page boundaries; waits for each chunk
     println("Multi-page write complete")
 } finally {
-    transport.close()
+    connection.close()
 }

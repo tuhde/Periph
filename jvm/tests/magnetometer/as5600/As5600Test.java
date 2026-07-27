@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED --add-opens java.base/sun.misc=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.magnetometer.As5600Full;
 
 public class As5600Test {
@@ -22,14 +22,14 @@ public class As5600Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x36").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
             // --- Magnet status poll (60 s max at 5 Hz) ---
             System.out.println("--- magnet status (60 s max) ---");
             long deadline = System.currentTimeMillis() + 60_000L;
             while (System.currentTimeMillis() < deadline) {
-                int s   = transport.writeRead(new byte[]{0x0B}, 1)[0] & 0xFF;
-                int agc = transport.writeRead(new byte[]{0x1A}, 1)[0] & 0xFF;
+                int s   = connection.writeRead(new byte[]{0x0B}, 1)[0] & 0xFF;
+                int agc = connection.writeRead(new byte[]{0x1A}, 1)[0] & 0xFF;
                 System.out.printf("MD=%d ML=%d MH=%d AGC=%d%n",
                         (s >> 3) & 1, (s >> 4) & 1, (s >> 5) & 1, agc);
                 if ((s & 0x08) != 0) break;
@@ -42,9 +42,9 @@ public class As5600Test {
             theUnsafe.setAccessible(true);
             var unsafe = (sun.misc.Unsafe) theUnsafe.get(null);
             var as5600 = (As5600Full) unsafe.allocateInstance(As5600Full.class);
-            var tf = as5600.getClass().getSuperclass().getDeclaredField("transport");
+            var tf = as5600.getClass().getSuperclass().getDeclaredField("connection");
             tf.setAccessible(true);
-            tf.set(as5600, transport);
+            tf.set(as5600, connection);
 
             // --- Basic measurements ---
             double angle = as5600.angle();

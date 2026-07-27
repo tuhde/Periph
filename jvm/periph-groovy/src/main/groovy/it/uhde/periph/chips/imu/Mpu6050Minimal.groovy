@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import groovy.transform.CompileStatic
 
 import java.io.IOException
@@ -9,7 +9,7 @@ import java.io.IOException
  * MPU-6050 — 6-axis MotionTracking device (accelerometer + gyroscope), minimal driver.
  *
  * <p>Provides 3-axis acceleration and 3-axis angular rate readings with no
- * configuration beyond the transport. Performs device reset, WHO_AM_I check,
+ * configuration beyond the connection. Performs device reset, WHO_AM_I check,
  * and enables all sensors at defaults during initialization.
  */
 @CompileStatic
@@ -36,12 +36,12 @@ class Mpu6050Minimal {
     protected static final double[] ACCEL_SENSITIVITY = [16384.0d, 8192.0d, 4096.0d, 2048.0d] as double[]
     protected static final double[] GYRO_SENSITIVITY  = [131.0d, 65.5d, 32.8d, 16.4d] as double[]
 
-    protected final Transport transport
+    protected final Connection connection
     protected int accelFs = 0
     protected int gyroFs = 0
 
-    Mpu6050Minimal(Transport transport) {
-        this.transport = transport
+    Mpu6050Minimal(Connection connection) {
+        this.connection = connection
         writeReg(REG_PWR_MGMT_1, 0x80)
         Thread.sleep(100)
         writeReg(REG_PWR_MGMT_1, 0x01)
@@ -62,7 +62,7 @@ class Mpu6050Minimal {
      * @return array [x, y, z] in m/s².
      */
     double[] accel() {
-        byte[] buf = transport.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
+        byte[] buf = connection.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
         int ax = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int ay = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int az = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -76,7 +76,7 @@ class Mpu6050Minimal {
      * @return array [x, y, z] in rad/s.
      */
     double[] gyro() {
-        byte[] buf = transport.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
+        byte[] buf = connection.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
         int gx = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int gy = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int gz = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -87,16 +87,16 @@ class Mpu6050Minimal {
     }
 
     protected void writeReg(int reg, int val) {
-        transport.write([(byte) reg, (byte) val] as byte[])
+        connection.write([(byte) reg, (byte) val] as byte[])
     }
 
     protected int readReg(int reg) {
-        byte[] b = transport.writeRead([(byte) reg] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) reg] as byte[], 1)
         return b[0] & 0xFF
     }
 
     protected int readReg16Signed(int reg) {
-        byte[] b = transport.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
         int v = ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
         if (v > 32767) v -= 65536
         return v

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -18,7 +18,7 @@ import java.nio.ByteOrder
  * triggered in forced mode (one shot per call).
  */
 open class Bmp280Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     addr: Int = 0x76
 ) {
 
@@ -58,7 +58,7 @@ open class Bmp280Minimal @JvmOverloads constructor(
 
     init {
         // Verify chip ID
-        val id = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val id = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw IOException(
@@ -77,7 +77,7 @@ open class Bmp280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val cal = transport.writeRead(byteArrayOf(REG_CALIB.toByte()), 24)
+        val cal = connection.writeRead(byteArrayOf(REG_CALIB.toByte()), 24)
         val buf = ByteBuffer.wrap(cal).order(ByteOrder.LITTLE_ENDIAN)
 
         digT1 = buf.short.toInt() and 0xFFFF   // uint16
@@ -104,9 +104,9 @@ open class Bmp280Minimal @JvmOverloads constructor(
      *         temp_msb, temp_lsb, temp_xlsb]
      */
     protected fun readRawData(): ByteArray {
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
         Thread.sleep(7)
-        return transport.writeRead(byteArrayOf(REG_DATA.toByte()), 6)
+        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 6)
     }
 
     /**

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.pressure.Bmp280Full;
 
 /**
@@ -21,8 +21,8 @@ public class Demo {
     private static final long   INTERVAL_MS = 1000;
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x76)) {       // open I²C bus 1, device 0x76 (SDO low), (bus, address=0x76) → I2CTransport
-            var sensor = new Bmp280Full(transport);                     // construct driver, verifies chip ID, reads calibration, (transport) → Bmp280Full
+        try (var connection = new I2CConnection(1, 0x76)) {       // open I²C bus 1, device 0x76 (SDO low), (bus, address=0x76) → I2CConnection
+            var sensor = new Bmp280Full(connection);                     // construct driver, verifies chip ID, reads calibration, (connection) → Bmp280Full
 
             // --- Configure for smooth pressure monitoring with IIR filter ---
             // ×4 oversampling on both channels improves SNR without significantly

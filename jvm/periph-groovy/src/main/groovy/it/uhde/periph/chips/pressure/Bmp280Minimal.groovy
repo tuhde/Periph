@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -31,7 +31,7 @@ class Bmp280Minimal {
     static final int CHIP_ID         = 0x58
     static final int CHIP_ID_BME280  = 0x60  // same P/T interface; humidity not supported
 
-    protected final Transport transport
+    protected final Connection connection
 
     // Calibration coefficients
     protected int digT1   // uint16
@@ -59,25 +59,25 @@ class Bmp280Minimal {
      * Construct the driver at the default address (0x76), verify the chip ID,
      * and load calibration data.
      *
-     * @param transport I²C transport bound to address 0x76
+     * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bmp280Minimal(Transport transport) {
-        this(transport, 0x76)
+    Bmp280Minimal(Connection connection) {
+        this(connection, 0x76)
     }
 
     /**
      * Construct the driver at the given address, verify the chip ID, and load
      * calibration data.
      *
-     * @param transport I²C transport bound to the given address
+     * @param connection I²C connection bound to the given address
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bmp280Minimal(Transport transport, int addr) {
-        this.transport = transport
+    Bmp280Minimal(Connection connection, int addr) {
+        this.connection = connection
 
-        byte[] id = transport.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] id = connection.writeRead([(byte) REG_ID] as byte[], 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw new IOException(
@@ -97,7 +97,7 @@ class Bmp280Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() {
-        byte[] cal = transport.writeRead([(byte) REG_CALIB] as byte[], 24)
+        byte[] cal = connection.writeRead([(byte) REG_CALIB] as byte[], 24)
         ByteBuffer buf = ByteBuffer.wrap(cal).order(ByteOrder.LITTLE_ENDIAN)
 
         digT1 = buf.getShort() & 0xFFFF   // uint16
@@ -122,9 +122,9 @@ class Bmp280Minimal {
      * @throws IOException on I²C error
      */
     protected byte[] readRawData() {
-        transport.write([(byte) REG_CTRL_MEAS, (byte)((ctrlMeas & 0xFC) | 0x01)] as byte[])
+        connection.write([(byte) REG_CTRL_MEAS, (byte)((ctrlMeas & 0xFC) | 0x01)] as byte[])
         Thread.sleep(7)
-        return transport.writeRead([(byte) REG_DATA] as byte[], 6)
+        return connection.writeRead([(byte) REG_DATA] as byte[], 6)
     }
 
     /**

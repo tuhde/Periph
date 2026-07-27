@@ -1,8 +1,8 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
-open class Pcf8575Minimal(protected val transport: Transport) {
+open class Pcf8575Minimal(protected val connection: Connection) {
 
     var shadow = intArrayOf(0xFF, 0xFF)
 
@@ -11,10 +11,10 @@ open class Pcf8575Minimal(protected val transport: Transport) {
     }
 
     internal fun writeBoth() {
-        transport.write(byteArrayOf(shadow[0].toByte(), shadow[1].toByte()))
+        connection.write(byteArrayOf(shadow[0].toByte(), shadow[1].toByte()))
     }
 
-    internal fun readBoth(): ByteArray = transport.read(2)
+    internal fun readBoth(): ByteArray = connection.read(2)
 
     fun readPort(port: Int): Int = readBoth()[port].toInt() and 0xFF
 
@@ -23,7 +23,7 @@ open class Pcf8575Minimal(protected val transport: Transport) {
         writeBoth()
     }
 
-    fun pin(n: Int) = Pin(this, n)
+    open fun pin(n: Int) = Pin(this, n)
 
     internal fun setPin(n: Int, high: Boolean) {
         val portIdx = n / 8
@@ -33,7 +33,7 @@ open class Pcf8575Minimal(protected val transport: Transport) {
         writeBoth()
     }
 
-    class Pin(val chip: Pcf8575Minimal, val n: Int) {
+    open class Pin(val chip: Pcf8575Minimal, val n: Int) {
         fun setInput()  { chip.setPin(n, true) }
         fun setOutput() { chip.setPin(n, false) }
         fun setHigh()   { chip.setPin(n, true) }

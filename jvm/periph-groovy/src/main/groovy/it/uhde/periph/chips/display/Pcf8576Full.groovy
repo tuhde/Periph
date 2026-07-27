@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.display
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * PCF8576 — full driver. Extends {@link Pcf8576Minimal} with drive mode, bias,
@@ -47,10 +47,10 @@ class Pcf8576Full extends Pcf8576Minimal {
     /**
      * Construct the full driver and initialise the chip with defaults.
      *
-     * @param transport I2C transport bound to the PCF8576 address
+     * @param connection I2C connection bound to the PCF8576 address
      */
-    Pcf8576Full(Transport transport) {
-        super(transport)
+    Pcf8576Full(Connection connection) {
+        super(connection)
     }
 
     private int modeCode(int backplanes) {

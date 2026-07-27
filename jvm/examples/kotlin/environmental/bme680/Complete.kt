@@ -1,17 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Bme680Full
 
 fun main() {
     val bus  = System.getenv("I2C_BUS")?.toIntOrNull() ?: 1
     val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.toInt(16) ?: 0x76
-    I2CTransport(bus, addr).use { transport ->               // open I²C bus, (bus, address=0x76) → I2CTransport
-        val sensor = Bme680Full(transport)                          // construct driver, verifies chip ID and loads calibration, (transport) → Bme680Full
+    I2CConnection(bus, addr).use { connection ->               // open I²C bus, (bus, address=0x76) → I2CConnection
+        val sensor = Bme680Full(connection)                          // construct driver, verifies chip ID and loads calibration, (connection) → Bme680Full
 
         val id = sensor.chipId()                                    // read chip ID register 0xD0, () → Int
                                                                     // returns 0x61 for BME680; useful for confirming the device is present

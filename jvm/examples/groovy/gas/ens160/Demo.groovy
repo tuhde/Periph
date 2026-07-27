@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.gas.Ens160Full
 
 /**
@@ -16,9 +16,9 @@ import it.uhde.periph.chips.gas.Ens160Full
  */
 final String[] AQI_LABELS = ["", "Excellent", "Good", "Moderate", "Poor", "Unhealthy"]
 
-def transport = new I2CTransport(1, 0x52)            // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CTransport
+def connection = new I2CConnection(1, 0x52)            // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CConnection
 try {
-    def sensor = new Ens160Full(transport)                  // construct driver, verifies PART_ID, starts STANDARD mode, (transport) → Ens160Full
+    def sensor = new Ens160Full(connection)                  // construct driver, verifies PART_ID, starts STANDARD mode, (connection) → Ens160Full
 
     // --- Wait for sensor warm-up ---
     // The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG
@@ -53,5 +53,5 @@ try {
         Thread.sleep(1000)
     }
 } finally {
-    transport.close()
+    connection.close()
 }

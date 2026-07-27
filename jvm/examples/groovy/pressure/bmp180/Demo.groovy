@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Full
 
 /**
@@ -19,9 +19,9 @@ import it.uhde.periph.chips.pressure.Bmp180Full
 final SAMPLES     = 60
 final INTERVAL_MS = 1000L
 
-def transport = new I2CTransport(1, 0x77)           // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CTransport
+def connection = new I2CConnection(1, 0x77)           // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CConnection
 try {
-    def sensor = new Bmp180Full(transport)                 // construct driver, verifies chip ID, reads calibration, (transport) → Bmp180Full
+    def sensor = new Bmp180Full(connection)                 // construct driver, verifies chip ID, reads calibration, (connection) → Bmp180Full
 
     // --- Configure for low-power continuous monitoring ---
     // ULP mode (OSS = 0) minimises power draw (~3 µA RMS) and conversion time
@@ -76,5 +76,5 @@ try {
            altitudes.min(), altitudes.max(), altitudes.sum() / SAMPLES)
 
 } finally {
-    transport.close()
+    connection.close()
 }

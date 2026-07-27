@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina3221Full
 
 @Field int passed = 0
@@ -19,9 +19,9 @@ def checkTrue(String label, boolean condition) {
 int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
 int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x40').replaceFirst(/^0[xX]/, ''), 16)
 
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
-    def ina = new Ina3221Full(transport)
+    def ina = new Ina3221Full(connection)
 
     // --- Minimal methods: all three channels ---
     (1..3).each { ch ->
@@ -98,7 +98,7 @@ try {
     checkTrue('reset() accepted', true)
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

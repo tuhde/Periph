@@ -1,12 +1,12 @@
 package it.uhde.periph.chips.led
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * WS2812B addressable RGB LED strip — minimal interface.
  *
- * <p>Drives a chain of {@code n} WS2812B pixels over a NeoPixel transport.
+ * <p>Drives a chain of {@code n} WS2812B pixels over a NeoPixel connection.
  * Maintains an internal GRB buffer; {@link #fill} writes all pixels and
  * transmits immediately. No per-pixel addressing or brightness control.
  *
@@ -16,7 +16,7 @@ import it.uhde.periph.transport.Transport
 @CompileStatic
 class WS2812BMinimal {
 
-    protected final Transport transport
+    protected final Connection connection
     protected final int n
     /** Internal pixel buffer in GRB wire order (G, R, B per pixel). */
     protected byte[] buf
@@ -24,11 +24,11 @@ class WS2812BMinimal {
     /**
      * Construct the driver.
      *
-     * @param transport configured NeoPixel transport
+     * @param connection configured NeoPixel connection
      * @param n number of pixels in the strip (≥1)
      */
-    WS2812BMinimal(Transport transport, int n) {
-        this.transport = transport
+    WS2812BMinimal(Connection connection, int n) {
+        this.connection = connection
         this.n = n
         this.buf = new byte[n * 3]
     }
@@ -52,7 +52,7 @@ class WS2812BMinimal {
             buf[i * 3 + 1] = (byte) r
             buf[i * 3 + 2] = (byte) b
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     /**

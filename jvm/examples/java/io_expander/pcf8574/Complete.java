@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Pcf8574Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x20)) {             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-            var chip = new Pcf8574Full(transport);                     // construct full driver, (transport) → Pcf8574Full
+        try (var connection = new I2CConnection(1, 0x20)) {           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+            var chip = new Pcf8574Full(connection);                    // construct full driver, (connection) → Pcf8574Full
                                                                        // initialises shadow to 0xFF; all pins input mode
 
             int port = chip.readPort();                                // read all 8 pins, () → int bitmask
@@ -38,19 +38,27 @@ public class Complete {
             p7.toggle();                                               // invert shadow bit 7, () → void
                                                                        // if last written 1 → writes 0; if last written 0 → writes 1
 
-            chip.configureInterrupt(mask -> {                          // attach change callback, (IntConsumer) → void
-                                                                       // starts a 5 ms polling thread; callback fires on any input change
+            chip.onInterrupt(mask -> {                                 // subscribe to INT line, (IntConsumer) → void
+                                                                       // uses connection.intPin() if wired, else a 5 ms polling thread
                 System.out.printf("changed pins: 0x%02X%n", mask);
             });
 
             Thread.sleep(100);
 
-            int changed = chip.clearInterrupt();                       // read port and return changed-pin bitmask, () → int
+            int changed = chip.pollInterrupt();                        // read port and return changed-pin bitmask, () → int
                                                                        // compares current read to last read; clears chip INT line
-            System.out.printf("cleared interrupt: 0x%02X%n", changed);
+            System.out.printf("polled interrupt: 0x%02X%n", changed);
 
-            chip.stopInterrupt();                                      // stop polling thread, () → void
-                                                                       // daemon thread; also exits automatically when JVM exits
+            var p5 = chip.pin(5);                                      // get pin proxy, (n) → Pin
+            p5.setInput();
+            java.util.function.Consumer<Pcf8574Full.Pin> watcher = pin -> {
+                System.out.println("P5 changed");                      // called with this pin when its state matches the trigger
+            };
+            p5.watch(watcher);                                         // subscribe to pin edges, (handler, trigger=CHANGE) → void
+                                                                       // fires whenever P5 changes; needs onInterrupt armed first
+            p5.unwatch();                                              // unsubscribe pin handler, () → void
+
+            chip.offInterrupt();                                       // unsubscribe and stop delivery, () → void
         }
     }
 }

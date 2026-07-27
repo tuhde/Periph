@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -38,7 +38,7 @@ public class Ina226Minimal {
     /** Default configuration: mode=7, VBUSCT=4, VSHCT=4, AVG=0 → 0x4127. */
     protected static final int DEFAULT_CONFIG = 0x4127;
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final double currentLsb;
     protected final int    cal;
     /** Stored MODE bits (2:0) for wake(). Updated by configure() and shutdown(). */
@@ -47,11 +47,11 @@ public class Ina226Minimal {
     /**
      * Construct the driver with default shunt (0.1 Ω) and max current (2.0 A).
      *
-     * @param transport I²C transport bound to the INA226 device address
+     * @param connection I²C connection bound to the INA226 device address
      * @throws IOException on I²C error
      */
-    public Ina226Minimal(Transport transport) throws IOException {
-        this(transport, 0.1, 2.0);
+    public Ina226Minimal(Connection connection) throws IOException {
+        this(connection, 0.1, 2.0);
     }
 
     /**
@@ -61,13 +61,13 @@ public class Ina226Minimal {
      * {@code CAL = int(0.00512 / (Current_LSB × rShunt))}, then writes
      * the default configuration register and calibration register.
      *
-     * @param transport  I²C transport bound to the INA226 device address
+     * @param connection  I²C connection bound to the INA226 device address
      * @param rShunt     shunt resistor value in Ω (e.g. 0.1)
      * @param maxCurrent maximum expected current in A (e.g. 2.0)
      * @throws IOException on I²C error
      */
-    public Ina226Minimal(Transport transport, double rShunt, double maxCurrent) throws IOException {
-        this.transport  = transport;
+    public Ina226Minimal(Connection connection, double rShunt, double maxCurrent) throws IOException {
+        this.connection  = connection;
         this.currentLsb = maxCurrent / 32768.0;
         this.cal        = (int) (0.00512 / (currentLsb * rShunt));
         writeReg(REG_CONFIG, DEFAULT_CONFIG);
@@ -128,7 +128,7 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int val) throws IOException {
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) reg,
                 (byte) (val >> 8),
                 (byte) (val & 0xFF)
@@ -143,7 +143,7 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -155,7 +155,7 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected int readRegSigned(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
         return (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
     }
 }

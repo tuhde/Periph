@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.comms.Rda5807mFull
 
 // FM band scanner: starts at the bottom of the world-wide band and repeatedly
@@ -13,8 +13,8 @@ import it.uhde.periph.chips.comms.Rda5807mFull
 // strength, stereo/mono status, and — when available — the RDS Program
 // Service (station) name for every station found along the way.
 fun main() {
-    I2CTransport(1, 0x10).use { transport ->
-        val fm = Rda5807mFull(transport, 87.5, 10)
+    I2CConnection(1, 0x10).use { connection ->
+        val fm = Rda5807mFull(connection, 87.5, 10)
 
         // --- FM band scanner ---
         // Start at the bottom of the world-wide band and repeatedly seek

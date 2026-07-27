@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina219Minimal
 
 fun main() {
-    I2CTransport(1, 0x40).use { transport ->                // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
-        val ina = Ina219Minimal(transport)                         // construct driver, (transport, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina219Minimal
+    I2CConnection(1, 0x40).use { connection ->                // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
+        val ina = Ina219Minimal(connection)                         // construct driver, (connection, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina219Minimal
 
         while (true) {
             val v  = ina.voltage()       // read bus voltage, () → Double V

@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.adc_dac
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * PCF8591 — full driver. Extends [Pcf8591Minimal] with analog input
  * mode selection, auto-increment, DAC enable/disable, raw and
  * voltage-calibrated ADC reads, and signed differential reads.
  */
-class Pcf8591Full(transport: Transport) : Pcf8591Minimal(transport) {
+class Pcf8591Full(connection: Connection) : Pcf8591Minimal(connection) {
 
     /** 4 single-ended inputs (AIN0–AIN3). */
     val inputMode: Int
@@ -43,7 +43,7 @@ class Pcf8591Full(transport: Transport) : Pcf8591Minimal(transport) {
         _inputMode     = aip
         _autoIncrement = autoIncrement
         _dacEnabled    = dacEnabled
-        transport.write(byteArrayOf(_control.toByte()))
+        connection.write(byteArrayOf(_control.toByte()))
     }
 
     /**
@@ -87,8 +87,8 @@ class Pcf8591Full(transport: Transport) : Pcf8591Minimal(transport) {
         val ch = channel and 0x03
         lastChannel = ch
         val ctrl = _control or (ch and 0x03)
-        transport.write(byteArrayOf(ctrl.toByte()))
-        val buf = transport.read(2)
+        connection.write(byteArrayOf(ctrl.toByte()))
+        val buf = connection.read(2)
         val raw = buf[1].toInt() and 0xFF
         return if (raw >= 128) raw - 256 else raw
     }
@@ -106,7 +106,7 @@ class Pcf8591Full(transport: Transport) : Pcf8591Minimal(transport) {
         val v = value.coerceIn(0, 255)
         _control = (_control or 0x40) and 0x04.inv()  // AOE=1, AI=0
         _dacEnabled = true
-        transport.write(byteArrayOf(_control.toByte(), v.toByte()))
+        connection.write(byteArrayOf(_control.toByte(), v.toByte()))
     }
 
     /**
@@ -127,7 +127,7 @@ class Pcf8591Full(transport: Transport) : Pcf8591Minimal(transport) {
     fun disableDac() {
         _control = _control and 0x40.inv()  // AOE=0
         _dacEnabled = false
-        transport.write(byteArrayOf(_control.toByte()))
+        connection.write(byteArrayOf(_control.toByte()))
     }
 
     companion object {

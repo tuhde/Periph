@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -25,11 +25,11 @@ public class Ens160Full extends Ens160Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C or SPI transport bound to the device.
+     * @param connection I²C or SPI connection bound to the device.
      * @throws IOException on I²C error or wrong PART_ID.
      */
-    public Ens160Full(Transport transport) throws IOException {
-        super(transport);
+    public Ens160Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**

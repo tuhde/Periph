@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Mcp23017Full;
 
 /**
@@ -22,8 +22,8 @@ import it.uhde.periph.chips.io_expander.Mcp23017Full;
  */
 public class Demo {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x20)) {             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-            var chip = new Mcp23017Full(transport, 0x20);               // construct full driver, (transport, addr=0x20) → Mcp23017Full
+        try (var connection = new I2CConnection(1, 0x20)) {           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+            var chip = new Mcp23017Full(connection, 0x20);               // construct full driver, (connection, addr=0x20) → Mcp23017Full
 
             // Enable pull-ups on PORTB inputs (GPB0–GPB6) so idle buttons read high.
             chip.configurePullup(1, 0b01111111);                       // enable pull-ups, (port=1, mask) → void

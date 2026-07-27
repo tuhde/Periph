@@ -1,27 +1,28 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.*;
 
 /**
- * UART transport backed by Linux termios via FFM (no native libraries required).
+ * UART connection backed by Linux termios via FFM (no native libraries required).
  *
  * <p>Opens the serial device with {@code open(path, O_RDWR | O_NOCTTY)} and
  * configures it via {@code tcgetattr} / {@code tcsetattr} in raw mode (VMIN=0,
  * VTIME-based read timeout). Subsequent {@link #write} / {@link #read} calls map
  * directly to libc {@code write} / {@code read} + {@code tcdrain}.
  *
- * <p>For RS-485, the transport first tries kernel RS-485 mode via
+ * <p>For RS-485, the connection first tries kernel RS-485 mode via
  * {@code ioctl(fd, TIOCSRS485, ...)} with {@code SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND}.
  * If the kernel driver does not support it and {@code dePinNum != -1}, it falls back
  * to manual GPIO toggling via the Linux GPIO character device
  * ({@code GPIO_GET_LINEHANDLE_IOCTL} + {@code GPIOHANDLE_SET_LINE_VALUES_IOCTL} on
- * {@code /dev/gpiochip0}).
+ * {@code /dev/gpiochip0}). This DE-pin handling is separate from the standard EN pin
+ * ({@link OutputPin}) — DE controls RS-485 transceiver direction, not device power.
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public final class UARTTransport implements Transport {
+public final class UARTConnection extends AbstractConnection {
 
     // open() flags
     private static final int O_RDWR   = 2;
@@ -181,10 +182,14 @@ public final class UARTTransport implements Transport {
      * @param parity    Parity — {@code 'N'} none, {@code 'E'} even, {@code 'O'} odd.
      * @param timeoutMs Read timeout in milliseconds; default 1000.
      * @param dePinNum  GPIO line number for RS-485 DE (active high); -1 disables.
+     * @param intPin    optional INT-line {@link InputPin}, or {@code null}
+     * @param enPin     optional EN-pin {@link OutputPin}, or {@code null}
      * @throws IOException if the port cannot be opened or configured.
      */
-    public UARTTransport(String port, int baudRate, int dataBits, double stopBits,
-                         char parity, int timeoutMs, int dePinNum) throws IOException {
+    public UARTConnection(String port, int baudRate, int dataBits, double stopBits,
+                         char parity, int timeoutMs, int dePinNum,
+                         InputPin intPin, OutputPin enPin) throws IOException {
+        super(intPin, enPin);
         int[] result = openDevice(port, baudRate, dataBits, stopBits, parity, timeoutMs, dePinNum);
         this.fd          = result[0];
         this.rs485Kernel = result[1] != 0;
@@ -193,13 +198,30 @@ public final class UARTTransport implements Transport {
     }
 
     /**
+     * Open a UART device with no INT/EN pins.
+     *
+     * @param port      Serial device path (e.g. {@code /dev/ttyS0}).
+     * @param baudRate  Baud rate; default 9600.
+     * @param dataBits  Data bits (5–8); default 8.
+     * @param stopBits  Stop bits (1, 1.5, or 2); default 1.0.
+     * @param parity    Parity — {@code 'N'} none, {@code 'E'} even, {@code 'O'} odd.
+     * @param timeoutMs Read timeout in milliseconds; default 1000.
+     * @param dePinNum  GPIO line number for RS-485 DE (active high); -1 disables.
+     * @throws IOException if the port cannot be opened or configured.
+     */
+    public UARTConnection(String port, int baudRate, int dataBits, double stopBits,
+                         char parity, int timeoutMs, int dePinNum) throws IOException {
+        this(port, baudRate, dataBits, stopBits, parity, timeoutMs, dePinNum, null, null);
+    }
+
+    /**
      * Open a UART device with default parameters (9600 8N1, 1000 ms timeout, no RS-485).
      *
      * @param port Serial device path (e.g. {@code /dev/ttyS0}).
      * @throws IOException if the port cannot be opened or configured.
      */
-    public UARTTransport(String port) throws IOException {
-        this(port, 9600, 8, 1.0, 'N', 1000, -1);
+    public UARTConnection(String port) throws IOException {
+        this(port, 9600, 8, 1.0, 'N', 1000, -1, null, null);
     }
 
     private static int baudToSpeed(int baud) throws IOException {
@@ -348,7 +370,7 @@ public final class UARTTransport implements Transport {
      * @throws IOException if the write or drain fails
      */
     @Override
-    public void write(byte[] data) throws IOException {
+    protected void _write(byte[] data) throws IOException {
         try (var arena = Arena.ofConfined()) {
             if (!rs485Kernel) deSet(1);
             var buf = arena.allocate(data.length);
@@ -374,7 +396,7 @@ public final class UARTTransport implements Transport {
      * @throws IOException if a read timeout or I/O error occurs
      */
     @Override
-    public byte[] read(int n) throws IOException {
+    protected byte[] _read(int n) throws IOException {
         try (var arena = Arena.ofConfined()) {
             var buf = arena.allocate(n);
             int got = 0;
@@ -429,9 +451,9 @@ public final class UARTTransport implements Transport {
      * @throws IOException if the write, drain, or read fails
      */
     @Override
-    public byte[] writeRead(byte[] data, int n) throws IOException {
-        write(data);
-        return read(n);
+    protected byte[] _writeRead(byte[] data, int n) throws IOException {
+        _write(data);
+        return _read(n);
     }
 
     /**

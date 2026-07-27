@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -35,7 +35,7 @@ class Bme280Minimal {
     static final int RESET_CMD       = 0xB6
     static final int MEAS_TIME_MS    = 9
 
-    protected final Transport transport
+    protected final Connection connection
 
     protected int digT1
     protected int digT2
@@ -67,25 +67,25 @@ class Bme280Minimal {
      * Construct the driver at the default address (0x76), verify the chip ID,
      * and load calibration data.
      *
-     * @param transport I²C transport bound to address 0x76
+     * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bme280Minimal(Transport transport) throws IOException {
-        this(transport, 0x76)
+    Bme280Minimal(Connection connection) throws IOException {
+        this(connection, 0x76)
     }
 
     /**
      * Construct the driver at the given address, verify the chip ID, and load
      * calibration data.
      *
-     * @param transport I²C transport bound to the given address
+     * @param connection I²C connection bound to the given address
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bme280Minimal(Transport transport, int addr) throws IOException {
-        this.transport = transport
+    Bme280Minimal(Connection connection, int addr) throws IOException {
+        this.connection = connection
 
-        byte[] id = transport.writeRead(new byte[]{(byte) REG_ID}, 1)
+        byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID) {
             throw new IOException("BME280 not found: expected 0x60, got 0x" + Integer.toHexString(chipId))
@@ -93,13 +93,13 @@ class Bme280Minimal {
 
         readCalibration()
 
-        transport.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas})
-        transport.write(new byte[]{(byte) REG_CONFIG, (byte) config})
+        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas})
+        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config})
     }
 
     protected void readCalibration() throws IOException {
-        byte[] cal = transport.writeRead(new byte[]{(byte) REG_CALIB}, 26)
+        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CALIB}, 26)
         digT1 = ((cal[1] & 0xFF) << 8) | (cal[0] & 0xFF)
         digT2 = (short) (((cal[3] & 0xFF) << 8) | (cal[2] & 0xFF))
         digT3 = (short) (((cal[5] & 0xFF) << 8) | (cal[4] & 0xFF))
@@ -114,7 +114,7 @@ class Bme280Minimal {
         digP9 = (short) (((cal[23] & 0xFF) << 8) | (cal[22] & 0xFF))
         digH1 = cal[25] & 0xFF
 
-        byte[] h = transport.writeRead(new byte[]{(byte) REG_CAL_H2}, 7)
+        byte[] h = connection.writeRead(new byte[]{(byte) REG_CAL_H2}, 7)
         digH2 = (short) (((h[1] & 0xFF) << 8) | (h[0] & 0xFF))
         digH3 = h[2] & 0xFF
         int h4raw = ((h[3] & 0xFF) << 4) | (h[4] & 0x0F)
@@ -125,10 +125,10 @@ class Bme280Minimal {
     }
 
     protected byte[] triggerAndRead() throws IOException {
-        transport.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)})
+        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)})
         try { Thread.sleep(MEAS_TIME_MS) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
-        return transport.writeRead(new byte[]{(byte) REG_DATA}, 8)
+        return connection.writeRead(new byte[]{(byte) REG_DATA}, 8)
     }
 
     protected double compensateTemperature(int adcT) {

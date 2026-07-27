@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA226 — full driver. Extends [Ina226Minimal] with configuration,
@@ -27,10 +27,10 @@ import it.uhde.periph.transport.Transport
  * [MODE_SHUNT_CONT], [MODE_BUS_CONT], [MODE_SHUNT_BUS_CONT]
  */
 class Ina226Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
-) : Ina226Minimal(transport, rShunt, maxCurrent) {
+) : Ina226Minimal(connection, rShunt, maxCurrent) {
 
     companion object {
         // Alert function constants

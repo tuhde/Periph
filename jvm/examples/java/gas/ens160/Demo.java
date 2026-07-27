@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.gas.Ens160Full;
 
 /**
@@ -19,8 +19,8 @@ public class Demo {
     private static final String[] AQI_LABELS = {"", "Excellent", "Good", "Moderate", "Poor", "Unhealthy"};
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x52)) {       // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CTransport
-            var sensor = new Ens160Full(transport);                     // construct driver, verifies PART_ID, starts STANDARD mode, (transport) → Ens160Full
+        try (var connection = new I2CConnection(1, 0x52)) {       // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CConnection
+            var sensor = new Ens160Full(connection);                     // construct driver, verifies PART_ID, starts STANDARD mode, (connection) → Ens160Full
 
             // --- Wait for sensor warm-up ---
             // The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG

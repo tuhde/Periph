@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.adc_dac
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import kotlin.math.roundToInt
 
 /**
  * MCP4725 — full driver. Extends [Mcp4725Minimal] with EEPROM persistence,
  * power-down control, read-back, and General Call commands (reset / wake-up).
  *
- * General Call commands ([reset], [wakeUp]) require a second transport bound to
+ * General Call commands ([reset], [wakeUp]) require a second connection bound to
  * address 0x00. Pass `null` to disable those methods.
  *
  * ## EEPROM write timing
@@ -16,9 +16,9 @@ import kotlin.math.roundToInt
  * second EEPROM write.
  */
 class Mcp4725Full(
-    transport: Transport,
-    private val generalCall: Transport?
-) : Mcp4725Minimal(transport) {
+    connection: Connection,
+    private val generalCall: Connection?
+) : Mcp4725Minimal(connection) {
 
     /**
      * Read-back state of the MCP4725.
@@ -60,7 +60,7 @@ class Mcp4725Full(
         val c = code.coerceIn(0, 4095)
         lastCode = c
         // Write DAC + EEPROM: C2=0 C1=1 C0=1 → byte1=0x60 (normal mode)
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             0x60,
             ((c shr 4) and 0xFF).toByte(),
             ((c shl 4) and 0xF0).toByte()
@@ -73,7 +73,7 @@ class Mcp4725Full(
      * @return snapshot of DAC register, EEPROM, power-down, and ready flag
      */
     fun read(): ReadResult {
-        val b = transport.read(5)
+        val b = connection.read(5)
         val eepromReady = (b[0].toInt() and 0x80) != 0
         val powerDown   = (b[0].toInt() shr 2) and 0x03
         val code        = ((b[1].toInt() and 0xFF) shl 4) or ((b[2].toInt() and 0xFF) shr 4)
@@ -93,7 +93,7 @@ class Mcp4725Full(
     fun setPowerDown(mode: Int) {
         val m = mode.coerceIn(0, 3)
         // Fast Write with PD bits set: [0 0 PD1 PD0 D11-D8] [D7-D0]
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             (((m and 0x03) shl 4) or ((lastCode shr 8) and 0x0F)).toByte(),
             (lastCode and 0xFF).toByte()
         ))
@@ -105,7 +105,7 @@ class Mcp4725Full(
      * Clears the power-down bits in the DAC register of all MCP47xx devices
      * on the bus that support General Call.
      *
-     * @throws IllegalStateException if no General Call transport was provided
+     * @throws IllegalStateException if no General Call connection was provided
      */
     fun wakeUp() {
         requireGeneralCall().write(byteArrayOf(0x09))
@@ -117,7 +117,7 @@ class Mcp4725Full(
      * Triggers an internal power-on reset on all MCP47xx devices on the bus
      * that support General Call, reloading EEPROM contents into the DAC register.
      *
-     * @throws IllegalStateException if no General Call transport was provided
+     * @throws IllegalStateException if no General Call connection was provided
      */
     fun reset() {
         requireGeneralCall().write(byteArrayOf(0x06))
@@ -129,8 +129,8 @@ class Mcp4725Full(
      * @return true when the EEPROM write is complete
      */
     fun isEepromReady(): Boolean =
-        (transport.read(1)[0].toInt() and 0x80) != 0
+        (connection.read(1)[0].toInt() and 0x80) != 0
 
-    private fun requireGeneralCall(): Transport =
-        generalCall ?: throw IllegalStateException("General Call transport not configured")
+    private fun requireGeneralCall(): Connection =
+        generalCall ?: throw IllegalStateException("General Call connection not configured")
 }

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -18,10 +18,10 @@ public class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C transport bound to the device address (0x50)
+     * @param connection I²C connection bound to the device address (0x50)
      */
-    public Eeprom24Aa02UidFull(Transport transport) {
-        super(transport);
+    public Eeprom24Aa02UidFull(Connection connection) {
+        super(connection);
     }
 
     /**
@@ -36,7 +36,7 @@ public class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public byte[] read(int address, int length) throws IOException {
-        return transport.writeRead(new byte[]{(byte) address}, length);
+        return connection.writeRead(new byte[]{(byte) address}, length);
     }
 
     /**
@@ -56,7 +56,7 @@ public class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
         byte[] buf = new byte[1 + data.length];
         buf[0] = (byte) address;
         System.arraycopy(data, 0, buf, 1, data.length);
-        transport.write(buf);
+        connection.write(buf);
         sleep(WRITE_CYCLE_MS);
     }
 

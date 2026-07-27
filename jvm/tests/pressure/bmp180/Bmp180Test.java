@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.pressure.Bmp180Full;
 
 public class Bmp180Test {
@@ -22,9 +22,9 @@ public class Bmp180Test {
         // BMP180 has a fixed I²C address of 0x77; I2C_ADDR is intentionally ignored.
         int addr = 0x77;
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var sensor = new Bmp180Full(transport);
+            var sensor = new Bmp180Full(connection);
 
             // temperature() — must be in sensor operating range
             double t = sensor.temperature();

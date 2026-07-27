@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.io_expander.Pcf8575Minimal
 import it.uhde.periph.chips.io_expander.Pcf8575Full
 
 fun main() {
-    I2CTransport(1, 0x20).use { transport ->                          // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-        val chip = Pcf8575Full(transport)                             // construct full driver, (transport) → Pcf8575Full
+    I2CConnection(1, 0x20).use { connection ->                        // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+        val chip = Pcf8575Full(connection)                            // construct full driver, (connection) → Pcf8575Full
 
         val p0 = chip.pin(0)                                         // get pin proxy, (n=0) → Pin
         p0.setOutput()                                               // set output mode, () → Unit
@@ -25,14 +25,21 @@ fun main() {
         p8.setInput()                                                 // set input mode, () → Unit
         val state = p8.read()                                         // read actual level, () → Boolean
 
-        chip.configureInterrupt { mask ->                             // start polling interrupt, (callback) → Unit
+        chip.onInterrupt { mask ->                                    // subscribe to INT line, (callback, intPin=connection.intPin()) → Unit
             println("changed: " + Integer.toBinaryString(mask))
         }
 
-        val changed = chip.clearInterrupt()                          // read and return 16-bit changed bitmask, () → Int
+        val changed = chip.pollInterrupt()                            // read and return 16-bit changed bitmask, () → Int
         println("changed=0x" + Integer.toHexString(changed))
 
-        chip.stopInterrupt()                                          // stop polling thread, () → Unit
+        val p9 = chip.pin(9)                                          // get pin proxy, (n=9) → Pin
+        p9.setInput()
+        p9.watch({ pin ->                                             // subscribe to pin edges, (handler, trigger=CHANGE) → Unit
+            println("P9 changed")                                     // called with this pin when its state matches the trigger
+        })
+        p9.unwatch()                                                  // unsubscribe pin handler, () → Unit
+
+        chip.offInterrupt()                                           // unsubscribe and stop delivery, () → Unit
         println("v=$v state=$state")
     }
 }

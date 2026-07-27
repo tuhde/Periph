@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED --add-opens java.base/sun.misc=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.magnetometer.As5600Full
 
 var passed = 0
@@ -19,14 +19,14 @@ fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt() ?: 1
     val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.removePrefix("0X")?.toInt(16) ?: 0x36
 
-    I2CTransport(bus, addr).use { transport ->
+    I2CConnection(bus, addr).use { connection ->
 
         // --- Magnet status poll (60 s max at 5 Hz) ---
         println("--- magnet status (60 s max) ---")
         val deadline = System.currentTimeMillis() + 60_000L
         while (System.currentTimeMillis() < deadline) {
-            val s   = transport.writeRead(byteArrayOf(0x0B), 1)[0].toInt() and 0xFF
-            val agc = transport.writeRead(byteArrayOf(0x1A), 1)[0].toInt() and 0xFF
+            val s   = connection.writeRead(byteArrayOf(0x0B), 1)[0].toInt() and 0xFF
+            val agc = connection.writeRead(byteArrayOf(0x1A), 1)[0].toInt() and 0xFF
             println("MD=${(s shr 3) and 1} ML=${(s shr 4) and 1} MH=${(s shr 5) and 1} AGC=$agc")
             if (s and 0x08 != 0) break
             Thread.sleep(200)
@@ -38,9 +38,9 @@ fun main() {
         theUnsafe.isAccessible = true
         val unsafe = theUnsafe.get(null) as sun.misc.Unsafe
         val as5600 = unsafe.allocateInstance(As5600Full::class.java) as As5600Full
-        val tf = as5600.javaClass.superclass!!.getDeclaredField("transport")
+        val tf = as5600.javaClass.superclass!!.getDeclaredField("connection")
         tf.isAccessible = true
-        tf.set(as5600, transport)
+        tf.set(as5600, connection)
 
         // --- Basic measurements ---
         val angle = as5600.angle()

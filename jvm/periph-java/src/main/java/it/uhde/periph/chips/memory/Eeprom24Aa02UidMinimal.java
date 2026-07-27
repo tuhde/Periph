@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -27,7 +27,7 @@ import java.io.IOException;
  * <ul>
  *   <li>User EEPROM is read/written as raw bytes (no interpretation)</li>
  *   <li>{@link #writeByte(int, int)} waits the worst-case 5 ms internal
- *       write cycle before returning (the C++ Transport interface does
+ *       write cycle before returning (the C++ Connection interface does
  *       not propagate ACK/NACK, so the bus is not polled)</li>
  *   <li>All addresses 0x80-0xFF are write-protected; writes are silently
  *       ignored by the chip</li>
@@ -40,7 +40,7 @@ public class Eeprom24Aa02UidMinimal {
     protected static final int  ADDR_DEV_CODE   = 0xFB;
     protected static final int  WRITE_CYCLE_MS  = 5;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver.
@@ -48,10 +48,10 @@ public class Eeprom24Aa02UidMinimal {
      * <p>The chip has no configuration registers; no I²C traffic occurs
      * at construction.
      *
-     * @param transport I²C transport bound to the device address (0x50)
+     * @param connection I²C connection bound to the device address (0x50)
      */
-    public Eeprom24Aa02UidMinimal(Transport transport) {
-        this.transport = transport;
+    public Eeprom24Aa02UidMinimal(Connection connection) {
+        this.connection = connection;
     }
 
     /**
@@ -63,7 +63,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public byte[] readUid() throws IOException {
-        return transport.writeRead(new byte[]{(byte) ADDR_UID_BASE}, 4);
+        return connection.writeRead(new byte[]{(byte) ADDR_UID_BASE}, 4);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public int readByte(int address) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) address}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) address}, 1);
         return b[0] & 0xFF;
     }
 
@@ -90,7 +90,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public void writeByte(int address, int value) throws IOException {
-        transport.write(new byte[]{(byte) address, (byte) value});
+        connection.write(new byte[]{(byte) address, (byte) value});
         sleep(WRITE_CYCLE_MS);
     }
 

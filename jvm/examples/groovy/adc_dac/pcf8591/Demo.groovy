@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Pcf8591Full
 
 /**
@@ -17,9 +17,9 @@ final VAGND   = 0.0
 final STEPS   = 20
 final STEP_MS = 200
 
-def transport = new I2CTransport(1, 0x48)          // open I²C bus 1, device 0x48, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x48)          // open I²C bus 1, device 0x48, (bus, address) → I2CConnection
 try {
-    def adc = new Pcf8591Full(transport)                    // construct driver, (transport) → Pcf8591Full
+    def adc = new Pcf8591Full(connection)                    // construct driver, (connection) → Pcf8591Full
 
     // --- Wire a potentiometer across VAGND–VREF with the wiper to AIN0 ---
     // Connect an LED (with series resistor) to AOUT. In a loop, read AIN0, map
@@ -42,5 +42,5 @@ try {
     adc.setDac(0)                                                 // enable DAC and set raw value, (value=0–255) → void
 
 } finally {
-    transport.close()
+    connection.close()
 }

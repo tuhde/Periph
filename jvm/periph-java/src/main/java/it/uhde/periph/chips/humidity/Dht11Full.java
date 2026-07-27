@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity;
 
-import it.uhde.periph.transport.DHTxxTransport;
+import it.uhde.periph.connection.DHTxxConnection;
 
 import java.io.IOException;
 
@@ -18,15 +18,15 @@ public class Dht11Full extends Dht11Minimal {
     /**
      * Construct the driver.
      *
-     * @param transport   Configured DHTxx transport bound to the chip's DATA pin.
+     * @param connection   Configured DHTxx connection bound to the chip's DATA pin.
      * @param maxRetries  Default retry count for {@link #readRetry(int)} (default 3).
      */
-    public Dht11Full(DHTxxTransport transport) {
-        this(transport, 3);
+    public Dht11Full(DHTxxConnection connection) {
+        this(connection, 3);
     }
 
-    public Dht11Full(DHTxxTransport transport, int maxRetries) {
-        super(transport);
+    public Dht11Full(DHTxxConnection connection, int maxRetries) {
+        super(connection);
         this.maxRetries = maxRetries;
     }
 
@@ -35,7 +35,7 @@ public class Dht11Full extends Dht11Minimal {
      *
      * @param maxRetries Maximum number of read attempts. If 0, the constructor default is used.
      * @return 2-element array: [temperature_C, humidity_RH].
-     * @throws IOException    on transport error.
+     * @throws IOException    on connection error.
      * @throws Dht11Exception if all attempts fail with a checksum error.
      */
     public double[] readRetry(int maxRetries) throws IOException, Dht11Exception {
@@ -55,11 +55,11 @@ public class Dht11Full extends Dht11Minimal {
      * Read the raw 5-byte frame (after validating the checksum).
      *
      * @return 5-byte frame: [hum_int, hum_dec, temp_int, temp_dec, checksum].
-     * @throws IOException    on transport error.
+     * @throws IOException    on connection error.
      * @throws Dht11Exception on checksum mismatch.
      */
     public byte[] readRaw() throws IOException, Dht11Exception {
-        byte[] frame = transport.read();
+        byte[] frame = connection.read();
         decode(frame);
         return frame;
     }

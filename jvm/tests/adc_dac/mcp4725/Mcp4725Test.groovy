@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Mcp4725Full
 
 @Field int passed = 0
@@ -19,10 +19,10 @@ def checkTrue(String label, boolean condition) {
 int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
 int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x60').replaceFirst(/^0[xX]/, ''), 16)
 
-def transport   = new I2CTransport(bus, addr)
-def gcTransport = new I2CTransport(bus, 0x00)
+def connection   = new I2CConnection(bus, addr)
+def gcConnection = new I2CConnection(bus, 0x00)
 try {
-    def dac = new Mcp4725Full(transport, gcTransport)
+    def dac = new Mcp4725Full(connection, gcConnection)
 
     dac.setVoltage(0.5)
     checkTrue('setVoltage(0.5) accepted', true)
@@ -67,8 +67,8 @@ try {
     checkTrue('isEepromReady accepted', true)
 
 } finally {
-    transport.close()
-    gcTransport.close()
+    connection.close()
+    gcConnection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

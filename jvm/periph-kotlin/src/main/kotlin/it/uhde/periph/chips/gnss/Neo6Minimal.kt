@@ -1,19 +1,19 @@
 package it.uhde.periph.chips.gnss
 
-import it.uhde.periph.transport.Transport
-import it.uhde.periph.transport.UARTTransport
+import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.UARTConnection
 
 /**
- * Transport kind [Neo6Minimal] was constructed with.
+ * Connection kind [Neo6Minimal] was constructed with.
  *
- * The JVM ecosystem has no SPI transport, so only UART and I2C (DDC) are offered.
+ * The JVM ecosystem has no SPI connection, so only UART and I2C (DDC) are offered.
  */
 enum class BusType { UART, I2C }
 
 /**
  * u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status (minimal driver).
  *
- * Reads bytes from the transport and assembles complete NMEA sentences
+ * Reads bytes from the connection and assembles complete NMEA sentences
  * terminated by CR/LF. Works out of the box with the module's factory
  * defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences enabled)
  * -- no chip-side configuration is sent.
@@ -24,7 +24,7 @@ enum class BusType { UART, I2C }
  * fails its checksum and is discarded, same as any other corrupted sentence.
  */
 open class Neo6Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     protected val busType: BusType = BusType.UART
 ) {
     companion object {
@@ -85,15 +85,15 @@ open class Neo6Minimal @JvmOverloads constructor(
     /** Fetch one byte if available, or null if none is ready yet. */
     protected fun readByte(): Int? {
         return if (busType == BusType.UART) {
-            val uart = transport as UARTTransport
+            val uart = connection as UARTConnection
             if (uart.available() <= 0) return null
-            val b = transport.read(1)
+            val b = connection.read(1)
             if (b.isNotEmpty()) b[0].toInt() and 0xFF else null
         } else {
             // DDC random-read: set the register pointer to 0xFF, then read one
             // stream byte. The pointer saturates at 0xFF once set, so
             // re-sending it on every byte is redundant but harmless.
-            val b = transport.writeRead(byteArrayOf(0xFF.toByte()), 1)
+            val b = connection.writeRead(byteArrayOf(0xFF.toByte()), 1)
             if (b.isNotEmpty()) b[0].toInt() and 0xFF else null
         }
     }

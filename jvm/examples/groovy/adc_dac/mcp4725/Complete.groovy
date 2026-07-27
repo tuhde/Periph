@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Mcp4725Full
 
-def transport   = new I2CTransport(1, 0x60)              // open device transport, (bus, address) → I2CTransport
-def gcTransport = new I2CTransport(1, 0x00)              // open general call transport, (bus, address=0x00) → I2CTransport
+def connection   = new I2CConnection(1, 0x60)              // open device connection, (bus, address) → I2CConnection
+def gcConnection = new I2CConnection(1, 0x00)              // open general call connection, (bus, address=0x00) → I2CConnection
 try {
-    def dac = new Mcp4725Full(transport, gcTransport)           // construct driver, (transport, generalCall) → Mcp4725Full
+    def dac = new Mcp4725Full(connection, gcConnection)           // construct driver, (connection, generalCall) → Mcp4725Full
 
     dac.setVoltage(0.5)                                         // set output to 50% of VDD, (fraction=0.0–1.0) → void
                                                                 // converts fraction to 12-bit code and issues a Fast Write
@@ -43,6 +43,6 @@ try {
     println("EEPROM ready: $ready")
 
 } finally {
-    transport.close()
-    gcTransport.close()
+    connection.close()
+    gcConnection.close()
 }

@@ -1,4 +1,4 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.Arena;
@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.foreign.Linker;
 
 /**
- * DHTxx single-wire transport for JVM (Linux host, GPIO v1 character device
+ * DHTxx single-wire connection for JVM (Linux host, GPIO v1 character device
  * via FFM, no native libraries required).
  *
  * <p>Implements the host side of the DHT11 / DHT22 single-wire protocol: a
@@ -25,18 +25,22 @@ import java.lang.foreign.Linker;
  * <p>Optional two-pin open-drain variant: pass a non-negative {@code lineOffsetOut}
  * to request a second line wired to the same physical DATA net, requested
  * once with {@code GPIOHANDLE_REQUEST_OPEN_DRAIN}. The original line stays
- * as input for the lifetime of the transport. This avoids the
+ * as input for the lifetime of the connection. This avoids the
  * release/re-request entirely.
+ *
+ * <p>This is a custom protocol with no generic byte read/write, so it does
+ * not implement {@link Connection} — it carries its own enabled flag and
+ * EN pin instead.
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public class DHTxxTransport implements AutoCloseable {
+public class DHTxxConnection implements AutoCloseable {
 
-    /** Raised when the DHTxx transport cannot complete a read. */
-    public static class DHTxxTransportException extends IOException {
+    /** Raised when the DHTxx connection cannot complete a read. */
+    public static class DHTxxConnectionException extends IOException {
         public enum Kind { TIMEOUT, FRAMING }
         public final Kind kind;
-        public DHTxxTransportException(Kind kind, String detail) {
+        public DHTxxConnectionException(Kind kind, String detail) {
             super(kind + (detail != null ? ": " + detail : ""));
             this.kind = kind;
         }
@@ -94,19 +98,21 @@ public class DHTxxTransport implements AutoCloseable {
     private final String chipPath;
     private final int    lineOffset;
     private final int    lineOffsetOut;
+    private final OutputPin enPin;
     private int    chipFd      = -1;
     private int    inputFd     = -1;
     private int    outputFd    = -1;
     private int    outputOutFd = -1;
     private boolean twoPin;
     private boolean closed;
+    private volatile boolean enabled = true;
 
     /**
      * @param chipPath   Path to the gpiochip device (e.g. {@code /dev/gpiochip0}).
      * @param lineOffset GPIO line offset for the DATA line.
      */
-    public DHTxxTransport(String chipPath, int lineOffset) {
-        this(chipPath, lineOffset, -1);
+    public DHTxxConnection(String chipPath, int lineOffset) {
+        this(chipPath, lineOffset, -1, null);
     }
 
     /**
@@ -115,16 +121,45 @@ public class DHTxxTransport implements AutoCloseable {
      * @param lineOffsetOut Optional second line offset (open-drain output) for
      *                      the two-pin variant, or -1 for the single-pin variant.
      */
-    public DHTxxTransport(String chipPath, int lineOffset, int lineOffsetOut) {
+    public DHTxxConnection(String chipPath, int lineOffset, int lineOffsetOut) {
+        this(chipPath, lineOffset, lineOffsetOut, null);
+    }
+
+    /**
+     * @param chipPath      Path to the gpiochip device.
+     * @param lineOffset    GPIO line offset for the DATA line (input).
+     * @param lineOffsetOut Optional second line offset (open-drain output) for
+     *                      the two-pin variant, or -1 for the single-pin variant.
+     * @param enPin         optional EN-pin {@link OutputPin}, or {@code null}
+     */
+    public DHTxxConnection(String chipPath, int lineOffset, int lineOffsetOut, OutputPin enPin) {
         this.chipPath = chipPath;
         this.lineOffset = lineOffset;
         this.lineOffsetOut = lineOffsetOut;
         this.twoPin = lineOffsetOut >= 0;
+        this.enPin = enPin;
         try {
             open();
         } catch (IOException e) {
-            throw new RuntimeException("DHTxxTransport open failed: " + e.getMessage(), e);
+            throw new RuntimeException("DHTxxConnection open failed: " + e.getMessage(), e);
         }
+    }
+
+    /** Resume reads; drives the hardware EN pin high if wired. */
+    public void enable() {
+        enabled = true;
+        if (enPin != null) enPin.set(true);
+    }
+
+    /** Gate {@link #read}; drives the hardware EN pin low if wired. */
+    public void disable() {
+        enabled = false;
+        if (enPin != null) enPin.set(false);
+    }
+
+    /** @return the current software-gate state. */
+    public boolean isEnabled() {
+        return enabled;
     }
 
     private void open() throws IOException {
@@ -252,10 +287,15 @@ public class DHTxxTransport implements AutoCloseable {
     /**
      * Execute the full DHTxx transaction and return the raw 5-byte frame.
      *
+     * <p>Returns a zero-filled frame without touching the bus if this
+     * connection is disabled.
+     *
      * @return 5 bytes — [hum_int, hum_dec, temp_int, temp_dec, checksum].
-     * @throws DHTxxTransportException On timeout or framing error.
+     * @throws DHTxxConnectionException On timeout or framing error.
      */
     public byte[] read() throws IOException {
+        if (!enabled) return new byte[5];
+
         driveLow();
         try {
             Thread.sleep(START_LOW_MS);
@@ -266,12 +306,12 @@ public class DHTxxTransport implements AutoCloseable {
         releaseBus();
         long elapsed = measurePulse(false, RESPONSE_TIMEOUT_US);
         if (elapsed < 0) {
-            throw new DHTxxTransportException(DHTxxTransportException.Kind.TIMEOUT,
+            throw new DHTxxConnectionException(DHTxxConnectionException.Kind.TIMEOUT,
                     "sensor did not pull DATA low within " + RESPONSE_TIMEOUT_US + " us");
         }
         elapsed = measurePulse(true, RESPONSE_TIMEOUT_US);
         if (elapsed < 0) {
-            throw new DHTxxTransportException(DHTxxTransportException.Kind.TIMEOUT,
+            throw new DHTxxConnectionException(DHTxxConnectionException.Kind.TIMEOUT,
                     "sensor did not release after response low");
         }
 
@@ -281,12 +321,12 @@ public class DHTxxTransport implements AutoCloseable {
             for (int bitIdx = 0; bitIdx < 8; bitIdx++) {
                 elapsed = measurePulse(false, BIT_TIMEOUT_US);
                 if (elapsed < 0) {
-                    throw new DHTxxTransportException(DHTxxTransportException.Kind.FRAMING,
+                    throw new DHTxxConnectionException(DHTxxConnectionException.Kind.FRAMING,
                             "bit " + (byteIdx * 8 + bitIdx) + " start-low missing");
                 }
                 elapsed = measurePulse(true, BIT_TIMEOUT_US);
                 if (elapsed < 0) {
-                    throw new DHTxxTransportException(DHTxxTransportException.Kind.FRAMING,
+                    throw new DHTxxConnectionException(DHTxxConnectionException.Kind.FRAMING,
                             "bit " + (byteIdx * 8 + bitIdx) + " high-pulse missing");
                 }
                 value = (value << 1) | ((elapsed > BIT_THRESHOLD_US) ? 1 : 0);

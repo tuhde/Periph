@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -65,23 +65,23 @@ class Bmp280Full extends Bmp280Minimal {
      * Construct the full driver at the default address (0x76), verify chip ID,
      * and load calibration.
      *
-     * @param transport I²C transport bound to address 0x76
+     * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bmp280Full(Transport transport) {
-        super(transport)
+    Bmp280Full(Connection connection) {
+        super(connection)
     }
 
     /**
      * Construct the full driver at the given address, verify chip ID, and load
      * calibration.
      *
-     * @param transport I²C transport bound to the given address
+     * @param connection I²C connection bound to the given address
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bmp280Full(Transport transport, int addr) {
-        super(transport, addr)
+    Bmp280Full(Connection connection, int addr) {
+        super(connection, addr)
     }
 
     /**
@@ -98,8 +98,8 @@ class Bmp280Full extends Bmp280Minimal {
     void configure(int osrsT, int osrsP, int mode, int filter, int tSb) {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03)
         config   = ((tSb   & 0x07) << 5) | ((filter & 0x07) << 2)
-        transport.write([(byte) REG_CONFIG,    (byte) config]   as byte[])
-        transport.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write([(byte) REG_CONFIG,    (byte) config]   as byte[])
+        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
     }
 
     /**
@@ -113,7 +113,7 @@ class Bmp280Full extends Bmp280Minimal {
      */
     void setOversampling(int osrsT, int osrsP) {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03)
-        transport.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
     }
 
     /**
@@ -126,7 +126,7 @@ class Bmp280Full extends Bmp280Minimal {
      */
     void setMode(int mode) {
         ctrlMeas = (ctrlMeas & 0xFC) | (mode & 0x03)
-        transport.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
     }
 
     /**
@@ -139,7 +139,7 @@ class Bmp280Full extends Bmp280Minimal {
      */
     void setFilter(int coeff) {
         config = (config & 0xE3) | ((coeff & 0x07) << 2)
-        transport.write([(byte) REG_CONFIG, (byte) config] as byte[])
+        connection.write([(byte) REG_CONFIG, (byte) config] as byte[])
     }
 
     /**
@@ -152,7 +152,7 @@ class Bmp280Full extends Bmp280Minimal {
      */
     void setStandby(int tSb) {
         config = (config & 0x1F) | ((tSb & 0x07) << 5)
-        transport.write([(byte) REG_CONFIG, (byte) config] as byte[])
+        connection.write([(byte) REG_CONFIG, (byte) config] as byte[])
     }
 
     /**
@@ -166,7 +166,7 @@ class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     int status() {
-        byte[] b = transport.writeRead([(byte) REG_STATUS] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) REG_STATUS] as byte[], 1)
         return b[0] & 0xFF
     }
 
@@ -217,7 +217,7 @@ class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     int chipId() {
-        byte[] b = transport.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) REG_ID] as byte[], 1)
         return b[0] & 0xFF
     }
 
@@ -232,10 +232,10 @@ class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     void reset() {
-        transport.write([(byte) REG_SOFT_RST, (byte) 0xB6] as byte[])
+        connection.write([(byte) REG_SOFT_RST, (byte) 0xB6] as byte[])
         Thread.sleep(2)
         readCalibration()
-        transport.write([(byte) REG_CONFIG,    (byte) config]   as byte[])
-        transport.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write([(byte) REG_CONFIG,    (byte) config]   as byte[])
+        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
     }
 }

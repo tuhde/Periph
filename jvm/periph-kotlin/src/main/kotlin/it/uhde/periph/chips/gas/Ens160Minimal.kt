@@ -1,19 +1,19 @@
 package it.uhde.periph.chips.gas
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
  * ENS160 digital multi-gas sensor — minimal interface.
  *
  * Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
- * configuration required beyond the transport. The sensor performs automatic
+ * configuration required beyond the connection. The sensor performs automatic
  * baseline correction and on-chip signal processing.
  *
  * Default: STANDARD mode (gas sensing active), polling only, no external
  * T/RH compensation.
  */
-open class Ens160Minimal(protected val transport: Transport) {
+open class Ens160Minimal(protected val connection: Connection) {
 
     companion object {
         const val REG_PART_ID       = 0x00
@@ -48,15 +48,15 @@ open class Ens160Minimal(protected val transport: Transport) {
     }
 
     protected fun writeReg(reg: Int, value: Int) {
-        transport.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
     }
 
     protected fun writeRegLE16(reg: Int, value: Int) {
-        transport.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte()))
+        connection.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte()))
     }
 
     protected fun readReg(reg: Int, n: Int): ByteArray {
-        return transport.writeRead(byteArrayOf(reg.toByte()), n)
+        return connection.writeRead(byteArrayOf(reg.toByte()), n)
     }
 
     protected fun readRegLE16(reg: Int): Int {

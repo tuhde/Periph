@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -32,11 +32,11 @@ public class Bmp180Full extends Bmp180Minimal {
     /**
      * Construct the full driver, verify chip ID, and load calibration.
      *
-     * @param transport I²C transport bound to address 0x77
+     * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp180Full(Transport transport) throws IOException {
-        super(transport);
+    public Bmp180Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -108,7 +108,7 @@ public class Bmp180Full extends Bmp180Minimal {
      * @throws IOException on I²C error
      */
     public int chipId() throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
         return b[0] & 0xFF;
     }
 
@@ -121,7 +121,7 @@ public class Bmp180Full extends Bmp180Minimal {
      * @throws IOException on I²C error or invalid calibration after reset
      */
     public void reset() throws IOException {
-        transport.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
+        connection.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
         try {
             Thread.sleep(15);
         } catch (InterruptedException e) {

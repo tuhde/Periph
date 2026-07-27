@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport;
+import it.uhde.periph.connection.NeoPixelConnection;
 import it.uhde.periph.chips.led.SK6812RGBWFull;
 
 public class Complete {
@@ -12,11 +12,11 @@ public class Complete {
         int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
         int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
         int pixelCount = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
-        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new SK6812RGBWFull(transport, pixelCount);          // construct driver, (transport, n) → SK6812RGBWFull
+        try (var connection = new NeoPixelConnection(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
+            var strip = new SK6812RGBWFull(connection, pixelCount);          // construct driver, (connection, n) → SK6812RGBWFull
 
             strip.fill(255, 0, 0, 0);                                     // fill entire strip red and send, (r=0–255, g=0–255, b=0–255, w=0–255) → void
-                                                                           // inherited from SK6812RGBWMinimal; fills buffer in GRBW order and calls transport.write()
+                                                                           // inherited from SK6812RGBWMinimal; fills buffer in GRBW order and calls connection.write()
             Thread.sleep(500);
 
             strip.fill(0, 0, 0, 255);                                     // fill strip using W channel, (r=0–255, g=0–255, b=0–255, w=0–255) → void

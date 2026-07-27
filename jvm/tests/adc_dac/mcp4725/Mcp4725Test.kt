@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Mcp4725Full
 
 var passed = 0
@@ -19,10 +19,10 @@ fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt() ?: 1
     val addr = System.getenv("I2C_ADDR")?.removePrefix("0x")?.removePrefix("0X")?.toInt(16) ?: 0x60
 
-    I2CTransport(bus, addr).use { transport ->
-    I2CTransport(bus, 0x00).use { gcTransport ->
+    I2CConnection(bus, addr).use { connection ->
+    I2CConnection(bus, 0x00).use { gcConnection ->
 
-        val dac = Mcp4725Full(transport, gcTransport)
+        val dac = Mcp4725Full(connection, gcConnection)
 
         dac.setVoltage(0.5)
         checkTrue("setVoltage(0.5) accepted", true)

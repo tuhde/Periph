@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.comms;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -11,23 +11,23 @@ import java.io.IOException;
 public class Rda5807mFull extends Rda5807mMinimal {
 
     /**
-     * @param transport    I²C transport bound to address 0x10
+     * @param connection    I²C connection bound to address 0x10
      * @param frequencyMhz initial frequency in MHz
      * @param volume       initial volume, 0 (mute) to 15 (max)
      * @throws IOException on I²C error
      */
-    public Rda5807mFull(Transport transport, double frequencyMhz, int volume) throws IOException {
-        super(transport, frequencyMhz, volume);
+    public Rda5807mFull(Connection connection, double frequencyMhz, int volume) throws IOException {
+        super(connection, frequencyMhz, volume);
     }
 
     /**
      * Construct with default parameters (100.0 MHz, volume 8).
      *
-     * @param transport I²C transport bound to address 0x10
+     * @param connection I²C connection bound to address 0x10
      * @throws IOException on I²C error
      */
-    public Rda5807mFull(Transport transport) throws IOException {
-        super(transport, 100.0, 8);
+    public Rda5807mFull(Connection connection) throws IOException {
+        super(connection, 100.0, 8);
     }
 
     /**

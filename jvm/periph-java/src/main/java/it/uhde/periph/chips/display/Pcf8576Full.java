@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.display;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -47,11 +47,11 @@ public class Pcf8576Full extends Pcf8576Minimal {
     /**
      * Construct the full driver and initialise the chip with defaults.
      *
-     * @param transport I2C transport bound to the PCF8576 address
+     * @param connection I2C connection bound to the PCF8576 address
      * @throws IOException on I2C error
      */
-    public Pcf8576Full(Transport transport) throws IOException {
-        super(transport);
+    public Pcf8576Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     private int modeCode(int backplanes) {

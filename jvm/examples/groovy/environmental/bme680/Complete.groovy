@@ -1,17 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Bme680Full
 
 def bus  = (System.getenv("I2C_BUS")  ?: "1").toInteger()
 def addr = Integer.decode(System.getenv("I2C_ADDR") ?: "0x76")
-def transport = new I2CTransport(bus, addr)              // open I²C bus, (bus, address=0x76) → I2CTransport
+def connection = new I2CConnection(bus, addr)              // open I²C bus, (bus, address=0x76) → I2CConnection
 try {
-    def sensor = new Bme680Full(transport)                      // construct driver, verifies chip ID and loads calibration, (transport) → Bme680Full
+    def sensor = new Bme680Full(connection)                      // construct driver, verifies chip ID and loads calibration, (connection) → Bme680Full
 
     int id = sensor.chipId()                                    // read chip ID register 0xD0, () → int
                                                                 // returns 0x61 for BME680; useful for confirming the device is present
@@ -108,5 +108,5 @@ try {
                                                                 // triggers a TPHG cycle; dew point below 0 °C indicates dry air
     printf("dew point: %.2f °C%n", dp)
 } finally {
-    transport.close()
+    connection.close()
 }

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.UARTTransport;
+import it.uhde.periph.connection.UARTConnection;
 import it.uhde.periph.chips.gnss.Neo6Minimal;
 
 public class Neo6Test {
@@ -24,8 +24,8 @@ public class Neo6Test {
     public static void main(String[] args) throws Exception {
         String port = System.getenv().getOrDefault("UART_PORT", "/dev/ttyS0");
 
-        try (var transport = new UARTTransport(port)) {
-            var gps = new Neo6Minimal(transport);
+        try (var connection = new UARTConnection(port)) {
+            var gps = new Neo6Minimal(connection);
 
             checkTrue("fix() starts at 0", gps.fix() == 0);
             checkTrue("latitude() starts at null", gps.latitude() == null);

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rfid
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -11,9 +11,9 @@ import java.io.IOException
  * Ultralight / NTAG page read/write.
  */
 class Mfrc522Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     busType: Int = Mfrc522Minimal.BUS_SPI
-) : Mfrc522Minimal(transport, busType) {
+) : Mfrc522Minimal(connection, busType) {
 
     /** Re-run SoftReset and the full initialization sequence. */
     fun reset() { initChip() }

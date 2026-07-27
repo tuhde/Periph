@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport
+import it.uhde.periph.connection.NeoPixelConnection
 import it.uhde.periph.chips.led.WS2812BFull
 
 private const val FRAME_MS  = 33L   // ~30 fps
@@ -16,8 +16,8 @@ fun main() {
     val spiBus     = System.getenv("SPI_BUS")?.toInt()     ?: 0
     val spiDevice  = System.getenv("SPI_DEVICE")?.toInt()  ?: 0
     val PIXELS     = System.getenv("PIXEL_COUNT")?.toInt() ?: 4
-    NeoPixelTransport(spiBus, spiDevice).use { transport ->  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
-        val strip = WS2812BFull(transport, PIXELS)                  // construct driver, (transport, n) → WS2812BFull
+    NeoPixelConnection(spiBus, spiDevice).use { connection ->  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
+        val strip = WS2812BFull(connection, PIXELS)                  // construct driver, (connection, n) → WS2812BFull
 
         // --- Rainbow rotation for 10 seconds ---
         // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour

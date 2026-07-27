@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.UARTTransport
+import it.uhde.periph.connection.UARTConnection
 import it.uhde.periph.chips.gnss.Neo6Full
 
 // To use I2C (DDC) instead of UART:
-//   import it.uhde.periph.transport.I2CTransport
+//   import it.uhde.periph.connection.I2CConnection
 //   import it.uhde.periph.chips.gnss.BusType
-//   I2CTransport(1, 0x42).use { transport -> val gps = Neo6Full(transport, BusType.I2C) }
+//   I2CConnection(1, 0x42).use { connection -> val gps = Neo6Full(connection, BusType.I2C) }
 
 fun main() {
     // --- Portable GPS logger ---
@@ -19,8 +19,8 @@ fun main() {
     // seconds, polling update() far faster than the 1 Hz sentence rate so no
     // sentence is missed, and prints one line per second once a fresh GGA
     // has been parsed.
-    UARTTransport("/dev/ttyS0").use { transport ->                 // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTTransport
-        val gps = Neo6Full(transport)                                // construct driver, (transport, busType=UART) → Neo6Full
+    UARTConnection("/dev/ttyS0").use { connection ->                 // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTConnection
+        val gps = Neo6Full(connection)                                // construct driver, (connection, busType=UART) → Neo6Full
 
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < 60_000) {

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.magnetometer.As5600Full
 
 /**
@@ -17,8 +17,8 @@ private const val SAMPLES      = 10
 private const val INTERVAL_MS  = 100L
 
 fun main() {
-    I2CTransport(1, 0x36).use { transport ->                 // open I²C bus 1, device 0x36, (bus, address) → I2CTransport
-        val as5600 = As5600Full(transport)                         // construct driver, (transport) → As5600Full
+    I2CConnection(1, 0x36).use { connection ->                 // open I²C bus 1, device 0x36, (bus, address) → I2CConnection
+        val as5600 = As5600Full(connection)                         // construct driver, (connection) → As5600Full
 
         // --- Configure for responsive angle tracking ---
         // Normal power mode with 16× slow filter gives 2.2 ms settling;

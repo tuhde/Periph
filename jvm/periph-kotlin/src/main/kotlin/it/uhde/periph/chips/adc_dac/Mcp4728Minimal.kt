@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP4728 — quad-channel 12-bit DAC with I²C interface (minimal driver).
@@ -12,7 +12,7 @@ import it.uhde.periph.transport.Transport
  *
  * Default I²C address: 0x60 (A2:A1:A0 = 000). Address range 0x60–0x67.
  */
-open class Mcp4728Minimal(protected val transport: Transport) {
+open class Mcp4728Minimal(protected val connection: Connection) {
 
     /** Channel A. */
     companion object {
@@ -49,7 +49,7 @@ open class Mcp4728Minimal(protected val transport: Transport) {
         val ch = channel.coerceIn(0, 3)
         val c = code.coerceIn(0, 4095)
         // Multi-Write: [0 1 0 0 0 DAC1 DAC0 UDAC] [V_REF PD1 PD0 Gx D11-D8] [D7-D0]
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             (0x40 or ((ch and 0x03) shl 1)).toByte(),
             (((c shr 8) and 0x0F)).toByte(),
             (c and 0xFF).toByte()
@@ -75,6 +75,6 @@ open class Mcp4728Minimal(protected val transport: Transport) {
             buf[i * 2]     = ((code shr 8) and 0x0F).toByte()
             buf[i * 2 + 1] = (code and 0xFF).toByte()
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 }

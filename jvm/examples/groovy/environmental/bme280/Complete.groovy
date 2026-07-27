@@ -1,17 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Bme280Full
 
 def bus  = (System.getenv("I2C_BUS")  ?: "1").toInteger()
 def addr = Integer.decode(System.getenv("I2C_ADDR") ?: "0x76")
-def transport = new I2CTransport(bus, addr)              // open I²C bus, (bus, address=0x76) → I2CTransport
+def connection = new I2CConnection(bus, addr)              // open I²C bus, (bus, address=0x76) → I2CConnection
 try {
-    def sensor = new Bme280Full(transport)                       // construct driver, verifies chip ID and loads calibration, (transport) → Bme280Full
+    def sensor = new Bme280Full(connection)                       // construct driver, verifies chip ID and loads calibration, (connection) → Bme280Full
 
     int cid = sensor.chipId()                                    // read chip ID, () → int
                                                                      // returns 0x60 for BME280
@@ -37,5 +37,5 @@ try {
                                                                      // re-reads calibration and re-applies configuration
     printf("T=%.1f °C, P=%.1f hPa, RH=%.1f %%RH, alt=%.1f m, slp=%.1f hPa, dp=%.1f °C%n", t, p, h, alt, slp, dp)
 } finally {
-    transport.close()
+    connection.close()
 }

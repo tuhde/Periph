@@ -1,18 +1,18 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * SMBus transport for Linux (wraps {@link I2CTransport} with address validation and PEC).
+ * SMBus connection for Linux (wraps {@link I2CConnection} with address validation and PEC).
  *
  * <p>Enforces the valid 7-bit SMBus address range (0x08–0x77) and, when {@code pec} is
- * true, appends a CRC-8 byte to writes and verifies it on reads. Built on {@link I2CTransport},
+ * true, appends a CRC-8 byte to writes and verifies it on reads. Built on {@link I2CConnection},
  * so {@link #writeRead} performs a stop-then-start rather than a true repeated start.
  */
-public final class SMBusTransport implements Transport {
+public final class SMBusConnection extends AbstractConnection {
 
-    private final I2CTransport i2c;
+    private final I2CConnection i2c;
     private final int address;
     private final boolean pec;
 
@@ -22,15 +22,30 @@ public final class SMBusTransport implements Transport {
      * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
      * @param address 7-bit device address (0x08–0x77)
      * @param pec     enable Packet Error Code (CRC-8) checking
+     * @param intPin  optional INT-line {@link InputPin}, or {@code null}
+     * @param enPin   optional EN-pin {@link OutputPin}, or {@code null}
      * @throws IOException if address is outside the valid SMBus range, or the device cannot be opened
      */
-    public SMBusTransport(int bus, int address, boolean pec) throws IOException {
+    public SMBusConnection(int bus, int address, boolean pec, InputPin intPin, OutputPin enPin) throws IOException {
+        super(intPin, enPin);
         if (address < 0x08 || address > 0x77) {
             throw new IOException("SMBus address must be in range 0x08-0x77");
         }
         this.address = address;
         this.pec = pec;
-        this.i2c = new I2CTransport(bus, address);
+        this.i2c = new I2CConnection(bus, address);
+    }
+
+    /**
+     * Open an SMBus device with no INT/EN pins.
+     *
+     * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
+     * @param address 7-bit device address (0x08–0x77)
+     * @param pec     enable Packet Error Code (CRC-8) checking
+     * @throws IOException if address is outside the valid SMBus range, or the device cannot be opened
+     */
+    public SMBusConnection(int bus, int address, boolean pec) throws IOException {
+        this(bus, address, pec, null, null);
     }
 
     private static int crc8(byte[] data, int crc) {
@@ -50,7 +65,7 @@ public final class SMBusTransport implements Transport {
      * @throws IOException on bus error or no ACK
      */
     @Override
-    public void write(byte[] data) throws IOException {
+    protected void _write(byte[] data) throws IOException {
         if (!pec) {
             i2c.write(data);
             return;
@@ -72,7 +87,7 @@ public final class SMBusTransport implements Transport {
      * @throws IOException on bus error, no ACK, or PEC mismatch
      */
     @Override
-    public byte[] read(int n) throws IOException {
+    protected byte[] _read(int n) throws IOException {
         if (!pec) {
             return i2c.read(n);
         }
@@ -97,7 +112,7 @@ public final class SMBusTransport implements Transport {
      * @throws IOException on bus error, no ACK, or PEC mismatch
      */
     @Override
-    public byte[] writeRead(byte[] data, int n) throws IOException {
+    protected byte[] _writeRead(byte[] data, int n) throws IOException {
         if (!pec) {
             return i2c.writeRead(data, n);
         }

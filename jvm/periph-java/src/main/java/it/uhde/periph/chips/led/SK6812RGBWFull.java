@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.led;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -23,11 +23,11 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
     /**
      * Construct the full driver.
      *
-     * @param transport configured NeoPixel transport
+     * @param connection configured NeoPixel connection
      * @param n         number of pixels in the strip (≥1)
      */
-    public SK6812RGBWFull(Transport transport, int n) {
-        super(transport, n);
+    public SK6812RGBWFull(Connection connection, int n) {
+        super(connection, n);
     }
 
     /**
@@ -95,17 +95,17 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
      *
      * <p>Each channel is scaled: {@code sent = stored × brightness / 255}.
      *
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void show() throws IOException {
         if (brightness == 255) {
-            transport.write(buf);
+            connection.write(buf);
         } else {
             byte[] scaled = new byte[buf.length];
             for (int i = 0; i < buf.length; i++) {
                 scaled[i] = (byte) ((buf[i] & 0xFF) * brightness / 255);
             }
-            transport.write(scaled);
+            connection.write(scaled);
         }
     }
 
@@ -135,7 +135,7 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
      * @param h hue (0.0–1.0)
      * @param s saturation (0.0–1.0)
      * @param v value / brightness (0.0–1.0)
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void fillHsv(double h, double s, double v) throws IOException {
         int[] rgb = NeoPixelColor.hsvToRgb(h, s, v);

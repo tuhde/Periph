@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.adc_dac.Mcp4728Full;
 
 /**
@@ -20,8 +20,8 @@ public class Demo {
     private static final long   STEP_MS = 50;
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x60)) {   // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
-            var dac = new Mcp4728Full(transport, null);              // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4728Full
+        try (var connection = new I2CConnection(1, 0x60)) {   // open I²C bus 1, device 0x60, (bus, address) → I2CConnection
+            var dac = new Mcp4728Full(connection, null);              // construct driver (no general call needed for this demo), (connection, generalCall) → Mcp4728Full
 
             // --- Apply four-point calibration voltages to channels A–D ---
             // A 4-channel DAC is the canonical way to bias a 4-point sensor bridge

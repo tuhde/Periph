@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Full
 
 var passed = 0
@@ -20,9 +20,9 @@ fun main() {
     // BMP180 has a fixed I²C address of 0x77; I2C_ADDR is intentionally ignored.
     val addr = 0x77
 
-    I2CTransport(bus, addr).use { transport ->
+    I2CConnection(bus, addr).use { connection ->
 
-        val sensor = Bmp180Full(transport)
+        val sensor = Bmp180Full(connection)
 
         // temperature() — must be in sensor operating range
         val t = sensor.temperature()

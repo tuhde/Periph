@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.io_expander.Pcf8574Full
 
 fun main() {
-    I2CTransport(1, 0x20).use { transport ->                          // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-        val chip = Pcf8574Full(transport)                              // construct full driver, (transport) → Pcf8574Full
+    I2CConnection(1, 0x20).use { connection ->                        // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+        val chip = Pcf8574Full(connection)                             // construct full driver, (connection) → Pcf8574Full
                                                                        // initialises shadow to 0xFF; all pins input mode
 
         val port = chip.readPort()                                     // read all 8 pins, () → Int bitmask
@@ -37,18 +37,24 @@ fun main() {
         p7.toggle()                                                    // invert shadow bit 7, () → Unit
                                                                        // if last written 1 → writes 0; if last written 0 → writes 1
 
-        chip.configureInterrupt { mask ->                              // attach change callback, ((Int) -> Unit) → Unit
-                                                                       // starts a 5 ms polling thread; callback fires on any input change
+        chip.onInterrupt { mask ->                                     // subscribe to INT line, (callback, intPin=connection.intPin()) → Unit
+                                                                       // uses connection.intPin() if wired, else a 5 ms polling thread
             println("changed pins: 0x%02X".format(mask))
         }
 
         Thread.sleep(100)
 
-        val changed = chip.clearInterrupt()                            // read port and return changed-pin bitmask, () → Int
+        val changed = chip.pollInterrupt()                             // read port and return changed-pin bitmask, () → Int
                                                                        // compares current read to last read; clears chip INT line
-        println("cleared interrupt: 0x%02X".format(changed))
+        println("polled interrupt: 0x%02X".format(changed))
 
-        chip.stopInterrupt()                                           // stop polling thread, () → Unit
-                                                                       // daemon thread; also exits automatically when JVM exits
+        val p5 = chip.pin(5)                                           // get pin proxy, (n) → Pin
+        p5.setInput()
+        p5.watch({ pin ->                                              // subscribe to pin edges, (handler, trigger=CHANGE) → Unit
+            println("P5 changed")                                      // called with this pin when its state matches the trigger
+        })                                                             // fires whenever P5 changes; needs onInterrupt armed first
+        p5.unwatch()                                                   // unsubscribe pin handler, () → Unit
+
+        chip.offInterrupt()                                            // unsubscribe and stop delivery, () → Unit
     }
 }

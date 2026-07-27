@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * PCF8574 8-bit quasi-bidirectional I/O port expander — minimal interface.
@@ -22,7 +22,7 @@ import it.uhde.periph.transport.Transport
 @CompileStatic
 class Pcf8574Minimal {
 
-    protected final Transport transport
+    protected final Connection connection
 
     /** Output latch shadow — bit n = last value written to pin n. */
     protected int shadow = 0xFF
@@ -30,10 +30,10 @@ class Pcf8574Minimal {
     /**
      * Construct the driver and initialise all pins to input mode (shadow = {@code 0xFF}).
      *
-     * @param transport I²C transport bound to the PCF8574 device address (100 kHz max)
+     * @param connection I²C connection bound to the PCF8574 device address (100 kHz max)
      */
-    Pcf8574Minimal(Transport transport) {
-        this.transport = transport
+    Pcf8574Minimal(Connection connection) {
+        this.connection = connection
         writePort(0xFF)
     }
 
@@ -51,7 +51,7 @@ class Pcf8574Minimal {
      * @return 8-bit bitmask of current pin states
      */
     int readPort(int port = 0) {
-        return transport.read(1)[0] & 0xFF
+        return connection.read(1)[0] & 0xFF
     }
 
     /**
@@ -62,7 +62,7 @@ class Pcf8574Minimal {
      */
     void writePort(int port = 0, int mask) {
         shadow = mask & 0xFF
-        transport.write([(byte) shadow] as byte[])
+        connection.write([(byte) shadow] as byte[])
     }
 
     // -------------------------------------------------------------------------
@@ -94,7 +94,7 @@ class Pcf8574Minimal {
         if (high) shadow |=   (1 << n)
         else      shadow &= ~((1 << n))
         shadow &= 0xFF
-        transport.write([(byte) shadow] as byte[])
+        connection.write([(byte) shadow] as byte[])
     }
 
     // =========================================================================
@@ -151,7 +151,7 @@ class Pcf8574Minimal {
          * @return {@code true} if the pin is high; {@code false} if low
          */
         boolean read() {
-            return (((chip.transport.read(1)[0] & 0xFF) >> n) & 1) == 1
+            return (((chip.connection.read(1)[0] & 0xFF) >> n) & 1) == 1
         }
 
         /**

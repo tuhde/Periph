@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.power.Ina3221Full;
 
 /**
@@ -23,12 +23,12 @@ public class Demo {
     private static final double ALERT_MUL = 1.5;
 
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x40)) {            // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
+        try (var connection = new I2CConnection(1, 0x40)) {            // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
 
             // --- Construct driver with 0.1 Ω shunt on all rails ---
             // Using a common shunt value simplifies wiring; per-channel values can
             // be supplied via the double[] constructor if rails differ.
-            var ina = new Ina3221Full(transport, R_SHUNT);                  // construct driver, (transport, rShunt=0.1 Ω) → Ina3221Full
+            var ina = new Ina3221Full(connection, R_SHUNT);                  // construct driver, (connection, rShunt=0.1 Ω) → Ina3221Full
 
             // --- Configure: 4-sample averaging, 1.1 ms conversions, continuous mode ---
             // 4-sample averaging reduces noise on switching-mode supplies without

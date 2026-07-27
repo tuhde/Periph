@@ -1,18 +1,18 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.environmental.Bme680Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
-        try (var transport = new I2CTransport(bus, addr)) {       // open I²C bus, (bus, address=0x76) → I2CTransport
-            var sensor = new Bme680Full(transport);                      // construct driver, verifies chip ID and loads calibration, (transport) → Bme680Full
+        try (var connection = new I2CConnection(bus, addr)) {       // open I²C bus, (bus, address=0x76) → I2CConnection
+            var sensor = new Bme680Full(connection);                      // construct driver, verifies chip ID and loads calibration, (connection) → Bme680Full
 
             int id = sensor.chipId();                                    // read chip ID register 0xD0, () → int
                                                                          // returns 0x61 for BME680; useful for confirming the device is present

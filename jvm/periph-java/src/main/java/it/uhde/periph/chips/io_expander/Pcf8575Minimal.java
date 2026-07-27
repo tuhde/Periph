@@ -1,25 +1,25 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
 public class Pcf8575Minimal {
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected int[] shadow = {0xFF, 0xFF};
 
-    public Pcf8575Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Pcf8575Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         writeBoth();
     }
 
     private void writeBoth() throws IOException {
-        transport.write(new byte[]{(byte) shadow[0], (byte) shadow[1]});
+        connection.write(new byte[]{(byte) shadow[0], (byte) shadow[1]});
     }
 
     public int readPort(int port) throws IOException {
-        byte[] buf = transport.read(2);
+        byte[] buf = connection.read(2);
         return buf[port] & 0xFF;
     }
 
@@ -57,7 +57,7 @@ public class Pcf8575Minimal {
         public boolean read() throws IOException {
             int port = n / 8;
             int bit = n % 8;
-            byte[] buf = chip.transport.read(2);
+            byte[] buf = chip.connection.read(2);
             return ((buf[port] >> bit) & 1) == 1;
         }
 

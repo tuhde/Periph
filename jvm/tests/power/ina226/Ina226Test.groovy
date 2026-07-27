@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina226Full
 
 @Field int passed = 0
@@ -19,9 +19,9 @@ def checkTrue(String label, boolean condition) {
 int bus  = (System.getenv('I2C_BUS')  ?: '1').toInteger()
 int addr = Integer.parseInt((System.getenv('I2C_ADDR') ?: '0x40').replaceFirst(/^0[xX]/, ''), 16)
 
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
-    def ina = new Ina226Full(transport, 0.1d, 2.0d)
+    def ina = new Ina226Full(connection, 0.1d, 2.0d)
 
     // --- Basic measurements ---
     double v = ina.voltage()
@@ -78,7 +78,7 @@ try {
     checkTrue('dieId() == 0x2260', dieId == 0x2260)
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

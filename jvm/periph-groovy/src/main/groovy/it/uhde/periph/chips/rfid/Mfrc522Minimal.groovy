@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.rfid
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 import java.io.IOException
 
@@ -9,11 +9,11 @@ import java.io.IOException
  * MFRC522 — 13.56 MHz contactless reader/writer (NXP). Minimal driver.
  *
  * Detects an ISO/IEC 14443 Type A card in the field and reads its UID. No
- * configuration beyond the transport and bus type is required.
+ * configuration beyond the connection and bus type is required.
  *
- * Supports three host transports — I²C, SPI, and UART — all of which
+ * Supports three host connections — I²C, SPI, and UART — all of which
  * expose the same 64-register internal bank; the address-byte framing
- * differs per transport. The driver selects the correct framing from the
+ * differs per connection. The driver selects the correct framing from the
  * `busType` parameter.
  *
  * Default configuration (baked in at construction):
@@ -79,15 +79,15 @@ class Mfrc522Minimal {
     protected static final int PICC_SEL_BIT = 0x70
     protected static final int PICC_SAK_NOT_COMPLETE = 0x04
 
-    protected final Transport transport
+    protected final Connection connection
     protected final int busType
 
-    Mfrc522Minimal(Transport transport) {
-        this(transport, BUS_SPI)
+    Mfrc522Minimal(Connection connection) {
+        this(connection, BUS_SPI)
     }
 
-    Mfrc522Minimal(Transport transport, int busType) {
-        this.transport = transport
+    Mfrc522Minimal(Connection connection, int busType) {
+        this.connection = connection
         this.busType = busType
         try { initChip() } catch (IOException e) { throw new RuntimeException(e) }
     }
@@ -103,11 +103,11 @@ class Mfrc522Minimal {
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        transport.write(new byte[] { (byte) addrFor(reg, false), (byte) (value & 0xFF) })
+        connection.write(new byte[] { (byte) addrFor(reg, false), (byte) (value & 0xFF) })
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[] { (byte) addrFor(reg, true) }, 1)
+        byte[] b = connection.writeRead(new byte[] { (byte) addrFor(reg, true) }, 1)
         return b[0] & 0xFF
     }
 

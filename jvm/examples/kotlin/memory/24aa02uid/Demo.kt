@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //KOTLIN 2.0+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.memory.Eeprom24Aa02UidFull
 
 /**
@@ -19,8 +19,8 @@ fun main() {
     val samples     = 5
     val intervalMs  = 2000L
 
-    I2CTransport(1, 0x50).use { transport ->                                    // open I²C bus 1, device 0x50, (bus, address) → I2CTransport
-        val eeprom = Eeprom24Aa02UidFull(transport)                             // construct driver, (transport) → Eeprom24Aa02UidFull
+    I2CConnection(1, 0x50).use { connection ->                                    // open I²C bus 1, device 0x50, (bus, address) → I2CConnection
+        val eeprom = Eeprom24Aa02UidFull(connection)                             // construct driver, (connection) → Eeprom24Aa02UidFull
 
         // --- Read the chip's factory-programmed 32-bit serial number ---
         // The UID at 0xFC-0xFF never changes and identifies the device

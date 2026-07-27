@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Pcf8575Full;
 import it.uhde.periph.chips.io_expander.Pcf8575Minimal;
 
@@ -28,9 +28,9 @@ public class Pcf8575Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x20").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var chip = new Pcf8575Minimal(transport);
+            var chip = new Pcf8575Minimal(connection);
 
             // --- Construction sets all pins to input mode (shadow = [0xFF, 0xFF]) ---
             checkEq("init_shadow_0", chip.shadow[0], 0xFF);
@@ -77,17 +77,24 @@ public class Pcf8575Test {
             chip.writePort(0, 0xFF);
             chip.writePort(1, 0xFF);
 
-            // --- Full: clear_interrupt returns int in [0, 65535] ---
-            var full = new Pcf8575Full(transport);
-            int changed = full.clearInterrupt();
-            checkTrue("clear_interrupt_range", changed >= 0 && changed <= 65535);
+            // --- Full: pollInterrupt returns int in [0, 65535] ---
+            var full = new Pcf8575Full(connection);
+            int changed = full.pollInterrupt();
+            checkTrue("poll_interrupt_range", changed >= 0 && changed <= 65535);
 
-            // --- configure_interrupt + stop_interrupt ---
+            // --- onInterrupt + offInterrupt ---
             var received = new int[]{-1};
-            full.configureInterrupt(mask -> received[0] = mask);
+            full.onInterrupt(mask -> received[0] = mask);
             Thread.sleep(50);
-            full.stopInterrupt();
-            checkTrue("configure_interrupt_accepted", true);
+            full.offInterrupt();
+            checkTrue("on_interrupt_accepted", true);
+
+            // --- per-pin watch/unwatch ---
+            var p9 = full.pin(9);
+            java.util.function.Consumer<Pcf8575Full.Pin> watcher = pin -> {};
+            p9.watch(watcher);
+            p9.unwatch();
+            checkTrue("pin.watch + unwatch accepted", true);
 
             System.out.println();
             System.out.printf("Results: %d passed, %d failed%n", passed, failed);

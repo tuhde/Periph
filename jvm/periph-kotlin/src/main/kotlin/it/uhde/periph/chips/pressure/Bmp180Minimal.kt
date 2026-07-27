@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -14,7 +14,7 @@ import java.io.IOException
  *
  * Default oversampling setting (OSS): 0 (ultra-low-power).
  */
-open class Bmp180Minimal(protected val transport: Transport) {
+open class Bmp180Minimal(protected val connection: Connection) {
 
     companion object {
         const val REG_CAL_START = 0xAA
@@ -45,7 +45,7 @@ open class Bmp180Minimal(protected val transport: Transport) {
 
     init {
         // Verify chip ID
-        val id = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val id = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
         if (id[0].toInt() and 0xFF != CHIP_ID) {
             throw IOException(
                 "BMP180 not found: expected chip ID 0x55, got 0x${(id[0].toInt() and 0xFF).toString(16)}"
@@ -60,7 +60,7 @@ open class Bmp180Minimal(protected val transport: Transport) {
      * @throws IOException on I²C error or invalid calibration data
      */
     protected fun readCalibration() {
-        val cal = transport.writeRead(byteArrayOf(REG_CAL_START.toByte()), 22)
+        val cal = connection.writeRead(byteArrayOf(REG_CAL_START.toByte()), 22)
 
         fun s16(hi: Int, lo: Int): Int = (((cal[hi].toInt() and 0xFF) shl 8) or (cal[lo].toInt() and 0xFF)).toShort().toInt()
         fun u16(hi: Int, lo: Int): Int =  ((cal[hi].toInt() and 0xFF) shl 8) or (cal[lo].toInt() and 0xFF)
@@ -108,9 +108,9 @@ open class Bmp180Minimal(protected val transport: Transport) {
      * @return unsigned 16-bit raw temperature
      */
     protected fun readRawTemperature(): Int {
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), CMD_TEMP.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), CMD_TEMP.toByte()))
         Thread.sleep(5)
-        val b = transport.writeRead(byteArrayOf(REG_OUT_MSB.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(REG_OUT_MSB.toByte()), 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
@@ -121,9 +121,9 @@ open class Bmp180Minimal(protected val transport: Transport) {
      * @return raw pressure ADC value (shifted by oss)
      */
     protected fun readRawPressure(ossMode: Int): Long {
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), (CMD_PRES_OSS or (ossMode shl 6)).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), (CMD_PRES_OSS or (ossMode shl 6)).toByte()))
         Thread.sleep(ossMode * 10L + 5L)
-        val b = transport.writeRead(byteArrayOf(REG_OUT_MSB.toByte()), 3)
+        val b = connection.writeRead(byteArrayOf(REG_OUT_MSB.toByte()), 3)
         val raw = ((b[0].toLong() and 0xFF) shl 16) or ((b[1].toLong() and 0xFF) shl 8) or (b[2].toLong() and 0xFF)
         return raw shr (8 - ossMode)
     }

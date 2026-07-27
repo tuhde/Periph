@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gnss
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * NEO-6 with UBX binary messaging, rate/platform configuration, and richer
@@ -25,12 +25,12 @@ class Neo6Full extends Neo6Minimal {
     private String utcDateValue
     private Double hdopValue
 
-    Neo6Full(Transport transport) {
-        super(transport)
+    Neo6Full(Connection connection) {
+        super(connection)
     }
 
-    Neo6Full(Transport transport, BusType busType) {
-        super(transport, busType)
+    Neo6Full(Connection connection, BusType busType) {
+        super(connection, busType)
     }
 
     @Override
@@ -108,7 +108,7 @@ class Neo6Full extends Neo6Minimal {
         System.arraycopy(body, 0, frame, 2, body.length)
         frame[frame.length - 2] = (byte) cs[0]
         frame[frame.length - 1] = (byte) cs[1]
-        transport.write(frame)
+        connection.write(frame)
     }
 
     /**
@@ -116,7 +116,7 @@ class Neo6Full extends Neo6Minimal {
      *
      * @throws IOException if the module answers with ACK-NAK, no matching
      *   response arrives before the internal idle budget is spent, or a
-     *   transport error occurs
+     *   connection error occurs
      */
     byte[] pollUbx(int msgClass, int msgId) {
         sendUbx(msgClass, msgId, new byte[0])

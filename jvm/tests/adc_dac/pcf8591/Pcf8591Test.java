@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.adc_dac.Pcf8591Full;
 
 public class Pcf8591Test {
@@ -22,8 +22,8 @@ public class Pcf8591Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x48").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
-            var adc = new Pcf8591Full(transport);
+        try (var connection = new I2CConnection(bus, addr)) {
+            var adc = new Pcf8591Full(connection);
 
             int ch0 = adc.readChannel(0);
             checkTrue("readChannel(0) in [0, 255]", ch0 >= 0 && ch0 <= 255);

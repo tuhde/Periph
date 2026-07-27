@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.display.Pcf8576Minimal;
 import it.uhde.periph.chips.display.Pcf8576Full;
 
@@ -22,9 +22,9 @@ public class Pcf8576Test {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x38"));
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var lcd = new Pcf8576Full(transport);
+            var lcd = new Pcf8576Full(connection);
 
             checkTrue("cmdMode off == 0x40",
                 lcd.cmdMode(false, Pcf8576Minimal.BIAS_1_3, Pcf8576Minimal.MODE_1_4) == 0x40);

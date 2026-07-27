@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.adc_dac
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP4725 — 12-bit single-channel DAC with I²C interface (minimal driver).
@@ -15,17 +15,17 @@ import it.uhde.periph.transport.Transport
 @CompileStatic
 class Mcp4725Minimal {
 
-    protected final Transport transport
+    protected final Connection connection
     /** Last code written; used by subclass setPowerDown to preserve the output level. */
     protected int lastCode = 0
 
     /**
      * Construct the driver.
      *
-     * @param transport I²C transport bound to the MCP4725 device address
+     * @param connection I²C connection bound to the MCP4725 device address
      */
-    Mcp4725Minimal(Transport transport) {
-        this.transport = transport
+    Mcp4725Minimal(Connection connection) {
+        this.connection = connection
     }
 
     /**
@@ -52,6 +52,6 @@ class Mcp4725Minimal {
         code = Math.max(0, Math.min(4095, code))
         lastCode = code
         // Fast Write: [0 0 PD1 PD0 D11-D8] [D7-D0]  — PD1=PD0=0 (normal mode)
-        transport.write([(byte) ((code >> 8) & 0x0F), (byte) (code & 0xFF)] as byte[])
+        connection.write([(byte) ((code >> 8) & 0x0F), (byte) (code & 0xFF)] as byte[])
     }
 }

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gnss
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -10,9 +10,9 @@ import java.io.IOException
  * Extends [Neo6Minimal]; all Minimal methods are inherited unchanged.
  */
 class Neo6Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     busType: BusType = BusType.UART
-) : Neo6Minimal(transport, busType) {
+) : Neo6Minimal(connection, busType) {
 
     companion object {
         private const val UBX_SYNC1 = 0xB5
@@ -87,7 +87,7 @@ class Neo6Full @JvmOverloads constructor(
         body.copyInto(frame, 2)
         frame[frame.size - 2] = cs[0].toByte()
         frame[frame.size - 1] = cs[1].toByte()
-        transport.write(frame)
+        connection.write(frame)
     }
 
     /**
@@ -95,7 +95,7 @@ class Neo6Full @JvmOverloads constructor(
      *
      * @throws IOException if the module answers with ACK-NAK, no matching
      *   response arrives before the internal idle budget is spent, or a
-     *   transport error occurs
+     *   connection error occurs
      */
     fun pollUbx(msgClass: Int, msgId: Int): ByteArray {
         sendUbx(msgClass, msgId)

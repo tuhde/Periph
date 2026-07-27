@@ -1,22 +1,22 @@
-package it.uhde.periph.transport;
+package it.uhde.periph.connection;
 
 import java.io.IOException;
 import java.lang.foreign.*;
 import java.lang.invoke.*;
 
 /**
- * NeoPixel transport for WS2812B-compatible addressable LEDs, using Linux spidev via FFM.
+ * NeoPixel connection for WS2812B-compatible addressable LEDs, using Linux spidev via FFM.
  *
  * <p>Each NeoPixel bit is encoded as 3 SPI bits at 2.4 MHz (bit-0 → {@code 100},
  * bit-1 → {@code 110}). A 16-byte zero reset is appended after every frame
- * (≈53 µs), satisfying the ≥50 µs latch requirement. This transport is
+ * (≈53 µs), satisfying the ≥50 µs latch requirement. This connection is
  * write-only; {@link #read} and {@link #writeRead} throw
  * {@link UnsupportedOperationException}.
  *
  * <p>Connect the WS2812B DIN pin to the SPI MOSI pin. SCK, MISO, and CS are
  * unused by the LED strip.
  */
-public final class NeoPixelTransport implements Transport {
+public final class NeoPixelConnection extends AbstractConnection {
 
     private static final int O_RDWR = 2;
 
@@ -55,10 +55,23 @@ public final class NeoPixelTransport implements Transport {
      *
      * @param busNum    SPI bus number (e.g. 1 for /dev/spidev1.x)
      * @param deviceNum SPI device number / chip select (e.g. 0 for /dev/spidevx.0)
+     * @param enPin     optional EN-pin {@link OutputPin}, or {@code null}
      * @throws IOException if the device cannot be opened or configured
      */
-    public NeoPixelTransport(int busNum, int deviceNum) throws IOException {
+    public NeoPixelConnection(int busNum, int deviceNum, OutputPin enPin) throws IOException {
+        super(null, enPin);
         this.fd = openDevice(busNum, deviceNum);
+    }
+
+    /**
+     * Open an SPI device for NeoPixel output with no EN pin.
+     *
+     * @param busNum    SPI bus number (e.g. 1 for /dev/spidev1.x)
+     * @param deviceNum SPI device number / chip select (e.g. 0 for /dev/spidevx.0)
+     * @throws IOException if the device cannot be opened or configured
+     */
+    public NeoPixelConnection(int busNum, int deviceNum) throws IOException {
+        this(busNum, deviceNum, null);
     }
 
     private static int openDevice(int busNum, int deviceNum) throws IOException {
@@ -102,7 +115,7 @@ public final class NeoPixelTransport implements Transport {
      * @throws IOException on SPI error
      */
     @Override
-    public void write(byte[] data) throws IOException {
+    protected void _write(byte[] data) throws IOException {
         byte[] encoded = encode(data);
         try (var arena = Arena.ofConfined()) {
             var txBuf = arena.allocate(encoded.length);
@@ -127,13 +140,13 @@ public final class NeoPixelTransport implements Transport {
 
     /** Not supported — NeoPixel is write-only. */
     @Override
-    public byte[] read(int n) {
+    protected byte[] _read(int n) {
         throw new UnsupportedOperationException("NeoPixel is write-only");
     }
 
     /** Not supported — NeoPixel is write-only. */
     @Override
-    public byte[] writeRead(byte[] data, int n) {
+    protected byte[] _writeRead(byte[] data, int n) {
         throw new UnsupportedOperationException("NeoPixel is write-only");
     }
 
