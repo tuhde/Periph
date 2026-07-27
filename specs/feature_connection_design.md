@@ -1,6 +1,6 @@
 # Feature Design: Connection — Interrupt Delivery and Power Management
 
-**Status:** Draft  
+**Status:** Ready  
 **Branch:** `feature/interrupt-design`  
 **Scope:** All languages × all platforms — `Connection` abstraction, interrupt delivery, power management, naming, spec template, AGENTS.md guidance
 
@@ -57,10 +57,13 @@ a bus scan safe) using a consistent API regardless of the underlying hardware me
 
 ## 2. Design Goals
 
-1. **`Connection` as the unified chip handle** — rename and expand `Transport` into a
-   `Connection` object that carries the bus transport, an optional INT pin, an optional
-   enable pin, and a software enable gate. Chip drivers accept one `Connection` instead
-   of separate transport + pin arguments.
+1. **`Connection` as the unified chip handle** — rename and expand `Transport` (the
+   interface) into `Connection`, directly on the existing bus implementations
+   (`I2CConnection`, `SPIConnection`, etc. — formerly `I2CTransport`, `SPITransport`).
+   There is no separate wrapper object: the bus implementation itself carries an optional
+   INT pin, an optional enable pin, and a software enable gate. Chip drivers accept one
+   `Connection` instead of separate transport + pin arguments — and that `Connection` is
+   the same object that talks to the bus, not a composed handle around it.
 2. **Chip-agnostic interrupt model** — the interrupt API applies equally to gyroscopes,
    RTCs, accelerometers, and IO expanders.
 3. **Consistent naming** — one vocabulary adapted to each language's convention.
@@ -131,35 +134,98 @@ no-ops returning zeros); drives the hardware EN pin low (or de-asserts it) if wi
 
 ## 4. Connection Abstraction
 
-`Connection` replaces `Transport` as the single object passed to every chip constructor.
-It bundles three concerns:
+`Connection` replaces `Transport` — not as a new object wrapping the old one, but as the
+renamed and expanded interface/base that every existing bus implementation
+(`I2CTransport`, `SPITransport`, `HX711Transport`, etc.) implements directly.
+Concretely: `I2CTransport` becomes `I2CConnection`, `SPITransport` becomes
+`SPIConnection`, and so on for every protocol × platform pair. The object a chip driver
+holds is the same object that talks to the bus — there is no `conn.bus` indirection.
 
-| Field | Type | Required | Purpose |
-|-------|------|----------|---------|
-| `bus` | platform bus transport | yes | I²C / SPI byte access |
-| `int_pin` | `InputPin` | no | edge notifications from chip's INT line |
-| `en_pin` | `OutputPin` | no | hardware enable / power control |
+`Connection` bundles three concerns directly on the concrete class:
 
-It also maintains an internal `enabled` boolean (default `true`). All `read` / `write`
-operations on the bus check this flag; when `false` they are silently dropped (reads
-return all-zero bytes).
+| Concern | Held via | Purpose |
+|---------|----------|---------|
+| Bus access | the concrete class's own `read()` / `write()` / `write_read()` | I²C / SPI / etc. byte access, unchanged from today |
+| `int_pin` | `InputPin`, optional | edge notifications from chip's INT line |
+| `en_pin` | `OutputPin`, optional | hardware enable / power control |
 
-**Chip drivers access the bus exclusively through `connection.read()` / `.write()`** —
-they never call into the raw platform transport directly.
+Each concrete `Connection` also maintains an internal `enabled` boolean (default `true`).
+`read` / `write` check this flag; when `false` they are silently dropped (reads return
+all-zero bytes).
 
-### 4.1 Python (`python/periph/transport/connection.py`)
+**Chip drivers access the bus exclusively through `connection.read()` / `.write()`**,
+exactly as they call `transport.read()` / `.write()` today — nothing changes at the call
+site beyond the parameter's name and type.
+
+### 4.1 Package and class rename
+
+This is a rename of every existing bus implementation, not new code living alongside the
+old one. Two things move together, in every language:
+
+1. **The package/module** — `transport` → `connection` (for JVM, the module itself is
+   renamed; see below).
+2. **Every concrete class** — `<Protocol>Transport` → `<Protocol>Connection`, per
+   protocol, per platform variant. The abstract interface/base — `Transport` — becomes
+   `Connection`.
+
+| Language | Package/module rename | Interface/base rename |
+|----------|------------------------|------------------------|
+| Python | `python/periph/transport/` → `python/periph/connection/` | `Transport` (in `base.py`) → `Connection` |
+| C++ | `cpp/src/transport/` → `cpp/src/connection/` | `Transport.h` → `Connection.h` (`class Transport` → `class Connection`) |
+| Node.js | `nodejs/packages/periph/src/transport/` → `nodejs/packages/periph/src/connection/` | no previous base existed — see §4.4 |
+| Rust | `rust/periph/src/transport/` → `rust/periph/src/connection/` (`lib.rs`: `pub mod transport;` → `pub mod connection;`) | no shared base — see §4.5 |
+| JVM | `jvm/periph-transport/` → `jvm/periph-connection/`; `it.uhde.periph.transport` → `it.uhde.periph.connection` | `Transport.java` → `Connection.java` |
+| Go | `go/periph/transport/` (`package transport`) → `go/periph/connection/` (`package connection`) | `type Transport interface` → `type Connection interface` |
+
+Every concrete class follows the same pattern (shown for I²C; identical for SPI, SMBus,
+UART, NeoPixel, HX711, DHTxx, and SiPo, and for every platform variant of each):
+
+| Old | New |
+|-----|-----|
+| `I2CTransport` (Python, C++, Node.js, JVM) | `I2CConnection` |
+| `I2CTransportLinux` / `I2CTransportESPIDF` / `I2CTransportPicoSDK` / `I2CTransportZephyr` (C++) | `I2CConnectionLinux` / `I2CConnectionESPIDF` / `I2CConnectionPicoSDK` / `I2CConnectionZephyr` |
+| `I2CTransport` / `NewI2CTransport` (Go) | `I2CConnection` / `NewI2CConnection` |
+| `HX711Transport`, `NeoPixelTransport`, `DHTxxTransportLinux`, `DHTxxTransportEsp32s3`, `SiPoTransport` (Rust) | `HX711Connection`, `NeoPixelConnection`, `DHTxxConnectionLinux`, `DHTxxConnectionEsp32s3`, `SiPoConnection` |
+
+**Blast radius.** Python and Node.js chip drivers duck-type on the `connection`
+parameter (call `.read()` / `.write()` without importing a concrete class) — merging
+costs nothing beyond the `transport` → `connection` variable rename. C++, Go, and JVM
+chip drivers name concrete classes statically, so this also touches every file that
+references one: at last count, 26 C++ chip files, 28 Go, 157 JVM, and 5 Rust, plus the
+matching share of the 678 example/test files across all languages. This is accepted as
+a one-time mechanical sweep, consistent with §13.1's "no published packages yet — rename
+without deprecation shims."
+
+**Avoiding duplicated enable/disable/gating logic.** With no wrapper object, the
+`enabled` flag, `int_pin` / `en_pin` storage, and the read/write gating must live
+somewhere every concrete class can share, or it would be hand-duplicated into every one
+of the ~50 protocol × platform implementations. Each language uses its own idiom for
+this — shown in §4.2–§4.7:
+
+| Language | Shared-behavior mechanism |
+|----------|---------------------------|
+| Python | `Connection` base class; concrete `read()` / `write()` renamed to protected `_read()` / `_write()`, called by non-abstract public `read()` / `write()` on the base (template method) |
+| C++ | Same template-method split, in the `Connection` base class |
+| Node.js | Same — `Connection` base class, single inheritance |
+| JVM | `Connection` interface + `AbstractConnection` base class implementing the template method |
+| Go | No inheritance — a small unexported `connectionBase` struct is embedded in every concrete struct, providing `Enable()` / `Disable()` / `IsEnabled()` |
+| Rust | No inheritance — each of the 4 periph-owned custom-protocol structs (`HX711Connection`, `NeoPixelConnection`, `DHTxxConnection*`, `SiPoConnection`) carries its own `enabled: bool` and repeats the same two-line gate in `read()` / `write()`, exactly as `Connection<BUS>` already did before this decision (see §4.5) — too small (4 structs) to warrant a shared trait |
+
+### 4.2 Python (`python/periph/connection/base.py`, was `transport/base.py`)
 
 ```python
-from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
 from .input_pin import InputPin
 from .output_pin import OutputPin
 
-@dataclass
-class Connection:
-    bus: object          # I2CTransport, SPITransport, etc.
-    int_pin: InputPin | None = None
-    en_pin: OutputPin | None = None
-    _enabled: bool = field(default=True, init=False, repr=False)
+class Connection(ABC):
+    """Base class for all bus connections. One instance represents one device
+    on a bus, plus its optional INT pin, EN pin, and software enable gate."""
+
+    def __init__(self, int_pin: InputPin | None = None, en_pin: OutputPin | None = None):
+        self.int_pin = int_pin
+        self.en_pin = en_pin
+        self._enabled = True
 
     def enable(self):
         self._enabled = True
@@ -174,39 +240,76 @@ class Connection:
     def is_enabled(self) -> bool:
         return self._enabled
 
-    def read(self, reg: int, length: int) -> bytes:
+    def read(self, n: int) -> bytes:
         if not self._enabled:
-            return bytes(length)
-        return self.bus.read(reg, length)
+            return bytes(n)
+        return self._read(n)
 
-    def write(self, reg: int, data: bytes | int) -> None:
+    def write(self, data: bytes) -> None:
         if not self._enabled:
             return
-        self.bus.write(reg, data)
+        self._write(data)
+
+    def write_read(self, data: bytes, n: int) -> bytes:
+        if not self._enabled:
+            return bytes(n)
+        return self._write_read(data, n)
+
+    @abstractmethod
+    def _read(self, n: int) -> bytes: ...
+    @abstractmethod
+    def _write(self, data: bytes) -> None: ...
+    @abstractmethod
+    def _write_read(self, data: bytes, n: int) -> bytes: ...
+
+    def close(self) -> None:
+        """Release any resources held by this connection. No-op by default."""
+```
+
+Concrete example (`python/periph/connection/i2c_linux.py`, was `transport/i2c_linux.py`):
+
+```python
+from smbus2 import SMBus, i2c_msg
+from .base import Connection
+
+class I2CConnection(Connection):     # was: class I2CTransport(Transport)
+    def __init__(self, bus, addr, int_pin=None, en_pin=None):
+        super().__init__(int_pin, en_pin)
+        if isinstance(bus, int):
+            self._bus = SMBus(bus)
+            self._owns_bus = True
+        else:
+            self._bus = bus
+            self._owns_bus = False
+        self._addr = addr
+
+    def _write(self, data):              # was: def write(self, data)
+        self._bus.i2c_rdwr(i2c_msg.write(self._addr, list(data)))
+
+    def _read(self, n):                  # was: def read(self, n)
+        ...
 ```
 
 Usage:
 
 ```python
-from periph.transport.i2c_linux import I2CLinux
-from periph.transport.input_pin import LinuxSysfsPin
-from periph.transport.output_pin import LinuxOutputPin
-from periph.transport.connection import Connection
+from periph.connection.i2c_linux import I2CConnection
+from periph.connection.input_pin import LinuxSysfsPin
+from periph.connection.output_pin import LinuxOutputPin
 from periph.chips.imu.mpu6050 import Mpu6050Full
 
-bus  = I2CLinux(bus=1, address=0x68)
-conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
+conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 imu  = Mpu6050Full(conn)
 
 conn.disable()   # gates all I²C access; drives EN low if wired
 conn.enable()    # resumes access; drives EN high if wired
 ```
 
-Chip constructors:
+Chip constructors are unchanged in shape — only the parameter name/type moves:
 
 ```python
 class Mpu6050Minimal:
-    def __init__(self, connection: Connection):
+    def __init__(self, connection: Connection):   # was: transport: Transport
         self._conn = connection
 
 class Mpu6050Full(Mpu6050Minimal):
@@ -216,11 +319,10 @@ class Mpu6050Full(Mpu6050Minimal):
         # int_pin wiring deferred until on_interrupt() is called
 ```
 
-### 4.2 C++ (`cpp/src/transport/Connection.h`)
+### 4.3 C++ (`cpp/src/connection/Connection.h`, was `transport/Transport.h`)
 
 ```cpp
 #pragma once
-#include "Transport.h"
 #include "InputPin.h"
 #include "OutputPin.h"
 #include <cstdint>
@@ -228,10 +330,10 @@ class Mpu6050Full(Mpu6050Minimal):
 
 class Connection {
 public:
-    Connection(Transport& bus,
-               InputPin*   intPin = nullptr,
-               OutputPin* enPin  = nullptr)
-        : _bus(bus), _intPin(intPin), _enPin(enPin), _enabled(true) {}
+    virtual ~Connection() = default;
+
+    explicit Connection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
+        : _intPin(intPin), _enPin(enPin), _enabled(true) {}
 
     void enable() {
         _enabled = true;
@@ -244,25 +346,58 @@ public:
     }
 
     bool isEnabled() const { return _enabled; }
-
-    InputPin*   intPin() const { return _intPin; }
+    InputPin*  intPin() const { return _intPin; }
     OutputPin* enPin()  const { return _enPin;  }
 
-    void read(uint8_t reg, uint8_t* buf, size_t len) {
+    void read(uint8_t* buf, size_t len) {
         if (!_enabled) { memset(buf, 0, len); return; }
-        _bus.read(reg, buf, len);
+        _read(buf, len);
     }
 
-    void write(uint8_t reg, const uint8_t* data, size_t len) {
+    void write(const uint8_t* data, size_t len) {
         if (!_enabled) return;
-        _bus.write(reg, data, len);
+        _write(data, len);
     }
+
+    void write_read(const uint8_t* data, size_t data_len, uint8_t* buf, size_t buf_len) {
+        if (!_enabled) { memset(buf, 0, buf_len); return; }
+        _write_read(data, data_len, buf, buf_len);
+    }
+
+protected:
+    virtual void _read(uint8_t* buf, size_t len) = 0;
+    virtual void _write(const uint8_t* data, size_t len) = 0;
+    virtual void _write_read(const uint8_t* data, size_t data_len,
+                              uint8_t* buf, size_t buf_len) = 0;
 
 private:
-    Transport& _bus;
-    InputPin*   _intPin;
+    InputPin*  _intPin;
     OutputPin* _enPin;
     bool       _enabled;
+};
+```
+
+Concrete example (`cpp/src/connection/I2CConnection.h`, was `transport/I2CTransport.h`):
+
+```cpp
+#pragma once
+#include <Wire.h>
+#include "Connection.h"
+
+class I2CConnection : public Connection {     // was: class I2CTransport : public Transport
+public:
+    I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
+        : Connection(intPin, enPin), _bus(bus), _addr(addr) {}
+
+protected:
+    void _read(uint8_t* buf, size_t len) override;         // was: public read() override
+    void _write(const uint8_t* data, size_t len) override; // was: public write() override
+    void _write_read(const uint8_t* data, size_t data_len,
+                      uint8_t* buf, size_t buf_len) override;
+
+private:
+    TwoWire& _bus;
+    uint8_t  _addr;
 };
 ```
 
@@ -283,17 +418,17 @@ public:
 };
 ```
 
-### 4.3 Node.js (`nodejs/packages/periph/src/transport/connection.js`)
+### 4.4 Node.js (`nodejs/packages/periph/src/connection/`)
+
+JavaScript's existing transport classes never had a shared base — each (`I2CTransport`,
+`SPITransport`, etc.) stood alone, relying on duck typing. This design adds one:
+`connection.js` (new file, no previous equivalent) provides `Connection`, which every
+renamed concrete class now extends.
 
 ```js
+// connection.js — new file
 class Connection {
-    /**
-     * @param {object}    bus    I2CTransport or SPITransport instance
-     * @param {InputPin?}  intPin optional interrupt input pin
-     * @param {OutputPin?} enPin optional enable/power output pin
-     */
-    constructor(bus, intPin = null, enPin = null) {
-        this._bus     = bus;
+    constructor(intPin = null, enPin = null) {
         this._intPin  = intPin;
         this._enPin   = enPin;
         this._enabled = true;
@@ -310,32 +445,55 @@ class Connection {
     }
 
     isEnabled() { return this._enabled; }
-
     get intPin() { return this._intPin; }
 
-    async read(reg, length) {
+    async read(length) {
         if (!this._enabled) return Buffer.alloc(length);
-        return this._bus.read(reg, length);
+        return this._read(length);
     }
 
-    async write(reg, data) {
+    async write(data) {
         if (!this._enabled) return;
-        return this._bus.write(reg, data);
+        return this._write(data);
     }
 }
 
 module.exports = { Connection };
 ```
 
-### 4.4 Rust — simplified Connection
+Concrete example (`i2c.js`, was `I2CTransport` → now `I2CConnection`):
 
-Rust targets `no_std` (ESP32-S3) and `std` (Linux) equally. Bundling `InputPin` and
-`OutputPin` as generic type parameters would require 2–3 additional type parameters on
-every chip struct, significantly increasing complexity with marginal gain given that Rust
-is already callback-free for interrupts.
+```js
+const { Connection } = require('./connection');
+const i2c = require('i2c-bus');
 
-**In Rust, `Connection` wraps the bus transport + enabled state only.** INT pin and EN
-pin are not part of `Connection`; callers manage them directly via `embedded_hal` traits.
+class I2CConnection extends Connection {       // was: class I2CTransport
+    constructor(busNumber, addr, intPin = null, enPin = null) {
+        super(intPin, enPin);
+        this._bus  = i2c.openSync(busNumber);
+        this._addr = addr;
+    }
+
+    async _write(data) { this._bus.i2cWriteSync(this._addr, data.length, data); }  // was: write()
+    async _read(n) {                                                              // was: read()
+        const buf = Buffer.alloc(n);
+        this._bus.i2cReadSync(this._addr, n, buf);
+        return buf;
+    }
+}
+
+module.exports = { I2CConnection };
+```
+
+### 4.5 Rust — no shared base (`rust/periph/src/connection/`)
+
+Two different situations, unchanged in kind from the original design — only the
+periph-owned custom-protocol structs are renamed:
+
+**I²C / SPI (embedded-hal-covered buses)** — Rust never had a periph-owned `I2CTransport`
+struct; chip drivers are generic directly over `embedded_hal::i2c::I2c` /
+`embedded_hal::spi::SpiBus`. The small `Connection<BUS>` wrapper this design already adds
+around that generic bus (§2 goal 7) is new code, not a rename — nothing here changes:
 
 ```rust
 pub struct Connection<BUS> {
@@ -379,120 +537,200 @@ let conn = Connection::new(i2c);
 let imu  = Mpu6050Minimal::new(conn);
 ```
 
-### 4.5 JVM (`jvm/periph-transport/…/transport/Connection.java`)
+**HX711, NeoPixel, DHTxx, SiPo (periph-owned custom protocols)** — these *do* have
+periph-owned structs today (`HX711Transport`, `NeoPixelTransport`, `DHTxxTransportLinux`
+/ `DHTxxTransportEsp32s3`, `SiPoTransport`) and get renamed to `*Connection`. Rust has no
+implementation inheritance, so each struct carries its own `enabled: bool` and repeats
+the gate inline — four structs, not worth a shared trait:
+
+```rust
+pub struct HX711Connection<DI, CK> {   // was: struct HX711Transport<DI, CK>
+    dout: DI,
+    pd_sck: CK,
+    enabled: bool,
+}
+
+impl<DI, CK> HX711Connection<DI, CK>
+where
+    DI: embedded_hal::digital::InputPin,
+    CK: embedded_hal::digital::OutputPin,
+{
+    pub fn enable(&mut self)  { self.enabled = true; }
+    pub fn disable(&mut self) { self.enabled = false; }
+    pub fn is_enabled(&self) -> bool { self.enabled }
+
+    pub fn read(&mut self) -> Result<i32, Error> {
+        if !self.enabled { return Ok(0); }
+        self.read_raw()   // existing bit-bang implementation, unchanged
+    }
+}
+```
+
+### 4.6 JVM (`jvm/periph-connection/…/connection/Connection.java`, was `jvm/periph-transport/…/transport/Transport.java`)
+
+The Maven module itself is renamed — `periph-transport` → `periph-connection` — since
+every class it contains becomes a `*Connection`; keeping the old artifact name would be
+just as wrong as filing `Connection` inside a package still called `transport`.
 
 ```java
-public class Connection implements AutoCloseable {
-    private final Transport bus;
-    private final InputPin   intPin;   // nullable
-    private final OutputPin enPin;    // nullable
+package it.uhde.periph.connection;
+
+public interface Connection extends AutoCloseable {
+    void enable();
+    void disable();
+    boolean isEnabled();
+    InputPin  intPin();  // nullable
+    OutputPin enPin();   // nullable
+
+    byte[] read(int n);
+    void   write(byte[] data);
+    byte[] writeRead(byte[] data, int n);
+}
+```
+
+```java
+package it.uhde.periph.connection;
+
+public abstract class AbstractConnection implements Connection {
+    private final InputPin  intPin;
+    private final OutputPin enPin;
     private volatile boolean enabled = true;
 
-    public Connection(Transport bus) {
-        this(bus, null, null);
-    }
-
-    public Connection(Transport bus, InputPin intPin, OutputPin enPin) {
-        this.bus    = bus;
+    protected AbstractConnection(InputPin intPin, OutputPin enPin) {
         this.intPin = intPin;
         this.enPin  = enPin;
     }
 
-    public void enable()  { enabled = true;  if (enPin != null) enPin.set(true);  }
-    public void disable() { enabled = false; if (enPin != null) enPin.set(false); }
-    public boolean isEnabled() { return enabled; }
+    @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(true);  }
+    @Override public void disable() { enabled = false; if (enPin != null) enPin.set(false); }
+    @Override public boolean isEnabled() { return enabled; }
+    @Override public InputPin  intPin() { return intPin; }
+    @Override public OutputPin enPin()  { return enPin;  }
 
-    public InputPin   intPin() { return intPin; }
-    public OutputPin enPin()  { return enPin;  }
-
-    public byte[] read(int reg, int length) {
-        if (!enabled) return new byte[length];
-        return bus.read(reg, length);
+    @Override public byte[] read(int n) {
+        if (!enabled) return new byte[n];
+        return _read(n);
     }
 
-    public void write(int reg, byte[] data) {
+    @Override public void write(byte[] data) {
         if (!enabled) return;
-        bus.write(reg, data);
+        _write(data);
     }
 
-    @Override public void close() { bus.close(); }
+    protected abstract byte[] _read(int n);
+    protected abstract void   _write(byte[] data);
 }
 ```
 
-### 4.6 Go (`go/periph/transport/connection.go`)
+Concrete example (`I2CConnection.java`, was `I2CTransport.java`):
 
-Go has no constructor overloading or default arguments (AGENTS.md already rules out a
-variadic-options struct for chip constructors); `Connection` is a plain struct with
-exported fields, built with a composite literal instead — the field names double as the
-named-argument syntax other languages get from keyword args:
+```java
+package it.uhde.periph.connection;
+
+public final class I2CConnection extends AbstractConnection {   // was: implements Transport
+    public I2CConnection(int bus, int addr, InputPin intPin, OutputPin enPin) {
+        super(intPin, enPin);
+        // ... open /dev/i2c-<bus> via FFM, as today
+    }
+
+    @Override protected byte[] _read(int n) { /* unchanged FFM read */ }
+    @Override protected void   _write(byte[] data) { /* unchanged FFM write */ }
+}
+```
+
+`periph-java`, `periph-kotlin`, and `periph-groovy` update their dependency coordinates
+(`periph-transport` → `periph-connection`) and every `import it.uhde.periph.transport.*`
+to `import it.uhde.periph.connection.*` — this is the bulk of the 157-file count in §4.1.
+
+### 4.7 Go (`go/periph/connection/connection.go`, was `transport/transport.go`)
+
+Go has no implementation inheritance; a small unexported `connectionBase` struct is
+embedded in every concrete connection struct to share the `Enable` / `Disable` /
+`IsEnabled` implementation without duplicating it:
 
 ```go
-package transport
+package connection
 
-type Connection struct {
-    Bus      Transport
+type Connection interface {    // was: type Transport interface
+    Write(data []byte) error
+    Read(n int) ([]byte, error)
+    WriteRead(data []byte, n int) ([]byte, error)
+    Close() error
+    Enable()
+    Disable()
+    IsEnabled() bool
+}
+
+// connectionBase is embedded by every concrete Connection implementation to
+// share enable/disable/pin state without repeating it in each one.
+type connectionBase struct {
     IntPin   InputPin  // nil if unused
     EnPin    OutputPin // nil if unused
-    disabled bool       // zero value = enabled, so a bare Connection{Bus: bus} works
+    disabled bool       // zero value = enabled
 }
 
-func (c *Connection) Enable() {
-    c.disabled = false
-    if c.EnPin != nil {
-        c.EnPin.Set(true)
+func (b *connectionBase) Enable() {
+    b.disabled = false
+    if b.EnPin != nil {
+        b.EnPin.Set(true)
     }
 }
 
-func (c *Connection) Disable() {
-    c.disabled = true
-    if c.EnPin != nil {
-        c.EnPin.Set(false)
+func (b *connectionBase) Disable() {
+    b.disabled = true
+    if b.EnPin != nil {
+        b.EnPin.Set(false)
     }
 }
 
-func (c *Connection) IsEnabled() bool { return !c.disabled }
+func (b *connectionBase) IsEnabled() bool { return !b.disabled }
+```
 
-func (c *Connection) Read(reg byte, length int) ([]byte, error) {
-    if c.disabled {
-        return make([]byte, length), nil
-    }
-    return c.Bus.WriteRead([]byte{reg}, length)
+Concrete example (`i2c_linux.go`, was `I2CTransport` / `NewI2CTransport`):
+
+```go
+type I2CConnection struct {    // was: type I2CTransport struct
+    connectionBase
+    fd   int
+    addr uint8
 }
 
-func (c *Connection) Write(reg byte, data []byte) error {
-    if c.disabled {
-        return nil
+func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
+    // was: func NewI2CTransport(bus int, addr uint8) (*I2CTransport, error)
+    c := &I2CConnection{connectionBase: connectionBase{IntPin: intPin, EnPin: enPin}, addr: addr}
+    // ... open /dev/i2c-<bus>, as today
+    return c, nil
+}
+
+func (c *I2CConnection) Read(n int) ([]byte, error) {
+    if !c.IsEnabled() {
+        return make([]byte, n), nil
     }
-    return c.Bus.Write(append([]byte{reg}, data...))
+    return c.readRaw(n)   // existing ioctl implementation, unchanged
 }
 ```
 
-Usage — the struct-literal field names read like Python's keyword arguments:
+Usage:
 
 ```go
-bus  := transport.NewI2CTransport(1, 0x68)
-conn := &transport.Connection{Bus: bus}                                   // bus only
-conn := &transport.Connection{Bus: bus, IntPin: intPin}                   // with INT pin
-conn := &transport.Connection{Bus: bus, EnPin: enPin}                     // with EN pin
-conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}
-
+conn, err := connection.NewI2CConnection(1, 0x68, intPin, enPin)
 chip, err := mpu6050.NewMpu6050Full(conn)
 ```
 
-Chip constructors: `New<Chip>Minimal(conn *transport.Connection, ...) (*<Chip>Minimal, error)`,
-same as today except `conn *transport.Connection` replaces `t transport.Transport`.
+Chip constructors: `New<Chip>Minimal(conn connection.Connection, ...) (*<Chip>Minimal, error)`,
+same as today except `conn connection.Connection` replaces `t transport.Transport`.
 
-### 4.7 Shared InputPin (wired-AND INT lines)
+### 4.8 Shared InputPin (wired-AND INT lines)
 
 When multiple chips share one physical INT GPIO (open-drain outputs wired together),
-pass the same `InputPin` instance to all `Connection` objects. Each chip driver calls
+pass the same `InputPin` instance to each chip's `Connection`. Each chip driver calls
 `on_interrupt()` independently and registers its own internal handler; all handlers are
 called on every edge, and each reads its own chip's interrupt-status register.
 
 ```python
-int_pin = LinuxSysfsPin(17)                         # one physical GPIO
-conn_imu  = Connection(i2c_imu,  int_pin=int_pin)
-conn_rtc  = Connection(i2c_rtc,  int_pin=int_pin)
+int_pin  = LinuxSysfsPin(17)                                    # one physical GPIO
+imu_conn = I2CConnection(bus=1, addr=0x68, int_pin=int_pin)
+rtc_conn = I2CConnection(bus=1, addr=0x51, int_pin=int_pin)
 
 imu.on_interrupt(lambda s: handle_imu(s))
 rtc.on_interrupt(lambda s: handle_rtc(s))
@@ -514,7 +752,7 @@ multiple chips with open-drain INT outputs wired to a single GPIO: each chip's
 When the edge fires, all handlers are called in registration order; each then calls
 `poll_interrupt()` on its own chip to identify the source.
 
-### 5.1 Python (`python/periph/transport/input_pin.py`)
+### 5.1 Python (`python/periph/connection/input_pin.py`)
 
 ```python
 from abc import ABC, abstractmethod
@@ -542,7 +780,7 @@ class InputPin(ABC):
 | `LinuxPollingPin` | Linux (no GPIO hw) | 5 ms `threading.Thread` loop |
 | `LinuxSysfsPin` | Linux (sysfs GPIO) | `select.select()` on `/sys/class/gpio/gpioN/value` |
 
-### 5.2 C++ (`cpp/src/transport/InputPin.h`)
+### 5.2 C++ (`cpp/src/connection/InputPin.h`)
 
 ```cpp
 class InputPin {
@@ -568,7 +806,7 @@ public:
 Class names follow the same `<Base>ESPIDF` / `<Base>PicoSDK` suffix convention already used by
 every C++ transport (`I2CTransportESPIDF`, `I2CTransportPicoSDK`, …).
 
-### 5.3 Node.js (`nodejs/packages/periph/src/transport/input_pin.js`)
+### 5.3 Node.js (`nodejs/packages/periph/src/connection/input_pin.js`)
 
 ```js
 class InputPin {
@@ -587,7 +825,7 @@ class InputPin {
 Rust drivers expose only `poll_interrupt()`. The application registers a hardware ISR
 via the HAL or RTOS and calls `poll_interrupt()` from within it.
 
-### 5.5 JVM (`jvm/periph-transport/…/transport/InputPin.java`)
+### 5.5 JVM (`jvm/periph-connection/…/connection/InputPin.java`)
 
 ```java
 @FunctionalInterface
@@ -606,7 +844,7 @@ public enum EdgeTrigger { RISING, FALLING, CHANGE }
 | `SysfsInputPin` | sysfs GPIO input (`/sys/class/gpio/gpioN/value`) |
 | `PollingInputPin` | 5 ms `ScheduledExecutorService` (default) |
 
-### 5.6 Go (`go/periph/transport/input_pin.go`)
+### 5.6 Go (`go/periph/connection/input_pin.go`)
 
 Go function values are not comparable, so there is no way to implement `off_edge(handler)`
 by matching a stored handler against the one passed in — the pattern every other language
@@ -614,7 +852,7 @@ uses. `OnEdge` instead returns an unsubscribe closure directly, which is the idi
 equivalent (the same shape as `context.CancelFunc`):
 
 ```go
-package transport
+package connection
 
 type Trigger int
 
@@ -640,8 +878,9 @@ type InputPin interface {
 | `PollingInputPin` | `input_pin_polling.go` | none | Go Linux (no GPIO) | ticker-driven goroutine, 5 ms default |
 
 `GpioInputPin` exports the same type name on both platforms, gated by build tag — the same
-pattern every Go transport already uses (see AGENTS.md § Transport interface). Only an
-example's `main()` ever names the concrete type; chip drivers see `transport.InputPin` only.
+pattern every Go connection implementation already uses (see AGENTS.md § Connection
+interface). Only an example's `main()` ever names the concrete type; chip drivers see
+`connection.InputPin` only.
 
 ---
 
@@ -650,7 +889,7 @@ example's `main()` ever names the concrete type; chip drivers see `transport.Inp
 `OutputPin` is an output-only abstraction used by `Connection` to drive a chip's
 hardware enable or power pin.
 
-### 6.1 Python (`python/periph/transport/output_pin.py`)
+### 6.1 Python (`python/periph/connection/output_pin.py`)
 
 ```python
 from abc import ABC, abstractmethod
@@ -667,7 +906,7 @@ class OutputPin(ABC):
 | `CircuitPythonOutputPin` | CircuitPython | `digitalio.DigitalInOut` |
 | `LinuxOutputPin` | Linux | sysfs `/sys/class/gpio/gpioN/value` |
 
-### 6.2 C++ (`cpp/src/transport/OutputPin.h`)
+### 6.2 C++ (`cpp/src/connection/OutputPin.h`)
 
 ```cpp
 class OutputPin {
@@ -685,7 +924,7 @@ public:
 | `OutputPinESPIDF` | `OutputPinESPIDF.h` | ESP-IDF | `gpio_set_level()` |
 | `OutputPinPicoSDK` | `OutputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_put()` |
 
-### 6.3 Node.js (`nodejs/packages/periph/src/transport/output_pin.js`)
+### 6.3 Node.js (`nodejs/packages/periph/src/connection/output_pin.js`)
 
 ```js
 class OutputPin {
@@ -700,9 +939,9 @@ class OutputPin {
 
 ### 6.4 Rust
 
-Callers use `embedded_hal::digital::OutputPin` directly (see §4.4). No wrapper needed.
+Callers use `embedded_hal::digital::OutputPin` directly (see §4.5). No wrapper needed.
 
-### 6.5 JVM (`jvm/periph-transport/…/transport/OutputPin.java`)
+### 6.5 JVM (`jvm/periph-connection/…/connection/OutputPin.java`)
 
 ```java
 public interface OutputPin extends AutoCloseable {
@@ -714,10 +953,10 @@ public interface OutputPin extends AutoCloseable {
 |-------|-----------|
 | `SysfsOutputPin` | sysfs GPIO output (`/sys/class/gpio/gpioN/value`) |
 
-### 6.6 Go (`go/periph/transport/output_pin.go`)
+### 6.6 Go (`go/periph/connection/output_pin.go`)
 
 ```go
-package transport
+package connection
 
 // OutputPin drives a chip's hardware enable or power pin.
 type OutputPin interface {
@@ -847,7 +1086,7 @@ filtering before dispatching to its registered handler.
 | C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `InputPin::RISING`, `::FALLING`, `::CHANGE` |
 | Node.js | `pin.watch(callback, trigger='change')` | `pin.unwatch()` | `'rising'`, `'falling'`, `'change'` |
 | JVM | `pin.watch(handler, EdgeTrigger.CHANGE)` | `pin.unwatch()` | `EdgeTrigger` enum |
-| Go | `pin.Watch(trigger, handler) error` | `pin.Unwatch() error` | `transport.Rising`, `.Falling`, `.Change` |
+| Go | `pin.Watch(trigger, handler) error` | `pin.Unwatch() error` | `connection.Rising`, `.Falling`, `.Change` |
 
 Rust has no pin-level subscribe.
 
@@ -872,10 +1111,10 @@ control where one IO expander output gates an entire sensor's bus access.
 
 ```python
 # Python example — IO expander pin as en_pin for a downstream chip
-expander = PCF8574Minimal(Connection(expander_bus))
+expander = PCF8574Minimal(I2CConnection(bus=1, addr=0x20))
 en = expander.pin(0)
 en.init(Pin.OUT)                     # configure as output
-sensor_conn = Connection(sensor_bus, en_pin=en)
+sensor_conn = I2CConnection(bus=1, addr=0x68, en_pin=en)
 sensor_conn.enable()                 # drives IO expander pin 0 high
 ```
 
@@ -1052,40 +1291,40 @@ construction section.
 ````markdown
 ## Connection (replaces Transport)
 
-All chip constructors accept a single `Connection` object, which bundles the bus
-transport, an optional INT pin (`InputPin`), and an optional EN pin (`OutputPin`).
-See `specs/feature_connection_design.md` for the full design.
-
-Construct the bus transport as before (unchanged), then wrap it:
+All chip constructors accept a single `Connection` object. `Connection` is not a
+wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now
+`I2CConnection`, etc.), constructed directly with its optional INT pin (`InputPin`) and
+EN pin (`OutputPin`). See `specs/feature_connection_design.md` for the full design.
 
 **Python:**
 ```python
-conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
+conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
 **C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
 ```cpp
-Connection conn(bus, &gpioPin, &enPin);
+I2CConnection conn(bus, addr, &gpioPin, &enPin);
 ```
 
 **Node.js:**
 ```js
-const conn = new Connection(bus, intPin, enPin);
+const conn = new I2CConnection(busNumber, addr, intPin, enPin);
 ```
 
 **JVM:**
 ```java
-Connection conn = new Connection(bus, gpioPin, enPin);
+Connection conn = new I2CConnection(bus, addr, gpioPin, enPin);
 ```
 
-**Rust:**
+**Rust** (I²C/SPI — the one case that still wraps a generic bus, since Rust never had a
+periph-owned `I2CTransport` to rename; see §4.5):
 ```rust
 let conn = Connection::new(i2c);  // bus only; manage pins directly
 ```
 
 **Go** (identical on Linux and TinyGo):
 ```go
-conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}
+conn, err := connection.NewI2CConnection(busNum, addr, intPin, enPin)
 ```
 
 ### Enable / disable
@@ -1147,7 +1386,7 @@ Default `int_pin` to `new PollingInputPin(5)` when no `InputPin` is provided in 
 `Connection`.
 
 **Go**
-`OnInterrupt(cb)` calls `conn.IntPin.OnEdge(transport.Falling, handler)` and stores the
+`OnInterrupt(cb)` calls `conn.IntPin.OnEdge(connection.Falling, handler)` and stores the
 returned unsubscribe closure; `OffInterrupt()` calls it. If `conn.IntPin` is `nil`, start
 a ticker-driven polling goroutine instead. Every fallible method returns `error`, per Go
 convention elsewhere in this codebase.
@@ -1168,7 +1407,7 @@ methods.
 
 | Change | Python | C++ | Node.js | Rust | JVM | Go |
 |--------|--------|-----|---------|------|-----|-----|
-| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, InputPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, InputPin)` | `*Connection` replaces `transport.Transport` |
+| Constructor | `Connection` replaces `(transport, int_pin=None)` | `Connection&` replaces `(Transport&, InputPin*)` | `Connection` replaces `(transport, intPin)` | `Connection<I2C>` replaces `I2C` | `Connection` replaces `(Transport, InputPin)` | `connection.Connection` replaces `transport.Transport` |
 | `configure_interrupt` → | `on_interrupt(cb)` | `onInterrupt(cb)` | `onInterrupt(cb)` | — | `onInterrupt(IntConsumer)` | add `OnInterrupt(cb) error` (no prior equivalent) |
 | `clear_interrupt` → | `poll_interrupt()` | `pollInterrupt()` | `pollInterrupt()` | `poll_interrupt()` | `pollInterrupt()` | `ClearInterrupt()` → `PollInterrupt()` |
 | `pin.irq` → | `pin.watch()` | `pin.watch()` | already `watch` | — | add `pin.watch()` | `WatchInterrupt()` → `Watch()`, add `Unwatch()` |
@@ -1205,82 +1444,99 @@ Go mirrors this with `OnInterrupt(cb func(port int, status uint8)) error`,
 
 ## 14. New Files Summary
 
+Genuinely new files — `InputPin` / `OutputPin` and their platform implementations, plus
+the few files listed in §4.1 that had no prior equivalent (Node.js's `connection.js`,
+JVM's `AbstractConnection.java`). The renamed low-level bus files (`I2CTransport` →
+`I2CConnection` and the ~50 other protocol × platform pairs) are **not** re-listed here —
+see §4.1 for the rename pattern and blast radius.
+
 | File | Language | Purpose |
 |------|----------|---------|
-| `python/periph/transport/connection.py` | Python | `Connection` dataclass |
-| `python/periph/transport/input_pin.py` | Python | `InputPin` ABC + `MicroPythonPin`, `CircuitPythonPin`, `LinuxPollingPin`, `LinuxSysfsPin` |
-| `python/periph/transport/output_pin.py` | Python | `OutputPin` ABC + `MicroPythonOutputPin`, `CircuitPythonOutputPin`, `LinuxOutputPin` |
-| `cpp/src/transport/Connection.h` | C++ | `Connection` class |
-| `cpp/src/transport/InputPin.h` | C++ | `InputPin` base class |
-| `cpp/src/transport/InputPinArduino.h` | C++ | `attachInterrupt` implementation |
-| `cpp/src/transport/InputPinLinux.h` | C++ | `poll()` thread implementation |
-| `cpp/src/transport/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
-| `cpp/src/transport/InputPinESPIDF.h` | C++ | `gpio_install_isr_service` / `gpio_isr_handler_add` implementation |
-| `cpp/src/transport/InputPinPicoSDK.h` | C++ | `gpio_set_irq_enabled_with_callback` implementation |
-| `cpp/src/transport/OutputPin.h` | C++ | `OutputPin` base class |
-| `cpp/src/transport/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
-| `cpp/src/transport/OutputPinLinux.h` | C++ | sysfs GPIO implementation |
-| `cpp/src/transport/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
-| `cpp/src/transport/OutputPinESPIDF.h` | C++ | `gpio_set_level` implementation |
-| `cpp/src/transport/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |
-| `nodejs/packages/periph/src/transport/connection.js` | Node.js | `Connection` class |
-| `nodejs/packages/periph/src/transport/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
-| `nodejs/packages/periph/src/transport/output_pin.js` | Node.js | `OutputPin`, `SysfsOutputPin`, `GpiodOutputPin` |
-| `rust/periph/src/transport/connection.rs` | Rust | `Connection<BUS>` struct (bus + enabled state) |
-| `jvm/periph-transport/…/transport/Connection.java` | Java | `Connection` class |
-| `jvm/periph-transport/…/transport/InputPin.java` | Java | `InputPin` interface + `EdgeTrigger` enum |
-| `jvm/periph-transport/…/transport/PollingInputPin.java` | Java | 5 ms polling `InputPin` (default) |
-| `jvm/periph-transport/…/transport/SysfsInputPin.java` | Java | sysfs GPIO input |
-| `jvm/periph-transport/…/transport/OutputPin.java` | Java | `OutputPin` interface |
-| `jvm/periph-transport/…/transport/SysfsOutputPin.java` | Java | sysfs GPIO output |
-| `go/periph/transport/connection.go` | Go | `Connection` struct |
-| `go/periph/transport/input_pin.go` | Go | `InputPin` interface + `Trigger` type, no build tag |
-| `go/periph/transport/input_pin_linux.go` | Go | `GpioInputPin` (`linux && !tinygo`) — `/dev/gpiochip*` edge-event ioctl |
-| `go/periph/transport/input_pin_tinygo.go` | Go | `GpioInputPin` (`tinygo`) — `machine.Pin.SetInterrupt` |
-| `go/periph/transport/input_pin_polling.go` | Go | `PollingInputPin`, no build tag |
-| `go/periph/transport/output_pin.go` | Go | `OutputPin` interface, no build tag |
-| `go/periph/transport/output_pin_linux.go` | Go | `GpioOutputPin` (`linux && !tinygo`) |
-| `go/periph/transport/output_pin_tinygo.go` | Go | `GpioOutputPin` (`tinygo`) |
+| `python/periph/connection/base.py` | Python | `Connection` ABC (renamed/expanded from `Transport`, was `transport/base.py`) |
+| `python/periph/connection/input_pin.py` | Python | `InputPin` ABC + `MicroPythonPin`, `CircuitPythonPin`, `LinuxPollingPin`, `LinuxSysfsPin` |
+| `python/periph/connection/output_pin.py` | Python | `OutputPin` ABC + `MicroPythonOutputPin`, `CircuitPythonOutputPin`, `LinuxOutputPin` |
+| `cpp/src/connection/Connection.h` | C++ | `Connection` base class (renamed/expanded from `Transport`, was `transport/Transport.h`) |
+| `cpp/src/connection/InputPin.h` | C++ | `InputPin` base class |
+| `cpp/src/connection/InputPinArduino.h` | C++ | `attachInterrupt` implementation |
+| `cpp/src/connection/InputPinLinux.h` | C++ | `poll()` thread implementation |
+| `cpp/src/connection/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
+| `cpp/src/connection/InputPinESPIDF.h` | C++ | `gpio_install_isr_service` / `gpio_isr_handler_add` implementation |
+| `cpp/src/connection/InputPinPicoSDK.h` | C++ | `gpio_set_irq_enabled_with_callback` implementation |
+| `cpp/src/connection/OutputPin.h` | C++ | `OutputPin` base class |
+| `cpp/src/connection/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
+| `cpp/src/connection/OutputPinLinux.h` | C++ | sysfs GPIO implementation |
+| `cpp/src/connection/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
+| `cpp/src/connection/OutputPinESPIDF.h` | C++ | `gpio_set_level` implementation |
+| `cpp/src/connection/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |
+| `nodejs/packages/periph/src/connection/connection.js` | Node.js | `Connection` base class (new — JS had no prior shared `Transport` base) |
+| `nodejs/packages/periph/src/connection/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
+| `nodejs/packages/periph/src/connection/output_pin.js` | Node.js | `OutputPin`, `SysfsOutputPin`, `GpiodOutputPin` |
+| `rust/periph/src/connection/connection.rs` | Rust | `Connection<BUS>` struct (bus + enabled state) — new code, not a rename; see §4.5 |
+| `jvm/periph-connection/…/connection/Connection.java` | Java | `Connection` interface (renamed/expanded from `Transport`, was `periph-transport/…/transport/Transport.java`) |
+| `jvm/periph-connection/…/connection/AbstractConnection.java` | Java | Shared `enabled`/pin state + read/write gating (new — template-method base every concrete `*Connection` extends) |
+| `jvm/periph-connection/…/connection/InputPin.java` | Java | `InputPin` interface + `EdgeTrigger` enum |
+| `jvm/periph-connection/…/connection/PollingInputPin.java` | Java | 5 ms polling `InputPin` (default) |
+| `jvm/periph-connection/…/connection/SysfsInputPin.java` | Java | sysfs GPIO input |
+| `jvm/periph-connection/…/connection/OutputPin.java` | Java | `OutputPin` interface |
+| `jvm/periph-connection/…/connection/SysfsOutputPin.java` | Java | sysfs GPIO output |
+| `go/periph/connection/connection.go` | Go | `Connection` interface + `connectionBase` embeddable struct (renamed/expanded from `Transport`, was `transport/transport.go`) |
+| `go/periph/connection/input_pin.go` | Go | `InputPin` interface + `Trigger` type, no build tag |
+| `go/periph/connection/input_pin_linux.go` | Go | `GpioInputPin` (`linux && !tinygo`) — `/dev/gpiochip*` edge-event ioctl |
+| `go/periph/connection/input_pin_tinygo.go` | Go | `GpioInputPin` (`tinygo`) — `machine.Pin.SetInterrupt` |
+| `go/periph/connection/input_pin_polling.go` | Go | `PollingInputPin`, no build tag |
+| `go/periph/connection/output_pin.go` | Go | `OutputPin` interface, no build tag |
+| `go/periph/connection/output_pin_linux.go` | Go | `GpioOutputPin` (`linux && !tinygo`) |
+| `go/periph/connection/output_pin_tinygo.go` | Go | `GpioOutputPin` (`tinygo`) |
+
+Build/module metadata that also needs updating (not source files):
+
+| File | Language | Change |
+|------|----------|--------|
+| `jvm/periph-connection/pom.xml` (was `jvm/periph-transport/pom.xml`) | Java | `artifactId` `periph-transport` → `periph-connection` |
+| `jvm/periph-connection/src/main/java/module-info.java` | Java | `module it.uhde.periph.transport { exports it.uhde.periph.transport; }` → `module it.uhde.periph.connection { exports it.uhde.periph.connection; }` |
+| `jvm/pom.xml` (parent) | Java | `<module>periph-transport</module>` → `<module>periph-connection</module>` |
+| `jvm/periph-java/pom.xml`, `jvm/periph-kotlin/pom.xml`, `jvm/periph-groovy/pom.xml` | Java/Kotlin/Groovy | dependency `periph-transport` → `periph-connection`; `module-info.java`: `requires it.uhde.periph.transport;` → `requires it.uhde.periph.connection;` |
+| `rust/periph/src/lib.rs` | Rust | `pub mod transport;` → `pub mod connection;` |
 
 ---
 
-## 15. Open Questions
+## 15. Design Decisions
 
-1. **C++ `pin.watch` vs. `pin.detachInterrupt`** — `detachInterrupt` is the Arduino
-   convention. Current proposal uses `unwatch` to match Python/JS. Decision needed
-   before implementation.
+Previously tracked as open questions; all resolved before implementation.
 
-2. **Node.js `epoll` dependency** — `epoll` is Linux-only and requires native
-   compilation. Optional peer dependency, or always bundled?
+1. **C++ per-pin API: `watch` / `unwatch`**, not `attachInterrupt` / `detachInterrupt`.
+   Matches the unified cross-language vocabulary already used by Python, JS, JVM, and Go
+   (§8.1). Arduino's own `attachInterrupt` / `detachInterrupt` still gets used one layer
+   down, inside `InputPinArduino.h`, to wire the actual hardware ISR — that's a different
+   layer (hardware ISR registration) and is unaffected by this decision.
 
-3. **Rust Linux host — polling thread** — Should a `std`-gated wrapper add polling-
-   thread delivery for `poll_interrupt`? Out of scope for v1; revisit if requested.
+2. **Node.js `epoll` is an optional peer dependency**, not bundled. `EpollInputPin` is
+   used only if `require('epoll')` succeeds; `PollingInputPin` (5 ms `setInterval`) is
+   the automatic fallback otherwise. No consumer is forced into native compilation
+   (node-gyp, a C toolchain) just to use a chip driver that happens to support
+   interrupts.
 
-4. **MCP23017 INTCAP register** — `INTCAP` latches pin state at interrupt time. Should
-   `poll_interrupt` return both capture and flag register, or flags only? Proposal:
-   return flags only; expose `read_capture(port)` separately.
+3. **Rust Linux host — no polling-thread wrapper for `poll_interrupt`.** Out of scope
+   for v1; revisit if requested.
 
-5. **`enable_interrupt` arity** — single source per call vs. accepting a list. Proposal:
-   single source for v1, revisit if performance matters.
+4. **MCP23017 `INTCAP` register — `poll_interrupt` returns flags only.** `read_capture(port)`
+   is a separate method for the latched pin-state register.
 
-6. **`Connection.disable()` behaviour** — currently silent (reads return zeros, writes
-   dropped). An alternative is to raise a `ConnectionDisabledError`. Silent is safer
-   for embedded loops; an exception aids debugging in host applications. Could be a
-   constructor-time flag.
+5. **`enable_interrupt` arity — single source per call**, not a list. Revisit if a
+   real workload needs batched enable/disable of multiple sources at once.
 
-7. **Rust EN pin as `WithEnPin` wrapper** — a `WithEnPin<BUS, EN>` newtype around
-   `Connection` would allow consistent `enable()` / `disable()` semantics in Rust
-   without bloating every chip's type signature. Out of scope for v1.
+6. **`Connection.disable()` is silent-only** — reads return zeros, writes are dropped,
+   with no configurable throwing/strict mode. One behavior to document and test per
+   language, and the safer default for embedded control loops where an exception could
+   crash the loop; adding a `ConnectionDisabledError` mode later would be additive, not
+   a breaking change, if a host-application use case ever needs it.
 
-8. **`Transport` rename sweep** — the rename from `Transport` to `Connection` touches
-   every chip driver and every example. A mechanical find-and-replace is sufficient
-   but must be applied consistently: `transport` (variable) → `connection`,
-   `Transport` (type) → `Connection`. In Go this also means the existing
-   `ClearInterrupt` → `PollInterrupt` and `WatchInterrupt` → `Watch` renames on
-   PCF8574/PCF8575/MCP23017 (§13.1, §13.3).
+7. **No Rust `WithEnPin` wrapper.** Out of scope for v1; callers drive the EN pin
+   directly via `embedded_hal::digital::OutputPin` (§4.5).
 
-9. **Go `InputPin.OnEdge` returns a closure instead of a paired `OffEdge`** (§5.6,
-   §10.5) — this is the one place the vocabulary diverges structurally across
-   languages, forced by Go's lack of comparable function values. Confirm this is an
-   acceptable, well-documented exception rather than a sign the vocabulary itself
-   needs a closure-based `on_interrupt` everywhere for consistency.
+8. **Go's `InputPin.OnEdge` returns an unsubscribe closure instead of a paired
+   `OffEdge`** (§5.6, §10.5). Accepted as a documented, one-off structural exception —
+   Go function values aren't comparable, so there's no way to match a stored handler
+   against one passed to a hypothetical `OffEdge(handler)`, the pattern every other
+   language uses. The closure-return shape is idiomatic Go (the same shape as
+   `context.CancelFunc`).
