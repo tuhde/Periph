@@ -1,9 +1,7 @@
 'use strict';
 
-const Gpio = require('onoff').Gpio;
-
 /**
- * HX711 GPIO bit-bang transport for Node.js (wraps onoff Gpio).
+ * HX711 GPIO bit-bang connection for Node.js (wraps onoff Gpio).
  *
  * Implements the 2-wire bit-bang protocol used exclusively by the HX711
  * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
@@ -12,17 +10,43 @@ const Gpio = require('onoff').Gpio;
  * The DOUT poll loop uses a synchronous spin (readSync) which is acceptable
  * for short waits during the clock cycle itself. The blocking wait before the
  * cycle uses setImmediate yielding to avoid monopolising the event loop.
+ *
+ * This is a custom protocol with no generic byte read/write, so it does not
+ * extend the shared Connection base — it carries its own enabled flag and
+ * enPin instead.
  */
-class HX711Transport {
+class HX711Connection {
     /**
      * @param {object} dout   - onoff Gpio instance configured as 'in'.
-     * @param {object} pd_sck - onoff Gpio instance configured as 'out'.
+     * @param {object} pdSck  - onoff Gpio instance configured as 'out'.
+     * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
      */
-    constructor(dout, pd_sck) {
+    constructor(dout, pdSck, enPin = null) {
         this._dout = dout;
-        this._sck  = pd_sck;
+        this._sck  = pdSck;
+        this.enPin = enPin;
+        this._enabled = true;
         this._sck.writeSync(0);
     }
+
+    /** Resume conversions; drives the hardware EN pin high if wired.
+     * @returns {Promise<void>}
+     */
+    async enable() {
+        this._enabled = true;
+        if (this.enPin) await this.enPin.set(true);
+    }
+
+    /** Gate readRaw(); drives the hardware EN pin low if wired.
+     * @returns {Promise<void>}
+     */
+    async disable() {
+        this._enabled = false;
+        if (this.enPin) await this.enPin.set(false);
+    }
+
+    /** @returns {boolean} The current software-gate state. */
+    isEnabled() { return this._enabled; }
 
     /**
      * Return true if a conversion result is available (DOUT is LOW).
@@ -44,11 +68,14 @@ class HX711Transport {
      * channel and gain for the next conversion:
      * 25 → Channel A Gain 128, 26 → Channel B Gain 32, 27 → Channel A Gain 64.
      *
+     * Returns 0 without touching the bus if this connection is disabled.
+     *
      * @param {number} numPulses - Number of PD_SCK pulses (must be 25, 26, or 27).
-     * @returns {number} Signed 24-bit ADC value.
+     * @returns {number} Signed 24-bit ADC value, or 0 if disabled.
      * @throws {Error} If numPulses is not 25, 26, or 27, or DOUT stays HIGH for >1 s.
      */
     readRaw(numPulses = 25) {
+        if (!this._enabled) return 0;
         if (numPulses !== 25 && numPulses !== 26 && numPulses !== 27)
             throw new Error('numPulses must be 25, 26, or 27');
         const deadline = Date.now() + 1000;
@@ -94,7 +121,7 @@ class HX711Transport {
     }
 
     /**
-     * Release both GPIO pins. Must be called when the transport is no longer needed.
+     * Release both GPIO pins. Must be called when the connection is no longer needed.
      */
     close() {
         this._dout.unexport();
@@ -102,4 +129,4 @@ class HX711Transport {
     }
 }
 
-module.exports = { HX711Transport };
+module.exports = { HX711Connection };

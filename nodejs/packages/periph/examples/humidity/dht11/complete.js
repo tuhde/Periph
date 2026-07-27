@@ -1,11 +1,11 @@
 'use strict';
 
-const { DHTxxTransport } = require('periph/src/transport/dhtxx');
+const { DHTxxConnection } = require('periph/src/connection/dhtxx');
 const { DHT11Full }      = require('periph/src/chips/humidity/dht11');
 
 const DATA_PIN = parseInt(process.env.DHT11_PIN || '4', 10);
-const transport = new DHTxxTransport(DATA_PIN);
-const dht = new DHT11Full(transport, 3);               // Create DHT11 driver, (transport, max_retries=3)
+const connection = new DHTxxConnection(DATA_PIN);
+const dht = new DHT11Full(connection, 3);               // Create DHT11 driver, (connection, max_retries=3)
 
 (async function() {
     const t = dht.readTemperature();                   // Read temperature, () → float °C
@@ -17,6 +17,6 @@ const dht = new DHT11Full(transport, 3);               // Create DHT11 driver, (
     const raw = dht.readRaw();                         // Read raw frame, () → Buffer
                                                        // returns the validated 5-byte frame
     console.log(`t=${t} h=${h} retry_t=${r.temperature} raw[0]=0x${raw[0].toString(16).padStart(2,'0').toUpperCase()}`);
-    transport.close();
+    connection.close();
     console.log('===DONE: 0 passed, 0 failed===');
 })();

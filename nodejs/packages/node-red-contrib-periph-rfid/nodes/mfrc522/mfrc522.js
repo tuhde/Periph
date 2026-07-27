@@ -1,31 +1,31 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { SPITransport } = require('periph/src/transport/spi');
+    const { SPIConnection } = require('periph/src/connection/spi');
     const { MFRC522Full }   = require('periph/src/chips/rfid/mfrc522');
 
     function MFRC522Node(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
-            const transport = new SPITransport(
+            const connection = new SPIConnection(
                 parseInt(config.bus, 10),
                 parseInt(config.device, 10),
                 { maxSpeedHz: parseInt(config.speed, 10) || 1000000, mode: 0 }
             );
-            node.driver    = new MFRC522Full(transport);
-            node.transport = transport;
+            node.driver     = new MFRC522Full(connection);
+            node.connection = connection;
             node.pollMs    = parseInt(config.pollInterval, 10) || 500;
             node._timer    = null;
             node._lastUid  = null;
 
-            const tick = function() {
+            const tick = async function() {
                 if (!node.driver) return;
                 try {
-                    const present = node.driver.isCardPresent();
+                    const present = await node.driver.isCardPresent();
                     let uid = null;
                     if (present) {
-                        const buf = node.driver.readUid();
+                        const buf = await node.driver.readUid();
                         if (buf) uid = buf.toString('hex');
                     }
                     if (uid !== node._lastUid) {
@@ -44,7 +44,7 @@ module.exports = function(RED) {
         }
         node.on('close', function() {
             if (node._timer) { clearInterval(node._timer); node._timer = null; }
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('periph-mfrc522', MFRC522Node);

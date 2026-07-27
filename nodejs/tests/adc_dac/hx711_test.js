@@ -1,7 +1,7 @@
 'use strict';
 
 const Gpio = require('onoff').Gpio;
-const { HX711Transport } = require('../../packages/periph/src/transport/hx711');
+const { HX711Connection } = require('../../packages/periph/src/connection/hx711');
 const { HX711Full }      = require('../../packages/periph/src/chips/adc_dac/hx711');
 
 const DOUT_PIN   = parseInt(process.env.HX711_DOUT   || '5',  10);
@@ -17,8 +17,8 @@ function checkTrue(label, condition) {
 
 const dout   = new Gpio(DOUT_PIN,   'in');
 const pd_sck = new Gpio(PD_SCK_PIN, 'out');
-const transport = new HX711Transport(dout, pd_sck);
-const chip = new HX711Full(transport);
+const connection = new HX711Connection(dout, pd_sck);
+const chip = new HX711Full(connection);
 
 checkTrue('isReady returns boolean', typeof chip.isReady() === 'boolean');
 
@@ -69,7 +69,7 @@ checkTrue('powerDown accepted', true);
 chip.powerUp();
 checkTrue('powerUp accepted', true);
 
-transport.close();
+connection.close();
 checkTrue('close accepted', true);
 
 console.log(`===DONE: ${passed} passed, ${failed} failed===`);

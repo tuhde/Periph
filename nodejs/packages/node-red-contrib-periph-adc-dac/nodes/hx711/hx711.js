@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = function(RED) {
-    const Gpio               = require('onoff').Gpio;
-    const { HX711Transport } = require('periph/src/transport/hx711');
-    const { HX711Full }      = require('periph/src/chips/adc_dac/hx711');
+    const Gpio                = require('onoff').Gpio;
+    const { HX711Connection } = require('periph/src/connection/hx711');
+    const { HX711Full }       = require('periph/src/chips/adc_dac/hx711');
 
     function HX711Node(config) {
         RED.nodes.createNode(this, config);
@@ -12,8 +12,8 @@ module.exports = function(RED) {
         try {
             const dout   = new Gpio(parseInt(config.doutPin),  'in');
             const pd_sck = new Gpio(parseInt(config.pdSckPin), 'out');
-            node.transport = new HX711Transport(dout, pd_sck);
-            node.driver    = new HX711Full(node.transport);
+            node.connection = new HX711Connection(dout, pd_sck);
+            node.driver     = new HX711Full(node.connection);
 
             const gain = parseInt(config.gain || 128);
             if (gain !== 128) node.driver.setGain(gain);
@@ -42,7 +42,7 @@ module.exports = function(RED) {
         });
 
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
 

@@ -16,14 +16,14 @@ function checkTrue(label, cond) {
     else      { console.log('FAIL', label); failed++; }
 }
 
-class MockTransport {
+class MockConnection {
     constructor(frame) { this._frame = frame; }
     read() { return this._frame; }
 }
 
 // Test 1: Decode datasheet example
 {
-    const mock = new MockTransport(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
+    const mock = new MockConnection(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
     const dht = new DHT11Minimal(mock);
     const r = dht.read();
     checkEq('decode_datasheet_example.t', r.temperature, 24.4);
@@ -32,7 +32,7 @@ class MockTransport {
 
 // Test 2: Negative temperature
 {
-    const mock = new MockTransport(Buffer.from([0x20, 0x00, 0x0A, 0x81, 0xAB]));
+    const mock = new MockConnection(Buffer.from([0x20, 0x00, 0x0A, 0x81, 0xAB]));
     const dht = new DHT11Minimal(mock);
     const r = dht.read();
     checkEq('decode_negative_temperature.t', r.temperature, -10.1);
@@ -41,7 +41,7 @@ class MockTransport {
 
 // Test 3: Checksum error
 {
-    const mock = new MockTransport(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x00]));
+    const mock = new MockConnection(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x00]));
     const dht = new DHT11Minimal(mock);
     let err = null;
     try { dht.read(); } catch (e) { err = e; }
@@ -50,7 +50,7 @@ class MockTransport {
 
 // Test 4: read_temperature / read_humidity
 {
-    const mock = new MockTransport(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
+    const mock = new MockConnection(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
     const dht = new DHT11Full(mock, 3);
     checkEq('read_temperature', dht.readTemperature(), 24.4);
     checkEq('read_humidity', dht.readHumidity(), 53.0);
@@ -83,7 +83,7 @@ class MockTransport {
 
 // Test 7: read_raw
 {
-    const mock = new MockTransport(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
+    const mock = new MockConnection(Buffer.from([0x35, 0x00, 0x18, 0x04, 0x51]));
     const dht = new DHT11Full(mock, 3);
     const raw = dht.readRaw();
     checkTrue('read_raw.first_byte', raw[0] === 0x35);

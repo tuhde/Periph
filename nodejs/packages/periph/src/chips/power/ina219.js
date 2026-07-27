@@ -11,7 +11,7 @@ const _REG_CAL     = 0x05;
  * INA219 26V, 12-bit current/voltage/power monitor — minimal interface.
  *
  * Provides bus voltage, shunt voltage, current, and power readings with no
- * configuration beyond the transport and shunt resistor. Writes the
+ * configuration beyond the connection and shunt resistor. Writes the
  * Calibration Register automatically at construction.
  *
  * Default chip configuration (power-on defaults, not rewritten):
@@ -23,43 +23,43 @@ const _REG_CAL     = 0x05;
  */
 class INA219Minimal {
     /**
-     * @param {object} transport          - Configured I²C or SMBus transport (writeRead, write).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection (writeRead, write).
      * @param {number} [rShunt=0.1]        - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */
-    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
-        this._transport = transport;
+    constructor(connection, rShunt = 0.1, maxCurrent = 2.0) {
+        this._conn = connection;
         this._currentLsb = maxCurrent / 32768;
         this._cal = Math.floor(0.04096 / (this._currentLsb * rShunt)) & 0xFFFE;
         this._writeReg(_REG_CAL, this._cal);
     }
 
-    _writeReg(reg, value) {
+    async _writeReg(reg, value) {
         const buf = Buffer.alloc(3);
         buf[0] = reg;
         buf.writeUInt16BE(value, 1);
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
-    _readReg(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 2).readUInt16BE(0);
+    async _readReg(reg) {
+        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readUInt16BE(0);
     }
 
-    _readRegSigned(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 2).readInt16BE(0);
+    async _readRegSigned(reg) {
+        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
     }
 
-    /** @return {number} Bus voltage in volts ((raw >> 3) × 4 mV LSB). */
-    voltage()      { return (this._readReg(_REG_BUS) >> 3) * 4e-3; }
+    /** @return {Promise<number>} Bus voltage in volts ((raw >> 3) × 4 mV LSB). */
+    async voltage()      { return ((await this._readReg(_REG_BUS)) >> 3) * 4e-3; }
 
-    /** @return {number} Shunt voltage in volts, signed (raw × 10 µV LSB). */
-    shuntVoltage() { return this._readRegSigned(_REG_SHUNT) * 10e-6; }
+    /** @return {Promise<number>} Shunt voltage in volts, signed (raw × 10 µV LSB). */
+    async shuntVoltage() { return (await this._readRegSigned(_REG_SHUNT)) * 10e-6; }
 
-    /** @return {number} Current in amperes, signed. */
-    current()      { return this._readRegSigned(_REG_CURRENT) * this._currentLsb; }
+    /** @return {Promise<number>} Current in amperes, signed. */
+    async current()      { return (await this._readRegSigned(_REG_CURRENT)) * this._currentLsb; }
 
-    /** @return {number} Power in watts (raw × 20 × current LSB). */
-    power()        { return this._readReg(_REG_POWER) * 20 * this._currentLsb; }
+    /** @return {Promise<number>} Power in watts (raw × 20 × current LSB). */
+    async power()        { return (await this._readReg(_REG_POWER)) * 20 * this._currentLsb; }
 }
 
 /**
@@ -99,12 +99,12 @@ class INA219Full extends INA219Minimal {
     static MODE_SHUNT_BUS_CONT = 7;
 
     /**
-     * @param {object} transport          - Configured I²C or SMBus transport.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection.
      * @param {number} [rShunt=0.1]       - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */
-    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) {
-        super(transport, rShunt, maxCurrent);
+    constructor(connection, rShunt = 0.1, maxCurrent = 2.0) {
+        super(connection, rShunt, maxCurrent);
         this._savedMode = INA219Full.MODE_SHUNT_BUS_CONT;
     }
 
@@ -115,39 +115,44 @@ class INA219Full extends INA219Minimal {
      * @param {number} [badc=0x03] - Bus ADC resolution/averaging: 0x00–0x0F.
      * @param {number} [sadc=0x03] - Shunt ADC resolution/averaging: 0x00–0x0F.
      * @param {number} [mode=7] - Operating mode 0–7.
+     * @returns {Promise<void>}
      */
-    configure(brng = 1, pga = 3, badc = 0x03, sadc = 0x03, mode = 7) {
+    async configure(brng = 1, pga = 3, badc = 0x03, sadc = 0x03, mode = 7) {
         const config = ((brng & 1) << 13) | ((pga & 3) << 11) | ((badc & 0x0F) << 7) | ((sadc & 0x0F) << 3) | (mode & 7);
         this._savedMode = mode & 7;
-        this._writeReg(_REG_CONFIG, config);
-        this._writeReg(_REG_CAL, this._cal);
+        await this._writeReg(_REG_CONFIG, config);
+        await this._writeReg(_REG_CAL, this._cal);
     }
 
-    /** @return {boolean} True if a conversion completed since the last read. */
-    conversionReady() { return !!(this._readReg(_REG_BUS) & 0x02); }
+    /** @return {Promise<boolean>} True if a conversion completed since the last read. */
+    async conversionReady() { return !!((await this._readReg(_REG_BUS)) & 0x02); }
 
-    /** @return {boolean} True if an arithmetic overflow occurred. */
-    overflow()        { return !!(this._readReg(_REG_BUS) & 0x01); }
+    /** @return {Promise<boolean>} True if an arithmetic overflow occurred. */
+    async overflow()        { return !!((await this._readReg(_REG_BUS)) & 0x01); }
 
-    reset() {
-        this._writeReg(_REG_CONFIG, 0x8000);
-        this._writeReg(_REG_CAL, this._cal);
+    /** @returns {Promise<void>} */
+    async reset() {
+        await this._writeReg(_REG_CONFIG, 0x8000);
+        await this._writeReg(_REG_CAL, this._cal);
     }
 
-    shutdown() {
-        const config = this._readReg(_REG_CONFIG);
+    /** @returns {Promise<void>} */
+    async shutdown() {
+        const config = await this._readReg(_REG_CONFIG);
         this._savedMode = config & 7;
-        this._writeReg(_REG_CONFIG, config & 0xFFF8);
+        await this._writeReg(_REG_CONFIG, config & 0xFFF8);
     }
 
-    wake() {
-        const config = this._readReg(_REG_CONFIG);
-        this._writeReg(_REG_CONFIG, (config & 0xFFF8) | this._savedMode);
+    /** @returns {Promise<void>} */
+    async wake() {
+        const config = await this._readReg(_REG_CONFIG);
+        await this._writeReg(_REG_CONFIG, (config & 0xFFF8) | this._savedMode);
     }
 
-    trigger() {
-        const config = this._readReg(_REG_CONFIG);
-        this._writeReg(_REG_CONFIG, config);
+    /** @returns {Promise<void>} */
+    async trigger() {
+        const config = await this._readReg(_REG_CONFIG);
+        await this._writeReg(_REG_CONFIG, config);
     }
 }
 

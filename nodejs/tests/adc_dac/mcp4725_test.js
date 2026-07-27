@@ -1,6 +1,6 @@
 'use strict';
 
-const { I2CTransport } = require('../../packages/periph/src/transport/i2c');
+const { I2CConnection } = require('../../packages/periph/src/connection/i2c');
 const { MCP4725Full }   = require('../../packages/periph/src/chips/adc_dac/mcp4725');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
@@ -14,48 +14,52 @@ function checkTrue(label, condition) {
     else           { console.log('FAIL', label); failed++; }
 }
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
-const dac = new MCP4725Full(transport);
+async function main() {
+    const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
+    const dac = new MCP4725Full(connection);
 
-dac.set_voltage(0.5);
-checkTrue('set_voltage(0.5) accepted', true);
+    await dac.set_voltage(0.5);
+    checkTrue('set_voltage(0.5) accepted', true);
 
-dac.set_raw(2048);
-checkTrue('set_raw(2048) accepted', true);
+    await dac.set_raw(2048);
+    checkTrue('set_raw(2048) accepted', true);
 
-dac.set_voltage_eeprom(0.5);
-checkTrue('set_voltage_eeprom(0.5) accepted', true);
+    await dac.set_voltage_eeprom(0.5);
+    checkTrue('set_voltage_eeprom(0.5) accepted', true);
 
-dac.set_raw_eeprom(2048);
-checkTrue('set_raw_eeprom(2048) accepted', true);
+    await dac.set_raw_eeprom(2048);
+    checkTrue('set_raw_eeprom(2048) accepted', true);
 
-const state = dac.read();
-checkTrue('read returns code', state.code <= 4095);
-checkTrue('read returns eeprom_code', state.eeprom_code <= 4095);
-checkTrue('read returns voltage_fraction', state.voltage_fraction >= 0.0 && state.voltage_fraction <= 1.0);
+    const state = await dac.read();
+    checkTrue('read returns code', state.code <= 4095);
+    checkTrue('read returns eeprom_code', state.eeprom_code <= 4095);
+    checkTrue('read returns voltage_fraction', state.voltage_fraction >= 0.0 && state.voltage_fraction <= 1.0);
 
-dac.set_power_down(MCP4725Full.PD_NORMAL);
-checkTrue('set_power_down(NORMAL) accepted', true);
+    await dac.set_power_down(MCP4725Full.PD_NORMAL);
+    checkTrue('set_power_down(NORMAL) accepted', true);
 
-dac.set_power_down(MCP4725Full.PD_1K_GND);
-checkTrue('set_power_down(1K) accepted', true);
+    await dac.set_power_down(MCP4725Full.PD_1K_GND);
+    checkTrue('set_power_down(1K) accepted', true);
 
-dac.set_power_down(MCP4725Full.PD_100K_GND);
-checkTrue('set_power_down(100K) accepted', true);
+    await dac.set_power_down(MCP4725Full.PD_100K_GND);
+    checkTrue('set_power_down(100K) accepted', true);
 
-dac.set_power_down(MCP4725Full.PD_500K_GND);
-checkTrue('set_power_down(500K) accepted', true);
+    await dac.set_power_down(MCP4725Full.PD_500K_GND);
+    checkTrue('set_power_down(500K) accepted', true);
 
-dac.wake_up();
-checkTrue('wake_up accepted', true);
+    await dac.wake_up();
+    checkTrue('wake_up accepted', true);
 
-dac.reset();
-checkTrue('reset accepted', true);
+    await dac.reset();
+    checkTrue('reset accepted', true);
 
-const ready = dac.is_eeprom_ready();
-checkTrue('is_eeprom_ready returns bool', typeof ready === 'boolean');
+    const ready = await dac.is_eeprom_ready();
+    checkTrue('is_eeprom_ready returns bool', typeof ready === 'boolean');
 
-transport.close();
+    await connection.close();
 
-console.log(`===DONE: ${passed} passed, ${failed} failed===`);
-process.exit(failed === 0 ? 0 : 1);
+    console.log(`===DONE: ${passed} passed, ${failed} failed===`);
+    process.exit(failed === 0 ? 0 : 1);
+}
+
+main();

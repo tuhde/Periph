@@ -1,11 +1,11 @@
 'use strict';
-const { I2CTransport } = require('../../../src/transport/i2c');
+const { I2CConnection } = require('../../../src/connection/i2c');
 const { BME280Full } = require('../../../src/chips/environmental/bme280');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x76', 16);
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
+const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
 
 function stats(arr) {
     if (!arr.length) return [0, 0, 0];
@@ -22,16 +22,16 @@ async function sleep(ms) {
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between samples
     // to demonstrate battery-friendly indoor monitoring.
-    const bme = new BME280Full(transport);             // Create BME280 driver, (transport, busType='i2c')
-    bme.configure(BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.MODE_FORCED, BME280Full.FILTER_OFF, BME280Full.T_SB_0_5_MS);  // Configure chip, (osrsT=×1, osrsP=×1, osrsH=×1, mode=forced, filter=off, tSb=0) → void
+    const bme = new BME280Full(connection);             // Create BME280 driver, (connection, busType='i2c')
+    await bme.configure(BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.MODE_FORCED, BME280Full.FILTER_OFF, BME280Full.T_SB_0_5_MS);  // Configure chip, (osrsT=×1, osrsP=×1, osrsH=×1, mode=forced, filter=off, tSb=0) → void
 
     const temps = [], hums = [], pressures = [], alts = [], dews = [];
     for (let n = 0; n < 10; n++) {
-        const t = bme.temperature();                   // Read temperature, () → number °C
-        const p = bme.pressure();                      // Read pressure, () → number hPa
-        const h = bme.humidity();                      // Read humidity, () → number %RH
-        const a = bme.altitude();                      // Compute altitude, (seaLevelHpa=1013.25) → number m
-        const d = bme.dewPoint();                      // Compute dew point, () → number °C
+        const t = await bme.temperature();             // Read temperature, () → number °C
+        const p = await bme.pressure();                // Read pressure, () → number hPa
+        const h = await bme.humidity();                // Read humidity, () → number %RH
+        const a = await bme.altitude();                // Compute altitude, (seaLevelHpa=1013.25) → number m
+        const d = await bme.dewPoint();                // Compute dew point, () → number °C
         temps.push(t); hums.push(h); pressures.push(p); alts.push(a); dews.push(d);
         console.log(`${n}: ${t.toFixed(1)} C, ${h.toFixed(1)} %RH, ${p.toFixed(1)} hPa, dew=${d.toFixed(1)} C, alt=${a.toFixed(1)} m`);
         await sleep(1000);
@@ -45,10 +45,10 @@ async function sleep(ms) {
     console.log('--- Breathe gently on the sensor for 3 seconds ---');
     await sleep(3000);
     {
-        const t = bme.temperature();                   // Read temperature, () → number °C
-        const p = bme.pressure();                      // Read pressure, () → number hPa
-        const h = bme.humidity();                      // Read humidity, () → number %RH
-        const d = bme.dewPoint();                      // Compute dew point, () → number °C
+        const t = await bme.temperature();             // Read temperature, () → number °C
+        const p = await bme.pressure();                // Read pressure, () → number hPa
+        const h = await bme.humidity();                // Read humidity, () → number %RH
+        const d = await bme.dewPoint();                // Compute dew point, () → number °C
         temps.push(t); hums.push(h); pressures.push(p); dews.push(d);
         console.log(`after breath: ${t.toFixed(1)} C, ${h.toFixed(1)} %RH, ${p.toFixed(1)} hPa, dew=${d.toFixed(1)} C`);
     }
@@ -62,6 +62,6 @@ async function sleep(ms) {
     console.log(`P:    ${pMin.toFixed(1)}/${pAvg.toFixed(1)}/${pMax.toFixed(1)} hPa`);
     console.log(`dew:  ${dMin.toFixed(1)}/${dAvg.toFixed(1)}/${dMax.toFixed(1)} C`);
 
-    transport.close();
+    connection.close();
     console.log('===DONE: 0 passed, 0 failed===');
 })();

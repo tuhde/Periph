@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { UARTTransport } = require('periph/src/transport/uart');
-    const { I2CTransport }  = require('periph/src/transport/i2c');
-    const { SPITransport }  = require('periph/src/transport/spi');
+    const { UARTConnection } = require('periph/src/connection/uart');
+    const { I2CConnection }  = require('periph/src/connection/i2c');
+    const { SPIConnection }  = require('periph/src/connection/spi');
     const { NEO6Full }      = require('periph/src/chips/gnss/neo6');
 
     function NEO6Node(config) {
@@ -14,20 +14,20 @@ module.exports = function(RED) {
 
         (async () => {
             try {
-                let transport;
+                let connection;
                 if (node.busType === 'i2c') {
                     const addr = parseInt(config.addr) || 0x42;
-                    transport = new I2CTransport(parseInt(config.bus) || 1, addr);
+                    connection = new I2CConnection(parseInt(config.bus) || 1, addr);
                 } else if (node.busType === 'spi') {
-                    transport = new SPITransport(parseInt(config.bus) || 0, parseInt(config.device) || 0,
+                    connection = new SPIConnection(parseInt(config.bus) || 0, parseInt(config.device) || 0,
                         { mode: 0, maxSpeedHz: 200_000 });
                 } else {
-                    transport = new UARTTransport(config.port || '/dev/ttyS0',
+                    connection = new UARTConnection(config.port || '/dev/ttyS0',
                         { baudRate: parseInt(config.baud) || 9600 });
-                    await transport.open();
+                    await connection.open();
                 }
-                node.transport = transport;
-                node.driver = new NEO6Full(transport, node.busType);
+                node.connection = connection;
+                node.driver = new NEO6Full(connection, node.busType);
                 node.ready = true;
             } catch (e) {
                 node.error('NEO-6 init failed: ' + e.message);
@@ -46,7 +46,7 @@ module.exports = function(RED) {
                 // each time this node fires rather than reading a single
                 // byte. Time-boxed rather than a fixed iteration count: on
                 // UART a byte-less update() only resolves after the
-                // transport's read timeout, so an unbounded iteration count
+                // connection's read timeout, so an unbounded iteration count
                 // could block this node for a very long time once the
                 // stream goes quiet between bursts.
                 const deadline = Date.now() + 900;
@@ -74,8 +74,8 @@ module.exports = function(RED) {
         });
 
         node.on('close', async function(done) {
-            if (node.transport) {
-                try { await node.transport.close(); } catch (_) { /* already closed */ }
+            if (node.connection) {
+                try { await node.connection.close(); } catch (_) { /* already closed */ }
             }
             done();
         });

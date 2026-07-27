@@ -42,17 +42,26 @@ function _delay(ms) {
 /**
  * BME680 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance — minimal interface.
  *
- * Provides calibrated readings with no configuration beyond the transport.
+ * Provides calibrated readings with no configuration beyond the connection.
  * I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
  *
  * Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off,
  * heater profile 0 at 320 °C / 150 ms.
  *
- * @param {object} transport - Configured I²C transport.
+ * Constructor caveat: JS constructors cannot be async. The calibration read
+ * and initial register writes are fired off unawaited, matching the
+ * fire-and-forget convention used throughout this port — in practice they
+ * settle before any subsequent `await` in caller code is scheduled, since
+ * the underlying I2C connection is synchronous under the hood, but this is
+ * not a guaranteed blocking wait the way the pre-async version was. Call
+ * `await sensor.temperature()` (or any other async method) once before
+ * relying on calibrated readings if this matters for your use case.
+ *
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
  */
 class BME680Minimal {
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
         this._osrsT = 1;
         this._osrsP = 1;
         this._osrsH = 1;
@@ -63,20 +72,24 @@ class BME680Minimal {
         this._heatDur = 150;
         this._gasEnabled = true;
         this._nbConv = 0;
-        this._readCalibration();
-        this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
-        this._writeReg(_REG_CONFIG, 0);
-        this._setupHeater(0, this._heatTemp, this._heatDur);
-        this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
+        this._init();
     }
 
-    _readCalibration() {
-        const b1 = this._transport.writeRead(Buffer.from([_REG_CAL_BLOCK1]), 23);
-        const b2 = this._transport.writeRead(Buffer.from([_REG_CAL_BLOCK2]), 14);
-        const s1 = this._transport.writeRead(Buffer.from([_REG_RES_HEAT_VAL]), 1);
-        const s2 = this._transport.writeRead(Buffer.from([_REG_RES_HEAT_RANGE]), 1);
-        const s3 = this._transport.writeRead(Buffer.from([_REG_RANGE_SW_ERR]), 1);
+    async _init() {
+        await this._readCalibration();
+        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._writeReg(_REG_CONFIG, 0);
+        await this._setupHeater(0, this._heatTemp, this._heatDur);
+        await this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
+    }
+
+    async _readCalibration() {
+        const b1 = await this._conn.writeRead(Buffer.from([_REG_CAL_BLOCK1]), 23);
+        const b2 = await this._conn.writeRead(Buffer.from([_REG_CAL_BLOCK2]), 14);
+        const s1 = await this._conn.writeRead(Buffer.from([_REG_RES_HEAT_VAL]), 1);
+        const s2 = await this._conn.writeRead(Buffer.from([_REG_RES_HEAT_RANGE]), 1);
+        const s3 = await this._conn.writeRead(Buffer.from([_REG_RANGE_SW_ERR]), 1);
 
         this._parT2 = b1.readInt16LE(0);
         this._parT3 = b1.readInt8(2);
@@ -109,12 +122,12 @@ class BME680Minimal {
         this._rangeSwitchingError = rse < 8 ? rse : rse - 16;
     }
 
-    _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value]));
+    async _writeReg(reg, value) {
+        await this._conn.write(Buffer.from([reg, value]));
     }
 
-    _readReg(reg, n) {
-        return this._transport.writeRead(Buffer.from([reg]), n);
+    async _readReg(reg, n) {
+        return this._conn.writeRead(Buffer.from([reg]), n);
     }
 
     _calcHeaterResistance(targetTemp, ambientTemp) {
@@ -141,19 +154,19 @@ class BME680Minimal {
         return (3 << 6) | Math.min(targetMs / 64 | 0, 0x3F);
     }
 
-    _setupHeater(index, tempC, durMs) {
+    async _setupHeater(index, tempC, durMs) {
         const res = this._calcHeaterResistance(tempC, this._ambientTemp);
         const gw = this._calcGasWait(durMs);
-        this._writeReg(0x5A + index, res);
-        this._writeReg(0x64 + index, gw);
+        await this._writeReg(0x5A + index, res);
+        await this._writeReg(0x64 + index, gw);
     }
 
-    _triggerAndRead() {
-        this._writeReg(_REG_CTRL_HUM, this._osrsH);
+    async _triggerAndRead() {
+        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
         const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
-        this._writeReg(_REG_CTRL_MEAS, ctrl);
+        await this._writeReg(_REG_CTRL_MEAS, ctrl);
         _delay(_MEAS_TIME_MS);
-        const raw = this._readReg(_REG_PRESS_MSB, 13);
+        const raw = await this._readReg(_REG_PRESS_MSB, 13);
         const pressAdc = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
         const tempAdc  = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
         const humAdc   = (raw[6] << 8) | raw[7];
@@ -244,10 +257,10 @@ class BME680Minimal {
 
     /**
      * Read calibrated temperature.
-     * @returns {number} Temperature in degrees Celsius.
+     * @returns {Promise<number>} Temperature in degrees Celsius.
      */
-    temperature() {
-        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = this._triggerAndRead();
+    async temperature() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
         const t = this._compensateTemp(tempAdc);
         this._ambientTemp = t;
         return t;
@@ -255,30 +268,30 @@ class BME680Minimal {
 
     /**
      * Read calibrated pressure.
-     * @returns {number} Pressure in hPa.
+     * @returns {Promise<number>} Pressure in hPa.
      */
-    pressure() {
-        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = this._triggerAndRead();
+    async pressure() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
         this._compensateTemp(tempAdc);
         return this._compensatePressure(pressAdc);
     }
 
     /**
      * Read calibrated humidity.
-     * @returns {number} Relative humidity in %RH.
+     * @returns {Promise<number>} Relative humidity in %RH.
      */
-    humidity() {
-        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = this._triggerAndRead();
+    async humidity() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
         this._compensateTemp(tempAdc);
         return this._compensateHumidity(humAdc);
     }
 
     /**
      * Read gas sensor resistance.
-     * @returns {number} Gas resistance in Ohms, or NaN on invalid reading.
+     * @returns {Promise<number>} Gas resistance in Ohms, or NaN on invalid reading.
      */
-    gasResistance() {
-        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = this._triggerAndRead();
+    async gasResistance() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
         this._compensateTemp(tempAdc);
         if (!gasValid || !heatStab) return NaN;
         return this._compensateGas(gasAdc, gasRange);
@@ -288,7 +301,7 @@ class BME680Minimal {
 /**
  * BME680 full interface — extends BME680Minimal with configuration, multi-profile heater, and status.
  *
- * @param {object} transport - Configured I²C transport.
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
  */
 class BME680Full extends BME680Minimal {
     static OSRS_SKIP = 0;
@@ -316,8 +329,8 @@ class BME680Full extends BME680Minimal {
     static STATUS_GAS_VALID     = 0x20;
     static STATUS_HEATER_STABLE = 0x10;
 
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -327,15 +340,16 @@ class BME680Full extends BME680Minimal {
      * @param {number} osrsH - Humidity oversampling (0–5).
      * @param {number} mode - Power mode (0=sleep, 1=forced).
      * @param {number} filter - IIR filter coefficient (0–7).
+     * @returns {Promise<void>}
      */
-    configure(osrsT, osrsP, osrsH, mode, filter) {
+    async configure(osrsT, osrsP, osrsH, mode, filter) {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
         this._osrsH = osrsH;
         this._filter = filter;
-        this._writeReg(_REG_CTRL_HUM, osrsH);
-        this._writeReg(_REG_CONFIG, filter << 2);
-        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+        await this._writeReg(_REG_CTRL_HUM, osrsH);
+        await this._writeReg(_REG_CONFIG, filter << 2);
+        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
@@ -343,34 +357,37 @@ class BME680Full extends BME680Minimal {
      * @param {number} osrsT - Temperature oversampling (0–5).
      * @param {number} osrsP - Pressure oversampling (0–5).
      * @param {number} osrsH - Humidity oversampling (0–5).
+     * @returns {Promise<void>}
      */
-    setOversampling(osrsT, osrsP, osrsH) {
+    async setOversampling(osrsT, osrsP, osrsH) {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
         this._osrsH = osrsH;
-        this._writeReg(_REG_CTRL_HUM, osrsH);
-        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | 0);
+        await this._writeReg(_REG_CTRL_HUM, osrsH);
+        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | 0);
     }
 
     /**
      * Update IIR filter coefficient.
      * @param {number} coeff - Filter coefficient (0–7).
+     * @returns {Promise<void>}
      */
-    setFilter(coeff) {
+    async setFilter(coeff) {
         this._filter = coeff;
-        this._writeReg(_REG_CONFIG, coeff << 2);
+        await this._writeReg(_REG_CONFIG, coeff << 2);
     }
 
     /**
      * Configure heater profile 0 and activate it.
      * @param {number} tempC - Target heater temperature in degrees Celsius.
      * @param {number} durationMs - Heater on-time in milliseconds (1–4032).
+     * @returns {Promise<void>}
      */
-    setHeater(tempC, durationMs) {
+    async setHeater(tempC, durationMs) {
         this._heatTemp = tempC;
         this._heatDur = durationMs;
-        this._setupHeater(0, tempC, durationMs);
-        this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
+        await this._setupHeater(0, tempC, durationMs);
+        await this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
     }
 
     /**
@@ -378,54 +395,59 @@ class BME680Full extends BME680Minimal {
      * @param {number} index - Profile index (0–9).
      * @param {number} tempC - Target heater temperature in degrees Celsius.
      * @param {number} durationMs - Heater on-time in milliseconds (1–4032).
+     * @returns {Promise<void>}
      */
-    setHeaterProfile(index, tempC, durationMs) {
-        this._setupHeater(index, tempC, durationMs);
+    async setHeaterProfile(index, tempC, durationMs) {
+        await this._setupHeater(index, tempC, durationMs);
     }
 
     /**
      * Select which heater profile to use in the next forced cycle.
      * @param {number} index - Profile index (0–9).
+     * @returns {Promise<void>}
      */
-    selectHeaterProfile(index) {
+    async selectHeaterProfile(index) {
         this._nbConv = index;
         const gas1 = this._gasEnabled ? ((1 << 4) | index) : index;
-        this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._writeReg(_REG_CTRL_GAS_1, gas1);
     }
 
     /**
      * Enable or disable gas conversion.
      * @param {boolean} enabled - True to enable gas measurement.
+     * @returns {Promise<void>}
      */
-    setGasEnabled(enabled) {
+    async setGasEnabled(enabled) {
         this._gasEnabled = enabled;
         const gas1 = enabled ? ((1 << 4) | this._nbConv) : this._nbConv;
-        this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._writeReg(_REG_CTRL_GAS_1, gas1);
     }
 
     /**
      * Turn the heater off or on via ctrl_gas_0.
      * @param {boolean} off - True to disable the heater.
+     * @returns {Promise<void>}
      */
-    setHeaterOff(off) {
-        this._writeReg(_REG_CTRL_GAS_0, off ? 0x08 : 0x00);
+    async setHeaterOff(off) {
+        await this._writeReg(_REG_CTRL_GAS_0, off ? 0x08 : 0x00);
     }
 
     /**
      * Override the ambient temperature used for heater-resistance calculation.
      * @param {number} tempC - Ambient temperature in degrees Celsius.
+     * @returns {Promise<void>}
      */
-    setAmbientTemperature(tempC) {
+    async setAmbientTemperature(tempC) {
         this._ambientTemp = tempC;
-        this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
+        await this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
     }
 
     /**
      * Read all four sensor values from a single TPHG cycle.
-     * @returns {{ temperature: number, pressure: number, humidity: number, gasResistance: number }}
+     * @returns {Promise<{ temperature: number, pressure: number, humidity: number, gasResistance: number }>}
      */
-    readAll() {
-        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = this._triggerAndRead();
+    async readAll() {
+        const { pressAdc, tempAdc, humAdc, gasAdc, gasRange, gasValid, heatStab } = await this._triggerAndRead();
         const t = this._compensateTemp(tempAdc);
         this._ambientTemp = t;
         const p = this._compensatePressure(pressAdc);
@@ -436,53 +458,54 @@ class BME680Full extends BME680Minimal {
 
     /**
      * Check if the most recent gas reading is valid.
-     * @returns {boolean} True if gas_valid_r was set.
+     * @returns {Promise<boolean>} True if gas_valid_r was set.
      */
-    gasValid() {
-        const raw = this._readReg(0x2B, 1);
+    async gasValid() {
+        const raw = await this._readReg(0x2B, 1);
         return ((raw[0] >> 5) & 1) === 1;
     }
 
     /**
      * Check if the heater reached its target temperature.
-     * @returns {boolean} True if heat_stab_r was set.
+     * @returns {Promise<boolean>} True if heat_stab_r was set.
      */
-    heaterStable() {
-        const raw = this._readReg(0x2B, 1);
+    async heaterStable() {
+        const raw = await this._readReg(0x2B, 1);
         return ((raw[0] >> 4) & 1) === 1;
     }
 
     /**
      * Read the measurement status register.
-     * @returns {number} Status byte with flags.
+     * @returns {Promise<number>} Status byte with flags.
      */
-    status() {
-        const raw = this._readReg(_REG_MEAS_STATUS, 1);
+    async status() {
+        const raw = await this._readReg(_REG_MEAS_STATUS, 1);
         return raw[0];
     }
 
     /**
      * Read the chip ID register.
-     * @returns {number} Chip ID; expect 0x61.
+     * @returns {Promise<number>} Chip ID; expect 0x61.
      */
-    chipId() {
-        const raw = this._readReg(_REG_ID, 1);
+    async chipId() {
+        const raw = await this._readReg(_REG_ID, 1);
         return raw[0];
     }
 
     /**
      * Perform a soft reset, re-read calibration, and re-apply configuration.
+     * @returns {Promise<void>}
      */
-    reset() {
-        this._writeReg(_REG_RESET, _RESET_CMD);
+    async reset() {
+        await this._writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
-        this._readCalibration();
-        this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        this._writeReg(_REG_CONFIG, this._filter << 2);
-        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
-        this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
+        await this._readCalibration();
+        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._writeReg(_REG_CONFIG, this._filter << 2);
+        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
         const gas1 = this._gasEnabled ? ((1 << 4) | this._nbConv) : this._nbConv;
-        this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._writeReg(_REG_CTRL_GAS_1, gas1);
     }
 }
 

@@ -1,32 +1,38 @@
 'use strict';
 
 const { SerialPort } = require('serialport');
+const { Connection } = require('./connection');
 
 /**
- * UART transport for Node.js (wraps the `serialport` npm package).
+ * UART connection for Node.js (wraps the `serialport` npm package).
  *
  * Opens the serial port asynchronously at construction and accumulates
  * incoming bytes in an internal buffer. All operations return Promises.
  * Call close() when done to release the port.
  *
- * For RS-485 DE toggling, pass de_pin_num and install the `onoff` package.
+ * For RS-485 DE toggling, pass dePinNum and install the `onoff` package.
  * The GPIO is asserted high before each write and deasserted after drain.
+ * This is separate from the standard EN pin (hardware enable/power) — DE
+ * controls RS-485 transceiver direction, not device power.
  */
-class UARTTransport {
+class UARTConnection extends Connection {
     /**
      * @param {string}  path      - Serial device path (e.g. '/dev/ttyS0').
      * @param {object}  [options]
      * @param {number}  [options.baudRate=9600]    - Baud rate.
      * @param {number}  [options.timeoutMs=1000]   - Read timeout in milliseconds.
-     * @param {number|null} [options.de_pin_num=null] - GPIO line for RS-485 DE; null disables.
+     * @param {number|null} [options.dePinNum=null] - GPIO line for RS-485 DE; null disables.
+     * @param {import('./input_pin').InputPin|null} [options.intPin=null] - Optional INT-line InputPin.
+     * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
      */
     constructor(path, options = {}) {
-        this._baudRate   = options.baudRate  ?? 9600;
-        this._timeoutMs  = options.timeoutMs ?? 1000;
-        this._de_pin_num = options.de_pin_num ?? null;
-        this._rxBuf      = Buffer.alloc(0);
-        this._rxWaiters  = [];
-        this._de         = null;
+        super(options.intPin ?? null, options.enPin ?? null);
+        this._baudRate  = options.baudRate  ?? 9600;
+        this._timeoutMs = options.timeoutMs ?? 1000;
+        this._dePinNum  = options.dePinNum ?? null;
+        this._rxBuf     = Buffer.alloc(0);
+        this._rxWaiters = [];
+        this._de        = null;
 
         this._port = new SerialPort({ path, baudRate: this._baudRate, autoOpen: false });
         this._openPromise = new Promise((resolve, reject) => {
@@ -38,10 +44,10 @@ class UARTTransport {
             this._drainWaiters();
         });
 
-        if (this._de_pin_num !== null) {
+        if (this._dePinNum !== null) {
             try {
                 const { Gpio } = require('onoff');
-                this._de = new Gpio(this._de_pin_num, 'out');
+                this._de = new Gpio(this._dePinNum, 'out');
                 this._de.writeSync(0);
             } catch (_) {
                 // onoff unavailable — RS-485 DE toggling disabled.
@@ -90,7 +96,7 @@ class UARTTransport {
      * @param {Buffer|Uint8Array} data - Bytes to send.
      * @returns {Promise<void>}
      */
-    async write(data) {
+    async _write(data) {
         await this._openPromise;
         const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
         if (this._de) this._de.writeSync(1);
@@ -109,7 +115,7 @@ class UARTTransport {
      * @param {number} n - Number of bytes to read.
      * @returns {Promise<Buffer>} Data received from the device.
      */
-    async read(n) {
+    async _read(n) {
         await this._openPromise;
         return this._waitForBytes(n);
     }
@@ -121,9 +127,9 @@ class UARTTransport {
      * @param {number}            n    - Number of bytes to read.
      * @returns {Promise<Buffer>} Data received from the device.
      */
-    async writeRead(data, n) {
-        await this.write(data);
-        return this.read(n);
+    async _writeRead(data, n) {
+        await this._write(data);
+        return this._read(n);
     }
 
     /**
@@ -142,4 +148,4 @@ class UARTTransport {
     }
 }
 
-module.exports = { UARTTransport };
+module.exports = { UARTConnection };

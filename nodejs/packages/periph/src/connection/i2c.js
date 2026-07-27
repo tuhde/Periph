@@ -1,19 +1,23 @@
 'use strict';
 
 const i2c = require('i2c-bus');
+const { Connection } = require('./connection');
 
 /**
- * I²C transport for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
+ * I²C connection for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
  *
  * One instance represents one device on the bus; the bus is opened
  * synchronously at construction. Call close() to release the bus when done.
  */
-class I2CTransport {
+class I2CConnection extends Connection {
     /**
      * @param {number} busNumber - I²C bus number (opens /dev/i2c-{busNumber}).
      * @param {number} addr      - 7-bit device address.
+     * @param {import('./input_pin').InputPin|null} [intPin=null] - Optional INT-line InputPin.
+     * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
      */
-    constructor(busNumber, addr) {
+    constructor(busNumber, addr, intPin = null, enPin = null) {
+        super(intPin, enPin);
         this._bus = i2c.openSync(busNumber);
         this._addr = addr;
     }
@@ -22,7 +26,7 @@ class I2CTransport {
      * Send bytes to the device.
      * @param {Buffer|Uint8Array} data - Bytes to write.
      */
-    write(data) {
+    async _write(data) {
         this._bus.i2cWriteSync(this._addr, data.length, data);
     }
 
@@ -31,7 +35,7 @@ class I2CTransport {
      * @param {number} n - Number of bytes to read.
      * @returns {Buffer} Data received from the device.
      */
-    read(n) {
+    async _read(n) {
         const buf = Buffer.alloc(n);
         this._bus.i2cReadSync(this._addr, n, buf);
         return buf;
@@ -50,18 +54,18 @@ class I2CTransport {
      * @param {number}            n    - Number of bytes to read back.
      * @returns {Buffer} Data received from the device.
      */
-    writeRead(data, n) {
+    async _writeRead(data, n) {
         const buf = Buffer.alloc(n);
         this._bus.readI2cBlockSync(this._addr, data[0], n, buf);
         return buf;
     }
 
     /**
-     * Close the I²C bus. Must be called when the transport is no longer needed.
+     * Close the I²C bus. Must be called when the connection is no longer needed.
      */
-    close() {
+    async close() {
         this._bus.closeSync();
     }
 }
 
-module.exports = { I2CTransport };
+module.exports = { I2CConnection };

@@ -1,6 +1,6 @@
 'use strict';
 
-const { UARTTransport } = require('../../packages/periph/src/transport/uart');
+const { UARTConnection } = require('../../packages/periph/src/connection/uart');
 const { NEO6Minimal } = require('../../packages/periph/src/chips/gnss/neo6');
 
 const UART_PORT = process.env.UART_PORT || '/dev/ttyS0';
@@ -18,9 +18,9 @@ function checkTrue(label, condition) {
 // actual fix needs an outdoor antenna and can take up to ~26 s (cold start);
 // this test only requires that well-typed values come back, not a fix.
 async function main() {
-    const transport = new UARTTransport(UART_PORT, { baudRate: UART_BAUD });
-    await transport.open();
-    const gps = new NEO6Minimal(transport);
+    const connection = new UARTConnection(UART_PORT, { baudRate: UART_BAUD });
+    await connection.open();
+    const gps = new NEO6Minimal(connection);
 
     checkTrue('fix() starts at 0', gps.fix() === 0);
     checkTrue('latitude() starts at null', gps.latitude() === null);
@@ -39,7 +39,7 @@ async function main() {
         console.log('note: no fix acquired during the test window (needs sky view)');
     }
 
-    await transport.close();
+    await connection.close();
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

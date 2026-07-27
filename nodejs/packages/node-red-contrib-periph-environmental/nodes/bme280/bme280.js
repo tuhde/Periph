@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { I2CTransport } = require('periph/src/transport/i2c');
+    const { I2CConnection } = require('periph/src/connection/i2c');
     const { BME280Full }   = require('periph/src/chips/environmental/bme280');
 
     function BME280DeviceNode(config) {
@@ -9,8 +9,8 @@ module.exports = function(RED) {
         const node = this;
         try {
             const addr = parseInt(config.addr) || 0x76;
-            const transport = new I2CTransport(parseInt(config.bus), addr);
-            node.driver    = new BME280Full(transport);
+            const connection = new I2CConnection(parseInt(config.bus), addr);
+            node.driver    = new BME280Full(connection);
             node.driver.configure(
                 parseInt(config.osrsT) || 1,
                 parseInt(config.osrsP) || 1,
@@ -19,12 +19,12 @@ module.exports = function(RED) {
                 parseInt(config.filter) || 0,
                 parseInt(config.tSb) || 0
             );
-            node.transport = transport;
+            node.connection = connection;
         } catch (e) {
             node.error('BME280 init failed: ' + e.message);
         }
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('bme280-device', BME280DeviceNode);
@@ -34,7 +34,7 @@ module.exports = function(RED) {
         const node = this;
         node.device = RED.nodes.getNode(config.device);
 
-        node.on('input', function(msg, send, done) {
+        node.on('input', async function(msg, send, done) {
             if (!node.device || !node.device.driver) {
                 node.error('No BME280 device configured', msg);
                 done();
@@ -42,9 +42,9 @@ module.exports = function(RED) {
             }
             try {
                 const d = node.device.driver;
-                const t = d.temperature();
-                const p = d.pressure();
-                const h = d.humidity();
+                const t = await d.temperature();
+                const p = await d.pressure();
+                const h = await d.humidity();
                 const seaLevelHpa = parseFloat(config.seaLevelHpa) || 1013.25;
                 const altitude = 44330 * (1 - Math.pow(p / seaLevelHpa, 1 / 5.255));
                 const a = 17.27, b = 237.7;

@@ -1,6 +1,6 @@
 'use strict';
-const { I2CTransport }              = require('../packages/periph/src/transport/i2c');
-const { Pcf8574Minimal, Pcf8574Full } = require('../packages/periph/src/chips/io_expander/pcf8574');
+const { I2CConnection }                = require('../../packages/periph/src/connection/i2c');
+const { Pcf8574Minimal, Pcf8574Full }  = require('../../packages/periph/src/chips/io_expander/pcf8574');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',    10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x20', 16);
@@ -18,51 +18,48 @@ function checkTrue(label, condition) {
     else           { console.log('FAIL', label); failed++; }
 }
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
-const chip      = new Pcf8574Minimal(transport);
+async function main() {
+    const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
+    const chip       = new Pcf8574Minimal(connection);
 
-checkEq('init_shadow', chip._shadow, 0xFF);
+    checkEq('init_shadow', chip._shadow, 0xFF);
 
-const port = chip.readPort();
-checkTrue('read_port_range', port >= 0 && port <= 0xFF);
+    const port = await chip.readPort();
+    checkTrue('read_port_range', port >= 0 && port <= 0xFF);
 
-chip.writePort(0, 0xAA);
-checkEq('write_port_shadow', chip._shadow, 0xAA);
-chip.writePort(0, 0xFF);
+    await chip.writePort(0, 0xAA);
+    checkEq('write_port_shadow', chip._shadow, 0xAA);
+    await chip.writePort(0, 0xFF);
 
-const p0 = chip.pin(0, 'out');
-p0.writeSync(0);
-checkEq('write_low_shadow', chip._shadow & 0x01, 0);
-p0.writeSync(1);
-checkEq('write_high_shadow', chip._shadow & 0x01, 1);
+    const p0 = chip.pin(0, 'out');
+    await p0.write(0);
+    checkEq('write_low_shadow', chip._shadow & 0x01, 0);
+    await p0.write(1);
+    checkEq('write_high_shadow', chip._shadow & 0x01, 1);
 
-const v = p0.readSync();
-checkTrue('read_range', v === 0 || v === 1);
+    const v = await p0.read();
+    checkTrue('read_range', v === 0 || v === 1);
+    checkEq('direction_prop', p0.direction, 'out');
 
-p0.read((err, val) => {
-    checkTrue('read_async_no_error', !err);
-    checkTrue('read_async_range', val === 0 || val === 1);
-});
+    const p4 = chip.pin(4, 'in');
+    checkEq('input_shadow_bit4', (chip._shadow >> 4) & 1, 1);
+    checkEq('input_direction', p4.direction, 'in');
 
-p0.write(0, (err) => checkTrue('write_async_no_error', !err));
-checkEq('direction_prop', p0.direction, 'out');
+    // Full
+    const full = new Pcf8574Full(connection);
+    checkTrue('full_init_shadow', full._shadow === 0xFF);
 
-const p4 = chip.pin(4, 'in');
-checkEq('input_shadow_bit4', (chip._shadow >> 4) & 1, 1);
-checkEq('input_direction', p4.direction, 'in');
+    const changed = await full.pollInterrupt();
+    checkTrue('poll_interrupt_range', changed >= 0 && changed <= 0xFF);
 
-// Full
-const full = new Pcf8574Full(transport);
-checkTrue('full_init_shadow', full._shadow === 0xFF);
+    // polling-mode onInterrupt (no intPin available)
+    await full.onInterrupt(() => {});
+    checkTrue('poll_timer_set', full._pollTimer !== null);
+    await full.offInterrupt();
+    checkTrue('poll_timer_cleared', full._pollTimer === null);
 
-const changed = full.clearInterrupt();
-checkTrue('clear_interrupt_range', changed >= 0 && changed <= 0xFF);
+    console.log(`===DONE: ${passed} passed, ${failed} failed===`);
+    process.exit(failed ? 1 : 0);
+}
 
-// polling-mode configureInterrupt
-full.configureInterrupt(null, () => {});
-checkTrue('poll_timer_set', full._pollTimer !== null);
-clearInterval(full._pollTimer);
-full._pollTimer = null;
-
-console.log(`===DONE: ${passed} passed, ${failed} failed===`);
-process.exit(failed ? 1 : 0);
+main();

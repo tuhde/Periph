@@ -1,6 +1,6 @@
 'use strict';
 
-const { UARTTransport } = require('../../packages/periph/src/transport/uart');
+const { UARTConnection } = require('../../packages/periph/src/connection/uart');
 
 const UART_PORT = process.env.UART_PORT || '/dev/ttyS0';
 const UART_BAUD = parseInt(process.env.UART_BAUD || '9600', 10);
@@ -15,21 +15,21 @@ function checkTrue(label, condition) {
 
 // Assumes a loopback jumper bridging TXD and RXD on the UART port under test.
 async function main() {
-    const transport = new UARTTransport(UART_PORT, { baudRate: UART_BAUD });
-    await transport.open();
+    const connection = new UARTConnection(UART_PORT, { baudRate: UART_BAUD });
+    await connection.open();
 
-    await transport.write(Buffer.from([0x42]));
+    await connection.write(Buffer.from([0x42]));
     checkTrue('write accepted', true);
 
-    const rxByte = await transport.read(1);
+    const rxByte = await connection.read(1);
     checkTrue('read returns 1 byte', rxByte.length === 1);
     checkTrue('loopback byte matches', rxByte[0] === 0x42);
 
-    const resp = await transport.writeRead(Buffer.from([0xA5, 0x5A]), 2);
+    const resp = await connection.writeRead(Buffer.from([0xA5, 0x5A]), 2);
     checkTrue('writeRead returns 2 bytes', resp.length === 2);
     checkTrue('writeRead loopback matches', resp[0] === 0xA5 && resp[1] === 0x5A);
 
-    await transport.close();
+    await connection.close();
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

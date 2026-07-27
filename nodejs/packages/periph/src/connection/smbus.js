@@ -1,6 +1,7 @@
 'use strict';
 
 const i2c = require('i2c-bus');
+const { Connection } = require('./connection');
 
 /**
  * Computes CRC-8 with polynomial 0x07 (x⁸ + x² + x + 1), initial value 0x00.
@@ -19,20 +20,23 @@ function crc8(data) {
 }
 
 /**
- * SMBus transport for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
+ * SMBus connection for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
  *
  * Enforces the valid 7-bit SMBus address range (0x08–0x77) and, when pec=true,
  * appends a CRC-8 byte to writes and verifies it on reads. PEC is computed in
  * software using raw i2c transfers. Call close() to release the bus when done.
  */
-class SMBusTransport {
+class SMBusConnection extends Connection {
     /**
      * @param {number}  busNumber    - I²C bus number (opens /dev/i2c-{busNumber}).
      * @param {number}  addr         - 7-bit device address (0x08–0x77).
      * @param {boolean} [pec=false]  - Enable Packet Error Code (CRC-8) checking.
+     * @param {import('./input_pin').InputPin|null} [intPin=null] - Optional INT-line InputPin.
+     * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
      * @throws {RangeError} If addr is outside the valid SMBus range.
      */
-    constructor(busNumber, addr, pec = false) {
+    constructor(busNumber, addr, pec = false, intPin = null, enPin = null) {
+        super(intPin, enPin);
         if (addr < 0x08 || addr > 0x77) {
             throw new RangeError('SMBus address must be in range 0x08-0x77');
         }
@@ -45,7 +49,7 @@ class SMBusTransport {
      * Send bytes to the device, appending a PEC byte if enabled.
      * @param {Buffer|Uint8Array} data - Bytes to write.
      */
-    write(data) {
+    async _write(data) {
         let buf = Buffer.from(data);
         if (this._pec) {
             const pec = crc8(Buffer.concat([Buffer.from([this._addr << 1]), buf]));
@@ -63,7 +67,7 @@ class SMBusTransport {
      * @returns {Buffer} The n data bytes (PEC byte stripped if enabled).
      * @throws {Error} If the received PEC byte does not match.
      */
-    read(n) {
+    async _read(n) {
         const count = this._pec ? n + 1 : n;
         const buf = Buffer.alloc(count);
         this._bus.i2cReadSync(this._addr, count, buf);
@@ -81,14 +85,14 @@ class SMBusTransport {
      *
      * PEC covers the full transaction: write address + write data +
      * read address + read data. The same single-command-byte limitation as
-     * I2CTransport applies: only data[0] is sent as the write byte.
+     * I2CConnection applies: only data[0] is sent as the write byte.
      *
      * @param {Buffer|Uint8Array} data - Register address to send; only data[0] is used.
      * @param {number}            n    - Number of data bytes to read back.
      * @returns {Buffer} The n data bytes (PEC byte stripped if enabled).
      * @throws {Error} If the received PEC byte does not match.
      */
-    writeRead(data, n) {
+    async _writeRead(data, n) {
         const count = this._pec ? n + 1 : n;
         const buf = Buffer.alloc(count);
         this._bus.readI2cBlockSync(this._addr, data[0], count, buf);
@@ -107,11 +111,11 @@ class SMBusTransport {
     }
 
     /**
-     * Close the I²C bus. Must be called when the transport is no longer needed.
+     * Close the I²C bus. Must be called when the connection is no longer needed.
      */
-    close() {
+    async close() {
         this._bus.closeSync();
     }
 }
 
-module.exports = { SMBusTransport };
+module.exports = { SMBusConnection };

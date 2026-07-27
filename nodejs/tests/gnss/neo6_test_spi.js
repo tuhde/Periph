@@ -1,6 +1,6 @@
 'use strict';
 
-const { SPITransport } = require('../../packages/periph/src/transport/spi');
+const { SPIConnection } = require('../../packages/periph/src/connection/spi');
 const { NEO6Minimal } = require('../../packages/periph/src/chips/gnss/neo6');
 
 const SPI_BUS    = parseInt(process.env.SPI_BUS    || '0', 10);
@@ -20,8 +20,8 @@ function checkTrue(label, condition) {
 // back. SPI reads use writeRead() with an empty command so every response
 // byte is captured (see NEO6Minimal._readByte).
 async function main() {
-    const transport = new SPITransport(SPI_BUS, SPI_DEVICE, { mode: 0, maxSpeedHz: 200_000 });
-    const gps = new NEO6Minimal(transport, 'spi');
+    const connection = new SPIConnection(SPI_BUS, SPI_DEVICE, { mode: 0, maxSpeedHz: 200_000 });
+    const gps = new NEO6Minimal(connection, 'spi');
 
     checkTrue('fix() starts at 0', gps.fix() === 0);
     checkTrue('latitude() starts at null', gps.latitude() === null);
@@ -40,7 +40,7 @@ async function main() {
         console.log('note: no fix acquired during the test window (needs sky view)');
     }
 
-    transport.close();
+    await connection.close();
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

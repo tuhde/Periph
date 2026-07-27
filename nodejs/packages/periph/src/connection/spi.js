@@ -1,22 +1,26 @@
 'use strict';
 
 const spi = require('spi-device');
+const { Connection } = require('./connection');
 
 /**
- * SPI transport for Node.js (wraps spi-device).
+ * SPI connection for Node.js (wraps spi-device).
  *
  * Opens the spidev device synchronously at construction. CS is managed by
  * the kernel spidev driver. Call close() when done.
  */
-class SPITransport {
+class SPIConnection extends Connection {
     /**
      * @param {number} busNumber    - SPI bus number.
      * @param {number} deviceNumber - Chip-select line on the bus.
      * @param {object} [options]
      * @param {number} [options.mode=spi.MODE0]       - SPI mode (0–3).
      * @param {number} [options.maxSpeedHz=1_000_000] - Clock frequency in Hz.
+     * @param {import('./input_pin').InputPin|null} [options.intPin=null] - Optional INT-line InputPin.
+     * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
      */
     constructor(busNumber, deviceNumber, options = {}) {
+        super(options.intPin ?? null, options.enPin ?? null);
         this._device = spi.openSync(busNumber, deviceNumber, {
             mode: options.mode ?? spi.MODE0,
             maxSpeedHz: options.maxSpeedHz ?? 1_000_000,
@@ -27,7 +31,7 @@ class SPITransport {
      * Send bytes to the device.
      * @param {Buffer|Uint8Array} data - Bytes to send.
      */
-    write(data) {
+    async _write(data) {
         const sendBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data);
         this._device.transferSync([{ sendBuffer, byteLength: sendBuffer.length }]);
     }
@@ -37,7 +41,7 @@ class SPITransport {
      * @param {number} n - Number of bytes to read.
      * @returns {Buffer} Data received from the device.
      */
-    read(n) {
+    async _read(n) {
         const receiveBuffer = Buffer.alloc(n);
         this._device.transferSync([{ receiveBuffer, byteLength: n }]);
         return receiveBuffer;
@@ -53,7 +57,7 @@ class SPITransport {
      * @param {number}            n    - Number of response bytes expected.
      * @returns {Buffer} The n response bytes.
      */
-    writeRead(data, n) {
+    async _writeRead(data, n) {
         const prefix = Buffer.isBuffer(data) ? data : Buffer.from(data);
         const sendBuffer = Buffer.concat([prefix, Buffer.alloc(n)]);
         const receiveBuffer = Buffer.alloc(sendBuffer.length);
@@ -62,11 +66,11 @@ class SPITransport {
     }
 
     /**
-     * Close the SPI device. Must be called when the transport is no longer needed.
+     * Close the SPI device. Must be called when the connection is no longer needed.
      */
-    close() {
+    async close() {
         this._device.closeSync();
     }
 }
 
-module.exports = { SPITransport };
+module.exports = { SPIConnection };

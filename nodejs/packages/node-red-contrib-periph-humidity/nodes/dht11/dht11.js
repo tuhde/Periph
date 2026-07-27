@@ -1,22 +1,22 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { DHTxxTransport }   = require('periph/src/transport/dhtxx');
+    const { DHTxxConnection }  = require('periph/src/connection/dhtxx');
     const { DHT11Full }        = require('periph/src/chips/humidity/dht11');
 
     function DHT11DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
-            const transport = new DHTxxTransport(parseInt(config.dataPin, 10));
-            const retries   = parseInt(config.retries, 10) || 3;
-            node.driver     = new DHT11Full(transport, retries);
-            node.transport  = transport;
+            const connection = new DHTxxConnection(parseInt(config.dataPin, 10));
+            const retries    = parseInt(config.retries, 10) || 3;
+            node.driver      = new DHT11Full(connection, retries);
+            node.connection  = connection;
         } catch (e) {
             node.error('DHT11 init failed: ' + e.message);
         }
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('dht11-device', DHT11DeviceNode);

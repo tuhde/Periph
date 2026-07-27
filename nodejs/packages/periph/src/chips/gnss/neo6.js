@@ -57,19 +57,19 @@ function ubxChecksum(data) {
 /**
  * u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status.
  *
- * Reads bytes from the transport and assembles complete NMEA sentences
+ * Reads bytes from the connection and assembles complete NMEA sentences
  * terminated by CR/LF. Works out of the box with the module's factory
  * defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences
  * enabled) -- no chip-side configuration is sent.
  *
- * The driver is transport-agnostic; pass busType to match the transport
+ * The driver is connection-agnostic; pass busType to match the connection
  * given at construction:
  *
- * - 'uart' (default): a UART transport. read() rejects on timeout; a
+ * - 'uart' (default): a UART connection. read() rejects on timeout; a
  *   rejection is treated as "no new byte this call", not an error.
- * - 'i2c': an I2C (DDC) transport. Each byte is fetched with a
+ * - 'i2c': an I2C (DDC) connection. Each byte is fetched with a
  *   random-read to register 0xFF, per the DDC protocol.
- * - 'spi': an SPI transport. Each byte is fetched with a full-duplex
+ * - 'spi': an SPI connection. Each byte is fetched with a full-duplex
  *   transfer; writeRead() is called with an empty command so the
  *   module's real output byte is never discarded mid-transfer.
  *
@@ -81,11 +81,11 @@ function ubxChecksum(data) {
  */
 class NEO6Minimal {
     /**
-     * @param {object} transport - UART, I2C, or SPI transport.
+     * @param {import('../../connection/connection').Connection} connection - UART, I2C, or SPI connection.
      * @param {string} [busType='uart'] - 'uart', 'i2c', or 'spi'.
      */
-    constructor(transport, busType = 'uart') {
-        this._transport = transport;
+    constructor(connection, busType = 'uart') {
+        this._conn = connection;
         this._busType = busType;
         this._buf = [];
         this._inSentence = false;
@@ -104,7 +104,7 @@ class NEO6Minimal {
         let b;
         if (this._busType === 'uart') {
             try {
-                b = await this._transport.read(1);
+                b = await this._conn.read(1);
             } catch (_) {
                 return null;
             }
@@ -112,7 +112,7 @@ class NEO6Minimal {
             // DDC random-read: set the register pointer to 0xFF, then read
             // one stream byte. The pointer saturates at 0xFF once set, so
             // re-sending it on every byte is redundant but harmless.
-            b = await this._transport.writeRead(Buffer.from([0xFF]), 1);
+            b = await this._conn.writeRead(Buffer.from([0xFF]), 1);
         } else {
             // SPI has no register-address concept, so the write phase must
             // stay empty: writeRead(prefix, n) clocks prefix's response
@@ -120,7 +120,7 @@ class NEO6Minimal {
             // throw away a real byte of the module's output stream. An
             // empty prefix makes the whole call one true 1:1 full-duplex
             // transfer, so no incoming byte is ever discarded.
-            b = await this._transport.writeRead(Buffer.alloc(0), 1);
+            b = await this._conn.writeRead(Buffer.alloc(0), 1);
         }
         return (b && b.length) ? b[0] : null;
     }
@@ -230,11 +230,11 @@ class NEO6Minimal {
  */
 class NEO6Full extends NEO6Minimal {
     /**
-     * @param {object} transport - UART, I2C, or SPI transport.
+     * @param {import("./../../connection/connection").Connection} connection - UART, I2C, or SPI connection.
      * @param {string} [busType='uart'] - 'uart', 'i2c', or 'spi'.
      */
-    constructor(transport, busType = 'uart') {
-        super(transport, busType);
+    constructor(connection, busType = 'uart') {
+        super(connection, busType);
         this._speed = null;
         this._course = null;
         this._utcTime = null;
@@ -323,7 +323,7 @@ class NEO6Full extends NEO6Minimal {
         const body = Buffer.concat([Buffer.from([msgClass, msgId, length & 0xFF, (length >> 8) & 0xFF]), payload]);
         const [ckA, ckB] = ubxChecksum(body);
         const frame = Buffer.concat([Buffer.from([UBX_SYNC1, UBX_SYNC2]), body, Buffer.from([ckA, ckB])]);
-        await this._transport.write(frame);
+        await this._conn.write(frame);
     }
 
     /**

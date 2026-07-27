@@ -350,7 +350,7 @@ Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterr
 
 ### Node.js
 
-Implement a `_Pin` class matching the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` subset. This lets IO expander pins work with any code written against `onoff`:
+Implement a `_Pin` class with `read()`/`write()` methods. These are `async` (returning Promises), not the synchronous `readSync()`/`writeSync()` `onoff` `Gpio` uses — `Connection.read()`/`write()` are async everywhere (needed so UART shares one contract with I2C/SPI/SMBus), so a synchronous pin proxy can no longer correctly return a value. This means IO-expander pin proxies are not drop-in `onoff.Gpio` replacements; that trade-off was deliberate (see `specs/feature_connection_design.md`):
 
 ```js
 class _Pin {
@@ -360,11 +360,9 @@ class _Pin {
         this._direction = direction;  // 'in' | 'out'
     }
     get direction() { return this._direction; }
-    readSync()           { return (this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1; }
-    writeSync(v)         { this._chip._setPin(this._n, v); }
-    read(cb)             { try { cb(null, this.readSync()); } catch(e) { cb(e); } }
-    write(v, cb)         { try { this.writeSync(v); cb(null); } catch(e) { cb(e); } }
-    unexport()           {}
+    async read()          { return (await this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1; }
+    async write(v)        { await this._chip._setPin(this._n, v); }
+    unexport()            {}
 }
 ```
 

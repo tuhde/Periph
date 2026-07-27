@@ -1,6 +1,6 @@
 'use strict';
 
-const { NeoPixelTransport } = require('../../packages/periph/src/transport/neopixel');
+const { NeoPixelConnection } = require('../../packages/periph/src/connection/neopixel');
 const { WS2812BMinimal, WS2812BFull } = require('../../packages/periph/src/chips/led/ws2812b');
 
 const SPI_BUS    = parseInt(process.env.SPI_BUS    || '0', 10);
@@ -19,68 +19,72 @@ function checkEq(label, got, expected) {
     else { console.log(`FAIL ${label}: got ${got}, expected ${expected}`); failed++; }
 }
 
-const transport = new NeoPixelTransport(SPI_BUS, SPI_DEVICE);
+async function main() {
+    const connection = new NeoPixelConnection(SPI_BUS, SPI_DEVICE);
 
-// --- WS2812BMinimal ---
-const strip = new WS2812BMinimal(transport, 8);
+    // --- WS2812BMinimal ---
+    const strip = new WS2812BMinimal(connection, 8);
 
-strip.fill(255, 0, 0);
-checkTrue('fill(255,0,0) accepted', true);
+    await strip.fill(255, 0, 0);
+    checkTrue('fill(255,0,0) accepted', true);
 
-strip.fill(0, 255, 0);
-checkTrue('fill(0,255,0) accepted', true);
+    await strip.fill(0, 255, 0);
+    checkTrue('fill(0,255,0) accepted', true);
 
-strip.fill(0, 0, 255);
-checkTrue('fill(0,0,255) accepted', true);
+    await strip.fill(0, 0, 255);
+    checkTrue('fill(0,0,255) accepted', true);
 
-strip.off();
-checkTrue('off() accepted', true);
+    await strip.off();
+    checkTrue('off() accepted', true);
 
-// --- WS2812BFull ---
-const full = new WS2812BFull(transport, 8);
+    // --- WS2812BFull ---
+    const full = new WS2812BFull(connection, 8);
 
-checkEq('default brightness is 255', full.brightness, 255);
+    checkEq('default brightness is 255', full.brightness, 255);
 
-full.set_pixel(0, 255, 0, 0);
-full.show();
-checkTrue('set_pixel + show accepted', true);
+    full.set_pixel(0, 255, 0, 0);
+    await full.show();
+    checkTrue('set_pixel + show accepted', true);
 
-full.set_pixel(7, 0, 0, 255);
-full.show();
-checkTrue('set_pixel at last index + show accepted', true);
+    full.set_pixel(7, 0, 0, 255);
+    await full.show();
+    checkTrue('set_pixel at last index + show accepted', true);
 
-full.set_pixels([[255,0,0],[0,255,0],[0,0,255]]);
-full.show();
-checkTrue('set_pixels + show accepted', true);
+    full.set_pixels([[255,0,0],[0,255,0],[0,0,255]]);
+    await full.show();
+    checkTrue('set_pixels + show accepted', true);
 
-full.brightness = 128;
-checkEq('brightness setter', full.brightness, 128);
-full.show();
-checkTrue('show() with brightness=128 accepted', true);
+    full.brightness = 128;
+    checkEq('brightness setter', full.brightness, 128);
+    await full.show();
+    checkTrue('show() with brightness=128 accepted', true);
 
-full.brightness = 0;
-full.show();
-checkTrue('show() with brightness=0 accepted', true);
+    full.brightness = 0;
+    await full.show();
+    checkTrue('show() with brightness=0 accepted', true);
 
-full.brightness = 255;
+    full.brightness = 255;
 
-full.rotate(1);
-full.show();
-checkTrue('rotate + show accepted', true);
+    full.rotate(1);
+    await full.show();
+    checkTrue('rotate + show accepted', true);
 
-full.fill_hsv(0.0, 1.0, 1.0);
-checkTrue('fill_hsv(0.0) accepted', true);
+    await full.fill_hsv(0.0, 1.0, 1.0);
+    checkTrue('fill_hsv(0.0) accepted', true);
 
-full.fill_hsv(0.333, 1.0, 1.0);
-checkTrue('fill_hsv(0.333) accepted', true);
+    await full.fill_hsv(0.333, 1.0, 1.0);
+    checkTrue('fill_hsv(0.333) accepted', true);
 
-full.fill_hsv(0.667, 1.0, 1.0);
-checkTrue('fill_hsv(0.667) accepted', true);
+    await full.fill_hsv(0.667, 1.0, 1.0);
+    checkTrue('fill_hsv(0.667) accepted', true);
 
-full.off();
-checkTrue('off() on Full accepted', true);
+    await full.off();
+    checkTrue('off() on Full accepted', true);
 
-transport.close();
+    await connection.close();
 
-console.log(`===DONE: ${passed} passed, ${failed} failed===`);
-process.exit(failed === 0 ? 0 : 1);
+    console.log(`===DONE: ${passed} passed, ${failed} failed===`);
+    process.exit(failed === 0 ? 0 : 1);
+}
+
+main();

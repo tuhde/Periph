@@ -68,7 +68,7 @@ function chanToFreq(band, space, eastEurope50m, chan) {
  * RDA5807M single-chip FM stereo radio tuner — minimal interface.
  *
  * Tunes to a station, adjusts volume, mutes, and seeks the next station.
- * No configuration required beyond the transport.
+ * No configuration required beyond the connection.
  *
  * Unlike most chips in this project, the RDA5807M has no register-pointer
  * byte: writes always start at the fixed register 0x02 and reads always
@@ -76,6 +76,17 @@ function chanToFreq(band, space, eastEurope50m, chan) {
  * of registers 0x02-0x07 (6 big-endian 16-bit words) and rewrites all of
  * them on every change, since the chip cannot be told to start a write
  * anywhere else.
+ *
+ * Constructor caveat: JS constructors cannot be async, but the initial tune
+ * needs to poll STC (Seek/Tune Complete) before the TUNE bit can be safely
+ * cleared. The constructor fires this off unawaited (same fire-and-forget
+ * convention used for every other constructor-time register write in this
+ * port) — in practice the promise settles before the constructor's next
+ * synchronous statement runs, since I2C/SMBus connections are synchronous
+ * under the hood, but this is not guaranteed the way a real blocking wait
+ * was in the pre-async version. Call `await radio.frequency()` (or any other
+ * async method) once before relying on tuned state if this matters for your
+ * use case.
  */
 class RDA5807MMinimal {
     static BAND_US_EUROPE = 0;
@@ -89,12 +100,12 @@ class RDA5807MMinimal {
     static SPACE_25K = 3;
 
     /**
-     * @param {object} transport - I²C transport bound to address 0x10.
+     * @param {import('../../connection/connection').Connection} connection - I²C connection bound to address 0x10.
      * @param {number} [frequencyMhz=100.0] - Initial frequency in MHz.
      * @param {number} [volume=8] - Initial volume, 0 (mute) to 15 (max).
      */
-    constructor(transport, frequencyMhz = 100.0, volume = 8) {
-        this._transport = transport;
+    constructor(connection, frequencyMhz = 100.0, volume = 8) {
+        this._conn = connection;
         this._band = RDA5807MMinimal.BAND_WORLD;
         this._space = RDA5807MMinimal.SPACE_100K;
         this._eastEurope50m = false;
@@ -110,27 +121,26 @@ class RDA5807MMinimal {
         this._regs = [ctrl, chanReg, r4, r5, r6, r7];
         this._currentFreq = frequencyMhz;
         this._writeRegs();
-        this._waitStc();
-        this._regs[1] &= ~TUNE;
+        this._waitStc().then(() => { this._regs[1] &= ~TUNE; });
     }
 
-    _writeRegs() {
+    async _writeRegs() {
         const buf = Buffer.alloc(12);
         for (let i = 0; i < 6; i++) buf.writeUInt16BE(this._regs[i] & 0xFFFF, i * 2);
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
-    _readStatus(n) {
-        const buf = this._transport.read(n);
+    async _readStatus(n) {
+        const buf = await this._conn.read(n);
         const words = [];
         for (let i = 0; i < n / 2; i++) words.push(buf.readUInt16BE(i * 2));
         return words;
     }
 
-    _waitStc() {
+    async _waitStc() {
         let elapsed = 0;
         while (elapsed < STC_TIMEOUT_MS) {
-            const [statusA] = this._readStatus(2);
+            const [statusA] = await this._readStatus(2);
             if (statusA & STC) return statusA;
             sleep(STC_POLL_MS);
             elapsed += STC_POLL_MS;
@@ -141,19 +151,20 @@ class RDA5807MMinimal {
     /**
      * Tune to a frequency, blocking until the tune completes.
      * @param {number} frequencyMhz - Target frequency in MHz.
+     * @returns {Promise<void>}
      */
-    setFrequency(frequencyMhz) {
+    async setFrequency(frequencyMhz) {
         const chan = freqToChan(this._band, this._space, this._eastEurope50m, frequencyMhz);
         this._regs[1] = (chan << 6) | TUNE | (this._band << 2) | this._space;
         this._currentFreq = frequencyMhz;
-        this._writeRegs();
-        this._waitStc();
+        await this._writeRegs();
+        await this._waitStc();
         this._regs[1] &= ~TUNE;
     }
 
-    /** @returns {number} Currently tuned frequency in MHz, derived from READCHAN. */
-    frequency() {
-        const [statusA] = this._readStatus(2);
+    /** @returns {Promise<number>} Currently tuned frequency in MHz, derived from READCHAN. */
+    async frequency() {
+        const [statusA] = await this._readStatus(2);
         const readchan = statusA & 0x03FF;
         return chanToFreq(this._band, this._space, this._eastEurope50m, readchan);
     }
@@ -161,35 +172,37 @@ class RDA5807MMinimal {
     /**
      * Set the output volume.
      * @param {number} level - Volume 0 (mute) to 15 (max), logarithmic scale.
+     * @returns {Promise<void>}
      */
-    setVolume(level) {
+    async setVolume(level) {
         this._regs[3] = (this._regs[3] & ~0x000F) | (level & 0x0F);
-        this._writeRegs();
+        await this._writeRegs();
     }
 
     /**
      * Mute or unmute the audio output.
      * @param {boolean} enable - True to mute, false for normal operation.
+     * @returns {Promise<void>}
      */
-    mute(enable) {
+    async mute(enable) {
         if (enable) this._regs[0] &= ~DMUTE;
         else this._regs[0] |= DMUTE;
-        this._writeRegs();
+        await this._writeRegs();
     }
 
     /**
      * Seek to the next station, blocking until the seek completes.
      * @param {boolean} [up=true] - True to seek upward, false to seek downward.
-     * @returns {number|null} New frequency in MHz, or null if the seek failed.
+     * @returns {Promise<number|null>} New frequency in MHz, or null if the seek failed.
      */
-    seek(up = true) {
+    async seek(up = true) {
         if (up) this._regs[0] |= SEEKUP;
         else this._regs[0] &= ~SEEKUP;
         this._regs[0] |= SEEK;
-        this._writeRegs();
-        const statusA = this._waitStc();
+        await this._writeRegs();
+        const statusA = await this._waitStc();
         this._regs[0] &= ~SEEK;
-        this._writeRegs();
+        await this._writeRegs();
 
         if (statusA & SF) return null;
         const readchan = statusA & 0x03FF;
@@ -216,11 +229,12 @@ class RDA5807MFull extends RDA5807MMinimal {
      * @param {number} [options.clkMode] - Reference clock select, 0-7.
      * @param {boolean} [options.afcDisable] - True to disable AFC.
      * @param {boolean} [options.eastEurope50m] - Sub-band select when band is BAND_EAST_EUROPE.
+     * @returns {Promise<void>}
      */
-    configure(options = {}) {
+    async configure(options = {}) {
         const { band, space, deEmphasis, seekThreshold, seekMode, clkMode, afcDisable, eastEurope50m } = options;
         let retune = false;
-        const currentFreq = this.frequency();
+        const currentFreq = await this.frequency();
 
         if (band !== undefined && band !== this._band) {
             this._band = band;
@@ -260,76 +274,80 @@ class RDA5807MFull extends RDA5807MMinimal {
             else this._regs[5] |= BAND_65M_50M;
         }
 
-        if (retune) this.setFrequency(currentFreq);
-        else this._writeRegs();
+        if (retune) await this.setFrequency(currentFreq);
+        else await this._writeRegs();
     }
 
-    /** @param {boolean} enable - True to enable bass boost. */
-    setBassBoost(enable) {
+    /** @param {boolean} enable - True to enable bass boost.
+     * @returns {Promise<void>} */
+    async setBassBoost(enable) {
         if (enable) this._regs[0] |= BASS;
         else this._regs[0] &= ~BASS;
-        this._writeRegs();
+        await this._writeRegs();
     }
 
-    /** @param {boolean} enable - True to force mono, false to allow stereo. */
-    setMono(enable) {
+    /** @param {boolean} enable - True to force mono, false to allow stereo.
+     * @returns {Promise<void>} */
+    async setMono(enable) {
         if (enable) this._regs[0] |= MONO;
         else this._regs[0] &= ~MONO;
-        this._writeRegs();
+        await this._writeRegs();
     }
 
-    /** @param {boolean} enable - True to enable soft mute (chip default). */
-    setSoftmute(enable) {
+    /** @param {boolean} enable - True to enable soft mute (chip default).
+     * @returns {Promise<void>} */
+    async setSoftmute(enable) {
         if (enable) this._regs[2] |= SOFTMUTE_EN;
         else this._regs[2] &= ~SOFTMUTE_EN;
-        this._writeRegs();
+        await this._writeRegs();
     }
 
-    /** @param {boolean} enable - True to enable RDS/RBDS. */
-    enableRds(enable) {
+    /** @param {boolean} enable - True to enable RDS/RBDS.
+     * @returns {Promise<void>} */
+    async enableRds(enable) {
         if (enable) this._regs[0] |= RDS_EN;
         else this._regs[0] &= ~RDS_EN;
-        this._writeRegs();
+        await this._writeRegs();
     }
 
-    /** @returns {boolean} True if a new RDS/RBDS group is available. */
-    rdsReady() {
-        const [statusA] = this._readStatus(2);
+    /** @returns {Promise<boolean>} True if a new RDS/RBDS group is available. */
+    async rdsReady() {
+        const [statusA] = await this._readStatus(2);
         return !!(statusA & RDSR);
     }
 
     /**
      * Read the four raw RDS/RBDS blocks, if a new group is ready. Does not
      * decode group content — the caller interprets the raw blocks.
-     * @returns {number[]|null} [blockA, blockB, blockC, blockD], or null.
+     * @returns {Promise<number[]|null>} [blockA, blockB, blockC, blockD], or null.
      */
-    readRdsGroup() {
-        const [statusA, , blockA, blockB, blockC, blockD] = this._readStatus(12);
+    async readRdsGroup() {
+        const [statusA, , blockA, blockB, blockC, blockD] = await this._readStatus(12);
         if (!(statusA & RDSR)) return null;
         return [blockA, blockB, blockC, blockD];
     }
 
-    /** @returns {boolean} True if the current station is being received in stereo. */
-    isStereo() {
-        const [statusA] = this._readStatus(2);
+    /** @returns {Promise<boolean>} True if the current station is being received in stereo. */
+    async isStereo() {
+        const [statusA] = await this._readStatus(2);
         return !!(statusA & ST);
     }
 
-    /** @returns {boolean} True if the current channel is a real station. */
-    isStation() {
-        const [, statusB] = this._readStatus(4);
+    /** @returns {Promise<boolean>} True if the current channel is a real station. */
+    async isStation() {
+        const [, statusB] = await this._readStatus(4);
         return !!(statusB & FM_TRUE);
     }
 
-    /** @returns {boolean} True if the tuner is ready. */
-    isReady() {
-        const [, statusB] = this._readStatus(4);
+    /** @returns {Promise<boolean>} True if the tuner is ready. */
+    async isReady() {
+        const [, statusB] = await this._readStatus(4);
         return !!(statusB & FM_READY);
     }
 
-    /** @returns {number} Raw RSSI, 0 (weakest) to 127 (strongest), logarithmic. */
-    signalStrength() {
-        const [, statusB] = this._readStatus(4);
+    /** @returns {Promise<number>} Raw RSSI, 0 (weakest) to 127 (strongest), logarithmic. */
+    async signalStrength() {
+        const [, statusB] = await this._readStatus(4);
         return (statusB >> 9) & 0x7F;
     }
 
@@ -340,14 +358,15 @@ class RDA5807MFull extends RDA5807MMinimal {
      * power-up sequencing, which the chip otherwise never recovers from on
      * its own).
      * @param {boolean} enable - True to power down, false to power up.
+     * @returns {Promise<void>}
      */
-    standby(enable) {
+    async standby(enable) {
         if (enable) this._regs[0] &= ~ENABLE;
         else this._regs[0] |= ENABLE;
-        this._writeRegs();
+        await this._writeRegs();
         if (!enable) {
             sleep(RESET_RECOVERY_MS);
-            this.setFrequency(this._currentFreq);
+            await this.setFrequency(this._currentFreq);
             sleep(READY_SETTLE_MS);
         }
     }
@@ -358,14 +377,15 @@ class RDA5807MFull extends RDA5807MMinimal {
      * clears the tuner's PLL lock, so this blocks briefly for the chip to
      * recover, then re-tunes to the last known frequency (the chip never
      * reacquires lock on its own otherwise).
+     * @returns {Promise<void>}
      */
-    softReset() {
+    async softReset() {
         this._regs[0] |= SOFT_RESET;
-        this._writeRegs();
+        await this._writeRegs();
         this._regs[0] &= ~SOFT_RESET;
-        this._writeRegs();
+        await this._writeRegs();
         sleep(RESET_RECOVERY_MS);
-        this.setFrequency(this._currentFreq);
+        await this.setFrequency(this._currentFreq);
         sleep(READY_SETTLE_MS);
     }
 }

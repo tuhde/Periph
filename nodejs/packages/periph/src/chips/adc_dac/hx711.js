@@ -6,16 +6,16 @@ const GAIN_TO_PULSES = { 128: 25, 32: 26, 64: 27 };
  * HX711 24-bit ADC — minimal interface.
  *
  * Reads signed 24-bit ADC values using Channel A, Gain 128. No configuration
- * beyond the transport is required. The first post-power-up conversion is
+ * beyond the connection is required. The first post-power-up conversion is
  * discarded during construction.
  */
 class HX711Minimal {
     /**
-     * @param {object} transport - Configured HX711 transport (HX711Transport).
+     * @param {import('../../connection/hx711').HX711Connection} connection - Configured HX711 connection.
      */
-    constructor(transport) {
-        this._transport = transport;
-        this._transport.readRaw(25);
+    constructor(connection) {
+        this._conn = connection;
+        this._conn.readRaw(25);
     }
 
     /**
@@ -26,7 +26,7 @@ class HX711Minimal {
      * @returns {boolean} True when DOUT is LOW (data ready).
      */
     isReady() {
-        return this._transport.isReady();
+        return this._conn.isReady();
     }
 
     /**
@@ -37,7 +37,7 @@ class HX711Minimal {
      * @returns {number} Signed 24-bit ADC value (-8 388 608 to +8 388 607).
      */
     readRaw() {
-        return this._transport.readRaw(25);
+        return this._conn.readRaw(25);
     }
 }
 
@@ -49,10 +49,10 @@ class HX711Minimal {
  */
 class HX711Full extends HX711Minimal {
     /**
-     * @param {object} transport - Configured HX711 transport (HX711Transport).
+     * @param {import('../../connection/hx711').HX711Connection} connection - Configured HX711 connection.
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
         this._pulses = 25;
         this._offset = 0;
         this._scale  = 1.0;
@@ -66,7 +66,7 @@ class HX711Full extends HX711Minimal {
      * @returns {number} Signed 24-bit ADC value.
      */
     readRaw() {
-        return this._transport.readRaw(this._pulses);
+        return this._conn.readRaw(this._pulses);
     }
 
     /**
@@ -81,7 +81,7 @@ class HX711Full extends HX711Minimal {
         if (!(gain in GAIN_TO_PULSES))
             throw new Error('gain must be 128, 64, or 32');
         this._pulses = GAIN_TO_PULSES[gain];
-        this._transport.readRaw(this._pulses);
+        this._conn.readRaw(this._pulses);
     }
 
     /**
@@ -147,7 +147,7 @@ class HX711Full extends HX711Minimal {
      * Enter power-down mode (PD_SCK held HIGH for >60 µs).
      */
     powerDown() {
-        this._transport.powerDown();
+        this._conn.powerDown();
     }
 
     /**
@@ -156,9 +156,9 @@ class HX711Full extends HX711Minimal {
      * Resets to Channel A, Gain 128 and discards the first post-reset conversion.
      */
     powerUp() {
-        this._transport.powerUp();
+        this._conn.powerUp();
         this._pulses = 25;
-        this._transport.readRaw(25);
+        this._conn.readRaw(25);
     }
 }
 

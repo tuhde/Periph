@@ -32,52 +32,66 @@ function _delay(ms) {
  * ENS160 digital multi-gas sensor — minimal interface.
  *
  * Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
- * configuration required beyond the transport. The sensor performs automatic
+ * configuration required beyond the connection. The sensor performs automatic
  * baseline correction and on-chip signal processing.
  *
  * Default: STANDARD mode (gas sensing active), polling only, no external
  * T/RH compensation.
  *
- * @param {object} transport - Configured I²C or SPI transport.
+ * Constructor caveat: JS constructors cannot be async, but the original
+ * synchronous constructor validated PART_ID and threw synchronously on
+ * mismatch — that guarantee cannot be preserved exactly. The validation is
+ * fired off unawaited (matching the fire-and-forget convention used
+ * throughout this port); a PART_ID mismatch now surfaces as an *unhandled
+ * promise rejection* shortly after construction rather than a synchronous
+ * throw from `new ENS160Minimal(...)`. Callers that need to detect "wrong or
+ * absent device" deterministically should call an async method (e.g.
+ * `await sensor.status()`) right after construction and handle its rejection.
+ *
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
  */
 class ENS160Minimal {
-    constructor(transport) {
-        this._transport = transport;
-        this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+    constructor(connection) {
+        this._conn = connection;
+        this._init();
+    }
+
+    async _init() {
+        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
-        const partId = this._readRegLE16(_REG_PART_ID);
+        const partId = await this._readRegLE16(_REG_PART_ID);
         if (partId !== _PART_ID_EXPECTED) {
             throw new Error('ENS160 not found: expected PART_ID 0x0160, got 0x' + partId.toString(16).padStart(4, '0'));
         }
-        this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
+        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
     }
 
-    _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value]));
+    async _writeReg(reg, value) {
+        await this._conn.write(Buffer.from([reg, value]));
     }
 
-    _writeRegLE16(reg, value) {
-        this._transport.write(Buffer.from([reg, value & 0xFF, (value >> 8) & 0xFF]));
+    async _writeRegLE16(reg, value) {
+        await this._conn.write(Buffer.from([reg, value & 0xFF, (value >> 8) & 0xFF]));
     }
 
-    _readReg(reg, n) {
-        return this._transport.writeRead(Buffer.from([reg]), n);
+    async _readReg(reg, n) {
+        return this._conn.writeRead(Buffer.from([reg]), n);
     }
 
-    _readRegLE16(reg) {
-        const data = this._readReg(reg, 2);
+    async _readRegLE16(reg) {
+        const data = await this._readReg(reg, 2);
         return data[0] | (data[1] << 8);
     }
 
-    _readDeviceStatus() {
-        const data = this._readReg(_REG_DEVICE_STATUS, 1);
+    async _readDeviceStatus() {
+        const data = await this._readReg(_REG_DEVICE_STATUS, 1);
         return data[0];
     }
 
-    _waitForNewData(timeoutMs = 5000) {
+    async _waitForNewData(timeoutMs = 5000) {
         const start = Date.now();
         while (true) {
-            const status = this._readDeviceStatus();
+            const status = await this._readDeviceStatus();
             if (status & 0x02) {
                 return status;
             }
@@ -90,10 +104,10 @@ class ENS160Minimal {
 
     /**
      * Read the VALIDITY_FLAG from DEVICE_STATUS.
-     * @returns {number} Validity flag (0=OK, 1=Warm-up, 2=Initial Start-up, 3=No valid output).
+     * @returns {Promise<number>} Validity flag (0=OK, 1=Warm-up, 2=Initial Start-up, 3=No valid output).
      */
-    status() {
-        const status = this._readDeviceStatus();
+    async status() {
+        const status = await this._readDeviceStatus();
         return (status >> 2) & 0x03;
     }
 
@@ -104,16 +118,16 @@ class ENS160Minimal {
      * data when validity is 0 (OK). Reads AQI, TVOC, and eCO2 in a single
      * burst to ensure consistency.
      *
-     * @returns {object} Keys: aqi (number, 1–5), tvocPpb (number), eco2Ppm (number).
+     * @returns {Promise<object>} Keys: aqi (number, 1–5), tvocPpb (number), eco2Ppm (number).
      * @throws {Error} If VALIDITY_FLAG is not 0 after NEWDAT is set.
      */
-    readAirQuality() {
-        const status = this._waitForNewData();
+    async readAirQuality() {
+        const status = await this._waitForNewData();
         const validity = (status >> 2) & 0x03;
         if (validity !== 0) {
             throw new Error('ENS160: data not valid (VALIDITY_FLAG=' + validity + ')');
         }
-        const data = this._readReg(_REG_DATA_AQI, 5);
+        const data = await this._readReg(_REG_DATA_AQI, 5);
         const aqi = data[0] & 0x07;
         const tvocPpb = data[1] | (data[2] << 8);
         const eco2Ppm = data[3] | (data[4] << 8);
@@ -128,7 +142,7 @@ class ENS160Minimal {
  * raw sensor resistance, firmware version query, interrupt configuration,
  * and sleep/wake control.
  *
- * @param {object} transport - Configured I²C or SPI transport.
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
  */
 class ENS160Full extends ENS160Minimal {
     static VALIDITY_OK              = 0;
@@ -136,66 +150,67 @@ class ENS160Full extends ENS160Minimal {
     static VALIDITY_INITIAL_STARTUP = 2;
     static VALIDITY_INVALID         = 3;
 
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
      * Write external temperature and humidity for compensation.
      * @param {number} tempCelsius - Ambient temperature in degrees Celsius.
      * @param {number} rhPercent - Ambient relative humidity in percent (0–100).
+     * @returns {Promise<void>}
      */
-    setCompensation(tempCelsius, rhPercent) {
+    async setCompensation(tempCelsius, rhPercent) {
         const tempRaw = Math.round((tempCelsius + 273.15) * 64);
         const rhRaw = Math.round(rhPercent * 512);
-        this._writeRegLE16(_REG_TEMP_IN, tempRaw);
-        this._writeRegLE16(_REG_RH_IN, rhRaw);
+        await this._writeRegLE16(_REG_TEMP_IN, tempRaw);
+        await this._writeRegLE16(_REG_RH_IN, rhRaw);
     }
 
     /**
      * Read TVOC concentration.
-     * @returns {number} TVOC in ppb.
+     * @returns {Promise<number>} TVOC in ppb.
      */
-    readTvoc() {
-        this._waitForNewData();
+    async readTvoc() {
+        await this._waitForNewData();
         return this._readRegLE16(_REG_DATA_TVOC);
     }
 
     /**
      * Read equivalent CO2 concentration.
-     * @returns {number} eCO2 in ppm.
+     * @returns {Promise<number>} eCO2 in ppm.
      */
-    readEco2() {
-        this._waitForNewData();
+    async readEco2() {
+        await this._waitForNewData();
         return this._readRegLE16(_REG_DATA_ECO2);
     }
 
     /**
      * Read Air Quality Index (UBA scale).
-     * @returns {number} AQI value 1–5 (1=Excellent, 5=Unhealthy).
+     * @returns {Promise<number>} AQI value 1–5 (1=Excellent, 5=Unhealthy).
      */
-    readAqi() {
-        this._waitForNewData();
-        const data = this._readReg(_REG_DATA_AQI, 1);
+    async readAqi() {
+        await this._waitForNewData();
+        const data = await this._readReg(_REG_DATA_AQI, 1);
         return data[0] & 0x07;
     }
 
     /**
      * Read ethanol concentration estimate.
-     * @returns {number} Ethanol estimate in ppb (alias of DATA_TVOC at 0x22).
+     * @returns {Promise<number>} Ethanol estimate in ppb (alias of DATA_TVOC at 0x22).
      */
-    readEthanol() {
-        this._waitForNewData();
+    async readEthanol() {
+        await this._waitForNewData();
         return this._readRegLE16(_REG_DATA_TVOC);
     }
 
     /**
      * Read raw sensor resistance from GPR_READ registers.
      * @param {number} sensor - Sensor number (1 or 4).
-     * @returns {number} Resistance in Ohms.
+     * @returns {Promise<number>} Resistance in Ohms.
      * @throws {Error} If sensor is not 1 or 4.
      */
-    readRawResistance(sensor) {
+    async readRawResistance(sensor) {
         let offset;
         if (sensor === 1) {
             offset = 0;
@@ -204,16 +219,16 @@ class ENS160Full extends ENS160Minimal {
         } else {
             throw new Error('sensor must be 1 or 4, got ' + sensor);
         }
-        const raw = this._readRegLE16(_REG_GPR_READ + offset);
+        const raw = await this._readRegLE16(_REG_GPR_READ + offset);
         return Math.pow(2.0, raw / 2048.0);
     }
 
     /**
      * Read the temperature and humidity values used by the sensor.
-     * @returns {object} Keys: tempCelsius (number), rhPercent (number).
+     * @returns {Promise<object>} Keys: tempCelsius (number), rhPercent (number).
      */
-    readCompensationActuals() {
-        const data = this._readReg(_REG_DATA_T, 4);
+    async readCompensationActuals() {
+        const data = await this._readReg(_REG_DATA_T, 4);
         const tempRaw = data[0] | (data[1] << 8);
         const rhRaw = data[2] | (data[3] << 8);
         const tempCelsius = (tempRaw / 64.0) - 273.15;
@@ -227,18 +242,18 @@ class ENS160Full extends ENS160Minimal {
      * Switches to IDLE, issues GET_APPVER command, reads GPR_READ, then
      * returns to STANDARD mode.
      *
-     * @returns {object} Keys: major (number), minor (number), release (number).
+     * @returns {Promise<object>} Keys: major (number), minor (number), release (number).
      */
-    getFirmwareVersion() {
-        this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+    async getFirmwareVersion() {
+        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
-        this._writeReg(_REG_COMMAND, 0x0E);
+        await this._writeReg(_REG_COMMAND, 0x0E);
         _delay(1);
-        const data = this._readReg(_REG_GPR_READ + 4, 3);
+        const data = await this._readReg(_REG_GPR_READ + 4, 3);
         const major = data[0];
         const minor = data[1];
         const release = data[2];
-        this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
+        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
         return { major, minor, release };
     }
 
@@ -249,31 +264,34 @@ class ENS160Full extends ENS160Minimal {
      * @param {boolean} pushPull - True for push-pull drive, false for open-drain.
      * @param {boolean} onData - Assert on new DATA_xxx data.
      * @param {boolean} onGpr - Assert on new GPR_READ data.
+     * @returns {Promise<void>}
      */
-    configureInterrupt(enabled, activeHigh, pushPull, onData, onGpr) {
+    async configureInterrupt(enabled, activeHigh, pushPull, onData, onGpr) {
         let config = 0;
         if (enabled) config |= 0x01;
         if (onData) config |= 0x02;
         if (onGpr) config |= 0x08;
         if (pushPull) config |= 0x20;
         if (activeHigh) config |= 0x40;
-        this._writeReg(_REG_CONFIG, config);
+        await this._writeReg(_REG_CONFIG, config);
     }
 
     /**
      * Enter DEEP SLEEP mode for power saving.
+     * @returns {Promise<void>}
      */
-    sleep() {
-        this._writeReg(_REG_OPMODE, _OPMODE_DEEP_SLEEP);
+    async sleep() {
+        await this._writeReg(_REG_OPMODE, _OPMODE_DEEP_SLEEP);
     }
 
     /**
      * Wake from DEEP SLEEP and resume STANDARD gas sensing.
+     * @returns {Promise<void>}
      */
-    wake() {
-        this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+    async wake() {
+        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
-        this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
+        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
     }
 }
 

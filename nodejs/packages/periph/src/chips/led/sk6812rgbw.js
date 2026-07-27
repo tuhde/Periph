@@ -5,21 +5,21 @@ const RESET = Buffer.alloc(24);
 /**
  * SK6812RGBW addressable RGBW LED strip — minimal interface.
  *
- * Drives a chain of n SK6812RGBW pixels over a NeoPixel transport.
+ * Drives a chain of n SK6812RGBW pixels over a NeoPixel connection.
  * Maintains an internal GRBW buffer; fill() writes every pixel and
  * transmits immediately. Each pixel has four channels: red, green,
  * blue, and white (dedicated white LED element).
  *
- * @param {object} transport - Configured NeoPixel transport.
+ * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
 class SK6812RGBWMinimal {
     /**
-     * @param {object} transport - Configured NeoPixel transport.
+     * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
-    constructor(transport, n) {
-        this._transport = transport;
+    constructor(connection, n) {
+        this._conn = connection;
         this._n = n;
         this._buf = Buffer.alloc(n * 4);
     }
@@ -28,14 +28,15 @@ class SK6812RGBWMinimal {
      * Fill every pixel with one colour and send to the strip immediately.
      *
      * Clamps each channel to [0, 255]. Stores G, R, B, W (GRBW wire order),
-     * then appends 24 reset bytes and calls transport.write().
+     * then appends 24 reset bytes and calls connection.write().
      *
      * @param {number} r       - Red channel (0–255).
      * @param {number} g       - Green channel (0–255).
      * @param {number} b       - Blue channel (0–255).
      * @param {number} [w=0]   - White channel (0–255).
+     * @returns {Promise<void>}
      */
-    fill(r, g = 0, b = 0, w = 0) {
+    async fill(r, g = 0, b = 0, w = 0) {
         r = Math.max(0, Math.min(255, r | 0));
         g = Math.max(0, Math.min(255, g | 0));
         b = Math.max(0, Math.min(255, b | 0));
@@ -46,16 +47,17 @@ class SK6812RGBWMinimal {
             this._buf[i * 4 + 2] = b;
             this._buf[i * 4 + 3] = w;
         }
-        this._transport.write(Buffer.concat([this._buf, RESET]));
+        await this._conn.write(Buffer.concat([this._buf, RESET]));
     }
 
     /**
      * Turn off all pixels (fill with all zeros and send).
      *
      * Equivalent to fill(0, 0, 0, 0).
+     * @returns {Promise<void>}
      */
-    off() {
-        this.fill(0, 0, 0, 0);
+    async off() {
+        await this.fill(0, 0, 0, 0);
     }
 }
 
@@ -67,16 +69,16 @@ class SK6812RGBWMinimal {
  * to update the buffer, then show() to transmit; or use the inherited
  * fill() for an immediate all-same-colour update.
  *
- * @param {object} transport - Configured NeoPixel transport.
+ * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
 class SK6812RGBWFull extends SK6812RGBWMinimal {
     /**
-     * @param {object} transport - Configured NeoPixel transport.
+     * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
-    constructor(transport, n) {
-        super(transport, n);
+    constructor(connection, n) {
+        super(connection, n);
         this._brightness = 255;
     }
 
@@ -132,8 +134,9 @@ class SK6812RGBWFull extends SK6812RGBWMinimal {
      *
      * Each channel is scaled: sent = stored * brightness / 255.
      * Appends 24 reset bytes before transmission.
+     * @returns {Promise<void>}
      */
-    show() {
+    async show() {
         const bri = this._brightness;
         let pixels;
         if (bri === 255) {
@@ -144,7 +147,7 @@ class SK6812RGBWFull extends SK6812RGBWMinimal {
                 pixels[i] = (this._buf[i] * bri / 255) | 0;
             }
         }
-        this._transport.write(Buffer.concat([pixels, RESET]));
+        await this._conn.write(Buffer.concat([pixels, RESET]));
     }
 
     /**
@@ -171,10 +174,11 @@ class SK6812RGBWFull extends SK6812RGBWMinimal {
      * @param {number} h - Hue (0.0–1.0).
      * @param {number} s - Saturation (0.0–1.0).
      * @param {number} v - Value/brightness (0.0–1.0).
+     * @returns {Promise<void>}
      */
-    fill_hsv(h, s, v) {
+    async fill_hsv(h, s, v) {
         const [r, g, b] = _hsvToRgb(h, s, v);
-        this.fill(r, g, b, 0);
+        await this.fill(r, g, b, 0);
     }
 }
 

@@ -3,20 +3,20 @@
 /**
  * WS2812B addressable RGB LED strip — minimal interface.
  *
- * Drives a chain of n WS2812B pixels over a NeoPixel transport.
+ * Drives a chain of n WS2812B pixels over a NeoPixel connection.
  * Maintains an internal GRB buffer; fill() writes every pixel and
  * transmits immediately.
  *
- * @param {object} transport - Configured NeoPixel transport.
+ * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
 class WS2812BMinimal {
     /**
-     * @param {object} transport - Configured NeoPixel transport.
+     * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
-    constructor(transport, n) {
-        this._transport = transport;
+    constructor(connection, n) {
+        this._conn = connection;
         this._n = n;
         this._buf = Buffer.alloc(n * 3);
     }
@@ -25,13 +25,14 @@ class WS2812BMinimal {
      * Fill every pixel with one colour and send to the strip immediately.
      *
      * Clamps each channel to [0, 255]. Stores G, R, B (GRB wire order),
-     * then calls transport.write().
+     * then calls connection.write().
      *
      * @param {number} r - Red channel (0–255).
      * @param {number} g - Green channel (0–255).
      * @param {number} b - Blue channel (0–255).
+     * @returns {Promise<void>}
      */
-    fill(r, g, b) {
+    async fill(r, g, b) {
         r = Math.max(0, Math.min(255, r | 0));
         g = Math.max(0, Math.min(255, g | 0));
         b = Math.max(0, Math.min(255, b | 0));
@@ -40,16 +41,17 @@ class WS2812BMinimal {
             this._buf[i * 3 + 1] = r;
             this._buf[i * 3 + 2] = b;
         }
-        this._transport.write(this._buf);
+        await this._conn.write(this._buf);
     }
 
     /**
      * Turn off all pixels (fill with black and send).
      *
      * Equivalent to fill(0, 0, 0).
+     * @returns {Promise<void>}
      */
-    off() {
-        this.fill(0, 0, 0);
+    async off() {
+        await this.fill(0, 0, 0);
     }
 }
 
@@ -61,16 +63,16 @@ class WS2812BMinimal {
  * to update the buffer, then show() to transmit; or use the inherited
  * fill() for an immediate all-same-colour update.
  *
- * @param {object} transport - Configured NeoPixel transport.
+ * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
 class WS2812BFull extends WS2812BMinimal {
     /**
-     * @param {object} transport - Configured NeoPixel transport.
+     * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
-    constructor(transport, n) {
-        super(transport, n);
+    constructor(connection, n) {
+        super(connection, n);
         this._brightness = 255;
     }
 
@@ -121,18 +123,19 @@ class WS2812BFull extends WS2812BMinimal {
      * Transmit the current buffer to the strip, applying brightness scaling.
      *
      * Each channel is scaled: sent = stored * brightness / 255.
+     * @returns {Promise<void>}
      */
-    show() {
+    async show() {
         const bri = this._brightness;
         if (bri === 255) {
-            this._transport.write(this._buf);
+            await this._conn.write(this._buf);
             return;
         }
         const scaled = Buffer.alloc(this._buf.length);
         for (let i = 0; i < this._buf.length; i++) {
             scaled[i] = (this._buf[i] * bri / 255) | 0;
         }
-        this._transport.write(scaled);
+        await this._conn.write(scaled);
     }
 
     /**
@@ -159,10 +162,11 @@ class WS2812BFull extends WS2812BMinimal {
      * @param {number} h - Hue (0.0–1.0).
      * @param {number} s - Saturation (0.0–1.0).
      * @param {number} v - Value/brightness (0.0–1.0).
+     * @returns {Promise<void>}
      */
-    fill_hsv(h, s, v) {
+    async fill_hsv(h, s, v) {
         const [r, g, b] = _hsvToRgb(h, s, v);
-        this.fill(r, g, b);
+        await this.fill(r, g, b);
     }
 }
 

@@ -36,27 +36,27 @@ function _sleep(ms) {
  */
 class EEPROM24AA02UIDMinimal {
     /**
-     * @param {object} transport - Configured I2C transport pointing at the device (address 0x50).
+     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x50).
      */
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
     }
 
     /**
      * Read the chip's factory-programmed 32-bit unique serial number.
-     * @returns {Buffer} 4-byte UID, MSB first (0xFC, 0xFD, 0xFE, 0xFF).
+     * @returns {Promise<Buffer>} 4-byte UID, MSB first (0xFC, 0xFD, 0xFE, 0xFF).
      */
-    readUid() {
-        return this._transport.writeRead(Buffer.from([ADDR_UID_BASE]), 4);
+    async readUid() {
+        return this._conn.writeRead(Buffer.from([ADDR_UID_BASE]), 4);
     }
 
     /**
      * Read a single byte from user EEPROM at 0x00-0x7F.
      * @param {number} address - Memory address 0-127.
-     * @returns {number} Byte value 0-255.
+     * @returns {Promise<number>} Byte value 0-255.
      */
-    readByte(address) {
-        return this._transport.writeRead(Buffer.from([address & 0xFF]), 1)[0];
+    async readByte(address) {
+        return (await this._conn.writeRead(Buffer.from([address & 0xFF]), 1))[0];
     }
 
     /**
@@ -68,16 +68,17 @@ class EEPROM24AA02UIDMinimal {
      *
      * @param {number} address - Memory address 0-255.
      * @param {number} value   - Byte value 0-255.
+     * @returns {Promise<void>}
      */
-    writeByte(address, value) {
-        this._transport.write(Buffer.from([address & 0xFF, value & 0xFF]));
-        this._ackPoll();
+    async writeByte(address, value) {
+        await this._conn.write(Buffer.from([address & 0xFF, value & 0xFF]));
+        await this._ackPoll();
     }
 
-    _ackPoll() {
+    async _ackPoll() {
         for (let i = 0; i < ACK_POLL_MAX; i++) {
             try {
-                this._transport.writeRead(Buffer.from([0x00]), 1);
+                await this._conn.writeRead(Buffer.from([0x00]), 1);
                 return;
             } catch (e) {
                 _sleep(1);
@@ -95,10 +96,10 @@ class EEPROM24AA02UIDMinimal {
  */
 class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
     /**
-     * @param {object} transport - Configured I2C transport pointing at the device (address 0x50).
+     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x50).
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -109,10 +110,10 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
      *
      * @param {number} address - Starting address 0-255.
      * @param {number} length  - Number of bytes to read.
-     * @returns {Buffer} `length` bytes from the device.
+     * @returns {Promise<Buffer>} `length` bytes from the device.
      */
-    read(address, length) {
-        return this._transport.writeRead(Buffer.from([address & 0xFF]), length);
+    async read(address, length) {
+        return this._conn.writeRead(Buffer.from([address & 0xFF]), length);
     }
 
     /**
@@ -125,14 +126,15 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
      *
      * @param {number} address - Start address within an 8-byte page (0, 8, 16, …).
      * @param {Buffer|Uint8Array} data - Bytes to write (1 to 8 bytes).
+     * @returns {Promise<void>}
      */
-    writePage(address, data) {
+    async writePage(address, data) {
         if (data.length === 0) return;
         const buf = Buffer.alloc(1 + data.length);
         buf[0] = address & 0xFF;
         for (let i = 0; i < data.length; i++) buf[1 + i] = data[i];
-        this._transport.write(buf);
-        this._ackPoll();
+        await this._conn.write(buf);
+        await this._ackPoll();
     }
 
     /**
@@ -143,8 +145,9 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
      *
      * @param {number} address - Starting address 0-255.
      * @param {Buffer|Uint8Array} data - Bytes to write.
+     * @returns {Promise<void>}
      */
-    write(address, data) {
+    async write(address, data) {
         let offset = 0;
         let remaining = data.length;
         let current = address;
@@ -152,7 +155,7 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
             const pageOffset = current & (PAGE_SIZE - 1);
             let chunk = PAGE_SIZE - pageOffset;
             if (chunk > remaining) chunk = remaining;
-            this.writePage(current, data.slice(offset, offset + chunk));
+            await this.writePage(current, data.slice(offset, offset + chunk));
             offset += chunk;
             current += chunk;
             remaining -= chunk;
@@ -161,17 +164,17 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
 
     /**
      * Read the manufacturer code at 0xFA.
-     * @returns {number} Manufacturer code; expect 0x29 (Microchip).
+     * @returns {Promise<number>} Manufacturer code; expect 0x29 (Microchip).
      */
-    readManufacturerCode() {
+    async readManufacturerCode() {
         return this.readByte(ADDR_MFR_CODE);
     }
 
     /**
      * Read the device code at 0xFB.
-     * @returns {number} Device code; expect 0x41 (I2C 2-Kbit EEPROM).
+     * @returns {Promise<number>} Device code; expect 0x41 (I2C 2-Kbit EEPROM).
      */
-    readDeviceCode() {
+    async readDeviceCode() {
         return this.readByte(ADDR_DEV_CODE);
     }
 }
