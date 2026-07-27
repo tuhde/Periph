@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "APDS9960.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x39
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-APDS9960Full   apds(transport);
+I2CConnection connection(Wire, TEST_ADDR);
+APDS9960Full   apds(connection);
 
 static int passed = 0;
 static int failed = 0;

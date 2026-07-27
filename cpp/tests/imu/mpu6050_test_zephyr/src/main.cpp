@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "Mpu6050.h"
 
 #ifndef MPU6050_I2C_NODE
@@ -27,8 +27,8 @@ static void check_near(float val, float lo, float hi, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(MPU6050_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, MPU6050_ADDR);
-    MPU6050Full imu(transport);
+    I2CConnectionZephyr connection(i2c_dev, MPU6050_ADDR);
+    MPU6050Full imu(connection);
 
     check_true(imu.who_am_i() == 0x68, "who_am_i");
 

@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "MCP4725.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x60;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    MCP4725Full dac(transport);                                            // Create MCP4725 driver, (transport)
+    MCP4725Full dac(connection);                                            // Create MCP4725 driver, (connection)
 
     dac.set_voltage(2048);                                                 // Set DAC output (fast write), (value 0–4095) → void
     dac.write_eeprom(2048);                                                // Write DAC + EEPROM, (value 0–4095) → void

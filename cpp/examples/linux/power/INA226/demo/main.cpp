@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "INA226.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x40;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    INA226Full ina(transport);                                             // Create INA226 driver, (transport)
+    INA226Full ina(connection);                                             // Create INA226 driver, (connection)
 
     // --- Power rail monitor with over-current alert ---
     // Samples every 500 ms, prints a warning when current exceeds 1 A.

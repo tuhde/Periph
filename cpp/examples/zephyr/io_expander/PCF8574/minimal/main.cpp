@@ -1,13 +1,13 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8574.h"
 
 int main() {
     const struct device* i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 
-    I2CTransportZephyr transport(i2c_dev, 0x20);               // Create I2C transport, (dev, addr=0x20)
-    PCF8574Minimal chip(transport);                             // Create PCF8574 driver, (transport, addr=0x20)
+    I2CConnectionZephyr connection(i2c_dev, 0x20);               // Create I2C connection, (dev, addr=0x20)
+    PCF8574Minimal chip(connection);                             // Create PCF8574 driver, (connection, addr=0x20)
 
     PCF8574Minimal::IOExpanderPin p0 = chip.pin(0);            // Get pin proxy, (n) → IOExpanderPin
     p0.mode(OUTPUT);                                            // Set direction, (mode=OUTPUT) → void

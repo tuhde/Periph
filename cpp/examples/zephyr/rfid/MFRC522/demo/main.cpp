@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "SPITransportZephyr.h"
+#include "SPIConnectionZephyr.h"
 #include "MFRC522.h"
 
 #ifndef MFRC522_SPI_NODE
@@ -26,8 +26,8 @@ int main(void) {
         .slave     = 0,
         .cs        = { .gpio = MFRC522_CS_GPIOS, .delay = 0 },
     };
-    SPITransportZephyr transport(dev, cfg);
-    MFRC522Full mfrc(transport);
+    SPIConnectionZephyr connection(dev, cfg);
+    MFRC522Full mfrc(connection);
 
     // --- Prepaid-card credit counter ---
     // Simulates a transit-gate / vending-machine credit system using a MIFARE

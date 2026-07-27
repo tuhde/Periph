@@ -53,8 +53,8 @@ float RDA5807MMinimal::_chan_to_freq(uint8_t band, uint8_t space, bool east_euro
     return (base + static_cast<uint32_t>(chan) * SPACE_KHZ[space]) / 1000.0f;
 }
 
-RDA5807MMinimal::RDA5807MMinimal(Transport& transport, float frequency_mhz, uint8_t volume)
-    : _transport(transport), _band(BAND_WORLD), _space(SPACE_100K), _east_europe_50m(false),
+RDA5807MMinimal::RDA5807MMinimal(Connection& connection, float frequency_mhz, uint8_t volume)
+    : _connection(connection), _band(BAND_WORLD), _space(SPACE_100K), _east_europe_50m(false),
       _current_freq(frequency_mhz) {
     uint16_t ctrl = _DHIZ | _DMUTE | _SKMODE | _NEW_METHOD | _ENABLE;
     uint16_t chan = _freq_to_chan(_band, _space, _east_europe_50m, frequency_mhz);
@@ -82,12 +82,12 @@ void RDA5807MMinimal::_write_regs() {
         buf[i * 2] = static_cast<uint8_t>(_regs[i] >> 8);
         buf[i * 2 + 1] = static_cast<uint8_t>(_regs[i] & 0xFF);
     }
-    _transport.write(buf, 12);
+    _connection.write(buf, 12);
 }
 
 void RDA5807MMinimal::_read_status(uint16_t* words, uint8_t count) {
     uint8_t buf[12];
-    _transport.read(buf, count * 2);
+    _connection.read(buf, count * 2);
     for (uint8_t i = 0; i < count; i++) {
         words[i] = (static_cast<uint16_t>(buf[i * 2]) << 8) | buf[i * 2 + 1];
     }
@@ -154,8 +154,8 @@ bool RDA5807MMinimal::seek(bool up, float& frequency_mhz) {
     return true;
 }
 
-RDA5807MFull::RDA5807MFull(Transport& transport, float frequency_mhz, uint8_t volume)
-    : RDA5807MMinimal(transport, frequency_mhz, volume) {}
+RDA5807MFull::RDA5807MFull(Connection& connection, float frequency_mhz, uint8_t volume)
+    : RDA5807MMinimal(connection, frequency_mhz, volume) {}
 
 void RDA5807MFull::configure(uint8_t band, uint8_t space, int8_t de_emphasis,
                               int16_t seek_threshold, int8_t seek_mode, int16_t clk_mode,

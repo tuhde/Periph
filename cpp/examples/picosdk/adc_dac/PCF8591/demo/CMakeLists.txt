@@ -16,7 +16,7 @@ add_executable(pcf8591_demo_picosdk
 )
 
 target_include_directories(pcf8591_demo_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/adc_dac
 )
 

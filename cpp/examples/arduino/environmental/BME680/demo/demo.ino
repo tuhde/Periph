@@ -7,21 +7,21 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/environmental/BME680.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x76);
+    I2CConnection connection(Wire, 0x76);
 
     // --- Room air quality probe: 4-in-1 sensor polling with VOC event ---
     // Polls all four sensors once every 5 seconds for 5 minutes (60 ticks).
     // At tick 30, the user is prompted to expose the sensor to a VOC source.
     // Gas resistance drops sharply on exposure and recovers over the remaining
     // ticks, demonstrating raw VOC sensitivity without the BSEC library.
-    BME680Full bme(transport);                           // Create BME680 driver, (transport)
+    BME680Full bme(connection);                           // Create BME680 driver, (connection)
     bme.configure(BME680Full::OSRS_X2, BME680Full::OSRS_X16, BME680Full::OSRS_X1, BME680Full::MODE_FORCED, BME680Full::FILTER_15);  // Configure chip, (osrs_t=×2, osrs_p=×16, osrs_h=×1, mode=forced, filter=15) → void
     bme.set_heater(320, 150);                           // Configure heater profile 0, (temp_c=320, duration_ms=150) → void
 

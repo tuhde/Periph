@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "AHT21.h"
 
-I2CTransport transport(Wire, 0x38);
-AHT21Minimal aht(transport);                                           // Create AHT21 driver, (transport, addr=0x38) → void
+I2CConnection connection(Wire, 0x38);
+AHT21Minimal aht(connection);                                           // Create AHT21 driver, (connection, addr=0x38) → void
 
 void setup() {
     Serial.begin(115200);

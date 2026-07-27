@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
 #include "INA3221.h"
 
 int passed = 0;
@@ -24,8 +24,8 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x40);
-    INA3221Full ina(transport, /*r_shunt=*/0.1f);
+    I2CConnectionPicoSDK connection(i2c0, 0x40);
+    INA3221Full ina(connection, /*r_shunt=*/0.1f);
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate

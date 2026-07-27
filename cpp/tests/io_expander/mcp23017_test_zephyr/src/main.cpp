@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "MCP23017.h"
 
 #ifndef MCP23017_I2C_NODE
@@ -25,8 +25,8 @@ static void check_eq(const char* label, int got, int expected) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MCP23017_I2C_NODE);
-    I2CTransportZephyr transport(dev, MCP23017_ADDR);
-    MCP23017Minimal mcp(transport);
+    I2CConnectionZephyr connection(dev, MCP23017_ADDR);
+    MCP23017Minimal mcp(connection);
 
     check_eq("init_iodira", mcp._direction[0], 0x7F);
     check_eq("init_iodirb", mcp._direction[1], 0x7F);
@@ -56,12 +56,12 @@ int main(void) {
     pb = mcp.read_port(1);
     check_eq("loopback_0x00", pb & 0x7F, 0x00);
 
-    MCP23017Full full(transport);
+    MCP23017Full full(connection);
     full.configure_pullup(0, 0x3F);
     check_eq("pullup_a", full._pullup[0], 0x3F);
 
-    full.configure_interrupt(0, -1, [](uint8_t mask) {}, "change", false);
-    full.stop_interrupt(0);
+    full.onInterrupt(0, [](uint8_t status) {});
+    full.offInterrupt(0);
 
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

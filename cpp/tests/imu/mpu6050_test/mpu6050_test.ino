@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Mpu6050.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x68
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-MPU6050Full  imu(transport);
+I2CConnection connection(Wire, TEST_ADDR);
+MPU6050Full  imu(connection);
 
 static int passed = 0;
 static int failed = 0;

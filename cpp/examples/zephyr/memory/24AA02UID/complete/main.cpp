@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "24AA02UID.h"
 
 #define I2C_NODE       DT_NODELABEL(i2c0)
@@ -14,8 +14,8 @@ static void print_hex_byte(uint8_t b) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, EEPROM_ADDR);
-    EEPROM24AA02UIDFull eeprom(transport);                     // Create 24AA02UID driver, (transport, addr=0x50) → void
+    I2CConnectionZephyr connection(i2c_dev, EEPROM_ADDR);
+    EEPROM24AA02UIDFull eeprom(connection);                     // Create 24AA02UID driver, (connection, addr=0x50) → void
 
     uint8_t uid[4];
     eeprom.read_uid(uid);                                       // Read 32-bit unique serial number, (buf[4]) → void

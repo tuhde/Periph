@@ -1,8 +1,8 @@
-#include "HX711Transport.h"
+#include "HX711Connection.h"
 #include "HX711.h"
 
-HX711Transport transport(5, 6);
-HX711Full<HX711Transport> chip(transport);
+HX711Connection connection(5, 6);
+HX711Full<HX711Connection> chip(connection);
 
 void setup() {
     Serial.begin(115200);

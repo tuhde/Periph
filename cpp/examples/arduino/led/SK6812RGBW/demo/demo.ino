@@ -1,6 +1,6 @@
 #include <SPI.h>
 #include <math.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "SK6812RGBW.h"
 
 static const size_t N_PIXELS          = 30;
@@ -9,8 +9,8 @@ static const unsigned long RAINBOW_MS = 10000;
 static const unsigned long WARM_MS    = 2000;
 static const unsigned long WARM_HALF  = 100;  // 5 Hz
 
-NeoPixelTransport transport(SPI);              // Create NeoPixel transport, (spi=SPIClass&)
-SK6812RGBWFull strip(transport, N_PIXELS);     // Create SK6812RGBW full driver, (transport, n=N_PIXELS pixels)
+NeoPixelConnection connection(SPI);              // Create NeoPixel connection, (spi=SPIClass&)
+SK6812RGBWFull strip(connection, N_PIXELS);     // Create SK6812RGBW full driver, (connection, n=N_PIXELS pixels)
 
 void setup() {
     Serial.begin(115200);

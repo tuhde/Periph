@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <math.h>
-#include "NeoPixelTransportZephyr.h"
+#include "NeoPixelConnectionZephyr.h"
 #include "SK6812RGBW.h"
 
 #define SPI_NODE DT_NODELABEL(spi0)
@@ -15,8 +15,8 @@ static const uint32_t WARM_HALF    = 100;
 
 int main(void) {
     const struct device *spi_dev = DEVICE_DT_GET(SPI_NODE);
-    NeoPixelTransportZephyr transport(spi_dev);    // Create NeoPixel transport, (dev=spi_device*)
-    SK6812RGBWFull strip(transport, N_PIXELS);     // Create SK6812RGBW full driver, (transport, n=N_PIXELS pixels)
+    NeoPixelConnectionZephyr connection(spi_dev);    // Create NeoPixel connection, (dev=spi_device*)
+    SK6812RGBWFull strip(connection, N_PIXELS);     // Create SK6812RGBW full driver, (connection, n=N_PIXELS pixels)
     strip.set_brightness(180);                     // Set global brightness, (value=0–255) → void
 
     while (1) {

@@ -16,8 +16,8 @@ static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 #endif
 
-BMP280Minimal::BMP280Minimal(Transport& transport, bool spi)
-    : _transport(transport), _spi(spi) {
+BMP280Minimal::BMP280Minimal(Connection& connection, bool spi)
+    : _connection(connection), _spi(spi) {
     _read_calibration();
     _write_reg(REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
     _write_reg(REG_CONFIG, 0);
@@ -44,12 +44,12 @@ void BMP280Minimal::_read_calibration() {
 void BMP280Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t addr = _spi ? (reg & 0x7F) : reg;
     uint8_t buf[2] = { addr, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void BMP280Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
     uint8_t addr = reg;
-    _transport.write_read(&addr, 1, buf, len);
+    _connection.write_read(&addr, 1, buf, len);
 }
 
 void BMP280Minimal::_trigger_and_read(uint32_t& adc_P, uint32_t& adc_T) {
@@ -103,8 +103,8 @@ float BMP280Minimal::pressure() {
 
 // BMP280Full
 
-BMP280Full::BMP280Full(Transport& transport, bool spi)
-    : BMP280Minimal(transport, spi) {
+BMP280Full::BMP280Full(Connection& connection, bool spi)
+    : BMP280Minimal(connection, spi) {
 }
 
 void BMP280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t filter, uint8_t t_sb) {

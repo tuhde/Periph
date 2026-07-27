@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "Rda5807m.h"
 
 #ifndef TEST_I2C_BUS
@@ -23,8 +23,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    RDA5807MFull fm(transport, 100.0f, 8);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    RDA5807MFull fm(connection, 100.0f, 8);
 
     usleep(SETTLE_US);
     check_true("is_ready", fm.is_ready());

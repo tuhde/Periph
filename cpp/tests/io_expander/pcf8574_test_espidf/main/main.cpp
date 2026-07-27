@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "PCF8574.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8574Full inst(transport, 0x20);  // Create PCF8574 driver
+    I2CConnectionESPIDF connection(dev);
+    PCF8574Full inst(connection, 0x20);  // Create PCF8574 driver
     inst.write_port(0, 0x55);
     (void)inst.read_port(0);
     check_true(true, "pcf8574 comm ok");

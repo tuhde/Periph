@@ -30,8 +30,8 @@ static const uint32_t CONST_ARRAY2[16] = {
     125000U
 };
 
-BME680Minimal::BME680Minimal(Transport& transport)
-    : _transport(transport) {
+BME680Minimal::BME680Minimal(Connection& connection)
+    : _connection(connection) {
     _read_calibration();
     _write_reg(REG_CTRL_HUM, _osrs_h);
     _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | 0);
@@ -81,11 +81,11 @@ void BME680Minimal::_read_calibration() {
 
 void BME680Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void BME680Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    _transport.write_read(&reg, 1, buf, len);
+    _connection.write_read(&reg, 1, buf, len);
 }
 
 uint8_t BME680Minimal::_calc_heater_resistance(int16_t target_temp, float ambient_temp) {
@@ -236,8 +236,8 @@ float BME680Minimal::gas_resistance() {
 
 // BME680Full
 
-BME680Full::BME680Full(Transport& transport)
-    : BME680Minimal(transport) {
+BME680Full::BME680Full(Connection& connection)
+    : BME680Minimal(connection) {
 }
 
 void BME680Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h, uint8_t mode, uint8_t filter) {

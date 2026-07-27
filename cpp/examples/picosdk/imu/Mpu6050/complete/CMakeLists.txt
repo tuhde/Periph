@@ -16,7 +16,7 @@ add_executable(mpu6050_complete_picosdk
 )
 
 target_include_directories(mpu6050_complete_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/imu
 )
 

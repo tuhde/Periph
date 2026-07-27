@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/pressure/BMP180.h"
 
 static int passed = 0, failed = 0;
@@ -16,8 +16,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x77);
-    BMP180Full bmp(transport, BMP180Full.OSS_ULP);  // Create BMP180 driver, (transport, oss=0 ULP)
+    I2CConnection connection(Wire, 0x77);
+    BMP180Full bmp(connection, BMP180Full.OSS_ULP);  // Create BMP180 driver, (connection, oss=0 ULP)
 
     float t0 = bmp.temperature();                     // Read temperature, () → float C
     float p0 = bmp.pressure();                       // Read pressure, () → float hPa

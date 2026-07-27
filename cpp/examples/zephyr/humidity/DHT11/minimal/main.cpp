@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "DHTxxTransportZephyr.h"
+#include "DHTxxConnectionZephyr.h"
 #include "DHT11.h"
 
 #ifndef DHT11_GPIO_NODE
@@ -13,8 +13,8 @@
 
 static const struct gpio_dt_spec dht_spec = GPIO_DT_SPEC_GET(DT_NODELABEL(gpio0), gpios);
 
-DHTxxTransportZephyr transport(dht_spec);
-DHT11Minimal dht(transport);                    // Create DHT11 driver, (transport)
+DHTxxConnectionZephyr connection(dht_spec);
+DHT11Minimal dht(connection);                    // Create DHT11 driver, (connection)
 
 int main(void) {
     while (1) {

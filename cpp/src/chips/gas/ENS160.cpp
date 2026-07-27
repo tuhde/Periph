@@ -16,8 +16,8 @@ static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 #endif
 
-ENS160Minimal::ENS160Minimal(Transport& transport)
-    : _transport(transport) {
+ENS160Minimal::ENS160Minimal(Connection& connection)
+    : _connection(connection) {
     _write_reg(REG_OPMODE, OPMODE_IDLE);
     delay(1);
     uint16_t part_id = _read_reg_le16(REG_PART_ID);
@@ -29,16 +29,16 @@ ENS160Minimal::ENS160Minimal(Transport& transport)
 
 void ENS160Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void ENS160Minimal::_write_reg_le16(uint8_t reg, uint16_t value) {
     uint8_t buf[3] = { reg, (uint8_t)(value & 0xFF), (uint8_t)((value >> 8) & 0xFF) };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }
 
 void ENS160Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    _transport.write_read(&reg, 1, buf, len);
+    _connection.write_read(&reg, 1, buf, len);
 }
 
 uint16_t ENS160Minimal::_read_reg_le16(uint8_t reg) {
@@ -103,8 +103,8 @@ bool ENS160Minimal::read_air_quality(uint8_t& aqi, float& tvoc_ppb, float& eco2_
 
 // ENS160Full
 
-ENS160Full::ENS160Full(Transport& transport)
-    : ENS160Minimal(transport) {
+ENS160Full::ENS160Full(Connection& connection)
+    : ENS160Minimal(connection) {
 }
 
 void ENS160Full::set_compensation(float temp_celsius, float rh_percent) {

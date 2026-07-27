@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "NeoPixelTransportZephyr.h"
+#include "NeoPixelConnectionZephyr.h"
 #include "WS2812B.h"
 
 #ifndef WS2812B_SPI_NODE
@@ -23,11 +23,11 @@ static void check_eq_u8(const char *label, uint8_t got, uint8_t expected) {
 
 int main(void) {
     const struct device *spi_dev = DEVICE_DT_GET(WS2812B_SPI_NODE);
-    NeoPixelTransportZephyr transport(spi_dev);
+    NeoPixelConnectionZephyr connection(spi_dev);
 
     // --- WS2812BMinimal ---
     {
-        WS2812BMinimal strip(transport, 8);
+        WS2812BMinimal strip(connection, 8);
 
         strip.fill(255, 0, 0);
         check_true(true, "fill(255,0,0) accepted");
@@ -41,7 +41,7 @@ int main(void) {
 
     // --- WS2812BFull ---
     {
-        WS2812BFull strip(transport, 8);
+        WS2812BFull strip(connection, 8);
 
         check_eq_u8("default brightness is 255", strip.get_brightness(), 255);
 

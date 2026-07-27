@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "BME280.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x76;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    BME280Full bme(transport);                                             // Create BME280 driver, (transport)
+    BME280Full bme(connection);                                             // Create BME280 driver, (connection)
 
     uint8_t id = bme.chip_id();                                            // Read chip ID register, () → uint8_t
                                                                            // BME280 returns 0x60, BMP280 returns 0x58

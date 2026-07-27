@@ -1,47 +1,22 @@
 #include "PCF8574.h"
 
-#ifdef __linux__
-#include <cstdio>
-#include <fcntl.h>
-#include <unistd.h>
-#include <poll.h>
-#include <thread>
-#include <atomic>
-#include <string>
-static std::thread            _linux_irq_thread;
-static std::atomic<bool>      _linux_irq_stop{false};
-#elif defined(CONFIG_GPIO)
-#include <zephyr/drivers/gpio.h>
-static struct gpio_callback   _zephyr_cb_data;
-static PCF8574Full*           _zephyr_chip_ptr = nullptr;
-static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t);
-#elif defined(ESP_PLATFORM)
-#include <driver/gpio.h>
-static PCF8574Full*           _espidf_chip_ptr = nullptr;
-#else
-// Arduino
-#include <Arduino.h>
-static PCF8574Full*  _arduino_chip_ptr = nullptr;
-static void          _arduino_isr();
-#endif
-
 // ============================================================
 // PCF8574Minimal
 // ============================================================
 
-PCF8574Minimal::PCF8574Minimal(Transport& transport, uint8_t addr)
-    : _transport(transport), _addr(addr), _shadow(0xFF)
+PCF8574Minimal::PCF8574Minimal(Connection& connection, uint8_t addr)
+    : _connection(connection), _addr(addr), _shadow(0xFF)
 {
     _write_port(0xFF);
 }
 
 void PCF8574Minimal::_write_port(uint8_t mask) {
-    _transport.write(&mask, 1);
+    _connection.write(&mask, 1);
 }
 
 uint8_t PCF8574Minimal::_read_port() {
     uint8_t buf = 0;
-    _transport.read(&buf, 1);
+    _connection.read(&buf, 1);
     return buf;
 }
 
@@ -89,8 +64,10 @@ uint8_t PCF8574Minimal::IOExpanderPin::read() {
 // PCF8574Full
 // ============================================================
 
-PCF8574Full::PCF8574Full(Transport& transport, uint8_t addr)
-    : PCF8574Minimal(transport, addr)
+PCF8574Full* PCF8574Full::_activeInstance = nullptr;
+
+PCF8574Full::PCF8574Full(Connection& connection, uint8_t addr)
+    : PCF8574Minimal(connection, addr)
 {
     _prev = _read_port();
 }
@@ -99,125 +76,67 @@ PCF8574Full::IOExpanderPin PCF8574Full::pin(uint8_t n) {
     return IOExpanderPin(*this, n);
 }
 
-uint8_t PCF8574Full::clear_interrupt() {
+uint8_t PCF8574Full::pollInterrupt() {
     uint8_t current = _read_port();
     uint8_t changed = current ^ _prev;
     _prev = current;
     return changed;
 }
 
-void PCF8574Full::_dispatch(PCF8574Full* chip, uint8_t changed) {
-    if (chip->_callback)
-        chip->_callback(changed);
+void PCF8574Full::onInterrupt(void (*callback)(uint8_t)) {
+    _callback = callback;
+    if (!_connection.intPin()) return;
+    _activeInstance = this;
+    _connection.intPin()->onEdge(&PCF8574Full::_edgeTrampoline, InputPin::kFalling);
 }
 
-void PCF8574Full::configure_interrupt(int int_gpio_pin, void (*callback)(uint8_t)) {
-    _callback = callback;
+void PCF8574Full::offInterrupt() {
+    _callback = nullptr;
+    if (_connection.intPin()) _connection.intPin()->offEdge(&PCF8574Full::_edgeTrampoline);
+    if (_activeInstance == this) _activeInstance = nullptr;
+}
 
-#ifdef __linux__
-    if (int_gpio_pin < 0) return;
-    _linux_irq_stop = false;
-    PCF8574Full* chip = this;
-    _linux_irq_thread = std::thread([chip, int_gpio_pin]() {
-        std::string path = "/sys/class/gpio/gpio" + std::to_string(int_gpio_pin) + "/value";
-        int fd = open(path.c_str(), O_RDONLY);
-        if (fd < 0) return;
-        char buf[2];
-        read(fd, buf, sizeof(buf));  // discard initial value
-        struct pollfd pfd = { fd, POLLPRI | POLLERR, 0 };
-        while (!_linux_irq_stop) {
-            if (poll(&pfd, 1, 5) > 0) {
-                lseek(fd, 0, SEEK_SET);
-                read(fd, buf, sizeof(buf));
-                uint8_t changed = chip->clear_interrupt();
-                if (changed) _dispatch(chip, changed);
-            }
+void PCF8574Full::_edgeTrampoline() {
+    if (_activeInstance) _activeInstance->_handleEdge();
+}
+
+void PCF8574Full::_handleEdge() {
+    uint8_t changed = pollInterrupt();
+    if (!changed) return;
+
+    if (_callback) _callback(changed);
+
+    for (uint8_t n = 0; n < 8; ++n) {
+        if (!(changed & (1u << n))) continue;
+        PinWatch& w = _pinWatches[n];
+        if (!w.handler) continue;
+
+        uint8_t current = (_prev >> n) & 1;
+        bool fire = (w.trigger == InputPin::kChange) ||
+                    (w.trigger == InputPin::kFalling && current == 0 && w.lastState == 1) ||
+                    (w.trigger == InputPin::kRising  && current == 1 && w.lastState == 0);
+        w.lastState = current;
+
+        if (fire) {
+            IOExpanderPin p(*this, n);
+            w.handler(&p);
         }
-        close(fd);
-    });
-    _linux_irq_thread.detach();
-
-#elif defined(CONFIG_GPIO)
-    (void)int_gpio_pin;
-    _zephyr_chip_ptr = this;
-    // Application must provide the INT gpio_dt_spec and call gpio_add_callback
-    // after this function. See the Zephyr example for the wiring.
-
-#elif defined(ESP_PLATFORM)
-    (void)int_gpio_pin;
-    _espidf_chip_ptr = this;
-    // Application must provide the INT gpio_num_t and call
-    // gpio_isr_handler_add with _espidf_dispatch_from_isr after this
-    // function. See the ESP-IDF example for the wiring.
-
-#else
-    // Arduino
-    _arduino_chip_ptr = this;
-    ::attachInterrupt(digitalPinToInterrupt(int_gpio_pin), _arduino_isr, FALLING);
-#endif
+    }
 }
 
 // ---- IOExpanderPin (Full) ----
 
 PCF8574Full::IOExpanderPin::IOExpanderPin(PCF8574Full& chip, uint8_t n)
-    : PCF8574Minimal::IOExpanderPin(chip, n), _full_chip(chip), _last_state((chip._shadow >> n) & 1)
+    : PCF8574Minimal::IOExpanderPin(chip, n), _full_chip(chip)
 {}
 
-void PCF8574Full::IOExpanderPin::attachInterrupt(void (*handler)(IOExpanderPin*), uint8_t mode) {
-    _handler   = handler;
-    _irq_mode  = mode;
-    _last_state = _full_chip._read_port() >> _n & 1;
-    IOExpanderPin* self = this;
-    uint8_t n = _n;
-    _full_chip._callback = [](uint8_t changed) {
-        // Dispatched from PCF8574Full::_dispatch; per-pin handlers are
-        // stored on the chip and invoked here. The lambda captures nothing
-        // from outer scope; the chip pointer is provided by the caller.
-        (void)changed;
-    };
-    // Store self on chip for dispatch
-    _full_chip._callback = [this](uint8_t changed) {
-        if (!((changed >> _n) & 1)) return;
-        uint8_t current = (_full_chip._read_port() >> _n) & 1;
-        bool fire = (_irq_mode == CHANGE) ||
-                    (_irq_mode == FALLING && current == 0 && _last_state == 1) ||
-                    (_irq_mode == RISING  && current == 1 && _last_state == 0);
-        _last_state = current;
-        if (fire && _handler) _handler(this);
-    };
+void PCF8574Full::IOExpanderPin::watch(void (*handler)(IOExpanderPin*), uint8_t trigger) {
+    PCF8574Full::PinWatch& w = _full_chip._pinWatches[_n];
+    w.handler   = handler;
+    w.trigger   = trigger;
+    w.lastState = (_full_chip._read_port() >> _n) & 1;
 }
 
-void PCF8574Full::IOExpanderPin::detachInterrupt() {
-    _handler  = nullptr;
-    _full_chip._callback = nullptr;
+void PCF8574Full::IOExpanderPin::unwatch() {
+    _full_chip._pinWatches[_n].handler = nullptr;
 }
-
-// ---- Platform ISR stubs ----
-
-#if defined(__linux__)
-// thread-based delivery; no ISR needed
-
-#elif defined(CONFIG_GPIO)
-static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t) {
-    if (!_zephyr_chip_ptr) return;
-    uint8_t changed = _zephyr_chip_ptr->clear_interrupt();
-    if (changed) PCF8574Full::_dispatch(_zephyr_chip_ptr, changed);
-}
-
-#elif defined(ESP_PLATFORM)
-// ESP-IDF GPIO ISR is installed by the application via gpio_isr_handler_add
-// after configure_interrupt() returns. The chip pointer is held in
-// _espidf_chip_ptr for the application-installed handler to dispatch.
-static void _espidf_dispatch_from_isr(void* arg) {
-    PCF8574Full* chip = static_cast<PCF8574Full*>(arg);
-    uint8_t changed = chip->clear_interrupt();
-    if (changed) PCF8574Full::_dispatch(chip, changed);
-}
-
-#else
-static void _arduino_isr() {
-    if (!_arduino_chip_ptr) return;
-    uint8_t changed = _arduino_chip_ptr->clear_interrupt();
-    if (changed) PCF8574Full::_dispatch(_arduino_chip_ptr, changed);
-}
-#endif

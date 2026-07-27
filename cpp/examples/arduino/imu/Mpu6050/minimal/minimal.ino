@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Mpu6050.h"
 
-I2CTransport transport(Wire, 0x68);
-MPU6050Minimal imu(transport);                           // Create MPU6050 driver, (transport, addr=0x68) → None
+I2CConnection connection(Wire, 0x68);
+MPU6050Minimal imu(connection);                           // Create MPU6050 driver, (connection, addr=0x68) → None
 
 void setup() {
     Serial.begin(115200);

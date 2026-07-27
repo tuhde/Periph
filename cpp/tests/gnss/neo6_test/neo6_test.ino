@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "UARTTransport.h"
+#include "UARTConnection.h"
 #include "NEO6.h"
 
 // Requires a NEO-6 module wired to UART with a clear sky view. Achieving an
@@ -28,8 +28,8 @@ void setup() {
 
     Serial1.begin(TEST_UART_BAUDRATE);
     Serial1.setTimeout(1000);
-    UARTTransport transport(Serial1);
-    NEO6Minimal gps(transport);
+    UARTConnection connection(Serial1);
+    NEO6Minimal gps(connection);
 
     check_true("fix() starts at 0", gps.fix() == 0);
     check_true("latitude() starts at NAN", isnan(gps.latitude()));

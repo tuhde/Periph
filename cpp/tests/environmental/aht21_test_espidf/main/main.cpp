@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "AHT21.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    AHT21Full inst(transport);  // Create AHT21 driver
+    I2CConnectionESPIDF connection(dev);
+    AHT21Full inst(connection);  // Create AHT21 driver
     check_true(inst.is_calibrated(), "is_calibrated");
     check_true(!inst.is_busy(), "not busy at idle");
     float t, h;

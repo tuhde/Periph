@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "APDS9960.h"
 
-I2CTransport transport(Wire, 0x39);
-APDS9960Full apds(transport);                              // Create APDS9960 driver, (transport) → APDS9960Full
+I2CConnection connection(Wire, 0x39);
+APDS9960Full apds(connection);                              // Create APDS9960 driver, (connection) → APDS9960Full
 
 void setup() {
     Serial.begin(115200);

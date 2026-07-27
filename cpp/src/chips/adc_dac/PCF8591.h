@@ -1,26 +1,26 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief PCF8591 8-bit quad ADC + DAC — minimal interface.
  *
  * Provides single-ended reads of the four analog inputs in 4 single-ended
- * mode (AIP=00). No configuration beyond the transport is required. Each
+ * mode (AIP=00). No configuration beyond the connection is required. Each
  * read transaction returns 5 bytes: the first is the previous conversion
  * result and must be discarded; the next four are fresh channel samples.
  *
- * @param transport Configured I²C transport pointing at the device (0x48–0x4F).
+ * @param connection Configured I²C connection pointing at the device (0x48–0x4F).
  */
 class PCF8591Minimal {
 public:
     static constexpr uint8_t NUM_CHANNELS = 4;
     static constexpr uint8_t CONTROL_DEFAULT = 0x00;  // AIP=00, AOE=0, AI=0, CHN=0
 
-    /** @brief Construct the driver and store the transport.
-     *  @param transport Configured I²C transport pointing at the device.
+    /** @brief Construct the driver and store the connection.
+     *  @param connection Configured I²C connection pointing at the device.
      */
-    explicit PCF8591Minimal(Transport& transport);
+    explicit PCF8591Minimal(Connection& connection);
 
     /** @brief Read a single channel as an unsigned 8-bit value.
      *
@@ -43,7 +43,7 @@ public:
     void read_all(uint8_t* out);
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
 };
 
 /** @brief PCF8591 full interface — extends PCF8591Minimal with differential, voltage, and DAC output.
@@ -52,7 +52,7 @@ protected:
  * auto-increment, DAC enable/disable, raw and voltage-calibrated ADC reads,
  * and signed differential reads.
  *
- * @param transport Configured I²C transport pointing at the device (0x48–0x4F).
+ * @param connection Configured I²C connection pointing at the device (0x48–0x4F).
  */
 class PCF8591Full : public PCF8591Minimal {
 public:
@@ -61,10 +61,10 @@ public:
     static constexpr uint8_t MODE_MIXED          = 2;  // AIN0/1 single-ended, AIN2-AIN3 differential
     static constexpr uint8_t MODE_2_DIFFERENTIAL = 3;  // 2 differential inputs
 
-    /** @brief Construct the full driver and store the transport.
-     *  @param transport Configured I²C transport pointing at the device.
+    /** @brief Construct the full driver and store the connection.
+     *  @param connection Configured I²C connection pointing at the device.
      */
-    explicit PCF8591Full(Transport& transport);
+    explicit PCF8591Full(Connection& connection);
 
     /** @brief Set the analog input mode, auto-increment, and DAC enable.
      *  @param input_mode Analog input programming 0–3 (see MODE_* constants).

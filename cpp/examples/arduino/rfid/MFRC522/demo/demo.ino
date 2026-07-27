@@ -13,7 +13,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include "../../src/transport/SPITransport.h"
+#include "../../src/connection/SPIConnection.h"
 #include "../../src/chips/rfid/MFRC522.h"
 
 static int passed = 0, failed = 0;
@@ -34,8 +34,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     SPI.begin(TEST_SCK, TEST_MISO, TEST_MOSI, TEST_CS);
-    SPITransport transport(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
-    MFRC522Full mfrc(transport);
+    SPIConnection connection(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    MFRC522Full mfrc(connection);
 
     // --- Prepaid-card credit counter ---
     // Simulates a transit-gate / vending-machine credit system using a MIFARE

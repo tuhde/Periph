@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BME680.h"
 
 #ifndef BME680_I2C_NODE
@@ -13,12 +13,12 @@
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BME680_I2C_NODE);
-    I2CTransportZephyr transport(dev, BME680_ADDR);
+    I2CConnectionZephyr connection(dev, BME680_ADDR);
 
     // --- Room air quality probe: 4-in-1 sensor polling with VOC event ---
     // Polls all four sensors once every 5 seconds for 5 minutes (60 ticks).
     // At tick 30, the user is prompted to expose the sensor to a VOC source.
-    BME680Full bme(transport);                           // Create BME680 driver, (transport)
+    BME680Full bme(connection);                           // Create BME680 driver, (connection)
     bme.configure(BME680Full::OSRS_X2, BME680Full::OSRS_X16, BME680Full::OSRS_X1, BME680Full::MODE_FORCED, BME680Full::FILTER_15);  // Configure chip, (osrs_t=×2, osrs_p=×16, osrs_h=×1, mode=forced, filter=15) → void
     bme.set_heater(320, 150);                           // Configure heater profile 0, (temp_c=320, duration_ms=150) → void
 

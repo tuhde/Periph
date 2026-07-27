@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "PCF8591.h"
 
-I2CTransport transport(Wire, 0x48);
-PCF8591Full adc(transport);
+I2CConnection connection(Wire, 0x48);
+PCF8591Full adc(connection);
 
 const float VREF  = 3.3f;
 const float VAGND = 0.0f;

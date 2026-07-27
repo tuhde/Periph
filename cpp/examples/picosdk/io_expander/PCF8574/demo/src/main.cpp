@@ -2,8 +2,11 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
+#include "InputPinPicoSDK.h"
 #include "PCF8574.h"
+
+static volatile bool irq_flag = false;
 
 int main(void) {
     // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
@@ -12,10 +15,9 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    PCF8574Full chip(transport, /*addr=*/0x20);
-
-    volatile bool irq_flag = false;
+    InputPinPicoSDK intPin(6);                                  // Create INT pin, (pin=6)
+    I2CConnectionPicoSDK connection(i2c0, 0x20, &intPin);       // Create I2C connection, (i2c, addr=0x20, intPin)
+    PCF8574Full chip(connection, /*addr=*/0x20);
 
     stdio_init_all();
 
@@ -24,10 +26,10 @@ int main(void) {
     // Writing 0xF0 sets P0–P3 low (LEDs on) and P4–P7 high (button inputs).
     chip.write_port(0, 0xF0);                                  // Write all 8 pins, (port, mask) → void
 
-    // --- Attach INT line for responsive button detection ---
-    // INT fires within ~10 µs of any input change; the ISR sets a flag
+    // --- Subscribe to INT line for responsive button detection ---
+    // INT fires within ~10 µs of any input change; the handler sets a flag
     // so the main loop can react immediately rather than wait 200 ms.
-    chip.configure_interrupt(5, [](uint8_t) {                  // Attach interrupt, (gpio_pin, callback) → void
+    chip.onInterrupt([](uint8_t) {                             // Subscribe to INT line, (callback) → void
         irq_flag = true;
     });
 

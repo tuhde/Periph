@@ -14,11 +14,11 @@ Or manually: clone/download this repository into your `libraries/Periph` folder.
 
 ```cpp
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "INA219.h"
 
-I2CTransport transport(Wire, 0x40);
-INA219Minimal ina(transport);
+I2CConnection connection(Wire, 0x40);
+INA219Minimal ina(connection);
 
 void setup() {
     Wire.begin();

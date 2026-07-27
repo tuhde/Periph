@@ -1,12 +1,13 @@
 // Auto-generated ESP-IDF example for MCP23017 (Complete).
 // Mirrors the Arduino MCP23017_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
+#include "InputPinESPIDF.h"
 #include "MCP23017.h"
 
 extern "C" void app_main(void) {
@@ -29,9 +30,9 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP23017Full chip(transport, 0x20);  // Create MCP23017 driver
-    uint8_t val;
+    InputPinESPIDF intPin(GPIO_NUM_5);                 // Create INT pin, (pin=GPIO_NUM_5)
+    I2CConnectionESPIDF connection(dev, &intPin);      // Create I2C connection, (dev, intPin)
+    MCP23017Full chip(connection, 0x20);  // Create MCP23017 driver
     chip.read_port(0);                                // Read all 8 pins of PORTA, (port 0/1) → uint8_t bitmask
     chip.write_port(0, 0x55);                         // Write all 8 pins of PORTA, (port, mask) → void
     chip.configure_pullup(0, 0xFF);                   // Enable pull-ups, (port, mask) → void
@@ -39,10 +40,11 @@ extern "C" void app_main(void) {
     chip.configure_polarity(0, 0x00);                 // Set input polarity, (port, mask) → void
     chip.set_default_value(0, 0xFF);                  // Set DEFVAL, (port, mask) → void
     // default-compare value for IOCON-DEFVAL interrupt mode
-    chip.configure_interrupt(0, -1, nullptr, "change", false);  // Configure INT, (port, int_gpio_pin, callback, mode, mirror) → void
-    // passing -1 disables hardware interrupt; falls back to polling on Linux
-    chip.read_interrupt_flags(0);                     // Read INTFA, (port) → uint8_t
-    chip.clear_interrupt(0);                          // Read INTCAPA, () → uint8_t; clears INT for the port
-    chip.stop_interrupt(0);                           // Disable INT, (port) → void
+    chip.onInterrupt([](uint8_t port, uint8_t status) {  // Subscribe to INT on both ports, (callback, intPin, mirror) → void
+        printf("port %d changed: 0x%02X\n", port, status);
+    }, &intPin, /*mirror=*/true);
+    chip.pollInterrupt(0);                            // Read INTFA, (port) → uint8_t; also clears INT for the port
+    chip.read_capture(0);                             // Read INTCAPA, (port) → uint8_t; clears INT for the port
+    chip.offInterrupt(0);                             // Unsubscribe, (port) → void
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

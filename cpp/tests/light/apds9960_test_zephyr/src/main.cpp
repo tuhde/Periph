@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "APDS9960.h"
 
 #ifndef APDS9960_I2C_NODE
@@ -21,8 +21,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(APDS9960_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, APDS9960_ADDR);
-    APDS9960Full apds(transport);
+    I2CConnectionZephyr connection(i2c_dev, APDS9960_ADDR);
+    APDS9960Full apds(connection);
 
     check_true(apds.chip_id() == 0xAB, "chip_id");
 

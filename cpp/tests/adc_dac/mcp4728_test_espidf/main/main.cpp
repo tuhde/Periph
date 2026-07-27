@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP4728.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP4728Full inst(transport);  // Create MCP4728 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP4728Full inst(connection);  // Create MCP4728 driver
     inst.set_voltage(0, 0.5f);
     float fracs[4] = { 0.0f, 0.25f, 0.5f, 0.75f };
     inst.set_all(fracs);

@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for INA226 (Complete).
 // Mirrors the Arduino INA226_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "INA226.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    INA226Full chip(transport);  // Create INA226 driver
+    I2CConnectionESPIDF connection(dev);
+    INA226Full chip(connection);  // Create INA226 driver
     float v, sv, i, p;
     bool cr, ov;
     uint16_t flags, mfr, die;

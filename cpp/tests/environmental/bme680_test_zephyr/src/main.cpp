@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BME680.h"
 
 #ifndef BME680_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BME680_I2C_NODE);
-    I2CTransportZephyr transport(dev, BME680_ADDR);
-    BME680Minimal bme(transport);
+    I2CConnectionZephyr connection(dev, BME680_ADDR);
+    BME680Minimal bme(connection);
 
     float t = bme.temperature();
     check_true(t >= -40.0f && t <= 85.0f, "temperature_range");
@@ -32,7 +32,7 @@ int main(void) {
     float h = bme.humidity();
     check_true(h >= 0.0f && h <= 100.0f, "humidity_range");
 
-    BME680Full bme_full(transport);
+    BME680Full bme_full(connection);
     bme_full.set_oversampling(BME680Full::OSRS_X4, BME680Full::OSRS_X2, BME680Full::OSRS_X1);
     check_true(bme_full._osrs_t == 3 && bme_full._osrs_p == 2 && bme_full._osrs_h == 1, "set_oversampling");
 

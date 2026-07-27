@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cmath>
-#include "SPITransportLinux.h"
+#include "SPIConnectionLinux.h"
 #include "NEO6.h"
 
 // Requires a NEO-6 module wired to SPI (mode 0, <=200 kHz) with a clear sky
@@ -24,8 +24,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    SPITransportLinux transport(TEST_SPI_BUS, TEST_SPI_DEVICE, 0, 200000);
-    NEO6Minimal gps(transport, NEO6BusType::Spi);
+    SPIConnectionLinux connection(TEST_SPI_BUS, TEST_SPI_DEVICE, 0, 200000);
+    NEO6Minimal gps(connection, NEO6BusType::Spi);
 
     check_true("fix() starts at 0", gps.fix() == 0);
     check_true("latitude() starts at NAN", std::isnan(gps.latitude()));

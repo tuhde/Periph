@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "INA226.h"
 
 #ifndef INA226_I2C_NODE
@@ -27,8 +27,8 @@ static void check_near(float val, float lo, float hi, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(INA226_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, INA226_ADDR);
-    INA226Full ina(transport);
+    I2CConnectionZephyr connection(i2c_dev, INA226_ADDR);
+    INA226Full ina(connection);
 
     check_true(ina.manufacturer_id() == 0x5449, "manufacturer_id");
     check_true(ina.die_id() == 0x2260,          "die_id");

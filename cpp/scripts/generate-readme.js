@@ -111,10 +111,10 @@ function buildReadme(props, rows) {
     body += `## Usage\n\n`;
     body += `\`\`\`cpp\n`;
     body += `#include <Wire.h>\n`;
-    body += `#include "I2CTransport.h"\n`;
+    body += `#include "I2CConnection.h"\n`;
     body += `#include "INA219.h"\n\n`;
-    body += `I2CTransport transport(Wire, 0x40);\n`;
-    body += `INA219Minimal ina(transport);\n\n`;
+    body += `I2CConnection connection(Wire, 0x40);\n`;
+    body += `INA219Minimal ina(connection);\n\n`;
     body += `void setup() {\n    Wire.begin();\n}\n\n`;
     body += `void loop() {\n    Serial.println(ina.power());  // watts\n    delay(1000);\n}\n`;
     body += `\`\`\`\n\n`;

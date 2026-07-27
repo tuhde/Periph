@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "WS2812B.h"
 
 static int passed = 0;
@@ -25,11 +25,11 @@ void setup() {
     delay(2000);
     SPI.begin();
 
-    NeoPixelTransport transport(SPI);
+    NeoPixelConnection connection(SPI);
 
     // --- WS2812BMinimal ---
     {
-        WS2812BMinimal strip(transport, 8);
+        WS2812BMinimal strip(connection, 8);
 
         strip.fill(255, 0, 0);
         check_true("fill(255,0,0) accepted", true);
@@ -46,7 +46,7 @@ void setup() {
 
     // --- WS2812BFull ---
     {
-        WS2812BFull strip(transport, 8);
+        WS2812BFull strip(connection, 8);
 
         check_eq_u8("default brightness is 255", strip.get_brightness(), 255);
 

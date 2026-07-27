@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "PCF8591.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8591Full inst(transport);  // Create PCF8591 driver
+    I2CConnectionESPIDF connection(dev);
+    PCF8591Full inst(connection);  // Create PCF8591 driver
     uint8_t raw = inst.read_channel(0);
     check_true(raw <= 255, "raw in 0-255");
     uint8_t buf[4];

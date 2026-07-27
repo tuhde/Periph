@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "24AA02UID.h"
 
-I2CTransport transport(Wire, 0x50);
-EEPROM24AA02UIDMinimal eeprom(transport);                      // Create 24AA02UID driver, (transport, addr=0x50) → void
+I2CConnection connection(Wire, 0x50);
+EEPROM24AA02UIDMinimal eeprom(connection);                      // Create 24AA02UID driver, (connection, addr=0x50) → void
 
 void setup() {
     Serial.begin(115200);

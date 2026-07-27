@@ -1,8 +1,8 @@
 #include "DHT11.h"
-#include "../../transport/DHTxxTransport.h"
+#include "../../connection/DHTxxConnection.h"
 #include <math.h>
 
-DHT11Minimal::DHT11Minimal(DHTxxTransport& transport) : _transport(transport) {}
+DHT11Minimal::DHT11Minimal(DHTxxConnection& connection) : _connection(connection) {}
 
 void DHT11Minimal::_decode(const uint8_t* frame, float& temperature, float& humidity) {
     uint8_t hum_int  = frame[0];
@@ -26,7 +26,7 @@ void DHT11Minimal::_decode(const uint8_t* frame, float& temperature, float& humi
 
 bool DHT11Minimal::read(float& temperature, float& humidity) {
     uint8_t frame[5];
-    if (!_transport.read(frame)) {
+    if (!_connection.read(frame)) {
         _valid = false;
         temperature = NAN;
         humidity    = NAN;
@@ -36,8 +36,8 @@ bool DHT11Minimal::read(float& temperature, float& humidity) {
     return _valid;
 }
 
-DHT11Full::DHT11Full(DHTxxTransport& transport, uint8_t max_retries)
-    : DHT11Minimal(transport), _max_retries(max_retries) {}
+DHT11Full::DHT11Full(DHTxxConnection& connection, uint8_t max_retries)
+    : DHT11Minimal(connection), _max_retries(max_retries) {}
 
 float DHT11Full::read_temperature() {
     float t, h;
@@ -55,7 +55,7 @@ bool DHT11Full::read_retry(uint8_t max_retries, float& temperature, float& humid
     if (max_retries == 0) max_retries = _max_retries;
     for (uint8_t i = 0; i < max_retries; i++) {
         uint8_t frame[5];
-        if (_transport.read(frame)) {
+        if (_connection.read(frame)) {
             _decode(frame, temperature, humidity);
             if (_valid) return true;
         }
@@ -64,12 +64,12 @@ bool DHT11Full::read_retry(uint8_t max_retries, float& temperature, float& humid
 }
 
 bool DHT11Full::read_raw(uint8_t* out) {
-    return _transport.read(out);
+    return _connection.read(out);
 }
 
 bool DHT11Full::read_raw_with_retry(uint8_t* out) {
     for (uint8_t i = 0; i < _max_retries; i++) {
-        if (_transport.read(out)) {
+        if (_connection.read(out)) {
             uint8_t expected = (uint8_t)((out[0] + out[1] + out[2] + out[3]) & 0xFF);
             if (expected == out[4]) return true;
         }

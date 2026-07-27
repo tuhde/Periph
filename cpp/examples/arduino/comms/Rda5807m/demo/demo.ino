@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Rda5807m.h"
 
-I2CTransport transport(Wire, 0x10);
-RDA5807MFull fm(transport, 87.5f, 10);
+I2CConnection connection(Wire, 0x10);
+RDA5807MFull fm(connection, 87.5f, 10);
 
 void setup() {
     Serial.begin(115200);

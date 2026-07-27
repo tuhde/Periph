@@ -1,17 +1,17 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief MCP4725 single-channel 12-bit voltage-output DAC — minimal interface.
  *
  * Provides simple voltage output as a fraction of V_DD with no configuration
- * beyond the transport. Uses Fast Write (2-byte) for DAC register updates.
+ * beyond the connection. Uses Fast Write (2-byte) for DAC register updates.
  *
- * @param transport Configured I²C transport pointing at the device (0x60–0x61).
+ * @param connection Configured I²C connection pointing at the device (0x60–0x61).
  */
 class MCP4725Minimal {
 public:
-    explicit MCP4725Minimal(Transport& transport);
+    explicit MCP4725Minimal(Connection& connection);
 
     /** @brief Set the DAC output as a fraction of V_DD.
      *  @param fraction Output voltage as a fraction of V_DD (0.0–1.0).
@@ -26,7 +26,7 @@ public:
 protected:
     static constexpr uint8_t CMD_FAST_WRITE = 0x00;
 
-    Transport& _transport;
+    Connection& _connection;
 
     void _fast_write(uint16_t code, uint8_t pd_mode);
 };
@@ -36,7 +36,7 @@ protected:
  * Adds write-with-EEPROM persistence, power-down modes, General Call reset/wake,
  * and full register read-back of both DAC and EEPROM contents.
  *
- * @param transport Configured I²C transport pointing at the device (0x60–0x61).
+ * @param connection Configured I²C connection pointing at the device (0x60–0x61).
  */
 class MCP4725Full : public MCP4725Minimal {
 public:
@@ -45,7 +45,7 @@ public:
     static constexpr uint8_t PD_100K_GND = 2;
     static constexpr uint8_t PD_500K_GND = 3;
 
-    explicit MCP4725Full(Transport& transport);
+    explicit MCP4725Full(Connection& connection);
 
     /** @brief Set the DAC output and persist to EEPROM.
      *  @param fraction Output voltage as a fraction of V_DD (0.0–1.0).

@@ -1,17 +1,17 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief MFRC522 13.56 MHz contactless reader/writer — minimal interface.
  *
  *  Provides a 13.56 MHz RFID/NFC reader/writer frontend that detects an
  *  ISO/IEC 14443 Type A card in the field and reads its UID. No
- *  configuration beyond the transport is required.
+ *  configuration beyond the connection is required.
  *
  *  Supports three host transports — I²C, SPI, and UART — all of which
  *  expose the same 64-register internal bank; the address-byte framing
- *  differs per transport. The driver selects the correct framing from a
+ *  differs per connection. The driver selects the correct framing from a
  *  bus-type parameter.
  *
  *  Default configuration (baked in at construction):
@@ -21,7 +21,7 @@
  *      - Antenna enabled
  *      - 106 kBd, 33 dB RX gain (reset default)
  *
- *  @param transport Configured I²C, SPI, or UART transport bound to the device.
+ *  @param connection Configured I²C, SPI, or UART connection bound to the device.
  *  @param bus_type  Bus type, one of BUS_SPI (default), BUS_I2C, BUS_UART.
  *                   SPI is the most common wiring.
  */
@@ -31,7 +31,7 @@ public:
     static constexpr uint8_t BUS_SPI  = 1;
     static constexpr uint8_t BUS_UART = 2;
 
-    explicit MFRC522Minimal(Transport& transport, uint8_t bus_type = BUS_SPI);
+    explicit MFRC522Minimal(Connection& connection, uint8_t bus_type = BUS_SPI);
 
     /** @brief Detect a card in the RF field.
      *
@@ -133,7 +133,7 @@ protected:
     static constexpr uint8_t PICC_SEL_BIT        = 0x70;
     static constexpr uint8_t PICC_SAK_NOT_COMPLETE = 0x04;
 
-    Transport& _transport;
+    Connection& _connection;
     uint8_t    _bus_type;
 
     uint8_t _addr_for(uint8_t reg, bool read) const;
@@ -174,7 +174,7 @@ public:
     static constexpr uint8_t RX_GAIN_43_DB = 0x60;
     static constexpr uint8_t RX_GAIN_48_DB = 0x70;
 
-    MFRC522Full(Transport& transport, uint8_t bus_type = BUS_SPI);
+    MFRC522Full(Connection& connection, uint8_t bus_type = BUS_SPI);
 
     /** @brief Re-run SoftReset and the full initialization sequence. */
     void reset();

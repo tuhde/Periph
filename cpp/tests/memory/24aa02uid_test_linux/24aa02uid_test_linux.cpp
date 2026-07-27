@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "24AA02UID.h"
 
 #ifndef TEST_I2C_BUS
@@ -36,8 +36,8 @@ static void check_eq_bytes(const char* label, const uint8_t* got, const uint8_t*
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    EEPROM24AA02UIDFull eeprom(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    EEPROM24AA02UIDFull eeprom(connection);
 
     uint8_t uid[4];
     eeprom.read_uid(uid);

@@ -19,8 +19,8 @@ void MFRC522Minimal::_delay_ms(unsigned long ms) {
 #endif
 }
 
-MFRC522Minimal::MFRC522Minimal(Transport& transport, uint8_t bus_type)
-    : _transport(transport), _bus_type(bus_type) {
+MFRC522Minimal::MFRC522Minimal(Connection& connection, uint8_t bus_type)
+    : _connection(connection), _bus_type(bus_type) {
     _init_chip();
 }
 
@@ -38,13 +38,13 @@ void MFRC522Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2];
     buf[0] = _addr_for(reg, false);
     buf[1] = value;
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 uint8_t MFRC522Minimal::_read_reg(uint8_t reg) {
     uint8_t addr = _addr_for(reg, true);
     uint8_t b = 0;
-    _transport.write_read(&addr, 1, &b, 1);
+    _connection.write_read(&addr, 1, &b, 1);
     return b;
 }
 
@@ -266,8 +266,8 @@ bool MFRC522Minimal::read_uid(uint8_t* out, size_t& len) {
 
 // --- Full ---
 
-MFRC522Full::MFRC522Full(Transport& transport, uint8_t bus_type)
-    : MFRC522Minimal(transport, bus_type) {
+MFRC522Full::MFRC522Full(Connection& connection, uint8_t bus_type)
+    : MFRC522Minimal(connection, bus_type) {
 }
 
 void MFRC522Full::reset() {

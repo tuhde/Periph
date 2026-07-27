@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for MCP23017 (Minimal).
 // Mirrors the Arduino MCP23017_Minimal example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP23017.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP23017Minimal chip(transport, 0x20);  // Create MCP23017 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP23017Minimal chip(connection, 0x20);  // Create MCP23017 driver
     uint8_t val;
     while (1) {
     chip.read_port(0);                                // Read all 8 pins of PORTA, (port 0/1) → uint8_t bitmask

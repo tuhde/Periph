@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief PCF8576 40x4 universal LCD segment driver — minimal interface.
  *
@@ -15,7 +15,7 @@
  *    - display enabled (E = 1)
  *    - display RAM cleared to all zeros
  *
- *  @param transport Configured I2C transport pointing at the device.
+ *  @param connection Configured I2C connection pointing at the device.
  */
 class PCF8576Minimal {
 public:
@@ -45,7 +45,7 @@ public:
     };
 
     /** @brief Construct the driver and initialise the chip with defaults. */
-    explicit PCF8576Minimal(Transport& transport);
+    explicit PCF8576Minimal(Connection& connection);
 
     /** @brief Zero all 40 columns of display RAM; all segments off. */
     void clear();
@@ -68,7 +68,7 @@ public:
     void set_digit_7seg(uint8_t position, uint8_t segments);
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
     uint8_t    _backplanes;
 
     uint8_t _cmd_mode(bool enable, uint8_t bias, uint8_t mode) const;
@@ -85,7 +85,7 @@ protected:
  *  static and 1:2 multiplex use, and change the device subaddress counter
  *  for cascaded displays.
  *
- *  @param transport Configured I2C transport pointing at the device.
+ *  @param connection Configured I2C connection pointing at the device.
  */
 class PCF8576Full : public PCF8576Minimal {
 public:
@@ -105,7 +105,7 @@ public:
     static constexpr uint8_t BANK_0 = 0;
     static constexpr uint8_t BANK_1 = 1;
 
-    explicit PCF8576Full(Transport& transport);
+    explicit PCF8576Full(Connection& connection);
 
     /** @brief Turn the display on (E = 1). RAM contents are preserved. */
     void enable();

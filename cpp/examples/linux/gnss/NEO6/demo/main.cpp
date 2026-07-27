@@ -1,14 +1,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "UARTTransportLinux.h"
+#include "UARTConnectionLinux.h"
 #include "NEO6.h"
 
 int main() {
     const char* port = getenv("UART_PORT") ? getenv("UART_PORT") : "/dev/ttyS0";
-    UARTTransportLinux transport(port, 9600);
+    UARTConnectionLinux connection(port, 9600);
 
-    NEO6Full gps(transport);                                               // Create NEO-6 driver, (transport, bus_type=Uart)
+    NEO6Full gps(connection);                                               // Create NEO-6 driver, (connection, bus_type=Uart)
 
     // --- Track and log position every second ---
     // Waits for a valid fix (fix_type >= 2) then logs lat/lon/alt/speed CSV.

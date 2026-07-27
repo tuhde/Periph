@@ -2,7 +2,7 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
 #include "INA219.h"
 
 int main(void) {
@@ -12,8 +12,8 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x40);
-    INA219Full ina(transport, /*r_shunt=*/0.1f, /*max_current=*/2.0f);
+    I2CConnectionPicoSDK connection(i2c0, 0x40);
+    INA219Full ina(connection, /*r_shunt=*/0.1f, /*max_current=*/2.0f);
 
     stdio_init_all();
 

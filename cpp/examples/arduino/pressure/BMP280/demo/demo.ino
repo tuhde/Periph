@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/pressure/BMP280.h"
 
 static int passed = 0, failed = 0;
@@ -16,12 +16,12 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x76);
+    I2CConnection connection(Wire, 0x76);
 
     // --- Weather monitoring preset: lowest power, forced mode ---
     // BMP280 datasheet Table 7: ×1/×1, filter off, forced mode.
     // One sample per second for 30 seconds.
-    BMP280Full bmp(transport);                           // Create BMP280 driver, (transport, spi=false)
+    BMP280Full bmp(connection);                           // Create BMP280 driver, (connection, spi=false)
     bmp.configure(BMP280Full::OSRS_X1, BMP280Full::OSRS_X1, BMP280Full::MODE_FORCED, BMP280Full::FILTER_OFF, BMP280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t=×1, osrs_p=×1, mode=forced, filter=off, t_sb=0) → None
 
     for (int n = 0; n < 30; n++) {

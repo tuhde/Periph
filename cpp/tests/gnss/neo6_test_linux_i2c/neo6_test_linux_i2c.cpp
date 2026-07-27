@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cmath>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "NEO6.h"
 
 // Requires a NEO-6 module wired to I2C (DDC) with a clear sky view. Achieving
@@ -22,8 +22,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    NEO6Minimal gps(transport, NEO6BusType::I2c);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    NEO6Minimal gps(connection, NEO6BusType::I2c);
 
     check_true("fix() starts at 0", gps.fix() == 0);
     check_true("latitude() starts at NAN", std::isnan(gps.latitude()));

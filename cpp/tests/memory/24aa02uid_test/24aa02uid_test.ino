@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "24AA02UID.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x50
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-EEPROM24AA02UIDFull eeprom(transport);
+I2CConnection connection(Wire, TEST_ADDR);
+EEPROM24AA02UIDFull eeprom(connection);
 
 static int passed = 0;
 static int failed = 0;

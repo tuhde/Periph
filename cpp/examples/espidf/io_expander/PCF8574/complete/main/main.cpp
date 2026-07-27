@@ -1,12 +1,9 @@
-// Auto-generated ESP-IDF example for PCF8574 (Complete).
-// Mirrors the Arduino PCF8574_Complete example using the
-// I2CTransportESPIDF transport.
-
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
+#include "InputPinESPIDF.h"
 #include "PCF8574.h"
 
 extern "C" void app_main(void) {
@@ -29,15 +26,54 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8574Full chip(transport, 0x20);  // Create PCF8574 driver
-    uint8_t val;
-    uint8_t mask;
-    chip.read_port();                                // Read all 8 pins, (port) → uint8_t bitmask
-    chip.write_port(0x55);                         // Write all 8 pins, (port, mask) → void
-    chip.write_port(0xFF);                         // Write all 8 pins (input mode), (port, mask) → void
-    chip.configure_interrupt(0, nullptr);             // Configure INT, (int_gpio_pin, callback) → void
-    // passing -1 disables hardware interrupt; falls back to polling on Linux
-    chip.clear_interrupt();                           // Read port and return changed-pin bitmask, () → uint8_t
+    InputPinESPIDF intPin(GPIO_NUM_5);                          // Create INT pin, (pin=GPIO_NUM_5)
+    I2CConnectionESPIDF connection(dev, &intPin);               // Create I2C connection, (dev, intPin)
+    PCF8574Full chip(connection, 0x20);                         // Create PCF8574 full driver, (connection, addr=0x20)
+                                                                 // initialises all pins as inputs; shadow = 0xFF
+
+    PCF8574Full::IOExpanderPin p0 = chip.pin(0);                // Get full pin proxy, (n) → IOExpanderPin
+                                                                 // returned by value; holds reference to chip
+    p0.mode(OUTPUT);                                            // Set direction output, (mode=OUTPUT) → void
+                                                                 // drives P0 low (initial state for output)
+    p0.high();                                                  // Set high (release to quasi-input), () → void
+                                                                 // shadow |= (1 << 0); writes full shadow byte
+    p0.low();                                                   // Drive low, () → void
+                                                                 // shadow &= ~(1 << 0); writes full shadow byte
+    p0.toggle();                                                // Invert shadow bit, () → void
+                                                                 // reads actual pin then flips shadow
+    p0.write(HIGH);                                             // Write pin, (v=HIGH|LOW) → void
+                                                                 // equivalent to high()
+    uint8_t v = p0.read();                                      // Read actual level, () → uint8_t
+                                                                 // reads full port byte, returns bit n
+    printf("P0=%d\n", v);
+
+    uint8_t mask = chip.read_port();                            // Read all 8 pins, (port=0) → uint8_t bitmask
+                                                                 // P0 in bit 0, P7 in bit 7
+    chip.write_port(0, 0b00001111);                             // Write all 8 pins, (port, mask) → void
+                                                                 // P0–P3 low (outputs), P4–P7 high (inputs)
+    printf("mask=0x%02X\n", mask);
+
+    PCF8574Full::IOExpanderPin p4 = chip.pin(4);                // Get full pin proxy, (n) → IOExpanderPin
+    p4.mode(INPUT);                                             // Set direction input, (mode=INPUT) → void
+                                                                 // releases pin to quasi-input (shadow bit = 1)
+    uint8_t state = p4.read();                                  // Read actual level, () → uint8_t
+                                                                 // 0 if button pulls P4 low, 1 if floating
+    printf("P4=%d\n", state);
+
+    chip.onInterrupt([](uint8_t changed) {                      // Subscribe to INT line, (callback) → void
+        printf("INT changed=0x%02X\n", changed);                // callback fires on any input change
+    });
+
+    uint8_t changed = chip.pollInterrupt();                     // Read and return changed bitmask, () → uint8_t
+                                                                 // compares current byte to previous; clears INT
+    printf("changed=0x%02X\n", changed);
+
+    PCF8574Full::IOExpanderPin p5 = chip.pin(5);                // Get full pin proxy, (n) → IOExpanderPin
+    p5.mode(INPUT);
+    p5.watch([](PCF8574Full::IOExpanderPin* p) {                // Subscribe to pin edges, (handler, trigger) → void
+        printf("P5 fell\n");                                    // fires when P5 transitions to match trigger
+    }, InputPin::kFalling);
+    p5.unwatch();                                                // Unsubscribe pin handler, () → void
+
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

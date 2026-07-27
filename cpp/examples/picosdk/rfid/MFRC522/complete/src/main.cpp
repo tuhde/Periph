@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include <hardware/spi.h>
-#include "SPITransportPicoSDK.h"
+#include "SPIConnectionPicoSDK.h"
 #include "MFRC522.h"
 
 static const uint MOSI_PIN = 19;
@@ -24,8 +24,8 @@ int main(void) {
     gpio_set_function(MISO_PIN, GPIO_FUNC_SPI);
     gpio_set_function(SCLK_PIN, GPIO_FUNC_SPI);
 
-    SPITransportPicoSDK transport(spi0, CS_PIN);
-    MFRC522Full mfrc(transport);                                   // Create MFRC522 driver, (transport)
+    SPIConnectionPicoSDK connection(spi0, CS_PIN);
+    MFRC522Full mfrc(connection);                                   // Create MFRC522 driver, (connection)
 
     uint8_t chip_type, version;
     mfrc.version(chip_type, version);                              // Read version register, (chip_type, version) → void

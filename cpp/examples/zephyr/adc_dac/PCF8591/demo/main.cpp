@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8591.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -12,8 +12,8 @@ const float VAGND = 0.0f;
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, PCF8591_ADDR);
-    PCF8591Full adc(transport);
+    I2CConnectionZephyr connection(i2c_dev, PCF8591_ADDR);
+    PCF8591Full adc(connection);
 
     // --- Wire a potentiometer across VAGND–VREF with the wiper to AIN0 ---
     // Connect an LED (with series resistor) to AOUT. In a loop, read AIN0, map

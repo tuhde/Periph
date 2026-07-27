@@ -3,7 +3,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
-#include "DHTxxTransportESPIDF.h"
+#include "DHTxxConnectionESPIDF.h"
 #include "DHT11.h"
 
 static const gpio_num_t DHT11_DATA_PIN = GPIO_NUM_4;
@@ -15,8 +15,8 @@ static void check_true(bool c, const char *l) {
 }
 
 extern "C" void app_main(void) {
-    DHTxxTransportESPIDF transport(DHT11_DATA_PIN);
-    DHT11Full dht(transport, 3);
+    DHTxxConnectionESPIDF connection(DHT11_DATA_PIN);
+    DHT11Full dht(connection, 3);
 
     float t, h;
     bool ok = dht.read_retry(3, t, h);

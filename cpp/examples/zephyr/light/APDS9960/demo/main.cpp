@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "APDS9960.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, APDS9960_ADDR);
-    APDS9960Full apds(transport);                          // Create APDS9960 driver, (transport) → APDS9960Full
+    I2CConnectionZephyr connection(i2c_dev, APDS9960_ADDR);
+    APDS9960Full apds(connection);                          // Create APDS9960 driver, (connection) → APDS9960Full
 
     // --- Monitor ambient light with adaptive integration time ---
     // Start with the default 200 ms integration (ATIME=0xB6). When the clear

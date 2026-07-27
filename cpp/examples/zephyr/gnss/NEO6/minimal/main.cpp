@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "UARTTransportZephyr.h"
+#include "UARTConnectionZephyr.h"
 #include "NEO6.h"
 
 #ifndef NEO6_UART_NODE
@@ -10,8 +10,8 @@
 
 int main(void) {
     const struct device* dev = DEVICE_DT_GET(NEO6_UART_NODE);
-    UARTTransportZephyr transport(dev);
-    NEO6Minimal gps(transport);                          // Create NEO-6 driver, (transport, bus_type=Uart)
+    UARTConnectionZephyr connection(dev);
+    NEO6Minimal gps(connection);                          // Create NEO-6 driver, (connection, bus_type=Uart)
 
     while (true) {
         if (gps.update()) {                              // Read + parse one NMEA sentence, () → bool

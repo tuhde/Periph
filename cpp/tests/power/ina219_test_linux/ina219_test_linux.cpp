@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "INA219.h"
 
 #ifndef TEST_I2C_BUS
@@ -19,8 +19,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    INA219Full ina(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    INA219Full ina(connection);
 
     check_true("voltage non-negative",     ina.voltage()       >= 0.0f);
     check_true("shunt_voltage finite",      ina.shunt_voltage() > -1.0f);

@@ -1,14 +1,14 @@
 #include <cstdio>
 #include <unistd.h>
-#include "DHTxxTransportLinux.h"
+#include "DHTxxConnectionLinux.h"
 #include "DHT11.h"
 
 int main() {
     const char* chip_path = getenv("GPIO_CHIP") ? getenv("GPIO_CHIP") : "/dev/gpiochip0";
     int line_num = getenv("GPIO_LINE") ? atoi(getenv("GPIO_LINE")) : 4;
-    DHTxxTransportLinux transport(chip_path, (unsigned)line_num);
+    DHTxxConnectionLinux connection(chip_path, (unsigned)line_num);
 
-    DHT11Full dht(transport, 3);                                           // Create DHT11 driver, (transport, max_retries=3)
+    DHT11Full dht(connection, 3);                                           // Create DHT11 driver, (connection, max_retries=3)
 
     float t = dht.read_temperature();                                      // Read temperature, () → float °C
     float h = dht.read_humidity();                                         // Read humidity, () → float %RH

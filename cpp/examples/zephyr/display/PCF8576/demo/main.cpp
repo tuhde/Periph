@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8576.h"
 
 #ifndef PCF8576_I2C_NODE
@@ -13,14 +13,14 @@
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(PCF8576_I2C_NODE);
-    I2CTransportZephyr transport(dev, PCF8576_ADDR);
+    I2CConnectionZephyr connection(dev, PCF8576_ADDR);
 
     // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
     // The PCF8576 drives four 7-segment digits from a single I2C bus; the host
     // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
     // and writes all four with one write_raw() call. The countdown runs once
     // per second and the terminal mirrors the value sent to the display.
-    PCF8576Full lcd(transport);                          // Create PCF8576 driver, (transport)
+    PCF8576Full lcd(connection);                          // Create PCF8576 driver, (connection)
 
     for (int n = 9999; n >= 0; n--) {
         uint8_t d0 = (n / 1000) % 10;

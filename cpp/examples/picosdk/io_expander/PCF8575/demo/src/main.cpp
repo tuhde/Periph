@@ -2,7 +2,8 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
+#include "InputPinPicoSDK.h"
 #include "PCF8575.h"
 
 int main(void) {
@@ -12,8 +13,9 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    PCF8575Full chip(transport, /*addr=*/0x20);
+    InputPinPicoSDK intPin(6);                                  // Create INT pin, (pin=6)
+    I2CConnectionPicoSDK connection(i2c0, 0x20, &intPin);       // Create I2C connection, (i2c, addr=0x20, intPin)
+    PCF8575Full chip(connection, /*addr=*/0x20);
 
     stdio_init_all();
 
@@ -21,9 +23,9 @@ int main(void) {
     chip.write_port(0, 0xFF);                                   // Write Port 0, (port=0, mask=uint8_t) → void
     chip.write_port(1, 0xFF);                                   // Write Port 1, (port=1, mask=uint8_t) → void
 
-    chip.configure_interrupt(5, [](uint8_t changed) {
+    chip.onInterrupt([](uint16_t changed) {
         (void)changed;
-    });                                                          // Attach interrupt, (int_gpio_pin, callback) → void
+    });                                                          // Subscribe to INT line, (callback) → void
     while (true) {
 
     uint8_t port0 = chip.read_port(0);                          // Read Port 0, (port=0) → uint8_t bitmask

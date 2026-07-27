@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/gas/ENS160.h"
 
 static int passed = 0, failed = 0;
@@ -21,8 +21,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x52);
-    ENS160Minimal sensor(transport);                     // Create ENS160 driver, (transport)
+    I2CConnection connection(Wire, 0x52);
+    ENS160Minimal sensor(connection);                     // Create ENS160 driver, (connection)
 
     Serial.println("Waiting for sensor warm-up...");
     {

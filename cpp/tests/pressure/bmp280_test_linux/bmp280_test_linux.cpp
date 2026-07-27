@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "BMP280.h"
 
 static int passed = 0, failed = 0;
@@ -17,9 +17,9 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
 
-    BMP280Minimal bmp(transport);
+    BMP280Minimal bmp(connection);
 
     bmp._dig_T1 = 27504;
     bmp._dig_T2 = 26435;
@@ -41,7 +41,7 @@ int main() {
     float p = bmp._compensate_pressure(415148);
     check_true(p > 1005.0f && p < 1008.0f, "pressure_compensation");
 
-    BMP280Full bmp_full(transport);
+    BMP280Full bmp_full(connection);
 
     float t2 = bmp_full.temperature();
     check_true(t2 >= -40.0f && t2 <= 85.0f, "temperature_range");

@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "24AA02UID.h"
 
 #define I2C_NODE       DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, EEPROM_ADDR);
-    EEPROM24AA02UIDMinimal eeprom(transport);                  // Create 24AA02UID driver, (transport, addr=0x50) → void
+    I2CConnectionZephyr connection(i2c_dev, EEPROM_ADDR);
+    EEPROM24AA02UIDMinimal eeprom(connection);                  // Create 24AA02UID driver, (connection, addr=0x50) → void
 
     while (1) {
         uint8_t uid[4];

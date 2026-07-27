@@ -13,7 +13,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include "../../src/transport/SPITransport.h"
+#include "../../src/connection/SPIConnection.h"
 #include "../../src/chips/rfid/MFRC522.h"
 
 static int passed = 0, failed = 0;
@@ -27,8 +27,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     SPI.begin(TEST_SCK, TEST_MISO, TEST_MOSI, TEST_CS);
-    SPITransport transport(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
-    MFRC522Full mfrc(transport);                                    // Create MFRC522 driver, (transport, bus_type=BUS_SPI)
+    SPIConnection connection(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    MFRC522Full mfrc(connection);                                    // Create MFRC522 driver, (connection, bus_type=BUS_SPI)
 
     uint8_t chip_type, version;
     mfrc.version(chip_type, version);                              // Read version register, (chip_type, version) → void

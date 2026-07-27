@@ -2,7 +2,8 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
+#include "InputPinPicoSDK.h"
 #include "PCF8575.h"
 
 int main(void) {
@@ -12,8 +13,9 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    PCF8575Full chip(transport, /*addr=*/0x20);
+    InputPinPicoSDK intPin(6);                                  // Create INT pin, (pin=6)
+    I2CConnectionPicoSDK connection(i2c0, 0x20, &intPin);       // Create I2C connection, (i2c, addr=0x20, intPin)
+    PCF8575Full chip(connection, /*addr=*/0x20);
 
     PCF8575Full::IOExpanderPin p0 = chip.pin(0);                   // Get pin proxy, (n=0) → IOExpanderPin
     PCF8575Full::IOExpanderPin p8 = chip.pin(8);                   // Get pin proxy, (n=8) → IOExpanderPin
@@ -36,11 +38,10 @@ int main(void) {
     p8.mode(INPUT);                                             // Set direction, (mode=INPUT) → void
     uint8_t state = p8.read();                                  // Read actual level, () → uint8_t
 
-    chip.configure_interrupt(5, [](uint8_t changed) {
-        printf("changed: ");
-        printf("%d\n", changed, BIN);
-    });                                                          // Attach interrupt, (int_gpio_pin, callback) → void
+    chip.onInterrupt([](uint16_t changed) {
+        printf("changed: %u\n", changed);
+    });                                                          // Subscribe to INT line, (callback) → void
 
-    uint16_t changed = chip.clear_interrupt();                   // Read port and return 16-bit changed bitmask, () → uint16_t
+    uint16_t changed = chip.pollInterrupt();                     // Read port and return 16-bit changed bitmask, () → uint16_t
     return 0;
 }

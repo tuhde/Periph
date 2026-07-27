@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8591.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x48;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    PCF8591Full pcf(transport);                                            // Create PCF8591 driver, (transport)
+    PCF8591Full pcf(connection);                                            // Create PCF8591 driver, (connection)
 
     for (int ch = 0; ch < 4; ch++)
         printf("ch%d=%u\n", ch, pcf.read_channel(ch));                    // Read ADC channel 0–3, (ch) → uint8_t

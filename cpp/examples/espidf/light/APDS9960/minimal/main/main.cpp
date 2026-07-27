@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for APDS9960 (Minimal).
 // Mirrors the Arduino APDS9960_Minimal example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "APDS9960.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    APDS9960Minimal chip(transport);  // Create APDS9960 driver
+    I2CConnectionESPIDF connection(dev);
+    APDS9960Minimal chip(connection);  // Create APDS9960 driver
     uint16_t c, r, g, b;
     while (1) {
     chip.color(c, r, g, b);                           // Read all RGBC channels, (clear, red, green, blue) → void

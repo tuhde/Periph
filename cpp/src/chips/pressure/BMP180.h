@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief BMP180 piezo-resistive pressure + temperature sensor — minimal interface.
  *
  *  Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- *  beyond the transport. The BMP180 has a fixed I²C address (0x77) and no
+ *  beyond the connection. The BMP180 has a fixed I²C address (0x77) and no
  *  programmable address pin.
  *
  *  Default OSS = 0 (Ultra Low Power, 4.5 ms conversion).
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  @param connection Configured I²C connection pointing at the device.
  */
 class BMP180Minimal {
 public:
-    explicit BMP180Minimal(Transport& transport);
+    explicit BMP180Minimal(Connection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -55,7 +55,7 @@ protected:
     static constexpr float    CONV_TIME_OSS3 = 0.0255f;
     static constexpr float    CONV_TIME_TEMP  = 0.0045f;
 
-    Transport& _transport;
+    Connection& _connection;
     uint8_t   _oss = 0;
 
     int16_t  _ac1 = 0;
@@ -86,7 +86,7 @@ protected:
  *
  *  Adds oversampling mode selection and altitude / sea-level pressure conversion.
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  @param connection Configured I²C connection pointing at the device.
  *  @param oss       Oversampling mode 0–3 (default 0 = ULP).
  */
 class BMP180Full : public BMP180Minimal {
@@ -96,7 +96,7 @@ public:
     static constexpr uint8_t OSS_HIGH_RES         = 2;
     static constexpr uint8_t OSS_ULTRA_HIGH_RES   = 3;
 
-    explicit BMP180Full(Transport& transport, uint8_t oss = 0);
+    explicit BMP180Full(Connection& connection, uint8_t oss = 0);
 
     /** @brief Read the current oversampling mode.
      *  @return OSS value 0–3.

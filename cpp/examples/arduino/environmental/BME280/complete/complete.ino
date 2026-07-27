@@ -8,15 +8,15 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/environmental/BME280.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x76);
-    BME280Full bme(transport);                          // Create BME280 driver, (transport, spi=false)
+    I2CConnection connection(Wire, 0x76);
+    BME280Full bme(connection);                          // Create BME280 driver, (connection, spi=false)
     uint8_t cid = bme.chip_id();                        // Read chip ID, () → uint8_t
                                                          // returns 0x60 for BME280
     bme.configure(1, 1, 1, 0, 0, 0);                    // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → void

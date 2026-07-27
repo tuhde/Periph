@@ -1,47 +1,23 @@
 #include "PCF8575.h"
 
-#ifdef __linux__
-#include <cstdio>
-#include <fcntl.h>
-#include <unistd.h>
-#include <poll.h>
-#include <thread>
-#include <atomic>
-#include <string>
-static std::thread            _linux_irq_thread;
-static std::atomic<bool>      _linux_irq_stop{false};
-#elif defined(CONFIG_GPIO)
-#include <zephyr/drivers/gpio.h>
-static struct gpio_callback   _zephyr_cb_data;
-static PCF8575Full*           _zephyr_chip_ptr = nullptr;
-static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t);
-#elif defined(ESP_PLATFORM)
-#include <driver/gpio.h>
-static PCF8575Full*           _espidf_chip_ptr = nullptr;
-#else
-#include <Arduino.h>
-static PCF8575Full*  _arduino_chip_ptr = nullptr;
-static void          _arduino_isr();
-#endif
-
 // ============================================================
 // PCF8575Minimal
 // ============================================================
 
-PCF8575Minimal::PCF8575Minimal(Transport& transport, uint8_t addr)
-    : _transport(transport), _addr(addr), _shadow{0xFF, 0xFF}
+PCF8575Minimal::PCF8575Minimal(Connection& connection, uint8_t addr)
+    : _connection(connection), _addr(addr), _shadow{0xFF, 0xFF}
 {
     _write_both();
 }
 
 void PCF8575Minimal::_write_both() {
     uint8_t buf[2] = { _shadow[0], _shadow[1] };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 uint8_t PCF8575Minimal::_read_port(uint8_t port) {
     uint8_t buf[2] = {0, 0};
-    _transport.read(buf, 2);
+    _connection.read(buf, 2);
     return buf[port];
 }
 
@@ -91,11 +67,13 @@ uint8_t PCF8575Minimal::IOExpanderPin::read() {
 // PCF8575Full
 // ============================================================
 
-PCF8575Full::PCF8575Full(Transport& transport, uint8_t addr)
-    : PCF8575Minimal(transport, addr)
+PCF8575Full* PCF8575Full::_activeInstance = nullptr;
+
+PCF8575Full::PCF8575Full(Connection& connection, uint8_t addr)
+    : PCF8575Minimal(connection, addr)
 {
     uint8_t buf[2];
-    _transport.read(buf, 2);
+    _connection.read(buf, 2);
     _prev[0] = buf[0];
     _prev[1] = buf[1];
 }
@@ -104,9 +82,9 @@ PCF8575Full::IOExpanderPin PCF8575Full::pin(uint8_t n) {
     return IOExpanderPin(*this, n);
 }
 
-uint16_t PCF8575Full::clear_interrupt() {
+uint16_t PCF8575Full::pollInterrupt() {
     uint8_t buf[2];
-    _transport.read(buf, 2);
+    _connection.read(buf, 2);
     uint8_t changed0 = buf[0] ^ _prev[0];
     uint8_t changed1 = buf[1] ^ _prev[1];
     _prev[0] = buf[0];
@@ -114,102 +92,64 @@ uint16_t PCF8575Full::clear_interrupt() {
     return (uint16_t)changed0 | ((uint16_t)changed1 << 8);
 }
 
-void PCF8575Full::_dispatch(PCF8575Full* chip, uint8_t changed) {
-    if (chip->_callback)
-        chip->_callback(changed);
+void PCF8575Full::onInterrupt(void (*callback)(uint16_t)) {
+    _callback = callback;
+    if (!_connection.intPin()) return;
+    _activeInstance = this;
+    _connection.intPin()->onEdge(&PCF8575Full::_edgeTrampoline, InputPin::kFalling);
 }
 
-void PCF8575Full::configure_interrupt(int int_gpio_pin, std::function<void(uint8_t)> callback) {
-    _callback = callback;
+void PCF8575Full::offInterrupt() {
+    _callback = nullptr;
+    if (_connection.intPin()) _connection.intPin()->offEdge(&PCF8575Full::_edgeTrampoline);
+    if (_activeInstance == this) _activeInstance = nullptr;
+}
 
-#ifdef __linux__
-    if (int_gpio_pin < 0) return;
-    _linux_irq_stop = false;
-    PCF8575Full* chip = this;
-    _linux_irq_thread = std::thread([chip, int_gpio_pin]() {
-        std::string path = "/sys/class/gpio/gpio" + std::to_string(int_gpio_pin) + "/value";
-        int fd = open(path.c_str(), O_RDONLY);
-        if (fd < 0) return;
-        char buf[2];
-        read(fd, buf, sizeof(buf));
-        struct pollfd pfd = { fd, POLLPRI | POLLERR, 0 };
-        while (!_linux_irq_stop) {
-            if (poll(&pfd, 1, 5) > 0) {
-                lseek(fd, 0, SEEK_SET);
-                read(fd, buf, sizeof(buf));
-                uint8_t changed = chip->clear_interrupt();
-                if (changed) _dispatch(chip, changed);
-            }
+void PCF8575Full::_edgeTrampoline() {
+    if (_activeInstance) _activeInstance->_handleEdge();
+}
+
+void PCF8575Full::_handleEdge() {
+    uint16_t changed = pollInterrupt();
+    if (!changed) return;
+
+    if (_callback) _callback(changed);
+
+    for (uint8_t n = 0; n < 16; ++n) {
+        if (!(changed & (1u << n))) continue;
+        PinWatch& w = _pinWatches[n];
+        if (!w.handler) continue;
+
+        uint8_t port = n / 8;
+        uint8_t bit  = n % 8;
+        uint8_t current = (_prev[port] >> bit) & 1;
+        bool fire = (w.trigger == InputPin::kChange) ||
+                    (w.trigger == InputPin::kFalling && current == 0 && w.lastState == 1) ||
+                    (w.trigger == InputPin::kRising  && current == 1 && w.lastState == 0);
+        w.lastState = current;
+
+        if (fire) {
+            IOExpanderPin p(*this, n);
+            w.handler(&p);
         }
-        close(fd);
-    });
-    _linux_irq_thread.detach();
-
-#elif defined(CONFIG_GPIO)
-    (void)int_gpio_pin;
-    _zephyr_chip_ptr = this;
-
-#elif defined(ESP_PLATFORM)
-    (void)int_gpio_pin;
-    _espidf_chip_ptr = this;
-
-#else
-    _arduino_chip_ptr = this;
-    ::attachInterrupt(digitalPinToInterrupt(int_gpio_pin), _arduino_isr, FALLING);
-#endif
+    }
 }
 
 // ---- IOExpanderPin (Full) ----
 
 PCF8575Full::IOExpanderPin::IOExpanderPin(PCF8575Full& chip, uint8_t n)
-    : PCF8575Minimal::IOExpanderPin(chip, n), _full_chip(chip), _last_state(0xFF)
+    : PCF8575Minimal::IOExpanderPin(chip, n), _full_chip(chip)
 {}
 
-void PCF8575Full::IOExpanderPin::attachInterrupt(void (*handler)(IOExpanderPin*), uint8_t mode) {
-    _handler  = handler;
-    _irq_mode = mode;
+void PCF8575Full::IOExpanderPin::watch(void (*handler)(IOExpanderPin*), uint8_t trigger) {
+    PCF8575Full::PinWatch& w = _full_chip._pinWatches[_n];
+    w.handler   = handler;
+    w.trigger   = trigger;
     uint8_t port = _n / 8;
-    uint8_t bit = _n % 8;
-    _last_state = (_full_chip._read_port(port) >> bit) & 1;
-    _full_chip._callback = [this](uint8_t changed) {
-        if (!((changed >> _n) & 1)) return;
-        uint8_t port = _n / 8;
-        uint8_t bit = _n % 8;
-        uint8_t current = (_full_chip._read_port(port) >> bit) & 1;
-        bool fire = (_irq_mode == CHANGE) ||
-                    (_irq_mode == FALLING && current == 0 && _last_state == 1) ||
-                    (_irq_mode == RISING  && current == 1 && _last_state == 0);
-        _last_state = current;
-        if (fire && _handler) _handler(this);
-    };
+    uint8_t bit  = _n % 8;
+    w.lastState = (_full_chip._read_port(port) >> bit) & 1;
 }
 
-void PCF8575Full::IOExpanderPin::detachInterrupt() {
-    _handler = nullptr;
+void PCF8575Full::IOExpanderPin::unwatch() {
+    _full_chip._pinWatches[_n].handler = nullptr;
 }
-
-// ---- Platform ISR stubs ----
-
-#if defined(__linux__)
-
-#elif defined(CONFIG_GPIO)
-static void _zephyr_gpio_cb(const struct device*, struct gpio_callback*, uint32_t) {
-    if (!_zephyr_chip_ptr) return;
-    uint8_t changed = _zephyr_chip_ptr->clear_interrupt();
-    if (changed) PCF8575Full::_dispatch(_zephyr_chip_ptr, changed);
-}
-
-#elif defined(ESP_PLATFORM)
-static void _espidf_dispatch_from_isr(void* arg) {
-    PCF8575Full* chip = static_cast<PCF8575Full*>(arg);
-    uint8_t changed = chip->clear_interrupt();
-    if (changed) PCF8575Full::_dispatch(chip, changed);
-}
-
-#else
-static void _arduino_isr() {
-    if (!_arduino_chip_ptr) return;
-    uint8_t changed = _arduino_chip_ptr->clear_interrupt();
-    if (changed) PCF8575Full::_dispatch(_arduino_chip_ptr, changed);
-}
-#endif

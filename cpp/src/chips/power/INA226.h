@@ -1,11 +1,11 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief INA226 36V, 16-bit current/voltage/power monitor — minimal interface.
  *
  * Provides bus voltage, shunt voltage, current, and power readings with no
- * configuration beyond the transport and shunt resistor. The Calibration
+ * configuration beyond the connection and shunt resistor. The Calibration
  * Register is written automatically at construction.
  *
  * Default configuration (written at construction):
@@ -14,13 +14,13 @@
  * - VSHCT = 4: 1.1 ms shunt voltage conversion time
  * - AVG = 0: 1 sample (no averaging)
  *
- * @param transport   Configured I²C or SMBus transport pointing at the device.
+ * @param connection   Configured I²C or SMBus connection pointing at the device.
  * @param r_shunt     Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
 class INA226Minimal {
 public:
-    INA226Minimal(Transport& transport, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA226Minimal(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Read bus voltage.
      *  @return Bus voltage in volts (raw × 1.25 mV LSB).
@@ -51,7 +51,7 @@ protected:
     static constexpr uint8_t  REG_CAL         = 0x05;
     static constexpr uint16_t CONFIG_DEFAULT  = 0x4127;
 
-    Transport& _transport;
+    Connection& _connection;
     float      _current_lsb;
     uint16_t   _cal;
 
@@ -73,7 +73,7 @@ protected:
  * - POL  — power over-limit
  * - CNVR — conversion ready
  *
- * @param transport   Configured I²C or SMBus transport pointing at the device.
+ * @param connection   Configured I²C or SMBus connection pointing at the device.
  * @param r_shunt     Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
@@ -87,7 +87,7 @@ public:
     static constexpr uint16_t CNVR = 0x0400;
     static constexpr uint16_t AFF  = 0x0010;
 
-    INA226Full(Transport& transport, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA226Full(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Write the Configuration Register.
      *  @param avg     Averaging count selector 0–7 (0 = 1 sample … 7 = 1024 samples).

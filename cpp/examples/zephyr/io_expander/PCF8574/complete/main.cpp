@@ -1,7 +1,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <zephyr/drivers/gpio.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
+#include "InputPinZephyr.h"
 #include "PCF8574.h"
 
 static const struct gpio_dt_spec int_gpio =
@@ -10,8 +11,9 @@ static const struct gpio_dt_spec int_gpio =
 int main() {
     const struct device* i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 
-    I2CTransportZephyr transport(i2c_dev, 0x20);               // Create I2C transport, (dev, addr=0x20)
-    PCF8574Full chip(transport);                                // Create PCF8574 full driver, (transport, addr=0x20)
+    InputPinZephyr intPin(int_gpio);                             // Create INT pin, (gpio_dt_spec)
+    I2CConnectionZephyr connection(i2c_dev, 0x20, &intPin);      // Create I2C connection, (dev, addr=0x20, intPin)
+    PCF8574Full chip(connection);                                // Create PCF8574 full driver, (connection, addr=0x20)
                                                                // initialises all pins as inputs; shadow = 0xFF
 
     PCF8574Full::IOExpanderPin p0 = chip.pin(0);               // Get full pin proxy, (n) → IOExpanderPin
@@ -37,13 +39,12 @@ int main() {
     p4.mode(INPUT);                                             // Set direction input, (mode=INPUT) → void
                                                                // releases P4 to input mode (shadow bit 4 = 1)
 
-    // Configure INT via Zephyr GPIO
-    gpio_pin_configure_dt(&int_gpio, GPIO_INPUT | GPIO_PULL_UP);
-    chip.configure_interrupt(int_gpio.pin, [](uint8_t changed) { // Attach interrupt, (gpio_pin, callback) → void
+    // Subscribe to INT line
+    chip.onInterrupt([](uint8_t changed) {                      // Subscribe to INT line, (callback) → void
         printk("INT changed=0x%02X\n", changed);               // called on any input change; clears INT line
     });
 
-    uint8_t changed = chip.clear_interrupt();                   // Read and return changed bitmask, () → uint8_t
+    uint8_t changed = chip.pollInterrupt();                     // Read and return changed bitmask, () → uint8_t
                                                                // compares current byte to previous read
     printk("changed=0x%02X\n", changed);
 

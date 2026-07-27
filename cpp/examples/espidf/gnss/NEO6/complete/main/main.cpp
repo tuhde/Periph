@@ -1,13 +1,13 @@
 // Auto-generated ESP-IDF example for NEO6 (Complete).
 // Mirrors the Arduino NEO6_Complete example using the
-// UARTTransportESPIDF transport.
+// UARTConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
-#include "UARTTransportESPIDF.h"
+#include "UARTConnectionESPIDF.h"
 #include "NEO6.h"
 
 extern "C" void app_main(void) {
@@ -22,8 +22,8 @@ extern "C" void app_main(void) {
     uart_param_config(UART_NUM_1, &uart_cfg);
     uart_set_pin(UART_NUM_1, 17, 16, -1, -1);  // TX=17, RX=16
 
-    UARTTransportESPIDF transport(UART_NUM_1);
-    NEO6Full chip(transport);  // Create NEO6 driver
+    UARTConnectionESPIDF connection(UART_NUM_1);
+    NEO6Full chip(connection);  // Create NEO6 driver
     float lat, lon, alt, spd, crs, hdop;
     int fix, sats;
     const char *utct, *utcd;

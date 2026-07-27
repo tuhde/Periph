@@ -1,13 +1,13 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "DHTxxTransportZephyr.h"
+#include "DHTxxConnectionZephyr.h"
 #include "DHT11.h"
 
 static const struct gpio_dt_spec dht_spec = GPIO_DT_SPEC_GET(DT_NODELABEL(gpio0), gpios);
 
-DHTxxTransportZephyr transport(dht_spec);
-DHT11Full dht(transport, 3);                    // Create DHT11 driver, (transport, max_retries=3)
+DHTxxConnectionZephyr connection(dht_spec);
+DHT11Full dht(connection, 3);                    // Create DHT11 driver, (connection, max_retries=3)
 
 const char* comfort(float h) {
     if (h < 30.0f) return "dry";

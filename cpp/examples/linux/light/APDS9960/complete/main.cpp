@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "APDS9960.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x39;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    APDS9960Full apds(transport);                                          // Create APDS9960 driver, (transport)
+    APDS9960Full apds(connection);                                          // Create APDS9960 driver, (connection)
 
     uint8_t id = apds.device_id();                                         // Read device ID, () → uint8_t  (0xAB)
     printf("device_id=0x%02X\n", id);

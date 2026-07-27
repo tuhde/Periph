@@ -1,9 +1,11 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
+#include "InputPinArduino.h"
 #include "PCF8575.h"
 
-I2CTransport transport(Wire, 0x20);                            // Create I2C transport, (wire, addr=0x20)
-PCF8575Full chip(transport);                                   // Create PCF8575 full driver, (transport, addr=0x20)
+InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
+I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)
+PCF8575Full chip(connection);                                   // Create PCF8575 full driver, (connection, addr=0x20)
 
 PCF8575Full::IOExpanderPin p0 = chip.pin(0);                   // Get pin proxy, (n=0) → IOExpanderPin
 PCF8575Full::IOExpanderPin p8 = chip.pin(8);                   // Get pin proxy, (n=8) → IOExpanderPin
@@ -27,12 +29,12 @@ void setup() {
     p8.mode(INPUT);                                             // Set direction, (mode=INPUT) → void
     uint8_t state = p8.read();                                  // Read actual level, () → uint8_t
 
-    chip.configure_interrupt(5, [](uint8_t changed) {
+    chip.onInterrupt([](uint16_t changed) {
         Serial.print("changed: ");
         Serial.println(changed, BIN);
-    });                                                          // Attach interrupt, (int_gpio_pin, callback) → void
+    });                                                          // Subscribe to INT line, (callback) → void
 
-    uint16_t changed = chip.clear_interrupt();                   // Read port and return 16-bit changed bitmask, () → uint16_t
+    uint16_t changed = chip.pollInterrupt();                     // Read port and return 16-bit changed bitmask, () → uint16_t
 }
 
 void loop() {}

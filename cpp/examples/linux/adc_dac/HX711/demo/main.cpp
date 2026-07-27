@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <gpiod.h>
-#include "HX711TransportLinux.h"
+#include "HX711ConnectionLinux.h"
 #include "HX711.h"
 
 int main() {
@@ -14,9 +14,9 @@ int main() {
     struct gpiod_line* pd_sck = gpiod_chip_get_line(chip_dev, pd_sck_line);
     gpiod_line_request_input(dout,   "hx711");
     gpiod_line_request_output(pd_sck, "hx711", 0);
-    HX711TransportLinux transport(dout, pd_sck);
+    HX711ConnectionLinux connection(dout, pd_sck);
 
-    HX711Full hx(transport);                                               // Create HX711 driver, (transport)
+    HX711Full hx(connection);                                               // Create HX711 driver, (connection)
 
     // --- Scale with tare and continuous weight readout ---
     // Tares on the first reading then prints weight in grams.

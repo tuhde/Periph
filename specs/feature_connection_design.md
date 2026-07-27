@@ -785,11 +785,16 @@ class InputPin(ABC):
 ```cpp
 class InputPin {
 public:
-    static constexpr uint8_t FALLING = 0;
-    static constexpr uint8_t RISING  = 1;
-    static constexpr uint8_t CHANGE  = 2;
+    // Named kFalling/kRising/kChange, not FALLING/RISING/CHANGE: those bare
+    // names are #defined as macros by <Arduino.h> (and other vendor GPIO
+    // headers), which would corrupt every qualified InputPin::FALLING
+    // reference via raw token substitution before the compiler ever sees
+    // the "::". kFalling/kRising/kChange do not collide.
+    static constexpr uint8_t kFalling = 0;
+    static constexpr uint8_t kRising  = 1;
+    static constexpr uint8_t kChange  = 2;
 
-    virtual void onEdge(void (*handler)(), uint8_t trigger = FALLING) = 0;
+    virtual void onEdge(void (*handler)(), uint8_t trigger = kFalling) = 0;
     virtual void offEdge(void (*handler)()) = 0;
     virtual ~InputPin() = default;
 };
@@ -1083,7 +1088,7 @@ filtering before dispatching to its registered handler.
 | Language | Subscribe | Unsubscribe | Trigger argument |
 |----------|-----------|-------------|-----------------|
 | Python | `pin.watch(handler, trigger=CHANGE)` | `pin.unwatch()` | `InputPin.RISING`, `.FALLING`, `.CHANGE` |
-| C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `InputPin::RISING`, `::FALLING`, `::CHANGE` |
+| C++ | `pin.watch(handler, mode)` | `pin.unwatch()` | `InputPin::kRising`, `::kFalling`, `::kChange` |
 | Node.js | `pin.watch(callback, trigger='change')` | `pin.unwatch()` | `'rising'`, `'falling'`, `'change'` |
 | JVM | `pin.watch(handler, EdgeTrigger.CHANGE)` | `pin.unwatch()` | `EdgeTrigger` enum |
 | Go | `pin.Watch(trigger, handler) error` | `pin.Unwatch() error` | `connection.Rising`, `.Falling`, `.Change` |

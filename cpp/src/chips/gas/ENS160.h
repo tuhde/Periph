@@ -1,21 +1,21 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief ENS160 digital multi-gas sensor — minimal interface.
  *
  *  Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
- *  configuration required beyond the transport. The sensor performs automatic
+ *  configuration required beyond the connection. The sensor performs automatic
  *  baseline correction and on-chip signal processing.
  *
  *  Default: STANDARD mode (gas sensing active), polling only, no external
  *  T/RH compensation.
  *
- *  @param transport Configured I²C or SPI transport pointing at the device.
+ *  @param connection Configured I²C or SPI connection pointing at the device.
  */
 class ENS160Minimal {
 public:
-    explicit ENS160Minimal(Transport& transport);
+    explicit ENS160Minimal(Connection& connection);
 
     /** @brief Read the VALIDITY_FLAG from DEVICE_STATUS.
      *  @return Validity flag (0=OK, 1=Warm-up, 2=Initial Start-up, 3=No valid output).
@@ -59,7 +59,7 @@ protected:
 
     static constexpr uint16_t PART_ID_EXPECTED = 0x0160;
 
-    Transport& _transport;
+    Connection& _connection;
 
     void     _write_reg(uint8_t reg, uint8_t value);
     void     _write_reg_le16(uint8_t reg, uint16_t value);
@@ -75,7 +75,7 @@ protected:
  *  raw sensor resistance, firmware version query, interrupt configuration,
  *  and sleep/wake control.
  *
- *  @param transport Configured I²C or SPI transport pointing at the device.
+ *  @param connection Configured I²C or SPI connection pointing at the device.
  */
 class ENS160Full : public ENS160Minimal {
 public:
@@ -84,7 +84,7 @@ public:
     static constexpr uint8_t VALIDITY_INITIAL_STARTUP = 2;
     static constexpr uint8_t VALIDITY_INVALID         = 3;
 
-    explicit ENS160Full(Transport& transport);
+    explicit ENS160Full(Connection& connection);
 
     /** @brief Write external temperature and humidity for compensation.
      *  @param temp_celsius Ambient temperature in degrees Celsius.

@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <cmath>
-#include "UARTTransportZephyr.h"
+#include "UARTConnectionZephyr.h"
 #include "NEO6.h"
 
 // Requires a NEO-6 module wired to UART with a clear sky view. Achieving an
@@ -22,8 +22,8 @@ static void check_true(const char* label, bool condition) {
 
 int main(void) {
     const struct device* dev = DEVICE_DT_GET(NEO6_UART_NODE);
-    UARTTransportZephyr transport(dev);
-    NEO6Minimal gps(transport);
+    UARTConnectionZephyr connection(dev);
+    NEO6Minimal gps(connection);
 
     check_true("fix() starts at 0", gps.fix() == 0);
     check_true("latitude() starts at NAN", std::isnan(gps.latitude()));

@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for MCP4728 (Complete).
 // Mirrors the Arduino MCP4728_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP4728.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP4728Full chip(transport);  // Create MCP4728 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP4728Full chip(connection);  // Create MCP4728 driver
     float fractions[4] = { 0.0f, 0.33f, 0.66f, 1.0f };
     uint8_t vrefs[4]   = { 0, 0, 0, 0 };
     uint8_t gains[4]   = { 0, 0, 0, 0 };

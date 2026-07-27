@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
-#include "DHTxxTransportPicoSDK.h"
+#include "DHTxxConnectionPicoSDK.h"
 #include "DHT11.h"
 
 static const uint DHT11_DATA_PIN = 4;

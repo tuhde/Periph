@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8574.h"
 
 #ifndef TEST_I2C_BUS
@@ -23,8 +23,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    PCF8574Full chip(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    PCF8574Full chip(connection);
 
     check_eq("init_shadow", chip._shadow, 0xFF);
 
@@ -53,8 +53,8 @@ int main() {
     p4.mode(INPUT);
     check_eq("input_shadow_bit4", (chip._shadow >> 4) & 1, 0x01);
 
-    uint8_t changed = chip.clear_interrupt();
-    check_true("clear_interrupt_range", changed <= 0xFF);
+    uint8_t changed = chip.pollInterrupt();
+    check_true("poll_interrupt_range", changed <= 0xFF);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed ? 1 : 0;

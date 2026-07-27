@@ -7,15 +7,15 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/environmental/BME680.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x76);
-    BME680Minimal bme(transport);                        // Create BME680 driver, (transport)
+    I2CConnection connection(Wire, 0x76);
+    BME680Minimal bme(connection);                        // Create BME680 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bme.temperature();                     // Read temperature, () → float °C

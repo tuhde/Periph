@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "MCP4728.h"
 
 #ifndef MCP4728_I2C_NODE
@@ -21,8 +21,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(MCP4728_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, MCP4728_ADDR);
-    MCP4728Full dac(transport);
+    I2CConnectionZephyr connection(i2c_dev, MCP4728_ADDR);
+    MCP4728Full dac(connection);
 
     dac.set_voltage(0, 0.5f);
     check_true("set_voltage(ch0, 0.5) accepted", true);

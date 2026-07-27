@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/gas/ENS160.h"
 
 static int passed = 0, failed = 0;
@@ -24,9 +24,9 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
+    I2CConnection connection(Wire, TEST_ADDR);
 
-    ENS160Full sensor(transport);
+    ENS160Full sensor(connection);
     check_true(true, "init");
 
     uint8_t status = sensor.status();

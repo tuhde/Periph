@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "INA226.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, INA226_ADDR);
-    INA226Full ina(transport);
+    I2CConnectionZephyr connection(i2c_dev, INA226_ADDR);
+    INA226Full ina(connection);
 
     ina.configure(3, 4, 4, 7);
 

@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for SK6812RGBW (Minimal).
 // Mirrors the Arduino SK6812RGBW_Minimal example using the
-// NeoPixelTransportESPIDF transport.
+// NeoPixelConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
-#include "NeoPixelTransportESPIDF.h"
+#include "NeoPixelConnectionESPIDF.h"
 #include "SK6812RGBW.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     spi_device_handle_t spi_dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &spi_dev);
 
-    NeoPixelTransportESPIDF transport(spi_dev);
-    SK6812RGBWMinimal chip(transport, 8);  // Create SK6812RGBW driver
+    NeoPixelConnectionESPIDF connection(spi_dev);
+    SK6812RGBWMinimal chip(connection, 8);  // Create SK6812RGBW driver
     while (1) {
     chip.fill(255, 0, 0, 0);                          // Fill all pixels RGBW, (r, g, b, w=0) → void
         vTaskDelay(pdMS_TO_TICKS(1000));

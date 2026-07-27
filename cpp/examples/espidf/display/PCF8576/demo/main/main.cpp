@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for PCF8576 (Demo).
 // Mirrors the Arduino PCF8576_Demo example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "PCF8576.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8576Full chip(transport);  // Create PCF8576 driver
+    I2CConnectionESPIDF connection(dev);
+    PCF8576Full chip(connection);  // Create PCF8576 driver
     uint8_t raw[40];
     // --- Display a 4-digit counter ---
     // PCF8576 drives a 40-column segment LCD. Each set_digit_7seg call updates one digit at column position * 2.

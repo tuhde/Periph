@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "WS2812B.h"
 
 static const size_t N_PIXELS          = 30;
@@ -8,8 +8,8 @@ static const unsigned long RAINBOW_MS = 10000;
 static const unsigned long STROBE_MS  = 2000;
 static const unsigned long STROBE_HALF_MS = 50;
 
-NeoPixelTransport transport(SPI);              // Create NeoPixel transport, (spi=SPIClass&)
-WS2812BFull strip(transport, N_PIXELS);        // Create WS2812B full driver, (transport, n=N_PIXELS pixels)
+NeoPixelConnection connection(SPI);              // Create NeoPixel connection, (spi=SPIClass&)
+WS2812BFull strip(connection, N_PIXELS);        // Create WS2812B full driver, (connection, n=N_PIXELS pixels)
 
 static void hsv_to_rgb(float h, float s, float v,
                         uint8_t& r, uint8_t& g, uint8_t& b);

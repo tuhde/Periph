@@ -1,21 +1,21 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief BME680 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance — minimal interface.
  *
  *  Provides calibrated temperature (°C), pressure (hPa), humidity (%RH), and
- *  gas resistance (Ω) with no configuration beyond the transport.
+ *  gas resistance (Ω) with no configuration beyond the connection.
  *  I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
  *
  *  Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off,
  *  heater profile 0 at 320 °C / 150 ms.
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  @param connection Configured I²C connection pointing at the device.
  */
 class BME680Minimal {
 public:
-    explicit BME680Minimal(Transport& transport);
+    explicit BME680Minimal(Connection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -97,7 +97,7 @@ protected:
 
     static constexpr uint32_t MEAS_TIME_MS      = 200;
 
-    Transport& _transport;
+    Connection& _connection;
     uint8_t   _filter = 0;
     uint8_t   _gas_enabled = 1;
     uint8_t   _nb_conv = 0;
@@ -121,7 +121,7 @@ protected:
  *  Adds oversampling for all three TPH channels, IIR filter, multi-profile
  *  heater control, ambient-temperature override, read_all, and status queries.
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  @param connection Configured I²C connection pointing at the device.
  */
 class BME680Full : public BME680Minimal {
 public:
@@ -150,7 +150,7 @@ public:
     static constexpr uint8_t STATUS_GAS_VALID      = 0x20;
     static constexpr uint8_t STATUS_HEATER_STABLE  = 0x10;
 
-    explicit BME680Full(Transport& transport);
+    explicit BME680Full(Connection& connection);
 
     /** @brief Write ctrl_hum, ctrl_meas, and config registers in the correct order.
      *  @param osrs_t Temperature oversampling (0–5).

@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8576.h"
 
 #ifndef PCF8576_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(PCF8576_I2C_NODE);
-    I2CTransportZephyr transport(dev, PCF8576_ADDR);
-    PCF8576Full lcd(transport);                          // Create PCF8576 driver, (transport)
+    I2CConnectionZephyr connection(dev, PCF8576_ADDR);
+    PCF8576Full lcd(connection);                          // Create PCF8576 driver, (connection)
     lcd.clear();                                         // Blank the display, () → void
                                                           // zeros all 40 columns of display RAM
     lcd.device_select(0);                                // Select device on the bus, (subaddress 0–7) → void

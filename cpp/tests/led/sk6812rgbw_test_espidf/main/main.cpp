@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
-#include "NeoPixelTransportESPIDF.h"
+#include "NeoPixelConnectionESPIDF.h"
 #include "SK6812RGBW.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     spi_device_handle_t spi_dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &spi_dev);
 
-    NeoPixelTransportESPIDF transport(spi_dev);
-    SK6812RGBWFull inst(transport, 8);  // Create SK6812RGBW driver
+    NeoPixelConnectionESPIDF connection(spi_dev);
+    SK6812RGBWFull inst(connection, 8);  // Create SK6812RGBW driver
     inst.fill(0, 0, 0, 0);
     inst.fill(255, 0, 0, 0);
     inst.off();

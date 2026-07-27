@@ -2,7 +2,7 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
 #include "PCF8575.h"
 
 int main(void) {
@@ -12,8 +12,8 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    PCF8575Minimal chip(transport, /*addr=*/0x20);
+    I2CConnectionPicoSDK connection(i2c0, 0x20);
+    PCF8575Minimal chip(connection, /*addr=*/0x20);
 
     PCF8575Minimal::IOExpanderPin p0 = chip.pin(0);                // Get pin proxy, (n=0) → IOExpanderPin
     PCF8575Minimal::IOExpanderPin p8 = chip.pin(8);                // Get pin proxy, (n=8) → IOExpanderPin

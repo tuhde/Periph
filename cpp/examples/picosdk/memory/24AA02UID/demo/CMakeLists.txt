@@ -16,7 +16,7 @@ add_executable(24aa02uid_demo_picosdk
 )
 
 target_include_directories(24aa02uid_demo_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/memory
 )
 

@@ -25,8 +25,8 @@
 #define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
 #endif
 
-APDS9960Minimal::APDS9960Minimal(Transport& transport)
-    : _transport(transport) {
+APDS9960Minimal::APDS9960Minimal(Connection& connection)
+    : _connection(connection) {
     DELAY_MS(6);
     uint8_t id = _read_reg(REG_ID);
     assert(id == 0xAB);
@@ -40,18 +40,18 @@ APDS9960Minimal::APDS9960Minimal(Transport& transport)
 
 void APDS9960Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 uint8_t APDS9960Minimal::_read_reg(uint8_t reg) {
     uint8_t val;
-    _transport.write_read(&reg, 1, &val, 1);
+    _connection.write_read(&reg, 1, &val, 1);
     return val;
 }
 
 uint16_t APDS9960Minimal::_read_reg16_le(uint8_t reg) {
     uint8_t buf[2];
-    _transport.write_read(&reg, 1, buf, 2);
+    _connection.write_read(&reg, 1, buf, 2);
     return (uint16_t)buf[0] | ((uint16_t)buf[1] << 8);
 }
 
@@ -62,28 +62,28 @@ uint16_t APDS9960Minimal::color_clear() {
 uint16_t APDS9960Minimal::color_red() {
     uint8_t reg = REG_CDATAL;
     uint8_t buf[8];
-    _transport.write_read(&reg, 1, buf, 8);
+    _connection.write_read(&reg, 1, buf, 8);
     return (uint16_t)buf[2] | ((uint16_t)buf[3] << 8);
 }
 
 uint16_t APDS9960Minimal::color_green() {
     uint8_t reg = REG_CDATAL;
     uint8_t buf[8];
-    _transport.write_read(&reg, 1, buf, 8);
+    _connection.write_read(&reg, 1, buf, 8);
     return (uint16_t)buf[4] | ((uint16_t)buf[5] << 8);
 }
 
 uint16_t APDS9960Minimal::color_blue() {
     uint8_t reg = REG_CDATAL;
     uint8_t buf[8];
-    _transport.write_read(&reg, 1, buf, 8);
+    _connection.write_read(&reg, 1, buf, 8);
     return (uint16_t)buf[6] | ((uint16_t)buf[7] << 8);
 }
 
 void APDS9960Minimal::color(uint16_t& clear, uint16_t& red, uint16_t& green, uint16_t& blue) {
     uint8_t reg = REG_CDATAL;
     uint8_t buf[8];
-    _transport.write_read(&reg, 1, buf, 8);
+    _connection.write_read(&reg, 1, buf, 8);
     clear = (uint16_t)buf[0] | ((uint16_t)buf[1] << 8);
     red   = (uint16_t)buf[2] | ((uint16_t)buf[3] << 8);
     green = (uint16_t)buf[4] | ((uint16_t)buf[5] << 8);
@@ -92,8 +92,8 @@ void APDS9960Minimal::color(uint16_t& clear, uint16_t& red, uint16_t& green, uin
 
 // APDS9960Full
 
-APDS9960Full::APDS9960Full(Transport& transport)
-    : APDS9960Minimal(transport) {}
+APDS9960Full::APDS9960Full(Connection& connection)
+    : APDS9960Minimal(connection) {}
 
 void APDS9960Full::enable_proximity(bool enabled) {
     uint8_t val = _read_reg(REG_ENABLE);
@@ -174,17 +174,17 @@ void APDS9960Full::enable_proximity_interrupt(bool enabled) {
 
 void APDS9960Full::clear_proximity_interrupt() {
     uint8_t reg = REG_PICLEAR;
-    _transport.write(&reg, 1);
+    _connection.write(&reg, 1);
 }
 
 void APDS9960Full::clear_als_interrupt() {
     uint8_t reg = REG_CICLEAR;
-    _transport.write(&reg, 1);
+    _connection.write(&reg, 1);
 }
 
 void APDS9960Full::clear_all_interrupts() {
     uint8_t reg = REG_AICLEAR;
-    _transport.write(&reg, 1);
+    _connection.write(&reg, 1);
 }
 
 void APDS9960Full::set_proximity_offset(int8_t ur, int8_t dl) {
@@ -241,7 +241,7 @@ uint8_t APDS9960Full::read_gesture_fifo(uint8_t* buf, uint8_t max_len) {
     if (level > max_len) level = max_len;
     uint8_t reg = REG_GFIFO_U;
     for (uint8_t i = 0; i < level; i++) {
-        _transport.write_read(&reg, 1, buf + i * 4, 4);
+        _connection.write_read(&reg, 1, buf + i * 4, 4);
     }
     return level;
 }

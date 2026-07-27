@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "BMP180.h"
 
 static int passed = 0, failed = 0;
@@ -17,9 +17,9 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
 
-    BMP180Minimal bmp(transport);
+    BMP180Minimal bmp(connection);
 
     float t = bmp.temperature();
     check_true(t >= -40.0f && t <= 85.0f, "temperature_range");
@@ -27,7 +27,7 @@ int main() {
     float p = bmp.pressure();
     check_true(p >= 300.0f && p <= 1100.0f, "pressure_range");
 
-    BMP180Full bmp_full(transport, BMP180Full::OSS_ULP);
+    BMP180Full bmp_full(connection, BMP180Full::OSS_ULP);
     check_true(bmp_full.oversampling() == BMP180Full::OSS_ULP, "default_oss");
     bmp_full.set_oversampling(BMP180Full::OSS_HIGH_RES);
     check_true(bmp_full.oversampling() == BMP180Full::OSS_HIGH_RES, "set_oss");

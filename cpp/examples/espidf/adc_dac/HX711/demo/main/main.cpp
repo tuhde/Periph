@@ -1,17 +1,17 @@
 // Auto-generated ESP-IDF example for HX711 (Demo).
 // Mirrors the Arduino HX711_Demo example using the
-// HX711TransportESPIDF transport.
+// HX711ConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
-#include "HX711TransportESPIDF.h"
+#include "HX711ConnectionESPIDF.h"
 #include "HX711.h"
 
 extern "C" void app_main(void) {
-    HX711TransportESPIDF transport(static_cast<gpio_num_t>(19), static_cast<gpio_num_t>(18));
-    HX711Full chip(transport);  // Create HX711 driver
+    HX711ConnectionESPIDF connection(static_cast<gpio_num_t>(19), static_cast<gpio_num_t>(18));
+    HX711Full chip(connection);  // Create HX711 driver
     int32_t raw;
     int32_t avg;
     int32_t offset;

@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "APDS9960.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    APDS9960Full inst(transport);  // Create APDS9960 driver
+    I2CConnectionESPIDF connection(dev);
+    APDS9960Full inst(connection);  // Create APDS9960 driver
     check_eq_u8(inst.chip_id(), 0xAB, "chip_id");
     uint16_t c, r, g, b;
     inst.color(c, r, g, b);

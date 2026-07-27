@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "ENS160.h"
 
 static int passed = 0, failed = 0;
@@ -17,9 +17,9 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
 
-    ENS160Full sensor(transport);
+    ENS160Full sensor(connection);
     check_true(true, "init");
 
     uint8_t status = sensor.status();

@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "APDS9960.h"
 
 #ifndef TEST_I2C_BUS
@@ -27,8 +27,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    APDS9960Full apds(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    APDS9960Full apds(connection);
 
     check_eq("chip_id", apds.chip_id(), 0xAB);
 

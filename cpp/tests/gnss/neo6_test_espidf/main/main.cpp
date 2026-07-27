@@ -6,7 +6,7 @@
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
-#include "UARTTransportESPIDF.h"
+#include "UARTConnectionESPIDF.h"
 #include "NEO6.h"
 
 static int passed = 0;
@@ -41,8 +41,8 @@ extern "C" void app_main(void) {
     uart_param_config(UART_NUM_1, &uart_cfg);
     uart_set_pin(UART_NUM_1, 17, 16, -1, -1);  // TX=17, RX=16
 
-    UARTTransportESPIDF transport(UART_NUM_1);
-    NEO6Full inst(transport);  // Create NEO6 driver
+    UARTConnectionESPIDF connection(UART_NUM_1);
+    NEO6Full inst(connection);  // Create NEO6 driver
     inst.update();
     (void)inst.latitude();
     check_true(true, "neo6 update ok");

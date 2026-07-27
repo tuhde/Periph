@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for 24AA02UID (Complete).
 // Mirrors the Arduino 24AA02UID_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "24AA02UID.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    EEPROM24AA02UIDFull chip(transport);  // Create 24AA02UID driver
+    I2CConnectionESPIDF connection(dev);
+    EEPROM24AA02UIDFull chip(connection);  // Create 24AA02UID driver
     uint8_t uid[4];
     uint8_t buf[8];
     uint8_t page_data[] = { 0x01, 0x02, 0x03, 0x04 };

@@ -1,14 +1,14 @@
 // To use I2C (DDC) instead of UART:
-//   #include "../../src/transport/I2CTransport.h"
-//   I2CTransport transport(Wire, 0x42);
-//   NEO6Full gps(transport, NEO6BusType::I2c);
+//   #include "../../src/connection/I2CConnection.h"
+//   I2CConnection connection(Wire, 0x42);
+//   NEO6Full gps(connection, NEO6BusType::I2c);
 // To use SPI instead of UART:
-//   #include "../../src/transport/SPITransport.h"
-//   SPITransport transport(SPI, 5, SPISettings(200000, MSBFIRST, SPI_MODE0));
-//   NEO6Full gps(transport, NEO6BusType::Spi);
+//   #include "../../src/connection/SPIConnection.h"
+//   SPIConnection connection(SPI, 5, SPISettings(200000, MSBFIRST, SPI_MODE0));
+//   NEO6Full gps(connection, NEO6BusType::Spi);
 
 #include <Arduino.h>
-#include "../../src/transport/UARTTransport.h"
+#include "../../src/connection/UARTConnection.h"
 #include "../../src/chips/gnss/NEO6.h"
 
 // --- Portable GPS logger ---
@@ -16,8 +16,8 @@
 // CFG messages are needed for a basic position log. Runs for 60 seconds,
 // polling update() far faster than the 1 Hz sentence rate so no sentence is
 // missed, and prints one line per second once a fresh GGA has been parsed.
-UARTTransport transport(Serial1);
-NEO6Full gps(transport);                                 // Create NEO-6 driver, (transport, bus_type=Uart)
+UARTConnection connection(Serial1);
+NEO6Full gps(connection);                                 // Create NEO-6 driver, (connection, bus_type=Uart)
 
 unsigned long startMs;
 

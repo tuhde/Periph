@@ -1,10 +1,10 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "MCP4725.h"
 #include <math.h>
 
-I2CTransport transport(Wire, 0x60);
-MCP4725Full dac(transport);
+I2CConnection connection(Wire, 0x60);
+MCP4725Full dac(connection);
 
 const float STEP = 1.0f / 20.0f;
 const unsigned long DELAY_MS = 100;

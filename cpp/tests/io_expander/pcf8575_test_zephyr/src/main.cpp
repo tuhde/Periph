@@ -8,9 +8,9 @@
 
 static const struct device* i2c_dev = DEVICE_DT_GET(I2C_NODE);
 
-class ZephyrI2CTransport {
+class ZephyrI2CConnection {
 public:
-    ZephyrI2CTransport(const struct device* dev, uint8_t addr) : dev(dev), addr(addr) {}
+    ZephyrI2CConnection(const struct device* dev, uint8_t addr) : dev(dev), addr(addr) {}
 
     void write(const uint8_t* data, size_t len) {
         i2c_write(dev, data, len, addr);
@@ -44,8 +44,8 @@ int main() {
         return 1;
     }
 
-    ZephyrI2CTransport transport(i2c_dev, 0x20);
-    PCF8575Minimal chip(transport);
+    ZephyrI2CConnection connection(i2c_dev, 0x20);
+    PCF8575Minimal chip(connection);
 
     check_eq("init_shadow_0", chip._shadow[0], 0xFF);
     check_eq("init_shadow_1", chip._shadow[1], 0xFF);

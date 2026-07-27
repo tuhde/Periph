@@ -18,20 +18,20 @@ static void _delay_ms(unsigned ms) { sleep_ms(ms); }
 static void _delay_ms(unsigned ms) { delay(ms); }
 #endif
 
-AHT21Minimal::AHT21Minimal(Transport& transport)
-    : _transport(transport) {
+AHT21Minimal::AHT21Minimal(Connection& connection)
+    : _connection(connection) {
     _delay_ms(100);
     uint8_t status = _read_status();
     if ((status & 0x18) != 0x18) {
-        _transport.write(&CMD_SOFT_RESET, 1);
+        _connection.write(&CMD_SOFT_RESET, 1);
         _delay_ms(20);
         status = _read_status();
         if ((status & 0x18) != 0x18) {
-            _transport.write(CMD_CAL_INIT_1, 3);
+            _connection.write(CMD_CAL_INIT_1, 3);
             _delay_ms(10);
-            _transport.write(CMD_CAL_INIT_2, 3);
+            _connection.write(CMD_CAL_INIT_2, 3);
             _delay_ms(10);
-            _transport.write(CMD_CAL_INIT_3, 3);
+            _connection.write(CMD_CAL_INIT_3, 3);
             _delay_ms(10);
         }
     }
@@ -39,12 +39,12 @@ AHT21Minimal::AHT21Minimal(Transport& transport)
 
 uint8_t AHT21Minimal::_read_status() {
     uint8_t buf;
-    _transport.read(&buf, 1);
+    _connection.read(&buf, 1);
     return buf;
 }
 
 void AHT21Minimal::_read_raw(uint8_t* buf, uint8_t len) {
-    _transport.read(buf, len);
+    _connection.read(buf, len);
 }
 
 void AHT21Minimal::_decode(const uint8_t* buf, float& temperature_c, float& humidity_pct) {
@@ -67,7 +67,7 @@ float AHT21Minimal::humidity() {
 }
 
 void AHT21Minimal::read(float& temperature_c, float& humidity_pct) {
-    _transport.write(CMD_TRIGGER, 3);
+    _connection.write(CMD_TRIGGER, 3);
     _delay_ms(80);
     uint8_t buf[6];
     _read_raw(buf, 6);
@@ -76,11 +76,11 @@ void AHT21Minimal::read(float& temperature_c, float& humidity_pct) {
 
 // AHT21Full
 
-AHT21Full::AHT21Full(Transport& transport)
-    : AHT21Minimal(transport) {}
+AHT21Full::AHT21Full(Connection& connection)
+    : AHT21Minimal(connection) {}
 
 bool AHT21Full::read_with_crc(float& temperature_c, float& humidity_pct) {
-    _transport.write(CMD_TRIGGER, 3);
+    _connection.write(CMD_TRIGGER, 3);
     _delay_ms(80);
     uint8_t buf[7];
     _read_raw(buf, 7);
@@ -89,7 +89,7 @@ bool AHT21Full::read_with_crc(float& temperature_c, float& humidity_pct) {
 }
 
 void AHT21Full::soft_reset() {
-    _transport.write(&CMD_SOFT_RESET, 1);
+    _connection.write(&CMD_SOFT_RESET, 1);
     _delay_ms(20);
 }
 

@@ -1,7 +1,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
+#include "InputPinZephyr.h"
 #include "MCP23017.h"
 
 #ifndef MCP23017_I2C_NODE
@@ -10,6 +11,9 @@
 #ifndef MCP23017_ADDR
 #define MCP23017_ADDR 0x20
 #endif
+
+static const struct gpio_dt_spec int_gpio =
+    GPIO_DT_SPEC_GET(DT_NODELABEL(mcp23017_int), gpios);
 
 static int passed = 0, failed = 0;
 
@@ -20,8 +24,9 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MCP23017_I2C_NODE);
-    I2CTransportZephyr transport(dev, MCP23017_ADDR);
-    MCP23017Full mcp(transport);                           // Create MCP23017 driver, (transport, addr=0x20)
+    InputPinZephyr intPin(int_gpio);                        // Create INT pin, (gpio_dt_spec)
+    I2CConnectionZephyr connection(dev, MCP23017_ADDR, &intPin);  // Create I2C connection, (dev, addr, intPin)
+    MCP23017Full mcp(connection);                           // Create MCP23017 driver, (connection, addr=0x20)
 
     mcp.configure_pullup(0, 0x3F);                        // Enable pull-ups on GPA0–GPA5, (port=0, mask=0x3F) → None
     check_true(true, "configure_pullup");
@@ -38,13 +43,13 @@ int main(void) {
 
     mcp.set_default_value(0, 0x00);                       // Set DEFVAL for PORTA, (port=0, mask=0x00) → None
 
-    mcp.configure_interrupt(0, -1, [](uint8_t mask) {     // Enable INT on PORTA, (port=0, int_pin=-1, callback, mode='change') → None
-        printk("PORTA changed: %02X\n", mask);
-    }, "change", false);
-    check_true(true, "configure_interrupt");
+    mcp.onInterrupt([](uint8_t port, uint8_t status) {    // Subscribe to INT on both ports, (callback, intPin, mirror) → None
+        printk("port %d changed: %02X\n", port, status);
+    }, &intPin, /*mirror=*/true);
+    check_true(true, "onInterrupt");
 
-    mcp.stop_interrupt(0);                                // Disable INT on PORTA, (port=0) → None
-    check_true(true, "stop_interrupt");
+    mcp.offInterrupt(0);                                  // Unsubscribe PORTA, (port=0) → None
+    check_true(true, "offInterrupt");
 
     uint8_t porta = mcp.read_port(0);                     // Read PORTA, (port=0) → uint8_t
     uint8_t portb = mcp.read_port(1);                      // Read PORTB, (port=1) → uint8_t

@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "INA226.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x40
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-INA226Full   ina(transport);
+I2CConnection connection(Wire, TEST_ADDR);
+INA226Full   ina(connection);
 
 static int passed = 0;
 static int failed = 0;

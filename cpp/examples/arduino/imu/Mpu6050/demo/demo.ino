@@ -1,10 +1,10 @@
 #include <Wire.h>
 #include <math.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Mpu6050.h"
 
-I2CTransport transport(Wire, 0x68);
-MPU6050Full imu(transport);
+I2CConnection connection(Wire, 0x68);
+MPU6050Full imu(connection);
 
 void setup() {
     Serial.begin(115200);

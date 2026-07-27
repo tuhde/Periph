@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
-#include "DHTxxTransportPicoSDK.h"
+#include "DHTxxConnectionPicoSDK.h"
 #include "DHT11.h"
 
 static const uint DHT11_DATA_PIN = 4;
@@ -10,8 +10,8 @@ int main(void) {
     stdio_init_all();
     sleep_ms(2000);
 
-    DHTxxTransportPicoSDK transport(DHT11_DATA_PIN);
-    DHT11Full dht(transport, 3);                                   // Create DHT11 driver, (transport, max_retries=3)
+    DHTxxConnectionPicoSDK connection(DHT11_DATA_PIN);
+    DHT11Full dht(connection, 3);                                   // Create DHT11 driver, (connection, max_retries=3)
 
     while (1) {
         float t = dht.read_temperature();                          // Read temperature, () → float °C

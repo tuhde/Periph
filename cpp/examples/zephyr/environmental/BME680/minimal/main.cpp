@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BME680.h"
 
 #ifndef BME680_I2C_NODE
@@ -13,8 +13,8 @@
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BME680_I2C_NODE);
-    I2CTransportZephyr transport(dev, BME680_ADDR);
-    BME680Minimal bme(transport);                        // Create BME680 driver, (transport)
+    I2CConnectionZephyr connection(dev, BME680_ADDR);
+    BME680Minimal bme(connection);                        // Create BME680 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bme.temperature();                     // Read temperature, () → float °C

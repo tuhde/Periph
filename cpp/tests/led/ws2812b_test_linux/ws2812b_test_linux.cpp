@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cstdint>
-#include "NeoPixelTransportLinux.h"
+#include "NeoPixelConnectionLinux.h"
 #include "WS2812B.h"
 
 #ifndef TEST_SPI_BUS
@@ -27,11 +27,11 @@ static void check_eq_u8(const char* label, uint8_t got, uint8_t expected) {
 }
 
 int main() {
-    NeoPixelTransportLinux transport(TEST_SPI_BUS, TEST_SPI_DEVICE);
+    NeoPixelConnectionLinux connection(TEST_SPI_BUS, TEST_SPI_DEVICE);
 
     // --- WS2812BMinimal ---
     {
-        WS2812BMinimal strip(transport, 8);
+        WS2812BMinimal strip(connection, 8);
 
         strip.fill(255, 0, 0);
         check_true("fill(255,0,0) accepted", true);
@@ -48,7 +48,7 @@ int main() {
 
     // --- WS2812BFull ---
     {
-        WS2812BFull strip(transport, 8);
+        WS2812BFull strip(connection, 8);
 
         check_eq_u8("default brightness is 255", strip.get_brightness(), 255);
 

@@ -7,20 +7,20 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/environmental/BME280.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x76);
+    I2CConnection connection(Wire, 0x76);
 
     // --- Weather monitoring preset: forced mode, ×1/×1/×1, filter off ---
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between samples
     // to demonstrate battery-friendly indoor monitoring.
-    BME280Full bme(transport);                          // Create BME280 driver, (transport, spi=false)
+    BME280Full bme(connection);                          // Create BME280 driver, (connection, spi=false)
     bme.configure(BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::MODE_FORCED, BME280Full::FILTER_OFF, BME280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t=×1, osrs_p=×1, osrs_h=×1, mode=forced, filter=off, t_sb=0) → void
 
     float t_min = 999, t_max = -999, t_sum = 0;

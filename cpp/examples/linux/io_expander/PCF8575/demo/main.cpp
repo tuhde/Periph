@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8575.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x20;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    PCF8575Full pcf(transport);                                            // Create PCF8575 driver, (transport)
+    PCF8575Full pcf(connection);                                            // Create PCF8575 driver, (connection)
 
     // --- Knight-rider chaser across all 16 outputs ---
     int pos = 0, dir = 1;

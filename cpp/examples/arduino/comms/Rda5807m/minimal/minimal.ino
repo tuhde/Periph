@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Rda5807m.h"
 
-I2CTransport transport(Wire, 0x10);
-RDA5807MMinimal fm(transport, 100.0f, 8);                // Create RDA5807M driver, (transport, frequency_mhz=100.0, volume=8) → None
+I2CConnection connection(Wire, 0x10);
+RDA5807MMinimal fm(connection, 100.0f, 8);                // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → None
 
 void setup() {
     Serial.begin(115200);

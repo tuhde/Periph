@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BMP180.h"
 
 #ifndef BMP180_I2C_NODE
@@ -13,8 +13,8 @@
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP180_I2C_NODE);
-    I2CTransportZephyr transport(dev, BMP180_ADDR);
-    BMP180Full bmp(transport, BMP180Full.OSS_ULP);   // Create BMP180 driver, (transport, oss=0 ULP)
+    I2CConnectionZephyr connection(dev, BMP180_ADDR);
+    BMP180Full bmp(connection, BMP180Full.OSS_ULP);   // Create BMP180 driver, (connection, oss=0 ULP)
 
     float t0 = bmp.temperature();                      // Read temperature, () → float C
     float p0 = bmp.pressure();                       // Read pressure, () → float hPa

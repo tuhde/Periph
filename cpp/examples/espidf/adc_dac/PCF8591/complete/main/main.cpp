@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for PCF8591 (Complete).
 // Mirrors the Arduino PCF8591_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "PCF8591.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8591Full chip(transport);  // Create PCF8591 driver
+    I2CConnectionESPIDF connection(dev);
+    PCF8591Full chip(connection);  // Create PCF8591 driver
     uint8_t adc[4];
     float vadc[4];
     chip.read_channel(0);                             // Read channel 0, (channel 0-3) → uint8_t

@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "Mpu6050.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x68;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    Mpu6050Full mpu(transport);                                            // Create MPU-6050 driver, (transport)
+    Mpu6050Full mpu(connection);                                            // Create MPU-6050 driver, (connection)
 
     // --- Tilt detector ---
     // Logs a warning whenever the Z-axis acceleration deviates more than

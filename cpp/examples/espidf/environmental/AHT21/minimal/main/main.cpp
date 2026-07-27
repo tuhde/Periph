@@ -2,7 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "AHT21.h"
 
 #define I2C_SDA  21
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    AHT21Minimal aht(transport);                                       // Create AHT21 driver, (transport, addr=0x38) → void
+    I2CConnectionESPIDF connection(dev);
+    AHT21Minimal aht(connection);                                       // Create AHT21 driver, (connection, addr=0x38) → void
 
     while (1) {
         float t, h;

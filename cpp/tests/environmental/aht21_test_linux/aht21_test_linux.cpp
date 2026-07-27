@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "AHT21.h"
 
 #ifndef TEST_I2C_BUS
@@ -19,8 +19,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    AHT21Full aht(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    AHT21Full aht(connection);
 
     check_true("is_calibrated", aht.is_calibrated());
     check_true("not busy at idle", !aht.is_busy());

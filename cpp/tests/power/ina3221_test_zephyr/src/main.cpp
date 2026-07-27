@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "INA3221.h"
 
 #ifndef INA3221_I2C_NODE
@@ -36,8 +36,8 @@ static void check_true(const char* label, bool condition) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(INA3221_I2C_NODE);
-    I2CTransportZephyr transport(dev, INA3221_ADDR);
-    INA3221Full ina(transport);
+    I2CConnectionZephyr connection(dev, INA3221_ADDR);
+    INA3221Full ina(connection);
 
     check_eq("manufacturer_id", ina.manufacturer_id(), 0x5449);
     check_eq("die_id",          ina.die_id(),          0x3220);

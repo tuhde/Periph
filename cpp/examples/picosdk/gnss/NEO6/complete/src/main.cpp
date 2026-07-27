@@ -2,7 +2,7 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "UARTTransportPicoSDK.h"
+#include "UARTConnectionPicoSDK.h"
 #include "NEO6.h"
 
 int main(void) {
@@ -10,8 +10,8 @@ int main(void) {
     uart_init(uart0, 9600);
     gpio_set_function(0, GPIO_FUNC_UART);
     gpio_set_function(1, GPIO_FUNC_UART);
-    UARTTransportPicoSDK transport(uart0, 9600);
-    NEO6Full gps(transport, /*bus_type=*/0);
+    UARTConnectionPicoSDK connection(uart0, 9600);
+    NEO6Full gps(connection, /*bus_type=*/0);
 
     stdio_init_all();
 

@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "INA226.h"
 
 #ifndef TEST_I2C_BUS
@@ -27,8 +27,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    INA226Full ina(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    INA226Full ina(connection);
 
     check_eq("manufacturer_id", ina.manufacturer_id(), 0x5449);
     check_eq("die_id",          ina.die_id(),          0x2260);
