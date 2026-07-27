@@ -105,7 +105,7 @@ For chips with I²C or SMBus transport, add the chip's default I²C address to `
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
 
-Chip drivers accept a single `Connection` object and must only call `connection.read()` / `connection.write()`. Never access the underlying bus transport directly; never import or reference a concrete transport class. See `specs/feature_connection_design.md` for the full design.
+Chip drivers accept a single `Connection` object and must only call `connection.read()` / `connection.write()`. `Connection` is not a wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now `I2CConnection`, etc.); chip drivers import and construct the concrete `*Connection` class directly. See `specs/feature_connection_design.md` for the full design (§4 covers the rename; §4.1 has the exact old→new mapping per language).
 
 ```python
 # Python
@@ -156,7 +156,7 @@ let value = value as i16;                              // signed
 ```
 
 ```go
-// Go — Connection wraps the underlying Transport; identical on Linux and TinyGo
+// Go — conn is a connection.Connection; identical on Linux and TinyGo
 raw, err := conn.Read(regAddr, 2)
 if err != nil {
     return 0, err
@@ -224,8 +224,8 @@ type Ina226Full struct {
     Ina226Minimal
     mode uint8
 }
-func NewIna226Full(t Transport, rShunt, maxCurrent float64) (*Ina226Full, error) {
-    m, err := NewIna226Minimal(t, rShunt, maxCurrent)
+func NewIna226Full(conn connection.Connection, rShunt, maxCurrent float64) (*Ina226Full, error) {
+    m, err := NewIna226Minimal(conn, rShunt, maxCurrent)
     if err != nil {
         return nil, err
     }
@@ -439,55 +439,53 @@ func (p Pin) Toggle() error {
 }
 ```
 
-Full adds `Watch(trigger Trigger, handler func(bool)) error` / `Unwatch() error` — the unified per-pin vocabulary (see Interrupt support below). Deliver interrupts via `transport.GpioInputPin` reading the chip's INT pin (Linux: `/dev/gpiochip*` edge-event ioctl; TinyGo: `machine.Pin.SetInterrupt`), falling back to `transport.PollingInputPin` when no INT pin is wired, unless the chip only supports software polling, in which case document that in the spec instead of pretending it's edge-driven.
+Full adds `Watch(trigger Trigger, handler func(bool)) error` / `Unwatch() error` — the unified per-pin vocabulary (see Interrupt support below). Deliver interrupts via `connection.GpioInputPin` reading the chip's INT pin (Linux: `/dev/gpiochip*` edge-event ioctl; TinyGo: `machine.Pin.SetInterrupt`), falling back to `connection.PollingInputPin` when no INT pin is wired, unless the chip only supports software polling, in which case document that in the spec instead of pretending it's edge-driven.
 
 ## Connection construction and power management
 
-All chip constructors accept a single `Connection` object. Construct the underlying bus transport as usual, then wrap it:
+All chip constructors accept a single `Connection` object. `Connection` is not a wrapper around a separate bus object — it's the bus implementation itself, renamed and expanded (`I2CTransport` → `I2CConnection`, etc.). Construct the concrete `*Connection` class directly, passing the optional INT pin / EN pin at construction:
 
 **Python:**
 ```python
-from periph.transport.i2c_linux import I2CLinux
-from periph.transport.input_pin import LinuxSysfsPin
-from periph.transport.output_pin import LinuxOutputPin
-from periph.transport.connection import Connection
+from periph.connection.i2c_linux import I2CConnection
+from periph.connection.input_pin import LinuxSysfsPin
+from periph.connection.output_pin import LinuxOutputPin
 
-bus  = I2CLinux(bus=1, address=0x68)
-conn = Connection(bus)                                      # bus only
-conn = Connection(bus, int_pin=LinuxSysfsPin(17))           # with INT pin
-conn = Connection(bus, en_pin=LinuxOutputPin(18))           # with EN pin
-conn = Connection(bus, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
+conn = I2CConnection(bus=1, addr=0x68)                                                        # bus only
+conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17))                              # with INT pin
+conn = I2CConnection(bus=1, addr=0x68, en_pin=LinuxOutputPin(18))                              # with EN pin
+conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
 **C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
 ```cpp
-Connection conn(bus);                        // bus only
-Connection conn(bus, &gpioPin);              // with INT pin
-Connection conn(bus, &gpioPin, &enPin);      // with INT + EN pin
+I2CConnection conn(bus, addr);                        // bus only
+I2CConnection conn(bus, addr, &gpioPin);              // with INT pin
+I2CConnection conn(bus, addr, &gpioPin, &enPin);      // with INT + EN pin
 ```
 
 **Node.js:**
 ```js
-const conn = new Connection(bus);
-const conn = new Connection(bus, intPin, enPin);
+const conn = new I2CConnection(busNumber, addr);
+const conn = new I2CConnection(busNumber, addr, intPin, enPin);
 ```
 
 **JVM:**
 ```java
-Connection conn = new Connection(new I2CTransport(bus, addr));
-Connection conn = new Connection(new I2CTransport(bus, addr), gpioPin, enPin);
+Connection conn = new I2CConnection(bus, addr);
+Connection conn = new I2CConnection(bus, addr, gpioPin, enPin);
 ```
 
-**Rust** — `Connection` wraps bus + enabled state only; INT and EN pins are managed by the caller directly via `embedded_hal::digital` traits.
+**Rust** — the one case that still wraps a generic bus, since Rust never had a periph-owned `I2CTransport` to rename (chip drivers are generic directly over `embedded_hal::i2c::I2c`). `Connection<BUS>` wraps bus + enabled state only; INT and EN pins are managed by the caller directly via `embedded_hal::digital` traits.
 ```rust
 let conn = Connection::new(i2c);
 ```
 
-**Go** (identical on Linux and TinyGo) — `Connection` is a plain struct; build it with a composite literal instead of a constructor call:
+**Go** (identical on Linux and TinyGo) — construct the concrete connection with its `New*Connection` constructor:
 ```go
-conn := &transport.Connection{Bus: bus}                                   // bus only
-conn := &transport.Connection{Bus: bus, IntPin: intPin}                   // with INT pin
-conn := &transport.Connection{Bus: bus, IntPin: intPin, EnPin: enPin}     // with INT + EN pin
+conn, err := connection.NewI2CConnection(bus, addr, nil, nil)                    // bus only
+conn, err := connection.NewI2CConnection(bus, addr, intPin, nil)                 // with INT pin
+conn, err := connection.NewI2CConnection(bus, addr, intPin, enPin)               // with INT + EN pin
 ```
 
 ### Enable / disable
@@ -549,7 +547,7 @@ Document in the driver docstring: caller is responsible for wiring this into an 
 If `connection.intPin()` is `null`, default to `new PollingInputPin(5)` internally.
 
 **Go**
-`OnInterrupt(cb) error` calls `conn.IntPin.OnEdge(transport.Falling, handler)` and stores the returned unsubscribe closure; `OffInterrupt() error` calls it. Go function values are not comparable, so `InputPin` has no `OffEdge` — `OnEdge` returns the unsubscribe closure directly instead. If `conn.IntPin` is `nil`, start a `transport.PollingInputPin` goroutine as fallback. Every fallible method returns `error`, per Go convention elsewhere in this file.
+`OnInterrupt(cb) error` calls `conn.IntPin.OnEdge(connection.Falling, handler)` and stores the returned unsubscribe closure; `OffInterrupt() error` calls it. Go function values are not comparable, so `InputPin` has no `OffEdge` — `OnEdge` returns the unsubscribe closure directly instead. If `conn.IntPin` is `nil`, start a `connection.PollingInputPin` goroutine as fallback. Every fallible method returns `error`, per Go convention elsewhere in this file.
 
 ### Interrupt sources (Level 2/3 chips)
 
@@ -564,11 +562,11 @@ class Mpu6050Source:
 
 ## Python conventions
 
-Three supported targets: **MicroPython** (primary), **CircuitPython**, **Linux kernel** (via `smbus2`). The chip driver is the same single file for all three; each target has its own transport.
+Three supported targets: **MicroPython** (primary), **CircuitPython**, **Linux kernel** (via `smbus2`). The chip driver is the same single file for all three; each target has its own connection implementation.
 
 ### Chip drivers
 
-Chip drivers are platform-agnostic — they only call the transport interface. Write to the most restrictive common denominator:
+Chip drivers are platform-agnostic — they only call the `Connection` interface. Write to the most restrictive common denominator:
 
 - No f-strings, no walrus operator, no `match` statements — MicroPython lags CPython
 - Avoid heap allocation in frequently-called methods; reuse `bytearray` buffers where practical
@@ -576,7 +574,7 @@ Chip drivers are platform-agnostic — they only call the transport interface. W
 - No type annotations — MicroPython does not enforce them and they add overhead
 - Constants as class-level variables prefixed with `_` (e.g. `_REG_CONFIG = 0x00`)
 
-### Transport implementations
+### Connection implementations
 
 | File | Platform | Bus object |
 |------|----------|------------|
@@ -584,72 +582,72 @@ Chip drivers are platform-agnostic — they only call the transport interface. W
 | `i2c_circuitpython.py` | CircuitPython | `busio.I2C` |
 | `i2c_linux.py` | Linux kernel | `smbus2.SMBus` or bus number (int) |
 
-Users import the transport for their target:
+Users import the connection class for their target:
 ```python
-from periph.transport.i2c_micropython import I2CTransport    # MicroPython
-from periph.transport.i2c_circuitpython import I2CTransport  # CircuitPython
-from periph.transport.i2c_linux import I2CTransport          # Linux
+from periph.connection.i2c_micropython import I2CConnection    # MicroPython
+from periph.connection.i2c_circuitpython import I2CConnection  # CircuitPython
+from periph.connection.i2c_linux import I2CConnection          # Linux
 ```
 
 ## C++ conventions
 
-Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own transport.
+Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own connection implementation.
 
 ### Chip drivers
 
 - No STL (`std::vector`, `std::string`, etc.) — not available on all Arduino targets
-- No exceptions — use return codes or a `valid()` flag pattern for errors (see `SMBusTransport`)
+- No exceptions — use return codes or a `valid()` flag pattern for errors (see `SMBusConnection`)
 - No heap allocation in drivers (`new` / `malloc`) — use stack or member variables only
 - Register constants as `static constexpr uint8_t` in the class header
 - 16-bit register reads: receive two bytes, combine as `(buf[0] << 8) | buf[1]`
 - Signed 16-bit: cast as `static_cast<int16_t>((buf[0] << 8) | buf[1])`
 
-### Transport implementations
+### Connection implementations
 
 | File | Platform | Bus object |
 |------|----------|------------|
-| `I2CTransport.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
-| `I2CTransportLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
-| `I2CTransportZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
-| `I2CTransportESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.2), header-only |
-| `I2CTransportPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
-| `SMBusTransport.h/.cpp` | Arduino | PEC-capable variant of `I2CTransport` |
-| `SMBusTransportLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CTransportLinux` |
-| `SMBusTransportZephyr.h` | Zephyr RTOS | wraps the Zephyr `i2c` driver API, address validation + PEC, header-only |
-| `SMBusTransportESPIDF.h` | ESP-IDF | wraps `I2CTransportESPIDF` + software CRC-8, header-only |
-| `SMBusTransportPicoSDK.h` | Raspberry Pi Pico SDK | wraps `I2CTransportPicoSDK` + software CRC-8, header-only |
-| `SPITransport.h/.cpp` | Arduino | `SPIClass&` (or any compatible object) |
-| `SPITransportLinux.h/.cpp` | Linux GCC | `/dev/spidevBUS.DEVICE` via `spidev`, CS owned by the kernel driver |
-| `SPITransportZephyr.h` | Zephyr RTOS | wraps the Zephyr `spi` driver API, header-only |
-| `SPITransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
-| `SPITransportPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
-| `UARTTransport.h/.cpp` | Arduino | `HardwareSerial&` |
-| `UARTTransportLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
-| `UARTTransportZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
-| `UARTTransportESPIDF.h` | ESP-IDF | `uart_port_t` installed via `uart_driver_install()`, `gpio_num_t` DE pin for RS-485, header-only |
-| `UARTTransportPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
-| `NeoPixelTransport.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
-| `NeoPixelTransportLinux.h/.cpp` | Linux GCC | SPI bit-encoding via `spidev` |
-| `NeoPixelTransportZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
-| `NeoPixelTransportESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
-| `NeoPixelTransportPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
-| `HX711Transport.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
-| `HX711TransportLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
-| `HX711TransportZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
-| `HX711TransportESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
-| `HX711TransportPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
-| `SiPoTransport.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
-| `SiPoTransportLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
-| `SiPoTransportZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
-| `SiPoTransportESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
-| `SiPoTransportPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
-| `DHTxxTransport.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
-| `DHTxxTransportLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
-| `DHTxxTransportZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
-| `DHTxxTransportESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
-| `DHTxxTransportPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |
+| `I2CConnection.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
+| `I2CConnectionLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
+| `I2CConnectionZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
+| `I2CConnectionESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.2), header-only |
+| `I2CConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
+| `SMBusConnection.h/.cpp` | Arduino | PEC-capable variant of `I2CConnection` |
+| `SMBusConnectionLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CConnectionLinux` |
+| `SMBusConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `i2c` driver API, address validation + PEC, header-only |
+| `SMBusConnectionESPIDF.h` | ESP-IDF | wraps `I2CConnectionESPIDF` + software CRC-8, header-only |
+| `SMBusConnectionPicoSDK.h` | Raspberry Pi Pico SDK | wraps `I2CConnectionPicoSDK` + software CRC-8, header-only |
+| `SPIConnection.h/.cpp` | Arduino | `SPIClass&` (or any compatible object) |
+| `SPIConnectionLinux.h/.cpp` | Linux GCC | `/dev/spidevBUS.DEVICE` via `spidev`, CS owned by the kernel driver |
+| `SPIConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `spi` driver API, header-only |
+| `SPIConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
+| `SPIConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
+| `UARTConnection.h/.cpp` | Arduino | `HardwareSerial&` |
+| `UARTConnectionLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
+| `UARTConnectionZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
+| `UARTConnectionESPIDF.h` | ESP-IDF | `uart_port_t` installed via `uart_driver_install()`, `gpio_num_t` DE pin for RS-485, header-only |
+| `UARTConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
+| `NeoPixelConnection.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
+| `NeoPixelConnectionLinux.h/.cpp` | Linux GCC | SPI bit-encoding via `spidev` |
+| `NeoPixelConnectionZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
+| `NeoPixelConnectionESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
+| `NeoPixelConnectionPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
+| `HX711Connection.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
+| `HX711ConnectionLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
+| `HX711ConnectionZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
+| `HX711ConnectionESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
+| `HX711ConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
+| `SiPoConnection.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
+| `SiPoConnectionLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
+| `SiPoConnectionZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
+| `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
+| `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
+| `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
+| `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
+| `DHTxxConnectionZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
+| `DHTxxConnectionESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
+| `DHTxxConnectionPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |
 
-Linux-only transport classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
+Linux-only connection classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
 ### Zephyr examples
 
@@ -667,7 +665,7 @@ target_sources(app PRIVATE
     ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
 )
 target_include_directories(app PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/<category>
 )
 ```
@@ -696,7 +694,7 @@ idf_component_register(
     SRCS "main.cpp"
         ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
     INCLUDE_DIRS "."
-        ${CPP_DIR}/src/transport
+        ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/<category>
     REQUIRES driver
 )
@@ -742,7 +740,7 @@ add_executable(<chip>_minimal_picosdk
     ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
 )
 target_include_directories(<chip>_minimal_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/<category>
 )
 target_link_libraries(<chip>_minimal_picosdk PRIVATE
@@ -800,8 +798,8 @@ Each chip has two files in `nodejs/packages/node-red-contrib-periph-<category>/n
 module.exports = function(RED) {
     function INA226Node(config) {
         RED.nodes.createNode(this, config);
-        const transport = /* build from config */;
-        const sensor = new (require('periph/src/chips/<category>/<chip>')).INA226Minimal(transport);
+        const connection = /* build from config */;
+        const sensor = new (require('periph/src/chips/<category>/<chip>')).INA226Minimal(connection);
         this.on('input', function(msg) {
             msg.payload = { voltage: sensor.voltage(), current: sensor.current(), power: sensor.power() };
             this.send(msg);
@@ -846,7 +844,7 @@ Linux Rust examples use `linux-embedded-hal::I2cdev` directly — there is no se
 
 ```rust
 use linux_embedded_hal::I2cdev;
-use periph::transport::Connection;
+use periph::connection::Connection;
 use periph::chips::<category>::<Chip>Minimal;
 
 fn main() {
@@ -867,9 +865,9 @@ There is **no** ESP32-S3 example crate — only an ESP32-S3 *test* crate. Embedd
 
 ## JVM Java/Kotlin/Groovy conventions
 
-Three languages, one transport library. The chip driver is implemented independently in each language; all three depend only on `periph-transport` (Java) and never on each other.
+Three languages, one connection library. The chip driver is implemented independently in each language; all three depend only on `periph-connection` (Java) and never on each other.
 
-Target platform: **Linux host via i2c-dev / FFM** (all three languages use the same `I2CTransport`).
+Target platform: **Linux host via i2c-dev / FFM** (all three languages use the same `I2CConnection`).
 
 ### Connection interface
 
@@ -1056,7 +1054,7 @@ All JVM examples are standalone JBang scripts. Use these headers exactly:
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT        // or periph-kotlin / periph-groovy
 ```
 
@@ -1065,9 +1063,9 @@ For Groovy examples, same headers but `.groovy` extension and `//DEPS it.uhde:pe
 
 Resource management:
 
-- **Java:** `try (var conn = new Connection(new I2CTransport(bus, addr))) { ... }` — `AutoCloseable`, try-with-resources
-- **Kotlin:** `Connection(I2CTransport(bus, addr)).use { conn -> ... }` — `Closeable.use { }`
-- **Groovy:** `def conn = new Connection(new I2CTransport(bus, addr)); try { ... } finally { conn.close() }` — explicit finally block
+- **Java:** `try (var conn = new I2CConnection(bus, addr)) { ... }` — `AutoCloseable`, try-with-resources
+- **Kotlin:** `I2CConnection(bus, addr).use { conn -> ... }` — `Closeable.use { }`
+- **Groovy:** `def conn = new I2CConnection(bus, addr); try { ... } finally { conn.close() }` — explicit finally block
 
 ### Tests — JBang scripts
 
@@ -1085,7 +1083,7 @@ The test file name is `<Chip>Test.java` (or `.kt` / `.groovy`). Run with `jbang 
 
 ## Go conventions
 
-Two supported targets: **Linux host** (standard `go build`, raw syscalls via `golang.org/x/sys/unix` — no cgo) and **TinyGo embedded** (`tinygo build`, via the `machine` package; hardware-in-loop tests are pinned to a Raspberry Pi Pico W, `-target=pico-w`). The chip driver (`go/periph/chips/<category>/<chip>.go`) is a single file shared by both targets — it only calls the `Transport` interface, never a concrete transport type.
+Two supported targets: **Linux host** (standard `go build`, raw syscalls via `golang.org/x/sys/unix` — no cgo) and **TinyGo embedded** (`tinygo build`, via the `machine` package; hardware-in-loop tests are pinned to a Raspberry Pi Pico W, `-target=pico-w`). The chip driver (`go/periph/chips/<category>/<chip>.go`) is a single file shared by both targets — it only calls the `Connection` interface, never a concrete connection type.
 
 Module path: `github.com/tuhde/Periph/go`.
 
@@ -1096,30 +1094,34 @@ Module path: `github.com/tuhde/Periph/go`.
 - Struct names use Go title-case matching the chip name, with initialisms kept upper-case per Go convention: `INA226Minimal`, `INA226Full` (not `Ina226Minimal`).
 - Register addresses are unexported package-level `const` (`regConfig = 0x00`); public bit/flag constants are exported `const` at package scope, grouped in a `const ( ... )` block — never inside a method.
 - Helper functions (`readReg`, `writeReg`, `readRegSigned`) are unexported methods on the Minimal struct.
-- Go has no constructor overloading and no default arguments — exactly one constructor per stage, `New<Chip>Minimal(transport Transport, ...) (*<Chip>Minimal, error)` and `New<Chip>Full(transport Transport, ...) (*<Chip>Full, error)`, with a fixed argument list. Document the spec's default values and have callers pass them explicitly; do not simulate optional arguments with a variadic-options struct unless the chip spec already calls for a config struct.
+- Go has no constructor overloading and no default arguments — exactly one constructor per stage, `New<Chip>Minimal(conn connection.Connection, ...) (*<Chip>Minimal, error)` and `New<Chip>Full(conn connection.Connection, ...) (*<Chip>Full, error)`, with a fixed argument list. Document the spec's default values and have callers pass them explicitly; do not simulate optional arguments with a variadic-options struct unless the chip spec already calls for a config struct.
 
-### Transport interface
+### Connection interface
 
 ```go
-// go/periph/transport/transport.go — no build tag; implemented identically by
+// go/periph/connection/connection.go — no build tag; implemented identically by
 // every *_linux.go / *_tinygo.go pair
-type Transport interface {
+type Connection interface {
     Write(data []byte) error
     Read(n int) ([]byte, error)
     WriteRead(data []byte, n int) ([]byte, error)
+    Close() error
+    Enable()
+    Disable()
+    IsEnabled() bool
 }
 ```
 
-Both the Linux and TinyGo implementation of a given transport export the **same type name** (e.g. `I2CTransport`), gated by a `//go:build` tag on the file — `linux && !tinygo` vs `tinygo`. Unlike every other language here, there is no separate import path or generic type parameter to pick the platform: the build itself resolves which `I2CTransport` gets compiled in. Chip drivers and examples import `"github.com/tuhde/Periph/go/periph/transport"` and reference `transport.Transport` only; only an example's `main()` ever names a concrete transport type.
+Both the Linux and TinyGo implementation of a given connection export the **same type name** (e.g. `I2CConnection`), gated by a `//go:build` tag on the file — `linux && !tinygo` vs `tinygo`. Unlike every other language here, there is no separate import path or generic type parameter to pick the platform: the build itself resolves which `I2CConnection` gets compiled in. Chip drivers and examples import `"github.com/tuhde/Periph/go/periph/connection"` and reference `connection.Connection` only; only an example's `main()` ever names a concrete connection type.
 
-### Transport implementations
+### Connection implementations
 
 | File | Build tag | Underlying API |
 |------|-----------|-----------------|
-| `<transport>_linux.go` | `linux && !tinygo` | Raw `ioctl()`/`syscall` via `golang.org/x/sys/unix` against the relevant `/dev` node — no cgo |
-| `<transport>_tinygo.go` | `tinygo` | TinyGo's `machine` package |
+| `<protocol>_linux.go` | `linux && !tinygo` | Raw `ioctl()`/`syscall` via `golang.org/x/sys/unix` against the relevant `/dev` node — no cgo |
+| `<protocol>_tinygo.go` | `tinygo` | TinyGo's `machine` package |
 
-See each `specs/transport_<name>.md` → "Go — Linux" / "Go — TinyGo" for the exact calls per transport. `SMBusTransport` is the one exception: since it wraps the `Transport` interface rather than a concrete bus type, it needs no build tag at all (see `specs/transport_smbus.md`).
+See each `specs/transport_<name>.md` → "Go — Linux" / "Go — TinyGo" for the exact calls per protocol. `SMBusConnection` is the one exception: since it wraps the `Connection` interface rather than a concrete bus type, it needs no build tag at all (see `specs/transport_smbus.md`).
 
 ### Workspace layout
 
@@ -1326,7 +1328,7 @@ Each chip has three examples per language (same branch as the driver):
 
 | File | Class | Content | Comments |
 |------|-------|---------|---------|
-| `minimal` | `*Minimal` | Construct with transport, read primary values in a loop, print to serial/stdout. | Tier-1 signature comment on every call. |
+| `minimal` | `*Minimal` | Construct with connection, read primary values in a loop, print to serial/stdout. | Tier-1 signature comment on every call. |
 | `complete` | `*Full` | Every method in the API called once — configuration, alerts, shutdown/wake, IDs. | Tier-1 + Tier-2 (what-it-does line below each call). |
 | `demo` | `*Full` | The scenario from the spec's Demo section. | Tier-1 + Tier-3 (context block at each logical section boundary). |
 
@@ -1393,11 +1395,11 @@ class INA219Minimal {
 public:
     /**
      * @brief Construct and initialise the INA219.
-     * @param transport  I²C transport bound to the chip's address.
+     * @param connection  I²C connection bound to the chip's address.
      * @param r_shunt    Shunt resistor value in ohms (default 0.1).
      * @param max_current Maximum expected current in amps (default 2.0).
      */
-    INA219Minimal(Transport& transport, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA219Minimal(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /**
      * @brief Read bus voltage.
@@ -1414,11 +1416,11 @@ public:
  */
 class INA219Minimal {
     /**
-     * @param {object} transport - I²C transport bound to the chip's address.
+     * @param {object} connection - I²C connection bound to the chip's address.
      * @param {number} [rShunt=0.1] - Shunt resistor in ohms.
      * @param {number} [maxCurrent=2.0] - Maximum expected current in amps.
      */
-    constructor(transport, rShunt = 0.1, maxCurrent = 2.0) { ... }
+    constructor(connection, rShunt = 0.1, maxCurrent = 2.0) { ... }
 
     /**
      * Read bus voltage.
@@ -1491,7 +1493,7 @@ Parameter list follows the method signature (names, defaults, units) — not the
 
 **Minimal — Tier-1 only:**
 ```python
-ina = INA219Full(transport)                          # Create INA219 driver, (transport, r_shunt=0.1 Ω, max_current=2.0 A)
+ina = INA219Full(connection)                         # Create INA219 driver, (connection, r_shunt=0.1 Ω, max_current=2.0 A)
 v   = ina.voltage()                                  # Read bus voltage, () → float V
 i   = ina.current()                                  # Read load current, () → float A
 ok  = ina.conversion_ready()                         # Check conversion done, () → bool
