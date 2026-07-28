@@ -11,7 +11,7 @@ Today every language has exactly one test level — hardware-in-loop (HIL): comp
 ## Test Levels
 
 ### Unit
-No hardware. A mock/fake `Transport` records writes and replays canned bytes for reads. Exercises pure driver logic: bit-packing, LSB/scale conversions, CRC/checksum math, and the register defaults baked into `Minimal`. Runs in CI on every push. No `testconfig` required.
+No hardware. A mock/fake `Connection` records writes and replays canned bytes for reads. Exercises pure driver logic: bit-packing, LSB/scale conversions, CRC/checksum math, and the register defaults baked into `Minimal`. Runs in CI on every push. No `testconfig` required.
 
 ### HIL (existing)
 Real hardware, real bus, real chip. Value-correctness checks — `PASS <label>` / `FAIL <label>[: detail]` per check, `===DONE: N passed, N failed===` last line. Unchanged from today.
@@ -36,7 +36,7 @@ cpp/test_linux.sh power/ina226                    # auto: unit, hil, or conforma
 cpp/test_linux.sh --level unit power/ina226       # forced
 ```
 
-**Unit only exists on each language's native host script.** Arduino/Zephyr/ESP-IDF/Pico SDK/TinyGo/CircuitPython/MicroPython/Rust-ESP32-S3 run the *same* chip-driver source as their language's host platform (only the transport wrapper differs), so a mocked run there would duplicate the host script's unit coverage with zero added signal. Those scripts support `hil` and `conformance` only; detection cascades straight from sigrok-present → hardware-present with no unit fallback (if hardware isn't present on an embedded platform, there's nothing meaningful to fall back to — the script errors out asking for the board).
+**Unit only exists on each language's native host script.** Arduino/Zephyr/ESP-IDF/Pico SDK/TinyGo/CircuitPython/MicroPython/Rust-ESP32-S3 run the *same* chip-driver source as their language's host platform (only the connection wrapper differs), so a mocked run there would duplicate the host script's unit coverage with zero added signal. Those scripts support `hil` and `conformance` only; detection cascades straight from sigrok-present → hardware-present with no unit fallback (if hardware isn't present on an embedded platform, there's nothing meaningful to fall back to — the script errors out asking for the board).
 
 ## Script Naming
 
@@ -120,16 +120,16 @@ esac
 
 ## Unit Test Implementation
 
-A mock `Transport` per language, respecting each language's own idioms rather than forcing one shape:
+A mock `Connection` per language, respecting each language's own idioms rather than forcing one shape:
 
-| Language | Mock transport | Unit test location | Run via |
+| Language | Mock connection | Unit test location | Run via |
 |---|---|---|---|
-| cpp | `cpp/src/transport/I2CTransportMock.h/.cpp` (host-only, implements the same pure-virtual `Transport`) | `cpp/tests/<category>/<chip>_test_unit/<chip>_test_unit.cpp` | `test_linux.sh` |
-| python | `python/periph/transport/i2c_mock.py` | `python/tests/<category>/<chip>_test_unit.py` | `test_linux.sh` |
-| nodejs | `nodejs/packages/periph/src/transport/i2c_mock.js` | `nodejs/tests/<category>/<chip>_test_unit.js` | `test_linux.sh` |
-| rust | `MockI2c` — use `embedded-hal-mock` (dev-dependency) rather than hand-rolling one | `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/<category>/<chip>.rs` | `cargo test -p periph`, wrapped by `test_linux.sh` |
-| go | struct literal implementing the `Transport` interface, colocated per Go convention | `go/periph/chips/<category>/<chip>_test.go` | `go test ./periph/chips/...`, wrapped by `test_linux.sh` |
-| jvm | one `MockTransport` in `periph-transport`'s test scope, reused from Java/Kotlin/Groovy | `jvm/periph-java/src/test/java/.../<Chip>Test.java` (JUnit), `jvm/periph-kotlin/src/test/kotlin/...` (Kotest/JUnit5), `jvm/periph-groovy/src/test/groovy/...` (Spock) | `mvn test` per module, wrapped by `test_linux_<lang>.sh` |
+| cpp | `cpp/src/connection/I2CConnectionMock.h/.cpp` (host-only, implements the same `Connection` base) | `cpp/tests/<category>/<chip>_test_unit/<chip>_test_unit.cpp` | `test_linux.sh` |
+| python | `python/periph/connection/i2c_mock.py` | `python/tests/<category>/<chip>_test_unit.py` | `test_linux.sh` |
+| nodejs | `nodejs/packages/periph/src/connection/i2c_mock.js` | `nodejs/tests/<category>/<chip>_test_unit.js` | `test_linux.sh` |
+| rust | `MockI2c` — use `embedded-hal-mock` (dev-dependency) rather than hand-rolling one; drivers are generic directly over `embedded_hal::i2c::I2c`, not a periph-owned wrapper, so mocking the `embedded-hal` trait is sufficient | `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/<category>/<chip>.rs` | `cargo test -p periph`, wrapped by `test_linux.sh` |
+| go | struct literal implementing the `Connection` interface, colocated per Go convention | `go/periph/chips/<category>/<chip>_test.go` | `go test ./periph/chips/...`, wrapped by `test_linux.sh` |
+| jvm | one `MockConnection` in `periph-connection`'s test scope, reused from Java/Kotlin/Groovy | `jvm/periph-java/src/test/java/.../<Chip>Test.java` (JUnit), `jvm/periph-kotlin/src/test/kotlin/...` (Kotest/JUnit5), `jvm/periph-groovy/src/test/groovy/...` (Spock) | `mvn test` per module, wrapped by `test_linux_<lang>.sh` |
 
 Where a language already has a native test runner (`cargo test`, `go test`, `mvn test`), the platform script's `unit` path is a thin wrapper around it, filtered to the one chip requested — not a bespoke harness reimplementing what the toolchain already does.
 
@@ -159,7 +159,7 @@ Key convention: `<check_name>_min_<unit>` / `<check_name>_max_<unit>` for the bo
 
 These capture parameters are a property of the chip's own datasheet timing, not of anyone's bench, so they stay in the repo-committed `timing.conf` — never in the user's private `testconfig`/`testconfig_wiring`, which only ever carries rig-wide (`SIGROK_DRIVER`/`SIGROK_CONN`) and per-chip-wiring (`SIGROK_CHANNELS`) facts.
 
-Every platform script's conformance path is the same two-liner: start its own transport/process as it would for `hil`, then shell out to `conformance/<category>/<chip>_conformance.py --lang <language>` (the checker only needs to know which language's HIL binary/process to drive, since triggering the transaction is language-specific but decoding/measuring is not).
+Every platform script's conformance path is the same two-liner: start its own connection/process as it would for `hil`, then shell out to `conformance/<category>/<chip>_conformance.py --lang <language>` (the checker only needs to know which language's HIL binary/process to drive, since triggering the transaction is language-specific but decoding/measuring is not).
 
 ## Rollout Scope
 
@@ -169,19 +169,19 @@ This spec covers the **framework** plus a full reference implementation for **IN
 
 ## Implementation Checklist
 
-- [ ] `cpp/src/transport/I2CTransportMock.h/.cpp`
+- [ ] `cpp/src/connection/I2CConnectionMock.h/.cpp`
 - [ ] `cpp/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
 - [ ] `cpp/boards/` — directory + one illustrative committed board profile (e.g. `cpp/boards/esp32s3-sensor-devkit.conf`) demonstrating the format
 - [ ] `cpp/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, add unit + conformance paths, detection cascade, `--level` override
 - [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — parse target before sourcing config, source `testconfig_wiring`, add `--board` support, conformance path + detection
 - [ ] `cpp/tests/power/ina226_test_unit/ina226_test_unit.cpp`
-- [ ] `python/periph/transport/i2c_mock.py`
+- [ ] `python/periph/connection/i2c_mock.py`
 - [ ] `python/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (python has one shared testconfig)
 - [ ] `python/boards/` — directory + one illustrative committed board profile
 - [ ] `python/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
 - [ ] `python/test_mp.sh`, `test_cp.sh` — parse target before sourcing config, `--board` support, conformance path + detection
 - [ ] `python/tests/power/ina226_test_unit.py`
-- [ ] `nodejs/packages/periph/src/transport/i2c_mock.js`
+- [ ] `nodejs/packages/periph/src/connection/i2c_mock.js`
 - [ ] `nodejs/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (nodejs has one platform)
 - [ ] `nodejs/test.sh` → renamed `nodejs/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
 - [ ] `nodejs/tests/power/ina226_test_unit.js`
@@ -196,7 +196,7 @@ This spec covers the **framework** plus a full reference implementation for **IN
 - [ ] `go/boards/` — directory + one illustrative committed board profile
 - [ ] `go/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `go test`) + conformance paths, detection cascade, `--level`
 - [ ] `go/test_tinygo.sh` — parse target before sourcing config, source `testconfig_wiring`, `--board` support, conformance path + detection
-- [ ] `jvm/periph-transport` test-scope `MockTransport`
+- [ ] `jvm/periph-connection` test-scope `MockConnection`
 - [ ] `jvm/periph-java/src/test/java/it/uhde/periph/chips/power/Ina226Test.java`
 - [ ] `jvm/periph-kotlin/src/test/kotlin/.../Ina226Test.kt`
 - [ ] `jvm/periph-groovy/src/test/groovy/.../Ina226Test.groovy`
