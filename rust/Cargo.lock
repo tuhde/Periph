@@ -94,7 +94,7 @@ dependencies = [
 name = "as5600_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -365,6 +365,16 @@ dependencies = [
 
 [[package]]
 name = "embedded-hal"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35949884794ad573cf46071e41c9b60efb0cb311e3ca01f7af807af1debc66ff"
+dependencies = [
+ "nb 0.1.3",
+ "void",
+]
+
+[[package]]
+name = "embedded-hal"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
@@ -376,8 +386,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d3980bf28e8577db59fe2bdb3df868a419469d2cecb363644eea2b6f7797669"
 dependencies = [
  "critical-section",
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "portable-atomic",
+]
+
+[[package]]
+name = "embedded-hal-mock"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9a0f04f8886106faf281c47b6a0e4054a369baedaf63591fdb8da9761f3f379"
+dependencies = [
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-hal-nb",
+ "embedded-time",
+ "nb 1.1.0",
+ "void",
 ]
 
 [[package]]
@@ -386,8 +410,8 @@ version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fba4268c14288c828995299e59b12babdbe170f6c6d73731af1b4648142e8605"
 dependencies = [
- "embedded-hal",
- "nb",
+ "embedded-hal 1.0.0",
+ "nb 1.1.0",
 ]
 
 [[package]]
@@ -395,6 +419,15 @@ name = "embedded-io"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
+
+[[package]]
+name = "embedded-time"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d7a4b4d10ac48d08bfe3db7688c402baadb244721f30a77ce360bd24c3dffe58"
+dependencies = [
+ "num",
+]
 
 [[package]]
 name = "ens160_complete"
@@ -468,7 +501,7 @@ dependencies = [
 name = "hx711_complete"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -478,7 +511,7 @@ dependencies = [
 name = "hx711_connection_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -488,7 +521,7 @@ dependencies = [
 name = "hx711_demo"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -498,7 +531,7 @@ dependencies = [
 name = "hx711_minimal"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -508,7 +541,7 @@ dependencies = [
 name = "hx711_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -671,11 +704,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a8a605c95f708c78554738a12153b213f107d3bd5323f7ce32d6deb3faafb40"
 dependencies = [
  "cast",
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-nb",
  "gpio-cdev",
  "i2cdev",
- "nb",
+ "nb 1.1.0",
  "nix 0.27.1",
  "serialport",
  "spidev",
@@ -695,7 +728,7 @@ dependencies = [
 name = "mcp23017_complete"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -704,7 +737,7 @@ dependencies = [
 name = "mcp23017_demo"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -713,7 +746,7 @@ dependencies = [
 name = "mcp23017_minimal"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -722,7 +755,7 @@ dependencies = [
 name = "mcp23017_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -813,7 +846,7 @@ dependencies = [
 name = "mfrc522_complete"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -824,7 +857,7 @@ dependencies = [
 name = "mfrc522_demo"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -835,7 +868,7 @@ dependencies = [
 name = "mfrc522_minimal"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -846,7 +879,7 @@ dependencies = [
 name = "mfrc522_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -888,6 +921,15 @@ dependencies = [
 
 [[package]]
 name = "nb"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "801d31da0513b6ec5214e9bf433a77966320625a37860f910be265be6e18d06f"
+dependencies = [
+ "nb 1.1.0",
+]
+
+[[package]]
+name = "nb"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d5439c4ad607c3c23abf66de8c8bf57ba8adcd1f129e699851a6e43935d339d"
@@ -925,7 +967,7 @@ dependencies = [
 name = "neo6_test_spi"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -985,10 +1027,71 @@ dependencies = [
 ]
 
 [[package]]
+name = "num"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b7a8e9be5e039e2ff869df49155f1c06bd01ade2117ec783e56ab0932b67a8f"
+dependencies = [
+ "num-complex",
+ "num-integer",
+ "num-iter",
+ "num-rational",
+ "num-traits",
+]
+
+[[package]]
+name = "num-complex"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "747d632c0c558b87dbabbe6a82f3b4ae03720d0646ac5b7b4dae89394be5f2c5"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "num-iter"
+version = "0.1.46"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c92800bd69a1eac91786bcfe9da64a897eb72911b8dc3095decbd07429e8048b"
+dependencies = [
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-rational"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
+]
+
+[[package]]
 name = "pcf8574_complete"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1005,7 +1108,7 @@ dependencies = [
 name = "pcf8574_minimal"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1014,7 +1117,7 @@ dependencies = [
 name = "pcf8574_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1023,7 +1126,7 @@ dependencies = [
 name = "pcf8575_complete"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1032,7 +1135,7 @@ dependencies = [
 name = "pcf8575_demo"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1041,7 +1144,7 @@ dependencies = [
 name = "pcf8575_minimal"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1050,7 +1153,7 @@ dependencies = [
 name = "pcf8575_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1123,7 +1226,8 @@ dependencies = [
 name = "periph"
 version = "1.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
+ "embedded-hal-mock",
  "embedded-io",
  "heapless",
  "libm",
@@ -1233,7 +1337,7 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 name = "sipo_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "gpio-cdev",
  "linux-embedded-hal",
  "periph",
@@ -1276,7 +1380,7 @@ dependencies = [
 name = "smbus_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "linux-embedded-hal",
  "periph",
 ]
@@ -1285,7 +1389,7 @@ dependencies = [
 name = "spi_test"
 version = "0.1.0"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 1.0.0",
  "embedded-hal-bus",
  "linux-embedded-hal",
  "periph",
@@ -1372,6 +1476,12 @@ name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+
+[[package]]
+name = "void"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "windows-sys"

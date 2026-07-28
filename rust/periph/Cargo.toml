@@ -18,3 +18,6 @@ serialport = { version = "4", optional = true }
 default = []
 std = []
 uart-linux = ["std", "dep:serialport"]
+
+[dev-dependencies]
+embedded-hal-mock = { version = "0.11.1", features = ["eh1"] }
