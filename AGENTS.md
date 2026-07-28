@@ -167,7 +167,7 @@ value := int16(uint16(raw[0])<<8 | uint16(raw[1]))   // signed
 
 ## Linux GPIO pin numbering
 
-On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset, as needed internally by Node.js's `onoff` sysfs backend) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first.
+On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first. Node.js host GPIO access goes through [`opengpio`](https://www.npmjs.com/package/opengpio) (libgpiod character-device API, `{chip, line}` addressing), which uses this convention natively.
 
 ## Class structure
 
@@ -350,23 +350,25 @@ Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterr
 
 ### Node.js
 
-Implement a `_Pin` class with `read()`/`write()` methods. These are `async` (returning Promises), not the synchronous `readSync()`/`writeSync()` `onoff` `Gpio` uses — `Connection.read()`/`write()` are async everywhere (needed so UART shares one contract with I2C/SPI/SMBus), so a synchronous pin proxy can no longer correctly return a value. This means IO-expander pin proxies are not drop-in `onoff.Gpio` replacements; that trade-off was deliberate (see `specs/feature_connection_design.md`):
+Implement a `_Pin` class with `read()`/`write()` methods. These are `async` (returning Promises), not the synchronous `readSync()`/`writeSync()` `onoff` `Gpio` uses, nor opengpio's synchronous `.value` — `Connection.read()`/`write()` are async everywhere (needed so UART shares one contract with I2C/SPI/SMBus), so a synchronous pin proxy can no longer correctly return a live bus value. This means IO-expander pin proxies are not directly drop-in `opengpio` `Input`/`Output` substitutes; that trade-off was deliberate (see `specs/feature_connection_design.md`):
 
 ```js
 class _Pin {
-    constructor(chip, n, direction) {
+    constructor(chip, n, direction) {  // direction: 'in' | 'out', fixed for the pin's lifetime
         this._chip = chip;
         this._n = n;
-        this._direction = direction;  // 'in' | 'out'
+        this._direction = direction;
     }
     get direction() { return this._direction; }
     async read()          { return (await this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1; }
     async write(v)        { await this._chip._setPin(this._n, v); }
-    unexport()            {}
+    stop()                {}   // no-op; shadow register state lives on the chip instance
 }
 ```
 
-Full adds `watch(callback, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery uses `this._conn.intPin` (an `EpollInputPin` or `PollingInputPin`); if `intPin` is null, `on_interrupt` falls back to a 5 ms polling interval.
+Full adds `watch(handler, trigger)` / `unwatch()` to the pin proxy. Interrupt delivery uses `this._conn.intPin` (an `EpollInputPin` or `PollingInputPin`); if `intPin` is null, `on_interrupt` falls back to a 5 ms polling interval.
+
+**`asGpio()` — opengpio interop facade.** Add `asGpio()` to `_Pin`, returning a synchronous object matching the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape (boolean `.value` getter/setter, fixed `direction`, `stop()`), so a pin can be passed anywhere real opengpio-shaped GPIO is expected — e.g. as `enPin` in a `Connection`, or as one of `SiPoConnection`'s/`HX711Connection`'s bit-banged GPIO lines (both of those, and `UARTConnection`'s RS-485 DE pin, take real opengpio `Input`/`Output` objects addressed by `{chip, line}`, replacing the deprecated sysfs-based `onoff`). Output-direction facades read back the shadow register directly (authoritative — nothing else changes an output pin's logical state) and write through fire-and-forget; input-direction facades are backed by a 5 ms background poll refreshing a cached value, so `.value` there is eventually consistent, not a live bus read like the pin's own `read()`.
 
 ### Rust
 

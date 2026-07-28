@@ -63,7 +63,7 @@ Some platforms already have a first-class software-SPI object with the same inte
 | Arduino | `SPIClass&` | transport bit-bangs `ser_in`/`srck` pin numbers |
 | Linux GCC | `/dev/spidevB.D` via kernel spidev | transport bit-bangs `ser_in`/`srck` `gpiod_line*`s |
 | Zephyr RTOS | `spi_config` on a hardware SPI controller node | same `spi_config`/`spi_write()` API against a `spi-bitbang`-compatible devicetree node — no transport code difference |
-| Node.js | `spi-device` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `onoff` `Gpio`s |
+| Node.js | `spi-device` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `opengpio` `Output`s |
 | Rust (embedded-hal / Linux) | Hardware `impl SpiBus` | caller supplies any bit-banged `impl SpiBus` (e.g. from `embedded-hal-bus`) — no transport code difference |
 | JVM | `/dev/spidevB.D` via FFM ioctl | transport bit-bangs `serInLine`/`srckLine` GPIO chardev lines via FFM ioctl |
 | Go Linux | `/dev/spidevB.D` via raw ioctl (Go's SPI transport) | transport bit-bangs `serIn`/`srck` `/dev/gpiochip0` lines via raw ioctl |
@@ -114,8 +114,8 @@ No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns 
 | `dev`, `config` | Zephyr | `const struct device *`, `struct spi_config` | Hardware or software (bitbang-controller devicetree node) SPI — same API either way, mode 0, 1 MHz |
 | `rck`, `srclr`, `g` | Zephyr | `gpio_dt_spec` (GPIO_OUTPUT) | `srclr`/`g` may be an unpopulated (`.port == NULL`) spec to disable |
 | `bus_num`, `device_num` | Node.js | `int` | Hardware mode: opens `spi-device` on `/dev/spidevB.D`, mode 0, 1 MHz |
-| `ser_in`, `srck` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Software mode: transport bit-bangs these two GPIOs instead of opening spi-device |
-| `rck`, `srclr`, `g` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Always required/optional as before; `srclr`/`g` may be `null` |
+| `ser_in`, `srck` | Node.js | `object` (`opengpio` Output) | Software mode: transport bit-bangs these two GPIOs instead of opening spi-device |
+| `rck`, `srclr`, `g` | Node.js | `object` (`opengpio` Output) | Always required/optional as before; `srclr`/`g` may be `null` |
 | `spi` | Rust (embedded-hal) | `impl SpiBus` | Hardware or caller-supplied bit-banged `SpiBus` (e.g. `embedded-hal-bus`) at up to 1 MHz, mode 0 — no distinction in the transport's type signature |
 | `rck`, `srclr`, `g` | Rust (embedded-hal) | `impl OutputPin`, `Option<impl OutputPin>` | `srclr`/`g` wrapped in `Option` |
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` `SpidevBus` (hardware) or any bit-banged `SpiBus` impl (software) at up to 1 MHz, mode 0 |
@@ -215,9 +215,9 @@ File: `cpp/src/transport/SiPoTransportPicoSDK.h` (header-only)
 
 Two constructor modes:
 - **Hardware:** `busNumber`/`deviceNumber` opening `spi-device` at 1 MHz, mode 0; `write()` calls `spi.transferSync([...])`.
-- **Software:** `ser_in`/`srck` `onoff` `Gpio` objects instead; `write()` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `writeSync`.
+- **Software:** `ser_in`/`srck` `opengpio` `Output` objects instead; `write()` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) by setting `.value`.
 
-Both then call `rck.writeSync(1); rck.writeSync(0);` to latch. RCK/SRCLR/G are `onoff` `Gpio` objects in both modes.
+Both then set `rck.value = true; rck.value = false;` to latch. RCK/SRCLR/G are `opengpio` `Output` objects in both modes.
 
 File: `nodejs/packages/periph/src/transport/sipo.js`
 

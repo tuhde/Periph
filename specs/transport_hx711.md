@@ -94,8 +94,8 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pd_sck` | Linux GCC | `gpiod_line *` (output) | Clock / power-down output line |
 | `dout` | Zephyr | `gpio_dt_spec` (GPIO_INPUT) | Data input pin |
 | `pd_sck` | Zephyr | `gpio_dt_spec` (GPIO_OUTPUT_LOW) | Clock / power-down output pin |
-| `dout` | Node.js | `object` (`onoff` Gpio, direction `'in'`) | Data input GPIO |
-| `pd_sck` | Node.js | `object` (`onoff` Gpio, direction `'out'`) | Clock / power-down output GPIO |
+| `dout` | Node.js | `object` (`opengpio` Input) | Data input GPIO |
+| `pd_sck` | Node.js | `object` (`opengpio` Output) | Clock / power-down output GPIO |
 | `dout` | Rust | `impl InputPin` | `embedded_hal::digital::InputPin` |
 | `pd_sck` | Rust | `impl OutputPin` | `embedded_hal::digital::OutputPin` |
 | `dout` | Go Linux | `int` (GPIO line offset) | Data input line, requested on `/dev/gpiochip0` via ioctl |
@@ -168,7 +168,7 @@ File: `cpp/src/transport/HX711TransportPicoSDK.h` (header-only)
 
 ### Node.js
 
-Use the `onoff` package. Poll `dout.readSync()` and drive `pd_sck.writeSync(0/1)`. Insert a 1 ms `setTimeout`/spin between polls.
+Use the `opengpio` package. Poll `dout.value` and drive `pd_sck.value = false/true`. Insert a 1 ms `setTimeout`/spin between polls.
 
 File: `nodejs/packages/periph/src/transport/hx711.js`
 

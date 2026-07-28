@@ -28,7 +28,10 @@ const REG_OLATB    = 0x15;
  * Provides access to 16 GPIO pins (GPA0–GPA7 and GPB0–GPB7) via a pin()
  * factory. Each returned pin exposes async read()/write() (not onoff's
  * synchronous readSync()/writeSync() — Connection is async everywhere, so
- * a synchronous pin proxy can no longer correctly return a value).
+ * a synchronous pin proxy can no longer correctly return a value). Call
+ * pin.asGpio() for a synchronous opengpio-shaped facade when a pin needs
+ * to be passed somewhere a real opengpio Input/Output is expected — see
+ * _Pin.asGpio() below.
  *
  * At construction, all pins initialise as inputs except GPA7 and GPB7
  * which are output-only on the hardware and are forced to output mode.
@@ -142,7 +145,7 @@ class _Pin {
     /**
      * @param {Mcp23017Minimal} chip - Parent driver instance.
      * @param {number} n - Pin index (0–15).
-     * @param {string} direction - 'in' or 'out'.
+     * @param {string} direction - 'in' or 'out'; fixed for the pin's lifetime.
      */
     constructor(chip, n, direction) {
         this._chip      = chip;
@@ -150,7 +153,7 @@ class _Pin {
         this._direction = direction;
     }
 
-    /** @type {string} Current pin direction ('in' or 'out'). */
+    /** @type {string} Pin direction ('in' or 'out'). */
     get direction() { return this._direction; }
 
     /**
@@ -179,8 +182,47 @@ class _Pin {
         this._direction = direction;
     }
 
+    /**
+     * Return a synchronous opengpio-shaped Input/Output facade for this
+     * pin — a boolean `.value` getter/setter, fixed `direction`, and
+     * `stop()` — so it can be passed anywhere code expects a real
+     * opengpio GPIO line.
+     *
+     * Output-direction facades read back the shadow register directly
+     * (authoritative) and write through fire-and-forget. Input-direction
+     * facades are backed by a 5 ms background poll that refreshes a
+     * cached value — `.value` is therefore eventually consistent, not a
+     * live bus read on every access like this pin's own async read().
+     * Call stop() to release the background poll when done.
+     *
+     * @returns {{direction: string, value: boolean, stop: function}} opengpio-shaped facade.
+     */
+    asGpio() {
+        const pin = this;
+        if (this._direction === 'out') {
+            const port = this._n >> 3;
+            const bit = this._n & 7;
+            return {
+                get direction() { return 'out'; },
+                get value() { return ((pin._chip._shadow[port] >> bit) & 1) === 1; },
+                set value(v) { pin._chip._setPin(pin._n, v ? 1 : 0); }, // fire-and-forget
+                stop() {},
+            };
+        }
+        let cached = false;
+        const timer = setInterval(async () => {
+            cached = (await pin.read()) === 1;
+        }, 5);
+        return {
+            get direction() { return 'in'; },
+            get value() { return cached; },
+            set value(_v) { throw new Error('cannot set value on an input pin'); },
+            stop() { clearInterval(timer); },
+        };
+    }
+
     /** Release the pin (no-op; shadow state preserved). */
-    unexport() {}
+    stop() {}
 }
 
 /**
@@ -390,7 +432,7 @@ class Mcp23017Full extends Mcp23017Minimal {
 }
 
 /**
- * Full GPIO proxy — adds watch/unwatch for interrupt-driven input.
+ * Full GPIO proxy — adds watch() for interrupt-driven input.
  */
 class _FullPin extends _Pin {
     /**

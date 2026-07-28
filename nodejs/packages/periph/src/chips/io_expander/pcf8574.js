@@ -6,7 +6,11 @@
  * Exposes all eight pins (P0–P7) as GPIO objects via the pin() factory.
  * Pin objects expose async read()/write() (not onoff's synchronous
  * readSync()/writeSync() — Connection is async everywhere, so a
- * synchronous pin proxy can no longer correctly return a value).
+ * synchronous pin proxy can no longer correctly return a value). Call
+ * pin.asGpio() for a synchronous opengpio-shaped facade when a pin needs
+ * to be passed somewhere a real opengpio Input/Output is expected (e.g.
+ * SiPoConnection's SER/SRCK/RCK, HX711Connection's DOUT/PD_SCK,
+ * UARTConnection's DE pin) — see _Pin.asGpio() below.
  *
  * Direction is implicit: write(1) puts a pin in input mode (weak pull-up);
  * write(0) drives it low. A shadow register tracks the output latch.
@@ -90,7 +94,7 @@ class _Pin {
     /**
      * @param {Pcf8574Minimal} chip - Parent driver instance.
      * @param {number} n - Pin index (0–7).
-     * @param {string} direction - 'in' or 'out'.
+     * @param {string} direction - 'in' or 'out'; fixed for the pin's lifetime.
      */
     constructor(chip, n, direction) {
         this._chip      = chip;
@@ -98,7 +102,7 @@ class _Pin {
         this._direction = direction;
     }
 
-    /** @type {string} Current pin direction ('in' or 'out'). */
+    /** @type {string} Pin direction ('in' or 'out'). */
     get direction() { return this._direction; }
 
     /**
@@ -128,8 +132,47 @@ class _Pin {
         await this._chip._setPin(this._n, direction === 'in' ? 1 : 0);
     }
 
+    /**
+     * Return a synchronous opengpio-shaped Input/Output facade for this
+     * pin — a boolean `.value` getter/setter, fixed `direction`, and
+     * `stop()` — so it can be passed anywhere code expects a real
+     * opengpio GPIO line.
+     *
+     * Output-direction facades read back the shadow register directly
+     * (authoritative — nothing else can change an output pin's logical
+     * state) and write through fire-and-forget, matching this class's own
+     * fire-and-forget writes elsewhere. Input-direction facades are
+     * backed by a 5 ms background poll that refreshes a cached value —
+     * `.value` is therefore eventually consistent, not a live bus read on
+     * every access like this pin's own async read(). Call stop() to
+     * release the background poll when the facade is no longer needed.
+     *
+     * @returns {{direction: string, value: boolean, stop: function}} opengpio-shaped facade.
+     */
+    asGpio() {
+        const pin = this;
+        if (this._direction === 'out') {
+            return {
+                get direction() { return 'out'; },
+                get value() { return ((pin._chip._shadow >> pin._n) & 1) === 1; },
+                set value(v) { pin._chip._setPin(pin._n, v ? 1 : 0); }, // fire-and-forget
+                stop() {},
+            };
+        }
+        let cached = false;
+        const timer = setInterval(async () => {
+            cached = (await pin.read()) === 1;
+        }, 5);
+        return {
+            get direction() { return 'in'; },
+            get value() { return cached; },
+            set value(_v) { throw new Error('cannot set value on an input pin'); },
+            stop() { clearInterval(timer); },
+        };
+    }
+
     /** Release the pin (no-op; shadow state preserved). */
-    unexport() {}
+    stop() {}
 }
 
 /**
@@ -149,7 +192,7 @@ class Pcf8574Full extends Pcf8574Minimal {
         this._prev     = 0xFF;
         this._readPort().then(v => { this._prev = v; }); // fire-and-forget refresh
         this._callback  = null;
-        this._watchers  = {}; // { [pin]: { handler, trigger } }
+        this._watchers  = {}; // { [pin]: { handler, trigger, lastState } }
         this._intPin    = null;
         this._pollTimer = null;
         this._edgeHandler = () => { this._handleEdge(); };

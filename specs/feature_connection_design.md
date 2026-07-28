@@ -948,8 +948,7 @@ class OutputPin {
 
 | Class | Mechanism |
 |-------|-----------|
-| `SysfsOutputPin` | sysfs GPIO write |
-| `GpiodOutputPin` | `libgpiod` via native binding |
+| `GpioOutputPin` | wraps an `opengpio` Output (`libgpiod` character device) |
 
 ### 6.4 Rust
 
@@ -1136,7 +1135,7 @@ sensor_conn.enable()                 # drives IO expander pin 0 high
 |----------|-----------|
 | Python | `_Pin` has `set(high: bool)` → `on()` / `off()`; duck-types as `OutputPin` on all targets |
 | C++ | `IOExpanderPin` inherits from `OutputPin`; implements `set(bool high)` → `high()` / `low()` |
-| Node.js | `_Pin` has `async set(high)` → `this.writeSync(high ? 1 : 0)` |
+| Node.js | `_Pin.write(value)` is async (Connection is async everywhere), so it cannot duck-type `OutputPin.set()` directly; call `pin.asGpio()` for a synchronous `{value, direction, stop()}` facade and wrap that in a `GpioOutputPin` |
 | JVM | `Pin` implements `OutputPin`; `set(boolean high)` → delegates to write |
 | Rust | `ExPin<Output>` implements `embedded_hal::digital::OutputPin` — already compatible; no extra work |
 | Go | `Pin.Set(high bool) error` already matches `OutputPin`'s method set structurally — already compatible; no extra work |
@@ -1484,7 +1483,7 @@ see §4.1 for the rename pattern and blast radius.
 | `cpp/src/connection/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |
 | `nodejs/packages/periph/src/connection/connection.js` | Node.js | `Connection` base class (new — JS had no prior shared `Transport` base) |
 | `nodejs/packages/periph/src/connection/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
-| `nodejs/packages/periph/src/connection/output_pin.js` | Node.js | `OutputPin`, `SysfsOutputPin`, `GpiodOutputPin` |
+| `nodejs/packages/periph/src/connection/output_pin.js` | Node.js | `OutputPin`, `GpioOutputPin` |
 | `rust/periph/src/connection/connection.rs` | Rust | `Connection<BUS>` struct (bus + enabled state) — new code, not a rename; see §4.5 |
 | `jvm/periph-connection/…/connection/Connection.java` | Java | `Connection` interface (renamed/expanded from `Transport`, was `periph-transport/…/transport/Transport.java`) |
 | `jvm/periph-connection/…/connection/AbstractConnection.java` | Java | Shared `enabled`/pin state + read/write gating (new — template-method base every concrete `*Connection` extends) |

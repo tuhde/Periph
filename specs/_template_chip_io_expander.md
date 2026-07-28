@@ -190,12 +190,12 @@ The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — gua
 
 ### Node.js
 
-Pin objects implement the [`onoff`](https://www.npmjs.com/package/onoff) `Gpio` interface subset so they are drop-in replacements.
+Pin objects expose `async read()`/`write(value)` (not synchronous `readSync()`/`writeSync()` — `Connection` is async everywhere, so a synchronous pin proxy can no longer correctly return a value).
 
-Required interface (Minimal): `readSync()`, `writeSync(value)`, `read(callback)`, `write(value, callback)`, `direction` property, `unexport()`, `async set(high)` → `writeSync(high ? 1 : 0)`  
-Full adds: `watch(callback)`, `unwatch(callback)`, `setActiveLow(invert)`
+Required interface (Minimal): `async read()`, `async write(value)`, `async setDirection(direction)`, `direction` property, `stop()`, `asGpio()`  
+Full adds: `watch(handler, trigger='change')`, `unwatch()`, `setActiveLow(invert)`
 
-`set(high)` satisfies the `OutputPin` duck-type contract so a pin can be passed as `enPin` in a `Connection`.
+`asGpio()` returns a synchronous facade implementing the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape (boolean `value` getter/setter, `direction`, `stop()`) so a pin can be passed anywhere real opengpio-shaped GPIO is expected — e.g. as `enPin` in a `Connection`, or as one of `SiPoConnection`'s/`HX711Connection`'s bit-banged GPIO lines. Output-direction facades read back the shadow register directly (authoritative); input-direction facades are backed by a 5 ms background poll and are therefore eventually consistent, unlike the pin's own `read()`.
 
 ### JVM
 

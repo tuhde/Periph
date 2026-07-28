@@ -10,10 +10,11 @@ const { Connection } = require('./connection');
  * incoming bytes in an internal buffer. All operations return Promises.
  * Call close() when done to release the port.
  *
- * For RS-485 DE toggling, pass dePinNum and install the `onoff` package.
- * The GPIO is asserted high before each write and deasserted after drain.
- * This is separate from the standard EN pin (hardware enable/power) — DE
- * controls RS-485 transceiver direction, not device power.
+ * For RS-485 DE toggling, pass de_gpio ({chip, line}) and install the
+ * `opengpio` package. The GPIO is asserted high before each write and
+ * deasserted after drain. This is separate from the standard EN pin
+ * (hardware enable/power) — DE controls RS-485 transceiver direction,
+ * not device power.
  */
 class UARTConnection extends Connection {
     /**
@@ -21,7 +22,7 @@ class UARTConnection extends Connection {
      * @param {object}  [options]
      * @param {number}  [options.baudRate=9600]    - Baud rate.
      * @param {number}  [options.timeoutMs=1000]   - Read timeout in milliseconds.
-     * @param {number|null} [options.dePinNum=null] - GPIO line for RS-485 DE; null disables.
+     * @param {{chip: number, line: number}|null} [options.de_gpio=null] - gpiod chip+line for RS-485 DE; null disables.
      * @param {import('./input_pin').InputPin|null} [options.intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
      */
@@ -29,7 +30,7 @@ class UARTConnection extends Connection {
         super(options.intPin ?? null, options.enPin ?? null);
         this._baudRate  = options.baudRate  ?? 9600;
         this._timeoutMs = options.timeoutMs ?? 1000;
-        this._dePinNum  = options.dePinNum ?? null;
+        this._de_gpio   = options.de_gpio ?? null;
         this._rxBuf     = Buffer.alloc(0);
         this._rxWaiters = [];
         this._de        = null;
@@ -44,13 +45,13 @@ class UARTConnection extends Connection {
             this._drainWaiters();
         });
 
-        if (this._dePinNum !== null) {
+        if (this._de_gpio !== null) {
             try {
-                const { Gpio } = require('onoff');
-                this._de = new Gpio(this._dePinNum, 'out');
-                this._de.writeSync(0);
+                const { Default } = require('opengpio');
+                this._de = Default.output(this._de_gpio);
+                this._de.value = false;
             } catch (_) {
-                // onoff unavailable — RS-485 DE toggling disabled.
+                // opengpio unavailable — RS-485 DE toggling disabled.
             }
         }
     }
@@ -99,14 +100,14 @@ class UARTConnection extends Connection {
     async _write(data) {
         await this._openPromise;
         const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
-        if (this._de) this._de.writeSync(1);
+        if (this._de) this._de.value = true;
         await new Promise((resolve, reject) => {
             this._port.write(buf, err => { if (err) reject(err); else resolve(); });
         });
         await new Promise((resolve, reject) => {
             this._port.drain(err => { if (err) reject(err); else resolve(); });
         });
-        if (this._de) this._de.writeSync(0);
+        if (this._de) this._de.value = false;
     }
 
     /**
@@ -141,8 +142,8 @@ class UARTConnection extends Connection {
             this._port.close(err => { if (err) reject(err); else resolve(); });
         });
         if (this._de) {
-            this._de.writeSync(0);
-            this._de.unexport();
+            this._de.value = false;
+            this._de.stop();
             this._de = null;
         }
     }

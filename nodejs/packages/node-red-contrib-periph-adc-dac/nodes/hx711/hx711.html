@@ -4,6 +4,7 @@
         color:        '#a6bbcf',
         defaults: {
             name:        { value: '' },
+            gpioChip:    { value: '0',   required: true, validate: RED.validators.number() },
             doutPin:     { value: '5',   required: true, validate: RED.validators.number() },
             pdSckPin:    { value: '6',   required: true, validate: RED.validators.number() },
             gain:        { value: '128' },
@@ -20,12 +21,16 @@
 
 <script type="text/html" data-template-name="periph-hx711">
     <div class="form-row">
-        <label for="node-input-doutPin"><i class="fa fa-microchip"></i> DOUT pin</label>
-        <input type="number" id="node-input-doutPin" min="0" style="width:80px"> &nbsp;GPIO number (BCM)
+        <label for="node-input-gpioChip"><i class="fa fa-microchip"></i> GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;gpiochip index (e.g. 0 for /dev/gpiochip0)
     </div>
     <div class="form-row">
-        <label for="node-input-pdSckPin"><i class="fa fa-microchip"></i> PD_SCK pin</label>
-        <input type="number" id="node-input-pdSckPin" min="0" style="width:80px"> &nbsp;GPIO number (BCM)
+        <label for="node-input-doutPin"><i class="fa fa-microchip"></i> DOUT line</label>
+        <input type="number" id="node-input-doutPin" min="0" style="width:80px"> &nbsp;gpiod line offset (BCM on Raspberry Pi)
+    </div>
+    <div class="form-row">
+        <label for="node-input-pdSckPin"><i class="fa fa-microchip"></i> PD_SCK line</label>
+        <input type="number" id="node-input-pdSckPin" min="0" style="width:80px"> &nbsp;gpiod line offset (BCM on Raspberry Pi)
     </div>
     <div class="form-row">
         <label for="node-input-gain"><i class="fa fa-sliders-h"></i> Gain</label>
@@ -72,7 +77,9 @@
     </dl>
 
     <h3>Details</h3>
-    <p><b>DOUT pin</b> and <b>PD_SCK pin</b> are BCM GPIO numbers (Raspberry Pi / Linux GPIO).</p>
+    <p><b>GPIO chip</b> is the gpiochip index (check with <code>gpiodetect</code>); <b>DOUT line</b> and
+    <b>PD_SCK line</b> are gpiod line offsets on that chip (check with <code>gpioinfo</code> — matches
+    the BCM GPIO number directly on Raspberry Pi's <code>pinctrl-bcm2711</code>).</p>
     <p><b>Gain</b> selects the input channel and amplifier gain: 128 and 64 use Channel A;
     32 uses Channel B (fixed gain).</p>
     <p><b>Scale factor</b> is the number of ADC counts per unit weight. Calibrate by placing a

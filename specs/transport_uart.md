@@ -51,7 +51,7 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `de_pin_num` | Linux (C++) | `int` | `-1` | GPIO line number for RS-485 DE; `-1` disables RS-485 mode |
 | `path` | Node.js | `str` | — | Serial device path (e.g. `/dev/ttyS0`) |
 | `baudRate` | Node.js | `int` | 9600 | Baud rate |
-| `de_pin_num` | Node.js | `int` | `null` | GPIO line number for RS-485 DE; enables RS-485 mode when set |
+| `de_gpio` | Node.js | `{chip, line}` | `null` | gpiod chip+line for RS-485 DE; enables RS-485 mode when set |
 | `port` | JVM | `String` | — | Serial device path (e.g. `/dev/ttyS0`, `/dev/ttyUSB0`) |
 | `baudRate` | JVM | `int` | 9600 | Baud rate |
 | `dataBits` | JVM | `int` | 8 | Data bits (5–8) |
@@ -237,7 +237,7 @@ Files: `cpp/src/transport/UARTTransportLinux.h`, `cpp/src/transport/UARTTranspor
 
 ### Node.js (Linux)
 
-Wraps the `serialport` npm package. Constructor opens the port asynchronously and accumulates incoming bytes in an internal buffer. For RS-485 DE, uses the `onoff` package for GPIO toggling.
+Wraps the `serialport` npm package. Constructor opens the port asynchronously and accumulates incoming bytes in an internal buffer. For RS-485 DE, uses the `opengpio` package for GPIO toggling, addressed by gpiod `{chip, line}` rather than a single sysfs-style pin number.
 
 | Contract | serialport |
 |----------|------------|

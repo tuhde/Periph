@@ -14,45 +14,28 @@ class OutputPin {
 }
 
 /**
- * OutputPin wrapping a pre-constructed `onoff` Gpio instance (sysfs GPIO write).
+ * OutputPin wrapping a pre-constructed [`opengpio`](https://www.npmjs.com/package/opengpio)
+ * Output instance (libgpiod character-device write).
  *
- * The caller constructs and configures the Gpio ('out' direction) themselves,
- * matching the existing HX711/DHTxx/SiPo constructor convention of taking
- * already-opened onoff objects rather than raw pin numbers.
+ * The caller constructs and configures the Output themselves (e.g. via
+ * `Default.output({chip, line})`), matching the existing HX711/SiPo/UART
+ * constructor convention of taking already-opened opengpio objects rather
+ * than raw pin numbers. `opengpio` is an optional dependency — nothing here
+ * calls require('opengpio'); consumers who never wire an EN pin never need
+ * it installed.
  */
-class SysfsOutputPin extends OutputPin {
+class GpioOutputPin extends OutputPin {
     /**
-     * @param {object} gpio - onoff Gpio instance configured as 'out'.
+     * @param {object} output - opengpio Output instance (boolean `.value`).
      */
-    constructor(gpio) {
+    constructor(output) {
         super();
-        this._gpio = gpio;
+        this._output = output;
     }
 
     async set(high) {
-        this._gpio.writeSync(high ? 1 : 0);
+        this._output.value = !!high;
     }
 }
 
-/**
- * OutputPin wrapping a pre-opened `node-libgpiod` output line.
- *
- * `node-libgpiod` is an optional peer dependency: nothing here calls
- * require('node-libgpiod') — the caller opens the line and passes it in, so
- * consumers who use SysfsOutputPin instead never need it installed.
- */
-class GpiodOutputPin extends OutputPin {
-    /**
-     * @param {object} line - node-libgpiod output Line instance, already requested as output.
-     */
-    constructor(line) {
-        super();
-        this._line = line;
-    }
-
-    async set(high) {
-        this._line.setValue(high ? 1 : 0);
-    }
-}
-
-module.exports = { OutputPin, SysfsOutputPin, GpiodOutputPin };
+module.exports = { OutputPin, GpioOutputPin };

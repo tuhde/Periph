@@ -7,8 +7,8 @@ const spi = require('spi-device');
  *
  * Drives cascadable SIPO shift registers (TPIC6B595, SN74HC595, etc.) whose
  * SER IN/SRCK pins are electrically an SPI MOSI/SCK pair. Shifts data over
- * either a hardware spi-device or a bit-banged pair of onoff Gpio objects.
- * RCK — and, if configured, SRCLR/G — are always plain onoff Gpio objects,
+ * either a hardware spi-device or a bit-banged pair of opengpio Output objects.
+ * RCK — and, if configured, SRCLR/G — are always plain opengpio Output objects,
  * independent of which SPI mode is used.
  *
  * Write-only: there is no read() or writeRead().
@@ -22,15 +22,15 @@ const spi = require('spi-device');
  */
 class SiPoConnection {
     /**
-     * @param {object} rck - onoff Gpio instance configured as 'out' (register clock).
+     * @param {object} rck - opengpio Output instance (register clock).
      * @param {object} [options]
-     * @param {object} [options.srclr] - onoff Gpio instance configured as 'out' for SRCLR; omit to disable.
-     * @param {object} [options.g] - onoff Gpio instance configured as 'out' for G (output enable); omit to disable.
+     * @param {object} [options.srclr] - opengpio Output instance for SRCLR; omit to disable.
+     * @param {object} [options.g] - opengpio Output instance for G (output enable); omit to disable.
      * @param {number} [options.busNumber] - Hardware mode: SPI bus number (opens spi-device).
      * @param {number} [options.deviceNumber] - Hardware mode: chip-select line on the bus.
      * @param {number} [options.maxSpeedHz=1000000] - Hardware mode: SPI clock in Hz.
-     * @param {object} [options.serIn] - Software mode: onoff Gpio instance configured as 'out' for SER IN.
-     * @param {object} [options.srck] - Software mode: onoff Gpio instance configured as 'out' for SRCK.
+     * @param {object} [options.serIn] - Software mode: opengpio Output instance for SER IN.
+     * @param {object} [options.srck] - Software mode: opengpio Output instance for SRCK.
      * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
      */
     constructor(rck, options = {}) {
@@ -58,9 +58,9 @@ class SiPoConnection {
             this._device = null;
         }
 
-        this._rck.writeSync(0);
-        if (this._srclr !== null) this._srclr.writeSync(1);
-        if (this._g !== null) this._g.writeSync(0);
+        this._rck.value = false;
+        if (this._srclr !== null) this._srclr.value = true;
+        if (this._g !== null) this._g.value = false;
     }
 
     /** Resume writes; drives the hardware EN pin high if wired.
@@ -102,14 +102,14 @@ class SiPoConnection {
         } else {
             for (const byte of buf) {
                 for (let bit = 7; bit >= 0; bit--) {
-                    this._serIn.writeSync((byte >> bit) & 1);
-                    this._srck.writeSync(1);
-                    this._srck.writeSync(0);
+                    this._serIn.value = !!((byte >> bit) & 1);
+                    this._srck.value = true;
+                    this._srck.value = false;
                 }
             }
         }
-        this._rck.writeSync(1);
-        this._rck.writeSync(0);
+        this._rck.value = true;
+        this._rck.value = false;
     }
 
     /**
@@ -123,8 +123,8 @@ class SiPoConnection {
     clear() {
         if (!this._enabled) return;
         if (this._srclr === null) throw new Error('SRCLR not configured');
-        this._srclr.writeSync(0);
-        this._srclr.writeSync(1);
+        this._srclr.value = false;
+        this._srclr.value = true;
     }
 
     /**
@@ -140,19 +140,19 @@ class SiPoConnection {
     setOutputEnable(enabled) {
         if (!this._enabled) return;
         if (this._g === null) throw new Error('G not configured');
-        this._g.writeSync(enabled ? 0 : 1);
+        this._g.value = !enabled;
     }
 
     /**
-     * Close the SPI device (if opened) and unexport all configured GPIO pins.
+     * Close the SPI device (if opened) and stop all configured GPIO pins.
      */
     close() {
         if (this._device !== null) this._device.closeSync();
-        this._rck.unexport();
-        if (this._srclr !== null) this._srclr.unexport();
-        if (this._g !== null) this._g.unexport();
-        if (this._serIn !== null) this._serIn.unexport();
-        if (this._srck !== null) this._srck.unexport();
+        this._rck.stop();
+        if (this._srclr !== null) this._srclr.stop();
+        if (this._g !== null) this._g.stop();
+        if (this._serIn !== null) this._serIn.stop();
+        if (this._srck !== null) this._srck.stop();
     }
 }
 

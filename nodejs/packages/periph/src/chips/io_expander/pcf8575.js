@@ -6,7 +6,10 @@
  * Exposes all 16 pins (P00–P07, P10–P17) as GPIO objects via the pin() factory.
  * Pin objects expose async read()/write() (not onoff's synchronous
  * readSync()/writeSync() — Connection is async everywhere, so a
- * synchronous pin proxy can no longer correctly return a value).
+ * synchronous pin proxy can no longer correctly return a value). Call
+ * pin.asGpio() for a synchronous opengpio-shaped facade when a pin needs
+ * to be passed somewhere a real opengpio Input/Output is expected — see
+ * _Pin.asGpio() below.
  *
  * Direction is implicit: write(1) puts a pin in input mode (weak pull-up);
  * write(0) drives it low. Two shadow registers track the output latches.
@@ -92,7 +95,7 @@ class _Pin {
         this._direction = direction;
     }
 
-    /** @type {string} Current pin direction ('in' or 'out'). */
+    /** @type {string} Pin direction ('in' or 'out'). */
     get direction() { return this._direction; }
 
     /**
@@ -125,8 +128,47 @@ class _Pin {
         await this._chip._setPin(this._n, direction === 'in' ? 1 : 0);
     }
 
+    /**
+     * Return a synchronous opengpio-shaped Input/Output facade for this
+     * pin — a boolean `.value` getter/setter, fixed `direction`, and
+     * `stop()` — so it can be passed anywhere code expects a real
+     * opengpio GPIO line.
+     *
+     * Output-direction facades read back the shadow register directly
+     * (authoritative) and write through fire-and-forget. Input-direction
+     * facades are backed by a 5 ms background poll that refreshes a
+     * cached value — `.value` is therefore eventually consistent, not a
+     * live bus read on every access like this pin's own async read().
+     * Call stop() to release the background poll when done.
+     *
+     * @returns {{direction: string, value: boolean, stop: function}} opengpio-shaped facade.
+     */
+    asGpio() {
+        const pin = this;
+        if (this._direction === 'out') {
+            const port = Math.floor(this._n / 8);
+            const bit = this._n % 8;
+            return {
+                get direction() { return 'out'; },
+                get value() { return ((pin._chip._shadow[port] >> bit) & 1) === 1; },
+                set value(v) { pin._chip._setPin(pin._n, v ? 1 : 0); }, // fire-and-forget
+                stop() {},
+            };
+        }
+        let cached = false;
+        const timer = setInterval(async () => {
+            cached = (await pin.read()) === 1;
+        }, 5);
+        return {
+            get direction() { return 'in'; },
+            get value() { return cached; },
+            set value(_v) { throw new Error('cannot set value on an input pin'); },
+            stop() { clearInterval(timer); },
+        };
+    }
+
     /** Release the pin (no-op; shadow state preserved). */
-    unexport() {}
+    stop() {}
 }
 
 /**
@@ -156,7 +198,7 @@ class Pcf8575Full extends Pcf8575Minimal {
      * Return a Full pin proxy for pin n (0–15).
      * @param {number} n - Pin index.
      * @param {string} [direction='in'] - Initial direction.
-     * @returns {_FullPin} Full pin proxy with watch/unwatch support.
+     * @returns {_FullPin} Full pin proxy with watch() support.
      */
     pin(n, direction = 'in') {
         const p = new _FullPin(this, n, direction);
