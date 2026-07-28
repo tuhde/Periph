@@ -1,9 +1,9 @@
 //go:build linux && !tinygo
 
-// SPITransport is the Linux implementation of the Transport interface for
+// SPIConnection is the Linux implementation of the Connection interface for
 // SPI, backed by raw ioctl(SPI_IOC_MESSAGE) against /dev/spidevB.D —
 // no cgo, no native library.
-package transport
+package connection
 
 import (
 	"fmt"
@@ -32,19 +32,21 @@ type spiIocTransfer struct {
 	pad            uint32
 }
 
-// SPITransport is a Linux /dev/spidevB.D-backed implementation of
-// Transport. CS is kernel-managed (asserted by spidev around each
-// ioctl(SPI_IOC_MESSAGE) call), so the transport does not need a
+// SPIConnection is a Linux /dev/spidevB.D-backed implementation of
+// Connection. CS is kernel-managed (asserted by spidev around each
+// ioctl(SPI_IOC_MESSAGE) call), so the connection does not need a
 // separate CS pin.
-type SPITransport struct {
+type SPIConnection struct {
+	connectionBase
 	fd   int
 	mode uint8
 }
 
-// NewSPITransport opens /dev/spidevBUS.DEVICE and configures it for
+// NewSPIConnection opens /dev/spidevBUS.DEVICE and configures it for
 // SPI mode 0, 8 bits per word, at maxSpeedHz. CS idles high; the
-// kernel asserts it around each transfer.
-func NewSPITransport(busNum, deviceNum int, maxSpeedHz uint32) (*SPITransport, error) {
+// kernel asserts it around each transfer. intPin and enPin may be nil if
+// the device's INT/EN lines are not wired.
+func NewSPIConnection(busNum, deviceNum int, maxSpeedHz uint32, intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
 	if maxSpeedHz == 0 {
 		maxSpeedHz = 1_000_000
 	}
@@ -70,11 +72,15 @@ func NewSPITransport(busNum, deviceNum int, maxSpeedHz uint32) (*SPITransport, e
 		_ = unix.Close(fd)
 		return nil, fmt.Errorf("ioctl(SPI_IOC_WR_MAX_SPEED_HZ): %w", errno)
 	}
-	return &SPITransport{fd: fd, mode: mode}, nil
+	return &SPIConnection{
+		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
+		fd:              fd,
+		mode:            mode,
+	}, nil
 }
 
 // Close releases the underlying /dev/spidevB.D file descriptor.
-func (t *SPITransport) Close() error {
+func (t *SPIConnection) Close() error {
 	if t.fd < 0 {
 		return nil
 	}
@@ -86,7 +92,7 @@ func (t *SPITransport) Close() error {
 // xfer runs a single SPI_IOC_MESSAGE(1) transfer with the given tx and
 // rx buffers. tx and rx must have the same length. rx may be nil if no
 // read data is needed.
-func (t *SPITransport) xfer(tx, rx []byte) error {
+func (t *SPIConnection) xfer(tx, rx []byte) error {
 	if len(tx) != len(rx) && rx != nil {
 		return fmt.Errorf("spi: tx/rx length mismatch (%d vs %d)", len(tx), len(rx))
 	}
@@ -114,14 +120,20 @@ func (t *SPITransport) xfer(tx, rx []byte) error {
 
 // Write sends bytes to the device with a full-duplex transfer (rx is
 // discarded).
-func (t *SPITransport) Write(data []byte) error {
+func (t *SPIConnection) Write(data []byte) error {
+	if !t.IsEnabled() {
+		return nil
+	}
 	dummy := make([]byte, len(data))
 	return t.xfer(data, dummy)
 }
 
 // Read clocks out n bytes from the device, sending dummy 0x00 bytes
 // on the MOSI line.
-func (t *SPITransport) Read(n int) ([]byte, error) {
+func (t *SPIConnection) Read(n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return []byte{}, nil
 	}
@@ -136,7 +148,10 @@ func (t *SPITransport) Read(n int) ([]byte, error) {
 // WriteRead sends data then reads n bytes in a single CS assertion:
 // one full-duplex transfer of len(data)+n bytes, with the chip's
 // response during the command phase discarded.
-func (t *SPITransport) WriteRead(data []byte, n int) ([]byte, error) {
+func (t *SPIConnection) WriteRead(data []byte, n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return nil, nil
 	}

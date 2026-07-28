@@ -5,7 +5,7 @@ package environmental
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // AHT21 command bytes (the chip uses a command-based protocol, not a
@@ -36,24 +36,24 @@ const (
 // measurement triggered on every Read call, 80 ms fixed wait after
 // trigger, no CRC verification.
 type AHT21Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
 // NewAHT21Minimal creates a new AHT21Minimal and performs power-on
 // initialization (≥100 ms power-on wait, status check, soft reset and
 // calibration init sequence if the device is not yet calibrated).
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x38, fixed).
-func NewAHT21Minimal(t transport.Transport) (*AHT21Minimal, error) {
-	d := &AHT21Minimal{transport: t}
+func NewAHT21Minimal(t connection.Connection) (*AHT21Minimal, error) {
+	d := &AHT21Minimal{connection: t}
 	time.Sleep(aht21PowerOnDelay)
 	status, err := d.readStatus()
 	if err != nil {
 		return nil, err
 	}
 	if (status & 0x18) != 0x18 {
-		if err := d.transport.Write(aht21CmdSoftReset); err != nil {
+		if err := d.connection.Write(aht21CmdSoftReset); err != nil {
 			return nil, err
 		}
 		time.Sleep(aht21SoftResetDelay)
@@ -63,7 +63,7 @@ func NewAHT21Minimal(t transport.Transport) (*AHT21Minimal, error) {
 		}
 		if (status & 0x18) != 0x18 {
 			for _, cmd := range [][]byte{aht21CmdCalInit1, aht21CmdCalInit2, aht21CmdCalInit3} {
-				if err := d.transport.Write(cmd); err != nil {
+				if err := d.connection.Write(cmd); err != nil {
 					return nil, err
 				}
 				time.Sleep(aht21CalStepDelay)
@@ -75,7 +75,7 @@ func NewAHT21Minimal(t transport.Transport) (*AHT21Minimal, error) {
 
 // readStatus reads the 1-byte status register.
 func (d *AHT21Minimal) readStatus() (byte, error) {
-	b, err := d.transport.Read(1)
+	b, err := d.connection.Read(1)
 	if err != nil {
 		return 0, err
 	}
@@ -87,11 +87,11 @@ func (d *AHT21Minimal) readStatus() (byte, error) {
 // Sends the 0xAC 0x33 0x00 trigger command, waits 80 ms, reads 6 bytes,
 // and decodes the raw 20-bit values into physical units.
 func (d *AHT21Minimal) Read() (temperatureC, humidityPct float32, err error) {
-	if err := d.transport.Write(aht21CmdTrigger); err != nil {
+	if err := d.connection.Write(aht21CmdTrigger); err != nil {
 		return 0, 0, err
 	}
 	time.Sleep(aht21MeasureDelay)
-	data, err := d.transport.Read(6)
+	data, err := d.connection.Read(6)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -121,7 +121,7 @@ type AHT21Full struct {
 
 // NewAHT21Full creates a new AHT21Full and performs the same power-on
 // initialization as NewAHT21Minimal.
-func NewAHT21Full(t transport.Transport) (*AHT21Full, error) {
+func NewAHT21Full(t connection.Connection) (*AHT21Full, error) {
 	m, err := NewAHT21Minimal(t)
 	if err != nil {
 		return nil, err
@@ -146,11 +146,11 @@ func (d *AHT21Full) ReadHumidity() (float32, error) {
 // x^8 + x^5 + x^4 + 1 (0x31) with initial value 0xFF, covering bytes 0–5
 // of the response frame.
 func (d *AHT21Full) ReadWithCrc() (temperatureC, humidityPct float32, crcOk bool, err error) {
-	if err := d.transport.Write(aht21CmdTrigger); err != nil {
+	if err := d.connection.Write(aht21CmdTrigger); err != nil {
 		return 0, 0, false, err
 	}
 	time.Sleep(aht21MeasureDelay)
-	data, err := d.transport.Read(7)
+	data, err := d.connection.Read(7)
 	if err != nil {
 		return 0, 0, false, err
 	}
@@ -160,7 +160,7 @@ func (d *AHT21Full) ReadWithCrc() (temperatureC, humidityPct float32, crcOk bool
 
 // SoftReset sends the soft reset command and waits 20 ms for recovery.
 func (d *AHT21Full) SoftReset() error {
-	if err := d.transport.Write(aht21CmdSoftReset); err != nil {
+	if err := d.connection.Write(aht21CmdSoftReset); err != nil {
 		return err
 	}
 	time.Sleep(aht21SoftResetDelay)

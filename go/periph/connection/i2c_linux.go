@@ -1,9 +1,9 @@
 //go:build linux && !tinygo
 
-// I2CTransport is the Linux implementation of the Transport interface,
+// I2CConnection is the Linux implementation of the Connection interface,
 // backed by raw ioctl(I2C_RDWR) against /dev/i2c-N — no cgo, no native
-// library. Mirrors the JVM transport's hand-laid-out structs in FFM.
-package transport
+// library. Mirrors the JVM connection's hand-laid-out structs in FFM.
+package connection
 
 import (
 	"fmt"
@@ -35,17 +35,19 @@ type i2cRdwrIoctlData struct {
 	nmsg uint32
 }
 
-// I2CTransport is a Linux /dev/i2c-N-backed implementation of Transport.
-// The address is fixed at construction — one I2CTransport instance
+// I2CConnection is a Linux /dev/i2c-N-backed implementation of Connection.
+// The address is fixed at construction — one I2CConnection instance
 // represents one device on the bus.
-type I2CTransport struct {
+type I2CConnection struct {
+	connectionBase
 	fd   int
 	addr uint16
 }
 
-// NewI2CTransport opens /dev/i2c-N (N = bus) and binds the resulting file
-// descriptor to the given 7-bit device address via I2C_SLAVE.
-func NewI2CTransport(bus int, addr uint8) (*I2CTransport, error) {
+// NewI2CConnection opens /dev/i2c-N (N = bus) and binds the resulting file
+// descriptor to the given 7-bit device address via I2C_SLAVE. intPin and
+// enPin may be nil if the device's INT/EN lines are not wired.
+func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
 	path := fmt.Sprintf("/dev/i2c-%d", bus)
 	fd, err := unix.Open(path, unix.O_RDWR, 0)
 	if err != nil {
@@ -55,11 +57,15 @@ func NewI2CTransport(bus int, addr uint8) (*I2CTransport, error) {
 		_ = unix.Close(fd)
 		return nil, fmt.Errorf("ioctl(I2C_SLAVE, 0x%02X): %w", addr, errno)
 	}
-	return &I2CTransport{fd: fd, addr: uint16(addr)}, nil
+	return &I2CConnection{
+		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
+		fd:              fd,
+		addr:            uint16(addr),
+	}, nil
 }
 
 // Close releases the underlying /dev/i2c-N file descriptor.
-func (t *I2CTransport) Close() error {
+func (t *I2CConnection) Close() error {
 	if t.fd < 0 {
 		return nil
 	}
@@ -69,7 +75,10 @@ func (t *I2CTransport) Close() error {
 }
 
 // Write sends a single write transaction (no repeated start) to the device.
-func (t *I2CTransport) Write(data []byte) error {
+func (t *I2CConnection) Write(data []byte) error {
+	if !t.IsEnabled() {
+		return nil
+	}
 	if len(data) == 0 {
 		return nil
 	}
@@ -90,7 +99,10 @@ func (t *I2CTransport) Write(data []byte) error {
 }
 
 // Read sends a single read transaction (no repeated start) to the device.
-func (t *I2CTransport) Read(n int) ([]byte, error) {
+func (t *I2CConnection) Read(n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return []byte{}, nil
 	}
@@ -113,7 +125,10 @@ func (t *I2CTransport) Read(n int) ([]byte, error) {
 
 // WriteRead issues a combined write-then-read transaction in a single
 // I2C_RDWR call, which produces a repeated START between the two phases.
-func (t *I2CTransport) WriteRead(writeData []byte, n int) ([]byte, error) {
+func (t *I2CConnection) WriteRead(writeData []byte, n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return []byte{}, nil
 	}
@@ -138,6 +153,6 @@ func (t *I2CTransport) WriteRead(writeData []byte, n int) ([]byte, error) {
 
 // FileDescriptor returns the underlying /dev/i2c-N file descriptor. Intended
 // for tests that want to inspect or close the descriptor directly.
-func (t *I2CTransport) FileDescriptor() int {
+func (t *I2CConnection) FileDescriptor() int {
 	return t.fd
 }

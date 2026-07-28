@@ -3,8 +3,9 @@
 // PCF8575 complete example — Linux host.
 //
 // Exercises every method in the PCF8575Full API: pin operations,
-// per-port read/write, and interrupt on-change detection (16-bit
-// bitmask with bits 0–7 = Port 0, bits 8–15 = Port 1).
+// per-port read/write, interrupt on-change detection (16-bit
+// bitmask with bits 0–7 = Port 0, bits 8–15 = Port 1), and per-pin
+// watch/unwatch.
 package main
 
 import (
@@ -13,7 +14,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,13 +28,13 @@ func main() {
 	}
 
 	// --- PCF8575Minimal ---
-	tr1, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn1, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr1.Close()
+	defer conn1.Close()
 
-	chip, err := ioexpander.NewPCF8575Minimal(tr1, uint8(addr)) // Create PCF8575 minimal driver, (transport, addr) → (*PCF8575Minimal, error)
+	chip, err := ioexpander.NewPCF8575Minimal(conn1, uint8(addr)) // Create PCF8575 minimal driver, (connection, addr) → (*PCF8575Minimal, error)
 	if err != nil {
 		panic(err)
 	}
@@ -79,19 +80,19 @@ func main() {
 	}
 
 	// --- PCF8575Full ---
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := ioexpander.NewPCF8575Full(tr2, uint8(addr)) // Create PCF8575 full driver, (transport, addr) → (*PCF8575Full, error)
+	full, err := ioexpander.NewPCF8575Full(conn2, uint8(addr)) // Create PCF8575 full driver, (connection, addr) → (*PCF8575Full, error)
 	if err != nil {
 		panic(err)
 	}
 	// stores initial port bytes for interrupt comparison
 
-	changed, err := full.ClearInterrupt() // Read both ports; return 16-bit changed bitmask, () → (uint16, error)
+	changed, err := full.PollInterrupt() // Read both ports; return 16-bit changed bitmask, () → (uint16, error)
 	if err != nil {
 		panic(err)
 	}
@@ -106,6 +107,25 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("portA=0x%02X\n", portA)
+
+	// --- Interrupt subscription and per-pin watch ---
+	if err := full.OnInterrupt(func(mask uint16) { // Subscribe to INT, (callback) → error
+		fmt.Printf("ports changed: 0x%04X\n", mask)
+	}); err != nil {
+		panic(err)
+	}
+
+	p9 := full.Pin(9) // Get full pin proxy, (n=9 → Port 1, bit 1) → PCF8575FullPin
+	if err := p9.Watch(connection.Change, func(pin ioexpander.PCF8575FullPin) { // Subscribe to pin edges, (trigger, handler) → error
+		fmt.Println("P11 changed")
+	}); err != nil {
+		panic(err)
+	}
+	_ = p9.Unwatch() // Unsubscribe pin handler, () → error
+
+	if err := full.OffInterrupt(); err != nil { // Unsubscribe INT, () → error
+		panic(err)
+	}
 }
 
 func envOr(k, def string) string {

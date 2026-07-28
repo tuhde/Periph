@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // ENS160 register map.
@@ -60,22 +60,22 @@ const (
 // interface.
 //
 // Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
-// configuration required beyond the transport. The sensor performs
+// configuration required beyond the connection. The sensor performs
 // automatic baseline correction and on-chip signal processing.
 //
 // Default: STANDARD mode (gas sensing active), polling only, no external
 // T/RH compensation.
 type ENS160Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
 // NewENS160Minimal creates a new ENS160Minimal, verifies PART_ID, and
 // starts STANDARD mode.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x52 default, 0x53 alternate).
-func NewENS160Minimal(t transport.Transport) (*ENS160Minimal, error) {
-	d := &ENS160Minimal{transport: t}
+func NewENS160Minimal(t connection.Connection) (*ENS160Minimal, error) {
+	d := &ENS160Minimal{connection: t}
 	// Force IDLE for a clean init state.
 	if err := d.writeReg(regOPMODE, opModeIdle); err != nil {
 		return nil, err
@@ -95,19 +95,19 @@ func NewENS160Minimal(t transport.Transport) (*ENS160Minimal, error) {
 }
 
 func (d *ENS160Minimal) writeReg(reg, value byte) error {
-	return d.transport.Write([]byte{reg, value})
+	return d.connection.Write([]byte{reg, value})
 }
 
 func (d *ENS160Minimal) writeReg16LE(reg byte, value uint16) error {
-	return d.transport.Write([]byte{reg, byte(value & 0xFF), byte((value >> 8) & 0xFF)})
+	return d.connection.Write([]byte{reg, byte(value & 0xFF), byte((value >> 8) & 0xFF)})
 }
 
 func (d *ENS160Minimal) readReg(reg byte, n int) ([]byte, error) {
-	return d.transport.WriteRead([]byte{reg}, n)
+	return d.connection.WriteRead([]byte{reg}, n)
 }
 
 func (d *ENS160Minimal) readReg16LE(reg byte) (uint16, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -187,7 +187,7 @@ type ENS160Full struct {
 
 // NewENS160Full creates a new ENS160Full with the same initialization as
 // NewENS160Minimal.
-func NewENS160Full(t transport.Transport) (*ENS160Full, error) {
+func NewENS160Full(t connection.Connection) (*ENS160Full, error) {
 	m, err := NewENS160Minimal(t)
 	if err != nil {
 		return nil, err

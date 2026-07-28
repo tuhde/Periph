@@ -4,7 +4,7 @@ package power
 import (
 	"fmt"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // INA3221 register addresses.
@@ -95,20 +95,20 @@ func ina3221ValidChannel(channel uint8) (uint8, error) {
 // continuous shunt+bus, max range, no averaging) — the Minimal driver
 // writes nothing at construction.
 type INA3221Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 	rShunt    [3]float32
 }
 
 // NewINA3221Minimal creates a new INA3221Minimal with a single shunt
 // resistance value applied to all three channels.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x40–0x43, default 0x40).
 //
 // rShunt is the shunt resistor value in ohms, applied to all three channels.
-func NewINA3221Minimal(transport transport.Transport, rShunt float32) (*INA3221Minimal, error) {
+func NewINA3221Minimal(connection connection.Connection, rShunt float32) (*INA3221Minimal, error) {
 	return &INA3221Minimal{
-		transport: transport,
+		connection: connection,
 		rShunt:    [3]float32{rShunt, rShunt, rShunt},
 	}, nil
 }
@@ -118,19 +118,19 @@ func NewINA3221Minimal(transport transport.Transport, rShunt float32) (*INA3221M
 //
 // rShunt is a 3-element array of shunt resistor values in ohms, one per
 // channel (index 0 = channel 1, index 1 = channel 2, index 2 = channel 3).
-func NewINA3221MinimalPerChannel(transport transport.Transport, rShunt [3]float32) (*INA3221Minimal, error) {
-	return &INA3221Minimal{transport: transport, rShunt: rShunt}, nil
+func NewINA3221MinimalPerChannel(connection connection.Connection, rShunt [3]float32) (*INA3221Minimal, error) {
+	return &INA3221Minimal{connection: connection, rShunt: rShunt}, nil
 }
 
 // writeReg writes a 16-bit value to a register (big-endian, pointer byte
 // followed by two data bytes).
 func (d *INA3221Minimal) writeReg(reg uint8, value uint16) error {
-	return d.transport.Write([]byte{reg, byte(value >> 8), byte(value & 0xFF)})
+	return d.connection.Write([]byte{reg, byte(value >> 8), byte(value & 0xFF)})
 }
 
 // readReg reads a 16-bit unsigned register value.
 func (d *INA3221Minimal) readReg(reg uint8) (uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -217,8 +217,8 @@ type INA3221Full struct {
 // NewINA3221Full creates a new INA3221Full with a single shunt resistance
 // value applied to all three channels. Same arguments as
 // NewINA3221Minimal.
-func NewINA3221Full(transport transport.Transport, rShunt float32) (*INA3221Full, error) {
-	m, err := NewINA3221Minimal(transport, rShunt)
+func NewINA3221Full(connection connection.Connection, rShunt float32) (*INA3221Full, error) {
+	m, err := NewINA3221Minimal(connection, rShunt)
 	if err != nil {
 		return nil, err
 	}
@@ -227,8 +227,8 @@ func NewINA3221Full(transport transport.Transport, rShunt float32) (*INA3221Full
 
 // NewINA3221FullPerChannel creates a new INA3221Full with per-channel
 // shunt resistance values.
-func NewINA3221FullPerChannel(transport transport.Transport, rShunt [3]float32) (*INA3221Full, error) {
-	m, err := NewINA3221MinimalPerChannel(transport, rShunt)
+func NewINA3221FullPerChannel(connection connection.Connection, rShunt [3]float32) (*INA3221Full, error) {
+	m, err := NewINA3221MinimalPerChannel(connection, rShunt)
 	if err != nil {
 		return nil, err
 	}

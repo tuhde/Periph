@@ -1,9 +1,9 @@
 //go:build linux && !tinygo
 
-// DHTxxTransport is the Linux implementation of the DHT11/DHT22
-// single-wire transport. Drives a GPIO on /dev/gpiochip0 via the
+// DHTxxConnection is the Linux implementation of the DHT11/DHT22
+// single-wire connection. Drives a GPIO on /dev/gpiochip0 via the
 // chardev ioctls and decodes the sensor's 40-bit response.
-package transport
+package connection
 
 import (
 	"fmt"
@@ -12,24 +12,31 @@ import (
 
 // DHTxx timing constants.
 const (
-	dhtStartLowMs       = 20
-	dhtReleaseWaitUs    = 30
+	dhtStartLowMs        = 20
+	dhtReleaseWaitUs     = 30
 	dhtResponseTimeoutUs = 200
-	dhtBitTimeoutUs     = 200
-	dhtBitThresholdUs   = 40
+	dhtBitTimeoutUs      = 200
+	dhtBitThresholdUs    = 40
 )
 
-// DHTxxTransport is a Linux /dev/gpiochip0-backed DHTxx transport.
-type DHTxxTransport struct {
-	dataLine   int
-	twoPin     bool
-	dataOut    int // optional open-drain output line for two-pin variant
+// DHTxxConnection is a Linux /dev/gpiochip0-backed DHTxx connection. It
+// does not implement the Connection interface — DHTxx's single-wire
+// protocol has no separate write/writeRead phase — but embeds
+// connectionBase for the same Enable/Disable/IsEnabled/EnPin gating every
+// other connection in this package shares. There is no INT line, so IntPin
+// is always nil.
+type DHTxxConnection struct {
+	connectionBase
+	dataLine int
+	twoPin   bool
+	dataOut  int // optional open-drain output line for two-pin variant
 }
 
-// NewDHTxxTransport reserves the data GPIO line on /dev/gpiochip0.
-// Pass dataOutLine = -1 for the single-pin variant, or the open-drain
-// output line offset for the two-pin variant (faster direction switching).
-func NewDHTxxTransport(dataLine, dataOutLine int) (*DHTxxTransport, error) {
+// NewDHTxxConnection reserves the data GPIO line on /dev/gpiochip0. Pass
+// dataOutLine = -1 for the single-pin variant, or the open-drain output
+// line offset for the two-pin variant (faster direction switching). enPin
+// may be nil if the device's EN line is not wired.
+func NewDHTxxConnection(dataLine, dataOutLine int, enPin OutputPin) (*DHTxxConnection, error) {
 	if dataOutLine >= 0 {
 		if err := requestGpioLines(dataLine, dataOutLine); err != nil {
 			return nil, err
@@ -39,21 +46,26 @@ func NewDHTxxTransport(dataLine, dataOutLine int) (*DHTxxTransport, error) {
 			return nil, err
 		}
 	}
-	return &DHTxxTransport{
-		dataLine: dataLine,
-		dataOut:  dataOutLine,
-		twoPin:   dataOutLine >= 0,
+	return &DHTxxConnection{
+		connectionBase: connectionBase{enPin: enPin},
+		dataLine:        dataLine,
+		dataOut:         dataOutLine,
+		twoPin:          dataOutLine >= 0,
 	}, nil
 }
 
 // Close releases the GPIO line reservation.
-func (t *DHTxxTransport) Close() error {
+func (t *DHTxxConnection) Close() error {
 	return releaseGpioLines(t.dataLine, t.dataOut)
 }
 
 // Read executes the full start/response/bit-read sequence and returns
-// the raw 5-byte frame.
-func (t *DHTxxTransport) Read() ([]byte, error) {
+// the raw 5-byte frame. Returns a zero-filled frame without touching the
+// bus when disabled.
+func (t *DHTxxConnection) Read() ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, 5), nil
+	}
 	// 1. Host start signal: drive LOW for >=18 ms.
 	if t.twoPin {
 		// Two-pin: drive open-drain output low, input line reads it.

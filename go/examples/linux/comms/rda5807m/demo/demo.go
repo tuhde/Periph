@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/comms"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -29,17 +29,17 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x10) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x10) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- FM band scanner ---
 	// Start at the bottom of the world-wide band and repeatedly seek upward
 	// with SKMODE=1 (stop at band limit, the Minimal/Full default) so a seek
 	// that returns nil means the top of the band has been reached.
-	fm, err := comms.NewRda5807mFull(tr, 87.5, 10) // Create RDA5807M driver, (transport, frequency_mhz=87.5, volume=10) → (*Rda5807mFull, error)
+	fm, err := comms.NewRda5807mFull(conn, 87.5, 10) // Create RDA5807M driver, (connection, frequency_mhz=87.5, volume=10) → (*Rda5807mFull, error)
 	if err != nil {
 		panic(err)
 	}

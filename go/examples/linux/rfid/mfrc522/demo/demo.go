@@ -34,7 +34,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/rfid"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // block4ValueLayout encodes 4 LE copies of value (3 + 1 inverted each),
@@ -78,20 +78,20 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x28) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x28) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := rfid.NewMFRC522Full(tr) // Create MFRC522 driver, (transport) → (*MFRC522Full, error)
+	chip, err := rfid.NewMFRC522Full(conn) // Create MFRC522 driver, (connection) → (*MFRC522Full, error)
 	if err != nil {
 		panic(err)
 	}
 
 	// --- Poll for a card and authenticate against sector 1's block 4 ---
 	// The well-known factory default key A opens the MIFARE Classic
-	// "transport configuration" sector on every fresh card. Any
+	// "connection configuration" sector on every fresh card. Any
 	// production deployment would replace this with a unique key per
 	// card.
 	defaultKey := []byte{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}

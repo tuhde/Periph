@@ -14,7 +14,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -29,8 +29,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x20)
-	chip, err := ioexpander.NewPCF8574Minimal(tr, 0x20)
+	conn := connection.NewI2CConnection(i2c, 0x20, nil, nil)
+	chip, err := ioexpander.NewPCF8574Minimal(conn, 0x20)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
@@ -69,16 +69,16 @@ func main() {
 	check("pin_set_toggle", true)
 
 	// --- PCF8574Full ---
-	tr2 := transport.NewI2CTransport(i2c, 0x20)
-	full, err := ioexpander.NewPCF8574Full(tr2, 0x20)
+	conn2 := connection.NewI2CConnection(i2c, 0x20, nil, nil)
+	full, err := ioexpander.NewPCF8574Full(conn2, 0x20)
 	if err != nil {
 		fmt.Printf("FAIL new full: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
 		return
 	}
 
-	changed, err := full.ClearInterrupt()
-	check("clear_interrupt_no_change", err == nil && changed == 0)
+	changed, err := full.PollInterrupt()
+	check("poll_interrupt_no_change", err == nil && changed == 0)
 
 	if err := full.WritePort0(0xAA); err != nil {
 		fmt.Printf("FAIL full_write: %v\n", err)
@@ -87,6 +87,20 @@ func main() {
 		fmt.Printf("FAIL full_write_restore: %v\n", err)
 	}
 	check("full_write_port_ok", true)
+
+	// --- OnInterrupt / OffInterrupt / per-pin Watch / Unwatch ---
+	if err := full.OnInterrupt(func(mask uint8) {}); err != nil {
+		fmt.Printf("FAIL on_interrupt: %v\n", err)
+	}
+	p5 := full.Pin(5)
+	if err := p5.Watch(connection.Change, func(pin ioexpander.PCF8574FullPin) {}); err != nil {
+		fmt.Printf("FAIL watch: %v\n", err)
+	}
+	_ = p5.Unwatch()
+	if err := full.OffInterrupt(); err != nil {
+		fmt.Printf("FAIL off_interrupt: %v\n", err)
+	}
+	check("on_off_interrupt_and_watch_accepted", true)
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
 }

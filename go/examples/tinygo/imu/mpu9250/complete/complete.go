@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,16 +26,16 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x68) // Create I2C transport, (i2c, addr=0x68) → (*I2CTransport)
+	conn := connection.NewI2CConnection(i2c, 0x68, nil, nil) // Create I2C connection, (i2c, addr=0x68) → (*I2CConnection)
 
 	// The on-board AK8963 magnetometer is accessed via the chip's I2C
-	// bypass at address 0x0C; the second I2CTransport binds the same
+	// bypass at address 0x0C; the second I2CConnection binds the same
 	// machine.I2C1 to that address.
-	magFactory := func(a uint8) (transport.Transport, error) {
-		return transport.NewI2CTransport(i2c, a), nil // Open second I2C transport on same bus, (i2c, addr) → (*I2CTransport, error)
+	magFactory := func(a uint8) (connection.Connection, error) {
+		return connection.NewI2CConnection(i2c, a, nil, nil), nil // Open second I2C connection on same bus, (i2c, addr) → (*I2CConnection, error)
 	}
 
-	chip, err := imu.NewMPU9250Full(tr, magFactory) // Create MPU9250 driver with magnetometer, (transport, magFactory) → (*MPU9250Full, error)
+	chip, err := imu.NewMPU9250Full(conn, magFactory) // Create MPU9250 driver with magnetometer, (connection, magFactory) → (*MPU9250Full, error)
 	if err != nil {
 		panic(err)
 	}

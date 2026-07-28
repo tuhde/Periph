@@ -1,30 +1,36 @@
 //go:build linux && !tinygo
 
-// SIPOTransport is the Linux implementation of the serial-shift-register
-// (SIPO) transport for chips like TPIC6B595 / 74HC595.
-package transport
+// SIPOConnection is the Linux implementation of the serial-shift-register
+// (SIPO) connection for chips like TPIC6B595 / 74HC595.
+package connection
 
 import "fmt"
 
-// SIPOTransport bit-bangs SER IN/SRCK plus RCK/SRCLR/G as raw GPIO
+// SIPOConnection bit-bangs SER IN/SRCK plus RCK/SRCLR/G as raw GPIO
 // lines on /dev/gpiochip0. Hardware SPI mode is also supported when
-// the caller passes a non-zero busNum.
-type SIPOTransport struct {
+// the caller passes a non-zero busNum. It does not implement the
+// Connection interface — SIPO is write-only with no byte-oriented
+// read/writeRead — but embeds connectionBase for the shared Enable/
+// Disable/IsEnabled/EnPin gating. There is no INT line, so IntPin is
+// always nil.
+type SIPOConnection struct {
+	connectionBase
 	// Software SPI (bit-bang): serIn/srck/rck/srclr/g GPIO line offsets.
-	serIn  int
-	srck   int
-	rck    int
-	srclr  int // -1 = unused
-	g      int // -1 = unused
+	serIn int
+	srck  int
+	rck   int
+	srclr int // -1 = unused
+	g     int // -1 = unused
 	// Hardware SPI (optional): busNum/deviceNum > -1.
-	spi        *SPITransport
-	hasHwSpi   bool
+	spi      *SPIConnection
+	hasHwSpi bool
 }
 
-// NewSIPOSoftwareSPI constructs a SIPO transport that bit-bangs SER IN/SRCK
-// plus RCK/SRCLR/G as GPIO lines on /dev/gpiochip0. srclr and g may be
-// passed as -1 if the chip does not wire those pins.
-func NewSIPOSoftwareSPI(serIn, srck, rck, srclr, g int) (*SIPOTransport, error) {
+// NewSIPOSoftwareSPI constructs a SIPO connection that bit-bangs SER
+// IN/SRCK plus RCK/SRCLR/G as GPIO lines on /dev/gpiochip0. srclr and g
+// may be passed as -1 if the chip does not wire those pins. enPin may be
+// nil if the device's EN line is not wired.
+func NewSIPOSoftwareSPI(serIn, srck, rck, srclr, g int, enPin OutputPin) (*SIPOConnection, error) {
 	if err := requestGpioLines(serIn, srck, rck, srclr, g); err != nil {
 		return nil, err
 	}
@@ -47,17 +53,22 @@ func NewSIPOSoftwareSPI(serIn, srck, rck, srclr, g int) (*SIPOTransport, error) 
 			return nil, err
 		}
 	}
-	return &SIPOTransport{
-		serIn: serIn,
-		srck:  srck,
-		rck:   rck,
-		srclr: srclr,
-		g:     g,
+	return &SIPOConnection{
+		connectionBase: connectionBase{enPin: enPin},
+		serIn:           serIn,
+		srck:            srck,
+		rck:             rck,
+		srclr:           srclr,
+		g:               g,
 	}, nil
 }
 
-// Write shifts data out MSB-first, then pulses RCK to latch.
-func (t *SIPOTransport) Write(data []byte) error {
+// Write shifts data out MSB-first, then pulses RCK to latch. Dropped
+// when disabled.
+func (t *SIPOConnection) Write(data []byte) error {
+	if !t.IsEnabled() {
+		return nil
+	}
 	for _, b := range data {
 		for bit := 7; bit >= 0; bit-- {
 			v := (b>>bit)&1 == 1
@@ -83,7 +94,7 @@ func (t *SIPOTransport) Write(data []byte) error {
 }
 
 // Clear pulses SRCLR LOW then HIGH.
-func (t *SIPOTransport) Clear() error {
+func (t *SIPOConnection) Clear() error {
 	if t.srclr < 0 {
 		return fmt.Errorf("sipo: srclr not configured")
 	}
@@ -94,7 +105,7 @@ func (t *SIPOTransport) Clear() error {
 }
 
 // SetOutputEnable drives G LOW (true) or HIGH (false).
-func (t *SIPOTransport) SetOutputEnable(en bool) error {
+func (t *SIPOConnection) SetOutputEnable(en bool) error {
 	if t.g < 0 {
 		return fmt.Errorf("sipo: g not configured")
 	}
@@ -102,6 +113,6 @@ func (t *SIPOTransport) SetOutputEnable(en bool) error {
 }
 
 // Close releases the GPIO lines.
-func (t *SIPOTransport) Close() error {
+func (t *SIPOConnection) Close() error {
 	return releaseGpioLines(t.serIn, t.srck, t.rck, t.srclr, t.g)
 }

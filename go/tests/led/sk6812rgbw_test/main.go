@@ -16,7 +16,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/led"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -42,9 +42,9 @@ func main() {
 		}
 	}
 
-	tr, trErr := transport.NewNeoPixelTransport(bus, dev)
+	conn, trErr := connection.NewNeoPixelConnection(bus, dev, nil)
 	if trErr != nil {
-		fmt.Fprintln(os.Stderr, "transport open failed (no hw?):", trErr)
+		fmt.Fprintln(os.Stderr, "connection open failed (no hw?):", trErr)
 		check("sk6812rgbw_minimal_skip_no_hw", true)
 		check("sk6812rgbw_full_skip_no_hw", true)
 		fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
@@ -53,11 +53,11 @@ func main() {
 		}
 		return
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- SK6812RGBWMinimal ---
 	{
-		strip, err := led.NewSK6812RGBWMinimal(tr, 8) // Create SK6812RGBW driver, (transport, n=8) → (*SK6812RGBWMinimal, error)
+		strip, err := led.NewSK6812RGBWMinimal(conn, 8) // Create SK6812RGBW driver, (connection, n=8) → (*SK6812RGBWMinimal, error)
 		check("minimal_construct", err == nil && strip != nil)
 		if err == nil {
 			check("fill_red_ok", strip.Fill(255, 0, 0, 0) == nil)   // Fill red, (r=255, g=0, b=0, w=0) → error
@@ -70,7 +70,7 @@ func main() {
 
 	// --- SK6812RGBWFull ---
 	{
-		strip, err := led.NewSK6812RGBWFull(tr, 8) // Create SK6812RGBW driver, (transport, n=8) → (*SK6812RGBWFull, error)
+		strip, err := led.NewSK6812RGBWFull(conn, 8) // Create SK6812RGBW driver, (connection, n=8) → (*SK6812RGBWFull, error)
 		check("full_construct", err == nil && strip != nil)
 		if err == nil {
 			check("default_brightness_255", strip.GetBrightness() == 255) // Get global brightness, () → uint8

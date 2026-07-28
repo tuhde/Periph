@@ -2,7 +2,7 @@
 
 // APDS-9960 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport and prints
+// Constructs the driver with a /dev/i2c-N connection and prints
 // RGBC channel values once per second.
 package main
 
@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 	"github.com/tuhde/Periph/go/periph/chips/light"
 )
 
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x39) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x39) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := light.NewAPDS9960Minimal(tr) // Create APDS-9960 driver, (transport) → (*APDS9960Minimal, error)
+	chip, err := light.NewAPDS9960Minimal(conn) // Create APDS-9960 driver, (connection) → (*APDS9960Minimal, error)
 	if err != nil {
 		panic(err)
 	}

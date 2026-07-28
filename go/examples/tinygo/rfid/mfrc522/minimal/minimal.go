@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/rfid"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,8 +28,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x28)         // Create I2C transport, (i2c, addr=0x28) → *I2CTransport
-	chip, err := rfid.NewMFRC522Minimal(tr)            // Create MFRC522 driver, (transport) → (*MFRC522Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x28, nil, nil)         // Create I2C connection, (i2c, addr=0x28) → *I2CConnection
+	chip, err := rfid.NewMFRC522Minimal(conn)            // Create MFRC522 driver, (connection) → (*MFRC522Minimal, error)
 	if err != nil {
 		panic(err)
 	}

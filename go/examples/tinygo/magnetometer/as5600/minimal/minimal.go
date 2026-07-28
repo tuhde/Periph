@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/magnetometer"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -25,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x36) // Create I2C transport, (i2c, addr=0x36) → (*I2CTransport)
-	chip, err := magnetometer.NewAs5600Minimal(tr) // Create AS5600 driver, (transport) → (*As5600Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x36, nil, nil) // Create I2C connection, (i2c, addr=0x36) → (*I2CConnection)
+	chip, err := magnetometer.NewAs5600Minimal(conn) // Create AS5600 driver, (connection) → (*As5600Minimal, error)
 	if err != nil {
 		panic(err)
 	}

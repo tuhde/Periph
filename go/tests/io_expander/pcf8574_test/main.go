@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,14 +28,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr1, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn1, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr1.Close()
+	defer conn1.Close()
 
-	chip, err := ioexpander.NewPCF8574Minimal(tr1, uint8(addr))
+	chip, err := ioexpander.NewPCF8574Minimal(conn1, uint8(addr))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)
@@ -89,22 +89,22 @@ func main() {
 	}
 
 	// --- PCF8574Full ---
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport full:", err)
+		fmt.Fprintln(os.Stderr, "connection full:", err)
 		os.Exit(2)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := ioexpander.NewPCF8574Full(tr2, uint8(addr))
+	full, err := ioexpander.NewPCF8574Full(conn2, uint8(addr))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)
 	}
 
-	// clear_interrupt immediately after init — nothing changed, should be 0
-	changed, err := full.ClearInterrupt()
-	check("clear_interrupt_no_change", err == nil && changed == 0)
+	// poll_interrupt immediately after init — nothing changed, should be 0
+	changed, err := full.PollInterrupt()
+	check("poll_interrupt_no_change", err == nil && changed == 0)
 
 	// write_port then read back via read_port
 	if err := full.WritePort0(0xAA); err != nil {
@@ -115,6 +115,22 @@ func main() {
 	}
 	port2, err := full.ReadPort0()
 	check("full_read_port_range", err == nil && port2 <= 0xFF)
+
+	// --- OnInterrupt / OffInterrupt / per-pin Watch / Unwatch ---
+	received := -1
+	if err := full.OnInterrupt(func(mask uint8) { received = int(mask) }); err != nil {
+		fmt.Fprintln(os.Stderr, "on_interrupt:", err)
+	}
+	p5 := full.Pin(5)
+	if err := p5.Watch(connection.Change, func(pin ioexpander.PCF8574FullPin) {}); err != nil {
+		fmt.Fprintln(os.Stderr, "watch:", err)
+	}
+	_ = p5.Unwatch()
+	if err := full.OffInterrupt(); err != nil {
+		fmt.Fprintln(os.Stderr, "off_interrupt:", err)
+	}
+	check("on_off_interrupt_and_watch_accepted", true)
+	_ = received
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
 	if failed != 0 {

@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/memory"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x50) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x50) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := memory.NewEEPROM24AA02UIDFull(tr) // Create 24AA02UID driver, (transport) → (*EEPROM24AA02UIDFull, error)
+	chip, err := memory.NewEEPROM24AA02UIDFull(conn) // Create 24AA02UID driver, (connection) → (*EEPROM24AA02UIDFull, error)
 	if err != nil {
 		panic(err)
 	}

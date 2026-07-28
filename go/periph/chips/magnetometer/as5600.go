@@ -4,7 +4,7 @@ package magnetometer
 import (
 	"fmt"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // AS5600 register addresses.
@@ -47,7 +47,7 @@ const As5600Addr uint8 = 0x36
 // No CONF writes are issued; the factory default (CONF=0x0000, NOM mode,
 // hysteresis off, analog output, 16x slow filter) is used as-is.
 type As5600Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
 // NewAs5600Minimal creates a new As5600Minimal and verifies magnet presence.
@@ -56,9 +56,9 @@ type As5600Minimal struct {
 // detected) it returns an error because angle data would be invalid in that
 // state.
 //
-// transport must be a configured I²C transport bound to address 0x36.
-func NewAs5600Minimal(t transport.Transport) (*As5600Minimal, error) {
-	d := &As5600Minimal{transport: t}
+// connection must be a configured I²C connection bound to address 0x36.
+func NewAs5600Minimal(t connection.Connection) (*As5600Minimal, error) {
+	d := &As5600Minimal{connection: t}
 	status, err := d.readReg8(as5600RegStatus)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func NewAs5600Minimal(t transport.Transport) (*As5600Minimal, error) {
 
 // readReg8 reads a single byte from the given register.
 func (d *As5600Minimal) readReg8(reg uint8) (uint8, error) {
-	buf, err := d.transport.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -81,7 +81,7 @@ func (d *As5600Minimal) readReg8(reg uint8) (uint8, error) {
 // readReg12 reads a 12-bit value (high byte first) from two consecutive
 // registers, packing bits 11:8 in the high byte's lower 4 bits.
 func (d *As5600Minimal) readReg12(regHi uint8) (uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{regHi}, 2)
+	buf, err := d.connection.WriteRead([]byte{regHi}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -90,13 +90,13 @@ func (d *As5600Minimal) readReg12(regHi uint8) (uint16, error) {
 
 // writeReg8 writes a single byte to the given register.
 func (d *As5600Minimal) writeReg8(reg uint8, val uint8) error {
-	return d.transport.Write([]byte{reg, val})
+	return d.connection.Write([]byte{reg, val})
 }
 
 // writeReg12 writes a 12-bit value split across two registers (high byte first).
 func (d *As5600Minimal) writeReg12(regHi, regLo uint8, val uint16) error {
 	v := val & 0x0FFF
-	return d.transport.Write([]byte{regHi, byte((v >> 8) & 0x0F), byte(v & 0xFF)})
+	return d.connection.Write([]byte{regHi, byte((v >> 8) & 0x0F), byte(v & 0xFF)})
 }
 
 // Angle reads the scaled absolute angle in degrees (0.0–360.0 exclusive).
@@ -158,7 +158,7 @@ type As5600Full struct {
 }
 
 // NewAs5600Full creates a new As5600Full and verifies magnet presence.
-func NewAs5600Full(t transport.Transport) (*As5600Full, error) {
+func NewAs5600Full(t connection.Connection) (*As5600Full, error) {
 	m, err := NewAs5600Minimal(t)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (d *As5600Full) Configure(pm, hyst, outs, pwmf, sf, fth uint8, wd bool) err
 	}
 	confH = (confH & 0xC0) | boolToU8(wd)<<5 | (fth&0x07)<<2 | (sf & 0x03)
 	confL = (pwmf&0x03)<<6 | (outs&0x03)<<4 | (hyst&0x03)<<2 | (pm & 0x03)
-	return d.As5600Minimal.transport.Write([]byte{as5600RegConfH, confH, confL})
+	return d.As5600Minimal.connection.Write([]byte{as5600RegConfH, confH, confL})
 }
 
 // SetZeroPosition writes the zero (start) position to volatile RAM.

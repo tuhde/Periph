@@ -1,28 +1,34 @@
 //go:build tinygo
 
-// UARTTransport is the TinyGo implementation of the Transport interface
+// UARTConnection is the TinyGo implementation of the Connection interface
 // for UART, backed by a configured machine.UART value the caller passes
 // in. The machine.UART implements io.Reader/io.Writer directly.
-package transport
+package connection
 
 import (
 	"machine"
 	"time"
 )
 
-// UARTTransport is a TinyGo machine.UART-backed implementation of Transport.
-type UARTTransport struct {
-	uart   *machine.UART
-	hasDE  bool
-	dePin  machine.Pin // optional RS-485 DE pin
-	baud   uint32
+// UARTConnection is a TinyGo machine.UART-backed implementation of
+// Connection.
+type UARTConnection struct {
+	connectionBase
+	uart  *machine.UART
+	hasDE bool
+	dePin machine.Pin // optional RS-485 DE pin
+	baud  uint32
 }
 
-// NewUARTTransport binds a configured machine.UART and an optional
+// NewUARTConnection binds a configured machine.UART and an optional
 // RS-485 DE pin. Pass dePin as machine.Pin(0) (the zero value, which
-// is the unconfigured/unused pin) if the chip is not RS-485.
-func NewUARTTransport(uart *machine.UART, dePin machine.Pin) *UARTTransport {
-	t := &UARTTransport{uart: uart}
+// is the unconfigured/unused pin) if the chip is not RS-485. intPin and
+// enPin may be nil if the device's INT/EN lines are not wired.
+func NewUARTConnection(uart *machine.UART, dePin machine.Pin, intPin InputPin, enPin OutputPin) *UARTConnection {
+	t := &UARTConnection{
+		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
+		uart:            uart,
+	}
 	if dePin != 0 {
 		dePin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 		dePin.Low()
@@ -33,14 +39,17 @@ func NewUARTTransport(uart *machine.UART, dePin machine.Pin) *UARTTransport {
 }
 
 // Close is a no-op: machine.UART has no explicit release.
-func (t *UARTTransport) Close() error {
+func (t *UARTConnection) Close() error {
 	return nil
 }
 
 // Write sends bytes to the device. For RS-485, asserts DE first, then
 // waits the baud-rate-derived time before deasserting DE (TinyGo's
 // machine.UART has no explicit TX-drain call).
-func (t *UARTTransport) Write(data []byte) error {
+func (t *UARTConnection) Write(data []byte) error {
+	if !t.IsEnabled() {
+		return nil
+	}
 	if len(data) == 0 {
 		return nil
 	}
@@ -63,7 +72,10 @@ func (t *UARTTransport) Write(data []byte) error {
 // Read reads n bytes from the device in a loop until n bytes accumulate
 // or a 100 ms deadline elapses. machine.UART has no blocking
 // read-exactly-n call.
-func (t *UARTTransport) Read(n int) ([]byte, error) {
+func (t *UARTConnection) Read(n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return []byte{}, nil
 	}
@@ -88,7 +100,10 @@ func (t *UARTTransport) Read(n int) ([]byte, error) {
 }
 
 // WriteRead writes data then reads n bytes.
-func (t *UARTTransport) WriteRead(data []byte, n int) ([]byte, error) {
+func (t *UARTConnection) WriteRead(data []byte, n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if err := t.Write(data); err != nil {
 		return nil, err
 	}

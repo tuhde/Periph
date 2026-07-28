@@ -1,42 +1,48 @@
 //go:build linux && !tinygo
 
-// NeoPixelTransport is the Linux implementation of the NeoPixel write-only
-// transport. It wraps the Go Linux SPI transport opened at 2.4 MHz, mode 0,
-// and encodes each NeoPixel bit as three SPI bits to produce the timing
-// that WS2812B / SK6812 LED strips expect.
-package transport
+// NeoPixelConnection is the Linux implementation of the NeoPixel
+// write-only connection. It wraps the Go Linux SPI connection opened at
+// 2.4 MHz, mode 0, and encodes each NeoPixel bit as three SPI bits to
+// produce the timing that WS2812B / SK6812 LED strips expect.
+package connection
 
-// NeoPixelTransport is the Linux /dev/spidevB.D-backed implementation
-// of the NeoPixel write-only transport. It holds an SPITransport opened
+// NeoPixelConnection is the Linux /dev/spidevB.D-backed implementation
+// of the NeoPixel write-only connection. It holds an SPIConnection opened
 // at 2.4 MHz, mode 0, MSB-first, and encodes each NeoPixel bit as
 // three SPI bits: `100` for a 0 bit, `110` for a 1 bit. The
 // resulting buffer is sent in a single SPI transfer followed by 16
 // zero bytes for the reset.
-type NeoPixelTransport struct {
-	spi *SPITransport
+type NeoPixelConnection struct {
+	connectionBase
+	spi *SPIConnection
 }
 
-// NewNeoPixelTransport opens /dev/spidevBUS.DEVICE at 2.4 MHz, mode 0,
+// NewNeoPixelConnection opens /dev/spidevBUS.DEVICE at 2.4 MHz, mode 0,
 // for NeoPixel bit-encoding. No CS pin is required for WS2812B/SK6812
 // strips (CS is a dummy in the kernel's view but still toggled, which
-// the strips ignore).
-func NewNeoPixelTransport(busNum, deviceNum int) (*NeoPixelTransport, error) {
-	spi, err := NewSPITransport(busNum, deviceNum, 2_400_000)
+// the strips ignore). enPin may be nil if the strip's EN line is not
+// wired; there is no INT line for a write-only strip.
+func NewNeoPixelConnection(busNum, deviceNum int, enPin OutputPin) (*NeoPixelConnection, error) {
+	spi, err := NewSPIConnection(busNum, deviceNum, 2_400_000, nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &NeoPixelTransport{spi: spi}, nil
+	return &NeoPixelConnection{connectionBase: connectionBase{enPin: enPin}, spi: spi}, nil
 }
 
 // Close releases the underlying SPI device.
-func (n *NeoPixelTransport) Close() error {
+func (n *NeoPixelConnection) Close() error {
 	return n.spi.Close()
 }
 
 // Write encodes the buffer and transmits it to the LED strip in a
 // single SPI transfer. Each NeoPixel byte is encoded as three SPI
-// bytes; 16 trailing zero bytes produce the reset pulse.
-func (n *NeoPixelTransport) Write(data []byte) error {
+// bytes; 16 trailing zero bytes produce the reset pulse. Writes are
+// dropped when disabled.
+func (n *NeoPixelConnection) Write(data []byte) error {
+	if !n.IsEnabled() {
+		return nil
+	}
 	encoded := encodeNeoPixel(data)
 	return n.spi.Write(encoded)
 }
@@ -63,13 +69,13 @@ func encodeNeoPixel(data []byte) []byte {
 }
 
 // Read is a no-op for NeoPixel: strips are write-only. Provided to
-// satisfy the Transport interface.
-func (n *NeoPixelTransport) Read(count int) ([]byte, error) {
+// satisfy the Connection interface.
+func (n *NeoPixelConnection) Read(count int) ([]byte, error) {
 	return nil, nil
 }
 
 // WriteRead is a no-op for NeoPixel: strips are write-only. Provided
-// to satisfy the Transport interface.
-func (n *NeoPixelTransport) WriteRead(data []byte, count int) ([]byte, error) {
+// to satisfy the Connection interface.
+func (n *NeoPixelConnection) WriteRead(data []byte, count int) ([]byte, error) {
 	return nil, nil
 }

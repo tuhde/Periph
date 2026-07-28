@@ -1,9 +1,9 @@
 //go:build linux && !tinygo
 
-// UARTTransport is the Linux implementation of the Transport interface
+// UARTConnection is the Linux implementation of the Connection interface
 // for UART, backed by raw ioctl(TIOCS*) calls against a /dev/tty* device —
 // no cgo, no native library.
-package transport
+package connection
 
 import (
 	"fmt"
@@ -14,25 +14,27 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// UART transport configuration. Defaults: 8N1, raw mode, 100 ms read timeout.
+// UART connection configuration. Defaults: 8N1, raw mode, 100 ms read timeout.
 const (
 	defaultUartBaud     = 9600
 	defaultReadTimeout  = 100 // deciseconds; VTIME is in 0.1s units
 	defaultUartVMIN     = 0
 )
 
-// UARTTransport is a Linux /dev/tty*-backed implementation of Transport
+// UARTConnection is a Linux /dev/tty*-backed implementation of Connection
 // for UART/RS-232 and (optionally) RS-485.
-type UARTTransport struct {
-	fd     int
-	dePin  int // -1 = no DE pin
-	baud   uint32
+type UARTConnection struct {
+	connectionBase
+	fd    int
+	dePin int // -1 = no DE pin
+	baud  uint32
 }
 
-// NewUARTTransport opens path (e.g. /dev/ttyUSB0) at the given baud rate.
+// NewUARTConnection opens path (e.g. /dev/ttyUSB0) at the given baud rate.
 // dePinNum is the BCM line offset of a GPIO pin to drive for RS-485 DE,
-// or -1 if the chip is not RS-485 (or the kernel manages DE itself).
-func NewUARTTransport(path string, baudRate uint32, dePinNum int) (*UARTTransport, error) {
+// or -1 if the chip is not RS-485 (or the kernel manages DE itself). intPin
+// and enPin may be nil if the device's INT/EN lines are not wired.
+func NewUARTConnection(path string, baudRate uint32, dePinNum int, intPin InputPin, enPin OutputPin) (*UARTConnection, error) {
 	if baudRate == 0 {
 		baudRate = defaultUartBaud
 	}
@@ -44,7 +46,12 @@ func NewUARTTransport(path string, baudRate uint32, dePinNum int) (*UARTTranspor
 		_ = unix.Close(fd)
 		return nil, err
 	}
-	return &UARTTransport{fd: fd, dePin: dePinNum, baud: baudRate}, nil
+	return &UARTConnection{
+		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
+		fd:              fd,
+		dePin:           dePinNum,
+		baud:            baudRate,
+	}, nil
 }
 
 // configureUART sets the line to raw mode, 8N1, at baudRate, with the
@@ -149,7 +156,7 @@ func baudConst(baud uint32) (uint32, bool) {
 }
 
 // Close releases the underlying /dev/tty* file descriptor.
-func (t *UARTTransport) Close() error {
+func (t *UARTConnection) Close() error {
 	if t.fd < 0 {
 		return nil
 	}
@@ -160,7 +167,10 @@ func (t *UARTTransport) Close() error {
 
 // Write sends bytes to the device. For RS-485, asserts DE first and
 // waits for the transmit buffer to drain before deasserting DE.
-func (t *UARTTransport) Write(data []byte) error {
+func (t *UARTConnection) Write(data []byte) error {
+	if !t.IsEnabled() {
+		return nil
+	}
 	if len(data) == 0 {
 		return nil
 	}
@@ -178,7 +188,10 @@ func (t *UARTTransport) Write(data []byte) error {
 
 // Read reads up to n bytes from the device, relying on the VTIME-based
 // timeout configured on the fd.
-func (t *UARTTransport) Read(n int) ([]byte, error) {
+func (t *UARTConnection) Read(n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if n == 0 {
 		return []byte{}, nil
 	}
@@ -210,7 +223,10 @@ func (t *UARTTransport) Read(n int) ([]byte, error) {
 }
 
 // WriteRead writes data then reads n bytes.
-func (t *UARTTransport) WriteRead(data []byte, n int) ([]byte, error) {
+func (t *UARTConnection) WriteRead(data []byte, n int) ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, n), nil
+	}
 	if err := t.Write(data); err != nil {
 		return nil, err
 	}

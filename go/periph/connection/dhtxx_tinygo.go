@@ -1,9 +1,9 @@
 //go:build tinygo
 
-// DHTxxTransport is the TinyGo implementation of the DHT11/DHT22
-// single-wire transport. Switches a machine.Pin between input and
+// DHTxxConnection is the TinyGo implementation of the DHT11/DHT22
+// single-wire connection. Switches a machine.Pin between input and
 // output to drive the start signal and read the response.
-package transport
+package connection
 
 import (
 	"fmt"
@@ -13,28 +13,33 @@ import (
 
 // DHTxx timing constants.
 const (
-	dhtStartLowMs       = 20
-	dhtBitThresholdUs   = 40
-	dhtBitTimeoutUs     = 200
+	dhtStartLowMs     = 20
+	dhtBitThresholdUs = 40
+	dhtBitTimeoutUs   = 200
 )
 
-// DHTxxTransport is a TinyGo machine.Pin-backed DHTxx transport.
-type DHTxxTransport struct {
+// DHTxxConnection is a TinyGo machine.Pin-backed DHTxx connection. It does
+// not implement the Connection interface — see the Linux variant's doc
+// comment — but embeds connectionBase for the shared Enable/Disable/
+// IsEnabled/EnPin gating. There is no INT line, so IntPin is always nil.
+type DHTxxConnection struct {
+	connectionBase
 	pin machine.Pin
 }
 
-// NewDHTxxTransport binds the data GPIO pin.
-func NewDHTxxTransport(pin machine.Pin) *DHTxxTransport {
-	return &DHTxxTransport{pin: pin}
+// NewDHTxxConnection binds the data GPIO pin. enPin may be nil if the
+// device's EN line is not wired.
+func NewDHTxxConnection(pin machine.Pin, enPin OutputPin) *DHTxxConnection {
+	return &DHTxxConnection{connectionBase: connectionBase{enPin: enPin}, pin: pin}
 }
 
 // Close is a no-op on TinyGo.
-func (t *DHTxxTransport) Close() error {
+func (t *DHTxxConnection) Close() error {
 	return nil
 }
 
 // setOutput reconfigures the pin as output and drives it.
-func (t *DHTxxTransport) setOutput(high bool) {
+func (t *DHTxxConnection) setOutput(high bool) {
 	t.pin.Configure(machine.PinConfig{Mode: machine.PinOutput})
 	if high {
 		t.pin.High()
@@ -44,18 +49,22 @@ func (t *DHTxxTransport) setOutput(high bool) {
 }
 
 // setInput reconfigures the pin as input.
-func (t *DHTxxTransport) setInput() {
+func (t *DHTxxConnection) setInput() {
 	t.pin.Configure(machine.PinConfig{Mode: machine.PinInput})
 }
 
 // read returns the current pin value (requires input configuration).
-func (t *DHTxxTransport) read() bool {
+func (t *DHTxxConnection) read() bool {
 	return t.pin.Get()
 }
 
 // Read executes the full start/response/bit-read sequence and returns
-// the raw 5-byte frame.
-func (t *DHTxxTransport) Read() ([]byte, error) {
+// the raw 5-byte frame. Returns a zero-filled frame without touching the
+// bus when disabled.
+func (t *DHTxxConnection) Read() ([]byte, error) {
+	if !t.IsEnabled() {
+		return make([]byte, 5), nil
+	}
 	// 1. Host start signal: drive LOW for >=18 ms.
 	t.setOutput(false)
 	time.Sleep(dhtStartLowMs * time.Millisecond)

@@ -1,6 +1,6 @@
 package adcdac
 
-import "github.com/tuhde/Periph/go/periph/transport"
+import "github.com/tuhde/Periph/go/periph/connection"
 
 // PCF8591 input mode constants (AIP field of the control byte).
 const (
@@ -28,13 +28,13 @@ const (
 // n+1 bytes; the first byte is the previous conversion result and must
 // be discarded. The next n bytes are fresh channel samples.
 type PCF8591Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
 // NewPCF8591Minimal creates a new PCF8591Minimal bound to the given
-// transport. No I²C traffic is required at construction.
-func NewPCF8591Minimal(t transport.Transport) (*PCF8591Minimal, error) {
-	return &PCF8591Minimal{transport: t}, nil
+// connection. No I²C traffic is required at construction.
+func NewPCF8591Minimal(t connection.Connection) (*PCF8591Minimal, error) {
+	return &PCF8591Minimal{connection: t}, nil
 }
 
 // ReadChannel reads a single channel as an unsigned 8-bit value.
@@ -46,10 +46,10 @@ func (d *PCF8591Minimal) ReadChannel(channel uint8) (uint8, error) {
 		channel = 0
 	}
 	ctrl := byte(channel & 0x03)
-	if err := d.transport.Write([]byte{ctrl}); err != nil {
+	if err := d.connection.Write([]byte{ctrl}); err != nil {
 		return 0, err
 	}
-	buf, err := d.transport.Read(2)
+	buf, err := d.connection.Read(2)
 	if err != nil {
 		return 0, err
 	}
@@ -61,10 +61,10 @@ func (d *PCF8591Minimal) ReadChannel(channel uint8) (uint8, error) {
 // Returns [ch0, ch1, ch2, ch3] as raw 8-bit values.
 func (d *PCF8591Minimal) ReadAll() ([4]uint8, error) {
 	ctrl := byte(pcf8591BitAI) // AI=1, AIP=00, AOE=0
-	if err := d.transport.Write([]byte{ctrl}); err != nil {
+	if err := d.connection.Write([]byte{ctrl}); err != nil {
 		return [4]uint8{}, err
 	}
-	buf, err := d.transport.Read(5)
+	buf, err := d.connection.Read(5)
 	if err != nil {
 		return [4]uint8{}, err
 	}
@@ -83,9 +83,9 @@ type PCF8591Full struct {
 	lastChannel   uint8
 }
 
-// NewPCF8591Full creates a new PCF8591Full bound to the given transport.
+// NewPCF8591Full creates a new PCF8591Full bound to the given connection.
 // Initial state: 4 single-ended mode, DAC disabled, auto-increment off.
-func NewPCF8591Full(t transport.Transport) (*PCF8591Full, error) {
+func NewPCF8591Full(t connection.Connection) (*PCF8591Full, error) {
 	m, err := NewPCF8591Minimal(t)
 	if err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (d *PCF8591Full) Configure(inputMode uint8, autoIncrement bool, dacEnabled 
 	d.inputMode = inputMode & 0x03
 	d.dacEnabled = dacEnabled
 	d.autoIncrement = autoIncrement
-	return d.transport.Write([]byte{d.control})
+	return d.connection.Write([]byte{d.control})
 }
 
 // ReadChannelVoltage reads one channel and returns the value as a voltage.
@@ -155,10 +155,10 @@ func (d *PCF8591Full) ReadDifferential(channel uint8) (int8, error) {
 	ch := channel & pcf8591MaskCHN
 	d.lastChannel = ch
 	ctrl := d.control | byte(ch&pcf8591MaskCHN)
-	if err := d.transport.Write([]byte{ctrl}); err != nil {
+	if err := d.connection.Write([]byte{ctrl}); err != nil {
 		return 0, err
 	}
-	buf, err := d.transport.Read(2)
+	buf, err := d.connection.Read(2)
 	if err != nil {
 		return 0, err
 	}
@@ -172,7 +172,7 @@ func (d *PCF8591Full) SetDAC(value uint8) error {
 	ctrl := (d.control | pcf8591BitAOE) &^ pcf8591BitAI
 	d.control = ctrl
 	d.dacEnabled = true
-	return d.transport.Write([]byte{ctrl, value})
+	return d.connection.Write([]byte{ctrl, value})
 }
 
 // SetDACVoltage sets the DAC output as a fraction of (V_REF − V_AGND).
@@ -194,5 +194,5 @@ func (d *PCF8591Full) DisableDAC() error {
 	ctrl := d.control &^ pcf8591BitAOE
 	d.control = ctrl
 	d.dacEnabled = false
-	return d.transport.Write([]byte{ctrl})
+	return d.connection.Write([]byte{ctrl})
 }

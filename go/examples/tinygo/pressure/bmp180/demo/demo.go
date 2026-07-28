@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/pressure"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,9 +27,9 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x77) // Create I2C transport, (i2c, addr=0x77) → (*I2CTransport)
+	conn := connection.NewI2CConnection(i2c, 0x77, nil, nil) // Create I2C connection, (i2c, addr=0x77) → (*I2CConnection)
 
-	chip, err := pressure.NewBmp180Full(tr) // Create BMP180 driver, (transport) → (*Bmp180Full, error)
+	chip, err := pressure.NewBmp180Full(conn) // Create BMP180 driver, (connection) → (*Bmp180Full, error)
 	if err != nil {
 		panic(err)
 	}

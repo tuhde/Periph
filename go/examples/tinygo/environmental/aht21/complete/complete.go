@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/environmental"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -25,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x38)      // Create I2C transport, (i2c, addr=0x38) → (*I2CTransport)
-	chip, err := environmental.NewAHT21Full(tr)   // Create AHT21 driver, (transport) → (*AHT21Full, error)
+	conn := connection.NewI2CConnection(i2c, 0x38, nil, nil)      // Create I2C connection, (i2c, addr=0x38) → (*I2CConnection)
+	chip, err := environmental.NewAHT21Full(conn)   // Create AHT21 driver, (connection) → (*AHT21Full, error)
 	if err != nil {
 		panic(err)
 	}

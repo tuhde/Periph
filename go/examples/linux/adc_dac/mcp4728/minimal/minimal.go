@@ -2,7 +2,7 @@
 
 // MCP4728 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport, then loops setting
+// Constructs the driver with a /dev/i2c-N connection, then loops setting
 // channel A to half-scale, channel B to mid-range, and updating all
 // four channels simultaneously with [0.0, 0.25, 0.5, 1.0].
 package main
@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,13 +27,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x60) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x60) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := adcdac.NewMCP4728Minimal(tr) // Create MCP4728 driver, (transport) → (*MCP4728Minimal, error)
+	chip, err := adcdac.NewMCP4728Minimal(conn) // Create MCP4728 driver, (connection) → (*MCP4728Minimal, error)
 	if err != nil {
 		panic(err)
 	}

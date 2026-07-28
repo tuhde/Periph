@@ -5,7 +5,7 @@ package light
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // APDS-9960 register addresses.
@@ -68,7 +68,7 @@ const (
 //   - CONFIG2 = 0x01 (LED_BOOST=100%, reserved bit 0 set)
 //   - PON + AEN enabled; no wait, no proximity, no gesture, no interrupts
 type APDS9960Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 	addr      uint8
 }
 
@@ -77,10 +77,10 @@ type APDS9960Minimal struct {
 // ENABLE=0, set ATIME/CONTROL/CONFIG2, ENABLE=0x03, 210 ms integration
 // wait.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x39, fixed).
-func NewAPDS9960Minimal(t transport.Transport) (*APDS9960Minimal, error) {
-	d := &APDS9960Minimal{transport: t, addr: 0x39}
+func NewAPDS9960Minimal(t connection.Connection) (*APDS9960Minimal, error) {
+	d := &APDS9960Minimal{connection: t, addr: 0x39}
 	time.Sleep(6 * time.Millisecond)
 	id, err := d.readReg(apdsRegID)
 	if err != nil {
@@ -125,11 +125,11 @@ func hexByte(b uint8) string {
 }
 
 func (d *APDS9960Minimal) writeReg(reg, value uint8) error {
-	return d.transport.Write([]byte{reg, value})
+	return d.connection.Write([]byte{reg, value})
 }
 
 func (d *APDS9960Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.transport.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -137,7 +137,7 @@ func (d *APDS9960Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *APDS9960Minimal) readReg16LE(reg uint8) (uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -189,7 +189,7 @@ func (d *APDS9960Minimal) Color() (clear, red, green, blue uint16, err error) {
 
 // rgbc performs the 8-byte burst read and decodes the four channels.
 func (d *APDS9960Minimal) rgbc() (uint16, uint16, uint16, uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{apdsRegCDATAL}, 8)
+	buf, err := d.connection.WriteRead([]byte{apdsRegCDATAL}, 8)
 	if err != nil {
 		return 0, 0, 0, 0, err
 	}
@@ -209,7 +209,7 @@ type APDS9960Full struct {
 
 // NewAPDS9960Full creates a new APDS9960Full with the same
 // initialisation as NewAPDS9960Minimal.
-func NewAPDS9960Full(t transport.Transport) (*APDS9960Full, error) {
+func NewAPDS9960Full(t connection.Connection) (*APDS9960Full, error) {
 	m, err := NewAPDS9960Minimal(t)
 	if err != nil {
 		return nil, err
@@ -338,17 +338,17 @@ func (d *APDS9960Full) EnableProximityInterrupt(enabled bool) error {
 // ClearProximityInterrupt performs an address-only write to PICLEAR
 // (no data byte — this is the chip's command-code clear mechanism).
 func (d *APDS9960Full) ClearProximityInterrupt() error {
-	return d.transport.Write([]byte{apdsRegPICLEAR})
+	return d.connection.Write([]byte{apdsRegPICLEAR})
 }
 
 // ClearAlsInterrupt performs an address-only write to CICLEAR.
 func (d *APDS9960Full) ClearAlsInterrupt() error {
-	return d.transport.Write([]byte{apdsRegCICLEAR})
+	return d.connection.Write([]byte{apdsRegCICLEAR})
 }
 
 // ClearAllInterrupts performs an address-only write to AICLEAR.
 func (d *APDS9960Full) ClearAllInterrupts() error {
-	return d.transport.Write([]byte{apdsRegAICLEAR})
+	return d.connection.Write([]byte{apdsRegAICLEAR})
 }
 
 // SetProximityOffset sets the proximity offsets for UP/RIGHT and
@@ -459,7 +459,7 @@ func (d *APDS9960Full) ReadGestureFIFO(maxSets int) ([][4]uint8, error) {
 	}
 	result := make([][4]uint8, count)
 	for i := 0; i < count; i++ {
-		raw, err := d.transport.WriteRead([]byte{apdsRegGFIFO_U}, 4)
+		raw, err := d.connection.WriteRead([]byte{apdsRegGFIFO_U}, 4)
 		if err != nil {
 			return nil, err
 		}

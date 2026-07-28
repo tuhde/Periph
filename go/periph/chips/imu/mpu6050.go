@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MPU-6050 register map (subset).
@@ -53,7 +53,7 @@ const mpu6050GyroStartupDelay = 35 * time.Millisecond
 //   - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //   - Clock: PLL with gyro X reference (CLKSEL=1)
 type MPU6050Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 	accelFs   uint8
 	gyroFs    uint8
 }
@@ -61,10 +61,10 @@ type MPU6050Minimal struct {
 // NewMPU6050Minimal creates a new MPU6050Minimal, resets the device, verifies
 // WHO_AM_I, and configures defaults at construction.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x68 default, 0x69 alternate).
-func NewMPU6050Minimal(t transport.Transport) (*MPU6050Minimal, error) {
-	d := &MPU6050Minimal{transport: t}
+func NewMPU6050Minimal(t connection.Connection) (*MPU6050Minimal, error) {
+	d := &MPU6050Minimal{connection: t}
 	if err := d.writeReg(regPwrMgmt1, 0x80); err != nil {
 		return nil, err
 	}
@@ -97,12 +97,12 @@ func NewMPU6050Minimal(t transport.Transport) (*MPU6050Minimal, error) {
 
 // writeReg writes a single byte to the given register.
 func (d *MPU6050Minimal) writeReg(reg, value byte) error {
-	return d.transport.Write([]byte{reg, value})
+	return d.connection.Write([]byte{reg, value})
 }
 
 // readReg reads a single byte from the given register.
 func (d *MPU6050Minimal) readReg(reg byte) (byte, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -111,7 +111,7 @@ func (d *MPU6050Minimal) readReg(reg byte) (byte, error) {
 
 // readReg16Signed reads a big-endian signed 16-bit register value.
 func (d *MPU6050Minimal) readReg16Signed(reg byte) (int16, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -122,7 +122,7 @@ func (d *MPU6050Minimal) readReg16Signed(reg byte) (int16, error) {
 //
 // Returns (x, y, z) in m/s².
 func (d *MPU6050Minimal) Accel() (float32, float32, float32, error) {
-	b, err := d.transport.WriteRead([]byte{regAccelXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{regAccelXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -140,7 +140,7 @@ func (d *MPU6050Minimal) Accel() (float32, float32, float32, error) {
 //
 // Returns (x, y, z) in rad/s.
 func (d *MPU6050Minimal) Gyro() (float32, float32, float32, error) {
-	b, err := d.transport.WriteRead([]byte{regGyroXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{regGyroXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -168,7 +168,7 @@ type MPU6050Full struct {
 
 // NewMPU6050Full creates a new MPU6050Full with the same initialization as
 // NewMPU6050Minimal.
-func NewMPU6050Full(t transport.Transport) (*MPU6050Full, error) {
+func NewMPU6050Full(t connection.Connection) (*MPU6050Full, error) {
 	m, err := NewMPU6050Minimal(t)
 	if err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ func (d *MPU6050Full) Temperature() (float32, error) {
 //
 // Returns (x, y, z) as raw 16-bit signed values.
 func (d *MPU6050Full) AccelRaw() (int16, int16, int16, error) {
-	b, err := d.transport.WriteRead([]byte{regAccelXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{regAccelXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -237,7 +237,7 @@ func (d *MPU6050Full) AccelRaw() (int16, int16, int16, error) {
 //
 // Returns (x, y, z) as raw 16-bit signed values.
 func (d *MPU6050Full) GyroRaw() (int16, int16, int16, error) {
-	b, err := d.transport.WriteRead([]byte{regGyroXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{regGyroXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -298,7 +298,7 @@ func (d *MPU6050Full) SetStandby(xa, ya, za, xg, yg, zg bool) error {
 
 // FIFOcount returns the number of bytes currently in the FIFO (0–1024).
 func (d *MPU6050Full) FIFOcount() (uint16, error) {
-	b, err := d.transport.WriteRead([]byte{regFifoCountH}, 2)
+	b, err := d.connection.WriteRead([]byte{regFifoCountH}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -319,7 +319,7 @@ func (d *MPU6050Full) ReadFIFO(buf []byte) (uint16, error) {
 	if toRead > len(buf) {
 		toRead = len(buf)
 	}
-	read, err := d.transport.WriteRead([]byte{regFifoR_W}, toRead)
+	read, err := d.connection.WriteRead([]byte{regFifoR_W}, toRead)
 	if err != nil {
 		return 0, err
 	}

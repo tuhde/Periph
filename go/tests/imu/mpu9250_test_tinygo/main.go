@@ -12,7 +12,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,11 +27,11 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x68)
-	magFactory := func(a uint8) (transport.Transport, error) {
-		return transport.NewI2CTransport(i2c, a), nil
+	conn := connection.NewI2CConnection(i2c, 0x68, nil, nil)
+	magFactory := func(a uint8) (connection.Connection, error) {
+		return connection.NewI2CConnection(i2c, a, nil, nil), nil
 	}
-	chip, err := imu.NewMPU9250Full(tr, magFactory)
+	chip, err := imu.NewMPU9250Full(conn, magFactory)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

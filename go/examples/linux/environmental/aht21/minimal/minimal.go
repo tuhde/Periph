@@ -2,7 +2,7 @@
 
 // AHT21 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport, then loops reading
+// Constructs the driver with a /dev/i2c-N connection, then loops reading
 // temperature and humidity once per second.
 package main
 
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/environmental"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x38) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x38) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := environmental.NewAHT21Minimal(tr) // Create AHT21 driver, (transport) → (*AHT21Minimal, error)
+	chip, err := environmental.NewAHT21Minimal(conn) // Create AHT21 driver, (connection) → (*AHT21Minimal, error)
 	if err != nil {
 		panic(err)
 	}

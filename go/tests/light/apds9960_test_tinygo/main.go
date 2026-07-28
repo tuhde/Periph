@@ -12,7 +12,7 @@ import (
 	"machine"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 	"github.com/tuhde/Periph/go/periph/chips/light"
 )
 
@@ -28,8 +28,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x39)
-	chip, err := light.NewAPDS9960Full(tr)
+	conn := connection.NewI2CConnection(i2c, 0x39, nil, nil)
+	chip, err := light.NewAPDS9960Full(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

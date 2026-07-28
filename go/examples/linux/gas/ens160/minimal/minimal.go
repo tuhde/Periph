@@ -2,7 +2,7 @@
 
 // ENS160 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport, then loops
+// Constructs the driver with a /dev/i2c-N connection, then loops
 // reading the AQI, TVOC, and eCO2 once per second.
 package main
 
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gas"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x53) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x53) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := gas.NewENS160Minimal(tr) // Create ENS160 driver, (transport) → (*ENS160Minimal, error)
+	chip, err := gas.NewENS160Minimal(conn) // Create ENS160 driver, (connection) → (*ENS160Minimal, error)
 	if err != nil {
 		panic(err)
 	}

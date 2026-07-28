@@ -15,7 +15,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/led"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -41,9 +41,9 @@ func main() {
 		}
 	}
 
-	tr, trErr := transport.NewNeoPixelTransport(bus, dev)
+	conn, trErr := connection.NewNeoPixelConnection(bus, dev, nil)
 	if trErr != nil {
-		fmt.Fprintln(os.Stderr, "transport open failed (no hw?):", trErr)
+		fmt.Fprintln(os.Stderr, "connection open failed (no hw?):", trErr)
 		check("ws2812b_minimal_skip_no_hw", true)
 		check("ws2812b_full_skip_no_hw", true)
 		fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
@@ -52,11 +52,11 @@ func main() {
 		}
 		return
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- WS2812BMinimal ---
 	{
-		strip, err := led.NewWS2812BMinimal(tr, 8) // Create WS2812B driver, (transport, n=8) → (*WS2812BMinimal, error)
+		strip, err := led.NewWS2812BMinimal(conn, 8) // Create WS2812B driver, (connection, n=8) → (*WS2812BMinimal, error)
 		check("minimal_construct", err == nil && strip != nil)
 		if err == nil {
 			check("fill_red_ok", strip.Fill(255, 0, 0) == nil)   // Fill red, (r=255, g=0, b=0) → error
@@ -68,7 +68,7 @@ func main() {
 
 	// --- WS2812BFull ---
 	{
-		strip, err := led.NewWS2812BFull(tr, 8) // Create WS2812B driver, (transport, n=8) → (*WS2812BFull, error)
+		strip, err := led.NewWS2812BFull(conn, 8) // Create WS2812B driver, (connection, n=8) → (*WS2812BFull, error)
 		check("full_construct", err == nil && strip != nil)
 		if err == nil {
 			check("default_brightness_255", strip.GetBrightness() == 255) // Get global brightness, () → uint8

@@ -10,7 +10,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/memory"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -23,8 +23,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x50)                 // Create I2C transport, (i2c, addr=0x50) → (*I2CTransport)
-	chip, err := memory.NewEEPROM24AA02UIDFull(tr)            // Create 24AA02UID driver, (transport) → (*EEPROM24AA02UIDFull, error)
+	conn := connection.NewI2CConnection(i2c, 0x50, nil, nil)                 // Create I2C connection, (i2c, addr=0x50) → (*I2CConnection)
+	chip, err := memory.NewEEPROM24AA02UIDFull(conn)            // Create 24AA02UID driver, (connection) → (*EEPROM24AA02UIDFull, error)
 	if err != nil {
 		panic(err)
 	}

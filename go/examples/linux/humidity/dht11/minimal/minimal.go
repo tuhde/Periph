@@ -2,7 +2,7 @@
 
 // DHT11 minimal example — Linux host.
 //
-// Constructs the driver with a DHTxxTransport on a /dev/gpiochip0
+// Constructs the driver with a DHTxxConnection on a /dev/gpiochip0
 // line, then loops reading temperature and humidity once per
 // 2 seconds (DHT11's minimum sampling interval).
 package main
@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/humidity"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -23,13 +23,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewDHTxxTransport(line, -1) // Create DHTxx transport, (line=4, out_line=-1) → (*DHTxxTransport, error)
+	conn, err := connection.NewDHTxxConnection(line, -1, nil) // Create DHTxx connection, (line=4, out_line=-1) → (*DHTxxConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	dht, err := humidity.NewDHT11Minimal(tr) // Create DHT11 driver, (transport) → (*DHT11Minimal, error)
+	dht, err := humidity.NewDHT11Minimal(conn) // Create DHT11 driver, (connection) → (*DHT11Minimal, error)
 	if err != nil {
 		panic(err)
 	}

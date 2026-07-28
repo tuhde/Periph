@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -32,13 +32,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := ioexpander.NewPCF8574Full(tr, uint8(addr)) // Create PCF8574 full driver, (transport, addr=0x20) → (*PCF8574Full, error)
+	chip, err := ioexpander.NewPCF8574Full(conn, uint8(addr)) // Create PCF8574 full driver, (connection, addr=0x20) → (*PCF8574Full, error)
 	if err != nil {
 		panic(err)
 	}

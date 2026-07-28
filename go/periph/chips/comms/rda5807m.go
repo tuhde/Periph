@@ -4,7 +4,7 @@ package comms
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // Band select constants.
@@ -91,7 +91,7 @@ const rdaStcTimeoutMs = 500
 // interface.
 //
 // Tunes to a station, adjusts volume, mutes, and seeks the next station. No
-// configuration required beyond the transport.
+// configuration required beyond the connection.
 //
 // Unlike most chips in this project, the RDA5807M has no register-pointer
 // byte: writes always start at the fixed register 0x02 and reads always
@@ -102,7 +102,7 @@ const rdaStcTimeoutMs = 500
 //
 // Fixed I²C address: 0x10.
 type Rda5807mMinimal struct {
-	transport       transport.Transport
+	connection       connection.Connection
 	regs            [6]uint16
 	band            uint8
 	space           uint8
@@ -113,12 +113,12 @@ type Rda5807mMinimal struct {
 // NewRda5807mMinimal creates a new Rda5807mMinimal and tunes to the initial
 // frequency.
 //
-// transport must be a configured I²C transport bound to address 0x10.
+// connection must be a configured I²C connection bound to address 0x10.
 // frequencyMhz is the initial frequency in MHz.
 // volume is the initial volume, 0 (mute) to 15 (max).
-func NewRda5807mMinimal(t transport.Transport, frequencyMhz float64, volume uint8) (*Rda5807mMinimal, error) {
+func NewRda5807mMinimal(t connection.Connection, frequencyMhz float64, volume uint8) (*Rda5807mMinimal, error) {
 	d := &Rda5807mMinimal{
-		transport:     t,
+		connection:     t,
 		band:          BandWorld,
 		space:         Space100K,
 		eastEurope50m: false,
@@ -179,13 +179,13 @@ func (d *Rda5807mMinimal) writeRegs() error {
 		buf[i*2] = byte(d.regs[i] >> 8)
 		buf[i*2+1] = byte(d.regs[i] & 0xFF)
 	}
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // readStatus reads n/2 16-bit words (n bytes) from the chip's read-only
 // register block starting at 0x0A.
 func (d *Rda5807mMinimal) readStatus(n int) ([]uint16, error) {
-	buf, err := d.transport.Read(n)
+	buf, err := d.connection.Read(n)
 	if err != nil {
 		return nil, err
 	}
@@ -299,7 +299,7 @@ type Rda5807mFull struct {
 }
 
 // NewRda5807mFull creates a new Rda5807mFull and tunes to the initial frequency.
-func NewRda5807mFull(t transport.Transport, frequencyMhz float64, volume uint8) (*Rda5807mFull, error) {
+func NewRda5807mFull(t connection.Connection, frequencyMhz float64, volume uint8) (*Rda5807mFull, error) {
 	m, err := NewRda5807mMinimal(t, frequencyMhz, volume)
 	if err != nil {
 		return nil, err

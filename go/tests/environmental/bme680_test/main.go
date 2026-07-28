@@ -14,7 +14,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/environmental"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -29,12 +29,12 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {
@@ -47,7 +47,7 @@ func main() {
 		}
 	}
 
-	chip, err := environmental.NewBME680Minimal(tr)
+	chip, err := environmental.NewBME680Minimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -67,14 +67,14 @@ func main() {
 	check("gas_resistance_present", err == nil && (!math.IsNaN(float64(g)) || err == nil))
 
 	// Re-open the bus for the Full driver.
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport full:", err)
+		fmt.Fprintln(os.Stderr, "connection full:", err)
 		os.Exit(2)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := environmental.NewBME680Full(tr2)
+	full, err := environmental.NewBME680Full(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

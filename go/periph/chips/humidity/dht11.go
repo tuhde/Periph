@@ -4,7 +4,7 @@ package humidity
 import (
 	"fmt"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // DHT11Error is returned by DHT11 operations when the received frame's
@@ -32,7 +32,7 @@ func (e *DHT11Error) Error() string {
 //
 // The DHT11 returns a 40-bit reading (humidity integer + decimal,
 // temperature integer + decimal, checksum) over a single bidirectional
-// data line. The driver accepts a `*DHTxxTransport` that handles the
+// data line. The driver accepts a `*DHTxxConnection` that handles the
 // underlying single-wire protocol; this class is responsible only for
 // validating the frame and converting it to engineering units.
 //
@@ -40,24 +40,24 @@ func (e *DHT11Error) Error() string {
 //   - Single read attempt; returns an error on checksum mismatch
 //   - Caller responsible for respecting the ≥ 2 s sampling interval
 type DHT11Minimal struct {
-	transport *transport.DHTxxTransport
+	connection *connection.DHTxxConnection
 }
 
 // NewDHT11Minimal creates a new DHT11Minimal bound to the given DHTxx
-// transport. The transport must be a configured `*DHTxxTransport`
+// connection. The connection must be a configured `*DHTxxConnection`
 // bound to the chip's DATA pin.
-func NewDHT11Minimal(t *transport.DHTxxTransport) (*DHT11Minimal, error) {
-	return &DHT11Minimal{transport: t}, nil
+func NewDHT11Minimal(t *connection.DHTxxConnection) (*DHT11Minimal, error) {
+	return &DHT11Minimal{connection: t}, nil
 }
 
 // Read executes a full measurement cycle and returns temperature and
 // humidity in a single transaction.
 //
-// Calls transport.Read() to obtain the 5-byte frame, validates the
+// Calls connection.Read() to obtain the 5-byte frame, validates the
 // checksum, and decodes the values. Returns an error on checksum
 // mismatch.
 func (d *DHT11Minimal) Read() (temperatureC, humidityRH float32, err error) {
-	frame, err := d.transport.Read()
+	frame, err := d.connection.Read()
 	if err != nil {
 		return 0, 0, err
 	}
@@ -68,9 +68,9 @@ func (d *DHT11Minimal) Read() (temperatureC, humidityRH float32, err error) {
 	return t, h, nil
 }
 
-// IsReady reports whether the transport can attempt a read.
+// IsReady reports whether the connection can attempt a read.
 //
-// This is a no-op on the chip driver side; the transport is always
+// This is a no-op on the chip driver side; the connection is always
 // ready. Provided for API symmetry with HX711-style drivers.
 func (d *DHT11Minimal) IsReady() bool {
 	return true
@@ -108,10 +108,10 @@ type DHT11Full struct {
 	maxRetries uint8
 }
 
-// NewDHT11Full creates a new DHT11Full bound to the given DHTxx transport.
+// NewDHT11Full creates a new DHT11Full bound to the given DHTxx connection.
 // The default maxRetries is 3 — callers may override it per call via
 // ReadRetry.
-func NewDHT11Full(t *transport.DHTxxTransport) (*DHT11Full, error) {
+func NewDHT11Full(t *connection.DHTxxConnection) (*DHT11Full, error) {
 	m, err := NewDHT11Minimal(t)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (d *DHT11Full) ReadRetry(maxRetries uint8) (temperatureC, humidityRH float3
 //
 // The frame is returned as [hum_int, hum_dec, temp_int, temp_dec, checksum].
 func (d *DHT11Full) ReadRaw() ([]byte, error) {
-	frame, err := d.transport.Read()
+	frame, err := d.connection.Read()
 	if err != nil {
 		return nil, err
 	}

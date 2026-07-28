@@ -7,7 +7,7 @@ package adcdac
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MCP4725 command bytes and General Call opcodes.
@@ -28,17 +28,17 @@ const mcp4725EepromWriteDelay = 50 * time.Millisecond
 // Uses Fast Write (2-byte) to update the volatile DAC register only. EEPROM
 // is unaffected. The default output mode is Normal (PD1=PD0=0).
 type MCP4725Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
-// NewMCP4725Minimal creates a new MCP4725Minimal bound to the given transport.
+// NewMCP4725Minimal creates a new MCP4725Minimal bound to the given connection.
 // The chip needs no I²C traffic at construction; the EEPROM value is
 // automatically loaded into the DAC register at power-up.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (typically 0x60, 0x61 depending on the A0 pin).
-func NewMCP4725Minimal(t transport.Transport) (*MCP4725Minimal, error) {
-	return &MCP4725Minimal{transport: t}, nil
+func NewMCP4725Minimal(t connection.Connection) (*MCP4725Minimal, error) {
+	return &MCP4725Minimal{connection: t}, nil
 }
 
 // SetVoltage sets the DAC output as a fraction of V_DD.
@@ -77,7 +77,7 @@ func (d *MCP4725Minimal) fastWrite(code uint16, pd uint8) error {
 		byte((pd&0x03)<<4) | byte((code>>8)&0x0F),
 		byte(code & 0xFF),
 	}
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // MCP4725State is the read-back result for an MCP4725 device.
@@ -105,8 +105,8 @@ type MCP4725Full struct {
 	*MCP4725Minimal
 }
 
-// NewMCP4725Full creates a new MCP4725Full bound to the given transport.
-func NewMCP4725Full(t transport.Transport) (*MCP4725Full, error) {
+// NewMCP4725Full creates a new MCP4725Full bound to the given connection.
+func NewMCP4725Full(t connection.Connection) (*MCP4725Full, error) {
 	m, err := NewMCP4725Minimal(t)
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func (d *MCP4725Full) SetRawEEPROM(code uint16) error {
 // bits; bytes 2–3 are the DAC register code; bytes 4–5 are the EEPROM code
 // and PD bits.
 func (d *MCP4725Full) Read() (MCP4725State, error) {
-	buf, err := d.transport.WriteRead([]byte{0x00}, 5)
+	buf, err := d.connection.WriteRead([]byte{0x00}, 5)
 	if err != nil {
 		return MCP4725State{}, err
 	}
@@ -180,20 +180,20 @@ func (d *MCP4725Full) SetPowerDown(mode uint8) error {
 // WakeUp sends the General Call Wake-Up command (0x00, 0x09) to clear the
 // power-down bits in the DAC register.
 func (d *MCP4725Full) WakeUp() error {
-	return d.transport.Write([]byte{mcp4725GCWake})
+	return d.connection.Write([]byte{mcp4725GCWake})
 }
 
 // Reset sends the General Call Reset command (0x00, 0x06) to trigger an
 // internal power-on reset and reload the EEPROM into the DAC register.
 func (d *MCP4725Full) Reset() error {
-	return d.transport.Write([]byte{mcp4725GCReset})
+	return d.connection.Write([]byte{mcp4725GCReset})
 }
 
 // IsEEPROMReady returns true when any pending EEPROM write has completed.
 //
 // Reads the status byte and returns the RDY/BSY bit.
 func (d *MCP4725Full) IsEEPROMReady() (bool, error) {
-	buf, err := d.transport.WriteRead([]byte{0x00}, 1)
+	buf, err := d.connection.WriteRead([]byte{0x00}, 1)
 	if err != nil {
 		return false, err
 	}
@@ -208,7 +208,7 @@ func (d *MCP4725Full) writeDACEeprom(code uint16, pd uint8) error {
 		byte(code >> 4),
 		byte((code & 0x0F) << 4),
 	}
-	if err := d.transport.Write(buf); err != nil {
+	if err := d.connection.Write(buf); err != nil {
 		return err
 	}
 	time.Sleep(mcp4725EepromWriteDelay)
@@ -217,7 +217,7 @@ func (d *MCP4725Full) writeDACEeprom(code uint16, pd uint8) error {
 
 // readDACCode reads the 2-byte DAC register.
 func (d *MCP4725Full) readDACCode() (uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{0x00}, 2)
+	buf, err := d.connection.WriteRead([]byte{0x00}, 2)
 	if err != nil {
 		return 0, err
 	}

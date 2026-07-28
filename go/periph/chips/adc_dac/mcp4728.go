@@ -3,7 +3,7 @@ package adcdac
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MCP4728 command bytes and General Call opcodes.
@@ -37,15 +37,15 @@ const mcp4728EepromWriteDelay = 50 * time.Millisecond
 // baked in: V_REF=external (V_DD), gain=×1, PD=00, UDAC=0. EEPROM is
 // not written by any Minimal method.
 type MCP4728Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
-// NewMCP4728Minimal creates a new MCP4728Minimal bound to the given transport.
+// NewMCP4728Minimal creates a new MCP4728Minimal bound to the given connection.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x60 default, 0x60–0x67 depending on the stored A2:A1:A0 bits).
-func NewMCP4728Minimal(t transport.Transport) (*MCP4728Minimal, error) {
-	return &MCP4728Minimal{transport: t}, nil
+func NewMCP4728Minimal(t connection.Connection) (*MCP4728Minimal, error) {
+	return &MCP4728Minimal{connection: t}, nil
 }
 
 // SetVoltage sets one channel's DAC output as a fraction of V_DD.
@@ -98,7 +98,7 @@ func (d *MCP4728Minimal) SetAll(fractions [4]float32) error {
 		buf[i*2] = byte((code >> 8) & 0x0F)
 		buf[i*2+1] = byte(code & 0xFF)
 	}
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // multiWrite issues the 3-byte Multi-Write command to update a single
@@ -115,7 +115,7 @@ func (d *MCP4728Minimal) multiWrite(channel uint8, code uint16, vref uint8, pd u
 		byte((vref&0x01)<<7) | byte((pd&0x03)<<5) | byte((gain&0x01)<<4) | byte((code>>8)&0x0F),
 		byte(code & 0xFF),
 	}
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // MCP4728ChannelState is the per-channel state read from the chip.
@@ -143,8 +143,8 @@ type MCP4728Full struct {
 	*MCP4728Minimal
 }
 
-// NewMCP4728Full creates a new MCP4728Full bound to the given transport.
-func NewMCP4728Full(t transport.Transport) (*MCP4728Full, error) {
+// NewMCP4728Full creates a new MCP4728Full bound to the given connection.
+func NewMCP4728Full(t connection.Connection) (*MCP4728Full, error) {
 	m, err := NewMCP4728Minimal(t)
 	if err != nil {
 		return nil, err
@@ -205,7 +205,7 @@ func (d *MCP4728Full) SetAllEEPROM(fractions [4]float32, vrefs [4]uint8, gains [
 		buf[1+i*2] = byte(v<<7) | byte(g<<4) | byte((code>>8)&0x0F)
 		buf[1+i*2+1] = byte(code & 0xFF)
 	}
-	if err := d.transport.Write(buf); err != nil {
+	if err := d.connection.Write(buf); err != nil {
 		return err
 	}
 	time.Sleep(mcp4728EepromWriteDelay)
@@ -218,7 +218,7 @@ func (d *MCP4728Full) SetVREF(vrefA, vrefB, vrefC, vrefD uint8) error {
 	b1 := mcp4728CmdWriteVREF |
 		byte((vrefA&0x01)<<3) | byte((vrefB&0x01)<<2) |
 		byte((vrefC&0x01)<<1) | byte(vrefD&0x01)
-	return d.transport.Write([]byte{b1})
+	return d.connection.Write([]byte{b1})
 }
 
 // SetGain sets the gain for all four channels (volatile register only).
@@ -231,7 +231,7 @@ func (d *MCP4728Full) SetGain(gainA, gainB, gainC, gainD uint8) error {
 		return 0
 	}
 	b1 := mcp4728CmdWriteGain | (gx(gainA) << 3) | (gx(gainB) << 2) | (gx(gainC) << 1) | gx(gainD)
-	return d.transport.Write([]byte{b1})
+	return d.connection.Write([]byte{b1})
 }
 
 // SetPowerDown sets the power-down mode for all four channels (volatile
@@ -246,7 +246,7 @@ func (d *MCP4728Full) SetPowerDown(pdA, pdB, pdC, pdD uint8) error {
 	a, b, c, dd := clamp(pdA), clamp(pdB), clamp(pdC), clamp(pdD)
 	b1 := mcp4728CmdWritePowerDown | byte((a>>1)&0x01)<<4 | byte(a&0x01)<<3 | byte((b>>1)&0x01)<<2 | byte(b&0x01)<<1
 	b2 := byte((c>>1)&0x01)<<6 | byte(c&0x01)<<5 | byte((dd>>1)&0x01)<<4 | byte(dd&0x01)<<3
-	return d.transport.Write([]byte{b1, b2})
+	return d.connection.Write([]byte{b1, b2})
 }
 
 // Read returns all four channels' DAC input registers and EEPROM contents.
@@ -254,7 +254,7 @@ func (d *MCP4728Full) SetPowerDown(pdA, pdB, pdC, pdD uint8) error {
 // Issues a 24-byte read. For each channel, 3 bytes come from the DAC input
 // register followed by 3 bytes from EEPROM.
 func (d *MCP4728Full) Read() (MCP4728ReadResult, error) {
-	buf, err := d.transport.Read(24)
+	buf, err := d.connection.Read(24)
 	if err != nil {
 		return MCP4728ReadResult{}, err
 	}
@@ -289,7 +289,7 @@ func (d *MCP4728Full) Read() (MCP4728ReadResult, error) {
 // IsEEPROMReady returns true when any pending EEPROM write has completed
 // (RDY/BSY bit from the first byte of the read response).
 func (d *MCP4728Full) IsEEPROMReady() (bool, error) {
-	buf, err := d.transport.Read(1)
+	buf, err := d.connection.Read(1)
 	if err != nil {
 		return false, err
 	}
@@ -299,19 +299,19 @@ func (d *MCP4728Full) IsEEPROMReady() (bool, error) {
 // SoftwareUpdate sends the General Call Software Update command (0x00, 0x08)
 // to latch all four V_OUT simultaneously.
 func (d *MCP4728Full) SoftwareUpdate() error {
-	return d.transport.Write([]byte{mcp4728GCSoftwareUpdate})
+	return d.connection.Write([]byte{mcp4728GCSoftwareUpdate})
 }
 
 // WakeUp sends the General Call Wake-Up command (0x00, 0x09) to clear all
 // power-down bits.
 func (d *MCP4728Full) WakeUp() error {
-	return d.transport.Write([]byte{mcp4728GCWake})
+	return d.connection.Write([]byte{mcp4728GCWake})
 }
 
 // Reset sends the General Call Reset command (0x00, 0x06) to reload EEPROM
 // into all DAC input and output registers.
 func (d *MCP4728Full) Reset() error {
-	return d.transport.Write([]byte{mcp4728GCReset})
+	return d.connection.Write([]byte{mcp4728GCReset})
 }
 
 // singleWrite issues the 3-byte Single Write command (DAC + EEPROM) for
@@ -328,7 +328,7 @@ func (d *MCP4728Full) singleWrite(channel uint8, code uint16, vref uint8, pd uin
 		byte((vref&0x01)<<7) | byte((pd&0x03)<<5) | byte((gain&0x01)<<4) | byte((code>>8)&0x0F),
 		byte(code & 0xFF),
 	}
-	if err := d.transport.Write(buf); err != nil {
+	if err := d.connection.Write(buf); err != nil {
 		return err
 	}
 	time.Sleep(mcp4728EepromWriteDelay)

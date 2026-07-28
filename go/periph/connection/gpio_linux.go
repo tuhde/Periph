@@ -1,6 +1,6 @@
 //go:build linux && !tinygo
 
-package transport
+package connection
 
 import (
 	"fmt"
@@ -31,8 +31,8 @@ type gpioHandleData struct {
 	values [gpioMaxLines]uint8
 }
 
-// gpioLineSet is a small per-transport cache of the gpiochip fd and
-// line handle for a set of GPIO lines. Each transport (HX711, SIPO,
+// gpioLineSet is a small per-connection cache of the gpiochip fd and
+// line handle for a set of GPIO lines. Each connection (HX711, SIPO,
 // etc.) holds one of these for the lines it requested.
 type gpioLineSet struct {
 	chipFd     int
@@ -125,7 +125,7 @@ func readGpioLine(line int) (bool, error) {
 }
 
 // releaseGpioLines releases the GPIO line reservation. Currently
-// a no-op because the per-transport cache only releases when the
+// a no-op because the per-connection cache only releases when the
 // process exits.
 func releaseGpioLines(lines ...int) error {
 	_ = lines

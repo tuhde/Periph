@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/display"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,18 +26,18 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x38) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x38) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
 	// The PCF8576 drives four 7-segment digits from a single I2C bus; the host
 	// encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
 	// and writes all four with one WriteRaw() call. The countdown runs once per
 	// second and the terminal mirrors the value sent to the display.
-	lcd, err := display.NewPCF8576Full(tr) // Create PCF8576 driver, (transport) → (*PCF8576Full, error)
+	lcd, err := display.NewPCF8576Full(conn) // Create PCF8576 driver, (connection) → (*PCF8576Full, error)
 	if err != nil {
 		panic(err)
 	}

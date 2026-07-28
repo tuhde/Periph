@@ -2,7 +2,7 @@
 
 // MCP4725 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport, then loops
+// Constructs the driver with a /dev/i2c-N connection, then loops
 // alternating the DAC between half-scale and three-quarter-scale.
 package main
 
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x60) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x60) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := adcdac.NewMCP4725Minimal(tr) // Create MCP4725 driver, (transport) → (*MCP4725Minimal, error)
+	chip, err := adcdac.NewMCP4725Minimal(conn) // Create MCP4725 driver, (connection) → (*MCP4725Minimal, error)
 	if err != nil {
 		panic(err)
 	}

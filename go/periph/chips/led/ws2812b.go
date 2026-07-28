@@ -2,7 +2,7 @@
 package led
 
 import (
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MaxPixelsWS2812B is the maximum supported pixel count for the
@@ -13,19 +13,19 @@ const MaxPixelsWS2812B = 256
 // WS2812BMinimal is the WS2812B addressable RGB LED strip driver —
 // minimal interface.
 //
-// Wraps a `*NeoPixelTransport` and maintains an internal GRB pixel
+// Wraps a `*NeoPixelConnection` and maintains an internal GRB pixel
 // buffer. `Fill` updates every pixel and transmits immediately;
 // `Off` is shorthand for `Fill(0, 0, 0)`.
 type WS2812BMinimal struct {
-	transport *transport.NeoPixelTransport
+	connection *connection.NeoPixelConnection
 	n         int
 	buf       []byte
 }
 
 // NewWS2812BMinimal creates a new WS2812BMinimal bound to the given
-// NeoPixel transport and pixel count. The pixel count is clamped to
+// NeoPixel connection and pixel count. The pixel count is clamped to
 // `MaxPixelsWS2812B`.
-func NewWS2812BMinimal(t *transport.NeoPixelTransport, n int) (*WS2812BMinimal, error) {
+func NewWS2812BMinimal(t *connection.NeoPixelConnection, n int) (*WS2812BMinimal, error) {
 	if n > MaxPixelsWS2812B {
 		n = MaxPixelsWS2812B
 	}
@@ -33,7 +33,7 @@ func NewWS2812BMinimal(t *transport.NeoPixelTransport, n int) (*WS2812BMinimal, 
 		n = 0
 	}
 	return &WS2812BMinimal{
-		transport: t,
+		connection: t,
 		n:         n,
 		buf:       make([]byte, n*3),
 	}, nil
@@ -42,14 +42,14 @@ func NewWS2812BMinimal(t *transport.NeoPixelTransport, n int) (*WS2812BMinimal, 
 // Fill fills every pixel with one colour and sends to the strip
 // immediately. Each channel is clamped to [0, 255]. Stores G, R, B
 // in the internal buffer (GRB wire order) then calls
-// `transport.Write`.
+// `connection.Write`.
 func (d *WS2812BMinimal) Fill(r, g, b uint8) error {
 	for i := 0; i < d.n; i++ {
 		d.buf[i*3+0] = g
 		d.buf[i*3+1] = r
 		d.buf[i*3+2] = b
 	}
-	return d.transport.Write(d.buf[:d.n*3])
+	return d.connection.Write(d.buf[:d.n*3])
 }
 
 // Off turns off all pixels (fill with black and send).
@@ -69,7 +69,7 @@ type WS2812BFull struct {
 }
 
 // NewWS2812BFull creates a new WS2812BFull with default brightness 255.
-func NewWS2812BFull(t *transport.NeoPixelTransport, n int) (*WS2812BFull, error) {
+func NewWS2812BFull(t *connection.NeoPixelConnection, n int) (*WS2812BFull, error) {
 	m, err := NewWS2812BMinimal(t, n)
 	if err != nil {
 		return nil, err
@@ -101,13 +101,13 @@ func (d *WS2812BFull) SetPixel(index int, r, g, b uint8) {
 // scaling. Each channel is scaled: `sent = stored * brightness / 255`.
 func (d *WS2812BFull) Show() error {
 	if d.brightness == 255 {
-		return d.transport.Write(d.buf[:d.n*3])
+		return d.connection.Write(d.buf[:d.n*3])
 	}
 	scaled := make([]byte, d.n*3)
 	for i := 0; i < d.n*3; i++ {
 		scaled[i] = uint8(uint16(d.buf[i]) * uint16(d.brightness) / 255)
 	}
-	return d.transport.Write(scaled)
+	return d.connection.Write(scaled)
 }
 
 // GetBrightness returns the global brightness scalar (0–255).
