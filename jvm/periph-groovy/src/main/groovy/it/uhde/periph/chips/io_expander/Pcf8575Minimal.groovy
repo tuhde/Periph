@@ -33,7 +33,7 @@ class Pcf8575Minimal {
     }
 
     protected void setPin(int n, boolean high) {
-        int portIdx = n / 8
+        int portIdx = n >> 3
         int bit = n % 8
         if (high) shadow[portIdx] |=   (1 << bit)
         else      shadow[portIdx] &= ~((1 << bit))
@@ -56,14 +56,14 @@ class Pcf8575Minimal {
         void setLow() { chip.setPin(n, false) }
 
         boolean read() {
-            int port = n / 8
+            int port = n >> 3
             int bit = n % 8
             byte[] buf = chip.connection.read(2)
             return ((buf[port] >> bit) & 1) == 1
         }
 
         void toggle() {
-            int portIdx = n / 8
+            int portIdx = n >> 3
             int bit = n % 8
             chip.setPin(n, ((chip.shadow[portIdx] >> bit) & 1) == 0)
         }

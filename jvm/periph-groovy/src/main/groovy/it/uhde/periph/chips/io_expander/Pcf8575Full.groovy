@@ -124,7 +124,7 @@ class Pcf8575Full extends Pcf8575Minimal {
                 if ((changed & (1 << n)) == 0) continue
                 PinWatch w = watches[n]
                 if (w == null || w.handler == null) continue
-                int port = n / 8
+                int port = n >> 3
                 int bit = n % 8
                 boolean current = ((prev[port] >> bit) & 1) == 1
                 boolean rising  = current && !w.lastState
@@ -188,7 +188,7 @@ class Pcf8575Full extends Pcf8575Minimal {
             PinWatch w = new PinWatch()
             w.handler = handler
             w.trigger = trigger
-            int port = n / 8
+            int port = n >> 3
             int bit = n % 8
             w.lastState = ((chip.prev[port] >> bit) & 1) == 1
             chip.watches[n] = w
