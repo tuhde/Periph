@@ -32,8 +32,8 @@ Every platform script auto-detects the deepest level it can run, cascading:
 An explicit `--level unit|hil|conformance` flag overrides detection (e.g. force `unit` on a machine with a stale `/dev/i2c-1` node, or skip conformance deliberately even with the analyzer attached). `--level` is independent of `--board` (see **Test Scenarios** below) — one selects test depth, the other selects the source of wiring truth.
 
 ```
-cpp/test_linux.sh power/ina226                    # auto: unit, hil, or conformance
-cpp/test_linux.sh --level unit power/ina226       # forced
+cpp/test_linux.sh gas/ens160                       # auto: unit, hil, or conformance
+cpp/test_linux.sh --level unit gas/ens160          # forced
 ```
 
 **Unit only exists on each language's native host script.** Arduino/Zephyr/ESP-IDF/Pico SDK/TinyGo/CircuitPython/MicroPython/Rust-ESP32-S3 run the *same* chip-driver source as their language's host platform (only the connection wrapper differs), so a mocked run there would duplicate the host script's unit coverage with zero added signal. Those scripts support `hil` and `conformance` only; detection cascades straight from sigrok-present → hardware-present with no unit fallback (if hardware isn't present on an embedded platform, there's nothing meaningful to fall back to — the script errors out asking for the board).
@@ -67,7 +67,7 @@ One script per platform, per language directory; JVM additionally splits per lan
 
 Two distinct people use HIL/conformance, and they need two different sources of wiring truth:
 
-1. **Fixed board.** A specific, known MCU + peripheral combination — e.g. an ESP32-S3 devkit with a BME280 wired to `GPIO8`/`GPIO9` and an INA226 on a second I²C bus. The user just wants to confirm compile/flash/run works and the chip(s) on *this particular board* respond correctly. The wiring is a fact about the hardware, not about the person testing it — anyone with the same board has the same wiring, so it's shareable and belongs in the repo.
+1. **Fixed board.** A specific, known MCU + peripheral combination — e.g. an ESP32-S3 devkit with an AHT21 wired to `GPIO8`/`GPIO9` and an ENS160 on a second I²C bus. The user just wants to confirm compile/flash/run works and the chip(s) on *this particular board* respond correctly. The wiring is a fact about the hardware, not about the person testing it — anyone with the same board has the same wiring, so it's shareable and belongs in the repo.
 2. **Free-wire bench.** A general MCU/host platform with nothing fixed — the user wires whatever chip she's developing to whatever pins/bus she likes, with a sigrok analyzer on the host. The wiring is private to her bench and changes as she works. This is exactly the per-chip `testconfig`/`testconfig_wiring` block designed below.
 
 **Board profiles** serve scenario 1: `<lang>/boards/<board-name>.conf`, **committed to the repo** (not gitignored — it documents public hardware, not a private rig), same `case "$CATEGORY/$CHIP"` shape as `testconfig_wiring` (pins/bus/address, and `SIGROK_CHANNELS` if that board has an analyzer permanently wired too). Board profiles live **per language**, not once at the top level: pin *numbering* for the same physical board differs by SDK (Arduino pin macros vs ESP-IDF `GPIO_NUM_x` vs Zephyr devicetree labels) even though the physical board is one object.
@@ -75,8 +75,8 @@ Two distinct people use HIL/conformance, and they need two different sources of 
 Selected with `--board <name>`:
 ```
 cpp/test_espidf.sh --board esp32s3-sensor-devkit                  # self-test every chip on that board
-cpp/test_espidf.sh --board esp32s3-sensor-devkit power/ina226     # self-test just that one chip on it
-cpp/test_espidf.sh power/ina226                                    # scenario 2: no --board, free-wire testconfig/testconfig_wiring
+cpp/test_espidf.sh --board esp32s3-sensor-devkit gas/ens160        # self-test just that one chip on it
+cpp/test_espidf.sh gas/ens160                                       # scenario 2: no --board, free-wire testconfig/testconfig_wiring
 ```
 When `--board` is given **without** a `<category>/<chip>` argument, the script runs every chip listed in that board's profile — scenario 1's whole point is "does this specific hardware work," not "test one chip." `--board` and `--level` are independent flags (a fixed board can still be probed at unit/hil/conformance depending on what's detected/forced).
 
@@ -97,14 +97,18 @@ SIGROK_SAMPLERATE=24m
 **Per-chip override block**, a `case` keyed on `<category>/<chip>`, for any chip whose wiring differs from the platform default — bus/device or pins (whichever that platform needs), address/CS, `SIGROK_CHANNELS` (required — this is what makes multi-chip-on-one-analyzer rigs work), and an optional per-chip `SIGROK_SAMPLERATE` override for buses that need a different rate than the rig default (e.g. NZR LED timing needs far more samples/s than I²C):
 ```bash
 case "$CATEGORY/$CHIP" in
-  power/ina226)
-    I2C_ADDR=0x40
+  gas/ens160)
+    I2C_ADDR=0x53
     SIGROK_CHANNELS="D0=SCL,D1=SDA"
+    ;;
+  environmental/aht21)
+    I2C_ADDR=0x38
+    SIGROK_CHANNELS="D2=SCL,D3=SDA"
     ;;
   led/ws2812b)
     SPI_BUS=0
     SPI_DEVICE=0
-    SIGROK_CHANNELS="D2=DATA"
+    SIGROK_CHANNELS="D4=DATA"
     SIGROK_SAMPLERATE=100m
     ;;
 esac
@@ -145,14 +149,24 @@ One Python checker per chip: `conformance/<category>/<chip>_conformance.py`. Cap
 `specs/<category>/<chip>_timing.conf` — one small sidecar per chip, machine-readable mirror of the spec's prose Timing Constraints section. Each check carries its bound **and** its own capture parameters, because different constraints on the same chip live in very different time domains (microsecond-scale bus edges vs millisecond/second-scale power-on delays) — a single samplerate/window for the whole chip would either drown the fast checks in imprecision or the slow ones in data volume:
 
 ```
-# ina226 timing constraints + capture parameters
-conversion_time_max_ms=1.1
-conversion_time_samplerate=1m
-conversion_time_capture_ms=5
+# specs/gas/ens160_timing.conf
+warmup_time_min_s=180
+warmup_time_samplerate=1k
+warmup_time_capture_ms=182000
 
-poweron_reset_min_ms=2
-poweron_reset_samplerate=10k
-poweron_reset_capture_ms=50
+measurement_cycle_max_ms=1000
+measurement_cycle_samplerate=1m
+measurement_cycle_capture_ms=1100
+```
+```
+# specs/environmental/aht21_timing.conf
+measurement_trigger_min_ms=80
+measurement_trigger_samplerate=1m
+measurement_trigger_capture_ms=120
+
+poweron_ready_min_ms=100
+poweron_ready_samplerate=10k
+poweron_ready_capture_ms=150
 ```
 
 Key convention: `<check_name>_min_<unit>` / `<check_name>_max_<unit>` for the bound, `<check_name>_samplerate` / `<check_name>_capture_ms` for how to capture it. `<check_name>` must match an annotation pair the chip's sigrok decoder emits (e.g. `conversion_start` / `conversion_done`), so the checker can locate both timestamps. This means: **any chip spec with a timing constraint must name the corresponding start/end annotations in its Sigrok Decoder section** — add this requirement to `specs/_template_chip.md` and `specs/_template_chip_io_expander.md`.
@@ -163,46 +177,53 @@ Every platform script's conformance path is the same two-liner: start its own co
 
 ## Rollout Scope
 
-This spec covers the **framework** plus a full reference implementation for **INA226** (already the convention for "new pattern" chips in this repo) across all 6 languages and all 3 levels. Backfilling unit/conformance tests for every other existing chip is out of scope for this issue — track it separately, incrementally, chip by chip. Going forward, `specs/_template_chip.md` / `_template_chip_io_expander.md` gain unit + conformance checklist items so every *new* chip ships with all three levels from day one.
+This spec covers the **framework** plus a full reference implementation for **ENS160** (`gas`) and **AHT21** (`environmental`) across all 6 languages and all 3 levels — two chips rather than one so the framework is proven against more than one register-map/timing shape (ENS160: multi-byte status+data reads gated by a `VALIDITY_FLAG`, minutes-scale warm-up; AHT21: trigger-then-poll measurement cycle, no address-select pin). Backfilling unit/conformance tests for every other existing chip is out of scope for this issue — track it separately, incrementally, chip by chip. Going forward, `specs/_template_chip.md` / `_template_chip_io_expander.md` gain unit + conformance checklist items so every *new* chip ships with all three levels from day one.
 
 `TESTING.md` (the human-facing quick-start doc) must be rewritten to describe the three levels, the auto-detection cascade, the `--level` override, and the renamed scripts.
 
 ## Implementation Checklist
 
 - [ ] `cpp/src/connection/I2CConnectionMock.h/.cpp`
-- [ ] `cpp/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `cpp/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (gas/ens160, environmental/aht21)
 - [ ] `cpp/boards/` — directory + one illustrative committed board profile (e.g. `cpp/boards/esp32s3-sensor-devkit.conf`) demonstrating the format
 - [ ] `cpp/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, add unit + conformance paths, detection cascade, `--level` override
 - [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — parse target before sourcing config, source `testconfig_wiring`, add `--board` support, conformance path + detection
-- [ ] `cpp/tests/power/ina226_test_unit/ina226_test_unit.cpp`
+- [ ] `cpp/tests/gas/ens160_test_unit/ens160_test_unit.cpp`
+- [ ] `cpp/tests/environmental/aht21_test_unit/aht21_test_unit.cpp`
 - [ ] `python/periph/connection/i2c_mock.py`
-- [ ] `python/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (python has one shared testconfig)
+- [ ] `python/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (gas/ens160, environmental/aht21) directly (python has one shared testconfig)
 - [ ] `python/boards/` — directory + one illustrative committed board profile
 - [ ] `python/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
 - [ ] `python/test_mp.sh`, `test_cp.sh` — parse target before sourcing config, `--board` support, conformance path + detection
-- [ ] `python/tests/power/ina226_test_unit.py`
+- [ ] `python/tests/gas/ens160_test_unit.py`
+- [ ] `python/tests/environmental/aht21_test_unit.py`
 - [ ] `nodejs/packages/periph/src/connection/i2c_mock.js`
-- [ ] `nodejs/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (nodejs has one platform)
+- [ ] `nodejs/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (gas/ens160, environmental/aht21) directly (nodejs has one platform)
 - [ ] `nodejs/test.sh` → renamed `nodejs/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
-- [ ] `nodejs/tests/power/ina226_test_unit.js`
+- [ ] `nodejs/tests/gas/ens160_test_unit.js`
+- [ ] `nodejs/tests/environmental/aht21_test_unit.js`
 - [ ] `rust/periph/Cargo.toml` — add `embedded-hal-mock` dev-dependency
-- [ ] `rust/periph/src/chips/power/ina226.rs` — `#[cfg(test)]` unit tests
-- [ ] `rust/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `rust/periph/src/chips/gas/ens160.rs` — `#[cfg(test)]` unit tests
+- [ ] `rust/periph/src/chips/environmental/aht21.rs` — `#[cfg(test)]` unit tests
+- [ ] `rust/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (gas/ens160, environmental/aht21)
 - [ ] `rust/boards/` — directory + one illustrative committed board profile
 - [ ] `rust/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `cargo test`) + conformance paths, detection cascade, `--level`
 - [ ] `rust/test_esp32s3.sh` — parse target before sourcing config, source `testconfig_wiring`, `--board` support, conformance path + detection
-- [ ] `go/periph/chips/power/ina226_test.go`
-- [ ] `go/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `go/periph/chips/gas/ens160_test.go`
+- [ ] `go/periph/chips/environmental/aht21_test.go`
+- [ ] `go/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (gas/ens160, environmental/aht21)
 - [ ] `go/boards/` — directory + one illustrative committed board profile
 - [ ] `go/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `go test`) + conformance paths, detection cascade, `--level`
 - [ ] `go/test_tinygo.sh` — parse target before sourcing config, source `testconfig_wiring`, `--board` support, conformance path + detection
 - [ ] `jvm/periph-connection` test-scope `MockConnection`
-- [ ] `jvm/periph-java/src/test/java/it/uhde/periph/chips/power/Ina226Test.java`
-- [ ] `jvm/periph-kotlin/src/test/kotlin/.../Ina226Test.kt`
-- [ ] `jvm/periph-groovy/src/test/groovy/.../Ina226Test.groovy`
-- [ ] `jvm/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (jvm has one platform, split by language)
+- [ ] `jvm/periph-java/src/test/java/it/uhde/periph/chips/gas/Ens160Test.java`, `.../environmental/Aht21Test.java`
+- [ ] `jvm/periph-kotlin/src/test/kotlin/.../Ens160Test.kt`, `.../Aht21Test.kt`
+- [ ] `jvm/periph-groovy/src/test/groovy/.../Ens160Test.groovy`, `.../Aht21Test.groovy`
+- [ ] `jvm/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (gas/ens160, environmental/aht21) directly (jvm has one platform, split by language)
 - [ ] `jvm/test.sh` → split into `jvm/test_linux_java.sh`, `jvm/test_linux_kotlin.sh`, `jvm/test_linux_groovy.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
-- [ ] `conformance/power/ina226_conformance.py`
-- [ ] `specs/power/ina226_timing.conf`
+- [ ] `conformance/gas/ens160_conformance.py`
+- [ ] `conformance/environmental/aht21_conformance.py`
+- [ ] `specs/gas/ens160_timing.conf`
+- [ ] `specs/environmental/aht21_timing.conf`
 - [ ] `specs/_template_chip.md`, `_template_chip_io_expander.md` — add unit + conformance checklist items; require named start/end annotations for any timing constraint
 - [ ] `TESTING.md` — rewrite for three levels, detection cascade, `--level` override, renamed scripts, per-chip wiring/sigrok config, `--board` profiles vs free-wire bench
