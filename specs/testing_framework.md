@@ -25,7 +25,7 @@ Conformance is implemented **once per chip**, in Python (`conformance/<category>
 
 Every platform script auto-detects the deepest level it can run, cascading:
 
-1. **Sigrok present** — `sigrok-cli --scan` finds a device, or `testconfig` sets `SIGROK_DEVICE`/`SIGROK_DRIVER` — **and** hardware present (see 2) → run **conformance**.
+1. **Sigrok present** — `sigrok-cli --scan` finds a device, or `testconfig`/`testconfig_wiring` sets `SIGROK_DRIVER` — **and** hardware present (see 2) → run **conformance**.
 2. **Hardware present** — the configured bus responds at the configured address (I²C quick-write probe, or the configured serial/UF2 port exists for flash platforms) → run **HIL**.
 3. **Neither** → run **unit**.
 
@@ -61,7 +61,43 @@ One script per platform, per language directory; JVM additionally splits per lan
 | jvm | `jvm/test_linux_kotlin.sh` | unit, hil, conformance | replaces `test.sh --lang kotlin` |
 | jvm | `jvm/test_linux_groovy.sh` | unit, hil, conformance | replaces `test.sh --lang groovy` |
 
-`testconfig` keeps its existing per-language file(s) (`testconfig`, `testconfig_zephyr`, `testconfig_espidf`, `testconfig_picosdk`, `testconfig_esp32s3`, `testconfig_tinygo`). New optional keys: `SIGROK_DEVICE`, `SIGROK_DRIVER`.
+`testconfig` keeps its existing per-language file(s) (`testconfig`, `testconfig_zephyr`, `testconfig_espidf`, `testconfig_picosdk`, `testconfig_esp32s3`, `testconfig_tinygo`). See **Chip Wiring & Sigrok Configuration** below for the new per-chip wiring/sigrok keys and where they live.
+
+## Chip Wiring & Sigrok Configuration
+
+Today's `testconfig` is one flat wiring reused for whatever chip you point the script at — fine for a breadboard you rewire between runs, not for a permanent bench with several chips wired to different buses/pins/CS lines at once, each needing its own logic-analyzer channel mapping. This adds a **per-chip override block** on top of the existing flat globals, without introducing a second config file where a language only has one platform.
+
+**Global keys** (rig-wide, added to the existing flat section of `testconfig`):
+```
+SIGROK_DRIVER=fx2lafw
+SIGROK_CONN=
+SIGROK_SAMPLERATE=24m
+```
+`SIGROK_DRIVER`/`SIGROK_CONN` identify the one logic analyzer on the bench; `SIGROK_SAMPLERATE` is its rig-wide default rate.
+
+**Per-chip override block**, a `case` keyed on `<category>/<chip>`, for any chip whose wiring differs from the platform default — bus/device or pins (whichever that platform needs), address/CS, `SIGROK_CHANNELS` (required — this is what makes multi-chip-on-one-analyzer rigs work), and an optional per-chip `SIGROK_SAMPLERATE` override for buses that need a different rate than the rig default (e.g. NZR LED timing needs far more samples/s than I²C):
+```bash
+case "$CATEGORY/$CHIP" in
+  power/ina226)
+    I2C_ADDR=0x40
+    SIGROK_CHANNELS="D0=SCL,D1=SDA"
+    ;;
+  led/ws2812b)
+    SPI_BUS=0
+    SPI_DEVICE=0
+    SIGROK_CHANNELS="D2=DATA"
+    SIGROK_SAMPLERATE=100m
+    ;;
+esac
+```
+
+**Precedence:** per-chip case block → flat `testconfig` globals → repo-committed `chip_defaults` (address-only fallback, unchanged).
+
+**Where the block lives:**
+- If a language has only **one** `testconfig` file (nodejs, jvm, and python — python's MicroPython/CircuitPython/Linux settings already share a single `python/testconfig`), the per-chip block is added directly to that file.
+- If a language splits config across **multiple** platform-specific files (cpp: `testconfig`/`testconfig_zephyr`/`testconfig_espidf`/`testconfig_picosdk`; rust: `testconfig`/`testconfig_esp32s3`; go: `testconfig`/`testconfig_tinygo`), the block lives once in a new shared `<lang>/testconfig_wiring` (gitignored, `.example` committed), sourced by every one of that language's platform scripts — the physical rig is the same board regardless of which firmware gets flashed onto it, so the wiring shouldn't be duplicated per platform file.
+
+**Script requirement:** every script must parse `<category>/<chip>` from its target argument **before** sourcing `testconfig`/`testconfig_wiring`, so `$CATEGORY`/`$CHIP` are set when the `case` block runs (today several scripts source config first, then parse args — this ordering flips).
 
 ## Unit Test Implementation
 
@@ -82,7 +118,7 @@ Where a language already has a native test runner (`cargo test`, `go test`, `mvn
 
 One Python checker per chip: `conformance/<category>/<chip>_conformance.py`. It:
 
-1. Starts a `sigrok-cli` capture on the configured `SIGROK_DEVICE`/`SIGROK_DRIVER`.
+1. Starts a `sigrok-cli` capture using the configured `SIGROK_DRIVER`/`SIGROK_CONN`/`SIGROK_SAMPLERATE` and the chip's `SIGROK_CHANNELS` mapping (see **Chip Wiring & Sigrok Configuration** above).
 2. Invokes the already-running HIL test binary/process (passed in by the calling platform script) to trigger the transaction(s) under test.
 3. Stops the capture, decodes it with `sigrok/<chip>/pd.py` (the chip's existing decoder), and reads named annotation timestamps.
 4. Compares timestamp deltas against `specs/<category>/<chip>_timing.conf` (see below) and prints the same `PASS`/`FAIL ... ===DONE: N passed, N failed===` convention as every other level, so output stays uniform across levels and languages.
@@ -108,29 +144,35 @@ This spec covers the **framework** plus a full reference implementation for **IN
 ## Implementation Checklist
 
 - [ ] `cpp/src/transport/I2CTransportMock.h/.cpp`
-- [ ] `cpp/test_linux.sh` — add unit + conformance paths, detection cascade, `--level` override
-- [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — add conformance path + detection
+- [ ] `cpp/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `cpp/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, add unit + conformance paths, detection cascade, `--level` override
+- [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — parse target before sourcing config, source `testconfig_wiring`, add conformance path + detection
 - [ ] `cpp/tests/power/ina226_test_unit/ina226_test_unit.cpp`
 - [ ] `python/periph/transport/i2c_mock.py`
-- [ ] `python/test_linux.sh` — unit + conformance paths, detection cascade, `--level`
-- [ ] `python/test_mp.sh`, `test_cp.sh` — conformance path + detection
+- [ ] `python/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (python has one shared testconfig)
+- [ ] `python/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
+- [ ] `python/test_mp.sh`, `test_cp.sh` — parse target before sourcing config, conformance path + detection
 - [ ] `python/tests/power/ina226_test_unit.py`
 - [ ] `nodejs/packages/periph/src/transport/i2c_mock.js`
-- [ ] `nodejs/test.sh` → renamed `nodejs/test_linux.sh` — unit + conformance paths, detection cascade, `--level`
+- [ ] `nodejs/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (nodejs has one platform)
+- [ ] `nodejs/test.sh` → renamed `nodejs/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
 - [ ] `nodejs/tests/power/ina226_test_unit.js`
 - [ ] `rust/periph/Cargo.toml` — add `embedded-hal-mock` dev-dependency
 - [ ] `rust/periph/src/chips/power/ina226.rs` — `#[cfg(test)]` unit tests
-- [ ] `rust/test_linux.sh` — unit (wraps `cargo test`) + conformance paths, detection cascade, `--level`
-- [ ] `rust/test_esp32s3.sh` — conformance path + detection
+- [ ] `rust/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `rust/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `cargo test`) + conformance paths, detection cascade, `--level`
+- [ ] `rust/test_esp32s3.sh` — parse target before sourcing config, source `testconfig_wiring`, conformance path + detection
 - [ ] `go/periph/chips/power/ina226_test.go`
-- [ ] `go/test_linux.sh` — unit (wraps `go test`) + conformance paths, detection cascade, `--level`
-- [ ] `go/test_tinygo.sh` — conformance path + detection
+- [ ] `go/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `go/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `go test`) + conformance paths, detection cascade, `--level`
+- [ ] `go/test_tinygo.sh` — parse target before sourcing config, source `testconfig_wiring`, conformance path + detection
 - [ ] `jvm/periph-transport` test-scope `MockTransport`
 - [ ] `jvm/periph-java/src/test/java/it/uhde/periph/chips/power/Ina226Test.java`
 - [ ] `jvm/periph-kotlin/src/test/kotlin/.../Ina226Test.kt`
 - [ ] `jvm/periph-groovy/src/test/groovy/.../Ina226Test.groovy`
-- [ ] `jvm/test.sh` → split into `jvm/test_linux_java.sh`, `jvm/test_linux_kotlin.sh`, `jvm/test_linux_groovy.sh` — unit + conformance paths, detection cascade, `--level`
+- [ ] `jvm/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (jvm has one platform, split by language)
+- [ ] `jvm/test.sh` → split into `jvm/test_linux_java.sh`, `jvm/test_linux_kotlin.sh`, `jvm/test_linux_groovy.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
 - [ ] `conformance/power/ina226_conformance.py`
 - [ ] `specs/power/ina226_timing.conf`
 - [ ] `specs/_template_chip.md`, `_template_chip_io_expander.md` — add unit + conformance checklist items; require named start/end annotations for any timing constraint
-- [ ] `TESTING.md` — rewrite for three levels, detection cascade, `--level` override, renamed scripts
+- [ ] `TESTING.md` — rewrite for three levels, detection cascade, `--level` override, renamed scripts, per-chip wiring/sigrok config
