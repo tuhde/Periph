@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -22,7 +22,7 @@ import java.io.IOException
  * Configurable I²C address: 0x76 (SDO low, default) or 0x77 (SDO high).
  */
 open class Bme680Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     addr: Int = 0x76
 ) {
 
@@ -99,7 +99,7 @@ open class Bme680Minimal @JvmOverloads constructor(
     protected var lastHeatStable: Boolean = false
 
     init {
-        val id = transport.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
+        val id = connection.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID) {
             throw IOException(
@@ -107,16 +107,16 @@ open class Bme680Minimal @JvmOverloads constructor(
             )
         }
         readCalibration()
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
-        transport.write(
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(
             byteArrayOf(
                 REG_CTRL_MEAS.toByte(),
                 (((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x00).toByte()
             )
         )
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), ((filterCoeff and 0x07) shl 2).toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), ((filterCoeff and 0x07) shl 2).toByte()))
         configureHeaterProfile(0, 320, 150)
-        transport.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
     }
 
     /**
@@ -129,8 +129,8 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val b1 = transport.writeRead(byteArrayOf(REG_CALIB_BLOCK1.toByte()), 23)
-        val b2 = transport.writeRead(byteArrayOf(REG_CALIB_BLOCK2.toByte()), 14)
+        val b1 = connection.writeRead(byteArrayOf(REG_CALIB_BLOCK1.toByte()), 23)
+        val b2 = connection.writeRead(byteArrayOf(REG_CALIB_BLOCK2.toByte()), 14)
 
         parT2 = ((b1[1].toInt() and 0xFF) shl 8) or (b1[0].toInt() and 0xFF)
         if (parT2 > 32767) parT2 -= 65536
@@ -164,11 +164,11 @@ open class Bme680Minimal @JvmOverloads constructor(
         parG1 = b2[12].toInt()
         parG3 = b2[13].toInt()
 
-        val rhv = transport.writeRead(byteArrayOf(REG_RES_HEAT_VAL.toByte()), 1)
+        val rhv = connection.writeRead(byteArrayOf(REG_RES_HEAT_VAL.toByte()), 1)
         resHeatVal = rhv[0].toInt()
-        val rhr = transport.writeRead(byteArrayOf(REG_RES_HEAT_RNG.toByte()), 1)
+        val rhr = connection.writeRead(byteArrayOf(REG_RES_HEAT_RNG.toByte()), 1)
         resHeatRange = (rhr[0].toInt() and 0xFF) shr 4 and 0x03
-        val rse = transport.writeRead(byteArrayOf(REG_RANGE_SW_ERR.toByte()), 1)
+        val rse = connection.writeRead(byteArrayOf(REG_RANGE_SW_ERR.toByte()), 1)
         rangeSwitchingError = signExtend4((rse[0].toInt() and 0xFF) shr 4)
     }
 
@@ -186,14 +186,14 @@ open class Bme680Minimal @JvmOverloads constructor(
      */
     protected fun configureHeaterProfile(profile: Int, targetTempC: Int, durationMs: Int) {
         val resHeat = calcHeaterResistance(targetTempC, ambientTemp.toInt())
-        transport.write(
+        connection.write(
             byteArrayOf(
                 (REG_RES_HEAT_BASE + profile).toByte(),
                 resHeat.toByte()
             )
         )
         val gasWait = encodeGasWait(durationMs)
-        transport.write(
+        connection.write(
             byteArrayOf(
                 (REG_GAS_WAIT_BASE + profile).toByte(),
                 gasWait.toByte()
@@ -213,11 +213,11 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readRawData(): ByteArray {
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
         val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x01
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
         Thread.sleep(200)
-        return transport.writeRead(byteArrayOf(REG_DATA.toByte()), 13)
+        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 13)
     }
 
     /**

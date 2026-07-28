@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8576.h"
 
 #ifndef PCF8576_I2C_NODE
@@ -20,9 +20,9 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(PCF8576_I2C_NODE);
-    I2CTransportZephyr transport(dev, PCF8576_ADDR);
-    PCF8576Minimal lcd(transport);
-    PCF8576Full lcd_full(transport);
+    I2CConnectionZephyr connection(dev, PCF8576_ADDR);
+    PCF8576Minimal lcd(connection);
+    PCF8576Full lcd_full(connection);
 
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_OFF | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x40, "mode_set_off");
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x48, "mode_set_on");

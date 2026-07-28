@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>periph-transport</module>
+        <module>periph-connection</module>
         <module>periph-java</module>
         <module>periph-kotlin</module>
         <module>periph-groovy</module>
@@ -27,7 +27,7 @@
         <dependencies>
             <dependency>
                 <groupId>it.uhde</groupId>
-                <artifactId>periph-transport</artifactId>
+                <artifactId>periph-connection</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

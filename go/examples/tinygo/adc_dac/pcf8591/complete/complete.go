@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x48)             // Create I2C transport, (i2c, addr=0x48) → (*I2CTransport)
-	chip, err := adcdac.NewPCF8591Full(tr)                 // Create PCF8591 driver, (transport) → (*PCF8591Full, error)
+	conn := connection.NewI2CConnection(i2c, 0x48, nil, nil)             // Create I2C connection, (i2c, addr=0x48) → (*I2CConnection)
+	chip, err := adcdac.NewPCF8591Full(conn)                 // Create PCF8591 driver, (connection) → (*PCF8591Full, error)
 	if err != nil {
 		panic(err)
 	}

@@ -2,7 +2,7 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "NeoPixelTransportPicoSDK.h"
+#include "NeoPixelConnectionPicoSDK.h"
 #include "WS2812B.h"
 
 int main(void) {
@@ -10,8 +10,8 @@ int main(void) {
     // SCK, MISO, and CS are unused by the strip.
     spi_init(spi0, 2'400'000);
     gpio_set_function(3, GPIO_FUNC_SPI);
-    NeoPixelTransportPicoSDK transport(spi0);
-    WS2812BFull strip(transport, /*n_pixels=*/8);
+    NeoPixelConnectionPicoSDK connection(spi0);
+    WS2812BFull strip(connection, /*n_pixels=*/8);
 
     static const size_t N_PIXELS          = 30;
     static const unsigned long FRAME_MS   = 33;   // ~30 fps

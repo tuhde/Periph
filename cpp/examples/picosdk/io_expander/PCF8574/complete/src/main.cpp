@@ -2,7 +2,8 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
+#include "InputPinPicoSDK.h"
 #include "PCF8574.h"
 
 int main(void) {
@@ -12,8 +13,9 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    PCF8574Full chip(transport, /*addr=*/0x20);
+    InputPinPicoSDK intPin(6);                                  // Create INT pin, (pin=6)
+    I2CConnectionPicoSDK connection(i2c0, 0x20, &intPin);       // Create I2C connection, (i2c, addr=0x20, intPin)
+    PCF8574Full chip(connection, /*addr=*/0x20);
 
     stdio_init_all();
 
@@ -45,21 +47,20 @@ int main(void) {
                                                                // 0 if button pulls P4 low, 1 if floating
     printf("%d\n", state);
 
-    chip.configure_interrupt(5, [](uint8_t changed) {         // Attach interrupt, (gpio_pin, callback) → void
-        printf("INT changed=0x");                        // callback fires on any input change
-        printf("0x%X\n", (unsigned)changed);
+    chip.onInterrupt([](uint8_t changed) {                     // Subscribe to INT line, (callback) → void
+        printf("INT changed=0x%X\n", (unsigned)changed);       // callback fires on any input change
     });
 
-    uint8_t changed = chip.clear_interrupt();                  // Read and return changed bitmask, () → uint8_t
+    uint8_t changed = chip.pollInterrupt();                    // Read and return changed bitmask, () → uint8_t
                                                                // compares current byte to previous; clears INT
     printf("0x%X\n", (unsigned)changed);
 
     PCF8574Full::IOExpanderPin p5 = chip.pin(5);              // Get full pin proxy, (n) → IOExpanderPin
     p5.mode(INPUT);
-    p5.attachInterrupt([](PCF8574Full::IOExpanderPin* p) {    // Attach per-pin interrupt, (handler, mode) → void
-        printf("P5 fell\n");                             // fires when P5 transitions to match mode
-    }, FALLING);
-    p5.detachInterrupt();                                      // Remove per-pin handler, () → void
+    p5.watch([](PCF8574Full::IOExpanderPin* p) {              // Subscribe to pin edges, (handler, trigger) → void
+        printf("P5 fell\n");                                   // fires when P5 transitions to match trigger
+    }, InputPin::kFalling);
+    p5.unwatch();                                               // Unsubscribe pin handler, () → void
     while (true) {
 
     sleep_ms(200);

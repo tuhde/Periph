@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.comms.rda5807m import RDA5807MFull
 
 from machine import I2C, Pin
@@ -20,8 +20,8 @@ def check_true(label, condition):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-fm = RDA5807MFull(transport, frequency_mhz=100.0, volume=8)
+connection = I2CConnection(i2c, cfg.ADDR)
+fm = RDA5807MFull(connection, frequency_mhz=100.0, volume=8)
 
 check_true('is_ready', fm.is_ready())
 check_true('frequency near 100.0 MHz', abs(fm.frequency() - 100.0) < 0.2)

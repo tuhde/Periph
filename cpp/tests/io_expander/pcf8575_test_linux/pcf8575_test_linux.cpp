@@ -20,7 +20,7 @@
 #define CHANGE       3
 #endif
 
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8575.h"
 
 static int passed = 0;
@@ -37,8 +37,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    PCF8575Minimal chip(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    PCF8575Minimal chip(connection);
 
     check_eq("init_shadow_0", chip._shadow[0], 0xFF);
     check_eq("init_shadow_1", chip._shadow[1], 0xFF);

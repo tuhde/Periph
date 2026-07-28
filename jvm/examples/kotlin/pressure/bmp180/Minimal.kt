@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Minimal
 
 fun main() {
-    I2CTransport(1, 0x77).use { transport ->             // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CTransport
-        val sensor = Bmp180Minimal(transport)                   // construct driver, verifies chip ID and loads calibration, (transport) → Bmp180Minimal
+    I2CConnection(1, 0x77).use { connection ->             // open I²C bus 1, device 0x77, (bus, address=0x77) → I2CConnection
+        val sensor = Bmp180Minimal(connection)                   // construct driver, verifies chip ID and loads calibration, (connection) → Bmp180Minimal
 
         while (true) {
             val t = sensor.temperature()                        // read temperature, () → Double °C

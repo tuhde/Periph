@@ -1,53 +1,87 @@
 package it.uhde.periph.chips.io_expander;
 
+import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.EdgeHandler;
+import it.uhde.periph.connection.EdgeTrigger;
+import it.uhde.periph.connection.InputPin;
+
 import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 /**
  * MCP23017 full interface — extends {@link Mcp23017Minimal} with pull-up
  * configuration, polarity inversion, and interrupt support.
  *
- * <p>Interrupt delivery uses a background polling thread when no hardware
- * INT line is available; pass a GPIO path to enable edge-based delivery via
- * epoll on Linux.
- *
- * <p>Per-pin watch callbacks are registered via {@link Pin#watch(IntConsumer)}.
+ * <p>Level 3: the chip has two independent INT lines (INTA/INTB), one per
+ * port. {@link #onInterrupt} / {@link #offInterrupt} subscribe/unsubscribe
+ * both ports at once (delivered via one shared {@link InputPin} — wire
+ * IOCON.MIRROR or external wiring so a single physical line carries both);
+ * {@link #onInterruptPort} / {@link #offInterruptPort} target one port with
+ * its own {@link InputPin}. {@link #pollInterrupt} reads and clears INTF;
+ * {@link #readCapture} reads INTCAP (the latched pin state) separately.
+ * Per-pin {@link Pin#watch(Consumer)} is also available.
  */
 public class Mcp23017Full extends Mcp23017Minimal {
 
-    private final int[] prev = new int[2];
-    private final IntConsumer[] portCallbacks = new IntConsumer[2];
-    private Thread pollThread;
-    private volatile boolean running;
+    /** Called with (port, status) when either port's INT fires. */
+    @FunctionalInterface
+    public interface PortStatusHandler {
+        void accept(int port, int status);
+    }
 
     private static final int REG_GPINTENA = 0x04;
     private static final int REG_GPINTENB = 0x05;
+    private static final int REG_DEFVALA  = 0x06;
+    private static final int REG_DEFVALB  = 0x07;
     private static final int REG_INTCONA  = 0x08;
     private static final int REG_INTCONB  = 0x09;
+    private static final int REG_IOCON    = 0x0A;
     private static final int REG_INTFA    = 0x0E;
     private static final int REG_INTFB    = 0x0F;
     private static final int REG_INTCAPA  = 0x10;
     private static final int REG_INTCAPB  = 0x11;
 
+    private volatile PortStatusHandler callbackBoth;
+    private final IntConsumer[] callbackPort = new IntConsumer[2];
+    private final InputPin[] intPinUsed = new InputPin[2];
+    private final Thread[] pollThread = new Thread[2];
+    private final boolean[] polling = new boolean[2];
+    private final PinWatch[][] watches = new PinWatch[2][8];
+
     /**
-     * Construct the full driver.
-     *
-     * @param transport I²C transport bound to the device address
-     * @param addr      7-bit I²C address
-     * @throws IOException on I²C error during init
+     * Fixed per-port edge handler instances, reused across onEdge()/offEdge()
+     * calls — a fresh lambda per armPort() call would not be guaranteed by the
+     * JLS to equal the one passed to onEdge() earlier, so offEdge() could
+     * silently fail to remove it.
      */
-    public Mcp23017Full(it.uhde.periph.transport.Transport transport, int addr) throws IOException {
-        super(transport, addr);
+    private final EdgeHandler[] edgeHandlers = {
+        () -> handleEdge(0),
+        () -> handleEdge(1),
+    };
+
+    private static final class PinWatch {
+        Consumer<Pin> handler;
+        EdgeTrigger trigger;
+        boolean lastState;
     }
 
     /**
-     * Return a {@link Pin} proxy for pin {@code n} (0–15).
+     * Construct the full driver.
      *
-     * <p>The returned Pin also supports {@link Pin#watch(IntConsumer)} for
-     * interrupt-driven change notification.
+     * @param connection I²C connection bound to the device address
+     * @param addr       7-bit I²C address
+     * @throws IOException on I²C error during init
+     */
+    public Mcp23017Full(Connection connection, int addr) throws IOException {
+        super(connection, addr);
+    }
+
+    /**
+     * Return a Full {@link Pin} proxy for pin {@code n} (0–15).
      *
      * @param n pin index (0–15)
-     * @return Pin proxy backed by this driver
+     * @return Pin proxy with {@link Pin#watch watch}/{@link Pin#unwatch unwatch} support
      */
     @Override
     public Pin pin(int n) {
@@ -80,80 +114,201 @@ public class Mcp23017Full extends Mcp23017Minimal {
     }
 
     /**
-     * Attach an interrupt callback to a port's INT line.
+     * Set DEFVAL register for default-compare interrupt mode.
      *
-     * <p>When {@code intGpioPath} is provided (sysfs GPIO value file path),
-     * edge detection via epoll is used. Otherwise a 5 ms polling loop drives
-     * delivery. The callback receives the port index and the changed-pin bitmask.
-     *
-     * @param port         0 = PORTA (INTA), 1 = PORTB (INTB)
-     * @param intGpioPath  sysfs GPIO value file for edge delivery, or null for polling
-     * @param callback     called with (port, changedMask) on any input change
-     */
-    public void configureInterrupt(int port, String intGpioPath, IntConsumer callback) {
-        portCallbacks[port & 1] = callback;
-        this.running = true;
-        try { writeReg(REG_GPINTENA + (port & 1), 0xFF); } catch (IOException e) { return; }
-        try { writeReg(REG_INTCONA  + (port & 1), 0x00); } catch (IOException e) { }
-        if (pollThread == null) startPolling();
-    }
-
-    private void startPolling() {
-        pollThread = new Thread(() -> {
-            while (running) {
-                try {
-                    int changedA = clearInterrupt(0);
-                    int changedB = clearInterrupt(1);
-                    if (changedA != 0 && portCallbacks[0] != null) portCallbacks[0].accept(changedA);
-                    if (changedB != 0 && portCallbacks[1] != null) portCallbacks[1].accept(changedB);
-                } catch (IOException e) { /* ignore */ }
-                try { Thread.sleep(5); } catch (InterruptedException e) { break; }
-            }
-        });
-        pollThread.setDaemon(true);
-        pollThread.start();
-    }
-
-    /**
-     * Read and clear the interrupt for a port, returning the changed-pin bitmask.
-     *
-     * <p>Also updates the per-port previous-state tracker.
-     *
-     * @param port 0 = PORTA, 1 = PORTB
-     * @return 8-bit changed-pin bitmask for the port
+     * @param port 0 = PORTA (DEFVALA), 1 = PORTB (DEFVALB)
+     * @param mask 8-bit default compare value
      * @throws IOException on I²C error
      */
-    public int clearInterrupt(int port) throws IOException {
-        readReg(REG_INTCAPA + (port & 1));
-        int current = readReg(REG_GPIOA + (port & 1));
-        int changed = (current ^ prev[port & 1]) & 0xFF;
-        prev[port & 1]  = current;
-        return changed;
+    public void setDefaultValue(int port, int mask) throws IOException {
+        writeReg(REG_DEFVALA + (port & 1), mask & 0xFF);
     }
 
-    /**
-     * Read interrupt flags without clearing the interrupt.
-     *
-     * @param port 0 = INTFA, 1 = INTFB
-     * @return 8-bit interrupt-flag bitmask
-     * @throws IOException on I²C error
-     */
-    public int readInterruptFlags(int port) throws IOException {
-        return readReg(REG_INTFA + (port & 1));
-    }
-
-    /**
-     * Disable interrupt generation for a port and stop the polling thread.
-     *
-     * @param port 0 = PORTA, 1 = PORTB
-     */
-    public void stopInterrupt(int port) {
-        running = false;
-        try { writeReg(REG_GPINTENA + (port & 1), 0x00); } catch (IOException e) { /* ignore */ }
-        if (pollThread != null) {
-            pollThread.interrupt();
-            pollThread = null;
+    private void armPort(int port, InputPin intPin) throws IOException {
+        port &= 1;
+        writeReg(REG_INTCONA + port, 0x00); // interrupt-on-change mode
+        writeReg(REG_GPINTENA + port, 0xFF);
+        intPinUsed[port] = intPin;
+        stopPolling(port);
+        if (intPin != null) {
+            intPin.onEdge(edgeHandlers[port], EdgeTrigger.FALLING);
+        } else {
+            startPolling(port);
         }
+    }
+
+    /**
+     * Subscribe to INT assertions on both ports.
+     *
+     * <p>The common case: both INT lines share one physical GPIO, either via
+     * IOCON.MIRROR ({@code mirror = true}) or external wiring. Wires
+     * {@code intPin} (or {@code connection.intPin()} if {@code null}) to poll
+     * both ports on every edge. Falls back to two independent 5&nbsp;ms
+     * polling threads if no {@link InputPin} is available.
+     *
+     * @param callback called with (port, status) on any input change
+     * @param intPin   overrides {@code connection.intPin()}, or {@code null}
+     * @param mirror   set IOCON.MIRROR so either port's interrupt activates both INTA and INTB
+     * @throws IOException on I²C error
+     */
+    public void onInterrupt(PortStatusHandler callback, InputPin intPin, boolean mirror) throws IOException {
+        this.callbackBoth = callback;
+        int iocon = readReg(REG_IOCON);
+        writeReg(REG_IOCON, mirror ? (iocon | (1 << 6)) : iocon);
+        InputPin pin = intPin != null ? intPin : connection.intPin();
+        armPort(0, pin);
+        armPort(1, pin);
+    }
+
+    /**
+     * Subscribe to INT assertions on both ports using {@code connection.intPin()}, no mirror.
+     *
+     * @param callback called with (port, status) on any input change
+     * @throws IOException on I²C error
+     */
+    public void onInterrupt(PortStatusHandler callback) throws IOException {
+        onInterrupt(callback, null, false);
+    }
+
+    /**
+     * Subscribe to INT assertions on a single port.
+     *
+     * <p>Use this (with a dedicated {@link InputPin} per call) when INTA and
+     * INTB are wired to two separate GPIOs.
+     *
+     * @param port     0 = PORTA (INTA), 1 = PORTB (INTB)
+     * @param callback called with the port's INTF flag mask
+     * @param intPin   overrides {@code connection.intPin()}, or {@code null}
+     * @throws IOException on I²C error
+     */
+    public void onInterruptPort(int port, IntConsumer callback, InputPin intPin) throws IOException {
+        port &= 1;
+        this.callbackPort[port] = callback;
+        armPort(port, intPin != null ? intPin : connection.intPin());
+    }
+
+    /**
+     * Subscribe to INT assertions on a single port using {@code connection.intPin()}.
+     *
+     * @param port     0 = PORTA (INTA), 1 = PORTB (INTB)
+     * @param callback called with the port's INTF flag mask
+     * @throws IOException on I²C error
+     */
+    public void onInterruptPort(int port, IntConsumer callback) throws IOException {
+        onInterruptPort(port, callback, null);
+    }
+
+    /**
+     * Unsubscribe and stop delivery on both ports.
+     *
+     * @throws IOException on I²C error
+     */
+    public void offInterrupt() throws IOException {
+        offInterruptPort(0);
+        offInterruptPort(1);
+        callbackBoth = null;
+    }
+
+    /**
+     * Unsubscribe and stop delivery on a single port.
+     *
+     * @param port 0 = PORTA, 1 = PORTB
+     * @throws IOException on I²C error
+     */
+    public void offInterruptPort(int port) throws IOException {
+        port &= 1;
+        writeReg(REG_GPINTENA + port, 0x00);
+        if (intPinUsed[port] != null) {
+            intPinUsed[port].offEdge(edgeHandlers[port]);
+            intPinUsed[port] = null;
+        }
+        stopPolling(port);
+        callbackPort[port] = null;
+    }
+
+    private void startPolling(int port) {
+        polling[port] = true;
+        pollThread[port] = new Thread(() -> {
+            while (polling[port]) {
+                handleEdge(port);
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }, "mcp23017-poll-" + port);
+        pollThread[port].setDaemon(true);
+        pollThread[port].start();
+    }
+
+    private void stopPolling(int port) {
+        polling[port] = false;
+        if (pollThread[port] != null) {
+            pollThread[port].interrupt();
+            pollThread[port] = null;
+        }
+    }
+
+    private void handleEdge(int port) {
+        try {
+            int status = pollInterrupt(port);
+            if (status == 0) return;
+            if (callbackBoth != null) callbackBoth.accept(port, status);
+            if (callbackPort[port] != null) callbackPort[port].accept(status);
+
+            int raw = readPort(port);
+            for (int bit = 0; bit < 8; bit++) {
+                if ((status & (1 << bit)) == 0) continue;
+                PinWatch w = watches[port][bit];
+                if (w == null || w.handler == null) continue;
+                boolean current = ((raw >> bit) & 1) == 1;
+                boolean rising  = current && !w.lastState;
+                boolean falling = !current && w.lastState;
+                w.lastState = current;
+                boolean fire = w.trigger == EdgeTrigger.CHANGE
+                    || (w.trigger == EdgeTrigger.RISING && rising)
+                    || (w.trigger == EdgeTrigger.FALLING && falling);
+                if (fire) w.handler.accept(new Pin(this, port * 8 + bit));
+            }
+        } catch (IOException ignored) {
+            // bus error; wait for the next edge/tick rather than propagating
+        }
+    }
+
+    /**
+     * Read &amp; clear interrupt status; returns the raw INTF flag register.
+     *
+     * <p>Reads INTFA/INTFB (which pins triggered) then INTCAPA/INTCAPB (which
+     * clears the interrupt latch and re-arms it). Note that reading either
+     * INTCAP or GPIO clears the interrupt condition on this chip — call
+     * {@link #pollInterrupt} or {@link #readCapture} per event, not both.
+     *
+     * @param port 0 = PORTA, 1 = PORTB
+     * @return 8-bit interrupt flag mask
+     * @throws IOException on I²C error
+     */
+    public int pollInterrupt(int port) throws IOException {
+        port &= 1;
+        int flags = readReg(REG_INTFA + port);
+        readReg(REG_INTCAPA + port); // clears and re-arms the interrupt; value discarded
+        return flags;
+    }
+
+    /**
+     * Read INTCAP: the port state latched at the moment of the interrupt.
+     *
+     * <p>Also clears the interrupt latch (see {@link #pollInterrupt} doc) —
+     * call this instead of {@link #pollInterrupt} when the captured pin state
+     * is wanted rather than the flag register.
+     *
+     * @param port 0 = PORTA, 1 = PORTB
+     * @return 8-bit captured port bitmask at the moment of interrupt
+     * @throws IOException on I²C error
+     */
+    public int readCapture(int port) throws IOException {
+        return readReg(REG_INTCAPA + (port & 1));
     }
 
     // =========================================================================
@@ -168,7 +323,6 @@ public class Mcp23017Full extends Mcp23017Minimal {
     public static class Pin extends Mcp23017Minimal.Pin {
 
         private final Mcp23017Full chip;
-        private final java.util.List<IntConsumer> watchers = new java.util.ArrayList<>();
 
         protected Pin(Mcp23017Full chip, int n) {
             super(chip, n);
@@ -194,30 +348,41 @@ public class Mcp23017Full extends Mcp23017Minimal {
         }
 
         /**
-         * Register a handler for pin state changes.
+         * Subscribe to this pin's edge events (default trigger: {@link EdgeTrigger#CHANGE}).
          *
-         * <p>Requires {@link Mcp23017Full#configureInterrupt} to have been called.
+         * <p>At most one handler per pin at a time; a second call replaces the
+         * first. Call the chip's {@link Mcp23017Full#onInterrupt}/{@link
+         * Mcp23017Full#onInterruptPort} (for this pin's port) first to arm delivery.
          *
-         * @param handler called with the new pin value on change
+         * @param handler called with this pin when its state matches the trigger
          */
-        public void watch(IntConsumer handler) {
-            watchers.add(handler);
+        public void watch(Consumer<Pin> handler) {
+            watch(handler, EdgeTrigger.CHANGE);
         }
 
         /**
-         * Remove a previously registered handler.
+         * Subscribe to this pin's edge events.
          *
-         * @param handler the handler to remove
+         * @param handler called with this pin when its state matches {@code trigger}
+         * @param trigger which edge(s) to fire on
          */
-        public void unwatch(IntConsumer handler) {
-            watchers.remove(handler);
+        public void watch(Consumer<Pin> handler, EdgeTrigger trigger) {
+            int port = n >> 3;
+            int bit  = n & 7;
+            PinWatch w = new PinWatch();
+            w.handler = handler;
+            w.trigger = trigger;
+            try {
+                w.lastState = ((chip.readPort(port) >> bit) & 1) == 1;
+            } catch (IOException e) {
+                w.lastState = false;
+            }
+            chip.watches[port][bit] = w;
         }
 
-        /**
-         * Remove all registered handlers for this pin.
-         */
-        public void unwatchAll() {
-            watchers.clear();
+        /** Unsubscribe this pin's handler. No-op if not registered. */
+        public void unwatch() {
+            chip.watches[n >> 3][n & 7] = null;
         }
     }
 }

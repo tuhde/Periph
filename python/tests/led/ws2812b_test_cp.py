@@ -1,5 +1,5 @@
 import _testconfig as cfg
-from periph.transport.neopixel_circuitpython import NeoPixelTransport
+from periph.connection.neopixel_circuitpython import NeoPixelConnection
 from periph.chips.led.ws2812b import WS2812BMinimal, WS2812BFull
 
 import busio
@@ -30,10 +30,10 @@ def check_eq(label, got, expected):
 
 
 spi = busio.SPI(cfg.SCK, MOSI=cfg.MOSI, MISO=cfg.MISO)
-transport = NeoPixelTransport(spi)
+connection = NeoPixelConnection(spi)
 
 # --- WS2812BMinimal ---
-strip = WS2812BMinimal(transport, 8)
+strip = WS2812BMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -42,7 +42,7 @@ strip.off()
 check_true('off() accepted', True)
 
 # --- WS2812BFull ---
-full = WS2812BFull(transport, 8)
+full = WS2812BFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 

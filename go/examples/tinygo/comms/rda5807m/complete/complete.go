@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/comms"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x10)          // Create I2C transport, (i2c, addr=0x10) → (*I2CTransport)
-	fm, err := comms.NewRda5807mFull(tr, 100.0, 8)      // Create RDA5807M driver, (transport, frequency_mhz=100.0, volume=8) → (*Rda5807mFull, error)
+	conn := connection.NewI2CConnection(i2c, 0x10, nil, nil)          // Create I2C connection, (i2c, addr=0x10) → (*I2CConnection)
+	fm, err := comms.NewRda5807mFull(conn, 100.0, 8)      // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*Rda5807mFull, error)
 	if err != nil {
 		panic(err)
 	}

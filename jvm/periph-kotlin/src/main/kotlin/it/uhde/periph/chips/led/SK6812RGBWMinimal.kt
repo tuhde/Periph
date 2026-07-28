@@ -1,11 +1,11 @@
 package it.uhde.periph.chips.led
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * SK6812RGBW addressable RGBW LED strip — minimal interface.
  *
- * Drives a chain of [n] SK6812RGBW pixels over a NeoPixel transport.
+ * Drives a chain of [n] SK6812RGBW pixels over a NeoPixel connection.
  * Maintains an internal GRBW buffer; [fill] writes all pixels and
  * transmits immediately. Each pixel has four channels: red, green,
  * blue, and white (dedicated white LED element).
@@ -13,11 +13,11 @@ import it.uhde.periph.transport.Transport
  * Use [SK6812RGBWFull] for per-pixel addressing, explicit frame control,
  * brightness scaling, and HSV fill.
  *
- * @param transport configured NeoPixel transport
+ * @param connection configured NeoPixel connection
  * @param n number of pixels in the strip (≥1)
  */
 open class SK6812RGBWMinimal(
-    protected val transport: Transport,
+    protected val connection: Connection,
     protected val n: Int
 ) {
     /** Internal pixel buffer in GRBW wire order (G, R, B, W per pixel). */
@@ -45,7 +45,7 @@ open class SK6812RGBWMinimal(
             buf[i * 4 + 2] = bc.toByte()
             buf[i * 4 + 3] = wc.toByte()
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     /**

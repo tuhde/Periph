@@ -3,7 +3,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
-#include "DHTxxTransportESPIDF.h"
+#include "DHTxxConnectionESPIDF.h"
 #include "DHT11.h"
 
 static const gpio_num_t DHT11_DATA_PIN = GPIO_NUM_4;
@@ -15,8 +15,8 @@ static const char* comfort(float h) {
 }
 
 extern "C" void app_main(void) {
-    DHTxxTransportESPIDF transport(DHT11_DATA_PIN);
-    DHT11Full dht(transport, 3);                                   // Create DHT11 driver, (transport, max_retries=3)
+    DHTxxConnectionESPIDF connection(DHT11_DATA_PIN);
+    DHT11Full dht(connection, 3);                                   // Create DHT11 driver, (connection, max_retries=3)
 
     // --- Indoor comfort monitor ---
     // Reads temperature and humidity every 5 seconds and prints a one-line

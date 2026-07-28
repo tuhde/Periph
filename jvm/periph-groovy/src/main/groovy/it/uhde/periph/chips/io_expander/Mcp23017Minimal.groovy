@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
@@ -23,7 +23,7 @@ import it.uhde.periph.transport.Transport
 @CompileStatic
 class Mcp23017Minimal {
 
-    protected final Transport transport
+    protected final Connection connection
     protected final int addr
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
@@ -47,11 +47,11 @@ class Mcp23017Minimal {
      * to {@code 0x7F} (pins 0–6 as inputs, pins 7 as outputs). Pull-ups are
      * disabled.
      *
-     * @param transport I²C transport bound to the device address
-     * @param addr      7-bit I²C address ({@code 0x20}–{@code 0x27})
+     * @param connection I²C connection bound to the device address
+     * @param addr       7-bit I²C address ({@code 0x20}–{@code 0x27})
      */
-    Mcp23017Minimal(Transport transport, int addr = 0x20) {
-        this.transport = transport
+    Mcp23017Minimal(Connection connection, int addr = 0x20) {
+        this.connection = connection
         this.addr     = addr
         writeReg(REG_OLATA,  0x00)
         writeReg(REG_OLATB,  0x00)
@@ -68,11 +68,11 @@ class Mcp23017Minimal {
     // -------------------------------------------------------------------------
 
     protected void writeReg(int reg, int value) {
-        transport.write([(byte) reg, (byte) (value & 0xFF)] as byte[])
+        connection.write([(byte) reg, (byte) (value & 0xFF)] as byte[])
     }
 
     protected int readReg(int reg) {
-        byte[] buf = transport.writeRead([(byte) reg] as byte[], 1)
+        byte[] buf = connection.writeRead([(byte) reg] as byte[], 1)
         return buf[0] & 0xFF
     }
 

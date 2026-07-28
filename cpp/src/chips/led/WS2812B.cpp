@@ -4,8 +4,8 @@
 
 // ── WS2812BMinimal ────────────────────────────────────────────────────────────
 
-WS2812BMinimal::WS2812BMinimal(Transport& transport, size_t n)
-    : _transport(transport), _n(n), _buf(new uint8_t[n * 3]())
+WS2812BMinimal::WS2812BMinimal(Connection& connection, size_t n)
+    : _connection(connection), _n(n), _buf(new uint8_t[n * 3]())
 {}
 
 WS2812BMinimal::~WS2812BMinimal() {
@@ -26,13 +26,13 @@ void WS2812BMinimal::off() {
 }
 
 void WS2812BMinimal::_send() {
-    _transport.write(_buf, _n * 3);
+    _connection.write(_buf, _n * 3);
 }
 
 // ── WS2812BFull ───────────────────────────────────────────────────────────────
 
-WS2812BFull::WS2812BFull(Transport& transport, size_t n)
-    : WS2812BMinimal(transport, n), _brightness(255)
+WS2812BFull::WS2812BFull(Connection& connection, size_t n)
+    : WS2812BMinimal(connection, n), _brightness(255)
 {}
 
 void WS2812BFull::set_pixel(size_t index, uint8_t r, uint8_t g, uint8_t b) {
@@ -44,14 +44,14 @@ void WS2812BFull::set_pixel(size_t index, uint8_t r, uint8_t g, uint8_t b) {
 
 void WS2812BFull::show() {
     if (_brightness == 255) {
-        _transport.write(_buf, _n * 3);
+        _connection.write(_buf, _n * 3);
         return;
     }
     uint8_t* scaled = new uint8_t[_n * 3];
     for (size_t i = 0; i < _n * 3; i++) {
         scaled[i] = (uint8_t)((uint16_t)_buf[i] * _brightness / 255u);
     }
-    _transport.write(scaled, _n * 3);
+    _connection.write(scaled, _n * 3);
     delete[] scaled;
 }
 

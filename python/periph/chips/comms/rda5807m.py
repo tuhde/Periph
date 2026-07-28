@@ -37,7 +37,7 @@ class RDA5807MMinimal:
     """RDA5807M single-chip FM stereo radio tuner — minimal interface.
 
     Tunes to a station, adjusts volume, mutes, and seeks the next station.
-    No configuration required beyond the transport.
+    No configuration required beyond the connection.
 
     Unlike most chips in this project, the RDA5807M has no register-pointer
     byte: writes always start at the fixed register 0x02 and reads always
@@ -47,7 +47,7 @@ class RDA5807MMinimal:
     anywhere else.
 
     Args:
-        transport: Configured I²C transport bound to address 0x10.
+        connection: Configured I²C connection bound to address 0x10.
         frequency_mhz: Initial frequency in MHz (default 100.0).
         volume: Initial volume, 0 (mute) to 15 (max) (default 8).
     """
@@ -92,8 +92,8 @@ class RDA5807MMinimal:
     _FM_TRUE = 0x0100
     _FM_READY = 0x0080
 
-    def __init__(self, transport, frequency_mhz=100.0, volume=8):
-        self._transport = transport
+    def __init__(self, connection, frequency_mhz=100.0, volume=8):
+        self._connection = connection
         self._band = self.BAND_WORLD
         self._space = self.SPACE_100K
         self._east_europe_50m = False
@@ -113,10 +113,10 @@ class RDA5807MMinimal:
         self._regs[1] &= ~self._TUNE
 
     def _write_regs(self):
-        self._transport.write(struct.pack('>6H', *self._regs))
+        self._connection.write(struct.pack('>6H', *self._regs))
 
     def _read_status(self, n=2):
-        return struct.unpack('>{}H'.format(n // 2), self._transport.read(n))
+        return struct.unpack('>{}H'.format(n // 2), self._connection.read(n))
 
     def _wait_stc(self):
         elapsed = 0.0
@@ -205,7 +205,7 @@ class RDA5807MFull(RDA5807MMinimal):
     configuration, RDS, status, and power management.
 
     Args:
-        transport: Configured I²C transport bound to address 0x10.
+        connection: Configured I²C connection bound to address 0x10.
         frequency_mhz: Initial frequency in MHz (default 100.0).
         volume: Initial volume, 0 (mute) to 15 (max) (default 8).
     """

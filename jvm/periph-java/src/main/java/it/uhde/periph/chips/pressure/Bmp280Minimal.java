@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -33,7 +33,7 @@ public class Bmp280Minimal {
     protected static final int CHIP_ID      = 0x58;
     protected static final int CHIP_ID_BME280 = 0x60;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     // Calibration coefficients
     protected int digT1;   // uint16
@@ -61,26 +61,26 @@ public class Bmp280Minimal {
      * Construct the driver at the default address (0x76), verify the chip ID,
      * and load calibration data.
      *
-     * @param transport I²C transport bound to address 0x76
+     * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp280Minimal(Transport transport) throws IOException {
-        this(transport, 0x76);
+    public Bmp280Minimal(Connection connection) throws IOException {
+        this(connection, 0x76);
     }
 
     /**
      * Construct the driver at the given address, verify the chip ID, and load
      * calibration data.
      *
-     * @param transport I²C transport bound to the given address
+     * @param connection I²C connection bound to the given address
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp280Minimal(Transport transport, int addr) throws IOException {
-        this.transport = transport;
+    public Bmp280Minimal(Connection connection, int addr) throws IOException {
+        this.connection = connection;
 
         // Verify chip ID
-        byte[] id = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
         int chipId = id[0] & 0xFF;
         if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw new IOException(
@@ -100,7 +100,7 @@ public class Bmp280Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() throws IOException {
-        byte[] cal = transport.writeRead(new byte[]{(byte) REG_CALIB}, 24);
+        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CALIB}, 24);
         ByteBuffer buf = ByteBuffer.wrap(cal).order(ByteOrder.LITTLE_ENDIAN);
 
         digT1 = buf.getShort() & 0xFFFF;   // uint16
@@ -129,9 +129,9 @@ public class Bmp280Minimal {
      */
     protected byte[] readRawData() throws IOException {
         // Write forced mode — bits [1:0] = 01
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)});
         try { Thread.sleep(7); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        return transport.writeRead(new byte[]{(byte) REG_DATA}, 6);
+        return connection.writeRead(new byte[]{(byte) REG_DATA}, 6);
     }
 
     /**

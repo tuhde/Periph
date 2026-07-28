@@ -11,7 +11,7 @@ Implementations:
 - **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
-- **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); transports in Java (shared by all three); drivers in Java, Kotlin, and Groovy
+- **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); connections in Java (shared by all three); drivers in Java, Kotlin, and Groovy
 - **Go** — two targets: Linux host (standard `go build`, raw syscalls via `golang.org/x/sys/unix`, no cgo) and TinyGo (`tinygo build`, bare-metal embedded via the `machine` package; hardware-in-loop tests pinned to a Raspberry Pi Pico W)
 
 ## Workflow
@@ -64,7 +64,7 @@ Every chip driver is implemented in two stages:
 
 | Stage | Goal | Class relationship |
 |-------|------|--------------------|
-| **Minimal** | Primary use case only; works out of the box with sensible defaults; no configuration required beyond the transport | Base class |
+| **Minimal** | Primary use case only; works out of the box with sensible defaults; no configuration required beyond the connection | Base class |
 | **Full** | Complete chip functionality | Extends Minimal |
 
 The Full class inherits Minimal and adds the rest — it never duplicates. Specs define both APIs explicitly, including which register defaults are baked into Minimal.
@@ -80,7 +80,7 @@ datasheets/
   <category>/           # Mirrors specs/ category structure
 python/
   periph/
-    transport/          # Abstract base + platform transports (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py)
+    connection/         # Connection base + platform bus implementations (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py), plus InputPin/OutputPin
     chips/
       <category>/       # One module per chip, grouped by category
   examples/
@@ -89,7 +89,7 @@ python/
   tests/
 cpp/
   src/
-    transport/          # Pure virtual Transport interface + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants)
+    connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants), plus InputPin/OutputPin
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
@@ -129,7 +129,7 @@ nodejs/
   packages/
     periph/             # Single plain JS driver package (name: "periph")
       src/
-        transport/      # I2C, SPI, NeoPixel transport wrappers
+        connection/     # I2C, SPI, NeoPixel connection implementations, plus InputPin/OutputPin
         chips/
           <category>/   # One module per chip, grouped by category
       examples/
@@ -148,7 +148,7 @@ rust/
   Cargo.toml            # Workspace root (library crate + Linux examples/tests; ESP32-S3 test excluded)
   periph/
     src/
-      transport/        # embedded-hal transport wrappers (neopixel, etc.)
+      connection/       # Connection<BUS> wrapper (generic over embedded-hal I2C/SPI) + periph-owned custom-protocol connections (neopixel, etc.)
       chips/
         <category>/     # One module per chip; no_std, generic over embedded-hal traits
   examples/
@@ -171,15 +171,15 @@ rust/
       <chip>_test_esp32s3/  # ESP32-S3 smoke test (excluded from workspace)
 jvm/
   pom.xml               # Parent POM: groupId=it.uhde, artifactId=periph, multi-module
-  periph-transport/     # Java-only transport library (JPMS module: it.uhde.periph.transport)
+  periph-connection/    # Java-only connection library (JPMS module: it.uhde.periph.connection)
     src/main/java/
-      module-info.java          # exports it.uhde.periph.transport
-      it/uhde/periph/transport/ # Transport interface + Linux i2c-dev implementations (FFM)
+      module-info.java          # exports it.uhde.periph.connection
+      it/uhde/periph/connection/ # Connection interface + Linux i2c-dev implementations (FFM), plus InputPin/OutputPin
     pom.xml
   periph-java/          # Java chip drivers (JPMS module: it.uhde.periph)
     src/
       main/java/
-        module-info.java        # exports it.uhde.periph.chips.*; requires it.uhde.periph.transport
+        module-info.java        # exports it.uhde.periph.chips.*; requires it.uhde.periph.connection
         it/uhde/periph/chips/
           <category>/   # One class per chip, grouped by category
       test/java/
@@ -214,7 +214,7 @@ jvm/
 go/
   go.mod                # Module github.com/tuhde/Periph/go
   periph/
-    transport/          # Transport interface + <transport>_linux.go / <transport>_tinygo.go pairs, selected by build tags
+    connection/         # Connection interface + <protocol>_linux.go / <protocol>_tinygo.go pairs, selected by build tags, plus InputPin/OutputPin
     chips/
       <category>/       # One file per chip, grouped by category; package name drops underscores (adc_dac/ -> package adcdac)
   examples/
@@ -242,7 +242,7 @@ sigrok/
     <chip>/             # Captured .sr session for manual verification
 ```
 
-Each chip driver depends only on the transport abstraction, never on a concrete bus.
+Each chip driver depends only on the `Connection` abstraction, never on a concrete bus implementation.
 
 The `adc_dac` directory maps to the package name `node-red-contrib-periph-adc-dac` (underscore → hyphen).
 

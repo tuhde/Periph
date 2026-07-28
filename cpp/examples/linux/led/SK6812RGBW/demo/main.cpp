@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <unistd.h>
-#include "NeoPixelTransportLinux.h"
+#include "NeoPixelConnectionLinux.h"
 #include "SK6812RGBW.h"
 
 int main() {
-    NeoPixelTransportLinux transport(0, 0);
-    SK6812RGBWFull strip(transport, 30);                                   // Create SK6812RGBW full driver, (transport, n=30 pixels)
+    NeoPixelConnectionLinux connection(0, 0);
+    SK6812RGBWFull strip(connection, 30);                                   // Create SK6812RGBW full driver, (connection, n=30 pixels)
 
     // --- Warm-white breathing effect using W channel ---
     strip.set_brightness(255);                                             // Set global brightness 0–255, (brightness) → void

@@ -16,7 +16,7 @@ add_executable(bmp180_demo_picosdk
 )
 
 target_include_directories(bmp180_demo_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/pressure
 )
 

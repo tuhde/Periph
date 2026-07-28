@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,18 +28,18 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	magFactory := func(a uint8) (transport.Transport, error) {
-		return transport.NewI2CTransport(bus, a)
+	magFactory := func(a uint8) (connection.Connection, error) {
+		return connection.NewI2CConnection(bus, a, nil, nil)
 	}
 
-	chip, err := imu.NewMPU9250Full(tr, magFactory)
+	chip, err := imu.NewMPU9250Full(conn, magFactory)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)

@@ -12,7 +12,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,8 +27,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x20)
-	chip, err := ioexpander.NewMCP23017Minimal(tr, 0x20)
+	conn := connection.NewI2CConnection(i2c, 0x20, nil, nil)
+	chip, err := ioexpander.NewMCP23017Minimal(conn, 0x20)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
@@ -70,8 +70,8 @@ func main() {
 	check("pin_set_get", true)
 
 	// --- MCP23017Full ---
-	tr2 := transport.NewI2CTransport(i2c, 0x20)
-	full, err := ioexpander.NewMCP23017Full(tr2, 0x20)
+	conn2 := connection.NewI2CConnection(i2c, 0x20, nil, nil)
+	full, err := ioexpander.NewMCP23017Full(conn2, 0x20)
 	if err != nil {
 		fmt.Printf("FAIL new full: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
@@ -86,8 +86,24 @@ func main() {
 	}
 	check("full_configure", true)
 
-	flags, err := full.ReadInterruptFlags(0)
-	check("read_interrupt_flags", err == nil && flags <= 0xFF)
+	captured, err := full.ReadCapture(0)
+	check("read_capture", err == nil && captured <= 0xFF)
+	changed, err := full.PollInterrupt(0)
+	check("poll_interrupt", err == nil && changed <= 0xFF)
+
+	// --- OnInterruptPort / OffInterruptPort / per-pin Watch / Unwatch ---
+	if err := full.OnInterruptPort(0, func(status uint8) {}); err != nil {
+		fmt.Printf("FAIL on_interrupt_port: %v\n", err)
+	}
+	fp1 := full.Pin(1)
+	if err := fp1.Watch(connection.Change, func(pin ioexpander.MCP23017FullPin) {}); err != nil {
+		fmt.Printf("FAIL watch: %v\n", err)
+	}
+	_ = fp1.Unwatch()
+	if err := full.OffInterruptPort(0); err != nil {
+		fmt.Printf("FAIL off_interrupt_port: %v\n", err)
+	}
+	check("on_off_interrupt_port_and_watch_accepted", true)
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
 }

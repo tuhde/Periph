@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.led
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * SK6812RGBW full interface — extends [SK6812RGBWMinimal] with per-pixel control.
@@ -14,10 +14,10 @@ import it.uhde.periph.transport.Transport
  * Brightness is stored separately and applied non-destructively at [show]
  * time: `sent = stored × brightness / 255`.
  *
- * @param transport configured NeoPixel transport
+ * @param connection configured NeoPixel connection
  * @param n number of pixels in the strip (≥1)
  */
-class SK6812RGBWFull(transport: Transport, n: Int) : SK6812RGBWMinimal(transport, n) {
+class SK6812RGBWFull(connection: Connection, n: Int) : SK6812RGBWMinimal(connection, n) {
 
     /**
      * Global brightness scalar applied at [show] time (0–255).
@@ -71,12 +71,12 @@ class SK6812RGBWFull(transport: Transport, n: Int) : SK6812RGBWMinimal(transport
      */
     fun show() {
         if (brightness == 255) {
-            transport.write(buf)
+            connection.write(buf)
         } else {
             val scaled = ByteArray(buf.size) { i ->
                 ((buf[i].toInt() and 0xFF) * brightness / 255).toByte()
             }
-            transport.write(scaled)
+            connection.write(scaled)
         }
     }
 

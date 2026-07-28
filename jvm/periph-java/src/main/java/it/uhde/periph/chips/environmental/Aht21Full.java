@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -14,11 +14,11 @@ public class Aht21Full extends Aht21Minimal {
     /**
      * Construct the full driver and perform power-on initialization.
      *
-     * @param transport I²C transport bound to the AHT21 device address (0x38)
+     * @param connection I²C connection bound to the AHT21 device address (0x38)
      * @throws IOException on I²C error
      */
-    public Aht21Full(Transport transport) throws IOException {
-        super(transport);
+    public Aht21Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -51,9 +51,9 @@ public class Aht21Full extends Aht21Minimal {
      * @throws IOException on I²C error
      */
     public double[] readWithCrc() throws IOException {
-        transport.write(CMD_TRIGGER);
+        connection.write(CMD_TRIGGER);
         sleep(80);
-        byte[] data = transport.read(7);
+        byte[] data = connection.read(7);
         double[] result = decode(data);
         boolean crcOk = crc8(data, 6) == (data[6] & 0xFF);
         return new double[]{ result[0], result[1], crcOk ? 1.0 : 0.0 };
@@ -65,7 +65,7 @@ public class Aht21Full extends Aht21Minimal {
      * @throws IOException on I²C error
      */
     public void softReset() throws IOException {
-        transport.write(CMD_SOFT_RESET);
+        connection.write(CMD_SOFT_RESET);
         sleep(20);
     }
 

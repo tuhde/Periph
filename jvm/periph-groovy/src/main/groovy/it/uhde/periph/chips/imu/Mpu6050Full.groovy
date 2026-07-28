@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import groovy.transform.CompileStatic
 
 /**
@@ -10,8 +10,8 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Mpu6050Full extends Mpu6050Minimal {
 
-    Mpu6050Full(Transport transport) {
-        super(transport)
+    Mpu6050Full(Connection connection) {
+        super(connection)
     }
 
     /**
@@ -68,7 +68,7 @@ class Mpu6050Full extends Mpu6050Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] accelRaw() {
-        byte[] buf = transport.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
+        byte[] buf = connection.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -82,7 +82,7 @@ class Mpu6050Full extends Mpu6050Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] gyroRaw() {
-        byte[] buf = transport.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
+        byte[] buf = connection.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -130,7 +130,7 @@ class Mpu6050Full extends Mpu6050Minimal {
      * @return FIFO byte count (0–1024).
      */
     int fifoCount() {
-        byte[] buf = transport.writeRead([(byte) REG_FIFO_COUNTH] as byte[], 2)
+        byte[] buf = connection.writeRead([(byte) REG_FIFO_COUNTH] as byte[], 2)
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF)
     }
 
@@ -142,7 +142,7 @@ class Mpu6050Full extends Mpu6050Minimal {
     byte[] readFifo() {
         int count = fifoCount()
         if (count == 0) return new byte[0]
-        return transport.writeRead([(byte) REG_FIFO_R_W] as byte[], count)
+        return connection.writeRead([(byte) REG_FIFO_R_W] as byte[], count)
     }
 
     /**

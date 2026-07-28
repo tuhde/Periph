@@ -1,4 +1,4 @@
-#include "HX711Transport.h"
+#include "HX711Connection.h"
 #include "HX711.h"
 
 // Kitchen scale demo: tare at startup, then print weight continuously.
@@ -7,8 +7,8 @@
 // weight W grams; (3) SCALE_FACTOR = (read_average() - get_offset()) / W.
 static const float SCALE_FACTOR = 420.0f;
 
-HX711Transport transport(5, 6);
-HX711Full<HX711Transport> chip(transport);
+HX711Connection connection(5, 6);
+HX711Full<HX711Connection> chip(connection);
 
 static float prev_weight = -999999.0f;
 

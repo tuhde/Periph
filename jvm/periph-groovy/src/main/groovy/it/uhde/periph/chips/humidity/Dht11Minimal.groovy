@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.transport.DHTxxTransport
+import it.uhde.periph.connection.DHTxxConnection
 
 /**
  * DHT11 — combined temperature and humidity sensor (minimal driver).
  *
  * Reads a 40-bit frame (humidity integer + decimal, temperature integer +
- * decimal, checksum) over the DHTxx single-wire transport. The driver is
- * responsible for checksum validation and data conversion; the transport
+ * decimal, checksum) over the DHTxx single-wire connection. The driver is
+ * responsible for checksum validation and data conversion; the connection
  * handles all GPIO direction switching, timing, and bit decoding.
  *
  * Default configuration (baked in at construction):
@@ -21,10 +21,10 @@ class Dht11Minimal {
         Dht11Exception(String detail) { super(detail) }
     }
 
-    protected final DHTxxTransport transport
+    protected final DHTxxConnection connection
 
-    Dht11Minimal(DHTxxTransport transport) {
-        this.transport = transport
+    Dht11Minimal(DHTxxConnection connection) {
+        this.connection = connection
     }
 
     /**
@@ -57,7 +57,7 @@ class Dht11Minimal {
      * @throws Dht11Exception on checksum mismatch.
      */
     double[] read() throws Exception {
-        byte[] frame = transport.read()
+        byte[] frame = connection.read()
         return decode(frame)
     }
 }

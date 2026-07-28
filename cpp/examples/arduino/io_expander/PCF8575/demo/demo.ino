@@ -1,9 +1,11 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
+#include "InputPinArduino.h"
 #include "PCF8575.h"
 
-I2CTransport transport(Wire, 0x20);                            // Create I2C transport, (wire, addr=0x20)
-PCF8575Full chip(transport);                                   // Create PCF8575 full driver, (transport, addr=0x20)
+InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
+I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)
+PCF8575Full chip(connection);                                   // Create PCF8575 full driver, (connection, addr=0x20)
 
 void setup() {
     Serial.begin(115200);
@@ -12,9 +14,9 @@ void setup() {
     chip.write_port(0, 0xFF);                                   // Write Port 0, (port=0, mask=uint8_t) → void
     chip.write_port(1, 0xFF);                                   // Write Port 1, (port=1, mask=uint8_t) → void
 
-    chip.configure_interrupt(5, [](uint8_t changed) {
+    chip.onInterrupt([](uint16_t changed) {
         (void)changed;
-    });                                                          // Attach interrupt, (int_gpio_pin, callback) → void
+    });                                                          // Subscribe to INT line, (callback) → void
 }
 
 void loop() {

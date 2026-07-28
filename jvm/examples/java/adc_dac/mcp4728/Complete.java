@@ -1,18 +1,18 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.adc_dac.Mcp4728Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
-        try (var transport   = new I2CTransport(1, 0x60);         // open device transport, (bus, address) → I2CTransport
-             var gcTransport = new I2CTransport(1, 0x00)) {     // open general call transport, (bus, address=0x00) → I2CTransport
+        try (var connection   = new I2CConnection(1, 0x60);         // open device connection, (bus, address) → I2CConnection
+             var gcConnection = new I2CConnection(1, 0x00)) {     // open general call connection, (bus, address=0x00) → I2CConnection
 
-            var dac = new Mcp4728Full(transport, gcTransport);            // construct driver, (transport, generalCall) → Mcp4728Full
+            var dac = new Mcp4728Full(connection, gcConnection);            // construct driver, (connection, generalCall) → Mcp4728Full
 
             dac.setVoltage(0, 0.5);                                        // set channel A as fraction of V_DD, (channel=0–3, fraction=0.0–1.0) → void
                                                                             // Multi-Write, V_REF=external, gain=×1, PD=00

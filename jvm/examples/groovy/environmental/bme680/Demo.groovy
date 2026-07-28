@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Bme680Full
 
 /**
@@ -22,9 +22,9 @@ final int    VOC_TICK    = 30
 
 def bus  = (System.getenv("I2C_BUS")  ?: "1").toInteger()
 def addr = Integer.decode(System.getenv("I2C_ADDR") ?: "0x76")
-def transport = new I2CTransport(bus, addr)          // open I²C bus, (bus, address=0x76) → I2CTransport
+def connection = new I2CConnection(bus, addr)          // open I²C bus, (bus, address=0x76) → I2CConnection
 try {
-    def sensor = new Bme680Full(transport)                  // construct driver, verifies chip ID, reads calibration, (transport) → Bme680Full
+    def sensor = new Bme680Full(connection)                  // construct driver, verifies chip ID, reads calibration, (connection) → Bme680Full
 
     // --- Configure for room air quality monitoring ---
     // ×4 oversampling on temperature and pressure gives good SNR for
@@ -125,5 +125,5 @@ try {
     }
 
 } finally {
-    transport.close()
+    connection.close()
 }

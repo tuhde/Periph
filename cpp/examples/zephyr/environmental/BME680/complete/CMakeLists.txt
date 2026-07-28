@@ -9,6 +9,6 @@ target_sources(app PRIVATE
     ${CPP_DIR}/src/chips/environmental/BME680.cpp
 )
 target_include_directories(app PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/environmental
 )

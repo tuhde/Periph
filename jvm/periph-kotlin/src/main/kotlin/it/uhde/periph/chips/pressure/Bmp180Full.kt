@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -14,7 +14,7 @@ import java.io.IOException
  * ## Altitude formula
  * `altitude_m = 44330.0 × (1.0 − (pressure_hPa / seaLevelHpa)^(1/5.255))`
  */
-class Bmp180Full(transport: Transport) : Bmp180Minimal(transport) {
+class Bmp180Full(connection: Connection) : Bmp180Minimal(connection) {
 
     companion object {
         /** Ultra-low-power mode: OSS = 0 (1 sample, ~4.5 ms, 3 µA RMS). */
@@ -92,7 +92,7 @@ class Bmp180Full(transport: Transport) : Bmp180Minimal(transport) {
      * @throws IOException on I²C error
      */
     fun chipId(): Int {
-        val b = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -105,7 +105,7 @@ class Bmp180Full(transport: Transport) : Bmp180Minimal(transport) {
      * @throws IOException on I²C error or invalid calibration after reset
      */
     fun reset() {
-        transport.write(byteArrayOf(REG_SOFT_RST.toByte(), 0xB6.toByte()))
+        connection.write(byteArrayOf(REG_SOFT_RST.toByte(), 0xB6.toByte()))
         Thread.sleep(15)
         readCalibration()
     }

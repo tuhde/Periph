@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Full
 import kotlin.math.abs
 
@@ -21,8 +21,8 @@ private const val SAMPLES     = 60
 private const val INTERVAL_MS = 1000L
 
 fun main() {
-    I2CTransport(1, 0x77).use { transport ->            // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CTransport
-        val sensor = Bmp180Full(transport)                     // construct driver, verifies chip ID, reads calibration, (transport) → Bmp180Full
+    I2CConnection(1, 0x77).use { connection ->            // open I²C bus 1, device 0x77 (fixed address), (bus, address=0x77) → I2CConnection
+        val sensor = Bmp180Full(connection)                     // construct driver, verifies chip ID, reads calibration, (connection) → Bmp180Full
 
         // --- Configure for low-power continuous monitoring ---
         // ULP mode (OSS = 0) minimises power draw (~3 µA RMS) and conversion time

@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp180Full::new(i2c, 0x77, OSS_ULP).expect("init BMP180"); // Create BMP180 driver, (transport, oss=0 ULP)
+    let mut bmp = Bmp180Full::new(i2c, 0x77, OSS_ULP).expect("init BMP180"); // Create BMP180 driver, (connection, oss=0 ULP)
 
     let t0 = bmp.temperature().expect("read temperature");                   // Read temperature, () → f32 C
     let p0 = bmp.pressure().expect("read pressure");                        // Read pressure, () → f32 hPa

@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for WS2812B (Complete).
 // Mirrors the Arduino WS2812B_Complete example using the
-// NeoPixelTransportESPIDF transport.
+// NeoPixelConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
-#include "NeoPixelTransportESPIDF.h"
+#include "NeoPixelConnectionESPIDF.h"
 #include "WS2812B.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     spi_device_handle_t spi_dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &spi_dev);
 
-    NeoPixelTransportESPIDF transport(spi_dev);
-    WS2812BFull chip(transport, 8);  // Create WS2812B driver
+    NeoPixelConnectionESPIDF connection(spi_dev);
+    WS2812BFull chip(connection, 8);  // Create WS2812B driver
     chip.set_pixel(0, 255, 0, 0);                     // Set one pixel, (index, r, g, b) → void
     chip.set_pixel(1, 0, 255, 0);                     // Set one pixel, (index, r, g, b) → void
     chip.set_pixel(2, 0, 0, 255);                     // Set one pixel, (index, r, g, b) → void

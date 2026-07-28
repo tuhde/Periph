@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "Mpu6050.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MPU6050Full inst(transport);  // Create Mpu6050 driver
+    I2CConnectionESPIDF connection(dev);
+    MPU6050Full inst(connection);  // Create Mpu6050 driver
     check_eq_u8(inst.who_am_i(), 0x68, "who_am_i 0x68");
     float ax, ay, az, gx, gy, gz;
     inst.accel(ax, ay, az);

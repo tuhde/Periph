@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.gnss.neo6 import NEO6Minimal
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
@@ -24,8 +24,8 @@ def check_true(label, condition):
 # Requires a NEO-6 module wired to I2C (DDC) with a clear sky view. Achieving
 # an actual fix needs an outdoor antenna and can take up to ~26 s (cold
 # start); this test only requires that well-typed values come back.
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-gps = NEO6Minimal(transport, bus_type='i2c')
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+gps = NEO6Minimal(connection, bus_type='i2c')
 
 check_true('fix() starts at 0', gps.fix() == 0)
 check_true('latitude() starts at None', gps.latitude() is None)
@@ -42,7 +42,7 @@ if gps.fix() > 0:
 else:
     print('note: no fix acquired during the test window (needs sky view)')
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

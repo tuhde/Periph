@@ -16,7 +16,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/humidity"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -38,22 +38,22 @@ func main() {
 	}
 
 	// Smoke test: open the line and construct the driver. The
-	// transport requires the line to be free; if the chip is not
+	// connection requires the line to be free; if the chip is not
 	// wired we still want to verify the API links and the decode
 	// logic compiles.
-	tr, trErr := transport.NewDHTxxTransport(line, -1)
+	conn, trErr := connection.NewDHTxxConnection(line, -1, nil)
 	if trErr != nil {
-		fmt.Fprintln(os.Stderr, "transport open failed (no hw?):", trErr)
+		fmt.Fprintln(os.Stderr, "connection open failed (no hw?):", trErr)
 	} else {
-		defer tr.Close()
+		defer conn.Close()
 	}
 
 	if trErr == nil {
-		dht, err := humidity.NewDHT11Minimal(tr)
+		dht, err := humidity.NewDHT11Minimal(conn)
 		check("dht11_minimal_construct", err == nil && dht != nil)
 		_ = dht.IsReady()
 
-		dhtFull, err := humidity.NewDHT11Full(tr)
+		dhtFull, err := humidity.NewDHT11Full(conn)
 		check("dht11_full_construct", err == nil && dhtFull != nil)
 		_, _, _ = dhtFull.ReadRetry(1)
 	} else {
@@ -67,8 +67,8 @@ func main() {
 		expected := byte((uint16(frame[0]) + uint16(frame[1]) + uint16(frame[2]) + uint16(frame[3])) & 0xFF)
 		check("datasheet_checksum_valid", expected == frame[4])
 
-		// Use the public ReadRaw path with a fake transport would
-		// require a transport mock. Instead replicate the decode
+		// Use the public ReadRaw path with a fake connection would
+		// require a connection mock. Instead replicate the decode
 		// inline to verify the algorithm.
 		sign := float32(1)
 		if frame[3]&0x80 != 0 {

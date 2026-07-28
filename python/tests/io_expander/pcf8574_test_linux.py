@@ -5,7 +5,7 @@ Uses environment variables:
     I2C_ADDR (default 0x20)
 """
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.io_expander.pcf8574 import Pcf8574Minimal, Pcf8574Full
 
 passed = 0
@@ -35,8 +35,8 @@ def check_eq(label, got, expected):
 bus  = int(os.environ.get('I2C_BUS',  '1'))
 addr = int(os.environ.get('I2C_ADDR', '0x20'), 16)
 
-transport = I2CTransport(bus, addr)
-chip = Pcf8574Minimal(transport)
+connection = I2CConnection(bus, addr)
+chip = Pcf8574Minimal(connection)
 
 check_eq('init_shadow', chip._shadow, 0xFF)
 
@@ -68,9 +68,9 @@ chip.write_port(mask=0xFF)
 check_true('read_all_input', 0 <= chip.read_port() <= 0xFF)
 
 # Full: polling-thread interrupt (int_pin=None on Linux)
-full = Pcf8574Full(transport)
-changed = full.clear_interrupt()
-check_true('clear_interrupt_range', 0 <= changed <= 0xFF)
+full = Pcf8574Full(connection)
+changed = full.poll_interrupt()
+check_true('poll_interrupt_range', 0 <= changed <= 0xFF)
 
 # Verify polling thread starts and stops cleanly
 results = []
@@ -78,7 +78,7 @@ results = []
 def _cb(mask):
     results.append(mask)
 
-full.configure_interrupt(None, _cb)
+full.on_interrupt(_cb)
 check_true('poll_thread_running', full._poll_thread is not None and full._poll_thread.is_alive())
 full._poll_stop = True
 full._poll_thread.join(timeout=0.1)

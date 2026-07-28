@@ -1,4 +1,4 @@
-#include "HX711Transport.h"
+#include "HX711Connection.h"
 #include "HX711.h"
 
 #ifndef TEST_DOUT_PIN
@@ -8,8 +8,8 @@
 #define TEST_PD_SCK_PIN 6
 #endif
 
-HX711Transport transport(TEST_DOUT_PIN, TEST_PD_SCK_PIN);
-HX711Full<HX711Transport> chip(transport);
+HX711Connection connection(TEST_DOUT_PIN, TEST_PD_SCK_PIN);
+HX711Full<HX711Connection> chip(connection);
 
 static int passed = 0;
 static int failed = 0;

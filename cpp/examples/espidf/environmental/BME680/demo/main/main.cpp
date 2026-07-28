@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for BME680 (Demo).
 // Mirrors the Arduino BME680_Demo example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "BME680.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    BME680Full chip(transport);  // Create BME680 driver
+    I2CConnectionESPIDF connection(dev);
+    BME680Full chip(connection);  // Create BME680 driver
     float t, p, h, g;
     uint8_t cid;
     // --- Log T/P/H/gas with the heater on ---

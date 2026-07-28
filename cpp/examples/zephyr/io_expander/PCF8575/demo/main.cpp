@@ -1,13 +1,13 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8575.h"
 
 int main() {
     const struct device* i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 
-    I2CTransportZephyr transport(i2c_dev, 0x20);                 // Create I2C transport, (dev, addr=0x20)
-    PCF8575Full chip(transport);                                  // Create PCF8575 full driver, (transport, addr=0x20)
+    I2CConnectionZephyr connection(i2c_dev, 0x20);                 // Create I2C connection, (dev, addr=0x20)
+    PCF8575Full chip(connection);                                  // Create PCF8575 full driver, (connection, addr=0x20)
 
     chip.write_port(0, 0xFF);                                    // Write Port 0, (port=0, mask=uint8_t) → void
     chip.write_port(1, 0xFF);                                    // Write Port 1, (port=1, mask=uint8_t) → void

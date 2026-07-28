@@ -475,6 +475,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "hx711_connection_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "hx711_demo"
 version = "0.1.0"
 dependencies = [
@@ -496,16 +506,6 @@ dependencies = [
 
 [[package]]
 name = "hx711_test"
-version = "0.1.0"
-dependencies = [
- "embedded-hal",
- "gpio-cdev",
- "linux-embedded-hal",
- "periph",
-]
-
-[[package]]
-name = "hx711_transport_test"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",

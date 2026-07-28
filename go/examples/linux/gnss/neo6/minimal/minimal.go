@@ -2,7 +2,7 @@
 
 // NEO-6 minimal example — Linux host.
 //
-// Constructs the driver with an I2C (DDC) transport at address 0x42,
+// Constructs the driver with an I2C (DDC) connection at address 0x42,
 // then loops reading NMEA sentences and printing the current GGA
 // position. The DDC bus requires polling at least once per second to
 // avoid the module's 2-second idle timeout dropping buffered output.
@@ -17,19 +17,19 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // On UART, this example would look like:
 //
-//	import "github.com/tuhde/Periph/go/periph/transport"
+//	import "github.com/tuhde/Periph/go/periph/connection"
 //	import "os"
-//	port, _ := transport.NewUARTTransport("/dev/ttyAMA0", 9600)
+//	port, _ := connection.NewUARTConnection("/dev/ttyAMA0", 9600, nil, nil)
 //	chip := gnss.NewNEO6Minimal(port, "uart")
 //
 // On SPI:
 //
-//	bus, _ := transport.NewSPITransport("/dev/spidev0.0", 0, 10_000_000)
+//	bus, _ := connection.NewSPIConnection("/dev/spidev0.0", 0, 10_000_000, nil, nil)
 //	chip := gnss.NewNEO6Minimal(bus, "spi")
 
 func main() {
@@ -42,13 +42,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x42) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x42) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip := gnss.NewNEO6Minimal(tr, "i2c") // Create NEO-6 driver, (transport, bus_type="i2c") → *NEO6Minimal
+	chip := gnss.NewNEO6Minimal(conn, "i2c") // Create NEO-6 driver, (connection, bus_type="i2c") → *NEO6Minimal
 
 	for {
 		_, err := chip.Update() // Read and parse one NMEA sentence, () → (bool, error)

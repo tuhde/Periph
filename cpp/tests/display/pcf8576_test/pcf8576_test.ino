@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/display/PCF8576.h"
 
 static int passed = 0, failed = 0;
@@ -24,9 +24,9 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    PCF8576Minimal lcd(transport);
-    PCF8576Full lcd_full(transport);
+    I2CConnection connection(Wire, TEST_ADDR);
+    PCF8576Minimal lcd(connection);
+    PCF8576Full lcd_full(connection);
 
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_OFF | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x40, "mode_set_off");
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x48, "mode_set_on");

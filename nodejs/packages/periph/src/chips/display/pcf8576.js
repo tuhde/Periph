@@ -35,11 +35,11 @@ const _SEVEN_SEG = [
  * Default: 1:4 multiplex drive mode, 1/3 bias, display enabled, and a
  * 7-segment digit lookup table for the default multiplex mode.
  *
- * @param {object} transport - Configured I2C transport pointing at the device.
+ * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device.
  */
 class PCF8576Minimal {
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
         this._backplanes = 4;
         this._clear();
     }
@@ -48,31 +48,32 @@ class PCF8576Minimal {
         return _CMD_MODE_SET | (enable ? _DISPLAY_ON : _DISPLAY_OFF) | bias | mode;
     }
 
-    _sendCommands(cmds) {
+    async _sendCommands(cmds) {
         const out = [];
         for (let i = 0; i < cmds.length - 1; i++) {
             out.push(0x80 | (cmds[i] & 0x7F));
         }
         out.push(cmds[cmds.length - 1] & 0x7F);
-        this._transport.write(Buffer.from(out));
+        await this._conn.write(Buffer.from(out));
     }
 
-    _sendCommandsWithData(cmd, data) {
+    async _sendCommandsWithData(cmd, data) {
         const out = [cmd & 0x7F, ...data];
-        this._transport.write(Buffer.from(out));
+        await this._conn.write(Buffer.from(out));
     }
 
-    _clear() {
-        this._sendCommands([this._cmdMode(true, _BIAS_1_3, _MODE_1_4)]);
+    async _clear() {
+        await this._sendCommands([this._cmdMode(true, _BIAS_1_3, _MODE_1_4)]);
         const zeros = new Array(20).fill(0);
-        this._sendCommandsWithData(_CMD_LOAD_PTR, zeros);
+        await this._sendCommandsWithData(_CMD_LOAD_PTR, zeros);
     }
 
     /**
      * Zero all 40 columns of display RAM; all segments off.
+     * @returns {Promise<void>}
      */
-    clear() {
-        this._clear();
+    async clear() {
+        await this._clear();
     }
 
     /**
@@ -80,13 +81,14 @@ class PCF8576Minimal {
      *
      * @param {number} address - RAM column address, 0-39.
      * @param {Buffer|Uint8Array|number[]} data - Bytes to write to display RAM.
+     * @returns {Promise<void>}
      */
-    writeRaw(address, data) {
+    async writeRaw(address, data) {
         if (address < 0 || address > 39) {
             throw new RangeError('address must be in 0..39');
         }
         if (!data || data.length === 0) return;
-        this._sendCommandsWithData(_CMD_LOAD_PTR | (address & 0x3F), Array.from(data));
+        await this._sendCommandsWithData(_CMD_LOAD_PTR | (address & 0x3F), Array.from(data));
     }
 
     /**
@@ -95,12 +97,13 @@ class PCF8576Minimal {
      * @param {number} position - Digit index, 0-19. Maps to RAM address position * 2.
      * @param {number} segments - 7-segment byte (a/c/b/DP/f/e/g/d packed, MSB-first).
      *                           Add 0x10 to set the decimal point.
+     * @returns {Promise<void>}
      */
-    setDigit7seg(position, segments) {
+    async setDigit7seg(position, segments) {
         if (position < 0 || position > 19) {
             throw new RangeError('position must be in 0..19');
         }
-        this.writeRaw(position * 2, [segments & 0xFF]);
+        await this.writeRaw(position * 2, [segments & 0xFF]);
     }
 }
 
@@ -112,7 +115,7 @@ class PCF8576Minimal {
  * static and 1:2 multiplex use, and change the device subaddress counter
  * for cascaded displays.
  *
- * @param {object} transport - Configured I2C transport pointing at the device.
+ * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device.
  */
 class PCF8576Full extends PCF8576Minimal {
     static BLINK_OFF     = 0;
@@ -131,8 +134,8 @@ class PCF8576Full extends PCF8576Minimal {
     static BANK_0 = 0;
     static BANK_1 = 1;
 
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
         this._enabled = true;
         this._bias = PCF8576Full.BIAS_1_3;
     }
@@ -147,25 +150,27 @@ class PCF8576Full extends PCF8576Minimal {
         }
     }
 
-    _applyMode() {
+    async _applyMode() {
         const biasBits = (this._bias === PCF8576Full.BIAS_1_2) ? _BIAS_1_2 : _BIAS_1_3;
-        this._sendCommands([this._cmdMode(this._enabled, biasBits, this._modeCode(this._backplanes))]);
+        await this._sendCommands([this._cmdMode(this._enabled, biasBits, this._modeCode(this._backplanes))]);
     }
 
     /**
      * Turn the display on (E = 1). RAM contents are preserved.
+     * @returns {Promise<void>}
      */
-    enable() {
+    async enable() {
         this._enabled = true;
-        this._applyMode();
+        await this._applyMode();
     }
 
     /**
      * Blank the display output (E = 0). RAM contents are preserved.
+     * @returns {Promise<void>}
      */
-    disable() {
+    async disable() {
         this._enabled = false;
-        this._applyMode();
+        await this._applyMode();
     }
 
     /**
@@ -173,11 +178,12 @@ class PCF8576Full extends PCF8576Minimal {
      *
      * @param {number} backplanes - Number of backplanes: 1 (static), 2 (1:2), 3 (1:3), 4 (1:4).
      * @param {number} [bias=0] - 0 = 1/3 bias, 1 = 1/2 bias.
+     * @returns {Promise<void>}
      */
-    setMode(backplanes, bias = 0) {
+    async setMode(backplanes, bias = 0) {
         this._backplanes = backplanes;
         this._bias = bias;
-        this._applyMode();
+        await this._applyMode();
     }
 
     /**
@@ -185,13 +191,14 @@ class PCF8576Full extends PCF8576Minimal {
      *
      * @param {number} frequency - 0 = off, 1 = ~2 Hz, 2 = ~1 Hz, 3 = ~0.5 Hz.
      * @param {boolean} [alternateBank=false] - Alternate-RAM-bank blinking (static/1:2 only).
+     * @returns {Promise<void>}
      */
-    setBlink(frequency, alternateBank = false) {
+    async setBlink(frequency, alternateBank = false) {
         if (frequency < 0 || frequency > 3) {
             throw new RangeError('frequency must be in 0..3');
         }
         const ab = alternateBank ? 0x04 : 0x00;
-        this._sendCommands([_CMD_BLINK_SELECT | ab | (frequency & 0x03)]);
+        await this._sendCommands([_CMD_BLINK_SELECT | ab | (frequency & 0x03)]);
     }
 
     /**
@@ -199,21 +206,23 @@ class PCF8576Full extends PCF8576Minimal {
      *
      * @param {number} inputBank - 0 (rows 0-1) or 1 (rows 2-3).
      * @param {number} outputBank - 0 (rows 0-1) or 1 (rows 2-3).
+     * @returns {Promise<void>}
      */
-    setBank(inputBank, outputBank) {
-        this._sendCommands([_CMD_BANK_SELECT | ((inputBank & 1) << 1) | (outputBank & 1)]);
+    async setBank(inputBank, outputBank) {
+        await this._sendCommands([_CMD_BANK_SELECT | ((inputBank & 1) << 1) | (outputBank & 1)]);
     }
 
     /**
      * Change the subaddress counter for cascaded displays.
      *
      * @param {number} subaddress - 0-7; must match the A0/A1/A2 pin state.
+     * @returns {Promise<void>}
      */
-    deviceSelect(subaddress) {
+    async deviceSelect(subaddress) {
         if (subaddress < 0 || subaddress > 7) {
             throw new RangeError('subaddress must be in 0..7');
         }
-        this._sendCommands([_CMD_DEVICE_SELECT | (subaddress & 0x07)]);
+        await this._sendCommands([_CMD_DEVICE_SELECT | (subaddress & 0x07)]);
     }
 }
 

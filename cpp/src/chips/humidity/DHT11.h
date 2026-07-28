@@ -1,13 +1,13 @@
 #pragma once
 #include <stdint.h>
 
-class DHTxxTransport;
+class DHTxxConnection;
 
 /** @brief DHT11 combined temperature and humidity sensor — minimal interface.
  *
  *  The DHT11 returns a 40-bit reading (humidity integer + decimal,
  *  temperature integer + decimal, checksum) over a single bidirectional
- *  data line. The driver accepts a `DHTxxTransport` instance that handles
+ *  data line. The driver accepts a `DHTxxConnection` instance that handles
  *  the underlying single-wire protocol; this class is responsible only
  *  for validating the frame and converting it to engineering units.
  *
@@ -15,14 +15,14 @@ class DHTxxTransport;
  *      - Single read attempt; valid() returns false on checksum mismatch
  *      - Caller responsible for respecting the ≥ 2 s sampling interval
  *
- *  @param transport Configured `DHTxxTransport` bound to the chip's DATA pin.
+ *  @param connection Configured `DHTxxConnection` bound to the chip's DATA pin.
  */
 class DHT11Minimal {
 public:
     /** @brief Construct the driver.
-     *  @param transport DHTxx transport instance.
+     *  @param connection DHTxx connection instance.
      */
-    explicit DHT11Minimal(DHTxxTransport& transport);
+    explicit DHT11Minimal(DHTxxConnection& connection);
 
     /** @brief Read both temperature and humidity in a single transaction.
      *
@@ -38,7 +38,7 @@ public:
     bool valid() const { return _valid; }
 
 protected:
-    DHTxxTransport& _transport;
+    DHTxxConnection& _connection;
     bool _valid = false;
 
     void _decode(const uint8_t* frame, float& temperature, float& humidity);
@@ -50,16 +50,16 @@ protected:
  *  `read_humidity()` accessors, and a `read_raw()` method that returns
  *  the unprocessed 5-byte frame.
  *
- *  @param transport   Configured `DHTxxTransport` bound to the chip's DATA pin.
+ *  @param connection   Configured `DHTxxConnection` bound to the chip's DATA pin.
  *  @param max_retries Default retry count for `read_retry` (default 3).
  */
 class DHT11Full : public DHT11Minimal {
 public:
     /** @brief Construct the driver.
-     *  @param transport   DHTxx transport instance.
+     *  @param connection   DHTxx connection instance.
      *  @param max_retries Default retry count for `read_retry` (default 3).
      */
-    DHT11Full(DHTxxTransport& transport, uint8_t max_retries = 3);
+    DHT11Full(DHTxxConnection& connection, uint8_t max_retries = 3);
 
     /** @brief Read temperature in a single transaction.
      *  @return Temperature in degrees Celsius, or NaN on failure.

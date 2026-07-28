@@ -4,7 +4,7 @@
 //   let i2c = I2cdev::new("/dev/i2c-1").expect("open i2c bus");
 //   let mut gps = Neo6Minimal::new(I2cBus { i2c, addr: 0x42 });
 // To use SPI instead of UART (spidev manages CS via the kernel; see
-// rust/tests/transport/spi_test/src/main.rs for the NullCs dummy-pin
+// rust/tests/connection/spi_test/src/main.rs for the NullCs dummy-pin
 // pattern used below):
 //   use linux_embedded_hal::SpidevBus;
 //   use embedded_hal_bus::spi::ExclusiveDevice;
@@ -14,7 +14,7 @@
 //   let mut gps = Neo6Minimal::new(SpiBus(device));
 
 use periph::chips::gnss::{Neo6Minimal, UartBus};
-use periph::transport::uart_linux::LinuxUart;
+use periph::connection::uart_linux::LinuxUart;
 
 fn main() {
     let port = std::env::var("UART_PORT").unwrap_or_else(|_| "/dev/ttyS0".to_string());

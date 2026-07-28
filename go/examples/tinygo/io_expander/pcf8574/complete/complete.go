@@ -3,7 +3,8 @@
 // PCF8574 complete example — TinyGo / Raspberry Pi Pico W.
 //
 // Exercises the full PCF8574 API: pin operations, port-level
-// read/write, and interrupt on-change detection.
+// read/write, interrupt on-change detection, and per-pin
+// watch/unwatch.
 package main
 
 import (
@@ -11,7 +12,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -24,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x20)            // Create I2C transport, (i2c, addr=0x20) → *I2CTransport
-	chip, err := ioexpander.NewPCF8574Minimal(tr, 0x20)  // Create PCF8574 minimal driver, (transport, addr=0x20) → (*PCF8574Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x20, nil, nil)  // Create I2C connection, (i2c, addr=0x20, intPin=nil, enPin=nil) → *I2CConnection
+	chip, err := ioexpander.NewPCF8574Minimal(conn, 0x20)     // Create PCF8574 minimal driver, (connection, addr=0x20) → (*PCF8574Minimal, error)
 	if err != nil {
 		panic(err)
 	}
@@ -72,17 +73,36 @@ func main() {
 	// inverts shadow bit and writes back
 
 	// --- PCF8574Full ---
-	tr2 := transport.NewI2CTransport(i2c, 0x20)            // Create I2C transport, (i2c, addr=0x20) → *I2CTransport
-	full, err := ioexpander.NewPCF8574Full(tr2, 0x20)      // Create PCF8574 full driver, (transport, addr=0x20) → (*PCF8574Full, error)
+	conn2 := connection.NewI2CConnection(i2c, 0x20, nil, nil)  // Create I2C connection, (i2c, addr=0x20, intPin=nil, enPin=nil) → *I2CConnection
+	full, err := ioexpander.NewPCF8574Full(conn2, 0x20)        // Create PCF8574 full driver, (connection, addr=0x20) → (*PCF8574Full, error)
 	if err != nil {
 		panic(err)
 	}
 	// stores initial port byte for interrupt comparison
 
-	changed, err := full.ClearInterrupt() // Read port; return changed bitmask, () → (uint8, error)
+	changed, err := full.PollInterrupt() // Read port; return changed bitmask, () → (uint8, error)
 	if err != nil {
 		panic(err)
 	}
 	// XOR of current vs previous read; clears INT line
 	fmt.Printf("changed on init=0x%02X\n", changed)
+
+	// --- Interrupt subscription and per-pin watch ---
+	if err := full.OnInterrupt(func(mask uint8) { // Subscribe to INT, (callback) → error
+		fmt.Printf("port changed: 0x%02X\n", mask)
+	}); err != nil {
+		panic(err)
+	}
+
+	p5 := full.Pin(5) // Get full pin proxy, (n=5) → PCF8574FullPin
+	if err := p5.Watch(connection.Change, func(pin ioexpander.PCF8574FullPin) { // Subscribe to pin edges, (trigger, handler) → error
+		fmt.Println("P5 changed")
+	}); err != nil {
+		panic(err)
+	}
+	_ = p5.Unwatch() // Unsubscribe pin handler, () → error
+
+	if err := full.OffInterrupt(); err != nil { // Unsubscribe INT, () → error
+		panic(err)
+	}
 }

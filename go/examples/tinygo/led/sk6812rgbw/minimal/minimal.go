@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/led"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
-	tr := transport.NewNeoPixelTransport(machine.GP22) // Create NeoPixel transport, (pin=GP22) → (*NeoPixelTransport)
-	strip, err := led.NewSK6812RGBWMinimal(tr, 8)       // Create SK6812RGBW driver, (transport, n=8) → (*SK6812RGBWMinimal, error)
+	conn := connection.NewNeoPixelConnection(machine.GP22, nil) // Create NeoPixel connection, (pin=GP22) → (*NeoPixelConnection)
+	strip, err := led.NewSK6812RGBWMinimal(conn, 8)       // Create SK6812RGBW driver, (connection, n=8) → (*SK6812RGBWMinimal, error)
 	if err != nil {
 		panic(err)
 	}

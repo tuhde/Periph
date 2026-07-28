@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AHT21 — temperature and humidity sensor with I²C interface (minimal driver).
@@ -17,7 +17,7 @@ import it.uhde.periph.transport.Transport
  * - No CRC verification (reduces complexity; CRC check is Full-only)
  */
 open class Aht21Minimal(
-    protected val transport: Transport
+    protected val connection: Connection
 ) {
     companion object {
         val CMD_TRIGGER    = byteArrayOf(0xAC.toByte(), 0x33.toByte(), 0x00.toByte())
@@ -34,15 +34,15 @@ open class Aht21Minimal(
         Thread.sleep(100)
         var status = readStatus()
         if ((status and 0x18) != 0x18) {
-            transport.write(CMD_SOFT_RESET)
+            connection.write(CMD_SOFT_RESET)
             Thread.sleep(20)
             status = readStatus()
             if ((status and 0x18) != 0x18) {
-                transport.write(CMD_CAL_INIT_1)
+                connection.write(CMD_CAL_INIT_1)
                 Thread.sleep(10)
-                transport.write(CMD_CAL_INIT_2)
+                connection.write(CMD_CAL_INIT_2)
                 Thread.sleep(10)
-                transport.write(CMD_CAL_INIT_3)
+                connection.write(CMD_CAL_INIT_3)
                 Thread.sleep(10)
             }
         }
@@ -57,14 +57,14 @@ open class Aht21Minimal(
      * @return Pair of (temperature in °C, humidity in %RH)
      */
     fun read(): Pair<Double, Double> {
-        transport.write(CMD_TRIGGER)
+        connection.write(CMD_TRIGGER)
         Thread.sleep(80)
-        val data = transport.read(6)
+        val data = connection.read(6)
         return decode(data)
     }
 
     protected fun readStatus(): Int {
-        val buf = transport.read(1)
+        val buf = connection.read(1)
         return buf[0].toInt() and 0xFF
     }
 

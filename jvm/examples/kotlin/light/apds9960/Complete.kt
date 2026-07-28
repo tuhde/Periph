@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.light.Apds9960Full
 
 fun main() {
-    I2CTransport(1, 0x39).use { transport ->                 // open I²C bus 1, device 0x39, (bus, address) → I2CTransport
-        val apds = Apds9960Full(transport)                         // construct driver, (transport) → Apds9960Full
+    I2CConnection(1, 0x39).use { connection ->                 // open I²C bus 1, device 0x39, (bus, address) → I2CConnection
+        val apds = Apds9960Full(connection)                         // construct driver, (connection) → Apds9960Full
 
         println("chip_id: 0x%02X".format(apds.chipId()))           // read device ID, () → Int
 

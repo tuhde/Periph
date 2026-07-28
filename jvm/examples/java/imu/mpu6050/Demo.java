@@ -1,19 +1,19 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.imu.Mpu6050Full;
 
 public class Demo {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x68)) {
+        try (var connection = new I2CConnection(1, 0x68)) {
             // --- Configure for motion logging with moderate dynamic range ---
             // ±4g captures typical tilting and handling forces without clipping;
             // ±500 dps covers fast rotations while retaining sub-degree resolution.
-            var imu = new Mpu6050Full(transport);                  // Create MPU6050 driver, (transport, addr=0x68) → None
+            var imu = new Mpu6050Full(connection);                  // Create MPU6050 driver, (connection, addr=0x68) → None
             imu.configureAccel(1);                                  // Configure accel range, (fullScale=0) → None
             imu.configureGyro(1);                                   // Configure gyro range, (fullScale=0) → None
 

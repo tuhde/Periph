@@ -27,82 +27,96 @@ const _STATUS_MH = 0x20;
  * AS5600 12-bit programmable contactless rotary position sensor — minimal interface.
  *
  * Reads the absolute angle in degrees with no configuration required beyond the
- * transport. Verifies magnet presence at construction; throws if no magnet is detected.
+ * connection. Verifies magnet presence at construction; throws if no magnet is detected.
+ *
+ * Constructor caveat: JS constructors cannot be async, but the original
+ * synchronous constructor validated magnet presence and threw synchronously
+ * on mismatch — that guarantee cannot be preserved exactly. The check is
+ * fired off unawaited (matching the fire-and-forget convention used
+ * throughout this port); "magnet not detected" now surfaces as an
+ * *unhandled promise rejection* shortly after construction rather than a
+ * synchronous throw from `new AS5600Minimal(...)`. Callers that need to
+ * detect this deterministically should call `await sensor.isMagnetDetected()`
+ * right after construction.
  */
 class AS5600Minimal {
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device (fixed address 0x36).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x36).
      */
-    constructor(transport) {
-        this._transport = transport;
-        const status = this._readReg8(_REG_STATUS);
+    constructor(connection) {
+        this._conn = connection;
+        this._init();
+    }
+
+    async _init() {
+        const status = await this._readReg8(_REG_STATUS);
         if (!(status & _STATUS_MD)) {
             throw new Error('AS5600: magnet not detected (MD=0)');
         }
     }
 
-    _readReg8(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 1)[0];
+    async _readReg8(reg) {
+        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
     }
 
-    _readReg16(reg) {
-        const raw = this._transport.writeRead(Buffer.from([reg]), 2);
+    async _readReg16(reg) {
+        const raw = await this._conn.writeRead(Buffer.from([reg]), 2);
         return (raw[0] << 8) | raw[1];
     }
 
-    _writeReg8(reg, value) {
+    async _writeReg8(reg, value) {
         const buf = Buffer.alloc(2);
         buf[0] = reg;
         buf[1] = value;
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
-    _writeReg16(reg, value) {
+    async _writeReg16(reg, value) {
         const buf = Buffer.alloc(3);
         buf[0] = reg;
         buf.writeUInt16BE(value, 1);
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
     /**
      * Read the scaled absolute angle.
-     * @returns {number} Angle in degrees, 0.0–360.0 (exclusive).
+     * @returns {Promise<number>} Angle in degrees, 0.0–360.0 (exclusive).
      */
-    angle() {
-        return this.angleRaw() * 360.0 / 4096;
+    async angle() {
+        return (await this.angleRaw()) * 360.0 / 4096;
     }
 
     /**
      * Read the scaled 12-bit angle count.
-     * @returns {number} Scaled angle count, 0–4095 (respects ZPOS/MPOS if programmed).
+     * @returns {Promise<number>} Scaled angle count, 0–4095 (respects ZPOS/MPOS if programmed).
      */
-    angleRaw() {
-        const raw = this._readReg16(_REG_ANGLE_H);
+    async angleRaw() {
+        const raw = await this._readReg16(_REG_ANGLE_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Check if a magnet is detected.
-     * @returns {boolean} True if STATUS.MD=1 (magnetic field >= 8 mT).
+     * @returns {Promise<boolean>} True if STATUS.MD=1 (magnetic field >= 8 mT).
      */
-    isMagnetDetected() {
-        return !!(this._readReg8(_REG_STATUS) & _STATUS_MD);
+    async isMagnetDetected() {
+        return !!((await this._readReg8(_REG_STATUS)) & _STATUS_MD);
     }
 
     /**
      * Check if the magnet is too strong.
-     * @returns {boolean} True if STATUS.MH=1 (AGC minimum gain overflow, Bz > 90 mT).
+     * @returns {Promise<boolean>} True if STATUS.MH=1 (AGC minimum gain overflow, Bz > 90 mT).
      */
-    isMagnetTooStrong() {
-        return !!(this._readReg8(_REG_STATUS) & _STATUS_MH);
+    async isMagnetTooStrong() {
+        return !!((await this._readReg8(_REG_STATUS)) & _STATUS_MH);
     }
 
     /**
      * Check if the magnet is too weak.
-     * @returns {boolean} True if STATUS.ML=1 (AGC maximum gain overflow, Bz < 30 mT).
+     * @returns {Promise<boolean>} True if STATUS.ML=1 (AGC maximum gain overflow, Bz < 30 mT).
      */
-    isMagnetTooWeak() {
-        return !!(this._readReg8(_REG_STATUS) & _STATUS_ML);
+    async isMagnetTooWeak() {
+        return !!((await this._readReg8(_REG_STATUS)) & _STATUS_ML);
     }
 }
 
@@ -123,51 +137,51 @@ class AS5600Full extends AS5600Minimal {
     static OUTS_PWM     = 2;
 
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device (fixed address 0x36).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x36).
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
      * Read the unscaled raw 12-bit angle count.
-     * @returns {number} Raw angle count, 0–4095 (unaffected by ZPOS/MPOS).
+     * @returns {Promise<number>} Raw angle count, 0–4095 (unaffected by ZPOS/MPOS).
      */
-    rawAngle() {
-        const raw = this._readReg16(_REG_RAW_ANGLE_H);
+    async rawAngle() {
+        const raw = await this._readReg16(_REG_RAW_ANGLE_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Read the unscaled raw angle in degrees.
-     * @returns {number} Raw angle in degrees, 0.0–360.0.
+     * @returns {Promise<number>} Raw angle in degrees, 0.0–360.0.
      */
-    rawAngleDegrees() {
-        return this.rawAngle() * 360.0 / 4096;
+    async rawAngleDegrees() {
+        return (await this.rawAngle()) * 360.0 / 4096;
     }
 
     /**
      * Read the automatic gain control value.
-     * @returns {number} AGC value (0–255 in 5 V mode; 0–127 in 3.3 V mode).
+     * @returns {Promise<number>} AGC value (0–255 in 5 V mode; 0–127 in 3.3 V mode).
      */
-    agc() {
+    async agc() {
         return this._readReg8(_REG_AGC);
     }
 
     /**
      * Read the CORDIC magnitude value.
-     * @returns {number} 12-bit CORDIC magnitude value.
+     * @returns {Promise<number>} 12-bit CORDIC magnitude value.
      */
-    magnitude() {
-        const raw = this._readReg16(_REG_MAGNITUDE_H);
+    async magnitude() {
+        const raw = await this._readReg16(_REG_MAGNITUDE_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Read the raw STATUS register byte.
-     * @returns {number} Raw STATUS register (bits MH, ML, MD in positions 5, 4, 3).
+     * @returns {Promise<number>} Raw STATUS register (bits MH, ML, MD in positions 5, 4, 3).
      */
-    statusByte() {
+    async statusByte() {
         return this._readReg8(_REG_STATUS);
     }
 
@@ -184,75 +198,79 @@ class AS5600Full extends AS5600Minimal {
      * @param {number} [sf=0]    - Slow filter 0–3 (0=16x, 1=8x, 2=4x, 3=2x).
      * @param {number} [fth=0]   - Fast filter threshold 0–7.
      * @param {boolean} [wd=false] - Watchdog enable.
+     * @returns {Promise<void>}
      */
-    configure(pm = 0, hyst = 0, outs = 0, pwmf = 0, sf = 0, fth = 0, wd = false) {
-        let confH = this._readReg8(_REG_CONF_H);
-        let confL = this._readReg8(_REG_CONF_L);
+    async configure(pm = 0, hyst = 0, outs = 0, pwmf = 0, sf = 0, fth = 0, wd = false) {
+        let confH = await this._readReg8(_REG_CONF_H);
+        let confL = await this._readReg8(_REG_CONF_L);
         confH = (confH & 0xC0) | ((wd ? 1 : 0) << 5) | ((fth & 0x07) << 2) | (sf & 0x03);
         confL = ((pwmf & 0x03) << 6) | ((outs & 0x03) << 4) | ((hyst & 0x03) << 2) | (pm & 0x03);
-        this._writeReg16(_REG_CONF_H, (confH << 8) | confL);
+        await this._writeReg16(_REG_CONF_H, (confH << 8) | confL);
     }
 
     /**
      * Write the zero position (start angle) to volatile RAM.
      * @param {number} pos - Zero position 0–4095. Lost on power cycle unless burned.
+     * @returns {Promise<void>}
      */
-    setZeroPosition(pos) {
-        this._writeReg8(_REG_ZPOS_H, (pos >> 8) & 0x0F);
-        this._writeReg8(_REG_ZPOS_L, pos & 0xFF);
+    async setZeroPosition(pos) {
+        await this._writeReg8(_REG_ZPOS_H, (pos >> 8) & 0x0F);
+        await this._writeReg8(_REG_ZPOS_L, pos & 0xFF);
     }
 
     /**
      * Write the maximum position (stop angle) to volatile RAM.
      * @param {number} pos - Maximum position 0–4095. Lost on power cycle unless burned.
+     * @returns {Promise<void>}
      */
-    setMaxPosition(pos) {
-        this._writeReg8(_REG_MPOS_H, (pos >> 8) & 0x0F);
-        this._writeReg8(_REG_MPOS_L, pos & 0xFF);
+    async setMaxPosition(pos) {
+        await this._writeReg8(_REG_MPOS_H, (pos >> 8) & 0x0F);
+        await this._writeReg8(_REG_MPOS_L, pos & 0xFF);
     }
 
     /**
      * Write the maximum angle span to volatile RAM.
      * @param {number} span - Angle span 0–4095 (must correspond to >= 18 degrees).
+     * @returns {Promise<void>}
      */
-    setMaxAngle(span) {
-        this._writeReg8(_REG_MANG_H, (span >> 8) & 0x0F);
-        this._writeReg8(_REG_MANG_L, span & 0xFF);
+    async setMaxAngle(span) {
+        await this._writeReg8(_REG_MANG_H, (span >> 8) & 0x0F);
+        await this._writeReg8(_REG_MANG_L, span & 0xFF);
     }
 
     /**
      * Read the zero position (start angle).
-     * @returns {number} ZPOS value 0–4095.
+     * @returns {Promise<number>} ZPOS value 0–4095.
      */
-    zeroPosition() {
-        const raw = this._readReg16(_REG_ZPOS_H);
+    async zeroPosition() {
+        const raw = await this._readReg16(_REG_ZPOS_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Read the maximum position (stop angle).
-     * @returns {number} MPOS value 0–4095.
+     * @returns {Promise<number>} MPOS value 0–4095.
      */
-    maxPosition() {
-        const raw = this._readReg16(_REG_MPOS_H);
+    async maxPosition() {
+        const raw = await this._readReg16(_REG_MPOS_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Read the maximum angle span.
-     * @returns {number} MANG value 0–4095.
+     * @returns {Promise<number>} MANG value 0–4095.
      */
-    maxAngle() {
-        const raw = this._readReg16(_REG_MANG_H);
+    async maxAngle() {
+        const raw = await this._readReg16(_REG_MANG_H);
         return (raw >> 4) & 0x0FFF;
     }
 
     /**
      * Read the number of permanent ZPOS/MPOS burns already performed.
-     * @returns {number} ZMCO value 0–3. Remaining permanent writes = 3 - ZMCO.
+     * @returns {Promise<number>} ZMCO value 0–3. Remaining permanent writes = 3 - ZMCO.
      */
-    burnCount() {
-        return this._readReg8(_REG_ZMCO) & 0x03;
+    async burnCount() {
+        return (await this._readReg8(_REG_ZMCO)) & 0x03;
     }
 
     /**
@@ -261,17 +279,18 @@ class AS5600Full extends AS5600Minimal {
      * Requires MD=1 (magnet present) and ZMCO < 3.
      *
      * @throws {Error} If magnet not detected or ZMCO >= 3.
+     * @returns {Promise<void>}
      */
-    burnAngle() {
-        const status = this._readReg8(_REG_STATUS);
+    async burnAngle() {
+        const status = await this._readReg8(_REG_STATUS);
         if (!(status & _STATUS_MD)) {
             throw new Error('AS5600: cannot burn angle — magnet not detected');
         }
-        const zmco = this._readReg8(_REG_ZMCO) & 0x03;
+        const zmco = (await this._readReg8(_REG_ZMCO)) & 0x03;
         if (zmco >= 3) {
             throw new Error('AS5600: cannot burn angle — ZMCO limit reached (3)');
         }
-        this._writeReg8(_REG_BURN, 0x80);
+        await this._writeReg8(_REG_BURN, 0x80);
     }
 
     /**
@@ -280,13 +299,14 @@ class AS5600Full extends AS5600Minimal {
      * Requires ZMCO=0 (ZPOS/MPOS never burned). Can only be executed once.
      *
      * @throws {Error} If ZMCO != 0.
+     * @returns {Promise<void>}
      */
-    burnSetting() {
-        const zmco = this._readReg8(_REG_ZMCO) & 0x03;
+    async burnSetting() {
+        const zmco = (await this._readReg8(_REG_ZMCO)) & 0x03;
         if (zmco !== 0) {
             throw new Error('AS5600: cannot burn setting — ZMCO must be 0');
         }
-        this._writeReg8(_REG_BURN, 0x40);
+        await this._writeReg8(_REG_BURN, 0x40);
     }
 }
 

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ import java.io.IOException;
  */
 public class Pcf8574Minimal {
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /** Output latch shadow — bit n = last value written to pin n. Initialised to {@code 0xFF}. */
     protected int shadow = 0xFF;
@@ -30,11 +30,11 @@ public class Pcf8574Minimal {
     /**
      * Construct the driver and initialise all pins to input mode (shadow = {@code 0xFF}).
      *
-     * @param transport I²C transport bound to the PCF8574 device address (100 kHz max)
+     * @param connection I²C connection bound to the PCF8574 device address (100 kHz max)
      * @throws IOException on I²C error
      */
-    public Pcf8574Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Pcf8574Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         writePort(0xFF);
     }
 
@@ -53,7 +53,7 @@ public class Pcf8574Minimal {
      * @throws IOException on I²C error
      */
     public int readPort(int port) throws IOException {
-        return transport.read(1)[0] & 0xFF;
+        return connection.read(1)[0] & 0xFF;
     }
 
     /**
@@ -76,7 +76,7 @@ public class Pcf8574Minimal {
      */
     public void writePort(int port, int mask) throws IOException {
         shadow = mask & 0xFF;
-        transport.write(new byte[]{ (byte) shadow });
+        connection.write(new byte[]{ (byte) shadow });
     }
 
     /**
@@ -120,7 +120,7 @@ public class Pcf8574Minimal {
         if (high) shadow |=   (1 << n);
         else      shadow &= ~((1 << n));
         shadow &= 0xFF;
-        transport.write(new byte[]{ (byte) shadow });
+        connection.write(new byte[]{ (byte) shadow });
     }
 
     // =========================================================================
@@ -194,7 +194,7 @@ public class Pcf8574Minimal {
          * @throws IOException on I²C error
          */
         public boolean read() throws IOException {
-            return (((chip.transport.read(1)[0] & 0xFF) >> n) & 1) == 1;
+            return (((chip.connection.read(1)[0] & 0xFF) >> n) & 1) == 1;
         }
 
         /**

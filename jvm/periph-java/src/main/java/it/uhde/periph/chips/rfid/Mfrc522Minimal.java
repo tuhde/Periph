@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rfid;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,11 +8,11 @@ import java.io.IOException;
  * MFRC522 — 13.56 MHz contactless reader/writer (NXP). Minimal driver.
  *
  * <p>Detects an ISO/IEC 14443 Type A card in the field and reads its UID.
- * No configuration beyond the transport and bus type is required.
+ * No configuration beyond the connection and bus type is required.
  *
- * <p>Supports three host transports — I²C, SPI, and UART — all of which
+ * <p>Supports three host connections — I²C, SPI, and UART — all of which
  * expose the same 64-register internal bank; the address-byte framing
- * differs per transport. The driver selects the correct framing from the
+ * differs per connection. The driver selects the correct framing from the
  * {@code busType} parameter.
  *
  * <p>Default configuration (baked in at construction):
@@ -82,26 +82,26 @@ public class Mfrc522Minimal {
     protected static final int PICC_SEL_BIT = 0x70;
     protected static final int PICC_SAK_NOT_COMPLETE = 0x04;
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final int busType;
 
     /**
      * Construct the MFRC522 driver.
      *
-     * @param transport I²C/SPI/UART transport bound to the device.
+     * @param connection I²C/SPI/UART connection bound to the device.
      * @param busType bus type — one of {@link #BUS_I2C}, {@link #BUS_SPI} (default),
      *                {@link #BUS_UART}.
      */
-    public Mfrc522Minimal(Transport transport, int busType) {
-        this(transport, busType, true);
+    public Mfrc522Minimal(Connection connection, int busType) {
+        this(connection, busType, true);
     }
 
-    public Mfrc522Minimal(Transport transport) {
-        this(transport, BUS_SPI, true);
+    public Mfrc522Minimal(Connection connection) {
+        this(connection, BUS_SPI, true);
     }
 
-    protected Mfrc522Minimal(Transport transport, int busType, boolean runInit) {
-        this.transport = transport;
+    protected Mfrc522Minimal(Connection connection, int busType, boolean runInit) {
+        this.connection = connection;
         this.busType = busType;
         if (runInit) {
             try { initChip(); } catch (IOException e) { throw new RuntimeException(e); }
@@ -119,11 +119,11 @@ public class Mfrc522Minimal {
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        transport.write(new byte[] { (byte) addrFor(reg, false), (byte) (value & 0xFF) });
+        connection.write(new byte[] { (byte) addrFor(reg, false), (byte) (value & 0xFF) });
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[] { (byte) addrFor(reg, true) }, 1);
+        byte[] b = connection.writeRead(new byte[] { (byte) addrFor(reg, true) }, 1);
         return b[0] & 0xFF;
     }
 
@@ -298,7 +298,7 @@ public class Mfrc522Minimal {
      * a valid 2-byte ATQA.
      *
      * @return true if a card is in the field.
-     * @throws IOException on transport error.
+     * @throws IOException on connection error.
      */
     public boolean isCardPresent() throws IOException {
         writeReg(REG_BIT_FRAMING, 0x07);
@@ -315,7 +315,7 @@ public class Mfrc522Minimal {
      * is immediately halted, so the next call re-detects it from scratch.
      *
      * @return UID bytes, or {@code null} if no card answered.
-     * @throws IOException on transport error.
+     * @throws IOException on connection error.
      */
     public byte[] readUid() throws IOException {
         if (!isCardPresent()) return null;

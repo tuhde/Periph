@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "24AA02UID.h"
 
 #ifndef EEPROM_I2C_NODE
@@ -38,8 +38,8 @@ static void check_eq_bytes(const char *label, const uint8_t* got, const uint8_t*
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(EEPROM_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, EEPROM_ADDR);
-    EEPROM24AA02UIDFull eeprom(transport);
+    I2CConnectionZephyr connection(i2c_dev, EEPROM_ADDR);
+    EEPROM24AA02UIDFull eeprom(connection);
 
     uint8_t uid[4];
     eeprom.read_uid(uid);

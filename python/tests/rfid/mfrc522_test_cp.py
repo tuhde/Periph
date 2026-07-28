@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.spi_circuitpython import SPITransport
+from periph.connection.spi_circuitpython import SPIConnection
 from periph.chips.rfid.mfrc522 import MFRC522Full
 import busio
 import digitalio
@@ -26,8 +26,8 @@ cs.switch_to_output(value=True)
 spi.try_lock()
 spi.configure(baudrate=1000000, phase=0, polarity=0)
 spi.unlock()
-transport = SPITransport(spi, cs)
-mfrc = MFRC522Full(transport)
+connection = SPIConnection(spi, cs)
+mfrc = MFRC522Full(connection)
 
 chip_type, version = mfrc.version()
 check_true('chip_type == 0x09 (MFRC522)', chip_type == 0x09)

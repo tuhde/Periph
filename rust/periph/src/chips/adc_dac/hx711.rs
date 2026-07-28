@@ -1,17 +1,17 @@
 //! HX711 24-bit ADC (Avia Semiconductor).
 //!
 //! Communicates via a custom 2-wire GPIO bit-bang protocol (DOUT + PD_SCK).
-//! Use [`HX711Transport`] from [`crate::transport::hx711`] to construct the
-//! transport, then pass it to [`Hx711Minimal`] or [`Hx711Full`].
+//! Use [`HX711Connection`] from [`crate::connection::hx711`] to construct the
+//! connection, then pass it to [`Hx711Minimal`] or [`Hx711Full`].
 //!
 //! ## Typical workflow
 //!
 //! ```rust,ignore
-//! use periph::transport::hx711::HX711Transport;
+//! use periph::connection::hx711::HX711Connection;
 //! use periph::chips::adc_dac::{Hx711Minimal, Hx711Full};
 //!
-//! let transport = HX711Transport::new(dout_pin, pd_sck_pin);
-//! let mut chip = Hx711Full::new(transport)?;
+//! let connection = HX711Connection::new(dout_pin, pd_sck_pin);
+//! let mut chip = Hx711Full::new(connection)?;
 //!
 //! chip.tare(10)?;
 //! chip.set_scale(420.0);
@@ -21,7 +21,7 @@
 //! }
 //! ```
 
-use crate::transport::hx711::{HX711Error, HX711Transport};
+use crate::connection::hx711::{HX711Error, HX711Connection};
 use embedded_hal::digital::{InputPin, OutputPin};
 
 const GAIN_128: u8 = 25;
@@ -32,7 +32,7 @@ const GAIN_64:  u8 = 27;
 ///
 /// The first post-power-up conversion is discarded during construction.
 pub struct Hx711Minimal<DI, CK> {
-    transport: HX711Transport<DI, CK>,
+    conn: HX711Connection<DI, CK>,
 }
 
 impl<DI, CK> Hx711Minimal<DI, CK>
@@ -44,24 +44,24 @@ where
     ///
     /// # Arguments
     ///
-    /// * `transport` — Configured [`HX711Transport`] with DOUT and PD_SCK pins.
-    pub fn new(mut transport: HX711Transport<DI, CK>) -> Result<Self, HX711Error<DI::Error, CK::Error>> {
-        transport.read_raw(GAIN_128)?;
-        Ok(Self { transport })
+    /// * `connection` — Configured [`HX711Connection`] with DOUT and PD_SCK pins.
+    pub fn new(mut connection: HX711Connection<DI, CK>) -> Result<Self, HX711Error<DI::Error, CK::Error>> {
+        connection.read_raw(GAIN_128)?;
+        Ok(Self { conn: connection })
     }
 
     /// Return `true` if a conversion result is available (DOUT is LOW).
     ///
     /// Non-blocking.
     pub fn is_ready(&mut self) -> Result<bool, HX711Error<DI::Error, CK::Error>> {
-        self.transport.is_ready()
+        self.conn.is_ready()
     }
 
     /// Block until data is ready and return a signed 24-bit ADC value.
     ///
     /// Reads Channel A at Gain 128.
     pub fn read_raw(&mut self) -> Result<i32, HX711Error<DI::Error, CK::Error>> {
-        self.transport.read_raw(GAIN_128)
+        self.conn.read_raw(GAIN_128)
     }
 }
 
@@ -85,10 +85,10 @@ where
     ///
     /// # Arguments
     ///
-    /// * `transport` — Configured [`HX711Transport`] with DOUT and PD_SCK pins.
-    pub fn new(transport: HX711Transport<DI, CK>) -> Result<Self, HX711Error<DI::Error, CK::Error>> {
+    /// * `connection` — Configured [`HX711Connection`] with DOUT and PD_SCK pins.
+    pub fn new(connection: HX711Connection<DI, CK>) -> Result<Self, HX711Error<DI::Error, CK::Error>> {
         Ok(Self {
-            inner:  Hx711Minimal::new(transport)?,
+            inner:  Hx711Minimal::new(connection)?,
             pulses: GAIN_128,
             offset: 0,
             scale:  1.0,
@@ -104,7 +104,7 @@ where
     ///
     /// Uses the currently selected channel and gain.
     pub fn read_raw(&mut self) -> Result<i32, HX711Error<DI::Error, CK::Error>> {
-        self.inner.transport.read_raw(self.pulses)
+        self.inner.conn.read_raw(self.pulses)
     }
 
     /// Select the input channel and gain.
@@ -125,7 +125,7 @@ where
             64  => GAIN_64,
             _   => return Err(HX711Error::InvalidPulseCount),
         };
-        self.inner.transport.read_raw(self.pulses)?;
+        self.inner.conn.read_raw(self.pulses)?;
         Ok(())
     }
 
@@ -175,16 +175,16 @@ where
     ///
     /// The caller is responsible for waiting >60 µs before calling other methods.
     pub fn power_down(&mut self) -> Result<(), HX711Error<DI::Error, CK::Error>> {
-        self.inner.transport.power_down()
+        self.inner.conn.power_down()
     }
 
     /// Exit power-down, reset chip, and discard the settling conversion.
     ///
     /// Resets to Channel A, Gain 128 and discards the first post-reset conversion.
     pub fn power_up(&mut self) -> Result<(), HX711Error<DI::Error, CK::Error>> {
-        self.inner.transport.power_up()?;
+        self.inner.conn.power_up()?;
         self.pulses = GAIN_128;
-        self.inner.transport.read_raw(GAIN_128)?;
+        self.inner.conn.read_raw(GAIN_128)?;
         Ok(())
     }
 }

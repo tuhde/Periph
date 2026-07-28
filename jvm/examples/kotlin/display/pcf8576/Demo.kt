@@ -1,23 +1,23 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.chips.display.Pcf8576Full
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 
 fun main() {
     val bus  = System.getenv("I2C_BUS")?.toInt()  ?: 1
     val addr = System.getenv("I2C_ADDR")?.let { Integer.decode(it) } ?: 0x38
-    I2CTransport(bus, addr).use { transport ->
+    I2CConnection(bus, addr).use { connection ->
 
         // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
         // The PCF8576 drives four 7-segment digits from a single I2C bus; the host
         // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
         // and writes all four with one writeRaw() call. The countdown runs once per
         // second and the terminal mirrors the value sent to the display.
-        val lcd = Pcf8576Full(transport)                                          // construct driver, (transport) → Pcf8576Full
+        val lcd = Pcf8576Full(connection)                                          // construct driver, (connection) → Pcf8576Full
 
         for (n in 9999 downTo 0) {
             val d0 = (n / 1000) % 10

@@ -10,6 +10,6 @@ target_sources(app PRIVATE
 )
 
 target_include_directories(app PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/gnss
 )

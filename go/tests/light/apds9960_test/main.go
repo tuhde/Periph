@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 	"github.com/tuhde/Periph/go/periph/chips/light"
 )
 
@@ -29,14 +29,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := light.NewAPDS9960Full(tr)
+	chip, err := light.NewAPDS9960Full(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.magnetometer.As5600Full
 
 /**
@@ -16,9 +16,9 @@ import it.uhde.periph.chips.magnetometer.As5600Full
 final SAMPLES      = 10
 final INTERVAL_MS  = 100
 
-def transport = new I2CTransport(1, 0x36)                // open I²C bus 1, device 0x36, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x36)                // open I²C bus 1, device 0x36, (bus, address) → I2CConnection
 try {
-    def as5600 = new As5600Full(transport)                     // construct driver, (transport) → As5600Full
+    def as5600 = new As5600Full(connection)                     // construct driver, (connection) → As5600Full
 
     // --- Configure for responsive angle tracking ---
     // Normal power mode with 16× slow filter gives 2.2 ms settling;
@@ -69,5 +69,5 @@ try {
     }
 
 } finally {
-    transport.close()
+    connection.close()
 }

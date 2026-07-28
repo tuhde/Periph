@@ -1,9 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
-/** @brief Transport variant the NEO-6 is wired to. */
+/** @brief Connection variant the NEO-6 is wired to. */
 enum class NEO6BusType : uint8_t {
     Uart,  ///< UART: read() blocks with a timeout; a timeout means "no byte yet".
     I2c,   ///< I2C (DDC): each byte is a random-read to register 0xFF.
@@ -12,7 +12,7 @@ enum class NEO6BusType : uint8_t {
 
 /** @brief u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status.
  *
- *  Reads bytes from the transport and assembles complete NMEA sentences
+ *  Reads bytes from the connection and assembles complete NMEA sentences
  *  terminated by CR/LF. Works out of the box with the module's factory
  *  defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences
  *  enabled) -- no chip-side configuration is sent.
@@ -26,10 +26,10 @@ enum class NEO6BusType : uint8_t {
 class NEO6Minimal {
 public:
     /** @brief Construct the driver.
-     *  @param transport UART, I2C, or SPI transport bound to the module.
-     *  @param bus_type  Which transport variant @p transport is; default Uart.
+     *  @param connection UART, I2C, or SPI connection bound to the module.
+     *  @param bus_type  Which connection variant @p connection is; default Uart.
      */
-    explicit NEO6Minimal(Transport& transport, NEO6BusType bus_type = NEO6BusType::Uart);
+    explicit NEO6Minimal(Connection& connection, NEO6BusType bus_type = NEO6BusType::Uart);
 
     /** @brief Read available bytes and parse at most one complete NMEA sentence.
      *  @return true if a GGA sentence with a valid fix (fix status > 0) was
@@ -69,7 +69,7 @@ protected:
     static constexpr size_t   MAX_SENTENCE   = 96;
     static constexpr size_t   MAX_FIELDS     = 20;
 
-    Transport&  _transport;
+    Connection&  _connection;
     NEO6BusType _bus_type;
 
     uint8_t _buf[MAX_SENTENCE];
@@ -118,7 +118,7 @@ protected:
  */
 class NEO6Full : public NEO6Minimal {
 public:
-    explicit NEO6Full(Transport& transport, NEO6BusType bus_type = NEO6BusType::Uart);
+    explicit NEO6Full(Connection& connection, NEO6BusType bus_type = NEO6BusType::Uart);
 
     /** @brief Speed over ground.
      *  @return Meters per second, converted from RMC/VTG; NAN until the

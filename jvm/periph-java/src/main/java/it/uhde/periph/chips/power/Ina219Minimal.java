@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class Ina219Minimal {
     protected static final int REG_CURRENT   = 0x04;
     protected static final int REG_CALIBRATE = 0x05;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /** Shunt resistance in Ω — retained for calibration register recalculation. */
     protected final double rShunt;
@@ -44,13 +44,13 @@ public class Ina219Minimal {
      * {@code CAL = floor(0.04096 / (Current_LSB × rShunt)) & 0xFFFE}, then
      * writes CAL to register 0x05. The configuration register is not touched.
      *
-     * @param transport  I²C transport bound to the INA219 device address
+     * @param connection  I²C connection bound to the INA219 device address
      * @param rShunt     shunt resistance in Ω (e.g. 0.1)
      * @param maxCurrent maximum expected current in A (e.g. 2.0)
      * @throws IOException on I²C error
      */
-    public Ina219Minimal(Transport transport, double rShunt, double maxCurrent) throws IOException {
-        this.transport  = transport;
+    public Ina219Minimal(Connection connection, double rShunt, double maxCurrent) throws IOException {
+        this.connection  = connection;
         this.rShunt     = rShunt;
         this.currentLsb = maxCurrent / 32768.0;
         this.powerLsb   = 20.0 * currentLsb;
@@ -61,11 +61,11 @@ public class Ina219Minimal {
     /**
      * Construct the driver with default parameters (0.1 Ω shunt, 2.0 A max).
      *
-     * @param transport I²C transport bound to the INA219 device address
+     * @param connection I²C connection bound to the INA219 device address
      * @throws IOException on I²C error
      */
-    public Ina219Minimal(Transport transport) throws IOException {
-        this(transport, 0.1, 2.0);
+    public Ina219Minimal(Connection connection) throws IOException {
+        this(connection, 0.1, 2.0);
     }
 
     /**
@@ -136,7 +136,7 @@ public class Ina219Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -148,7 +148,7 @@ public class Ina219Minimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int val) throws IOException {
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) reg,
                 (byte) ((val >> 8) & 0xFF),
                 (byte) (val & 0xFF)

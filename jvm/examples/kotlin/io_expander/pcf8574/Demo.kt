@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.io_expander.Pcf8574Full
 
 /**
@@ -20,8 +20,8 @@ import it.uhde.periph.chips.io_expander.Pcf8574Full
  * states so the quasi-bidirectional read-back behavior is visible.
  */
 fun main() {
-    I2CTransport(1, 0x20).use { transport ->                          // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-        val chip = Pcf8574Full(transport)                              // construct full driver, (transport) → Pcf8574Full
+    I2CConnection(1, 0x20).use { connection ->                        // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+        val chip = Pcf8574Full(connection)                             // construct full driver, (connection) → Pcf8574Full
 
         // --- Configure P0–P3 as outputs (LED control), P4–P7 as inputs (buttons) ---
         // Writing 0 to bits 0–3 drives the LED pins low (LEDs off initially).

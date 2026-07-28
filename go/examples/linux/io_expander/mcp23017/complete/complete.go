@@ -4,7 +4,9 @@
 //
 // Exercises every method in the MCP23017Full API: pin operations,
 // per-port read/write, direction configuration, pull-up enable,
-// polarity inversion, and interrupt on-change.
+// polarity inversion, Level-3 interrupt on-change (per-port
+// OnInterruptPort/OffInterruptPort, PollInterrupt, ReadCapture), and
+// per-pin watch/unwatch.
 package main
 
 import (
@@ -13,7 +15,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,13 +29,13 @@ func main() {
 	}
 
 	// --- MCP23017Minimal ---
-	tr1, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn1, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr1.Close()
+	defer conn1.Close()
 
-	chip, err := ioexpander.NewMCP23017Minimal(tr1, uint8(addr)) // Create MCP23017 minimal driver, (transport, addr) → (*MCP23017Minimal, error)
+	chip, err := ioexpander.NewMCP23017Minimal(conn1, uint8(addr)) // Create MCP23017 minimal driver, (connection, addr) → (*MCP23017Minimal, error)
 	if err != nil {
 		panic(err)
 	}
@@ -76,13 +78,13 @@ func main() {
 	}
 
 	// --- MCP23017Full ---
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := ioexpander.NewMCP23017Full(tr2, uint8(addr)) // Create MCP23017 full driver, (transport, addr) → (*MCP23017Full, error)
+	full, err := ioexpander.NewMCP23017Full(conn2, uint8(addr)) // Create MCP23017 full driver, (connection, addr) → (*MCP23017Full, error)
 	if err != nil {
 		panic(err)
 	}
@@ -98,20 +100,40 @@ func main() {
 	}
 	// invert PA0–PA3 reads via IPOLA
 
-	// Read interrupt flags without clearing
-	flags, err := full.ReadInterruptFlags(0) // Read INTFA, (port=0) → (uint8, error)
-	if err != nil {
+	// --- Interrupt subscription: single port ---
+	if err := full.OnInterruptPort(0, func(status uint8) { // Subscribe to INT on one port, (port=0, callback) → error
+		fmt.Printf("PORTA changed: 0x%02X\n", status)
+	}); err != nil {
 		panic(err)
 	}
-	fmt.Printf("INTFA=0x%02X\n", flags)
+	// enables GPINTENA (all 8 pins) + INTCONA=0x00 (compare-to-previous)
 
-	// Read INTCAP to clear interrupt and return changed-pin bitmask
-	changed, err := full.ClearInterrupt(0) // Read INTCAPA + GPIOA, return changed bitmask, (port=0) → (uint8, error)
+	changed, err := full.PollInterrupt(0) // Read INTFA, return flags, and clear via INTCAPA, (port=0) → (uint8, error)
 	if err != nil {
 		panic(err)
 	}
-	// bit n = 1 means pin n changed since last call; clears INTA
-	fmt.Printf("changed=0x%02X\n", changed)
+	// bit n = 1 means pin n triggered the interrupt
+	fmt.Printf("changed on init=0x%02X\n", changed)
+
+	captured, err := full.ReadCapture(0) // Read INTCAPA, (port=0) → (uint8, error)
+	if err != nil {
+		panic(err)
+	}
+	// captured PORTA state at moment of the most recent interrupt; also clears INTA
+	fmt.Printf("captured PORTA=0x%02X\n", captured)
+
+	// --- Per-pin watch ---
+	p1 := full.Pin(1) // Get full pin proxy, (n=1 → PORTA bit 1) → MCP23017FullPin
+	if err := p1.Watch(connection.Change, func(pin ioexpander.MCP23017FullPin) { // Subscribe to pin edges, (trigger, handler) → error
+		fmt.Println("PA1 changed")
+	}); err != nil {
+		panic(err)
+	}
+	_ = p1.Unwatch() // Unsubscribe pin handler, () → error
+
+	if err := full.OffInterruptPort(0); err != nil { // Disable + unsubscribe PORTA, (port=0) → error
+		panic(err)
+	}
 }
 
 func envOr(k, def string) string {

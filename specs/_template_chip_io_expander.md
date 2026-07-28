@@ -51,6 +51,30 @@
 | Interrupt modes | edge (rising / falling / both) / level (high / low) |
 | Drive strength | yes / no |
 
+## Interrupt
+
+| Property | Value |
+|----------|-------|
+| INT pin | active-low, open-drain — requires external pull-up |
+| Level | 1 or 3 (see `specs/feature_connection_design.md`) |
+| Condition | Any input pin changed state |
+| Clear mechanism | read INTF / INTCAP register |
+
+### Full driver interrupt API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `on_interrupt` | `on_interrupt(callback)` | Subscribe; callback(status: int) — status is a changed-pin bitmask |
+| `off_interrupt` | `off_interrupt()` | Unsubscribe |
+| `poll_interrupt` | `poll_interrupt() -> int` | Read & clear interrupt-status register |
+
+### Pin interrupt API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `watch` | `watch(handler, trigger=CHANGE)` | Subscribe to this pin's edge events |
+| `unwatch` | `unwatch()` | Unsubscribe |
+
 ## Initialization Sequence
 
 1. <step>
@@ -71,7 +95,7 @@ Goal: expose all chip pins as GPIO objects with direction control and value read
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | transport | — | Reset to all-inputs with safe defaults |
+| `init` | connection | — | Reset to all-inputs with safe defaults |
 | `pin` | `n: int` | Pin | Return a Pin proxy for pin number `n` (0-based) |
 | `read_port` | `port: int` | int | Read all 8 pins of a port as a bitmask |
 | `write_port` | `port: int`, `mask: int` | — | Write all 8 output pins of a port at once |
@@ -88,7 +112,10 @@ Goal: expose all chip pins as GPIO objects with direction control and value read
 | Set low | `pin.off()` | `pin.value = False` | `pin.low()` | `pin.writeSync(0)` | `pin.set_low()?` |
 | Read | `pin.value()` | `pin.value` | `pin.read()` | `pin.readSync()` | `pin.is_high()?` |
 | Toggle | `pin.toggle()` | *(manual)* | `pin.toggle()` | *(manual)* | *(manual)* |
+| As `OutputPin` | `pin` (duck-typed) | `pin` (duck-typed) | `pin` (`OutputPin*`) | `pin` (duck-typed) | `pin` (`ExPin<Output>`) |
 | Release / close | — | `pin.deinit()` | — | `pin.unexport()` | *(drop)* |
+
+Output-configured pins implement the project's `OutputPin` interface (`set(high)` / `embedded_hal::digital::OutputPin` in Rust) and can be used directly as `en_pin` in another chip's `Connection`.
 
 ### Full
 
@@ -99,8 +126,9 @@ Goal: expose complete chip functionality. Extends Minimal.
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
 | *(inherits Minimal)* | | | |
-| `configure_interrupt` | `port`, `trigger`, `callback` | — | Enable interrupt output; trigger: RISING, FALLING, BOTH, LEVEL_HIGH, LEVEL_LOW |
-| `clear_interrupt` | — | int | Read and clear interrupt flag register; returns bitmask of triggered pins |
+| `on_interrupt` | `callback` | — | Subscribe; callback(status: int) fires on each INT assertion; status is a bitmask of changed pins |
+| `off_interrupt` | — | — | Unsubscribe |
+| `poll_interrupt` | — | int | Read & clear interrupt-status register; returns changed-pin bitmask |
 
 **Pin API additions — Full**
 
@@ -108,7 +136,8 @@ Goal: expose complete chip functionality. Extends Minimal.
 |-----------|-------------|---------------|-----|---------|------|
 | Set pull | `pin.init(pull=Pin.PULL_UP)` | `pin.pull = Pull.UP` | `pin.mode(INPUT_PULLUP)` | *(via driver)* | *(trait: `embedded_hal::digital::InputPin`)* |
 | Set drive mode | *(via driver)* | `pin.drive_mode = DriveMode.OPEN_DRAIN` | `pin.mode(OUTPUT_OPEN_DRAIN)` | *(via driver)* | *(via driver)* |
-| Attach interrupt | `pin.irq(handler, Pin.IRQ_RISING)` | *(via driver)* | `pin.attachInterrupt(handler, RISING)` | `pin.watch(handler)` | *(via driver callback)* |
+| Subscribe to edge | `pin.watch(handler, CHANGE)` | `pin.watch(handler, CHANGE)` | `pin.watch(handler, CHANGE)` | `pin.watch(cb, 'change')` | *(n/a)* |
+| Unsubscribe | `pin.unwatch()` | `pin.unwatch()` | `pin.unwatch()` | `pin.unwatch()` | *(n/a)* |
 
 **Additional configuration options:** <!-- pull resistors, polarity inversion, drive strength, per-pin interrupt mask, etc. -->
 
@@ -120,15 +149,19 @@ This section defines the per-platform contracts for Pin objects. See `AGENTS.md`
 
 Pin objects implement a compatible subset of `machine.Pin`. The `id` parameter to `Pin.__init__` is replaced by the chip's `pin(n)` factory — users never instantiate Pin directly.
 
-Required interface (Minimal): `init(mode)`, `value([x])`, `on()`, `off()`, `toggle()`  
-Full adds: `init(mode, pull)`, `irq(handler, trigger)` — constants `Pin.PULL_UP`, `Pin.PULL_DOWN`, `Pin.IRQ_RISING`, `Pin.IRQ_FALLING`
+Required interface (Minimal): `init(mode)`, `value([x])`, `on()`, `off()`, `toggle()`, `set(high: bool)`  
+Full adds: `init(mode, pull)`, `watch(handler, trigger)`, `unwatch()` — trigger constants `RISING`, `FALLING`, `CHANGE`
+
+`set(high)` delegates to `on()` / `off()` and satisfies the `OutputPin` duck-type contract.
 
 ### Python — CircuitPython
 
 Pin objects implement `digitalio.DigitalInOut`.
 
-Required interface (Minimal): `direction` (read/write), `value` (read/write), `switch_to_input()`, `switch_to_output()`  
+Required interface (Minimal): `direction` (read/write), `value` (read/write), `switch_to_input()`, `switch_to_output()`, `set(high: bool)`  
 Full adds: `pull` (read/write), `drive_mode` (read/write)
+
+`set(high)` assigns `self.value = high` and satisfies the `OutputPin` duck-type contract.
 
 ### Python — Linux
 
@@ -140,7 +173,7 @@ Pin objects expose an `IOExpanderPin` proxy class. Arduino GPIO constants are re
 
 Required interface (Minimal):
 ```cpp
-class IOExpanderPin {
+class IOExpanderPin : public OutputPin {   // inherits: virtual void set(bool high) = 0
 public:
     void mode(uint8_t mode);         // INPUT, OUTPUT
     void write(uint8_t value);       // HIGH, LOW
@@ -148,18 +181,39 @@ public:
     void high();
     void low();
     void toggle();
+    void set(bool high) override;    // OutputPin impl → high() / low()
 };
 ```
-Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `attachInterrupt(callback, mode)` / `detachInterrupt()`.
+Full adds: `INPUT_PULLUP` / `INPUT_PULLDOWN` support in `mode()`; `watch(callback, trigger)` / `unwatch()` using `InputPin::RISING`, `::FALLING`, `::CHANGE`.
 
 The same `IOExpanderPin` class is used on Arduino, Linux GCC, and Zephyr — guarded with platform `#ifdef` only where interrupt delivery differs.
 
 ### Node.js
 
-Pin objects implement the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape so they are drop-in replacements.
+Pin objects expose `async read()`/`write(value)` (not synchronous `readSync()`/`writeSync()` — `Connection` is async everywhere, so a synchronous pin proxy can no longer correctly return a value).
 
-Required interface (Minimal): boolean `value` getter/setter (setter throws on an `'in'` pin), `direction` property, `stop()`  
-Full adds: `watch()` returning a `node:events` `EventEmitter` (`'rise'`/`'fall'`/`'change'`, plus `value` getter and `stop()`), `setActiveLow(invert)`
+Required interface (Minimal): `async read()`, `async write(value)`, `async setDirection(direction)`, `direction` property, `stop()`, `asGpio()`  
+Full adds: `watch(handler, trigger='change')`, `unwatch()`, `setActiveLow(invert)`
+
+`asGpio()` returns a synchronous facade implementing the [`opengpio`](https://www.npmjs.com/package/opengpio) `Input`/`Output` shape (boolean `value` getter/setter, `direction`, `stop()`) so a pin can be passed anywhere real opengpio-shaped GPIO is expected — e.g. as `enPin` in a `Connection`, or as one of `SiPoConnection`'s/`HX711Connection`'s bit-banged GPIO lines. Output-direction facades read back the shadow register directly (authoritative); input-direction facades are backed by a 5 ms background poll and are therefore eventually consistent, unlike the pin's own `read()`.
+
+### JVM
+
+`Pin` is an inner class of the driver that implements the project's `OutputPin` interface when configured as an output, and exposes a read method when configured as an input.
+
+```java
+class Pin implements OutputPin {        // OutputPin: void set(boolean high)
+    void setDirection(boolean output);  // configure as input or output
+    boolean read();                     // read current level (input or output latch)
+    @Override void set(boolean high);   // OutputPin impl → write HIGH / LOW over I²C
+    @Override void close();             // AutoCloseable — no-op for virtual pins
+    // Full adds:
+    void watch(Consumer<Boolean> handler, EdgeTrigger trigger);
+    void unwatch();
+}
+```
+
+Because `Pin implements OutputPin`, a pin configured as output can be passed directly as `enPin` to another chip's `Connection`.
 
 ### Rust
 

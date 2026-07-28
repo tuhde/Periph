@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BMP180.h"
 
 #ifndef BMP180_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP180_I2C_NODE);
-    I2CTransportZephyr transport(dev, BMP180_ADDR);
-    BMP180Minimal bmp(transport);
+    I2CConnectionZephyr connection(dev, BMP180_ADDR);
+    BMP180Minimal bmp(connection);
 
     bmp._oss = 0;
     bmp._b5 = 0;
@@ -39,7 +39,7 @@ int main(void) {
     int32_t b5 = bmp._compensate_temp(27898);
     check_true(b5 != 0, "temp_compensation_b5");
 
-    BMP180Full bmp_full(transport, 0);
+    BMP180Full bmp_full(connection, 0);
     check_true(bmp_full.oversampling() == 0, "default_oss");
     bmp_full.set_oversampling(2);
     check_true(bmp_full.oversampling() == 2, "set_oss");

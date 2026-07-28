@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/environmental"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,12 +28,12 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {
@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	chip, err := environmental.NewBME280Minimal(tr)
+	chip, err := environmental.NewBME280Minimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -61,15 +61,15 @@ func main() {
 	h, err := chip.Humidity()
 	check("humidity_range", err == nil && h >= 0.0 && h <= 100.0)
 
-	// Re-open the bus for the Full driver (minimal owns the transport).
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr))
+	// Re-open the bus for the Full driver (minimal owns the connection).
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport full:", err)
+		fmt.Fprintln(os.Stderr, "connection full:", err)
 		os.Exit(2)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := environmental.NewBME280Full(tr2)
+	full, err := environmental.NewBME280Full(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

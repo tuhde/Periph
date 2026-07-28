@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rfid;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -26,16 +26,16 @@ public class Mfrc522Full extends Mfrc522Minimal {
     /**
      * Construct the MFRC522 full driver.
      *
-     * @param transport I²C/SPI/UART transport bound to the device.
+     * @param connection I²C/SPI/UART connection bound to the device.
      * @param busType bus type — one of {@link #BUS_I2C}, {@link #BUS_SPI} (default),
      *                {@link #BUS_UART}.
      */
-    public Mfrc522Full(Transport transport, int busType) {
-        super(transport, busType);
+    public Mfrc522Full(Connection connection, int busType) {
+        super(connection, busType);
     }
 
-    public Mfrc522Full(Transport transport) {
-        super(transport, BUS_SPI);
+    public Mfrc522Full(Connection connection) {
+        super(connection, BUS_SPI);
     }
 
     /** Re-run SoftReset and the full initialization sequence. */

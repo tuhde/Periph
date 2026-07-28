@@ -22,15 +22,15 @@ class Pcf8575Minimal:
     Initialises all pins to input mode (shadow = [0xFF, 0xFF]) at construction.
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
         addr: 7-bit I²C device address (default 0x20).
     """
 
     IN  = 0
     OUT = 1
 
-    def __init__(self, transport, addr=0x20):
-        self._transport = transport
+    def __init__(self, connection, addr=0x20):
+        self._connection = connection
         self._addr = addr
         self._shadow = [0xFF, 0xFF]
         self._write_both()
@@ -40,13 +40,13 @@ class Pcf8575Minimal:
     # ------------------------------------------------------------------
 
     def _write_port(self, port, mask):
-        self._transport.write(bytes([mask]))
+        self._connection.write(bytes([mask]))
 
     def _write_both(self):
-        self._transport.write(bytes(self._shadow))
+        self._connection.write(bytes(self._shadow))
 
     def _read_port_raw(self, port):
-        raw = self._transport.read(2)
+        raw = self._connection.read(2)
         return raw[port]
 
     def _set_pin(self, n, value):
@@ -235,71 +235,73 @@ class Pcf8575Minimal:
 class Pcf8575Full(Pcf8575Minimal):
     """PCF8575 full interface — extends Pcf8575Minimal with interrupt support.
 
-    Adds configure_interrupt() to attach a callback to the chip's active-low
-    INT output, and clear_interrupt() to read the current pin states and
-    return the 16-bit bitmask of pins that changed since the last read.
+    Adds on_interrupt() to subscribe a callback to the chip's active-low INT
+    output (delivered via connection.int_pin), off_interrupt() to unsubscribe,
+    and poll_interrupt() to read the current pin states and return the
+    16-bit bitmask of pins that changed since the last read.
 
-    On MicroPython, pass a hardware machine.Pin (INT line) to configure_interrupt.
-    On Linux, pass int_pin=None to use a 5 ms polling thread instead.
+    If connection.int_pin is None, on_interrupt() falls back to a 5 ms
+    polling thread on Linux; on MicroPython/CircuitPython an int_pin must be
+    wired for interrupt delivery.
 
     Args:
-        transport: Configured I²C transport pointing at the device.
+        connection: Configured I²C connection pointing at the device.
         addr: 7-bit I²C device address (default 0x20).
     """
 
     IRQ_RISING  = 0x01
     IRQ_FALLING = 0x02
 
-    def __init__(self, transport, addr=0x20):
-        super().__init__(transport, addr)
+    def __init__(self, connection, addr=0x20):
+        super().__init__(connection, addr)
         self._prev = [0xFF, 0xFF]
         self._callback = None
-        self._int_pin = None
         self._poll_thread = None
         self._poll_stop = False
-        raw = self._transport.read(2)
+        raw = self._connection.read(2)
         self._prev = list(raw)
 
-    def configure_interrupt(self, int_pin, callback):
-        """Attach a callback to the chip's INT output.
+    def on_interrupt(self, callback):
+        """Subscribe to INT assertions.
 
         The callback receives one argument: a 16-bit bitmask of pins that
         changed since the previous read (1 = changed, 0 = stable). Bits 0–7
         are Port 0 (P00–P07); bits 8–15 are Port 1 (P10–P17).
 
-        On MicroPython/CircuitPython, int_pin must be a hardware
-        machine.Pin or countio.Counter-compatible object pre-configured
-        as an input; the driver calls irq() on it.
-
-        On Linux, pass int_pin=None to deliver interrupts via a 5 ms
-        polling thread.
+        Wires connection.int_pin.on_edge() when an InputPin is configured;
+        otherwise falls back to a 5 ms polling thread (Linux only).
 
         Args:
-            int_pin: Hardware interrupt pin, or None for polling (Linux only).
             callback: Callable(changed_mask: int) invoked on any input change.
         """
         self._callback = callback
-        self._int_pin = int_pin
-        if int_pin is None and _LINUX:
+        int_pin = self._connection.int_pin
+        if int_pin is not None:
+            from periph.connection.input_pin import InputPin
+            int_pin.on_edge(self._int_handler, InputPin.FALLING)
+        elif _LINUX:
             self._poll_stop = False
             self._poll_thread = _threading.Thread(target=self._poll_loop, daemon=True)
             self._poll_thread.start()
-        elif int_pin is not None:
-            try:
-                import machine
-                int_pin.irq(trigger=machine.Pin.IRQ_FALLING, handler=self._irq_handler)
-            except ImportError:
-                pass
 
-    def _irq_handler(self, pin):
-        changed = self.clear_interrupt()
+    def off_interrupt(self):
+        """Unsubscribe and stop delivery."""
+        int_pin = self._connection.int_pin
+        if int_pin is not None:
+            int_pin.off_edge(self._int_handler)
+        else:
+            self._poll_stop = True
+        self._callback = None
+
+    def _int_handler(self):
+        changed = self.poll_interrupt()
         if changed and self._callback:
             self._callback(changed)
 
     def _poll_loop(self):
         import time
         while not self._poll_stop:
-            current = self._transport.read(2)
+            current = self._connection.read(2)
             changed0 = current[0] ^ self._prev[0]
             changed1 = current[1] ^ self._prev[1]
             changed = changed0 | (changed1 << 8)
@@ -308,7 +310,7 @@ class Pcf8575Full(Pcf8575Minimal):
                 self._callback(changed)
             time.sleep(0.005)
 
-    def clear_interrupt(self):
+    def poll_interrupt(self):
         """Read current pin states and return the 16-bit changed-pin bitmask.
 
         Performs a 2-byte I²C read, compares to the previous read, updates the
@@ -318,56 +320,74 @@ class Pcf8575Full(Pcf8575Minimal):
         Returns:
             int: 16-bit bitmask; bit n = 1 if pin n changed since last read.
         """
-        current = self._transport.read(2)
+        current = self._connection.read(2)
         changed0 = current[0] ^ self._prev[0]
         changed1 = current[1] ^ self._prev[1]
         self._prev = list(current)
         return changed0 | (changed1 << 8)
 
     # ------------------------------------------------------------------
-    # MicroPython / Linux Pin proxy — Full (adds irq)
+    # MicroPython / Linux Pin proxy — Full (adds watch/unwatch)
     # ------------------------------------------------------------------
 
     class _Pin(Pcf8575Minimal._Pin):
-        """Full GPIO proxy — adds irq() for interrupt-driven input.
+        """Full GPIO proxy — adds watch()/unwatch() for interrupt-driven input.
 
         Args:
             chip: Parent Pcf8575Full instance.
             n: Pin index (0–15).
         """
 
-        def irq(self, handler, trigger):
-            """Register an interrupt handler for this pin.
+        def watch(self, handler, trigger=None):
+            """Subscribe to this pin's edge events.
 
             The handler is called with this pin as the sole argument when
-            the pin's state matches the trigger. Internally uses the chip's
-            configure_interrupt mechanism; the chip's INT line must be
-            connected to a hardware GPIO and passed to Pcf8575Full at
-            configure_interrupt() call time.
+            the pin's state matches the trigger. At most one handler per pin
+            at a time; a second watch() call replaces the first. Call
+            chip.on_interrupt() first to arm delivery.
 
             Args:
                 handler: Callable(pin) to invoke on trigger.
-                trigger: Pcf8575Full.IRQ_RISING or Pcf8575Full.IRQ_FALLING.
+                trigger: Pcf8575Full.IRQ_RISING, .IRQ_FALLING, or None
+                    (default) for either edge (CHANGE).
             """
             n = self._n
             chip = self._chip
-            trigger_val = 1 if trigger == Pcf8575Full.IRQ_RISING else 0
+            trigger_val = None if trigger is None else (1 if trigger == Pcf8575Full.IRQ_RISING else 0)
 
             def _wrap(changed_mask):
                 if (changed_mask >> n) & 1:
                     port = n // 8
                     current = (chip._read_port_raw(port) >> (n % 8)) & 1
-                    if current == trigger_val:
+                    if trigger_val is None or current == trigger_val:
                         handler(self)
 
             chip._pin_handlers = getattr(chip, '_pin_handlers', {})
             chip._pin_handlers[n] = _wrap
+            self._install_dispatch(chip)
+
+        def unwatch(self):
+            """Unsubscribe this pin's handler. No-op if not registered."""
+            handlers = getattr(self._chip, '_pin_handlers', {})
+            handlers.pop(self._n, None)
+
+        @staticmethod
+        def _install_dispatch(chip):
+            """Wire chip._callback to fan out to every registered pin handler.
+
+            Idempotent: only wraps once regardless of how many pins call
+            watch(), avoiding the double-dispatch that re-wrapping on every
+            call would otherwise cause.
+            """
+            if getattr(chip, '_pin_dispatch_installed', False):
+                return
+            chip._pin_dispatch_installed = True
             orig_cb = chip._callback
 
             def _combined(changed_mask):
                 if orig_cb:
                     orig_cb(changed_mask)
-                for fn in chip._pin_handlers.values():
+                for fn in list(chip._pin_handlers.values()):
                     fn(changed_mask)
 
             chip._callback = _combined

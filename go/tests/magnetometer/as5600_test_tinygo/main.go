@@ -11,7 +11,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/magnetometer"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x36)
-	chip, err := magnetometer.NewAs5600Full(tr)
+	conn := connection.NewI2CConnection(i2c, 0x36, nil, nil)
+	chip, err := magnetometer.NewAs5600Full(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

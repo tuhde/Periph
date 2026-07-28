@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Mcp4728Full
 
 /**
@@ -18,9 +18,9 @@ final VDD     = 3.3d
 final STEP    = 1.0d / 16.0d
 final STEP_MS = 50L
 
-def transport = new I2CTransport(1, 0x60)        // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x60)        // open I²C bus 1, device 0x60, (bus, address) → I2CConnection
 try {
-    def dac = new Mcp4728Full(transport, null)            // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4728Full
+    def dac = new Mcp4728Full(connection, null)            // construct driver (no general call needed for this demo), (connection, generalCall) → Mcp4728Full
 
     // --- Apply four-point calibration voltages to channels A–D ---
     // A 4-channel DAC is the canonical way to bias a 4-point sensor bridge
@@ -52,5 +52,5 @@ try {
     // Avoids leaving the rail at an arbitrary level when the process ends.
     dac.setAll([0.0d, 0.0d, 0.0d, 0.0d] as double[])  // update all four channels simultaneously, (fractions[4]) → void
 } finally {
-    transport.close()
+    connection.close()
 }

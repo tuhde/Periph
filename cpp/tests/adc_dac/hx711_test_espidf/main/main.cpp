@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
-#include "HX711TransportESPIDF.h"
+#include "HX711ConnectionESPIDF.h"
 #include "HX711.h"
 
 static int passed = 0;
@@ -29,8 +29,8 @@ static void check_eq_u8(uint8_t val, uint8_t expected, const char *label) {
 
 
 extern "C" void app_main(void) {
-    HX711TransportESPIDF transport(static_cast<gpio_num_t>(19), static_cast<gpio_num_t>(18));
-    HX711Full inst(transport);  // Create HX711 driver
+    HX711ConnectionESPIDF connection(static_cast<gpio_num_t>(19), static_cast<gpio_num_t>(18));
+    HX711Full inst(connection);  // Create HX711 driver
     (void)inst.is_ready();
     int32_t raw = inst.read_raw();
     check_true(raw != 0 || raw == 0, "read_raw callable");

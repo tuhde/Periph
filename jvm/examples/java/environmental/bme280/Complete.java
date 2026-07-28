@@ -1,18 +1,18 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
 import it.uhde.periph.chips.environmental.Bme280Full;
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
-        try (var transport = new I2CTransport(bus, addr)) {             // open I²C bus, (bus, address=0x76) → I2CTransport
-            var sensor = new Bme280Full(transport);                      // construct driver, verifies chip ID and loads calibration, (transport) → Bme280Full
+        try (var connection = new I2CConnection(bus, addr)) {             // open I²C bus, (bus, address=0x76) → I2CConnection
+            var sensor = new Bme280Full(connection);                      // construct driver, verifies chip ID and loads calibration, (connection) → Bme280Full
             int cid = sensor.chipId();                                  // read chip ID, () → int
                                                                          // returns 0x60 for BME280
             sensor.configure(Bme280Full.OSRS_X1, Bme280Full.OSRS_X1, Bme280Full.OSRS_X1, Bme280Full.MODE_SLEEP, Bme280Full.FILTER_OFF, Bme280Full.T_SB_0_5_MS);  // configure chip, (osrsT 0–5, osrsP 0–5, osrsH 0–5, mode 0/1/3, filter 0–4, tSb 0–7) → void

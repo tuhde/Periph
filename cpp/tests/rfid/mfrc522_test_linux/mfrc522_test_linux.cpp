@@ -9,7 +9,7 @@
 #endif
 
 #include <stdio.h>
-#include "SPITransportLinux.h"
+#include "SPIConnectionLinux.h"
 #include "MFRC522.h"
 
 static int passed = 0, failed = 0;
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    SPITransportLinux transport(TEST_SPI_BUS, TEST_SPI_DEVICE, 0, TEST_SPI_SPEED_HZ);
-    MFRC522Full mfrc(transport);
+    SPIConnectionLinux connection(TEST_SPI_BUS, TEST_SPI_DEVICE, 0, TEST_SPI_SPEED_HZ);
+    MFRC522Full mfrc(connection);
 
     uint8_t chip_type, version;
     mfrc.version(chip_type, version);

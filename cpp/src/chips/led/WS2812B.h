@@ -1,27 +1,27 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 #include "NeoPixelColor.h"
 
 /** @brief WS2812B addressable RGB LED strip — minimal interface.
  *
- * Drives a chain of n WS2812B pixels over a NeoPixel transport.
+ * Drives a chain of n WS2812B pixels over a NeoPixel connection.
  * Maintains an internal GRB buffer; fill() writes every pixel and
  * transmits immediately.
  *
- * @param transport Configured NeoPixel transport.
+ * @param connection Configured NeoPixel connection.
  * @param n         Number of pixels in the strip.
  */
 class WS2812BMinimal {
 public:
-    WS2812BMinimal(Transport& transport, size_t n);
+    WS2812BMinimal(Connection& connection, size_t n);
     ~WS2812BMinimal();
 
     /** @brief Fill every pixel with one colour and send to the strip.
      *
      *  Clamps each channel to [0, 255], stores GRB in the internal buffer,
-     *  then calls transport.write().
+     *  then calls connection.write().
      *
      *  @param r Red channel (0–255).
      *  @param g Green channel (0–255).
@@ -36,7 +36,7 @@ public:
     void off();
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
     size_t     _n;
     uint8_t*   _buf;
 
@@ -50,12 +50,12 @@ protected:
  * buffer, then show() to transmit; or use the inherited fill() for an immediate
  * all-same-colour update.
  *
- * @param transport Configured NeoPixel transport.
+ * @param connection Configured NeoPixel connection.
  * @param n         Number of pixels in the strip.
  */
 class WS2812BFull : public WS2812BMinimal {
 public:
-    WS2812BFull(Transport& transport, size_t n);
+    WS2812BFull(Connection& connection, size_t n);
 
     /** @brief Set one pixel in the buffer without sending.
      *

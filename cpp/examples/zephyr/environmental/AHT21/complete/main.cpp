@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "AHT21.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, AHT21_ADDR);
-    AHT21Full aht(transport);                                          // Create AHT21 driver, (transport, addr=0x38) → void
+    I2CConnectionZephyr connection(i2c_dev, AHT21_ADDR);
+    AHT21Full aht(connection);                                          // Create AHT21 driver, (connection, addr=0x38) → void
 
     printk("Calibrated:    %d\n",       aht.is_calibrated());          // Check calibration status, () → bool
                                                                        // reads CAL bit from status byte

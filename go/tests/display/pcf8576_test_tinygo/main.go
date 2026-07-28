@@ -11,7 +11,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/display"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x38)
-	chip, err := display.NewPCF8576Minimal(tr)
+	conn := connection.NewI2CConnection(i2c, 0x38, nil, nil)
+	chip, err := display.NewPCF8576Minimal(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")
@@ -64,8 +64,8 @@ func main() {
 	check("seven_seg_0", display.PCF8576SevenSeg[0] == 0xED)
 	check("seven_seg_9", display.PCF8576SevenSeg[9] == 0xEB)
 
-	tr2 := transport.NewI2CTransport(i2c, 0x38)
-	full, err := display.NewPCF8576Full(tr2)
+	conn2 := connection.NewI2CConnection(i2c, 0x38, nil, nil)
+	full, err := display.NewPCF8576Full(conn2)
 	if err != nil {
 		fmt.Printf("FAIL new full: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

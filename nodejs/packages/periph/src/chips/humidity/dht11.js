@@ -14,7 +14,7 @@ class DHT11Error extends Error {
  *
  * The DHT11 returns a 40-bit reading (humidity integer + decimal,
  * temperature integer + decimal, checksum) over a single bidirectional
- * data line. The driver accepts a `DHTxxTransport` instance that handles
+ * data line. The driver accepts a `DHTxxConnection` instance that handles
  * the underlying single-wire protocol; this class is responsible only
  * for validating the frame and converting it to engineering units.
  *
@@ -24,10 +24,10 @@ class DHT11Error extends Error {
  */
 class DHT11Minimal {
     /**
-     * @param {object} transport - DHTxx transport instance.
+     * @param {import('../../connection/dhtxx').DHTxxConnection} connection - DHTxx connection instance.
      */
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
     }
 
     /**
@@ -38,7 +38,7 @@ class DHT11Minimal {
      * @throws {DHT11Error} If the frame's checksum is invalid.
      */
     read() {
-        const frame = this._transport.read();
+        const frame = this._conn.read();
         return DHT11Minimal._decode(frame);
     }
 
@@ -69,11 +69,11 @@ class DHT11Minimal {
  */
 class DHT11Full extends DHT11Minimal {
     /**
-     * @param {object} transport - DHTxx transport instance.
+     * @param {import('../../connection/dhtxx').DHTxxConnection} connection - DHTxx connection instance.
      * @param {number} [maxRetries=3] - Default retry count for `readRetry`.
      */
-    constructor(transport, maxRetries = 3) {
-        super(transport);
+    constructor(connection, maxRetries = 3) {
+        super(connection);
         this._maxRetries = maxRetries;
     }
 
@@ -120,7 +120,7 @@ class DHT11Full extends DHT11Minimal {
      * @throws {DHT11Error} If the frame's checksum is invalid.
      */
     readRaw() {
-        const frame = this._transport.read();
+        const frame = this._conn.read();
         if (frame.length !== 5) {
             throw new DHT11Error(`frame must be 5 bytes, got ${frame.length}`);
         }

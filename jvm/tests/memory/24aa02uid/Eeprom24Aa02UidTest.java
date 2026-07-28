@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.memory.Eeprom24Aa02UidFull;
 
 public class Eeprom24Aa02UidTest {
@@ -40,9 +40,9 @@ public class Eeprom24Aa02UidTest {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x50").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var eeprom = new Eeprom24Aa02UidFull(transport);
+            var eeprom = new Eeprom24Aa02UidFull(connection);
 
             byte[] uid = eeprom.readUid();
             checkTrue("readUid length 4", uid.length == 4);

@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,14 +28,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr1, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn1, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr1.Close()
+	defer conn1.Close()
 
-	chip, err := ioexpander.NewMCP23017Minimal(tr1, uint8(addr))
+	chip, err := ioexpander.NewMCP23017Minimal(conn1, uint8(addr))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)
@@ -87,14 +87,14 @@ func main() {
 	}
 
 	// --- MCP23017Full ---
-	tr2, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn2, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport full:", err)
+		fmt.Fprintln(os.Stderr, "connection full:", err)
 		os.Exit(2)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := ioexpander.NewMCP23017Full(tr2, uint8(addr))
+	full, err := ioexpander.NewMCP23017Full(conn2, uint8(addr))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)
@@ -112,12 +112,24 @@ func main() {
 	if err := full.ConfigurePolarity(1, 0xF0); err != nil {
 		fmt.Fprintln(os.Stderr, "polarity_b:", err)
 	}
-	flags, err := full.ReadInterruptFlags(0)
-	check("interrupt_flags_a", err == nil && flags <= 0xFF)
-	changed, err := full.ClearInterrupt(0)
-	check("clear_interrupt_a", err == nil && changed <= 0xFF)
+	captured, err := full.ReadCapture(0)
+	check("read_capture_a", err == nil && captured <= 0xFF)
+	changed, err := full.PollInterrupt(0)
+	check("poll_interrupt_a", err == nil && changed <= 0xFF)
+
+	// --- OnInterruptPort / OffInterruptPort / per-pin Watch / Unwatch ---
+	if err := full.OnInterruptPort(0, func(status uint8) {}); err != nil {
+		fmt.Fprintln(os.Stderr, "on_interrupt_port:", err)
+	}
 	fp1 := full.Pin(1)
-	_ = fp1
+	if err := fp1.Watch(connection.Change, func(pin ioexpander.MCP23017FullPin) {}); err != nil {
+		fmt.Fprintln(os.Stderr, "watch:", err)
+	}
+	_ = fp1.Unwatch()
+	if err := full.OffInterruptPort(0); err != nil {
+		fmt.Fprintln(os.Stderr, "off_interrupt_port:", err)
+	}
+	check("on_off_interrupt_port_and_watch_accepted", true)
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
 	if failed != 0 {

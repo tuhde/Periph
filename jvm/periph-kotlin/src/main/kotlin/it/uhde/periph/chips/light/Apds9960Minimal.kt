@@ -1,12 +1,12 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * APDS-9960 — digital proximity, ambient light, RGB and gesture sensor (minimal driver).
  *
  * Provides ambient light and color (RGBC) readings with no configuration
- * beyond the transport. The ALS/Color engine is enabled at construction
+ * beyond the connection. The ALS/Color engine is enabled at construction
  * with sensible defaults.
  *
  * Default I²C address: 0x39 (fixed).
@@ -18,7 +18,7 @@ import it.uhde.periph.transport.Transport
  * - PON + AEN enabled; no wait, proximity, gesture, or interrupts
  */
 open class Apds9960Minimal(
-    protected val transport: Transport
+    protected val connection: Connection
 ) {
     companion object {
         const val REG_ENABLE     = 0x80
@@ -95,7 +95,7 @@ open class Apds9960Minimal(
      * @return raw red channel count, 0-65535
      */
     fun colorRed(): Int {
-        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
         return (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
     }
 
@@ -107,7 +107,7 @@ open class Apds9960Minimal(
      * @return raw green channel count, 0-65535
      */
     fun colorGreen(): Int {
-        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
         return (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
     }
 
@@ -119,7 +119,7 @@ open class Apds9960Minimal(
      * @return raw blue channel count, 0-65535
      */
     fun colorBlue(): Int {
-        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
         return (raw[6].toInt() and 0xFF) or ((raw[7].toInt() and 0xFF) shl 8)
     }
 
@@ -131,7 +131,7 @@ open class Apds9960Minimal(
      * @return array of [clear, red, green, blue] each 0-65535
      */
     fun color(): IntArray {
-        val raw = transport.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
         val c = (raw[0].toInt() and 0xFF) or ((raw[1].toInt() and 0xFF) shl 8)
         val r = (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
         val g = (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
@@ -140,16 +140,16 @@ open class Apds9960Minimal(
     }
 
     protected fun writeReg(reg: Int, value: Int) {
-        transport.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
     }
 
     protected fun readReg(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
     protected fun readReg16LE(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
         return (b[0].toInt() and 0xFF) or ((b[1].toInt() and 0xFF) shl 8)
     }
 }

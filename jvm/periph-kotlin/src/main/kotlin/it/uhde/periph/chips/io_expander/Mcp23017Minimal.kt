@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
@@ -16,10 +16,10 @@ import it.uhde.periph.transport.Transport
  *
  * IOCON.BANK is left at 0 (power-on default) throughout.
  *
- * @param transport I²C transport bound to the device address
- * @param addr      7-bit I²C address (`0x20`–`0x27`, default `0x20`)
+ * @param connection I²C connection bound to the device address
+ * @param addr       7-bit I²C address (`0x20`–`0x27`, default `0x20`)
  */
-open class Mcp23017Minimal(protected val transport: Transport, val addr: Int = 0x20) {
+open class Mcp23017Minimal(protected val connection: Connection, val addr: Int = 0x20) {
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
     val shadow = intArrayOf(0, 0)
@@ -53,11 +53,11 @@ open class Mcp23017Minimal(protected val transport: Transport, val addr: Int = 0
     // -------------------------------------------------------------------------
 
     internal fun writeReg(reg: Int, value: Int) {
-        transport.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte()))
+        connection.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte()))
     }
 
     internal fun readReg(reg: Int): Int {
-        return transport.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+        return connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
     }
 
     // -------------------------------------------------------------------------

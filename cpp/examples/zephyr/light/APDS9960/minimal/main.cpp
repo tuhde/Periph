@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "APDS9960.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, APDS9960_ADDR);
-    APDS9960Minimal apds(transport);                       // Create APDS9960 driver, (transport) → APDS9960Minimal
+    I2CConnectionZephyr connection(i2c_dev, APDS9960_ADDR);
+    APDS9960Minimal apds(connection);                       // Create APDS9960 driver, (connection) → APDS9960Minimal
 
     while (1) {
         uint16_t c, r, g, b;

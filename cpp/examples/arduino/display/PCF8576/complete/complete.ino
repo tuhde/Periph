@@ -10,15 +10,15 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/display/PCF8576.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    PCF8576Full lcd(transport);                          // Create PCF8576 driver, (transport)
+    I2CConnection connection(Wire, TEST_ADDR);
+    PCF8576Full lcd(connection);                          // Create PCF8576 driver, (connection)
     lcd.clear();                                         // Blank the display, () → void
                                                           // zeros all 40 columns of display RAM
     lcd.device_select(0);                                // Select device on the bus, (subaddress 0–7) → void

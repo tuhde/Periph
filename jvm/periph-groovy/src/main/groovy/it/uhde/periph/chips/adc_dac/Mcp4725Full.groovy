@@ -2,7 +2,7 @@ package it.uhde.periph.chips.adc_dac
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * Read-back state of the MCP4725.
@@ -28,7 +28,7 @@ class ReadResult {
  * MCP4725 — full driver. Extends {@link Mcp4725Minimal} with EEPROM persistence,
  * power-down control, read-back, and General Call commands (reset / wake-up).
  *
- * <p>General Call commands (reset, wakeUp) require a second transport bound to
+ * <p>General Call commands (reset, wakeUp) require a second connection bound to
  * address 0x00. Pass {@code null} to disable those methods.
  *
  * <h2>EEPROM write timing</h2>
@@ -39,17 +39,17 @@ class ReadResult {
 @CompileStatic
 class Mcp4725Full extends Mcp4725Minimal {
 
-    private final Transport generalCall
+    private final Connection generalCall
 
     /**
      * Construct the full driver.
      *
-     * @param transport   I²C transport bound to the MCP4725 device address
-     * @param generalCall I²C transport bound to address 0x00 for General Call
+     * @param connection   I²C connection bound to the MCP4725 device address
+     * @param generalCall I²C connection bound to address 0x00 for General Call
      *                    commands, or {@code null} to disable reset/wakeUp
      */
-    Mcp4725Full(Transport transport, Transport generalCall) {
-        super(transport)
+    Mcp4725Full(Connection connection, Connection generalCall) {
+        super(connection)
         this.generalCall = generalCall
     }
 
@@ -75,7 +75,7 @@ class Mcp4725Full extends Mcp4725Minimal {
         code = Math.max(0, Math.min(4095, code))
         lastCode = code
         // Write DAC + EEPROM: C2=0 C1=1 C0=1 → byte1=0x60 (normal mode)
-        transport.write([0x60 as byte, (byte) ((code >> 4) & 0xFF), (byte) ((code << 4) & 0xF0)] as byte[])
+        connection.write([0x60 as byte, (byte) ((code >> 4) & 0xFF), (byte) ((code << 4) & 0xF0)] as byte[])
     }
 
     /**
@@ -84,7 +84,7 @@ class Mcp4725Full extends Mcp4725Minimal {
      * @return snapshot of DAC register, EEPROM, power-down, and ready flag
      */
     ReadResult read() {
-        byte[] b = transport.read(5)
+        byte[] b = connection.read(5)
         boolean eepromReady = (b[0] & 0x80) != 0
         int powerDown       = (b[0] >> 2) & 0x03
         int code            = ((b[1] & 0xFF) << 4) | ((b[2] & 0xFF) >> 4)
@@ -104,7 +104,7 @@ class Mcp4725Full extends Mcp4725Minimal {
     void setPowerDown(int mode) {
         mode = Math.max(0, Math.min(3, mode))
         // Fast Write with PD bits set: [0 0 PD1 PD0 D11-D8] [D7-D0]
-        transport.write([(byte) (((mode & 0x03) << 4) | ((lastCode >> 8) & 0x0F)), (byte) (lastCode & 0xFF)] as byte[])
+        connection.write([(byte) (((mode & 0x03) << 4) | ((lastCode >> 8) & 0x0F)), (byte) (lastCode & 0xFF)] as byte[])
     }
 
     /**
@@ -113,7 +113,7 @@ class Mcp4725Full extends Mcp4725Minimal {
      * <p>Clears the power-down bits in the DAC register of all MCP47xx devices
      * on the bus that support General Call.
      *
-     * @throws IllegalStateException if no General Call transport was provided
+     * @throws IllegalStateException if no General Call connection was provided
      */
     void wakeUp() {
         requireGeneralCall().write([0x09 as byte] as byte[])
@@ -125,7 +125,7 @@ class Mcp4725Full extends Mcp4725Minimal {
      * <p>Triggers an internal power-on reset on all MCP47xx devices on the bus
      * that support General Call, reloading EEPROM contents into the DAC register.
      *
-     * @throws IllegalStateException if no General Call transport was provided
+     * @throws IllegalStateException if no General Call connection was provided
      */
     void reset() {
         requireGeneralCall().write([0x06 as byte] as byte[])
@@ -137,12 +137,12 @@ class Mcp4725Full extends Mcp4725Minimal {
      * @return true when the EEPROM write is complete
      */
     boolean isEepromReady() {
-        (transport.read(1)[0] & 0x80) != 0
+        (connection.read(1)[0] & 0x80) != 0
     }
 
-    private Transport requireGeneralCall() {
+    private Connection requireGeneralCall() {
         if (generalCall == null)
-            throw new IllegalStateException('General Call transport not configured')
+            throw new IllegalStateException('General Call connection not configured')
         generalCall
     }
 }

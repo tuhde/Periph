@@ -1,6 +1,6 @@
 //! WS2812B addressable RGB LED strip driver (Worldsemi).
 //!
-//! Drives a chain of WS2812B pixels over a [`NeoPixelTransport`].
+//! Drives a chain of WS2812B pixels over a [`NeoPixelConnection`].
 //! Maintains an internal GRB buffer; [`Ws2812bMinimal::fill`] writes every
 //! pixel and transmits immediately.
 //!
@@ -9,7 +9,7 @@
 //! Pixel indices beyond this limit are clamped silently.
 
 use embedded_hal::spi::SpiBus;
-use crate::transport::neopixel::NeoPixelTransport;
+use crate::connection::neopixel::NeoPixelConnection;
 
 /// Maximum supported pixel count for the internal GRB buffer.
 pub const MAX_PIXELS: usize = 256;
@@ -17,11 +17,11 @@ const MAX_BUF: usize = MAX_PIXELS * 3;
 
 /// WS2812B minimal driver — fill the entire strip with one colour.
 ///
-/// Wraps a [`NeoPixelTransport`] and manages an internal GRB pixel buffer.
+/// Wraps a [`NeoPixelConnection`] and manages an internal GRB pixel buffer.
 /// [`fill`](Ws2812bMinimal::fill) updates every pixel and transmits immediately;
 /// [`off`](Ws2812bMinimal::off) is shorthand for `fill(0, 0, 0)`.
 pub struct Ws2812bMinimal<SPI> {
-    transport: NeoPixelTransport<SPI>,
+    conn: NeoPixelConnection<SPI>,
     n: usize,
     buf: heapless::Vec<u8, MAX_BUF>,
 }
@@ -37,7 +37,7 @@ impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
         let mut buf = heapless::Vec::new();
         buf.resize_default(n * 3).ok();
         Self {
-            transport: NeoPixelTransport::new(spi),
+            conn: NeoPixelConnection::new(spi),
             n,
             buf,
         }
@@ -46,14 +46,14 @@ impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
     /// Fill every pixel with one colour and send to the strip immediately.
     ///
     /// Each channel is clamped to [0, 255]. Stores G, R, B in the internal
-    /// buffer (GRB wire order) then calls [`NeoPixelTransport::write`].
+    /// buffer (GRB wire order) then calls [`NeoPixelConnection::write`].
     pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), SPI::Error> {
         for i in 0..self.n {
             self.buf[i * 3]     = g;
             self.buf[i * 3 + 1] = r;
             self.buf[i * 3 + 2] = b;
         }
-        self.transport.write(&self.buf[..self.n * 3])
+        self.conn.write(&self.buf[..self.n * 3])
     }
 
     /// Turn off all pixels (fill with black and send).
@@ -116,14 +116,14 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
         let bri = self.brightness;
         let n3 = self.inner.n * 3;
         if bri == 255 {
-            return self.inner.transport.write(&self.inner.buf[..n3]);
+            return self.inner.conn.write(&self.inner.buf[..n3]);
         }
         let mut scaled: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
         scaled.resize_default(n3).ok();
         for i in 0..n3 {
             scaled[i] = (self.inner.buf[i] as u16 * bri as u16 / 255) as u8;
         }
-        self.inner.transport.write(&scaled[..n3])
+        self.inner.conn.write(&scaled[..n3])
     }
 
     /// Get the global brightness scalar (0–255).

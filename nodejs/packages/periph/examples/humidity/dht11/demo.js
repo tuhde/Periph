@@ -1,11 +1,11 @@
 'use strict';
 
-const { DHTxxTransport } = require('periph/src/transport/dhtxx');
+const { DHTxxConnection } = require('periph/src/connection/dhtxx');
 const { DHT11Full }      = require('periph/src/chips/humidity/dht11');
 
 const DATA_PIN = parseInt(process.env.DHT11_PIN || '4', 10);
-const transport = new DHTxxTransport(DATA_PIN);
-const dht = new DHT11Full(transport, 3);               // Create DHT11 driver, (transport, max_retries=3)
+const connection = new DHTxxConnection(DATA_PIN);
+const dht = new DHT11Full(connection, 3);               // Create DHT11 driver, (connection, max_retries=3)
 
 function comfort(h) {
     if (h < 30.0) return 'dry';
@@ -33,6 +33,6 @@ function comfort(h) {
         console.log(`${r.temperature} C, ${r.humidity} %RH, ${comfort(r.humidity)}`);
         await new Promise(r => setTimeout(r, 5000));
     }
-    transport.close();
+    connection.close();
     console.log('===DONE: 0 passed, 0 failed===');
 })();

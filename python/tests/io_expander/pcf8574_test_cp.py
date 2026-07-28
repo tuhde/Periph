@@ -8,7 +8,7 @@ import _testconfig as cfg
 import board
 import busio
 import digitalio
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.io_expander.pcf8574 import Pcf8574Minimal, Pcf8574Full
 
 passed = 0
@@ -36,8 +36,8 @@ def check_eq(label, got, expected):
 
 
 i2c = busio.I2C(eval(cfg.SCL), eval(cfg.SDA))
-transport = I2CTransport(i2c, cfg.ADDR)
-chip = Pcf8574Minimal(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+chip = Pcf8574Minimal(connection)
 
 # After init, shadow must be 0xFF
 check_eq('init_shadow', chip._shadow, 0xFF)
@@ -72,10 +72,10 @@ chip.write_port(mask=0xFF)
 port2 = chip.read_port()
 check_true('read_port_after_write', 0 <= port2 <= 0xFF)
 
-# Full: clear_interrupt
-full = Pcf8574Full(transport)
-changed = full.clear_interrupt()
-check_true('clear_interrupt_range', 0 <= changed <= 0xFF)
+# Full: poll_interrupt
+full = Pcf8574Full(connection)
+changed = full.poll_interrupt()
+check_true('poll_interrupt_range', 0 <= changed <= 0xFF)
 
 # Full: pull / drive_mode raise AttributeError
 pf = full.pin(1)

@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "Rda5807m.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    RDA5807MFull inst(transport);  // Create Rda5807m driver
+    I2CConnectionESPIDF connection(dev);
+    RDA5807MFull inst(connection);  // Create Rda5807m driver
     inst.set_frequency(100.0f);
     float f = inst.frequency();
     check_near(f, 80.0f, 110.0f, "frequency range");

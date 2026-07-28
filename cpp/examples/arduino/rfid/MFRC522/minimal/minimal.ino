@@ -13,7 +13,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include "../../src/transport/SPITransport.h"
+#include "../../src/connection/SPIConnection.h"
 #include "../../src/chips/rfid/MFRC522.h"
 
 static int passed = 0, failed = 0;
@@ -27,8 +27,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     SPI.begin(TEST_SCK, TEST_MISO, TEST_MOSI, TEST_CS);
-    SPITransport transport(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
-    MFRC522Minimal mfrc(transport);                                 // Create MFRC522 driver, (transport, bus_type=BUS_SPI)
+    SPIConnection connection(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
+    MFRC522Minimal mfrc(connection);                                 // Create MFRC522 driver, (connection, bus_type=BUS_SPI)
 
     for (int i = 0; i < 10; i++) {
         bool present = mfrc.is_card_present();                     // Detect card in field, () → bool

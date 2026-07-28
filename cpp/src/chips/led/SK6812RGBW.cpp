@@ -4,8 +4,8 @@
 
 // ── SK6812RGBWMinimal ────────────────────────────────────────────────────────
 
-SK6812RGBWMinimal::SK6812RGBWMinimal(Transport& transport, size_t n)
-    : _transport(transport), _n(n), _buf(new uint8_t[n * 4 + 24]())
+SK6812RGBWMinimal::SK6812RGBWMinimal(Connection& connection, size_t n)
+    : _connection(connection), _n(n), _buf(new uint8_t[n * 4 + 24]())
 {}
 
 SK6812RGBWMinimal::~SK6812RGBWMinimal() {
@@ -27,13 +27,13 @@ void SK6812RGBWMinimal::off() {
 }
 
 void SK6812RGBWMinimal::_send() {
-    _transport.write(_buf, _n * 4 + 24);
+    _connection.write(_buf, _n * 4 + 24);
 }
 
 // ── SK6812RGBWFull ───────────────────────────────────────────────────────────
 
-SK6812RGBWFull::SK6812RGBWFull(Transport& transport, size_t n)
-    : SK6812RGBWMinimal(transport, n), _brightness(255)
+SK6812RGBWFull::SK6812RGBWFull(Connection& connection, size_t n)
+    : SK6812RGBWMinimal(connection, n), _brightness(255)
 {}
 
 void SK6812RGBWFull::set_pixel(size_t index, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
@@ -47,14 +47,14 @@ void SK6812RGBWFull::set_pixel(size_t index, uint8_t r, uint8_t g, uint8_t b, ui
 void SK6812RGBWFull::show() {
     size_t total = _n * 4 + 24;
     if (_brightness == 255) {
-        _transport.write(_buf, total);
+        _connection.write(_buf, total);
         return;
     }
     uint8_t* scaled = new uint8_t[total]();
     for (size_t i = 0; i < _n * 4; i++) {
         scaled[i] = (uint8_t)((uint16_t)_buf[i] * _brightness / 255u);
     }
-    _transport.write(scaled, total);
+    _connection.write(scaled, total);
     delete[] scaled;
 }
 

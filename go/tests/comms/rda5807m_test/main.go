@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/comms"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // FM_READY deasserts on any register write and takes ~20 ms to settle back;
@@ -33,14 +33,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	fm, err := comms.NewRda5807mFull(tr, 100.0, 8)
+	fm, err := comms.NewRda5807mFull(conn, 100.0, 8)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)

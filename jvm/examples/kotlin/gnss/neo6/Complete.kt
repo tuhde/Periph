@@ -1,20 +1,20 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.UARTTransport
+import it.uhde.periph.connection.UARTConnection
 import it.uhde.periph.chips.gnss.Neo6Full
 
 // To use I2C (DDC) instead of UART:
-//   import it.uhde.periph.transport.I2CTransport
+//   import it.uhde.periph.connection.I2CConnection
 //   import it.uhde.periph.chips.gnss.BusType
-//   I2CTransport(1, 0x42).use { transport -> val gps = Neo6Full(transport, BusType.I2C) }
+//   I2CConnection(1, 0x42).use { connection -> val gps = Neo6Full(connection, BusType.I2C) }
 
 fun main() {
-    UARTTransport("/dev/ttyS0").use { transport ->               // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTTransport
-        val gps = Neo6Full(transport)                              // construct driver, (transport, busType=UART) → Neo6Full
+    UARTConnection("/dev/ttyS0").use { connection ->               // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTConnection
+        val gps = Neo6Full(connection)                              // construct driver, (connection, busType=UART) → Neo6Full
 
         gps.setRate(1)                                             // set navigation update rate, (hz) → Unit
                                                                     // writes CFG-RATE with measRate = 1000/hz ms

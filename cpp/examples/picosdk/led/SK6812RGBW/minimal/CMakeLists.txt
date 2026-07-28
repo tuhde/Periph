@@ -16,7 +16,7 @@ add_executable(sk6812rgbw_minimal_picosdk
 )
 
 target_include_directories(sk6812rgbw_minimal_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/led
 )
 

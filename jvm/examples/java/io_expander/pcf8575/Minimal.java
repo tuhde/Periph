@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Pcf8575Minimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x20)) {             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-            var chip = new Pcf8575Minimal(transport);                  // construct driver, (transport) → Pcf8575Minimal
+        try (var connection = new I2CConnection(1, 0x20)) {           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+            var chip = new Pcf8575Minimal(connection);                 // construct driver, (connection) → Pcf8575Minimal
 
             var p0 = chip.pin(0);                                      // get pin proxy, (n=0) → Pin
             p0.setOutput();                                             // set output mode — drives P00 low, () → void

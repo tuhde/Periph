@@ -1,11 +1,11 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import groovy.transform.Field
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp180Full
 
 @Field int passed = 0
@@ -20,9 +20,9 @@ int bus = (System.getenv('I2C_BUS') ?: '1').toInteger()
 // BMP180 has a fixed I²C address of 0x77; I2C_ADDR is intentionally ignored.
 int addr = 0x77
 
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
-    def sensor = new Bmp180Full(transport)
+    def sensor = new Bmp180Full(connection)
 
     // temperature() — must be in sensor operating range
     double t = sensor.temperature()
@@ -62,7 +62,7 @@ try {
               tAfter >= -20.0 && tAfter <= 85.0)
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 println("===DONE: ${passed} passed, ${failed} failed===")

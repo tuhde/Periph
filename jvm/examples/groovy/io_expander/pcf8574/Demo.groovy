@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.io_expander.Pcf8574Full
 
 /**
@@ -19,9 +19,9 @@ import it.uhde.periph.chips.io_expander.Pcf8574Full
  * result to the output nibble (P0–P3). Prints the raw port byte and the decoded
  * states so the quasi-bidirectional read-back behavior is visible.
  */
-def transport = new I2CTransport(1, 0x20)             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x20)           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
 try {
-    def chip = new Pcf8574Full(transport)              // construct full driver, (transport) → Pcf8574Full
+    def chip = new Pcf8574Full(connection)             // construct full driver, (connection) → Pcf8574Full
 
     // --- Configure P0–P3 as outputs (LED control), P4–P7 as inputs (buttons) ---
     // Writing 0 to bits 0–3 drives the LED pins low (LEDs off initially).
@@ -48,5 +48,5 @@ try {
         Thread.sleep(200)
     }
 } finally {
-    transport.close()
+    connection.close()
 }

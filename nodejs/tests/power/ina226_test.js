@@ -1,6 +1,6 @@
 'use strict';
 
-const { I2CTransport } = require('../../packages/periph/src/transport/i2c');
+const { I2CConnection } = require('../../packages/periph/src/connection/i2c');
 const { INA226Full }   = require('../../packages/periph/src/chips/power/ina226');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
@@ -24,37 +24,41 @@ function checkTrue(label, condition) {
     else           { console.log('FAIL', label); failed++; }
 }
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
-const ina = new INA226Full(transport);
+async function main() {
+    const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
+    const ina = new INA226Full(connection);
 
-checkEq('manufacturer_id', ina.manufacturerId(), 0x5449);
-checkEq('die_id',          ina.dieId(),          0x2260);
+    checkEq('manufacturer_id', await ina.manufacturerId(), 0x5449);
+    checkEq('die_id',          await ina.dieId(),          0x2260);
 
-checkTrue('voltage non-negative', ina.voltage()      >= 0.0);
-checkTrue('shunt_voltage finite', ina.shuntVoltage() > -1.0);
-checkTrue('current finite',       ina.current()      > -10.0);
-checkTrue('power non-negative',   ina.power()        >= 0.0);
+    checkTrue('voltage non-negative', (await ina.voltage())      >= 0.0);
+    checkTrue('shunt_voltage finite', (await ina.shuntVoltage()) > -1.0);
+    checkTrue('current finite',       (await ina.current())      > -10.0);
+    checkTrue('power non-negative',   (await ina.power())        >= 0.0);
 
-checkTrue('conversion_ready', ina.conversionReady());
-checkTrue('no overflow',      !ina.overflow());
+    checkTrue('conversion_ready', await ina.conversionReady());
+    checkTrue('no overflow',      !(await ina.overflow()));
 
-ina.configure(3, 4, 4, 7);
-checkEq('configure: mfr_id still valid', ina.manufacturerId(), 0x5449);
+    await ina.configure(3, 4, 4, 7);
+    checkEq('configure: mfr_id still valid', await ina.manufacturerId(), 0x5449);
 
-ina.setAlert(INA226Full.POL, 1.0, false, true);
-checkTrue('set_alert POL: LEN bit set', (ina.alertFlags() & 0x0001) !== 0);
+    await ina.setAlert(INA226Full.POL, 1.0, false, true);
+    checkTrue('set_alert POL: LEN bit set', ((await ina.alertFlags()) & 0x0001) !== 0);
 
-ina.shutdown();
-// 1 ms synchronous delay
-const end = Date.now() + 1;
-while (Date.now() < end) {}
-ina.wake();
-checkTrue('wake: voltage non-negative', ina.voltage() >= 0.0);
+    await ina.shutdown();
+    // 1 ms synchronous delay
+    const end = Date.now() + 1;
+    while (Date.now() < end) {}
+    await ina.wake();
+    checkTrue('wake: voltage non-negative', (await ina.voltage()) >= 0.0);
 
-ina.reset();
-checkEq('reset: mfr_id still valid', ina.manufacturerId(), 0x5449);
+    await ina.reset();
+    checkEq('reset: mfr_id still valid', await ina.manufacturerId(), 0x5449);
 
-transport.close();
+    await connection.close();
 
-console.log(`===DONE: ${passed} passed, ${failed} failed===`);
-process.exit(failed === 0 ? 0 : 1);
+    console.log(`===DONE: ${passed} passed, ${failed} failed===`);
+    process.exit(failed === 0 ? 0 : 1);
+}
+
+main();

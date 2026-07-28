@@ -3,7 +3,7 @@
 // NEO-6 minimal example — TinyGo / Raspberry Pi Pico W.
 //
 // Configures machine.I2C1 on the Pico W with GP4 = SDA and GP5 = SCL,
-// constructs the driver over the I2C (DDC) transport at address 0x42,
+// constructs the driver over the I2C (DDC) connection at address 0x42,
 // and prints the current GGA position in a loop. The DDC bus requires
 // polling at least once per second to avoid the module's 2-second
 // idle timeout dropping buffered output.
@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,8 +28,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x42)         // Create I2C transport, (i2c, addr=0x42) → *I2CTransport
-	chip := gnss.NewNEO6Minimal(tr, "i2c")            // Create NEO-6 driver, (transport, bus_type="i2c") → *NEO6Minimal
+	conn := connection.NewI2CConnection(i2c, 0x42, nil, nil)         // Create I2C connection, (i2c, addr=0x42) → *I2CConnection
+	chip := gnss.NewNEO6Minimal(conn, "i2c")            // Create NEO-6 driver, (connection, bus_type="i2c") → *NEO6Minimal
 
 	for {
 		_, err := chip.Update() // Read and parse one NMEA sentence, () → (bool, error)

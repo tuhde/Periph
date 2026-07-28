@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BMP180.h"
 
 #ifndef BMP180_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP180_I2C_NODE);
-    I2CTransportZephyr transport(dev, BMP180_ADDR);
-    BMP180Full bmp(transport);                         // Create BMP180 driver, (transport, oss=0)
+    I2CConnectionZephyr connection(dev, BMP180_ADDR);
+    BMP180Full bmp(connection);                         // Create BMP180 driver, (connection, oss=0)
     uint8_t cid = bmp.chip_id();                     // Read chip ID, () → int
     check_true(cid == 0x55, "chip_id");
 

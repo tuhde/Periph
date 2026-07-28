@@ -61,7 +61,7 @@ BUILD_PROPS=()
 # --- compile -------------------------------------------------------------
 echo "=== Compiling $TARGET for $FQBN ==="
 arduino-cli compile --fqbn "$FQBN" \
-    --library "$SCRIPT_DIR/src/transport" \
+    --library "$SCRIPT_DIR/src/connection" \
     --library "$SCRIPT_DIR/src/chips/$CATEGORY" \
     "${BUILD_PROPS[@]}" "$SKETCH"
 echo "Compile OK"

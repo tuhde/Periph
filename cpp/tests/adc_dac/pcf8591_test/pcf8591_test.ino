@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "PCF8591.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x48
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-PCF8591Full adc(transport);
+I2CConnection connection(Wire, TEST_ADDR);
+PCF8591Full adc(connection);
 
 static int passed = 0;
 static int failed = 0;

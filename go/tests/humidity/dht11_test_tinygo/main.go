@@ -14,7 +14,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/humidity"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -29,12 +29,12 @@ func main() {
 		}
 	}
 
-	tr := transport.NewDHTxxTransport(machine.GP15) // Create DHTxx transport, (pin=GP15) → (*DHTxxTransport)
-	dht, err := humidity.NewDHT11Minimal(tr)        // Create DHT11 driver, (transport) → (*DHT11Minimal, error)
+	conn := connection.NewDHTxxConnection(machine.GP15, nil) // Create DHTxx connection, (pin=GP15) → (*DHTxxConnection)
+	dht, err := humidity.NewDHT11Minimal(conn)        // Create DHT11 driver, (connection) → (*DHT11Minimal, error)
 	check("dht11_minimal_construct", err == nil && dht != nil)
 	_ = dht.IsReady()
 
-	dhtFull, err := humidity.NewDHT11Full(tr) // Create DHT11 driver, (transport) → (*DHT11Full, error)
+	dhtFull, err := humidity.NewDHT11Full(conn) // Create DHT11 driver, (connection) → (*DHT11Full, error)
 	check("dht11_full_construct", err == nil && dhtFull != nil)
 
 	// Decode logic: datasheet example frame.

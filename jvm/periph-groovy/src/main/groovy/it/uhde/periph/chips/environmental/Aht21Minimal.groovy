@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AHT21 — temperature and humidity sensor with I²C interface (minimal driver).
@@ -31,7 +31,7 @@ class Aht21Minimal {
     protected static final int STATUS_BUSY = 0x80
     protected static final int STATUS_CAL  = 0x08
 
-    protected final Transport transport
+    protected final Connection connection
 
     /**
      * Construct the driver and perform power-on initialization.
@@ -39,22 +39,22 @@ class Aht21Minimal {
      * <p>Waits 100 ms, checks calibration status, sends soft reset if needed,
      * and writes calibration init commands if still uncalibrated.
      *
-     * @param transport I²C transport bound to the AHT21 device address (0x38)
+     * @param connection I²C connection bound to the AHT21 device address (0x38)
      */
-    Aht21Minimal(Transport transport) {
-        this.transport = transport
+    Aht21Minimal(Connection connection) {
+        this.connection = connection
         Thread.sleep(100)
         int status = readStatus()
         if ((status & 0x18) != 0x18) {
-            transport.write(CMD_SOFT_RESET)
+            connection.write(CMD_SOFT_RESET)
             Thread.sleep(20)
             status = readStatus()
             if ((status & 0x18) != 0x18) {
-                transport.write(CMD_CAL_INIT_1)
+                connection.write(CMD_CAL_INIT_1)
                 Thread.sleep(10)
-                transport.write(CMD_CAL_INIT_2)
+                connection.write(CMD_CAL_INIT_2)
                 Thread.sleep(10)
-                transport.write(CMD_CAL_INIT_3)
+                connection.write(CMD_CAL_INIT_3)
                 Thread.sleep(10)
             }
         }
@@ -69,14 +69,14 @@ class Aht21Minimal {
      * @return double array: [0] = temperature in °C, [1] = humidity in %RH
      */
     double[] read() {
-        transport.write(CMD_TRIGGER)
+        connection.write(CMD_TRIGGER)
         Thread.sleep(80)
-        byte[] data = transport.read(6)
+        byte[] data = connection.read(6)
         decode(data)
     }
 
     protected int readStatus() {
-        byte[] buf = transport.read(1)
+        byte[] buf = connection.read(1)
         buf[0] & 0xFF
     }
 

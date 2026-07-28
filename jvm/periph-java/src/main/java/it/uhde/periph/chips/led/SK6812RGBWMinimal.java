@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.led;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
 /**
  * SK6812RGBW addressable RGBW LED strip — minimal interface.
  *
- * <p>Drives a chain of {@code n} SK6812RGBW pixels over a NeoPixel transport.
+ * <p>Drives a chain of {@code n} SK6812RGBW pixels over a NeoPixel connection.
  * Maintains an internal GRBW buffer; {@link #fill} writes all pixels and
  * transmits immediately. Each pixel has four channels: red, green, blue,
  * and white (dedicated white LED element).
@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class SK6812RGBWMinimal {
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final int n;
     /** Internal pixel buffer in GRBW wire order (G, R, B, W per pixel). */
     protected final byte[] buf;
@@ -25,11 +25,11 @@ public class SK6812RGBWMinimal {
     /**
      * Construct the driver.
      *
-     * @param transport configured NeoPixel transport
+     * @param connection configured NeoPixel connection
      * @param n         number of pixels in the strip (≥1)
      */
-    public SK6812RGBWMinimal(Transport transport, int n) {
-        this.transport = transport;
+    public SK6812RGBWMinimal(Connection connection, int n) {
+        this.connection = connection;
         this.n = n;
         this.buf = new byte[n * 4];
     }
@@ -44,7 +44,7 @@ public class SK6812RGBWMinimal {
      * @param g green channel (0–255)
      * @param b blue channel (0–255)
      * @param w white channel (0–255)
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void fill(int r, int g, int b, int w) throws IOException {
         r = Math.max(0, Math.min(255, r));
@@ -57,13 +57,13 @@ public class SK6812RGBWMinimal {
             buf[i * 4 + 2] = (byte) b;
             buf[i * 4 + 3] = (byte) w;
         }
-        transport.write(buf);
+        connection.write(buf);
     }
 
     /**
      * Turn off all pixels (equivalent to {@code fill(0, 0, 0, 0)}).
      *
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void off() throws IOException {
         fill(0, 0, 0, 0);

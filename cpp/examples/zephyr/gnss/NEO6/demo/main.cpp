@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "UARTTransportZephyr.h"
+#include "UARTConnectionZephyr.h"
 #include "NEO6.h"
 
 // --- Portable GPS logger ---
@@ -15,8 +15,8 @@
 
 int main(void) {
     const struct device* dev = DEVICE_DT_GET(NEO6_UART_NODE);
-    UARTTransportZephyr transport(dev);
-    NEO6Full gps(transport);                             // Create NEO-6 driver, (transport, bus_type=Uart)
+    UARTConnectionZephyr connection(dev);
+    NEO6Full gps(connection);                             // Create NEO-6 driver, (connection, bus_type=Uart)
 
     int64_t startMs = k_uptime_get();
     while (k_uptime_get() - startMs < 60000) {

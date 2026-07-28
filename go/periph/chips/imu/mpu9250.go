@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MPU-9250 register map (subset; shared with MPU-6050 plus magnetometer
@@ -68,7 +68,7 @@ const (
 //   - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //   - Clock: auto PLL (CLKSEL=1)
 type MPU9250Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 	accelFs   uint8
 	gyroFs    uint8
 }
@@ -76,10 +76,10 @@ type MPU9250Minimal struct {
 // NewMPU9250Minimal creates a new MPU9250Minimal, resets the device,
 // verifies WHO_AM_I, and configures defaults at construction.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x68 default, 0x69 alternate).
-func NewMPU9250Minimal(t transport.Transport) (*MPU9250Minimal, error) {
-	d := &MPU9250Minimal{transport: t}
+func NewMPU9250Minimal(t connection.Connection) (*MPU9250Minimal, error) {
+	d := &MPU9250Minimal{connection: t}
 	if err := d.writeReg(reg9250PwrMgmt1, 0x80); err != nil {
 		return nil, err
 	}
@@ -114,11 +114,11 @@ func NewMPU9250Minimal(t transport.Transport) (*MPU9250Minimal, error) {
 }
 
 func (d *MPU9250Minimal) writeReg(reg, value byte) error {
-	return d.transport.Write([]byte{reg, value})
+	return d.connection.Write([]byte{reg, value})
 }
 
 func (d *MPU9250Minimal) readReg(reg byte) (byte, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -126,7 +126,7 @@ func (d *MPU9250Minimal) readReg(reg byte) (byte, error) {
 }
 
 func (d *MPU9250Minimal) readReg16Signed(reg byte) (int16, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -137,7 +137,7 @@ func (d *MPU9250Minimal) readReg16Signed(reg byte) (int16, error) {
 //
 // Returns (x, y, z) in m/s².
 func (d *MPU9250Minimal) Accel() (float32, float32, float32, error) {
-	b, err := d.transport.WriteRead([]byte{reg9250AccelXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{reg9250AccelXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -155,7 +155,7 @@ func (d *MPU9250Minimal) Accel() (float32, float32, float32, error) {
 //
 // Returns (x, y, z) in rad/s.
 func (d *MPU9250Minimal) Gyro() (float32, float32, float32, error) {
-	b, err := d.transport.WriteRead([]byte{reg9250GyroXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{reg9250GyroXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -176,13 +176,13 @@ func (d *MPU9250Minimal) Gyro() (float32, float32, float32, error) {
 //
 // The magnetometer is accessed via the chip's I²C bypass mode (BYPASS_EN
 // in INT_PIN_CFG); the host can then address the AK8963 directly at
-// 0x0C. To avoid forcing the caller to construct two transports with
-// different addresses, NewMPU9250Full takes a transport factory that
-// produces a new I²C transport bound to a caller-supplied 7-bit address
+// 0x0C. To avoid forcing the caller to construct two connections with
+// different addresses, NewMPU9250Full takes a connection factory that
+// produces a new I²C connection bound to a caller-supplied 7-bit address
 // on the same bus.
 type MPU9250Full struct {
 	*MPU9250Minimal
-	magTransport transport.Transport
+	magConnection connection.Connection
 	magEnabled   bool
 	magScaleX    float32
 	magScaleY    float32
@@ -190,16 +190,16 @@ type MPU9250Full struct {
 	magBits      uint8
 }
 
-// TransportFactory returns a Transport bound to the given 7-bit address on
+// ConnectionFactory returns a Connection bound to the given 7-bit address on
 // the same underlying bus. Used by MPU9250Full to construct the secondary
-// transport for the AK8963 magnetometer.
-type TransportFactory func(addr uint8) (transport.Transport, error)
+// connection for the AK8963 magnetometer.
+type ConnectionFactory func(addr uint8) (connection.Connection, error)
 
 // NewMPU9250Full creates a new MPU9250Full with the same initialization as
 // NewMPU9250Minimal. The magFactory is used to construct the AK8963
-// transport on demand when EnableMag is called; it must return a
-// transport bound to the given 7-bit address (0x0C for the AK8963).
-func NewMPU9250Full(t transport.Transport, magFactory TransportFactory) (*MPU9250Full, error) {
+// connection on demand when EnableMag is called; it must return a
+// connection bound to the given 7-bit address (0x0C for the AK8963).
+func NewMPU9250Full(t connection.Connection, magFactory ConnectionFactory) (*MPU9250Full, error) {
 	m, err := NewMPU9250Minimal(t)
 	if err != nil {
 		return nil, err
@@ -209,19 +209,19 @@ func NewMPU9250Full(t transport.Transport, magFactory TransportFactory) (*MPU925
 	}
 	mag, err := magFactory(0x0C)
 	if err != nil {
-		return nil, fmt.Errorf("MPU9250Full: open AK8963 transport: %w", err)
+		return nil, fmt.Errorf("MPU9250Full: open AK8963 connection: %w", err)
 	}
 	return &MPU9250Full{
 		MPU9250Minimal: m,
-		magTransport:   mag,
+		magConnection:   mag,
 	}, nil
 }
 
-// Close releases the AK8963 secondary transport. The primary MPU9250
-// transport is owned by the caller and not closed here.
+// Close releases the AK8963 secondary connection. The primary MPU9250
+// connection is owned by the caller and not closed here.
 func (d *MPU9250Full) Close() error {
-	if d.magTransport != nil {
-		return d.magTransport.Close()
+	if d.magConnection != nil {
+		return d.magConnection.Close()
 	}
 	return nil
 }
@@ -237,17 +237,17 @@ func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 		return err
 	}
 	// 2) Power down the AK8963, wait 10 ms.
-	if err := d.magTransport.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
+	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
 	// 3) Enter fuse ROM access mode, wait 10 ms.
-	if err := d.magTransport.Write([]byte{ak8963CNTL1, ak8963ModeFuseROM}); err != nil {
+	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModeFuseROM}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
 	// 4) Read ASAX/Y/Z factory calibration.
-	asax, err := d.magTransport.WriteRead([]byte{ak8963ASAX}, 3)
+	asax, err := d.magConnection.WriteRead([]byte{ak8963ASAX}, 3)
 	if err != nil {
 		return err
 	}
@@ -255,7 +255,7 @@ func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 	d.magScaleY = (float32(asax[1]) - 128.0) / 256.0 + 1.0
 	d.magScaleZ = (float32(asax[2]) - 128.0) / 256.0 + 1.0
 	// 5) Power down, wait 10 ms.
-	if err := d.magTransport.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
+	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
@@ -264,7 +264,7 @@ func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 	if bits == 16 {
 		bitFlag = 0x10
 	}
-	if err := d.magTransport.Write([]byte{ak8963CNTL1, bitFlag | (mode & 0x0F)}); err != nil {
+	if err := d.magConnection.Write([]byte{ak8963CNTL1, bitFlag | (mode & 0x0F)}); err != nil {
 		return err
 	}
 	d.magEnabled = true
@@ -281,7 +281,7 @@ func (d *MPU9250Full) Mag() (float32, float32, float32, error) {
 	}
 	// Read 7 bytes from 0x03 (HXL) through 0x09 (ST2). ST2 must be read
 	// to unlock the next measurement.
-	b, err := d.magTransport.WriteRead([]byte{ak8963HXL}, 7)
+	b, err := d.magConnection.WriteRead([]byte{ak8963HXL}, 7)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -339,7 +339,7 @@ func (d *MPU9250Full) Temperature() (float32, error) {
 
 // AccelRaw reads the raw 3-axis accelerometer values.
 func (d *MPU9250Full) AccelRaw() (int16, int16, int16, error) {
-	b, err := d.transport.WriteRead([]byte{reg9250AccelXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{reg9250AccelXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -351,7 +351,7 @@ func (d *MPU9250Full) AccelRaw() (int16, int16, int16, error) {
 
 // GyroRaw reads the raw 3-axis gyroscope values.
 func (d *MPU9250Full) GyroRaw() (int16, int16, int16, error) {
-	b, err := d.transport.WriteRead([]byte{reg9250GyroXoutH}, 6)
+	b, err := d.connection.WriteRead([]byte{reg9250GyroXoutH}, 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -366,7 +366,7 @@ func (d *MPU9250Full) MagRaw() (int16, int16, int16, error) {
 	if !d.magEnabled {
 		return 0, 0, 0, fmt.Errorf("MPU9250 MagRaw: magnetometer not enabled (call EnableMag first)")
 	}
-	b, err := d.magTransport.WriteRead([]byte{ak8963HXL}, 7)
+	b, err := d.magConnection.WriteRead([]byte{ak8963HXL}, 7)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -401,7 +401,7 @@ func (d *MPU9250Full) SetSleep(sleep bool) error {
 
 // FIFOcount returns the number of bytes in the FIFO.
 func (d *MPU9250Full) FIFOcount() (uint16, error) {
-	b, err := d.transport.WriteRead([]byte{reg9250FifoCountH}, 2)
+	b, err := d.connection.WriteRead([]byte{reg9250FifoCountH}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -421,7 +421,7 @@ func (d *MPU9250Full) ReadFIFO(buf []byte) (uint16, error) {
 	if toRead > len(buf) {
 		toRead = len(buf)
 	}
-	read, err := d.transport.WriteRead([]byte{reg9250FifoR_W}, toRead)
+	read, err := d.connection.WriteRead([]byte{reg9250FifoR_W}, toRead)
 	if err != nil {
 		return 0, err
 	}

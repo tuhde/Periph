@@ -1,7 +1,7 @@
 import sys
 import time
 
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.light.apds9960 import APDS9960Full
 
 passed = 0
@@ -18,8 +18,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(0x39)
-apds = APDS9960Full(transport)
+connection = I2CConnection(0x39)
+apds = APDS9960Full(connection)
 
 check_true('chip_id is valid', apds.chip_id() in (0xAB, 0xA8))
 
@@ -72,7 +72,7 @@ check_true('status is int', isinstance(s, int))
 
 apds.enable_proximity(False)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 try:

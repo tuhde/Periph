@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <functional>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 #ifndef OUTPUT
 #define INPUT        0
@@ -9,9 +8,6 @@
 #define INPUT_PULLUP 2
 #define HIGH         1
 #define LOW          0
-#define RISING       1
-#define FALLING      2
-#define CHANGE       3
 #endif
 
 /** @brief PCF8575 16-bit quasi-bidirectional I/O port expander — minimal interface.
@@ -23,7 +19,7 @@
  *
  * Initialises all pins to input mode (shadow = [0xFF, 0xFF]) at construction.
  *
- * @param transport Configured I²C transport pointing at the device (400 kHz max).
+ * @param connection Configured I²C connection pointing at the device (400 kHz max).
  * @param addr 7-bit I²C device address (default 0x20).
  */
 class PCF8575Minimal {
@@ -72,10 +68,10 @@ public:
     };
 
     /** @brief Construct and initialise the PCF8575.
-     *  @param transport Configured I²C transport pointing at the device.
+     *  @param connection Configured I²C connection pointing at the device.
      *  @param addr 7-bit I²C device address (default 0x20).
      */
-    PCF8575Minimal(Transport& transport, uint8_t addr = 0x20);
+    PCF8575Minimal(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a pin proxy for pin n (0–15).
      *  @param n Pin index.
@@ -98,7 +94,7 @@ public:
     uint8_t _shadow[2];
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
     uint8_t    _addr;
 
     void    _write_both();
@@ -108,18 +104,23 @@ protected:
 
 /** @brief PCF8575 full interface — extends PCF8575Minimal with interrupt support.
  *
- * Adds configure_interrupt() to arm the chip's active-low INT output and
- * clear_interrupt() to read pin states and return a 16-bit changed-pin bitmask.
- * IOExpanderPin gains attachInterrupt() / detachInterrupt().
+ * Adds onInterrupt() to subscribe a callback to the chip's active-low INT
+ * output (delivered via connection.intPin()), offInterrupt() to unsubscribe,
+ * and pollInterrupt() to read pin states and return a 16-bit changed-pin
+ * bitmask. IOExpanderPin gains watch() / unwatch().
  *
- * @param transport Configured I²C transport pointing at the device.
+ * INT-pin delivery is entirely handled by the InputPin connection.intPin()
+ * was constructed with — this class contains no platform-specific interrupt
+ * code (see specs/feature_connection_design.md §4).
+ *
+ * @param connection Configured I²C connection pointing at the device.
  * @param addr 7-bit I²C device address (default 0x20).
  */
 class PCF8575Full : public PCF8575Minimal {
 public:
     /** @brief GPIO proxy for a single PCF8575 pin — Full interface.
      *
-     * Extends IOExpanderPin with attachInterrupt() / detachInterrupt().
+     * Extends IOExpanderPin with watch() / unwatch().
      */
     class IOExpanderPin : public PCF8575Minimal::IOExpanderPin {
     public:
@@ -129,28 +130,30 @@ public:
          */
         IOExpanderPin(PCF8575Full& chip, uint8_t n);
 
-        /** @brief Attach a per-pin interrupt handler.
+        /** @brief Subscribe to this pin's edge events.
+         *
+         *  At most one handler per pin at a time; a second watch() call
+         *  replaces the first. Call the chip's onInterrupt() first to arm
+         *  delivery.
+         *
          *  @param handler Function pointer: void(*)(IOExpanderPin*).
-         *  @param mode FALLING (INT asserts on input low), RISING, or CHANGE.
+         *  @param trigger InputPin::kFalling, ::kRising, or ::kChange (default).
          */
-        void attachInterrupt(void (*handler)(IOExpanderPin*), uint8_t mode);
+        void watch(void (*handler)(IOExpanderPin*), uint8_t trigger = InputPin::kChange);
 
-        /** @brief Remove the per-pin interrupt handler. */
-        void detachInterrupt();
+        /** @brief Unsubscribe this pin's handler. No-op if not registered. */
+        void unwatch();
 
     private:
         PCF8575Full& _full_chip;
-        void (*_handler)(IOExpanderPin*) = nullptr;
-        uint8_t _irq_mode = 0;
-        uint8_t _last_state = 0xFF;
         friend class PCF8575Full;
     };
 
     /** @brief Construct and initialise the PCF8575Full.
-     *  @param transport Configured I²C transport pointing at the device.
+     *  @param connection Configured I²C connection pointing at the device.
      *  @param addr 7-bit I²C device address (default 0x20).
      */
-    PCF8575Full(Transport& transport, uint8_t addr = 0x20);
+    PCF8575Full(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a Full pin proxy for pin n (0–15).
      *  @param n Pin index.
@@ -158,21 +161,38 @@ public:
      */
     IOExpanderPin pin(uint8_t n);
 
-    /** @brief Configure the chip's INT line and a global change callback.
-     *  @param int_gpio_pin Hardware GPIO pin number for the INT signal (Arduino pin number,
-     *         sysfs GPIO number on Linux, or pin index on Zephyr).
-     *  @param callback void(*)(uint8_t changed_mask); called on any input change.
+    /** @brief Subscribe to INT assertions.
+     *
+     *  Wires connection.intPin()->onEdge() to deliver edges. The callback
+     *  receives the 16-bit bitmask of pins that changed since the previous
+     *  read (bits 0–7 = Port 0, bits 8–15 = Port 1). No-op if
+     *  connection.intPin() is nullptr.
+     *
+     *  @param callback void(*)(uint16_t changed_mask); called on any input change.
      */
-    void configure_interrupt(int int_gpio_pin, std::function<void(uint8_t)> callback);
+    void onInterrupt(void (*callback)(uint16_t));
+
+    /** @brief Unsubscribe and stop delivery. */
+    void offInterrupt();
 
     /** @brief Read both ports and return 16-bit bitmask of pins that changed.
      *  @return 16-bit bitmask; bits 0–7 = Port 0 changed, bits 8–15 = Port 1 changed.
      */
-    uint16_t clear_interrupt();
+    uint16_t pollInterrupt();
 
 private:
-    uint8_t  _prev[2] = {0xFF, 0xFF};
-    std::function<void(uint8_t)> _callback;
+    struct PinWatch {
+        void (*handler)(IOExpanderPin*) = nullptr;
+        uint8_t trigger    = InputPin::kChange;
+        uint8_t lastState  = 1;
+    };
 
-    static void _dispatch(PCF8575Full* chip, uint8_t changed);
+    uint8_t   _prev[2] = {0xFF, 0xFF};
+    void    (*_callback)(uint16_t) = nullptr;
+    PinWatch  _pinWatches[16];
+
+    void _handleEdge();
+
+    static PCF8575Full* _activeInstance;
+    static void _edgeTrampoline();
 };

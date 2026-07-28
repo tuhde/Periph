@@ -2,7 +2,7 @@
 
 // MFRC522 minimal example — Linux host.
 //
-// Constructs the driver with an I2C transport at address 0x28, then
+// Constructs the driver with an I2C connection at address 0x28, then
 // loops polling for an ISO/IEC 14443 Type A card. When a card is
 // detected, the UID is read and printed.
 //
@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/rfid"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -32,13 +32,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x28) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x28) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := rfid.NewMFRC522Minimal(tr) // Create MFRC522 driver, (transport) → (*MFRC522Minimal, error)
+	chip, err := rfid.NewMFRC522Minimal(conn) // Create MFRC522 driver, (connection) → (*MFRC522Minimal, error)
 	if err != nil {
 		panic(err)
 	}

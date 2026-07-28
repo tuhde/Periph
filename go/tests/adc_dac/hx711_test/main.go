@@ -16,7 +16,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -42,9 +42,9 @@ func main() {
 		}
 	}
 
-	tr, trErr := transport.NewHX711Transport(dout, pdSck)
+	conn, trErr := connection.NewHX711Connection(dout, pdSck, nil)
 	if trErr != nil {
-		fmt.Fprintln(os.Stderr, "transport open failed (no hw?):", trErr)
+		fmt.Fprintln(os.Stderr, "connection open failed (no hw?):", trErr)
 		check("hx711_minimal_skip_no_hw", true)
 		check("hx711_full_skip_no_hw", true)
 		fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)
@@ -53,11 +53,11 @@ func main() {
 		}
 		return
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- HX711Minimal ---
 	{
-		hx, err := adcdac.NewHX711Minimal(tr)
+		hx, err := adcdac.NewHX711Minimal(conn)
 		check("minimal_construct", err == nil && hx != nil)
 
 		ready, err := hx.IsReady()
@@ -73,7 +73,7 @@ func main() {
 
 	// --- HX711Full ---
 	{
-		hx, err := adcdac.NewHX711Full(tr)
+		hx, err := adcdac.NewHX711Full(conn)
 		check("full_construct", err == nil && hx != nil)
 
 		ready, err := hx.IsReady()

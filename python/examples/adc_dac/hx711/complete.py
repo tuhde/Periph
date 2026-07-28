@@ -1,8 +1,8 @@
-from periph.transport.hx711_auto import HX711Transport
+from periph.connection.hx711_auto import HX711Connection
 from periph.chips.adc_dac.hx711 import HX711Full
 
-transport = HX711Transport(5, 6)        # Create HX711 transport, (dout, pd_sck)
-chip = HX711Full(transport)                     # Create HX711 driver — discards first conversion, (transport)
+connection = HX711Connection(5, 6)        # Create HX711 connection, (dout, pd_sck)
+chip = HX711Full(connection)                     # Create HX711 driver — discards first conversion, (connection)
 
 ready = chip.is_ready()                         # Check if conversion is ready (non-blocking), () → bool
                                                  # returns True when DOUT is LOW

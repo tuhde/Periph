@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.io.IOException;
  * MCP4725 — full driver. Extends {@link Mcp4725Minimal} with EEPROM persistence,
  * power-down control, read-back, and General Call commands (reset / wake-up).
  *
- * <p>General Call commands (reset, wakeUp) require a second transport bound to
+ * <p>General Call commands (reset, wakeUp) require a second connection bound to
  * address 0x00. Pass {@code null} to disable those methods.
  *
  * <h2>EEPROM write timing</h2>
@@ -37,17 +37,17 @@ public class Mcp4725Full extends Mcp4725Minimal {
             boolean eepromReady
     ) {}
 
-    private final Transport generalCall;
+    private final Connection generalCall;
 
     /**
      * Construct the full driver.
      *
-     * @param transport   I²C transport bound to the MCP4725 device address
-     * @param generalCall I²C transport bound to address 0x00 for General Call
+     * @param connection   I²C connection bound to the MCP4725 device address
+     * @param generalCall I²C connection bound to address 0x00 for General Call
      *                    commands, or {@code null} to disable reset/wakeUp
      */
-    public Mcp4725Full(Transport transport, Transport generalCall) {
-        super(transport);
+    public Mcp4725Full(Connection connection, Connection generalCall) {
+        super(connection);
         this.generalCall = generalCall;
     }
 
@@ -78,7 +78,7 @@ public class Mcp4725Full extends Mcp4725Minimal {
         // Byte 1: [0 1 1 X X PD1 PD0 X] = 0x60 (normal mode)
         // Byte 2: D11–D4
         // Byte 3: D3–D0 in bits 7:4, bits 3:0 don't care
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 0x60,
                 (byte) ((code >> 4) & 0xFF),
                 (byte) ((code << 4) & 0xF0)
@@ -92,7 +92,7 @@ public class Mcp4725Full extends Mcp4725Minimal {
      * @throws IOException on I²C error
      */
     public ReadResult read() throws IOException {
-        byte[] b = transport.read(5);
+        byte[] b = connection.read(5);
         boolean eepromReady = (b[0] & 0x80) != 0;
         int powerDown      = (b[0] >> 2) & 0x03;
         int code           = ((b[1] & 0xFF) << 4) | ((b[2] & 0xFF) >> 4);
@@ -113,7 +113,7 @@ public class Mcp4725Full extends Mcp4725Minimal {
     public void setPowerDown(int mode) throws IOException {
         mode = Math.max(0, Math.min(3, mode));
         // Fast Write with PD bits set: [0 0 PD1 PD0 D11-D8] [D7-D0]
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) (((mode & 0x03) << 4) | ((lastCode >> 8) & 0x0F)),
                 (byte) (lastCode & 0xFF)
         });
@@ -126,7 +126,7 @@ public class Mcp4725Full extends Mcp4725Minimal {
      * on the bus that support General Call.
      *
      * @throws IOException              on I²C error
-     * @throws IllegalStateException    if no General Call transport was provided
+     * @throws IllegalStateException    if no General Call connection was provided
      */
     public void wakeUp() throws IOException {
         requireGeneralCall();
@@ -140,7 +140,7 @@ public class Mcp4725Full extends Mcp4725Minimal {
      * that support General Call, reloading EEPROM contents into the DAC register.
      *
      * @throws IOException              on I²C error
-     * @throws IllegalStateException    if no General Call transport was provided
+     * @throws IllegalStateException    if no General Call connection was provided
      */
     public void reset() throws IOException {
         requireGeneralCall();
@@ -154,12 +154,12 @@ public class Mcp4725Full extends Mcp4725Minimal {
      * @throws IOException on I²C error
      */
     public boolean isEepromReady() throws IOException {
-        byte[] b = transport.read(1);
+        byte[] b = connection.read(1);
         return (b[0] & 0x80) != 0;
     }
 
     private void requireGeneralCall() {
         if (generalCall == null)
-            throw new IllegalStateException("General Call transport not configured");
+            throw new IllegalStateException("General Call connection not configured");
     }
 }

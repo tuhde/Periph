@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ public class Bmp180Minimal {
     // Chip ID
     protected static final int CHIP_ID = 0x55;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     // Calibration coefficients
     protected int   AC1, AC2, AC3;
@@ -45,14 +45,14 @@ public class Bmp180Minimal {
     /**
      * Construct the driver, verify the chip ID, and load calibration data.
      *
-     * @param transport I²C transport bound to address 0x77
+     * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp180Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Bmp180Minimal(Connection connection) throws IOException {
+        this.connection = connection;
 
         // Verify chip ID
-        byte[] id = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException(
                     "BMP180 not found: expected chip ID 0x55, got 0x"
@@ -68,7 +68,7 @@ public class Bmp180Minimal {
      * @throws IOException on I²C error or invalid calibration data
      */
     protected void readCalibration() throws IOException {
-        byte[] cal = transport.writeRead(new byte[]{(byte) REG_CAL_START}, 22);
+        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CAL_START}, 22);
 
         AC1 = (short) (((cal[0]  & 0xFF) << 8) | (cal[1]  & 0xFF));
         AC2 = (short) (((cal[2]  & 0xFF) << 8) | (cal[3]  & 0xFF));
@@ -114,9 +114,9 @@ public class Bmp180Minimal {
      * @throws IOException on I²C error
      */
     protected int readRawTemperature() throws IOException {
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) CMD_TEMP});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) CMD_TEMP});
         try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] b = transport.writeRead(new byte[]{(byte) REG_OUT_MSB}, 2);
+        byte[] b = connection.writeRead(new byte[]{(byte) REG_OUT_MSB}, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -128,9 +128,9 @@ public class Bmp180Minimal {
      * @throws IOException on I²C error
      */
     protected long readRawPressure(int ossMode) throws IOException {
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) (CMD_PRES_OSS | (ossMode << 6))});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) (CMD_PRES_OSS | (ossMode << 6))});
         try { Thread.sleep(ossMode * 10L + 5L); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] b = transport.writeRead(new byte[]{(byte) REG_OUT_MSB}, 3);
+        byte[] b = connection.writeRead(new byte[]{(byte) REG_OUT_MSB}, 3);
         long raw = (((long)(b[0] & 0xFF) << 16) | ((long)(b[1] & 0xFF) << 8) | (b[2] & 0xFF));
         return raw >> (8 - ossMode);
     }

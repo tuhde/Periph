@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.power.ina3221 import INA3221Minimal
 import time
 
-transport = I2CTransport(0x40)
-ina = INA3221Minimal(transport)                       # Create INA3221 driver, (transport, r_shunt=0.1 Ω)
+connection = I2CConnection(0x40)
+ina = INA3221Minimal(connection)                       # Create INA3221 driver, (connection, r_shunt=0.1 Ω)
 
 while True:
     for ch in (1, 2, 3):

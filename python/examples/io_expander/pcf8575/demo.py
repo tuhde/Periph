@@ -11,14 +11,22 @@ from Port 1 (P10–P17, bits 8–15 of the full 16-bit value), inverts it
 Prints both the raw port bytes in hex and the decoded button/LED states
 so the quasi-bidirectional read-back behavior and 2-byte protocol are visible.
 """
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
+from periph.connection.input_pin import MicroPythonPin
 from periph.chips.io_expander.pcf8575 import Pcf8575Full
+from machine import Pin
 import time
+
+# --- Wire interrupt for instant button response ---
+# The chip's INT goes low as soon as any input changes, so the callback fires
+# within 4 µs (t_iv) instead of waiting for the polling interval.
+int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                           # Hardware INT pin, (pin=5, mode=IN)
+int_pin = MicroPythonPin(int_hw)                              # Wrap as InputPin, (pin) → InputPin
 
 # --- Initialise bus and driver ---
 # PCF8575 is I²C only, 400 kHz Fast mode; start with all pins as inputs.
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Pcf8575Full(transport)                                   # Create PCF8575 full driver, (transport, addr=0x20)
+connection = I2CConnection(0x20, int_pin=int_pin)           # Create I2C connection, (i2c, addr=0x20, int_pin=None, en_pin=None)
+chip = Pcf8575Full(connection)                                   # Create PCF8575 full driver, (connection, addr=0x20)
 
 # --- Configure output pins for LEDs (P00–P07 → drive low) ---
 # Writing 0 to a pin drives it low via the 25 mA sink; that turns the LED on
@@ -26,15 +34,10 @@ chip = Pcf8575Full(transport)                                   # Create PCF8575
 chip.write_port(0, 0xFF)                                       # Write Port 0, (port=0, mask=int) → None
 chip.write_port(1, 0xFF)                                       # Write Port 1, (port=1, mask=int) → None
 
-# --- Wire interrupt for instant button response ---
-# The chip's INT goes low as soon as any input changes, so the callback fires
-# within 4 µs (t_iv) instead of waiting for the polling interval.
-int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                           # Hardware INT pin, (pin=5, mode=IN)
-
 def _on_change(changed_mask):                                   # Interrupt callback, (changed_mask: int) → None
     pass  # changes are picked up in the main loop via read_port
 
-chip.configure_interrupt(int_hw, _on_change)                   # Attach interrupt, (int_pin, callback) → None
+chip.on_interrupt(_on_change)                                   # Subscribe to interrupts, (callback) → None
 
 # --- Main loop: read buttons → mirror to LEDs ---
 # Port 1 (P10–P17) buttons: press pulls low; internal 100 µA pull-up keeps floating high

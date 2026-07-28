@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport
+import it.uhde.periph.connection.NeoPixelConnection
 import it.uhde.periph.chips.led.WS2812BFull
 
 final long   FRAME_MS  = 33    // ~30 fps
@@ -15,9 +15,9 @@ final int    STROBE_HZ = 10
 def spiBus     = (System.getenv("SPI_BUS")     ?: "0").toInteger()
 def spiDevice  = (System.getenv("SPI_DEVICE")  ?: "0").toInteger()
 def PIXELS     = (System.getenv("PIXEL_COUNT") ?: "4").toInteger()
-def transport = new NeoPixelTransport(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+def connection = new NeoPixelConnection(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
 try {
-    def strip = new WS2812BFull(transport, PIXELS)              // construct driver, (transport, n) → WS2812BFull
+    def strip = new WS2812BFull(connection, PIXELS)              // construct driver, (connection, n) → WS2812BFull
 
     // --- Rainbow rotation for 10 seconds ---
     // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour
@@ -78,7 +78,7 @@ try {
     strip.off()                                                    // turn off strip at exit, () → void
 
 } finally {
-    transport.close()
+    connection.close()
 }
 
 static int[] hsvToRgb(double h, double s, double v) {

@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <math.h>
-#include "NeoPixelTransportZephyr.h"
+#include "NeoPixelConnectionZephyr.h"
 #include "WS2812B.h"
 
 #define SPI_NODE DT_NODELABEL(spi0)
@@ -18,8 +18,8 @@ static void hsv_to_rgb(float h, float s, float v,
 
 int main(void) {
     const struct device *spi_dev = DEVICE_DT_GET(SPI_NODE);
-    NeoPixelTransportZephyr transport(spi_dev);    // Create NeoPixel transport, (dev=spi_device*)
-    WS2812BFull strip(transport, N_PIXELS);        // Create WS2812B full driver, (transport, n=N_PIXELS pixels)
+    NeoPixelConnectionZephyr connection(spi_dev);    // Create NeoPixel connection, (dev=spi_device*)
+    WS2812BFull strip(connection, N_PIXELS);        // Create WS2812B full driver, (connection, n=N_PIXELS pixels)
     strip.set_brightness(180);                     // Set global brightness, (value=0–255) → void
 
     while (1) {

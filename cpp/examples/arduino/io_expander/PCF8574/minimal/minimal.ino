@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "PCF8574.h"
 
-I2CTransport transport(Wire, 0x20);                            // Create I2C transport, (wire, addr=0x20)
-PCF8574Minimal chip(transport);                                // Create PCF8574 driver, (transport, addr=0x20)
+I2CConnection connection(Wire, 0x20);                            // Create I2C connection, (wire, addr=0x20)
+PCF8574Minimal chip(connection);                                // Create PCF8574 driver, (connection, addr=0x20)
 
 PCF8574Minimal::IOExpanderPin p0 = chip.pin(0);               // Get pin proxy, (n) → IOExpanderPin
 PCF8574Minimal::IOExpanderPin p4 = chip.pin(4);               // Get pin proxy, (n) → IOExpanderPin

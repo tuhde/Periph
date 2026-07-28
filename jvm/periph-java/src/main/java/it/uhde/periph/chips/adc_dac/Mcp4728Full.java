@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -64,17 +64,17 @@ public class Mcp4728Full extends Mcp4728Minimal {
     private static final int GC_SOFTWARE_UPD      = 0x08;
     private static final int GC_WAKE              = 0x09;
 
-    private final Transport generalCall;
+    private final Connection generalCall;
 
     /**
      * Construct the full driver.
      *
-     * @param transport   I²C transport bound to the MCP4728 device address
-     * @param generalCall I²C transport bound to address 0x00 for General Call
+     * @param connection   I²C connection bound to the MCP4728 device address
+     * @param generalCall I²C connection bound to address 0x00 for General Call
      *                    commands, or {@code null} to disable reset / wakeUp / softwareUpdate
      */
-    public Mcp4728Full(Transport transport, Transport generalCall) {
-        super(transport);
+    public Mcp4728Full(Connection connection, Connection generalCall) {
+        super(connection);
         this.generalCall = generalCall;
     }
 
@@ -134,7 +134,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
             buf[1 + i * 2]     = (byte) (((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F));
             buf[1 + i * 2 + 1] = (byte) (code & 0xFF);
         }
-        transport.write(buf);
+        connection.write(buf);
     }
 
     /**
@@ -146,7 +146,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
                 | ((vrefB != 0 ? 1 : 0) << 2)
                 | ((vrefC != 0 ? 1 : 0) << 1)
                 |  (vrefD != 0 ? 1 : 0);
-        transport.write(new byte[]{(byte) byte1});
+        connection.write(new byte[]{(byte) byte1});
     }
 
     /**
@@ -158,7 +158,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
                 | ((gainB == GAIN_X2 ? 1 : 0) << 2)
                 | ((gainC == GAIN_X2 ? 1 : 0) << 1)
                 |  (gainD == GAIN_X2 ? 1 : 0);
-        transport.write(new byte[]{(byte) byte1});
+        connection.write(new byte[]{(byte) byte1});
     }
 
     /**
@@ -174,7 +174,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
                 | (((b >> 1) & 0x01) << 2) | ((b & 0x01) << 1);
         int byte2 = (((c >> 1) & 0x01) << 6) | ((c & 0x01) << 5)
                   | (((d >> 1) & 0x01) << 4) | ((d & 0x01) << 3);
-        transport.write(new byte[]{(byte) byte1, (byte) byte2});
+        connection.write(new byte[]{(byte) byte1, (byte) byte2});
     }
 
     /**
@@ -184,7 +184,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
      * 3 bytes EEPROM).
      */
     public ReadResult read() throws IOException {
-        byte[] b = transport.read(24);
+        byte[] b = connection.read(24);
         boolean eepromReady = (b[0] & 0x80) != 0;
         ChannelState[] ch = new ChannelState[4];
         for (int i = 0; i < 4; i++) {
@@ -211,7 +211,7 @@ public class Mcp4728Full extends Mcp4728Minimal {
      * Read the RDY/BSY bit.
      */
     public boolean isEepromReady() throws IOException {
-        byte[] b = transport.read(1);
+        byte[] b = connection.read(1);
         return (b[0] & 0x80) != 0;
     }
 
@@ -249,11 +249,11 @@ public class Mcp4728Full extends Mcp4728Minimal {
         int byte1 = CMD_SINGLE_WRITE | ((channel & 0x03) << 1) | (udac & 0x01);
         int byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | ((gain & 0x01) << 4) | ((code >> 8) & 0x0F);
         int byte3 = code & 0xFF;
-        transport.write(new byte[]{(byte) byte1, (byte) byte2, (byte) byte3});
+        connection.write(new byte[]{(byte) byte1, (byte) byte2, (byte) byte3});
     }
 
     private void requireGeneralCall() {
         if (generalCall == null)
-            throw new IllegalStateException("General Call transport not configured");
+            throw new IllegalStateException("General Call connection not configured");
     }
 }

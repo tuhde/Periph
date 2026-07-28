@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.imu.mpu6050 import MPU6050Full
 import time
 
-transport = I2CTransport(0x68)
-imu = MPU6050Full(transport)                             # Create MPU6050 driver, (transport) → None
+connection = I2CConnection(0x68)
+imu = MPU6050Full(connection)                             # Create MPU6050 driver, (connection) → None
 
 ax, ay, az = imu.accel()                                # Read 3-axis acceleration, () → (float, float, float) m/s²
                                                          # converts raw accel register to m/s² (16384 LSB/g at ±2g)

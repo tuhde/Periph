@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief 24AA02UID 2K I2C EEPROM with 32-bit unique serial number — minimal interface.
  *
@@ -24,11 +24,11 @@
  *   ignored by the chip. Drivers accept the call but the data is not
  *   retained.
  *
- * @param transport Configured I2C transport pointing at the device (address 0x50).
+ * @param connection Configured I2C connection pointing at the device (address 0x50).
  */
 class EEPROM24AA02UIDMinimal {
 public:
-    EEPROM24AA02UIDMinimal(Transport& transport);
+    EEPROM24AA02UIDMinimal(Connection& connection);
 
     /** @brief Read the chip's factory-programmed 32-bit unique serial number.
      *  @param buf Destination buffer (4 bytes).
@@ -58,7 +58,7 @@ protected:
     static constexpr uint8_t ADDR_DEV_CODE   = 0xFB;
     static constexpr uint8_t WRITE_CYCLE_MS  = 5;
 
-    Transport& _transport;
+    Connection& _connection;
 
     void _ack_poll();
 };
@@ -69,11 +69,11 @@ protected:
  *  write that automatically crosses page boundaries, and accessors for
  *  the manufacturer and device codes in the upper (read-only) block.
  *
- *  @param transport Configured I2C transport pointing at the device (address 0x50).
+ *  @param connection Configured I2C connection pointing at the device (address 0x50).
  */
 class EEPROM24AA02UIDFull : public EEPROM24AA02UIDMinimal {
 public:
-    EEPROM24AA02UIDFull(Transport& transport);
+    EEPROM24AA02UIDFull(Connection& connection);
 
     /** @brief Sequential read of @p length bytes starting at @p address.
      *

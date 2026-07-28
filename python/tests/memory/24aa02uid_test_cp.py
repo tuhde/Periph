@@ -1,7 +1,7 @@
 import time
 import busio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.memory._24aa02uid import EEPROM24AA02UIDFull
 
 passed = 0
@@ -29,8 +29,8 @@ def check_true(label, condition):
 
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-eeprom = EEPROM24AA02UIDFull(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+eeprom = EEPROM24AA02UIDFull(connection)
 
 uid = eeprom.read_uid()
 check_eq('read_uid length', len(uid), 4)

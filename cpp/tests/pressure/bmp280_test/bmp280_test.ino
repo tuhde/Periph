@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/pressure/BMP280.h"
 
 static int passed = 0, failed = 0;
@@ -24,8 +24,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    BMP280Minimal bmp(transport);
+    I2CConnection connection(Wire, TEST_ADDR);
+    BMP280Minimal bmp(connection);
 
     bmp._dig_T1 = 27504;
     bmp._dig_T2 = 26435;
@@ -47,7 +47,7 @@ void setup() {
     float p = bmp._compensate_pressure(415148);
     check_true(p > 1005.0f && p < 1008.0f, "pressure_compensation");
 
-    BMP280Full bmp_full(transport);
+    BMP280Full bmp_full(connection);
     bmp_full.set_oversampling(BMP280Full::OSRS_X4, BMP280Full::OSRS_X2);
     check_true(bmp_full._osrs_t == 3 && bmp_full._osrs_p == 2, "set_oversampling");
 

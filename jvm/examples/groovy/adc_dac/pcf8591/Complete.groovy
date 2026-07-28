@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Pcf8591Full
 
-def transport = new I2CTransport(1, 0x48)              // open device transport, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x48)              // open device connection, (bus, address) → I2CConnection
 try {
-    def adc = new Pcf8591Full(transport)                       // construct driver, (transport) → Pcf8591Full
+    def adc = new Pcf8591Full(connection)                       // construct driver, (connection) → Pcf8591Full
 
     int ch0Raw = adc.readChannel(0)                            // read single channel, (channel=0–3) → int
                                                                 // discards the stale first conversion byte; returns 0–255
@@ -38,5 +38,5 @@ try {
     printf("ch0_raw=%d v0=%.3fV diff=%d%n", ch0Raw, v0, diff)
 
 } finally {
-    transport.close()
+    connection.close()
 }

@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "Mpu6050.h"
 
 #ifndef TEST_I2C_BUS
@@ -19,8 +19,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    MPU6050Full imu(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    MPU6050Full imu(connection);
 
     check_true("who_am_i", imu.who_am_i() == 0x68);
 

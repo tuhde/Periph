@@ -15,7 +15,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,13 +28,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x42) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x42) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip := gnss.NewNEO6Full(tr, "i2c") // Create NEO-6 driver, (transport, bus_type="i2c") → *NEO6Full
+	chip := gnss.NewNEO6Full(conn, "i2c") // Create NEO-6 driver, (connection, bus_type="i2c") → *NEO6Full
 
 	// Minimal-inherited position fields (these populate on the first
 	// GGA sentence with a valid fix status > 0).

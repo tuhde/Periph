@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.comms.rda5807m import RDA5807MFull
 import time
 
-transport = I2CTransport(0x10)
-fm = RDA5807MFull(transport, frequency_mhz=87.5, volume=10)
+connection = I2CConnection(0x10)
+fm = RDA5807MFull(connection, frequency_mhz=87.5, volume=10)
 
 # --- FM band scanner ---
 # Start at the bottom of the world-wide band and repeatedly seek upward with

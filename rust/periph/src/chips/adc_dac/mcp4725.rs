@@ -1,7 +1,7 @@
 //! MCP4725 single-channel 12-bit voltage-output DAC (Microchip).
 //!
 //! Communicates over I²C (up to 3.4 MHz high-speed, 400 kHz fast mode, 100 kHz standard).
-//! Provides voltage output as a fraction of V_DD with no configuration beyond the transport.
+//! Provides voltage output as a fraction of V_DD with no configuration beyond the connection.
 //! The chip has on-chip EEPROM that automatically loads into the DAC register on power-up.
 
 use embedded_hal::i2c::I2c;

@@ -1,11 +1,11 @@
 'use strict';
-const { I2CTransport } = require('../../../src/transport/i2c');
+const { I2CConnection } = require('../../../src/connection/i2c');
 const { PCF8576Full } = require('../../../src/chips/display/pcf8576');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x38', 16);
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
+const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -17,7 +17,7 @@ async function sleep(ms) {
     // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
     // and writes all four with one writeRaw() call. The countdown runs once per
     // second and the terminal mirrors the value sent to the display.
-    const lcd = new PCF8576Full(transport);                // Create PCF8576 driver, (transport)
+    const lcd = new PCF8576Full(connection);                // Create PCF8576 driver, (connection)
 
     for (let n = 9999; n >= 0; n--) {
         const d0 = Math.floor(n / 1000) % 10;
@@ -30,7 +30,7 @@ async function sleep(ms) {
             PCF8576Full.SEVEN_SEG[d2],                    // Encode 7-segment digit, (digit 0–9) → number
             PCF8576Full.SEVEN_SEG[d3],                    // Encode 7-segment digit, (digit 0–9) → number
         ];
-        lcd.writeRaw(0, out);                             // Write all four digits, (address 0, 4 bytes) → void
+        await lcd.writeRaw(0, out);                       // Write all four digits, (address 0, 4 bytes) → void
         console.log(`countdown: ${String(n).padStart(4, '0')}`);
         await sleep(1000);
     }
@@ -40,9 +40,9 @@ async function sleep(ms) {
     // signal that the demo has finished. Each digit's g segment is bit 1, so a
     // 0x02 byte lights just the bar across the middle.
     const dash = [0x02, 0x02, 0x02, 0x02];
-    lcd.writeRaw(0, dash);                                // Write dash pattern, (address 0, 4 bytes) → void
+    await lcd.writeRaw(0, dash);                          // Write dash pattern, (address 0, 4 bytes) → void
     console.log('countdown complete');
 
-    transport.close();
+    await connection.close();
     console.log('===DONE: 0 passed, 0 failed===');
 })();

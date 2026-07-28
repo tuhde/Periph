@@ -1,9 +1,9 @@
-from periph.transport.neopixel_auto import NeoPixelTransport
+from periph.connection.neopixel_auto import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWMinimal
 import time
 
-transport = NeoPixelTransport(mosi=19, sck=18, miso=20)                               # Create NeoPixel transport, (spi)
-strip = SK6812RGBWMinimal(transport, 30)                         # Create SK6812RGBW driver, (transport, n=30 pixels)
+connection = NeoPixelConnection(mosi=19, sck=18, miso=20)                               # Create NeoPixel connection, (spi)
+strip = SK6812RGBWMinimal(connection, 30)                         # Create SK6812RGBW driver, (connection, n=30 pixels)
 
 strip.fill(255, 0, 0)                                            # Fill all pixels red, (r=0–255, g=0–255, b=0–255, w=0–255) → None
 time.sleep(1)

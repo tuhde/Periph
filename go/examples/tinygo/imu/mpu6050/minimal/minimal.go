@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x68)        // Create I2C transport, (i2c, addr=0x68) → (*I2CTransport)
-	chip, err := imu.NewMPU6050Minimal(tr)            // Create MPU6050 driver, (transport) → (*MPU6050Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x68, nil, nil)        // Create I2C connection, (i2c, addr=0x68) → (*I2CConnection)
+	chip, err := imu.NewMPU6050Minimal(conn)            // Create MPU6050 driver, (connection) → (*MPU6050Minimal, error)
 	if err != nil {
 		panic(err)
 	}

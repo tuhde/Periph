@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -32,11 +32,11 @@ class Bmp180Full extends Bmp180Minimal {
     /**
      * Construct the full driver, verify chip ID, and load calibration.
      *
-     * @param transport I²C transport bound to address 0x77
+     * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bmp180Full(Transport transport) {
-        super(transport)
+    Bmp180Full(Connection connection) {
+        super(connection)
     }
 
     /**
@@ -108,7 +108,7 @@ class Bmp180Full extends Bmp180Minimal {
      * @throws IOException on I²C error
      */
     int chipId() {
-        byte[] b = transport.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) REG_ID] as byte[], 1)
         return b[0] & 0xFF
     }
 
@@ -121,7 +121,7 @@ class Bmp180Full extends Bmp180Minimal {
      * @throws IOException on I²C error or invalid calibration after reset
      */
     void reset() {
-        transport.write([(byte) REG_SOFT_RST, (byte) 0xB6] as byte[])
+        connection.write([(byte) REG_SOFT_RST, (byte) 0xB6] as byte[])
         Thread.sleep(15)
         readCalibration()
     }

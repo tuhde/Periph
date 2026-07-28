@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { I2CTransport } = require('periph/src/transport/i2c');
+    const { I2CConnection } = require('periph/src/connection/i2c');
     const { BMP280Full }   = require('periph/src/chips/pressure/bmp280');
 
     function BMP280DeviceNode(config) {
@@ -9,8 +9,8 @@ module.exports = function(RED) {
         const node = this;
         try {
             const addr = parseInt(config.addr) || 0x76;
-            const transport = new I2CTransport(parseInt(config.bus), addr);
-            node.driver    = new BMP280Full(transport);
+            const connection = new I2CConnection(parseInt(config.bus), addr);
+            node.driver    = new BMP280Full(connection);
             node.driver.configure(
                 parseInt(config.osrsT) || 1,
                 parseInt(config.osrsP) || 1,
@@ -18,12 +18,12 @@ module.exports = function(RED) {
                 parseInt(config.filter) || 0,
                 parseInt(config.tSb)   || 0
             );
-            node.transport = transport;
+            node.connection = connection;
         } catch (e) {
             node.error('BMP280 init failed: ' + e.message);
         }
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('bmp280-device', BMP280DeviceNode);
@@ -33,7 +33,7 @@ module.exports = function(RED) {
         const node = this;
         node.device = RED.nodes.getNode(config.device);
 
-        node.on('input', function(msg, send, done) {
+        node.on('input', async function(msg, send, done) {
             if (!node.device || !node.device.driver) {
                 node.error('No BMP280 device configured', msg);
                 done();
@@ -42,9 +42,9 @@ module.exports = function(RED) {
             try {
                 const d = node.device.driver;
                 msg.payload = {
-                    temperature: d.temperature(),
-                    pressure:     d.pressure(),
-                    altitude:    d.altitude(parseFloat(config.seaLevelHpa) || 1013.25)
+                    temperature: await d.temperature(),
+                    pressure:     await d.pressure(),
+                    altitude:    await d.altitude(parseFloat(config.seaLevelHpa) || 1013.25)
                 };
                 send(msg);
                 done();

@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
  *
  *  Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- *  beyond the transport. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
+ *  beyond the connection. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
  *
  *  Default: forced mode, osrs_t=×1, osrs_p=×1, IIR filter off.
  *
- *  @param transport Configured I²C or SPI transport pointing at the device.
+ *  @param connection Configured I²C or SPI connection pointing at the device.
  *  @param spi       Set true for SPI bus (masks bit 7 on writes).
  */
 class BMP280Minimal {
 public:
-    explicit BMP280Minimal(Transport& transport, bool spi = false);
+    explicit BMP280Minimal(Connection& connection, bool spi = false);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -65,7 +65,7 @@ protected:
 
     static constexpr uint32_t MEAS_TIME_MS  = 7;
 
-    Transport& _transport;
+    Connection& _connection;
     bool      _spi;
     uint8_t   _mode   = 0;
     uint8_t   _filter = 0;
@@ -83,7 +83,7 @@ protected:
  *  Adds power-mode control, oversampling, IIR filter, standby time,
  *  and altitude / sea-level pressure conversion.
  *
- *  @param transport Configured I²C or SPI transport pointing at the device.
+ *  @param connection Configured I²C or SPI connection pointing at the device.
  *  @param spi       Set true for SPI bus (masks bit 7 on writes).
  */
 class BMP280Full : public BMP280Minimal {
@@ -117,7 +117,7 @@ public:
     static constexpr uint8_t STATUS_MEASURING = 0x08;
     static constexpr uint8_t STATUS_IM_UPDATE = 0x01;
 
-    explicit BMP280Full(Transport& transport, bool spi = false);
+    explicit BMP280Full(Connection& connection, bool spi = false);
 
     /** @brief Write both ctrl_meas and config registers.
      *  @param osrs_t Temperature oversampling (0–5).

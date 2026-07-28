@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -71,30 +71,30 @@ public class Ina3221Full extends Ina3221Minimal {
     /**
      * Construct the full driver with a uniform shunt resistance for all channels.
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω applied to all three channels
      */
-    public Ina3221Full(Transport transport, double rShunt) {
-        super(transport, rShunt);
+    public Ina3221Full(Connection connection, double rShunt) {
+        super(connection, rShunt);
     }
 
     /**
      * Construct the full driver with per-channel shunt resistances.
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      * @param rShunts   shunt resistances in Ω for channels 1, 2, and 3
      */
-    public Ina3221Full(Transport transport, double[] rShunts) {
-        super(transport, rShunts);
+    public Ina3221Full(Connection connection, double[] rShunts) {
+        super(connection, rShunts);
     }
 
     /**
      * Construct the full driver with the default shunt resistance (0.1 Ω).
      *
-     * @param transport I²C transport bound to the INA3221 device address
+     * @param connection I²C connection bound to the INA3221 device address
      */
-    public Ina3221Full(Transport transport) {
-        super(transport);
+    public Ina3221Full(Connection connection) {
+        super(connection);
     }
 
     /**

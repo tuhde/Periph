@@ -1,14 +1,14 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.display.pcf8576 import PCF8576Full
 
-transport = I2CTransport(0x38)
+connection = I2CConnection(0x38)
 
 # --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
 # The PCF8576 drives four 7-segment digits from a single I2C bus; the host
 # encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
 # and writes all four with one write_raw() call. The countdown runs once per
 # second and the terminal mirrors the value sent to the display.
-lcd = PCF8576Full(transport)                             # Create PCF8576 driver, (transport)
+lcd = PCF8576Full(connection)                             # Create PCF8576 driver, (connection)
 
 for n in range(9999, -1, -1):
     d0 = (n // 1000) % 10

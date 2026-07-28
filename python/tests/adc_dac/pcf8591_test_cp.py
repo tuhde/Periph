@@ -1,7 +1,7 @@
 import time
 import busio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.adc_dac.pcf8591 import PCF8591Full
 
 passed = 0
@@ -19,8 +19,8 @@ def check_true(label, condition):
 
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-adc = PCF8591Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+adc = PCF8591Full(connection)
 
 ch0 = adc.read_channel(0)
 check_true('read_channel(0) returns int', isinstance(ch0, int))

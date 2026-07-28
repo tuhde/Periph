@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.magnetometer.as5600 import AS5600Full
 
 from machine import I2C, Pin
@@ -30,12 +30,12 @@ def check_true(label, condition):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 
 print('--- magnet status (60 s max) ---')
 for _ in range(300):
-    s   = transport.write_read(bytes([0x0B]), 1)[0]
-    agc = transport.write_read(bytes([0x1A]), 1)[0]
+    s   = connection.write_read(bytes([0x0B]), 1)[0]
+    agc = connection.write_read(bytes([0x1A]), 1)[0]
     md = bool(s & 0x08); ml = bool(s & 0x10); mh = bool(s & 0x20)
     print('MD={} ML={} MH={} AGC={}'.format(int(md), int(ml), int(mh), agc))
     if md:
@@ -44,7 +44,7 @@ for _ in range(300):
 print('--- end magnet status ---')
 
 as5600 = AS5600Full.__new__(AS5600Full)
-as5600._transport = transport
+as5600._connection = connection
 
 # --- Magnet detection ---
 check_true('magnet_detected', as5600.is_magnet_detected())

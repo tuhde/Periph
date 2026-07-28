@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.rfid.Mfrc522Full
 
-def transport = new I2CTransport(1, 0x28)                     // open I²C bus 1, device 0x28, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x28)                     // open I²C bus 1, device 0x28, (bus, address) → I2CConnection
 try {
-    def mfrc = new Mfrc522Full(transport, Mfrc522Full.BUS_I2C)        // construct driver, (transport, busType=BUS_I2C) → Mfrc522Full
+    def mfrc = new Mfrc522Full(connection, Mfrc522Full.BUS_I2C)        // construct driver, (connection, busType=BUS_I2C) → Mfrc522Full
 
     int[] v = mfrc.version()                                  // read version register, () → int[2]{chipType, version}
                                                                 // for MFRC522 v[0]=0x09, v[1]=1 (v1.0) or 2 (v2.0)
@@ -51,5 +51,5 @@ try {
         mfrc.haltCard()                                        // send HLTA, () → void
     }
 } finally {
-    transport.close()
+    connection.close()
 }

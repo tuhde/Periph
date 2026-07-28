@@ -119,7 +119,7 @@ fn wait_stc<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
 
 /// RDA5807M minimal driver — tune, volume, mute, and seek.
 ///
-/// No configuration required beyond the transport. Sensible defaults:
+/// No configuration required beyond the connection. Sensible defaults:
 /// world-wide band (76-108 MHz), 100 kHz spacing, DHIZ/DMUTE/NEW_METHOD
 /// enabled, SKMODE=1 (stop seeking at the band limit).
 pub struct Rda5807mMinimal<I2C> {

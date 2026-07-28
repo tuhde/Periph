@@ -1,7 +1,7 @@
 #include "PCF8576.h"
 
-PCF8576Minimal::PCF8576Minimal(Transport& transport)
-    : _transport(transport), _backplanes(4) {
+PCF8576Minimal::PCF8576Minimal(Connection& connection)
+    : _connection(connection), _backplanes(4) {
     _do_clear();
 }
 
@@ -16,7 +16,7 @@ void PCF8576Minimal::_send_commands(const uint8_t* cmds, size_t n) {
         buf[i] = 0x80 | (cmds[i] & 0x7F);
     }
     buf[n - 1] = cmds[n - 1] & 0x7F;
-    _transport.write(buf, n);
+    _connection.write(buf, n);
 }
 
 void PCF8576Minimal::_send_commands_with_data(const uint8_t* cmds, size_t n_cmds,
@@ -31,7 +31,7 @@ void PCF8576Minimal::_send_commands_with_data(const uint8_t* cmds, size_t n_cmds
     for (size_t i = 0; i < n_data; i++) {
         buf[pos++] = data[i];
     }
-    _transport.write(buf, pos);
+    _connection.write(buf, pos);
 }
 
 void PCF8576Minimal::_do_clear() {
@@ -61,8 +61,8 @@ void PCF8576Minimal::set_digit_7seg(uint8_t position, uint8_t segments) {
 
 // PCF8576Full
 
-PCF8576Full::PCF8576Full(Transport& transport)
-    : PCF8576Minimal(transport), _enabled(true), _bias(BIAS_1_3) {}
+PCF8576Full::PCF8576Full(Connection& connection)
+    : PCF8576Minimal(connection), _enabled(true), _bias(BIAS_1_3) {}
 
 uint8_t PCF8576Full::_mode_code(uint8_t backplanes) const {
     switch (backplanes) {

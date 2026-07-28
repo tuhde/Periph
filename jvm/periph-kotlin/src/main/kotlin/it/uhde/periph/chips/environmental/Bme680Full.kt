@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -25,9 +25,9 @@ import java.io.IOException
  * [STATUS_GAS_VALID], [STATUS_HEATER_STABLE]
  */
 class Bme680Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     addr: Int = 0x76
-) : Bme680Minimal(transport, addr) {
+) : Bme680Minimal(connection, addr) {
 
     /**
      * Combined reading from a single TPHG cycle.
@@ -96,10 +96,10 @@ class Bme680Full @JvmOverloads constructor(
         this.osrsP = osrsP
         this.osrsH = osrsH
         this.filterCoeff = filter
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
         val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (mode and 0x03)
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), ((filter and 0x07) shl 2).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), ((filter and 0x07) shl 2).toByte()))
     }
 
     /**
@@ -116,9 +116,9 @@ class Bme680Full @JvmOverloads constructor(
         this.osrsT = osrsT
         this.osrsP = osrsP
         this.osrsH = osrsH
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
         val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x00
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
     }
 
     /**
@@ -131,7 +131,7 @@ class Bme680Full @JvmOverloads constructor(
      */
     fun setFilter(coeff: Int) {
         this.filterCoeff = coeff
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), ((coeff and 0x07) shl 2).toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), ((coeff and 0x07) shl 2).toByte()))
     }
 
     /**
@@ -178,7 +178,7 @@ class Bme680Full @JvmOverloads constructor(
     fun selectHeaterProfile(index: Int) {
         activeProfile = index
         ctrlGas1 = (ctrlGas1 and 0xF0) or (index and 0x0F)
-        transport.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
     }
 
     /**
@@ -189,7 +189,7 @@ class Bme680Full @JvmOverloads constructor(
      */
     fun setGasEnabled(enabled: Boolean) {
         ctrlGas1 = if (enabled) ctrlGas1 or 0x10 else ctrlGas1 and 0xEF
-        transport.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
     }
 
     /**
@@ -203,7 +203,7 @@ class Bme680Full @JvmOverloads constructor(
      */
     fun setHeaterOff(off: Boolean) {
         val value = if (off) 0x08 else 0x00
-        transport.write(byteArrayOf(REG_CTRL_GAS_0.toByte(), value.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_GAS_0.toByte(), value.toByte()))
     }
 
     /**
@@ -221,7 +221,7 @@ class Bme680Full @JvmOverloads constructor(
             heaterProfileTempC[activeProfile],
             tempC.toInt()
         )
-        transport.write(
+        connection.write(
             byteArrayOf(
                 (REG_RES_HEAT_BASE + activeProfile).toByte(),
                 resHeat.toByte()
@@ -296,7 +296,7 @@ class Bme680Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun status(): Int {
-        val b = transport.writeRead(byteArrayOf(REG_MEAS_STATUS.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(REG_MEAS_STATUS.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -353,7 +353,7 @@ class Bme680Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun chipId(): Int {
-        val b = transport.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -368,22 +368,22 @@ class Bme680Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun reset() {
-        transport.write(byteArrayOf(REG_SOFT_RESET.toByte(), 0xB6.toByte()))
+        connection.write(byteArrayOf(REG_SOFT_RESET.toByte(), 0xB6.toByte()))
         Thread.sleep(2)
         readCalibration()
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
-        transport.write(
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(
             byteArrayOf(
                 REG_CTRL_MEAS.toByte(),
                 (((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2)).toByte()
             )
         )
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), ((filterCoeff and 0x07) shl 2).toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), ((filterCoeff and 0x07) shl 2).toByte()))
         configureHeaterProfile(
             activeProfile,
             heaterProfileTempC[activeProfile],
             heaterProfileDurationMs[activeProfile]
         )
-        transport.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
     }
 }

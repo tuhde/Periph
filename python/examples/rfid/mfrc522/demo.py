@@ -1,9 +1,9 @@
 import time
-from periph.transport.spi_auto import SPITransport
+from periph.connection.spi_auto import SPIConnection
 from periph.chips.rfid.mfrc522 import MFRC522Full
 
-transport = SPITransport(bus=1, cs_pin=9)                          # Create SPI transport, (bus, cs)
-mfrc = MFRC522Full(transport)                              # Create MFRC522 driver, (transport, bus_type='spi')
+connection = SPIConnection(bus=1, cs_pin=9)                          # Create SPI connection, (bus, cs)
+mfrc = MFRC522Full(connection)                              # Create MFRC522 driver, (connection, bus_type='spi')
 
 # --- Prepaid-card credit counter ---
 # Simulates a transit-gate / vending-machine credit system using a MIFARE

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport;
+import it.uhde.periph.connection.NeoPixelConnection;
 import it.uhde.periph.chips.led.SK6812RGBWFull;
 
 /**
@@ -25,8 +25,8 @@ public class Demo {
         int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
         int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
         int PIXELS     = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
-        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new SK6812RGBWFull(transport, PIXELS);             // construct driver, (transport, n) → SK6812RGBWFull
+        try (var connection = new NeoPixelConnection(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
+            var strip = new SK6812RGBWFull(connection, PIXELS);             // construct driver, (connection, n) → SK6812RGBWFull
 
             // --- Rainbow rotation for 10 seconds ---
             // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour

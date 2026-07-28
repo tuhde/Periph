@@ -1,22 +1,22 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Bme280Full
 
 def bus  = (System.getenv("I2C_BUS")  ?: "1").toInteger()
 def addr = Integer.decode(System.getenv("I2C_ADDR") ?: "0x76")
-def transport = new I2CTransport(bus, addr)
+def connection = new I2CConnection(bus, addr)
 try {
 
     // --- Weather monitoring preset: forced mode, ×1/×1/×1, filter off ---
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between
     // samples to demonstrate battery-friendly indoor monitoring.
-    def sensor = new Bme280Full(transport)                  // construct driver, verifies chip ID and loads calibration, (transport) → Bme280Full
+    def sensor = new Bme280Full(connection)                  // construct driver, verifies chip ID and loads calibration, (connection) → Bme280Full
     sensor.configure(Bme280Full.OSRS_X1, Bme280Full.OSRS_X1, Bme280Full.OSRS_X1, Bme280Full.MODE_FORCED, Bme280Full.FILTER_OFF, Bme280Full.T_SB_0_5_MS)  // configure chip, (osrsT=×1, osrsP=×1, osrsH=×1, mode=forced, filter=off, tSb=0) → void
 
     for (int n = 0; n < 10; n++) {
@@ -45,5 +45,5 @@ try {
         printf("after breath: %.1f °C, %.1f %%RH, %.1f hPa, dew=%.1f °C%n", t, h, p, d)
     }()
 } finally {
-    transport.close()
+    connection.close()
 }

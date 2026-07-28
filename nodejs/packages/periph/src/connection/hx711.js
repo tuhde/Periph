@@ -1,0 +1,132 @@
+'use strict';
+
+/**
+ * HX711 GPIO bit-bang connection for Node.js (wraps opengpio Input/Output).
+ *
+ * Implements the 2-wire bit-bang protocol used exclusively by the HX711
+ * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
+ * count selects the channel and gain for the next conversion.
+ *
+ * The DOUT poll loop uses a synchronous spin (`.value`) which is acceptable
+ * for short waits during the clock cycle itself. The blocking wait before the
+ * cycle uses setImmediate yielding to avoid monopolising the event loop.
+ *
+ * This is a custom protocol with no generic byte read/write, so it does not
+ * extend the shared Connection base — it carries its own enabled flag and
+ * enPin instead.
+ */
+class HX711Connection {
+    /**
+     * @param {object} dout   - opengpio Input instance (boolean `.value`).
+     * @param {object} pdSck  - opengpio Output instance (boolean `.value`).
+     * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     */
+    constructor(dout, pdSck, enPin = null) {
+        this._dout = dout;
+        this._sck  = pdSck;
+        this.enPin = enPin;
+        this._enabled = true;
+        this._sck.value = false;
+    }
+
+    /** Resume conversions; drives the hardware EN pin high if wired.
+     * @returns {Promise<void>}
+     */
+    async enable() {
+        this._enabled = true;
+        if (this.enPin) await this.enPin.set(true);
+    }
+
+    /** Gate readRaw(); drives the hardware EN pin low if wired.
+     * @returns {Promise<void>}
+     */
+    async disable() {
+        this._enabled = false;
+        if (this.enPin) await this.enPin.set(false);
+    }
+
+    /** @returns {boolean} The current software-gate state. */
+    isEnabled() { return this._enabled; }
+
+    /**
+     * Return true if a conversion result is available (DOUT is LOW).
+     *
+     * Non-blocking.
+     *
+     * @returns {boolean} True when DOUT is LOW (data ready).
+     */
+    isReady() {
+        return this._dout.value === false;
+    }
+
+    /**
+     * Wait up to 1 s for data ready, then clock out a conversion.
+     *
+     * Polls DOUT until LOW (conversion ready), then sends exactly numPulses
+     * PD_SCK pulses, sampling DOUT at each falling edge (HIGH→LOW transition).
+     * Leaves PD_SCK LOW after the last pulse. The pulse count programs the
+     * channel and gain for the next conversion:
+     * 25 → Channel A Gain 128, 26 → Channel B Gain 32, 27 → Channel A Gain 64.
+     *
+     * Returns 0 without touching the bus if this connection is disabled.
+     *
+     * @param {number} numPulses - Number of PD_SCK pulses (must be 25, 26, or 27).
+     * @returns {number} Signed 24-bit ADC value, or 0 if disabled.
+     * @throws {Error} If numPulses is not 25, 26, or 27, or DOUT stays HIGH for >1 s.
+     */
+    readRaw(numPulses = 25) {
+        if (!this._enabled) return 0;
+        if (numPulses !== 25 && numPulses !== 26 && numPulses !== 27)
+            throw new Error('numPulses must be 25, 26, or 27');
+        const deadline = Date.now() + 1000;
+        while (this._dout.value !== false) {
+            if (Date.now() >= deadline)
+                throw new Error('HX711 DOUT did not go low within 1 second');
+            const end = Date.now() + 1;
+            while (Date.now() < end) {}
+        }
+        const endOf = (us) => process.hrtime.bigint() + BigInt(us * 1000);
+        let raw = 0;
+        for (let i = 0; i < numPulses; i++) {
+            this._sck.value = true;
+            let t = endOf(1); while (process.hrtime.bigint() < t) {}
+            this._sck.value = false;
+            t = endOf(1); while (process.hrtime.bigint() < t) {}
+            raw = (raw << 1) | (this._dout.value ? 1 : 0);
+        }
+        raw >>>= numPulses - 24;
+        if (raw >= 0x800000) raw -= 0x1000000;
+        return raw;
+    }
+
+    /**
+     * Enter power-down mode by holding PD_SCK HIGH for >60 µs.
+     *
+     * Uses a busy-spin for the delay since Node.js has no µs sleep.
+     */
+    powerDown() {
+        this._sck.value = true;
+        const end = Date.now() + 1;  // 1 ms >> 60 µs, safe margin
+        while (Date.now() < end) {}
+    }
+
+    /**
+     * Exit power-down mode and reset the chip.
+     *
+     * Drives PD_SCK LOW. The chip resets to Channel A, Gain 128. The first
+     * conversion after power-up must be discarded.
+     */
+    powerUp() {
+        this._sck.value = false;
+    }
+
+    /**
+     * Release both GPIO pins. Must be called when the connection is no longer needed.
+     */
+    close() {
+        this._dout.stop();
+        this._sck.stop();
+    }
+}
+
+module.exports = { HX711Connection };

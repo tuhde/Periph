@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp280Full
 
 fun main() {
-    I2CTransport(1, 0x76).use { transport ->                 // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CTransport
-        val sensor = Bmp280Full(transport)                          // construct driver, verifies chip ID and loads calibration, (transport) → Bmp280Full
+    I2CConnection(1, 0x76).use { connection ->                 // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CConnection
+        val sensor = Bmp280Full(connection)                          // construct driver, verifies chip ID and loads calibration, (connection) → Bmp280Full
 
         val id = sensor.chipId()                                    // read chip ID register 0xD0, () → Int
                                                                     // returns 0x58 for BMP280; useful for confirming the device is present

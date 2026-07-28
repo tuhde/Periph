@@ -2,7 +2,7 @@ import os
 import sys
 import time
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.imu.mpu6050 import MPU6050Full
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
@@ -32,8 +32,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-imu = MPU6050Full(transport)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+imu = MPU6050Full(connection)
 
 check_eq('who_am_i', imu._read_reg(imu._REG_WHO_AM_I), 0x68)
 
@@ -84,7 +84,7 @@ check_true('read_fifo matches count', len(data) == count)
 
 imu.reset_fifo()
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

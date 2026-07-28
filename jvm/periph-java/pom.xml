@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>it.uhde</groupId>
-            <artifactId>periph-transport</artifactId>
+            <artifactId>periph-connection</artifactId>
         </dependency>
     </dependencies>
 </project>

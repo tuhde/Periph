@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -30,8 +30,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x42)
-	chip := gnss.NewNEO6Minimal(tr, "i2c")
+	conn := connection.NewI2CConnection(i2c, 0x42, nil, nil)
+	chip := gnss.NewNEO6Minimal(conn, "i2c")
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {

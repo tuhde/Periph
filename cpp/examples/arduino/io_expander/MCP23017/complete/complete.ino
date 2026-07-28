@@ -1,9 +1,11 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
+#include "InputPinArduino.h"
 #include "MCP23017.h"
 
-I2CTransport transport(Wire, 0x20);
-MCP23017Full mcp(transport);
+InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
+I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)
+MCP23017Full mcp(connection);
 
 void setup() {
     Serial.begin(115200);
@@ -32,12 +34,14 @@ void setup() {
 
     mcp.set_default_value(0, 0x00);                        // Set DEFVAL for PORTA, (port=0, mask=0x00) → None
 
-    mcp.configure_interrupt(0, -1, [](uint8_t mask) {      // Enable INT on PORTA, (port=0, int_pin=-1, callback, mode='change') → None
-        Serial.print("PORTA changed: ");
-        Serial.println(mask, HEX);
-    }, "change", false);
+    mcp.onInterrupt([](uint8_t port, uint8_t status) {      // Subscribe to INT on both ports, (callback, intPin, mirror) → None
+        Serial.print("port ");
+        Serial.print(port);
+        Serial.print(" changed: ");
+        Serial.println(status, HEX);
+    }, &intPin, /*mirror=*/true);
 
-    mcp.stop_interrupt(0);                                  // Disable INT on PORTA, (port=0) → None
+    mcp.offInterrupt(0);                                    // Unsubscribe PORTA, (port=0) → None
 
     uint8_t porta = mcp.read_port(0);                       // Read PORTA, (port=0) → uint8_t
     uint8_t portb = mcp.read_port(1);                      // Read PORTB, (port=1) → uint8_t

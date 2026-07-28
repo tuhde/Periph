@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport;
+import it.uhde.periph.connection.NeoPixelConnection;
 import it.uhde.periph.chips.led.WS2812BFull;
 
 public class WS2812BTest {
@@ -22,9 +22,9 @@ public class WS2812BTest {
         int deviceNum = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE", "0"));
         int pixels    = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "30"));
 
-        try (var transport = new NeoPixelTransport(busNum, deviceNum)) {
+        try (var connection = new NeoPixelConnection(busNum, deviceNum)) {
 
-            var strip = new WS2812BFull(transport, pixels);
+            var strip = new WS2812BFull(connection, pixels);
 
             // --- fill and off ---
             strip.fill(255, 0, 0);

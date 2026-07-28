@@ -5,7 +5,7 @@ class AS5600Minimal:
     """AS5600 12-bit programmable contactless rotary position sensor — minimal interface.
 
     Reads the absolute angle in degrees with no configuration required beyond the
-    transport. Verifies magnet presence at construction; raises if no magnet is detected.
+    connection. Verifies magnet presence at construction; raises if no magnet is detected.
 
     Default behaviour:
         - Reads STATUS to verify MD=1 (magnet detected) at construction
@@ -13,7 +13,7 @@ class AS5600Minimal:
         - No CONF writes — uses power-on default CONF=0x0000
 
     Args:
-        transport: Configured I²C transport pointing at the device (fixed address 0x36).
+        connection: Configured I²C connection pointing at the device (fixed address 0x36).
     """
 
     _REG_ZMCO      = 0x00
@@ -39,24 +39,24 @@ class AS5600Minimal:
     _STATUS_ML = 0x10
     _STATUS_MH = 0x20
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         status = self._read_reg8(self._REG_STATUS)
         if not (status & self._STATUS_MD):
             raise RuntimeError('AS5600: magnet not detected (MD=0)')
 
     def _read_reg8(self, reg):
-        return self._transport.write_read(bytes([reg]), 1)[0]
+        return self._connection.write_read(bytes([reg]), 1)[0]
 
     def _read_reg16(self, reg):
-        raw = self._transport.write_read(bytes([reg]), 2)
+        raw = self._connection.write_read(bytes([reg]), 2)
         return (raw[0] << 8) | raw[1]
 
     def _write_reg8(self, reg, value):
-        self._transport.write(struct.pack('>BB', reg, value))
+        self._connection.write(struct.pack('>BB', reg, value))
 
     def _write_reg16(self, reg, value):
-        self._transport.write(struct.pack('>BH', reg, value))
+        self._connection.write(struct.pack('>BH', reg, value))
 
     def angle(self):
         """Read the scaled absolute angle.
@@ -118,7 +118,7 @@ class AS5600Full(AS5600Minimal):
         OUTS_PWM     = 2: digital PWM
 
     Args:
-        transport: Configured I²C transport pointing at the device (fixed address 0x36).
+        connection: Configured I²C connection pointing at the device (fixed address 0x36).
     """
 
     PM_NOM  = 0

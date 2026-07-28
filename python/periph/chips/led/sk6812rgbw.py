@@ -6,24 +6,24 @@ _RESET_BYTES = bytes(24)
 class SK6812RGBWMinimal:
     """SK6812RGBW addressable RGBW LED strip — minimal interface.
 
-    Drives a chain of n SK6812RGBW pixels over a NeoPixel transport.
+    Drives a chain of n SK6812RGBW pixels over a NeoPixel connection.
     Maintains an internal GRBW buffer; fill() writes all pixels and
     transmits immediately. Each pixel has four channels: red, green,
     blue, and white.
 
     Args:
-        transport: Configured NeoPixel transport (MicroPython, CircuitPython, or Linux).
+        connection: Configured NeoPixel connection (MicroPython, CircuitPython, or Linux).
         n: Number of pixels in the strip.
     """
 
-    def __init__(self, transport, n):
-        """Initialise SK6812RGBWMinimal with a transport and pixel count.
+    def __init__(self, connection, n):
+        """Initialise SK6812RGBWMinimal with a connection and pixel count.
 
         Args:
-            transport: Configured NeoPixel transport.
+            connection: Configured NeoPixel connection.
             n: Number of pixels in the strip (must be >= 1).
         """
-        self._transport = transport
+        self._connection = connection
         self._n = n
         self._buf = bytearray(n * 4)
 
@@ -49,7 +49,7 @@ class SK6812RGBWMinimal:
             self._buf[i * 4 + 1] = r
             self._buf[i * 4 + 2] = b
             self._buf[i * 4 + 3] = w
-        self._transport.write(bytes(self._buf) + _RESET_BYTES)
+        self._connection.write(bytes(self._buf) + _RESET_BYTES)
 
     def off(self):
         """Turn off all pixels (fill with black and send).
@@ -71,18 +71,18 @@ class SK6812RGBWFull(SK6812RGBWMinimal):
     usage alongside explicit RGBW addressing.
 
     Args:
-        transport: Configured NeoPixel transport.
+        connection: Configured NeoPixel connection.
         n: Number of pixels in the strip.
     """
 
-    def __init__(self, transport, n):
-        """Initialise SK6812RGBWFull with a transport and pixel count.
+    def __init__(self, connection, n):
+        """Initialise SK6812RGBWFull with a connection and pixel count.
 
         Args:
-            transport: Configured NeoPixel transport.
+            connection: Configured NeoPixel connection.
             n: Number of pixels in the strip.
         """
-        super().__init__(transport, n)
+        super().__init__(connection, n)
         self._brightness = 255
 
     @property
@@ -140,12 +140,12 @@ class SK6812RGBWFull(SK6812RGBWMinimal):
         """
         bri = self._brightness
         if bri == 255:
-            self._transport.write(bytes(self._buf) + _RESET_BYTES)
+            self._connection.write(bytes(self._buf) + _RESET_BYTES)
         else:
             scaled = bytearray(len(self._buf))
             for i, v in enumerate(self._buf):
                 scaled[i] = v * bri // 255
-            self._transport.write(bytes(scaled) + _RESET_BYTES)
+            self._connection.write(bytes(scaled) + _RESET_BYTES)
 
     def rotate(self, steps=1):
         """Shift the pixel buffer left by steps positions (wraps around).

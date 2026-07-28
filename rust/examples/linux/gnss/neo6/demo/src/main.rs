@@ -2,7 +2,7 @@
 // To use SPI instead of UART, construct with periph::chips::gnss::SpiBus(spi_device).
 
 use periph::chips::gnss::{Neo6Full, UartBus};
-use periph::transport::uart_linux::LinuxUart;
+use periph::connection::uart_linux::LinuxUart;
 use std::time::{Duration, Instant};
 
 fn main() {

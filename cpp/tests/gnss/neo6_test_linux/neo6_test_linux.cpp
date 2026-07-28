@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cmath>
-#include "UARTTransportLinux.h"
+#include "UARTConnectionLinux.h"
 #include "NEO6.h"
 
 // Requires a NEO-6 module wired to UART with a clear sky view. Achieving an
@@ -22,8 +22,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    UARTTransportLinux transport(TEST_UART_PORT, TEST_UART_BAUD);
-    NEO6Minimal gps(transport);
+    UARTConnectionLinux connection(TEST_UART_PORT, TEST_UART_BAUD);
+    NEO6Minimal gps(connection);
 
     check_true("fix() starts at 0", gps.fix() == 0);
     check_true("latitude() starts at NAN", std::isnan(gps.latitude()));

@@ -1,11 +1,11 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief APDS-9960 digital proximity, ambient light, RGB and gesture sensor — minimal interface.
  *
  * Provides ambient light and color (RGBC) readings with no configuration
- * beyond the transport. The ALS/Color engine is enabled at construction
+ * beyond the connection. The ALS/Color engine is enabled at construction
  * with sensible defaults.
  *
  * Default configuration (written at construction):
@@ -14,11 +14,11 @@
  * - CONFIG2 = 0x01 (LED_BOOST=100%, reserved bit 0 set)
  * - PON + AEN enabled; no wait, proximity, gesture, or interrupts
  *
- * @param transport Configured I2C transport pointing at the device (address 0x39).
+ * @param connection Configured I2C connection pointing at the device (address 0x39).
  */
 class APDS9960Minimal {
 public:
-    APDS9960Minimal(Transport& transport);
+    APDS9960Minimal(Connection& connection);
 
     /** @brief Read the clear (unfiltered) channel.
      *  @return Raw clear channel count, 0-65535.
@@ -98,7 +98,7 @@ protected:
     static constexpr uint8_t CONTROL_DEFAULT = 0x01;
     static constexpr uint8_t CONFIG2_DEFAULT = 0x01;
 
-    Transport& _transport;
+    Connection& _connection;
 
     void     _write_reg(uint8_t reg, uint8_t value);
     uint8_t  _read_reg(uint8_t reg);
@@ -110,11 +110,11 @@ protected:
  * Adds proximity detection, gesture engine, wait engine, threshold and
  * interrupt configuration, status queries, and device identification.
  *
- * @param transport Configured I2C transport pointing at the device (address 0x39).
+ * @param connection Configured I2C connection pointing at the device (address 0x39).
  */
 class APDS9960Full : public APDS9960Minimal {
 public:
-    APDS9960Full(Transport& transport);
+    APDS9960Full(Connection& connection);
 
     /** @brief Enable or disable the proximity engine.
      *  @param enabled true to enable PEN, false to disable.

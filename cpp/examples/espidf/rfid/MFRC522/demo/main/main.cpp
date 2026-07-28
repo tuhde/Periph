@@ -3,7 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
-#include "SPITransportESPIDF.h"
+#include "SPIConnectionESPIDF.h"
 #include "MFRC522.h"
 
 static const int MOSI_PIN = 23;
@@ -28,8 +28,8 @@ extern "C" void app_main(void) {
     spi_device_handle_t dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &dev);
 
-    SPITransportESPIDF transport(dev);
-    MFRC522Full mfrc(transport);                                   // Create MFRC522 driver, (transport)
+    SPIConnectionESPIDF connection(dev);
+    MFRC522Full mfrc(connection);                                   // Create MFRC522 driver, (connection)
 
     // --- Access control reader ---
     // Poll continuously for cards. When a card is detected, read its UID and

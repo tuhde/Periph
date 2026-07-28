@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for MCP4725 (Minimal).
 // Mirrors the Arduino MCP4725_Minimal example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP4725.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP4725Minimal chip(transport);  // Create MCP4725 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP4725Minimal chip(connection);  // Create MCP4725 driver
     uint16_t raw;
     auto rr = chip.read(); (void)rr;
     while (1) {

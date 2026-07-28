@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief PCF8574 8-bit quasi-bidirectional I/O port expander — minimal interface.
  *
@@ -11,7 +11,7 @@
  *
  * Initialises all pins to input mode (shadow = 0xFF) at construction.
  *
- * @param transport Configured I²C transport pointing at the device (100 kHz max).
+ * @param connection Configured I²C connection pointing at the device (100 kHz max).
  * @param addr      7-bit I²C device address. PCF8574 default 0x20; PCF8574A 0x38.
  */
 class PCF8574Minimal {
@@ -20,8 +20,6 @@ public:
      *
      * Obtain via PCF8574Minimal::pin(). Do not construct directly.
      * Reuses Arduino GPIO constants: INPUT, OUTPUT, HIGH, LOW.
-     * The same class compiles on Arduino, Linux GCC, and Zephyr; interrupt
-     * delivery is guarded with platform ifdefs in PCF8574Full.
      */
     class IOExpanderPin {
     public:
@@ -61,7 +59,7 @@ public:
         uint8_t         _n;
     };
 
-    PCF8574Minimal(Transport& transport, uint8_t addr = 0x20);
+    PCF8574Minimal(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a pin proxy for pin n (0–7). */
     IOExpanderPin pin(uint8_t n);
@@ -81,7 +79,7 @@ public:
     uint8_t _shadow;
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
     uint8_t    _addr;
 
     void    _write_port(uint8_t mask);
@@ -91,20 +89,23 @@ protected:
 
 /** @brief PCF8574 full interface — extends PCF8574Minimal with interrupt support.
  *
- * Adds configure_interrupt() to arm the chip's active-low INT output and
- * clear_interrupt() to read pin states and return a changed-pin bitmask.
- * IOExpanderPin gains attachInterrupt() / detachInterrupt().
+ * Adds onInterrupt() to subscribe a callback to the chip's active-low INT
+ * output (delivered via connection.intPin()), offInterrupt() to unsubscribe,
+ * and pollInterrupt() to read pin states and return a changed-pin bitmask.
+ * IOExpanderPin gains watch() / unwatch().
  *
- * @param transport Configured I²C transport pointing at the device.
+ * INT-pin delivery is entirely handled by the InputPin connection.intPin()
+ * was constructed with — this class contains no platform-specific interrupt
+ * code (see specs/feature_connection_design.md §4).
+ *
+ * @param connection Configured I²C connection pointing at the device.
  * @param addr      7-bit I²C device address (default 0x20).
  */
 class PCF8574Full : public PCF8574Minimal {
 public:
     /** @brief GPIO proxy for a single PCF8574 pin — Full interface.
      *
-     * Extends IOExpanderPin with attachInterrupt() / detachInterrupt().
-     * Interrupt delivery on Linux uses a poll() thread on the INT GPIO sysfs fd.
-     * On Zephyr, gpio_add_callback() is used.
+     * Extends IOExpanderPin with watch() / unwatch().
      */
     class IOExpanderPin : public PCF8574Minimal::IOExpanderPin {
     public:
@@ -114,58 +115,67 @@ public:
          */
         IOExpanderPin(PCF8574Full& chip, uint8_t n);
 
-        /** @brief Attach a per-pin interrupt handler.
+        /** @brief Subscribe to this pin's edge events.
          *
          *  The handler is called with this pin as the argument when its state
-         *  matches the trigger. Requires the chip's INT line to have been
-         *  configured via PCF8574Full::configure_interrupt().
+         *  matches the trigger. At most one handler per pin at a time; a
+         *  second watch() call replaces the first. Call the chip's
+         *  onInterrupt() first to arm delivery.
          *
          *  @param handler Function pointer: void(*)(IOExpanderPin*).
-         *  @param mode    FALLING (INT asserts on input low), RISING, or CHANGE.
+         *  @param trigger InputPin::kFalling, ::kRising, or ::kChange (default).
          */
-        void attachInterrupt(void (*handler)(IOExpanderPin*), uint8_t mode);
+        void watch(void (*handler)(IOExpanderPin*), uint8_t trigger = InputPin::kChange);
 
-        /** @brief Remove the per-pin interrupt handler. */
-        void detachInterrupt();
+        /** @brief Unsubscribe this pin's handler. No-op if not registered. */
+        void unwatch();
 
     private:
         PCF8574Full& _full_chip;
-        void (*_handler)(IOExpanderPin*) = nullptr;
-        uint8_t _irq_mode = 0;
-        uint8_t _last_state = 0xFF;
         friend class PCF8574Full;
     };
 
-    PCF8574Full(Transport& transport, uint8_t addr = 0x20);
+    PCF8574Full(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a Full pin proxy for pin n (0–7). */
     IOExpanderPin pin(uint8_t n);
 
-    /** @brief Configure the chip's INT line and a global change callback.
+    /** @brief Subscribe to INT assertions.
      *
-     *  On Arduino, @p int_gpio_pin is the Arduino pin number connected to INT.
-     *  On Linux, @p int_gpio_pin is the sysfs GPIO number (pass -1 to disable).
-     *  On Zephyr, @p int_gpio_pin is the pin index on the INT GPIO port
-     *  (the port itself is selected via DT_NODELABEL in the application).
+     *  Wires connection.intPin()->onEdge() to deliver edges. The callback
+     *  receives the 8-bit bitmask of pins that changed since the previous read.
+     *  No-op if connection.intPin() is nullptr (no polling fallback in C++ —
+     *  use InputPinLinux for polling-thread delivery when no hardware IRQ
+     *  line is wired).
      *
-     *  The callback receives the 8-bit bitmask of pins that changed.
-     *
-     *  @param int_gpio_pin Hardware GPIO pin number for the INT signal.
-     *  @param callback     void(*)(uint8_t changed_mask); called on any input change.
+     *  @param callback void(*)(uint8_t changed_mask); called on any input change.
      */
-    void configure_interrupt(int int_gpio_pin, void (*callback)(uint8_t));
+    void onInterrupt(void (*callback)(uint8_t));
+
+    /** @brief Unsubscribe and stop delivery. */
+    void offInterrupt();
 
     /** @brief Read port and return bitmask of pins that changed since last read.
      *
-     *  Comparing current byte to previous read; also clears the INT line.
+     *  Compares current byte to previous read; also clears the INT line.
      *
      *  @return 8-bit bitmask; bit n = 1 if pin n changed.
      */
-    uint8_t clear_interrupt();
+    uint8_t pollInterrupt();
 
 private:
-    uint8_t  _prev          = 0xFF;
-    void   (*_callback)(uint8_t) = nullptr;
+    struct PinWatch {
+        void (*handler)(IOExpanderPin*) = nullptr;
+        uint8_t trigger    = InputPin::kChange;
+        uint8_t lastState  = 1;
+    };
 
-    static void _dispatch(PCF8574Full* chip, uint8_t changed);
+    uint8_t  _prev            = 0xFF;
+    void   (*_callback)(uint8_t) = nullptr;
+    PinWatch _pinWatches[8];
+
+    void _handleEdge();
+
+    static PCF8574Full* _activeInstance;
+    static void _edgeTrampoline();
 };

@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <functional>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief MCP23017 16-bit I/O port expander — minimal interface.
  *
@@ -11,7 +10,7 @@
  *  A shadow register is maintained for OLATA/OLATB so individual output pins can
  *  be set/cleared/toggled without a read-modify-write transaction.
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  @param connection Configured I²C connection pointing at the device.
  *  @param addr 7-bit I²C device address (default 0x20, range 0x20–0x27).
  */
 class MCP23017Minimal {
@@ -63,7 +62,7 @@ public:
         uint8_t  _direction;
     };
 
-    explicit MCP23017Minimal(Transport& transport, uint8_t addr = 0x20);
+    explicit MCP23017Minimal(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a pin proxy for pin n (0–15).
      *  @param n Pin index 0–15; 0–7 = PORTA (GPA0–GPA7), 8–15 = PORTB (GPB0–GPB7).
@@ -94,7 +93,7 @@ protected:
     static constexpr uint8_t REG_OLATA  = 0x14;
     static constexpr uint8_t REG_OLATB  = 0x15;
 
-    Transport& _transport;
+    Connection& _connection;
     uint8_t   _addr;
 
 public:
@@ -114,16 +113,22 @@ protected:
 /** @brief MCP23017 full interface — extends minimal with pull-ups, polarity, and interrupts.
  *
  *  Adds per-pin pull-up configuration (GPPU), optional INTA/INTB callbacks,
- *  interrupt-on-change or default-compare modes, and clear_interrupt().
+ *  interrupt-on-change or default-compare modes, and pollInterrupt().
  *
- *  @param transport Configured I²C transport pointing at the device.
+ *  Level 3: the chip has two independent INT lines (INTA/INTB), one per port.
+ *  INT-pin delivery is entirely handled by InputPin instances passed to
+ *  onInterrupt() (or connection.intPin() if none is given) — this class
+ *  contains no platform-specific interrupt code (see
+ *  specs/feature_connection_design.md §4, §9).
+ *
+ *  @param connection Configured I²C connection pointing at the device.
  *  @param addr 7-bit I²C device address (default 0x20).
  */
 class MCP23017Full : public MCP23017Minimal {
 public:
     /** @brief GPIO proxy for a single MCP23017 pin — Full interface.
      *
-     *  Adds INPUT_PULLUP support and per-pin attachInterrupt()/detachInterrupt().
+     *  Adds INPUT_PULLUP support and per-pin watch()/unwatch().
      */
     class IOExpanderPin : public MCP23017Minimal::IOExpanderPin {
     public:
@@ -138,27 +143,26 @@ public:
          */
         void mode(uint8_t m);
 
-        /** @brief Attach a per-pin interrupt handler.
+        /** @brief Subscribe to this pin's edge events.
          *
-         *  The handler is called when the pin's state matches the trigger.
-         *  Requires configure_interrupt() to have been called on the chip.
+         *  At most one handler per pin at a time; a second watch() call
+         *  replaces the first. Call the chip's onInterrupt() (for this pin's
+         *  port) first to arm delivery.
          *
          *  @param handler Function pointer: void(*)(IOExpanderPin*).
-         *  @param mode RISING, FALLING, or CHANGE.
+         *  @param trigger InputPin::kFalling, ::kRising, or ::kChange (default).
          */
-        void attachInterrupt(void (*handler)(IOExpanderPin*), uint8_t mode);
+        void watch(void (*handler)(IOExpanderPin*), uint8_t trigger = InputPin::kChange);
 
-        /** @brief Remove the per-pin interrupt handler. */
-        void detachInterrupt();
+        /** @brief Unsubscribe this pin's handler. No-op if not registered. */
+        void unwatch();
 
     private:
         MCP23017Full& _full_chip;
-        void (*_handler)(IOExpanderPin*) = nullptr;
-        uint8_t _irq_mode = 0;
         friend class MCP23017Full;
     };
 
-    explicit MCP23017Full(Transport& transport, uint8_t addr = 0x20);
+    explicit MCP23017Full(Connection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a Full pin proxy for pin n (0–15). */
     IOExpanderPin pin(uint8_t n);
@@ -175,18 +179,40 @@ public:
      */
     void configure_polarity(uint8_t port, uint8_t mask);
 
-    /** @brief Enable interrupt for a port.
+    /** @brief Subscribe to INT assertions on both ports.
+     *
+     *  The common case: both INT lines share one physical GPIO, either via
+     *  IOCON.MIRROR (@p mirror = true) or external wiring. Wires
+     *  @p intPin ->onEdge() (or connection.intPin() if @p intPin is nullptr)
+     *  to poll both ports on every edge.
+     *
+     *  @param callback void(*)(uint8_t port, uint8_t status); called with the
+     *         port that triggered and its INTF flag mask.
+     *  @param intPin Optional InputPin for this call, overriding connection.intPin().
+     *  @param mirror If true, sets IOCON.MIRROR so either port's interrupt
+     *         activates both INTA and INTB.
+     */
+    void onInterrupt(void (*callback)(uint8_t port, uint8_t status),
+                     InputPin* intPin = nullptr, bool mirror = false);
+
+    /** @brief Subscribe to INT assertions on a single port.
+     *
+     *  Use this (with a dedicated InputPin per call) when INTA and INTB are
+     *  wired to two separate GPIOs.
      *
      *  @param port 0 = PORTA, 1 = PORTB.
-     *  @param int_gpio_pin Hardware GPIO pin number for the INT line, or -1 for polling (Linux only).
-     *  @param callback void(*)(uint8_t changed_mask) called when an interrupt fires.
-     *  @param mode 'change' (default) compares against previous pin value;
-     *              'default' compares against DEFVAL register.
-     *  @param mirror If true, sets IOCON.MIRROR so either port's interrupt activates both INTA and INTB.
+     *  @param callback void(*)(uint8_t status); called with the port's INTF flag mask.
+     *  @param intPin Optional InputPin for this call, overriding connection.intPin().
      */
-    void configure_interrupt(uint8_t port, int int_gpio_pin,
-                             void (*callback)(uint8_t), const char* mode = "change",
-                             bool mirror = false);
+    void onInterrupt(uint8_t port, void (*callback)(uint8_t status), InputPin* intPin = nullptr);
+
+    /** @brief Unsubscribe and stop delivery on both ports. */
+    void offInterrupt();
+
+    /** @brief Unsubscribe and stop delivery on a single port.
+     *  @param port 0 = PORTA, 1 = PORTB.
+     */
+    void offInterrupt(uint8_t port);
 
     /** @brief Set DEFVAL register for default-compare interrupt mode.
      *  @param port 0 = PORTA, 1 = PORTB.
@@ -194,22 +220,28 @@ public:
      */
     void set_default_value(uint8_t port, uint8_t mask);
 
-    /** @brief Read INTCAP and return captured port state; clears INT for the port.
+    /** @brief Read & clear interrupt status; returns the raw INTF flag register.
+     *
+     *  Reads INTFA/INTFB (which pins triggered) then INTCAPA/INTCAPB (which
+     *  clears the interrupt latch and re-arms it). Note that reading either
+     *  INTCAP or GPIO clears the interrupt condition on this chip — call
+     *  pollInterrupt() or read_capture() per event, not both.
+     *
+     *  @param port 0 = PORTA, 1 = PORTB.
+     *  @return 8-bit interrupt flag mask; bit n = 1 if pin n triggered.
+     */
+    uint8_t pollInterrupt(uint8_t port);
+
+    /** @brief Read INTCAP: the port state latched at the moment of the interrupt.
+     *
+     *  Also clears the interrupt latch (see pollInterrupt() doc) — call this
+     *  instead of pollInterrupt() when the captured pin state is wanted
+     *  rather than the flag register.
+     *
      *  @param port 0 = PORTA, 1 = PORTB.
      *  @return 8-bit captured port bitmask at the moment of interrupt.
      */
-    uint8_t clear_interrupt(uint8_t port);
-
-    /** @brief Read INTFA/INTFB without clearing the interrupt.
-     *  @param port 0 = PORTA, 1 = PORTB.
-     *  @return 8-bit interrupt flag mask.
-     */
-    uint8_t read_interrupt_flags(uint8_t port);
-
-    /** @brief Disable interrupt for the port.
-     *  @param port 0 = PORTA, 1 = PORTB.
-     */
-    void stop_interrupt(uint8_t port);
+    uint8_t read_capture(uint8_t port);
 
 protected:
     static constexpr uint8_t REG_GPINTENA = 0x04;
@@ -227,7 +259,21 @@ protected:
 public:
     uint8_t _pullup[2] = {0, 0};
 protected:
-    void (*_callback)(uint8_t) = nullptr;
+    struct PinWatch {
+        void (*handler)(IOExpanderPin*) = nullptr;
+        uint8_t trigger    = InputPin::kChange;
+        uint8_t lastState  = 1;
+    };
 
-    static void _dispatch(MCP23017Full* chip, uint8_t changed);
+    void (*_callbackBoth)(uint8_t port, uint8_t status) = nullptr;
+    void (*_callbackPort[2])(uint8_t status) = { nullptr, nullptr };
+    InputPin* _intPinUsed[2] = { nullptr, nullptr };
+    PinWatch _pinWatches[16];
+
+    void _armPort(uint8_t port, InputPin* intPin);
+    void _handleEdge(uint8_t port);
+
+    static MCP23017Full* _activeInstance;
+    static void _edgeTrampolineA();
+    static void _edgeTrampolineB();
 };

@@ -2,7 +2,7 @@
 package led
 
 import (
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MaxPixelsSK6812RGBW is the maximum supported pixel count for the
@@ -12,7 +12,7 @@ const MaxPixelsSK6812RGBW = 256
 
 // sk6812RgbwResetBytes is the number of trailing zero bytes appended
 // to every transmission to guarantee the SK6812RGBW's ≥80 µs reset
-// pulse. The transport already appends 16 zero bytes (~53 µs); we add
+// pulse. The connection already appends 16 zero bytes (~53 µs); we add
 // 24 more (~80 µs at 2.4 MHz SPI encoding) so the total reset exceeds
 // the chip's 80 µs minimum.
 const sk6812RgbwResetBytes = 24
@@ -20,19 +20,19 @@ const sk6812RgbwResetBytes = 24
 // SK6812RGBWMinimal is the SK6812RGBW addressable RGBW LED strip driver
 // — minimal interface.
 //
-// Wraps a `*NeoPixelTransport` and maintains an internal GRBW pixel
+// Wraps a `*NeoPixelConnection` and maintains an internal GRBW pixel
 // buffer. `Fill` updates every pixel and transmits immediately;
 // `Off` is shorthand for `Fill(0, 0, 0, 0)`.
 type SK6812RGBWMinimal struct {
-	transport *transport.NeoPixelTransport
+	connection *connection.NeoPixelConnection
 	n         int
 	buf       []byte
 }
 
 // NewSK6812RGBWMinimal creates a new SK6812RGBWMinimal bound to the
-// given NeoPixel transport and pixel count. The pixel count is
+// given NeoPixel connection and pixel count. The pixel count is
 // clamped to `MaxPixelsSK6812RGBW`.
-func NewSK6812RGBWMinimal(t *transport.NeoPixelTransport, n int) (*SK6812RGBWMinimal, error) {
+func NewSK6812RGBWMinimal(t *connection.NeoPixelConnection, n int) (*SK6812RGBWMinimal, error) {
 	if n > MaxPixelsSK6812RGBW {
 		n = MaxPixelsSK6812RGBW
 	}
@@ -40,7 +40,7 @@ func NewSK6812RGBWMinimal(t *transport.NeoPixelTransport, n int) (*SK6812RGBWMin
 		n = 0
 	}
 	return &SK6812RGBWMinimal{
-		transport: t,
+		connection: t,
 		n:         n,
 		buf:       make([]byte, n*4),
 	}, nil
@@ -49,7 +49,7 @@ func NewSK6812RGBWMinimal(t *transport.NeoPixelTransport, n int) (*SK6812RGBWMin
 // Fill fills every pixel with one RGBW colour and sends to the strip
 // immediately. Each channel is clamped to [0, 255]. Stores G, R, B, W
 // in the internal buffer (GRBW wire order) then calls
-// `transport.Write` with trailing reset bytes for the chip's ≥80 µs
+// `connection.Write` with trailing reset bytes for the chip's ≥80 µs
 // reset pulse.
 func (d *SK6812RGBWMinimal) Fill(r, g, b, w uint8) error {
 	for i := 0; i < d.n; i++ {
@@ -60,7 +60,7 @@ func (d *SK6812RGBWMinimal) Fill(r, g, b, w uint8) error {
 	}
 	payload := make([]byte, d.n*4+sk6812RgbwResetBytes)
 	copy(payload, d.buf[:d.n*4])
-	return d.transport.Write(payload)
+	return d.connection.Write(payload)
 }
 
 // Off turns off all pixels (fill with all zeros and send).
@@ -81,7 +81,7 @@ type SK6812RGBWFull struct {
 }
 
 // NewSK6812RGBWFull creates a new SK6812RGBWFull with default brightness 255.
-func NewSK6812RGBWFull(t *transport.NeoPixelTransport, n int) (*SK6812RGBWFull, error) {
+func NewSK6812RGBWFull(t *connection.NeoPixelConnection, n int) (*SK6812RGBWFull, error) {
 	m, err := NewSK6812RGBWMinimal(t, n)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (d *SK6812RGBWFull) Show() error {
 	}
 	payload := make([]byte, d.n*4+sk6812RgbwResetBytes)
 	copy(payload, scaled)
-	return d.transport.Write(payload)
+	return d.connection.Write(payload)
 }
 
 // GetBrightness returns the global brightness scalar (0–255).

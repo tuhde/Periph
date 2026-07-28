@@ -1,6 +1,6 @@
 import _testconfig as cfg
 from machine import Pin
-from periph.transport.hx711_micropython import HX711Transport
+from periph.connection.hx711_micropython import HX711Connection
 from periph.chips.adc_dac.hx711 import HX711Full
 
 passed = 0
@@ -19,8 +19,8 @@ def check_true(label, condition):
 
 dout   = Pin(cfg.DOUT,   Pin.IN)
 pd_sck = Pin(cfg.PD_SCK, Pin.OUT)
-transport = HX711Transport(dout, pd_sck)
-chip = HX711Full(transport)
+connection = HX711Connection(dout, pd_sck)
+chip = HX711Full(connection)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
 

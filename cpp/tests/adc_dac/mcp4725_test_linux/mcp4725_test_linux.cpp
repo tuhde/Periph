@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "MCP4725.h"
 
 #ifndef TEST_I2C_BUS
@@ -20,8 +20,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    MCP4725Full dac(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    MCP4725Full dac(connection);
 
     dac.set_voltage(0.5f);
     check_true("set_voltage(0.5) accepted", true);

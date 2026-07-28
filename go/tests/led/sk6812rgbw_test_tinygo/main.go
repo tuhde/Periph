@@ -15,7 +15,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/led"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -30,11 +30,11 @@ func main() {
 		}
 	}
 
-	tr := transport.NewNeoPixelTransport(machine.GP22) // Create NeoPixel transport, (pin=GP22) → (*NeoPixelTransport)
+	conn := connection.NewNeoPixelConnection(machine.GP22, nil) // Create NeoPixel connection, (pin=GP22) → (*NeoPixelConnection)
 
 	// --- SK6812RGBWMinimal ---
 	{
-		strip, err := led.NewSK6812RGBWMinimal(tr, 8) // Create SK6812RGBW driver, (transport, n=8) → (*SK6812RGBWMinimal, error)
+		strip, err := led.NewSK6812RGBWMinimal(conn, 8) // Create SK6812RGBW driver, (connection, n=8) → (*SK6812RGBWMinimal, error)
 		check("minimal_construct", err == nil && strip != nil)
 		if err == nil {
 			check("fill_red_ok", strip.Fill(255, 0, 0, 0) == nil)   // Fill red, (r=255, g=0, b=0, w=0) → error
@@ -47,7 +47,7 @@ func main() {
 
 	// --- SK6812RGBWFull ---
 	{
-		strip, err := led.NewSK6812RGBWFull(tr, 8) // Create SK6812RGBW driver, (transport, n=8) → (*SK6812RGBWFull, error)
+		strip, err := led.NewSK6812RGBWFull(conn, 8) // Create SK6812RGBW driver, (connection, n=8) → (*SK6812RGBWFull, error)
 		check("full_construct", err == nil && strip != nil)
 		if err == nil {
 			check("default_brightness_255", strip.GetBrightness() == 255) // Get global brightness, () → uint8

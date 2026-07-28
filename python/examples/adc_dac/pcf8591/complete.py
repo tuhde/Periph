@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.adc_dac.pcf8591 import PCF8591Full
 
-transport = I2CTransport(bus=1, addr=0x48)          # Create I2C transport, (bus, addr)
-adc = PCF8591Full(transport)                         # Create PCF8591 driver, (transport)
+connection = I2CConnection(bus=1, addr=0x48)          # Create I2C connection, (bus, addr)
+adc = PCF8591Full(connection)                         # Create PCF8591 driver, (connection)
 
 ch0_raw = adc.read_channel(0)                        # Read single channel, (channel=0–3) → int
                                                      # discards the stale first conversion byte; returns 0–255

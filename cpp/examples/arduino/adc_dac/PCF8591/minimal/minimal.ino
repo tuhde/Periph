@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "PCF8591.h"
 
-I2CTransport transport(Wire, 0x48);
-PCF8591Minimal adc(transport);
+I2CConnection connection(Wire, 0x48);
+PCF8591Minimal adc(connection);
 
 void setup() {
     Serial.begin(115200);

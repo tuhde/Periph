@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include <cmath>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "Mpu6050.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -10,12 +10,12 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, MPU6050_ADDR);
+    I2CConnectionZephyr connection(i2c_dev, MPU6050_ADDR);
 
     // --- Configure for motion logging with moderate dynamic range ---
     // ±4g captures typical tilting and handling forces without clipping;
     // ±500 dps covers fast rotations while retaining sub-degree resolution.
-    MPU6050Full imu(transport);                          // Create MPU6050 driver, (transport, addr=0x68) → None
+    MPU6050Full imu(connection);                          // Create MPU6050 driver, (connection, addr=0x68) → None
     imu.configure_accel(1);                               // Configure accel range, (full_scale=0) → None
     imu.configure_gyro(1);                                // Configure gyro range, (full_scale=0) → None
 

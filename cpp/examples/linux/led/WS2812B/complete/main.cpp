@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <unistd.h>
-#include "NeoPixelTransportLinux.h"
+#include "NeoPixelConnectionLinux.h"
 #include "WS2812B.h"
 
 int main() {
-    NeoPixelTransportLinux transport(0, 0);
-    WS2812BFull strip(transport, 8);                                       // Create WS2812B full driver, (transport, n=8 pixels)
+    NeoPixelConnectionLinux connection(0, 0);
+    WS2812BFull strip(connection, 8);                                       // Create WS2812B full driver, (connection, n=8 pixels)
 
     strip.fill(255, 0, 0);                                                 // Fill all pixels with one colour, (r=0–255, g=0–255, b=0–255) → void
     usleep(500000);

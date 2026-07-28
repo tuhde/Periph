@@ -1,12 +1,12 @@
 // Package periph is the Go implementation of the Periph multi-language
 // peripheral-chip library. It provides drivers for I²C, SPI, UART, and
-// other peripheral devices, plus a Transport interface and a per-transport
+// other peripheral devices, plus a Connection interface and a per-connection
 // implementation for each supported build target.
 //
 // # Build targets
 //
 // Two build targets are supported, selected at compile time via Go build
-// tags on the transport implementation files:
+// tags on the connection implementation files:
 //
 //   - linux && !tinygo — standard `go build` against Linux host (no cgo,
 //     uses golang.org/x/sys/unix for raw ioctl against /dev/i2c-N).
@@ -17,9 +17,9 @@
 // # Architecture
 //
 // Every chip driver is a single Go file under periph/chips/<category>/,
-// shared by both build targets. Chip drivers only call the Transport
-// interface defined in this package's transport subpackage; the platform
-// is selected by the build tag on the concrete I2CTransport / SPITransport
+// shared by both build targets. Chip drivers only call the Connection
+// interface defined in this package's connection subpackage; the platform
+// is selected by the build tag on the concrete I2CConnection / SPIConnection
 // implementation file.
 //
 // # Naming

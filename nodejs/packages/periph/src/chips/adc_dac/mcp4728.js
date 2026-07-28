@@ -16,47 +16,50 @@ const GC_WAKE              = 0x09;
  *
  * Provides simple voltage output as a fraction of V_DD for any of the four
  * channels (A–D) plus a convenience method to update all four channels
- * simultaneously. No configuration required beyond the transport. V_REF is
+ * simultaneously. No configuration required beyond the connection. V_REF is
  * fixed at external (V_DD), gain is fixed at ×1, and power-down is off.
  * EEPROM is never written by this class.
  *
- * @param {object} transport - Configured I²C transport pointing at the device (0x60–0x67).
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (0x60–0x67).
  */
 class MCP4728Minimal {
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device.
      */
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
     }
 
     /**
      * Set one channel's DAC output as a fraction of V_DD.
      * @param {number} channel - Channel index 0 (A) – 3 (D).
      * @param {number} fraction - Output voltage as a fraction of V_DD (0.0–1.0).
+     * @returns {Promise<void>}
      */
-    set_voltage(channel, fraction) {
+    async set_voltage(channel, fraction) {
         let f = Math.max(0.0, Math.min(1.0, fraction));
         const code = Math.round(f * 4095);
-        this.set_raw(channel, code);
+        await this.set_raw(channel, code);
     }
 
     /**
      * Set one channel's raw 12-bit DAC code.
      * @param {number} channel - Channel index 0 (A) – 3 (D).
      * @param {number} code - Raw 12-bit DAC code (0–4095).
+     * @returns {Promise<void>}
      */
-    set_raw(channel, code) {
+    async set_raw(channel, code) {
         const ch = Math.max(0, Math.min(3, channel | 0));
         const c = Math.max(0, Math.min(4095, code | 0));
-        this._multi_write(ch, c, 0, 0, 0, 0);
+        await this._multi_write(ch, c, 0, 0, 0, 0);
     }
 
     /**
      * Update all four channels simultaneously using Fast Write.
      * @param {number[]} fractions - Array of 4 fractions (0.0–1.0), index 0 = A.
+     * @returns {Promise<void>}
      */
-    set_all(fractions) {
+    async set_all(fractions) {
         if (!Array.isArray(fractions) || fractions.length !== 4) {
             throw new Error('fractions must have exactly 4 elements');
         }
@@ -68,16 +71,16 @@ class MCP4728Minimal {
             buf[i * 2]     = (code >> 8) & 0x0F;
             buf[i * 2 + 1] = code & 0xFF;
         }
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
-    _multi_write(channel, code, vref, pd, gain, udac) {
+    async _multi_write(channel, code, vref, pd, gain, udac) {
         const buf = Buffer.alloc(3);
         buf[0] = CMD_MULTI_WRITE_BASE | ((channel & 0x03) << 1) | (udac & 0x01);
         buf[1] = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) |
                  ((gain & 0x01) << 4) | ((code >> 8) & 0x0F);
         buf[2] = code & 0xFF;
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 }
 
@@ -89,7 +92,7 @@ class MCP4728Minimal {
  * Write), General Call reset/wake-up/software-update, and full 24-byte
  * read-back of all channel DAC input registers and EEPROM contents.
  *
- * @param {object} transport - Configured I²C transport pointing at the device (0x60–0x67).
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (0x60–0x67).
  */
 class MCP4728Full extends MCP4728Minimal {
     /** @type {number} Normal operation (power-down mode 0). */
@@ -112,10 +115,10 @@ class MCP4728Full extends MCP4728Minimal {
     static GAIN_X2 = 1;
 
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device.
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -124,11 +127,12 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number} fraction - Output as a fraction of the configured full-scale.
      * @param {number} vref - 0 = external (V_DD), 1 = internal (2.048 V).
      * @param {number} gain - 1 = ×1, 2 = ×2 (ignored when vref = external).
+     * @returns {Promise<void>}
      */
-    set_voltage_eeprom(channel, fraction, vref, gain) {
+    async set_voltage_eeprom(channel, fraction, vref, gain) {
         let f = Math.max(0.0, Math.min(1.0, fraction));
         const code = Math.round(f * 4095);
-        this._single_write(channel, code, vref, 0, gain, 0);
+        await this._single_write(channel, code, vref, 0, gain, 0);
     }
 
     /**
@@ -137,10 +141,11 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number} code - Raw 12-bit DAC code (0–4095).
      * @param {number} vref - 0 = external (V_DD), 1 = internal (2.048 V).
      * @param {number} gain - 1 = ×1, 2 = ×2 (ignored when vref = external).
+     * @returns {Promise<void>}
      */
-    set_raw_eeprom(channel, code, vref, gain) {
+    async set_raw_eeprom(channel, code, vref, gain) {
         const c = Math.max(0, Math.min(4095, code | 0));
-        this._single_write(channel, c, vref, 0, gain, 0);
+        await this._single_write(channel, c, vref, 0, gain, 0);
     }
 
     /**
@@ -148,8 +153,9 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number[]} fractions - Array of 4 fractions (0.0–1.0).
      * @param {number[]} vrefs - Array of 4 V_REF values (0/1).
      * @param {number[]} gains - Array of 4 gain values (1/2).
+     * @returns {Promise<void>}
      */
-    set_all_eeprom(fractions, vrefs, gains) {
+    async set_all_eeprom(fractions, vrefs, gains) {
         if (fractions.length !== 4 || vrefs.length !== 4 || gains.length !== 4) {
             throw new Error('fractions, vrefs, gains must each have 4 elements');
         }
@@ -166,7 +172,7 @@ class MCP4728Full extends MCP4728Minimal {
             buf[1 + i * 2]     = ((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F);
             buf[1 + i * 2 + 1] = code & 0xFF;
         }
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 
     /**
@@ -175,12 +181,13 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number} vref_b
      * @param {number} vref_c
      * @param {number} vref_d
+     * @returns {Promise<void>}
      */
-    set_vref(vref_a, vref_b, vref_c, vref_d) {
+    async set_vref(vref_a, vref_b, vref_c, vref_d) {
         const byte1 = CMD_WRITE_VREF |
             ((vref_a ? 1 : 0) << 3) | ((vref_b ? 1 : 0) << 2) |
             ((vref_c ? 1 : 0) << 1) |  (vref_d ? 1 : 0);
-        this._transport.write(Buffer.from([byte1]));
+        await this._conn.write(Buffer.from([byte1]));
     }
 
     /**
@@ -189,12 +196,13 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number} gain_b
      * @param {number} gain_c
      * @param {number} gain_d
+     * @returns {Promise<void>}
      */
-    set_gain(gain_a, gain_b, gain_c, gain_d) {
+    async set_gain(gain_a, gain_b, gain_c, gain_d) {
         const byte1 = CMD_WRITE_GAIN |
             ((gain_a === 2 ? 1 : 0) << 3) | ((gain_b === 2 ? 1 : 0) << 2) |
             ((gain_c === 2 ? 1 : 0) << 1) |  (gain_d === 2 ? 1 : 0);
-        this._transport.write(Buffer.from([byte1]));
+        await this._conn.write(Buffer.from([byte1]));
     }
 
     /**
@@ -203,22 +211,23 @@ class MCP4728Full extends MCP4728Minimal {
      * @param {number} pd_b
      * @param {number} pd_c
      * @param {number} pd_d
+     * @returns {Promise<void>}
      */
-    set_power_down(pd_a, pd_b, pd_c, pd_d) {
+    async set_power_down(pd_a, pd_b, pd_c, pd_d) {
         const byte1 = CMD_WRITE_POWERDOWN |
             (((pd_a >> 1) & 0x01) << 4) | ((pd_a & 0x01) << 3) |
             (((pd_b >> 1) & 0x01) << 2) | ((pd_b & 0x01) << 1);
         const byte2 = (((pd_c >> 1) & 0x01) << 6) | ((pd_c & 0x01) << 5) |
                       (((pd_d >> 1) & 0x01) << 4) | ((pd_d & 0x01) << 3);
-        this._transport.write(Buffer.from([byte1, byte2]));
+        await this._conn.write(Buffer.from([byte1, byte2]));
     }
 
     /**
      * Read all four channels' DAC input registers and EEPROM contents.
-     * @returns {{channel: object[], eeprom_ready: boolean}} Per-channel code, vref, gain, power_down, eeprom_*.
+     * @returns {Promise<{channel: object[], eeprom_ready: boolean}>} Per-channel code, vref, gain, power_down, eeprom_*.
      */
-    read() {
-        const buf = this._transport.read(24);
+    async read() {
+        const buf = await this._conn.read(24);
         const result = { channel: [], eeprom_ready: !!(buf[0] & 0x80) };
         for (let i = 0; i < 4; i++) {
             const b = i * 3;
@@ -241,35 +250,38 @@ class MCP4728Full extends MCP4728Minimal {
 
     /**
      * Check if the EEPROM write is complete (RDY/BSY = 1).
-     * @returns {boolean}
+     * @returns {Promise<boolean>}
      */
-    is_eeprom_ready() {
-        const buf = this._transport.read(1);
+    async is_eeprom_ready() {
+        const buf = await this._conn.read(1);
         return !!(buf[0] & 0x80);
     }
 
     /**
      * Send General Call Software Update (0x00, 0x08) to latch all V_OUT.
+     * @returns {Promise<void>}
      */
-    software_update() {
-        this._transport.write(Buffer.from([ADDR_GENERAL_CALL, GC_SOFTWARE_UPD]));
+    async software_update() {
+        await this._conn.write(Buffer.from([ADDR_GENERAL_CALL, GC_SOFTWARE_UPD]));
     }
 
     /**
      * Send General Call Wake-Up (0x00, 0x09) to clear all PD bits.
+     * @returns {Promise<void>}
      */
-    wake_up() {
-        this._transport.write(Buffer.from([ADDR_GENERAL_CALL, GC_WAKE]));
+    async wake_up() {
+        await this._conn.write(Buffer.from([ADDR_GENERAL_CALL, GC_WAKE]));
     }
 
     /**
      * Send General Call Reset (0x00, 0x06) to reload EEPROM into all DAC registers.
+     * @returns {Promise<void>}
      */
-    reset() {
-        this._transport.write(Buffer.from([ADDR_GENERAL_CALL, GC_RESET]));
+    async reset() {
+        await this._conn.write(Buffer.from([ADDR_GENERAL_CALL, GC_RESET]));
     }
 
-    _single_write(channel, code, vref, pd, gain, udac) {
+    async _single_write(channel, code, vref, pd, gain, udac) {
         const ch = Math.max(0, Math.min(3, channel | 0));
         const c = Math.max(0, Math.min(4095, code | 0));
         const buf = Buffer.alloc(3);
@@ -277,7 +289,7 @@ class MCP4728Full extends MCP4728Minimal {
         buf[1] = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) |
                  ((gain & 0x01) << 4) | ((c >> 8) & 0x0F);
         buf[2] = c & 0xFF;
-        this._transport.write(buf);
+        await this._conn.write(buf);
     }
 }
 

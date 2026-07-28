@@ -1,90 +1,94 @@
 'use strict';
 
-const { EventEmitter } = require('node:events');
-
 /**
  * PCF8575 16-bit quasi-bidirectional I/O port expander — minimal interface.
  *
  * Exposes all 16 pins (P00–P07, P10–P17) as GPIO objects via the pin() factory.
- * Direction is implicit: value=true puts a pin in input mode (weak pull-up);
- * value=false drives it low. Two shadow registers track the output latches.
+ * Pin objects expose async read()/write() (not onoff's synchronous
+ * readSync()/writeSync() — Connection is async everywhere, so a
+ * synchronous pin proxy can no longer correctly return a value). Call
+ * pin.asGpio() for a synchronous opengpio-shaped facade when a pin needs
+ * to be passed somewhere a real opengpio Input/Output is expected — see
+ * _Pin.asGpio() below.
+ *
+ * Direction is implicit: write(1) puts a pin in input mode (weak pull-up);
+ * write(0) drives it low. Two shadow registers track the output latches.
  *
  * Initialises all pins to input mode (shadow = [0xFF, 0xFF]) at construction.
- *
- * @param {object} transport - Configured I²C transport (write, read, writeRead).
- * @param {number} [addr=0x20] - 7-bit I²C device address.
  */
 class Pcf8575Minimal {
     /**
-     * @param {object} transport - Configured I²C transport.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
      * @param {number} [addr=0x20] - 7-bit I²C device address.
      */
-    constructor(transport, addr = 0x20) {
-        this._transport = transport;
+    constructor(connection, addr = 0x20) {
+        this._conn = connection;
         this._addr = addr;
         this._shadow = [0xFF, 0xFF];
-        this._writeBoth();
+        this._writeBoth(); // fire-and-forget: underlying I2C write is synchronous
     }
 
-    _writeBoth() {
-        this._transport.write(Buffer.from([this._shadow[0], this._shadow[1]]));
+    async _writeBoth() {
+        await this._conn.write(Buffer.from([this._shadow[0], this._shadow[1]]));
     }
 
-    _readPort() {
-        return this._transport.read(2);
+    async _readPort() {
+        return this._conn.read(2);
     }
 
-    _setPin(n, value) {
+    async _setPin(n, value) {
         const portIdx = Math.floor(n / 8);
         const bit = n % 8;
         if (value) this._shadow[portIdx] |=  (1 << bit);
         else       this._shadow[portIdx] &= ~(1 << bit);
-        this._writeBoth();
+        await this._writeBoth();
     }
 
     /**
      * Return a Pin proxy object for pin n (0–15).
      * @param {number} n - Pin index (0 = P00, 15 = P17).
      * @param {string} [direction='in'] - Initial direction: 'in' or 'out'.
-     * @returns {_Pin} Pin proxy implementing the opengpio Input/Output shape.
+     * @returns {_Pin} Pin proxy.
      */
     pin(n, direction = 'in') {
         const p = new _Pin(this, n, direction);
-        if (direction === 'out') this._setPin(n, 0);
-        else                     this._setPin(n, 1);
+        this._setPin(n, direction === 'out' ? 0 : 1); // fire-and-forget
         return p;
     }
 
     /**
      * Read all 8 pins of the given port as a bitmask.
      * @param {number} [port=0] - Port index (0 = P00–P07, 1 = P10–P17).
-     * @returns {number} 8-bit bitmask of actual pin logic levels.
+     * @returns {Promise<number>} 8-bit bitmask of actual pin logic levels.
      */
-    readPort(port = 0) {
-        return this._readPort()[port];
+    async readPort(port = 0) {
+        const raw = await this._readPort();
+        return raw[port];
     }
 
     /**
      * Write all 8 pins of the given port at once and update the shadow register.
      * @param {number} [port=0] - Port index (0 or 1).
      * @param {number} mask - 8-bit output mask; 1 = input mode, 0 = drive low.
+     * @returns {Promise<void>}
      */
-    writePort(port = 0, mask = 0xFF) {
+    async writePort(port = 0, mask = 0xFF) {
         this._shadow[port] = mask & 0xFF;
-        this._writeBoth();
+        await this._writeBoth();
     }
 }
 
 /**
- * GPIO proxy for a single PCF8575 pin — opengpio Input/Output shape.
+ * GPIO proxy for a single PCF8575 pin.
  *
  * Obtain via Pcf8575Minimal.pin(n). Do not instantiate directly.
- *
- * @param {Pcf8575Minimal} chip - Parent driver instance.
- * @param {number} n - Pin index (0–15).
- * @param {string} direction - 'in' or 'out'; fixed for the pin's lifetime.
  */
 class _Pin {
+    /**
+     * @param {Pcf8575Minimal} chip - Parent driver instance.
+     * @param {number} n - Pin index (0–15).
+     * @param {string} direction - 'in' or 'out'.
+     */
     constructor(chip, n, direction) {
         this._chip = chip;
         this._n = n;
@@ -95,23 +99,72 @@ class _Pin {
     get direction() { return this._direction; }
 
     /**
-     * Current pin state.
-     * @returns {boolean} true (released to quasi-high input) or false (driven low).
+     * Read pin.
+     * @returns {Promise<number>} 0 or 1.
      */
-    get value() {
+    async read() {
         const port = Math.floor(this._n / 8);
         const bit = this._n % 8;
-        return ((this._chip._readPort()[port] >> bit) & 1) === 1;
+        const raw = await this._chip._readPort();
+        return (raw[port] >> bit) & 1;
     }
 
     /**
-     * Drive the pin. Only valid on pins created with direction 'out'.
-     * @param {boolean} value - true releases to quasi-high input, false drives low.
-     * @throws {Error} If this pin is direction 'in'.
+     * Write pin.
+     * @param {number} value - 0 (drive low) or 1 (release to quasi-high input).
+     * @returns {Promise<void>}
      */
-    set value(value) {
-        if (this._direction !== 'out') throw new Error('cannot set value on an input pin');
-        this._chip._setPin(this._n, value ? 1 : 0);
+    async write(value) {
+        await this._chip._setPin(this._n, value ? 1 : 0);
+    }
+
+    /**
+     * Set pin direction.
+     * @param {string} direction - 'in' or 'out'.
+     * @returns {Promise<void>}
+     */
+    async setDirection(direction) {
+        this._direction = direction;
+        await this._chip._setPin(this._n, direction === 'in' ? 1 : 0);
+    }
+
+    /**
+     * Return a synchronous opengpio-shaped Input/Output facade for this
+     * pin — a boolean `.value` getter/setter, fixed `direction`, and
+     * `stop()` — so it can be passed anywhere code expects a real
+     * opengpio GPIO line.
+     *
+     * Output-direction facades read back the shadow register directly
+     * (authoritative) and write through fire-and-forget. Input-direction
+     * facades are backed by a 5 ms background poll that refreshes a
+     * cached value — `.value` is therefore eventually consistent, not a
+     * live bus read on every access like this pin's own async read().
+     * Call stop() to release the background poll when done.
+     *
+     * @returns {{direction: string, value: boolean, stop: function}} opengpio-shaped facade.
+     */
+    asGpio() {
+        const pin = this;
+        if (this._direction === 'out') {
+            const port = Math.floor(this._n / 8);
+            const bit = this._n % 8;
+            return {
+                get direction() { return 'out'; },
+                get value() { return ((pin._chip._shadow[port] >> bit) & 1) === 1; },
+                set value(v) { pin._chip._setPin(pin._n, v ? 1 : 0); }, // fire-and-forget
+                stop() {},
+            };
+        }
+        let cached = false;
+        const timer = setInterval(async () => {
+            cached = (await pin.read()) === 1;
+        }, 5);
+        return {
+            get direction() { return 'in'; },
+            get value() { return cached; },
+            set value(_v) { throw new Error('cannot set value on an input pin'); },
+            stop() { clearInterval(timer); },
+        };
     }
 
     /** Release the pin (no-op; shadow state preserved). */
@@ -121,25 +174,24 @@ class _Pin {
 /**
  * PCF8575 full interface — extends Pcf8575Minimal with interrupt support.
  *
- * Adds configureInterrupt() to attach a callback to the chip's INT line
- * and clearInterrupt() to return the 16-bit changed-pin bitmask.
- * Pin objects gain watch() returning a per-pin interrupt EventEmitter.
- *
- * @param {object} transport - Configured I²C transport.
- * @param {number} [addr=0x20] - 7-bit I²C device address.
+ * Adds onInterrupt()/offInterrupt() to subscribe to the chip's INT line and
+ * pollInterrupt() to read and clear the 16-bit changed-pin bitmask. Pin
+ * objects gain watch()/unwatch() for per-pin interrupt handlers.
  */
 class Pcf8575Full extends Pcf8575Minimal {
     /**
-     * @param {object} transport - Configured I²C transport.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
      * @param {number} [addr=0x20] - 7-bit I²C device address.
      */
-    constructor(transport, addr = 0x20) {
-        super(transport, addr);
-        const raw = this._readPort();
-        this._prev = [raw[0], raw[1]];
-        this._callback = null;
+    constructor(connection, addr = 0x20) {
+        super(connection, addr);
+        this._prev = [0xFF, 0xFF];
+        this._readPort().then(raw => { this._prev = [raw[0], raw[1]]; }); // fire-and-forget refresh
+        this._callback  = null;
+        this._watchers  = {}; // { [pin]: { handler, trigger, lastState } }
+        this._intPin    = null;
         this._pollTimer = null;
-        this._watchers = {};
+        this._edgeHandler = () => { this._handleEdge(); };
     }
 
     /**
@@ -150,62 +202,67 @@ class Pcf8575Full extends Pcf8575Minimal {
      */
     pin(n, direction = 'in') {
         const p = new _FullPin(this, n, direction);
-        if (direction === 'out') this._setPin(n, 0);
-        else                     this._setPin(n, 1);
+        this._setPin(n, direction === 'out' ? 0 : 1); // fire-and-forget
         return p;
     }
 
     /**
-     * Attach a callback to the chip's INT output.
+     * Subscribe to INT assertions.
      *
-     * On Linux, uses a 5 ms polling interval; pass intGpioPath to the
-     * sysfs value file for edge-based delivery via epoll. Pass null to use polling.
+     * Wires options.intPin (or connection.intPin if omitted) to deliver
+     * edges. If neither is available, falls back to a 5 ms polling loop
+     * reading both ports directly (no InputPin involved).
      *
-     * @param {string|null} intGpioPath - Sysfs GPIO value file path, or null for polling.
-     * @param {function} callback - Called with 16-bit changed bitmask on any input change.
+     * @param {function} callback - Called with the 16-bit changed-pin bitmask
+     *   (bits 0–7 = Port 0, bits 8–15 = Port 1) on any input change.
+     * @param {object} [options]
+     * @param {import('../../connection/input_pin').InputPin|null} [options.intPin] - Overrides connection.intPin.
+     * @returns {Promise<void>}
      */
-    configureInterrupt(intGpioPath, callback) {
+    async onInterrupt(callback, options = {}) {
         this._callback = callback;
-        if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
-        if (intGpioPath) {
-            try {
-                const fs = require('fs');
-                const ep = require('epoll').Epoll;
-                const fd = fs.openSync(intGpioPath, 'r');
-                const poll = new ep((err, fd2) => {
-                    fs.readSync(fd2, Buffer.alloc(1), 0, 1, 0);
-                    const changed = this.clearInterrupt();
-                    if (changed) this._dispatch(changed);
-                });
-                poll.add(fd, ep.EPOLLPRI);
-            } catch (_) {
-                this._startPolling();
-            }
+        const pin = options.intPin ?? this._conn.intPin ?? null;
+        if (pin) {
+            this._intPin = pin;
+            await pin.onEdge(this._edgeHandler, 'falling');
         } else {
             this._startPolling();
         }
     }
 
-    _startPolling() {
-        this._pollTimer = setInterval(() => {
-            const changed = this.clearInterrupt();
-            if (changed) this._dispatch(changed);
-        }, 5);
+    /**
+     * Unsubscribe and stop delivery.
+     * @returns {Promise<void>}
+     */
+    async offInterrupt() {
+        this._callback = null;
+        if (this._intPin) {
+            await this._intPin.offEdge(this._edgeHandler);
+            this._intPin = null;
+        }
+        if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
     }
 
-    _dispatch(changed) {
+    _startPolling() {
+        if (this._pollTimer) return;
+        this._pollTimer = setInterval(() => { this._handleEdge(); }, 5);
+    }
+
+    async _handleEdge() {
+        const changed = await this.pollInterrupt();
+        if (!changed) return;
         if (this._callback) this._callback(changed);
-        const current = this._readPort();
-        for (const [n, watchers] of Object.entries(this._watchers)) {
-            const pinN = Number(n);
-            if ((changed >> pinN) & 1) {
-                const port = pinN >> 3;
-                const bit = pinN & 7;
-                const value = ((current[port] >> bit) & 1) === 1;
-                watchers.forEach(w => {
-                    w.emit('change', value);
-                    w.emit(value ? 'rise' : 'fall', value);
-                });
+        const raw = await this._readPort();
+        for (const [n, w] of Object.entries(this._watchers)) {
+            if (!((changed >> n) & 1)) continue;
+            const port = Math.floor(n / 8);
+            const bit = n % 8;
+            const current = (raw[port] >> bit) & 1;
+            const rising = current === 1 && w.lastState === 0;
+            const falling = current === 0 && w.lastState === 1;
+            w.lastState = current;
+            if (w.trigger === 'change' || (w.trigger === 'rising' && rising) || (w.trigger === 'falling' && falling)) {
+                w.handler(this.pin(Number(n)));
             }
         }
     }
@@ -213,10 +270,10 @@ class Pcf8575Full extends Pcf8575Minimal {
     /**
      * Read current pin states and return 16-bit bitmask of pins that changed.
      * Also clears the chip's INT line.
-     * @returns {number} 16-bit changed-pin bitmask (bits 0–7 = Port 0, bits 8–15 = Port 1).
+     * @returns {Promise<number>} 16-bit changed-pin bitmask (bits 0–7 = Port 0, bits 8–15 = Port 1).
      */
-    clearInterrupt() {
-        const current = this._readPort();
+    async pollInterrupt() {
+        const current = await this._readPort();
         const changed0 = current[0] ^ this._prev[0];
         const changed1 = current[1] ^ this._prev[1];
         this._prev = [current[0], current[1]];
@@ -225,37 +282,34 @@ class Pcf8575Full extends Pcf8575Minimal {
 }
 
 /**
- * Full GPIO proxy — adds watch() for interrupt-driven input.
- *
- * @param {Pcf8575Full} chip - Parent full driver instance.
- * @param {number} n - Pin index.
- * @param {string} direction - 'in' or 'out'.
+ * Full GPIO proxy — adds watch/unwatch for interrupt-driven input.
  */
 class _FullPin extends _Pin {
+    /**
+     * @param {Pcf8575Full} chip - Parent full driver instance.
+     * @param {number} n - Pin index.
+     * @param {string} direction - 'in' or 'out'.
+     */
     constructor(chip, n, direction) {
         super(chip, n, direction);
     }
 
     /**
-     * Start watching this pin for state changes.
+     * Subscribe to this pin's edge events.
      *
-     * Requires configureInterrupt() to have been called on the driver.
-     * Matches opengpio's Watch class: an EventEmitter emitting 'rise' /
-     * 'fall' / 'change', plus a `value` getter and `stop()`.
+     * At most one handler per pin at a time; a second watch() call replaces
+     * the first. Call the chip's onInterrupt() first to arm delivery.
      *
-     * @returns {EventEmitter} Watcher emitting 'rise', 'fall', 'change'.
+     * @param {function} handler - Called with this pin when its state matches trigger.
+     * @param {string} [trigger='change'] - 'rising', 'falling', or 'change'.
      */
-    watch() {
-        const n = this._n;
-        const watcher = new EventEmitter();
-        Object.defineProperty(watcher, 'value', { get: () => this.value });
-        watcher.stop = () => {
-            const list = this._chip._watchers[n];
-            if (list) this._chip._watchers[n] = list.filter(w => w !== watcher);
-        };
-        if (!this._chip._watchers[n]) this._chip._watchers[n] = [];
-        this._chip._watchers[n].push(watcher);
-        return watcher;
+    watch(handler, trigger = 'change') {
+        this._chip._watchers[this._n] = { handler, trigger, lastState: 1 };
+    }
+
+    /** Unsubscribe this pin's handler. No-op if not registered. */
+    unwatch() {
+        delete this._chip._watchers[this._n];
     }
 
     /**

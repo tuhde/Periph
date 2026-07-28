@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for 24AA02UID (Minimal).
 // Mirrors the Arduino 24AA02UID_Minimal example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "24AA02UID.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    EEPROM24AA02UIDMinimal chip(transport);  // Create 24AA02UID driver
+    I2CConnectionESPIDF connection(dev);
+    EEPROM24AA02UIDMinimal chip(connection);  // Create 24AA02UID driver
     uint8_t uid[4];
     while (1) {
     chip.read_uid(uid);                               // Read 32-bit unique serial number, (buf[4]) → void

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -13,11 +13,11 @@ public class Apds9960Full extends Apds9960Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C transport bound to the APDS-9960 device address (0x39)
+     * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9960Full(Transport transport) throws IOException {
-        super(transport);
+    public Apds9960Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -178,7 +178,7 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void clearProximityInterrupt() throws IOException {
-        transport.write(new byte[]{(byte) REG_PICLEAR});
+        connection.write(new byte[]{(byte) REG_PICLEAR});
     }
 
     /**
@@ -187,7 +187,7 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void clearAlsInterrupt() throws IOException {
-        transport.write(new byte[]{(byte) REG_CICLEAR});
+        connection.write(new byte[]{(byte) REG_CICLEAR});
     }
 
     /**
@@ -196,7 +196,7 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void clearAllInterrupts() throws IOException {
-        transport.write(new byte[]{(byte) REG_AICLEAR});
+        connection.write(new byte[]{(byte) REG_AICLEAR});
     }
 
     /**
@@ -293,7 +293,7 @@ public class Apds9960Full extends Apds9960Minimal {
         if (level == 0) return new int[0][];
         int[][] result = new int[level][4];
         for (int i = 0; i < level; i++) {
-            byte[] raw = transport.writeRead(new byte[]{(byte) REG_GFIFO_U}, 4);
+            byte[] raw = connection.writeRead(new byte[]{(byte) REG_GFIFO_U}, 4);
             result[i] = new int[]{raw[0] & 0xFF, raw[1] & 0xFF, raw[2] & 0xFF, raw[3] & 0xFF};
         }
         return result;

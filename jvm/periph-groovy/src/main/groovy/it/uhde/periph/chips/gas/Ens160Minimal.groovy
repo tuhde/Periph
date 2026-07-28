@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gas
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 import java.io.IOException
 
@@ -9,7 +9,7 @@ import java.io.IOException
  * ENS160 digital multi-gas sensor — minimal interface.
  *
  * <p>Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
- * configuration required beyond the transport. The sensor performs automatic
+ * configuration required beyond the connection. The sensor performs automatic
  * baseline correction and on-chip signal processing.
  *
  * <p>Default: STANDARD mode (gas sensing active), polling only, no external
@@ -38,16 +38,16 @@ class Ens160Minimal {
 
     static final int PART_ID_EXPECTED  = 0x0160
 
-    protected final Transport transport
+    protected final Connection connection
 
     /**
      * Construct the driver, verify PART_ID, and start STANDARD mode.
      *
-     * @param transport I²C or SPI transport bound to the device.
+     * @param connection I²C or SPI connection bound to the device.
      * @throws IOException on I²C error or wrong PART_ID.
      */
-    Ens160Minimal(Transport transport) {
-        this.transport = transport
+    Ens160Minimal(Connection connection) {
+        this.connection = connection
         writeReg(REG_OPMODE, OPMODE_IDLE)
         Thread.sleep(1)
         int partId = readRegLE16(REG_PART_ID)
@@ -58,15 +58,15 @@ class Ens160Minimal {
     }
 
     protected void writeReg(int reg, int value) {
-        transport.write([(byte) reg, (byte) value] as byte[])
+        connection.write([(byte) reg, (byte) value] as byte[])
     }
 
     protected void writeRegLE16(int reg, int value) {
-        transport.write([(byte) reg, (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)] as byte[])
+        connection.write([(byte) reg, (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)] as byte[])
     }
 
     protected byte[] readReg(int reg, int n) {
-        return transport.writeRead([(byte) reg] as byte[], n)
+        return connection.writeRead([(byte) reg] as byte[], n)
     }
 
     protected int readRegLE16(int reg) {

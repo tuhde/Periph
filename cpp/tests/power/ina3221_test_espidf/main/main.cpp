@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "INA3221.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    INA3221Full inst(transport);  // Create INA3221 driver
+    I2CConnectionESPIDF connection(dev);
+    INA3221Full inst(connection);  // Create INA3221 driver
     uint16_t mfr = inst.manufacturer_id();
     check_eq_u8((uint8_t)(mfr >> 8), 0x54, "manufacturer_id MSB");
     check_eq_u8((uint8_t)(mfr & 0xFF), 0x49, "manufacturer_id LSB");

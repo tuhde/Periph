@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.environmental.Bme280Full;
 
 public class Bme280Test {
@@ -21,9 +21,9 @@ public class Bme280Test {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x76"));
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var sensor = new Bme280Full(transport);
+            var sensor = new Bme280Full(connection);
 
             int id = sensor.chipId();
             checkTrue("chipId() == 0x60", id == 0x60);

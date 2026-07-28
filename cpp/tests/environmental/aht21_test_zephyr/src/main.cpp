@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "AHT21.h"
 
 #ifndef AHT21_I2C_NODE
@@ -27,8 +27,8 @@ static void check_near(float val, float lo, float hi, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(AHT21_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, AHT21_ADDR);
-    AHT21Full aht(transport);
+    I2CConnectionZephyr connection(i2c_dev, AHT21_ADDR);
+    AHT21Full aht(connection);
 
     check_true(aht.is_calibrated(), "is_calibrated");
     check_true(!aht.is_busy(), "not busy at idle");

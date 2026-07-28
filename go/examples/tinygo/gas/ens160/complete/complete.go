@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gas"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,8 +26,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x53)        // Create I2C transport, (i2c, addr=0x53) → (*I2CTransport)
-	chip, err := gas.NewENS160Full(tr)                 // Create ENS160 driver, (transport) → (*ENS160Full, error)
+	conn := connection.NewI2CConnection(i2c, 0x53, nil, nil)        // Create I2C connection, (i2c, addr=0x53) → (*I2CConnection)
+	chip, err := gas.NewENS160Full(conn)                 // Create ENS160 driver, (connection) → (*ENS160Full, error)
 	if err != nil {
 		panic(err)
 	}

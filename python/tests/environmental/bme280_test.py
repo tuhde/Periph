@@ -1,6 +1,6 @@
 import machine
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.environmental.bme280 import BME280Minimal, BME280Full
 from machine import Pin
 
@@ -8,9 +8,9 @@ passed = 0
 failed = 0
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 
-bme = BME280Minimal(transport)
+bme = BME280Minimal(connection)
 
 # Inherit the BMP280 worked example: T1, T2, T3, P1..P9 coefficients
 # and the same UT/UP values produce the same 25.08 °C / 1006.53 hPa output.
@@ -62,7 +62,7 @@ else:
     print('FAIL humidity_compensation: expected 30–70 %RH, got {}'.format(h))
     failed += 1
 
-bme_full = BME280Full(transport)
+bme_full = BME280Full(connection)
 bme_full._mode = 0
 if bme_full._osrs_t == 1 and bme_full._osrs_p == 1 and bme_full._osrs_h == 1:
     print('PASS default_oversampling')

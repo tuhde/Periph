@@ -1,26 +1,26 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.UARTTransport
+import it.uhde.periph.connection.UARTConnection
 import it.uhde.periph.chips.gnss.Neo6Full
 
 // To use I2C (DDC) instead of UART:
-//   import it.uhde.periph.transport.I2CTransport
+//   import it.uhde.periph.connection.I2CConnection
 //   import it.uhde.periph.chips.gnss.BusType
-//   def transport = new I2CTransport(1, 0x42)
-//   def gps = new Neo6Full(transport, BusType.I2C)
+//   def connection = new I2CConnection(1, 0x42)
+//   def gps = new Neo6Full(connection, BusType.I2C)
 
 // --- Portable GPS logger ---
 // The module self-configures at factory defaults (9600 baud NMEA, 1 Hz); no
 // CFG messages are needed for a basic position log. Runs for 60 seconds,
 // polling update() far faster than the 1 Hz sentence rate so no sentence is
 // missed, and prints one line per second once a fresh GGA has been parsed.
-def transport = new UARTTransport('/dev/ttyS0')            // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTTransport
+def connection = new UARTConnection('/dev/ttyS0')            // open UART, 9600 8N1, (port, baudRate=9600, ...) → UARTConnection
 try {
-    def gps = new Neo6Full(transport)                        // construct driver, (transport, busType=UART) → Neo6Full
+    def gps = new Neo6Full(connection)                        // construct driver, (connection, busType=UART) → Neo6Full
 
     long start = System.currentTimeMillis()
     while (System.currentTimeMillis() - start < 60_000) {
@@ -46,5 +46,5 @@ try {
         Thread.sleep(200)
     }
 } finally {
-    transport.close()
+    connection.close()
 }

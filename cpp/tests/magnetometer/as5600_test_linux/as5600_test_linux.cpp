@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "AS5600.h"
 
 #ifndef TEST_I2C_BUS
@@ -27,8 +27,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    AS5600Full as5600(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    AS5600Full as5600(connection);
 
     // --- Magnet status poll (60 s max at 5 Hz) ---
     printf("--- magnet status (60 s max) ---\n");

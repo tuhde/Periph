@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8576.h"
 
 static int passed = 0, failed = 0;
@@ -17,9 +17,9 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    PCF8576Minimal lcd(transport);
-    PCF8576Full lcd_full(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    PCF8576Minimal lcd(connection);
+    PCF8576Full lcd_full(connection);
 
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_OFF | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x40, "mode_set_off");
     check_true((PCF8576Minimal::CMD_MODE_SET | PCF8576Minimal::DISPLAY_ON  | PCF8576Minimal::BIAS_1_3 | PCF8576Minimal::MODE_1_4) == 0x48, "mode_set_on");

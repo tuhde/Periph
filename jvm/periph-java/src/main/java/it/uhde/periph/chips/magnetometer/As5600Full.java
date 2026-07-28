@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -86,11 +86,11 @@ public class As5600Full extends As5600Minimal {
     /**
      * Construct the full driver and verify magnet presence.
      *
-     * @param transport I²C transport bound to address 0x36
+     * @param connection I²C connection bound to address 0x36
      * @throws IOException if MD=0 (magnet not detected) or on I²C error
      */
-    public As5600Full(Transport transport) throws IOException {
-        super(transport);
+    public As5600Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -174,7 +174,7 @@ public class As5600Full extends As5600Minimal {
 
         confL = ((pwmf & 0x03) << 6) | ((outs & 0x03) << 4) | ((hyst & 0x03) << 2) | (pm & 0x03);
 
-        transport.write(new byte[]{
+        connection.write(new byte[]{
                 (byte) REG_CONF_H,
                 (byte) (confH & 0xFF),
                 (byte) (confL & 0xFF)

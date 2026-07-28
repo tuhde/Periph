@@ -2,7 +2,7 @@
 
 // MPU9250 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport, then loops reading
+// Constructs the driver with a /dev/i2c-N connection, then loops reading
 // 3-axis acceleration and angular rate once per second.
 package main
 
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x68) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x68) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := imu.NewMPU9250Minimal(tr) // Create MPU9250 driver, (transport) → (*MPU9250Minimal, error)
+	chip, err := imu.NewMPU9250Minimal(conn) // Create MPU9250 driver, (connection) → (*MPU9250Minimal, error)
 	if err != nil {
 		panic(err)
 	}

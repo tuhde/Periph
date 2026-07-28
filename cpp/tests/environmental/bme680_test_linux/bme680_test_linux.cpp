@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "BME680.h"
 
 static int passed = 0, failed = 0;
@@ -17,9 +17,9 @@ static void check_true(bool cond, const char *label) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
 
-    BME680Minimal bme(transport);
+    BME680Minimal bme(connection);
 
     float t = bme.temperature();
     check_true(t >= -40.0f && t <= 85.0f, "temperature_range");
@@ -30,7 +30,7 @@ int main() {
     float h = bme.humidity();
     check_true(h >= 0.0f && h <= 100.0f, "humidity_range");
 
-    BME680Full bme_full(transport);
+    BME680Full bme_full(connection);
 
     bme_full.set_oversampling(BME680Full::OSRS_X4, BME680Full::OSRS_X2, BME680Full::OSRS_X1);
     check_true(bme_full._osrs_t == 3 && bme_full._osrs_p == 2 && bme_full._osrs_h == 1, "set_oversampling");

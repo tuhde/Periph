@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/magnetometer"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,16 +28,16 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x36) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x36) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	// --- Motor feedback monitor: read angle 10 times per second ---
 	// AGC monitoring detects magnet distance drift; status changes alert to magnet removal.
 	// In 5 V mode, target AGC ≈ 128; in 3.3 V mode, target AGC ≈ 64.
-	chip, err := magnetometer.NewAs5600Full(tr) // Create AS5600 driver, (transport) → (*As5600Full, error)
+	chip, err := magnetometer.NewAs5600Full(conn) // Create AS5600 driver, (connection) → (*As5600Full, error)
 	if err != nil {
 		panic(err)
 	}

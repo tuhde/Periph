@@ -22,16 +22,25 @@ function _delay(ms) {
  * BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
  *
  * Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- * beyond the transport. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
+ * beyond the connection. I²C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
  *
  * Default: forced mode, osrs_t=×1, osrs_p=×1, IIR filter off.
  *
- * @param {object} transport - Configured I²C or SPI transport.
+ * Constructor caveat: JS constructors cannot be async. The calibration read
+ * and initial register writes are fired off unawaited, matching the
+ * fire-and-forget convention used throughout this port — in practice they
+ * settle before any subsequent `await` in caller code is scheduled, since
+ * the underlying I2C/SPI connection is synchronous under the hood, but this
+ * is not a guaranteed blocking wait the way the pre-async version was. Call
+ * `await sensor.temperature()` (or any other async method) once before
+ * relying on calibrated readings if this matters for your use case.
+ *
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
  * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
  */
 class BMP280Minimal {
-    constructor(transport, busType = 'i2c') {
-        this._transport = transport;
+    constructor(connection, busType = 'i2c') {
+        this._conn = connection;
         this._busType = busType;
         this._mode = 0;
         this._osrsT = 1;
@@ -39,13 +48,17 @@ class BMP280Minimal {
         this._filter = 0;
         this._tSb = 0;
         this._tFine = 0;
-        this._readCalibration();
-        this._writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
-        this._writeReg(_REG_CONFIG, 0);
+        this._init();
     }
 
-    _readCalibration() {
-        const data = this._transport.writeRead(Buffer.from([_REG_CAL_START]), 24);
+    async _init() {
+        await this._readCalibration();
+        await this._writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
+        await this._writeReg(_REG_CONFIG, 0);
+    }
+
+    async _readCalibration() {
+        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), 24);
         this._digT1 = data.readUInt16LE(0);
         this._digT2 = data.readInt16LE(2);
         this._digT3 = data.readInt16LE(4);
@@ -60,22 +73,22 @@ class BMP280Minimal {
         this._digP9 = data.readInt16LE(22);
     }
 
-    _writeReg(reg, value) {
+    async _writeReg(reg, value) {
         const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        this._transport.write(Buffer.from([addr, value]));
+        await this._conn.write(Buffer.from([addr, value]));
     }
 
-    _readReg(reg, n) {
-        return this._transport.writeRead(Buffer.from([reg]), n);
+    async _readReg(reg, n) {
+        return this._conn.writeRead(Buffer.from([reg]), n);
     }
 
-    _triggerAndRead() {
+    async _triggerAndRead() {
         if (this._mode !== 3) {
             const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
-            this._writeReg(_REG_CTRL_MEAS, ctrl);
+            await this._writeReg(_REG_CTRL_MEAS, ctrl);
             _delay(_MEAS_TIME_MS);
         }
-        const raw = this._readReg(_REG_DATA_START, 6);
+        const raw = await this._readReg(_REG_DATA_START, 6);
         const adcP = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
         const adcT = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
         return { adcP, adcT };
@@ -120,10 +133,10 @@ class BMP280Minimal {
 
     /**
      * Read calibrated temperature.
-     * @returns {number} Temperature in degrees Celsius.
+     * @returns {Promise<number>} Temperature in degrees Celsius.
      */
-    temperature() {
-        const { adcP, adcT } = this._triggerAndRead();
+    async temperature() {
+        const { adcP, adcT } = await this._triggerAndRead();
         return this._compensateTemp(adcT);
     }
 
@@ -133,10 +146,10 @@ class BMP280Minimal {
      * Reads both ADCs and refreshes t_fine.
      * Self-contained — may be called without a prior temperature() call.
      *
-     * @returns {number} Pressure in hPa.
+     * @returns {Promise<number>} Pressure in hPa.
      */
-    pressure() {
-        const { adcP, adcT } = this._triggerAndRead();
+    async pressure() {
+        const { adcP, adcT } = await this._triggerAndRead();
         this._compensateTemp(adcT);
         return this._compensatePressure(adcP);
     }
@@ -145,7 +158,7 @@ class BMP280Minimal {
 /**
  * BMP280 full interface — extends BMP280Minimal with configuration and altitude helpers.
  *
- * @param {object} transport - Configured I²C or SPI transport.
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
  * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
  */
 class BMP280Full extends BMP280Minimal {
@@ -178,8 +191,8 @@ class BMP280Full extends BMP280Minimal {
     static STATUS_MEASURING = 0x08;
     static STATUS_IM_UPDATE = 0x01;
 
-    constructor(transport, busType = 'i2c') {
-        super(transport, busType);
+    constructor(connection, busType = 'i2c') {
+        super(connection, busType);
     }
 
     /**
@@ -189,102 +202,108 @@ class BMP280Full extends BMP280Minimal {
      * @param {number} mode - Power mode (0=sleep, 1=forced, 3=normal).
      * @param {number} filter - IIR filter coefficient (0–4).
      * @param {number} tSb - Standby time in normal mode (0–7).
+     * @returns {Promise<void>}
      */
-    configure(osrsT, osrsP, mode, filter, tSb) {
+    async configure(osrsT, osrsP, mode, filter, tSb) {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
         this._mode = mode;
         this._filter = filter;
         this._tSb = tSb;
-        this._writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
-        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+        await this._writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
+        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
      * Update temperature and pressure oversampling.
      * @param {number} osrsT - Temperature oversampling (0–5).
      * @param {number} osrsP - Pressure oversampling (0–5).
+     * @returns {Promise<void>}
      */
-    setOversampling(osrsT, osrsP) {
+    async setOversampling(osrsT, osrsP) {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
-        this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
+        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
     }
 
     /**
      * Update power mode.
      * @param {number} mode - Power mode (0=sleep, 1=forced, 3=normal).
+     * @returns {Promise<void>}
      */
-    setMode(mode) {
+    async setMode(mode) {
         this._mode = mode;
-        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
+        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
     }
 
     /**
      * Update IIR filter coefficient.
      * @param {number} coeff - Filter coefficient (0–4).
+     * @returns {Promise<void>}
      */
-    setFilter(coeff) {
+    async setFilter(coeff) {
         this._filter = coeff;
-        this._writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
+        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
     }
 
     /**
      * Update standby time for normal mode.
      * @param {number} tSb - Standby time value (0–7).
+     * @returns {Promise<void>}
      */
-    setStandby(tSb) {
+    async setStandby(tSb) {
         this._tSb = tSb;
-        this._writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
+        await this._writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
     }
 
     /**
      * Read the status register.
-     * @returns {number} Status byte; bit 3 = measuring, bit 0 = im_update.
+     * @returns {Promise<number>} Status byte; bit 3 = measuring, bit 0 = im_update.
      */
-    status() {
-        const data = this._readReg(_REG_STATUS, 1);
+    async status() {
+        const data = await this._readReg(_REG_STATUS, 1);
         return data[0];
     }
 
     /**
      * Compute altitude above sea level from the current pressure.
      * @param {number} [seaLevelHpa=1013.25] - Reference sea-level pressure in hPa.
-     * @returns {number} Altitude in metres.
+     * @returns {Promise<number>} Altitude in metres.
      */
-    altitude(seaLevelHpa = 1013.25) {
-        const p = this.pressure();
+    async altitude(seaLevelHpa = 1013.25) {
+        const p = await this.pressure();
         return 44330 * (1 - Math.pow(p / seaLevelHpa, 1 / 5.255));
     }
 
     /**
      * Compute sea-level pressure from current pressure and known altitude.
      * @param {number} altitudeM - Altitude in metres.
-     * @returns {number} Sea-level pressure in hPa.
+     * @returns {Promise<number>} Sea-level pressure in hPa.
      */
-    seaLevelPressure(altitudeM) {
-        const p = this.pressure();
+    async seaLevelPressure(altitudeM) {
+        const p = await this.pressure();
         return p / Math.pow(1 - altitudeM / 44330, 5.255);
     }
 
     /**
      * Read the chip ID register.
-     * @returns {number} Chip ID; expect 0x58.
+     * @returns {Promise<number>} Chip ID; expect 0x58.
      */
-    chipId() {
-        const data = this._readReg(_REG_ID, 1);
+    async chipId() {
+        const data = await this._readReg(_REG_ID, 1);
         return data[0];
     }
 
     /**
      * Perform a soft reset, re-read calibration, and re-apply configuration.
+     * @returns {Promise<void>}
      */
-    reset() {
-        this._writeReg(_REG_RESET, _RESET_CMD);
+    async reset() {
+        await this._writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
-        this._readCalibration();
-        this._writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
-        this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
+        await this._readCalibration();
+        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
+        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
     }
 }
 

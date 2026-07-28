@@ -1,11 +1,11 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief RDA5807M single-chip FM stereo radio tuner — minimal interface.
  *
  * Tunes to a station, adjusts volume, mutes, and seeks the next station.
- * No configuration required beyond the transport.
+ * No configuration required beyond the connection.
  *
  * Unlike most chips in this project, the RDA5807M has no register-pointer
  * byte: writes always start at the fixed register 0x02 and reads always
@@ -14,7 +14,7 @@
  * them on every change, since the chip cannot be told to start a write
  * anywhere else.
  *
- * @param transport      I²C transport bound to address 0x10.
+ * @param connection      I²C connection bound to address 0x10.
  * @param frequency_mhz  Initial frequency in MHz (default 100.0).
  * @param volume         Initial volume, 0 (mute) to 15 (max) (default 8).
  */
@@ -30,7 +30,7 @@ public:
     static constexpr uint8_t SPACE_50K = 2;
     static constexpr uint8_t SPACE_25K = 3;
 
-    RDA5807MMinimal(Transport& transport, float frequency_mhz = 100.0f, uint8_t volume = 8);
+    RDA5807MMinimal(Connection& connection, float frequency_mhz = 100.0f, uint8_t volume = 8);
 
     /** @brief Tune to a frequency, blocking until the tune completes.
      *  @param frequency_mhz Target frequency in MHz.
@@ -90,7 +90,7 @@ protected:
     static constexpr uint16_t _FM_TRUE = 0x0100;
     static constexpr uint16_t _FM_READY = 0x0080;
 
-    Transport& _transport;
+    Connection& _connection;
     uint16_t _regs[6];
     uint8_t _band;
     uint8_t _space;
@@ -108,13 +108,13 @@ protected:
 /** @brief RDA5807M full interface — extends RDA5807MMinimal with band/spacing
  *  configuration, RDS, status, and power management.
  *
- * @param transport      I²C transport bound to address 0x10.
+ * @param connection      I²C connection bound to address 0x10.
  * @param frequency_mhz  Initial frequency in MHz (default 100.0).
  * @param volume         Initial volume, 0 (mute) to 15 (max) (default 8).
  */
 class RDA5807MFull : public RDA5807MMinimal {
 public:
-    RDA5807MFull(Transport& transport, float frequency_mhz = 100.0f, uint8_t volume = 8);
+    RDA5807MFull(Connection& connection, float frequency_mhz = 100.0f, uint8_t volume = 8);
 
     /** @brief Reconfigure tuner-level settings.
      *

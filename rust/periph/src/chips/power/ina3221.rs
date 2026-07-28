@@ -7,7 +7,7 @@
 //! the shunt voltage and the user-supplied shunt resistance.
 //!
 //! The [`Ina3221Minimal`] struct provides per-channel voltage, shunt voltage, current,
-//! and power readings with no configuration beyond the transport and shunt resistors.
+//! and power readings with no configuration beyond the connection and shunt resistors.
 
 use embedded_hal::i2c::I2c;
 

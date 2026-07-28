@@ -1,7 +1,7 @@
 'use strict';
 
 const { Default } = require('opengpio');
-const { HX711Transport } = require('../../../src/transport/hx711');
+const { HX711Connection } = require('../../../src/connection/hx711');
 const { HX711Full } = require('../../../src/chips/adc_dac/hx711');
 
 // Kitchen scale demo: tare at startup, then print weight continuously.
@@ -12,8 +12,8 @@ const SCALE_FACTOR = 420.0;
 
 const dout   = Default.input({ chip: 0, line: 5 });
 const pd_sck = Default.output({ chip: 0, line: 6 });
-const transport = new HX711Transport(dout, pd_sck);        // Create HX711 transport, (dout, pd_sck)
-const chip = new HX711Full(transport);                     // Create HX711 driver — discards first conversion, (transport)
+const connection = new HX711Connection(dout, pd_sck);      // Create HX711 connection, (dout, pd_sck)
+const chip = new HX711Full(connection);                    // Create HX711 driver — discards first conversion, (connection)
 
 console.log('Taring — keep scale empty...');
 chip.tare(10);                                             // Capture zero offset from 10-reading average, (times=10) → undefined

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.environmental.Aht21Full
 
 /**
@@ -16,9 +16,9 @@ import it.uhde.periph.chips.environmental.Aht21Full
 final SAMPLES     = 60
 final INTERVAL_MS = 5000
 
-def transport = new I2CTransport(1, 0x38)                // open I²C bus 1, device 0x38, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x38)                // open I²C bus 1, device 0x38, (bus, address) → I2CConnection
 try {
-    def aht = new Aht21Full(transport)                        // construct driver, (transport) → Aht21Full
+    def aht = new Aht21Full(connection)                        // construct driver, (connection) → Aht21Full
 
     // --- Verify calibration before starting the logging session ---
     // Most AHT21 modules ship pre-calibrated; if the CAL bit is not set
@@ -52,5 +52,5 @@ try {
         Thread.sleep(INTERVAL_MS)
     }
 } finally {
-    transport.close()
+    connection.close()
 }

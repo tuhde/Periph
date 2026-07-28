@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.display.pcf8576 import PCF8576Full
 
-transport = I2CTransport(0x38)
-lcd = PCF8576Full(transport)                             # Create PCF8576 driver, (transport)
+connection = I2CConnection(0x38)
+lcd = PCF8576Full(connection)                             # Create PCF8576 driver, (connection)
 lcd.clear()                                              # Blank the display, () → None
                                                          # zeros all 40 columns of display RAM
 lcd.device_select(0)                                     # Select device on the bus, (subaddress 0–7) → None

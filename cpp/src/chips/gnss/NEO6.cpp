@@ -61,21 +61,21 @@ int NEO6Minimal::_splitFields(char* body, char** fields, int maxFields) {
     return n;
 }
 
-NEO6Minimal::NEO6Minimal(Transport& transport, NEO6BusType bus_type)
-    : _transport(transport), _bus_type(bus_type)
+NEO6Minimal::NEO6Minimal(Connection& connection, NEO6BusType bus_type)
+    : _connection(connection), _bus_type(bus_type)
 {
 }
 
 bool NEO6Minimal::_tryReadByte(uint8_t& out) {
     if (_bus_type == NEO6BusType::Uart) {
         // Only calling read() once a byte is confirmed queued avoids the
-        // "garbage on timeout" problem: UARTTransport::read() has a void
+        // "garbage on timeout" problem: UARTConnection::read() has a void
         // return with no way to signal a partial/failed read, and the
         // Zephyr/Linux GCC variants either block or throw on timeout, which
         // this shared, no-exception driver code cannot rely on catching.
-        if (_transport.available() == 0)
+        if (_connection.available() == 0)
             return false;
-        _transport.read(&out, 1);
+        _connection.read(&out, 1);
         return true;
     }
     if (_bus_type == NEO6BusType::I2c) {
@@ -83,7 +83,7 @@ bool NEO6Minimal::_tryReadByte(uint8_t& out) {
         // stream byte. The pointer saturates at 0xFF once set, so
         // re-sending it on every byte is redundant but harmless.
         static const uint8_t reg = 0xFF;
-        _transport.write_read(&reg, 1, &out, 1);
+        _connection.write_read(&reg, 1, &out, 1);
         return true;
     }
     // SPI has no register-address concept, so the write phase must stay
@@ -94,7 +94,7 @@ bool NEO6Minimal::_tryReadByte(uint8_t& out) {
     // transfer, so no incoming byte is ever discarded (MOSI carries 0x00
     // instead of the spec's literal 0xFF during this call, which is
     // harmless -- see NEO6Minimal's class comment).
-    _transport.write_read(nullptr, 0, &out, 1);
+    _connection.write_read(nullptr, 0, &out, 1);
     return true;
 }
 
@@ -174,8 +174,8 @@ bool NEO6Minimal::_parseGga(char** fields, int nFields) {
 
 // --- NEO6Full ---
 
-NEO6Full::NEO6Full(Transport& transport, NEO6BusType bus_type)
-    : NEO6Minimal(transport, bus_type)
+NEO6Full::NEO6Full(Connection& connection, NEO6BusType bus_type)
+    : NEO6Minimal(connection, bus_type)
 {
 }
 
@@ -239,7 +239,7 @@ void NEO6Full::sendUbx(uint8_t msgClass, uint8_t msgId, const uint8_t* payload, 
     ubxChecksum(frame + bodyStart, pos - bodyStart, ckA, ckB);
     frame[pos++] = ckA;
     frame[pos++] = ckB;
-    _transport.write(frame, pos);
+    _connection.write(frame, pos);
 }
 
 bool NEO6Full::pollUbx(uint8_t msgClass, uint8_t msgId, uint8_t* outPayload, size_t& outLen, size_t maxLen) {

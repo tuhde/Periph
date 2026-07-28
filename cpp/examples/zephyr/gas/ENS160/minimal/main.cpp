@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "ENS160.h"
 
 #ifndef ENS160_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(ENS160_I2C_NODE);
-    I2CTransportZephyr transport(dev, ENS160_ADDR);
-    ENS160Minimal sensor(transport);                     // Create ENS160 driver, (transport)
+    I2CConnectionZephyr connection(dev, ENS160_ADDR);
+    ENS160Minimal sensor(connection);                     // Create ENS160 driver, (connection)
 
     printk("Waiting for sensor warm-up...\n");
     {

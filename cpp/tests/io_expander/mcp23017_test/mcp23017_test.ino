@@ -10,12 +10,12 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/io_expander/MCP23017.h"
 
 static int passed = 0, failed = 0;
 
-static void check_true(bool cond, const char *label) {
+static void check_true(const char *label, bool cond) {
     if (cond) { Serial.print("PASS "); Serial.println(label); passed++; }
     else       { Serial.print("FAIL "); Serial.println(label); failed++; }
 }
@@ -29,8 +29,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    MCP23017Minimal mcp(transport);
+    I2CConnection connection(Wire, TEST_ADDR);
+    MCP23017Minimal mcp(connection);
 
     check_eq("init_iodira", mcp._direction[0], 0x7F);
     check_eq("init_iodirb", mcp._direction[1], 0x7F);
@@ -63,7 +63,7 @@ void setup() {
     pb = mcp.read_port(1);
     check_eq("loopback_0x00", pb & 0x7F, 0x00);
 
-    MCP23017Full full(transport);
+    MCP23017Full full(connection);
     check_eq("full_init_iodira", full._direction[0], 0x7F);
 
     full.configure_pullup(0, 0x3F);
@@ -71,14 +71,14 @@ void setup() {
     full.configure_polarity(0, 0x00);
 
     full.set_default_value(0, 0x00);
-    full.configure_interrupt(0, -1, [](uint8_t mask) {}, "change", false);
-    full.stop_interrupt(0);
+    full.onInterrupt(0, [](uint8_t status) {});
+    full.offInterrupt(0);
 
-    uint8_t changed = full.clear_interrupt(0);
-    check_true("clear_interrupt_range", changed >= 0 && changed <= 255);
+    uint8_t flags = full.pollInterrupt(0);
+    check_true("poll_interrupt_range", flags >= 0 && flags <= 255);
 
-    uint8_t flags = full.read_interrupt_flags(0);
-    check_true("int_flags_range", flags >= 0 && flags <= 255);
+    uint8_t capture = full.read_capture(0);
+    check_true("read_capture_range", capture >= 0 && capture <= 255);
 
     Serial.print("===DONE: ");
     Serial.print(passed);

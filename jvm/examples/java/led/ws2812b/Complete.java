@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport;
+import it.uhde.periph.connection.NeoPixelConnection;
 import it.uhde.periph.chips.led.WS2812BFull;
 
 public class Complete {
@@ -12,11 +12,11 @@ public class Complete {
         int spiBus     = Integer.parseInt(System.getenv().getOrDefault("SPI_BUS",     "0"));
         int spiDevice  = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE",  "0"));
         int pixelCount = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "4"));
-        try (var transport = new NeoPixelTransport(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
-            var strip = new WS2812BFull(transport, pixelCount);            // construct driver, (transport, n) → WS2812BFull
+        try (var connection = new NeoPixelConnection(spiBus, spiDevice)) {  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
+            var strip = new WS2812BFull(connection, pixelCount);            // construct driver, (connection, n) → WS2812BFull
 
             strip.fill(255, 0, 0);                                       // fill entire strip red and send, (r=0–255, g=0–255, b=0–255) → void
-                                                                         // inherited from WS2812BMinimal; fills buffer in GRB order and calls transport.write()
+                                                                         // inherited from WS2812BMinimal; fills buffer in GRB order and calls connection.write()
             Thread.sleep(500);
 
             strip.setBrightness(128);                                    // set brightness to 50%, (value=0–255) → void

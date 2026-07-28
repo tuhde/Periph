@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -93,23 +93,23 @@ public class Bmp280Full extends Bmp280Minimal {
      * Construct the full driver at the default address (0x76), verify chip ID,
      * and load calibration.
      *
-     * @param transport I²C transport bound to address 0x76
+     * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp280Full(Transport transport) throws IOException {
-        super(transport);
+    public Bmp280Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
      * Construct the full driver at the given address, verify chip ID, and load
      * calibration.
      *
-     * @param transport I²C transport bound to the given address
+     * @param connection I²C connection bound to the given address
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp280Full(Transport transport, int addr) throws IOException {
-        super(transport, addr);
+    public Bmp280Full(Connection connection, int addr) throws IOException {
+        super(connection, addr);
     }
 
     /**
@@ -126,8 +126,8 @@ public class Bmp280Full extends Bmp280Minimal {
     public void configure(int osrsT, int osrsP, int mode, int filter, int tSb) throws IOException {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03);
         config   = ((tSb   & 0x07) << 5) | ((filter & 0x07) << 2);
-        transport.write(new byte[]{(byte) REG_CONFIG, (byte) config});
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
     }
 
     /**
@@ -141,7 +141,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setOversampling(int osrsT, int osrsP) throws IOException {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03);
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
     }
 
     /**
@@ -154,7 +154,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setMode(int mode) throws IOException {
         ctrlMeas = (ctrlMeas & 0xFC) | (mode & 0x03);
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
     }
 
     /**
@@ -167,7 +167,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setFilter(int coeff) throws IOException {
         config = (config & 0xE3) | ((coeff & 0x07) << 2);
-        transport.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
     }
 
     /**
@@ -180,7 +180,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setStandby(int tSb) throws IOException {
         config = (config & 0x1F) | ((tSb & 0x07) << 5);
-        transport.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
     }
 
     /**
@@ -194,7 +194,7 @@ public class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     public int status() throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) REG_STATUS}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) REG_STATUS}, 1);
         return b[0] & 0xFF;
     }
 
@@ -245,7 +245,7 @@ public class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     public int chipId() throws IOException {
-        byte[] b = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
         return b[0] & 0xFF;
     }
 
@@ -260,14 +260,14 @@ public class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     public void reset() throws IOException {
-        transport.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
+        connection.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
         try {
             Thread.sleep(2);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         readCalibration();
-        transport.write(new byte[]{(byte) REG_CONFIG,    (byte) config});
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(new byte[]{(byte) REG_CONFIG,    (byte) config});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
     }
 }

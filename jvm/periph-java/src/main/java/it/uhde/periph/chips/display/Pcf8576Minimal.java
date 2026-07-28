@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.display;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -41,17 +41,17 @@ public class Pcf8576Minimal {
         0xCB, 0xCF, 0xE0, 0xEF, 0xEB,
     };
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected int backplanes = MODE_1_4;
 
     /**
      * Construct the driver and initialise the chip with defaults.
      *
-     * @param transport I2C transport bound to the PCF8576 address
+     * @param connection I2C connection bound to the PCF8576 address
      * @throws IOException on I2C error
      */
-    public Pcf8576Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Pcf8576Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         doClear();
     }
 
@@ -77,7 +77,7 @@ public class Pcf8576Minimal {
                 buf[i] = (byte) (cmds[i] & 0x7F);
             }
         }
-        transport.write(buf);
+        connection.write(buf);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Pcf8576Minimal {
         byte[] buf = new byte[1 + data.length];
         buf[0] = (byte) (cmd & 0x7F);
         System.arraycopy(data, 0, buf, 1, data.length);
-        transport.write(buf);
+        connection.write(buf);
     }
 
     /**

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * MCP4728 — full driver. Extends [Mcp4728Minimal] with per-channel V_REF
@@ -10,7 +10,7 @@ import it.uhde.periph.transport.Transport
  * read-back of all channel DAC input registers and EEPROM contents.
  *
  * General Call commands ([reset], [wakeUp], [softwareUpdate]) require a
- * second transport bound to address 0x00. Pass `null` to disable them.
+ * second connection bound to address 0x00. Pass `null` to disable them.
  *
  * ## EEPROM write timing
  * The EEPROM write takes up to 50 ms. New write commands are silently
@@ -18,9 +18,9 @@ import it.uhde.periph.transport.Transport
  * issuing a second EEPROM write.
  */
 class Mcp4728Full(
-    transport: Transport,
-    private val generalCall: Transport?
-) : Mcp4728Minimal(transport) {
+    connection: Connection,
+    private val generalCall: Connection?
+) : Mcp4728Minimal(connection) {
 
     /**
      * Per-channel state read from the chip.
@@ -106,7 +106,7 @@ class Mcp4728Full(
         val c = code.coerceIn(0, 4095)
         val g = if (gain == GAIN_X2) 1 else 0
         // Single Write: [0 1 0 1 1 DAC1 DAC0 UDAC] [V_REF PD1 PD0 Gx D11-D8] [D7-D0]
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             (CMD_SINGLE_WRITE or ((ch and 0x03) shl 1)).toByte(),
             (((vref and 0x01) shl 7) or ((0 and 0x03) shl 5) or (g shl 4) or ((c shr 8) and 0x0F)).toByte(),
             (c and 0xFF).toByte()
@@ -132,7 +132,7 @@ class Mcp4728Full(
             buf[1 + i * 2]     = (((v and 0x01) shl 7) or (g shl 4) or ((code shr 8) and 0x0F)).toByte()
             buf[1 + i * 2 + 1] = (code and 0xFF).toByte()
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     /**
@@ -144,7 +144,7 @@ class Mcp4728Full(
             ((if (vrefB != 0) 1 else 0) shl 2) or
             ((if (vrefC != 0) 1 else 0) shl 1) or
              (if (vrefD != 0) 1 else 0)
-        transport.write(byteArrayOf(byte1.toByte()))
+        connection.write(byteArrayOf(byte1.toByte()))
     }
 
     /**
@@ -156,7 +156,7 @@ class Mcp4728Full(
             ((if (gainB == GAIN_X2) 1 else 0) shl 2) or
             ((if (gainC == GAIN_X2) 1 else 0) shl 1) or
              (if (gainD == GAIN_X2) 1 else 0)
-        transport.write(byteArrayOf(byte1.toByte()))
+        connection.write(byteArrayOf(byte1.toByte()))
     }
 
     /**
@@ -172,14 +172,14 @@ class Mcp4728Full(
             (((b shr 1) and 0x01) shl 2) or ((b and 0x01) shl 1)
         val byte2 = (((c shr 1) and 0x01) shl 6) or ((c and 0x01) shl 5) or
                     (((d shr 1) and 0x01) shl 4) or ((d and 0x01) shl 3)
-        transport.write(byteArrayOf(byte1.toByte(), byte2.toByte()))
+        connection.write(byteArrayOf(byte1.toByte(), byte2.toByte()))
     }
 
     /**
      * Read all four channels' DAC input registers and EEPROM contents.
      */
     fun read(): ReadResult {
-        val b = transport.read(24)
+        val b = connection.read(24)
         val eepromReady = (b[0].toInt() and 0x80) != 0
         val ch = Array(4) { idx ->
             val base = idx * 3
@@ -204,7 +204,7 @@ class Mcp4728Full(
      * Read the RDY/BSY bit.
      */
     fun isEepromReady(): Boolean =
-        (transport.read(1)[0].toInt() and 0x80) != 0
+        (connection.read(1)[0].toInt() and 0x80) != 0
 
     /**
      * Send General Call Software Update (0x00, 0x08).
@@ -227,6 +227,6 @@ class Mcp4728Full(
         requireGeneralCall().write(byteArrayOf(GC_RESET.toByte()))
     }
 
-    private fun requireGeneralCall(): Transport =
-        generalCall ?: throw IllegalStateException("General Call transport not configured")
+    private fun requireGeneralCall(): Connection =
+        generalCall ?: throw IllegalStateException("General Call connection not configured")
 }

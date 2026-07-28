@@ -1,15 +1,15 @@
 'use strict';
-const { UARTTransport } = require('../../../src/transport/uart');
+const { UARTConnection } = require('../../../src/connection/uart');
 const { NEO6Full } = require('../../../src/chips/gnss/neo6');
 
 // To use I2C (DDC) instead of UART:
-//   const { I2CTransport } = require('../../../src/transport/i2c');
-//   const transport = new I2CTransport(1, 0x42);
-//   const gps = new NEO6Full(transport, 'i2c');
+//   const { I2CConnection } = require('../../../src/connection/i2c');
+//   const connection = new I2CConnection(1, 0x42);
+//   const gps = new NEO6Full(connection, 'i2c');
 // To use SPI instead of UART:
-//   const { SPITransport } = require('../../../src/transport/spi');
-//   const transport = new SPITransport(0, 0, { mode: 0, maxSpeedHz: 200_000 });
-//   const gps = new NEO6Full(transport, 'spi');
+//   const { SPIConnection } = require('../../../src/connection/spi');
+//   const connection = new SPIConnection(0, 0, { mode: 0, maxSpeedHz: 200_000 });
+//   const gps = new NEO6Full(connection, 'spi');
 
 const UART_PORT = process.env.UART_PORT || '/dev/ttyS0';
 
@@ -19,9 +19,9 @@ const UART_PORT = process.env.UART_PORT || '/dev/ttyS0';
 // polling update() far faster than the 1 Hz sentence rate so no sentence is
 // missed, and prints one line per second once a fresh GGA has been parsed.
 async function main() {
-    const transport = new UARTTransport(UART_PORT, { baudRate: 9600 });
-    await transport.open();
-    const gps = new NEO6Full(transport);               // Create NEO-6 driver, (transport, busType='uart')
+    const connection = new UARTConnection(UART_PORT, { baudRate: 9600 });
+    await connection.open();
+    const gps = new NEO6Full(connection);               // Create NEO-6 driver, (connection, busType='uart')
 
     const start = Date.now();
     while (Date.now() - start < 60_000) {
@@ -48,7 +48,7 @@ async function main() {
         await new Promise(r => setTimeout(r, 200));
     }
 
-    await transport.close();
+    await connection.close();
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

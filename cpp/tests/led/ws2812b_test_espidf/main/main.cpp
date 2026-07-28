@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/spi_master.h"
-#include "NeoPixelTransportESPIDF.h"
+#include "NeoPixelConnectionESPIDF.h"
 #include "WS2812B.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     spi_device_handle_t spi_dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &spi_dev);
 
-    NeoPixelTransportESPIDF transport(spi_dev);
-    WS2812BFull inst(transport, 8);  // Create WS2812B driver
+    NeoPixelConnectionESPIDF connection(spi_dev);
+    WS2812BFull inst(connection, 8);  // Create WS2812B driver
     inst.fill(0, 0, 0);
     inst.fill(255, 0, 0);
     inst.off();

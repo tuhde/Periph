@@ -1,6 +1,6 @@
 import busio
 import board
-from periph.transport.uart_circuitpython import UARTTransport
+from periph.connection.uart_circuitpython import UARTConnection
 from periph.chips.gnss.neo6 import NEO6Minimal
 
 passed = 0
@@ -21,8 +21,8 @@ def check_true(label, condition):
 # actual fix needs an outdoor antenna and can take up to ~26 s (cold start);
 # this test only requires that well-typed values come back, not a fix.
 uart = busio.UART(board.TX, board.RX, baudrate=9600, timeout=1.0)
-transport = UARTTransport(uart, 9600)
-gps = NEO6Minimal(transport)
+connection = UARTConnection(uart, 9600)
+gps = NEO6Minimal(connection)
 
 check_true('fix() starts at 0', gps.fix() == 0)
 check_true('latitude() starts at None', gps.latitude() is None)

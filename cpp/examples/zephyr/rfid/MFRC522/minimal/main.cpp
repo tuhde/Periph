@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "SPITransportZephyr.h"
+#include "SPIConnectionZephyr.h"
 #include "MFRC522.h"
 
 #ifndef MFRC522_SPI_NODE
@@ -26,8 +26,8 @@ int main(void) {
         .slave     = 0,
         .cs        = { .gpio = MFRC522_CS_GPIOS, .delay = 0 },
     };
-    SPITransportZephyr transport(dev, cfg);
-    MFRC522Minimal mfrc(transport);                                 // Create MFRC522 driver, (transport, bus_type=BUS_SPI)
+    SPIConnectionZephyr connection(dev, cfg);
+    MFRC522Minimal mfrc(connection);                                 // Create MFRC522 driver, (connection, bus_type=BUS_SPI)
 
     for (int i = 0; i < 10; i++) {
         bool present = mfrc.is_card_present();                     // Detect card in field, () → bool

@@ -28,7 +28,7 @@ const _GYRO_SENSITIVITY  = [131.0, 65.5, 32.8, 16.4];
  * MPU-6050 6-axis MotionTracking device (accelerometer + gyroscope) — minimal interface.
  *
  * Provides 3-axis acceleration and 3-axis angular rate readings with no
- * configuration beyond the transport. Performs device reset, WHO_AM_I check,
+ * configuration beyond the connection. Performs device reset, WHO_AM_I check,
  * and enables all sensors at defaults during initialization.
  *
  * Default configuration (written at construction):
@@ -37,53 +37,68 @@ const _GYRO_SENSITIVITY  = [131.0, 65.5, 32.8, 16.4];
  * - DLPF: 44 Hz bandwidth (CONFIG DLPF_CFG=3, 1 kHz gyro rate)
  * - Sample rate: 200 Hz (SMPLRT_DIV=4)
  * - Clock: PLL with gyro X reference (CLKSEL=1)
+ *
+ * Constructor caveat: JS constructors cannot be async, but the original
+ * synchronous constructor validated WHO_AM_I and threw synchronously on
+ * mismatch — that guarantee cannot be preserved exactly. The whole init
+ * sequence is fired off unawaited (matching the fire-and-forget convention
+ * used throughout this port); a WHO_AM_I mismatch now surfaces as an
+ * *unhandled promise rejection* shortly after construction rather than a
+ * synchronous throw from `new MPU6050Minimal(...)`. Callers that need to
+ * detect "wrong or absent device" deterministically should call an async
+ * method (e.g. `await imu.accel()`) right after construction and handle its
+ * rejection.
  */
 class MPU6050Minimal {
     /**
-     * @param {object} transport - Configured I²C transport (writeRead, write).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (writeRead, write).
      */
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
         this._accelFs = 0;
         this._gyroFs = 0;
-        this._writeReg(_REG_PWR_MGMT_1, 0x80);
+        this._init();
+    }
+
+    async _init() {
+        await this._writeReg(_REG_PWR_MGMT_1, 0x80);
         const end1 = Date.now() + 100;
         while (Date.now() < end1) {}
-        this._writeReg(_REG_PWR_MGMT_1, 0x01);
-        const who = this._readReg(_REG_WHO_AM_I);
+        await this._writeReg(_REG_PWR_MGMT_1, 0x01);
+        const who = await this._readReg(_REG_WHO_AM_I);
         if (who !== _WHO_AM_I_VALUE) {
             throw new Error('MPU6050 WHO_AM_I: expected 0x' + _WHO_AM_I_VALUE.toString(16) + ', got 0x' + who.toString(16));
         }
-        this._writeReg(_REG_GYRO_CONFIG, 0x00);
-        this._writeReg(_REG_ACCEL_CONFIG, 0x00);
-        this._writeReg(_REG_CONFIG, 0x03);
-        this._writeReg(_REG_SMPLRT_DIV, 0x04);
+        await this._writeReg(_REG_GYRO_CONFIG, 0x00);
+        await this._writeReg(_REG_ACCEL_CONFIG, 0x00);
+        await this._writeReg(_REG_CONFIG, 0x03);
+        await this._writeReg(_REG_SMPLRT_DIV, 0x04);
         const end2 = Date.now() + 35;
         while (Date.now() < end2) {}
     }
 
-    _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value]));
+    async _writeReg(reg, value) {
+        await this._conn.write(Buffer.from([reg, value]));
     }
 
-    _readReg(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 1)[0];
+    async _readReg(reg) {
+        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
     }
 
-    _readReg16Signed(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 2).readInt16BE(0);
+    async _readReg16Signed(reg) {
+        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
     }
 
-    _readBurst(reg, len) {
-        return this._transport.writeRead(Buffer.from([reg]), len);
+    async _readBurst(reg, len) {
+        return this._conn.writeRead(Buffer.from([reg]), len);
     }
 
     /**
      * Read 3-axis linear acceleration.
-     * @returns {number[]} [x, y, z] acceleration in m/s².
+     * @returns {Promise<number[]>} [x, y, z] acceleration in m/s².
      */
-    accel() {
-        const buf = this._readBurst(_REG_ACCEL_XOUT_H, 6);
+    async accel() {
+        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
         const ax = buf.readInt16BE(0);
         const ay = buf.readInt16BE(2);
         const az = buf.readInt16BE(4);
@@ -93,10 +108,10 @@ class MPU6050Minimal {
 
     /**
      * Read 3-axis angular rate.
-     * @returns {number[]} [x, y, z] angular rate in rad/s.
+     * @returns {Promise<number[]>} [x, y, z] angular rate in rad/s.
      */
-    gyro() {
-        const buf = this._readBurst(_REG_GYRO_XOUT_H, 6);
+    async gyro() {
+        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
         const gx = buf.readInt16BE(0);
         const gy = buf.readInt16BE(2);
         const gz = buf.readInt16BE(4);
@@ -116,95 +131,100 @@ class MPU6050Minimal {
  */
 class MPU6050Full extends MPU6050Minimal {
     /**
-     * @param {object} transport - Configured I²C transport.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
      * Set gyroscope full-scale range.
      * @param {number} [fullScale=0] - Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
+     * @returns {Promise<void>}
      */
-    configureGyro(fullScale = 0) {
+    async configureGyro(fullScale = 0) {
         this._gyroFs = fullScale & 0x03;
-        this._writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+        await this._writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
      * Set accelerometer full-scale range.
      * @param {number} [fullScale=0] - Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
+     * @returns {Promise<void>}
      */
-    configureAccel(fullScale = 0) {
+    async configureAccel(fullScale = 0) {
         this._accelFs = fullScale & 0x03;
-        this._writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+        await this._writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
      * Set digital low-pass filter bandwidth.
      * @param {number} [dlpf=3] - Filter setting 0–6 (0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
      *                            3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz; gyro/accel BW).
+     * @returns {Promise<void>}
      */
-    configureDlpf(dlpf = 3) {
-        this._writeReg(_REG_CONFIG, dlpf & 0x07);
+    async configureDlpf(dlpf = 3) {
+        await this._writeReg(_REG_CONFIG, dlpf & 0x07);
     }
 
     /**
      * Set sample rate divider.
      * @param {number} [divider=4] - SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider)
      *                               when DLPF is active.
+     * @returns {Promise<void>}
      */
-    configureSampleRate(divider = 4) {
-        this._writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
+    async configureSampleRate(divider = 4) {
+        await this._writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
     }
 
     /**
      * Read die temperature.
-     * @returns {number} Temperature in °C.
+     * @returns {Promise<number>} Temperature in °C.
      */
-    temperature() {
-        const raw = this._readReg16Signed(_REG_TEMP_OUT_H);
+    async temperature() {
+        const raw = await this._readReg16Signed(_REG_TEMP_OUT_H);
         return raw / 340.0 + 36.53;
     }
 
     /**
      * Read raw 3-axis accelerometer values.
-     * @returns {number[]} [x, y, z] raw 16-bit signed values.
+     * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
-    accelRaw() {
-        const buf = this._readBurst(_REG_ACCEL_XOUT_H, 6);
+    async accelRaw() {
+        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
     /**
      * Read raw 3-axis gyroscope values.
-     * @returns {number[]} [x, y, z] raw 16-bit signed values.
+     * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
-    gyroRaw() {
-        const buf = this._readBurst(_REG_GYRO_XOUT_H, 6);
+    async gyroRaw() {
+        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
     /**
      * Check if new sensor data is available.
-     * @returns {boolean} True when DATA_RDY_INT is set in INT_STATUS.
+     * @returns {Promise<boolean>} True when DATA_RDY_INT is set in INT_STATUS.
      */
-    dataReady() {
-        return !!(this._readReg(_REG_INT_STATUS) & 0x01);
+    async dataReady() {
+        return !!((await this._readReg(_REG_INT_STATUS)) & 0x01);
     }
 
     /**
      * Set or clear the SLEEP bit in PWR_MGMT_1.
      * @param {boolean} [sleep=true] - True to enter sleep mode, false to wake.
+     * @returns {Promise<void>}
      */
-    setSleep(sleep = true) {
-        let val = this._readReg(_REG_PWR_MGMT_1);
+    async setSleep(sleep = true) {
+        let val = await this._readReg(_REG_PWR_MGMT_1);
         if (sleep) {
             val |= 0x40;
         } else {
             val &= ~0x40;
         }
-        this._writeReg(_REG_PWR_MGMT_1, val);
+        await this._writeReg(_REG_PWR_MGMT_1, val);
     }
 
     /**
@@ -215,28 +235,29 @@ class MPU6050Full extends MPU6050Minimal {
      * @param {boolean} [xg=false] - X gyroscope standby.
      * @param {boolean} [yg=false] - Y gyroscope standby.
      * @param {boolean} [zg=false] - Z gyroscope standby.
+     * @returns {Promise<void>}
      */
-    setStandby(xa = false, ya = false, za = false, xg = false, yg = false, zg = false) {
+    async setStandby(xa = false, ya = false, za = false, xg = false, yg = false, zg = false) {
         const val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
                     ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0);
-        this._writeReg(_REG_PWR_MGMT_2, val);
+        await this._writeReg(_REG_PWR_MGMT_2, val);
     }
 
     /**
      * Read the number of bytes in the FIFO buffer.
-     * @returns {number} FIFO byte count (0–1024).
+     * @returns {Promise<number>} FIFO byte count (0–1024).
      */
-    fifoCount() {
-        const buf = this._readBurst(_REG_FIFO_COUNTH, 2);
+    async fifoCount() {
+        const buf = await this._readBurst(_REG_FIFO_COUNTH, 2);
         return ((buf[0] & 0x1F) << 8) | buf[1];
     }
 
     /**
      * Read all available data from the FIFO buffer.
-     * @returns {Buffer} FIFO data.
+     * @returns {Promise<Buffer>} FIFO data.
      */
-    readFifo() {
-        const count = this.fifoCount();
+    async readFifo() {
+        const count = await this.fifoCount();
         if (count === 0) return Buffer.alloc(0);
         return this._readBurst(_REG_FIFO_R_W, count);
     }
@@ -246,20 +267,22 @@ class MPU6050Full extends MPU6050Minimal {
      * @param {boolean} [gyro=true] - Enable gyroscope data in FIFO.
      * @param {boolean} [accel=true] - Enable accelerometer data in FIFO.
      * @param {boolean} [temp=false] - Enable temperature data in FIFO.
+     * @returns {Promise<void>}
      */
-    enableFifo(gyro = true, accel = true, temp = false) {
+    async enableFifo(gyro = true, accel = true, temp = false) {
         const fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-        this._writeReg(_REG_FIFO_EN, fifoEn);
-        const userCtrl = this._readReg(_REG_USER_CTRL);
-        this._writeReg(_REG_USER_CTRL, userCtrl | 0x40);
+        await this._writeReg(_REG_FIFO_EN, fifoEn);
+        const userCtrl = await this._readReg(_REG_USER_CTRL);
+        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x40);
     }
 
     /**
      * Reset the FIFO buffer by setting FIFO_RST in USER_CTRL.
+     * @returns {Promise<void>}
      */
-    resetFifo() {
-        const userCtrl = this._readReg(_REG_USER_CTRL);
-        this._writeReg(_REG_USER_CTRL, userCtrl | 0x04);
+    async resetFifo() {
+        const userCtrl = await this._readReg(_REG_USER_CTRL);
+        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x04);
     }
 }
 

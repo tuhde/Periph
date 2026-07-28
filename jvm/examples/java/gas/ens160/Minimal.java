@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.gas.Ens160Minimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x52)) {       // open I²C bus 1, device 0x52, (bus, address=0x52) → I2CTransport
-            var sensor = new Ens160Minimal(transport);                  // construct driver, verifies PART_ID and starts STANDARD mode, (transport) → Ens160Minimal
+        try (var connection = new I2CConnection(1, 0x52)) {       // open I²C bus 1, device 0x52, (bus, address=0x52) → I2CConnection
+            var sensor = new Ens160Minimal(connection);                  // construct driver, verifies PART_ID and starts STANDARD mode, (connection) → Ens160Minimal
 
             System.out.println("Waiting for sensor warm-up...");
             while (true) {                                              // Wait for valid data, () → blocks until warm

@@ -1,8 +1,8 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.io_expander.mcp23017 import Mcp23017Minimal
 
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Mcp23017Minimal(transport)                             # Create MCP23017 driver, (transport, addr=0x20)
+connection = I2CConnection(0x20)                            # Create I2C connection, (i2c, addr=0x20)
+chip = Mcp23017Minimal(connection)                             # Create MCP23017 driver, (connection, addr=0x20)
 
 p0 = chip.pin(0, Mcp23017Minimal.IN)                          # Get pin 0 as input, (n, mode=IN)
 p7 = chip.pin(7, Mcp23017Minimal.OUT)                         # Get pin 7 as output (GPA7 output-only)

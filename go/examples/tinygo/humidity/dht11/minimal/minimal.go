@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/humidity"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
-	tr := transport.NewDHTxxTransport(machine.GP15) // Create DHTxx transport, (pin=GP15) → (*DHTxxTransport)
-	dht, err := humidity.NewDHT11Minimal(tr)         // Create DHT11 driver, (transport) → (*DHT11Minimal, error)
+	conn := connection.NewDHTxxConnection(machine.GP15, nil) // Create DHTxx connection, (pin=GP15) → (*DHTxxConnection)
+	dht, err := humidity.NewDHT11Minimal(conn)         // Create DHT11 driver, (connection) → (*DHT11Minimal, error)
 	if err != nil {
 		panic(err)
 	}

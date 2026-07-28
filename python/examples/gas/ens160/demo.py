@@ -1,11 +1,11 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.gas.ens160 import ENS160Full
 import time
 
 AQI_LABELS = {1: 'Excellent', 2: 'Good', 3: 'Moderate', 4: 'Poor', 5: 'Unhealthy'}
 
-transport = I2CTransport(0x52)                               # Create I²C transport, (addr=0x52) → Transport
-sensor = ENS160Full(transport)                               # Create ENS160 driver, (transport)
+connection = I2CConnection(0x52)                               # Create I²C connection, (addr=0x52) → Connection
+sensor = ENS160Full(connection)                               # Create ENS160 driver, (connection)
 
 # --- Wait for sensor warm-up ---
 # The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.display
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -20,7 +20,7 @@ import java.io.IOException
  * ## Bank constants
  * [BANK_0], [BANK_1]
  */
-class Pcf8576Full(transport: Transport) : Pcf8576Minimal(transport) {
+class Pcf8576Full(connection: Connection) : Pcf8576Minimal(connection) {
 
     companion object {
         const val BLINK_OFF     = 0

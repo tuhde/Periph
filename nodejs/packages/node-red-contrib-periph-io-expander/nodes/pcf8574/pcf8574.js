@@ -1,39 +1,39 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { I2CTransport }   = require('periph/src/transport/i2c');
-    const { Pcf8574Full }    = require('periph/src/chips/io_expander/pcf8574');
+    const { I2CConnection } = require('periph/src/connection/i2c');
+    const { Pcf8574Full }   = require('periph/src/chips/io_expander/pcf8574');
 
     function Pcf8574Node(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
-            const transport = new I2CTransport(
+            const connection = new I2CConnection(
                 parseInt(config.bus),
                 parseInt(config.address, 16)
             );
-            node.chip      = new Pcf8574Full(transport);
-            node.transport = transport;
+            node.chip       = new Pcf8574Full(connection);
+            node.connection = connection;
         } catch (e) {
             node.error('PCF8574 init failed: ' + e.message);
         }
 
-        node.on('input', function(msg, send, done) {
+        node.on('input', async function(msg, send, done) {
             if (!node.chip) { done(new Error('PCF8574 not initialised')); return; }
             try {
                 const p = msg.payload;
                 if (p && typeof p.pin === 'number' && typeof p.value === 'number') {
                     // Set output pin
-                    node.chip._setPin(p.pin, p.value ? 1 : 0);
+                    await node.chip._setPin(p.pin, p.value ? 1 : 0);
                     done();
                 } else if (p && typeof p.pin === 'number') {
                     // Read input pin
-                    msg.payload = { pin: p.pin, value: node.chip.readPort() >> p.pin & 1 };
+                    msg.payload = { pin: p.pin, value: (await node.chip.readPort()) >> p.pin & 1 };
                     send(msg);
                     done();
                 } else if (p && typeof p.port === 'number') {
                     // Read full port
-                    msg.payload = { port: p.port, value: node.chip.readPort(p.port) };
+                    msg.payload = { port: p.port, value: await node.chip.readPort(p.port) };
                     send(msg);
                     done();
                 } else {
@@ -42,8 +42,8 @@ module.exports = function(RED) {
             } catch (e) { done(e); }
         });
 
-        node.on('close', function() {
-            if (node.transport) node.transport.close && node.transport.close();
+        node.on('close', async function() {
+            if (node.connection) await node.connection.close();
         });
     }
 

@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
-	tr := transport.NewHX711Transport(machine.GP2, machine.GP3) // Create HX711 transport, (dout=GP2, pd_sck=GP3) → (*HX711Transport)
-	hx, err := adcdac.NewHX711Full(tr)                           // Create HX711 driver, (transport) → (*HX711Full, error)
+	conn := connection.NewHX711Connection(machine.GP2, machine.GP3, nil) // Create HX711 connection, (dout=GP2, pd_sck=GP3) → (*HX711Connection)
+	hx, err := adcdac.NewHX711Full(conn)                           // Create HX711 driver, (connection) → (*HX711Full, error)
 	if err != nil {
 		panic(err)
 	}

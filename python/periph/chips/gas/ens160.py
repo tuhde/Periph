@@ -6,7 +6,7 @@ class ENS160Minimal:
     """ENS160 digital multi-gas sensor — minimal interface.
 
     Provides calibrated air quality readings (AQI, TVOC, eCO2) with no
-    configuration required beyond the transport. The sensor performs automatic
+    configuration required beyond the connection. The sensor performs automatic
     baseline correction and on-chip signal processing.
 
     Default configuration (baked in at construction):
@@ -15,7 +15,7 @@ class ENS160Minimal:
         - No external T/RH compensation (device uses internal defaults)
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
     """
 
     _REG_PART_ID       = 0x00
@@ -43,8 +43,8 @@ class ENS160Minimal:
 
     _WARMUP_POLL_MS    = 500
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         self._write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
         time.sleep(0.001)
         part_id = self._read_reg_le16(self._REG_PART_ID)
@@ -53,13 +53,13 @@ class ENS160Minimal:
         self._write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _write_reg_le16(self, reg, value):
-        self._transport.write(bytes([reg, value & 0xFF, (value >> 8) & 0xFF]))
+        self._connection.write(bytes([reg, value & 0xFF, (value >> 8) & 0xFF]))
 
     def _read_reg(self, reg, n):
-        return self._transport.write_read(bytes([reg]), n)
+        return self._connection.write_read(bytes([reg]), n)
 
     def _read_reg_le16(self, reg):
         data = self._read_reg(reg, 2)
@@ -121,7 +121,7 @@ class ENS160Full(ENS160Minimal):
     and sleep/wake control.
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
     """
 
     VALIDITY_OK              = 0
@@ -129,8 +129,8 @@ class ENS160Full(ENS160Minimal):
     VALIDITY_INITIAL_STARTUP = 2
     VALIDITY_INVALID         = 3
 
-    def __init__(self, transport):
-        super().__init__(transport)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def set_compensation(self, temp_celsius, rh_percent):
         """Write external temperature and humidity for compensation.

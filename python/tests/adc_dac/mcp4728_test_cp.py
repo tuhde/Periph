@@ -1,7 +1,7 @@
 import time
 import busio
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.adc_dac.mcp4728 import MCP4728Full
 
 passed = 0
@@ -19,8 +19,8 @@ def check_true(label, condition):
 
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-dac = MCP4728Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+dac = MCP4728Full(connection)
 
 dac.set_voltage(0, 0.5)
 check_true('set_voltage(ch0, 0.5) accepted', True)

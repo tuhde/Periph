@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport;
+import it.uhde.periph.connection.NeoPixelConnection;
 import it.uhde.periph.chips.led.SK6812RGBWFull;
 
 public class SK6812RGBWTest {
@@ -22,9 +22,9 @@ public class SK6812RGBWTest {
         int deviceNum = Integer.parseInt(System.getenv().getOrDefault("SPI_DEVICE", "0"));
         int pixels    = Integer.parseInt(System.getenv().getOrDefault("PIXEL_COUNT", "30"));
 
-        try (var transport = new NeoPixelTransport(busNum, deviceNum)) {
+        try (var connection = new NeoPixelConnection(busNum, deviceNum)) {
 
-            var strip = new SK6812RGBWFull(transport, pixels);
+            var strip = new SK6812RGBWFull(connection, pixels);
 
             // --- fill and off ---
             strip.fill(255, 0, 0, 0);

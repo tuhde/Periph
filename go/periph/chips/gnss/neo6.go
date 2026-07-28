@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // NEO-6 NMEA / UBX framing constants.
@@ -42,24 +42,24 @@ var (
 // NEO6Minimal is the u-blox NEO-6 GNSS/GPS receiver driver — minimal
 // interface.
 //
-// Reads bytes from the transport and assembles complete NMEA sentences
+// Reads bytes from the connection and assembles complete NMEA sentences
 // terminated by CR/LF, validating the *XX checksum before parsing.
 // Works out of the box with the module's factory defaults (NMEA output
 // at 9600 baud, 1 Hz, all standard sentences enabled); no chip-side
 // configuration is sent.
 //
-// The driver is transport-agnostic: pass the bus type via the
+// The driver is connection-agnostic: pass the bus type via the
 // busType argument:
 //
-//   - "uart" (default) — a UART transport. Read one byte at a time;
-//     a transport that returns no bytes during the call is treated as
+//   - "uart" (default) — a UART connection. Read one byte at a time;
+//     a connection that returns no bytes during the call is treated as
 //     "no new byte this call", not an error.
-//   - "i2c" — an I²C (DDC) transport. Each byte is fetched with a
+//   - "i2c" — an I²C (DDC) connection. Each byte is fetched with a
 //     random-read to register 0xFF, per the DDC protocol.
-//   - "spi" — an SPI transport. Each byte is fetched with a full-duplex
+//   - "spi" — an SPI connection. Each byte is fetched with a full-duplex
 //     transfer.
 type NEO6Minimal struct {
-	transport  transport.Transport
+	connection  connection.Connection
 	busType    string
 	buf        []byte
 	inSentence bool
@@ -74,14 +74,14 @@ type NEO6Minimal struct {
 	onSentence func(id string, fields []string)
 }
 
-// NewNEO6Minimal creates a new NEO6Minimal over the given transport.
+// NewNEO6Minimal creates a new NEO6Minimal over the given connection.
 //
 // busType must be one of "uart", "i2c", or "spi". The default "uart"
-// is the primary transport for this chip; "i2c" (DDC) and "spi" are
+// is the primary connection for this chip; "i2c" (DDC) and "spi" are
 // supported with the same NMEA byte-stream interface.
-func NewNEO6Minimal(t transport.Transport, busType string) *NEO6Minimal {
+func NewNEO6Minimal(t connection.Connection, busType string) *NEO6Minimal {
 	return &NEO6Minimal{
-		transport:  t,
+		connection:  t,
 		busType:    busType,
 		buf:        make([]byte, 0, neo6MaxSentence),
 		inSentence: false,
@@ -98,7 +98,7 @@ func (d *NEO6Minimal) readByte() (byte, error) {
 		// DDC random-read: set the register pointer to 0xFF, then read
 		// one stream byte. The pointer saturates at 0xFF once set, so
 		// re-sending it on every byte is redundant but harmless.
-		buf, err := d.transport.WriteRead([]byte{0xFF}, 1)
+		buf, err := d.connection.WriteRead([]byte{0xFF}, 1)
 		if err != nil {
 			return 0, err
 		}
@@ -106,14 +106,14 @@ func (d *NEO6Minimal) readByte() (byte, error) {
 	case "spi":
 		// SPI has no register-address concept; the write phase stays
 		// empty so a real byte of the module's output is never discarded.
-		buf, err := d.transport.WriteRead(nil, 1)
+		buf, err := d.connection.WriteRead(nil, 1)
 		if err != nil {
 			return 0, err
 		}
 		return buf[0], nil
 	default:
 		// UART
-		buf, err := d.transport.Read(1)
+		buf, err := d.connection.Read(1)
 		if err != nil {
 			return 0, err
 		}
@@ -297,7 +297,7 @@ type NEO6Full struct {
 
 // NewNEO6Full creates a new NEO6Full and wires its onSentence hook to
 // the Full-specific parsers.
-func NewNEO6Full(t transport.Transport, busType string) *NEO6Full {
+func NewNEO6Full(t connection.Connection, busType string) *NEO6Full {
 	m := NewNEO6Minimal(t, busType)
 	f := &NEO6Full{NEO6Minimal: m}
 	m.onSentence = f.handleSentence
@@ -385,7 +385,7 @@ func (f *NEO6Full) SendUBX(msgClass, msgID byte, payload []byte) error {
 	frame = append(frame, payload...)
 	ckA, ckB := ubxChecksum(frame[2:])
 	frame = append(frame, ckA, ckB)
-	return f.transport.Write(frame)
+	return f.connection.Write(frame)
 }
 
 // PollUBX sends a poll request and returns the response payload.

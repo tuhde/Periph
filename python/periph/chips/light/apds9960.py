@@ -6,7 +6,7 @@ class APDS9960Minimal:
     """APDS-9960 digital proximity, ambient light, RGB and gesture sensor — minimal interface.
 
     Provides ambient light and color (RGBC) readings with no configuration
-    beyond the transport. The ALS/Color engine is enabled at construction
+    beyond the connection. The ALS/Color engine is enabled at construction
     with sensible defaults.
 
     Default configuration (baked in at construction):
@@ -16,7 +16,7 @@ class APDS9960Minimal:
         - PON + AEN enabled; no wait, proximity, gesture, or interrupts
 
     Args:
-        transport: Configured I2C transport pointing at the device (address 0x39).
+        connection: Configured I2C connection pointing at the device (address 0x39).
     """
 
     _REG_ENABLE   = 0x80
@@ -70,8 +70,8 @@ class APDS9960Minimal:
     _CONTROL_DEFAULT = 0x01
     _CONFIG2_DEFAULT = 0x01
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         time.sleep(0.006)
         self._write_reg(self._REG_ENABLE, 0x00)
         self._write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
@@ -81,13 +81,13 @@ class APDS9960Minimal:
         time.sleep(0.210)
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg):
-        return self._transport.write_read(bytes([reg]), 1)[0]
+        return self._connection.write_read(bytes([reg]), 1)[0]
 
     def _read_reg16_le(self, reg):
-        raw = self._transport.write_read(bytes([reg]), 2)
+        raw = self._connection.write_read(bytes([reg]), 2)
         return raw[0] | (raw[1] << 8)
 
     def color_clear(self):
@@ -106,7 +106,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw red channel count, 0-65535.
         """
-        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
         return raw[2] | (raw[3] << 8)
 
     def color_green(self):
@@ -117,7 +117,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw green channel count, 0-65535.
         """
-        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
         return raw[4] | (raw[5] << 8)
 
     def color_blue(self):
@@ -128,7 +128,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw blue channel count, 0-65535.
         """
-        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
         return raw[6] | (raw[7] << 8)
 
     def color(self):
@@ -139,7 +139,7 @@ class APDS9960Minimal:
         Returns:
             tuple: (clear, red, green, blue) each 0-65535.
         """
-        raw = self._transport.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
         c = raw[0] | (raw[1] << 8)
         r = raw[2] | (raw[3] << 8)
         g = raw[4] | (raw[5] << 8)
@@ -154,11 +154,11 @@ class APDS9960Full(APDS9960Minimal):
     interrupt configuration, status queries, and device identification.
 
     Args:
-        transport: Configured I2C transport pointing at the device (address 0x39).
+        connection: Configured I2C connection pointing at the device (address 0x39).
     """
 
-    def __init__(self, transport):
-        super().__init__(transport)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def enable_proximity(self, enabled):
         """Enable or disable the proximity engine.
@@ -305,15 +305,15 @@ class APDS9960Full(APDS9960Minimal):
 
     def clear_proximity_interrupt(self):
         """Clear the proximity interrupt via address-only write to PICLEAR (0xE5)."""
-        self._transport.write(bytes([self._REG_PICLEAR]))
+        self._connection.write(bytes([self._REG_PICLEAR]))
 
     def clear_als_interrupt(self):
         """Clear the ALS/color interrupt via address-only write to CICLEAR (0xE6)."""
-        self._transport.write(bytes([self._REG_CICLEAR]))
+        self._connection.write(bytes([self._REG_CICLEAR]))
 
     def clear_all_interrupts(self):
         """Clear all non-gesture interrupts via address-only write to AICLEAR (0xE7)."""
-        self._transport.write(bytes([self._REG_AICLEAR]))
+        self._connection.write(bytes([self._REG_AICLEAR]))
 
     def set_proximity_offset(self, ur, dl):
         """Set proximity offset for UP/RIGHT and DOWN/LEFT photodiodes.
@@ -410,7 +410,7 @@ class APDS9960Full(APDS9960Minimal):
             return []
         result = []
         for _ in range(level):
-            raw = self._transport.write_read(bytes([self._REG_GFIFO_U]), 4)
+            raw = self._connection.write_read(bytes([self._REG_GFIFO_U]), 4)
             result.append((raw[0], raw[1], raw[2], raw[3]))
         return result
 

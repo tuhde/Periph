@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.NeoPixelTransport
+import it.uhde.periph.connection.NeoPixelConnection
 import it.uhde.periph.chips.led.SK6812RGBWFull
 
 final long FRAME_MS  = 33
@@ -15,9 +15,9 @@ final long WARM_HALF = 100
 def spiBus     = (System.getenv("SPI_BUS")     ?: "0").toInteger()
 def spiDevice  = (System.getenv("SPI_DEVICE")  ?: "0").toInteger()
 def PIXELS     = (System.getenv("PIXEL_COUNT") ?: "4").toInteger()
-def transport = new NeoPixelTransport(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelTransport
+def connection = new NeoPixelConnection(spiBus, spiDevice)  // open SPI bus, (busNum, deviceNum) → NeoPixelConnection
 try {
-    def strip = new SK6812RGBWFull(transport, PIXELS)      // construct driver, (transport, n) → SK6812RGBWFull
+    def strip = new SK6812RGBWFull(connection, PIXELS)      // construct driver, (connection, n) → SK6812RGBWFull
 
     // --- Rainbow rotation for 10 seconds ---
     // Each pixel gets a hue offset by (pixel_index / n_pixels) of the colour
@@ -72,7 +72,7 @@ try {
 
     strip.off()                                                        // turn off strip at exit, () → void
 } finally {
-    transport.close()
+    connection.close()
 }
 
 def hsvToRgb(double h, double s, double v) {

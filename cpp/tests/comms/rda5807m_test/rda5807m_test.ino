@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "Rda5807m.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x10
 #endif
 
-I2CTransport transport(Wire, TEST_ADDR);
-RDA5807MFull fm(transport, 100.0f, 8);
+I2CConnection connection(Wire, TEST_ADDR);
+RDA5807MFull fm(connection, 100.0f, 8);
 
 static int passed = 0;
 static int failed = 0;

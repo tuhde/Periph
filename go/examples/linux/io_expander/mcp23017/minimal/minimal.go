@@ -2,7 +2,7 @@
 
 // MCP23017 minimal example — Linux host.
 //
-// Constructs the driver with a /dev/i2c-N transport and reads a
+// Constructs the driver with a /dev/i2c-N connection and reads a
 // button on GPB0 to drive an LED on GPA0 every 200 ms.
 package main
 
@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/io_expander"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x20) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x20, intPin=nil, enPin=nil) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := ioexpander.NewMCP23017Minimal(tr, uint8(addr)) // Create MCP23017 driver, (transport, addr=0x20) → (*MCP23017Minimal, error)
+	chip, err := ioexpander.NewMCP23017Minimal(conn, uint8(addr)) // Create MCP23017 driver, (connection, addr=0x20) → (*MCP23017Minimal, error)
 	if err != nil {
 		panic(err)
 	}

@@ -1,17 +1,17 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import it.uhde.periph.chips.display.Pcf8576Full
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 
 int bus  = System.getenv("I2C_BUS")  ? System.getenv("I2C_BUS").toInteger()  : 1
 String addrStr = System.getenv("I2C_ADDR") ?: "0x38"
 int addr = Integer.decode(addrStr)
 
-I2CTransport transport = new I2CTransport(bus, addr)
+I2CConnection connection = new I2CConnection(bus, addr)
 try {
 
     // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
@@ -19,7 +19,7 @@ try {
     // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
     // and writes all four with one writeRaw() call. The countdown runs once per
     // second and the terminal mirrors the value sent to the display.
-    def lcd = new Pcf8576Full(transport)                                        // construct driver, (transport) → Pcf8576Full
+    def lcd = new Pcf8576Full(connection)                                        // construct driver, (connection) → Pcf8576Full
 
     for (int n = 9999; n >= 0; n--) {
         int d0 = (n / 1000) % 10
@@ -45,5 +45,5 @@ try {
     lcd.writeRaw(0, dash)                                                        // write dash pattern, (address 0, 4 bytes) → void
     println("countdown complete")
 } finally {
-    transport.close()
+    connection.close()
 }

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA219 — full driver. Extends {@link Ina219Minimal} with ADC configuration,
@@ -62,12 +62,12 @@ class Ina219Full extends Ina219Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport  I²C transport bound to the INA219 device address
+     * @param connection  I²C connection bound to the INA219 device address
      * @param rShunt     shunt resistance in Ω (default 0.1)
      * @param maxCurrent maximum expected current in A (default 2.0)
      */
-    Ina219Full(Transport transport, double rShunt = 0.1, double maxCurrent = 2.0) {
-        super(transport, rShunt, maxCurrent)
+    Ina219Full(Connection connection, double rShunt = 0.1, double maxCurrent = 2.0) {
+        super(connection, rShunt, maxCurrent)
     }
 
     /**

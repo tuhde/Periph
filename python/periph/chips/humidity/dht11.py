@@ -8,7 +8,7 @@ class DHT11Minimal:
 
     The DHT11 returns a 40-bit reading (humidity integer + decimal,
     temperature integer + decimal, checksum) over a single bidirectional
-    data line. The driver accepts a `DHTxxTransport` instance that handles
+    data line. The driver accepts a `DHTxxConnection` instance that handles
     the underlying single-wire protocol; this class is responsible only
     for validating the frame and converting it to engineering units.
 
@@ -17,11 +17,11 @@ class DHT11Minimal:
         - Caller responsible for respecting the ≥ 2 s sampling interval
 
     Args:
-        transport: Configured `DHTxxTransport` bound to the chip's DATA pin.
+        connection: Configured `DHTxxConnection` bound to the chip's DATA pin.
     """
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
 
     def read(self):
         """Read both temperature and humidity in a single transaction.
@@ -32,7 +32,7 @@ class DHT11Minimal:
         Raises:
             DHT11Error: If the received frame's checksum is invalid.
         """
-        frame = self._transport.read()
+        frame = self._connection.read()
         return self._decode(frame)
 
     def _decode(self, frame):
@@ -56,12 +56,12 @@ class DHT11Full(DHT11Minimal):
     accessors, and a `read_raw()` method that returns the unprocessed 5-byte frame.
 
     Args:
-        transport: Configured `DHTxxTransport` bound to the chip's DATA pin.
+        connection: Configured `DHTxxConnection` bound to the chip's DATA pin.
         max_retries: Default retry count for `read_retry` (default 3).
     """
 
-    def __init__(self, transport, max_retries=3):
-        super().__init__(transport)
+    def __init__(self, connection, max_retries=3):
+        super().__init__(connection)
         self._max_retries = max_retries
 
     def read_temperature(self):
@@ -113,7 +113,7 @@ class DHT11Full(DHT11Minimal):
         Raises:
             DHT11Error: If the frame's checksum is invalid.
         """
-        frame = self._transport.read()
+        frame = self._connection.read()
         if len(frame) != 5:
             raise DHT11Error("frame must be 5 bytes, got {}".format(len(frame)))
         hum_int, hum_dec, temp_int, temp_dec, checksum = frame[0], frame[1], frame[2], frame[3], frame[4]

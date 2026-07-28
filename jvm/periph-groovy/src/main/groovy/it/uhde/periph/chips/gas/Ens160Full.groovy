@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gas
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 import java.io.IOException
 
@@ -27,10 +27,10 @@ class Ens160Full extends Ens160Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C or SPI transport bound to the device.
+     * @param connection I²C or SPI connection bound to the device.
      */
-    Ens160Full(Transport transport) {
-        super(transport)
+    Ens160Full(Connection connection) {
+        super(connection)
     }
 
     /**

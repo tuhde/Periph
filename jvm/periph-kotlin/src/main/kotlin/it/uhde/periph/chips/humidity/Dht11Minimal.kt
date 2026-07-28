@@ -1,14 +1,14 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.transport.DHTxxTransport
+import it.uhde.periph.connection.DHTxxConnection
 import java.io.IOException
 
 /**
  * DHT11 — combined temperature and humidity sensor (minimal driver).
  *
  * Reads a 40-bit frame (humidity integer + decimal, temperature integer +
- * decimal, checksum) over the DHTxx single-wire transport. The driver is
- * responsible for checksum validation and data conversion; the transport
+ * decimal, checksum) over the DHTxx single-wire connection. The driver is
+ * responsible for checksum validation and data conversion; the connection
  * handles all GPIO direction switching, timing, and bit decoding.
  *
  * Default configuration (baked in at construction):
@@ -16,7 +16,7 @@ import java.io.IOException
  *  - Caller responsible for respecting the ≥ 2 s sampling interval
  */
 open class Dht11Minimal @JvmOverloads constructor(
-    protected val transport: DHTxxTransport
+    protected val connection: DHTxxConnection
 ) {
     /** Raised on checksum error or invalid frame length. */
     class Dht11Exception(detail: String) : IOException(detail)
@@ -25,12 +25,12 @@ open class Dht11Minimal @JvmOverloads constructor(
      * Read both temperature and humidity in a single transaction.
      *
      * @return Pair of (temperature_C, humidity_RH).
-     * @throws IOException    on transport error.
+     * @throws IOException    on connection error.
      * @throws Dht11Exception on checksum mismatch.
      */
     @Throws(IOException::class, Dht11Exception::class)
     fun read(): Pair<Double, Double> {
-        val frame = transport.read()
+        val frame = connection.read()
         return decode(frame)
     }
 

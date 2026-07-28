@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::gpio::{Input, Output, Pull};
 use esp_println::println;
 use periph::chips::adc_dac::{Hx711Full, Hx711Minimal};
-use periph::transport::hx711::{HX711Error, HX711Transport};
+use periph::connection::hx711::{HX711Error, HX711Connection};
 
 esp_app_desc!();
 
@@ -35,8 +35,8 @@ fn main() -> ! {
         let dout   = Input::new(peripherals.GPIO5, Pull::None);
         let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
 
-        let transport = HX711Transport::new(dout, pd_sck);
-        let mut minimal = Hx711Minimal::new(transport).expect("init Hx711Minimal");
+        let connection = HX711Connection::new(dout, pd_sck);
+        let mut minimal = Hx711Minimal::new(connection).expect("init Hx711Minimal");
 
         check_true!(minimal.is_ready().is_ok(), "minimal is_ready ok", passed, failed);
 
@@ -58,8 +58,8 @@ fn main() -> ! {
         let dout   = Input::new(peripherals.GPIO5, Pull::None);
         let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
 
-        let transport = HX711Transport::new(dout, pd_sck);
-        let mut full = Hx711Full::new(transport).expect("init Hx711Full");
+        let connection = HX711Connection::new(dout, pd_sck);
+        let mut full = Hx711Full::new(connection).expect("init Hx711Full");
 
         check_true!(full.is_ready().is_ok(), "full is_ready ok", passed, failed);
 

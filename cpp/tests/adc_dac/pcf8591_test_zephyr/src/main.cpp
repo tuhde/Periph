@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8591.h"
 
 #ifndef PCF8591_I2C_NODE
@@ -21,8 +21,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(PCF8591_I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, PCF8591_ADDR);
-    PCF8591Full adc(transport);
+    I2CConnectionZephyr connection(i2c_dev, PCF8591_ADDR);
+    PCF8591Full adc(connection);
 
     uint8_t ch0 = adc.read_channel(0);
     check_true(ch0 <= 255, "read_channel(0) in [0, 255]");

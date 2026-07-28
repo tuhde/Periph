@@ -18,7 +18,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -33,14 +33,14 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr))
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip := gnss.NewNEO6Minimal(tr, "i2c")
+	chip := gnss.NewNEO6Minimal(conn, "i2c")
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {

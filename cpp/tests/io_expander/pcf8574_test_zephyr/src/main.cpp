@@ -1,6 +1,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8574.h"
 
 static int passed = 0;
@@ -18,8 +18,8 @@ static void check_true(const char* label, bool condition) {
 
 int main() {
     const struct device* i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
-    I2CTransportZephyr transport(i2c_dev, 0x20);
-    PCF8574Full chip(transport);
+    I2CConnectionZephyr connection(i2c_dev, 0x20);
+    PCF8574Full chip(connection);
 
     check_eq("init_shadow", chip._shadow, 0xFF);
 
@@ -46,8 +46,8 @@ int main() {
     p4.mode(INPUT);
     check_eq("input_shadow_bit4", (chip._shadow >> 4) & 1, 0x01);
 
-    uint8_t changed = chip.clear_interrupt();
-    check_true("clear_interrupt_range", changed <= 0xFF);
+    uint8_t changed = chip.pollInterrupt();
+    check_true("poll_interrupt_range", changed <= 0xFF);
 
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return 0;

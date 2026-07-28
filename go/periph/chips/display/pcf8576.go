@@ -2,7 +2,7 @@
 package display
 
 import (
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // PCF8576 command prefixes (the chip uses a command-stream protocol; the
@@ -68,23 +68,23 @@ var PCF8576SevenSeg = [10]uint8{
 // PCF8576Minimal is the 40x4 universal LCD segment driver — minimal interface.
 //
 // Drives a single 7-segment LCD display (static or 1:4 multiplex) with no
-// configuration required beyond the transport. The chip is write-only — the
-// driver only ever calls transport.Write.
+// configuration required beyond the connection. The chip is write-only — the
+// driver only ever calls connection.Write.
 //
 // Default configuration: 1:4 multiplex drive mode, 1/3 bias, display enabled,
 // display RAM cleared to zero on init.
 type PCF8576Minimal struct {
-	transport  transport.Transport
+	connection  connection.Connection
 	backplanes uint8
 }
 
 // NewPCF8576Minimal creates a new PCF8576Minimal and initialises the chip with
 // defaults (1:4 multiplex, 1/3 bias, display on, RAM cleared).
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x38 when SA0 = VSS, 0x39 when SA0 = VDD).
-func NewPCF8576Minimal(t transport.Transport) (*PCF8576Minimal, error) {
-	d := &PCF8576Minimal{transport: t, backplanes: PCF8576Mode1_4}
+func NewPCF8576Minimal(t connection.Connection) (*PCF8576Minimal, error) {
+	d := &PCF8576Minimal{connection: t, backplanes: PCF8576Mode1_4}
 	if err := d.doClear(); err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (d *PCF8576Minimal) sendCommands(cmds ...uint8) error {
 			buf[i] = c & 0x7F
 		}
 	}
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // sendCommandWithData sends a single command byte (C=0) followed by data bytes.
@@ -116,7 +116,7 @@ func (d *PCF8576Minimal) sendCommandWithData(cmd uint8, data []byte) error {
 	buf := make([]byte, 1+len(data))
 	buf[0] = cmd & 0x7F
 	copy(buf[1:], data)
-	return d.transport.Write(buf)
+	return d.connection.Write(buf)
 }
 
 // cmdMode assembles the mode-set command byte from enable, bias, and mode fields.
@@ -176,7 +176,7 @@ type PCF8576Full struct {
 
 // NewPCF8576Full creates a new PCF8576Full and initialises the chip with
 // defaults (1:4 multiplex, 1/3 bias, display on, RAM cleared).
-func NewPCF8576Full(t transport.Transport) (*PCF8576Full, error) {
+func NewPCF8576Full(t connection.Connection) (*PCF8576Full, error) {
 	m, err := NewPCF8576Minimal(t)
 	if err != nil {
 		return nil, err

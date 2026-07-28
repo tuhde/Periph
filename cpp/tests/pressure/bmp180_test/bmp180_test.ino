@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/pressure/BMP180.h"
 
 static int passed = 0, failed = 0;
@@ -24,8 +24,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    BMP180Minimal bmp(transport);
+    I2CConnection connection(Wire, TEST_ADDR);
+    BMP180Minimal bmp(connection);
 
     bmp._oss = 0;
     bmp._b5 = 0;
@@ -43,7 +43,7 @@ void setup() {
     int32_t b5 = bmp._compensate_temp(27898);
     check_true(abs(b5) > 0, "temp_compensation_b5");
 
-    BMP180Full bmp_full(transport, 0);
+    BMP180Full bmp_full(connection, 0);
     check_true(bmp_full.oversampling() == 0, "default_oss");
     bmp_full.set_oversampling(2);
     check_true(bmp_full.oversampling() == 2, "set_oss");

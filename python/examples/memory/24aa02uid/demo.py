@@ -1,10 +1,10 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.memory._24aa02uid import EEPROM24AA02UIDFull
 import time
 import struct
 
-transport = I2CTransport(0x50)                                                      # Create I2C transport, (addr=0x50) → Transport
-eeprom = EEPROM24AA02UIDFull(transport)                                             # Create 24AA02UID driver, (transport) → None
+connection = I2CConnection(0x50)                                                      # Create I2C connection, (addr=0x50) → Connection
+eeprom = EEPROM24AA02UIDFull(connection)                                             # Create 24AA02UID driver, (connection) → None
 
 # --- Read the chip's factory-programmed 32-bit serial number ---
 # The UID at 0xFC-0xFF never changes and identifies the device across

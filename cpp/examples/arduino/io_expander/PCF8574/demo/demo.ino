@@ -10,11 +10,13 @@
  * LED nibble (P0–P3) every 200 ms.
  */
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
+#include "InputPinArduino.h"
 #include "PCF8574.h"
 
-I2CTransport transport(Wire, 0x20);                            // Create I2C transport, (wire, addr=0x20)
-PCF8574Full chip(transport);                                    // Create PCF8574 full driver, (transport, addr=0x20)
+InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
+I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)
+PCF8574Full chip(connection);                                    // Create PCF8574 full driver, (connection, addr=0x20)
 
 volatile bool irq_flag = false;
 
@@ -27,10 +29,10 @@ void setup() {
     // Writing 0xF0 sets P0–P3 low (LEDs on) and P4–P7 high (button inputs).
     chip.write_port(0, 0xF0);                                  // Write all 8 pins, (port, mask) → void
 
-    // --- Attach INT line for responsive button detection ---
-    // INT fires within ~10 µs of any input change; the ISR sets a flag
+    // --- Subscribe to INT line for responsive button detection ---
+    // INT fires within ~10 µs of any input change; the handler sets a flag
     // so the main loop can react immediately rather than wait 200 ms.
-    chip.configure_interrupt(5, [](uint8_t) {                  // Attach interrupt, (gpio_pin, callback) → void
+    chip.onInterrupt([](uint8_t) {                             // Subscribe to INT line, (callback) → void
         irq_flag = true;
     });
 

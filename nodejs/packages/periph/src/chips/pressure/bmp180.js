@@ -26,21 +26,32 @@ function _delay(ms) {
  * BMP180 piezo-resistive pressure + temperature sensor — minimal interface.
  *
  * Provides calibrated temperature (°C) and pressure (hPa) with no configuration
- * beyond the transport. Fixed I²C address 0x77.
+ * beyond the connection. Fixed I²C address 0x77.
  *
  * Default OSS = 0 (Ultra Low Power, 4.5 ms conversion).
  *
- * @param {object} transport - Configured I²C transport.
+ * Constructor caveat: JS constructors cannot be async, but the original
+ * synchronous constructor validated the calibration block and threw
+ * synchronously on invalid data — that guarantee cannot be preserved
+ * exactly. The read is fired off unawaited (matching the fire-and-forget
+ * convention used throughout this port); invalid calibration data now
+ * surfaces as an *unhandled promise rejection* shortly after construction
+ * rather than a synchronous throw from `new BMP180Minimal(...)`. Callers
+ * that need to detect this deterministically should call
+ * `await sensor.temperature()` right after construction and handle its
+ * rejection.
+ *
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
  */
 class BMP180Minimal {
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
         this._oss = 0;
         this._readCalibration();
     }
 
-    _readCalibration() {
-        const data = this._transport.writeRead(Buffer.from([_REG_CAL_START]), 22);
+    async _readCalibration() {
+        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), 22);
         this._ac1 = data.readInt16BE(0);
         this._ac2 = data.readInt16BE(2);
         this._ac3 = data.readInt16BE(4);
@@ -60,22 +71,22 @@ class BMP180Minimal {
         }
     }
 
-    _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value]));
+    async _writeReg(reg, value) {
+        await this._conn.write(Buffer.from([reg, value]));
     }
 
-    _readRawTemp() {
-        this._writeReg(_REG_CTRL_MEAS, _CMD_TEMP);
+    async _readRawTemp() {
+        await this._writeReg(_REG_CTRL_MEAS, _CMD_TEMP);
         _delay(_CONV_TIME_TEMP * 1000);
-        const data = this._transport.writeRead(Buffer.from([_REG_OUT_MSB]), 2);
+        const data = await this._conn.writeRead(Buffer.from([_REG_OUT_MSB]), 2);
         return data.readUInt16BE(0);
     }
 
-    _readRawPressure() {
+    async _readRawPressure() {
         const cmd = _CMD_PRESSURE[this._oss];
-        this._writeReg(_REG_CTRL_MEAS, cmd);
+        await this._writeReg(_REG_CTRL_MEAS, cmd);
         _delay(_CONV_TIME[this._oss] * 1000);
-        const data = this._transport.writeRead(Buffer.from([_REG_OUT_MSB]), 3);
+        const data = await this._conn.writeRead(Buffer.from([_REG_OUT_MSB]), 3);
         let up = ((data.readUInt16BE(0) << 8) | data[2]) >> (8 - this._oss);
         return up;
     }
@@ -128,10 +139,10 @@ class BMP180Minimal {
 
     /**
      * Read calibrated temperature.
-     * @returns {number} Temperature in degrees Celsius.
+     * @returns {Promise<number>} Temperature in degrees Celsius.
      */
-    temperature() {
-        const ut = this._readRawTemp();
+    async temperature() {
+        const ut = await this._readRawTemp();
         const b5 = this._compensateTemp(ut);
         return ((b5 + 8) / 160.0);
     }
@@ -142,12 +153,12 @@ class BMP180Minimal {
      * Reads temperature first to refresh B5, then reads pressure.
      * Self-contained — may be called without a prior temperature() call.
      *
-     * @returns {number} Pressure in hPa.
+     * @returns {Promise<number>} Pressure in hPa.
      */
-    pressure() {
-        const ut = this._readRawTemp();
+    async pressure() {
+        const ut = await this._readRawTemp();
         this._compensateTemp(ut);
-        const up = this._readRawPressure();
+        const up = await this._readRawPressure();
         const p_pa = this._compensatePressure(up);
         return p_pa / 100.0;
     }
@@ -162,7 +173,7 @@ class BMP180Minimal {
  * - BMP180Full.OSS_HIGH_RES — High Resolution (oss=2, 13.5 ms)
  * - BMP180Full.OSS_ULTRA_HIGH_RES — Ultra High Resolution (oss=3, 25.5 ms)
  *
- * @param {object} transport - Configured I²C transport.
+ * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
  * @param {number} [oss=0] - Oversampling mode 0–3.
  */
 class BMP180Full extends BMP180Minimal {
@@ -171,8 +182,8 @@ class BMP180Full extends BMP180Minimal {
     static OSS_HIGH_RES        = 2;
     static OSS_ULTRA_HIGH_RES = 3;
 
-    constructor(transport, oss = 0) {
-        super(transport);
+    constructor(connection, oss = 0) {
+        super(connection);
         this._oss = oss & 0x03;
     }
 
@@ -195,39 +206,40 @@ class BMP180Full extends BMP180Minimal {
     /**
      * Compute altitude above sea level from the current pressure.
      * @param {number} [seaLevelHpa=1013.25] - Reference sea-level pressure in hPa.
-     * @returns {number} Altitude in metres.
+     * @returns {Promise<number>} Altitude in metres.
      */
-    altitude(seaLevelHpa = 1013.25) {
-        const p = this.pressure();
+    async altitude(seaLevelHpa = 1013.25) {
+        const p = await this.pressure();
         return 44330 * (1 - Math.pow(p / seaLevelHpa, 1 / 5.255));
     }
 
     /**
      * Compute sea-level pressure for a known altitude.
      * @param {number} altitudeM - Altitude in metres.
-     * @returns {number} Sea-level pressure in hPa.
+     * @returns {Promise<number>} Sea-level pressure in hPa.
      */
-    seaLevelPressure(altitudeM) {
-        const p = this.pressure();
+    async seaLevelPressure(altitudeM) {
+        const p = await this.pressure();
         return p / Math.pow(1 - altitudeM / 44330, 5.255);
     }
 
     /**
      * Read the chip ID register.
-     * @returns {number} Chip ID; expect 0x55.
+     * @returns {Promise<number>} Chip ID; expect 0x55.
      */
-    chipId() {
-        const data = this._transport.writeRead(Buffer.from([_REG_ID]), 1);
+    async chipId() {
+        const data = await this._conn.writeRead(Buffer.from([_REG_ID]), 1);
         return data[0];
     }
 
     /**
      * Perform a soft reset and re-read calibration coefficients.
+     * @returns {Promise<void>}
      */
-    reset() {
-        this._writeReg(_REG_SOFT_RESET, _SOFT_RESET_CMD);
+    async reset() {
+        await this._writeReg(_REG_SOFT_RESET, _SOFT_RESET_CMD);
         _delay(10);
-        this._readCalibration();
+        await this._readCalibration();
     }
 }
 

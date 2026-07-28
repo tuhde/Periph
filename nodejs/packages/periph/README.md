@@ -14,10 +14,10 @@ Drivers are accessed by path — require the chip module directly:
 
 ```js
 const { INA226Minimal } = require('periph/src/chips/power/ina226');
-const { I2CTransport }  = require('periph/src/transport/i2c');
+const { I2CConnection } = require('periph/src/connection/i2c');
 
-const bus    = await I2CTransport.open(1, 0x40);  // I2C bus 1, address 0x40
-const sensor = new INA226Minimal(bus);
+const connection = new I2CConnection(1, 0x40);  // I2C bus 1, address 0x40
+const sensor     = new INA226Minimal(connection);
 console.log(await sensor.power());  // watts
 ```
 

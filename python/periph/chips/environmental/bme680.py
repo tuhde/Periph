@@ -19,7 +19,7 @@ _CONST_ARRAY2 = [
 class BME680Minimal:
     """BME680 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance.
 
-    Provides calibrated readings with no configuration beyond the transport.
+    Provides calibrated readings with no configuration beyond the connection.
     I2C address is 0x76 (SDO=GND) or 0x77 (SDO=VDDIO).
 
     Default configuration (baked in at construction):
@@ -29,7 +29,7 @@ class BME680Minimal:
         - Gas heater profile 0: 320 degC target, 150 ms duration, gas conversion enabled
 
     Args:
-        transport: Configured I2C transport pointing at the device.
+        connection: Configured I2C connection pointing at the device.
     """
 
     _REG_RES_HEAT_VAL   = 0x00
@@ -52,8 +52,8 @@ class BME680Minimal:
 
     _MEAS_TIME_MS       = 200
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
         self._osrs_t = 1
         self._osrs_p = 1
         self._osrs_h = 1
@@ -72,11 +72,11 @@ class BME680Minimal:
         self._write_reg(self._REG_CTRL_GAS_1, (1 << 4) | 0)
 
     def _read_calibration(self):
-        b1 = self._transport.write_read(bytes([self._REG_CAL_BLOCK1]), 23)
-        b2 = self._transport.write_read(bytes([self._REG_CAL_BLOCK2]), 14)
-        s1 = self._transport.write_read(bytes([self._REG_RES_HEAT_VAL]), 1)
-        s2 = self._transport.write_read(bytes([self._REG_RES_HEAT_RANGE]), 1)
-        s3 = self._transport.write_read(bytes([self._REG_RANGE_SW_ERR]), 1)
+        b1 = self._connection.write_read(bytes([self._REG_CAL_BLOCK1]), 23)
+        b2 = self._connection.write_read(bytes([self._REG_CAL_BLOCK2]), 14)
+        s1 = self._connection.write_read(bytes([self._REG_RES_HEAT_VAL]), 1)
+        s2 = self._connection.write_read(bytes([self._REG_RES_HEAT_RANGE]), 1)
+        s3 = self._connection.write_read(bytes([self._REG_RANGE_SW_ERR]), 1)
 
         self._par_T2 = struct.unpack('<h', b1[0:2])[0]
         self._par_T3 = struct.unpack('<b', b1[2:3])[0]
@@ -109,10 +109,10 @@ class BME680Minimal:
         self._range_switching_error = rse if rse < 8 else rse - 16
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg, n):
-        return self._transport.write_read(bytes([reg]), n)
+        return self._connection.write_read(bytes([reg]), n)
 
     def _calc_heater_resistance(self, target_temp, ambient_temp):
         par_g1 = self._par_G1
@@ -301,7 +301,7 @@ class BME680Full(BME680Minimal):
     heater control, ambient-temperature override, read_all, and status queries.
 
     Args:
-        transport: Configured I2C transport pointing at the device.
+        connection: Configured I2C connection pointing at the device.
     """
 
     OSRS_SKIP = 0
@@ -329,8 +329,8 @@ class BME680Full(BME680Minimal):
     STATUS_GAS_VALID    = 0x20
     STATUS_HEATER_STABLE = 0x10
 
-    def __init__(self, transport):
-        super().__init__(transport)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure(self, osrs_t=1, osrs_p=1, osrs_h=1, mode=0, filter=0):
         """Write ctrl_hum, ctrl_meas, and config registers in the correct order.

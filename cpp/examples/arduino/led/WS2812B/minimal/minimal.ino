@@ -1,9 +1,9 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "WS2812B.h"
 
-NeoPixelTransport transport(SPI);               // Create NeoPixel transport, (spi=SPIClass&)
-WS2812BMinimal strip(transport, 30);            // Create WS2812B driver, (transport, n=30 pixels)
+NeoPixelConnection connection(SPI);               // Create NeoPixel connection, (spi=SPIClass&)
+WS2812BMinimal strip(connection, 30);            // Create WS2812B driver, (connection, n=30 pixels)
 
 void setup() {
     Serial.begin(115200);

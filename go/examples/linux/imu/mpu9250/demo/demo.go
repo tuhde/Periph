@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/imu"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -30,17 +30,17 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x68) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x68) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	magFactory := func(a uint8) (transport.Transport, error) {
-		return transport.NewI2CTransport(bus, a) // Open second I2C fd for the AK8963, (bus, addr) → (*I2CTransport, error)
+	magFactory := func(a uint8) (connection.Connection, error) {
+		return connection.NewI2CConnection(bus, a, nil, nil) // Open second I2C fd for the AK8963, (bus, addr) → (*I2CConnection, error)
 	}
 
-	chip, err := imu.NewMPU9250Full(tr, magFactory) // Create MPU9250 driver with magnetometer, (transport, magFactory) → (*MPU9250Full, error)
+	chip, err := imu.NewMPU9250Full(conn, magFactory) // Create MPU9250 driver with magnetometer, (connection, magFactory) → (*MPU9250Full, error)
 	if err != nil {
 		panic(err)
 	}

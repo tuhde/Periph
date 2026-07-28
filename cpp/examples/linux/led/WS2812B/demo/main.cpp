@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <unistd.h>
-#include "NeoPixelTransportLinux.h"
+#include "NeoPixelConnectionLinux.h"
 #include "WS2812B.h"
 
 int main() {
-    NeoPixelTransportLinux transport(0, 0);
-    WS2812BFull strip(transport, 30);                                      // Create WS2812B full driver, (transport, n=30 pixels)
+    NeoPixelConnectionLinux connection(0, 0);
+    WS2812BFull strip(connection, 30);                                      // Create WS2812B full driver, (connection, n=30 pixels)
 
     // --- Rainbow chaser ---
     // Cycles hue across the strip continuously.

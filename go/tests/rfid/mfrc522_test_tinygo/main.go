@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/rfid"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -34,8 +34,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x28)
-	chip, err := rfid.NewMFRC522Full(tr)
+	conn := connection.NewI2CConnection(i2c, 0x28, nil, nil)
+	chip, err := rfid.NewMFRC522Full(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

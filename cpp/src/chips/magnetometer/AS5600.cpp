@@ -1,7 +1,7 @@
 #include "AS5600.h"
 
-AS5600Minimal::AS5600Minimal(Transport& transport)
-    : _transport(transport) {
+AS5600Minimal::AS5600Minimal(Connection& connection)
+    : _connection(connection) {
     uint8_t status = _read_reg8(REG_STATUS);
     if (!(status & STATUS_MD)) {
         // In C++ we use a simple flag; caller should check is_magnet_detected()
@@ -10,24 +10,24 @@ AS5600Minimal::AS5600Minimal(Transport& transport)
 
 uint8_t AS5600Minimal::_read_reg8(uint8_t reg) {
     uint8_t buf[1];
-    _transport.write_read(&reg, 1, buf, 1);
+    _connection.write_read(&reg, 1, buf, 1);
     return buf[0];
 }
 
 uint16_t AS5600Minimal::_read_reg16(uint8_t reg) {
     uint8_t buf[2];
-    _transport.write_read(&reg, 1, buf, 2);
+    _connection.write_read(&reg, 1, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
 void AS5600Minimal::_write_reg8(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void AS5600Minimal::_write_reg16(uint8_t reg, uint16_t value) {
     uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }
 
 float AS5600Minimal::angle() {
@@ -53,8 +53,8 @@ bool AS5600Minimal::is_magnet_too_weak() {
 
 // AS5600Full
 
-AS5600Full::AS5600Full(Transport& transport)
-    : AS5600Minimal(transport) {}
+AS5600Full::AS5600Full(Connection& connection)
+    : AS5600Minimal(connection) {}
 
 uint16_t AS5600Full::raw_angle() {
     uint16_t raw = _read_reg16(REG_RAW_ANGLE_H);

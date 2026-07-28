@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief MCP4728 quad-channel 12-bit voltage-output DAC — minimal interface.
  *
  * Provides simple voltage output as a fraction of V_DD for any of the four
  * channels (A–D) plus a convenience method to update all four channels
- * simultaneously. No configuration required beyond the transport. V_REF is
+ * simultaneously. No configuration required beyond the connection. V_REF is
  * fixed at external (V_DD), gain is fixed at ×1, and power-down is off.
  * EEPROM is never written by this class.
  *
- * @param transport Configured I²C transport pointing at the device (0x60–0x67).
+ * @param connection Configured I²C connection pointing at the device (0x60–0x67).
  */
 class MCP4728Minimal {
 public:
-    explicit MCP4728Minimal(Transport& transport);
+    explicit MCP4728Minimal(Connection& connection);
 
     /** @brief Set one channel's DAC output as a fraction of V_DD.
      *  @param channel  Channel index 0 (A) – 3 (D).
@@ -36,7 +36,7 @@ public:
 protected:
     static constexpr uint8_t CMD_MULTI_WRITE_BASE  = 0x40; // [0 1 0 0 0 DAC1 DAC0 UDAC]
 
-    Transport& _transport;
+    Connection& _connection;
 
     /** @brief Multi-Write: writes one channel's volatile DAC register.
      *  @param channel  Channel index 0–3.
@@ -57,7 +57,7 @@ protected:
  * Write), General Call reset/wake-up/software-update, and full 24-byte
  * read-back of all channel DAC input registers and EEPROM contents.
  *
- * @param transport Configured I²C transport pointing at the device (0x60–0x67).
+ * @param connection Configured I²C connection pointing at the device (0x60–0x67).
  */
 class MCP4728Full : public MCP4728Minimal {
 public:
@@ -72,7 +72,7 @@ public:
     static constexpr uint8_t GAIN_X1 = 0;
     static constexpr uint8_t GAIN_X2 = 1;
 
-    explicit MCP4728Full(Transport& transport);
+    explicit MCP4728Full(Connection& connection);
 
     /** @brief Set one channel's output and persist to EEPROM (Single Write). */
     void set_voltage_eeprom(uint8_t channel, float fraction, uint8_t vref, uint8_t gain);

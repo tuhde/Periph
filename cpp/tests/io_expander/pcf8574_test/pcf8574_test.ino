@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "PCF8574.h"
 
 #ifndef TEST_SDA
@@ -15,8 +15,8 @@
 #define TEST_ADDR 0x20
 #endif
 
-I2CTransport  transport(Wire, TEST_ADDR);
-PCF8574Full   chip(transport);
+I2CConnection  connection(Wire, TEST_ADDR);
+PCF8574Full   chip(connection);
 
 static int passed = 0;
 static int failed = 0;
@@ -74,9 +74,9 @@ void setup() {
     p4.mode(INPUT);
     check_eq("input_shadow_bit4", (chip._shadow >> 4) & 1, 0x01);
 
-    // clear_interrupt
-    uint8_t changed = chip.clear_interrupt();
-    check_true("clear_interrupt_range", changed <= 0xFF);
+    // pollInterrupt
+    uint8_t changed = chip.pollInterrupt();
+    check_true("poll_interrupt_range", changed <= 0xFF);
 
     Serial.print("===DONE: "); Serial.print(passed);
     Serial.print(" passed, "); Serial.print(failed); Serial.println(" failed===");

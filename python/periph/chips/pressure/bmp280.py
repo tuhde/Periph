@@ -6,7 +6,7 @@ class BMP280Minimal:
     """BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
 
     Provides calibrated temperature (°C) and pressure (hPa) readings with no
-    configuration beyond the transport. I²C address is 0x76 (SDO=GND) or
+    configuration beyond the connection. I²C address is 0x76 (SDO=GND) or
     0x77 (SDO=VDDIO).
 
     Default configuration (baked in at construction):
@@ -16,7 +16,7 @@ class BMP280Minimal:
         - spi3w_en = 0
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
         bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
             SPI writes mask bit 7 of the register address.
     """
@@ -34,8 +34,8 @@ class BMP280Minimal:
 
     _MEAS_TIME_MS   = 7
 
-    def __init__(self, transport, bus_type='i2c'):
-        self._transport = transport
+    def __init__(self, connection, bus_type='i2c'):
+        self._connection = connection
         self._bus_type = bus_type
         self._mode = 0
         self._osrs_t = 1
@@ -48,7 +48,7 @@ class BMP280Minimal:
         self._write_reg(self._REG_CONFIG, 0)
 
     def _read_calibration(self):
-        data = self._transport.write_read(bytes([self._REG_CAL_START]), 24)
+        data = self._connection.write_read(bytes([self._REG_CAL_START]), 24)
         self._dig_T1 = struct.unpack('<H', data[0:2])[0]
         self._dig_T2 = struct.unpack('<h', data[2:4])[0]
         self._dig_T3 = struct.unpack('<h', data[4:6])[0]
@@ -65,10 +65,10 @@ class BMP280Minimal:
     def _write_reg(self, reg, value):
         if self._bus_type == 'spi':
             reg = reg & 0x7F
-        self._transport.write(bytes([reg, value]))
+        self._connection.write(bytes([reg, value]))
 
     def _read_reg(self, reg, n):
-        return self._transport.write_read(bytes([reg]), n)
+        return self._connection.write_read(bytes([reg]), n)
 
     def _trigger_and_read(self):
         if self._mode != 3:
@@ -149,7 +149,7 @@ class BMP280Full(BMP280Minimal):
     and altitude / sea-level pressure conversion.
 
     Args:
-        transport: Configured I²C or SPI transport pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the device.
         bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
     """
 
@@ -182,8 +182,8 @@ class BMP280Full(BMP280Minimal):
     STATUS_MEASURING = 0x08
     STATUS_IM_UPDATE = 0x01
 
-    def __init__(self, transport, bus_type='i2c'):
-        super().__init__(transport, bus_type)
+    def __init__(self, connection, bus_type='i2c'):
+        super().__init__(connection, bus_type)
 
     def configure(self, osrs_t=1, osrs_p=1, mode=0, filter=0, t_sb=0):
         """Write both ctrl_meas and config registers in one call.

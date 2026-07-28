@@ -12,7 +12,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/environmental"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -25,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x76)        // Create I2C transport, (i2c, addr=0x76) → (*I2CTransport)
-	chip, err := environmental.NewBME680Full(tr)     // Create BME680 driver, (transport) → (*BME680Full, error)
+	conn := connection.NewI2CConnection(i2c, 0x76, nil, nil)        // Create I2C connection, (i2c, addr=0x76) → (*I2CConnection)
+	chip, err := environmental.NewBME680Full(conn)     // Create BME680 driver, (connection) → (*BME680Full, error)
 	if err != nil {
 		panic(err)
 	}

@@ -1,19 +1,19 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
  * MPU-6050 — 6-axis MotionTracking device (accelerometer + gyroscope), minimal driver.
  *
  * Provides 3-axis acceleration and 3-axis angular rate readings with no
- * configuration beyond the transport. Performs device reset, WHO_AM_I check,
+ * configuration beyond the connection. Performs device reset, WHO_AM_I check,
  * and enables all sensors at defaults during initialization.
  *
  * Default I²C address: 0x68 (AD0=GND), 0x69 (AD0=VCC).
  */
 open class Mpu6050Minimal @JvmOverloads constructor(
-    protected val transport: Transport
+    protected val connection: Connection
 ) {
     companion object {
         const val REG_SMPLRT_DIV   = 0x19
@@ -62,7 +62,7 @@ open class Mpu6050Minimal @JvmOverloads constructor(
      * @return array [x, y, z] in m/s².
      */
     fun accel(): DoubleArray {
-        val buf = transport.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
+        val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
         val ax = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
         val ay = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
         val az = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
@@ -76,7 +76,7 @@ open class Mpu6050Minimal @JvmOverloads constructor(
      * @return array [x, y, z] in rad/s.
      */
     fun gyro(): DoubleArray {
-        val buf = transport.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
+        val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
         val gx = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
         val gy = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
         val gz = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
@@ -87,16 +87,16 @@ open class Mpu6050Minimal @JvmOverloads constructor(
     }
 
     protected fun writeReg(reg: Int, value: Int) {
-        transport.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
     }
 
     protected fun readReg(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
     protected fun readReg16Signed(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
         return (((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)).toShort().toInt()
     }
 }

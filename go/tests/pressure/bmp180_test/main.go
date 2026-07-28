@@ -13,7 +13,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/pressure"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -23,12 +23,12 @@ func main() {
 		os.Exit(2)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, 0x77)
+	conn, err := connection.NewI2CConnection(bus, 0x77, nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err)
+		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
 	passed, failed := 0, 0
 	check := func(label string, cond bool) {
@@ -41,7 +41,7 @@ func main() {
 		}
 	}
 
-	chip, err := pressure.NewBmp180Minimal(tr)
+	chip, err := pressure.NewBmp180Minimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)
@@ -53,14 +53,14 @@ func main() {
 	p, err := chip.Pressure()
 	check("pressure_range", err == nil && p >= 300.0 && p <= 1100.0)
 
-	tr2, err := transport.NewI2CTransport(bus, 0x77)
+	conn2, err := connection.NewI2CConnection(bus, 0x77, nil, nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport full:", err)
+		fmt.Fprintln(os.Stderr, "connection full:", err)
 		os.Exit(2)
 	}
-	defer tr2.Close()
+	defer conn2.Close()
 
-	full, err := pressure.NewBmp180Full(tr2)
+	full, err := pressure.NewBmp180Full(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

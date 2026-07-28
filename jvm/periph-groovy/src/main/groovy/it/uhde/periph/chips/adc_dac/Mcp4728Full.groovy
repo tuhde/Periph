@@ -2,7 +2,7 @@ package it.uhde.periph.chips.adc_dac
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * Per-channel state read from the MCP4728.
@@ -35,7 +35,7 @@ class ChannelState {
  * General Call commands (reset / wake-up / software update), and full
  * 24-byte read-back of all channel DAC input registers and EEPROM contents.
  *
- * <p>General Call commands require a second transport bound to address
+ * <p>General Call commands require a second connection bound to address
  * 0x00. Pass {@code null} to disable them.
  *
  * <h2>EEPROM write timing</h2>
@@ -77,17 +77,17 @@ class Mcp4728Full extends Mcp4728Minimal {
     private static final int GC_SOFTWARE_UPD      = 0x08
     private static final int GC_WAKE              = 0x09
 
-    private final Transport generalCall
+    private final Connection generalCall
 
     /**
      * Construct the full driver.
      *
-     * @param transport I²C transport bound to the MCP4728 device address
-     * @param generalCall I²C transport bound to address 0x00, or {@code null}
+     * @param connection I²C connection bound to the MCP4728 device address
+     * @param generalCall I²C connection bound to address 0x00, or {@code null}
      *                    to disable reset / wakeUp / softwareUpdate
      */
-    Mcp4728Full(Transport transport, Transport generalCall) {
-        super(transport)
+    Mcp4728Full(Connection connection, Connection generalCall) {
+        super(connection)
         this.generalCall = generalCall
     }
 
@@ -107,7 +107,7 @@ class Mcp4728Full extends Mcp4728Minimal {
         int c = Math.max(0, Math.min(4095, code))
         int g = (gain == GAIN_X2) ? 1 : 0
         // Single Write: [0 1 0 1 1 DAC1 DAC0 UDAC] [V_REF PD1 PD0 Gx D11-D8] [D7-D0]
-        transport.write([(byte) (CMD_SINGLE_WRITE | ((ch & 0x03) << 1)),
+        connection.write([(byte) (CMD_SINGLE_WRITE | ((ch & 0x03) << 1)),
                          (byte) (((vref & 0x01) << 7) | ((0 & 0x03) << 5) | (g << 4) | ((c >> 8) & 0x0F)),
                          (byte) (c & 0xFF)] as byte[])
     }
@@ -133,7 +133,7 @@ class Mcp4728Full extends Mcp4728Minimal {
             buf[1 + i * 2]     = (byte) (((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F))
             buf[1 + i * 2 + 1] = (byte) (code & 0xFF)
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     /**
@@ -143,7 +143,7 @@ class Mcp4728Full extends Mcp4728Minimal {
         int byte1 = CMD_WRITE_VREF |
             ((vrefA != 0 ? 1 : 0) << 3) | ((vrefB != 0 ? 1 : 0) << 2) |
             ((vrefC != 0 ? 1 : 0) << 1) |  (vrefD != 0 ? 1 : 0)
-        transport.write([(byte) byte1] as byte[])
+        connection.write([(byte) byte1] as byte[])
     }
 
     /**
@@ -153,7 +153,7 @@ class Mcp4728Full extends Mcp4728Minimal {
         int byte1 = CMD_WRITE_GAIN |
             ((gainA == GAIN_X2 ? 1 : 0) << 3) | ((gainB == GAIN_X2 ? 1 : 0) << 2) |
             ((gainC == GAIN_X2 ? 1 : 0) << 1) |  (gainD == GAIN_X2 ? 1 : 0)
-        transport.write([(byte) byte1] as byte[])
+        connection.write([(byte) byte1] as byte[])
     }
 
     /**
@@ -169,14 +169,14 @@ class Mcp4728Full extends Mcp4728Minimal {
             (((b >> 1) & 0x01) << 2) | ((b & 0x01) << 1)
         int byte2 = (((c >> 1) & 0x01) << 6) | ((c & 0x01) << 5) |
                     (((d >> 1) & 0x01) << 4) | ((d & 0x01) << 3)
-        transport.write([(byte) byte1, (byte) byte2] as byte[])
+        connection.write([(byte) byte1, (byte) byte2] as byte[])
     }
 
     /**
      * Read all four channels' DAC input registers and EEPROM contents.
      */
     ChannelState[] read() {
-        byte[] b = transport.read(24)
+        byte[] b = connection.read(24)
         boolean eepromReady = (b[0] & 0x80) != 0
         ChannelState[] ch = new ChannelState[4]
         for (int i = 0; i < 4; i++) {
@@ -203,7 +203,7 @@ class Mcp4728Full extends Mcp4728Minimal {
 
     /** {@return true when RDY/BSY = 1 (no EEPROM write in progress)} */
     boolean isEepromReady() {
-        (transport.read(1)[0] & 0x80) != 0
+        (connection.read(1)[0] & 0x80) != 0
     }
 
     /**
@@ -227,9 +227,9 @@ class Mcp4728Full extends Mcp4728Minimal {
         requireGeneralCall().write([(byte) GC_RESET] as byte[])
     }
 
-    private Transport requireGeneralCall() {
+    private Connection requireGeneralCall() {
         if (generalCall == null)
-            throw new IllegalStateException('General Call transport not configured')
+            throw new IllegalStateException('General Call connection not configured')
         generalCall
     }
 }

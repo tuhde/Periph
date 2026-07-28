@@ -16,7 +16,7 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/rfid"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -29,13 +29,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x28) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x28) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := rfid.NewMFRC522Full(tr) // Create MFRC522 driver, (transport) → (*MFRC522Full, error)
+	chip, err := rfid.NewMFRC522Full(conn) // Create MFRC522 driver, (connection) → (*MFRC522Full, error)
 	if err != nil {
 		panic(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // BMP280 register addresses.
@@ -114,7 +114,7 @@ type bmp280Calibration struct {
 
 // bmp280ReadCalibration reads the 24-byte calibration block (0x88..0x9F) and
 // unpacks all 12 little-endian trimming coefficients.
-func bmp280ReadCalibration(t transport.Transport) (bmp280Calibration, error) {
+func bmp280ReadCalibration(t connection.Connection) (bmp280Calibration, error) {
 	var c bmp280Calibration
 	buf, err := t.WriteRead([]byte{bmp280RegCalStart}, 24)
 	if err != nil {
@@ -172,7 +172,7 @@ func bmp280CompensatePressure(adcP uint32, tFine int32, c bmp280Calibration) flo
 // Temperature or Pressure triggers a fresh forced measurement and reads both
 // ADCs in one burst.
 type BMP280Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -187,15 +187,15 @@ type BMP280Minimal struct {
 // NewBMP280Minimal creates a BMP280Minimal, reads the 12 trimming
 // coefficients, and applies the default ultra-low-power configuration.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBMP280Minimal(t transport.Transport) (*BMP280Minimal, error) {
+func NewBMP280Minimal(t connection.Connection) (*BMP280Minimal, error) {
 	cal, err := bmp280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BMP280Minimal{
-		transport: t,
+		connection: t,
 		osrsT:     BMP280OSRSX1,
 		osrsP:     BMP280OSRSX1,
 		mode:      BMP280ModeSleep,
@@ -214,12 +214,12 @@ func NewBMP280Minimal(t transport.Transport) (*BMP280Minimal, error) {
 
 // writeReg writes a single byte to a register.
 func (d *BMP280Minimal) writeReg(reg, val uint8) error {
-	return d.transport.Write([]byte{reg, val})
+	return d.connection.Write([]byte{reg, val})
 }
 
 // readReg8 reads a single byte from a register.
 func (d *BMP280Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -237,7 +237,7 @@ func (d *BMP280Minimal) triggerAndRead() (uint32, uint32, error) {
 		}
 		time.Sleep(bmp280MeasTime)
 	}
-	raw, err := d.transport.WriteRead([]byte{bmp280RegData}, 6)
+	raw, err := d.connection.WriteRead([]byte{bmp280RegData}, 6)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -285,9 +285,9 @@ type BMP280Full struct {
 
 // NewBMP280Full creates a BMP280Full and applies the default configuration.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBMP280Full(t transport.Transport) (*BMP280Full, error) {
+func NewBMP280Full(t connection.Connection) (*BMP280Full, error) {
 	m, err := NewBMP280Minimal(t)
 	if err != nil {
 		return nil, err
@@ -386,7 +386,7 @@ func (d *BMP280Full) Reset() error {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
-	cal, err := bmp280ReadCalibration(d.transport)
+	cal, err := bmp280ReadCalibration(d.connection)
 	if err != nil {
 		return err
 	}

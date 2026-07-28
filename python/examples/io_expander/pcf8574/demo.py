@@ -10,29 +10,32 @@ Every 200 ms the demo reads the full port byte, extracts the button nibble
 result to the output nibble (P0–P3). Prints the raw port byte and the decoded
 states so the quasi-bidirectional read-back behavior is visible.
 """
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
+from periph.connection.input_pin import MicroPythonPin
 from periph.chips.io_expander.pcf8574 import Pcf8574Full
+from machine import Pin
 import time
+
+# --- Wire interrupt for instant button response ---
+# The chip's INT goes low as soon as any input changes, so the callback fires
+# within one I²C bit time (~10 µs) instead of waiting for the polling interval.
+int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                          # Hardware INT pin, (pin=5, mode=IN)
+int_pin = MicroPythonPin(int_hw)                              # Wrap as InputPin, (pin) → InputPin
 
 # --- Initialise bus and driver ---
 # PCF8574 is I²C only, 100 kHz max; start with all pins as inputs.
-transport = I2CTransport(0x20)                            # Create I2C transport, (i2c, addr=0x20)
-chip = Pcf8574Full(transport)                                   # Create PCF8574 full driver, (transport, addr=0x20)
+connection = I2CConnection(0x20, int_pin=int_pin)           # Create I2C connection, (i2c, addr=0x20, int_pin=None, en_pin=None)
+chip = Pcf8574Full(connection)                                   # Create PCF8574 full driver, (connection, addr=0x20)
 
 # --- Configure output pins for LEDs (P0–P3 → drive low) ---
 # Writing 0 to a pin drives it low via the 25 mA sink; that turns the LED on
 # (active-low). Writing 1 releases the pin to quasi-input (LED off).
 chip.write_port(mask=0xF0)                                      # Write all 8 pins, (port=0, mask=int) → None
 
-# --- Wire interrupt for instant button response ---
-# The chip's INT goes low as soon as any input changes, so the callback fires
-# within one I²C bit time (~10 µs) instead of waiting for the polling interval.
-int_hw = Pin(5, Pin.IN, Pin.PULL_UP)                          # Hardware INT pin, (pin=5, mode=IN)
-
 def _on_change(changed_mask):                                  # Interrupt callback, (changed_mask: int) → None
     pass  # changes are picked up in the main loop via read_port
 
-chip.configure_interrupt(int_hw, _on_change)                   # Attach interrupt, (int_pin, callback) → None
+chip.on_interrupt(_on_change)                                   # Subscribe to interrupts, (callback) → None
 
 # --- Main loop: read buttons → mirror to LEDs ---
 # The full port byte contains both the LED shadow (bits 0–3) and the actual

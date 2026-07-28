@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.magnetometer
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AS5600 — full driver. Extends {@link As5600Minimal} with raw angle, AGC,
@@ -86,10 +86,10 @@ class As5600Full extends As5600Minimal {
     /**
      * Construct the full driver and verify magnet presence.
      *
-     * @param transport I²C transport bound to address 0x36
+     * @param connection I²C connection bound to address 0x36
      */
-    As5600Full(Transport transport) {
-        super(transport)
+    As5600Full(Connection connection) {
+        super(connection)
     }
 
     /**
@@ -166,7 +166,7 @@ class As5600Full extends As5600Minimal {
 
         confL = ((pwmf & 0x03) << 6) | ((outs & 0x03) << 4) | ((hyst & 0x03) << 2) | (pm & 0x03)
 
-        transport.write([(byte) REG_CONF_H, (byte) (confH & 0xFF), (byte) (confL & 0xFF)] as byte[])
+        connection.write([(byte) REG_CONF_H, (byte) (confH & 0xFF), (byte) (confL & 0xFF)] as byte[])
     }
 
     /**

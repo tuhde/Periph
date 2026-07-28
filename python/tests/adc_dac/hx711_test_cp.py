@@ -1,6 +1,6 @@
 import _testconfig as cfg
 import digitalio
-from periph.transport.hx711_circuitpython import HX711Transport
+from periph.connection.hx711_circuitpython import HX711Connection
 from periph.chips.adc_dac.hx711 import HX711Full
 
 passed = 0
@@ -23,8 +23,8 @@ dout.direction = digitalio.Direction.INPUT
 pd_sck = digitalio.DigitalInOut(cfg.PD_SCK)
 pd_sck.direction = digitalio.Direction.OUTPUT
 
-transport = HX711Transport(dout, pd_sck)
-chip = HX711Full(transport)
+connection = HX711Connection(dout, pd_sck)
+chip = HX711Full(connection)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
 
@@ -75,6 +75,6 @@ check_true('power_down accepted', True)
 chip.power_up()
 check_true('power_up accepted', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

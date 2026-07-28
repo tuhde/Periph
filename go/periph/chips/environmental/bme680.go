@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // BME680 register addresses (I²C; the chip has a flat address space on I²C).
@@ -158,7 +158,7 @@ type bme680Calibration struct {
 // ordering). Block 2 (0xE1..0xEE) holds 14 bytes for the H, T1, and G
 // coefficients — note that par_H1 and par_H2 share register 0xE2 (par_H2 in
 // the high nibble, par_H1 in the low nibble).
-func bme680ReadCalibration(t transport.Transport) (bme680Calibration, error) {
+func bme680ReadCalibration(t connection.Connection) (bme680Calibration, error) {
 	var c bme680Calibration
 	b1, err := t.WriteRead([]byte{bme680RegCalBlock1}, 23)
 	if err != nil {
@@ -361,7 +361,7 @@ func bme680CalcGasWait(targetMs uint16) uint8 {
 // forced-mode TPHG cycle and reads all 13 output bytes (0x1F..0x2B) in one
 // burst.
 type BME680Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -384,15 +384,15 @@ type BME680Minimal struct {
 // coefficients, and applies the default configuration (heater profile 0 at
 // 320 °C / 150 ms).
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME680Minimal(t transport.Transport) (*BME680Minimal, error) {
+func NewBME680Minimal(t connection.Connection) (*BME680Minimal, error) {
 	cal, err := bme680ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BME680Minimal{
-		transport: t,
+		connection: t,
 		osrsT:     BME680OSRSX1,
 		osrsP:     BME680OSRSX1,
 		osrsH:     BME680OSRSX1,
@@ -428,12 +428,12 @@ func NewBME680Minimal(t transport.Transport) (*BME680Minimal, error) {
 
 // writeReg writes a single byte to a register.
 func (d *BME680Minimal) writeReg(reg, val uint8) error {
-	return d.transport.Write([]byte{reg, val})
+	return d.connection.Write([]byte{reg, val})
 }
 
 // readReg8 reads a single byte from a register.
 func (d *BME680Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -462,7 +462,7 @@ func (d *BME680Minimal) triggerAndRead() (uint32, uint32, uint16, uint16, uint8,
 		return 0, 0, 0, 0, 0, false, false, err
 	}
 	time.Sleep(bme680MeasTime)
-	raw, err := d.transport.WriteRead([]byte{bme680RegPressMsb}, 13)
+	raw, err := d.connection.WriteRead([]byte{bme680RegPressMsb}, 13)
 	if err != nil {
 		return 0, 0, 0, 0, 0, false, false, err
 	}
@@ -548,9 +548,9 @@ type BME680Full struct {
 
 // NewBME680Full creates a BME680Full with the default configuration.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME680Full(t transport.Transport) (*BME680Full, error) {
+func NewBME680Full(t connection.Connection) (*BME680Full, error) {
 	m, err := NewBME680Minimal(t)
 	if err != nil {
 		return nil, err
@@ -733,7 +733,7 @@ func (d *BME680Full) Reset() error {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
-	cal, err := bme680ReadCalibration(d.transport)
+	cal, err := bme680ReadCalibration(d.connection)
 	if err != nil {
 		return err
 	}

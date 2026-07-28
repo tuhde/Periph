@@ -6,7 +6,7 @@ Requires _testconfig.py on the device with:
 import time
 import _testconfig as cfg
 from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.io_expander.pcf8575 import Pcf8575Minimal, Pcf8575Full
 
 passed = 0
@@ -34,8 +34,8 @@ def check_eq(label, got, expected):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-chip = Pcf8575Minimal(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+chip = Pcf8575Minimal(connection)
 
 # After init, shadow must be [0xFF, 0xFF] (all inputs)
 check_eq('init_shadow_0', chip._shadow[0], 0xFF)
@@ -82,9 +82,9 @@ port1_after = chip.read_port(1)
 check_true('read_after_all_input_0', 0 <= port0_after <= 0xFF)
 check_true('read_after_all_input_1', 0 <= port1_after <= 0xFF)
 
-# Full: clear_interrupt returns int
-full = Pcf8575Full(transport)
-changed = full.clear_interrupt()
-check_true('clear_interrupt_range', 0 <= changed <= 0xFFFF)
+# Full: poll_interrupt returns int
+full = Pcf8575Full(connection)
+changed = full.poll_interrupt()
+check_true('poll_interrupt_range', 0 <= changed <= 0xFFFF)
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

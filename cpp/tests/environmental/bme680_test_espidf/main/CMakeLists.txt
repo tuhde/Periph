@@ -4,7 +4,7 @@ idf_component_register(
     SRCS "main.cpp"
         ${CPP_DIR}/src/chips/environmental/BME680.cpp
     INCLUDE_DIRS "."
-        ${CPP_DIR}/src/transport
+        ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/environmental
     REQUIRES driver
 )

@@ -1,12 +1,12 @@
 // Auto-generated ESP-IDF example for BMP280 (Demo).
 // Mirrors the Arduino BMP280_Demo example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "BMP280.h"
 
 extern "C" void app_main(void) {
@@ -29,8 +29,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    BMP280Full chip(transport, false);  // Create BMP280 driver
+    I2CConnectionESPIDF connection(dev);
+    BMP280Full chip(connection, false);  // Create BMP280 driver
     float t, p, alt, slp;
     uint8_t cid, st;
     // --- Log T/P with averaging ---

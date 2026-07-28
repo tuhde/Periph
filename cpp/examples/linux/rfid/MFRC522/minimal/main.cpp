@@ -1,12 +1,12 @@
 #include <cstdio>
 #include <unistd.h>
-#include "SPITransportLinux.h"
+#include "SPIConnectionLinux.h"
 #include "MFRC522.h"
 
 int main() {
-    SPITransportLinux transport(0, 0);
+    SPIConnectionLinux connection(0, 0);
 
-    MFRC522Minimal mfrc(transport);                                        // Create MFRC522 driver, (transport)
+    MFRC522Minimal mfrc(connection);                                        // Create MFRC522 driver, (connection)
 
     while (true) {
         bool present = mfrc.is_card_present();                             // Detect card in field, () → bool

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.rfid
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 import java.io.IOException
 
@@ -25,8 +25,8 @@ class Mfrc522Full extends Mfrc522Minimal {
     static final int RX_GAIN_43_DB = 0x60
     static final int RX_GAIN_48_DB = 0x70
 
-    Mfrc522Full(Transport transport) { super(transport) }
-    Mfrc522Full(Transport transport, int busType) { super(transport, busType) }
+    Mfrc522Full(Connection connection) { super(connection) }
+    Mfrc522Full(Connection connection, int busType) { super(connection, busType) }
 
     /** Re-run SoftReset and the full initialization sequence. */
     void reset() { try { initChip() } catch (IOException e) { throw new RuntimeException(e) } }

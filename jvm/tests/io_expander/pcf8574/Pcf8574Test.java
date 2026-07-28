@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Pcf8574Full;
 
 public class Pcf8574Test {
@@ -22,9 +22,9 @@ public class Pcf8574Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x20").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var chip = new Pcf8574Full(transport);
+            var chip = new Pcf8574Full(connection);
 
             // --- Construction sets all pins to input mode (shadow = 0xFF) ---
             int port = chip.readPort();
@@ -70,16 +70,23 @@ public class Pcf8574Test {
             int p = chip.readPort(0);
             checkTrue("readPort(port=0) in [0, 255]", p >= 0 && p <= 255);
 
-            // --- clearInterrupt returns int in [0, 255] ---
-            int changed = chip.clearInterrupt();
-            checkTrue("clearInterrupt() in [0, 255]", changed >= 0 && changed <= 255);
+            // --- pollInterrupt returns int in [0, 255] ---
+            int changed = chip.pollInterrupt();
+            checkTrue("pollInterrupt() in [0, 255]", changed >= 0 && changed <= 255);
 
-            // --- configureInterrupt starts a polling thread ---
+            // --- onInterrupt starts a polling thread (no InputPin wired) ---
             var received = new int[]{-1};
-            chip.configureInterrupt(mask -> received[0] = mask);
+            chip.onInterrupt(mask -> received[0] = mask);
             Thread.sleep(50);
-            chip.stopInterrupt();
-            checkTrue("configureInterrupt + stopInterrupt accepted", true);
+            chip.offInterrupt();
+            checkTrue("onInterrupt + offInterrupt accepted", true);
+
+            // --- per-pin watch/unwatch ---
+            var p5 = chip.pin(5);
+            java.util.function.Consumer<Pcf8574Full.Pin> watcher = pin -> {};
+            p5.watch(watcher);
+            p5.unwatch();
+            checkTrue("pin.watch + unwatch accepted", true);
 
             System.out.println();
             System.out.printf("Results: %d passed, %d failed%n", passed, failed);

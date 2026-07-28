@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Mcp23017Full;
 import it.uhde.periph.chips.io_expander.Mcp23017Minimal;
 
@@ -28,9 +28,9 @@ public class Mcp23017Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x20").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var chip = new Mcp23017Minimal(transport, addr);
+            var chip = new Mcp23017Minimal(connection, addr);
 
             // --- Shadow initialises to [0, 0] ---
             checkEq("shadow[0] init", chip.shadow[0], 0);
@@ -94,8 +94,8 @@ public class Mcp23017Test {
             checkEq("loopback_0x00", pb & 0x7F, 0x00);
 
             // --- Mcp23017Full ---
-            var transport2 = new I2CTransport(bus, addr);
-            var full = new Mcp23017Full(transport2, addr);
+            var connection2 = new I2CConnection(bus, addr);
+            var full = new Mcp23017Full(connection2, addr);
 
             full.configurePullup(0, 0x55);
             full.configurePullup(1, 0xAA);
@@ -103,17 +103,22 @@ public class Mcp23017Test {
             full.configurePolarity(0, 0x0F);
             full.configurePolarity(1, 0xF0);
 
-            int flags = full.readInterruptFlags(0);
-            checkTrue("readInterruptFlags(0) in [0, 255]", flags >= 0 && flags <= 255);
+            int captured = full.readCapture(0);
+            checkTrue("readCapture(0) in [0, 255]", captured >= 0 && captured <= 255);
 
-            int changed = full.clearInterrupt(0);
-            checkTrue("clearInterrupt(0) in [0, 255]", changed >= 0 && changed <= 255);
+            int changed = full.pollInterrupt(0);
+            checkTrue("pollInterrupt(0) in [0, 255]", changed >= 0 && changed <= 255);
 
             var p1 = full.pin(1);
             checkTrue("full.pin(1) accepted", p1 != null);
 
-            full.stopInterrupt(0);
-            checkTrue("stopInterrupt(0) accepted", true);
+            java.util.function.Consumer<Mcp23017Full.Pin> watcher = pin -> {};
+            p1.watch(watcher);
+            p1.unwatch();
+            checkTrue("pin.watch + unwatch accepted", true);
+
+            full.offInterruptPort(0);
+            checkTrue("offInterruptPort(0) accepted", true);
 
             System.out.printf("%n===DONE: %d passed, %d failed===%n", passed, failed);
             if (failed > 0) System.exit(1);

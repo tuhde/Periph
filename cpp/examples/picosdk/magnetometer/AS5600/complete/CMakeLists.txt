@@ -16,7 +16,7 @@ add_executable(as5600_complete_picosdk
 )
 
 target_include_directories(as5600_complete_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/magnetometer
 )
 

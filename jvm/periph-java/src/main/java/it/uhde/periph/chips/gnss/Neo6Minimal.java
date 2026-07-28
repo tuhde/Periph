@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gnss;
 
-import it.uhde.periph.transport.Transport;
-import it.uhde.periph.transport.UARTTransport;
+import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.UARTConnection;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,13 +10,13 @@ import java.util.Arrays;
 /**
  * u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status (minimal driver).
  *
- * <p>Reads bytes from the transport and assembles complete NMEA sentences
+ * <p>Reads bytes from the connection and assembles complete NMEA sentences
  * terminated by CR/LF. Works out of the box with the module's factory
  * defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences enabled)
  * -- no chip-side configuration is sent.
  *
- * <p>Supports UART and I2C (DDC) transports; the JVM ecosystem has no SPI
- * transport, so {@link BusType} only offers those two.
+ * <p>Supports UART and I2C (DDC) connections; the JVM ecosystem has no SPI
+ * connection, so {@link BusType} only offers those two.
  *
  * <p>A stray idle-filler byte (0xFF on I2C when the module has nothing
  * queued) can never start a sentence (NMEA sentences start with '$'); if one
@@ -25,7 +25,7 @@ import java.util.Arrays;
  */
 public class Neo6Minimal {
 
-    /** Transport kind the driver was constructed with. */
+    /** Connection kind the driver was constructed with. */
     public enum BusType { UART, I2C }
 
     protected static final int SENTENCE_START = 0x24; // '$'
@@ -33,7 +33,7 @@ public class Neo6Minimal {
     protected static final int LF = 0x0A;
     protected static final int MAX_SENTENCE = 96;
 
-    protected final Transport transport;
+    protected final Connection connection;
     protected final BusType busType;
 
     private final byte[] buf = new byte[MAX_SENTENCE];
@@ -47,24 +47,24 @@ public class Neo6Minimal {
     private int satellites = 0;
 
     /**
-     * Construct the driver over a UART transport.
+     * Construct the driver over a UART connection.
      *
-     * @param transport UART transport
+     * @param connection UART connection
      * @throws IOException never thrown here; declared for symmetry with the I2C constructor
      */
-    public Neo6Minimal(Transport transport) throws IOException {
-        this(transport, BusType.UART);
+    public Neo6Minimal(Connection connection) throws IOException {
+        this(connection, BusType.UART);
     }
 
     /**
      * Construct the driver.
      *
-     * @param transport UART or I2C transport, matching busType
-     * @param busType   which transport kind transport is
+     * @param connection UART or I2C connection, matching busType
+     * @param busType   which connection kind connection is
      * @throws IOException never thrown here; declared for symmetry with Full's UBX methods
      */
-    public Neo6Minimal(Transport transport, BusType busType) throws IOException {
-        this.transport = transport;
+    public Neo6Minimal(Connection connection, BusType busType) throws IOException {
+        this.connection = connection;
         this.busType = busType;
     }
 
@@ -72,19 +72,19 @@ public class Neo6Minimal {
      * Fetch one byte if available.
      *
      * @return the byte (0-255), or null if none is ready yet
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     protected Integer readByte() throws IOException {
         if (busType == BusType.UART) {
-            UARTTransport uart = (UARTTransport) transport;
+            UARTConnection uart = (UARTConnection) connection;
             if (uart.available() <= 0) return null;
-            byte[] b = transport.read(1);
+            byte[] b = connection.read(1);
             return b.length > 0 ? (b[0] & 0xFF) : null;
         }
         // I2C DDC random-read: set the register pointer to 0xFF, then read one
         // stream byte. The pointer saturates at 0xFF once set, so re-sending
         // it on every byte is redundant but harmless.
-        byte[] b = transport.writeRead(new byte[]{(byte) 0xFF}, 1);
+        byte[] b = connection.writeRead(new byte[]{(byte) 0xFF}, 1);
         return b.length > 0 ? (b[0] & 0xFF) : null;
     }
 
@@ -92,7 +92,7 @@ public class Neo6Minimal {
      * Read available bytes and parse at most one complete NMEA sentence.
      *
      * @return true if a GGA sentence with a valid fix (fix status &gt; 0) was parsed
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public boolean update() throws IOException {
         Integer byteVal = readByte();

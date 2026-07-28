@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from periph.transport.spi_linux import SPITransport
+from periph.connection.spi_linux import SPIConnection
 from periph.chips.rfid.mfrc522 import MFRC522Full
 
 SPI_BUS      = int(os.environ.get('LINUX_SPI_BUS', '0'))
@@ -22,8 +22,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = SPITransport(SPI_BUS, SPI_DEVICE, max_speed_hz=SPI_SPEED_HZ, mode=0)
-mfrc = MFRC522Full(transport)
+connection = SPIConnection(SPI_BUS, SPI_DEVICE, max_speed_hz=SPI_SPEED_HZ, mode=0)
+mfrc = MFRC522Full(connection)
 
 chip_type, version = mfrc.version()
 check_true('chip_type == 0x09 (MFRC522)', chip_type == 0x09)
@@ -48,6 +48,6 @@ check_true('is_card_present returns bool', isinstance(present, bool))
 raw = mfrc._read_reg(0x37)
 check_true('raw VersionReg in 0x90/0x91/0x92', raw in (0x90, 0x91, 0x92))
 
-transport.close()
+connection.close()
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

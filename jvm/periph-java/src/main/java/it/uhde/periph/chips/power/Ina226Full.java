@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -103,23 +103,23 @@ public class Ina226Full extends Ina226Minimal {
     /**
      * Construct the full driver with default shunt (0.1 Ω) and max current (2.0 A).
      *
-     * @param transport I²C transport bound to the INA226 device address
+     * @param connection I²C connection bound to the INA226 device address
      * @throws IOException on I²C error
      */
-    public Ina226Full(Transport transport) throws IOException {
-        super(transport);
+    public Ina226Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
      * Construct the full driver.
      *
-     * @param transport  I²C transport bound to the INA226 device address
+     * @param connection  I²C connection bound to the INA226 device address
      * @param rShunt     shunt resistor value in Ω
      * @param maxCurrent maximum expected current in A
      * @throws IOException on I²C error
      */
-    public Ina226Full(Transport transport, double rShunt, double maxCurrent) throws IOException {
-        super(transport, rShunt, maxCurrent);
+    public Ina226Full(Connection connection, double rShunt, double maxCurrent) throws IOException {
+        super(connection, rShunt, maxCurrent);
     }
 
     /**

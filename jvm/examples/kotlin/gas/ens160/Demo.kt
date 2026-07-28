@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.gas.Ens160Full
 
 /**
@@ -17,8 +17,8 @@ import it.uhde.periph.chips.gas.Ens160Full
 fun main() {
     val aqiLabels = mapOf(1 to "Excellent", 2 to "Good", 3 to "Moderate", 4 to "Poor", 5 to "Unhealthy")
 
-    I2CTransport(1, 0x52).use { transport ->             // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CTransport
-        val sensor = Ens160Full(transport)                      // construct driver, verifies PART_ID, starts STANDARD mode, (transport) → Ens160Full
+    I2CConnection(1, 0x52).use { connection ->             // open I²C bus 1, device 0x52 (ADDR low), (bus, address=0x52) → I2CConnection
+        val sensor = Ens160Full(connection)                      // construct driver, verifies PART_ID, starts STANDARD mode, (connection) → Ens160Full
 
         // --- Wait for sensor warm-up ---
         // The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG

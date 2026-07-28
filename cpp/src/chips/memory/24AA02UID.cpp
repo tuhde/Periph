@@ -20,29 +20,29 @@ static void _delay_ms(unsigned ms) { delay(ms); }
 
 // --- Minimal ---
 
-EEPROM24AA02UIDMinimal::EEPROM24AA02UIDMinimal(Transport& transport)
-    : _transport(transport) {}
+EEPROM24AA02UIDMinimal::EEPROM24AA02UIDMinimal(Connection& connection)
+    : _connection(connection) {}
 
 void EEPROM24AA02UIDMinimal::read_uid(uint8_t* buf) {
     uint8_t reg = ADDR_UID_BASE;
-    _transport.write_read(&reg, 1, buf, 4);
+    _connection.write_read(&reg, 1, buf, 4);
 }
 
 uint8_t EEPROM24AA02UIDMinimal::read_byte(uint8_t address) {
     uint8_t reg = address;
     uint8_t val = 0;
-    _transport.write_read(&reg, 1, &val, 1);
+    _connection.write_read(&reg, 1, &val, 1);
     return val;
 }
 
 void EEPROM24AA02UIDMinimal::write_byte(uint8_t address, uint8_t value) {
     uint8_t buf[2] = { address, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
     _ack_poll();
 }
 
 void EEPROM24AA02UIDMinimal::_ack_poll() {
-    // The C++ Transport interface does not propagate ACK/NACK status
+    // The C++ Connection interface does not propagate ACK/NACK status
     // back to the caller. Wait the worst-case write-cycle time so the
     // next operation starts after the chip has finished.
     _delay_ms(WRITE_CYCLE_MS);
@@ -50,12 +50,12 @@ void EEPROM24AA02UIDMinimal::_ack_poll() {
 
 // --- Full ---
 
-EEPROM24AA02UIDFull::EEPROM24AA02UIDFull(Transport& transport)
-    : EEPROM24AA02UIDMinimal(transport) {}
+EEPROM24AA02UIDFull::EEPROM24AA02UIDFull(Connection& connection)
+    : EEPROM24AA02UIDMinimal(connection) {}
 
 void EEPROM24AA02UIDFull::read(uint8_t address, uint8_t* buf, uint8_t length) {
     uint8_t reg = address;
-    _transport.write_read(&reg, 1, buf, length);
+    _connection.write_read(&reg, 1, buf, length);
 }
 
 void EEPROM24AA02UIDFull::write_page(uint8_t address, const uint8_t* data, uint8_t length) {
@@ -64,7 +64,7 @@ void EEPROM24AA02UIDFull::write_page(uint8_t address, const uint8_t* data, uint8
     uint8_t buf[1 + PAGE_SIZE];
     buf[0] = address;
     for (uint8_t i = 0; i < length; i++) buf[1 + i] = data[i];
-    _transport.write(buf, 1 + length);
+    _connection.write(buf, 1 + length);
     _ack_poll();
 }
 

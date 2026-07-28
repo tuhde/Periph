@@ -1,4 +1,4 @@
-from periph.transport.neopixel_auto import NeoPixelTransport
+from periph.connection.neopixel_auto import NeoPixelConnection
 from periph.chips.led.ws2812b import WS2812BFull
 import time
 
@@ -33,8 +33,8 @@ STROBE_DURATION_S  = 2
 FPS                = 30
 FRAME_DELAY        = 1.0 / FPS
 
-transport = NeoPixelTransport(mosi=19, sck=18, miso=20)                               # Create NeoPixel transport, (spi)
-strip = WS2812BFull(transport, N_PIXELS)                         # Create WS2812B full driver, (transport, n=N_PIXELS pixels)
+connection = NeoPixelConnection(mosi=19, sck=18, miso=20)                               # Create NeoPixel connection, (spi)
+strip = WS2812BFull(connection, N_PIXELS)                         # Create WS2812B full driver, (connection, n=N_PIXELS pixels)
 strip.brightness = 180                                           # Set global brightness, (value=0–255) → None
 
 # --- Rainbow rotation: each pixel is assigned a hue offset by its position;

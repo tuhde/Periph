@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.io_expander.Pcf8575Full;
 
 public class Demo {
     public static void main(String[] args) throws Exception {
-        try (var transport = new I2CTransport(1, 0x20)) {             // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-            var chip = new Pcf8575Full(transport);                      // construct driver, (transport) → Pcf8575Full
+        try (var connection = new I2CConnection(1, 0x20)) {           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+            var chip = new Pcf8575Full(connection);                    // construct driver, (connection) → Pcf8575Full
 
             chip.writePort(0, 0xFF);                                    // write Port 0, (port=0, mask) → void
             chip.writePort(1, 0xFF);                                    // write Port 1, (port=1, mask) → void

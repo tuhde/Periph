@@ -16,15 +16,15 @@ static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 #endif
 
-BMP180Minimal::BMP180Minimal(Transport& transport)
-    : _transport(transport) {
+BMP180Minimal::BMP180Minimal(Connection& connection)
+    : _connection(connection) {
     _read_calibration();
 }
 
 void BMP180Minimal::_read_calibration() {
     uint8_t buf[22];
     uint8_t reg = REG_CAL_START;
-    _transport.write_read(&reg, 1, buf, 22);
+    _connection.write_read(&reg, 1, buf, 22);
 
     _ac1 = (int16_t)((buf[0] << 8) | buf[1]);
     _ac2 = (int16_t)((buf[2] << 8) | buf[3]);
@@ -55,7 +55,7 @@ void BMP180Minimal::_read_calibration() {
 
 void BMP180Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 uint16_t BMP180Minimal::_read_raw_temp() {
@@ -63,7 +63,7 @@ uint16_t BMP180Minimal::_read_raw_temp() {
     delay(CONV_TIME_TEMP * 1000);
     uint8_t buf[2];
     uint8_t reg = REG_OUT_MSB;
-    _transport.write_read(&reg, 1, buf, 2);
+    _connection.write_read(&reg, 1, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
@@ -78,7 +78,7 @@ uint32_t BMP180Minimal::_read_raw_pressure() {
     delay(conv_time * 1000);
     uint8_t buf[3];
     uint8_t reg = REG_OUT_MSB;
-    _transport.write_read(&reg, 1, buf, 3);
+    _connection.write_read(&reg, 1, buf, 3);
     uint32_t up = (((uint32_t)buf[0] << 16) | ((uint32_t)buf[1] << 8) | buf[2]) >> (8 - _oss);
     return up;
 }
@@ -136,8 +136,8 @@ float BMP180Minimal::pressure() {
 
 // BMP180Full
 
-BMP180Full::BMP180Full(Transport& transport, uint8_t oss)
-    : BMP180Minimal(transport) {
+BMP180Full::BMP180Full(Connection& connection, uint8_t oss)
+    : BMP180Minimal(connection) {
     _oss = oss & 0x03;
 }
 
@@ -162,7 +162,7 @@ float BMP180Full::sea_level_pressure(float altitude_m) {
 uint8_t BMP180Full::chip_id() {
     uint8_t reg = REG_ID;
     uint8_t buf[1];
-    _transport.write_read(&reg, 1, buf, 1);
+    _connection.write_read(&reg, 1, buf, 1);
     return buf[0];
 }
 

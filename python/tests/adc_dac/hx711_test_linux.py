@@ -4,7 +4,7 @@ import time
 
 import gpiod
 from gpiod.line import Direction, Value
-from periph.transport.hx711_linux import HX711Transport
+from periph.connection.hx711_linux import HX711Connection
 from periph.chips.adc_dac.hx711 import HX711Full
 
 CHIP   = os.environ.get('GPIO_CHIP',   '/dev/gpiochip0')
@@ -35,8 +35,8 @@ request = gpiod.request_lines(
     },
 )
 
-transport = HX711Transport(request, DOUT, PD_SCK)
-chip = HX711Full(transport)
+connection = HX711Connection(request, DOUT, PD_SCK)
+chip = HX711Full(connection)
 time.sleep(0.01)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
@@ -100,7 +100,7 @@ check_true('power_up accepted', True)
 chip.power_down()
 check_true('final power_down accepted', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

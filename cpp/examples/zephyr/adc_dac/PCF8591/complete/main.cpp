@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "PCF8591.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, PCF8591_ADDR);
-    PCF8591Full adc(transport);
+    I2CConnectionZephyr connection(i2c_dev, PCF8591_ADDR);
+    PCF8591Full adc(connection);
 
     while (1) {
         uint8_t ch0_raw = adc.read_channel(0);                              // Read single channel, (channel=0–3) → uint8_t

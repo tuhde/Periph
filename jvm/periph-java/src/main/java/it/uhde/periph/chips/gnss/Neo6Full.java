@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gnss;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -24,24 +24,24 @@ public class Neo6Full extends Neo6Minimal {
     private Double hdop;
 
     /**
-     * Construct the driver over a UART transport.
+     * Construct the driver over a UART connection.
      *
-     * @param transport UART transport
+     * @param connection UART connection
      * @throws IOException never thrown here; declared for symmetry with the I2C constructor
      */
-    public Neo6Full(Transport transport) throws IOException {
-        super(transport);
+    public Neo6Full(Connection connection) throws IOException {
+        super(connection);
     }
 
     /**
      * Construct the driver.
      *
-     * @param transport UART or I2C transport, matching busType
-     * @param busType   which transport kind transport is
+     * @param connection UART or I2C connection, matching busType
+     * @param busType   which connection kind connection is
      * @throws IOException never thrown here; declared for symmetry with UBX methods
      */
-    public Neo6Full(Transport transport, BusType busType) throws IOException {
-        super(transport, busType);
+    public Neo6Full(Connection connection, BusType busType) throws IOException {
+        super(connection, busType);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class Neo6Full extends Neo6Minimal {
      *
      * @param msgClass UBX message class (e.g. 0x06 for CFG)
      * @param msgId    UBX message ID within the class
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void sendUbx(int msgClass, int msgId) throws IOException {
         sendUbx(msgClass, msgId, new byte[0]);
@@ -115,7 +115,7 @@ public class Neo6Full extends Neo6Minimal {
      * @param msgClass UBX message class (e.g. 0x06 for CFG)
      * @param msgId    UBX message ID within the class
      * @param payload  message payload bytes; empty means a poll request
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void sendUbx(int msgClass, int msgId, byte[] payload) throws IOException {
         int length = payload.length;
@@ -132,7 +132,7 @@ public class Neo6Full extends Neo6Minimal {
         System.arraycopy(body, 0, frame, 2, body.length);
         frame[frame.length - 2] = (byte) cs[0];
         frame[frame.length - 1] = (byte) cs[1];
-        transport.write(frame);
+        connection.write(frame);
     }
 
     /**
@@ -143,7 +143,7 @@ public class Neo6Full extends Neo6Minimal {
      * @return the response message's payload
      * @throws IOException if the module answers with ACK-NAK, no matching
      *                      response arrives before the internal idle budget
-     *                      is spent, or a transport error occurs
+     *                      is spent, or a connection error occurs
      */
     public byte[] pollUbx(int msgClass, int msgId) throws IOException {
         sendUbx(msgClass, msgId, new byte[0]);
@@ -223,7 +223,7 @@ public class Neo6Full extends Neo6Minimal {
      * Set the navigation update rate via CFG-RATE.
      *
      * @param hz update rate in Hz (1-5 Hz for standard NEO-6 models)
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void setRate(int hz) throws IOException {
         int measRateMs = 1000 / hz;
@@ -240,7 +240,7 @@ public class Neo6Full extends Neo6Minimal {
      *
      * @param model platform model code -- 0=portable, 2=stationary, 3=pedestrian,
      *              4=automotive, 5=sea, 6=airborne&lt;1g, 7=airborne&lt;2g, 8=airborne&lt;4g
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void setPlatform(int model) throws IOException {
         byte[] payload = new byte[36];
@@ -254,7 +254,7 @@ public class Neo6Full extends Neo6Minimal {
      * Force a cold start via CFG-RST (clears almanac, ephemeris, and last
      * known position).
      *
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void coldStart() throws IOException {
         byte[] payload = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0x02, (byte) 0x00};
@@ -265,7 +265,7 @@ public class Neo6Full extends Neo6Minimal {
      * Persist the current configuration via CFG-CFG (saves to battery-backed
      * RAM and flash, where available).
      *
-     * @throws IOException on transport error
+     * @throws IOException on connection error
      */
     public void saveConfig() throws IOException {
         byte[] payload = new byte[]{

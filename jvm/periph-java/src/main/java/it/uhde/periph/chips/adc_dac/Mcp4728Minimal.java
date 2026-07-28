@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -25,15 +25,15 @@ public class Mcp4728Minimal {
     /** Channel D. */
     public static final int CH_D = 3;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver.
      *
-     * @param transport I²C transport bound to the MCP4728 device address
+     * @param connection I²C connection bound to the MCP4728 device address
      */
-    public Mcp4728Minimal(Transport transport) {
-        this.transport = transport;
+    public Mcp4728Minimal(Connection connection) {
+        this.connection = connection;
     }
 
     /**
@@ -67,7 +67,7 @@ public class Mcp4728Minimal {
         int byte1 = 0x40 | ((ch & 0x03) << 1);
         int byte2 = (c >> 8) & 0x0F;
         int byte3 = c & 0xFF;
-        transport.write(new byte[]{(byte) byte1, (byte) byte2, (byte) byte3});
+        connection.write(new byte[]{(byte) byte1, (byte) byte2, (byte) byte3});
     }
 
     /**
@@ -94,6 +94,6 @@ public class Mcp4728Minimal {
             buf[i * 2]     = (byte) ((code >> 8) & 0x0F);
             buf[i * 2 + 1] = (byte) (code & 0xFF);
         }
-        transport.write(buf);
+        connection.write(buf);
     }
 }

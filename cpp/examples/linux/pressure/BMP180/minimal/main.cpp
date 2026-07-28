@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "BMP180.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x77;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    BMP180Minimal bmp(transport);                                          // Create BMP180 driver, (transport)
+    BMP180Minimal bmp(connection);                                          // Create BMP180 driver, (connection)
 
     while (true) {
         float t = bmp.temperature();                                       // Read temperature, () → float °C

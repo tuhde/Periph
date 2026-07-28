@@ -1,6 +1,6 @@
 'use strict';
 
-const { NeoPixelTransport } = require('../../../src/transport/neopixel');
+const { NeoPixelConnection } = require('../../../src/connection/neopixel');
 const { WS2812BFull } = require('../../../src/chips/led/ws2812b');
 
 const SPI_BUS    = parseInt(process.env.SPI_BUS    || '0', 10);
@@ -12,8 +12,8 @@ const RAINBOW_DURATION  = 10000;
 const STROBE_DURATION   = 2000;
 const STROBE_HALF       = 50;
 
-const transport = new NeoPixelTransport(SPI_BUS, SPI_DEVICE);  // Create NeoPixel transport, (busNumber, deviceNumber)
-const strip = new WS2812BFull(transport, N_PIXELS);            // Create WS2812B full driver, (transport, n=N_PIXELS pixels)
+const connection = new NeoPixelConnection(SPI_BUS, SPI_DEVICE);  // Create NeoPixel connection, (busNumber, deviceNumber)
+const strip = new WS2812BFull(connection, N_PIXELS);            // Create WS2812B full driver, (connection, n=N_PIXELS pixels)
 strip.brightness = 180;                                        // Set global brightness, (value=0–255)
 
 function hsvToRgb(h, s, v) {
@@ -40,13 +40,13 @@ function hsvToRgb(h, s, v) {
 let hueOffset = 0;
 let lastPrint = Date.now();
 
-function rainbowFrame() {
+async function rainbowFrame() {
     for (let i = 0; i < N_PIXELS; i++) {
         const h = (hueOffset + i / N_PIXELS) % 1.0;
         const [r, g, b] = hsvToRgb(h, 1.0, 1.0);
         strip.set_pixel(i, r, g, b);                           // Set pixel i to rainbow hue, (index=0–n-1, r=0–255, g=0–255, b=0–255) → void
     }
-    strip.show();                                              // Transmit buffer to strip, () → void
+    await strip.show();                                        // Transmit buffer to strip, () → void
     hueOffset = (hueOffset + 1.0 / (N_PIXELS * 2)) % 1.0;
     const now = Date.now();
     if (now - lastPrint >= 1000) {
@@ -56,8 +56,8 @@ function rainbowFrame() {
 }
 
 const rainbowStart = Date.now();
-const rainbowTimer = setInterval(() => {
-    rainbowFrame();
+const rainbowTimer = setInterval(async () => {
+    await rainbowFrame();
     if (Date.now() - rainbowStart >= RAINBOW_DURATION) {
         clearInterval(rainbowTimer);
         startStrobe();
@@ -68,14 +68,14 @@ const rainbowTimer = setInterval(() => {
 //     Uses brightness=255 for maximum intensity then brightness=0 for off,
 //     demonstrating non-destructive brightness scaling — pixel values in the
 //     buffer are never zeroed. ---
-function startStrobe() {
+async function startStrobe() {
     strip.brightness = 255;                                    // Set global brightness, (value=0–255)
-    strip.fill(255, 255, 255);                                 // Pre-load white into buffer, (r=0–255, g=0–255, b=0–255) → void
+    await strip.fill(255, 255, 255);                           // Pre-load white into buffer, (r=0–255, g=0–255, b=0–255) → void
     let state = true;
     const strobeStart = Date.now();
-    const strobeTimer = setInterval(() => {
+    const strobeTimer = setInterval(async () => {
         strip.brightness = state ? 255 : 0;                    // Set global brightness, (value=0–255)
-        strip.show();                                          // Transmit buffer to strip, () → void
+        await strip.show();                                    // Transmit buffer to strip, () → void
         state = !state;
         if (Date.now() - strobeStart >= STROBE_DURATION) {
             clearInterval(strobeTimer);
@@ -89,13 +89,13 @@ function startRainbowContinuous() {
     strip.brightness = 180;                                    // Set global brightness, (value=0–255)
     hueOffset = 0;
     lastPrint = Date.now();
-    setInterval(() => {
-        rainbowFrame();
+    setInterval(async () => {
+        await rainbowFrame();
     }, FRAME_MS);
 }
 
-process.on('SIGINT', () => {
-    strip.off();
-    transport.close();
+process.on('SIGINT', async () => {
+    await strip.off();
+    await connection.close();
     process.exit(0);
 });

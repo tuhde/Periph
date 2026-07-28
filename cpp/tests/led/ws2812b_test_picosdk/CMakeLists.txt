@@ -16,7 +16,7 @@ add_executable(ws2812b_test_picosdk
 )
 
 target_include_directories(ws2812b_test_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/led
 )
 

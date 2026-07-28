@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <unistd.h>
-#include "NeoPixelTransportLinux.h"
+#include "NeoPixelConnectionLinux.h"
 #include "SK6812RGBW.h"
 
 int main() {
-    NeoPixelTransportLinux transport(0, 0);
-    SK6812RGBWFull strip(transport, 8);                                    // Create SK6812RGBW full driver, (transport, n=8 pixels)
+    NeoPixelConnectionLinux connection(0, 0);
+    SK6812RGBWFull strip(connection, 8);                                    // Create SK6812RGBW full driver, (connection, n=8 pixels)
 
     strip.fill(255, 0, 0, 0);                                              // Fill all pixels red, (r, g, b, w) → void
     usleep(500000);

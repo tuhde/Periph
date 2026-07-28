@@ -3,11 +3,11 @@
 #endif
 
 #include <Arduino.h>
-#include "../../src/transport/DHTxxTransport.h"
+#include "../../src/connection/DHTxxConnection.h"
 #include "../../src/chips/humidity/DHT11.h"
 
-DHTxxTransport transport(DHT11_DATA_PIN);
-DHT11Minimal dht(transport);                    // Create DHT11 driver, (transport)
+DHTxxConnection connection(DHT11_DATA_PIN);
+DHT11Minimal dht(connection);                    // Create DHT11 driver, (connection)
 
 void setup() {
     Serial.begin(115200);

@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.power.ina3221 import INA3221Full
 import time
 
-transport = I2CTransport(0x40)
-ina = INA3221Full(transport)                         # Create INA3221 driver, (transport, r_shunt=0.1 Ω)
+connection = I2CConnection(0x40)
+ina = INA3221Full(connection)                         # Create INA3221 driver, (connection, r_shunt=0.1 Ω)
 
 for ch in (1, 2, 3):
     v = ina.voltage(ch)                               # Read bus voltage, (channel) → float V

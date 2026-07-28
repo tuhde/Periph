@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AS5600 — full driver. Extends [As5600Minimal] with raw angle, AGC,
@@ -25,7 +25,7 @@ import it.uhde.periph.transport.Transport
  * ## Burn commands
  * [BURN_ANGLE], [BURN_SETTING]
  */
-class As5600Full(transport: Transport) : As5600Minimal(transport) {
+class As5600Full(connection: Connection) : As5600Minimal(connection) {
 
     companion object {
         // Power mode constants
@@ -147,7 +147,7 @@ class As5600Full(transport: Transport) : As5600Minimal(transport) {
 
         confL = ((pwmf and 0x03) shl 6) or ((outs and 0x03) shl 4) or ((hyst and 0x03) shl 2) or (pm and 0x03)
 
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             REG_CONF_H.toByte(),
             (confH and 0xFF).toByte(),
             (confL and 0xFF).toByte()

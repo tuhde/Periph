@@ -1,22 +1,22 @@
 package it.uhde.periph.chips.gnss
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
-import it.uhde.periph.transport.UARTTransport
+import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.UARTConnection
 
 import java.nio.charset.StandardCharsets
 
 /**
- * Transport kind {@link Neo6Minimal} was constructed with.
+ * Connection kind {@link Neo6Minimal} was constructed with.
  *
- * The JVM ecosystem has no SPI transport, so only UART and I2C (DDC) are offered.
+ * The JVM ecosystem has no SPI connection, so only UART and I2C (DDC) are offered.
  */
 enum BusType { UART, I2C }
 
 /**
  * u-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status (minimal driver).
  *
- * <p>Reads bytes from the transport and assembles complete NMEA sentences
+ * <p>Reads bytes from the connection and assembles complete NMEA sentences
  * terminated by CR/LF. Works out of the box with the module's factory
  * defaults (NMEA output at 9600 baud, 1 Hz, all standard sentences enabled)
  * -- no chip-side configuration is sent.
@@ -34,7 +34,7 @@ class Neo6Minimal {
     protected static final int LF = 0x0A
     protected static final int MAX_SENTENCE = 96
 
-    protected final Transport transport
+    protected final Connection connection
     protected final BusType busType
 
     private final byte[] buf = new byte[MAX_SENTENCE]
@@ -47,27 +47,27 @@ class Neo6Minimal {
     private int fixValue = 0
     private int satellitesValue = 0
 
-    Neo6Minimal(Transport transport) {
-        this(transport, BusType.UART)
+    Neo6Minimal(Connection connection) {
+        this(connection, BusType.UART)
     }
 
-    Neo6Minimal(Transport transport, BusType busType) {
-        this.transport = transport
+    Neo6Minimal(Connection connection, BusType busType) {
+        this.connection = connection
         this.busType = busType
     }
 
     /** Fetch one byte if available, or null if none is ready yet. */
     protected Integer readByte() {
         if (busType == BusType.UART) {
-            UARTTransport uart = (UARTTransport) transport
+            UARTConnection uart = (UARTConnection) connection
             if (uart.available() <= 0) return null
-            byte[] b = transport.read(1)
+            byte[] b = connection.read(1)
             return b.length > 0 ? (b[0] & 0xFF) : null
         }
         // DDC random-read: set the register pointer to 0xFF, then read one
         // stream byte. The pointer saturates at 0xFF once set, so
         // re-sending it on every byte is redundant but harmless.
-        byte[] b = transport.writeRead([(byte) 0xFF] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) 0xFF] as byte[], 1)
         return b.length > 0 ? (b[0] & 0xFF) : null
     }
 

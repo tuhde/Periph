@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "Rda5807m.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x10;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    Rda5807mFull radio(transport);                                         // Create RDA5807M driver, (transport)
+    Rda5807mFull radio(connection);                                         // Create RDA5807M driver, (connection)
 
     radio.set_frequency(98500);                                            // Tune to frequency, (kHz) → void
     radio.set_volume(8);                                                   // Set volume 0–15, (volume) → void

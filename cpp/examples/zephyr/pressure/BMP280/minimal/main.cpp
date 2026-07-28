@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "BMP280.h"
 
 #ifndef BMP280_I2C_NODE
@@ -20,8 +20,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP280_I2C_NODE);
-    I2CTransportZephyr transport(dev, BMP280_ADDR);
-    BMP280Minimal bmp(transport);                        // Create BMP280 driver, (transport, spi=false)
+    I2CConnectionZephyr connection(dev, BMP280_ADDR);
+    BMP280Minimal bmp(connection);                        // Create BMP280 driver, (connection, spi=false)
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                     // Read temperature, () → float °C

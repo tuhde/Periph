@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.pressure.Bmp280Full
 
-def transport = new I2CTransport(1, 0x76)                // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CTransport
+def connection = new I2CConnection(1, 0x76)                // open I²C bus 1, device 0x76, (bus, address=0x76) → I2CConnection
 try {
-    def sensor = new Bmp280Full(transport)                      // construct driver, verifies chip ID and loads calibration, (transport) → Bmp280Full
+    def sensor = new Bmp280Full(connection)                      // construct driver, verifies chip ID and loads calibration, (connection) → Bmp280Full
 
     int id = sensor.chipId()                                    // read chip ID register 0xD0, () → int
                                                                 // returns 0x58 for BMP280; useful for confirming the device is present
@@ -61,5 +61,5 @@ try {
     printf("temperature after reset: %.2f °C%n", sensor.temperature()) // read temperature, () → double °C
                                                                          // verifies the sensor is functional after reset
 } finally {
-    transport.close()
+    connection.close()
 }

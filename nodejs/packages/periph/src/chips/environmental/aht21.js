@@ -18,39 +18,53 @@ function _sleep(ms) {
  * AHT21 temperature and humidity sensor — minimal interface.
  *
  * Provides temperature and humidity readings with no configuration beyond
- * the transport. Handles power-on initialization, calibration check, and
+ * the connection. Handles power-on initialization, calibration check, and
  * measurement triggering automatically.
  *
  * Default configuration (baked in at construction):
  * - Measurement triggered on every read() call (no continuous mode)
  * - 80 ms fixed wait after trigger (no busy-polling)
  * - No CRC verification (reduces complexity; CRC check is Full-only)
+ *
+ * Constructor caveat: the calibration-check sequence below is conditional on
+ * read results (a genuine async dependency chain), but JS constructors
+ * cannot be async. It is fired off unawaited, matching the fire-and-forget
+ * convention used for every other constructor-time connection call in this
+ * port — in practice it settles before any subsequent await in caller code
+ * gets scheduled, since the underlying I2C connection is synchronous under
+ * the hood, but this is not a guaranteed blocking wait the way the
+ * pre-async version was. Call `await sensor.read()` once before relying on
+ * calibration state if this matters for your use case.
  */
 class AHT21Minimal {
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device (address 0x38).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (address 0x38).
      */
-    constructor(transport) {
-        this._transport = transport;
+    constructor(connection) {
+        this._conn = connection;
+        this._init();
+    }
+
+    async _init() {
         _sleep(100);
-        let status = this._readStatus();
+        let status = await this._readStatus();
         if ((status & 0x18) !== 0x18) {
-            this._transport.write(_CMD_SOFT_RESET);
+            await this._conn.write(_CMD_SOFT_RESET);
             _sleep(20);
-            status = this._readStatus();
+            status = await this._readStatus();
             if ((status & 0x18) !== 0x18) {
-                this._transport.write(_CMD_CAL_INIT_1);
+                await this._conn.write(_CMD_CAL_INIT_1);
                 _sleep(10);
-                this._transport.write(_CMD_CAL_INIT_2);
+                await this._conn.write(_CMD_CAL_INIT_2);
                 _sleep(10);
-                this._transport.write(_CMD_CAL_INIT_3);
+                await this._conn.write(_CMD_CAL_INIT_3);
                 _sleep(10);
             }
         }
     }
 
-    _readStatus() {
-        return this._transport.read(1)[0];
+    async _readStatus() {
+        return (await this._conn.read(1))[0];
     }
 
     /**
@@ -59,14 +73,14 @@ class AHT21Minimal {
      * Sends the trigger command, waits 80 ms, reads 6 bytes, and decodes
      * the raw 20-bit values into physical units.
      *
-     * @returns {{ temperature_c: number, humidity_pct: number }}
+     * @returns {Promise<{ temperature_c: number, humidity_pct: number }>}
      *   temperature_c: Temperature in degrees Celsius (-50 to 150 °C).
      *   humidity_pct: Relative humidity in percent (0 to 100 %RH).
      */
-    read() {
-        this._transport.write(_CMD_TRIGGER);
+    async read() {
+        await this._conn.write(_CMD_TRIGGER);
         _sleep(80);
-        const data = this._transport.read(6);
+        const data = await this._conn.read(6);
         const rawRh = (data[1] << 12) | (data[2] << 4) | (data[3] >> 4);
         const rawT  = ((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5];
         const humidityPct = (rawRh / 1048576.0) * 100.0;
@@ -83,26 +97,26 @@ class AHT21Minimal {
  */
 class AHT21Full extends AHT21Minimal {
     /**
-     * @param {object} transport - Configured I²C transport pointing at the device (address 0x38).
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (address 0x38).
      */
-    constructor(transport) {
-        super(transport);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
      * Trigger a measurement and return temperature only.
-     * @returns {number} Temperature in degrees Celsius (-50 to 150 °C).
+     * @returns {Promise<number>} Temperature in degrees Celsius (-50 to 150 °C).
      */
-    readTemperature() {
-        return this.read().temperature_c;
+    async readTemperature() {
+        return (await this.read()).temperature_c;
     }
 
     /**
      * Trigger a measurement and return humidity only.
-     * @returns {number} Relative humidity in percent (0 to 100 %RH).
+     * @returns {Promise<number>} Relative humidity in percent (0 to 100 %RH).
      */
-    readHumidity() {
-        return this.read().humidity_pct;
+    async readHumidity() {
+        return (await this.read()).humidity_pct;
     }
 
     /**
@@ -111,15 +125,15 @@ class AHT21Full extends AHT21Minimal {
      * Uses polynomial x^8 + x^5 + x^4 + 1 (0x31) with initial value 0xFF
      * to verify the CRC byte against bytes 0–5 of the response.
      *
-     * @returns {{ temperature_c: number, humidity_pct: number, crc_ok: boolean }}
+     * @returns {Promise<{ temperature_c: number, humidity_pct: number, crc_ok: boolean }>}
      *   temperature_c: Temperature in degrees Celsius.
      *   humidity_pct: Relative humidity in percent.
      *   crc_ok: True if CRC-8 verification passed.
      */
-    readWithCrc() {
-        this._transport.write(_CMD_TRIGGER);
+    async readWithCrc() {
+        await this._conn.write(_CMD_TRIGGER);
         _sleep(80);
-        const data = this._transport.read(7);
+        const data = await this._conn.read(7);
         const rawRh = (data[1] << 12) | (data[2] << 4) | (data[3] >> 4);
         const rawT  = ((data[3] & 0x0F) << 16) | (data[4] << 8) | data[5];
         const humidityPct = (rawRh / 1048576.0) * 100.0;
@@ -130,26 +144,27 @@ class AHT21Full extends AHT21Minimal {
 
     /**
      * Send the soft reset command and wait 20 ms for recovery.
+     * @returns {Promise<void>}
      */
-    softReset() {
-        this._transport.write(_CMD_SOFT_RESET);
+    async softReset() {
+        await this._conn.write(_CMD_SOFT_RESET);
         _sleep(20);
     }
 
     /**
      * Check if the calibration bit is set in the status byte.
-     * @returns {boolean} True if the sensor reports calibration enabled.
+     * @returns {Promise<boolean>} True if the sensor reports calibration enabled.
      */
-    isCalibrated() {
-        return !!(this._readStatus() & _STATUS_CAL);
+    async isCalibrated() {
+        return !!((await this._readStatus()) & _STATUS_CAL);
     }
 
     /**
      * Check if the busy bit is set in the status byte.
-     * @returns {boolean} True if a measurement is in progress.
+     * @returns {Promise<boolean>} True if a measurement is in progress.
      */
-    isBusy() {
-        return !!(this._readStatus() & _STATUS_BUSY);
+    async isBusy() {
+        return !!((await this._readStatus()) & _STATUS_BUSY);
     }
 
     _crc8(data) {

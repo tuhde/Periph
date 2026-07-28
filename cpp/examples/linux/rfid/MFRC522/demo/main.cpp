@@ -1,12 +1,12 @@
 #include <cstdio>
 #include <unistd.h>
-#include "SPITransportLinux.h"
+#include "SPIConnectionLinux.h"
 #include "MFRC522.h"
 
 int main() {
-    SPITransportLinux transport(0, 0);
+    SPIConnectionLinux connection(0, 0);
 
-    MFRC522Full mfrc(transport);                                           // Create MFRC522 driver, (transport)
+    MFRC522Full mfrc(connection);                                           // Create MFRC522 driver, (connection)
 
     // --- Access control reader ---
     mfrc.antenna_on();                                                     // Enable antenna driver (TX1+TX2), () → void

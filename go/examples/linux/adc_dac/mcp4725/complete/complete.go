@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,13 +27,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x60) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x60) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := adcdac.NewMCP4725Full(tr) // Create MCP4725 driver, (transport) → (*MCP4725Full, error)
+	chip, err := adcdac.NewMCP4725Full(conn) // Create MCP4725 driver, (connection) → (*MCP4725Full, error)
 	if err != nil {
 		panic(err)
 	}

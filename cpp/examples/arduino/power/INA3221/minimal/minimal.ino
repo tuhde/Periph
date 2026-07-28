@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "INA3221.h"
 
-I2CTransport transport(Wire, 0x40);
-INA3221Minimal ina(transport);                        // Create INA3221 driver, (transport, r_shunt=0.1 Ω)
+I2CConnection connection(Wire, 0x40);
+INA3221Minimal ina(connection);                        // Create INA3221 driver, (connection, r_shunt=0.1 Ω)
 
 void setup() {
     Serial.begin(115200);

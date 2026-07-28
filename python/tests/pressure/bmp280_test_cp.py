@@ -1,16 +1,16 @@
 import busio
 import time
 import _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.pressure.bmp280 import BMP280Minimal, BMP280Full
 
 passed = 0
 failed = 0
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 
-bmp = BMP280Minimal(transport)
+bmp = BMP280Minimal(connection)
 
 bmp._dig_T1 = 27504
 bmp._dig_T2 = 26435
@@ -41,7 +41,7 @@ else:
     print('FAIL pressure_compensation: expected 1006.53, got {}'.format(p))
     failed += 1
 
-bmp_full = BMP280Full(transport)
+bmp_full = BMP280Full(connection)
 bmp_full._mode = 0
 if bmp_full._osrs_t == 1 and bmp_full._osrs_p == 1:
     print('PASS default_oversampling')

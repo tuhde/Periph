@@ -6,7 +6,7 @@
 #endif
 
 #include <stdio.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "MCP23017.h"
 
 static int passed = 0, failed = 0;
@@ -22,8 +22,8 @@ static void check_eq(const char* label, int got, int expected) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    MCP23017Minimal mcp(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    MCP23017Minimal mcp(connection);
 
     check_eq("init_iodira", mcp._direction[0], 0x7F);
     check_eq("init_iodirb", mcp._direction[1], 0x7F);
@@ -68,21 +68,21 @@ int main() {
     pb = mcp.read_port(1);
     check_eq("loopback_0x00", pb & 0x7F, 0x00);
 
-    MCP23017Full full(transport);
+    MCP23017Full full(connection);
     check_eq("full_init_iodira", full._direction[0], 0x7F);
 
     full.configure_pullup(0, 0x3F);
     check_eq("pullup_a", full._pullup[0], 0x3F);
 
     full.set_default_value(0, 0x00);
-    full.configure_interrupt(0, -1, [](uint8_t mask) {}, "default", false);
-    full.stop_interrupt(0);
+    full.onInterrupt(0, [](uint8_t status) {});
+    full.offInterrupt(0);
 
-    uint8_t changed = full.clear_interrupt(0);
-    check_true("clear_interrupt_range", changed >= 0 && changed <= 255);
+    uint8_t flags = full.pollInterrupt(0);
+    check_true("poll_interrupt_range", flags >= 0 && flags <= 255);
 
-    uint8_t flags = full.read_interrupt_flags(0);
-    check_true("int_flags_range", flags >= 0 && flags <= 255);
+    uint8_t capture = full.read_capture(0);
+    check_true("read_capture_range", capture >= 0 && capture <= 255);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

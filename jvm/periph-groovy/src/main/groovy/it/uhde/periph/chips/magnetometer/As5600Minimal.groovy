@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.magnetometer
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AS5600 — 12-bit programmable contactless rotary position sensor (minimal driver).
@@ -46,7 +46,7 @@ class As5600Minimal {
     /** Fixed I²C address. */
     protected static final int I2C_ADDR = 0x36
 
-    protected final Transport transport
+    protected final Connection connection
 
     /**
      * Construct the driver and verify magnet presence.
@@ -54,10 +54,10 @@ class As5600Minimal {
      * <p>Reads the STATUS register once; if MD=0 (no magnet detected), a
      * {@link RuntimeException} is thrown because angle data would be invalid.
      *
-     * @param transport I²C transport bound to address 0x36
+     * @param connection I²C connection bound to address 0x36
      */
-    As5600Minimal(Transport transport) {
-        this.transport = transport
+    As5600Minimal(Connection connection) {
+        this.connection = connection
         int status = readReg8(REG_STATUS)
         if ((status & STATUS_MD) == 0) {
             throw new RuntimeException("AS5600: magnet not detected (MD=0)")
@@ -134,7 +134,7 @@ class As5600Minimal {
      * @param val 8-bit value
      */
     protected void writeReg8(int reg, int val) {
-        transport.write([(byte) reg, (byte) (val & 0xFF)] as byte[])
+        connection.write([(byte) reg, (byte) (val & 0xFF)] as byte[])
     }
 
     /**
@@ -144,7 +144,7 @@ class As5600Minimal {
      * @return unsigned 8-bit value (0–255)
      */
     protected int readReg8(int reg) {
-        byte[] b = transport.writeRead([(byte) reg] as byte[], 1)
+        byte[] b = connection.writeRead([(byte) reg] as byte[], 1)
         b[0] & 0xFF
     }
 
@@ -160,7 +160,7 @@ class As5600Minimal {
      */
     protected void writeReg12(int regHi, int regLo, int val) {
         val = val & 0xFFF
-        transport.write([(byte) regHi, (byte) ((val >> 8) & 0x0F), (byte) (val & 0xFF)] as byte[])
+        connection.write([(byte) regHi, (byte) ((val >> 8) & 0x0F), (byte) (val & 0xFF)] as byte[])
     }
 
     /**
@@ -173,7 +173,7 @@ class As5600Minimal {
      * @return 12-bit value (0–4095)
      */
     protected int readReg12(int regHi) {
-        byte[] b = transport.writeRead([(byte) regHi] as byte[], 2)
+        byte[] b = connection.writeRead([(byte) regHi] as byte[], 2)
         ((b[0] & 0x0F) << 8) | (b[1] & 0xFF)
     }
 
@@ -184,7 +184,7 @@ class As5600Minimal {
      * @return unsigned 16-bit value (0–65535)
      */
     protected int readReg16(int regHi) {
-        byte[] b = transport.writeRead([(byte) regHi] as byte[], 2)
+        byte[] b = connection.writeRead([(byte) regHi] as byte[], 2)
         ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 }

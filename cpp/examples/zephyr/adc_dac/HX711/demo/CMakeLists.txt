@@ -8,6 +8,6 @@ target_sources(app PRIVATE
     main.cpp
 )
 target_include_directories(app PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/adc_dac
 )

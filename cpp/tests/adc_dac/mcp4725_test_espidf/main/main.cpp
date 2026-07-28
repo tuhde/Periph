@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP4725.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP4725Full inst(transport);  // Create MCP4725 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP4725Full inst(connection);  // Create MCP4725 driver
     inst.set_voltage(0.5f);
     check_true(true, "mcp4725 set_voltage ok");
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

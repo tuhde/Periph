@@ -1,14 +1,14 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * APDS-9960 — full driver. Extends [Apds9960Minimal] with proximity, gesture,
  * wait engine, threshold and interrupt configuration, status queries, and device identification.
  */
 class Apds9960Full(
-    transport: Transport
-) : Apds9960Minimal(transport) {
+    connection: Connection
+) : Apds9960Minimal(connection) {
 
     /**
      * Enable or disable the proximity engine.
@@ -134,21 +134,21 @@ class Apds9960Full(
      * Clear the proximity interrupt via address-only write to PICLEAR.
      */
     fun clearProximityInterrupt() {
-        transport.write(byteArrayOf(REG_PICLEAR.toByte()))
+        connection.write(byteArrayOf(REG_PICLEAR.toByte()))
     }
 
     /**
      * Clear the ALS/color interrupt via address-only write to CICLEAR.
      */
     fun clearAlsInterrupt() {
-        transport.write(byteArrayOf(REG_CICLEAR.toByte()))
+        connection.write(byteArrayOf(REG_CICLEAR.toByte()))
     }
 
     /**
      * Clear all non-gesture interrupts via address-only write to AICLEAR.
      */
     fun clearAllInterrupts() {
-        transport.write(byteArrayOf(REG_AICLEAR.toByte()))
+        connection.write(byteArrayOf(REG_AICLEAR.toByte()))
     }
 
     /**
@@ -219,7 +219,7 @@ class Apds9960Full(
         if (level == 0) return emptyList()
         val result = mutableListOf<IntArray>()
         for (i in 0 until level) {
-            val raw = transport.writeRead(byteArrayOf(REG_GFIFO_U.toByte()), 4)
+            val raw = connection.writeRead(byteArrayOf(REG_GFIFO_U.toByte()), 4)
             result.add(intArrayOf(raw[0].toInt() and 0xFF, raw[1].toInt() and 0xFF, raw[2].toInt() and 0xFF, raw[3].toInt() and 0xFF))
         }
         return result

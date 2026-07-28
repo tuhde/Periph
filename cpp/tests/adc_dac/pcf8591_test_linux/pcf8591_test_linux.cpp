@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "PCF8591.h"
 
 #ifndef TEST_I2C_BUS
@@ -20,8 +20,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
-    PCF8591Full adc(transport);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
+    PCF8591Full adc(connection);
 
     uint8_t ch0 = adc.read_channel(0);
     check_true("read_channel(0) in [0, 255]", ch0 <= 255);

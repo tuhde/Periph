@@ -1,7 +1,5 @@
 'use strict';
 
-const { EventEmitter } = require('node:events');
-
 const REG_IODIRA  = 0x00;
 const REG_IODIRB  = 0x01;
 const REG_IPOLA   = 0x02;
@@ -28,7 +26,12 @@ const REG_OLATB    = 0x15;
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
  *
  * Provides access to 16 GPIO pins (GPA0–GPA7 and GPB0–GPB7) via a pin()
- * factory. Each returned pin implements the opengpio Input/Output shape.
+ * factory. Each returned pin exposes async read()/write() (not onoff's
+ * synchronous readSync()/writeSync() — Connection is async everywhere, so
+ * a synchronous pin proxy can no longer correctly return a value). Call
+ * pin.asGpio() for a synchronous opengpio-shaped facade when a pin needs
+ * to be passed somewhere a real opengpio Input/Output is expected — see
+ * _Pin.asGpio() below.
  *
  * At construction, all pins initialise as inputs except GPA7 and GPB7
  * which are output-only on the hardware and are forced to output mode.
@@ -39,14 +42,15 @@ const REG_OLATB    = 0x15;
  */
 class Mcp23017Minimal {
     /**
-     * @param {object} transport - I²C transport with write, read, writeRead methods.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
      * @param {number} [addr=0x20] - 7-bit I²C address (default 0x20, range 0x20–0x27).
      */
-    constructor(transport, addr = 0x20) {
-        this._transport = transport;
-        this._addr      = addr;
-        this._shadow    = [0, 0];
+    constructor(connection, addr = 0x20) {
+        this._conn   = connection;
+        this._addr   = addr;
+        this._shadow = [0, 0];
 
+        // fire-and-forget: underlying I2C write is synchronous
         this._writeReg(REG_OLATA,  0x00);
         this._writeReg(REG_OLATB,  0x00);
         this._writeReg(REG_IODIRA, 0x7F);
@@ -57,28 +61,29 @@ class Mcp23017Minimal {
         this._writeReg(REG_GPPUB,  0x00);
     }
 
-    _writeReg(reg, value) {
-        this._transport.write(Buffer.from([reg, value & 0xFF]));
+    async _writeReg(reg, value) {
+        await this._conn.write(Buffer.from([reg, value & 0xFF]));
     }
 
-    _readReg(reg) {
-        return this._transport.writeRead(Buffer.from([reg]), 1)[0];
+    async _readReg(reg) {
+        const buf = await this._conn.writeRead(Buffer.from([reg]), 1);
+        return buf[0];
     }
 
-    _writePort(port, mask) {
-        this._writeReg(REG_OLATA + port, mask & 0xFF);
+    async _writePort(port, mask) {
+        await this._writeReg(REG_OLATA + port, mask & 0xFF);
     }
 
-    _readPort(port) {
+    async _readPort(port) {
         return this._readReg(REG_GPIOA + port);
     }
 
-    _setPin(n, value) {
+    async _setPin(n, value) {
         const port = n >> 3;
         const bit  = n & 7;
         if (value) this._shadow[port] |=  (1 << bit);
         else       this._shadow[port] &= ~(1 << bit);
-        this._writePort(port, this._shadow[port]);
+        await this._writePort(port, this._shadow[port]);
     }
 
     /**
@@ -91,7 +96,7 @@ class Mcp23017Minimal {
      *
      * @param {number} n - Pin index (0–15).
      * @param {string} [direction='in'] - Initial direction: 'in' or 'out'.
-     * @returns {_Pin} Pin proxy implementing the opengpio Input/Output shape.
+     * @returns {_Pin} Pin proxy.
      */
     pin(n, direction = 'in') {
         return new _Pin(this, n, direction);
@@ -101,9 +106,9 @@ class Mcp23017Minimal {
      * Read all 8 pins of a port as a bitmask.
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
-     * @returns {number} 8-bit bitmask (bit 0 = pin 0 of the port).
+     * @returns {Promise<number>} 8-bit bitmask (bit 0 = pin 0 of the port).
      */
-    readPort(port = 0) {
+    async readPort(port = 0) {
         return this._readPort(port);
     }
 
@@ -113,24 +118,26 @@ class Mcp23017Minimal {
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
      * @param {number} mask - 8-bit output mask.
+     * @returns {Promise<void>}
      */
-    writePort(port = 0, mask = 0x00) {
+    async writePort(port = 0, mask = 0x00) {
         this._shadow[port] = mask & 0xFF;
-        this._writePort(port, this._shadow[port]);
+        await this._writePort(port, this._shadow[port]);
     }
 
     /**
      * Configure the direction (IODIR) of a full port.
      * @param {number} port - 0 = PORTA (IODIRA), 1 = PORTB (IODIRB).
      * @param {number} mask - 8-bit mask; bit = 1 → input, 0 → output.
+     * @returns {Promise<void>}
      */
-    configureDirection(port, mask) {
-        this._writeReg(REG_IODIRA + (port & 1), mask & 0xFF);
+    async configureDirection(port, mask) {
+        await this._writeReg(REG_IODIRA + (port & 1), mask & 0xFF);
     }
 }
 
 /**
- * GPIO proxy for a single MCP23017 pin — opengpio Input/Output shape.
+ * GPIO proxy for a single MCP23017 pin.
  *
  * Obtain via Mcp23017Minimal.pin(n). Do not instantiate directly.
  */
@@ -150,21 +157,68 @@ class _Pin {
     get direction() { return this._direction; }
 
     /**
-     * Current pin state.
-     * @returns {boolean} true (HIGH) or false (LOW).
+     * Read pin.
+     * @returns {Promise<number>} 0 or 1.
      */
-    get value() {
-        return ((this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1) === 1;
+    async read() {
+        return (await this._chip._readPort(this._n >> 3) >> (this._n & 7)) & 1;
     }
 
     /**
-     * Drive the pin. Only valid on pins created with direction 'out'.
-     * @param {boolean} value
-     * @throws {Error} If this pin is direction 'in'.
+     * Write pin.
+     * @param {number} value - 0 or 1.
+     * @returns {Promise<void>}
      */
-    set value(value) {
-        if (this._direction !== 'out') throw new Error('cannot set value on an input pin');
-        this._chip._setPin(this._n, value ? 1 : 0);
+    async write(value) {
+        await this._chip._setPin(this._n, value ? 1 : 0);
+    }
+
+    /**
+     * Set pin direction.
+     * @param {string} direction - 'in' or 'out'.
+     * @returns {Promise<void>}
+     */
+    async setDirection(direction) {
+        this._direction = direction;
+    }
+
+    /**
+     * Return a synchronous opengpio-shaped Input/Output facade for this
+     * pin — a boolean `.value` getter/setter, fixed `direction`, and
+     * `stop()` — so it can be passed anywhere code expects a real
+     * opengpio GPIO line.
+     *
+     * Output-direction facades read back the shadow register directly
+     * (authoritative) and write through fire-and-forget. Input-direction
+     * facades are backed by a 5 ms background poll that refreshes a
+     * cached value — `.value` is therefore eventually consistent, not a
+     * live bus read on every access like this pin's own async read().
+     * Call stop() to release the background poll when done.
+     *
+     * @returns {{direction: string, value: boolean, stop: function}} opengpio-shaped facade.
+     */
+    asGpio() {
+        const pin = this;
+        if (this._direction === 'out') {
+            const port = this._n >> 3;
+            const bit = this._n & 7;
+            return {
+                get direction() { return 'out'; },
+                get value() { return ((pin._chip._shadow[port] >> bit) & 1) === 1; },
+                set value(v) { pin._chip._setPin(pin._n, v ? 1 : 0); }, // fire-and-forget
+                stop() {},
+            };
+        }
+        let cached = false;
+        const timer = setInterval(async () => {
+            cached = (await pin.read()) === 1;
+        }, 5);
+        return {
+            get direction() { return 'in'; },
+            get value() { return cached; },
+            set value(_v) { throw new Error('cannot set value on an input pin'); },
+            stop() { clearInterval(timer); },
+        };
     }
 
     /** Release the pin (no-op; shadow state preserved). */
@@ -175,22 +229,28 @@ class _Pin {
  * MCP23017 full interface — extends Minimal with interrupt support,
  * per-pin pull-ups, and interrupt-on-change configuration.
  *
- * configureInterrupt() attaches a callback to the chip's INT line;
- * clearInterrupt() returns the changed-pin bitmask for a port and
- * clears the hardware interrupt. Per-pin watch() / unwatch() handlers
- * are also available.
+ * Level 3: the chip has two independent INT lines (INTA/INTB), one per
+ * port. onInterrupt()/offInterrupt() subscribe/unsubscribe both ports at
+ * once (delivered via one shared InputPin — wire IOCON.MIRROR or external
+ * wiring so a single physical line carries both); onInterruptPort()/
+ * offInterruptPort() target one port with its own InputPin. pollInterrupt()
+ * reads and clears INTF; readCapture() reads INTCAP (the latched pin state)
+ * separately. Per-pin watch()/unwatch() are also available.
  */
 class Mcp23017Full extends Mcp23017Minimal {
     /**
-     * @param {object} transport - I²C transport with write, read, writeRead methods.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
      * @param {number} [addr=0x20] - 7-bit I²C address.
      */
-    constructor(transport, addr = 0x20) {
-        super(transport, addr);
-        this._prev      = [0, 0];
-        this._callback  = null;
-        this._pollTimer = null;
-        this._watchers  = {};
+    constructor(connection, addr = 0x20) {
+        super(connection, addr);
+        this._callbackBoth = null;
+        this._callbackPort = [null, null];
+        this._intPinUsed   = [null, null];
+        this._pollTimer    = [null, null];
+        this._watchers     = [{}, {}]; // per port: { [bit]: { handler, trigger, lastState } }
+        this._edgeHandlerA = () => { this._handleEdge(0); };
+        this._edgeHandlerB = () => { this._handleEdge(1); };
     }
 
     /**
@@ -212,9 +272,10 @@ class Mcp23017Full extends Mcp23017Minimal {
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
      * @param {number} mask - 8-bit mask: 1 = enable 100 kΩ pull-up.
+     * @returns {Promise<void>}
      */
-    configurePullup(port = 0, mask = 0x00) {
-        this._writeReg(REG_GPPUA + port, mask & 0xFF);
+    async configurePullup(port = 0, mask = 0x00) {
+        await this._writeReg(REG_GPPUA + port, mask & 0xFF);
     }
 
     /**
@@ -222,105 +283,151 @@ class Mcp23017Full extends Mcp23017Minimal {
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
      * @param {number} mask - 8-bit mask: 1 = invert GPIO read.
+     * @returns {Promise<void>}
      */
-    configurePolarity(port = 0, mask = 0x00) {
-        this._writeReg(REG_IPOLA + port, mask & 0xFF);
+    async configurePolarity(port = 0, mask = 0x00) {
+        await this._writeReg(REG_IPOLA + port, mask & 0xFF);
     }
 
     /**
-     * Attach an interrupt callback to a port's INT line.
-     *
-     * When intGpioPath is provided (sysfs GPIO value file path), edge
-     * detection via epoll is used. Otherwise a 5 ms polling loop drives
-     * delivery. The callback receives the changed-pin bitmask for the port.
-     *
-     * @param {number} [port=0] - Port index: 0 = PORTA (INTA), 1 = PORTB (INTB).
-     * @param {string|null} intGpioPath - Sysfs GPIO value file for edge delivery, or null for polling.
-     * @param {function} callback - Called with (changedMask) on any input change.
+     * Set DEFVAL register for default-compare interrupt mode.
+     * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
+     * @param {number} mask - 8-bit default compare value.
+     * @returns {Promise<void>}
      */
-    configureInterrupt(port = 0, intGpioPath = null, callback) {
-        this._callback = callback;
-        if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
+    async setDefaultValue(port = 0, mask = 0x00) {
+        await this._writeReg(REG_DEFVALA + (port & 1), mask & 0xFF);
+    }
 
-        this._writeReg(REG_GPINTENA + port, 0xFF);
-        this._writeReg(REG_INTCONA  + port, 0x00);
-
-        if (intGpioPath) {
-            try {
-                const fs   = require('fs');
-                const ep   = require('epoll').Epoll;
-                const fd   = fs.openSync(intGpioPath, 'r');
-                const poll = new ep((err, fd2) => {
-                    fs.readSync(fd2, Buffer.alloc(1), 0, 1, 0);
-                    const changed = this.clearInterrupt(port);
-                    if (changed) this._dispatch(port, changed);
-                });
-                poll.add(fd, ep.EPOLLPRI);
-            } catch (_) {
-                this._startPolling();
-            }
+    async _armPort(port, intPin) {
+        await this._writeReg(REG_INTCONA + port, 0x00); // interrupt-on-change mode
+        await this._writeReg(REG_GPINTENA + port, 0xFF);
+        this._intPinUsed[port] = intPin;
+        if (this._pollTimer[port]) { clearInterval(this._pollTimer[port]); this._pollTimer[port] = null; }
+        if (intPin) {
+            await intPin.onEdge(port === 0 ? this._edgeHandlerA : this._edgeHandlerB, 'falling');
         } else {
-            this._startPolling();
+            this._pollTimer[port] = setInterval(() => { this._handleEdge(port); }, 5);
         }
     }
 
-    _startPolling() {
-        this._pollTimer = setInterval(() => {
-            const changed = this.clearInterrupt(0) | (this.clearInterrupt(1) << 8);
-            if (changed) this._dispatch(0, changed & 0xFF);
-            if (changed >> 8) this._dispatch(1, (changed >> 8) & 0xFF);
-        }, 5);
+    /**
+     * Subscribe to INT assertions on both ports.
+     *
+     * The common case: both INT lines share one physical GPIO, either via
+     * IOCON.MIRROR (options.mirror = true) or external wiring. Wires
+     * options.intPin (or connection.intPin if omitted) to poll both ports
+     * on every edge. Falls back to two independent 5 ms polling loops if no
+     * InputPin is available.
+     *
+     * @param {function} callback - Called with (port, status) on any input change.
+     * @param {object} [options]
+     * @param {import('../../connection/input_pin').InputPin|null} [options.intPin] - Overrides connection.intPin.
+     * @param {boolean} [options.mirror=false] - Set IOCON.MIRROR so either port's interrupt activates both INTA and INTB.
+     * @returns {Promise<void>}
+     */
+    async onInterrupt(callback, options = {}) {
+        this._callbackBoth = callback;
+        const iocon = await this._readReg(REG_IOCON);
+        await this._writeReg(REG_IOCON, options.mirror ? (iocon | (1 << 6)) : iocon);
+        const pin = options.intPin ?? this._conn.intPin ?? null;
+        await this._armPort(0, pin);
+        await this._armPort(1, pin);
     }
 
-    _dispatch(port, changed) {
-        if (this._callback) this._callback(port, changed);
-        const current = this._readPort(port);
-        for (const [n, watchers] of Object.entries(this._watchers)) {
-            const pinN = Number(n);
-            if ((pinN >> 3) === port && ((changed >> (pinN & 7)) & 1)) {
-                const value = ((current >> (pinN & 7)) & 1) === 1;
-                watchers.forEach(w => {
-                    w.emit('change', value);
-                    w.emit(value ? 'rise' : 'fall', value);
-                });
+    /**
+     * Subscribe to INT assertions on a single port.
+     *
+     * Use this (with a dedicated InputPin per call) when INTA and INTB are
+     * wired to two separate GPIOs.
+     *
+     * @param {number} port - Port index: 0 = PORTA (INTA), 1 = PORTB (INTB).
+     * @param {function} callback - Called with (status) on any input change.
+     * @param {object} [options]
+     * @param {import('../../connection/input_pin').InputPin|null} [options.intPin] - Overrides connection.intPin.
+     * @returns {Promise<void>}
+     */
+    async onInterruptPort(port, callback, options = {}) {
+        port &= 1;
+        this._callbackPort[port] = callback;
+        await this._armPort(port, options.intPin ?? this._conn.intPin ?? null);
+    }
+
+    /**
+     * Unsubscribe and stop delivery on both ports.
+     * @returns {Promise<void>}
+     */
+    async offInterrupt() {
+        await this.offInterruptPort(0);
+        await this.offInterruptPort(1);
+        this._callbackBoth = null;
+    }
+
+    /**
+     * Unsubscribe and stop delivery on a single port.
+     * @param {number} port - Port index: 0 = PORTA, 1 = PORTB.
+     * @returns {Promise<void>}
+     */
+    async offInterruptPort(port) {
+        port &= 1;
+        await this._writeReg(REG_GPINTENA + port, 0x00);
+        if (this._intPinUsed[port]) {
+            await this._intPinUsed[port].offEdge(port === 0 ? this._edgeHandlerA : this._edgeHandlerB);
+            this._intPinUsed[port] = null;
+        }
+        if (this._pollTimer[port]) { clearInterval(this._pollTimer[port]); this._pollTimer[port] = null; }
+        this._callbackPort[port] = null;
+    }
+
+    async _handleEdge(port) {
+        const status = await this.pollInterrupt(port);
+        if (!status) return;
+        if (this._callbackBoth) this._callbackBoth(port, status);
+        if (this._callbackPort[port]) this._callbackPort[port](status);
+
+        const raw = await this._readPort(port);
+        for (const [bit, w] of Object.entries(this._watchers[port])) {
+            if (!((status >> bit) & 1)) continue;
+            const current = (raw >> bit) & 1;
+            const rising = current === 1 && w.lastState === 0;
+            const falling = current === 0 && w.lastState === 1;
+            w.lastState = current;
+            if (w.trigger === 'change' || (w.trigger === 'rising' && rising) || (w.trigger === 'falling' && falling)) {
+                w.handler(this.pin(port * 8 + Number(bit)));
             }
         }
     }
 
     /**
-     * Read and clear the interrupt for a port, returning the changed-pin bitmask.
+     * Read & clear interrupt status; returns the raw INTF flag register.
      *
-     * Also updates the per-port previous-state tracker used by the polling loop.
+     * Reads INTFA/INTFB (which pins triggered) then INTCAPA/INTCAPB (which
+     * clears the interrupt latch and re-arms it). Note that reading either
+     * INTCAP or GPIO clears the interrupt condition on this chip — call
+     * pollInterrupt() or readCapture() per event, not both.
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
-     * @returns {number} 8-bit changed-pin bitmask for the port.
+     * @returns {Promise<number>} 8-bit interrupt flag mask.
      */
-    clearInterrupt(port = 0) {
-        const captured = this._readReg(REG_INTCAPA + port);
-        const current  = this._readReg(REG_GPIOA   + port);
-        const changed  = (current ^ this._prev[port]) & 0xFF;
-        this._prev[port] = current;
-        return changed;
+    async pollInterrupt(port = 0) {
+        port &= 1;
+        const flags = await this._readReg(REG_INTFA + port);
+        await this._readReg(REG_INTCAPA + port); // clears and re-arms the interrupt; value discarded
+        return flags;
     }
 
     /**
-     * Read interrupt flags without clearing the interrupt.
+     * Read INTCAP: the port state latched at the moment of the interrupt.
+     *
+     * Also clears the interrupt latch (see pollInterrupt() doc) — call this
+     * instead of pollInterrupt() when the captured pin state is wanted
+     * rather than the flag register.
      *
      * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
-     * @returns {number} 8-bit interrupt-flag bitmask.
+     * @returns {Promise<number>} 8-bit captured port bitmask at the moment of interrupt.
      */
-    readInterruptFlags(port = 0) {
-        return this._readReg(REG_INTFA + port);
-    }
-
-    /**
-     * Disable interrupt generation for a port.
-     *
-     * @param {number} [port=0] - Port index: 0 = PORTA, 1 = PORTB.
-     */
-    stopInterrupt(port = 0) {
-        this._writeReg(REG_GPINTENA + port, 0x00);
-        if (this._pollTimer) { clearInterval(this._pollTimer); this._pollTimer = null; }
+    async readCapture(port = 0) {
+        return this._readReg(REG_INTCAPA + (port & 1));
     }
 }
 
@@ -338,25 +445,26 @@ class _FullPin extends _Pin {
     }
 
     /**
-     * Start watching this pin for state changes.
+     * Subscribe to this pin's edge events.
      *
-     * Requires configureInterrupt() to have been called on the driver.
-     * Matches opengpio's Watch class: an EventEmitter emitting 'rise' /
-     * 'fall' / 'change', plus a `value` getter and `stop()`.
+     * At most one handler per pin at a time; a second watch() call replaces
+     * the first. Call the chip's onInterrupt()/onInterruptPort() (for this
+     * pin's port) first to arm delivery.
      *
-     * @returns {EventEmitter} Watcher emitting 'rise', 'fall', 'change'.
+     * @param {function} handler - Called with this pin when its state matches trigger.
+     * @param {string} [trigger='change'] - 'rising', 'falling', or 'change'.
      */
-    watch() {
-        const n = this._n;
-        const watcher = new EventEmitter();
-        Object.defineProperty(watcher, 'value', { get: () => this.value });
-        watcher.stop = () => {
-            const list = this._chip._watchers[n];
-            if (list) this._chip._watchers[n] = list.filter(w => w !== watcher);
-        };
-        if (!this._chip._watchers[n]) this._chip._watchers[n] = [];
-        this._chip._watchers[n].push(watcher);
-        return watcher;
+    watch(handler, trigger = 'change') {
+        const port = this._n >> 3;
+        const bit = this._n & 7;
+        this._chip._watchers[port][bit] = { handler, trigger, lastState: 1 };
+    }
+
+    /** Unsubscribe this pin's handler. No-op if not registered. */
+    unwatch() {
+        const port = this._n >> 3;
+        const bit = this._n & 7;
+        delete this._chip._watchers[port][bit];
     }
 
     /**

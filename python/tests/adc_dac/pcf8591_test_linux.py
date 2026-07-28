@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.adc_dac.pcf8591 import PCF8591Full
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
@@ -21,8 +21,8 @@ def check_true(label, condition):
         failed += 1
 
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
-adc = PCF8591Full(transport)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
+adc = PCF8591Full(connection)
 
 ch0 = adc.read_channel(0)
 check_true('read_channel(0) returns int', isinstance(ch0, int))
@@ -89,7 +89,7 @@ check_true('set_dac_voltage(0.5) accepted', True)
 adc.disable_dac()
 check_true('disable_dac accepted', True)
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

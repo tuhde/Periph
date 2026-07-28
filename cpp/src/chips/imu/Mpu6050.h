@@ -1,11 +1,11 @@
 #pragma once
 #include <stdint.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 
 /** @brief MPU-6050 6-axis MotionTracking device (accelerometer + gyroscope) — minimal interface.
  *
  * Provides 3-axis acceleration and 3-axis angular rate readings with no
- * configuration beyond the transport. Performs device reset, WHO_AM_I check,
+ * configuration beyond the connection. Performs device reset, WHO_AM_I check,
  * and enables all sensors at defaults during initialization.
  *
  * Default configuration (written at construction):
@@ -15,11 +15,11 @@
  * - Sample rate: 200 Hz (SMPLRT_DIV=4)
  * - Clock: PLL with gyro X reference (CLKSEL=1)
  *
- * @param transport   Configured I²C transport pointing at the device.
+ * @param connection   Configured I²C connection pointing at the device.
  */
 class MPU6050Minimal {
 public:
-    MPU6050Minimal(Transport& transport);
+    MPU6050Minimal(Connection& connection);
 
     /** @brief Read 3-axis linear acceleration.
      *  @param[out] x  X acceleration in m/s².
@@ -60,7 +60,7 @@ protected:
     static constexpr float ACCEL_SENSITIVITY[4] = {16384.0f, 8192.0f, 4096.0f, 2048.0f};
     static constexpr float GYRO_SENSITIVITY[4]  = {131.0f, 65.5f, 32.8f, 16.4f};
 
-    Transport& _transport;
+    Connection& _connection;
     uint8_t    _accel_fs = 0;
     uint8_t    _gyro_fs  = 0;
 
@@ -76,11 +76,11 @@ protected:
  * sample rate control, temperature reading, raw data access, data-ready polling,
  * sleep/standby control, and FIFO management.
  *
- * @param transport   Configured I²C transport pointing at the device.
+ * @param connection   Configured I²C connection pointing at the device.
  */
 class MPU6050Full : public MPU6050Minimal {
 public:
-    MPU6050Full(Transport& transport);
+    MPU6050Full(Connection& connection);
 
     /** @brief Set gyroscope full-scale range.
      *  @param full_scale  Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).

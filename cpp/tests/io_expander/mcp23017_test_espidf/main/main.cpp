@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "MCP23017.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    MCP23017Full inst(transport, 0x20);  // Create MCP23017 driver
+    I2CConnectionESPIDF connection(dev);
+    MCP23017Full inst(connection, 0x20);  // Create MCP23017 driver
     inst.write_port(0, 0x55);
     (void)inst.read_port(0);
     check_true(true, "mcp23017 comm ok");

@@ -1,9 +1,9 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "WS2812B.h"
 
-NeoPixelTransport transport(SPI);               // Create NeoPixel transport, (spi=SPIClass&)
-WS2812BFull strip(transport, 8);               // Create WS2812B full driver, (transport, n=8 pixels)
+NeoPixelConnection connection(SPI);               // Create NeoPixel connection, (spi=SPIClass&)
+WS2812BFull strip(connection, 8);               // Create WS2812B full driver, (connection, n=8 pixels)
 
 void setup() {
     Serial.begin(115200);
@@ -13,7 +13,7 @@ void setup() {
 void loop() {
     // fill — set all pixels and send immediately
     strip.fill(255, 0, 0);                      // Fill all pixels with one colour, (r=0–255, g=0–255, b=0–255) → void
-                                                // stores GRB in buffer and calls transport.write()
+                                                // stores GRB in buffer and calls connection.write()
     delay(500);
 
     // set individual pixels then show
@@ -24,14 +24,14 @@ void loop() {
     strip.set_pixel(2, 0, 0, 255);             // Set pixel 2 in buffer (no send), (index=0–n-1, r=0–255, g=0–255, b=0–255) → void
                                                 // writes G,R,B bytes into internal buffer at position index*3
     strip.show();                               // Transmit buffer to strip, () → void
-                                                // applies brightness scaling then calls transport.write()
+                                                // applies brightness scaling then calls connection.write()
     delay(500);
 
     // brightness — global scale applied at show() time
     strip.set_brightness(64);                   // Set global brightness, (value=0–255) → void
                                                 // stored value is scaled: sent = stored * brightness / 255
     strip.show();                               // Transmit buffer to strip, () → void
-                                                // applies brightness scaling then calls transport.write()
+                                                // applies brightness scaling then calls connection.write()
     delay(500);
     strip.set_brightness(255);                  // Set global brightness, (value=0–255) → void
                                                 // stored value is scaled: sent = stored * brightness / 255
@@ -55,13 +55,13 @@ void loop() {
                                                 // writes G,R,B bytes into internal buffer at position index*3
     }
     strip.show();                               // Transmit buffer to strip, () → void
-                                                // applies brightness scaling then calls transport.write()
+                                                // applies brightness scaling then calls connection.write()
     delay(500);
     for (int i = 0; i < 7; i++) {
         strip.rotate(1);                        // Rotate pixel buffer left, (steps=1) → void
                                                 // shifts buffer by steps pixel positions; wraps around; does not send
         strip.show();                           // Transmit buffer to strip, () → void
-                                                // applies brightness scaling then calls transport.write()
+                                                // applies brightness scaling then calls connection.write()
         delay(200);
     }
 

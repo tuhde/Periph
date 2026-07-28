@@ -4,27 +4,27 @@
 /** @brief HX711 24-bit ADC — minimal interface.
  *
  * Reads signed 24-bit ADC values using Channel A, Gain 128. No configuration
- * beyond the transport is required. The first post-power-up conversion is
+ * beyond the connection is required. The first post-power-up conversion is
  * discarded during construction.
  *
- * @tparam Transport HX711 transport type (HX711Transport, HX711TransportLinux,
- *                   or HX711TransportZephyr).
+ * @tparam Connection HX711 connection type (HX711Connection, HX711ConnectionLinux,
+ *                   or HX711ConnectionZephyr).
  */
-template<typename Transport>
+template<typename Connection>
 class HX711Minimal {
 public:
     /** @brief Initialize and discard the first post-power-up conversion.
-     *  @param transport Reference to a configured HX711 transport.
+     *  @param connection Reference to a configured HX711 connection.
      */
-    explicit HX711Minimal(Transport& transport) : _transport(transport) {
-        _transport.read_raw(25);
+    explicit HX711Minimal(Connection& connection) : _connection(connection) {
+        _connection.read_raw(25);
     }
 
     /** @brief Return true if a conversion result is available (DOUT is LOW).
      *
      *  Non-blocking.
      */
-    bool is_ready() { return _transport.is_ready(); }
+    bool is_ready() { return _connection.is_ready(); }
 
     /** @brief Block until data is ready and return a signed 24-bit ADC value.
      *
@@ -32,10 +32,10 @@ public:
      *
      *  @return Signed 24-bit ADC value (-8 388 608 to +8 388 607).
      */
-    int32_t read_raw() { return _transport.read_raw(25); }
+    int32_t read_raw() { return _connection.read_raw(25); }
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
 };
 
 /** @brief HX711 full interface — extends HX711Minimal with gain, tare, and calibration.
@@ -43,23 +43,23 @@ protected:
  * Adds gain selection (Channel A Gain 128/64, Channel B Gain 32), multi-sample
  * averaging, tare offset capture, scale factor calibration, and power management.
  *
- * @tparam Transport HX711 transport type.
+ * @tparam Connection HX711 connection type.
  */
-template<typename Transport>
-class HX711Full : public HX711Minimal<Transport> {
+template<typename Connection>
+class HX711Full : public HX711Minimal<Connection> {
 public:
     /** @brief Initialize with default gain 128, offset 0, and scale 1.0.
-     *  @param transport Reference to a configured HX711 transport.
+     *  @param connection Reference to a configured HX711 connection.
      */
-    explicit HX711Full(Transport& transport)
-        : HX711Minimal<Transport>(transport), _pulses(25), _offset(0), _scale(1.0f)
+    explicit HX711Full(Connection& connection)
+        : HX711Minimal<Connection>(connection), _pulses(25), _offset(0), _scale(1.0f)
     {}
 
     /** @brief Block until data is ready and return a signed 24-bit ADC value.
      *
      *  Uses the currently selected channel and gain.
      */
-    int32_t read_raw() { return this->_transport.read_raw(_pulses); }
+    int32_t read_raw() { return this->_connection.read_raw(_pulses); }
 
     /** @brief Select the input channel and gain.
      *
@@ -72,7 +72,7 @@ public:
         else if (gain == 32)  _pulses = 26;
         else if (gain == 64)  _pulses = 27;
         else                  return;
-        this->_transport.read_raw(_pulses);
+        this->_connection.read_raw(_pulses);
     }
 
     /** @brief Return the average of multiple raw ADC readings.
@@ -119,16 +119,16 @@ public:
     }
 
     /** @brief Enter power-down mode (PD_SCK held HIGH for >60 µs). */
-    void power_down() { this->_transport.power_down(); }
+    void power_down() { this->_connection.power_down(); }
 
     /** @brief Exit power-down, reset chip, discard settling conversion.
      *
      *  Resets to Channel A, Gain 128 and discards the first post-reset conversion.
      */
     void power_up() {
-        this->_transport.power_up();
+        this->_connection.power_up();
         _pulses = 25;
-        this->_transport.read_raw(25);
+        this->_connection.read_raw(25);
     }
 
 private:

@@ -3,11 +3,11 @@
 #endif
 
 #include <Arduino.h>
-#include "../../src/transport/DHTxxTransport.h"
+#include "../../src/connection/DHTxxConnection.h"
 #include "../../src/chips/humidity/DHT11.h"
 
-DHTxxTransport transport(DHT11_DATA_PIN);
-DHT11Full dht(transport, 3);                    // Create DHT11 driver, (transport, max_retries=3)
+DHTxxConnection connection(DHT11_DATA_PIN);
+DHT11Full dht(connection, 3);                    // Create DHT11 driver, (connection, max_retries=3)
 
 // --- Indoor comfort monitor ---
 // Reads temperature and humidity every 5 seconds and prints a one-line

@@ -1,9 +1,9 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "SK6812RGBW.h"
 
-NeoPixelTransport transport(SPI);               // Create NeoPixel transport, (spi=SPIClass&)
-SK6812RGBWMinimal strip(transport, 30);         // Create SK6812RGBW driver, (transport, n=30 pixels)
+NeoPixelConnection connection(SPI);               // Create NeoPixel connection, (spi=SPIClass&)
+SK6812RGBWMinimal strip(connection, 30);         // Create SK6812RGBW driver, (connection, n=30 pixels)
 
 void setup() {
     Serial.begin(115200);

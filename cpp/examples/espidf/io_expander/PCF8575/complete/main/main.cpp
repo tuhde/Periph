@@ -1,12 +1,13 @@
 // Auto-generated ESP-IDF example for PCF8575 (Complete).
 // Mirrors the Arduino PCF8575_Complete example using the
-// I2CTransportESPIDF transport.
+// I2CConnectionESPIDF connection.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
+#include "InputPinESPIDF.h"
 #include "PCF8575.h"
 
 extern "C" void app_main(void) {
@@ -29,15 +30,16 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    PCF8575Full chip(transport, 0x20);  // Create PCF8575 driver
-    uint8_t val;
-    uint8_t mask;
+    InputPinESPIDF intPin(GPIO_NUM_5);                          // Create INT pin, (pin=GPIO_NUM_5)
+    I2CConnectionESPIDF connection(dev, &intPin);               // Create I2C connection, (dev, intPin)
+    PCF8575Full chip(connection, 0x20);  // Create PCF8575 driver
     chip.read_port(0);                                // Read port 0, (port 0/1) → uint8_t bitmask
     chip.read_port(1);                                // Read port 1, (port 0/1) → uint8_t bitmask
     chip.write_port(0, 0x55);                         // Write port 0, (port, mask) → void
     chip.write_port(1, 0xAA);                         // Write port 1, (port, mask) → void
-    chip.configure_interrupt(0, nullptr);             // Configure INT, (int_gpio_pin, callback) → void
-    chip.clear_interrupt();                           // Read both ports, return 16-bit changed mask, () → uint16_t
+    chip.onInterrupt([](uint16_t changed) {           // Subscribe to INT line, (callback) → void
+        printf("changed=0x%04X\n", changed);
+    });
+    chip.pollInterrupt();                             // Read both ports, return 16-bit changed mask, () → uint16_t
     vTaskDelay(pdMS_TO_TICKS(1000));
 }

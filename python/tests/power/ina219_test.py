@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.power.ina219 import INA219Full
 
 from machine import I2C, Pin
@@ -20,8 +20,8 @@ def check_true(label, condition):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-ina = INA219Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+ina = INA219Full(connection)
 
 check_true('voltage non-negative', ina.voltage()       >= 0.0)
 check_true('shunt_voltage finite', ina.shunt_voltage() > -1.0)

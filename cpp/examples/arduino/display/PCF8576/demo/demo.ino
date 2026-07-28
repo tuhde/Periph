@@ -10,21 +10,21 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/display/PCF8576.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
+    I2CConnection connection(Wire, TEST_ADDR);
 
     // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---
     // The PCF8576 drives four 7-segment digits from a single I2C bus; the host
     // encodes each digit using the chip's 1:4 multiplex bit layout (a/c/b/DP/f/e/g/d)
     // and writes all four with one write_raw() call. The countdown runs once
     // per second and the terminal mirrors the value sent to the display.
-    PCF8576Full lcd(transport);                          // Create PCF8576 driver, (transport)
+    PCF8576Full lcd(connection);                          // Create PCF8576 driver, (connection)
 
     for (int n = 9999; n >= 0; n--) {
         uint8_t d0 = (n / 1000) % 10;

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -8,8 +8,8 @@ import java.io.IOException
  * temperature, raw data access, data-ready polling, sleep/standby, and FIFO management.
  */
 class Mpu6050Full @JvmOverloads constructor(
-    transport: Transport
-) : Mpu6050Minimal(transport) {
+    connection: Connection
+) : Mpu6050Minimal(connection) {
 
     /**
      * Set gyroscope full-scale range.
@@ -65,7 +65,7 @@ class Mpu6050Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun accelRaw(): IntArray {
-        val buf = transport.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
+        val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -79,7 +79,7 @@ class Mpu6050Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun gyroRaw(): IntArray {
-        val buf = transport.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
+        val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -123,7 +123,7 @@ class Mpu6050Full @JvmOverloads constructor(
      * @return FIFO byte count (0–1024).
      */
     fun fifoCount(): Int {
-        val buf = transport.writeRead(byteArrayOf(REG_FIFO_COUNTH.toByte()), 2)
+        val buf = connection.writeRead(byteArrayOf(REG_FIFO_COUNTH.toByte()), 2)
         return ((buf[0].toInt() and 0x1F) shl 8) or (buf[1].toInt() and 0xFF)
     }
 
@@ -135,7 +135,7 @@ class Mpu6050Full @JvmOverloads constructor(
     fun readFifo(): ByteArray {
         val count = fifoCount()
         if (count == 0) return ByteArray(0)
-        return transport.writeRead(byteArrayOf(REG_FIFO_R_W.toByte()), count)
+        return connection.writeRead(byteArrayOf(REG_FIFO_R_W.toByte()), count)
     }
 
     /**

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 import kotlin.math.ln
 import kotlin.math.pow
@@ -29,9 +29,9 @@ import kotlin.math.pow
  * [STATUS_MEASURING], [STATUS_IM_UPDATE]
  */
 class Bme280Full @JvmOverloads constructor(
-    transport: Transport,
+    connection: Connection,
     addr: Int = 0x76
-) : Bme280Minimal(transport, addr) {
+) : Bme280Minimal(connection, addr) {
 
     companion object {
         const val OSRS_SKIP = 0
@@ -87,9 +87,9 @@ class Bme280Full @JvmOverloads constructor(
         ctrlHum  = osrsH and 0x07
         config   = ((tSb and 0x07) shl 5) or ((filter and 0x07) shl 2)
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (mode and 0x03)
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
     }
 
     /**
@@ -103,8 +103,8 @@ class Bme280Full @JvmOverloads constructor(
     fun setOversampling(osrsT: Int, osrsP: Int, osrsH: Int) {
         ctrlHum  = osrsH and 0x07
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (ctrlMeas and 0x03)
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
     }
 
     /**
@@ -115,7 +115,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setMode(mode: Int) {
         ctrlMeas = (ctrlMeas and 0xFC) or (mode and 0x03)
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
     }
 
     /**
@@ -126,7 +126,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setFilter(coeff: Int) {
         config = (config and 0xE3) or ((coeff and 0x07) shl 2)
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
     }
 
     /**
@@ -138,7 +138,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setStandby(tSb: Int) {
         config = (config and 0x1F) or ((tSb and 0x07) shl 5)
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
     }
 
     /**
@@ -148,7 +148,7 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun status(): Int {
-        val b = transport.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -209,7 +209,7 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun chipId(): Int {
-        val b = transport.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -220,11 +220,11 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun reset() {
-        transport.write(byteArrayOf(REG_SOFT_RST.toByte(), RESET_CMD.toByte()))
+        connection.write(byteArrayOf(REG_SOFT_RST.toByte(), RESET_CMD.toByte()))
         try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         readCalibration()
-        transport.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        transport.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
-        transport.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
     }
 }

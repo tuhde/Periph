@@ -51,7 +51,7 @@ if [ ! -f "$TEST_SRC" ]; then
 fi
 
 SRC_DIR="$SCRIPT_DIR/src"
-TRANSPORT_SRC="$SRC_DIR/transport/I2CTransportLinux.cpp"
+CONNECTION_SRC="$SRC_DIR/connection/I2CConnectionLinux.cpp"
 
 CHIP_SRC=$(find "$SRC_DIR/chips/$CATEGORY" -maxdepth 1 -iname "${CHIP}.cpp" | head -1)
 if [ -z "$CHIP_SRC" ]; then
@@ -66,11 +66,11 @@ BIN="$BUILD_DIR/${CHIP}_test"
 # --- compile -------------------------------------------------------------
 echo "=== Compiling $TARGET for Linux GCC ==="
 g++ -std=c++17 \
-    -I"$SRC_DIR/transport" \
+    -I"$SRC_DIR/connection" \
     -I"$SRC_DIR/chips/$CATEGORY" \
     -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
     -DTEST_ADDR="$I2C_ADDR" \
-    "$TEST_SRC" "$TRANSPORT_SRC" "$CHIP_SRC" \
+    "$TEST_SRC" "$CONNECTION_SRC" "$CHIP_SRC" \
     -o "$BIN"
 echo "Compile OK"
 

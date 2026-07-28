@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "AS5600.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x36;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    AS5600Minimal as(transport);                                           // Create AS5600 driver, (transport)
+    AS5600Minimal as(connection);                                           // Create AS5600 driver, (connection)
 
     while (true) {
         float angle = as.angle();                                          // Read angle, () → float °  (0–360)

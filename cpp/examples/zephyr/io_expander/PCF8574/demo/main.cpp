@@ -9,7 +9,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 #include <zephyr/drivers/gpio.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
+#include "InputPinZephyr.h"
 #include "PCF8574.h"
 
 static const struct gpio_dt_spec int_gpio =
@@ -18,17 +19,17 @@ static const struct gpio_dt_spec int_gpio =
 int main() {
     const struct device* i2c_dev = DEVICE_DT_GET(DT_NODELABEL(i2c0));
 
-    I2CTransportZephyr transport(i2c_dev, 0x20);               // Create I2C transport, (dev, addr=0x20)
-    PCF8574Full chip(transport);                                // Create PCF8574 full driver, (transport, addr=0x20)
+    InputPinZephyr intPin(int_gpio);                             // Create INT pin, (gpio_dt_spec)
+    I2CConnectionZephyr connection(i2c_dev, 0x20, &intPin);      // Create I2C connection, (dev, addr=0x20, intPin)
+    PCF8574Full chip(connection);                                // Create PCF8574 full driver, (connection, addr=0x20)
 
     // --- Configure output and input nibbles ---
     // P0–P3: outputs (LEDs, active-low); P4–P7: inputs (buttons, pull-up)
     chip.write_port(0, 0xF0);                                   // Write all 8 pins, (port, mask) → void
 
-    // --- Wire INT line for fast response ---
+    // --- Subscribe to INT line for fast response ---
     // The chip's INT fires within ~10 µs of any input change.
-    gpio_pin_configure_dt(&int_gpio, GPIO_INPUT | GPIO_PULL_UP);
-    chip.configure_interrupt(int_gpio.pin, [](uint8_t) {        // Attach interrupt, (gpio_pin, callback) → void
+    chip.onInterrupt([](uint8_t) {                              // Subscribe to INT line, (callback) → void
         // wake-up signal; actual read happens in main loop
     });
 

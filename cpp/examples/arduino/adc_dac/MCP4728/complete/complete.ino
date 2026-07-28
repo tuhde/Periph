@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "MCP4728.h"
 
-I2CTransport transport(Wire, 0x60);
-MCP4728Full dac(transport);
+I2CConnection connection(Wire, 0x60);
+MCP4728Full dac(connection);
 
 void setup() {
     Serial.begin(115200);

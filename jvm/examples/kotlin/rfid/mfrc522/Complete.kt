@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.rfid.Mfrc522Full
 
 fun main() {
-    I2CTransport(1, 0x28).use { transport ->                  // open I²C bus 1, device 0x28, (bus, address) → I2CTransport
-        val mfrc = Mfrc522Full(transport, Mfrc522Full.BUS_I2C)        // construct driver, (transport, busType=BUS_I2C) → Mfrc522Full
+    I2CConnection(1, 0x28).use { connection ->                  // open I²C bus 1, device 0x28, (bus, address) → I2CConnection
+        val mfrc = Mfrc522Full(connection, Mfrc522Full.BUS_I2C)        // construct driver, (connection, busType=BUS_I2C) → Mfrc522Full
 
         val v = mfrc.version()                                 // read version register, () → IntArray (size 2)
                                                                 // for MFRC522 v[0]=0x09, v[1]=1 (v1.0) or 2 (v2.0)

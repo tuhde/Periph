@@ -1,7 +1,7 @@
 'use strict';
 
 const { Default } = require('opengpio');
-const { HX711Transport } = require('../../packages/periph/src/transport/hx711');
+const { HX711Connection } = require('../../packages/periph/src/connection/hx711');
 const { HX711Full }      = require('../../packages/periph/src/chips/adc_dac/hx711');
 
 const GPIO_CHIP  = parseInt(process.env.GPIO_CHIP    || '0',  10);
@@ -18,8 +18,8 @@ function checkTrue(label, condition) {
 
 const dout   = Default.input({ chip: GPIO_CHIP, line: DOUT_LINE });
 const pd_sck = Default.output({ chip: GPIO_CHIP, line: PD_SCK_LINE });
-const transport = new HX711Transport(dout, pd_sck);
-const chip = new HX711Full(transport);
+const connection = new HX711Connection(dout, pd_sck);
+const chip = new HX711Full(connection);
 
 checkTrue('isReady returns boolean', typeof chip.isReady() === 'boolean');
 
@@ -70,7 +70,7 @@ checkTrue('powerDown accepted', true);
 chip.powerUp();
 checkTrue('powerUp accepted', true);
 
-transport.close();
+connection.close();
 checkTrue('close accepted', true);
 
 console.log(`===DONE: ${passed} passed, ${failed} failed===`);

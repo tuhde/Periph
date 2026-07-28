@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.led
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * SK6812RGBW full interface — extends {@link SK6812RGBWMinimal} with per-pixel control.
@@ -23,11 +23,11 @@ class SK6812RGBWFull extends SK6812RGBWMinimal {
     /**
      * Construct the full driver.
      *
-     * @param transport configured NeoPixel transport
+     * @param connection configured NeoPixel connection
      * @param n number of pixels in the strip (≥1)
      */
-    SK6812RGBWFull(Transport transport, int n) {
-        super(transport, n)
+    SK6812RGBWFull(Connection connection, int n) {
+        super(connection, n)
     }
 
     /**
@@ -97,13 +97,13 @@ class SK6812RGBWFull extends SK6812RGBWMinimal {
      */
     void show() {
         if (brightness == 255) {
-            transport.write(buf)
+            connection.write(buf)
         } else {
             byte[] scaled = new byte[buf.length]
             for (int i = 0; i < buf.length; i++) {
                 scaled[i] = (byte) ((buf[i] & 0xFF) * brightness / 255)
             }
-            transport.write(scaled)
+            connection.write(scaled)
         }
     }
 

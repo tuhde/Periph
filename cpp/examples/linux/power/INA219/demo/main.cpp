@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "INA219.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x40;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    INA219Full ina(transport);                                             // Create INA219 driver, (transport)
+    INA219Full ina(connection);                                             // Create INA219 driver, (connection)
 
     // --- USB charger monitor ---
     // Logs bus voltage, current, and power every second.

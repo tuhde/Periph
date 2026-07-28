@@ -1,23 +1,23 @@
 class WS2812BMinimal:
     """WS2812B addressable RGB LED strip — minimal interface.
 
-    Drives a chain of n WS2812B pixels over a NeoPixel transport.
+    Drives a chain of n WS2812B pixels over a NeoPixel connection.
     Maintains an internal GRB buffer; fill() writes all pixels and
     transmits immediately.
 
     Args:
-        transport: Configured NeoPixel transport (MicroPython, CircuitPython, or Linux).
+        connection: Configured NeoPixel connection (MicroPython, CircuitPython, or Linux).
         n: Number of pixels in the strip.
     """
 
-    def __init__(self, transport, n):
-        """Initialise WS2812BMinimal with a transport and pixel count.
+    def __init__(self, connection, n):
+        """Initialise WS2812BMinimal with a connection and pixel count.
 
         Args:
-            transport: Configured NeoPixel transport.
+            connection: Configured NeoPixel connection.
             n: Number of pixels in the strip (must be >= 1).
         """
-        self._transport = transport
+        self._connection = connection
         self._n = n
         self._buf = bytearray(n * 3)
 
@@ -39,7 +39,7 @@ class WS2812BMinimal:
             self._buf[i * 3]     = g
             self._buf[i * 3 + 1] = r
             self._buf[i * 3 + 2] = b
-        self._transport.write(bytes(self._buf))
+        self._connection.write(bytes(self._buf))
 
     def off(self):
         """Turn off all pixels (fill with black and send).
@@ -58,18 +58,18 @@ class WS2812BFull(WS2812BMinimal):
     fill() for an immediate all-same-colour update.
 
     Args:
-        transport: Configured NeoPixel transport.
+        connection: Configured NeoPixel connection.
         n: Number of pixels in the strip.
     """
 
-    def __init__(self, transport, n):
-        """Initialise WS2812BFull with a transport and pixel count.
+    def __init__(self, connection, n):
+        """Initialise WS2812BFull with a connection and pixel count.
 
         Args:
-            transport: Configured NeoPixel transport.
+            connection: Configured NeoPixel connection.
             n: Number of pixels in the strip.
         """
-        super().__init__(transport, n)
+        super().__init__(connection, n)
         self._brightness = 255
 
     @property
@@ -120,12 +120,12 @@ class WS2812BFull(WS2812BMinimal):
         """
         bri = self._brightness
         if bri == 255:
-            self._transport.write(bytes(self._buf))
+            self._connection.write(bytes(self._buf))
         else:
             scaled = bytearray(len(self._buf))
             for i, v in enumerate(self._buf):
                 scaled[i] = v * bri // 255
-            self._transport.write(bytes(scaled))
+            self._connection.write(bytes(scaled))
 
     def rotate(self, steps=1):
         """Shift the pixel buffer left by steps positions (wraps around).

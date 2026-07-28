@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AHT21 — full driver. Extends [Aht21Minimal] with CRC verification,
@@ -8,8 +8,8 @@ import it.uhde.periph.transport.Transport
  * temperature/humidity readings.
  */
 class Aht21Full(
-    transport: Transport
-) : Aht21Minimal(transport) {
+    connection: Connection
+) : Aht21Minimal(connection) {
 
     /**
      * Trigger a measurement and return temperature only.
@@ -34,9 +34,9 @@ class Aht21Full(
      * @return Triple of (temperature in °C, humidity in %RH, crc_ok)
      */
     fun readWithCrc(): Triple<Double, Double, Boolean> {
-        transport.write(CMD_TRIGGER)
+        connection.write(CMD_TRIGGER)
         Thread.sleep(80)
-        val data = transport.read(7)
+        val data = connection.read(7)
         val (t, h) = decode(data)
         val crcOk = crc8(data, 6) == (data[6].toInt() and 0xFF)
         return Triple(t, h, crcOk)
@@ -46,7 +46,7 @@ class Aht21Full(
      * Send the soft reset command and wait 20 ms for recovery.
      */
     fun softReset() {
-        transport.write(CMD_SOFT_RESET)
+        connection.write(CMD_SOFT_RESET)
         Thread.sleep(20)
     }
 

@@ -2,8 +2,8 @@
 
 module.exports = function(RED) {
     const { Default }        = require('opengpio');
-    const { HX711Transport } = require('periph/src/transport/hx711');
-    const { HX711Full }      = require('periph/src/chips/adc_dac/hx711');
+    const { HX711Connection } = require('periph/src/connection/hx711');
+    const { HX711Full }       = require('periph/src/chips/adc_dac/hx711');
 
     function HX711Node(config) {
         RED.nodes.createNode(this, config);
@@ -13,8 +13,8 @@ module.exports = function(RED) {
             const chip   = parseInt(config.gpioChip || 0);
             const dout   = Default.input({ chip, line: parseInt(config.doutPin) });
             const pd_sck = Default.output({ chip, line: parseInt(config.pdSckPin) });
-            node.transport = new HX711Transport(dout, pd_sck);
-            node.driver    = new HX711Full(node.transport);
+            node.connection = new HX711Connection(dout, pd_sck);
+            node.driver     = new HX711Full(node.connection);
 
             const gain = parseInt(config.gain || 128);
             if (gain !== 128) node.driver.setGain(gain);
@@ -43,7 +43,7 @@ module.exports = function(RED) {
         });
 
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
 

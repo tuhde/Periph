@@ -1,7 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "Rda5807m.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
@@ -9,8 +9,8 @@
 
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
-    I2CTransportZephyr transport(i2c_dev, RDA5807M_ADDR);
-    RDA5807MFull fm(transport, 100.0f, 8);
+    I2CConnectionZephyr connection(i2c_dev, RDA5807M_ADDR);
+    RDA5807MFull fm(connection, 100.0f, 8);
 
     fm.set_frequency(97.5f);
     printk("Frequency: %d Hz/100\n", (int)(fm.frequency() * 100));

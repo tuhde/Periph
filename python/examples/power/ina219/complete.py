@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.power.ina219 import INA219Full
 import time
 
-transport = I2CTransport(0x40)
-ina = INA219Full(transport)
+connection = I2CConnection(0x40)
+ina = INA219Full(connection)
 
 print(ina.voltage())                                  # Read bus voltage, () → float V
 print(ina.shunt_voltage())                            # Read shunt voltage, () → float V

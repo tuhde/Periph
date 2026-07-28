@@ -24,7 +24,7 @@ class EEPROM24AA02UIDMinimal:
           retained.
 
     Args:
-        transport: Configured I2C transport pointing at the device (address 0x50).
+        connection: Configured I2C connection pointing at the device (address 0x50).
     """
 
     _ADDR_UID_BASE    = 0xFC
@@ -33,17 +33,17 @@ class EEPROM24AA02UIDMinimal:
     _USER_EEPROM_END  = 0x7F
     _WRITE_CYCLE_MS   = 5
 
-    def __init__(self, transport):
-        self._transport = transport
+    def __init__(self, connection):
+        self._connection = connection
 
     def _read_byte(self, address):
-        return self._transport.write_read(bytes([address & 0xFF]), 1)[0]
+        return self._connection.write_read(bytes([address & 0xFF]), 1)[0]
 
     def _read_bytes(self, address, length):
-        return self._transport.write_read(bytes([address & 0xFF]), length)
+        return self._connection.write_read(bytes([address & 0xFF]), length)
 
     def _write_byte(self, address, value):
-        self._transport.write(bytes([address & 0xFF, value & 0xFF]))
+        self._connection.write(bytes([address & 0xFF, value & 0xFF]))
 
     def _ack_poll(self):
         try:
@@ -52,7 +52,7 @@ class EEPROM24AA02UIDMinimal:
             sleep_ms = lambda ms: time.sleep(ms / 1000.0)
         for _ in range(20):
             try:
-                self._transport.write_read(bytes([0x00]), 1)
+                self._connection.write_read(bytes([0x00]), 1)
                 return
             except OSError:
                 sleep_ms(1)
@@ -99,7 +99,7 @@ class EEPROM24AA02UIDFull(EEPROM24AA02UIDMinimal):
     the manufacturer and device codes in the upper (read-only) block.
 
     Args:
-        transport: Configured I2C transport pointing at the device (address 0x50).
+        connection: Configured I2C connection pointing at the device (address 0x50).
     """
 
     _PAGE_SIZE = 8
@@ -132,7 +132,7 @@ class EEPROM24AA02UIDFull(EEPROM24AA02UIDMinimal):
             data:    Bytes to write (1 to 8 bytes).
         """
         buf = bytes([address & 0xFF]) + bytes(data)
-        self._transport.write(buf)
+        self._connection.write(buf)
         self._ack_poll()
 
     def write(self, address, data):

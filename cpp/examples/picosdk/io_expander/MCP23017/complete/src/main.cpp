@@ -2,7 +2,8 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
+#include "InputPinPicoSDK.h"
 #include "MCP23017.h"
 
 int main(void) {
@@ -12,8 +13,9 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x20);
-    MCP23017Full mcp(transport, /*addr=*/0x20);
+    InputPinPicoSDK intPin(6);                                  // Create INT pin, (pin=6)
+    I2CConnectionPicoSDK connection(i2c0, 0x20, &intPin);       // Create I2C connection, (i2c, addr=0x20, intPin)
+    MCP23017Full mcp(connection, /*addr=*/0x20);
 
     stdio_init_all();
 
@@ -40,12 +42,11 @@ int main(void) {
 
     mcp.set_default_value(0, 0x00);                        // Set DEFVAL for PORTA, (port=0, mask=0x00) → None
 
-    mcp.configure_interrupt(0, -1, [](uint8_t mask) {      // Enable INT on PORTA, (port=0, int_pin=-1, callback, mode='change') → None
-        printf("PORTA changed: ");
-        printf("0x%X\n", (unsigned)mask);
-    }, "change", false);
+    mcp.onInterrupt([](uint8_t port, uint8_t status) {      // Subscribe to INT on both ports, (callback, intPin, mirror) → None
+        printf("port %d changed: 0x%X\n", port, (unsigned)status);
+    }, &intPin, /*mirror=*/true);
 
-    mcp.stop_interrupt(0);                                  // Disable INT on PORTA, (port=0) → None
+    mcp.offInterrupt(0);                                    // Unsubscribe PORTA, (port=0) → None
 
     uint8_t porta = mcp.read_port(0);                       // Read PORTA, (port=0) → uint8_t
     uint8_t portb = mcp.read_port(1);                      // Read PORTB, (port=1) → uint8_t

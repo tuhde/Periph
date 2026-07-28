@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -28,8 +28,8 @@ func main() {
 		return
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x48)
-	chip, err := adcdac.NewPCF8591Full(tr)
+	conn := connection.NewI2CConnection(i2c, 0x48, nil, nil)
+	chip, err := adcdac.NewPCF8591Full(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

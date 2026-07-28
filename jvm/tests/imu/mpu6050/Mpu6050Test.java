@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.imu.Mpu6050Full;
 
 public class Mpu6050Test {
@@ -22,8 +22,8 @@ public class Mpu6050Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
-            var imu = new Mpu6050Full(transport);
+        try (var connection = new I2CConnection(bus, addr)) {
+            var imu = new Mpu6050Full(connection);
 
             double[] a = imu.accel();
             checkTrue("accel_x finite", a[0] > -200.0 && a[0] < 200.0);

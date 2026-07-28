@@ -13,13 +13,13 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/led"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
 	const n = 8
-	tr := transport.NewNeoPixelTransport(machine.GP22) // Create NeoPixel transport, (pin=GP22) → (*NeoPixelTransport)
-	strip, err := led.NewWS2812BFull(tr, n)            // Create WS2812B driver, (transport, n=8) → (*WS2812BFull, error)
+	conn := connection.NewNeoPixelConnection(machine.GP22, nil) // Create NeoPixel connection, (pin=GP22) → (*NeoPixelConnection)
+	strip, err := led.NewWS2812BFull(conn, n)            // Create WS2812B driver, (connection, n=8) → (*WS2812BFull, error)
 	if err != nil {
 		panic(err)
 	}

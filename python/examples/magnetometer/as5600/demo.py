@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.magnetometer.as5600 import AS5600Full
 import time
 
-transport = I2CTransport(0x36)
-as5600 = AS5600Full(transport)
+connection = I2CConnection(0x36)
+as5600 = AS5600Full(connection)
 
 # --- Motor feedback monitor: read angle 10 times per second ---
 # AGC monitoring detects magnet distance drift; status changes alert to magnet removal.

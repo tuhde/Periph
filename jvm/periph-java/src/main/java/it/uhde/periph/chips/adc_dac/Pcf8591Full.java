@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.adc_dac;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -29,10 +29,10 @@ public class Pcf8591Full extends Pcf8591Minimal {
     /**
      * Construct the full driver.
      *
-     * @param transport I²C transport bound to the PCF8591 device address
+     * @param connection I²C connection bound to the PCF8591 device address
      */
-    public Pcf8591Full(Transport transport) {
-        super(transport);
+    public Pcf8591Full(Connection connection) {
+        super(connection);
     }
 
     /**
@@ -52,7 +52,7 @@ public class Pcf8591Full extends Pcf8591Minimal {
         this.inputMode     = aip;
         this.autoIncrement = autoIncrement;
         this.dacEnabled    = dacEnabled;
-        transport.write(new byte[]{(byte) this.control});
+        connection.write(new byte[]{(byte) this.control});
     }
 
     /**
@@ -104,8 +104,8 @@ public class Pcf8591Full extends Pcf8591Minimal {
         int ch = channel & 0x03;
         this.lastChannel = ch;
         int ctrl = this.control | (ch & 0x03);
-        transport.write(new byte[]{(byte) ctrl});
-        byte[] buf = transport.read(2);
+        connection.write(new byte[]{(byte) ctrl});
+        byte[] buf = connection.read(2);
         int raw = buf[1] & 0xFF;
         return raw >= 128 ? raw - 256 : raw;
     }
@@ -125,7 +125,7 @@ public class Pcf8591Full extends Pcf8591Minimal {
         int ctrl = (this.control | 0x40) & ~0x04;  // AOE=1, AI=0
         this.control = ctrl;
         this.dacEnabled = true;
-        transport.write(new byte[]{(byte) ctrl, (byte) v});
+        connection.write(new byte[]{(byte) ctrl, (byte) v});
     }
 
     /**
@@ -150,6 +150,6 @@ public class Pcf8591Full extends Pcf8591Minimal {
         int ctrl = this.control & ~0x40;  // AOE=0
         this.control = ctrl;
         this.dacEnabled = false;
-        transport.write(new byte[]{(byte) ctrl});
+        connection.write(new byte[]{(byte) ctrl});
     }
 }

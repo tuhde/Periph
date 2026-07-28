@@ -1,31 +1,31 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../transport/Transport.h"
+#include "../../connection/Connection.h"
 #include "NeoPixelColor.h"
 
 /** @brief SK6812RGBW addressable RGBW LED strip — minimal interface.
  *
- * Drives a chain of n SK6812RGBW pixels over a NeoPixel transport.
+ * Drives a chain of n SK6812RGBW pixels over a NeoPixel connection.
  * Maintains an internal GRBW buffer; fill() writes every pixel and
  * transmits immediately. Each pixel has four channels: red, green,
  * blue, and white (dedicated white LED element).
  *
  * The internal buffer is allocated as (n*4 + 24) bytes so the trailing
  * 24 zero-bytes satisfy the SK6812RGBW ≥80 µs reset requirement when
- * sent through the transport.
+ * sent through the connection.
  *
- * @param transport Configured NeoPixel transport.
+ * @param connection Configured NeoPixel connection.
  * @param n         Number of pixels in the strip.
  */
 class SK6812RGBWMinimal {
 public:
-    SK6812RGBWMinimal(Transport& transport, size_t n);
+    SK6812RGBWMinimal(Connection& connection, size_t n);
     ~SK6812RGBWMinimal();
 
     /** @brief Fill every pixel with one colour and send to the strip.
      *
-     *  Stores GRBW in the internal buffer then calls transport.write().
+     *  Stores GRBW in the internal buffer then calls connection.write().
      *  The white channel defaults to 0, allowing RGB-only usage.
      *
      *  @param r Red channel (0–255).
@@ -42,7 +42,7 @@ public:
     void off();
 
 protected:
-    Transport& _transport;
+    Connection& _connection;
     size_t     _n;
     uint8_t*   _buf;   ///< size = n*4 + 24; last 24 bytes are always zero (reset)
 
@@ -56,12 +56,12 @@ protected:
  * show() to transmit; or use the inherited fill() for an immediate all-same-colour
  * update.
  *
- * @param transport Configured NeoPixel transport.
+ * @param connection Configured NeoPixel connection.
  * @param n         Number of pixels in the strip.
  */
 class SK6812RGBWFull : public SK6812RGBWMinimal {
 public:
-    SK6812RGBWFull(Transport& transport, size_t n);
+    SK6812RGBWFull(Connection& connection, size_t n);
 
     /** @brief Set one pixel in the buffer without sending.
      *

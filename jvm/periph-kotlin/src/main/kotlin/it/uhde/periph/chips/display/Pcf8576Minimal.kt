@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.display
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -13,7 +13,7 @@ import java.io.IOException
  * Default configuration: 1:4 multiplex drive mode, 1/3 bias, display
  * enabled, and a 7-segment digit lookup table for the default multiplex mode.
  */
-open class Pcf8576Minimal(protected val transport: Transport) {
+open class Pcf8576Minimal(protected val connection: Connection) {
 
     companion object {
         const val ADDR_SA0_LOW  = 0x38
@@ -61,14 +61,14 @@ open class Pcf8576Minimal(protected val transport: Transport) {
                 (cmds[i] and 0x7F).toByte()
             }
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     protected fun sendCommandsWithData(cmd: Int, data: ByteArray) {
         val buf = ByteArray(1 + data.size)
         buf[0] = (cmd and 0x7F).toByte()
         System.arraycopy(data, 0, buf, 1, data.size)
-        transport.write(buf)
+        connection.write(buf)
     }
 
     private fun doClear() {

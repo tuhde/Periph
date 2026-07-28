@@ -5,7 +5,7 @@ class INA219Minimal:
     """INA219 26V, 12-bit current/voltage/power monitor — minimal interface.
 
     Provides bus voltage, shunt voltage, current, and power readings with no
-    configuration beyond the transport and shunt resistor. Writes the
+    configuration beyond the connection and shunt resistor. Writes the
     Calibration Register automatically at construction.
 
     Default chip configuration (power-on defaults, not rewritten):
@@ -16,7 +16,7 @@ class INA219Minimal:
         - MODE = 111: shunt + bus, continuous
 
     Args:
-        transport: Configured I²C or SMBus transport pointing at the device.
+        connection: Configured I²C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -28,27 +28,27 @@ class INA219Minimal:
     _REG_CURRENT = 0x04
     _REG_CAL     = 0x05
 
-    def __init__(self, transport, r_shunt=0.1, max_current=2.0):
+    def __init__(self, connection, r_shunt=0.1, max_current=2.0):
         """Initialize INA219Minimal and program the Calibration Register.
 
         Args:
-            transport: Configured I²C or SMBus transport pointing at the device.
+            connection: Configured I²C or SMBus connection pointing at the device.
             r_shunt: Shunt resistor value in ohms (default 0.1).
             max_current: Maximum expected current in amperes (default 2.0).
         """
-        self._transport = transport
+        self._connection = connection
         self._current_lsb = max_current / 32768
         self._cal = int(0.04096 / (self._current_lsb * r_shunt)) & 0xFFFE
         self._write_reg(self._REG_CAL, self._cal)
 
     def _write_reg(self, reg, value):
-        self._transport.write(struct.pack('>BH', reg, value))
+        self._connection.write(struct.pack('>BH', reg, value))
 
     def _read_reg(self, reg):
-        return struct.unpack('>H', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>H', self._connection.write_read(bytes([reg]), 2))[0]
 
     def _read_reg_signed(self, reg):
-        return struct.unpack('>h', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>h', self._connection.write_read(bytes([reg]), 2))[0]
 
     def voltage(self):
         """Read bus voltage.
@@ -94,7 +94,7 @@ class INA219Full(INA219Minimal):
     conversion-ready and overflow status, reset, and shutdown/wake.
 
     Args:
-        transport: Configured I²C or SMBus transport pointing at the device.
+        connection: Configured I²C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -128,15 +128,15 @@ class INA219Full(INA219Minimal):
     MODE_BUS_CONT        = 6
     MODE_SHUNT_BUS_CONT  = 7
 
-    def __init__(self, transport, r_shunt=0.1, max_current=2.0):
+    def __init__(self, connection, r_shunt=0.1, max_current=2.0):
         """Initialize INA219Full.
 
         Args:
-            transport: Configured I²C or SMBus transport pointing at the device.
+            connection: Configured I²C or SMBus connection pointing at the device.
             r_shunt: Shunt resistor value in ohms (default 0.1).
             max_current: Maximum expected current in amperes (default 2.0).
         """
-        super().__init__(transport, r_shunt, max_current)
+        super().__init__(connection, r_shunt, max_current)
         self._saved_mode = self.MODE_SHUNT_BUS_CONT
 
     def configure(self, brng=1, pga=3, badc=0x03, sadc=0x03, mode=7):

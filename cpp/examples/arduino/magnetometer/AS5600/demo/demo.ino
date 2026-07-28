@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "AS5600.h"
 
-I2CTransport transport(Wire, 0x36);
-AS5600Full as5600(transport);
+I2CConnection connection(Wire, 0x36);
+AS5600Full as5600(connection);
 
 void setup() {
     Serial.begin(115200);

@@ -1,9 +1,9 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
 #include "INA226.h"
 
-I2CTransport transport(Wire, 0x40);
-INA226Full ina(transport);
+I2CConnection connection(Wire, 0x40);
+INA226Full ina(connection);
 
 void setup() {
     Serial.begin(115200);

@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // BME280 register addresses.
@@ -135,7 +135,7 @@ func signExtend12(raw uint16) int16 {
 // and pressure coefficients (little-endian) plus dig_H1 at 0xA1. Block 2
 // (0xE1..0xE7) holds dig_H2..dig_H6 with dig_H4 and dig_H5 sharing register
 // 0xE5 — both are 12-bit two's-complement values.
-func bme280ReadCalibration(t transport.Transport) (bme280Calibration, error) {
+func bme280ReadCalibration(t connection.Connection) (bme280Calibration, error) {
 	var c bme280Calibration
 	// Block 1: 0x88..0xA0 = 25 bytes, skip reserved 0xA0, plus 0xA1 (dig_H1).
 	// Burst-read 26 bytes starting at 0x88 (this crosses the reserved 0xA0).
@@ -228,7 +228,7 @@ func bme280CompensateHumidity(adcH uint16, tFine int32, c bme280Calibration) flo
 // Each call to Temperature, Pressure, or Humidity triggers a fresh forced
 // measurement and reads all three ADCs in one burst.
 type BME280Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -244,15 +244,15 @@ type BME280Minimal struct {
 // NewBME280Minimal creates a BME280Minimal, reads the 18 trimming
 // coefficients, and applies the default weather-monitoring configuration.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME280Minimal(t transport.Transport) (*BME280Minimal, error) {
+func NewBME280Minimal(t connection.Connection) (*BME280Minimal, error) {
 	cal, err := bme280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BME280Minimal{
-		transport: t,
+		connection: t,
 		osrsT:     BME280OSRSX1,
 		osrsP:     BME280OSRSX1,
 		osrsH:     BME280OSRSX1,
@@ -276,12 +276,12 @@ func NewBME280Minimal(t transport.Transport) (*BME280Minimal, error) {
 
 // writeReg writes a single byte to a register.
 func (d *BME280Minimal) writeReg(reg, val uint8) error {
-	return d.transport.Write([]byte{reg, val})
+	return d.connection.Write([]byte{reg, val})
 }
 
 // readReg8 reads a single byte from a register.
 func (d *BME280Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.transport.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.WriteRead([]byte{reg}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -302,7 +302,7 @@ func (d *BME280Minimal) triggerAndRead() (uint32, uint32, uint16, error) {
 		}
 		time.Sleep(bme280MeasTime)
 	}
-	raw, err := d.transport.WriteRead([]byte{bme280RegData}, 8)
+	raw, err := d.connection.WriteRead([]byte{bme280RegData}, 8)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -366,9 +366,9 @@ type BME280Full struct {
 
 // NewBME280Full creates a BME280Full and applies the default configuration.
 //
-// transport must be a configured I²C transport bound to the chip's 7-bit
+// connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME280Full(t transport.Transport) (*BME280Full, error) {
+func NewBME280Full(t connection.Connection) (*BME280Full, error) {
 	m, err := NewBME280Minimal(t)
 	if err != nil {
 		return nil, err
@@ -502,7 +502,7 @@ func (d *BME280Full) Reset() error {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
-	cal, err := bme280ReadCalibration(d.transport)
+	cal, err := bme280ReadCalibration(d.connection)
 	if err != nil {
 		return err
 	}

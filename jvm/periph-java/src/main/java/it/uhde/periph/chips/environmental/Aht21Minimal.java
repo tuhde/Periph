@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ public class Aht21Minimal {
     protected static final int STATUS_BUSY = 0x80;
     protected static final int STATUS_CAL  = 0x08;
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     /**
      * Construct the driver and perform power-on initialization.
@@ -39,23 +39,23 @@ public class Aht21Minimal {
      * <p>Waits 100 ms, checks calibration status, sends soft reset if needed,
      * and writes calibration init commands if still uncalibrated.
      *
-     * @param transport I²C transport bound to the AHT21 device address (0x38)
+     * @param connection I²C connection bound to the AHT21 device address (0x38)
      * @throws IOException on I²C error
      */
-    public Aht21Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Aht21Minimal(Connection connection) throws IOException {
+        this.connection = connection;
         sleep(100);
         int status = readStatus();
         if ((status & 0x18) != 0x18) {
-            transport.write(CMD_SOFT_RESET);
+            connection.write(CMD_SOFT_RESET);
             sleep(20);
             status = readStatus();
             if ((status & 0x18) != 0x18) {
-                transport.write(CMD_CAL_INIT_1);
+                connection.write(CMD_CAL_INIT_1);
                 sleep(10);
-                transport.write(CMD_CAL_INIT_2);
+                connection.write(CMD_CAL_INIT_2);
                 sleep(10);
-                transport.write(CMD_CAL_INIT_3);
+                connection.write(CMD_CAL_INIT_3);
                 sleep(10);
             }
         }
@@ -71,14 +71,14 @@ public class Aht21Minimal {
      * @throws IOException on I²C error
      */
     public double[] read() throws IOException {
-        transport.write(CMD_TRIGGER);
+        connection.write(CMD_TRIGGER);
         sleep(80);
-        byte[] data = transport.read(6);
+        byte[] data = connection.read(6);
         return decode(data);
     }
 
     protected int readStatus() throws IOException {
-        byte[] buf = transport.read(1);
+        byte[] buf = connection.read(1);
         return buf[0] & 0xFF;
     }
 

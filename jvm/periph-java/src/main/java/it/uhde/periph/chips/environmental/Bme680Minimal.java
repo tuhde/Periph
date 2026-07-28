@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.environmental;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
 
 import java.io.IOException;
 
@@ -55,7 +55,7 @@ public class Bme680Minimal {
         125000L
     };
 
-    protected final Transport transport;
+    protected final Connection connection;
 
     protected int parT1;
     protected int parT2;
@@ -103,13 +103,13 @@ public class Bme680Minimal {
      * Construct the driver, verify the chip ID, load calibration data, and
      * configure default settings including heater profile 0.
      *
-     * @param transport I²C transport bound to the BME680 address (0x76 or 0x77)
+     * @param connection I²C connection bound to the BME680 address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bme680Minimal(Transport transport) throws IOException {
-        this.transport = transport;
+    public Bme680Minimal(Connection connection) throws IOException {
+        this.connection = connection;
 
-        byte[] id = transport.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
         int chipId = id[0] & 0xFF;
         if (chipId != CHIP_ID) {
             throw new IOException(
@@ -119,12 +119,12 @@ public class Bme680Minimal {
 
         readCalibration();
 
-        transport.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
-        transport.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
 
         setupHeater(0, heaterTempC, heaterDurationMs);
-        transport.write(new byte[]{(byte) REG_CTRL_GAS_1, (byte) ctrlGas1});
+        connection.write(new byte[]{(byte) REG_CTRL_GAS_1, (byte) ctrlGas1});
     }
 
     /**
@@ -138,8 +138,8 @@ public class Bme680Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() throws IOException {
-        byte[] b1 = transport.writeRead(new byte[]{(byte) REG_CAL_BLOCK1}, 23);
-        byte[] b2 = transport.writeRead(new byte[]{(byte) REG_CAL_BLOCK2}, 14);
+        byte[] b1 = connection.writeRead(new byte[]{(byte) REG_CAL_BLOCK1}, 23);
+        byte[] b2 = connection.writeRead(new byte[]{(byte) REG_CAL_BLOCK2}, 14);
 
         parT2 = (short) (((b1[1] & 0xFF) << 8) | (b1[0] & 0xFF));
         parT3 = b1[2];
@@ -166,13 +166,13 @@ public class Bme680Minimal {
         parG1 = b2[12];
         parG3 = b2[13];
 
-        byte[] rhv = transport.writeRead(new byte[]{(byte) REG_RES_HEAT_VAL}, 1);
+        byte[] rhv = connection.writeRead(new byte[]{(byte) REG_RES_HEAT_VAL}, 1);
         resHeatVal = rhv[0];
 
-        byte[] rhr = transport.writeRead(new byte[]{(byte) REG_RES_HEAT_RANGE}, 1);
+        byte[] rhr = connection.writeRead(new byte[]{(byte) REG_RES_HEAT_RANGE}, 1);
         resHeatRange = (rhr[0] >> 4) & 0x03;
 
-        byte[] rse = transport.writeRead(new byte[]{(byte) REG_RANGE_SW_ERR}, 1);
+        byte[] rse = connection.writeRead(new byte[]{(byte) REG_RANGE_SW_ERR}, 1);
         int raw = (rse[0] >> 4) & 0x0F;
         rangeSwitchingError = (raw > 7) ? raw - 16 : raw;
     }
@@ -188,10 +188,10 @@ public class Bme680Minimal {
      * @throws IOException on I²C error
      */
     protected byte[] triggerAndRead() throws IOException {
-        transport.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
-        transport.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)});
+        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
+        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)});
         try { Thread.sleep(MEAS_TIME_MS); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        return transport.writeRead(new byte[]{(byte) REG_PRESS_MSB}, 13);
+        return connection.writeRead(new byte[]{(byte) REG_PRESS_MSB}, 13);
     }
 
     /**
@@ -327,9 +327,9 @@ public class Bme680Minimal {
      */
     protected void setupHeater(int profileIndex, int targetTempC, int durationMs) throws IOException {
         int resHeat = calcHeaterResistance(targetTempC, ambientTemp);
-        transport.write(new byte[]{(byte) (0x5A + profileIndex), (byte) resHeat});
+        connection.write(new byte[]{(byte) (0x5A + profileIndex), (byte) resHeat});
         int gasWait = calcGasWait(durationMs);
-        transport.write(new byte[]{(byte) (0x64 + profileIndex), (byte) gasWait});
+        connection.write(new byte[]{(byte) (0x64 + profileIndex), (byte) gasWait});
     }
 
     /**

@@ -1,21 +1,21 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { I2CTransport } = require('periph/src/transport/i2c');
+    const { I2CConnection } = require('periph/src/connection/i2c');
     const { INA219Full }   = require('periph/src/chips/power/ina219');
 
     function INA219DeviceNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         try {
-            const transport = new I2CTransport(parseInt(config.bus), parseInt(config.address, 16));
-            node.driver    = new INA219Full(transport, parseFloat(config.rShunt), parseFloat(config.maxCurrent));
-            node.transport = transport;
+            const connection = new I2CConnection(parseInt(config.bus), parseInt(config.address, 16));
+            node.driver     = new INA219Full(connection, parseFloat(config.rShunt), parseFloat(config.maxCurrent));
+            node.connection = connection;
         } catch (e) {
             node.error('INA219 init failed: ' + e.message);
         }
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('ina219-device', INA219DeviceNode);
@@ -25,7 +25,7 @@ module.exports = function(RED) {
         const node = this;
         node.device = RED.nodes.getNode(config.device);
 
-        node.on('input', function(msg, send, done) {
+        node.on('input', async function(msg, send, done) {
             if (!node.device || !node.device.driver) {
                 node.error('No INA219 device configured', msg);
                 done();
@@ -34,10 +34,10 @@ module.exports = function(RED) {
             try {
                 const d = node.device.driver;
                 msg.payload = {
-                    voltage:      d.voltage(),
-                    current:      d.current(),
-                    power:        d.power(),
-                    shuntVoltage: d.shuntVoltage()
+                    voltage:      await d.voltage(),
+                    current:      await d.current(),
+                    power:        await d.power(),
+                    shuntVoltage: await d.shuntVoltage()
                 };
                 send(msg);
                 done();

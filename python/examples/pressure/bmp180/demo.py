@@ -1,9 +1,9 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp180 import BMP180Full
 
-transport = I2CTransport(0x77)
+connection = I2CConnection(0x77)
 
-bmp = BMP180Full(transport, oss=0)                     # Create BMP180 driver, (transport, oss=0 ULP)
+bmp = BMP180Full(connection, oss=0)                     # Create BMP180 driver, (connection, oss=0 ULP)
 
 # Use first reading as sea-level reference so altitude starts at 0.
 t0 = bmp.temperature()                                 # Read temperature, () → float C

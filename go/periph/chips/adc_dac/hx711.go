@@ -4,7 +4,7 @@ package adcdac
 import (
 	"fmt"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // HX711 gain values accepted by SetGain.
@@ -46,20 +46,20 @@ func (e *HX711Error) Error() string {
 // Reads signed 24-bit ADC values from Channel A at Gain 128. The
 // first post-power-up conversion is discarded during construction.
 //
-// The driver accepts a `*HX711Transport` that handles the underlying
+// The driver accepts a `*HX711Connection` that handles the underlying
 // 2-wire bit-bang protocol; this class adds gain selection, multi-sample
 // averaging, tare offset capture, scale factor calibration, and power
 // management on top of the Minimal API.
 type HX711Minimal struct {
-	transport *transport.HX711Transport
+	connection *connection.HX711Connection
 }
 
 // NewHX711Minimal creates a new HX711Minimal bound to the given HX711
-// transport. Discards the first post-power-up conversion so the next
+// connection. Discards the first post-power-up conversion so the next
 // read returns a valid result.
-func NewHX711Minimal(t *transport.HX711Transport) (*HX711Minimal, error) {
-	d := &HX711Minimal{transport: t}
-	if _, err := d.transport.ReadRaw(int(hx711Pulses128)); err != nil {
+func NewHX711Minimal(t *connection.HX711Connection) (*HX711Minimal, error) {
+	d := &HX711Minimal{connection: t}
+	if _, err := d.connection.ReadRaw(int(hx711Pulses128)); err != nil {
 		return nil, err
 	}
 	return d, nil
@@ -69,13 +69,13 @@ func NewHX711Minimal(t *transport.HX711Transport) (*HX711Minimal, error) {
 //
 // Non-blocking.
 func (d *HX711Minimal) IsReady() (bool, error) {
-	return d.transport.IsReady()
+	return d.connection.IsReady()
 }
 
 // ReadRaw blocks until data is ready and returns a signed 24-bit ADC
 // value from Channel A at Gain 128.
 func (d *HX711Minimal) ReadRaw() (int32, error) {
-	return d.transport.ReadRaw(int(hx711Pulses128))
+	return d.connection.ReadRaw(int(hx711Pulses128))
 }
 
 // HX711Full is the HX711 24-bit ADC driver — full interface. Extends
@@ -93,7 +93,7 @@ type HX711Full struct {
 
 // NewHX711Full creates a new HX711Full with default gain 128, offset 0,
 // and scale 1.0. Discards the first post-power-up conversion.
-func NewHX711Full(t *transport.HX711Transport) (*HX711Full, error) {
+func NewHX711Full(t *connection.HX711Connection) (*HX711Full, error) {
 	m, err := NewHX711Minimal(t)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func NewHX711Full(t *transport.HX711Transport) (*HX711Full, error) {
 // ReadRaw blocks until data is ready and returns a signed 24-bit ADC
 // value using the currently selected channel and gain.
 func (d *HX711Full) ReadRaw() (int32, error) {
-	return d.transport.ReadRaw(int(d.pulses))
+	return d.connection.ReadRaw(int(d.pulses))
 }
 
 // SetGain selects the input channel and gain.
@@ -127,7 +127,7 @@ func (d *HX711Full) SetGain(gain uint8) error {
 	default:
 		return &HX711Error{Op: "invalid_gain", Got: gain}
 	}
-	if _, err := d.transport.ReadRaw(int(d.pulses)); err != nil {
+	if _, err := d.connection.ReadRaw(int(d.pulses)); err != nil {
 		return err
 	}
 	return nil
@@ -189,17 +189,17 @@ func (d *HX711Full) ReadWeight(times uint8) (float32, error) {
 // PowerDown holds PD_SCK HIGH for >60 µs to put the chip into
 // power-down mode.
 func (d *HX711Full) PowerDown() error {
-	return d.transport.PowerDown()
+	return d.connection.PowerDown()
 }
 
 // PowerUp drives PD_SCK LOW to reset the chip to Channel A, Gain 128
 // and discards the first post-reset conversion.
 func (d *HX711Full) PowerUp() error {
-	if err := d.transport.PowerUp(); err != nil {
+	if err := d.connection.PowerUp(); err != nil {
 		return err
 	}
 	d.pulses = hx711Pulses128
-	if _, err := d.transport.ReadRaw(int(hx711Pulses128)); err != nil {
+	if _, err := d.connection.ReadRaw(int(hx711Pulses128)); err != nil {
 		return err
 	}
 	return nil

@@ -2,11 +2,11 @@
 
 Provides a 13.56 MHz RFID/NFC reader/writer frontend that detects an
 ISO/IEC 14443 Type A card in the field and reads its UID. No configuration
-beyond the transport is required.
+beyond the connection is required.
 
-Supports three host transports — I²C, SPI, and UART — all of which expose
+Supports three host connections — I²C, SPI, and UART — all of which expose
 the same 64-register internal bank; the address-byte framing differs per
-transport (see Register Access below). The driver selects the correct
+connection (see Register Access below). The driver selects the correct
 framing from a ``bus_type`` string.
 
 Default configuration (baked in at construction):
@@ -17,8 +17,8 @@ Default configuration (baked in at construction):
     - 106 kBd, 33 dB RX gain (reset default)
 
 Args:
-    transport: Configured I²C, SPI, or UART transport pointing at the
-        device. The transport must already be bound to the chip's
+    connection: Configured I²C, SPI, or UART connection pointing at the
+        device. The connection must already be bound to the chip's
         I²C address / SPI CS / UART port.
     bus_type: Bus type string, ``'spi'`` (default), ``'i2c'``, or
         ``'uart'``. SPI is the most common wiring for this chip.
@@ -132,17 +132,17 @@ class MFRC522Minimal:
     """MFRC522 13.56 MHz RFID/NFC reader — minimal interface.
 
     Detects ISO/IEC 14443 Type A cards in the field and reads their UID.
-    No configuration beyond the transport and bus type is required.
+    No configuration beyond the connection and bus type is required.
 
     Args:
-        transport: Configured I²C, SPI, or UART transport bound to the
+        connection: Configured I²C, SPI, or UART connection bound to the
             device.
         bus_type: Bus type string — ``'spi'`` (default), ``'i2c'``, or
             ``'uart'``. SPI is the most common wiring.
     """
 
-    def __init__(self, transport, bus_type='spi'):
-        self._transport = transport
+    def __init__(self, connection, bus_type='spi'):
+        self._connection = connection
         self._bus_type = bus_type
         self._init_chip()
 
@@ -155,11 +155,11 @@ class MFRC522Minimal:
 
     def _write_reg(self, reg, value):
         addr = self._addr_for(reg, read=False)
-        self._transport.write(bytes([addr, value & 0xFF]))
+        self._connection.write(bytes([addr, value & 0xFF]))
 
     def _read_reg(self, reg):
         addr = self._addr_for(reg, read=True)
-        return self._transport.write_read(bytes([addr]), 1)[0]
+        return self._connection.write_read(bytes([addr]), 1)[0]
 
     def _set_bits(self, reg, mask):
         self._write_reg(reg, self._read_reg(reg) | mask)
@@ -411,7 +411,7 @@ class MFRC522Full(MFRC522Minimal):
     page read/write.
 
     Args:
-        transport: Configured I²C, SPI, or UART transport bound to the device.
+        connection: Configured I²C, SPI, or UART connection bound to the device.
         bus_type: Bus type string — ``'spi'`` (default), ``'i2c'``, or ``'uart'``.
     """
 
@@ -431,8 +431,8 @@ class MFRC522Full(MFRC522Minimal):
     }
     _DB_TO_GAIN = {v: k for k, v in _GAIN_TO_DB.items()}
 
-    def __init__(self, transport, bus_type='spi'):
-        super().__init__(transport, bus_type)
+    def __init__(self, connection, bus_type='spi'):
+        super().__init__(connection, bus_type)
 
     def reset(self):
         """Re-run ``SoftReset`` and the full initialization sequence."""

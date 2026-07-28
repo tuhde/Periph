@@ -1,14 +1,14 @@
 #include "INA3221.h"
 
-INA3221Minimal::INA3221Minimal(Transport& transport, float r_shunt)
-    : _transport(transport) {
+INA3221Minimal::INA3221Minimal(Connection& connection, float r_shunt)
+    : _connection(connection) {
     _r_shunt[0] = r_shunt;
     _r_shunt[1] = r_shunt;
     _r_shunt[2] = r_shunt;
 }
 
-INA3221Minimal::INA3221Minimal(Transport& transport, const float r_shunt[3])
-    : _transport(transport) {
+INA3221Minimal::INA3221Minimal(Connection& connection, const float r_shunt[3])
+    : _connection(connection) {
     _r_shunt[0] = r_shunt[0];
     _r_shunt[1] = r_shunt[1];
     _r_shunt[2] = r_shunt[2];
@@ -23,12 +23,12 @@ uint8_t INA3221Minimal::_channel_valid(uint8_t channel) {
 
 void INA3221Minimal::_write_reg(uint8_t reg, uint16_t value) {
     uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }
 
 uint16_t INA3221Minimal::_read_reg(uint8_t reg) {
     uint8_t buf[2];
-    _transport.write_read(&reg, 1, buf, 2);
+    _connection.write_read(&reg, 1, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
@@ -60,11 +60,11 @@ float INA3221Minimal::power(uint8_t channel) {
 
 // INA3221Full
 
-INA3221Full::INA3221Full(Transport& transport, float r_shunt)
-    : INA3221Minimal(transport, r_shunt) {}
+INA3221Full::INA3221Full(Connection& connection, float r_shunt)
+    : INA3221Minimal(connection, r_shunt) {}
 
-INA3221Full::INA3221Full(Transport& transport, const float r_shunt[3])
-    : INA3221Minimal(transport, r_shunt) {}
+INA3221Full::INA3221Full(Connection& connection, const float r_shunt[3])
+    : INA3221Minimal(connection, r_shunt) {}
 
 void INA3221Full::configure(uint8_t avg, uint8_t vbus_ct, uint8_t vsh_ct, uint8_t mode) {
     uint16_t cfg = _read_reg(REG_CONFIG);

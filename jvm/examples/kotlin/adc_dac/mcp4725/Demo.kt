@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.adc_dac.Mcp4725Full
 
 /**
@@ -18,8 +18,8 @@ private const val STEPS   = 20
 private const val STEP_MS = 100L
 
 fun main() {
-    I2CTransport(1, 0x60).use { transport ->           // open I²C bus 1, device 0x60, (bus, address) → I2CTransport
-        val dac = Mcp4725Full(transport, null)                // construct driver (no general call needed for this demo), (transport, generalCall) → Mcp4725Full
+    I2CConnection(1, 0x60).use { connection ->           // open I²C bus 1, device 0x60, (bus, address) → I2CConnection
+        val dac = Mcp4725Full(connection, null)                // construct driver (no general call needed for this demo), (connection, generalCall) → Mcp4725Full
 
         // --- Ramp up from 0 V to VDD ---
         // Each step covers 1/20 of full scale (~165 mV on a 3.3 V rail).

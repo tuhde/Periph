@@ -1,19 +1,19 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import it.uhde.periph.chips.display.Pcf8576Full
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 
 int bus  = System.getenv("I2C_BUS")  ? System.getenv("I2C_BUS").toInteger()  : 1
 String addrStr = System.getenv("I2C_ADDR") ?: "0x38"
 int addr = Integer.decode(addrStr)
 
-I2CTransport transport = new I2CTransport(bus, addr)                          // open I²C bus, (bus, address=0x38) → I2CTransport
+I2CConnection connection = new I2CConnection(bus, addr)                          // open I²C bus, (bus, address=0x38) → I2CConnection
 try {
-    def lcd = new Pcf8576Full(transport)                                        // construct driver, (transport) → Pcf8576Full
+    def lcd = new Pcf8576Full(connection)                                        // construct driver, (connection) → Pcf8576Full
     lcd.clear()                                                                 // blank the display, () → void
                                                                                  // zeros all 40 columns of display RAM
     lcd.deviceSelect(0)                                                         // select device on the bus, (subaddress 0–7) → void
@@ -38,5 +38,5 @@ try {
     lcd.enable()                                                                 // enable display output, () → void
                                                                                  // resumes output from RAM with the prior configuration
 } finally {
-    transport.close()
+    connection.close()
 }

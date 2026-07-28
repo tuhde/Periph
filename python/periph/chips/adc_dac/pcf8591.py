@@ -2,24 +2,24 @@ class PCF8591Minimal:
     """PCF8591 8-bit quad ADC + DAC — minimal interface.
 
     Provides single-ended reads of the four analog inputs in 4 single-ended
-    mode (AIP=00). No configuration beyond the transport is required. Each
+    mode (AIP=00). No configuration beyond the connection is required. Each
     read transaction returns 5 bytes: the first is the previous conversion
     result and must be discarded; the next four are fresh channel samples.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x48–0x4F).
+        connection: Configured I²C connection pointing at the device (0x48–0x4F).
     """
 
     _CONTROL_DEFAULT = 0x00  # AIP=00 (4 single-ended), AOE=0, AI=0, CHN=0
     _NUM_CHANNELS    = 4
 
-    def __init__(self, transport):
-        """Initialize PCF8591Minimal and store the transport.
+    def __init__(self, connection):
+        """Initialize PCF8591Minimal and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        self._transport = transport
+        self._connection = connection
 
     def read_channel(self, channel):
         """Read a single channel as an unsigned 8-bit value.
@@ -37,8 +37,8 @@ class PCF8591Minimal:
         if ch < 0:
             ch = 0
         ctrl = self._CONTROL_DEFAULT | (ch & 0x03)
-        self._transport.write(bytes([ctrl]))
-        buf = self._transport.read(2)
+        self._connection.write(bytes([ctrl]))
+        buf = self._connection.read(2)
         return buf[1]
 
     def read_all(self):
@@ -51,8 +51,8 @@ class PCF8591Minimal:
             list[int]: Four raw 8-bit values [ch0, ch1, ch2, ch3].
         """
         ctrl = self._CONTROL_DEFAULT | 0x04  # AI=1
-        self._transport.write(bytes([ctrl]))
-        buf = self._transport.read(self._NUM_CHANNELS + 1)
+        self._connection.write(bytes([ctrl]))
+        buf = self._connection.read(self._NUM_CHANNELS + 1)
         return [buf[1], buf[2], buf[3], buf[4]]
 
 
@@ -64,7 +64,7 @@ class PCF8591Full(PCF8591Minimal):
     and signed differential reads.
 
     Args:
-        transport: Configured I²C transport pointing at the device (0x48–0x4F).
+        connection: Configured I²C connection pointing at the device (0x48–0x4F).
     """
 
     MODE_4_SINGLE_ENDED = 0  # 4 single-ended inputs (AIN0–AIN3)
@@ -72,13 +72,13 @@ class PCF8591Full(PCF8591Minimal):
     MODE_MIXED          = 2  # AIN0/1 single-ended, AIN2-AIN3 differential
     MODE_2_DIFFERENTIAL = 3  # 2 differential inputs
 
-    def __init__(self, transport):
-        """Initialize PCF8591Full and store the transport.
+    def __init__(self, connection):
+        """Initialize PCF8591Full and store the connection.
 
         Args:
-            transport: Configured I²C transport pointing at the device.
+            connection: Configured I²C connection pointing at the device.
         """
-        super().__init__(transport)
+        super().__init__(connection)
         self._control = self._CONTROL_DEFAULT
         self._input_mode = self.MODE_4_SINGLE_ENDED
         self._dac_enabled = False
@@ -104,10 +104,10 @@ class PCF8591Full(PCF8591Minimal):
         self._input_mode = aip
         self._auto_increment = bool(ai)
         self._dac_enabled = bool(aoe)
-        self._transport.write(bytes([self._control]))
+        self._connection.write(bytes([self._control]))
 
     def _read_with_control(self, n_bytes):
-        buf = self._transport.read(n_bytes)
+        buf = self._connection.read(n_bytes)
         return buf[1:]
 
     def read_channel_voltage(self, channel, vref, vagnd):
@@ -155,7 +155,7 @@ class PCF8591Full(PCF8591Minimal):
         ch = channel & 0x03
         ctrl = self._control | (ch & 0x03)
         self._last_channel = ch
-        self._transport.write(bytes([ctrl]))
+        self._connection.write(bytes([ctrl]))
         buf = self._read_with_control(2)
         raw = buf[0]
         return raw - 256 if raw >= 128 else raw
@@ -174,7 +174,7 @@ class PCF8591Full(PCF8591Minimal):
         ctrl = (self._control | 0x40) & ~0x04  # AOE=1, AI=0
         self._control = ctrl
         self._dac_enabled = True
-        self._transport.write(bytes([ctrl, v]))
+        self._connection.write(bytes([ctrl, v]))
 
     def set_dac_voltage(self, voltage_fraction):
         """Enable the DAC and set the output as a fraction of (VREF−VAGND).
@@ -196,4 +196,4 @@ class PCF8591Full(PCF8591Minimal):
         ctrl = self._control & ~0x40  # AOE=0
         self._control = ctrl
         self._dac_enabled = False
-        self._transport.write(bytes([ctrl]))
+        self._connection.write(bytes([ctrl]))

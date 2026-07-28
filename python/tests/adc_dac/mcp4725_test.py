@@ -1,6 +1,6 @@
 import time
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.adc_dac.mcp4725 import MCP4725Full
 
 from machine import I2C, Pin
@@ -20,8 +20,8 @@ def check_true(label, condition):
 
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
-dac = MCP4725Full(transport)
+connection = I2CConnection(i2c, cfg.ADDR)
+dac = MCP4725Full(connection)
 
 dac.set_voltage(0.5)
 check_true('set_voltage(0.5) accepted', True)

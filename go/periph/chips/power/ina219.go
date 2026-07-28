@@ -2,7 +2,7 @@
 package power
 
 import (
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // INA219 register addresses.
@@ -65,7 +65,7 @@ const (
 // BADC=3 / 12-bit, SADC=3 / 12-bit, MODE=7 / shunt+bus continuous) —
 // the Minimal driver does not rewrite the Configuration Register.
 type INA219Minimal struct {
-	transport  transport.Transport
+	connection  connection.Connection
 	currentLSB float32
 	cal        uint16
 }
@@ -73,14 +73,14 @@ type INA219Minimal struct {
 // NewINA219Minimal creates a new INA219Minimal and programs the
 // Calibration Register from r_shunt and max_current.
 //
-// transport must be a configured I²C transport bound to the device's
+// connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x40–0x4F, default 0x40).
 //
 // r_shunt is the shunt resistor value in ohms. max_current is the maximum
 // expected current in amperes; it determines the current LSB.
-func NewINA219Minimal(transport transport.Transport, rShunt float32, maxCurrent float32) (*INA219Minimal, error) {
+func NewINA219Minimal(connection connection.Connection, rShunt float32, maxCurrent float32) (*INA219Minimal, error) {
 	d := &INA219Minimal{
-		transport:  transport,
+		connection:  connection,
 		currentLSB: maxCurrent / 32768.0,
 	}
 	d.cal = uint16(0.04096/(d.currentLSB*rShunt)) & 0xFFFE
@@ -93,12 +93,12 @@ func NewINA219Minimal(transport transport.Transport, rShunt float32, maxCurrent 
 // writeReg writes a 16-bit value to a register (big-endian, pointer byte
 // followed by two data bytes).
 func (d *INA219Minimal) writeReg(reg uint8, value uint16) error {
-	return d.transport.Write([]byte{reg, byte(value >> 8), byte(value & 0xFF)})
+	return d.connection.Write([]byte{reg, byte(value >> 8), byte(value & 0xFF)})
 }
 
 // readReg reads a 16-bit unsigned register value.
 func (d *INA219Minimal) readReg(reg uint8) (uint16, error) {
-	buf, err := d.transport.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.WriteRead([]byte{reg}, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -166,8 +166,8 @@ type INA219Full struct {
 
 // NewINA219Full creates a new INA219Full and programs the Calibration
 // Register. Same arguments as NewINA219Minimal.
-func NewINA219Full(transport transport.Transport, rShunt float32, maxCurrent float32) (*INA219Full, error) {
-	m, err := NewINA219Minimal(transport, rShunt, maxCurrent)
+func NewINA219Full(connection connection.Connection, rShunt float32, maxCurrent float32) (*INA219Full, error) {
+	m, err := NewINA219Minimal(connection, rShunt, maxCurrent)
 	if err != nil {
 		return nil, err
 	}

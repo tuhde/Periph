@@ -1,15 +1,15 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-groovy:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina219Minimal
 
-def transport = new I2CTransport(1, 0x40)              // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
+def connection = new I2CConnection(1, 0x40)              // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
 try {
-    def ina = new Ina219Minimal(transport)                    // construct driver, (transport, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina219Minimal
+    def ina = new Ina219Minimal(connection)                    // construct driver, (connection, rShunt=0.1 Ω, maxCurrent=2.0 A) → Ina219Minimal
 
     while (true) {
         double v  = ina.voltage()       // read bus voltage, () → double V
@@ -20,5 +20,5 @@ try {
         Thread.sleep(1000)
     }
 } finally {
-    transport.close()
+    connection.close()
 }

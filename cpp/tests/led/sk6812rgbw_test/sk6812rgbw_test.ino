@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelTransport.h"
+#include "NeoPixelConnection.h"
 #include "SK6812RGBW.h"
 
 static int passed = 0;
@@ -25,11 +25,11 @@ void setup() {
     delay(2000);
     SPI.begin();
 
-    NeoPixelTransport transport(SPI);
+    NeoPixelConnection connection(SPI);
 
     // --- SK6812RGBWMinimal ---
     {
-        SK6812RGBWMinimal strip(transport, 8);
+        SK6812RGBWMinimal strip(connection, 8);
 
         strip.fill(255, 0, 0);
         check_true("fill(255,0,0) accepted", true);
@@ -49,7 +49,7 @@ void setup() {
 
     // --- SK6812RGBWFull ---
     {
-        SK6812RGBWFull strip(transport, 8);
+        SK6812RGBWFull strip(connection, 8);
 
         check_eq_u8("default brightness is 255", strip.get_brightness(), 255);
 

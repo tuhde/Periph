@@ -1,5 +1,5 @@
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.pressure.bmp280 import BMP280Minimal, BMP280Full
 
 passed = 0
@@ -8,9 +8,9 @@ failed = 0
 I2C_BUS = int(os.environ.get('LINUX_I2C_BUS', '1'))
 I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x76'), 16)
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
 
-bmp = BMP280Minimal(transport)
+bmp = BMP280Minimal(connection)
 
 bmp._dig_T1 = 27504
 bmp._dig_T2 = 26435
@@ -41,7 +41,7 @@ else:
     print('FAIL pressure_compensation: expected 1006.53, got {}'.format(p))
     failed += 1
 
-bmp_full = BMP280Full(transport)
+bmp_full = BMP280Full(connection)
 bmp_full._mode = 0
 if bmp_full._osrs_t == 1 and bmp_full._osrs_p == 1:
     print('PASS default_oversampling')
@@ -74,5 +74,5 @@ else:
     print('FAIL sea_level_pressure: expected ~1013, got {}'.format(slp))
     failed += 1
 
-transport.close()
+connection.close()
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

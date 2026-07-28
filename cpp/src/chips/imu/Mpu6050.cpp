@@ -18,8 +18,8 @@
 #define DELAY_MS(ms) delay(ms)
 #endif
 
-MPU6050Minimal::MPU6050Minimal(Transport& transport)
-    : _transport(transport) {
+MPU6050Minimal::MPU6050Minimal(Connection& connection)
+    : _connection(connection) {
     _write_reg(REG_PWR_MGMT_1, 0x80);
     DELAY_MS(100);
     _write_reg(REG_PWR_MGMT_1, 0x01);
@@ -36,23 +36,23 @@ MPU6050Minimal::MPU6050Minimal(Transport& transport)
 
 void MPU6050Minimal::_write_reg(uint8_t reg, uint8_t value) {
     uint8_t buf[2] = { reg, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 uint8_t MPU6050Minimal::_read_reg(uint8_t reg) {
     uint8_t val;
-    _transport.write_read(&reg, 1, &val, 1);
+    _connection.write_read(&reg, 1, &val, 1);
     return val;
 }
 
 int16_t MPU6050Minimal::_read_reg16_signed(uint8_t reg) {
     uint8_t buf[2];
-    _transport.write_read(&reg, 1, buf, 2);
+    _connection.write_read(&reg, 1, buf, 2);
     return static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
 }
 
 void MPU6050Minimal::_read_burst(uint8_t reg, uint8_t* buf, uint8_t len) {
-    _transport.write_read(&reg, 1, buf, len);
+    _connection.write_read(&reg, 1, buf, len);
 }
 
 void MPU6050Minimal::accel(float& x, float& y, float& z) {
@@ -79,8 +79,8 @@ void MPU6050Minimal::gyro(float& x, float& y, float& z) {
     z = gz / sens * 3.141592653589793f / 180.0f;
 }
 
-MPU6050Full::MPU6050Full(Transport& transport)
-    : MPU6050Minimal(transport) {}
+MPU6050Full::MPU6050Full(Connection& connection)
+    : MPU6050Minimal(connection) {}
 
 void MPU6050Full::configure_gyro(uint8_t full_scale) {
     _gyro_fs = full_scale & 0x03;

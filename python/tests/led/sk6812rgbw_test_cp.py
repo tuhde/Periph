@@ -1,5 +1,5 @@
 import _testconfig as cfg
-from periph.transport.neopixel_circuitpython import NeoPixelTransport
+from periph.connection.neopixel_circuitpython import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWMinimal, SK6812RGBWFull
 
 import busio
@@ -29,10 +29,10 @@ def check_eq(label, got, expected):
 
 
 spi = busio.SPI(cfg.SCK, MOSI=cfg.MOSI, MISO=cfg.MISO)
-transport = NeoPixelTransport(spi)
+connection = NeoPixelConnection(spi)
 
 # --- SK6812RGBWMinimal ---
-strip = SK6812RGBWMinimal(transport, 8)
+strip = SK6812RGBWMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -44,7 +44,7 @@ strip.off()
 check_true('off() accepted', True)
 
 # --- SK6812RGBWFull ---
-full = SK6812RGBWFull(transport, 8)
+full = SK6812RGBWFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 

@@ -1,14 +1,14 @@
-from periph.transport.i2c_auto import I2CTransport
+from periph.connection.i2c_auto import I2CConnection
 from periph.chips.imu.mpu6050 import MPU6050Full
 import math
 import time
 
-transport = I2CTransport(0x68)
+connection = I2CConnection(0x68)
 
 # --- Configure for motion logging with moderate dynamic range ---
 # ±4g captures typical tilting and handling forces without clipping;
 # ±500 dps covers fast rotations while retaining sub-degree resolution.
-imu = MPU6050Full(transport)                             # Create MPU6050 driver, (transport) → None
+imu = MPU6050Full(connection)                             # Create MPU6050 driver, (connection) → None
 imu.configure_accel(full_scale=1)                        # Configure accel range, (full_scale=0) → None
 imu.configure_gyro(full_scale=1)                         # Configure gyro range, (full_scale=0) → None
 

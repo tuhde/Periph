@@ -4,7 +4,7 @@ package rfid
 import (
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 // MFRC522 register addresses (6 bits, 0x00–0x3F).
@@ -107,7 +107,7 @@ const mfrcDelay = 1 * time.Millisecond
 // minimal interface. Detects ISO/IEC 14443 Type A cards in the field
 // and reads their UID.
 //
-// Communicates over an I²C transport (DDC) bound to the chip's 7-bit
+// Communicates over an I²C connection (DDC) bound to the chip's 7-bit
 // address (0x28 with all address pins tied LOW). All register
 // accesses use the I²C framing documented in the spec: write
 // [register] followed by data bytes; read via a write-then-read of
@@ -120,14 +120,14 @@ const mfrcDelay = 1 * time.Millisecond
 //   - Antenna enabled
 //   - 106 kBd, 33 dB RX gain (reset default)
 type MFRC522Minimal struct {
-	transport transport.Transport
+	connection connection.Connection
 }
 
 // NewMFRC522Minimal creates a new MFRC522Minimal and runs the
 // initialization sequence: SoftReset, 25 ms timer settings,
 // Force100ASK, CRC_A preset, antenna on.
-func NewMFRC522Minimal(t transport.Transport) (*MFRC522Minimal, error) {
-	d := &MFRC522Minimal{transport: t}
+func NewMFRC522Minimal(t connection.Connection) (*MFRC522Minimal, error) {
+	d := &MFRC522Minimal{connection: t}
 	if err := d.initChip(); err != nil {
 		return nil, err
 	}
@@ -136,12 +136,12 @@ func NewMFRC522Minimal(t transport.Transport) (*MFRC522Minimal, error) {
 
 // writeReg writes one byte to the given register via I²C.
 func (d *MFRC522Minimal) writeReg(reg, value uint8) error {
-	return d.transport.Write([]byte{reg & 0x3F, value})
+	return d.connection.Write([]byte{reg & 0x3F, value})
 }
 
 // readReg reads one byte from the given register via I²C.
 func (d *MFRC522Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.transport.WriteRead([]byte{reg & 0x3F}, 1)
+	buf, err := d.connection.WriteRead([]byte{reg & 0x3F}, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -497,7 +497,7 @@ type MFRC522Full struct {
 
 // NewMFRC522Full creates a new MFRC522Full with the same initialisation
 // as NewMFRC522Minimal.
-func NewMFRC522Full(t transport.Transport) (*MFRC522Full, error) {
+func NewMFRC522Full(t connection.Connection) (*MFRC522Full, error) {
 	m, err := NewMFRC522Minimal(t)
 	if err != nil {
 		return nil, err

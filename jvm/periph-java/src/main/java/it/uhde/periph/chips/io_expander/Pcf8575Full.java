@@ -1,51 +1,155 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.transport.Transport;
+import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.EdgeHandler;
+import it.uhde.periph.connection.EdgeTrigger;
+import it.uhde.periph.connection.InputPin;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
+/**
+ * PCF8575 full driver — extends {@link Pcf8575Minimal} with interrupt-on-change support.
+ *
+ * <p>{@link #onInterrupt(IntConsumer)} subscribes to the chip's INT line; delivery
+ * uses {@code connection.intPin()} (or an explicit override) if wired, otherwise
+ * falls back to a 5&nbsp;ms polling thread automatically. {@link #pollInterrupt()}
+ * reads current pin states and returns the 16-bit bitmask of changed pins
+ * (bits 0–7 = Port 0, bits 8–15 = Port 1). Per-pin {@link Pin#watch(Consumer)}
+ * is also available.
+ */
 public class Pcf8575Full extends Pcf8575Minimal {
 
     private int[] prev = {0xFF, 0xFF};
-    private IntConsumer callback = null;
-    private Thread pollThread = null;
-    private volatile boolean pollStop = false;
+    private volatile IntConsumer callback;
+    private InputPin intPin;
+    private volatile boolean polling = false;
+    private Thread pollThread;
+    private final PinWatch[] watches = new PinWatch[16];
 
-    public Pcf8575Full(Transport transport) throws IOException {
-        super(transport);
-        byte[] buf = transport.read(2);
+    /**
+     * Fixed edge handler instance, reused across onEdge()/offEdge() calls — a
+     * method reference like {@code this::handleEdge} is not guaranteed by the
+     * JLS to evaluate to the same object each time.
+     */
+    private final EdgeHandler edgeHandler = this::handleEdge;
+
+    private static final class PinWatch {
+        Consumer<Pin> handler;
+        EdgeTrigger trigger;
+        boolean lastState;
+    }
+
+    public Pcf8575Full(Connection connection) throws IOException {
+        super(connection);
+        byte[] buf = connection.read(2);
         prev[0] = buf[0] & 0xFF;
         prev[1] = buf[1] & 0xFF;
     }
 
-    public void configureInterrupt(IntConsumer callback) {
+    @Override
+    public Pin pin(int n) {
+        return new Pin(this, n);
+    }
+
+    /**
+     * Subscribe to INT assertions using {@code connection.intPin()} (or a 5&nbsp;ms
+     * polling thread if none is wired).
+     *
+     * @param callback called with the 16-bit changed-pin bitmask on any input change
+     * @throws IOException on I²C error
+     */
+    public void onInterrupt(IntConsumer callback) throws IOException {
+        onInterrupt(callback, connection.intPin());
+    }
+
+    /**
+     * Subscribe to INT assertions, overriding which {@link InputPin} delivers edges.
+     *
+     * @param callback called with the 16-bit changed-pin bitmask on any input change
+     * @param intPin   INT-line pin to arm, or {@code null} to force the 5&nbsp;ms polling fallback
+     * @throws IOException on I²C error
+     */
+    public void onInterrupt(IntConsumer callback, InputPin intPin) throws IOException {
         this.callback = callback;
-        pollStop = false;
-        pollThread = new Thread(this::pollLoop);
+        if (intPin != null) {
+            this.intPin = intPin;
+            intPin.onEdge(edgeHandler, EdgeTrigger.FALLING);
+        } else {
+            startPolling();
+        }
+    }
+
+    /** Unsubscribe and stop delivery. */
+    public void offInterrupt() {
+        callback = null;
+        if (intPin != null) {
+            intPin.offEdge(edgeHandler);
+            intPin = null;
+        }
+        stopPolling();
+    }
+
+    private void startPolling() {
+        polling = true;
+        pollThread = new Thread(() -> {
+            while (polling) {
+                handleEdge();
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }, "pcf8575-poll");
         pollThread.setDaemon(true);
         pollThread.start();
     }
 
-    private void pollLoop() {
-        try {
-            while (!pollStop) {
-                byte[] current = transport.read(2);
-                int ch0 = (current[0] ^ prev[0]) & 0xFF;
-                int ch1 = (current[1] ^ prev[1]) & 0xFF;
-                int changed = ch0 | (ch1 << 8);
-                if (changed != 0 && callback != null) {
-                    prev[0] = current[0] & 0xFF;
-                    prev[1] = current[1] & 0xFF;
-                    callback.accept(changed);
-                }
-                Thread.sleep(5);
-            }
-        } catch (Exception e) { }
+    private void stopPolling() {
+        polling = false;
+        if (pollThread != null) {
+            pollThread.interrupt();
+            pollThread = null;
+        }
     }
 
-    public int clearInterrupt() throws IOException {
-        byte[] current = transport.read(2);
+    private void handleEdge() {
+        try {
+            int changed = pollInterrupt();
+            if (changed == 0) return;
+            if (callback != null) callback.accept(changed);
+            for (int n = 0; n < 16; n++) {
+                if ((changed & (1 << n)) == 0) continue;
+                PinWatch w = watches[n];
+                if (w == null || w.handler == null) continue;
+                int port = n / 8;
+                int bit = n % 8;
+                boolean current = ((prev[port] >> bit) & 1) == 1;
+                boolean rising  = current && !w.lastState;
+                boolean falling = !current && w.lastState;
+                w.lastState = current;
+                boolean fire = w.trigger == EdgeTrigger.CHANGE
+                    || (w.trigger == EdgeTrigger.RISING && rising)
+                    || (w.trigger == EdgeTrigger.FALLING && falling);
+                if (fire) w.handler.accept(new Pin(this, n));
+            }
+        } catch (IOException ignored) {
+            // bus error; wait for the next edge/tick rather than propagating
+        }
+    }
+
+    /**
+     * Read current pin states and return the 16-bit bitmask of pins that changed
+     * since last read. Also clears the chip's INT output.
+     *
+     * @return 16-bit bitmask; bits 0–7 = Port 0 changed, bits 8–15 = Port 1 changed
+     * @throws IOException on I²C error
+     */
+    public int pollInterrupt() throws IOException {
+        byte[] current = connection.read(2);
         int ch0 = (current[0] ^ prev[0]) & 0xFF;
         int ch1 = (current[1] ^ prev[1]) & 0xFF;
         prev[0] = current[0] & 0xFF;
@@ -53,8 +157,47 @@ public class Pcf8575Full extends Pcf8575Minimal {
         return ch0 | (ch1 << 8);
     }
 
-    public void stopInterrupt() {
-        pollStop = true;
-        if (pollThread != null) pollThread.interrupt();
+    /** GPIO proxy for a single PCF8575 pin — full interface, adds {@link #watch}/{@link #unwatch}. */
+    public static class Pin extends Pcf8575Minimal.Pin {
+
+        private final Pcf8575Full chip;
+
+        protected Pin(Pcf8575Full chip, int n) {
+            super(chip, n);
+            this.chip = chip;
+        }
+
+        /**
+         * Subscribe to this pin's edge events (default trigger: {@link EdgeTrigger#CHANGE}).
+         *
+         * <p>At most one handler per pin at a time; a second call replaces the
+         * first. Call {@link Pcf8575Full#onInterrupt} first to arm delivery.
+         *
+         * @param handler called with this pin when its state matches the trigger
+         */
+        public void watch(Consumer<Pin> handler) {
+            watch(handler, EdgeTrigger.CHANGE);
+        }
+
+        /**
+         * Subscribe to this pin's edge events.
+         *
+         * @param handler called with this pin when its state matches {@code trigger}
+         * @param trigger which edge(s) to fire on
+         */
+        public void watch(Consumer<Pin> handler, EdgeTrigger trigger) {
+            PinWatch w = new PinWatch();
+            w.handler = handler;
+            w.trigger = trigger;
+            int port = n / 8;
+            int bit = n % 8;
+            w.lastState = ((chip.prev[port] >> bit) & 1) == 1;
+            chip.watches[n] = w;
+        }
+
+        /** Unsubscribe this pin's handler. No-op if not registered. */
+        public void unwatch() {
+            chip.watches[n] = null;
+        }
     }
 }

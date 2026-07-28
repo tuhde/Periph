@@ -14,7 +14,7 @@ fn main() {
 
     // fill — set all pixels and send immediately
     strip.fill(255, 0, 0, 0).expect("fill");                        // Fill all pixels with one colour, (r=0–255, g=0–255, b=0–255, w=0–255) → Result<(), E>
-                                                                    // stores GRBW in buffer and calls NeoPixelTransport::write()
+                                                                    // stores GRBW in buffer and calls NeoPixelConnection::write()
     sleep(Duration::from_millis(500));
 
     // fill with white channel
@@ -32,14 +32,14 @@ fn main() {
     strip.set_pixel(3, 0, 0, 0, 255);                               // Set pixel 3 to white in buffer (no send), (index=0–n-1, r=0–255, g=0–255, b=0–255, w=0–255) → ()
                                                                     // w=255 lights the dedicated white element; RGB remain off
     strip.show().expect("show");                                    // Transmit buffer to strip, () → Result<(), E>
-                                                                    // applies brightness scaling then calls NeoPixelTransport::write()
+                                                                    // applies brightness scaling then calls NeoPixelConnection::write()
     sleep(Duration::from_millis(500));
 
     // brightness
     strip.set_brightness(64);                                       // Set global brightness, (value=0–255) → ()
                                                                     // stored value is scaled: sent = stored * brightness / 255
     strip.show().expect("show dimmed");                             // Transmit buffer to strip, () → Result<(), E>
-                                                                    // applies brightness scaling then calls NeoPixelTransport::write()
+                                                                    // applies brightness scaling then calls NeoPixelConnection::write()
     sleep(Duration::from_millis(500));
     strip.set_brightness(255);                                      // Set global brightness, (value=0–255) → ()
                                                                     // stored value is scaled: sent = stored * brightness / 255
@@ -63,13 +63,13 @@ fn main() {
                                                                     // writes G,R,B,W bytes into internal buffer at position index*4
     }
     strip.show().expect("show before rotate");                      // Transmit buffer to strip, () → Result<(), E>
-                                                                    // applies brightness scaling then calls NeoPixelTransport::write()
+                                                                    // applies brightness scaling then calls NeoPixelConnection::write()
     sleep(Duration::from_millis(500));
     for _ in 0..7 {
         strip.rotate(1);                                            // Rotate pixel buffer left, (steps=1) → ()
                                                                     // shifts buffer by steps pixel positions; wraps around; does not send
         strip.show().expect("show rotated");                        // Transmit buffer to strip, () → Result<(), E>
-                                                                    // applies brightness scaling then calls NeoPixelTransport::write()
+                                                                    // applies brightness scaling then calls NeoPixelConnection::write()
         sleep(Duration::from_millis(200));
     }
 

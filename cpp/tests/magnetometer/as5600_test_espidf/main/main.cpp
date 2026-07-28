@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "AS5600.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    AS5600Full inst(transport);  // Create AS5600 driver
+    I2CConnectionESPIDF connection(dev);
+    AS5600Full inst(connection);  // Create AS5600 driver
     check_true(inst.is_magnet_detected(), "magnet detected");
     float a = inst.angle();
     check_near(a, 0.0f, 360.0f, "angle in range");

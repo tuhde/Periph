@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <gpiod.h>
-#include "HX711TransportLinux.h"
+#include "HX711ConnectionLinux.h"
 #include "HX711.h"
 
 #ifndef TEST_GPIO_CHIP
@@ -30,8 +30,8 @@ int main() {
     gpiod_line_request_input(dout_line,   "hx711_chip_test");
     gpiod_line_request_output(pd_sck_line, "hx711_chip_test", 0);
 
-    HX711TransportLinux transport(dout_line, pd_sck_line);
-    HX711Full<HX711TransportLinux> chip(transport);
+    HX711ConnectionLinux connection(dout_line, pd_sck_line);
+    HX711Full<HX711ConnectionLinux> chip(connection);
 
     check_true("is_ready returns bool", true);
 

@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/gnss"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,8 +27,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x42)      // Create I2C transport, (i2c, addr=0x42) → *I2CTransport
-	chip := gnss.NewNEO6Full(tr, "i2c")             // Create NEO-6 driver, (transport, bus_type="i2c") → *NEO6Full
+	conn := connection.NewI2CConnection(i2c, 0x42, nil, nil)      // Create I2C connection, (i2c, addr=0x42) → *I2CConnection
+	chip := gnss.NewNEO6Full(conn, "i2c")             // Create NEO-6 driver, (connection, bus_type="i2c") → *NEO6Full
 
 	fmt.Printf("fix: %d\n", chip.Fix())          // Get last GGA fix quality, () → uint8
 	fmt.Printf("sats: %d\n", chip.Satellites())  // Get last GGA satellite count, () → uint8

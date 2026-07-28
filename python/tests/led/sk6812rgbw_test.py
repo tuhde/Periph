@@ -1,5 +1,5 @@
 import _testconfig as cfg
-from periph.transport.neopixel_micropython import NeoPixelTransport
+from periph.connection.neopixel_micropython import NeoPixelConnection
 from periph.chips.led.sk6812rgbw import SK6812RGBWMinimal, SK6812RGBWFull
 
 from machine import SoftSPI, Pin
@@ -31,10 +31,10 @@ def check_eq(label, got, expected):
 
 spi = SoftSPI(baudrate=2_400_000, polarity=0, phase=0,
               sck=Pin(cfg.SCK), mosi=Pin(cfg.MOSI), miso=Pin(cfg.MISO))
-transport = NeoPixelTransport(spi)
+connection = NeoPixelConnection(spi)
 
 # --- SK6812RGBWMinimal ---
-strip = SK6812RGBWMinimal(transport, 8)
+strip = SK6812RGBWMinimal(connection, 8)
 
 strip.fill(255, 0, 0)
 check_true('fill(255,0,0) accepted', True)
@@ -55,7 +55,7 @@ strip.fill(300, -10, 1000, 500)
 check_true('fill clamps out-of-range values', True)
 
 # --- SK6812RGBWFull ---
-full = SK6812RGBWFull(transport, 8)
+full = SK6812RGBWFull(connection, 8)
 
 check_eq('default brightness is 255', full.brightness, 255)
 

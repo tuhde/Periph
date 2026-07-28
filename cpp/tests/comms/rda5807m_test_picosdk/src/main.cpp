@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"
+#include "I2CConnectionPicoSDK.h"
 #include "Rda5807m.h"
 
 int passed = 0;
@@ -24,8 +24,8 @@ int main(void) {
     gpio_set_function(5, GPIO_FUNC_I2C);
     gpio_pull_up(4);
     gpio_pull_up(5);
-    I2CTransportPicoSDK transport(i2c0, 0x10);
-    RDA5807MFull rda5807m(transport, /*frequency_mhz=*/100.0f, /*volume=*/5);
+    I2CConnectionPicoSDK connection(i2c0, 0x10);
+    RDA5807MFull rda5807m(connection, /*frequency_mhz=*/100.0f, /*volume=*/5);
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate

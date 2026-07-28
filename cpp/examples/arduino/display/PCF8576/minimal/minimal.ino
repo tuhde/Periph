@@ -10,15 +10,15 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/display/PCF8576.h"
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, TEST_ADDR);
-    PCF8576Minimal lcd(transport);                       // Create PCF8576 driver, (transport)
+    I2CConnection connection(Wire, TEST_ADDR);
+    PCF8576Minimal lcd(connection);                       // Create PCF8576 driver, (connection)
 
     static const uint8_t digits[] = {1, 2, 3, 4};
     for (uint8_t i = 0; i < 4; i++) {

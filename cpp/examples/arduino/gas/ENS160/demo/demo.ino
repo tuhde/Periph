@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/transport/I2CTransport.h"
+#include "../../src/connection/I2CConnection.h"
 #include "../../src/chips/gas/ENS160.h"
 
 static int passed = 0, failed = 0;
@@ -27,8 +27,8 @@ void setup() {
     Serial.begin(115200);
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CTransport transport(Wire, 0x52);
-    ENS160Full sensor(transport);                        // Create ENS160 driver, (transport)
+    I2CConnection connection(Wire, 0x52);
+    ENS160Full sensor(connection);                        // Create ENS160 driver, (connection)
 
     // --- Wait for sensor warm-up ---
     // The ENS160 requires ~3 minutes after power-on or idle before VALIDITY_FLAG

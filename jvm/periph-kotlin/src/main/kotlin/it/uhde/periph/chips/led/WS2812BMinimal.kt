@@ -1,22 +1,22 @@
 package it.uhde.periph.chips.led
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * WS2812B addressable RGB LED strip — minimal interface.
  *
- * Drives a chain of [n] WS2812B pixels over a NeoPixel transport.
+ * Drives a chain of [n] WS2812B pixels over a NeoPixel connection.
  * Maintains an internal GRB buffer; [fill] writes all pixels and
  * transmits immediately. No per-pixel addressing or brightness control.
  *
  * Use [WS2812BFull] for per-pixel addressing, explicit frame control,
  * brightness scaling, and HSV fill.
  *
- * @param transport configured NeoPixel transport
+ * @param connection configured NeoPixel connection
  * @param n number of pixels in the strip (≥1)
  */
 open class WS2812BMinimal(
-    protected val transport: Transport,
+    protected val connection: Connection,
     protected val n: Int
 ) {
     /** Internal pixel buffer in GRB wire order (G, R, B per pixel). */
@@ -41,7 +41,7 @@ open class WS2812BMinimal(
             buf[i * 3 + 1] = rc.toByte()
             buf[i * 3 + 2] = bc.toByte()
         }
-        transport.write(buf)
+        connection.write(buf)
     }
 
     /**

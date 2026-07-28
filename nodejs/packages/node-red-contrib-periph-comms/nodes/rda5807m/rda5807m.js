@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(RED) {
-    const { I2CTransport } = require('periph/src/transport/i2c');
+    const { I2CConnection } = require('periph/src/connection/i2c');
     const { RDA5807MFull } = require('periph/src/chips/comms/rda5807m');
 
     function RDA5807MNode(config) {
@@ -9,15 +9,15 @@ module.exports = function(RED) {
         const node = this;
 
         try {
-            const transport = new I2CTransport(parseInt(config.bus), parseInt(config.address, 16) || 0x10);
-            node.driver = new RDA5807MFull(transport, parseFloat(config.frequency) || 100.0, parseInt(config.volume) || 8);
+            const connection = new I2CConnection(parseInt(config.bus), parseInt(config.address, 16) || 0x10);
+            node.driver = new RDA5807MFull(connection, parseFloat(config.frequency) || 100.0, parseInt(config.volume) || 8);
             node.driver.configure({ band: parseInt(config.band), space: parseInt(config.space) });
-            node.transport = transport;
+            node.connection = connection;
         } catch (e) {
             node.error('RDA5807M init failed: ' + e.message);
         }
 
-        node.on('input', function(msg, send, done) {
+        node.on('input', async function(msg, send, done) {
             if (!node.driver) {
                 node.error('RDA5807M not initialized', msg);
                 done();
@@ -29,10 +29,10 @@ module.exports = function(RED) {
 
                 switch (payload.command) {
                     case 'tune':
-                        d.setFrequency(payload.frequency);
+                        await d.setFrequency(payload.frequency);
                         break;
                     case 'seek': {
-                        const freq = d.seek(payload.direction !== 'down');
+                        const freq = await d.seek(payload.direction !== 'down');
                         if (freq === null) {
                             send(Object.assign({}, msg, { payload: { frequency: null } }));
                             done();
@@ -41,12 +41,12 @@ module.exports = function(RED) {
                         break;
                     }
                     case 'volume':
-                        d.setVolume(payload.level);
+                        await d.setVolume(payload.level);
                         send(Object.assign({}, msg, { payload: { volume: payload.level } }));
                         done();
                         return;
                     case 'mute':
-                        d.mute(!!payload.enable);
+                        await d.mute(!!payload.enable);
                         send(Object.assign({}, msg, { payload: { muted: !!payload.enable } }));
                         done();
                         return;
@@ -55,11 +55,11 @@ module.exports = function(RED) {
                 }
 
                 msg.payload = {
-                    frequency: d.frequency(),
-                    stereo: d.isStereo(),
-                    station: d.isStation(),
-                    ready: d.isReady(),
-                    rssi: d.signalStrength()
+                    frequency: await d.frequency(),
+                    stereo: await d.isStereo(),
+                    station: await d.isStation(),
+                    ready: await d.isReady(),
+                    rssi: await d.signalStrength()
                 };
                 send(msg);
                 done();
@@ -69,7 +69,7 @@ module.exports = function(RED) {
         });
 
         node.on('close', function() {
-            if (node.transport) node.transport.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('periph-rda5807m', RDA5807MNode);

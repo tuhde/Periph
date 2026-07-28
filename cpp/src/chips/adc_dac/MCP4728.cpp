@@ -1,7 +1,7 @@
 #include "MCP4728.h"
 
-MCP4728Minimal::MCP4728Minimal(Transport& transport)
-    : _transport(transport) {}
+MCP4728Minimal::MCP4728Minimal(Connection& connection)
+    : _connection(connection) {}
 
 void MCP4728Minimal::set_voltage(uint8_t channel, float fraction) {
     if (fraction < 0.0f) fraction = 0.0f;
@@ -29,7 +29,7 @@ void MCP4728Minimal::set_all(const float* fractions) {
         buf[i * 2]     = (uint8_t)((code >> 8) & 0x0F);
         buf[i * 2 + 1] = (uint8_t)(code & 0xFF);
     }
-    _transport.write(buf, 8);
+    _connection.write(buf, 8);
 }
 
 void MCP4728Minimal::_multi_write(uint8_t channel, uint16_t code, uint8_t vref,
@@ -40,13 +40,13 @@ void MCP4728Minimal::_multi_write(uint8_t channel, uint16_t code, uint8_t vref,
                   ((gain & 0x01) << 4) | ((code >> 8) & 0x0F)),
         (uint8_t)(code & 0xFF)
     };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }
 
 // MCP4728Full
 
-MCP4728Full::MCP4728Full(Transport& transport)
-    : MCP4728Minimal(transport) {}
+MCP4728Full::MCP4728Full(Connection& connection)
+    : MCP4728Minimal(connection) {}
 
 void MCP4728Full::set_voltage_eeprom(uint8_t channel, float fraction, uint8_t vref, uint8_t gain) {
     if (fraction < 0.0f) fraction = 0.0f;
@@ -78,21 +78,21 @@ void MCP4728Full::set_all_eeprom(const float* fractions, const uint8_t* vrefs, c
         buf[1 + i * 2]     = (uint8_t)(((v & 0x01) << 7) | ((g & 0x01) << 4) | ((code >> 8) & 0x0F));
         buf[1 + i * 2 + 1] = (uint8_t)(code & 0xFF);
     }
-    _transport.write(buf, 9);
+    _connection.write(buf, 9);
 }
 
 void MCP4728Full::set_vref(uint8_t vref_a, uint8_t vref_b, uint8_t vref_c, uint8_t vref_d) {
     uint8_t byte1 = (uint8_t)(CMD_WRITE_VREF |
         ((vref_a ? 1 : 0) << 3) | ((vref_b ? 1 : 0) << 2) |
         ((vref_c ? 1 : 0) << 1) |  (vref_d ? 1 : 0));
-    _transport.write(&byte1, 1);
+    _connection.write(&byte1, 1);
 }
 
 void MCP4728Full::set_gain(uint8_t gain_a, uint8_t gain_b, uint8_t gain_c, uint8_t gain_d) {
     uint8_t byte1 = (uint8_t)(CMD_WRITE_GAIN |
         ((gain_a == 2 ? 1 : 0) << 3) | ((gain_b == 2 ? 1 : 0) << 2) |
         ((gain_c == 2 ? 1 : 0) << 1) |  (gain_d == 2 ? 1 : 0));
-    _transport.write(&byte1, 1);
+    _connection.write(&byte1, 1);
 }
 
 void MCP4728Full::set_power_down(uint8_t pd_a, uint8_t pd_b, uint8_t pd_c, uint8_t pd_d) {
@@ -103,12 +103,12 @@ void MCP4728Full::set_power_down(uint8_t pd_a, uint8_t pd_b, uint8_t pd_c, uint8
         (((pd_c >> 1) & 0x01) << 6) | ((pd_c & 0x01) << 5) |
         (((pd_d >> 1) & 0x01) << 4) | ((pd_d & 0x01) << 3));
     uint8_t buf[2] = { byte1, byte2 };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 MCP4728Full::ReadResult MCP4728Full::read() {
     uint8_t buf[24] = {0};
-    _transport.read(buf, 24);
+    _connection.read(buf, 24);
     ReadResult result = {};
     result.eeprom_ready = (buf[0] & 0x80) != 0;
     for (uint8_t i = 0; i < 4; i++) {
@@ -130,23 +130,23 @@ MCP4728Full::ReadResult MCP4728Full::read() {
 
 bool MCP4728Full::is_eeprom_ready() {
     uint8_t buf[1] = {0};
-    _transport.read(buf, 1);
+    _connection.read(buf, 1);
     return (buf[0] & 0x80) != 0;
 }
 
 void MCP4728Full::software_update() {
     uint8_t buf[2] = { ADDR_GENERAL_CALL, GC_SOFTWARE_UPD };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void MCP4728Full::wake_up() {
     uint8_t buf[2] = { ADDR_GENERAL_CALL, GC_WAKE };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void MCP4728Full::reset() {
     uint8_t buf[2] = { ADDR_GENERAL_CALL, GC_RESET };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void MCP4728Full::_single_write(uint8_t channel, uint16_t code, uint8_t vref,
@@ -159,5 +159,5 @@ void MCP4728Full::_single_write(uint8_t channel, uint16_t code, uint8_t vref,
                   ((gain & 0x01) << 4) | ((code >> 8) & 0x0F)),
         (uint8_t)(code & 0xFF)
     };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }

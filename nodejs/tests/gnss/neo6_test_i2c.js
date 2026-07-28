@@ -1,6 +1,6 @@
 'use strict';
 
-const { I2CTransport } = require('../../packages/periph/src/transport/i2c');
+const { I2CConnection } = require('../../packages/periph/src/connection/i2c');
 const { NEO6Minimal } = require('../../packages/periph/src/chips/gnss/neo6');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
@@ -18,8 +18,8 @@ function checkTrue(label, condition) {
 // an actual fix needs an outdoor antenna and can take up to ~26 s (cold
 // start); this test only requires that well-typed values come back.
 async function main() {
-    const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
-    const gps = new NEO6Minimal(transport, 'i2c');
+    const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
+    const gps = new NEO6Minimal(connection, 'i2c');
 
     checkTrue('fix() starts at 0', gps.fix() === 0);
     checkTrue('latitude() starts at null', gps.latitude() === null);
@@ -38,7 +38,7 @@ async function main() {
         console.log('note: no fix acquired during the test window (needs sky view)');
     }
 
-    transport.close();
+    await connection.close();
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

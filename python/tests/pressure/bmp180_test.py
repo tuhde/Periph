@@ -1,6 +1,6 @@
 import machine
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.pressure.bmp180 import BMP180Minimal, BMP180Full
 from machine import Pin
 
@@ -8,9 +8,9 @@ passed = 0
 failed = 0
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, 0x77)
+connection = I2CConnection(i2c, 0x77)
 
-bmp = BMP180Minimal(transport)
+bmp = BMP180Minimal(connection)
 
 ut = 27898
 up = 23843
@@ -43,7 +43,7 @@ else:
     print('FAIL pressure_compensation: expected 699.64, got {}'.format(p))
     failed += 1
 
-bmp_full = BMP180Full(transport, oss=0)
+bmp_full = BMP180Full(connection, oss=0)
 if bmp_full.oversampling() == 0:
     print('PASS default_oss')
     passed += 1

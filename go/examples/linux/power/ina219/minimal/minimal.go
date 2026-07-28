@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/power"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -26,13 +26,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr)) // Create I2C transport, (bus=1, addr=0x40) → (*I2CTransport, error)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil) // Create I2C connection, (bus=1, addr=0x40) → (*I2CConnection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	chip, err := power.NewINA219Minimal(tr, 0.1, 2.0) // Create INA219 driver, (transport, r_shunt=0.1 Ω, max_current=2.0 A) → (*INA219Minimal, error)
+	chip, err := power.NewINA219Minimal(conn, 0.1, 2.0) // Create INA219 driver, (connection, r_shunt=0.1 Ω, max_current=2.0 A) → (*INA219Minimal, error)
 	if err != nil {
 		panic(err)
 	}

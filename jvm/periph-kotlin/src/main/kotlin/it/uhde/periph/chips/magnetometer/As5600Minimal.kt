@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AS5600 — 12-bit programmable contactless rotary position sensor (minimal driver).
@@ -15,7 +15,7 @@ import it.uhde.periph.transport.Transport
  * If MD=0, an [IllegalStateException] is thrown — output data is invalid without a magnet.
  */
 open class As5600Minimal(
-    protected val transport: Transport
+    protected val connection: Connection
 ) {
     companion object {
         // Register addresses
@@ -116,7 +116,7 @@ open class As5600Minimal(
      * @param val 8-bit value
      */
     protected fun writeReg8(reg: Int, `val`: Int) {
-        transport.write(byteArrayOf(reg.toByte(), `val`.toByte()))
+        connection.write(byteArrayOf(reg.toByte(), `val`.toByte()))
     }
 
     /**
@@ -126,7 +126,7 @@ open class As5600Minimal(
      * @return unsigned 8-bit value (0–255)
      */
     protected fun readReg8(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -142,7 +142,7 @@ open class As5600Minimal(
      */
     protected fun writeReg12(regHi: Int, regLo: Int, `val`: Int) {
         val v = `val` and 0xFFF
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             regHi.toByte(),
             ((v shr 8) and 0x0F).toByte(),
             (v and 0xFF).toByte()
@@ -159,7 +159,7 @@ open class As5600Minimal(
      * @return 12-bit value (0–4095)
      */
     protected fun readReg12(regHi: Int): Int {
-        val b = transport.writeRead(byteArrayOf(regHi.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(regHi.toByte()), 2)
         return ((b[0].toInt() and 0x0F) shl 8) or (b[1].toInt() and 0xFF)
     }
 
@@ -170,7 +170,7 @@ open class As5600Minimal(
      * @return unsigned 16-bit value (0–65535)
      */
     protected fun readReg16(regHi: Int): Int {
-        val b = transport.writeRead(byteArrayOf(regHi.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(regHi.toByte()), 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 }

@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "BME280.h"
 
 static int passed = 0;
@@ -48,8 +48,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    BME280Full inst(transport, false);  // Create BME280 driver
+    I2CConnectionESPIDF connection(dev);
+    BME280Full inst(connection, false);  // Create BME280 driver
     check_eq_u8(inst.chip_id(), 0x60, "chip_id 0x60");
     float t = inst.temperature();
     check_near(t, -40.0f, 85.0f, "temperature range");

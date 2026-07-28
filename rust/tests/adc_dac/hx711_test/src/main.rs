@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::adc_dac::{Hx711Full, Hx711Minimal};
-use periph::transport::hx711::{HX711Error, HX711Transport};
+use periph::connection::hx711::{HX711Error, HX711Connection};
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -41,8 +41,8 @@ fn main() {
         let dout   = CdevPin::new(dout_handle).expect("dout pin");
         let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
-        let transport = HX711Transport::new(dout, pd_sck);
-        let mut minimal = Hx711Minimal::new(transport).expect("init Hx711Minimal");
+        let connection = HX711Connection::new(dout, pd_sck);
+        let mut minimal = Hx711Minimal::new(connection).expect("init Hx711Minimal");
 
         let ready = minimal.is_ready();
         check_true!(ready.is_ok(), "minimal is_ready ok", passed, failed);
@@ -69,8 +69,8 @@ fn main() {
         let dout   = CdevPin::new(dout_handle).expect("dout pin");
         let pd_sck = CdevPin::new(pd_sck_handle).expect("pd_sck pin");
 
-        let transport = HX711Transport::new(dout, pd_sck);
-        let mut full = Hx711Full::new(transport).expect("init Hx711Full");
+        let connection = HX711Connection::new(dout, pd_sck);
+        let mut full = Hx711Full::new(connection).expect("init Hx711Full");
 
         check_true!(full.is_ready().is_ok(), "full is_ready ok", passed, failed);
 

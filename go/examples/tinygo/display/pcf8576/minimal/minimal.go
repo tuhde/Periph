@@ -11,7 +11,7 @@ import (
 	"machine"
 
 	"github.com/tuhde/Periph/go/periph/chips/display"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x38)                // Create I2C transport, (i2c, addr=0x38) → (*I2CTransport)
-	lcd, err := display.NewPCF8576Minimal(tr)                  // Create PCF8576 driver, (transport) → (*PCF8576Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x38, nil, nil)                // Create I2C connection, (i2c, addr=0x38) → (*I2CConnection)
+	lcd, err := display.NewPCF8576Minimal(conn)                  // Create PCF8576 driver, (connection) → (*PCF8576Minimal, error)
 	if err != nil {
 		panic(err)
 	}

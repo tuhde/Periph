@@ -1,7 +1,7 @@
 use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::CdevPin;
 use periph::chips::adc_dac::Hx711Minimal;
-use periph::transport::hx711::HX711Transport;
+use periph::connection::hx711::HX711Connection;
 
 fn main() {
     let chip_path   = std::env::var("GPIO_CHIP").unwrap_or_else(|_| "/dev/gpiochip0".into());
@@ -17,8 +17,8 @@ fn main() {
     let dout   = CdevPin::new(dout_handle).expect("dout pin");
     let pd_sck = CdevPin::new(sck_handle).expect("pd_sck pin");
 
-    let transport = HX711Transport::new(dout, pd_sck);
-    let mut chip = Hx711Minimal::new(transport).expect("init HX711");  // Create HX711 driver — discards first conversion, (transport) → Result<Hx711Minimal, _>
+    let connection = HX711Connection::new(dout, pd_sck);
+    let mut chip = Hx711Minimal::new(connection).expect("init HX711");  // Create HX711 driver — discards first conversion, (connection) → Result<Hx711Minimal, _>
 
     loop {
         let ready = chip.is_ready().expect("is_ready");    // Check if conversion is ready (non-blocking), () → Result<bool, _>

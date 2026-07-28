@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.gas.Ens160Full;
 
 public class Ens160Test {
@@ -21,9 +21,9 @@ public class Ens160Test {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS",  "1"));
         int addr = Integer.decode(System.getenv().getOrDefault("I2C_ADDR", "0x52"));
 
-        try (var transport = new I2CTransport(bus, addr)) {
+        try (var connection = new I2CConnection(bus, addr)) {
 
-            var sensor = new Ens160Full(transport);
+            var sensor = new Ens160Full(connection);
 
             int status = sensor.status();
             checkTrue("status() in range [0, 3]", status >= 0 && status <= 3);

@@ -1,9 +1,11 @@
 #include <Wire.h>
-#include "I2CTransport.h"
+#include "I2CConnection.h"
+#include "InputPinArduino.h"
 #include "PCF8574.h"
 
-I2CTransport transport(Wire, 0x20);                            // Create I2C transport, (wire, addr=0x20)
-PCF8574Full chip(transport);                                    // Create PCF8574 full driver, (transport, addr=0x20)
+InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
+I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)
+PCF8574Full chip(connection);                                    // Create PCF8574 full driver, (connection, addr=0x20)
                                                                // initialises all pins as inputs; shadow = 0xFF
 
 void setup() {
@@ -38,21 +40,21 @@ void setup() {
                                                                // 0 if button pulls P4 low, 1 if floating
     Serial.println(state);
 
-    chip.configure_interrupt(5, [](uint8_t changed) {         // Attach interrupt, (gpio_pin, callback) → void
+    chip.onInterrupt([](uint8_t changed) {                     // Subscribe to INT line, (callback) → void
         Serial.print("INT changed=0x");                        // callback fires on any input change
         Serial.println(changed, HEX);
     });
 
-    uint8_t changed = chip.clear_interrupt();                  // Read and return changed bitmask, () → uint8_t
+    uint8_t changed = chip.pollInterrupt();                    // Read and return changed bitmask, () → uint8_t
                                                                // compares current byte to previous; clears INT
     Serial.println(changed, HEX);
 
     PCF8574Full::IOExpanderPin p5 = chip.pin(5);              // Get full pin proxy, (n) → IOExpanderPin
     p5.mode(INPUT);
-    p5.attachInterrupt([](PCF8574Full::IOExpanderPin* p) {    // Attach per-pin interrupt, (handler, mode) → void
-        Serial.println("P5 fell");                             // fires when P5 transitions to match mode
-    }, FALLING);
-    p5.detachInterrupt();                                      // Remove per-pin handler, () → void
+    p5.watch([](PCF8574Full::IOExpanderPin* p) {              // Subscribe to pin edges, (handler, trigger) → void
+        Serial.println("P5 fell");                             // fires when P5 transitions to match trigger
+    }, InputPin::kFalling);
+    p5.unwatch();                                               // Unsubscribe pin handler, () → void
 }
 
 void loop() {

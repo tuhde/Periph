@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * INA219 — zero-drift, bidirectional current/power monitor with I²C interface
@@ -14,12 +14,12 @@ import it.uhde.periph.transport.Transport
  *
  * Default I²C address: 0x40 (A1=GND, A0=GND).
  *
- * @param transport  I²C transport bound to the INA219 device address
+ * @param connection  I²C connection bound to the INA219 device address
  * @param rShunt     shunt resistance in Ω (default 0.1)
  * @param maxCurrent maximum expected current in A (default 2.0)
  */
 open class Ina219Minimal @JvmOverloads constructor(
-    protected val transport: Transport,
+    protected val connection: Connection,
     protected val rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
 ) {
@@ -106,7 +106,7 @@ open class Ina219Minimal @JvmOverloads constructor(
      * @return raw unsigned 16-bit value
      */
     protected fun readReg(reg: Int): Int {
-        val b = transport.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
@@ -117,7 +117,7 @@ open class Ina219Minimal @JvmOverloads constructor(
      * @param val 16-bit value to write
      */
     protected fun writeReg(reg: Int, `val`: Int) {
-        transport.write(byteArrayOf(
+        connection.write(byteArrayOf(
             reg.toByte(),
             ((`val` shr 8) and 0xFF).toByte(),
             (`val` and 0xFF).toByte()

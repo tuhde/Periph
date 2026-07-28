@@ -1,22 +1,22 @@
 #include "PCF8591.h"
 
-PCF8591Minimal::PCF8591Minimal(Transport& transport)
-    : _transport(transport) {}
+PCF8591Minimal::PCF8591Minimal(Connection& connection)
+    : _connection(connection) {}
 
 uint8_t PCF8591Minimal::read_channel(uint8_t channel) {
     uint8_t ch = (channel < NUM_CHANNELS) ? channel : 0;
     uint8_t ctrl = CONTROL_DEFAULT | (ch & 0x03);
-    _transport.write(&ctrl, 1);
+    _connection.write(&ctrl, 1);
     uint8_t buf[2] = {0, 0};
-    _transport.read(buf, 2);
+    _connection.read(buf, 2);
     return buf[1];
 }
 
 void PCF8591Minimal::read_all(uint8_t* out) {
     uint8_t ctrl = CONTROL_DEFAULT | 0x04;  // AI=1
-    _transport.write(&ctrl, 1);
+    _connection.write(&ctrl, 1);
     uint8_t buf[NUM_CHANNELS + 1] = {0, 0, 0, 0, 0};
-    _transport.read(buf, NUM_CHANNELS + 1);
+    _connection.read(buf, NUM_CHANNELS + 1);
     out[0] = buf[1];
     out[1] = buf[2];
     out[2] = buf[3];
@@ -25,8 +25,8 @@ void PCF8591Minimal::read_all(uint8_t* out) {
 
 // PCF8591Full
 
-PCF8591Full::PCF8591Full(Transport& transport)
-    : PCF8591Minimal(transport),
+PCF8591Full::PCF8591Full(Connection& connection)
+    : PCF8591Minimal(connection),
       _control(CONTROL_DEFAULT),
       _input_mode(MODE_4_SINGLE_ENDED),
       _dac_enabled(false),
@@ -41,7 +41,7 @@ void PCF8591Full::configure(uint8_t input_mode, bool auto_increment, bool dac_en
     _input_mode     = aip;
     _auto_increment = auto_increment;
     _dac_enabled    = dac_enabled;
-    _transport.write(&_control, 1);
+    _connection.write(&_control, 1);
 }
 
 float PCF8591Full::read_channel_voltage(uint8_t channel, float vref, float vagnd) {
@@ -66,9 +66,9 @@ int8_t PCF8591Full::read_differential(uint8_t channel) {
 }
 
 int8_t PCF8591Full::_read_signed_byte(uint8_t ctrl) {
-    _transport.write(&ctrl, 1);
+    _connection.write(&ctrl, 1);
     uint8_t buf[2] = {0, 0};
-    _transport.read(buf, 2);
+    _connection.read(buf, 2);
     int8_t raw = (int8_t)buf[1];
     return raw;
 }
@@ -78,7 +78,7 @@ void PCF8591Full::set_dac(uint8_t value) {
     _control     = ctrl;
     _dac_enabled = true;
     uint8_t buf[2] = { ctrl, value };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void PCF8591Full::set_dac_voltage(float voltage_fraction) {
@@ -92,5 +92,5 @@ void PCF8591Full::disable_dac() {
     uint8_t ctrl = _control & ~0x40;  // AOE=0
     _control     = ctrl;
     _dac_enabled = false;
-    _transport.write(&ctrl, 1);
+    _connection.write(&ctrl, 1);
 }

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * AHT21 — full driver. Extends {@link Aht21Minimal} with CRC verification,
@@ -14,10 +14,10 @@ class Aht21Full extends Aht21Minimal {
     /**
      * Construct the full driver and perform power-on initialization.
      *
-     * @param transport I²C transport bound to the AHT21 device address (0x38)
+     * @param connection I²C connection bound to the AHT21 device address (0x38)
      */
-    Aht21Full(Transport transport) {
-        super(transport)
+    Aht21Full(Connection connection) {
+        super(connection)
     }
 
     /**
@@ -47,9 +47,9 @@ class Aht21Full extends Aht21Minimal {
      * @return double array: [0] = temperature in °C, [1] = humidity in %RH, [2] = 1.0 if CRC ok, 0.0 if not
      */
     double[] readWithCrc() {
-        transport.write(CMD_TRIGGER)
+        connection.write(CMD_TRIGGER)
         Thread.sleep(80)
-        byte[] data = transport.read(7)
+        byte[] data = connection.read(7)
         double[] result = decode(data)
         boolean crcOk = crc8(data, 6) == (data[6] & 0xFF)
         [result[0], result[1], crcOk ? 1.0d : 0.0d] as double[]
@@ -59,7 +59,7 @@ class Aht21Full extends Aht21Minimal {
      * Send the soft reset command and wait 20 ms for recovery.
      */
     void softReset() {
-        transport.write(CMD_SOFT_RESET)
+        connection.write(CMD_SOFT_RESET)
         Thread.sleep(20)
     }
 

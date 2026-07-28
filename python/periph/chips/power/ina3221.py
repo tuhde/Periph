@@ -5,12 +5,12 @@ class INA3221Minimal:
     """INA3221 three-channel 26V current/voltage/power monitor — minimal interface.
 
     Reads bus voltage, shunt voltage, current, and power for each of the three
-    channels with no configuration beyond the transport and shunt resistors.
+    channels with no configuration beyond the connection and shunt resistors.
     The chip's power-on default (all three channels on, continuous shunt+bus)
     is used without modification.
 
     Args:
-        transport: Configured I2C or SMBus transport pointing at the device.
+        connection: Configured I2C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).
@@ -29,21 +29,21 @@ class INA3221Minimal:
     _SHUNT_REGS = (_REG_SHUNT1, _REG_SHUNT2, _REG_SHUNT3)
     _BUS_REGS   = (_REG_BUS1, _REG_BUS2, _REG_BUS3)
 
-    def __init__(self, transport, r_shunt=0.1):
-        self._transport = transport
+    def __init__(self, connection, r_shunt=0.1):
+        self._connection = connection
         if hasattr(r_shunt, '__iter__'):
             self._r_shunt = tuple(float(r_shunt[i]) for i in range(3))
         else:
             self._r_shunt = (float(r_shunt), float(r_shunt), float(r_shunt))
 
     def _write_reg(self, reg, value):
-        self._transport.write(struct.pack('>BH', reg, value))
+        self._connection.write(struct.pack('>BH', reg, value))
 
     def _read_reg(self, reg):
-        return struct.unpack('>H', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>H', self._connection.write_read(bytes([reg]), 2))[0]
 
     def _read_reg_signed(self, reg):
-        return struct.unpack('>h', self._transport.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>h', self._connection.write_read(bytes([reg]), 2))[0]
 
     def _channel_valid(self, channel):
         if channel not in (1, 2, 3):
@@ -126,7 +126,7 @@ class INA3221Full(INA3221Minimal):
         MODE_SHUNT_BUS_CONT = 7
 
     Args:
-        transport: Configured I2C or SMBus transport pointing at the device.
+        connection: Configured I2C or SMBus connection pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).
@@ -166,8 +166,8 @@ class INA3221Full(INA3221Minimal):
     _CRIT_REGS  = (_REG_CH1_CRIT, _REG_CH2_CRIT, _REG_CH3_CRIT)
     _WARN_REGS  = (_REG_CH1_WARN, _REG_CH2_WARN, _REG_CH3_WARN)
 
-    def __init__(self, transport, r_shunt=0.1):
-        super().__init__(transport, r_shunt)
+    def __init__(self, connection, r_shunt=0.1):
+        super().__init__(connection, r_shunt)
         self._mode = 0x07
 
     def configure(self, avg=0, vbus_ct=4, vsh_ct=4, mode=7):

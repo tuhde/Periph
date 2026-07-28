@@ -1,7 +1,7 @@
 #include "MCP4725.h"
 
-MCP4725Minimal::MCP4725Minimal(Transport& transport)
-    : _transport(transport) {}
+MCP4725Minimal::MCP4725Minimal(Connection& connection)
+    : _connection(connection) {}
 
 void MCP4725Minimal::set_voltage(float fraction) {
     if (fraction < 0.0f) fraction = 0.0f;
@@ -20,13 +20,13 @@ void MCP4725Minimal::_fast_write(uint16_t code, uint8_t pd_mode) {
         (uint8_t)(((pd_mode & 0x03) << 4) | ((code >> 8) & 0x0F)),
         (uint8_t)(code & 0xFF)
     };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 // MCP4725Full
 
-MCP4725Full::MCP4725Full(Transport& transport)
-    : MCP4725Minimal(transport) {}
+MCP4725Full::MCP4725Full(Connection& connection)
+    : MCP4725Minimal(connection) {}
 
 void MCP4725Full::set_voltage_eeprom(float fraction) {
     if (fraction < 0.0f) fraction = 0.0f;
@@ -43,7 +43,7 @@ void MCP4725Full::set_raw_eeprom(uint16_t code) {
 MCP4725Full::ReadResult MCP4725Full::read() {
     uint8_t cmd = 0x00;
     uint8_t buf[5] = {0, 0, 0, 0, 0};
-    _transport.write_read(&cmd, 1, buf, 5);
+    _connection.write_read(&cmd, 1, buf, 5);
     ReadResult result = {};
     result.eeprom_ready = (buf[0] & 0x80) != 0;
     result.power_down = (buf[0] >> 2) & 0x03;
@@ -62,18 +62,18 @@ void MCP4725Full::set_power_down(uint8_t mode) {
 
 void MCP4725Full::wake_up() {
     uint8_t buf[2] = { ADDR_GENERAL_CALL, GC_WAKE };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 void MCP4725Full::reset() {
     uint8_t buf[2] = { ADDR_GENERAL_CALL, GC_RESET };
-    _transport.write(buf, 2);
+    _connection.write(buf, 2);
 }
 
 bool MCP4725Full::is_eeprom_ready() {
     uint8_t cmd = 0x00;
     uint8_t buf[1] = {0};
-    _transport.write_read(&cmd, 1, buf, 1);
+    _connection.write_read(&cmd, 1, buf, 1);
     return (buf[0] & 0x80) != 0;
 }
 
@@ -83,12 +83,12 @@ void MCP4725Full::_write_dac_eeprom(uint16_t code, uint8_t pd_mode) {
         (uint8_t)((code >> 4) & 0xFF),
         (uint8_t)((code & 0x0F) << 4)
     };
-    _transport.write(buf, 3);
+    _connection.write(buf, 3);
 }
 
 uint16_t MCP4725Full::_read_dac_code() {
     uint8_t cmd = 0x00;
     uint8_t buf[2] = {0, 0};
-    _transport.write_read(&cmd, 1, buf, 2);
+    _connection.write_read(&cmd, 1, buf, 2);
     return ((uint16_t)(buf[0] & 0x0F) << 8) | buf[1];
 }

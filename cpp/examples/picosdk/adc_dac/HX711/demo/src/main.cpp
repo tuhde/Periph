@@ -2,12 +2,12 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "HX711TransportPicoSDK.h"
+#include "HX711ConnectionPicoSDK.h"
 #include "HX711.h"
 
 // HX711 bit-bang pins: DOUT on GP2, PD_SCK on GP3.
-HX711TransportPicoSDK transport(/*dout=*/2, /*pd_sck=*/3);
-HX711Full chip(transport);
+HX711ConnectionPicoSDK connection(/*dout=*/2, /*pd_sck=*/3);
+HX711Full chip(connection);
 
 int main(void) {
     static const float SCALE_FACTOR = 420.0f;

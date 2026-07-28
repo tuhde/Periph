@@ -1,16 +1,16 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.io_expander.Mcp23017Minimal
 import it.uhde.periph.chips.io_expander.Mcp23017Full
 
 fun main() {
-    I2CTransport(1, 0x20).use { transport ->                          // open I²C bus 1, device 0x20, (bus, address) → I2CTransport
-        val chip = Mcp23017Full(transport, 0x20)                       // construct full driver, (transport, addr=0x20) → Mcp23017Full
+    I2CConnection(1, 0x20).use { connection ->                        // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+        val chip = Mcp23017Full(connection, 0x20)                      // construct full driver, (connection, addr=0x20) → Mcp23017Full
 
         val p0 = chip.pin(0)                                           // get full pin proxy, (n) → Pin
                                                                 // GPA0 as output
@@ -35,14 +35,30 @@ fun main() {
 
         chip.configurePolarity(0, 0x00)                               // configure polarity, (port=0, mask) → Unit
 
-        val flags = chip.readInterruptFlags(0)                        // read interrupt flags, (port=0) → Int
-        println("INT flags PORTA: 0x${Integer.toHexString(flags)}")
+        // Subscribe to INT on a single port (dedicated INT line per port)
+        chip.onInterruptPort(0, { status ->                            // subscribe to INT on one port, (port, callback, intPin=connection.intPin()) → Unit
+            println("PORTA changed: 0x" + Integer.toHexString(status))
+        })
 
-        val changed = chip.clearInterrupt(0)                           // read and clear interrupt, (port=0) → Int
+        val changed = chip.pollInterrupt(0)                            // read and clear interrupt, (port=0) → Int
+                                                                       // INTFA flags; also reads INTCAPA to clear
         println("changed on init: 0x${Integer.toHexString(changed)}")
+
+        val captured = chip.readCapture(0)                             // read INTCAP, (port=0) → Int
+                                                                       // captured PORTA state at moment of interrupt; also clears
+        println("captured PORTA: 0x${Integer.toHexString(captured)}")
 
         val p1  = chip.pin(1)                                         // get full pin proxy, (n) → Pin
         val p15 = chip.pin(15)                                        // get full pin proxy, (n) → Pin
+                                                                // GPB7 as output (output-only)
+
+        p1.watch({ pin ->                                              // subscribe to pin edges, (handler, trigger=CHANGE) → Unit
+            println("GPA1 changed")                                    // called with this pin when its state matches the trigger
+        })                                                            // fires when GPA1 changes; needs onInterruptPort(0, ...) armed first
+        p1.unwatch()                                                  // unsubscribe pin handler, () → Unit
+
+        chip.offInterruptPort(0)                                      // unsubscribe PORTA, (port=0) → Unit
+                                                                       // clears GPINTENA; stops polling
 
         chip.writePort(0, 0x80)                                        // write all 8 pins, (port=0, mask=0x80) → Unit
         chip.writePort(1, 0x00)                                        // write all 8 pins, (port=1, mask=0x00) → Unit

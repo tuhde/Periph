@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
@@ -27,13 +27,13 @@ func main() {
 		panic(err)
 	}
 
-	tr, err := transport.NewHX711Transport(dout, pdSck) // Create HX711 transport, (dout=2, pd_sck=3) → (*HX711Transport, error)
+	conn, err := connection.NewHX711Connection(dout, pdSck, nil) // Create HX711 connection, (dout=2, pd_sck=3) → (*HX711Connection, error)
 	if err != nil {
 		panic(err)
 	}
-	defer tr.Close()
+	defer conn.Close()
 
-	hx, err := adcdac.NewHX711Full(tr) // Create HX711 driver, (transport) → (*HX711Full, error)
+	hx, err := adcdac.NewHX711Full(conn) // Create HX711 driver, (connection) → (*HX711Full, error)
 	if err != nil {
 		panic(err)
 	}

@@ -1,10 +1,10 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-kotlin:1.1.0
 
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina3221Full
 
 /**
@@ -22,12 +22,12 @@ private const val R_SHUNT   = 0.1   // Ω
 private const val ALERT_MUL = 1.5
 
 fun main() {
-    I2CTransport(1, 0x40).use { transport ->                 // open I²C bus 1, device 0x40, (bus, address) → I2CTransport
+    I2CConnection(1, 0x40).use { connection ->                 // open I²C bus 1, device 0x40, (bus, address) → I2CConnection
 
         // --- Construct driver with 0.1 Ω shunt on all rails ---
         // Using a common shunt value simplifies wiring; per-channel values can
         // be supplied via the DoubleArray constructor if rails differ.
-        val ina = Ina3221Full(transport, R_SHUNT)                   // construct driver, (transport, rShunt=0.1 Ω) → Ina3221Full
+        val ina = Ina3221Full(connection, R_SHUNT)                   // construct driver, (connection, rShunt=0.1 Ω) → Ina3221Full
 
         // --- Configure: 4-sample averaging, 1.1 ms conversions, continuous mode ---
         // 4-sample averaging reduces noise on switching-mode supplies without

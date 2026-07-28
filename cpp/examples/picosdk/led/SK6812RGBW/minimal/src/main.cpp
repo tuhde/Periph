@@ -2,7 +2,7 @@
 #include <math.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "NeoPixelTransportPicoSDK.h"
+#include "NeoPixelConnectionPicoSDK.h"
 #include "SK6812RGBW.h"
 
 int main(void) {
@@ -10,8 +10,8 @@ int main(void) {
     // SCK, MISO, and CS are unused by the strip.
     spi_init(spi0, 2'400'000);
     gpio_set_function(3, GPIO_FUNC_SPI);
-    NeoPixelTransportPicoSDK transport(spi0);
-    SK6812RGBWMinimal strip(transport, /*n_pixels=*/8);
+    NeoPixelConnectionPicoSDK connection(spi0);
+    SK6812RGBWMinimal strip(connection, /*n_pixels=*/8);
 
     stdio_init_all();
     while (true) {

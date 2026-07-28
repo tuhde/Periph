@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
-#include "I2CTransportLinux.h"
+#include "I2CConnectionLinux.h"
 #include "MCP23017.h"
 
 int main() {
@@ -9,9 +9,9 @@ int main() {
     const char* addr_env = getenv("I2C_ADDR");
     int     bus  = bus_env  ? atoi(bus_env)       : 1;
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x20;
-    I2CTransportLinux transport(bus, addr);
+    I2CConnectionLinux connection(bus, addr);
 
-    MCP23017Minimal mcp(transport);                                        // Create MCP23017 driver, (transport)
+    MCP23017Minimal mcp(connection);                                        // Create MCP23017 driver, (connection)
 
     mcp.set_direction(0x00, 0xFF);                                         // Set pin direction, (port=0/1, mask 0=out 1=in) → void
     while (true) {

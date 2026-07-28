@@ -11,7 +11,7 @@ import (
 	"machine"
 	"time"
 
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 	"github.com/tuhde/Periph/go/periph/chips/light"
 )
 
@@ -25,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tr := transport.NewI2CTransport(i2c, 0x39)              // Create I2C transport, (i2c, addr=0x39) → *I2CTransport
-	chip, err := light.NewAPDS9960Minimal(tr)               // Create APDS-9960 driver, (transport) → (*APDS9960Minimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x39, nil, nil)              // Create I2C connection, (i2c, addr=0x39) → *I2CConnection
+	chip, err := light.NewAPDS9960Minimal(conn)               // Create APDS-9960 driver, (connection) → (*APDS9960Minimal, error)
 	if err != nil {
 		panic(err)
 	}

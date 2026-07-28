@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.transport.Transport
+import it.uhde.periph.connection.Connection
 
 /**
  * PCF8574 8-bit quasi-bidirectional I/O port expander — minimal interface.
@@ -16,9 +16,9 @@ import it.uhde.periph.transport.Transport
  * - **PCF8574** — default address `0x20` (A2=A1=A0=0)
  * - **PCF8574A** — default address `0x38` (A2=A1=A0=0); overlaps common OLED range
  *
- * @param transport I²C transport bound to the PCF8574 device address (100 kHz max)
+ * @param connection I²C connection bound to the PCF8574 device address (100 kHz max)
  */
-open class Pcf8574Minimal(protected val transport: Transport) {
+open class Pcf8574Minimal(protected val connection: Connection) {
 
     /** Output latch shadow — bit n = last value written to pin n. */
     protected var shadow: Int = 0xFF
@@ -40,7 +40,7 @@ open class Pcf8574Minimal(protected val transport: Transport) {
      * @param port port index (ignored; the PCF8574 has exactly one port)
      * @return 8-bit bitmask of current pin states
      */
-    fun readPort(port: Int = 0): Int = transport.read(1)[0].toInt() and 0xFF
+    fun readPort(port: Int = 0): Int = connection.read(1)[0].toInt() and 0xFF
 
     /**
      * Write all 8 pins at once and update the shadow register.
@@ -49,7 +49,7 @@ open class Pcf8574Minimal(protected val transport: Transport) {
      */
     fun writePort(mask: Int) {
         shadow = mask and 0xFF
-        transport.write(byteArrayOf(shadow.toByte()))
+        connection.write(byteArrayOf(shadow.toByte()))
     }
 
     /**
@@ -70,7 +70,7 @@ open class Pcf8574Minimal(protected val transport: Transport) {
      * @param n pin index (0 = P0, 7 = P7)
      * @return Pin proxy backed by this driver's shadow register
      */
-    fun pin(n: Int): Pin = Pin(this, n)
+    open fun pin(n: Int): Pin = Pin(this, n)
 
     // -------------------------------------------------------------------------
     // Internal helpers
@@ -86,7 +86,7 @@ open class Pcf8574Minimal(protected val transport: Transport) {
     internal fun setPin(n: Int, high: Boolean) {
         shadow = if (high) shadow or (1 shl n) else shadow and (1 shl n).inv()
         shadow = shadow and 0xFF
-        transport.write(byteArrayOf(shadow.toByte()))
+        connection.write(byteArrayOf(shadow.toByte()))
     }
 
     // =========================================================================
@@ -128,7 +128,7 @@ open class Pcf8574Minimal(protected val transport: Transport) {
          * @return `true` if the pin is high; `false` if low
          */
         fun read(): Boolean =
-            ((chip.transport.read(1)[0].toInt() and 0xFF) shr n and 1) == 1
+            ((chip.connection.read(1)[0].toInt() and 0xFF) shr n and 1) == 1
 
         /**
          * Invert the shadow bit for this pin.
