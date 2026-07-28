@@ -135,22 +135,29 @@ Where a language already has a native test runner (`cargo test`, `go test`, `mvn
 
 ## Conformance Implementation
 
-One Python checker per chip: `conformance/<category>/<chip>_conformance.py`. It:
+One Python checker per chip: `conformance/<category>/<chip>_conformance.py`. Capture timing is **software-orchestrated, no hardware trigger** — the checker controls the sequencing itself, so there's no need for `sigrok-cli`'s fiddly, driver-dependent `-t`/`--triggers` syntax. For each named check in `<chip>_timing.conf`:
 
-1. Starts a `sigrok-cli` capture using the configured `SIGROK_DRIVER`/`SIGROK_CONN`/`SIGROK_SAMPLERATE` and the chip's `SIGROK_CHANNELS` mapping (see **Chip Wiring & Sigrok Configuration** above).
-2. Invokes the already-running HIL test binary/process (passed in by the calling platform script) to trigger the transaction(s) under test.
-3. Stops the capture, decodes it with `sigrok/<chip>/pd.py` (the chip's existing decoder), and reads named annotation timestamps.
-4. Compares timestamp deltas against `specs/<category>/<chip>_timing.conf` (see below) and prints the same `PASS`/`FAIL ... ===DONE: N passed, N failed===` convention as every other level, so output stays uniform across levels and languages.
+1. Starts a `sigrok-cli` capture using the rig-wide `SIGROK_DRIVER`/`SIGROK_CONN`, the chip's `SIGROK_CHANNELS` mapping (see **Chip Wiring & Sigrok Configuration** above), and *that check's own* `<check>_samplerate` / `<check>_capture_ms` (see below).
+2. Invokes the already-running HIL test binary/process (passed in by the calling platform script) to trigger the transaction under test, timed to fall inside the capture window.
+3. Stops the capture, decodes it with `sigrok/<chip>/pd.py` (the chip's existing decoder), and reads that check's named annotation timestamps.
+4. Compares the timestamp delta against the check's min/max bound and prints the same `PASS`/`FAIL ... ===DONE: N passed, N failed===` convention as every other level, so output stays uniform across levels and languages.
 
-`specs/<category>/<chip>_timing.conf` — one small sidecar per chip, machine-readable mirror of the spec's prose Timing Constraints section:
+`specs/<category>/<chip>_timing.conf` — one small sidecar per chip, machine-readable mirror of the spec's prose Timing Constraints section. Each check carries its bound **and** its own capture parameters, because different constraints on the same chip live in very different time domains (microsecond-scale bus edges vs millisecond/second-scale power-on delays) — a single samplerate/window for the whole chip would either drown the fast checks in imprecision or the slow ones in data volume:
 
 ```
-# ina226 timing constraints
+# ina226 timing constraints + capture parameters
 conversion_time_max_ms=1.1
+conversion_time_samplerate=1m
+conversion_time_capture_ms=5
+
 poweron_reset_min_ms=2
+poweron_reset_samplerate=10k
+poweron_reset_capture_ms=50
 ```
 
-Key convention: `<check_name>_min_<unit>` / `<check_name>_max_<unit>`. `<check_name>` must match an annotation pair the chip's sigrok decoder emits (e.g. `conversion_start` / `conversion_done`), so the checker can locate both timestamps. This means: **any chip spec with a timing constraint must name the corresponding start/end annotations in its Sigrok Decoder section** — add this requirement to `specs/_template_chip.md` and `specs/_template_chip_io_expander.md`.
+Key convention: `<check_name>_min_<unit>` / `<check_name>_max_<unit>` for the bound, `<check_name>_samplerate` / `<check_name>_capture_ms` for how to capture it. `<check_name>` must match an annotation pair the chip's sigrok decoder emits (e.g. `conversion_start` / `conversion_done`), so the checker can locate both timestamps. This means: **any chip spec with a timing constraint must name the corresponding start/end annotations in its Sigrok Decoder section** — add this requirement to `specs/_template_chip.md` and `specs/_template_chip_io_expander.md`.
+
+These capture parameters are a property of the chip's own datasheet timing, not of anyone's bench, so they stay in the repo-committed `timing.conf` — never in the user's private `testconfig`/`testconfig_wiring`, which only ever carries rig-wide (`SIGROK_DRIVER`/`SIGROK_CONN`) and per-chip-wiring (`SIGROK_CHANNELS`) facts.
 
 Every platform script's conformance path is the same two-liner: start its own transport/process as it would for `hil`, then shell out to `conformance/<category>/<chip>_conformance.py --lang <language>` (the checker only needs to know which language's HIL binary/process to drive, since triggering the transaction is language-specific but decoding/measuring is not).
 
