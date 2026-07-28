@@ -318,3 +318,111 @@ impl<I2C: I2c> Ens160Full<I2C> {
         self.inner.read_air_quality()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x53;
+
+    // DEVICE_STATUS = NEWDAT (bit1) set, VALIDITY_FLAG (bits 3:2) = 0 (OK).
+    const DEVICE_STATUS_OK: u8 = 0x02;
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_IDLE]),
+            I2cTransaction::write_read(ADDR, vec![REG_PART_ID], vec![0x60, 0x01]),
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_STANDARD]),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        transactions.extend(vec![
+            // status()
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            // read_air_quality(): wait_for_new_data + DATA_AQI burst (aqi=2, tvoc=150, eco2=500)
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_AQI], vec![2, 0x96, 0x00, 0xF4, 0x01]),
+            // read_tvoc()
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_TVOC], vec![0x96, 0x00]),
+            // read_eco2()
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_ECO2], vec![0xF4, 0x01]),
+            // read_aqi()
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_AQI], vec![2]),
+            // read_ethanol() (aliases TVOC)
+            I2cTransaction::write_read(ADDR, vec![REG_DEVICE_STATUS], vec![DEVICE_STATUS_OK]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_TVOC], vec![0x96, 0x00]),
+            // set_compensation(25.0, 50.0): Rust truncates (`as u16`), not rounds.
+            // temp_raw = ((25.0 + 273.15) * 64.0) as u16 = 19081 (0x4A89)
+            // rh_raw   = (50.0 * 512.0) as u16           = 25600 (0x6400)
+            I2cTransaction::write(ADDR, vec![REG_TEMP_IN, 0x89, 0x4A]),
+            I2cTransaction::write(ADDR, vec![REG_RH_IN, 0x00, 0x64]),
+            // read_compensation_actuals(): temp_raw=0x5202 (~55.0 degC), rh_raw=0x6400 (50.0 %RH)
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_T], vec![0x02, 0x52, 0x00, 0x64]),
+            // read_raw_resistance(1): GPR_READ+0, raw=2048 -> 2**(2048/2048) = 2.0 Ohm
+            I2cTransaction::write_read(ADDR, vec![REG_GPR_READ], vec![0x00, 0x08]),
+            // read_raw_resistance(4): GPR_READ+6, raw=4096 -> 2**(4096/2048) = 4.0 Ohm
+            I2cTransaction::write_read(ADDR, vec![REG_GPR_READ + 6], vec![0x00, 0x10]),
+            // get_firmware_version(): IDLE, COMMAND=GET_APPVER, GPR_READ+4, STANDARD
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_IDLE]),
+            I2cTransaction::write(ADDR, vec![REG_COMMAND, 0x0E]),
+            I2cTransaction::write_read(ADDR, vec![REG_GPR_READ + 4], vec![1, 2, 3]),
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_STANDARD]),
+            // configure_interrupt(true, true, true, true, true) -> config = 0x6B
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x6B]),
+            // sleep()
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_DEEP_SLEEP]),
+            // wake()
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_IDLE]),
+            I2cTransaction::write(ADDR, vec![REG_OPMODE, OPMODE_STANDARD]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Ens160Full::new(i2c, ADDR).expect("init");
+
+        assert_eq!(sensor.status().unwrap(), VALIDITY_OK);
+
+        let (aqi, tvoc_ppb, eco2_ppm) = sensor.read_air_quality().unwrap();
+        assert_eq!(aqi, 2);
+        assert_eq!(tvoc_ppb, 150.0);
+        assert_eq!(eco2_ppm, 500.0);
+
+        assert_eq!(sensor.read_tvoc().unwrap(), 150.0);
+        assert_eq!(sensor.read_eco2().unwrap(), 500.0);
+        assert_eq!(sensor.read_aqi().unwrap(), 2);
+        assert_eq!(sensor.read_ethanol().unwrap(), 150.0);
+
+        sensor.set_compensation(25.0, 50.0).unwrap();
+
+        let (temp_celsius, rh_percent) = sensor.read_compensation_actuals().unwrap();
+        assert!((temp_celsius - ((0x5202 as f32 / 64.0) - 273.15)).abs() < 1e-4);
+        assert_eq!(rh_percent, 0x6400 as f32 / 512.0);
+
+        assert_eq!(sensor.read_raw_resistance(1).unwrap(), 2.0);
+        assert_eq!(sensor.read_raw_resistance(4).unwrap(), 4.0);
+
+        let (major, minor, release) = sensor.get_firmware_version().unwrap();
+        assert_eq!((major, minor, release), (1, 2, 3));
+
+        sensor.configure_interrupt(true, true, true, true, true).unwrap();
+        sensor.sleep().unwrap();
+        sensor.wake().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    #[should_panic]
+    fn read_raw_resistance_rejects_invalid_sensor() {
+        let transactions = init_transactions();
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Ens160Full::new(i2c, ADDR).expect("init");
+        let _ = sensor.read_raw_resistance(2);
+    }
+}

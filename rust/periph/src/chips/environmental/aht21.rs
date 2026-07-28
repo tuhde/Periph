@@ -168,3 +168,79 @@ fn crc8(data: &[u8]) -> u8 {
     }
     crc
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x38;
+
+    // Status byte with both CAL (0x08) and the paired 0x10 bit set, so the
+    // (status & 0x18) != 0x18 check in new() passes and no soft-reset
+    // /recalibration path runs.
+    const STATUS_CALIBRATED: u8 = 0x18;
+
+    // 6-byte measurement response encoding humidity=50.0%, temperature=50.0 degC:
+    // raw_rh = buf[1]<<12 | buf[2]<<4 | buf[3]>>4       = 0x80000 (524288 / 2**20 * 100 = 50.0)
+    // raw_t  = (buf[3]&0x0F)<<16 | buf[4]<<8 | buf[5]   = 0x80000 (524288 / 2**20 * 200 - 50 = 50.0)
+    const MEASUREMENT: [u8; 6] = [0x00, 0x80, 0x00, 0x08, 0x00, 0x00];
+
+    #[test]
+    fn full_api() {
+        let mut delay = NoopDelay::new();
+        let transactions = vec![
+            I2cTransaction::read(ADDR, vec![STATUS_CALIBRATED]),
+            // read()
+            I2cTransaction::write(ADDR, CMD_TRIGGER.to_vec()),
+            I2cTransaction::read(ADDR, MEASUREMENT.to_vec()),
+            // read_temperature()
+            I2cTransaction::write(ADDR, CMD_TRIGGER.to_vec()),
+            I2cTransaction::read(ADDR, MEASUREMENT.to_vec()),
+            // read_humidity()
+            I2cTransaction::write(ADDR, CMD_TRIGGER.to_vec()),
+            I2cTransaction::read(ADDR, MEASUREMENT.to_vec()),
+            // read_with_crc() — correct CRC-8 (poly 0x31, init 0xFF) trailer
+            I2cTransaction::write(ADDR, CMD_TRIGGER.to_vec()),
+            I2cTransaction::read(ADDR, [MEASUREMENT.as_slice(), &[0x8B]].concat()),
+            // read_with_crc() — bad trailer
+            I2cTransaction::write(ADDR, CMD_TRIGGER.to_vec()),
+            I2cTransaction::read(ADDR, [MEASUREMENT.as_slice(), &[0x00]].concat()),
+            // soft_reset()
+            I2cTransaction::write(ADDR, vec![CMD_SOFT_RESET]),
+            // is_calibrated()
+            I2cTransaction::read(ADDR, vec![0x08]),
+            I2cTransaction::read(ADDR, vec![0x00]),
+            // is_busy()
+            I2cTransaction::read(ADDR, vec![0x80]),
+            I2cTransaction::read(ADDR, vec![0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Aht21Full::new(i2c, ADDR, &mut delay).expect("init");
+
+        let (t, h) = sensor.read(&mut delay).unwrap();
+        assert_eq!(t, 50.0);
+        assert_eq!(h, 50.0);
+
+        assert_eq!(sensor.read_temperature(&mut delay).unwrap(), 50.0);
+        assert_eq!(sensor.read_humidity(&mut delay).unwrap(), 50.0);
+
+        let (t, h, crc_ok) = sensor.read_with_crc(&mut delay).unwrap();
+        assert_eq!((t, h), (50.0, 50.0));
+        assert!(crc_ok);
+
+        let (_, _, crc_ok) = sensor.read_with_crc(&mut delay).unwrap();
+        assert!(!crc_ok);
+
+        sensor.soft_reset(&mut delay).unwrap();
+
+        assert!(sensor.is_calibrated().unwrap());
+        assert!(!sensor.is_calibrated().unwrap());
+        assert!(sensor.is_busy().unwrap());
+        assert!(!sensor.is_busy().unwrap());
+
+        sensor.inner.i2c.done();
+    }
+}
