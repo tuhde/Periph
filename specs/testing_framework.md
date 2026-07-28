@@ -29,7 +29,7 @@ Every platform script auto-detects the deepest level it can run, cascading:
 2. **Hardware present** — the configured bus responds at the configured address (I²C quick-write probe, or the configured serial/UF2 port exists for flash platforms) → run **HIL**.
 3. **Neither** → run **unit**.
 
-An explicit `--level unit|hil|conformance` flag overrides detection (e.g. force `unit` on a machine with a stale `/dev/i2c-1` node, or skip conformance deliberately even with the analyzer attached).
+An explicit `--level unit|hil|conformance` flag overrides detection (e.g. force `unit` on a machine with a stale `/dev/i2c-1` node, or skip conformance deliberately even with the analyzer attached). `--level` is independent of `--board` (see **Test Scenarios** below) — one selects test depth, the other selects the source of wiring truth.
 
 ```
 cpp/test_linux.sh power/ina226                    # auto: unit, hil, or conformance
@@ -63,9 +63,28 @@ One script per platform, per language directory; JVM additionally splits per lan
 
 `testconfig` keeps its existing per-language file(s) (`testconfig`, `testconfig_zephyr`, `testconfig_espidf`, `testconfig_picosdk`, `testconfig_esp32s3`, `testconfig_tinygo`). See **Chip Wiring & Sigrok Configuration** below for the new per-chip wiring/sigrok keys and where they live.
 
+## Test Scenarios: Fixed Board vs Free-Wire Bench
+
+Two distinct people use HIL/conformance, and they need two different sources of wiring truth:
+
+1. **Fixed board.** A specific, known MCU + peripheral combination — e.g. an ESP32-S3 devkit with a BME280 wired to `GPIO8`/`GPIO9` and an INA226 on a second I²C bus. The user just wants to confirm compile/flash/run works and the chip(s) on *this particular board* respond correctly. The wiring is a fact about the hardware, not about the person testing it — anyone with the same board has the same wiring, so it's shareable and belongs in the repo.
+2. **Free-wire bench.** A general MCU/host platform with nothing fixed — the user wires whatever chip she's developing to whatever pins/bus she likes, with a sigrok analyzer on the host. The wiring is private to her bench and changes as she works. This is exactly the per-chip `testconfig`/`testconfig_wiring` block designed below.
+
+**Board profiles** serve scenario 1: `<lang>/boards/<board-name>.conf`, **committed to the repo** (not gitignored — it documents public hardware, not a private rig), same `case "$CATEGORY/$CHIP"` shape as `testconfig_wiring` (pins/bus/address, and `SIGROK_CHANNELS` if that board has an analyzer permanently wired too). Board profiles live **per language**, not once at the top level: pin *numbering* for the same physical board differs by SDK (Arduino pin macros vs ESP-IDF `GPIO_NUM_x` vs Zephyr devicetree labels) even though the physical board is one object.
+
+Selected with `--board <name>`:
+```
+cpp/test_espidf.sh --board esp32s3-sensor-devkit                  # self-test every chip on that board
+cpp/test_espidf.sh --board esp32s3-sensor-devkit power/ina226     # self-test just that one chip on it
+cpp/test_espidf.sh power/ina226                                    # scenario 2: no --board, free-wire testconfig/testconfig_wiring
+```
+When `--board` is given **without** a `<category>/<chip>` argument, the script runs every chip listed in that board's profile — scenario 1's whole point is "does this specific hardware work," not "test one chip." `--board` and `--level` are independent flags (a fixed board can still be probed at unit/hil/conformance depending on what's detected/forced).
+
+Board profiles apply to platforms where a fixed devkit-plus-peripheral combination is the normal way people encounter this repo's chips: cpp, python (MicroPython/CircuitPython run on boards too), rust (ESP32-S3), go (TinyGo/Pico W). nodejs/jvm are host-only in practice (though nothing stops someone adding `nodejs/boards/` or `jvm/boards/` later if a fixed-peripheral Linux board scenario comes up) — not required by this issue's checklist.
+
 ## Chip Wiring & Sigrok Configuration
 
-Today's `testconfig` is one flat wiring reused for whatever chip you point the script at — fine for a breadboard you rewire between runs, not for a permanent bench with several chips wired to different buses/pins/CS lines at once, each needing its own logic-analyzer channel mapping. This adds a **per-chip override block** on top of the existing flat globals, without introducing a second config file where a language only has one platform.
+Today's `testconfig` is one flat wiring reused for whatever chip you point the script at — fine for a breadboard you rewire between runs, not for a permanent bench with several chips wired to different buses/pins/CS lines at once, each needing its own logic-analyzer channel mapping. This adds a **per-chip override block** on top of the existing flat globals, without introducing a second config file where a language only has one platform. This is the scenario-2 (free-wire bench) config source — see above for the scenario-1 (fixed board) alternative.
 
 **Global keys** (rig-wide, added to the existing flat section of `testconfig`):
 ```
@@ -91,7 +110,7 @@ case "$CATEGORY/$CHIP" in
 esac
 ```
 
-**Precedence:** per-chip case block → flat `testconfig` globals → repo-committed `chip_defaults` (address-only fallback, unchanged).
+**Precedence:** `--board <name>` profile (if given) → per-chip case block in `testconfig`/`testconfig_wiring` → flat `testconfig` globals → repo-committed `chip_defaults` (address-only fallback, unchanged).
 
 **Where the block lives:**
 - If a language has only **one** `testconfig` file (nodejs, jvm, and python — python's MicroPython/CircuitPython/Linux settings already share a single `python/testconfig`), the per-chip block is added directly to that file.
@@ -145,13 +164,15 @@ This spec covers the **framework** plus a full reference implementation for **IN
 
 - [ ] `cpp/src/transport/I2CTransportMock.h/.cpp`
 - [ ] `cpp/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `cpp/boards/` — directory + one illustrative committed board profile (e.g. `cpp/boards/esp32s3-sensor-devkit.conf`) demonstrating the format
 - [ ] `cpp/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, add unit + conformance paths, detection cascade, `--level` override
-- [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — parse target before sourcing config, source `testconfig_wiring`, add conformance path + detection
+- [ ] `cpp/test_arduino.sh`, `test_zephyr.sh`, `test_espidf.sh`, `test_picosdk.sh` — parse target before sourcing config, source `testconfig_wiring`, add `--board` support, conformance path + detection
 - [ ] `cpp/tests/power/ina226_test_unit/ina226_test_unit.cpp`
 - [ ] `python/periph/transport/i2c_mock.py`
 - [ ] `python/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (python has one shared testconfig)
+- [ ] `python/boards/` — directory + one illustrative committed board profile
 - [ ] `python/test_linux.sh` — parse target before sourcing config, unit + conformance paths, detection cascade, `--level`
-- [ ] `python/test_mp.sh`, `test_cp.sh` — parse target before sourcing config, conformance path + detection
+- [ ] `python/test_mp.sh`, `test_cp.sh` — parse target before sourcing config, `--board` support, conformance path + detection
 - [ ] `python/tests/power/ina226_test_unit.py`
 - [ ] `nodejs/packages/periph/src/transport/i2c_mock.js`
 - [ ] `nodejs/testconfig.example` — add `SIGROK_*` globals + per-chip `case` block (ina226) directly (nodejs has one platform)
@@ -160,12 +181,14 @@ This spec covers the **framework** plus a full reference implementation for **IN
 - [ ] `rust/periph/Cargo.toml` — add `embedded-hal-mock` dev-dependency
 - [ ] `rust/periph/src/chips/power/ina226.rs` — `#[cfg(test)]` unit tests
 - [ ] `rust/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `rust/boards/` — directory + one illustrative committed board profile
 - [ ] `rust/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `cargo test`) + conformance paths, detection cascade, `--level`
-- [ ] `rust/test_esp32s3.sh` — parse target before sourcing config, source `testconfig_wiring`, conformance path + detection
+- [ ] `rust/test_esp32s3.sh` — parse target before sourcing config, source `testconfig_wiring`, `--board` support, conformance path + detection
 - [ ] `go/periph/chips/power/ina226_test.go`
 - [ ] `go/testconfig_wiring.example` — global `SIGROK_*` defaults + per-chip `case` block (ina226)
+- [ ] `go/boards/` — directory + one illustrative committed board profile
 - [ ] `go/test_linux.sh` — parse target before sourcing config, source `testconfig_wiring`, unit (wraps `go test`) + conformance paths, detection cascade, `--level`
-- [ ] `go/test_tinygo.sh` — parse target before sourcing config, source `testconfig_wiring`, conformance path + detection
+- [ ] `go/test_tinygo.sh` — parse target before sourcing config, source `testconfig_wiring`, `--board` support, conformance path + detection
 - [ ] `jvm/periph-transport` test-scope `MockTransport`
 - [ ] `jvm/periph-java/src/test/java/it/uhde/periph/chips/power/Ina226Test.java`
 - [ ] `jvm/periph-kotlin/src/test/kotlin/.../Ina226Test.kt`
@@ -175,4 +198,4 @@ This spec covers the **framework** plus a full reference implementation for **IN
 - [ ] `conformance/power/ina226_conformance.py`
 - [ ] `specs/power/ina226_timing.conf`
 - [ ] `specs/_template_chip.md`, `_template_chip_io_expander.md` — add unit + conformance checklist items; require named start/end annotations for any timing constraint
-- [ ] `TESTING.md` — rewrite for three levels, detection cascade, `--level` override, renamed scripts, per-chip wiring/sigrok config
+- [ ] `TESTING.md` — rewrite for three levels, detection cascade, `--level` override, renamed scripts, per-chip wiring/sigrok config, `--board` profiles vs free-wire bench
