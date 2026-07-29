@@ -7,7 +7,7 @@
 #elif defined(__linux__)
 #include <unistd.h>
 #define DELAY_MS(ms) usleep((ms) * 1000)
-#elif defined(CONFIG_ZEPHYR)
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 #define DELAY_MS(ms) k_sleep(K_MSEC(ms))
 #elif __has_include(<pico/time.h>)

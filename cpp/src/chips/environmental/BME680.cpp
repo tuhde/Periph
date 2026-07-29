@@ -4,6 +4,9 @@
 
 #ifdef ARDUINO
 #include <Arduino.h>
+#elif defined(__ZEPHYR__)
+#include <zephyr/kernel.h>
+static inline void delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

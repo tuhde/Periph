@@ -11,7 +11,7 @@
 #define DELAY_MS(ms) delay(ms)
 #endif
 
-#ifdef CONFIG_ZEPHYR
+#ifdef __ZEPHYR__
 #include <zephyr/kernel.h>
 #undef DELAY_MS
 #define DELAY_MS(ms) k_sleep(K_MSEC(ms))
