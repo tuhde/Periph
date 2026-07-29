@@ -29,7 +29,7 @@ SIGROK_SAMPLERATE=24m
 # Settable per chip: bus/device or pins (whatever the platform needs),
 # address/CS, SIGROK_CHANNELS (required for that chip to be captured),
 # and an optional per-chip SIGROK_SAMPLERATE override.
-case "$CATEGORY/$CHIP" in
+case "${CATEGORY:-}/${CHIP:-}" in
     gas/ens160)
         I2C_ADDR=0x53
         SIGROK_CHANNELS="D0=SCL,D1=SDA"
