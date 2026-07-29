@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <cmath>
 
-#ifndef ARDUINO
-#ifdef ESP_PLATFORM
+#ifdef ARDUINO
+#include <Arduino.h>
+#elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static inline void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
@@ -13,7 +14,6 @@ static inline void delay(unsigned long ms) { sleep_ms(ms); }
 #else
 #include <unistd.h>
 static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
-#endif
 #endif
 
 BME280Minimal::BME280Minimal(Connection& connection, bool spi)
