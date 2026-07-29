@@ -1,0 +1,47 @@
+# Periph cpp shared chip wiring / sigrok configuration.
+# Copy this file to testconfig_wiring and fill in your values.
+# testconfig_wiring is gitignored — never commit it.
+#
+# Shared across every cpp platform script (test_linux.sh, test_arduino.sh,
+# test_zephyr.sh, test_espidf.sh, test_picosdk.sh) — the physical rig is the
+# same board regardless of which firmware gets flashed onto it, so wiring
+# isn't duplicated per platform file. See specs/testing_framework.md,
+# "Chip Wiring & Sigrok Configuration" and "Test Scenarios".
+#
+# This file only matters if you have a permanent multi-chip bench and/or a
+# logic analyzer. For a single chip you rewire between runs, testconfig
+# alone (I2C_ADDR, LINUX_I2C_BUS, etc.) is enough — leave this file absent.
+
+# ------------------------------------------------------------------
+# Rig-wide sigrok analyzer (one logic analyzer on the bench)
+# ------------------------------------------------------------------
+SIGROK_DRIVER=fx2lafw
+SIGROK_CONN=
+SIGROK_SAMPLERATE=24m
+
+# ------------------------------------------------------------------
+# Per-chip wiring overrides
+# ------------------------------------------------------------------
+# Only list chips whose wiring differs from testconfig's flat defaults —
+# e.g. a permanent bench with several chips on different buses/pins, each
+# needing its own logic-analyzer channel mapping.
+#
+# Settable per chip: bus/device or pins (whatever the platform needs),
+# address/CS, SIGROK_CHANNELS (required for that chip to be captured),
+# and an optional per-chip SIGROK_SAMPLERATE override.
+case "$CATEGORY/$CHIP" in
+    gas/ens160)
+        I2C_ADDR=0x53
+        SIGROK_CHANNELS="D0=SCL,D1=SDA"
+        ;;
+    environmental/aht21)
+        I2C_ADDR=0x38
+        SIGROK_CHANNELS="D2=SCL,D3=SDA"
+        ;;
+    # led/ws2812b)
+    #     SPI_BUS=0
+    #     SPI_DEVICE=0
+    #     SIGROK_CHANNELS="D4=DATA"
+    #     SIGROK_SAMPLERATE=100m
+    #     ;;
+esac
