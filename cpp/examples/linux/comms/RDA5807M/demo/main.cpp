@@ -15,14 +15,14 @@ int main() {
 
     // --- Scan and print signal strength for each station ---
     // Steps through the FM band 87.5–108 MHz in 100 kHz steps and logs RSSI.
-    radio.set_volume(0);                                                   // Mute for scanning, (volume=0) → void
-    radio.set_mute(true);                                                  // Mute output, (mute=true) → void
-    printf("freq_kHz,rssi,stereo\n");
-    for (uint32_t f = 87500; f <= 108000; f += 100) {
-        radio.set_frequency(f);                                            // Tune to frequency, (kHz) → void
+    radio.set_volume(0);                                                   // Mute for scanning, (level=0) → void
+    radio.mute(true);                                                      // Mute output, (enable=true) → void
+    printf("freq_MHz,signal,stereo\n");
+    for (uint32_t khz = 87500; khz <= 108000; khz += 100) {
+        radio.set_frequency(khz / 1000.0f);                                // Tune to frequency, (frequency_mhz) → void
         usleep(50000);
-        int rssi = radio.rssi();                                           // Read RSSI 0–127, () → int
-        printf("%u,%d,%d\n", f, rssi, radio.is_stereo());                 // is_stereo() → bool
+        uint8_t signal = radio.signal_strength();                          // Read signal strength 0–127, () → uint8_t
+        printf("%.1f,%u,%d\n", khz / 1000.0f, signal, radio.is_stereo());  // is_stereo() → bool
     }
     return 0;
 }

@@ -13,13 +13,12 @@ int main() {
 
     RDA5807MMinimal radio(connection);                                      // Create RDA5807M driver, (connection)
 
-    radio.set_frequency(98500);                                            // Tune to frequency, (kHz) → void
-    radio.set_volume(5);                                                   // Set volume 0–15, (volume) → void
-    radio.set_mute(false);                                                 // Unmute, (mute=false) → void
+    radio.set_frequency(98.5f);                                            // Tune to frequency, (frequency_mhz) → void
+    radio.set_volume(5);                                                   // Set volume 0–15, (level) → void
+    radio.mute(false);                                                     // Unmute, (enable=false) → void
 
     while (true) {
-        printf("rssi=%d  stereo=%d\n",
-               radio.rssi(), radio.is_stereo());                           // Read RSSI 0–127 () → int ; is_stereo() → bool
+        printf("freq=%.1f MHz\n", radio.frequency());                     // Read tuned frequency, () → float MHz
         usleep(1000000);
     }
     return 0;

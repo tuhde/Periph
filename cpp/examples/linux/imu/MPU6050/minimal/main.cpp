@@ -15,7 +15,8 @@ int main() {
 
     while (true) {
         float ax, ay, az, gx, gy, gz;
-        mpu.read(ax, ay, az, gx, gy, gz);                                  // Read accel+gyro, (ax,ay,az m/s², gx,gy,gz °/s) → void
+        mpu.accel(ax, ay, az);                                             // Read 3-axis acceleration, (x, y, z) → m/s²
+        mpu.gyro(gx, gy, gz);                                              // Read 3-axis angular rate, (x, y, z) → rad/s
         printf("a=%.3f,%.3f,%.3f  g=%.3f,%.3f,%.3f\n", ax, ay, az, gx, gy, gz);
         usleep(100000);
     }

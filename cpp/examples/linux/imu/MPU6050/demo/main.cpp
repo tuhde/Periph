@@ -16,10 +16,11 @@ int main() {
     // --- Tilt detector ---
     // Logs a warning whenever the Z-axis acceleration deviates more than
     // 0.3 g from 1 g (flat), indicating significant tilt or motion.
-    mpu.set_accel_range(0);                                                // Set accelerometer full-scale, (range 0 → ±2 g) → void
+    mpu.configure_accel(0);                                                // Set accelerometer full-scale, (full_scale 0 → ±2 g) → void
     while (true) {
         float ax, ay, az, gx, gy, gz;
-        mpu.read(ax, ay, az, gx, gy, gz);                                  // Read accel+gyro, (ax,ay,az m/s², gx,gy,gz °/s) → void
+        mpu.accel(ax, ay, az);                                             // Read 3-axis acceleration, (x, y, z) → m/s²
+        mpu.gyro(gx, gy, gz);                                              // Read 3-axis angular rate, (x, y, z) → rad/s
         float tilt = __builtin_fabsf(az - 9.81f);
         printf("az=%.3f  %s\n", az, tilt > 2.94f ? "TILTED" : "level");
         usleep(100000);

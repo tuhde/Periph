@@ -17,13 +17,11 @@ int main(void) {
 
     stdio_init_all();
     while (true) {
-
-    float freq;
-    if (fm.seek(true, freq)) {                            // Seek to next station, (up=true, frequency_mhz) → bool
-        printf("%f\n", freq);
-    }
-    sleep_ms(3000);
-        sleep_ms(10);
+        float freq;
+        if (rda5807m.seek(true, freq)) {                      // Seek to next station, (up=true, frequency_mhz) → bool
+            printf("%f\n", freq);
+        }
+        sleep_ms(3000);
     }
 
     return 0;
