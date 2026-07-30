@@ -5,11 +5,11 @@
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu6050Minimal
+import it.uhde.periph.chips.imu.MPU6050Minimal
 
 def connection = new I2CConnection(1, 0x68)
 try {
-    def imu = new Mpu6050Minimal(connection)                        // Create MPU6050 driver, (connection, addr=0x68) → None
+    def imu = new MPU6050Minimal(connection)                        // Create MPU6050 driver, (connection, addr=0x68) → None
     (0..<100).each { i ->
         double[] a = imu.accel()                                   // Read 3-axis acceleration, () → double[] m/s²
         double[] g = imu.gyro()                                    // Read 3-axis angular rate, () → double[] rad/s

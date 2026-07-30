@@ -1,6 +1,6 @@
 use linux_embedded_hal::I2cdev;
 use linux_embedded_hal::Delay;
-use periph::chips::imu::Mpu6050Full;
+use periph::chips::imu::MPU6050Full;
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -18,7 +18,7 @@ fn main() {
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
     let mut delay = Delay;
-    let mut chip = Mpu6050Full::new(dev, addr, &mut delay).expect("init MPU6050");
+    let mut chip = MPU6050Full::new(dev, addr, &mut delay).expect("init MPU6050");
 
     let mut passed = 0i32;
     let mut failed = 0i32;

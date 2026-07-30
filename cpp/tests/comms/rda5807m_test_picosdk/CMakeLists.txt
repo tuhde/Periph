@@ -12,7 +12,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(rda5807m_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/comms/Rda5807m.cpp
+    ${CPP_DIR}/src/chips/comms/RDA5807M.cpp
 )
 
 target_include_directories(rda5807m_test_picosdk PRIVATE

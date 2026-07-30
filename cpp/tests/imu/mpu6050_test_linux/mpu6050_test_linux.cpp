@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include "I2CConnectionLinux.h"
-#include "Mpu6050.h"
+#include "MPU6050.h"
 
 #ifndef TEST_I2C_BUS
 #define TEST_I2C_BUS 1

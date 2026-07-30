@@ -1,6 +1,6 @@
 use linux_embedded_hal::I2cdev;
 use linux_embedded_hal::Delay;
-use periph::chips::imu::Mpu6050Full;
+use periph::chips::imu::MPU6050Full;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -17,7 +17,7 @@ fn main() {
     // --- Configure for motion logging with moderate dynamic range ---
     // ±4g captures typical tilting and handling forces without clipping;
     // ±500 dps covers fast rotations while retaining sub-degree resolution.
-    let mut chip = Mpu6050Full::new(dev, addr, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, addr, delay) → Result
+    let mut chip = MPU6050Full::new(dev, addr, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, addr, delay) → Result
     chip.configure_accel(1).expect("configure_accel");    // Configure accel range, (full_scale=0) → Result
     chip.configure_gyro(1).expect("configure_gyro");      // Configure gyro range, (full_scale=0) → Result
 

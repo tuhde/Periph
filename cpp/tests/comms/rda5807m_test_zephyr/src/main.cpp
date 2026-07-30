@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include "I2CConnectionZephyr.h"
-#include "Rda5807m.h"
+#include "RDA5807M.h"
 
 #ifndef RDA5807M_I2C_NODE
 #define RDA5807M_I2C_NODE DT_NODELABEL(i2c0)

@@ -1,6 +1,6 @@
 use linux_embedded_hal::I2cdev;
 use linux_embedded_hal::Delay;
-use periph::chips::imu::Mpu6050Full;
+use periph::chips::imu::MPU6050Full;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -13,7 +13,7 @@ fn main() {
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
     let mut delay = Delay;
-    let mut chip = Mpu6050Full::new(dev, addr, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, addr, delay) → Result
+    let mut chip = MPU6050Full::new(dev, addr, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, addr, delay) → Result
 
     let (ax, ay, az) = chip.accel().expect("accel");     // Read 3-axis acceleration, () → (f32, f32, f32) m/s²
                                                          // converts raw accel register to m/s² (16384 LSB/g at ±2g)

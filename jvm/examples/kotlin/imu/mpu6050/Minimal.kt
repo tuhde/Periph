@@ -5,11 +5,11 @@
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu6050Minimal
+import it.uhde.periph.chips.imu.MPU6050Minimal
 
 fun main() {
     I2CConnection(1, 0x68).use { connection ->
-        val imu = Mpu6050Minimal(connection)                        // Create MPU6050 driver, (connection, addr=0x68) → None
+        val imu = MPU6050Minimal(connection)                        // Create MPU6050 driver, (connection, addr=0x68) → None
         repeat(100) {
             val a = imu.accel()                                    // Read 3-axis acceleration, () → DoubleArray m/s²
             val g = imu.gyro()                                     // Read 3-axis angular rate, () → DoubleArray rad/s

@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::comms::{Rda5807mFull, BAND_WORLD, SPACE_100K};
+use periph::chips::comms::{RDA5807MFull, BAND_WORLD, SPACE_100K};
 
 esp_app_desc!();
 
@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut fm = Rda5807mFull::new(i2c, ADDR, 100.0, 8).expect("init RDA5807M");
+    let mut fm = RDA5807MFull::new(i2c, ADDR, 100.0, 8).expect("init RDA5807M");
 
     fm.set_frequency(97.5).unwrap();                    // Tune to frequency, (frequency_mhz) → ()
     println!("frequency: {:.2} MHz", fm.frequency().unwrap()); // Read tuned frequency, () → f32 MHz

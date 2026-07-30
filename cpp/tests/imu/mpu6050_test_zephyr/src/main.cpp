@@ -2,7 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include "I2CConnectionZephyr.h"
-#include "Mpu6050.h"
+#include "MPU6050.h"
 
 #ifndef MPU6050_I2C_NODE
 #define MPU6050_I2C_NODE DT_NODELABEL(i2c0)

@@ -37,14 +37,14 @@ CHIPS = [
     ("adc_dac",      "mcp4728",    "MCP4728",    "i2c",   "0x60"),
     ("adc_dac",      "pcf8591",    "PCF8591",    "i2c",   "0x48"),
     ("adc_dac",      "hx711",      "HX711",      "hx711", None),
-    ("comms",        "rda5807m",   "Rda5807m",   "i2c",   "0x10"),
+    ("comms",        "rda5807m",   "RDA5807M",   "i2c",   "0x10"),
     ("display",      "pcf8576",    "PCF8576",    "i2c",   "0x70"),
     ("environmental","aht21",      "AHT21",      "i2c",   "0x38"),
     ("environmental","bme280",     "BME280",     "i2c",   "0x76"),
     ("environmental","bme680",     "BME680",     "i2c",   "0x77"),
     ("gas",          "ens160",     "ENS160",     "i2c",   "0x53"),
     ("gnss",         "neo6",       "NEO6",       "uart",  None),
-    ("imu",          "mpu6050",    "Mpu6050",    "i2c",   "0x68"),
+    ("imu",          "mpu6050",    "MPU6050",    "i2c",   "0x68"),
     ("io_expander",  "mcp23017",   "MCP23017",   "i2c",   "0x20"),
     ("io_expander",  "pcf8574",    "PCF8574",    "i2c",   "0x20"),
     ("io_expander",  "pcf8575",    "PCF8575",    "i2c",   "0x20"),
@@ -116,7 +116,7 @@ def _chip_args(title, tier, kind, addr):
         return "transport, /*spi=*/false"
     if title == "MFRC522":
         return "transport, /*bus_type=*/0"   # 0 = I2C
-    if title == "Rda5807m":
+    if title == "RDA5807M":
         return "transport, /*frequency_mhz=*/100.0f, /*volume=*/5"
     if title == "BMP180":
         if tier != "Minimal":
@@ -632,13 +632,13 @@ def render_test_main_cpp(chip):
             primary = f"    check_true(true, \"i2c probe ok\");\n"
         elif title == "PCF8576":
             primary = f"    check_true(true, \"i2c probe ok\");\n"
-        elif title == "Rda5807m":
+        elif title == "RDA5807M":
             primary = f"    check_true({instance}.is_stereo(), \"is_stereo\");\n"
         elif title == "MFRC522":
             primary = f"    check_true(true, \"i2c probe ok\");\n"
         elif title == "EEPROM24AA02UID":
             primary = f"    check_true(true, \"i2c probe ok\");\n"
-        elif title == "Mpu6050":
+        elif title == "MPU6050":
             primary = f"    check_true({instance}.whoami() == 0x68, \"whoami\");\n"
         else:
             primary = f"    check_true(true, \"i2c probe ok\");\n"
@@ -677,7 +677,7 @@ int main(void) {{
 """
     if kind == "uart":
         # UART-based chips: skip in this round (no NMEA parser to verify
-        # without GPS lock; Rda5807m we already covered above for I2C).
+        # without GPS lock; RDA5807M we already covered above for I2C).
         return None
     return None
     return None

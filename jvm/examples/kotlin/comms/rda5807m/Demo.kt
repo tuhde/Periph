@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.comms.Rda5807mFull
+import it.uhde.periph.chips.comms.RDA5807MFull
 
 // FM band scanner: starts at the bottom of the world-wide band and repeatedly
 // seeks upward (SKMODE=1, the Minimal/Full default, stops seeking at the band
@@ -14,7 +14,7 @@ import it.uhde.periph.chips.comms.Rda5807mFull
 // Service (station) name for every station found along the way.
 fun main() {
     I2CConnection(1, 0x10).use { connection ->
-        val fm = Rda5807mFull(connection, 87.5, 10)
+        val fm = RDA5807MFull(connection, 87.5, 10)
 
         // --- FM band scanner ---
         // Start at the bottom of the world-wide band and repeatedly seek

@@ -5,14 +5,14 @@
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu6050Full
+import it.uhde.periph.chips.imu.MPU6050Full
 
 fun main() {
     I2CConnection(1, 0x68).use { connection ->
         // --- Configure for motion logging with moderate dynamic range ---
         // ±4g captures typical tilting and handling forces without clipping;
         // ±500 dps covers fast rotations while retaining sub-degree resolution.
-        val imu = Mpu6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
+        val imu = MPU6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
         imu.configureAccel(1)                                       // Configure accel range, (fullScale=0) → None
         imu.configureGyro(1)                                        // Configure gyro range, (fullScale=0) → None
 

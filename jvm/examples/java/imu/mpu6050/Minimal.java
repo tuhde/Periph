@@ -5,12 +5,12 @@
 //DEPS it.uhde:periph-java:1.1.0
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu6050Minimal;
+import it.uhde.periph.chips.imu.MPU6050Minimal;
 
 public class Minimal {
     public static void main(String[] args) throws Exception {
         try (var connection = new I2CConnection(1, 0x68)) {
-            var imu = new Mpu6050Minimal(connection);               // Create MPU6050 driver, (connection, addr=0x68) → None
+            var imu = new MPU6050Minimal(connection);               // Create MPU6050 driver, (connection, addr=0x68) → None
             for (int i = 0; i < 100; i++) {
                 double[] a = imu.accel();                          // Read 3-axis acceleration, () → double[] m/s²
                 double[] g = imu.gyro();                           // Read 3-axis angular rate, () → double[] rad/s

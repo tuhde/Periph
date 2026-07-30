@@ -72,7 +72,7 @@ const (
 )
 
 // RDA5807M fixed 7-bit I²C address.
-const Rda5807mAddr uint8 = 0x10
+const RDA5807MAddr uint8 = 0x10
 
 // Undocumented, measured on real hardware: after standby wake-up or a soft
 // reset, the chip needs this long before it will lock onto a subsequent TUNE
@@ -87,7 +87,7 @@ const rdaReadySettleMs = 30
 // rdaSTC timeout in milliseconds.
 const rdaStcTimeoutMs = 500
 
-// Rda5807mMinimal is the single-chip FM stereo radio tuner driver — minimal
+// RDA5807MMinimal is the single-chip FM stereo radio tuner driver — minimal
 // interface.
 //
 // Tunes to a station, adjusts volume, mutes, and seeks the next station. No
@@ -101,7 +101,7 @@ const rdaStcTimeoutMs = 500
 // else.
 //
 // Fixed I²C address: 0x10.
-type Rda5807mMinimal struct {
+type RDA5807MMinimal struct {
 	connection       connection.Connection
 	regs            [6]uint16
 	band            uint8
@@ -110,14 +110,14 @@ type Rda5807mMinimal struct {
 	currentFreqMhz  float64
 }
 
-// NewRda5807mMinimal creates a new Rda5807mMinimal and tunes to the initial
+// NewRDA5807MMinimal creates a new RDA5807MMinimal and tunes to the initial
 // frequency.
 //
 // connection must be a configured I²C connection bound to address 0x10.
 // frequencyMhz is the initial frequency in MHz.
 // volume is the initial volume, 0 (mute) to 15 (max).
-func NewRda5807mMinimal(t connection.Connection, frequencyMhz float64, volume uint8) (*Rda5807mMinimal, error) {
-	d := &Rda5807mMinimal{
+func NewRDA5807MMinimal(t connection.Connection, frequencyMhz float64, volume uint8) (*RDA5807MMinimal, error) {
+	d := &RDA5807MMinimal{
 		connection:     t,
 		band:          BandWorld,
 		space:         Space100K,
@@ -173,7 +173,7 @@ func chanToFreq(band, space uint8, eastEurope50m bool, channel uint16) float64 {
 }
 
 // writeRegs writes all six 16-bit registers 0x02-0x07 (12 bytes, big-endian).
-func (d *Rda5807mMinimal) writeRegs() error {
+func (d *RDA5807MMinimal) writeRegs() error {
 	buf := make([]byte, 12)
 	for i := 0; i < 6; i++ {
 		buf[i*2] = byte(d.regs[i] >> 8)
@@ -184,7 +184,7 @@ func (d *Rda5807mMinimal) writeRegs() error {
 
 // readStatus reads n/2 16-bit words (n bytes) from the chip's read-only
 // register block starting at 0x0A.
-func (d *Rda5807mMinimal) readStatus(n int) ([]uint16, error) {
+func (d *RDA5807MMinimal) readStatus(n int) ([]uint16, error) {
 	buf, err := d.connection.Read(n)
 	if err != nil {
 		return nil, err
@@ -198,7 +198,7 @@ func (d *Rda5807mMinimal) readStatus(n int) ([]uint16, error) {
 
 // waitStc polls STATUSA until STC is set or the timeout elapses. Returns the
 // last STATUSA word (zero on timeout).
-func (d *Rda5807mMinimal) waitStc() (uint16, error) {
+func (d *RDA5807MMinimal) waitStc() (uint16, error) {
 	deadline := time.Now().Add(time.Duration(rdaStcTimeoutMs) * time.Millisecond)
 	for {
 		words, err := d.readStatus(2)
@@ -216,7 +216,7 @@ func (d *Rda5807mMinimal) waitStc() (uint16, error) {
 }
 
 // SetFrequency tunes to a frequency, blocking until the tune completes.
-func (d *Rda5807mMinimal) SetFrequency(frequencyMhz float64) error {
+func (d *RDA5807MMinimal) SetFrequency(frequencyMhz float64) error {
 	channel := freqToChan(d.band, d.space, d.eastEurope50m, frequencyMhz)
 	d.regs[1] = (channel << 6) | rdaTUNE | (uint16(d.band) << 2) | uint16(d.space)
 	d.currentFreqMhz = frequencyMhz
@@ -231,7 +231,7 @@ func (d *Rda5807mMinimal) SetFrequency(frequencyMhz float64) error {
 }
 
 // Frequency reads the currently tuned frequency in MHz, derived from READCHAN.
-func (d *Rda5807mMinimal) Frequency() (float64, error) {
+func (d *RDA5807MMinimal) Frequency() (float64, error) {
 	words, err := d.readStatus(2)
 	if err != nil {
 		return 0, err
@@ -241,13 +241,13 @@ func (d *Rda5807mMinimal) Frequency() (float64, error) {
 }
 
 // SetVolume sets the output volume (0 = mute to 15 = max, logarithmic).
-func (d *Rda5807mMinimal) SetVolume(level uint8) error {
+func (d *RDA5807MMinimal) SetVolume(level uint8) error {
 	d.regs[3] = (d.regs[3] &^ 0x000F) | uint16(level&0x0F)
 	return d.writeRegs()
 }
 
 // Mute mutes (enable=true) or unmutes (enable=false) the audio output.
-func (d *Rda5807mMinimal) Mute(enable bool) error {
+func (d *RDA5807MMinimal) Mute(enable bool) error {
 	if enable {
 		d.regs[0] &^= rdaDMUTE
 	} else {
@@ -260,7 +260,7 @@ func (d *Rda5807mMinimal) Mute(enable bool) error {
 //
 // up=true to seek upward, false to seek downward. Returns the new frequency
 // in MHz, or nil if the seek failed (SF flag set).
-func (d *Rda5807mMinimal) Seek(up bool) (*float64, error) {
+func (d *RDA5807MMinimal) Seek(up bool) (*float64, error) {
 	if up {
 		d.regs[0] |= rdaSEEKUP
 	} else {
@@ -288,29 +288,29 @@ func (d *Rda5807mMinimal) Seek(up bool) (*float64, error) {
 	return &freq, nil
 }
 
-// Rda5807mFull is the single-chip FM stereo radio tuner driver — full
-// interface. Extends Rda5807mMinimal with band/spacing configuration, RDS,
+// RDA5807MFull is the single-chip FM stereo radio tuner driver — full
+// interface. Extends RDA5807MMinimal with band/spacing configuration, RDS,
 // status, and power management.
 //
-// Embeds Rda5807mMinimal to inherit SetFrequency, Frequency, SetVolume,
+// Embeds RDA5807MMinimal to inherit SetFrequency, Frequency, SetVolume,
 // Mute, Seek, and the constructor.
-type Rda5807mFull struct {
-	*Rda5807mMinimal
+type RDA5807MFull struct {
+	*RDA5807MMinimal
 }
 
-// NewRda5807mFull creates a new Rda5807mFull and tunes to the initial frequency.
-func NewRda5807mFull(t connection.Connection, frequencyMhz float64, volume uint8) (*Rda5807mFull, error) {
-	m, err := NewRda5807mMinimal(t, frequencyMhz, volume)
+// NewRDA5807MFull creates a new RDA5807MFull and tunes to the initial frequency.
+func NewRDA5807MFull(t connection.Connection, frequencyMhz float64, volume uint8) (*RDA5807MFull, error) {
+	m, err := NewRDA5807MMinimal(t, frequencyMhz, volume)
 	if err != nil {
 		return nil, err
 	}
-	return &Rda5807mFull{Rda5807mMinimal: m}, nil
+	return &RDA5807MFull{RDA5807MMinimal: m}, nil
 }
 
 // Configure re-tunes the chip. Pass nil for any parameter to leave it
 // unchanged. Changing band, space, or eastEurope50m re-tunes to the current
 // frequency, since CHAN's meaning depends on all three.
-func (d *Rda5807mFull) Configure(
+func (d *RDA5807MFull) Configure(
 	band, space *uint8,
 	deEmphasis, seekMode, afcDisable, eastEurope50m *bool,
 	seekThreshold, clkMode *uint8,
@@ -378,7 +378,7 @@ func (d *Rda5807mFull) Configure(
 }
 
 // SetBassBoost enables or disables bass boost.
-func (d *Rda5807mFull) SetBassBoost(enable bool) error {
+func (d *RDA5807MFull) SetBassBoost(enable bool) error {
 	if enable {
 		d.regs[0] |= rdaBASS
 	} else {
@@ -388,7 +388,7 @@ func (d *Rda5807mFull) SetBassBoost(enable bool) error {
 }
 
 // SetMono forces mono (enable=true) or allows stereo.
-func (d *Rda5807mFull) SetMono(enable bool) error {
+func (d *RDA5807MFull) SetMono(enable bool) error {
 	if enable {
 		d.regs[0] |= rdaMONO
 	} else {
@@ -398,7 +398,7 @@ func (d *Rda5807mFull) SetMono(enable bool) error {
 }
 
 // SetSoftmute enables or disables soft mute (chip default: enabled).
-func (d *Rda5807mFull) SetSoftmute(enable bool) error {
+func (d *RDA5807MFull) SetSoftmute(enable bool) error {
 	if enable {
 		d.regs[2] |= rdaSOFTMUTE
 	} else {
@@ -408,7 +408,7 @@ func (d *Rda5807mFull) SetSoftmute(enable bool) error {
 }
 
 // EnableRds enables or disables the RDS/RBDS decoder.
-func (d *Rda5807mFull) EnableRds(enable bool) error {
+func (d *RDA5807MFull) EnableRds(enable bool) error {
 	if enable {
 		d.regs[0] |= rdaRDS_EN
 	} else {
@@ -418,7 +418,7 @@ func (d *Rda5807mFull) EnableRds(enable bool) error {
 }
 
 // RdsReady returns true if a new RDS/RBDS group is available (RDSR flag).
-func (d *Rda5807mFull) RdsReady() (bool, error) {
+func (d *RDA5807MFull) RdsReady() (bool, error) {
 	words, err := d.readStatus(2)
 	if err != nil {
 		return false, err
@@ -428,7 +428,7 @@ func (d *Rda5807mFull) RdsReady() (bool, error) {
 
 // ReadRdsGroup reads the four raw RDS/RBDS blocks (A–D), if a new group is
 // ready. Returns nil if no new group is ready. Does not decode group content.
-func (d *Rda5807mFull) ReadRdsGroup() (*[4]uint16, error) {
+func (d *RDA5807MFull) ReadRdsGroup() (*[4]uint16, error) {
 	words, err := d.readStatus(12)
 	if err != nil {
 		return nil, err
@@ -440,7 +440,7 @@ func (d *Rda5807mFull) ReadRdsGroup() (*[4]uint16, error) {
 }
 
 // IsStereo returns true if the current station is being received in stereo.
-func (d *Rda5807mFull) IsStereo() (bool, error) {
+func (d *RDA5807MFull) IsStereo() (bool, error) {
 	words, err := d.readStatus(2)
 	if err != nil {
 		return false, err
@@ -449,7 +449,7 @@ func (d *Rda5807mFull) IsStereo() (bool, error) {
 }
 
 // IsStation returns true if the current channel is a real station (FM_TRUE).
-func (d *Rda5807mFull) IsStation() (bool, error) {
+func (d *RDA5807MFull) IsStation() (bool, error) {
 	words, err := d.readStatus(4)
 	if err != nil {
 		return false, err
@@ -458,7 +458,7 @@ func (d *Rda5807mFull) IsStation() (bool, error) {
 }
 
 // IsReady returns true if the tuner is ready (FM_READY).
-func (d *Rda5807mFull) IsReady() (bool, error) {
+func (d *RDA5807MFull) IsReady() (bool, error) {
 	words, err := d.readStatus(4)
 	if err != nil {
 		return false, err
@@ -468,7 +468,7 @@ func (d *Rda5807mFull) IsReady() (bool, error) {
 
 // SignalStrength returns the raw RSSI, 0 (weakest) to 127 (strongest),
 // logarithmic. No absolute dBuV mapping is published.
-func (d *Rda5807mFull) SignalStrength() (uint8, error) {
+func (d *RDA5807MFull) SignalStrength() (uint8, error) {
 	words, err := d.readStatus(4)
 	if err != nil {
 		return 0, err
@@ -481,7 +481,7 @@ func (d *Rda5807mFull) SignalStrength() (uint8, error) {
 // Powering back up clears the tuner's PLL lock, so waking from standby
 // blocks briefly for the chip to recover, then re-tunes to the last known
 // frequency.
-func (d *Rda5807mFull) Standby(enable bool) error {
+func (d *RDA5807MFull) Standby(enable bool) error {
 	if enable {
 		d.regs[0] &^= rdaENABLE
 	} else {
@@ -505,7 +505,7 @@ func (d *Rda5807mFull) Standby(enable bool) error {
 // A soft reset restores the chip's power-on register defaults and clears the
 // tuner's PLL lock, so this blocks briefly for the chip to recover, then
 // re-tunes to the last known frequency.
-func (d *Rda5807mFull) SoftReset() error {
+func (d *RDA5807MFull) SoftReset() error {
 	d.regs[0] |= rdaSOFT_RESET
 	if err := d.writeRegs(); err != nil {
 		return err

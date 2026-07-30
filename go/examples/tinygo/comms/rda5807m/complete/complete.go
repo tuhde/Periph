@@ -2,7 +2,7 @@
 
 // RDA5807M complete example — TinyGo / Raspberry Pi Pico W.
 //
-// Exercises the Rda5807mFull API on a Pico W.
+// Exercises the RDA5807MFull API on a Pico W.
 package main
 
 import (
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x10, nil, nil)          // Create I2C connection, (i2c, addr=0x10) → (*I2CConnection)
-	fm, err := comms.NewRda5807mFull(conn, 100.0, 8)      // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*Rda5807mFull, error)
+	fm, err := comms.NewRDA5807MFull(conn, 100.0, 8)      // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*RDA5807MFull, error)
 	if err != nil {
 		panic(err)
 	}

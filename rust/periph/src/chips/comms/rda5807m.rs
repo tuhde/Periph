@@ -122,7 +122,7 @@ fn wait_stc<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
 /// No configuration required beyond the connection. Sensible defaults:
 /// world-wide band (76-108 MHz), 100 kHz spacing, DHIZ/DMUTE/NEW_METHOD
 /// enabled, SKMODE=1 (stop seeking at the band limit).
-pub struct Rda5807mMinimal<I2C> {
+pub struct RDA5807MMinimal<I2C> {
     i2c: I2C,
     addr: u8,
     regs: [u16; 6],
@@ -132,8 +132,8 @@ pub struct Rda5807mMinimal<I2C> {
     current_freq: f32,
 }
 
-impl<I2C: I2c> Rda5807mMinimal<I2C> {
-    /// Create a new `Rda5807mMinimal` and tune to the initial frequency.
+impl<I2C: I2c> RDA5807MMinimal<I2C> {
+    /// Create a new `RDA5807MMinimal` and tune to the initial frequency.
     ///
     /// # Arguments
     /// * `i2c`            — Configured I²C bus implementing [`embedded_hal::i2c::I2c`].
@@ -214,39 +214,39 @@ impl<I2C: I2c> Rda5807mMinimal<I2C> {
     }
 }
 
-/// RDA5807M full driver — extends [`Rda5807mMinimal`] with band/spacing
+/// RDA5807M full driver — extends [`RDA5807MMinimal`] with band/spacing
 /// configuration, RDS, status, and power management.
-pub struct Rda5807mFull<I2C> {
-    inner: Rda5807mMinimal<I2C>,
+pub struct RDA5807MFull<I2C> {
+    inner: RDA5807MMinimal<I2C>,
 }
 
-impl<I2C: I2c> Rda5807mFull<I2C> {
-    /// Create a new `Rda5807mFull`. Same arguments as [`Rda5807mMinimal::new`].
+impl<I2C: I2c> RDA5807MFull<I2C> {
+    /// Create a new `RDA5807MFull`. Same arguments as [`RDA5807MMinimal::new`].
     pub fn new(i2c: I2C, addr: u8, frequency_mhz: f32, volume: u8) -> Result<Self, I2C::Error> {
-        Ok(Self { inner: Rda5807mMinimal::new(i2c, addr, frequency_mhz, volume)? })
+        Ok(Self { inner: RDA5807MMinimal::new(i2c, addr, frequency_mhz, volume)? })
     }
 
-    /// Tune to a frequency. Delegates to the inner [`Rda5807mMinimal`].
+    /// Tune to a frequency. Delegates to the inner [`RDA5807MMinimal`].
     pub fn set_frequency(&mut self, frequency_mhz: f32) -> Result<(), I2C::Error> {
         self.inner.set_frequency(frequency_mhz)
     }
 
-    /// Read the currently tuned frequency. Delegates to the inner [`Rda5807mMinimal`].
+    /// Read the currently tuned frequency. Delegates to the inner [`RDA5807MMinimal`].
     pub fn frequency(&mut self) -> Result<f32, I2C::Error> {
         self.inner.frequency()
     }
 
-    /// Set the output volume. Delegates to the inner [`Rda5807mMinimal`].
+    /// Set the output volume. Delegates to the inner [`RDA5807MMinimal`].
     pub fn set_volume(&mut self, level: u8) -> Result<(), I2C::Error> {
         self.inner.set_volume(level)
     }
 
-    /// Mute or unmute. Delegates to the inner [`Rda5807mMinimal`].
+    /// Mute or unmute. Delegates to the inner [`RDA5807MMinimal`].
     pub fn mute(&mut self, enable: bool) -> Result<(), I2C::Error> {
         self.inner.mute(enable)
     }
 
-    /// Seek to the next station. Delegates to the inner [`Rda5807mMinimal`].
+    /// Seek to the next station. Delegates to the inner [`RDA5807MMinimal`].
     pub fn seek(&mut self, up: bool) -> Result<Option<f32>, I2C::Error> {
         self.inner.seek(up)
     }

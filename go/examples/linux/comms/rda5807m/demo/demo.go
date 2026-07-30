@@ -39,7 +39,7 @@ func main() {
 	// Start at the bottom of the world-wide band and repeatedly seek upward
 	// with SKMODE=1 (stop at band limit, the Minimal/Full default) so a seek
 	// that returns nil means the top of the band has been reached.
-	fm, err := comms.NewRda5807mFull(conn, 87.5, 10) // Create RDA5807M driver, (connection, frequency_mhz=87.5, volume=10) → (*Rda5807mFull, error)
+	fm, err := comms.NewRDA5807MFull(conn, 87.5, 10) // Create RDA5807M driver, (connection, frequency_mhz=87.5, volume=10) → (*RDA5807MFull, error)
 	if err != nil {
 		panic(err)
 	}

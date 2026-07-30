@@ -5,12 +5,12 @@
 //DEPS it.uhde:periph-java:1.1.0
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu6050Full;
+import it.uhde.periph.chips.imu.MPU6050Full;
 
 public class Complete {
     public static void main(String[] args) throws Exception {
         try (var connection = new I2CConnection(1, 0x68)) {
-            var imu = new Mpu6050Full(connection);                  // Create MPU6050 driver, (connection, addr=0x68) → None
+            var imu = new MPU6050Full(connection);                  // Create MPU6050 driver, (connection, addr=0x68) → None
 
             double[] a = imu.accel();                              // Read 3-axis acceleration, () → double[] m/s²
                                                                    // converts raw accel register to m/s² (16384 LSB/g at ±2g)

@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.20)
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(mpu6050_minimal_zephyr)
+
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
+
+target_sources(app PRIVATE
+    main.cpp
+    ${CPP_DIR}/src/chips/imu/MPU6050.cpp
+)
+target_include_directories(app PRIVATE
+    ${CPP_DIR}/src/connection
+    ${CPP_DIR}/src/chips/imu
+)

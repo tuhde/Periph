@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::comms::Rda5807mMinimal;
+use periph::chips::comms::RDA5807MMinimal;
 
 esp_app_desc!();
 
@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut fm = Rda5807mMinimal::new(i2c, ADDR, 100.0, 8).expect("init RDA5807M");
+    let mut fm = RDA5807MMinimal::new(i2c, ADDR, 100.0, 8).expect("init RDA5807M");
 
     loop {
         if let Some(freq) = fm.seek(true).expect("seek") {    // Seek to next station, (up=true) → Option<f32> MHz

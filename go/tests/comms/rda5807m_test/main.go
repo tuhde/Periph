@@ -40,7 +40,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fm, err := comms.NewRda5807mFull(conn, 100.0, 8)
+	fm, err := comms.NewRDA5807MFull(conn, 100.0, 8)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new:", err)
 		os.Exit(2)

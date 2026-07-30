@@ -12,7 +12,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(mpu6050_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/imu/Mpu6050.cpp
+    ${CPP_DIR}/src/chips/imu/MPU6050.cpp
 )
 
 target_include_directories(mpu6050_test_picosdk PRIVATE

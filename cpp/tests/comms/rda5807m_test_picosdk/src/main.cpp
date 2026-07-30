@@ -2,7 +2,7 @@
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
 #include "I2CConnectionPicoSDK.h"
-#include "Rda5807m.h"
+#include "RDA5807M.h"
 
 int passed = 0;
 int failed = 0;

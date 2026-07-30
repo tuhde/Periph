@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::comms::{Rda5807mFull, BAND_WORLD, SPACE_100K};
+use periph::chips::comms::{RDA5807MFull, BAND_WORLD, SPACE_100K};
 
 esp_app_desc!();
 
@@ -37,7 +37,7 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut fm = match Rda5807mFull::new(i2c, TEST_ADDR, 100.0, 8) {
+    let mut fm = match RDA5807MFull::new(i2c, TEST_ADDR, 100.0, 8) {
         Ok(c) => c,
         Err(_) => {
             println!("FAIL init: could not reach RDA5807M at 0x{:02X}", TEST_ADDR);

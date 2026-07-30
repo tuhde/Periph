@@ -5,11 +5,11 @@
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.comms.Rda5807mFull
+import it.uhde.periph.chips.comms.RDA5807MFull
 
 fun main() {
     I2CConnection(1, 0x10).use { connection ->                    // open I²C bus 1, device 0x10, (bus, address) → I2CConnection
-        val fm = Rda5807mFull(connection, 100.0, 8)                // construct driver, (connection, frequencyMhz=100.0, volume=8) → Rda5807mFull
+        val fm = RDA5807MFull(connection, 100.0, 8)                // construct driver, (connection, frequencyMhz=100.0, volume=8) → RDA5807MFull
                                                                   // runs the init sequence and tunes to the initial frequency
 
         fm.setFrequency(97.5)                                     // tune to frequency, (frequencyMhz) → Unit
@@ -25,7 +25,7 @@ fun main() {
                                                                   // blocks until STC; returns null if SF (seek fail) is set
         println("seek=$freq")
 
-        fm.configure(Rda5807mFull.BAND_WORLD, Rda5807mFull.SPACE_100K, true, 8, true)
+        fm.configure(RDA5807MFull.BAND_WORLD, RDA5807MFull.SPACE_100K, true, 8, true)
                                                                   // configure tuner, (band, space, deEmphasis, seekThreshold, seekMode, clkMode, afcDisable, eastEurope50m) → Unit
                                                                   // re-tunes to the current frequency if band or space changed
 

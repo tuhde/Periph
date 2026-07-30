@@ -1,12 +1,12 @@
-// Auto-generated ESP-IDF test for Rda5807m.
-// Mirrors the Zephyr test for Rda5807m; prints PASS/FAIL and exits.
+// Auto-generated ESP-IDF test for RDA5807M.
+// Mirrors the Zephyr test for RDA5807M; prints PASS/FAIL and exits.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
 #include "I2CConnectionESPIDF.h"
-#include "Rda5807m.h"
+#include "RDA5807M.h"
 
 static int passed = 0;
 static int failed = 0;
@@ -49,7 +49,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    RDA5807MFull inst(connection);  // Create Rda5807m driver
+    RDA5807MFull inst(connection);  // Create RDA5807M driver
     inst.set_frequency(100.0f);
     float f = inst.frequency();
     check_near(f, 80.0f, 110.0f, "frequency range");

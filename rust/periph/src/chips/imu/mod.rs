@@ -1,2 +1,2 @@
 pub mod mpu6050;
-pub use mpu6050::{Mpu6050Minimal, Mpu6050Full};
+pub use mpu6050::{MPU6050Minimal, MPU6050Full};

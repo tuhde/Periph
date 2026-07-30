@@ -57,13 +57,13 @@ Each chip exposes two classes:
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
-| Mpu6050 | IMU | `chips/imu/Mpu6050.h` |
+| MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |
 | PCF8575 | IO expander | `chips/io_expander/PCF8575.h` |
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
-| Rda5807m | Comms | `chips/comms/Rda5807m.h` |
+| RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
 

@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::imu::Mpu6050Minimal;
+use periph::chips::imu::MPU6050Minimal;
 
 esp_app_desc!();
 
@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut chip = Mpu6050Minimal::new(i2c, ADDR, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, ADDR, delay) → Result
+    let mut chip = MPU6050Minimal::new(i2c, ADDR, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, ADDR, delay) → Result
 
     loop {
         let (ax, ay, az) = chip.accel().expect("accel"); // Read 3-axis acceleration, () → (f32, f32, f32) m/s²

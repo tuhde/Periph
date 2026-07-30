@@ -38,15 +38,15 @@ const GYRO_SENSITIVITY: [f32; 4] = [131.0, 65.5, 32.8, 16.4];
 /// MPU-6050 minimal driver — 3-axis acceleration and 3-axis angular rate.
 ///
 /// Performs device reset, WHO_AM_I check, and configures defaults at construction.
-pub struct Mpu6050Minimal<I2C> {
+pub struct MPU6050Minimal<I2C> {
     i2c: I2C,
     addr: u8,
     accel_fs: u8,
     gyro_fs: u8,
 }
 
-impl<I2C: I2c> Mpu6050Minimal<I2C> {
-    /// Create a new `Mpu6050Minimal`, reset the device, and configure defaults.
+impl<I2C: I2c> MPU6050Minimal<I2C> {
+    /// Create a new `MPU6050Minimal`, reset the device, and configure defaults.
     ///
     /// # Arguments
     /// * `i2c`   — Configured I²C bus implementing [`embedded_hal::i2c::I2c`].
@@ -100,29 +100,29 @@ impl<I2C: I2c> Mpu6050Minimal<I2C> {
     }
 }
 
-/// MPU-6050 full driver — extends [`Mpu6050Minimal`] with configuration and FIFO support.
+/// MPU-6050 full driver — extends [`MPU6050Minimal`] with configuration and FIFO support.
 ///
 /// Provides access to full-scale range configuration, DLPF, sample rate,
 /// temperature, raw data, data-ready polling, sleep/standby, and FIFO management.
-pub struct Mpu6050Full<I2C> {
-    inner: Mpu6050Minimal<I2C>,
+pub struct MPU6050Full<I2C> {
+    inner: MPU6050Minimal<I2C>,
 }
 
-impl<I2C: I2c> Mpu6050Full<I2C> {
-    /// Create a new `Mpu6050Full`, reset the device, and configure defaults.
+impl<I2C: I2c> MPU6050Full<I2C> {
+    /// Create a new `MPU6050Full`, reset the device, and configure defaults.
     ///
-    /// Same arguments as [`Mpu6050Minimal::new`].
+    /// Same arguments as [`MPU6050Minimal::new`].
     pub fn new<D: DelayNs>(i2c: I2C, addr: u8, delay: &mut D) -> Result<Self, I2C::Error> {
-        let inner = Mpu6050Minimal::new(i2c, addr, delay)?;
+        let inner = MPU6050Minimal::new(i2c, addr, delay)?;
         Ok(Self { inner })
     }
 
-    /// Read 3-axis acceleration. Delegates to the inner [`Mpu6050Minimal`].
+    /// Read 3-axis acceleration. Delegates to the inner [`MPU6050Minimal`].
     pub fn accel(&mut self) -> Result<(f32, f32, f32), I2C::Error> {
         self.inner.accel()
     }
 
-    /// Read 3-axis angular rate. Delegates to the inner [`Mpu6050Minimal`].
+    /// Read 3-axis angular rate. Delegates to the inner [`MPU6050Minimal`].
     pub fn gyro(&mut self) -> Result<(f32, f32, f32), I2C::Error> {
         self.inner.gyro()
     }

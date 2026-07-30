@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include "I2CConnection.h"
-#include "Mpu6050.h"
+#include "MPU6050.h"
 
 #ifndef TEST_SDA
 #define TEST_SDA 8

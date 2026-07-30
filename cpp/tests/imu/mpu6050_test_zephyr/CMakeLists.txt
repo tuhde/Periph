@@ -6,7 +6,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 target_sources(app PRIVATE
     src/main.cpp
-    ${CPP_DIR}/src/chips/imu/Mpu6050.cpp
+    ${CPP_DIR}/src/chips/imu/MPU6050.cpp
 )
 
 target_include_directories(app PRIVATE

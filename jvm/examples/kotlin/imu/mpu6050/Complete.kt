@@ -5,11 +5,11 @@
 //DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu6050Full
+import it.uhde.periph.chips.imu.MPU6050Full
 
 fun main() {
     I2CConnection(1, 0x68).use { connection ->
-        val imu = Mpu6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
+        val imu = MPU6050Full(connection)                           // Create MPU6050 driver, (connection, addr=0x68) → None
 
         val a = imu.accel()                                        // Read 3-axis acceleration, () → DoubleArray m/s²
                                                                    // converts raw accel register to m/s² (16384 LSB/g at ±2g)

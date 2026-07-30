@@ -2,7 +2,7 @@
 
 // RDA5807M complete example — Linux host.
 //
-// Exercises every method in the Rda5807mFull API: tune, frequency,
+// Exercises every method in the RDA5807MFull API: tune, frequency,
 // volume, mute, seek, configure, bass boost, mono, soft mute, RDS,
 // status flags, RSSI, standby, and soft reset.
 package main
@@ -33,7 +33,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fm, err := comms.NewRda5807mFull(conn, 100.0, 8) // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*Rda5807mFull, error)
+	fm, err := comms.NewRDA5807MFull(conn, 100.0, 8) // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*RDA5807MFull, error)
 	if err != nil {
 		panic(err)
 	}

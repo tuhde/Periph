@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::imu::Mpu6050Full;
+use periph::chips::imu::MPU6050Full;
 
 esp_app_desc!();
 
@@ -25,7 +25,7 @@ fn main() -> ! {
     // --- Configure for motion logging with moderate dynamic range ---
     // ±4g captures typical tilting and handling forces without clipping;
     // ±500 dps covers fast rotations while retaining sub-degree resolution.
-    let mut chip = Mpu6050Full::new(i2c, ADDR, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, ADDR, delay) → Result
+    let mut chip = MPU6050Full::new(i2c, ADDR, &mut delay).expect("init MPU6050"); // Create MPU6050 driver, (i2c, ADDR, delay) → Result
     chip.configure_accel(1).expect("configure_accel");    // Configure accel range, (full_scale=0) → Result
     chip.configure_gyro(1).expect("configure_gyro");      // Configure gyro range, (full_scale=0) → Result
 

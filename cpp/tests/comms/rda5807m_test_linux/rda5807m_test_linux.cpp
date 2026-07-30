@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include "I2CConnectionLinux.h"
-#include "Rda5807m.h"
+#include "RDA5807M.h"
 
 #ifndef TEST_I2C_BUS
 #define TEST_I2C_BUS 1

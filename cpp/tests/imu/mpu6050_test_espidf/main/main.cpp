@@ -1,12 +1,12 @@
-// Auto-generated ESP-IDF test for Mpu6050.
-// Mirrors the Zephyr test for Mpu6050; prints PASS/FAIL and exits.
+// Auto-generated ESP-IDF test for MPU6050.
+// Mirrors the Zephyr test for MPU6050; prints PASS/FAIL and exits.
 
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
 #include "I2CConnectionESPIDF.h"
-#include "Mpu6050.h"
+#include "MPU6050.h"
 
 static int passed = 0;
 static int failed = 0;
@@ -49,7 +49,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    MPU6050Full inst(connection);  // Create Mpu6050 driver
+    MPU6050Full inst(connection);  // Create MPU6050 driver
     check_eq_u8(inst.who_am_i(), 0x68, "who_am_i 0x68");
     float ax, ay, az, gx, gy, gz;
     inst.accel(ax, ay, az);

@@ -9,7 +9,7 @@ use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::main;
 use esp_hal::time::Rate;
 use esp_println::println;
-use periph::chips::imu::Mpu6050Full;
+use periph::chips::imu::MPU6050Full;
 
 esp_app_desc!();
 
@@ -35,7 +35,7 @@ fn main() -> ! {
         .with_scl(scl);
 
     let mut delay = Delay::new();
-    let mut chip = Mpu6050Full::new(i2c, ADDR, &mut delay).expect("init MPU6050");
+    let mut chip = MPU6050Full::new(i2c, ADDR, &mut delay).expect("init MPU6050");
 
     let mut passed = 0i32;
     let mut failed = 0i32;

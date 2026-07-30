@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-groovy:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.comms.Rda5807mFull
+import it.uhde.periph.chips.comms.RDA5807MFull
 
 // FM band scanner: starts at the bottom of the world-wide band and repeatedly
 // seeks upward (SKMODE=1, the Minimal/Full default, stops seeking at the band
@@ -15,7 +15,7 @@ import it.uhde.periph.chips.comms.Rda5807mFull
 
 def connection = new I2CConnection(1, 0x10)
 try {
-    def fm = new Rda5807mFull(connection, 87.5d, 10)
+    def fm = new RDA5807MFull(connection, 87.5d, 10)
 
     // --- FM band scanner ---
     // Start at the bottom of the world-wide band and repeatedly seek upward

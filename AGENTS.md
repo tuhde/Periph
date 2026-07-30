@@ -554,7 +554,7 @@ If `connection.intPin()` is `null`, default to `new PollingInputPin(5)` internal
 Define a companion `<Chip>Source` constants class / object / enum in the same file as the driver. One constant per condition, values matching the chip's interrupt-status register bit layout. Threshold values and other parameters are set via separate `Full` setter methods, not through `enable_interrupt`.
 
 ```python
-class Mpu6050Source:
+class MPU6050Source:
     DATA_READY    = 0x01
     MOTION        = 0x40
     FIFO_OVERFLOW = 0x10

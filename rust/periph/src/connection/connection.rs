@@ -13,7 +13,7 @@
 //! ```rust,ignore
 //! en_pin.set_high().unwrap();    // power up the chip
 //! let conn = Connection::new(i2c);
-//! let imu  = Mpu6050Minimal::new(conn);
+//! let imu  = MPU6050Minimal::new(conn);
 //! ```
 
 use embedded_hal::i2c::I2c;

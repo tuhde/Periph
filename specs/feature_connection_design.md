@@ -296,10 +296,10 @@ Usage:
 from periph.connection.i2c_linux import I2CConnection
 from periph.connection.input_pin import LinuxSysfsPin
 from periph.connection.output_pin import LinuxOutputPin
-from periph.chips.imu.mpu6050 import Mpu6050Full
+from periph.chips.imu.mpu6050 import MPU6050Full
 
 conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
-imu  = Mpu6050Full(conn)
+imu  = MPU6050Full(conn)
 
 conn.disable()   # gates all I²C access; drives EN low if wired
 conn.enable()    # resumes access; drives EN high if wired
@@ -308,11 +308,11 @@ conn.enable()    # resumes access; drives EN high if wired
 Chip constructors are unchanged in shape — only the parameter name/type moves:
 
 ```python
-class Mpu6050Minimal:
+class MPU6050Minimal:
     def __init__(self, connection: Connection):   # was: transport: Transport
         self._conn = connection
 
-class Mpu6050Full(Mpu6050Minimal):
+class MPU6050Full(MPU6050Minimal):
     def __init__(self, connection: Connection):
         super().__init__(connection)
         self._callback = None
@@ -404,17 +404,17 @@ private:
 Chip constructors:
 
 ```cpp
-class Mpu6050Minimal {
+class MPU6050Minimal {
 public:
-    explicit Mpu6050Minimal(Connection& conn) : _conn(conn) {}
+    explicit MPU6050Minimal(Connection& conn) : _conn(conn) {}
 protected:
     Connection& _conn;
 };
 
-class Mpu6050Full : public Mpu6050Minimal {
+class MPU6050Full : public MPU6050Minimal {
 public:
-    explicit Mpu6050Full(Connection& conn)
-        : Mpu6050Minimal(conn), _callback(nullptr) {}
+    explicit MPU6050Full(Connection& conn)
+        : MPU6050Minimal(conn), _callback(nullptr) {}
 };
 ```
 
@@ -534,7 +534,7 @@ directly before constructing the chip:
 ```rust
 en_pin.set_high().unwrap();    // power up the chip
 let conn = Connection::new(i2c);
-let imu  = Mpu6050Minimal::new(conn);
+let imu  = MPU6050Minimal::new(conn);
 ```
 
 **HX711, NeoPixel, DHTxx, SiPo (periph-owned custom protocols)** — these *do* have
@@ -723,7 +723,7 @@ Usage:
 
 ```go
 conn, err := connection.NewI2CConnection(1, 0x68, intPin, enPin)
-chip, err := mpu6050.NewMpu6050Full(conn)
+chip, err := mpu6050.NewMPU6050Full(conn)
 ```
 
 Chip constructors: `New<Chip>Minimal(conn connection.Connection, ...) (*<Chip>Minimal, error)`,
@@ -1027,7 +1027,7 @@ Chips with selectable interrupt conditions expose two additional methods on `Ful
 `source` is a chip-specific constant defined in a companion `<Chip>Source` class/enum:
 
 ```python
-class Mpu6050Source:
+class MPU6050Source:
     DATA_READY    = 0x01
     MOTION        = 0x40
     FIFO_OVERFLOW = 0x10
@@ -1050,9 +1050,9 @@ The callback always receives a single integer:
 
 ```python
 def handler(status):
-    if status & Mpu6050Source.DATA_READY:
+    if status & MPU6050Source.DATA_READY:
         reading = imu.read()
-    if status & Mpu6050Source.MOTION:
+    if status & MPU6050Source.MOTION:
         alert("motion detected")
 
 imu.on_interrupt(handler)

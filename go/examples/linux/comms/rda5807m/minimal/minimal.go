@@ -32,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fm, err := comms.NewRda5807mMinimal(conn, 100.0, 8) // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*Rda5807mMinimal, error)
+	fm, err := comms.NewRDA5807MMinimal(conn, 100.0, 8) // Create RDA5807M driver, (connection, frequency_mhz=100.0, volume=8) → (*RDA5807MMinimal, error)
 	if err != nil {
 		panic(err)
 	}

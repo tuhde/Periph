@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::comms::Rda5807mFull;
+use periph::chips::comms::RDA5807MFull;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
 
@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or(0x10);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut fm = Rda5807mFull::new(dev, addr, 87.5, 10).expect("init RDA5807M");
+    let mut fm = RDA5807MFull::new(dev, addr, 87.5, 10).expect("init RDA5807M");
 
     // --- FM band scanner ---
     // Start at the bottom of the world-wide band and repeatedly seek upward

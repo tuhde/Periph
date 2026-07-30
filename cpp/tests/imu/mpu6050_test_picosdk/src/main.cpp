@@ -2,7 +2,7 @@
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
 #include "I2CConnectionPicoSDK.h"
-#include "Mpu6050.h"
+#include "MPU6050.h"
 
 int passed = 0;
 int failed = 0;
@@ -25,7 +25,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x68);
-    Mpu6050Full mpu6050(connection);
+    MPU6050Full mpu6050(connection);
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
