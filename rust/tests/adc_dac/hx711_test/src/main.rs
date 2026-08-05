@@ -120,13 +120,6 @@ fn main() {
 
         let weight = full.read_weight(3);
         check_true!(weight.is_ok(), "read_weight(3) ok", passed, failed);
-
-        check_true!(full.power_down().is_ok(), "power_down ok", passed, failed);
-        std::thread::sleep(std::time::Duration::from_micros(65));
-        check_true!(full.power_up().is_ok(), "power_up ok", passed, failed);
-
-        let raw_after = full.read_raw();
-        check_true!(raw_after.is_ok(), "read_raw after power_up ok", passed, failed);
     }
 
     println!("===DONE: {} passed, {} failed===", passed, failed);

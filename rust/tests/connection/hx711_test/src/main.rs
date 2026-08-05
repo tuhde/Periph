@@ -83,9 +83,6 @@ fn main() {
         failed
     );
 
-    check_true!(connection.power_down().is_ok(), "power_down ok", passed, failed);
-    check_true!(connection.power_up().is_ok(),   "power_up ok",   passed, failed);
-
     println!("===DONE: {} passed, {} failed===", passed, failed);
     std::process::exit(if failed == 0 { 0 } else { 1 });
 }

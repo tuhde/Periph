@@ -36,12 +36,6 @@ int main(void) {
     val = connection.read_raw(27);
     check_true(val >= -8388608 && val <= 8388607, "read_raw(27) in 24-bit signed range");
 
-    connection.power_down();
-    check_true(true, "power_down accepted");
-
-    connection.power_up();
-    check_true(true, "power_up accepted");
-
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }

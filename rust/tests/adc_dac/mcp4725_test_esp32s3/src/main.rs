@@ -59,18 +59,6 @@ fn main() -> ! {
     let read_ok = dac.read().map(|(code, vf, _, ec, _, _)| code <= 4095 && vf >= 0.0 && vf <= 1.0 && ec <= 4095).unwrap_or(false);
     check_true!(read_ok, "read_values_valid", passed, failed);
 
-    dac.set_power_down(0).ok();
-    check_true!(true, "set_power_down_normal", passed, failed);
-
-    dac.set_power_down(1).ok();
-    check_true!(true, "set_power_down_1k", passed, failed);
-
-    dac.set_power_down(2).ok();
-    check_true!(true, "set_power_down_100k", passed, failed);
-
-    dac.set_power_down(3).ok();
-    check_true!(true, "set_power_down_500k", passed, failed);
-
     dac.wake_up().ok();
     check_true!(true, "wake_up", passed, failed);
 

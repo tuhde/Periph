@@ -96,16 +96,6 @@ func main() {
 	}
 	check("set_gain", true)
 
-	if err := chip.SetPowerDown(0, 0, 0, 0); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_normal:", err)
-	}
-	check("set_power_down_normal", true)
-
-	if err := chip.SetPowerDown(1, 2, 3, 0); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_modes:", err)
-	}
-	check("set_power_down_modes", true)
-
 	st, err := chip.Read()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "read:", err)

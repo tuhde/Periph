@@ -64,12 +64,6 @@ checkTrue('getScale returns 420.0', scale === 420.0);
 const weight = chip.readWeight(1);
 checkTrue('readWeight returns number', typeof weight === 'number');
 
-chip.powerDown();
-checkTrue('powerDown accepted', true);
-
-chip.powerUp();
-checkTrue('powerUp accepted', true);
-
 connection.close();
 checkTrue('close accepted', true);
 

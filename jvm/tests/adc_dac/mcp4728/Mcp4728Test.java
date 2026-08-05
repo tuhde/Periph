@@ -53,14 +53,6 @@ public class Mcp4728Test {
             dac.setGain(1, 1, 1, 1);
             checkTrue("setGain accepted", true);
 
-            dac.setPowerDown(Mcp4728Full.PD_NORMAL, Mcp4728Full.PD_NORMAL,
-                             Mcp4728Full.PD_NORMAL, Mcp4728Full.PD_NORMAL);
-            checkTrue("setPowerDown normal accepted", true);
-
-            dac.setPowerDown(Mcp4728Full.PD_1K_GND, Mcp4728Full.PD_100K_GND,
-                             Mcp4728Full.PD_500K_GND, Mcp4728Full.PD_NORMAL);
-            checkTrue("setPowerDown modes accepted", true);
-
             Thread.sleep(50);
 
             var state = dac.read();

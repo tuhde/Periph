@@ -55,6 +55,7 @@ const BIT_THRESHOLD_US: u32 = 40;
 /// `specs/transport_dhtxx.md` for details.
 pub struct DHTxxConnectionLinux<P> {
     pin: P,
+    enabled: bool,
 }
 
 impl<P> DHTxxConnectionLinux<P>
@@ -64,11 +65,26 @@ where
     /// Create a new connection. The pin must be configured as input by the
     /// caller; the connection switches its direction internally.
     pub fn new(pin: P) -> Self {
-        Self { pin }
+        Self { pin, enabled: true }
     }
 
+    /// Resume transactions.
+    pub fn enable(&mut self) { self.enabled = true; }
+
+    /// Gate [`DHTxxConnectionLinux::read`] — it returns `Ok([0; 5])` without
+    /// touching the bus while disabled.
+    pub fn disable(&mut self) { self.enabled = false; }
+
+    /// Return the current software-gate state.
+    pub fn is_enabled(&self) -> bool { self.enabled }
+
     /// Execute the full DHTxx transaction and return the raw 5-byte frame.
+    ///
+    /// Returns `Ok([0; 5])` without touching the bus if this connection is disabled.
     pub fn read(&mut self) -> Result<[u8; 5], DHTxxError<P::Error>> {
+        if !self.enabled {
+            return Ok([0; 5]);
+        }
         // Step 1: host start signal — drive LOW for 20 ms.
         self.pin.set_low().map_err(DHTxxError::Pin)?;
         std::thread::sleep(std::time::Duration::from_millis(START_LOW_MS as u64));
@@ -143,6 +159,7 @@ where
 /// per-bit pulse-width measurement.
 pub struct DHTxxConnectionEsp32s3<P> {
     pin: P,
+    enabled: bool,
 }
 
 impl<P> DHTxxConnectionEsp32s3<P>
@@ -152,17 +169,32 @@ where
     /// Create a new connection. The pin must be configured as input by the
     /// caller; the connection switches its direction internally.
     pub fn new(pin: P) -> Self {
-        Self { pin }
+        Self { pin, enabled: true }
     }
+
+    /// Resume transactions.
+    pub fn enable(&mut self) { self.enabled = true; }
+
+    /// Gate [`DHTxxConnectionEsp32s3::read_with_delay`] — it returns
+    /// `Ok([0; 5])` without touching the bus while disabled.
+    pub fn disable(&mut self) { self.enabled = false; }
+
+    /// Return the current software-gate state.
+    pub fn is_enabled(&self) -> bool { self.enabled }
 
     /// Execute the full DHTxx transaction. The caller passes a `delay_ms`
     /// closure (for the 20 ms start pulse) and a `delay_us` closure (for
     /// µs-scale waits during the response). Use the HAL's delay primitive.
+    ///
+    /// Returns `Ok([0; 5])` without touching the bus if this connection is disabled.
     pub fn read_with_delay(
         &mut self,
         mut delay_ms: impl FnMut(u32),
         mut delay_us: impl FnMut(u32),
     ) -> Result<[u8; 5], DHTxxError<P::Error>> {
+        if !self.enabled {
+            return Ok([0; 5]);
+        }
         // Step 1: 20 ms host-start delay (caller has already driven LOW).
         delay_ms(START_LOW_MS as u32);
 

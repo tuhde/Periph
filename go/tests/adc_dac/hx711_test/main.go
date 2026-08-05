@@ -4,10 +4,10 @@
 //
 // Opens DOUT and PD_SCK on /dev/gpiochip0 and runs the HX711 check
 // sequence: smoke test for both Minimal and Full, gain selection
-// (including invalid gain), averaging, tare, scale, weight, and
-// power management. Prints PASS/FAIL per check and ends with the
-// standard ===DONE: ... === line. Exits 0 on full pass, 1 on any
-// failure.
+// (including invalid gain), averaging, tare, scale, and weight.
+// Power-down/power-up is exercised only in the Complete example, not
+// here. Prints PASS/FAIL per check and ends with the standard
+// ===DONE: ... === line. Exits 0 on full pass, 1 on any failure.
 package main
 
 import (
@@ -112,13 +112,6 @@ func main() {
 			check("read_weight_finite", weight == weight) // NaN check
 		}
 
-		check("power_down_ok", hx.PowerDown() == nil)
-		check("power_up_ok", hx.PowerUp() == nil)
-		raw2, err := hx.ReadRaw()
-		check("read_raw_after_power_up_ok", err == nil)
-		if err == nil {
-			check("read_raw_after_power_up_in_range", raw2 >= -8388608 && raw2 <= 8388607)
-		}
 	}
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)

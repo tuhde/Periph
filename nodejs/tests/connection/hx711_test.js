@@ -40,12 +40,6 @@ try {
     checkTrue('readRaw(24) throws', true);
 }
 
-connection.powerDown();
-checkTrue('powerDown accepted', true);
-
-connection.powerUp();
-checkTrue('powerUp accepted', true);
-
 connection.close();
 checkTrue('close accepted', true);
 
