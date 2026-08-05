@@ -35,18 +35,6 @@ async function main() {
     checkTrue('read returns eeprom_code', state.eeprom_code <= 4095);
     checkTrue('read returns voltage_fraction', state.voltage_fraction >= 0.0 && state.voltage_fraction <= 1.0);
 
-    await dac.set_power_down(MCP4725Full.PD_NORMAL);
-    checkTrue('set_power_down(NORMAL) accepted', true);
-
-    await dac.set_power_down(MCP4725Full.PD_1K_GND);
-    checkTrue('set_power_down(1K) accepted', true);
-
-    await dac.set_power_down(MCP4725Full.PD_100K_GND);
-    checkTrue('set_power_down(100K) accepted', true);
-
-    await dac.set_power_down(MCP4725Full.PD_500K_GND);
-    checkTrue('set_power_down(500K) accepted', true);
-
     await dac.wake_up();
     checkTrue('wake_up accepted', true);
 

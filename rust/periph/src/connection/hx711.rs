@@ -156,7 +156,12 @@ where
     ///
     /// On bare-metal, busy-wait 65 µs using your HAL's delay primitive before
     /// releasing the connection or doing other work.
+    ///
+    /// No-op if this connection is disabled.
     pub fn power_down(&mut self) -> Result<(), HX711Error<DI::Error, CK::Error>> {
+        if !self.enabled {
+            return Ok(());
+        }
         self.pd_sck.set_high().map_err(HX711Error::Clock)
     }
 
@@ -164,7 +169,12 @@ where
     ///
     /// Drives PD_SCK LOW. The chip resets to Channel A, Gain 128. The first
     /// conversion after power-up must be discarded.
+    ///
+    /// No-op if this connection is disabled.
     pub fn power_up(&mut self) -> Result<(), HX711Error<DI::Error, CK::Error>> {
+        if !self.enabled {
+            return Ok(());
+        }
         self.pd_sck.set_low().map_err(HX711Error::Clock)
     }
 

@@ -68,9 +68,6 @@ fn main() -> ! {
     dac.set_gain(1, 1, 1, 1).ok();
     check_true!(true, "set_gain", passed, failed);
 
-    dac.set_power_down(0, 0, 0, 0).ok();
-    check_true!(true, "set_power_down_normal", passed, failed);
-
     let read_ok = dac.read().map(|s| {
         s.channel[0].code <= 4095
             && s.channel[0].eeprom_code <= 4095

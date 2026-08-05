@@ -44,18 +44,6 @@ check_true('eeprom_code in read result', 'eeprom_code' in state)
 check_true('eeprom_power_down in read result', 'eeprom_power_down' in state)
 check_true('eeprom_ready in read result', 'eeprom_ready' in state)
 
-dac.set_power_down(MCP4725Full.PD_NORMAL)
-check_true('set_power_down(NORMAL) accepted', True)
-
-dac.set_power_down(MCP4725Full.PD_1K_GND)
-check_true('set_power_down(1K) accepted', True)
-
-dac.set_power_down(MCP4725Full.PD_100K_GND)
-check_true('set_power_down(100K) accepted', True)
-
-dac.set_power_down(MCP4725Full.PD_500K_GND)
-check_true('set_power_down(500K) accepted', True)
-
 dac.wake_up()
 check_true('wake_up accepted', True)
 

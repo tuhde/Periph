@@ -65,10 +65,4 @@ check_true('get_scale returns 420.0', scale == 420.0)
 weight = chip.read_weight(1)
 check_true('read_weight returns float', isinstance(weight, float))
 
-chip.power_down()
-check_true('power_down accepted', True)
-
-chip.power_up()
-check_true('power_up accepted', True)
-
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

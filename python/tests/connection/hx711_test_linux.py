@@ -50,12 +50,6 @@ try:
 except ValueError:
     check_true('read_raw(24) raises ValueError', True)
 
-connection.power_down()
-check_true('power_down accepted', True)
-
-connection.power_up()
-check_true('power_up accepted', True)
-
 connection.close()
 check_true('close accepted', True)
 

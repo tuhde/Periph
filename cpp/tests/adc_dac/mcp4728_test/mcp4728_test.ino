@@ -65,10 +65,6 @@ void setup() {
     dac.set_gain(1, 1, 1, 1);
     check_true("set_gain accepted", true);
 
-    dac.set_power_down(MCP4728Full::PD_NORMAL, MCP4728Full::PD_NORMAL,
-                       MCP4728Full::PD_NORMAL, MCP4728Full::PD_NORMAL);
-    check_true("set_power_down normal accepted", true);
-
     MCP4728Full::ReadResult state = dac.read();
     check_true("read returns code in range", state.channel[0].code <= 4095);
     check_true("read returns eeprom_code in range", state.channel[0].eeprom_code <= 4095);

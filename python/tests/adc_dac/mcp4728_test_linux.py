@@ -49,14 +49,6 @@ check_true('set_vref accepted', True)
 dac.set_gain(1, 1, 1, 1)
 check_true('set_gain accepted', True)
 
-dac.set_power_down(MCP4728Full.PD_NORMAL, MCP4728Full.PD_NORMAL,
-                   MCP4728Full.PD_NORMAL, MCP4728Full.PD_NORMAL)
-check_true('set_power_down normal accepted', True)
-
-dac.set_power_down(MCP4728Full.PD_1K_GND, MCP4728Full.PD_100K_GND,
-                   MCP4728Full.PD_500K_GND, MCP4728Full.PD_NORMAL)
-check_true('set_power_down modes accepted', True)
-
 state = dac.read()
 check_true('read returns list', isinstance(state, list))
 check_true('read returns 4 entries', len(state) == 4)

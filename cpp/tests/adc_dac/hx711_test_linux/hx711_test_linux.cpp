@@ -64,12 +64,6 @@ int main() {
     float weight = chip.read_weight(1);
     check_true("read_weight returns float", true);
 
-    chip.power_down();
-    check_true("power_down accepted", true);
-
-    chip.power_up();
-    check_true("power_up accepted", true);
-
     gpiod_chip_close(chip_dev);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

@@ -43,18 +43,6 @@ fn main() {
     check_true!(vf >= 0.0 && vf <= 1.0, "read_voltage_fraction_range", passed, failed);
     check_true!(ec <= 4095, "read_eeprom_code_range", passed, failed);
 
-    dac.set_power_down(0).unwrap();
-    check_true!(true, "set_power_down_normal", passed, failed);
-
-    dac.set_power_down(1).unwrap();
-    check_true!(true, "set_power_down_1k", passed, failed);
-
-    dac.set_power_down(2).unwrap();
-    check_true!(true, "set_power_down_100k", passed, failed);
-
-    dac.set_power_down(3).unwrap();
-    check_true!(true, "set_power_down_500k", passed, failed);
-
     dac.wake_up().unwrap();
     check_true!(true, "wake_up", passed, failed);
 

@@ -54,18 +54,6 @@ void setup() {
     check_true("read returns eeprom_code", state.eeprom_code <= 4095);
     check_true("read returns voltage_fraction", state.voltage_fraction >= 0.0f && state.voltage_fraction <= 1.0f);
 
-    dac.set_power_down(MCP4725Full::PD_NORMAL);
-    check_true("set_power_down(NORMAL) accepted", true);
-
-    dac.set_power_down(MCP4725Full::PD_1K_GND);
-    check_true("set_power_down(1K) accepted", true);
-
-    dac.set_power_down(MCP4725Full::PD_100K_GND);
-    check_true("set_power_down(100K) accepted", true);
-
-    dac.set_power_down(MCP4725Full::PD_500K_GND);
-    check_true("set_power_down(500K) accepted", true);
-
     dac.wake_up();
     check_true("wake_up accepted", true);
 

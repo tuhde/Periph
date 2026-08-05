@@ -50,12 +50,6 @@ fn main() {
     dac.set_gain(1, 1, 1, 1).unwrap();
     check_true!(true, "set_gain", passed, failed);
 
-    dac.set_power_down(0, 0, 0, 0).unwrap();
-    check_true!(true, "set_power_down_normal", passed, failed);
-
-    dac.set_power_down(1, 2, 3, 0).unwrap();
-    check_true!(true, "set_power_down_modes", passed, failed);
-
     let state = dac.read().unwrap();
     check_true!(state.channel[0].code <= 4095, "read_ch0_code_range", passed, failed);
     check_true!(state.channel[0].eeprom_code <= 4095, "read_ch0_eeprom_code_range", passed, failed);

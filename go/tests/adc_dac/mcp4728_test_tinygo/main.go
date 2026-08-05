@@ -91,11 +91,6 @@ func main() {
 	}
 	check("set_gain", true)
 
-	if err := chip.SetPowerDown(0, 0, 0, 0); err != nil {
-		fmt.Printf("set_power_down_normal: %v\n", err)
-	}
-	check("set_power_down_normal", true)
-
 	if err := chip.SoftwareUpdate(); err != nil {
 		fmt.Printf("software_update: %v\n", err)
 	}

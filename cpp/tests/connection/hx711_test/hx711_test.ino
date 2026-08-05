@@ -37,12 +37,6 @@ void setup() {
     val = connection.read_raw(27);
     check_true("read_raw(27) in 24-bit signed range", val >= -8388608 && val <= 8388607);
 
-    connection.power_down();
-    check_true("power_down accepted", true);
-
-    connection.power_up();
-    check_true("power_up accepted", true);
-
     Serial.print("===DONE: ");
     Serial.print(passed); Serial.print(" passed, ");
     Serial.print(failed); Serial.println(" failed===");

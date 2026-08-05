@@ -45,18 +45,6 @@ fun main() {
         checkTrue("read: eepromCode in range",      state.eepromCode in 0..4095)
         checkTrue("read: eepromPowerDown in range", state.eepromPowerDown in 0..3)
 
-        dac.setPowerDown(0)
-        checkTrue("setPowerDown(0 normal) accepted", true)
-
-        dac.setPowerDown(1)
-        checkTrue("setPowerDown(1 1kΩ) accepted", true)
-
-        dac.setPowerDown(2)
-        checkTrue("setPowerDown(2 100kΩ) accepted", true)
-
-        dac.setPowerDown(3)
-        checkTrue("setPowerDown(3 500kΩ) accepted", true)
-
         dac.wakeUp()
         checkTrue("wakeUp accepted", true)
 

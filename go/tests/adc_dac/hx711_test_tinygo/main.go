@@ -4,8 +4,9 @@
 //
 // Flashed to a Pico W with HX711 DOUT on GP2 and PD_SCK on GP3.
 // Runs the HX711 check sequence: smoke test for both Minimal and
-// Full, gain selection, averaging, tare, scale, weight, and power
-// management. Prints PASS/FAIL per check and ends with the standard
+// Full, gain selection, averaging, tare, scale, and weight.
+// Power-down/power-up is exercised only in the Complete example, not
+// here. Prints PASS/FAIL per check and ends with the standard
 // ===DONE: ... === line.
 package main
 
@@ -87,13 +88,6 @@ func main() {
 			check("read_weight_finite", weight == weight)
 		}
 
-		check("power_down_ok", hx.PowerDown() == nil) // Enter power-down, () → error
-		check("power_up_ok", hx.PowerUp() == nil)     // Wake chip, () → error
-		raw2, err := hx.ReadRaw()                       // Read 24-bit ADC value, () → (int32, error)
-		check("read_raw_after_power_up_ok", err == nil)
-		if err == nil {
-			check("read_raw_after_power_up_in_range", raw2 >= -8388608 && raw2 <= 8388607)
-		}
 	}
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)

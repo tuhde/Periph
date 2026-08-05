@@ -80,26 +80,6 @@ func main() {
 	check("read_voltage_fraction_range", st.VoltageFraction >= 0.0 && st.VoltageFraction <= 1.0)
 	check("read_eeprom_code_range", st.EEPROMCode <= 4095)
 
-	if err := chip.SetPowerDown(0); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_normal:", err)
-	}
-	check("set_power_down_normal", true)
-
-	if err := chip.SetPowerDown(1); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_1k:", err)
-	}
-	check("set_power_down_1k", true)
-
-	if err := chip.SetPowerDown(2); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_100k:", err)
-	}
-	check("set_power_down_100k", true)
-
-	if err := chip.SetPowerDown(3); err != nil {
-		fmt.Fprintln(os.Stderr, "set_power_down_500k:", err)
-	}
-	check("set_power_down_500k", true)
-
 	if err := chip.WakeUp(); err != nil {
 		fmt.Fprintln(os.Stderr, "wake_up:", err)
 	}

@@ -50,12 +50,6 @@ int main(void) {
     float weight = chip.read_weight(1);
     check_true(true, "read_weight returns float");
 
-    chip.power_down();
-    check_true(true, "power_down accepted");
-
-    chip.power_up();
-    check_true(true, "power_up accepted");
-
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }

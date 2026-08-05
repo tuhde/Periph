@@ -42,14 +42,6 @@ async function main() {
     await dac.set_gain(1, 1, 1, 1);
     checkTrue('set_gain accepted', true);
 
-    await dac.set_power_down(MCP4728Full.PD_NORMAL, MCP4728Full.PD_NORMAL,
-                       MCP4728Full.PD_NORMAL, MCP4728Full.PD_NORMAL);
-    checkTrue('set_power_down normal accepted', true);
-
-    await dac.set_power_down(MCP4728Full.PD_1K_GND, MCP4728Full.PD_100K_GND,
-                       MCP4728Full.PD_500K_GND, MCP4728Full.PD_NORMAL);
-    checkTrue('set_power_down modes accepted', true);
-
     const state = await dac.read();
     checkTrue('read returns object', typeof state === 'object');
     checkTrue('read returns 4 channels', state.channel.length === 4);

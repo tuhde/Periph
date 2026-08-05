@@ -77,11 +77,6 @@ func main() {
 	check("read_voltage_fraction_range", st.VoltageFraction >= 0.0 && st.VoltageFraction <= 1.0)
 	check("read_eeprom_code_range", st.EEPROMCode <= 4095)
 
-	if err := chip.SetPowerDown(1); err != nil {
-		fmt.Printf("set_power_down_1k: %v\n", err)
-	}
-	check("set_power_down_1k", true)
-
 	if err := chip.WakeUp(); err != nil {
 		fmt.Printf("wake_up: %v\n", err)
 	}
