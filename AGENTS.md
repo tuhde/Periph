@@ -683,6 +683,12 @@ CONFIG_FPU=y
 
 Build: `cd cpp/examples/zephyr/<category>/<Chip>/<tier> && west build -b <board>`
 
+### Zephyr module (`cpp/zephyr/module.yml`)
+
+`cpp/` is itself a Zephyr module. `cpp/CMakeLists.txt` globs every `src/chips/**/*.cpp` into a `periph` library and exposes `src/connection` plus every `src/chips/<category>` directory as public include paths, for external consumers (`ZEPHYR_EXTRA_MODULES=.../cpp`, then `target_link_libraries(app PRIVATE periph)` — see the README's Zephyr module section). This is separate from the example apps above, which intentionally keep their own manual `target_sources`/`target_include_directories` lists so each example stays a self-contained, copy-pasteable `west build` app.
+
+When adding a new chip, `cpp/CMakeLists.txt` needs no changes — chip sources and category include dirs are picked up by glob at configure time.
+
 ### ESP-IDF examples
 
 Each ESP-IDF example is a standalone ESP-IDF project under `cpp/examples/espidf/<category>/<Chip>/<tier>/`, containing a top-level `CMakeLists.txt`, `sdkconfig.defaults`, and a `main/` component directory with its own `CMakeLists.txt` and `main.cpp`. The example entry point is `extern "C" void app_main(void)`. The main component's `CMakeLists.txt` pulls the chip driver source from `cpp/src/chips/<category>/` and registers the example as a single-component ESP-IDF app:

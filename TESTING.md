@@ -160,6 +160,8 @@ cpp/test_zephyr.sh --compile-only power/ina226
 
 **Devicetree:** The test app uses `DT_NODELABEL(i2c0)` by default. If your board uses a different I²C node label, provide a board overlay at `cpp/tests/<category>/<chip>_test_zephyr/boards/<board>.overlay` with the correct alias.
 
+**Using as a module (not just testing):** these test apps build against `cpp/src/` directly via manual `target_sources`/`target_include_directories`, same as every `cpp/examples/zephyr/` example. External consumers instead add `cpp/` as a Zephyr module via `ZEPHYR_EXTRA_MODULES` and link `periph` — see [Zephyr module](README.md#zephyr-module) in the README.
+
 ---
 
 ### ESP-IDF (`cpp/test_espidf.sh`)

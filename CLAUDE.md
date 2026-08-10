@@ -88,6 +88,9 @@ python/
       <chip>/           # minimal.py, complete.py, demo.py
   tests/
 cpp/
+  CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library
+  zephyr/
+    module.yml           # Zephyr module manifest (name: periph); consumed via ZEPHYR_EXTRA_MODULES, not west manifest discovery
   src/
     connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants), plus InputPin/OutputPin
     chips/

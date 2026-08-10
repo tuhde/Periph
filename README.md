@@ -149,6 +149,26 @@ The spec (`specs/<category>/<chip>.md`) is the reference documentation — regis
 
 Per-category Node-RED packages are available under `nodejs/packages/node-red-contrib-periph-<category>`. To use locally, add the package directory to `nodesDir` in your Node-RED `settings.js`.
 
+## Zephyr module
+
+The C++ implementation doubles as a Zephyr module (`cpp/zephyr/module.yml` + `cpp/CMakeLists.txt`), exposing every chip driver as a `periph` CMake library. It isn't discovered via a `west.yml` manifest entry — Periph is a multi-language monorepo, so west's normal project-root scan won't find `cpp/zephyr/module.yml`. Instead, point `ZEPHYR_EXTRA_MODULES` at the `cpp/` directory of a checkout:
+
+```cmake
+list(APPEND ZEPHYR_EXTRA_MODULES /path/to/Periph/cpp)
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(my_app)
+
+target_sources(app PRIVATE src/main.cpp)
+target_link_libraries(app PRIVATE periph)
+```
+
+Then include chip and connection headers by bare filename, same as every example under `cpp/examples/zephyr/`:
+
+```cpp
+#include "I2CConnectionZephyr.h"
+#include "INA226.h"
+```
+
 ## Sigrok decoders
 
 Protocol decoders for [sigrok](https://sigrok.org) (PulseView, sigrok-cli) are in `sigrok/<chip>/`. Each decoder annotates I²C or SPI captures with register names, bit fields, and computed values for the chip it targets.
