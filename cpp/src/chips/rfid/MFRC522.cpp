@@ -2,7 +2,14 @@
 #include <string.h>
 
 #ifndef ARDUINO
-#if __has_include(<pico/time.h>)
+#ifdef __ZEPHYR__
+#include <zephyr/kernel.h>
+static inline void arduino_delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
+#elif defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+static inline void arduino_delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 static inline void arduino_delay(unsigned long ms) { sleep_ms(ms); }
 #else

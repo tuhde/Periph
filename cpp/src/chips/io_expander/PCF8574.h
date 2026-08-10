@@ -2,6 +2,14 @@
 #include <stdint.h>
 #include "../../connection/Connection.h"
 
+#ifndef OUTPUT
+#define INPUT        0
+#define OUTPUT       1
+#define INPUT_PULLUP 2
+#define HIGH         1
+#define LOW          0
+#endif
+
 /** @brief PCF8574 8-bit quasi-bidirectional I/O port expander — minimal interface.
  *
  * Exposes all eight pins (P0–P7) as GPIO objects via the pin() factory. Direction

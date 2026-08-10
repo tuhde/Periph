@@ -6,7 +6,6 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 target_sources(app PRIVATE
     src/main.cpp
-    ${CPP_DIR}/src/chips/humidity/DHT11.cpp
 )
 target_include_directories(app PRIVATE
     ${CPP_DIR}/src/connection

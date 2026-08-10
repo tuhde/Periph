@@ -3,7 +3,7 @@
 #ifdef __linux__
 #include <unistd.h>
 static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
-#elif defined(CONFIG_ZEPHYR)
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)

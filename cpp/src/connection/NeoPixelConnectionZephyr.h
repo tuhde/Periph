@@ -19,7 +19,7 @@ public:
     {
         _config.frequency = freq_hz;
         _config.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER;
-        _config.cs        = nullptr;
+        _config.cs        = {};
         _config.slave     = 0;
     }
 

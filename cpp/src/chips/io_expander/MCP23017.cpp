@@ -1,6 +1,9 @@
 #include "MCP23017.h"
 
-#ifdef ESP_PLATFORM
+#ifdef __ZEPHYR__
+#include <zephyr/kernel.h>
+static inline void delay_ms(unsigned long ms) { k_sleep(K_MSEC(ms)); }
+#elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static inline void delay_ms(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }

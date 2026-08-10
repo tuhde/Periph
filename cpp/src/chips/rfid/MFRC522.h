@@ -130,6 +130,12 @@ protected:
     static constexpr uint8_t PICC_ANTICOLL_CL1   = 0x93;
     static constexpr uint8_t PICC_ANTICOLL_CL2   = 0x95;
     static constexpr uint8_t PICC_ANTICOLL_CL3   = 0x97;
+    // ISO/IEC 14443-3: SELECT reuses the ANTICOLL command byte per cascade
+    // level; only the NVB byte (PICC_SEL_BIT vs anticollision's NVB=0x20)
+    // distinguishes the two phases.
+    static constexpr uint8_t PICC_SELECT_CL1     = PICC_ANTICOLL_CL1;
+    static constexpr uint8_t PICC_SELECT_CL2     = PICC_ANTICOLL_CL2;
+    static constexpr uint8_t PICC_SELECT_CL3     = PICC_ANTICOLL_CL3;
     static constexpr uint8_t PICC_SEL_BIT        = 0x70;
     static constexpr uint8_t PICC_SAK_NOT_COMPLETE = 0x04;
 

@@ -2,6 +2,14 @@
 #include <stdint.h>
 #include "../../connection/Connection.h"
 
+#ifndef OUTPUT
+#define INPUT        0
+#define OUTPUT       1
+#define INPUT_PULLUP 2
+#define HIGH         1
+#define LOW          0
+#endif
+
 /** @brief MCP23017 16-bit I/O port expander — minimal interface.
  *
  *  Provides 16 GPIO pins (GPA0–GPA7, GPB0–GPB7) as IOExpanderPin objects via pin().

@@ -670,7 +670,7 @@ target_include_directories(app PRIVATE
 )
 ```
 
-Header-only chips (HX711) omit the `.cpp` line from `target_sources`.
+Header-only chips (HX711, DHT11) omit the `.cpp` line from `target_sources`.
 
 Standard `prj.conf`:
 ```

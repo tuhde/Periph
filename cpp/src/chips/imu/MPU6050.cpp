@@ -1,15 +1,15 @@
 #include "MPU6050.h"
 
-#if defined(ESP_PLATFORM)
+#if defined(__linux__)
+#include <unistd.h>
+#define DELAY_MS(ms) usleep((ms) * 1000)
+#elif defined(__ZEPHYR__)
+#include <zephyr/kernel.h>
+#define DELAY_MS(ms) k_sleep(K_MSEC(ms))
+#elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #define DELAY_MS(ms) vTaskDelay(pdMS_TO_TICKS(ms))
-#elif defined(__linux__)
-#include <unistd.h>
-#define DELAY_MS(ms) usleep((ms) * 1000)
-#elif defined(CONFIG_ZEPHYR)
-#include <zephyr/kernel.h>
-#define DELAY_MS(ms) k_sleep(K_MSEC(ms))
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 #define DELAY_MS(ms) sleep_ms(ms)

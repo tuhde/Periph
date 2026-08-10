@@ -12,7 +12,6 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
 
 add_executable(dht11_complete_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/humidity/DHT11.cpp
 )
 
 target_include_directories(dht11_complete_picosdk PRIVATE
