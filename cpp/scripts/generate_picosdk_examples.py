@@ -4,18 +4,18 @@ C++ chips supported by this repo.
 
 Strategy: read each chip's Arduino .ino file and translate it to a
 pico-sdk `main()` that:
-  - includes the right Pico SDK transport header (I2CTransportPicoSDK.h,
-    NeoPixelTransportPicoSDK.h, etc.) instead of the Arduino/ESP one
-  - constructs the transport with the pico-sdk hardware API instead of
+  - includes the right Pico SDK connection header (I2CConnectionPicoSDK.h,
+    NeoPixelConnectionPicoSDK.h, etc.) instead of the Arduino/ESP one
+  - constructs the connection with the pico-sdk hardware API instead of
     Wire / SPIClass / Serial
   - replaces Serial.print/println with printf, keeping all the
     tier-1/tier-2/tier-3 documentation comments that the AGENTS.md
     example convention requires
 
-The chip driver (e.g. AHT21.cpp) is unchanged — only the transport
+The chip driver (e.g. AHT21.cpp) is unchanged — only the connection
 construction and the stdio differ.  The chip driver's
-`{Minimal,Full}` constructors take a `Transport&`, so swapping the
-transport class is a single-line change at the top of the example.
+`{Minimal,Full}` constructors take a `Connection&`, so swapping the
+connection class is a single-line change at the top of the example.
 """
 import os
 import re
@@ -69,7 +69,7 @@ def extra_libs(kind, title):
     if kind == "hx711": return ["hardware_gpio", "pico_time"]
     return []
 
-# Per-chip transport construction snippet (placed at file scope, after stdio.h includes)
+# Per-chip connection construction snippet (placed at file scope, after stdio.h includes)
 def transport_construct(kind, title, addr):
     if kind == "i2c":
         return (
@@ -79,7 +79,7 @@ def transport_construct(kind, title, addr):
             "gpio_set_function(5, GPIO_FUNC_I2C);\n"
             "gpio_pull_up(4);\n"
             "gpio_pull_up(5);\n"
-            f"I2CTransportPicoSDK transport(i2c0, {addr});"
+            f"I2CConnectionPicoSDK connection(i2c0, {addr});"
         )
     if kind == "uart":
         return (
@@ -87,7 +87,7 @@ def transport_construct(kind, title, addr):
             "uart_init(uart0, 9600);\n"
             "gpio_set_function(0, GPIO_FUNC_UART);\n"
             "gpio_set_function(1, GPIO_FUNC_UART);\n"
-            "UARTTransportPicoSDK transport(uart0, 9600);"
+            "UARTConnectionPicoSDK connection(uart0, 9600);"
         )
     if kind == "neopixel":
         return (
@@ -95,38 +95,38 @@ def transport_construct(kind, title, addr):
             "// SCK, MISO, and CS are unused by the strip.\n"
             "spi_init(spi0, 2'400'000);\n"
             "gpio_set_function(3, GPIO_FUNC_SPI);\n"
-            "NeoPixelTransportPicoSDK transport(spi0);"
+            "NeoPixelConnectionPicoSDK connection(spi0);"
         )
     if kind == "hx711":
         return (
             "// HX711 bit-bang pins: DOUT on GP2, PD_SCK on GP3.\n"
-            "HX711TransportPicoSDK transport(/*dout=*/2, /*pd_sck=*/3);"
+            "HX711ConnectionPicoSDK connection(/*dout=*/2, /*pd_sck=*/3);"
         )
     return ""
 
 def _chip_args(title, tier, kind, addr):
     """Return the constructor argument list for a given chip."""
     if title in ("INA219", "INA226"):
-        return "transport, /*r_shunt=*/0.1f, /*max_current=*/2.0f"
+        return "connection, /*r_shunt=*/0.1f, /*max_current=*/2.0f"
     if title == "INA3221":
-        return "transport, /*r_shunt=*/0.1f"
+        return "connection, /*r_shunt=*/0.1f"
     if title in ("PCF8574", "PCF8575", "MCP23017", "EEPROM24AA02UID"):
-        return f"transport, /*addr=*/{addr}"
+        return f"connection, /*addr=*/{addr}"
     if title in ("BME280", "BMP280"):
-        return "transport, /*spi=*/false"
+        return "connection, /*spi=*/false"
     if title == "MFRC522":
-        return "transport, /*bus_type=*/0"   # 0 = I2C
+        return "connection, /*bus_type=*/0"   # 0 = I2C
     if title == "RDA5807M":
-        return "transport, /*frequency_mhz=*/100.0f, /*volume=*/5"
+        return "connection, /*frequency_mhz=*/100.0f, /*volume=*/5"
     if title == "BMP180":
         if tier != "Minimal":
-            return "transport, /*oss=*/3"
-        return "transport"
+            return "connection, /*oss=*/3"
+        return "connection"
     if title == "NEO6":
-        return "transport, /*bus_type=*/0"   # 0 = UART
+        return "connection, /*bus_type=*/0"   # 0 = UART
     if title in ("WS2812B", "SK6812RGBW"):
-        return "transport, /*n_pixels=*/8"
-    return "transport"
+        return "connection, /*n_pixels=*/8"
+    return "connection"
 
 
 # Per-chip chip-class construction snippet. The chip class name follows
@@ -143,10 +143,10 @@ def find_arduino_instance_name(title, tier):
     if not ino_path.exists():
         return title.lower()
     text = ino_path.read_text()
-    # Match `{Class}<T>InstanceName(transport)` for the Minimal/Full chip
+    # Match `{Class}<T>InstanceName(connection)` for the Minimal/Full chip
     # class. Both class names are accepted; the class may be templated.
     cls_alt = rf"{title}(?:Minimal|Full)(?:\s*<[^>]*>)?"
-    m = re.search(rf"{cls_alt}\s+(\w+)\s*\(\s*transport", text)
+    m = re.search(rf"{cls_alt}\s+(\w+)\s*\(\s*connection", text)
     if m:
         return m.group(1)
     return title.lower()
@@ -311,11 +311,11 @@ def translate_runtime(text):
 # -------------------------------------------------------------------------
 def translate_ino(ino_path, transport_init_lines):
     text = ino_path.read_text()
-    # Drop any transport construction anywhere in the file. The Arduino
+    # Drop any connection construction anywhere in the file. The Arduino
     # .ino may put it at file scope or inside setup() depending on
     # whether the bus pins are compile-time or runtime constants.
     # We replace the constructor call with our own file-scope version
-    # at the top of the generated main.cpp, so all `transport` lines
+    # at the top of the generated main.cpp, so all `connection` lines
     # are redundant. We can't use a simple regex because the
     # constructor's argument list may contain balanced parens
     # (e.g. `SPISettings(1000000, MSBFIRST, SPI_MODE0)`).
@@ -323,7 +323,7 @@ def translate_ino(ino_path, transport_init_lines):
         out = []
         for line in text.splitlines(keepends=True):
             stripped = line.lstrip()
-            m = re.match(r"[A-Za-z][A-Za-z0-9]*Transport\s+transport\s*\(", stripped)
+            m = re.match(r"[A-Za-z][A-Za-z0-9]*Connection\s+connection\s*\(", stripped)
             if m:
                 # Walk the rest of the line to find the matching `)`
                 depth = 1
@@ -380,7 +380,7 @@ def translate_ino(ino_path, transport_init_lines):
     text = re.sub(r"^[\t ]*#include <Wire\.h>\s*$", "", text, flags=re.MULTILINE)
     text = re.sub(r"^[\t ]*#include <SPI\.h>\s*$", "", text, flags=re.MULTILINE)
     text = re.sub(r"^[\t ]*#include <Arduino\.h>\s*$", "", text, flags=re.MULTILINE)
-    text = re.sub(r'^[\t ]*#include "[A-Za-z][A-Za-z0-9]*Transport\.h"\s*$', "", text, flags=re.MULTILINE)
+    text = re.sub(r'^[\t ]*#include "[A-Za-z][A-Za-z0-9]*Connection\.h"\s*$', "", text, flags=re.MULTILINE)
     text = re.sub(r'^[\t ]*#include "(\w+)\.h"\s*$', r'#include "\1.h"', text, flags=re.MULTILINE)
     # Drop `#ifndef TEST_SDA` / `#define TEST_SDA N` boilerplate that
     # the Arduino sketches use to expose the I2C pins to test_arduino.sh.
@@ -449,8 +449,8 @@ def translate_ino(ino_path, transport_init_lines):
         # Look for a semicolon followed by optional trailing comment.
         if not re.search(r";\s*(//.*)?$", stripped):
             continue
-        # Skip the *Transport construct we already replaced.
-        if re.search(r"\bTransport\s+transport\s*\(", stripped):
+        # Skip the *Connection construct we already replaced.
+        if re.search(r"[A-Za-z0-9]*Connection\s+connection\s*\(", stripped):
             continue
         # Skip the chip constructor lines (we have our own).
         if re.search(r"\b(Minimal|Full)\b\s+\w+\s*\(", stripped):
@@ -515,10 +515,10 @@ def render_main_cpp(chip, tier):
     body = translate_ino(arduino_ino, "") if arduino_ino.exists() else ""
 
     transport_hdr = {
-        "i2c":      "I2CTransportPicoSDK.h",
-        "uart":     "UARTTransportPicoSDK.h",
-        "neopixel": "NeoPixelTransportPicoSDK.h",
-        "hx711":    "HX711TransportPicoSDK.h",
+        "i2c":      "I2CConnectionPicoSDK.h",
+        "uart":     "UARTConnectionPicoSDK.h",
+        "neopixel": "NeoPixelConnectionPicoSDK.h",
+        "hx711":    "HX711ConnectionPicoSDK.h",
     }[kind]
     transport_setup = transport_construct(kind, title, addr)
     chip_line = chip_construct(title, tier, kind, addr)
@@ -550,8 +550,8 @@ def render_test_main_cpp(chip):
         return None  # HX711 tests need a load cell
 
     transport_hdr = {
-        "i2c":  "I2CTransportPicoSDK.h",
-        "uart": "UARTTransportPicoSDK.h",
+        "i2c":  "I2CConnectionPicoSDK.h",
+        "uart": "UARTConnectionPicoSDK.h",
     }[kind]
     transport_setup = transport_construct(kind, title, addr)
     # Use the same instance-name heuristic as chip_construct() so the
@@ -707,7 +707,7 @@ add_executable({project_target}
 )
 
 target_include_directories({project_target} PRIVATE
-    ${{CPP_DIR}}/src/transport
+    ${{CPP_DIR}}/src/connection
     ${{CPP_DIR}}/src/chips/{cat}
 )
 

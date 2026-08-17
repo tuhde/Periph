@@ -52,13 +52,13 @@ python/examples/<category>/<chip>/complete.py
 python/examples/<category>/<chip>/demo.py
 ```
 
-All three files are written for **MicroPython** (the primary target). The transport import is the only line that differs across the three Python targets.
+All three files are written for **MicroPython** (the primary target). The connection import is the only line that differs across the three Python targets.
 
 ### MicroPython
 
 ```python
 from machine import I2C, Pin
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.<category>.<chip> import <Chip>Minimal
 ```
 
@@ -72,28 +72,28 @@ The `I2C` constructor arguments (`id`, `sda`, `scl`, `freq`) vary by board. Exam
 
 ### CircuitPython
 
-Change the transport import and bus construction:
+Change the connection import and bus construction:
 
 ```python
 import busio, board
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 from periph.chips.<category>.<chip> import <Chip>Minimal
 
 i2c = busio.I2C(board.SCL, board.SDA)    # SCL first
-transport = I2CTransport(i2c, 0x40)
+connection = I2CConnection(i2c, 0x40)
 ```
 
 The driver and all application logic are unchanged. Copy the example to CIRCUITPY or run via raw REPL.
 
 ### Linux
 
-Change the transport import and drop the `machine` dependency:
+Change the connection import and drop the `machine` dependency:
 
 ```python
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 from periph.chips.<category>.<chip> import <Chip>Minimal
 
-transport = I2CTransport(1, 0x40)   # bus number, device address
+connection = I2CConnection(1, 0x40)   # bus number, device address
 ```
 
 Run directly:
@@ -114,7 +114,7 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 ## C++
 
-The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across all C++ platforms. Each platform has its own transport header and example entry point.
+The chip driver (`cpp/src/chips/<category>/<Chip>.h` / `.cpp`) is shared across all C++ platforms. Each platform has its own connection header and example entry point.
 
 ### Linux GCC
 
@@ -129,10 +129,10 @@ Each example is a single standalone `.cpp` file. Compile and run directly:
 
 ```
 g++ -std=c++17 \
-    -Icpp/src/transport -Icpp/src/chips/pressure \
+    -Icpp/src/connection -Icpp/src/chips/pressure \
     cpp/examples/linux/pressure/BMP280/minimal/main.cpp \
     cpp/src/chips/pressure/BMP280.cpp \
-    cpp/src/transport/I2CTransportLinux.cpp \
+    cpp/src/connection/I2CConnectionLinux.cpp \
     -o bmp280_minimal
 ./bmp280_minimal
 ```
@@ -143,15 +143,15 @@ Override the default bus or address with environment variables:
 I2C_BUS=0 I2C_ADDR=0x76 ./bmp280_minimal
 ```
 
-Link the transport that matches the chip:
+Link the connection source that matches the chip:
 
-| Chip family | Transport source | Extra flags |
+| Chip family | Connection source | Extra flags |
 |-------------|-----------------|-------------|
-| I²C (most chips) | `I2CTransportLinux.cpp` | — |
-| SPI (`MFRC522`) | `SPITransportLinux.cpp` | — |
-| NeoPixel (`WS2812B`, `SK6812RGBW`) | `NeoPixelTransportLinux.cpp` | — |
-| GPIO bit-bang (`HX711`, `DHT11`) | `HX711TransportLinux.cpp` / `DHTxxTransportLinux.cpp` | `-lgpiod` |
-| UART (`NEO6`) | `UARTTransportLinux.cpp` | — |
+| I²C (most chips) | `I2CConnectionLinux.cpp` | — |
+| SPI (`MFRC522`) | `SPIConnectionLinux.cpp` | — |
+| NeoPixel (`WS2812B`, `SK6812RGBW`) | `NeoPixelConnectionLinux.cpp` | — |
+| GPIO bit-bang (`HX711`, `DHT11`) | `HX711ConnectionLinux.cpp` / `DHTxxConnectionLinux.cpp` | `-lgpiod` |
+| UART (`NEO6`) | `UARTConnectionLinux.cpp` | — |
 
 The test suite (`cpp/tests/`) provides the same chip coverage with pass/fail assertions; run them via `cpp/test_linux.sh` — see [TESTING.md](TESTING.md).
 
@@ -307,7 +307,7 @@ cd nodejs/packages/periph
 node examples/<category>/<chip>/minimal.js
 ```
 
-The transport and address are hardcoded in the file; edit `new I2CTransport(1, 0x40)` to match your hardware.
+The connection and address are hardcoded in the file; edit `new I2CConnection(1, 0x40)` to match your hardware.
 
 ---
 
@@ -406,7 +406,7 @@ All JVM examples are self-contained JBang scripts. The shebang line makes them d
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT        ← or periph-kotlin / periph-groovy
 ```
 
@@ -434,17 +434,17 @@ Or use the shebang directly (after `chmod +x`):
 ./jvm/examples/java/<category>/<chip>/Minimal.java
 ```
 
-### Transport and address
+### Connection and address
 
-The I²C bus number and device address are hardcoded in each file (`new I2CTransport(1, 0x40)`). Edit these values to match your hardware before running.
+The I²C bus number and device address are hardcoded in each file (`new I2CConnection(1, 0x40)`). Edit these values to match your hardware before running.
 
 ### Resource management
 
-Each language closes the transport differently:
+Each language closes the connection differently:
 
-- **Java:** `try (var transport = new I2CTransport(1, 0x40)) { ... }` — try-with-resources
-- **Kotlin:** `I2CTransport(1, 0x40).use { transport -> ... }` — `Closeable.use { }`
-- **Groovy:** `try { ... } finally { transport.close() }` — explicit `finally`
+- **Java:** `try (var connection = new I2CConnection(1, 0x40)) { ... }` — try-with-resources
+- **Kotlin:** `I2CConnection(1, 0x40).use { connection -> ... }` — `Closeable.use { }`
+- **Groovy:** `try { ... } finally { connection.close() }` — explicit `finally`
 
 All three guarantee the I²C file descriptor is closed on exit, including on exception.
 
@@ -506,7 +506,7 @@ Serial output appears at 115200 baud:
 minicom -D /dev/ttyACM0 -b 115200
 ```
 
-### Transport and address
+### Connection and address
 
 **Linux:** The bus number and address are read from `I2C_BUS` / `I2C_ADDR` environment variables, with sensible chip-specific defaults baked in. `I2C_ADDR` accepts both decimal and `0x`-prefixed hex.
 

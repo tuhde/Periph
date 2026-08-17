@@ -46,93 +46,93 @@ On a PEC mismatch, raise `OSError("SMBus PEC error")` (MicroPython) or return `f
 ### MicroPython
 
 Wraps `machine.I2C` or `machine.SoftI2C`. Constructor signature:
-`SMBusTransport(bus, addr, pec=False)`
+`SMBusConnection(bus, addr, pec=False)`
 
 ### Arduino
 
 Wraps `TwoWire`. Constructor signature:
-`SMBusTransport(TwoWire& bus, uint8_t addr, bool pec = false)`
+`SMBusConnection(TwoWire& bus, uint8_t addr, bool pec = false)`
 
 PEC errors set an internal error flag readable via `bool valid()` after each operation.
 
 ### ESP-IDF
 
-Wraps `I2CTransportESPIDF` and adds the same 7-bit address validation and software PEC as `SMBusTransportZephyr`, swapping in the driver-ng `i2c_master_transmit`/`i2c_master_receive`/`i2c_master_transmit_receive` calls the wrapped transport already makes. Constructor signature: `SMBusTransportESPIDF(i2c_master_dev_handle_t dev, uint8_t addr, bool pec = false)`.
+Wraps `I2CConnectionESPIDF` and adds the same 7-bit address validation and software PEC as `SMBusConnectionZephyr`, swapping in the driver-ng `i2c_master_transmit`/`i2c_master_receive`/`i2c_master_transmit_receive` calls the wrapped connection already makes. Constructor signature: `SMBusConnectionESPIDF(i2c_master_dev_handle_t dev, uint8_t addr, bool pec = false)`.
 
-PEC errors are reported the same way as `SMBusTransport` (Arduino): an internal error flag readable via `bool valid()` after each operation — ESP-IDF C++ code in this repo does not rely on exceptions, consistent with every other embedded platform's SMBus notes.
+PEC errors are reported the same way as `SMBusConnection` (Arduino): an internal error flag readable via `bool valid()` after each operation — ESP-IDF C++ code in this repo does not rely on exceptions, consistent with every other embedded platform's SMBus notes.
 
-File: `cpp/src/transport/SMBusTransportESPIDF.h` (header-only)
+File: `cpp/src/connection/SMBusConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
-Wraps `I2CTransportPicoSDK` and adds the same 7-bit address validation and software PEC as `SMBusTransportZephyr`, swapping in the `hardware_i2c` calls the wrapped transport already makes. Constructor signature: `SMBusTransportPicoSDK(i2c_inst_t* i2c, uint8_t addr, bool pec = false)`.
+Wraps `I2CConnectionPicoSDK` and adds the same 7-bit address validation and software PEC as `SMBusConnectionZephyr`, swapping in the `hardware_i2c` calls the wrapped connection already makes. Constructor signature: `SMBusConnectionPicoSDK(i2c_inst_t* i2c, uint8_t addr, bool pec = false)`.
 
-PEC errors are reported the same way as `SMBusTransport` (Arduino): an internal error flag readable via `bool valid()` after each operation — pico-sdk has no exceptions.
+PEC errors are reported the same way as `SMBusConnection` (Arduino): an internal error flag readable via `bool valid()` after each operation — pico-sdk has no exceptions.
 
-File: `cpp/src/transport/SMBusTransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/SMBusConnectionPicoSDK.h` (header-only)
 
 ### JVM (Linux)
 
-Wraps `I2CTransport` (FFM-based, same approach as the Linux I²C transport) and adds address validation plus software PEC. Constructor signature: `SMBusTransport(int bus, int address, boolean pec)`.
+Wraps `I2CConnection` (FFM-based, same approach as the Linux I²C connection) and adds address validation plus software PEC. Constructor signature: `SMBusConnection(int bus, int address, boolean pec)`.
 
-`I2CTransport.writeRead` performs a stop-then-start rather than a true repeated start, and `SMBusTransport` inherits that limitation.
+`I2CConnection.writeRead` performs a stop-then-start rather than a true repeated start, and `SMBusConnection` inherits that limitation.
 
 On a PEC mismatch, `read` and `writeRead` throw `IOException("SMBus PEC error")`.
 
 ### Go
 
-Wraps any `Transport` (typically an `I2CTransport`, whichever of `i2c_linux.go`/`i2c_tinygo.go` the build selected) and adds 7-bit address validation plus software PEC — same approach as the JVM transport. Because it only depends on the `Transport` interface rather than a concrete I²C type, this is the one transport in the Go implementation that needs **no build tag and no separate Linux/TinyGo file** — `SMBusTransport` itself is platform-agnostic.
+Wraps any `Connection` (typically an `I2CConnection`, whichever of `i2c_linux.go`/`i2c_tinygo.go` the build selected) and adds 7-bit address validation plus software PEC — same approach as the JVM connection. Because it only depends on the `Connection` interface rather than a concrete I²C type, this is the one connection in the Go implementation that needs **no build tag and no separate Linux/TinyGo file** — `SMBusConnection` itself is platform-agnostic.
 
-Constructor: `NewSMBusTransport(t Transport, addr uint8, pec bool) (*SMBusTransport, error)` — returns a non-nil error immediately if `addr` falls in the reserved 0x00–0x07 / 0x78–0x7F range.
+Constructor: `NewSMBusConnection(c Connection, addr uint8, pec bool) (*SMBusConnection, error)` — returns a non-nil error immediately if `addr` falls in the reserved 0x00–0x07 / 0x78–0x7F range.
 
 On a PEC mismatch, `Read` and `WriteRead` return an error wrapping `"smbus: PEC error"`.
 
-File: `go/periph/transport/smbus.go`
+File: `go/periph/connection/smbus.go`
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/smbus_micropython.py` — Google-style docstring on class and every public method  (was `smbus.py`; renamed)
-- [x] `python/periph/transport/smbus_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/smbus_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/smbus_micropython.py` — Google-style docstring on class and every public method  (was `smbus.py`; renamed)
+- [x] `python/periph/connection/smbus_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/smbus_linux.py` — Google-style docstring on class and every public method
 - [x] Tests (MicroPython)
 - [x] Tests (CircuitPython)
 - [x] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SMBusTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SMBusTransport.cpp`
-- [x] `cpp/src/transport/SMBusTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SMBusTransportLinux.cpp`
-- [x] `cpp/src/transport/SMBusTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/SMBusTransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SMBusConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/SMBusConnection.cpp`
+- [x] `cpp/src/connection/SMBusConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/SMBusConnectionLinux.cpp`
+- [x] `cpp/src/connection/SMBusConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SMBusConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [x] `cpp/src/transport/SMBusTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SMBusConnectionPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/smbus.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/connection/smbus.js` — JSDoc on class and every exported method
 - [x] Tests
 
 ### Rust
-- [x] `rust/periph/src/transport/smbus.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/connection/smbus.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
 
 ### JVM
-- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SMBusTransport.java` — Javadoc on class and every public method
+- [x] `jvm/periph-connection/src/main/java/it/uhde/periph/connection/SMBusConnection.java` — Javadoc on class and every public method
 - [x] Tests (Pi hardware, JBang)
 
 ### Go
-- [x] `go/periph/transport/smbus.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/smbus.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

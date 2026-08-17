@@ -55,7 +55,7 @@ Create a feature branch (`feature/<chip>`) and implement against the spec:
 
 When adding the first file to a directory that contains only `.gitkeep`, remove the `.gitkeep`.
 
-See `AGENTS.md` for detailed code conventions — class structure, transport interface, language-specific rules.
+See `AGENTS.md` for detailed code conventions — class structure, connection interface, language-specific rules.
 
 ### 4. Write tests
 
@@ -72,7 +72,7 @@ Add one test file per platform following the naming convention in `TESTING.md`. 
 Full detail is in `AGENTS.md`. The key rules:
 
 **All platforms**
-- Drivers depend only on the transport interface — never on a concrete transport class
+- Drivers depend only on the connection interface — never on a concrete connection class
 - Two classes per chip: `<Chip>Minimal` (base) and `<Chip>Full` (extends Minimal, never duplicates)
 
 **Python**

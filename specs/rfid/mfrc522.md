@@ -32,7 +32,7 @@ Only one host interface is active at a time. The MFRC522 auto-detects which inte
 
 ## Register Access
 
-All three interfaces address the same 64-register (6-bit address, `0x00`–`0x3F`) bank, but frame the address byte differently. The driver must pick the correct framing based on which concrete transport was passed to the constructor (e.g. via a per-platform type check on the transport object — the same "bus type" pattern used for chips with both I²C and SPI, see `specs/pressure/bmp280.md` Implementation Notes).
+All three interfaces address the same 64-register (6-bit address, `0x00`–`0x3F`) bank, but frame the address byte differently. The driver must pick the correct framing based on which concrete connection was passed to the constructor (e.g. via a per-platform type check on the connection object — the same "bus type" pattern used for chips with both I²C and SPI, see `specs/pressure/bmp280.md` Implementation Notes).
 
 | Transport | Read | Write |
 |-----------|------|-------|

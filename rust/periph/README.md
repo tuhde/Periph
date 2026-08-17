@@ -3,7 +3,7 @@
 Peripheral chip drivers for embedded systems — sensors, actuators, and other ICs connected via I²C, SPI, or UART.
 
 - **`no_std` compatible** — runs on bare-metal targets (ESP32-S3, STM32, …) and Linux
-- **Generic over [`embedded-hal`](https://crates.io/crates/embedded-hal) 1.0** — bring your own transport
+- **Generic over [`embedded-hal`](https://crates.io/crates/embedded-hal) 1.0** — bring your own connection
 - **Two-tier API** — `*Minimal` for the primary use case, `*Full` for complete chip functionality
 
 ## Install

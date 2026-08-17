@@ -5,11 +5,11 @@
 
 ## Overview
 
-The SiPo transport drives cascadable serial-in/parallel-out shift-register chips such as the TPIC6B595, SN74HC595, and SN74HCT595. These chips shift a byte stream in on SER IN, clocked by SRCK, and only move it to the output-driving storage register when a separate register clock (RCK) is pulsed. SER IN and SRCK are electrically identical to an SPI MOSI/SCK pair, so this transport shifts data over SPI — either the platform's **hardware SPI peripheral** (fast, MHz-range, but ties SER IN/SRCK to fixed hardware pins) or a **bit-banged software SPI** (slow, limited by GPIO call overhead, but works on any two GPIO pins). The caller chooses which one to use at construction time; see [Hardware vs. Software SPI](#hardware-vs-software-spi). RCK — and, where wired, SRCLR and G — are always plain GPIO lines driven directly by the transport, regardless of which SPI mode is chosen.
+The SiPo connection drives cascadable serial-in/parallel-out shift-register chips such as the TPIC6B595, SN74HC595, and SN74HCT595. These chips shift a byte stream in on SER IN, clocked by SRCK, and only move it to the output-driving storage register when a separate register clock (RCK) is pulsed. SER IN and SRCK are electrically identical to an SPI MOSI/SCK pair, so this connection shifts data over SPI — either the platform's **hardware SPI peripheral** (fast, MHz-range, but ties SER IN/SRCK to fixed hardware pins) or a **bit-banged software SPI** (slow, limited by GPIO call overhead, but works on any two GPIO pins). The caller chooses which one to use at construction time; see [Hardware vs. Software SPI](#hardware-vs-software-spi). RCK — and, where wired, SRCLR and G — are always plain GPIO lines driven directly by the connection, regardless of which SPI mode is chosen.
 
-**Compatible chips:** TPIC6B595, SN74HC595, SN74HCT595, MC74HC595, and other devices exposing the same SER IN / SRCK / RCK / SRCLR / G pin set. SER OUT (the cascade tap) is a hardware-only signal — the transport does not read it back; chip drivers wire it to the next device's SER IN in hardware.
+**Compatible chips:** TPIC6B595, SN74HC595, SN74HCT595, MC74HC595, and other devices exposing the same SER IN / SRCK / RCK / SRCLR / G pin set. SER OUT (the cascade tap) is a hardware-only signal — the connection does not read it back; chip drivers wire it to the next device's SER IN in hardware.
 
-This transport is **write-only**: no `read` or `write_read` operation exists.
+This connection is **write-only**: no `read` or `write_read` operation exists.
 
 ## Protocol
 
@@ -23,7 +23,7 @@ This transport is **write-only**: no `read` or `write_read` operation exists.
 | SRCLR | MCU → chip | No | HIGH (inactive) | Active-low asynchronous clear of the shift register only — does **not** change the outputs until the next RCK pulse |
 | G | MCU → chip | No | LOW (active) | Active-low output enable; HIGH forces all outputs off regardless of storage-register contents |
 
-SRCLR and G may be permanently tied off in hardware and omitted from the transport config; RCK cannot be — every write requires an RCK edge, so it is always a driven GPIO.
+SRCLR and G may be permanently tied off in hardware and omitted from the connection config; RCK cannot be — every write requires an RCK edge, so it is always a driven GPIO.
 
 ### Timing
 
@@ -44,7 +44,7 @@ SPI mode 0 (CPOL=0, CPHA=0) satisfies tsu/th: data is driven on the falling edge
 3. Pulse RCK HIGH for ≥40 ns, then LOW — this latches the just-shifted data from the shift register into the storage register that drives the outputs
 4. Outputs update atomically on the RCK falling edge (rising edge triggers the latch; returning LOW just re-arms it)
 
-`data` may be any length that is a multiple of one byte per cascaded device. The transport shifts it as opaque bytes; the mapping from buffer position to a specific device/output in a cascade is the chip driver's responsibility, same convention as the NeoPixel transport.
+`data` may be any length that is a multiple of one byte per cascaded device. The connection shifts it as opaque bytes; the mapping from buffer position to a specific device/output in a cascade is the chip driver's responsibility, same convention as the NeoPixel connection.
 
 ### Clear and Output Enable
 
@@ -53,26 +53,26 @@ SPI mode 0 (CPOL=0, CPHA=0) satisfies tsu/th: data is driven on the falling edge
 
 ## Hardware vs. Software SPI
 
-Some platforms already have a first-class software-SPI object with the same interface as their hardware SPI object, so the transport just accepts either and uses it unchanged. Others don't, so the transport itself bit-bangs SER IN/SRCK as two plain GPIO lines when software mode is selected.
+Some platforms already have a first-class software-SPI object with the same interface as their hardware SPI object, so the connection just accepts either and uses it unchanged. Others don't, so the connection itself bit-bangs SER IN/SRCK as two plain GPIO lines when software mode is selected.
 
 | Platform | Hardware SPI | Software SPI |
 |----------|--------------|---------------|
-| MicroPython | `machine.SPI` | `machine.SoftSPI` — same object shape, no transport code difference |
-| CircuitPython | `busio.SPI` | `bitbangio.SPI` — same object shape, no transport code difference |
-| Linux Python | `spidev.SpiDev` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `gpiod.Line`s |
-| Arduino | `SPIClass&` | transport bit-bangs `ser_in`/`srck` pin numbers |
-| Linux GCC | `/dev/spidevB.D` via kernel spidev | transport bit-bangs `ser_in`/`srck` `gpiod_line*`s |
-| Zephyr RTOS | `spi_config` on a hardware SPI controller node | same `spi_config`/`spi_write()` API against a `spi-bitbang`-compatible devicetree node — no transport code difference |
-| Node.js | `spi-device` on `/dev/spidevB.D` | transport bit-bangs `ser_in`/`srck` `opengpio` `Output`s |
-| Rust (embedded-hal / Linux) | Hardware `impl SpiBus` | caller supplies any bit-banged `impl SpiBus` (e.g. from `embedded-hal-bus`) — no transport code difference |
-| JVM | `/dev/spidevB.D` via FFM ioctl | transport bit-bangs `serInLine`/`srckLine` GPIO chardev lines via FFM ioctl |
-| Go Linux | `/dev/spidevB.D` via raw ioctl (Go's SPI transport) | transport bit-bangs `serIn`/`srck` `/dev/gpiochip0` lines via raw ioctl |
-| Go TinyGo | `machine.SPI` | transport bit-bangs `serIn`/`srck` `machine.Pin`s |
-| Pico SDK | `hardware_spi` (`spi_inst_t*`) | transport bit-bangs `ser_in`/`srck` GPIO pin numbers with `gpio_put()` |
+| MicroPython | `machine.SPI` | `machine.SoftSPI` — same object shape, no connection code difference |
+| CircuitPython | `busio.SPI` | `bitbangio.SPI` — same object shape, no connection code difference |
+| Linux Python | `spidev.SpiDev` on `/dev/spidevB.D` | connection bit-bangs `ser_in`/`srck` `gpiod.Line`s |
+| Arduino | `SPIClass&` | connection bit-bangs `ser_in`/`srck` pin numbers |
+| Linux GCC | `/dev/spidevB.D` via kernel spidev | connection bit-bangs `ser_in`/`srck` `gpiod_line*`s |
+| Zephyr RTOS | `spi_config` on a hardware SPI controller node | same `spi_config`/`spi_write()` API against a `spi-bitbang`-compatible devicetree node — no connection code difference |
+| Node.js | `spi-device` on `/dev/spidevB.D` | connection bit-bangs `ser_in`/`srck` `opengpio` `Output`s |
+| Rust (embedded-hal / Linux) | Hardware `impl SpiBus` | caller supplies any bit-banged `impl SpiBus` (e.g. from `embedded-hal-bus`) — no connection code difference |
+| JVM | `/dev/spidevB.D` via FFM ioctl | connection bit-bangs `serInLine`/`srckLine` GPIO chardev lines via FFM ioctl |
+| Go Linux | `/dev/spidevB.D` via raw ioctl (Go's SPI connection) | connection bit-bangs `serIn`/`srck` `/dev/gpiochip0` lines via raw ioctl |
+| Go TinyGo | `machine.SPI` | connection bit-bangs `serIn`/`srck` `machine.Pin`s |
+| Pico SDK | `hardware_spi` (`spi_inst_t*`) | connection bit-bangs `ser_in`/`srck` GPIO pin numbers with `gpio_put()` |
 
-| ESP-IDF | `spi_device_handle_t` via `driver/spi_master.h` | transport bit-bangs `ser_in`/`srck` GPIO pin numbers with `gpio_set_level()` |
+| ESP-IDF | `spi_device_handle_t` via `driver/spi_master.h` | connection bit-bangs `ser_in`/`srck` GPIO pin numbers with `gpio_set_level()` |
 
-Where the transport does its own bit-banging, the loop is the same everywhere (MSB-first, mode 0 — data driven before the rising edge, sampled on it):
+Where the connection does its own bit-banging, the loop is the same everywhere (MSB-first, mode 0 — data driven before the rising edge, sampled on it):
 
 ```
 for byte in data:
@@ -82,7 +82,7 @@ for byte in data:
         srck.write(0)
 ```
 
-No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns tsu / 20 ns th minimums are far smaller than the call overhead of a single GPIO write on every target here (µs-range on Linux userspace GPIO, sub-µs but still >40 ns on microcontroller `digitalWrite`/`gpio_pin_set` calls) — the same reasoning as the [HX711 transport](transport_hx711.md)'s clock-edge notes.
+No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns tsu / 20 ns th minimums are far smaller than the call overhead of a single GPIO write on every target here (µs-range on Linux userspace GPIO, sub-µs but still >40 ns on microcontroller `digitalWrite`/`gpio_pin_set` calls) — the same reasoning as the [HX711 connection](transport_hx711.md)'s clock-edge notes.
 
 ## Interface Contract
 
@@ -103,38 +103,38 @@ No explicit delay is needed between edges on any platform: the 40 ns tw / 20 ns 
 | `spi` | CircuitPython | `busio.SPI` (hardware) or `bitbangio.SPI` (software) | SPI instance; `configure()` called around each transfer; caller picks which class to construct and pass in |
 | `rck`, `srclr`, `g` | CircuitPython | `digitalio.DigitalInOut` (direction: OUTPUT) | `srclr`/`g` may be `None` |
 | `bus_num`, `device_num` | Linux Python | `int` | Hardware mode: opens `/dev/spidevB.D`, mode 0, 1 MHz |
-| `ser_in`, `srck` | Linux Python | `gpiod.Line` (direction=OUTPUT) | Software mode: transport bit-bangs these two lines instead of opening spidev |
+| `ser_in`, `srck` | Linux Python | `gpiod.Line` (direction=OUTPUT) | Software mode: connection bit-bangs these two lines instead of opening spidev |
 | `rck`, `srclr`, `g` | Linux Python | `gpiod.Line` (direction=OUTPUT) | Always required/optional as before, independent of SPI mode; `srclr`/`g` may be `None` |
 | `spi` | Arduino | `SPIClass&` | Hardware mode: SPI bus; speed set via `SPISettings` |
-| `ser_in`, `srck` | Arduino | `int` pin number | Software mode: transport bit-bangs these two pins instead of using `SPIClass` |
+| `ser_in`, `srck` | Arduino | `int` pin number | Software mode: connection bit-bangs these two pins instead of using `SPIClass` |
 | `rck`, `srclr`, `g` | Arduino | `int` pin number | Always required/optional as before; `pinMode(pin, OUTPUT)` in `init`; `srclr`/`g` may be `-1` to disable |
 | `bus_num`, `device_num` | Linux GCC | `int` | Hardware mode: opens `/dev/spidevB.D`, mode 0, 1 MHz |
-| `ser_in`, `srck` | Linux GCC | `gpiod_line *` (output) | Software mode: transport bit-bangs these two lines instead of opening spidev |
+| `ser_in`, `srck` | Linux GCC | `gpiod_line *` (output) | Software mode: connection bit-bangs these two lines instead of opening spidev |
 | `rck`, `srclr`, `g` | Linux GCC | `gpiod_line *` (output) | Always required/optional as before; `srclr`/`g` may be `nullptr` |
 | `dev`, `config` | Zephyr | `const struct device *`, `struct spi_config` | Hardware or software (bitbang-controller devicetree node) SPI — same API either way, mode 0, 1 MHz |
 | `rck`, `srclr`, `g` | Zephyr | `gpio_dt_spec` (GPIO_OUTPUT) | `srclr`/`g` may be an unpopulated (`.port == NULL`) spec to disable |
 | `bus_num`, `device_num` | Node.js | `int` | Hardware mode: opens `spi-device` on `/dev/spidevB.D`, mode 0, 1 MHz |
-| `ser_in`, `srck` | Node.js | `object` (`opengpio` Output) | Software mode: transport bit-bangs these two GPIOs instead of opening spi-device |
+| `ser_in`, `srck` | Node.js | `object` (`opengpio` Output) | Software mode: connection bit-bangs these two GPIOs instead of opening spi-device |
 | `rck`, `srclr`, `g` | Node.js | `object` (`opengpio` Output) | Always required/optional as before; `srclr`/`g` may be `null` |
-| `spi` | Rust (embedded-hal) | `impl SpiBus` | Hardware or caller-supplied bit-banged `SpiBus` (e.g. `embedded-hal-bus`) at up to 1 MHz, mode 0 — no distinction in the transport's type signature |
+| `spi` | Rust (embedded-hal) | `impl SpiBus` | Hardware or caller-supplied bit-banged `SpiBus` (e.g. `embedded-hal-bus`) at up to 1 MHz, mode 0 — no distinction in the connection's type signature |
 | `rck`, `srclr`, `g` | Rust (embedded-hal) | `impl OutputPin`, `Option<impl OutputPin>` | `srclr`/`g` wrapped in `Option` |
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` `SpidevBus` (hardware) or any bit-banged `SpiBus` impl (software) at up to 1 MHz, mode 0 |
 | `rck`, `srclr`, `g` | Rust Linux | `impl OutputPin`, `Option<impl OutputPin>` | Same as embedded-hal; `linux-embedded-hal` `CdevPin` |
-| `busNumber`, `deviceNumber` | JVM | `int` | Hardware mode: opens `/dev/spidevB.D` via FFM ioctl, mode 0, 1 MHz — same approach as `NeoPixelTransport` |
-| `serInLine`, `srckLine` | JVM | `int` (GPIO line number) | Software mode: transport bit-bangs these two `/dev/gpiochip0` lines via FFM ioctl instead of opening spidev |
-| `rckLine`, `srclrLine`, `gLine` | JVM | `int` (GPIO line number, or `-1` to disable) | Always required/optional as before; `/dev/gpiochip0` character-device lines via FFM ioctl — same approach as the DE-pin handling in `UARTTransport` |
+| `busNumber`, `deviceNumber` | JVM | `int` | Hardware mode: opens `/dev/spidevB.D` via FFM ioctl, mode 0, 1 MHz — same approach as `NeoPixelConnection` |
+| `serInLine`, `srckLine` | JVM | `int` (GPIO line number) | Software mode: connection bit-bangs these two `/dev/gpiochip0` lines via FFM ioctl instead of opening spidev |
+| `rckLine`, `srclrLine`, `gLine` | JVM | `int` (GPIO line number, or `-1` to disable) | Always required/optional as before; `/dev/gpiochip0` character-device lines via FFM ioctl — same approach as the DE-pin handling in `UARTConnection` |
 | `busNum`, `deviceNum` | Go Linux | `int` | Hardware mode: opens `/dev/spidevB.D` via raw ioctl, mode 0, 1 MHz |
-| `serIn`, `srck` | Go Linux | `int` (GPIO line offset) | Software mode: transport bit-bangs these two `/dev/gpiochip0` lines via ioctl instead of opening spidev |
+| `serIn`, `srck` | Go Linux | `int` (GPIO line offset) | Software mode: connection bit-bangs these two `/dev/gpiochip0` lines via ioctl instead of opening spidev |
 | `rck`, `srclr`, `g` | Go Linux | `int` (GPIO line offset, or `-1` to disable) | Always required/optional as before |
 | `spi` | Go TinyGo | `machine.SPI` | Hardware mode: SPI peripheral |
-| `serIn`, `srck` | Go TinyGo | `machine.Pin` | Software mode: transport bit-bangs these two pins instead of using `machine.SPI` |
+| `serIn`, `srck` | Go TinyGo | `machine.Pin` | Software mode: connection bit-bangs these two pins instead of using `machine.SPI` |
 | `rck`, `srclr`, `g` | Go TinyGo | `machine.Pin` | Always required/optional as before; zero value disables `srclr`/`g` |
 | `spi` | Pico SDK | `spi_inst_t*` | Hardware mode: SPI controller (`spi0` or `spi1`), configured via `spi_init()` at 1 MHz, mode 0 |
-| `ser_in`, `srck` | Pico SDK | `uint` (GPIO pin number) | Software mode: transport bit-bangs these two pins instead of using `spi_inst_t*` |
+| `ser_in`, `srck` | Pico SDK | `uint` (GPIO pin number) | Software mode: connection bit-bangs these two pins instead of using `spi_inst_t*` |
 | `rck`, `srclr`, `g` | Pico SDK | `uint` (GPIO pin number, or `-1` to disable) | Always required/optional as before; `gpio_set_dir(pin, GPIO_OUT)` in `init` |
 
 | `dev` | ESP-IDF | `spi_device_handle_t` | Hardware mode: SPI device, already added to a bus via `spi_bus_add_device()` at 1 MHz, mode 0 |
-| `ser_in`, `srck` | ESP-IDF | `int` (`gpio_num_t`) | Software mode: transport bit-bangs these two pins instead of using `spi_device_handle_t` |
+| `ser_in`, `srck` | ESP-IDF | `int` (`gpio_num_t`) | Software mode: connection bit-bangs these two pins instead of using `spi_device_handle_t` |
 | `rck`, `srclr`, `g` | ESP-IDF | `int` (`gpio_num_t`, or `-1` to disable) | Always required/optional as before; `gpio_set_direction(pin, GPIO_MODE_OUTPUT)` in `init` |
 
 ## Platform Notes
@@ -143,15 +143,15 @@ All platforms follow the same structure: transfer `data` over SPI (hardware or s
 
 ### MicroPython
 
-Constructor accepts a `machine.SPI` or `machine.SoftSPI` instance — both expose the same `write()` method, so the transport code doesn't branch on which one it got; the caller decides by constructing one or the other before passing it in. `write()` calls `spi.write(data)` then toggles the RCK `Pin` object HIGH/LOW with `pin.value(1)` / `pin.value(0)` — no explicit delay needed, MicroPython's per-call overhead exceeds 40 ns.
+Constructor accepts a `machine.SPI` or `machine.SoftSPI` instance — both expose the same `write()` method, so the connection code doesn't branch on which one it got; the caller decides by constructing one or the other before passing it in. `write()` calls `spi.write(data)` then toggles the RCK `Pin` object HIGH/LOW with `pin.value(1)` / `pin.value(0)` — no explicit delay needed, MicroPython's per-call overhead exceeds 40 ns.
 
-File: `python/periph/transport/sipo_micropython.py`
+File: `python/periph/connection/sipo_micropython.py`
 
 ### CircuitPython
 
 Constructor accepts a `busio.SPI` (hardware) or `bitbangio.SPI` (software) instance — same interface, no branching needed. `write()` locks the bus (`spi.try_lock()`), calls `spi.configure(baudrate=1_000_000, polarity=0, phase=0)`, transfers via `spi.write(data)`, unlocks, then toggles the RCK `DigitalInOut.value`.
 
-File: `python/periph/transport/sipo_circuitpython.py`
+File: `python/periph/connection/sipo_circuitpython.py`
 
 ### Linux Python
 
@@ -161,7 +161,7 @@ Two constructor modes, since `spidev` only talks to a real hardware controller �
 
 Either way, RCK/SRCLR/G are `gpiod` lines driven the same way regardless of SPI mode. Release the SPI device (or bit-bang lines) and any configured RCK/SRCLR/G lines in `close()`.
 
-File: `python/periph/transport/sipo_linux.py`
+File: `python/periph/connection/sipo_linux.py`
 
 ### Arduino
 
@@ -171,7 +171,7 @@ Two overloaded constructors:
 
 Both then do `digitalWrite(rck, HIGH); digitalWrite(rck, LOW);` to latch.
 
-Files: `cpp/src/transport/SiPoTransport.h`, `cpp/src/transport/SiPoTransport.cpp`
+Files: `cpp/src/connection/SiPoConnection.h`, `cpp/src/connection/SiPoConnection.cpp`
 
 ### Linux GCC
 
@@ -181,7 +181,7 @@ Same two-mode structure as Linux Python:
 
 RCK/SRCLR/G use `gpiod_line_set_value()` in both modes. Release the spidev fd (or bit-bang lines) and any configured RCK/SRCLR/G lines in the destructor / `close()`.
 
-Files: `cpp/src/transport/SiPoTransportLinux.h`, `cpp/src/transport/SiPoTransportLinux.cpp`
+Files: `cpp/src/connection/SiPoConnectionLinux.h`, `cpp/src/connection/SiPoConnectionLinux.cpp`
 
 ### Zephyr RTOS
 
@@ -189,7 +189,7 @@ Constructor accepts `const struct device *` + `struct spi_config` plus `gpio_dt_
 
 `prj.conf`: `CONFIG_SPI=y`, `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
-File: `cpp/src/transport/SiPoTransportZephyr.h`
+File: `cpp/src/connection/SiPoConnectionZephyr.h`
 
 ### ESP-IDF
 
@@ -197,9 +197,9 @@ Two constructor modes (ESP-IDF has no devicetree, so — like Pico SDK — this 
 - **Hardware:** an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()` at 1 MHz, mode 0, plus GPIO pin numbers for RCK/SRCLR/G. `write()` calls `spi_device_polling_transmit(dev, &t)` with `t.tx_buffer = data`, `t.length = len * 8`.
 - **Software:** `ser_in`/`srck` GPIO pin numbers instead of `spi_device_handle_t`. `write()` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `gpio_set_level()`.
 
-Both then do `gpio_set_level(rck, 1); gpio_set_level(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoTransport` (Arduino) and `SiPoTransportPicoSDK` already use.
+Both then do `gpio_set_level(rck, 1); gpio_set_level(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoConnection` (Arduino) and `SiPoConnectionPicoSDK` already use.
 
-File: `cpp/src/transport/SiPoTransportESPIDF.h` (header-only)
+File: `cpp/src/connection/SiPoConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
@@ -207,9 +207,9 @@ Two constructor modes (bare-metal `pico-sdk`, no Arduino core, no RTOS — unlik
 - **Hardware:** an `spi_inst_t*` (`spi0` or `spi1`) configured via `spi_init()` at 1 MHz, mode 0, plus GPIO pin numbers for RCK/SRCLR/G. `write()` calls `spi_write_blocking(spi, data, len)`.
 - **Software:** `ser_in`/`srck` GPIO pin numbers instead of `spi_inst_t*`. `write()` bit-bangs the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi) with `gpio_put()`.
 
-Both then do `gpio_put(rck, 1); gpio_put(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoTransport` (Arduino) already uses.
+Both then do `gpio_put(rck, 1); gpio_put(rck, 0);` to latch. RCK/SRCLR/G are plain GPIO pin numbers in both modes (`-1` disables the optional SRCLR/G pin), the same convention `SiPoConnection` (Arduino) already uses.
 
-File: `cpp/src/transport/SiPoTransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/SiPoConnectionPicoSDK.h` (header-only)
 
 ### Node.js
 
@@ -219,14 +219,14 @@ Two constructor modes:
 
 Both then set `rck.value = true; rck.value = false;` to latch. RCK/SRCLR/G are `opengpio` `Output` objects in both modes.
 
-File: `nodejs/packages/periph/src/transport/sipo.js`
+File: `nodejs/packages/periph/src/connection/sipo.js`
 
 ### Rust (embedded-hal, bare-metal / ESP32-S3)
 
-Constructor wraps any `embedded_hal::spi::SpiBus` (hardware or a caller-supplied bit-banged impl — the transport's generic bound doesn't distinguish) plus `OutputPin` for RCK and `Option<impl OutputPin>` for SRCLR/G.
+Constructor wraps any `embedded_hal::spi::SpiBus` (hardware or a caller-supplied bit-banged impl — the connection's generic bound doesn't distinguish) plus `OutputPin` for RCK and `Option<impl OutputPin>` for SRCLR/G.
 
 ```rust
-impl<SPI: SpiBus, RCK: OutputPin, AUX: OutputPin> SiPoTransport<SPI, RCK, AUX> {
+impl<SPI: SpiBus, RCK: OutputPin, AUX: OutputPin> SiPoConnection<SPI, RCK, AUX> {
     pub fn write(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
         self.spi.write(data)?;
         self.rck.set_high().ok();
@@ -236,7 +236,7 @@ impl<SPI: SpiBus, RCK: OutputPin, AUX: OutputPin> SiPoTransport<SPI, RCK, AUX> {
 }
 ```
 
-File: `rust/periph/src/transport/sipo.rs`
+File: `rust/periph/src/connection/sipo.rs`
 
 ### Rust Linux
 
@@ -249,23 +249,23 @@ embedded-hal = "1"
 
 ### JVM
 
-No `SPITransport` class exists in `periph-transport` (JVM targets i2c-dev only for the generic bus wrapper), so both modes live directly in `SiPoTransport`:
-- **Hardware:** follow `NeoPixelTransport`'s pattern of talking to `/dev/spidevB.D` directly via FFM `ioctl` (`SPI_IOC_WR_MODE`, `SPI_IOC_WR_MAX_SPEED_HZ`, `SPI_IOC_MESSAGE_1`) at 1 MHz, mode 0.
+No `SPIConnection` class exists in `periph-connection` (JVM targets i2c-dev only for the generic bus wrapper), so both modes live directly in `SiPoConnection`:
+- **Hardware:** follow `NeoPixelConnection`'s pattern of talking to `/dev/spidevB.D` directly via FFM `ioctl` (`SPI_IOC_WR_MODE`, `SPI_IOC_WR_MAX_SPEED_HZ`, `SPI_IOC_MESSAGE_1`) at 1 MHz, mode 0.
 - **Software:** take `serInLine`/`srckLine` GPIO line numbers and bit-bang the loop from [Hardware vs. Software SPI](#hardware-vs-software-spi), reusing the same `/dev/gpiochip0` FFM ioctl helpers as RCK.
 
-For RCK/SRCLR/G in both modes, follow `UARTTransport`'s DE-pin pattern: request lines on `/dev/gpiochip0` via `GPIO_GET_LINEHANDLE_IOCTL` and drive them with `GPIOHANDLE_SET_LINE_VALUES_IOCTL`. `-1` for `srclrLine`/`gLine` disables the optional pin.
+For RCK/SRCLR/G in both modes, follow `UARTConnection`'s DE-pin pattern: request lines on `/dev/gpiochip0` via `GPIO_GET_LINEHANDLE_IOCTL` and drive them with `GPIOHANDLE_SET_LINE_VALUES_IOCTL`. `-1` for `srclrLine`/`gLine` disables the optional pin.
 
-File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java`
+File: `jvm/periph-connection/src/main/java/it/uhde/periph/connection/SiPoConnection.java`
 
 ### Go — Linux
 
-Same two-mode structure as every other Linux SiPo transport, built on the same raw-ioctl techniques as the Go I²C/SPI/HX711 transports (no cgo):
-- **Hardware:** `/dev/spidevB.D` via `SPI_IOC_MESSAGE`, mode 0, 1 MHz — reuses the Go Linux SPI transport's ioctl helpers.
+Same two-mode structure as every other Linux SiPo connection, built on the same raw-ioctl techniques as the Go I²C/SPI/HX711 connections (no cgo):
+- **Hardware:** `/dev/spidevB.D` via `SPI_IOC_MESSAGE`, mode 0, 1 MHz — reuses the Go Linux SPI connection's ioctl helpers.
 - **Software:** two `/dev/gpiochip0` line offsets (`serIn`, `srck`), bit-banged in `Write` via `GPIOHANDLE_SET_LINE_VALUES_IOCTL`.
 
-RCK/SRCLR/G are `/dev/gpiochip0` lines in both modes, requested the same way as the Go HX711 transport's `dout`/`pdSck`. Release the spidev fd (or bit-bang lines) and RCK/SRCLR/G lines in `Close()`.
+RCK/SRCLR/G are `/dev/gpiochip0` lines in both modes, requested the same way as the Go HX711 connection's `dout`/`pdSck`. Release the spidev fd (or bit-bang lines) and RCK/SRCLR/G lines in `Close()`.
 
-File: `go/periph/transport/sipo_linux.go`
+File: `go/periph/connection/sipo_linux.go`
 
 ### Go — TinyGo
 
@@ -275,7 +275,7 @@ Two constructor modes:
 
 Both then do `rck.High(); rck.Low()` to latch.
 
-File: `go/periph/transport/sipo_tinygo.go`
+File: `go/periph/connection/sipo_tinygo.go`
 
 ## Sigrok Decoder
 
@@ -286,47 +286,47 @@ The `sipo` decoder takes `logic` input directly rather than stacking on sigrok's
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/sipo_micropython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/sipo_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/sipo_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/sipo_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/sipo_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/sipo_linux.py` — Google-style docstring on class and every public method
 - [x] Tests (MicroPython)
 - [x] Tests (CircuitPython)
 - [x] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SiPoTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SiPoTransport.cpp`
-- [x] `cpp/src/transport/SiPoTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SiPoTransportLinux.cpp`
-- [x] `cpp/src/transport/SiPoTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/SiPoTransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SiPoConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/SiPoConnection.cpp`
+- [x] `cpp/src/connection/SiPoConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/SiPoConnectionLinux.cpp`
+- [x] `cpp/src/connection/SiPoConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SiPoConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [x] `cpp/src/transport/SiPoTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SiPoConnectionPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/sipo.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/connection/sipo.js` — JSDoc on class and every exported method
 - [x] Tests
 
 ### Rust
-- [x] `rust/periph/src/transport/sipo.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/connection/sipo.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
 
 ### JVM
-- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/SiPoTransport.java` — Javadoc on class and every public method
+- [x] `jvm/periph-connection/src/main/java/it/uhde/periph/connection/SiPoConnection.java` — Javadoc on class and every public method
 - [x] Tests (Pi hardware, JBang)
 
 ### Go
-- [x] `go/periph/transport/sipo_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/sipo_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/sipo_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/sipo_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)
 

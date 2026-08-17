@@ -106,11 +106,11 @@ Each chip is implemented in two stages. The Full class extends Minimal — it in
 
 ### Minimal
 
-Goal: read the chip's primary differentiating feature (the unique serial number) and provide simple single-byte user EEPROM access with no configuration required beyond the transport.
+Goal: read the chip's primary differentiating feature (the unique serial number) and provide simple single-byte user EEPROM access with no configuration required beyond the connection.
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | `transport` | — | Stores transport reference; no register writes needed |
+| `init` | `connection` | — | Stores connection reference; no register writes needed |
 | `read_uid` | — | `bytes` (4) | Reads 4-byte serial number from `0xFC`–`0xFF` |
 | `read_byte` | `address: int` | `int` (0–255) | Random read from user EEPROM (`0x00`–`0x7F`) |
 | `write_byte` | `address: int`, `value: int` | — | Byte write + ACK-poll until complete (max 5 ms) |

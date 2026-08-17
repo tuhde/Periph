@@ -9,7 +9,7 @@
 
 The SK6812RGBW is an addressable RGBW LED with an integrated control IC packaged in a 5050 SMD component. It extends the WS2812B protocol to four channels: red, green, blue, and white. Each pixel contains an RGB LED plus a dedicated white LED element, and the integrated driver latches its own 32-bit GRBW value from the single-wire data stream and forwards the remaining bits to the next pixel in the chain. Pixels cascade indefinitely via DIN → DOUT; the host needs only one GPIO or SPI-MOSI line. Each of the four channels has 256 brightness levels. A reset pulse (≥80 µs low) latches the transmitted data into all pixels simultaneously.
 
-The driver in this library sits on top of the NeoPixel transport (`specs/transport_neopixel.md`), which handles all timing-critical SPI bit-encoding. The chip driver is responsible only for maintaining the pixel buffer, converting RGBW → GRBW order, and calling `transport.write()`.
+The driver in this library sits on top of the NeoPixel connection (`specs/transport_neopixel.md`), which handles all timing-critical SPI bit-encoding. The chip driver is responsible only for maintaining the pixel buffer, converting RGBW → GRBW order, and calling `connection.write()`.
 
 ## Transport Configuration
 
@@ -17,7 +17,7 @@ The driver in this library sits on top of the NeoPixel transport (`specs/transpo
 
 - **Encoding:** SPI bit-encoding at 2.4 MHz (see `specs/transport_neopixel.md`)
 - **Bit order:** MSB-first per byte; channel order is GRBW (Green, Red, Blue, White)
-- **Frame format:** `n × 4` bytes (32 bits per pixel), followed by ≥80 µs reset (24 SPI zero-bytes encoded by transport)
+- **Frame format:** `n × 4` bytes (32 bits per pixel), followed by ≥80 µs reset (24 SPI zero-bytes encoded by connection)
 - **Max pixels at 30 fps:** 768 (limited by data rate; each pixel is 4 bytes instead of 3)
 
 ## Pixel Data Format
@@ -30,12 +30,12 @@ No register map — the SK6812RGBW has no addressable registers. Data is a conti
 |------------------|----------------|----------------|----------------|
 | Green (G7–G0)    | Red (R7–R0)    | Blue (B7–B0)   | White (W7–W0)  |
 
-The driver accepts RGBW from the user and reorders to GRBW internally before passing to the transport.
+The driver accepts RGBW from the user and reorders to GRBW internally before passing to the connection.
 
 ## Initialization Sequence
 
-1. Construct the NeoPixel transport for the target platform (see `specs/transport_neopixel.md`).
-2. Construct `SK6812RGBWMinimal(transport, n)` where `n` is the number of pixels. The constructor allocates an internal buffer of `n × 4` zero-bytes (all pixels off).
+1. Construct the NeoPixel connection for the target platform (see `specs/transport_neopixel.md`).
+2. Construct `SK6812RGBWMinimal(connection, n)` where `n` is the number of pixels. The constructor allocates an internal buffer of `n × 4` zero-bytes (all pixels off).
 3. No further initialization is required — the strip powers up in an undefined state and can be set at any time.
 
 ## Implementation Stages
@@ -46,11 +46,11 @@ Goal: light up an entire strip with one RGBW color in three lines — construct,
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | `transport`, `n: int` | — | Allocates `n × 4` zero-byte buffer; stores transport |
+| `init` | `connection`, `n: int` | — | Allocates `n × 4` zero-byte buffer; stores connection |
 | `fill` | `r: int`, `g: int`, `b: int`, `w: int` | — | Fills every pixel with (r, g, b, w); clamps each to [0, 255]; sends immediately |
 | `off` | — | — | Equivalent to `fill(0, 0, 0, 0)`; turns the entire strip off |
 
-**Sensible defaults:** Buffer initialized to all zeros (all pixels off). No brightness scaling. `fill()` always calls the transport write so there is no separate show step. `w` defaults to `0` in `fill()` to allow RGB-only usage.
+**Sensible defaults:** Buffer initialized to all zeros (all pixels off). No brightness scaling. `fill()` always calls the connection write so there is no separate show step. `w` defaults to `0` in `fill()` to allow RGB-only usage.
 
 ### Full
 
@@ -76,7 +76,7 @@ Goal: expose per-pixel addressing, explicit frame control, global brightness sca
 ## Data Conversion
 
 ```
-# RGBW → GRBW reorder (done internally before transport.write())
+# RGBW → GRBW reorder (done internally before connection.write())
 grbw_buffer[i*4 + 0] = g    # green
 grbw_buffer[i*4 + 1] = r    # red
 grbw_buffer[i*4 + 2] = b    # blue
@@ -123,26 +123,26 @@ Animate a color-wheel sweep with a warm-white flash: each frame shifts the hue o
 - **Bit period:** TH + TL ≈ 1.25 µs ± 600 ns (at 800 Kbps data rate)
 - **T0H:** 0.3 µs ± 150 ns; **T0L:** 0.9 µs ± 150 ns
 - **T1H:** 0.6 µs ± 150 ns; **T1L:** 0.6 µs ± 150 ns
-- **Reset pulse (RES):** ≥ 80 µs low; the transport must append ≥24 zero-bytes (≈80 µs at 2.4 MHz SPI encoding) after the last pixel
+- **Reset pulse (RES):** ≥ 80 µs low; the connection must append ≥24 zero-bytes (≈80 µs at 2.4 MHz SPI encoding) after the last pixel
 - **Transmission time for n pixels:** n × 32 × 1.25 µs + 80 µs reset ≈ (40n + 80) µs
   - 30 pixels ≈ 1.28 ms; 300 pixels ≈ 12.08 ms; 768 pixels ≈ 30.8 ms (≈32 fps)
 - **No per-pixel read-back:** the chip is write-only; the driver must maintain its own buffer
 
 ## Reset Pulse Note
 
-The SK6812RGBW requires a ≥80 µs reset pulse, compared to ≥50 µs for the WS2812B. The NeoPixel transport appends 16 zero-bytes by default (≈53 µs). For SK6812RGBW, chip drivers must pass an extended reset to the transport — 24 zero-bytes (≈80 µs). This is handled by passing `reset_bytes=24` to `transport.write()` if the transport supports it, or by appending 24 zero-bytes to the pixel buffer directly before calling `transport.write()`.
+The SK6812RGBW requires a ≥80 µs reset pulse, compared to ≥50 µs for the WS2812B. The NeoPixel connection appends 16 zero-bytes by default (≈53 µs). For SK6812RGBW, chip drivers must pass an extended reset to the connection — 24 zero-bytes (≈80 µs). This is handled by passing `reset_bytes=24` to `connection.write()` if the connection supports it, or by appending 24 zero-bytes to the pixel buffer directly before calling `connection.write()`.
 
 ## Implementation Notes
 
-- **GRBW order:** the datasheet specifies G7…G0, R7…R0, B7…B0, W7…W0. The driver must reorder before handing bytes to the transport; the transport itself is order-agnostic.
+- **GRBW order:** the datasheet specifies G7…G0, R7…R0, B7…B0, W7…W0. The driver must reorder before handing bytes to the connection; the connection itself is order-agnostic.
 - **4 bytes per pixel:** the internal buffer is `n × 4` bytes, not `n × 3`. Buffer indices must use stride 4.
 - **White channel default 0:** `fill()` and `set_pixel()` accept `w` as a keyword argument defaulting to 0, allowing RGB-only usage without breaking the interface.
-- **Extended reset:** append 24 trailing zero-bytes to the pixel data before calling `transport.write()` to guarantee ≥80 µs reset. Concretely: `transport.write(pixel_bytes + bytes(24))`.
-- **Buffer ownership:** the chip driver owns the internal GRBW buffer. The transport receives an encoded copy; the driver's stored buffer stays in RGBW (raw user values) to allow brightness scaling without precision loss.
+- **Extended reset:** append 24 trailing zero-bytes to the pixel data before calling `connection.write()` to guarantee ≥80 µs reset. Concretely: `connection.write(pixel_bytes + bytes(24))`.
+- **Buffer ownership:** the chip driver owns the internal GRBW buffer. The connection receives an encoded copy; the driver's stored buffer stays in RGBW (raw user values) to allow brightness scaling without precision loss.
 - **Brightness scaling at show() time:** storing raw user values and scaling just before transmission avoids accumulated rounding errors if brightness changes frequently.
 - **HSV conversion:** white channel stays 0 for HSV fills. For embedded targets without `math`, implement a fixed-point or lookup-table HSV → RGB. For host targets (Linux, Node.js), use the standard library.
-- **Pixel count is fixed at construction:** the transport buffer size is `n × 4` bytes. No dynamic resize.
-- **`fill()` in Minimal auto-shows:** Minimal calls `transport.write()` inside `fill()`. Full separates buffer mutation from transmission — `set_pixel()` / `set_pixels()` do not call the transport; `show()` must be called explicitly.
+- **Pixel count is fixed at construction:** the connection buffer size is `n × 4` bytes. No dynamic resize.
+- **`fill()` in Minimal auto-shows:** Minimal calls `connection.write()` inside `fill()`. Full separates buffer mutation from transmission — `set_pixel()` / `set_pixels()` do not call the connection; `show()` must be called explicitly.
 - **`fill()` inherited in Full:** Full inherits Minimal's `fill()` as a convenience (fill all + immediate show). This is intentional — it is the fast path for all-same-color updates.
 - **Cascade note:** the driver controls all `n` pixels in one strip. Multiple strips on separate SPI buses require separate driver instances.
 - **rotate() stride:** rotation operates on whole pixels (4-byte units), not individual bytes, so a step of 1 shifts one pixel, not one byte.

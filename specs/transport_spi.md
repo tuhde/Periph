@@ -5,7 +5,7 @@
 
 ## Overview
 
-SPI is a four-wire full-duplex bus (MOSI, MISO, SCK, CS). Each device gets its own CS pin; the transport instance owns one CS pin and represents one device. Used when a chip lists SPI as a supported transport.
+SPI is a four-wire full-duplex bus (MOSI, MISO, SCK, CS). Each device gets its own CS pin; the connection instance owns one CS pin and represents one device. Used when a chip lists SPI as a supported transport.
 
 ## Interface Contract
 
@@ -63,7 +63,7 @@ Wraps `machine.SPI`. CS is a `machine.Pin` driven manually. Constructor accepts 
 | `read` | `cs(0)` → `spi.read(n)` → `cs(1)` |
 | `write_read` | `cs(0)` → `spi.write(data)` → `spi.readinto(buf)` → `cs(1)` |
 
-File: `python/periph/transport/spi_micropython.py`
+File: `python/periph/connection/spi_micropython.py`
 
 ### CircuitPython
 
@@ -83,7 +83,7 @@ Wraps `busio.SPI`. The bus must be locked before each operation and unlocked aft
 
 CS is active low: set `cs.value = False` to assert, `True` to deassert.
 
-File: `python/periph/transport/spi_circuitpython.py`
+File: `python/periph/connection/spi_circuitpython.py`
 
 ### Linux kernel
 
@@ -99,7 +99,7 @@ Wraps the `spidev` Python package, which uses `/dev/spidevBUS.DEVICE`. Construct
 
 `spi.mode` is an integer 0–3 (bits: CPOL in bit 1, CPHA in bit 0). `spi.max_speed_hz` sets the clock.
 
-File: `python/periph/transport/spi_linux.py`
+File: `python/periph/connection/spi_linux.py`
 
 ### Arduino
 
@@ -113,7 +113,7 @@ Wraps `SPIClass` (the global `SPI` object or any other `SPIClass` instance for b
 
 Constructor accepts a `SPIClass&`, a CS pin number, and an `SPISettings` (clock, bit order, data mode).
 
-Files: `cpp/src/transport/SPITransport.h`, `cpp/src/transport/SPITransport.cpp`
+Files: `cpp/src/connection/SPIConnection.h`, `cpp/src/connection/SPIConnection.cpp`
 
 ### Zephyr RTOS
 
@@ -151,11 +151,11 @@ struct spi_config cfg = {
 
 `prj.conf` must enable `CONFIG_SPI=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The SPI device node and its `cs-gpios` property must be present in the board's devicetree or an overlay.
 
-File: `cpp/src/transport/SPITransportZephyr.h`
+File: `cpp/src/connection/SPIConnectionZephyr.h`
 
 ### ESP-IDF
 
-Wraps ESP-IDF's `driver/spi_master.h`. Constructor accepts an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()`. Unlike Pico SDK — and like Zephyr's devicetree `cs-gpios` — CS is owned by the driver itself: `spi_device_interface_config_t.spics_io_num` is set once at `spi_bus_add_device()` time, and the driver asserts/deasserts it automatically around every transaction. The transport never touches a CS GPIO directly.
+Wraps ESP-IDF's `driver/spi_master.h`. Constructor accepts an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()`. Unlike Pico SDK — and like Zephyr's devicetree `cs-gpios` — CS is owned by the driver itself: `spi_device_interface_config_t.spics_io_num` is set once at `spi_bus_add_device()` time, and the driver asserts/deasserts it automatically around every transaction. The connection never touches a CS GPIO directly.
 
 | Contract | ESP-IDF |
 |----------|---------|
@@ -165,11 +165,11 @@ Wraps ESP-IDF's `driver/spi_master.h`. Constructor accepts an `spi_device_handle
 
 `SPI_TRANS_CS_KEEP_ACTIVE` on the first transaction is the native equivalent of Zephyr's two-segment `spi_transceive` buffer set — it keeps the bus held across the command and response phases of a register read without releasing CS in between.
 
-File: `cpp/src/transport/SPITransportESPIDF.h` (header-only)
+File: `cpp/src/connection/SPIConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
-Wraps `hardware_spi` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured via `spi_init()`/`spi_set_format()`, plus a GPIO pin number for CS. pico-sdk has no automatic CS the way Zephyr's devicetree `cs-gpios` does, so CS is a plain GPIO the transport drives itself — the same convention `SPITransport` (Arduino) already uses.
+Wraps `hardware_spi` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured via `spi_init()`/`spi_set_format()`, plus a GPIO pin number for CS. pico-sdk has no automatic CS the way Zephyr's devicetree `cs-gpios` does, so CS is a plain GPIO the connection drives itself — the same convention `SPIConnection` (Arduino) already uses.
 
 | Contract | pico-sdk |
 |----------|----------|
@@ -177,9 +177,9 @@ Wraps `hardware_spi` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Construc
 | `read` | `gpio_put(cs, 0)` → `spi_read_blocking(spi, 0x00, buf, n)` → `gpio_put(cs, 1)` |
 | `write_read` | `gpio_put(cs, 0)` → `spi_write_blocking(spi, data, len)` → `spi_read_blocking(spi, 0x00, buf, n)` → `gpio_put(cs, 1)` |
 
-`spi_read_blocking`'s second argument is the byte repeatedly clocked out on MOSI while reading — `0x00`, the same dummy-TX-byte convention `SPITransport` and `SPITransportZephyr` already use.
+`spi_read_blocking`'s second argument is the byte repeatedly clocked out on MOSI while reading — `0x00`, the same dummy-TX-byte convention `SPIConnection` and `SPIConnectionZephyr` already use.
 
-File: `cpp/src/transport/SPITransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/SPIConnectionPicoSDK.h` (header-only)
 
 ### Rust
 
@@ -232,13 +232,13 @@ embedded-hal-bus = "0.2"
 
 ### Go — Linux
 
-Same raw-ioctl technique as the Go I²C transport: `SPI_IOC_MESSAGE(1)` against `/dev/spidevB.D` via `golang.org/x/sys/unix`, with a hand-built `spi_ioc_transfer` struct mirroring `linux/spi/spidev.h` — no cgo. `WriteRead` sends `len(data)+n` bytes in one transfer (dummy `0x00` TX bytes for the read phase) and discards the first `len(data)` received bytes, same convention as every other Linux SPI transport in this repo.
+Same raw-ioctl technique as the Go I²C connection: `SPI_IOC_MESSAGE(1)` against `/dev/spidevB.D` via `golang.org/x/sys/unix`, with a hand-built `spi_ioc_transfer` struct mirroring `linux/spi/spidev.h` — no cgo. `WriteRead` sends `len(data)+n` bytes in one transfer (dummy `0x00` TX bytes for the read phase) and discards the first `len(data)` received bytes, same convention as every other Linux SPI connection in this repo.
 
-File: `go/periph/transport/spi_linux.go`
+File: `go/periph/connection/spi_linux.go`
 
 ### Go — TinyGo
 
-Wraps a `machine.SPI` value (e.g. `machine.SPI0`). CS is a plain `machine.Pin` the transport drives itself around each call — TinyGo has no devicetree-style automatic CS.
+Wraps a `machine.SPI` value (e.g. `machine.SPI0`). CS is a plain `machine.Pin` the connection drives itself around each call — TinyGo has no devicetree-style automatic CS.
 
 | Contract | TinyGo |
 |----------|--------|
@@ -246,49 +246,49 @@ Wraps a `machine.SPI` value (e.g. `machine.SPI0`). CS is a plain `machine.Pin` t
 | `Read` | `cs.Low()` → `spi.Tx(nil, buf)` → `cs.High()` (dummy `0x00` bytes clocked out) |
 | `WriteRead` | `cs.Low()` → `spi.Tx(data, respBuf)` → `spi.Tx(nil, buf)` → `cs.High()` |
 
-File: `go/periph/transport/spi_tinygo.go`
+File: `go/periph/connection/spi_tinygo.go`
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/spi_micropython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/spi_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/spi_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/spi_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/spi_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/spi_linux.py` — Google-style docstring on class and every public method
 - [x] Tests (MicroPython)
 - [x] Tests (CircuitPython)
 - [x] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/SPITransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/SPITransport.cpp`
-- [x] `cpp/src/transport/SPITransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/SPITransportLinux.cpp`
-- [x] `cpp/src/transport/SPITransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/SPITransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SPIConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/SPIConnection.cpp`
+- [x] `cpp/src/connection/SPIConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/SPIConnectionLinux.cpp`
+- [x] `cpp/src/connection/SPIConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SPIConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [x] `cpp/src/transport/SPITransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/SPIConnectionPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/spi.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/connection/spi.js` — JSDoc on class and every exported method
 - [x] Tests
 
 ### Rust
-- [x] `rust/periph/src/transport/spi.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/connection/spi.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
 
 ### Go
-- [x] `go/periph/transport/spi_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/spi_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/spi_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/spi_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

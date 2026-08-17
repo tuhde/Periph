@@ -76,11 +76,11 @@ Each chip is implemented in two stages. The Full class extends Minimal — it in
 
 ### Minimal
 
-Goal: trigger a measurement and return temperature and humidity with no configuration required beyond the transport.
+Goal: trigger a measurement and return temperature and humidity with no configuration required beyond the connection.
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | transport | — | Power-on wait, status check, calibration check; soft reset if needed |
+| `init` | connection | — | Power-on wait, status check, calibration check; soft reset if needed |
 | `read` | — | `{temperature_c, humidity_pct}` | Triggers measurement, waits ≥80 ms, decodes and returns both values |
 
 **Sensible defaults baked into Minimal:**

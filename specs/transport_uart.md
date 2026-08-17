@@ -5,9 +5,9 @@
 
 ## Overview
 
-UART is a two-wire asynchronous serial transport (TX, RX). Each transport instance represents one remote device. Used when a chip lists UART as a supported transport.
+UART is a two-wire asynchronous serial transport (TX, RX). Each connection instance represents one remote device. Used when a chip lists UART as a supported transport.
 
-RS-485 is a differential-signalling variant of UART that supports multi-point buses. It requires a direction-enable pin (DE, usually combined with /RE on the same signal) to switch the bus driver between transmit and receive. When a `de_pin` is provided at construction time, the transport operates in RS-485 mode: DE is asserted before transmitting and deasserted only after all bytes have physically shifted out. The `write`, `read`, and `write_read` interface is identical in both modes; DE management is internal to the transport.
+RS-485 is a differential-signalling variant of UART that supports multi-point buses. It requires a direction-enable pin (DE, usually combined with /RE on the same signal) to switch the bus driver between transmit and receive. When a `de_pin` is provided at construction time, the connection operates in RS-485 mode: DE is asserted before transmitting and deasserted only after all bytes have physically shifted out. The `write`, `read`, and `write_read` interface is identical in both modes; DE management is internal to the connection.
 
 ## Interface Contract
 
@@ -21,7 +21,7 @@ All transport implementations must provide these operations.
 
 `write_read` is equivalent to `write(data)` followed by `read(n)`. In RS-485 mode, DE is asserted only during the transmit phase.
 
-DE polarity is active-high (assert = logic 1) on all platforms. If the hardware uses an active-low signal, invert the polarity at the GPIO level — the transport has no polarity parameter.
+DE polarity is active-high (assert = logic 1) on all platforms. If the hardware uses an active-low signal, invert the polarity at the GPIO level — the connection has no polarity parameter.
 
 ## Configuration Parameters
 
@@ -75,11 +75,11 @@ DE polarity is active-high (assert = logic 1) on all platforms. If the hardware 
 | `port` | ESP-IDF | `uart_port_t` | — | UART port number (`UART_NUM_0`, `UART_NUM_1`, `UART_NUM_2`), already installed via `uart_driver_install()` and configured via `uart_param_config()` |
 | `de_pin` | ESP-IDF | `int` (`gpio_num_t`) | `-1` | RS-485 DE pin; `-1` disables RS-485 mode |
 
-For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
+For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the connection. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
 
-For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Pico SDK, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the transport. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
+For embedded platforms (MicroPython, CircuitPython, Arduino, Zephyr, Pico SDK, Rust embedded), the caller constructs and configures the UART peripheral before passing it to the connection. Baud rate, data bits, parity, and stop bits are set on the UART object at construction time.
 
-For Linux and Node.js, the transport opens and configures the serial port itself using the provided parameters.
+For Linux and Node.js, the connection opens and configures the serial port itself using the provided parameters.
 
 ## Error Handling
 
@@ -93,7 +93,7 @@ For Linux and Node.js, the transport opens and configures the serial port itself
 
 ### MicroPython
 
-Wraps `machine.UART`. The caller constructs and configures the UART instance before passing it to the transport.
+Wraps `machine.UART`. The caller constructs and configures the UART instance before passing it to the connection.
 
 | Contract | MicroPython |
 |----------|-------------|
@@ -103,7 +103,7 @@ Wraps `machine.UART`. The caller constructs and configures the UART instance bef
 
 `machine.UART` has no TX-empty interrupt on most ports. After `uart.write()` returns (bytes accepted into FIFO), wait for the bytes to physically shift out using a calculated delay: `time.sleep_us((len(data) * 10 * 1_000_000) // baudrate + 100)`. The factor of 10 accounts for start bit + 8 data bits + stop bit; the 100 µs margin covers stop-bit propagation.
 
-File: `python/periph/transport/uart_micropython.py`
+File: `python/periph/connection/uart_micropython.py`
 
 ### CircuitPython
 
@@ -117,7 +117,7 @@ Wraps `busio.UART`. Constructor accepts a `busio.UART` instance and an optional 
 
 `busio.UART.write()` blocks until bytes are in the hardware FIFO but does not guarantee physical transmission. Apply the same baud-rate-derived delay as MicroPython before deasserting DE.
 
-File: `python/periph/transport/uart_circuitpython.py`
+File: `python/periph/connection/uart_circuitpython.py`
 
 ### Linux kernel
 
@@ -151,7 +151,7 @@ de.write(False)
 | `read` | `ser.read(n)` |
 | `write_read` | `write(data)` → `read(n)` |
 
-File: `python/periph/transport/uart_linux.py`
+File: `python/periph/connection/uart_linux.py`
 
 ### Arduino
 
@@ -165,7 +165,7 @@ Wraps `HardwareSerial`. Constructor accepts a `HardwareSerial&` reference and an
 
 `HardwareSerial::flush()` on Arduino blocks until the hardware TX shift register is empty — safe to deassert DE immediately after.
 
-Files: `cpp/src/transport/UARTTransport.h`, `cpp/src/transport/UARTTransport.cpp`
+Files: `cpp/src/connection/UARTConnection.h`, `cpp/src/connection/UARTConnection.cpp`
 
 ### Zephyr RTOS
 
@@ -181,11 +181,11 @@ TX-complete detection: register a UART interrupt callback via `uart_irq_callback
 
 `prj.conf` must enable `CONFIG_UART_INTERRUPT_DRIVEN=y`, `CONFIG_GPIO=y` (RS-485), `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`. The UART device node must be present and enabled in the board's devicetree or an overlay.
 
-File: `cpp/src/transport/UARTTransportZephyr.h`
+File: `cpp/src/connection/UARTConnectionZephyr.h`
 
 ### ESP-IDF
 
-Wraps ESP-IDF's `driver/uart.h`. Constructor accepts a `uart_port_t` already installed via `uart_driver_install()` and configured via `uart_param_config()`/`uart_set_pin()`, plus an optional DE pin number (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) transports.
+Wraps ESP-IDF's `driver/uart.h`. Constructor accepts a `uart_port_t` already installed via `uart_driver_install()` and configured via `uart_param_config()`/`uart_set_pin()`, plus an optional DE pin number (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) connections.
 
 | Contract | ESP-IDF |
 |----------|---------|
@@ -195,13 +195,13 @@ Wraps ESP-IDF's `driver/uart.h`. Constructor accepts a `uart_port_t` already ins
 
 The 1000 ms timeout matches Arduino's `HardwareSerial` default and Zephyr's 1 s read deadline, keeping behavior consistent across platforms. `uart_wait_tx_done()` blocks until the hardware FIFO is actually empty — safe to deassert DE immediately after, unlike Pico SDK which has no such call and must fall back to a baud-rate-derived delay.
 
-Where the transport exposes an `available()`-style query, use `uart_get_buffered_data_len(port, &n)`, which reports an exact byte count — no platform limitation here, unlike Pico SDK's boolean-only `uart_is_readable()`.
+Where the connection exposes an `available()`-style query, use `uart_get_buffered_data_len(port, &n)`, which reports an exact byte count — no platform limitation here, unlike Pico SDK's boolean-only `uart_is_readable()`.
 
-File: `cpp/src/transport/UARTTransportESPIDF.h` (header-only)
+File: `cpp/src/connection/UARTConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
-Wraps `hardware_uart` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts a `uart_inst_t*` (`uart0` or `uart1`) already configured via `uart_init()`, plus an optional GPIO pin number for RS-485 DE (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) transports.
+Wraps `hardware_uart` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts a `uart_inst_t*` (`uart0` or `uart1`) already configured via `uart_init()`, plus an optional GPIO pin number for RS-485 DE (`-1` disables RS-485 mode) — same convention as the Arduino and Linux (C++) connections.
 
 | Contract | pico-sdk |
 |----------|----------|
@@ -210,12 +210,12 @@ Wraps `hardware_uart` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constru
 | `write_read` | `write(data, len)` → `read(buf, n)` |
 
 pico-sdk exposes no TX-drain / TX-complete call and no RX byte-count API — only `uart_is_writable()` / `uart_is_readable()`, which report a single byte's readiness as a boolean, not a count. Two consequences:
-- Before deasserting DE, use the same baud-rate-derived delay as the MicroPython/CircuitPython UART transports: `sleep_us(len * 10 * 1'000'000 / baudrate + 100)` (the factor of 10 covers start + 8 data + stop bit; the 100 µs margin covers stop-bit propagation).
-- Where the transport exposes an `available()`-style query, it can only return 1 or 0 (`uart_is_readable()`) — a coarser contract than Zephyr's exact ring-buffer count. Document this divergence on the method.
+- Before deasserting DE, use the same baud-rate-derived delay as the MicroPython/CircuitPython UART connections: `sleep_us(len * 10 * 1'000'000 / baudrate + 100)` (the factor of 10 covers start + 8 data + stop bit; the 100 µs margin covers stop-bit propagation).
+- Where the connection exposes an `available()`-style query, it can only return 1 or 0 (`uart_is_readable()`) — a coarser contract than Zephyr's exact ring-buffer count. Document this divergence on the method.
 
 `uart_read_blocking` already blocks until exactly `n` bytes have arrived, so `read()` needs no manual polling loop.
 
-File: `cpp/src/transport/UARTTransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/UARTConnectionPicoSDK.h` (header-only)
 
 ### Linux GCC (C++)
 
@@ -233,7 +233,7 @@ For RS-485, prefer kernel RS-485 mode via `ioctl(fd, TIOCSRS485, &rs485)` with t
 
 `stop_bits` accepts 1 or 2; termios does not support 1.5 stop bits.
 
-Files: `cpp/src/transport/UARTTransportLinux.h`, `cpp/src/transport/UARTTransportLinux.cpp`
+Files: `cpp/src/connection/UARTConnectionLinux.h`, `cpp/src/connection/UARTConnectionLinux.cpp`
 
 ### Node.js (Linux)
 
@@ -247,11 +247,11 @@ Wraps the `serialport` npm package. Constructor opens the port asynchronously an
 
 `port.drain()` resolves after the OS has transmitted all bytes — safe to deassert DE immediately after on Linux.
 
-File: `nodejs/packages/periph/src/transport/uart.js`
+File: `nodejs/packages/periph/src/connection/uart.js`
 
 ### JVM (Linux)
 
-Uses the FFM API (Java 21+) to call libc functions directly — the same approach as `I2CTransport`. Opens the serial device with `open(path, O_RDWR | O_NOCTTY)` and configures it via `tcgetattr` / `tcsetattr` (raw mode, VMIN=0, VTIME for blocking reads with timeout).
+Uses the FFM API (Java 21+) to call libc functions directly — the same approach as `I2CConnection`. Opens the serial device with `open(path, O_RDWR | O_NOCTTY)` and configures it via `tcgetattr` / `tcsetattr` (raw mode, VMIN=0, VTIME for blocking reads with timeout).
 
 | Contract | JVM (FFM) |
 |----------|-----------|
@@ -263,11 +263,11 @@ For RS-485, prefer kernel RS-485 mode via `ioctl(fd, TIOCSRS485, rs485Addr)` whe
 
 `tcdrain(fd)` blocks until the kernel transmit buffer is empty — safe to deassert DE immediately after.
 
-File: `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java`
+File: `jvm/periph-connection/src/main/java/it/uhde/periph/connection/UARTConnection.java`
 
 ### Go — Linux
 
-Same FFM-equivalent technique as the JVM transport, via `golang.org/x/sys/unix` instead: opens the device with `unix.Open(path, unix.O_RDWR|unix.O_NOCTTY, 0)` and configures it with `unix.IoctlGetTermios`/`unix.IoctlSetTermios` (raw mode, baud rate, data bits, parity, stop bits, `VMIN`/`VTIME` for the read timeout).
+Same FFM-equivalent technique as the JVM connection, via `golang.org/x/sys/unix` instead: opens the device with `unix.Open(path, unix.O_RDWR|unix.O_NOCTTY, 0)` and configures it with `unix.IoctlGetTermios`/`unix.IoctlSetTermios` (raw mode, baud rate, data bits, parity, stop bits, `VMIN`/`VTIME` for the read timeout).
 
 | Contract | Go Linux |
 |----------|----------|
@@ -275,9 +275,9 @@ Same FFM-equivalent technique as the JVM transport, via `golang.org/x/sys/unix` 
 | `Read` | `unix.Read(fd, buf)`, relying on the VTIME-based timeout already configured on the fd |
 | `WriteRead` | `Write(data)` → `Read(n)` |
 
-For RS-485, prefer kernel mode via `ioctl(fd, TIOCSRS485, ...)` with a hand-built `struct serial_rs485` (`SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND`) — same struct layout as the C++/JVM transports. Fall back to manual GPIO (`/dev/gpiochip0` chardev ioctl, same technique as the Go HX711/SiPo transports) when `dePinNum != -1` and the kernel driver lacks RS-485 support.
+For RS-485, prefer kernel mode via `ioctl(fd, TIOCSRS485, ...)` with a hand-built `struct serial_rs485` (`SER_RS485_ENABLED | SER_RS485_RTS_ON_SEND`) — same struct layout as the C++/JVM connections. Fall back to manual GPIO (`/dev/gpiochip0` chardev ioctl, same technique as the Go HX711/SiPo connections) when `dePinNum != -1` and the kernel driver lacks RS-485 support.
 
-File: `go/periph/transport/uart_linux.go`
+File: `go/periph/connection/uart_linux.go`
 
 ### Go — TinyGo
 
@@ -289,9 +289,9 @@ Wraps a `machine.UART` value (e.g. `machine.UART0`). TinyGo's `machine.UART` imp
 | `Read` | `uart.Read(buf)` in a loop until `n` bytes accumulate or a deadline elapses — `machine.UART` has no blocking read-exactly-n call |
 | `WriteRead` | `Write(data)` → `Read(n)` |
 
-Same baud-rate delay formula as the MicroPython/CircuitPython UART transports: `time.Sleep(time.Duration(len(data)*10*1e9/baudRate) + 100*time.Microsecond)` before deasserting DE.
+Same baud-rate delay formula as the MicroPython/CircuitPython UART connections: `time.Sleep(time.Duration(len(data)*10*1e9/baudRate) + 100*time.Microsecond)` before deasserting DE.
 
-File: `go/periph/transport/uart_tinygo.go`
+File: `go/periph/connection/uart_tinygo.go`
 
 ### Rust
 
@@ -319,17 +319,17 @@ Use the `serialport` crate. Wrap it in a newtype implementing `embedded_io::Read
 use serialport::SerialPort;
 use embedded_io::{ErrorType, Read, Write};
 
-struct SerialTransport(Box<dyn SerialPort>);
+struct LinuxUart(Box<dyn SerialPort>);
 
-impl ErrorType for SerialTransport { type Error = std::io::Error; }
+impl ErrorType for LinuxUart { type Error = std::io::Error; }
 
-impl Read for SerialTransport {
+impl Read for LinuxUart {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::Error> {
         std::io::Read::read(&mut self.0, buf).map_err(Into::into)
     }
 }
 
-impl Write for SerialTransport {
+impl Write for LinuxUart {
     fn write(&mut self, buf: &[u8]) -> Result<usize, Self::Error> {
         std::io::Write::write(&mut self.0, buf).map_err(Into::into)
     }
@@ -345,58 +345,58 @@ serialport = "4"
 embedded-io = "0.6"
 ```
 
-Files: `rust/periph/src/transport/uart.rs`, `rust/periph/src/transport/uart_linux.rs`
+Files: `rust/periph/src/connection/uart.rs`, `rust/periph/src/connection/uart_linux.rs`
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/uart_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/uart_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/uart_linux.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/uart_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/uart_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/uart_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
 - [ ] Tests (CircuitPython)
 - [ ] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/UARTTransport.cpp`
-- [x] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/UARTTransportLinux.cpp`
-- [x] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/UARTTransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/UARTConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/UARTConnection.cpp`
+- [x] `cpp/src/connection/UARTConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/UARTConnectionLinux.cpp`
+- [x] `cpp/src/connection/UARTConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/UARTConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [ ] `cpp/src/transport/UARTTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/UARTTransport.cpp`
-- [ ] `cpp/src/transport/UARTTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/UARTTransportLinux.cpp`
-- [ ] `cpp/src/transport/UARTTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/UARTTransportPicoSDK.h` — Doxygen (header-only)
+- [ ] `cpp/src/connection/UARTConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/connection/UARTConnection.cpp`
+- [ ] `cpp/src/connection/UARTConnectionLinux.h` — Doxygen
+- [ ] `cpp/src/connection/UARTConnectionLinux.cpp`
+- [ ] `cpp/src/connection/UARTConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/UARTConnectionPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/uart.js` — JSDoc on class and every exported method
+- [ ] `nodejs/packages/periph/src/connection/uart.js` — JSDoc on class and every exported method
 - [ ] Tests
 
 ### JVM
-- [x] `jvm/periph-transport/src/main/java/it/uhde/periph/transport/UARTTransport.java` — Javadoc on class and every public method
+- [x] `jvm/periph-connection/src/main/java/it/uhde/periph/connection/UARTConnection.java` — Javadoc on class and every public method
 - [x] Tests (Linux)
 
 ### Rust
-- [ ] `rust/periph/src/transport/uart.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] `rust/periph/src/connection/uart.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
 
 ### Go
-- [x] `go/periph/transport/uart_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/uart_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/uart_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/uart_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

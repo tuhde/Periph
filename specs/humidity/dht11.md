@@ -13,19 +13,19 @@ The DHT11 is a low-cost combined temperature and humidity sensor with a factory-
 
 ### DHTxx Single-Wire
 
-The DHT11 uses the DHTxx single-wire transport. The driver accepts a transport instance; the transport handles all GPIO direction switching, timing, and bit decoding. See `specs/transport_dhtxx.md` for the full protocol, timing constraints, and per-platform implementation details.
+The DHT11 uses the DHTxx single-wire transport. The driver accepts a connection instance; the connection handles all GPIO direction switching, timing, and bit decoding. See `specs/transport_dhtxx.md` for the full protocol, timing constraints, and per-platform implementation details.
 
-| Platform | Transport class | Transport file |
+| Platform | Connection class | Connection file |
 |----------|----------------|----------------|
-| MicroPython | `DHTxxTransport` | `python/periph/transport/dhtxx_micropython.py` |
-| CircuitPython | `DHTxxTransport` | `python/periph/transport/dhtxx_circuitpython.py` |
-| Linux | `DHTxxTransport` | `python/periph/transport/dhtxx_linux.py` |
-| Arduino | `DHTxxTransport` | `cpp/src/transport/DHTxxTransport.h` |
-| Linux GCC | `DHTxxTransportLinux` | `cpp/src/transport/DHTxxTransportLinux.h` |
-| Zephyr | `DHTxxTransportZephyr` | `cpp/src/transport/DHTxxTransportZephyr.h` |
-| Rust (Linux) | `DHTxxTransportLinux` | `rust/periph/src/transport/dhtxx.rs` |
-| Rust (ESP32-S3) | `DHTxxTransportEsp32s3` | `rust/periph/src/transport/dhtxx.rs` |
-| JVM (Linux) | `DHTxxTransport` | `jvm/periph-transport/src/main/java/it/uhde/periph/transport/DHTxxTransport.java` |
+| MicroPython | `DHTxxConnection` | `python/periph/connection/dhtxx_micropython.py` |
+| CircuitPython | `DHTxxConnection` | `python/periph/connection/dhtxx_circuitpython.py` |
+| Linux | `DHTxxConnection` | `python/periph/connection/dhtxx_linux.py` |
+| Arduino | `DHTxxConnection` | `cpp/src/connection/DHTxxConnection.h` |
+| Linux GCC | `DHTxxConnectionLinux` | `cpp/src/connection/DHTxxConnectionLinux.h` |
+| Zephyr | `DHTxxConnectionZephyr` | `cpp/src/connection/DHTxxConnectionZephyr.h` |
+| Rust (Linux) | `DHTxxConnectionLinux` | `rust/periph/src/connection/dhtxx.rs` |
+| Rust (ESP32-S3) | `DHTxxConnectionEsp32s3` | `rust/periph/src/connection/dhtxx.rs` |
+| JVM (Linux) | `DHTxxConnection` | `jvm/periph-connection/src/main/java/it/uhde/periph/connection/DHTxxConnection.java` |
 
 ## Protocol
 

@@ -5,9 +5,9 @@
 
 ## Overview
 
-The HX711 transport handles the low-level bit-bang protocol used exclusively by the HX711 24-bit ADC. It is **read-only**: the chip never accepts register writes; all configuration is implicit in the number of clock pulses issued per conversion cycle (25, 26, or 27). Two GPIO pins are required: `DOUT` (data output from chip to MCU) and `PD_SCK` (clock output from MCU to chip, doubled as power-down control).
+The HX711 connection handles the low-level bit-bang protocol used exclusively by the HX711 24-bit ADC. It is **read-only**: the chip never accepts register writes; all configuration is implicit in the number of clock pulses issued per conversion cycle (25, 26, or 27). Two GPIO pins are required: `DOUT` (data output from chip to MCU) and `PD_SCK` (clock output from MCU to chip, doubled as power-down control).
 
-This transport is chip-specific — no other device uses this protocol.
+This connection is chip-specific — no other device uses this protocol.
 
 ## Protocol
 
@@ -116,31 +116,31 @@ All platforms implement the same bit-bang loop: toggle PD_SCK HIGH → toggle PD
 
 Use `pin.value()` to read DOUT and `pin.value(0/1)` to drive PD_SCK. No sleep is needed between polls — MicroPython's GIL keeps the loop cooperative.
 
-File: `python/periph/transport/hx711_micropython.py`
+File: `python/periph/connection/hx711_micropython.py`
 
 ### CircuitPython
 
 Use `pin.value` (property) to read and write. No sleep needed.
 
-File: `python/periph/transport/hx711_circuitpython.py`
+File: `python/periph/connection/hx711_circuitpython.py`
 
 ### Linux Python
 
 Use `gpiod` (libgpiod Python bindings). Insert `time.sleep(0.001)` between DOUT polls in the `read_raw` wait loop to avoid spinning a CPU core. **Do not insert explicit delays between clock edges**: `time.sleep(0.000001)` on Linux sleeps 50–100 µs due to scheduler granularity, which exceeds the 50 µs T3 maximum and triggers power-down. The gpiod call overhead (~1–5 µs) is sufficient. Call `request.release()` in `close()`.
 
-File: `python/periph/transport/hx711_linux.py`
+File: `python/periph/connection/hx711_linux.py`
 
 ### Arduino
 
 Use `digitalRead(dout)` and `digitalWrite(pd_sck, HIGH/LOW)`. Add `delayMicroseconds(1)` between edges — MCU instruction cycles are sub-µs, so an explicit 1 µs delay is needed to meet the T3/T4 0.2 µs minimums.
 
-Files: `cpp/src/transport/HX711Transport.h`, `cpp/src/transport/HX711Transport.cpp`
+Files: `cpp/src/connection/HX711Connection.h`, `cpp/src/connection/HX711Connection.cpp`
 
 ### Linux GCC
 
 Use `gpiod_line_get_value()` and `gpiod_line_set_value()`. Insert a 1 ms `usleep` between DOUT polls. **Do not insert explicit delays between clock edges**: Linux scheduler granularity makes `usleep(1)` sleep 50–100 µs in practice, which exceeds the 50 µs T3 maximum and triggers power-down. The `gpiod` syscall overhead (~1–5 µs) is sufficient. Release lines in destructor / `close()`.
 
-Files: `cpp/src/transport/HX711TransportLinux.h`, `cpp/src/transport/HX711TransportLinux.cpp`
+Files: `cpp/src/connection/HX711ConnectionLinux.h`, `cpp/src/connection/HX711ConnectionLinux.cpp`
 
 ### Zephyr RTOS
 
@@ -148,37 +148,37 @@ Use `gpio_pin_get_dt()` and `gpio_pin_set_dt()`. Configure pins in `init` using 
 
 `prj.conf`: `CONFIG_GPIO=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
-File: `cpp/src/transport/HX711TransportZephyr.h`
+File: `cpp/src/connection/HX711ConnectionZephyr.h`
 
 ### ESP-IDF
 
 Direct port of the Zephyr bit-bang loop onto `driver/gpio.h`. Constructor accepts GPIO pin numbers for `dout` and `pd_sck`; `gpio_reset_pin()` + `gpio_set_direction()` (`GPIO_MODE_INPUT` / `GPIO_MODE_OUTPUT`) both in `init`.
 
-Use `gpio_get_level(dout)` and `gpio_set_level(pd_sck, 0/1)`. No explicit delay is needed between clock edges — GPIO call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare-metal ESP-IDF tasks pinned to the polling loop, so the DOUT-ready wait in `read_raw` is a tight `gpio_get_level(dout)` poll loop, timed against the 1 s timeout via `esp_timer_get_time()`. Use `esp_rom_delay_us()` rather than `vTaskDelay()` for any sub-tick delay — `vTaskDelay()`'s minimum granularity is one FreeRTOS tick (typically 1–10 ms), far coarser than the 50 µs T3 ceiling this protocol requires.
+Use `gpio_get_level(dout)` and `gpio_set_level(pd_sck, 0/1)`. No explicit delay is needed between clock edges — GPIO call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 connection. There is no scheduler to yield to on bare-metal ESP-IDF tasks pinned to the polling loop, so the DOUT-ready wait in `read_raw` is a tight `gpio_get_level(dout)` poll loop, timed against the 1 s timeout via `esp_timer_get_time()`. Use `esp_rom_delay_us()` rather than `vTaskDelay()` for any sub-tick delay — `vTaskDelay()`'s minimum granularity is one FreeRTOS tick (typically 1–10 ms), far coarser than the 50 µs T3 ceiling this protocol requires.
 
-File: `cpp/src/transport/HX711TransportESPIDF.h` (header-only)
+File: `cpp/src/connection/HX711ConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
 Direct port of the Zephyr bit-bang loop onto `hardware_gpio` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor accepts GPIO pin numbers for `dout` and `pd_sck`; `gpio_init()` both and set directions (`GPIO_IN` / `GPIO_OUT`) in `init`.
 
-Use `gpio_get(dout)` and `gpio_put(pd_sck, 0/1)`. No explicit delay is needed between clock edges — `gpio_put`/`gpio_get` call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 transport. There is no scheduler to yield to on bare metal, so the DOUT-ready wait in `read_raw` is a tight `gpio_get(dout)` poll loop (same as Arduino), timed against the 1 s timeout via `time_us_64()`.
+Use `gpio_get(dout)` and `gpio_put(pd_sck, 0/1)`. No explicit delay is needed between clock edges — `gpio_put`/`gpio_get` call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 connection. There is no scheduler to yield to on bare metal, so the DOUT-ready wait in `read_raw` is a tight `gpio_get(dout)` poll loop (same as Arduino), timed against the 1 s timeout via `time_us_64()`.
 
-File: `cpp/src/transport/HX711TransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/HX711ConnectionPicoSDK.h` (header-only)
 
 ### Node.js
 
 Use the `opengpio` package. Poll `dout.value` and drive `pd_sck.value = false/true`. Insert a 1 ms `setTimeout`/spin between polls.
 
-File: `nodejs/packages/periph/src/transport/hx711.js`
+File: `nodejs/packages/periph/src/connection/hx711.js`
 
 ### Rust (embedded-hal)
 
 `read_raw` spins on `dout.is_low()` — no standard `Wait` trait exists in `embedded-hal` 1.0, so a spin loop is the correct approach for both `no_std` bare-metal and Linux targets.
 
 ```rust
-impl<DI: InputPin, CK: OutputPin> HX711Transport<DI, CK> {
-    pub fn read_raw(&mut self, num_pulses: u8) -> Result<i32, TransportError> {
+impl<DI: InputPin, CK: OutputPin> HX711Connection<DI, CK> {
+    pub fn read_raw(&mut self, num_pulses: u8) -> Result<i32, HX711Error> {
         debug_assert!(matches!(num_pulses, 25 | 26 | 27));
         while self.dout.is_high()? {}   // wait for data ready
         let mut raw: u32 = 0;
@@ -194,7 +194,7 @@ impl<DI: InputPin, CK: OutputPin> HX711Transport<DI, CK> {
 }
 ```
 
-File: `rust/periph/src/transport/hx711.rs`
+File: `rust/periph/src/connection/hx711.rs`
 
 ### Rust Linux
 
@@ -207,57 +207,57 @@ embedded-hal = "1"
 
 ### Go — Linux
 
-Requests both lines on `/dev/gpiochip0` via the GPIO character-device ioctls (`GPIO_GET_LINEHANDLE_IOCTL` / `GPIOHANDLE_SET_LINE_VALUES_IOCTL`) — the same technique the JVM transport uses over FFM, translated to `golang.org/x/sys/unix` plus hand-built structs; no cgo, no `gpiod` bindings. Insert a 1 ms `time.Sleep` between DOUT polls in the wait loop; do **not** add explicit delays between PD_SCK edges — the ioctl call overhead already exceeds the 40 ns/0.2 µs minimums, and any `time.Sleep` of a sub-millisecond duration runs 50–100 µs in practice on Linux, which would trip the 50 µs T3 power-down threshold (same reasoning as every other Linux HX711 transport in this repo).
+Requests both lines on `/dev/gpiochip0` via the GPIO character-device ioctls (`GPIO_GET_LINEHANDLE_IOCTL` / `GPIOHANDLE_SET_LINE_VALUES_IOCTL`) — the same technique the JVM connection uses over FFM, translated to `golang.org/x/sys/unix` plus hand-built structs; no cgo, no `gpiod` bindings. Insert a 1 ms `time.Sleep` between DOUT polls in the wait loop; do **not** add explicit delays between PD_SCK edges — the ioctl call overhead already exceeds the 40 ns/0.2 µs minimums, and any `time.Sleep` of a sub-millisecond duration runs 50–100 µs in practice on Linux, which would trip the 50 µs T3 power-down threshold (same reasoning as every other Linux HX711 connection in this repo).
 
-File: `go/periph/transport/hx711_linux.go`
+File: `go/periph/connection/hx711_linux.go`
 
 ### Go — TinyGo
 
 Uses `machine.Pin.Get()` / `machine.Pin.Set()` directly. No sleep is needed between polls or clock edges — TinyGo's per-call overhead exceeds the timing minimums, the same way MicroPython's does.
 
-File: `go/periph/transport/hx711_tinygo.go`
+File: `go/periph/connection/hx711_tinygo.go`
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/hx711_micropython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/hx711_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/hx711_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/hx711_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/hx711_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/hx711_linux.py` — Google-style docstring on class and every public method
 - [x] Tests (MicroPython)
 - [x] Tests (CircuitPython)
 - [x] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/HX711Transport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/HX711Transport.cpp`
-- [x] `cpp/src/transport/HX711TransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/HX711TransportLinux.cpp`
-- [x] `cpp/src/transport/HX711TransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/HX711TransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/HX711Connection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/HX711Connection.cpp`
+- [x] `cpp/src/connection/HX711ConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/HX711ConnectionLinux.cpp`
+- [x] `cpp/src/connection/HX711ConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/HX711ConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [x] `cpp/src/transport/HX711TransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/HX711ConnectionPicoSDK.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/hx711.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/connection/hx711.js` — JSDoc on class and every exported method
 - [x] Tests
 
 ### Rust
-- [x] `rust/periph/src/transport/hx711.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/connection/hx711.rs` — `//!` module doc + `///` on every `pub` item
 - [x] Tests (Linux)
 - [x] Tests (ESP32-S3)
 
 ### Go
-- [x] `go/periph/transport/hx711_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/hx711_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/hx711_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/hx711_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

@@ -467,7 +467,7 @@ A 0-byte payload polls all ports; a 1-byte payload (`portID`) polls one port. Th
 ## Initialization Sequence
 
 1. Apply power; wait ≥ 100 ms for the module to boot and begin NMEA output.
-2. Open the transport at the appropriate parameters (UART: 9600 8N1; I²C: address 0x42, ≤100 kHz; SPI: mode 0, ≤200 kHz, with CS timing).
+2. Open the connection at the appropriate parameters (UART: 9600 8N1; I²C: address 0x42, ≤100 kHz; SPI: mode 0, ≤200 kHz, with CS timing).
 3. Flush/discard any partial NMEA data already in the receive buffer.
 4. Begin reading complete sentences terminated by `\r\n` (UART/SPI/DDC all deliver the same framing within the byte stream).
 5. Parse GGA sentences for position; check fix status field > 0 before trusting coordinates.
@@ -481,12 +481,12 @@ Each stage is implemented in two classes. The Full class inherits Minimal and ad
 
 ### Minimal
 
-Goal: read GPS position from the default NMEA stream without any configuration. The transport accepts any of the three interfaces; the driver reads raw bytes and assembles complete `\r\n`-terminated sentences.
+Goal: read GPS position from the default NMEA stream without any configuration. The connection accepts any of the three interfaces; the driver reads raw bytes and assembles complete `\r\n`-terminated sentences.
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
-| `init` | transport | — | Initialises internal sentence buffer; no hardware configuration |
-| `update` | — | bool | Reads bytes from transport; parses one complete NMEA sentence; updates internal state; returns `True` if a GGA sentence with a valid fix was parsed |
+| `init` | connection | — | Initialises internal sentence buffer; no hardware configuration |
+| `update` | — | bool | Reads bytes from connection; parses one complete NMEA sentence; updates internal state; returns `True` if a GGA sentence with a valid fix was parsed |
 | `latitude` | — | float \| None | Decimal degrees, positive=North; `None` until first valid GGA |
 | `longitude` | — | float \| None | Decimal degrees, positive=East; `None` until first valid GGA |
 | `altitude` | — | float \| None | Height above MSL in meters; `None` until first valid GGA |
@@ -495,7 +495,7 @@ Goal: read GPS position from the default NMEA stream without any configuration. 
 
 **Sensible defaults:** no CFG messages sent; module runs with its factory defaults (NMEA, 9600, 1 Hz, all standard sentences enabled).
 
-**Transport abstraction:** the Minimal driver reads bytes through `transport.read(n)` → `bytes`. The three transport implementations differ only in their `read()` method:
+**Connection abstraction:** the Minimal driver reads bytes through `connection.read(n)` → `bytes`. The three connection implementations differ only in their `read()` method:
 - UART: direct serial read
 - I²C (DDC): write `[0xFF]` to set register pointer, then read n bytes; filter trailing `0xFF` padding
 - SPI: transfer `[0xFF] * n` as MOSI filler; return MISO bytes; caller must filter leading `0xFF` idle bytes

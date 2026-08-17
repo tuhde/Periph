@@ -11,7 +11,7 @@ Version **1.1.0** · [Release notes](../../releases/tag/v1.1.0)
 pip install periph==1.1.0
 ```
 
-On Linux, install the SMBus transport dependency as well:
+On Linux, install the SMBus connection dependency as well:
 
 ```sh
 pip install smbus2
@@ -77,7 +77,7 @@ Download the JARs from the [release assets](../../releases/tag/v1.1.0):
 
 | JAR | Required by |
 |-----|-------------|
-| `periph-transport-1.1.0.jar` | all JVM languages |
+| `periph-connection-1.1.0.jar` | all JVM languages |
 | `periph-java-1.1.0.jar` | Java |
 | `periph-kotlin-1.1.0.jar` | Kotlin |
 | `periph-groovy-1.1.0.jar` | Groovy |
@@ -85,8 +85,8 @@ Download the JARs from the [release assets](../../releases/tag/v1.1.0):
 Install into your local Maven repository:
 
 ```sh
-mvn install:install-file -Dfile=periph-transport-1.1.0.jar \
-    -DgroupId=it.uhde -DartifactId=periph-transport -Dversion=1.1.0 -Dpackaging=jar
+mvn install:install-file -Dfile=periph-connection-1.1.0.jar \
+    -DgroupId=it.uhde -DartifactId=periph-connection -Dversion=1.1.0 -Dpackaging=jar
 
 mvn install:install-file -Dfile=periph-java-1.1.0.jar \
     -DgroupId=it.uhde -DartifactId=periph-java -Dversion=1.1.0 -Dpackaging=jar
@@ -97,7 +97,7 @@ Then declare in `pom.xml`:
 ```xml
 <dependency>
     <groupId>it.uhde</groupId>
-    <artifactId>periph-transport</artifactId>
+    <artifactId>periph-connection</artifactId>
     <version>1.1.0</version>
 </dependency>
 <dependency>
@@ -110,6 +110,6 @@ Then declare in `pom.xml`:
 For JBang, run the `install:install-file` commands above first, then reference in your script:
 
 ```java
-//DEPS it.uhde:periph-transport:1.1.0
+//DEPS it.uhde:periph-connection:1.1.0
 //DEPS it.uhde:periph-java:1.1.0
 ```

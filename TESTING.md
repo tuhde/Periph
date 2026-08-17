@@ -402,7 +402,7 @@ The `#ifndef` guards let `test_arduino.sh` inject pin values from `testconfig` v
 #endif
 
 int main() {
-    I2CTransportLinux transport(TEST_I2C_BUS, TEST_ADDR);
+    I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
     // ... checks using printf("PASS %s\n", label) ...
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
@@ -413,12 +413,12 @@ int main() {
 
 ```python
 import _testconfig as cfg
-from periph.transport.i2c_micropython import I2CTransport
+from periph.connection.i2c_micropython import I2CConnection
 from periph.chips.<category>.<chip> import <Chip>Full
 from machine import I2C, Pin
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
-transport = I2CTransport(i2c, cfg.ADDR)
+connection = I2CConnection(i2c, cfg.ADDR)
 # ... checks using print('PASS', label) ...
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 ```
@@ -430,7 +430,7 @@ print('===DONE: {} passed, {} failed==='.format(passed, failed))
 Same structure as MicroPython, but use:
 ```python
 import busio, _testconfig as cfg
-from periph.transport.i2c_circuitpython import I2CTransport
+from periph.connection.i2c_circuitpython import I2CConnection
 
 i2c = busio.I2C(cfg.SCL, cfg.SDA, frequency=cfg.FREQ)  # SCL first
 ```
@@ -441,29 +441,29 @@ Use `time.sleep(0.001)` instead of `time.sleep_ms(1)`.
 
 ```python
 import os
-from periph.transport.i2c_linux import I2CTransport
+from periph.connection.i2c_linux import I2CConnection
 
 I2C_BUS  = int(os.environ.get('LINUX_I2C_BUS', '1'))
 I2C_ADDR = int(os.environ.get('I2C_ADDR', '0x40'), 16)
 
-transport = I2CTransport(I2C_BUS, I2C_ADDR)
+connection = I2CConnection(I2C_BUS, I2C_ADDR)
 # ... checks ...
-transport.close()
+connection.close()
 ```
 
 ### Node.js test template
 
 ```js
 'use strict';
-const { I2CTransport } = require('../../packages/periph/src/transport/i2c');
+const { I2CConnection } = require('../../packages/periph/src/connection/i2c');
 const { <Chip>Full }   = require('../../packages/periph/src/chips/<category>/<chip>');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x40', 16);
 
-const transport = new I2CTransport(I2C_BUS, I2C_ADDR);
+const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
 // ... checks using console.log('PASS', label) ...
-transport.close();
+connection.close();
 console.log(`===DONE: ${passed} passed, ${failed} failed===`);
 process.exit(failed === 0 ? 0 : 1);
 ```
@@ -484,7 +484,7 @@ target_sources(app PRIVATE
 )
 
 target_include_directories(app PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/<category>
 )
 ```
@@ -503,7 +503,7 @@ CONFIG_FPU=y
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include "I2CTransportZephyr.h"
+#include "I2CConnectionZephyr.h"
 #include "<Chip>.h"
 
 #ifndef INA226_I2C_NODE
@@ -522,8 +522,8 @@ static void check_true(bool cond, const char *label) {
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(INA226_I2C_NODE);
-    I2CTransportZephyr transport(dev, INA226_ADDR);
-    <Chip>Full chip(transport);
+    I2CConnectionZephyr connection(dev, INA226_ADDR);
+    <Chip>Full chip(connection);
     // ... checks ...
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
@@ -556,7 +556,7 @@ idf_component_register(
     SRCS "main.cpp"
         ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
     INCLUDE_DIRS "."
-        ${CPP_DIR}/src/transport
+        ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/<category>
     REQUIRES driver
 )
@@ -568,7 +568,7 @@ idf_component_register(
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
-#include "I2CTransportESPIDF.h"
+#include "I2CConnectionESPIDF.h"
 #include "<Chip>.h"
 
 static int passed = 0, failed = 0;
@@ -595,7 +595,7 @@ add_executable(<chip>_test_picosdk
 )
 
 target_include_directories(<chip>_test_picosdk PRIVATE
-    ${CPP_DIR}/src/transport
+    ${CPP_DIR}/src/connection
     ${CPP_DIR}/src/chips/<category>
 )
 
@@ -615,7 +615,7 @@ pico_add_extra_outputs(<chip>_test_picosdk)
 #include <stdio.h>
 #include <hardware/gpio.h>
 #include "pico/stdlib.h"
-#include "I2CTransportPicoSDK.h"   // or SPITransportPicoSDK.h / UARTTransportPicoSDK.h
+#include "I2CConnectionPicoSDK.h"   // or SPIConnectionPicoSDK.h / UARTConnectionPicoSDK.h
 #include "<Chip>.h"
 
 i2c_init(i2c0, 100 * 1000);          // 100 kHz, standard mode
@@ -624,8 +624,8 @@ gpio_set_function(5, GPIO_FUNC_I2C); // SCL = GP5
 gpio_pull_up(4);
 gpio_pull_up(5);
 
-I2CTransportPicoSDK transport(i2c0, 0x40);  // 7-bit address
-<Chip>Full chip(transport);
+I2CConnectionPicoSDK connection(i2c0, 0x40);  // 7-bit address
+<Chip>Full chip(connection);
 
 int passed = 0, failed = 0;
 
@@ -654,8 +654,8 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CTransportESPIDF transport(dev);
-    <Chip>Full chip(transport);
+    I2CConnectionESPIDF connection(dev);
+    <Chip>Full chip(connection);
     // ... checks ...
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
 }
@@ -731,10 +731,10 @@ One JBang script per chip. The file name is `<Chip>Test.java` (title-case chip n
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-transport:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.<category>.<Chip>Full;
 
 public class <Chip>Test {
@@ -757,8 +757,8 @@ public class <Chip>Test {
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x40").replaceFirst("^0[xX]", ""), 16);
 
-        try (var transport = new I2CTransport(bus, addr)) {
-            var chip = new <Chip>Full(transport);
+        try (var connection = new I2CConnection(bus, addr)) {
+            var chip = new <Chip>Full(connection);
 
             // --- checks ---
             // checkTrue("description", chip.someMethod() >= 0);
@@ -772,7 +772,7 @@ public class <Chip>Test {
 
 Run with: `I2C_BUS=1 I2C_ADDR=0x40 jbang jvm/tests/<category>/<chip>/<Chip>Test.java`
 
-The JVM test only covers the Java driver. Kotlin and Groovy drivers share the same transport and are exercised by the same hardware paths; separate Kotlin/Groovy test scripts are not required.
+The JVM test only covers the Java driver. Kotlin and Groovy drivers share the same connection and are exercised by the same hardware paths; separate Kotlin/Groovy test scripts are not required.
 
 ### Go Linux test template
 
@@ -789,16 +789,16 @@ import (
 	"strconv"
 
 	"github.com/tuhde/Periph/go/periph/chips/<category>"
-	"github.com/tuhde/Periph/go/periph/transport"
+	"github.com/tuhde/Periph/go/periph/connection"
 )
 
 func main() {
 	bus, _ := strconv.Atoi(envOr("I2C_BUS", "1"))
 	addr64, _ := strconv.ParseUint(envOr("I2C_ADDR", "0x40"), 0, 8)
 
-	tr, err := transport.NewI2CTransport(bus, uint8(addr64))
+	tr, err := connection.NewI2CConnection(bus, uint8(addr64))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "transport:", err); os.Exit(2)
+		fmt.Fprintln(os.Stderr, "connection:", err); os.Exit(2)
 	}
 	defer tr.Close()
 
@@ -826,7 +826,7 @@ func envOr(k, def string) string {
 }
 ```
 
-The TinyGo test (`<chip>_test_tinygo/main.go`) follows the same structure but uses `//go:build tinygo`, opens the transport via `transport.NewI2CTransport(machine.I2C1, addr)`, and replaces `os.Exit` with `panic` (TinyGo lacks `os.Exit`). Use `INA226` as the reference implementation for both variants.
+The TinyGo test (`<chip>_test_tinygo/main.go`) follows the same structure but uses `//go:build tinygo`, opens the connection via `connection.NewI2CConnection(machine.I2C1, addr)`, and replaces `os.Exit` with `panic` (TinyGo lacks `os.Exit`). Use `INA226` as the reference implementation for both variants.
 
 ### Sigrok decoder test
 

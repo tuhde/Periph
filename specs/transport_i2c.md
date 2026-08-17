@@ -9,7 +9,7 @@ I²C is a two-wire serial bus (SDA + SCL) supporting multiple devices on one bus
 
 ## Interface Contract
 
-All transport implementations must provide these operations. The transport is constructed with a configured, ready-to-use bus object from the platform (MicroPython `machine.I2C`, Arduino `TwoWire`).
+All transport implementations must provide these operations. The connection is constructed with a configured, ready-to-use bus object from the platform (MicroPython `machine.I2C`, Arduino `TwoWire`).
 
 | Operation | Parameters | Returns | Notes |
 |-----------|------------|---------|-------|
@@ -24,7 +24,7 @@ All transport implementations must provide these operations. The transport is co
 | `bus` | platform object | Configured `machine.I2C` (MicroPython) or `TwoWire&` (Arduino) |
 | `addr` | int | 7-bit device address |
 
-Address is set at construction time — a transport instance represents one device on the bus.
+Address is set at construction time — a connection instance represents one device on the bus.
 
 ## Error Handling
 
@@ -103,15 +103,15 @@ Wraps `hardware_i2c` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Construc
 | `read` | `i2c_read_blocking(i2c, addr, buf, n, false)` |
 | `write_read` | `i2c_write_blocking(i2c, addr, data, len, true)` (`nostop`) → `i2c_read_blocking(i2c, addr, buf, n, false)` |
 
-The `nostop` (4th) parameter `true` on the write phase holds the bus for a repeated start instead of issuing STOP, matching the repeated-start contract every other I²C transport in this repo provides.
+The `nostop` (4th) parameter `true` on the write phase holds the bus for a repeated start instead of issuing STOP, matching the repeated-start contract every other I²C connection in this repo provides.
 
 Requires the `PICO_SDK_PATH` environment variable and `pico_sdk_init()` in the consuming CMake project, analogous to `ZEPHYR_BASE`/`west build` for Zephyr; link against `hardware_i2c`.
 
-File: `cpp/src/transport/I2CTransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/I2CConnectionPicoSDK.h` (header-only)
 
 ### Go — Linux
 
-No cgo: uses `golang.org/x/sys/unix` for the raw `ioctl()` call plus hand-built structs mirroring `linux/i2c-dev.h`'s `struct i2c_msg` / `struct i2c_rdwr_ioctl_data` — Go's `unsafe.Pointer` plays the same role the JVM transport's manual FFM struct layout plays; neither needs a native library.
+No cgo: uses `golang.org/x/sys/unix` for the raw `ioctl()` call plus hand-built structs mirroring `linux/i2c-dev.h`'s `struct i2c_msg` / `struct i2c_rdwr_ioctl_data` — Go's `unsafe.Pointer` plays the same role the JVM connection's manual FFM struct layout plays; neither needs a native library.
 
 | Contract | Go Linux |
 |----------|----------|
@@ -121,7 +121,7 @@ No cgo: uses `golang.org/x/sys/unix` for the raw `ioctl()` call plus hand-built 
 
 Constructor opens `/dev/i2c-N` (`unix.Open`) and takes the 7-bit address; `Close()` calls `unix.Close`.
 
-File: `go/periph/transport/i2c_linux.go`
+File: `go/periph/connection/i2c_linux.go`
 
 ### Go — TinyGo
 
@@ -135,7 +135,7 @@ Wraps `machine.I2C0` (or any `machine.I2C` value the caller configured and passe
 
 Constructor accepts a configured `machine.I2C` value and the 7-bit address; `Close()` is a no-op (`machine.I2C` has no explicit release).
 
-File: `go/periph/transport/i2c_tinygo.go`
+File: `go/periph/connection/i2c_tinygo.go`
 
 ### ESP-IDF
 
@@ -149,49 +149,49 @@ Wraps ESP-IDF's driver-ng I²C master API (`driver/i2c_master.h`, ESP-IDF ≥5.2
 
 `i2c_master_transmit_receive` is a single driver-ng call that performs the write-then-repeated-start-read internally — no separate STOP/repeated-START management needed, unlike the legacy API. The `-1` timeout argument means block indefinitely (`portMAX_DELAY`); pass a finite millisecond value if a timeout is required.
 
-The caller creates the bus (`i2c_new_master_bus`) and adds the device (`i2c_master_bus_add_device`) before constructing the transport — same division of responsibility as Zephyr's devicetree-configured `const struct device *`.
+The caller creates the bus (`i2c_new_master_bus`) and adds the device (`i2c_master_bus_add_device`) before constructing the connection — same division of responsibility as Zephyr's devicetree-configured `const struct device *`.
 
-File: `cpp/src/transport/I2CTransportESPIDF.h` (header-only)
+File: `cpp/src/connection/I2CConnectionESPIDF.h` (header-only)
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [x] `python/periph/transport/i2c_micropython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/i2c_circuitpython.py` — Google-style docstring on class and every public method
-- [x] `python/periph/transport/i2c_linux.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/i2c_micropython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/i2c_circuitpython.py` — Google-style docstring on class and every public method
+- [x] `python/periph/connection/i2c_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
 - [ ] Tests (CircuitPython)
 - [ ] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/I2cTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/I2cTransport.cpp`
-- [x] `cpp/src/transport/I2cTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/I2cTransportLinux.cpp`
-- [x] `cpp/src/transport/I2cTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/I2CTransportESPIDF.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/I2CConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/I2CConnection.cpp`
+- [x] `cpp/src/connection/I2CConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/I2CConnectionLinux.cpp`
+- [x] `cpp/src/connection/I2CConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/I2CConnectionESPIDF.h` — Doxygen (header-only)
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF)
 
-- [x] `cpp/src/transport/I2CTransportPicoSDK.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/I2CConnectionPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [x] `nodejs/packages/periph/src/transport/i2c.js` — JSDoc on class and every exported method
+- [x] `nodejs/packages/periph/src/connection/i2c.js` — JSDoc on class and every exported method
 - [ ] Tests
 
 ### Rust
-- [x] `rust/periph/src/transport/i2c.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/connection/i2c.rs` — `//!` module doc + `///` on every `pub` item
 
 ### Go
-- [x] `go/periph/transport/i2c_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/i2c_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/i2c_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/i2c_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

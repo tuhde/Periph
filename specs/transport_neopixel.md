@@ -5,17 +5,17 @@
 
 ## Overview
 
-The NeoPixel transport drives cascaded WS2812B-compatible addressable LEDs over a single data line using a timing-encoded NZR protocol. It is **write-only**: pixels accept data but never respond.
+The NeoPixel connection drives cascaded WS2812B-compatible addressable LEDs over a single data line using a timing-encoded NZR protocol. It is **write-only**: pixels accept data but never respond.
 
 All platforms use the same **SPI bit-encoding** approach: each NeoPixel bit is encoded as 3 SPI bits at 2.4 MHz and shifted out on the MOSI line. No platform-specific timing libraries are used. The encoding algorithm, configuration parameters, and reset handling are identical across all nine platforms.
 
-**ESP-IDF is the one platform with a second, optional mode.** In addition to the SPI bit-encoding path every other platform uses, `NeoPixelTransportESPIDF` also offers a constructor that drives the strip over the ESP32's native RMT peripheral — the hardware-idiomatic way to generate WS2812 timing on this chip. The caller picks the mode at construction time; `write()`'s behavior from the chip driver's point of view (encode-and-transmit-then-latch) is identical either way. See [ESP-IDF](#esp-idf) below.
+**ESP-IDF is the one platform with a second, optional mode.** In addition to the SPI bit-encoding path every other platform uses, `NeoPixelConnectionESPIDF` also offers a constructor that drives the strip over the ESP32's native RMT peripheral — the hardware-idiomatic way to generate WS2812 timing on this chip. The caller picks the mode at construction time; `write()`'s behavior from the chip driver's point of view (encode-and-transmit-then-latch) is identical either way. See [ESP-IDF](#esp-idf) below.
 
 This is a deliberate choice on `pico-sdk` too: no PIO program is used, even though the RP2040/RP2350 PIO block is the idiomatic way to bit-bang WS2812 timing on this chip. Using the same SPI-encoding trick as every other platform keeps timing/behavior identical everywhere and avoids introducing a `.pio` build step unique to one platform.
 
 **Hardware constraint:** the NeoPixel DIN pin must be connected to the SPI MOSI pin. SCK, MISO, and CS are unused by the strip.
 
-Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. Payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The transport sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
+Compatible chips: WS2811, WS2812, WS2812B, WS2812S, SK6812, and most "NeoPixel"-branded variants. Payload length is variable — 3 bytes per pixel for RGB/GRB variants, 4 bytes per pixel for RGBW/GRBW variants. The connection sends whatever bytes it receives; color ordering and bytes-per-pixel are the caller's responsibility.
 
 ## Protocol
 
@@ -39,7 +39,7 @@ Data is transmitted MSB-first within each byte. The reset pulse is always append
 
 32-bit (RGBW variant, e.g. SK6812): same GRB block followed by `W7..W0`.
 
-The transport treats the buffer as opaque bytes; chip drivers or callers handle the ordering.
+The connection treats the buffer as opaque bytes; chip drivers or callers handle the ordering.
 
 ## Interface Contract
 
@@ -49,7 +49,7 @@ NeoPixel is write-only. No `read` or `write_read` operation exists.
 |-----------|------------|---------|-------|
 | `write` | `data: bytes` | — | Encode and transmit all bytes, then hold MOSI low ≥50 µs |
 
-`len(data)` must be a multiple of `bytes_per_pixel` for the strip to update correctly, but the transport does not validate this.
+`len(data)` must be a multiple of `bytes_per_pixel` for the strip to update correctly, but the connection does not validate this.
 
 ## SPI Bit-Encoding
 
@@ -92,7 +92,7 @@ def encode(data: bytes) -> bytes:
 | `bus_num`, `device_num` | Node.js | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0 |
 | `spi` | Rust (embedded-hal) | `impl SpiBus` | Any `embedded_hal::spi::SpiBus` at 2.4 MHz |
 | `spi` | Rust Linux | `impl SpiBus` | `linux-embedded-hal` SPI bus at 2.4 MHz |
-| `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0, via the Go Linux SPI transport's raw-ioctl path |
+| `busNum`, `deviceNum` | Go Linux | `int` | Opens `/dev/spidevB.D` at 2.4 MHz, mode 0, via the Go Linux SPI connection's raw-ioctl path |
 | `spi` | Go TinyGo | `machine.SPI` | SPI peripheral configured at 2.4 MHz, mode 0 |
 | `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()` |
 
@@ -108,27 +108,27 @@ All implementations follow the same structure:
 
 ### MicroPython
 
-Constructor accepts a `machine.SPI` or `machine.SoftSPI` instance. The SPI instance must be pre-configured at 2.4 MHz, mode 0, MSB-first before being passed to the transport. Use `machine.SoftSPI` to drive any GPIO pin as MOSI.
+Constructor accepts a `machine.SPI` or `machine.SoftSPI` instance. The SPI instance must be pre-configured at 2.4 MHz, mode 0, MSB-first before being passed to the connection. Use `machine.SoftSPI` to drive any GPIO pin as MOSI.
 
 ```python
 spi = machine.SoftSPI(baudrate=2_400_000, polarity=0, phase=0,
                       sck=machine.Pin(18), mosi=machine.Pin(19), miso=machine.Pin(20))
-transport = NeoPixelTransport(spi)
+connection = NeoPixelConnection(spi)
 ```
 
-File: `python/periph/transport/neopixel_micropython.py`
+File: `python/periph/connection/neopixel_micropython.py`
 
 ### CircuitPython
 
 Constructor accepts a `busio.SPI` instance. Call `spi.try_lock()` / `spi.configure(baudrate=2_400_000, polarity=0, phase=0)` / `spi.unlock()` inside `write()` around the transfer. No CS pin is needed.
 
-File: `python/periph/transport/neopixel_circuitpython.py`
+File: `python/periph/connection/neopixel_circuitpython.py`
 
 ### Linux
 
 Wraps `spidev.SpiDev`, opened at 2.4 MHz, mode 0. `write()` encodes the buffer and calls `spi.xfer2(list(encoded))`. Provide `close()` to release the device.
 
-File: `python/periph/transport/neopixel_linux.py`
+File: `python/periph/connection/neopixel_linux.py`
 
 ### Arduino
 
@@ -136,7 +136,7 @@ Constructor accepts a `SPIClass&`. `write(data, len)` calls `SPI.beginTransactio
 
 For classic 16 MHz AVR boards, pass `SPISettings(2000000, MSBFIRST, SPI_MODE0)` instead (see timing note above).
 
-Files: `cpp/src/transport/NeoPixelTransport.h`, `cpp/src/transport/NeoPixelTransport.cpp`
+Files: `cpp/src/connection/NeoPixelConnection.h`, `cpp/src/connection/NeoPixelConnection.cpp`
 
 ### Zephyr RTOS
 
@@ -144,39 +144,39 @@ Constructor accepts `const struct device *` and `struct spi_config`. Set `config
 
 `prj.conf`: `CONFIG_SPI=y`, `CONFIG_CPP=y`, `CONFIG_STD_CPP17=y`.
 
-File: `cpp/src/transport/NeoPixelTransportZephyr.h`
+File: `cpp/src/connection/NeoPixelConnectionZephyr.h`
 
 ### ESP-IDF
 
 Two constructor modes:
 
 - **SPI (default, consistent with every other platform):** accepts an `spi_device_handle_t` already added to a bus via `spi_bus_add_device()` at 2.4 MHz, mode 0. `write()` encodes the buffer with the same 3-bit SPI encoding every other platform uses (see [SPI Bit-Encoding](#spi-bit-encoding)) and calls `spi_device_polling_transmit()` with the encoded buffer as `tx_buffer`. No CS pin is used.
-- **RMT (native ESP32 WS2812 timing):** accepts an `rmt_channel_handle_t` and an `rmt_encoder_handle_t` configured with the T0H/T0L/T1H/T1L timing from [Bit Timing](#bit-timing) — build the encoder with `rmt_new_bytes_encoder()` and a `rmt_bytes_encoder_config_t` specifying `bit0`/`bit1` symbol durations in RMT ticks, plus a `reset_code` symbol of ≥50 µs low. `write()` calls `rmt_transmit(rmt_chan, encoder, data, len, &tx_config)` directly on the *unencoded* pixel bytes — the RMT hardware peripheral does the bit-level encoding, unlike every other platform in this repo where the transport software pre-encodes each byte into 3 SPI bits.
+- **RMT (native ESP32 WS2812 timing):** accepts an `rmt_channel_handle_t` and an `rmt_encoder_handle_t` configured with the T0H/T0L/T1H/T1L timing from [Bit Timing](#bit-timing) — build the encoder with `rmt_new_bytes_encoder()` and a `rmt_bytes_encoder_config_t` specifying `bit0`/`bit1` symbol durations in RMT ticks, plus a `reset_code` symbol of ≥50 µs low. `write()` calls `rmt_transmit(rmt_chan, encoder, data, len, &tx_config)` directly on the *unencoded* pixel bytes — the RMT hardware peripheral does the bit-level encoding, unlike every other platform in this repo where the connection software pre-encodes each byte into 3 SPI bits.
 
-Both modes produce the same on-the-wire signal; which one a caller picks only affects which ESP32 peripheral and CPU/DMA path is used. RMT is the more idiomatic choice on this chip and offloads encoding to hardware, at the cost of a different (and ESP32-only) construction path and an RMT encoder as an extra build-time dependency; SPI mode keeps `NeoPixelTransportESPIDF` mechanically identical to every sibling platform's transport. Document which mode was used to construct the instance in the class's doc comment, since `write()`'s signature is identical either way.
+Both modes produce the same on-the-wire signal; which one a caller picks only affects which ESP32 peripheral and CPU/DMA path is used. RMT is the more idiomatic choice on this chip and offloads encoding to hardware, at the cost of a different (and ESP32-only) construction path and an RMT encoder as an extra build-time dependency; SPI mode keeps `NeoPixelConnectionESPIDF` mechanically identical to every sibling platform's connection. Document which mode was used to construct the instance in the class's doc comment, since `write()`'s signature is identical either way.
 
-File: `cpp/src/transport/NeoPixelTransportESPIDF.h` (header-only)
+File: `cpp/src/connection/NeoPixelConnectionESPIDF.h` (header-only)
 
 ### Raspberry Pi Pico SDK
 
 Constructor accepts an `spi_inst_t*` (`spi0` or `spi1`) already configured at 2.4 MHz, mode 0 via `spi_init()`/`spi_set_format()`. `write()` encodes the buffer with the same 3-bit SPI encoding as every other platform and calls `spi_write_blocking(spi, encoded, len)`. No CS pin is used — same as every other platform.
 
-Uses `hardware_spi` directly (bare-metal `pico-sdk`, no Arduino core, no RTOS) rather than the RP2040/RP2350 PIO block; see the note in [Overview](#overview) on why this transport does not use PIO.
+Uses `hardware_spi` directly (bare-metal `pico-sdk`, no Arduino core, no RTOS) rather than the RP2040/RP2350 PIO block; see the note in [Overview](#overview) on why this connection does not use PIO.
 
-File: `cpp/src/transport/NeoPixelTransportPicoSDK.h` (header-only)
+File: `cpp/src/connection/NeoPixelConnectionPicoSDK.h` (header-only)
 
 ### Node.js
 
 Constructor accepts `busNumber` and `deviceNumber`. Opens the `spi-device` at 2.4 MHz, mode 0. `write()` encodes the buffer in JavaScript and sends it via `transferSync`.
 
-File: `nodejs/packages/periph/src/transport/neopixel.js`
+File: `nodejs/packages/periph/src/connection/neopixel.js`
 
 ### Rust (embedded-hal, bare-metal / ESP32-S3)
 
 Constructor wraps any `embedded_hal::spi::SpiBus` configured at 2.4 MHz. `write()` encodes the pixel buffer into a `Vec<u8>` (or a fixed-size stack buffer if `alloc` is unavailable) and calls `spi.write(&encoded)`.
 
 ```rust
-impl<SPI: SpiBus> NeoPixelTransport<SPI> {
+impl<SPI: SpiBus> NeoPixelConnection<SPI> {
     pub fn write(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
         let encoded = encode(data); // returns heapless::Vec or Vec
         self.spi.write(&encoded)
@@ -184,7 +184,7 @@ impl<SPI: SpiBus> NeoPixelTransport<SPI> {
 }
 ```
 
-File: `rust/periph/src/transport/neopixel.rs`
+File: `rust/periph/src/connection/neopixel.rs`
 
 ### Rust Linux
 
@@ -194,8 +194,8 @@ Same as the embedded-hal variant. Use `linux-embedded-hal`'s `SpidevBus` configu
 use linux_embedded_hal::SpidevBus;
 
 let spi = SpidevBus::open("/dev/spidev0.0")?;
-// configure 2.4 MHz, mode 0 via SpidevOptions before passing to transport
-let transport = NeoPixelTransport::new(spi);
+// configure 2.4 MHz, mode 0 via SpidevOptions before passing to connection
+let connection = NeoPixelConnection::new(spi);
 ```
 
 `Cargo.toml`:
@@ -206,63 +206,63 @@ embedded-hal = "1"
 
 ### Go — Linux
 
-Wraps the Go Linux SPI transport (`spi_linux.go`) opened at 2.4 MHz, mode 0. `Write` encodes the buffer with the same 3-bits-per-bit scheme as every other implementation, appends the 16 zero reset bytes, and sends it in one `SPI_IOC_MESSAGE` transfer.
+Wraps the Go Linux SPI connection (`spi_linux.go`) opened at 2.4 MHz, mode 0. `Write` encodes the buffer with the same 3-bits-per-bit scheme as every other implementation, appends the 16 zero reset bytes, and sends it in one `SPI_IOC_MESSAGE` transfer.
 
-File: `go/periph/transport/neopixel_linux.go`
+File: `go/periph/connection/neopixel_linux.go`
 
 ### Go — TinyGo
 
 Uses the `tinygo-org/drivers/ws2812` package rather than hand-rolling the SPI encoding — it already implements WS2812 timing per TinyGo-supported board (typically cycle-counted bit-banged GPIO, not necessarily the SPI trick), so behavior tracks whatever TinyGo's own maintained driver does. Document this divergence in the type's doc comment: TinyGo NeoPixel timing is board-native, not the SPI bit-encoding used by every other platform in this repo.
 
-File: `go/periph/transport/neopixel_tinygo.go`
+File: `go/periph/connection/neopixel_tinygo.go`
 
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] `python/periph/transport/neopixel_micropython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/neopixel_circuitpython.py` — Google-style docstring on class and every public method
-- [ ] `python/periph/transport/neopixel_linux.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/neopixel_micropython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/neopixel_circuitpython.py` — Google-style docstring on class and every public method
+- [ ] `python/periph/connection/neopixel_linux.py` — Google-style docstring on class and every public method
 - [ ] Tests (MicroPython)
 - [ ] Tests (CircuitPython)
 - [ ] Tests (Linux)
 
 ### C++
-- [x] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [x] `cpp/src/transport/NeopixelTransport.cpp`
-- [x] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
-- [x] `cpp/src/transport/NeopixelTransportLinux.cpp`
-- [x] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/NeoPixelTransportESPIDF.h` — Doxygen (header-only); both SPI and RMT constructor modes
+- [x] `cpp/src/connection/NeoPixelConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [x] `cpp/src/connection/NeoPixelConnection.cpp`
+- [x] `cpp/src/connection/NeoPixelConnectionLinux.h` — Doxygen
+- [x] `cpp/src/connection/NeoPixelConnectionLinux.cpp`
+- [x] `cpp/src/connection/NeoPixelConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/NeoPixelConnectionESPIDF.h` — Doxygen (header-only); both SPI and RMT constructor modes
 - [x] Tests (Arduino)
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (ESP-IDF, SPI mode)
 - [x] Tests (ESP-IDF, RMT mode)
 
-- [ ] `cpp/src/transport/NeopixelTransport.h` — Doxygen `/** @brief */` on class and every public method
-- [ ] `cpp/src/transport/NeopixelTransport.cpp`
-- [ ] `cpp/src/transport/NeopixelTransportLinux.h` — Doxygen
-- [ ] `cpp/src/transport/NeopixelTransportLinux.cpp`
-- [ ] `cpp/src/transport/NeopixelTransportZephyr.h` — Doxygen (header-only)
-- [x] `cpp/src/transport/NeoPixelTransportPicoSDK.h` — Doxygen (header-only)
+- [ ] `cpp/src/connection/NeoPixelConnection.h` — Doxygen `/** @brief */` on class and every public method
+- [ ] `cpp/src/connection/NeoPixelConnection.cpp`
+- [ ] `cpp/src/connection/NeoPixelConnectionLinux.h` — Doxygen
+- [ ] `cpp/src/connection/NeoPixelConnectionLinux.cpp`
+- [ ] `cpp/src/connection/NeoPixelConnectionZephyr.h` — Doxygen (header-only)
+- [x] `cpp/src/connection/NeoPixelConnectionPicoSDK.h` — Doxygen (header-only)
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
 
 ### Node.js
-- [ ] `nodejs/packages/periph/src/transport/neopixel.js` — JSDoc on class and every exported method
+- [ ] `nodejs/packages/periph/src/connection/neopixel.js` — JSDoc on class and every exported method
 - [ ] Tests
 
 ### Rust
-- [ ] `rust/periph/src/transport/neopixel.rs` — `//!` module doc + `///` on every `pub` item
+- [ ] `rust/periph/src/connection/neopixel.rs` — `//!` module doc + `///` on every `pub` item
 - [ ] Tests (Linux)
 - [ ] Tests (ESP32-S3)
 
 ### Go
-- [x] `go/periph/transport/neopixel_linux.go` — Go doc comment on the type and every exported method
-- [x] `go/periph/transport/neopixel_tinygo.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/neopixel_linux.go` — Go doc comment on the type and every exported method
+- [x] `go/periph/connection/neopixel_tinygo.go` — Go doc comment on the type and every exported method
 - [x] Tests (Linux)
 - [x] Tests (TinyGo / Pico W)

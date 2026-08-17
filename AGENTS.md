@@ -167,7 +167,7 @@ value := int16(uint16(raw[0])<<8 | uint16(raw[1]))   // signed
 
 ## Linux GPIO pin numbering
 
-On Linux, any GPIO line number a transport takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first. Node.js host GPIO access goes through [`opengpio`](https://www.npmjs.com/package/opengpio) (libgpiod character-device API, `{chip, line}` addressing), which uses this convention natively.
+On Linux, any GPIO line number a connection takes (constructor arg, env var in a test, `testconfig` value) is a **gpiod line offset** — exactly the number shown by `gpioinfo`/`gpiodetect` for that chip, which on Raspberry Pi's `pinctrl-bcm2711` matches the BCM GPIO number directly. Never use header pin positions, and never use sysfs-style global offsets (`gpiochip512` base + BCM offset) when documenting, prompting for, or hardcoding a pin number — always check `gpioinfo` first. Node.js host GPIO access goes through [`opengpio`](https://www.npmjs.com/package/opengpio) (libgpiod character-device API, `{chip, line}` addressing), which uses this convention natively.
 
 ## Class structure
 
@@ -242,7 +242,7 @@ The spec for every IO expander chip uses `specs/_template_chip_io_expander.md` i
 
 ### Pin proxy pattern
 
-The driver class (`<Chip>Minimal`, `<Chip>Full`) owns the transport and exposes a `pin(n)` factory. Each call returns a `Pin` proxy object that holds a back-reference to the driver and the pin index. Pin objects do not cache state — every read/write goes to the chip over the transport.
+The driver class (`<Chip>Minimal`, `<Chip>Full`) owns the connection and exposes a `pin(n)` factory. Each call returns a `Pin` proxy object that holds a back-reference to the driver and the pin index. Pin objects do not cache state — every read/write goes to the chip over the connection.
 
 Platform details follow.
 
@@ -1162,7 +1162,7 @@ if err != nil {
 
 The Tier-1 trailing signature comment format extends to `# <verb phrase>, (<params>) → (<type>, error)` to reflect the `(value, error)` return shape.
 
-Host examples open the transport directly (e.g. `/dev/i2c-1` via a bus-number flag or environment variable, matching every other Linux example in this repo); TinyGo examples construct straight off the `machine` package (e.g. `machine.I2C0.Configure(...)`) since there is no OS-level device path to open.
+Host examples open the connection directly (e.g. `/dev/i2c-1` via a bus-number flag or environment variable, matching every other Linux example in this repo); TinyGo examples construct straight off the `machine` package (e.g. `machine.I2C0.Configure(...)`) since there is no OS-level device path to open.
 
 ### Tests
 

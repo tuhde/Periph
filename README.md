@@ -30,31 +30,31 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 Each chip driver is implemented in two stages:
 
-- **Minimal** — covers the primary use case with sensible defaults; works out of the box with just a transport
+- **Minimal** — covers the primary use case with sensible defaults; works out of the box with just a connection
 - **Full** — complete chip functionality, extends Minimal
 
-Drivers are platform-agnostic — they depend only on the transport abstraction. Choose the transport for your target:
+Drivers are platform-agnostic — they depend only on the connection abstraction. Choose the connection for your target:
 
 
 **Python**
 ```python
-from periph.transport.i2c_micropython import I2CTransport   # machine.I2C
-from periph.transport.i2c_circuitpython import I2CTransport # busio.I2C
-from periph.transport.i2c_linux import I2CTransport         # /dev/i2c-N
+from periph.connection.i2c_micropython import I2CConnection   # machine.I2C
+from periph.connection.i2c_circuitpython import I2CConnection # busio.I2C
+from periph.connection.i2c_linux import I2CConnection         # /dev/i2c-N
 ```
 
 **C++**
 ```cpp
-#include "I2CTransport.h"         // Arduino Wire
-#include "I2CTransportLinux.h"    // Linux /dev/i2c-N via ioctl
-#include "I2CTransportZephyr.h"   // Zephyr RTOS I2C subsystem
-#include "I2CTransportESPIDF.h"   // ESP-IDF driver-ng i2c_master_dev_handle_t
-#include "I2CTransportPicoSDK.h"  // Raspberry Pi Pico SDK hardware_i2c
+#include "I2CConnection.h"         // Arduino Wire
+#include "I2CConnectionLinux.h"    // Linux /dev/i2c-N via ioctl
+#include "I2CConnectionZephyr.h"   // Zephyr RTOS I2C subsystem
+#include "I2CConnectionESPIDF.h"   // ESP-IDF driver-ng i2c_master_dev_handle_t
+#include "I2CConnectionPicoSDK.h"  // Raspberry Pi Pico SDK hardware_i2c
 ```
 
 **Node.js**
 ```js
-const { I2CTransport } = require('periph/src/transport/i2c');  // /dev/i2c-N via i2c-bus
+const { I2CConnection } = require('periph/src/connection/i2c');  // /dev/i2c-N via i2c-bus
 ```
 
 **Rust**
@@ -67,35 +67,35 @@ use periph::chips::power::{Ina226Minimal, Ina226Full};
 ```go
 // Linux
 import (
-    "github.com/tuhde/Periph/go/periph/transport"
+    "github.com/tuhde/Periph/go/periph/connection"
     "github.com/tuhde/Periph/go/periph/chips/power"
 )
-tr, _ := transport.NewI2CTransport(1, 0x40)          // /dev/i2c-1, address 0x40
+tr, _ := connection.NewI2CConnection(1, 0x40)          // /dev/i2c-1, address 0x40
 ```
 ```go
 // TinyGo (Pico W)
 import (
     "machine"
-    "github.com/tuhde/Periph/go/periph/transport"
+    "github.com/tuhde/Periph/go/periph/connection"
     "github.com/tuhde/Periph/go/periph/chips/power"
 )
-tr := transport.NewI2CTransport(machine.I2C1, 0x40)  // I2C1 bus, address 0x40
+tr := connection.NewI2CConnection(machine.I2C1, 0x40)  // I2C1 bus, address 0x40
 ```
 
 **Java / Kotlin / Groovy**
 ```java
 // Java
-import it.uhde.periph.transport.I2CTransport;
+import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.power.Ina226Minimal;
 ```
 ```kotlin
 // Kotlin
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina226Minimal
 ```
 ```groovy
 // Groovy
-import it.uhde.periph.transport.I2CTransport
+import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.power.Ina226Minimal
 ```
 
