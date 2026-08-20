@@ -1,0 +1,732 @@
+<title>Two Sensors, One Bus</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@600;700;800&family=Source+Serif+4:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #F1F3EC;
+    --panel: #E4E9DE;
+    --panel-border: #C9D1BE;
+    --ink: #14231D;
+    --ink-soft: #46564C;
+    --copper: #B95826;
+    --copper-soft: #E4D3C1;
+    --teal: #1B5F56;
+    --teal-soft: #CBDCD5;
+    --amber: #93691F;
+    --code-bg: #182420;
+    --code-panel: #10201A;
+    --code-text: #DCE8DE;
+    --code-comment: #7C9186;
+    --code-accent: #E0A458;
+    --shadow: 0 1px 2px rgba(20, 35, 29, 0.06), 0 8px 24px rgba(20, 35, 29, 0.05);
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #0E1613;
+      --panel: #172420;
+      --panel-border: #2A3A33;
+      --ink: #E7ECE2;
+      --ink-soft: #AEBDB2;
+      --copper: #E08A52;
+      --copper-soft: #3A2A20;
+      --teal: #5CC0AE;
+      --teal-soft: #1B332E;
+      --amber: #E0B563;
+      --code-bg: #0B1613;
+      --code-panel: #081210;
+      --code-text: #DCE8DE;
+      --code-comment: #64796E;
+      --code-accent: #F0B87A;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #0E1613;
+    --panel: #172420;
+    --panel-border: #2A3A33;
+    --ink: #E7ECE2;
+    --ink-soft: #AEBDB2;
+    --copper: #E08A52;
+    --copper-soft: #3A2A20;
+    --teal: #5CC0AE;
+    --teal-soft: #1B332E;
+    --amber: #E0B563;
+    --code-bg: #0B1613;
+    --code-panel: #081210;
+    --code-text: #DCE8DE;
+    --code-comment: #64796E;
+    --code-accent: #F0B87A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+
+  h1, h2, h3, .eyebrow, .stat-value, .lang-tab, .card-title, .matrix th {
+    font-family: "Big Shoulders", "Arial Narrow", sans-serif;
+  }
+
+  code, pre, .mono, .addr, .stat-label, .footer-links a {
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  main {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  a { color: var(--teal); }
+  a:hover { color: var(--copper); }
+  :focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    padding: 72px 0 40px;
+  }
+
+  .eyebrow {
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-weight: 800;
+    font-size: clamp(2.6rem, 6vw, 4.2rem);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    margin: 0 0 24px;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+
+  .lede {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 36px;
+  }
+
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    padding: 22px 0;
+    border-top: 1px solid var(--panel-border);
+    border-bottom: 1px solid var(--panel-border);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Bus diagram ---------- */
+
+  .diagram-wrap {
+    margin: 44px 0 8px;
+    padding: 28px 20px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  .diagram-wrap svg { display: block; margin: 0 auto; min-width: 560px; }
+  .diagram-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 14px;
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  /* ---------- Section headings ---------- */
+
+  section { padding: 56px 0 0; }
+
+  .section-head { margin-bottom: 28px; }
+
+  h2 {
+    font-weight: 800;
+    font-size: 1.9rem;
+    letter-spacing: -0.005em;
+    margin: 0 0 8px;
+    text-wrap: balance;
+  }
+
+  .section-sub {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    max-width: 66ch;
+    margin: 0;
+  }
+
+  /* ---------- Channel cards ---------- */
+
+  .channels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .channels { grid-template-columns: 1fr; }
+  }
+
+  .channel-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-top: 4px solid var(--accent);
+    border-radius: 4px;
+    padding: 24px 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .channel-card.ens { --accent: var(--copper); }
+  .channel-card.bme { --accent: var(--teal); }
+
+  .card-title {
+    font-weight: 800;
+    font-size: 1.35rem;
+    margin: 0 0 2px;
+    color: var(--ink);
+  }
+
+  .card-maker {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+  }
+
+  .addr {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .spec-table td {
+    padding: 8px 0;
+    border-top: 1px solid var(--panel-border);
+    vertical-align: top;
+  }
+
+  .spec-table tr:first-child td { border-top: none; }
+
+  .spec-table td:first-child {
+    color: var(--ink-soft);
+    padding-right: 12px;
+    white-space: nowrap;
+    width: 40%;
+  }
+
+  .spec-table td:last-child {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Code console ---------- */
+
+  .console-note {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    max-width: 68ch;
+    margin: 0 0 24px;
+  }
+
+  .console {
+    background: var(--code-bg);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .tab-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    background: var(--code-panel);
+    padding: 6px 6px 0;
+  }
+
+  .lang-tab {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--code-comment);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    padding: 10px 16px;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+  }
+
+  .lang-tab:hover { color: var(--code-text); }
+
+  .lang-tab.active {
+    background: var(--code-bg);
+    color: var(--code-accent);
+  }
+
+  .code-pane {
+    display: none;
+    overflow-x: auto;
+    padding: 22px 24px;
+  }
+
+  .code-pane.active { display: block; }
+
+  .code-pane pre {
+    margin: 0;
+    font-size: 13.2px;
+    line-height: 1.65;
+    color: var(--code-text);
+    white-space: pre;
+  }
+
+  .code-pane .c { color: var(--code-comment); }
+
+  /* ---------- Platform matrix ---------- */
+
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .matrix-wrap { overflow-x: auto; }
+
+  .matrix th, .matrix td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--panel-border);
+    white-space: nowrap;
+  }
+
+  .matrix th {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .matrix td:first-child { font-weight: 600; }
+
+  .matrix td.also { white-space: normal; color: var(--ink-soft); font-family: "Source Serif 4", serif; font-size: 14.5px; }
+
+  .pill {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--teal-soft);
+    color: var(--teal);
+  }
+
+  /* ---------- Links ---------- */
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .footer-links { grid-template-columns: 1fr; }
+  }
+
+  .link-card {
+    display: block;
+    text-decoration: none;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+
+  .link-card:hover { border-color: var(--teal); }
+
+  .link-card .lc-label {
+    display: block;
+    font-family: "Source Serif 4", serif;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .link-card .lc-path {
+    display: block;
+    color: var(--ink);
+    font-size: 13.5px;
+  }
+
+  .link-card:hover .lc-path { color: var(--copper); }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--panel-border);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero, .channel-card, .console, .matrix-wrap, .footer-links {
+      animation: rise 0.5s ease-out both;
+    }
+    .channel-card.bme { animation-delay: 0.06s; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+</style>
+
+<main>
+
+  <div class="hero">
+    <p class="eyebrow">SparkFun Environmental Combo Breakout &middot; ENS160 + BME280 &middot; Qwiic</p>
+    <h1>Everything in the air,<br>on one bus.</h1>
+    <p class="lede">
+      This board puts two independent sensors on a single 25.4&nbsp;mm Qwiic breakout:
+      a <strong>Bosch BME280</strong> for temperature, humidity, and pressure, and a
+      <strong>ScioSense ENS160</strong> for air-quality index, TVOC, and eCO2. Both speak
+      I&sup2;C at 3.3&nbsp;V over the same two-wire bus, each answering to its own address &mdash;
+      one cable is all a project needs to read both the room's climate and its air quality.
+      Both chips are fully supported by <strong>periph</strong>, in every language and on every
+      platform this library ships.
+    </p>
+    <div class="stat-strip">
+      <div class="stat"><span class="stat-label">Board</span><span class="stat-value">25.4 &times; 25.4&nbsp;mm &middot; 2.5&nbsp;g</span></div>
+      <div class="stat"><span class="stat-label">Power</span><span class="stat-value">3.3&nbsp;V via Qwiic</span></div>
+      <div class="stat"><span class="stat-label">Bus</span><span class="stat-value">I&sup2;C, two JST&#8209;SH connectors</span></div>
+      <div class="stat"><span class="stat-label">Addresses</span><span class="stat-value">0x52 &middot; 0x76</span></div>
+    </div>
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 620 160" width="100%" height="160" role="img" aria-label="One I2C bus connecting a host to the ENS160 at address 0x52 and the BME280 at address 0x76">
+      <!-- host -->
+      <rect x="16" y="58" width="96" height="44" rx="3" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
+      <text x="64" y="85" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">host</text>
+
+      <!-- bus lines: SDA / SCL -->
+      <line x1="112" y1="72" x2="472" y2="72" stroke="var(--ink-soft)" stroke-width="1.5"/>
+      <line x1="112" y1="88" x2="472" y2="88" stroke="var(--ink-soft)" stroke-width="1.5"/>
+      <text x="292" y="64" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)">SDA</text>
+      <text x="292" y="104" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)">SCL</text>
+
+      <!-- branch to ENS160 -->
+      <line x1="330" y1="72" x2="330" y2="30" stroke="var(--copper)" stroke-width="1.5"/>
+      <line x1="330" y1="88" x2="330" y2="30" stroke="var(--copper)" stroke-width="1.5" opacity="0"/>
+      <rect x="270" y="4" width="120" height="40" rx="3" fill="none" stroke="var(--copper)" stroke-width="1.5"/>
+      <text x="330" y="20" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--copper)">ENS160</text>
+      <text x="330" y="36" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--copper)">0x52</text>
+
+      <!-- branch to BME280 -->
+      <line x1="420" y1="80" x2="420" y2="116" stroke="var(--teal)" stroke-width="1.5"/>
+      <rect x="360" y="116" width="120" height="40" rx="3" fill="none" stroke="var(--teal)" stroke-width="1.5"/>
+      <text x="420" y="136" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--teal)">BME280</text>
+      <text x="420" y="150" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--teal)">0x76</text>
+
+      <!-- node dots -->
+      <circle cx="330" cy="72" r="3" fill="var(--copper)"/>
+      <circle cx="420" cy="88" r="3" fill="var(--teal)"/>
+    </svg>
+    <p class="diagram-caption">one bus &middot; two addresses &middot; one Qwiic cable</p>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>Two channels, one board</h2>
+      <p class="section-sub">Each sensor is its own device on the bus, with its own register map, defaults, and accuracy envelope.</p>
+    </div>
+    <div class="channels">
+      <div class="channel-card ens">
+        <p class="card-title">ENS160</p>
+        <p class="card-maker">ScioSense &middot; digital metal-oxide gas sensor</p>
+        <span class="addr">0x52 default &middot; 0x53 alt</span>
+        <table class="spec-table">
+          <tr><td>Air quality index (UBA)</td><td>1&ndash;5</td></tr>
+          <tr><td>eCO2</td><td>400&ndash;65,000&nbsp;ppm, 1&nbsp;ppm res.</td></tr>
+          <tr><td>TVOC</td><td>0&ndash;65,000&nbsp;ppb, 1&nbsp;ppb res.</td></tr>
+          <tr><td>Operating range</td><td>&minus;40&hellip;+85&nbsp;&deg;C</td></tr>
+        </table>
+      </div>
+      <div class="channel-card bme">
+        <p class="card-title">BME280</p>
+        <p class="card-maker">Bosch Sensortec &middot; combined climate sensor</p>
+        <span class="addr">0x76 default &middot; 0x77 alt</span>
+        <table class="spec-table">
+          <tr><td>Temperature</td><td>&minus;40&hellip;+85&nbsp;&deg;C, &plusmn;0.5&nbsp;&deg;C</td></tr>
+          <tr><td>Humidity</td><td>0&ndash;100%&nbsp;RH, &plusmn;3%</td></tr>
+          <tr><td>Pressure</td><td>300&ndash;1100&nbsp;hPa, &plusmn;1&nbsp;hPa</td></tr>
+          <tr><td>Altitude (derived)</td><td>0&ndash;9144&nbsp;m, &plusmn;1&nbsp;m at sea level</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Works in every language we ship</h2>
+      <p class="section-sub">The same board, read six ways. Shown here: the Linux-host variant of each driver.</p>
+    </div>
+    <p class="console-note">
+      Every driver binds its device address when the connection is constructed, so there's
+      no single handle that serves both chips. Each snippet below opens the same I&sup2;C bus
+      number twice &mdash; once per address &mdash; which is normal on Linux, where
+      <code>/dev/i2c-1</code> can be opened by more than one independent handle at a time.
+    </p>
+    <div class="console">
+      <div class="tab-row" role="tablist" aria-label="Language">
+        <button class="lang-tab active" data-lang="python">Python</button>
+        <button class="lang-tab" data-lang="cpp">C++</button>
+        <button class="lang-tab" data-lang="node">Node.js</button>
+        <button class="lang-tab" data-lang="rust">Rust</button>
+        <button class="lang-tab" data-lang="java">Java</button>
+        <button class="lang-tab" data-lang="go">Go</button>
+      </div>
+
+      <div class="code-pane active" data-lang="python"><pre><code><span class="c">from</span> smbus2 <span class="c">import</span> SMBus
+from periph.connection.i2c_linux import I2CConnection
+from periph.chips.gas.ens160 import ENS160Minimal
+from periph.chips.environmental.bme280 import BME280Minimal
+import time
+
+bus = SMBus(1)                                <span class="c"># one shared bus handle</span>
+ens = ENS160Minimal(I2CConnection(bus, 0x52))  <span class="c"># gas sensor at 0x52</span>
+bme = BME280Minimal(I2CConnection(bus, 0x76))  <span class="c"># climate sensor at 0x76</span>
+
+while True:
+    try:
+        air = ens.read_air_quality()          <span class="c"># {'aqi', 'tvoc_ppb', 'eco2_ppm'}</span>
+    except RuntimeError:
+        time.sleep(1)                          <span class="c"># still warming up</span>
+        continue
+    t, p, h = bme.temperature(), bme.pressure(), bme.humidity()
+    print(f<span class="c">"AQI={air['aqi']} TVOC={air['tvoc_ppb']}ppb eCO2={air['eco2_ppm']}ppm "</span>
+          f<span class="c">"| {t:.1f}C {p:.1f}hPa {h:.1f}%RH"</span>)
+    time.sleep(1)</code></pre></div>
+
+      <div class="code-pane" data-lang="cpp"><pre><code>#include &lt;cstdio&gt;
+#include &lt;unistd.h&gt;
+#include "I2CConnectionLinux.h"
+#include "ENS160.h"
+#include "BME280.h"
+
+int main() {
+    I2CConnectionLinux ens_conn(1, 0x52);   <span class="c">// gas sensor, bus 1, addr 0x52</span>
+    I2CConnectionLinux bme_conn(1, 0x76);   <span class="c">// climate sensor, bus 1, addr 0x76</span>
+
+    ENS160Minimal ens(ens_conn);
+    BME280Minimal bme(bme_conn);
+
+    while (true) {
+        uint8_t aqi; float tvoc_ppb, eco2_ppm;
+        if (ens.read_air_quality(aqi, tvoc_ppb, eco2_ppm)) {
+            float t = bme.temperature();
+            float p = bme.pressure();
+            float h = bme.humidity();
+            printf(<span class="c">"AQI=%u TVOC=%.1fppb eCO2=%.1fppm | %.2fC %.2fhPa %.2f%%RH\n"</span>,
+                   aqi, tvoc_ppb, eco2_ppm, t, p, h);
+        }
+        usleep(1000000);
+    }
+}</code></pre></div>
+
+      <div class="code-pane" data-lang="node"><pre><code>const { I2CConnection } = require('periph/connection/i2c');
+const { ENS160Minimal } = require('periph/chips/gas/ens160');
+const { BME280Minimal } = require('periph/chips/environmental/bme280');
+
+const ens = new ENS160Minimal(new I2CConnection(1, 0x52));  <span class="c">// gas sensor</span>
+const bme = new BME280Minimal(new I2CConnection(1, 0x76));  <span class="c">// climate sensor</span>
+
+(async () =&gt; {
+  while (true) {
+    try {
+      const air = await ens.readAirQuality();     <span class="c">// {aqi, tvocPpb, eco2Ppm}</span>
+      const t = await bme.temperature();
+      const p = await bme.pressure();
+      const h = await bme.humidity();
+      console.log(`AQI=${air.aqi} TVOC=${air.tvocPpb}ppb eCO2=${air.eco2Ppm}ppm `
+        + `| ${t.toFixed(1)}C ${p.toFixed(1)}hPa ${h.toFixed(1)}%RH`);
+    } catch (e) { <span class="c">/* ENS160 still warming up */</span> }
+    await new Promise(r =&gt; setTimeout(r, 1000));
+  }
+})();</code></pre></div>
+
+      <div class="code-pane" data-lang="rust"><pre><code>use linux_embedded_hal::I2cdev;
+use periph::chips::gas::Ens160Minimal;
+use periph::chips::environmental::Bme280Minimal;
+
+fn main() {
+    let ens_dev = I2cdev::new("/dev/i2c-1").expect("open i2c bus");
+    let bme_dev = I2cdev::new("/dev/i2c-1").expect("open i2c bus");
+    let mut ens = Ens160Minimal::new(ens_dev, 0x52).expect("init ENS160");
+    let mut bme = Bme280Minimal::new(bme_dev, 0x76, false).expect("init BME280");
+
+    loop {
+        let status = ens.wait_for_new_data(2000).unwrap();
+        if (status &gt;&gt; 2) &amp; 0x03 != 0 { continue; }  <span class="c">// still warming up</span>
+
+        let (aqi, tvoc_ppb, eco2_ppm) = ens.read_air_quality().unwrap();
+        let t = bme.temperature().unwrap();
+        let p = bme.pressure().unwrap();
+        let h = bme.humidity().unwrap();
+        println!("AQI={aqi} TVOC={tvoc_ppb}ppb eCO2={eco2_ppm}ppm | {t:.1}C {p:.1}hPa {h:.1}%RH");
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }
+}</code></pre></div>
+
+      <div class="code-pane" data-lang="java"><pre><code>import it.uhde.periph.connection.I2CConnection;
+import it.uhde.periph.chips.gas.Ens160Minimal;
+import it.uhde.periph.chips.environmental.Bme280Minimal;
+
+try (var ensConn = new I2CConnection(1, 0x52);   <span class="c">// gas sensor</span>
+     var bmeConn = new I2CConnection(1, 0x76)) { <span class="c">// climate sensor</span>
+
+    var ens = new Ens160Minimal(ensConn);
+    var bme = new Bme280Minimal(bmeConn);
+
+    while (true) {
+        try {
+            double[] air = ens.readAirQuality();      <span class="c">// [aqi, tvocPpb, eco2Ppm]</span>
+            double t = bme.temperature();
+            double p = bme.pressure();
+            double h = bme.humidity();
+            System.out.printf("AQI=%.0f TVOC=%.0fppb eCO2=%.0fppm | %.1fC %.1fhPa %.1f%%RH%n",
+                air[0], air[1], air[2], t, p, h);
+        } catch (Exception e) { <span class="c">/* ENS160 still warming up */</span> }
+        Thread.sleep(1000);
+    }
+}</code></pre></div>
+
+      <div class="code-pane" data-lang="go"><pre><code>ensConn, _ := connection.NewI2CConnection(1, 0x52, nil, nil)  <span class="c">// gas sensor</span>
+bmeConn, _ := connection.NewI2CConnection(1, 0x76, nil, nil)  <span class="c">// climate sensor</span>
+defer ensConn.Close()
+defer bmeConn.Close()
+
+ens, _ := gas.NewENS160Minimal(ensConn)
+bme, _ := environmental.NewBME280Minimal(bmeConn)
+
+for {
+    aqi, tvoc, eco2, err := ens.ReadAirQuality()
+    if err != nil {
+        time.Sleep(time.Second)  <span class="c">// still warming up</span>
+        continue
+    }
+    t, _ := bme.Temperature()
+    p, _ := bme.Pressure()
+    h, _ := bme.Humidity()
+    fmt.Printf("AQI=%d TVOC=%.0fppb eCO2=%.0fppm | %.1fC %.1fhPa %.1f%%RH\n", aqi, tvoc, eco2, t, p, h)
+    time.Sleep(time.Second)
+}</code></pre></div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Also runs on</h2>
+      <p class="section-sub">The Linux-host snippets above are one target per language &mdash; most also reach further, onto the embedded platforms this library targets directly.</p>
+    </div>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <tr><th>Language</th><th>Host target</th><th>Also runs on</th></tr>
+        <tr><td>Python</td><td><span class="pill">Linux</span></td><td class="also">MicroPython, CircuitPython</td></tr>
+        <tr><td>C++</td><td><span class="pill">Linux</span></td><td class="also">Arduino, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK</td></tr>
+        <tr><td>Node.js</td><td><span class="pill">Linux</span></td><td class="also">Node-RED (dedicated nodes)</td></tr>
+        <tr><td>Rust</td><td><span class="pill">Linux</span></td><td class="also">ESP32-S3, bare-metal via embedded-hal</td></tr>
+        <tr><td>JVM</td><td><span class="pill">Java</span></td><td class="also">Kotlin, Groovy &mdash; same classes, same JVM target</td></tr>
+        <tr><td>Go</td><td><span class="pill">Linux</span></td><td class="also">TinyGo, on Raspberry Pi Pico W</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Read more</h2>
+    </div>
+    <div class="footer-links">
+      <a class="link-card" href="https://github.com/tuhde/Periph/wiki/ENS160">
+        <span class="lc-label">Wiki</span>
+        <span class="lc-path">ENS160 &rarr;</span>
+      </a>
+      <a class="link-card" href="https://github.com/tuhde/Periph/wiki/BME280">
+        <span class="lc-label">Wiki</span>
+        <span class="lc-path">BME280 &rarr;</span>
+      </a>
+      <a class="link-card" href="https://github.com/tuhde/Periph/blob/main/specs/gas/ens160.md">
+        <span class="lc-label">Spec</span>
+        <span class="lc-path">specs/gas/ens160.md &rarr;</span>
+      </a>
+      <a class="link-card" href="https://github.com/tuhde/Periph/blob/main/specs/environmental/bme280.md">
+        <span class="lc-label">Spec</span>
+        <span class="lc-path">specs/environmental/bme280.md &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    periph &middot; a peripheral-chip library for Python, C++, Node.js, Rust, the JVM, and Go
+  </footer>
+
+</main>
+
+<script>
+  document.querySelectorAll('.lang-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var lang = tab.getAttribute('data-lang');
+      document.querySelectorAll('.lang-tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
+      document.querySelectorAll('.code-pane').forEach(function (p) {
+        p.classList.toggle('active', p.getAttribute('data-lang') === lang);
+      });
+    });
+  });
+</script>
