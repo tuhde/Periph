@@ -360,9 +360,9 @@
 
   .matrix th, .matrix td {
     text-align: left;
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--panel-border);
-    white-space: nowrap;
+    vertical-align: top;
   }
 
   .matrix th {
@@ -371,20 +371,30 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ink-soft);
+    white-space: nowrap;
   }
 
-  .matrix td:first-child { font-weight: 600; }
+  .matrix td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+    padding-top: 16px;
+  }
 
-  .matrix td.also { white-space: normal; color: var(--ink-soft); font-family: "Source Serif 4", serif; font-size: 14.5px; }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
   .pill {
     display: inline-block;
     font-family: "IBM Plex Mono", monospace;
     font-size: 11px;
-    padding: 2px 7px;
+    padding: 3px 8px;
     border-radius: 3px;
     background: var(--teal-soft);
     color: var(--teal);
+    white-space: nowrap;
   }
 
   /* ---------- Links ---------- */
@@ -699,20 +709,21 @@ for {
 
   <section>
     <div class="section-head">
-      <h2>Läuft auch auf</h2>
-      <p class="section-sub">Die Linux-Beispiele oben sind nur ein Ziel je Sprache &ndash; die meisten Treiber laufen auch direkt auf Mikrocontrollern.</p>
+      <h2>Läuft auf jeder Plattform</h2>
+      <p class="section-sub">Die Linux-Beispiele oben sind nur am einfachsten auf einer Seite darzustellen &ndash; jeder Treiber läuft unverändert auf allen unten genannten Plattformen, keine davon ist die Hauptplattform.</p>
     </div>
     <div class="matrix-wrap">
       <table class="matrix">
-        <tr><th>Sprache</th><th>Basis</th><th>Läuft außerdem auf</th></tr>
-        <tr><td>Python</td><td><span class="pill">Linux</span></td><td class="also">MicroPython, CircuitPython</td></tr>
-        <tr><td>C++</td><td><span class="pill">Linux</span></td><td class="also">Arduino, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK</td></tr>
-        <tr><td>Node.js</td><td><span class="pill">Linux</span></td><td class="also">Node-RED (eigene Nodes)</td></tr>
-        <tr><td>Rust</td><td><span class="pill">Linux</span></td><td class="also">ESP32-S3, bare-metal über embedded-hal</td></tr>
-        <tr><td>JVM</td><td><span class="pill">Java</span></td><td class="also">Kotlin, Groovy &ndash; gleiche Klassen, gleiches JVM-Ziel</td></tr>
-        <tr><td>Go</td><td><span class="pill">Linux</span></td><td class="also">TinyGo, auf dem Raspberry Pi Pico W</td></tr>
+        <tr><th>Sprache</th><th>Plattformen</th></tr>
+        <tr><td>Python</td><td><div class="pill-row"><span class="pill">CircuitPython</span><span class="pill">Linux</span><span class="pill">MicroPython</span></div></td></tr>
+        <tr><td>C++</td><td><div class="pill-row"><span class="pill">Arduino</span><span class="pill">ESP-IDF</span><span class="pill">Linux</span><span class="pill">Raspberry Pi Pico SDK</span><span class="pill">Zephyr RTOS</span></div></td></tr>
+        <tr><td>Node.js</td><td><div class="pill-row"><span class="pill">Linux</span><span class="pill">Node-RED</span></div></td></tr>
+        <tr><td>Rust</td><td><div class="pill-row"><span class="pill">ESP32-S3</span><span class="pill">Linux</span></div></td></tr>
+        <tr><td>JVM</td><td><div class="pill-row"><span class="pill">Groovy</span><span class="pill">Java</span><span class="pill">Kotlin</span></div></td></tr>
+        <tr><td>Go</td><td><div class="pill-row"><span class="pill">Linux</span><span class="pill">TinyGo (Raspberry Pi Pico W)</span></div></td></tr>
       </table>
     </div>
+    <p class="console-note" style="margin-top: 16px;">Bei der JVM stehen hier die drei Sprach-Varianten statt Hardware-Plattformen &ndash; Java, Kotlin und Groovy teilen sich dieselben Treiberklassen auf demselben JVM/Linux-Ziel.</p>
   </section>
 
   <section>
