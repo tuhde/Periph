@@ -1,4 +1,4 @@
-<title>Two Sensors, One Bus</title>
+<title>Zwei Sensoren, ein Kabel</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@600;700;800&family=Source+Serif+4:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
   :root {
@@ -126,10 +126,21 @@
     font-size: 1.15rem;
     color: var(--ink-soft);
     max-width: 62ch;
-    margin: 0 0 36px;
+    margin: 0 0 20px;
   }
 
   .lede strong { color: var(--ink); font-weight: 600; }
+
+  .dev-note {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 36px;
+    padding: 12px 16px;
+    background: var(--panel);
+    border-left: 3px solid var(--teal);
+    border-radius: 0 4px 4px 0;
+  }
 
   .stat-strip {
     display: flex;
@@ -266,7 +277,7 @@
     color: var(--ink-soft);
     padding-right: 12px;
     white-space: nowrap;
-    width: 40%;
+    width: 44%;
   }
 
   .spec-table td:last-child {
@@ -437,33 +448,38 @@
 
 <main>
 
-  <p class="lang-switch">🇬🇧 English &middot; <a href="ens160-bme280-combo.de.html">🇩🇪 Deutsche Version &rarr;</a></p>
+  <p class="lang-switch">🇩🇪 Deutsch &middot; <a href="ens160-bme280-combo.html">🇬🇧 English version &rarr;</a></p>
 
   <div class="hero">
-    <p class="eyebrow">SparkFun Environmental Combo Breakout &middot; ENS160 + BME280 &middot; Qwiic</p>
-    <h1>Everything in the air,<br>on one bus.</h1>
+    <p class="eyebrow">SparkFun Umwelt-Kombisensor &middot; ENS160 + BME280 &middot; Qwiic</p>
+    <h1>Zwei Sensoren,<br>ein Kabel.</h1>
     <p class="lede">
-      This board puts two independent sensors on a single 25.4&nbsp;mm Qwiic breakout:
-      a <strong>Bosch BME280</strong> for temperature, humidity, and pressure, and a
-      <strong>ScioSense ENS160</strong> for air-quality index, TVOC, and eCO2. Both speak
-      I&sup2;C at 3.3&nbsp;V over the same two-wire bus, each answering to its own address &mdash;
-      one cable is all a project needs to read both the room's climate and its air quality.
-      Both chips are fully supported by <strong>periph</strong>, in every language and on every
-      platform this library ships.
+      Dieses Board vereint zwei Sensoren auf einer einzigen, nur 25&times;25&nbsp;mm kleinen
+      Platine. Der <strong>BME280</strong> von Bosch misst Temperatur, Luftfeuchtigkeit und
+      Luftdruck. Der <strong>ENS160</strong> von ScioSense bewertet die Luftqualität &ndash;
+      also wie viele flüchtige Stoffe (VOC) und wie viel CO2 sich in der Raumluft befinden.
+      Angeschlossen wird alles über ein einziges Qwiic-Steckkabel, ganz ohne Löten. Damit eignet
+      sich das Board für Wetterstationen, Raumklima-Monitore oder eine automatische
+      Lüftungssteuerung, die selbst erkennt, wann gelüftet werden sollte.
+    </p>
+    <p class="dev-note">
+      Für Entwickler: Beide Chips werden von unserer Open-Source-Bibliothek <strong>periph</strong>
+      vollständig unterstützt &ndash; fertige Beispielprogramme gibt es in sechs
+      Programmiersprachen und für die gängigsten Plattformen, vom Arduino bis zum Raspberry Pi.
     </p>
     <div class="stat-strip">
-      <div class="stat"><span class="stat-label">Board</span><span class="stat-value">25.4 &times; 25.4&nbsp;mm &middot; 2.5&nbsp;g</span></div>
-      <div class="stat"><span class="stat-label">Power</span><span class="stat-value">3.3&nbsp;V via Qwiic</span></div>
-      <div class="stat"><span class="stat-label">Bus</span><span class="stat-value">I&sup2;C, two JST&#8209;SH connectors</span></div>
-      <div class="stat"><span class="stat-label">Addresses</span><span class="stat-value">0x52 &middot; 0x76</span></div>
+      <div class="stat"><span class="stat-label">Board</span><span class="stat-value">25,4 &times; 25,4&nbsp;mm &middot; 2,5&nbsp;g</span></div>
+      <div class="stat"><span class="stat-label">Stromversorgung</span><span class="stat-value">3,3&nbsp;V über Qwiic</span></div>
+      <div class="stat"><span class="stat-label">Anschluss</span><span class="stat-value">I&sup2;C, zwei JST&#8209;SH-Buchsen</span></div>
+      <div class="stat"><span class="stat-label">Adressen</span><span class="stat-value">0x52 &middot; 0x76</span></div>
     </div>
   </div>
 
   <div class="diagram-wrap">
-    <svg viewBox="0 0 620 160" width="100%" height="160" role="img" aria-label="One I2C bus connecting a host to the ENS160 at address 0x52 and the BME280 at address 0x76">
+    <svg viewBox="0 0 620 160" width="100%" height="160" role="img" aria-label="Ein I2C-Bus verbindet einen Host mit dem ENS160 unter Adresse 0x52 und dem BME280 unter Adresse 0x76">
       <!-- host -->
       <rect x="16" y="58" width="96" height="44" rx="3" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
-      <text x="64" y="85" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">host</text>
+      <text x="64" y="85" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">Host</text>
 
       <!-- bus lines: SDA / SCL -->
       <line x1="112" y1="72" x2="472" y2="72" stroke="var(--ink-soft)" stroke-width="1.5"/>
@@ -473,7 +489,6 @@
 
       <!-- branch to ENS160 -->
       <line x1="330" y1="72" x2="330" y2="30" stroke="var(--copper)" stroke-width="1.5"/>
-      <line x1="330" y1="88" x2="330" y2="30" stroke="var(--copper)" stroke-width="1.5" opacity="0"/>
       <rect x="270" y="4" width="120" height="40" rx="3" fill="none" stroke="var(--copper)" stroke-width="1.5"/>
       <text x="330" y="20" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600" fill="var(--copper)">ENS160</text>
       <text x="330" y="36" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--copper)">0x52</text>
@@ -488,35 +503,35 @@
       <circle cx="330" cy="72" r="3" fill="var(--copper)"/>
       <circle cx="420" cy="88" r="3" fill="var(--teal)"/>
     </svg>
-    <p class="diagram-caption">one bus &middot; two addresses &middot; one Qwiic cable</p>
+    <p class="diagram-caption">ein Bus &middot; zwei Adressen &middot; ein Qwiic-Kabel</p>
   </div>
 
   <section>
     <div class="section-head">
-      <h2>Two channels, one board</h2>
-      <p class="section-sub">Each sensor is its own device on the bus, with its own register map, defaults, and accuracy envelope.</p>
+      <h2>Zwei Sensoren, zwei Aufgaben</h2>
+      <p class="section-sub">Jeder Sensor arbeitet unabhängig vom anderen &ndash; mit eigener Adresse, eigenen Werkseinstellungen und eigener Messgenauigkeit.</p>
     </div>
     <div class="channels">
       <div class="channel-card ens">
         <p class="card-title">ENS160</p>
-        <p class="card-maker">ScioSense &middot; digital metal-oxide gas sensor</p>
-        <span class="addr">0x52 default &middot; 0x53 alt</span>
+        <p class="card-maker">ScioSense &middot; Luftqualitätssensor</p>
+        <span class="addr">0x52 Standard &middot; 0x53 alternativ</span>
         <table class="spec-table">
-          <tr><td>Air quality index (UBA)</td><td>1&ndash;5</td></tr>
-          <tr><td>eCO2</td><td>400&ndash;65,000&nbsp;ppm, 1&nbsp;ppm res.</td></tr>
-          <tr><td>TVOC</td><td>0&ndash;65,000&nbsp;ppb, 1&nbsp;ppb res.</td></tr>
-          <tr><td>Operating range</td><td>&minus;40&hellip;+85&nbsp;&deg;C</td></tr>
+          <tr><td>Luftqualitätsindex (UBA)</td><td>1&ndash;5</td></tr>
+          <tr><td>eCO2</td><td>400&ndash;65.000&nbsp;ppm, 1&nbsp;ppm Auflösung</td></tr>
+          <tr><td>TVOC (flüchtige Stoffe)</td><td>0&ndash;65.000&nbsp;ppb, 1&nbsp;ppb Auflösung</td></tr>
+          <tr><td>Betriebstemperatur</td><td>&minus;40&hellip;+85&nbsp;&deg;C</td></tr>
         </table>
       </div>
       <div class="channel-card bme">
         <p class="card-title">BME280</p>
-        <p class="card-maker">Bosch Sensortec &middot; combined climate sensor</p>
-        <span class="addr">0x76 default &middot; 0x77 alt</span>
+        <p class="card-maker">Bosch Sensortec &middot; Klimasensor</p>
+        <span class="addr">0x76 Standard &middot; 0x77 alternativ</span>
         <table class="spec-table">
-          <tr><td>Temperature</td><td>&minus;40&hellip;+85&nbsp;&deg;C, &plusmn;0.5&nbsp;&deg;C</td></tr>
-          <tr><td>Humidity</td><td>0&ndash;100%&nbsp;RH, &plusmn;3%</td></tr>
-          <tr><td>Pressure</td><td>300&ndash;1100&nbsp;hPa, &plusmn;1&nbsp;hPa</td></tr>
-          <tr><td>Altitude (derived)</td><td>0&ndash;9144&nbsp;m, &plusmn;1&nbsp;m at sea level</td></tr>
+          <tr><td>Temperatur</td><td>&minus;40&hellip;+85&nbsp;&deg;C, &plusmn;0,5&nbsp;&deg;C</td></tr>
+          <tr><td>Luftfeuchtigkeit</td><td>0&ndash;100&nbsp;% rF, &plusmn;3&nbsp;%</td></tr>
+          <tr><td>Luftdruck</td><td>300&ndash;1100&nbsp;hPa, &plusmn;1&nbsp;hPa</td></tr>
+          <tr><td>Höhe (berechnet)</td><td>0&ndash;9144&nbsp;m, &plusmn;1&nbsp;m auf Meereshöhe</td></tr>
         </table>
       </div>
     </div>
@@ -524,17 +539,18 @@
 
   <section>
     <div class="section-head">
-      <h2>Works in every language we ship</h2>
-      <p class="section-sub">The same board, read six ways. Shown here: the Linux-host variant of each driver.</p>
+      <h2>Fertiger Code in sechs Sprachen</h2>
+      <p class="section-sub">Dasselbe Board, sechsmal ausgelesen. Hier zu sehen: die Linux-Variante jedes Treibers.</p>
     </div>
     <p class="console-note">
-      Every driver binds its device address when the connection is constructed, so there's
-      no single handle that serves both chips. Each snippet below opens the same I&sup2;C bus
-      number twice &mdash; once per address &mdash; which is normal on Linux, where
-      <code>/dev/i2c-1</code> can be opened by more than one independent handle at a time.
+      Jeder Treiber legt die Geräteadresse schon beim Verbindungsaufbau fest &ndash; es gibt also
+      keinen einzelnen Anschluss, der für beide Chips gleichzeitig gilt. Jedes Beispiel unten
+      öffnet daher denselben I&sup2;C-Bus zweimal, einmal je Adresse. Das ist unter Linux normal:
+      <code>/dev/i2c-1</code> lässt sich problemlos von zwei unabhängigen Verbindungen gleichzeitig
+      öffnen.
     </p>
     <div class="console">
-      <div class="tab-row" role="tablist" aria-label="Language">
+      <div class="tab-row" role="tablist" aria-label="Sprache">
         <button class="lang-tab active" data-lang="python">Python</button>
         <button class="lang-tab" data-lang="cpp">C++</button>
         <button class="lang-tab" data-lang="node">Node.js</button>
@@ -549,15 +565,15 @@ from periph.chips.gas.ens160 import ENS160Minimal
 from periph.chips.environmental.bme280 import BME280Minimal
 import time
 
-bus = SMBus(1)                                <span class="c"># one shared bus handle</span>
-ens = ENS160Minimal(I2CConnection(bus, 0x52))  <span class="c"># gas sensor at 0x52</span>
-bme = BME280Minimal(I2CConnection(bus, 0x76))  <span class="c"># climate sensor at 0x76</span>
+bus = SMBus(1)                                <span class="c"># ein gemeinsamer Bus-Handle</span>
+ens = ENS160Minimal(I2CConnection(bus, 0x52))  <span class="c"># Luftqualität, Adresse 0x52</span>
+bme = BME280Minimal(I2CConnection(bus, 0x76))  <span class="c"># Klimadaten, Adresse 0x76</span>
 
 while True:
     try:
         air = ens.read_air_quality()          <span class="c"># {'aqi', 'tvoc_ppb', 'eco2_ppm'}</span>
     except RuntimeError:
-        time.sleep(1)                          <span class="c"># still warming up</span>
+        time.sleep(1)                          <span class="c"># Sensor wärmt noch auf</span>
         continue
     t, p, h = bme.temperature(), bme.pressure(), bme.humidity()
     print(f<span class="c">"AQI={air['aqi']} TVOC={air['tvoc_ppb']}ppb eCO2={air['eco2_ppm']}ppm "</span>
@@ -571,8 +587,8 @@ while True:
 #include "BME280.h"
 
 int main() {
-    I2CConnectionLinux ens_conn(1, 0x52);   <span class="c">// gas sensor, bus 1, addr 0x52</span>
-    I2CConnectionLinux bme_conn(1, 0x76);   <span class="c">// climate sensor, bus 1, addr 0x76</span>
+    I2CConnectionLinux ens_conn(1, 0x52);   <span class="c">// Luftqualität, Bus 1, Adresse 0x52</span>
+    I2CConnectionLinux bme_conn(1, 0x76);   <span class="c">// Klimadaten, Bus 1, Adresse 0x76</span>
 
     ENS160Minimal ens(ens_conn);
     BME280Minimal bme(bme_conn);
@@ -594,8 +610,8 @@ int main() {
 const { ENS160Minimal } = require('periph/chips/gas/ens160');
 const { BME280Minimal } = require('periph/chips/environmental/bme280');
 
-const ens = new ENS160Minimal(new I2CConnection(1, 0x52));  <span class="c">// gas sensor</span>
-const bme = new BME280Minimal(new I2CConnection(1, 0x76));  <span class="c">// climate sensor</span>
+const ens = new ENS160Minimal(new I2CConnection(1, 0x52));  <span class="c">// Luftqualität</span>
+const bme = new BME280Minimal(new I2CConnection(1, 0x76));  <span class="c">// Klimadaten</span>
 
 (async () =&gt; {
   while (true) {
@@ -606,7 +622,7 @@ const bme = new BME280Minimal(new I2CConnection(1, 0x76));  <span class="c">// c
       const h = await bme.humidity();
       console.log(`AQI=${air.aqi} TVOC=${air.tvocPpb}ppb eCO2=${air.eco2Ppm}ppm `
         + `| ${t.toFixed(1)}C ${p.toFixed(1)}hPa ${h.toFixed(1)}%RH`);
-    } catch (e) { <span class="c">/* ENS160 still warming up */</span> }
+    } catch (e) { <span class="c">/* ENS160 wärmt noch auf */</span> }
     await new Promise(r =&gt; setTimeout(r, 1000));
   }
 })();</code></pre></div>
@@ -616,14 +632,14 @@ use periph::chips::gas::Ens160Minimal;
 use periph::chips::environmental::Bme280Minimal;
 
 fn main() {
-    let ens_dev = I2cdev::new("/dev/i2c-1").expect("open i2c bus");
-    let bme_dev = I2cdev::new("/dev/i2c-1").expect("open i2c bus");
-    let mut ens = Ens160Minimal::new(ens_dev, 0x52).expect("init ENS160");
-    let mut bme = Bme280Minimal::new(bme_dev, 0x76, false).expect("init BME280");
+    let ens_dev = I2cdev::new("/dev/i2c-1").expect("Bus öffnen");
+    let bme_dev = I2cdev::new("/dev/i2c-1").expect("Bus öffnen");
+    let mut ens = Ens160Minimal::new(ens_dev, 0x52).expect("ENS160 init");
+    let mut bme = Bme280Minimal::new(bme_dev, 0x76, false).expect("BME280 init");
 
     loop {
         let status = ens.wait_for_new_data(2000).unwrap();
-        if (status &gt;&gt; 2) &amp; 0x03 != 0 { continue; }  <span class="c">// still warming up</span>
+        if (status &gt;&gt; 2) &amp; 0x03 != 0 { continue; }  <span class="c">// wärmt noch auf</span>
 
         let (aqi, tvoc_ppb, eco2_ppm) = ens.read_air_quality().unwrap();
         let t = bme.temperature().unwrap();
@@ -638,8 +654,8 @@ fn main() {
 import it.uhde.periph.chips.gas.Ens160Minimal;
 import it.uhde.periph.chips.environmental.Bme280Minimal;
 
-try (var ensConn = new I2CConnection(1, 0x52);   <span class="c">// gas sensor</span>
-     var bmeConn = new I2CConnection(1, 0x76)) { <span class="c">// climate sensor</span>
+try (var ensConn = new I2CConnection(1, 0x52);   <span class="c">// Luftqualität</span>
+     var bmeConn = new I2CConnection(1, 0x76)) { <span class="c">// Klimadaten</span>
 
     var ens = new Ens160Minimal(ensConn);
     var bme = new Bme280Minimal(bmeConn);
@@ -652,13 +668,13 @@ try (var ensConn = new I2CConnection(1, 0x52);   <span class="c">// gas sensor</
             double h = bme.humidity();
             System.out.printf("AQI=%.0f TVOC=%.0fppb eCO2=%.0fppm | %.1fC %.1fhPa %.1f%%RH%n",
                 air[0], air[1], air[2], t, p, h);
-        } catch (Exception e) { <span class="c">/* ENS160 still warming up */</span> }
+        } catch (Exception e) { <span class="c">/* ENS160 wärmt noch auf */</span> }
         Thread.sleep(1000);
     }
 }</code></pre></div>
 
-      <div class="code-pane" data-lang="go"><pre><code>ensConn, _ := connection.NewI2CConnection(1, 0x52, nil, nil)  <span class="c">// gas sensor</span>
-bmeConn, _ := connection.NewI2CConnection(1, 0x76, nil, nil)  <span class="c">// climate sensor</span>
+      <div class="code-pane" data-lang="go"><pre><code>ensConn, _ := connection.NewI2CConnection(1, 0x52, nil, nil)  <span class="c">// Luftqualität</span>
+bmeConn, _ := connection.NewI2CConnection(1, 0x76, nil, nil)  <span class="c">// Klimadaten</span>
 defer ensConn.Close()
 defer bmeConn.Close()
 
@@ -668,7 +684,7 @@ bme, _ := environmental.NewBME280Minimal(bmeConn)
 for {
     aqi, tvoc, eco2, err := ens.ReadAirQuality()
     if err != nil {
-        time.Sleep(time.Second)  <span class="c">// still warming up</span>
+        time.Sleep(time.Second)  <span class="c">// wärmt noch auf</span>
         continue
     }
     t, _ := bme.Temperature()
@@ -683,25 +699,25 @@ for {
 
   <section>
     <div class="section-head">
-      <h2>Also runs on</h2>
-      <p class="section-sub">The Linux-host snippets above are one target per language &mdash; most also reach further, onto the embedded platforms this library targets directly.</p>
+      <h2>Läuft auch auf</h2>
+      <p class="section-sub">Die Linux-Beispiele oben sind nur ein Ziel je Sprache &ndash; die meisten Treiber laufen auch direkt auf Mikrocontrollern.</p>
     </div>
     <div class="matrix-wrap">
       <table class="matrix">
-        <tr><th>Language</th><th>Host target</th><th>Also runs on</th></tr>
+        <tr><th>Sprache</th><th>Basis</th><th>Läuft außerdem auf</th></tr>
         <tr><td>Python</td><td><span class="pill">Linux</span></td><td class="also">MicroPython, CircuitPython</td></tr>
         <tr><td>C++</td><td><span class="pill">Linux</span></td><td class="also">Arduino, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK</td></tr>
-        <tr><td>Node.js</td><td><span class="pill">Linux</span></td><td class="also">Node-RED (dedicated nodes)</td></tr>
-        <tr><td>Rust</td><td><span class="pill">Linux</span></td><td class="also">ESP32-S3, bare-metal via embedded-hal</td></tr>
-        <tr><td>JVM</td><td><span class="pill">Java</span></td><td class="also">Kotlin, Groovy &mdash; same classes, same JVM target</td></tr>
-        <tr><td>Go</td><td><span class="pill">Linux</span></td><td class="also">TinyGo, on Raspberry Pi Pico W</td></tr>
+        <tr><td>Node.js</td><td><span class="pill">Linux</span></td><td class="also">Node-RED (eigene Nodes)</td></tr>
+        <tr><td>Rust</td><td><span class="pill">Linux</span></td><td class="also">ESP32-S3, bare-metal über embedded-hal</td></tr>
+        <tr><td>JVM</td><td><span class="pill">Java</span></td><td class="also">Kotlin, Groovy &ndash; gleiche Klassen, gleiches JVM-Ziel</td></tr>
+        <tr><td>Go</td><td><span class="pill">Linux</span></td><td class="also">TinyGo, auf dem Raspberry Pi Pico W</td></tr>
       </table>
     </div>
   </section>
 
   <section>
     <div class="section-head">
-      <h2>Read more</h2>
+      <h2>Weiterlesen</h2>
     </div>
     <div class="footer-links">
       <a class="link-card" href="https://github.com/tuhde/Periph/wiki/ENS160">
@@ -713,18 +729,18 @@ for {
         <span class="lc-path">BME280 &rarr;</span>
       </a>
       <a class="link-card" href="https://github.com/tuhde/Periph/blob/main/specs/gas/ens160.md">
-        <span class="lc-label">Spec</span>
+        <span class="lc-label">Spezifikation</span>
         <span class="lc-path">specs/gas/ens160.md &rarr;</span>
       </a>
       <a class="link-card" href="https://github.com/tuhde/Periph/blob/main/specs/environmental/bme280.md">
-        <span class="lc-label">Spec</span>
+        <span class="lc-label">Spezifikation</span>
         <span class="lc-path">specs/environmental/bme280.md &rarr;</span>
       </a>
     </div>
   </section>
 
   <footer>
-    periph &middot; a peripheral-chip library for Python, C++, Node.js, Rust, the JVM, and Go
+    periph &middot; eine Bibliothek für Peripherie-Chips, für Python, C++, Node.js, Rust, die JVM und Go
   </footer>
 
 </main>
