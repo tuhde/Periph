@@ -1,0 +1,63 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "sk6812rgbw_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init SK6812RGBW", "type": "label" },
+        { "name": "MOSI pin", "type": "label" },
+        { "name": "_mosi", "type": "number" },
+        { "name": "SCK pin", "type": "label" },
+        { "name": "_sck", "type": "number" },
+        { "name": "MISO pin", "type": "label" },
+        { "name": "_miso", "type": "number" },
+        { "name": "pixel count", "type": "label" },
+        { "name": "_n", "type": "number" }
+      ]
+    },
+    {
+      "name": "sk6812rgbw_fill",
+      "type": "execute",
+      "params": [
+        { "name": "SK6812RGBW fill all pixels", "type": "label" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" },
+        { "name": "W", "type": "label" },
+        { "name": "_w", "type": "number" }
+      ]
+    },
+    {
+      "name": "sk6812rgbw_set_pixel",
+      "type": "execute",
+      "params": [
+        { "name": "SK6812RGBW set pixel", "type": "label" },
+        { "name": "index", "type": "label" },
+        { "name": "_index", "type": "number" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" },
+        { "name": "W", "type": "label" },
+        { "name": "_w", "type": "number" }
+      ]
+    },
+    {
+      "name": "sk6812rgbw_show",
+      "type": "execute",
+      "params": [{ "name": "SK6812RGBW show (transmit buffer)", "type": "label" }]
+    },
+    {
+      "name": "sk6812rgbw_off",
+      "type": "execute",
+      "params": [{ "name": "SK6812RGBW off (all pixels)", "type": "label" }]
+    }
+  ]
+}

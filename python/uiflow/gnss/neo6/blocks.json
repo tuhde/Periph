@@ -1,0 +1,41 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "neo6_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init NEO-6", "type": "label" },
+        { "name": "UART port", "type": "label" },
+        { "name": "_port", "type": "number" },
+        { "name": "baudrate", "type": "label" },
+        { "name": "_baudrate", "type": "number" },
+        { "name": "TX pin", "type": "label" },
+        { "name": "_tx", "type": "number" },
+        { "name": "RX pin", "type": "label" },
+        { "name": "_rx", "type": "number" }
+      ]
+    },
+    {
+      "name": "neo6_update",
+      "type": "value",
+      "params": [{ "name": "NEO-6 update (got new fix?)", "type": "label" }]
+    },
+    {
+      "name": "neo6_latitude",
+      "type": "value",
+      "params": [{ "name": "NEO-6 latitude (°)", "type": "label" }]
+    },
+    {
+      "name": "neo6_longitude",
+      "type": "value",
+      "params": [{ "name": "NEO-6 longitude (°)", "type": "label" }]
+    },
+    {
+      "name": "neo6_altitude",
+      "type": "value",
+      "params": [{ "name": "NEO-6 altitude (m)", "type": "label" }]
+    }
+  ]
+}

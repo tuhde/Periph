@@ -1,0 +1,46 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "pcf8591_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init PCF8591", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8591_read_channel",
+      "type": "value",
+      "params": [
+        { "name": "PCF8591 read channel (raw 0-255)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8591_read_channel_voltage",
+      "type": "value",
+      "params": [
+        { "name": "PCF8591 read channel voltage", "type": "label" },
+        { "name": "channel", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "vref", "type": "label" },
+        { "name": "_vref", "type": "number" },
+        { "name": "vagnd", "type": "label" },
+        { "name": "_vagnd", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8591_set_dac_voltage",
+      "type": "execute",
+      "params": [
+        { "name": "PCF8591 set DAC output (fraction of VREF-VAGND)", "type": "label" },
+        { "name": "_fraction", "type": "number" }
+      ]
+    }
+  ]
+}

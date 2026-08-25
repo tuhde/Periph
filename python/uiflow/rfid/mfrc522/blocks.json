@@ -1,0 +1,27 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "mfrc522_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MFRC522", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "CS pin", "type": "label" },
+        { "name": "_cs_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "mfrc522_is_card_present",
+      "type": "value",
+      "params": [{ "name": "MFRC522 card present?", "type": "label" }]
+    },
+    {
+      "name": "mfrc522_read_uid",
+      "type": "value",
+      "params": [{ "name": "MFRC522 card UID (hex, empty if none)", "type": "label" }]
+    }
+  ]
+}

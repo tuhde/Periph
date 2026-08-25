@@ -1,0 +1,35 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "bmp280_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BMP280", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "bmp280_read_temperature",
+      "type": "value",
+      "params": [{ "name": "BMP280 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "bmp280_read_pressure",
+      "type": "value",
+      "params": [{ "name": "BMP280 pressure (hPa)", "type": "label" }]
+    },
+    {
+      "name": "bmp280_read_altitude",
+      "type": "value",
+      "params": [
+        { "name": "BMP280 altitude (m), sea-level pressure (hPa)", "type": "label" },
+        { "name": "_sea_level_hpa", "type": "number" }
+      ]
+    }
+  ]
+}

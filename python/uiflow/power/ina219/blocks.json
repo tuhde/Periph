@@ -1,0 +1,41 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "ina219_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init INA219", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "shunt resistor (ohm)", "type": "label" },
+        { "name": "_r_shunt", "type": "number" },
+        { "name": "max current (A)", "type": "label" },
+        { "name": "_max_current", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina219_voltage",
+      "type": "value",
+      "params": [{ "name": "INA219 bus voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "ina219_shunt_voltage",
+      "type": "value",
+      "params": [{ "name": "INA219 shunt voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "ina219_current",
+      "type": "value",
+      "params": [{ "name": "INA219 current (A)", "type": "label" }]
+    },
+    {
+      "name": "ina219_power",
+      "type": "value",
+      "params": [{ "name": "INA219 power (W)", "type": "label" }]
+    }
+  ]
+}

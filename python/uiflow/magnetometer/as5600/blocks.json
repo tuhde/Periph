@@ -1,0 +1,42 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "as5600_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init AS5600", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "as5600_angle",
+      "type": "value",
+      "params": [{ "name": "AS5600 angle (degrees)", "type": "label" }]
+    },
+    {
+      "name": "as5600_angle_raw",
+      "type": "value",
+      "params": [{ "name": "AS5600 angle raw (0-4095)", "type": "label" }]
+    },
+    {
+      "name": "as5600_is_magnet_detected",
+      "type": "value",
+      "params": [{ "name": "AS5600 magnet detected?", "type": "label" }]
+    },
+    {
+      "name": "as5600_is_magnet_too_strong",
+      "type": "value",
+      "params": [{ "name": "AS5600 magnet too strong?", "type": "label" }]
+    },
+    {
+      "name": "as5600_is_magnet_too_weak",
+      "type": "value",
+      "params": [{ "name": "AS5600 magnet too weak?", "type": "label" }]
+    }
+  ]
+}

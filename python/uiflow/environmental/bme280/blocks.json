@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "bme280_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BME280", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "bme280_temperature",
+      "type": "value",
+      "params": [{ "name": "BME280 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "bme280_pressure",
+      "type": "value",
+      "params": [{ "name": "BME280 pressure (hPa)", "type": "label" }]
+    },
+    {
+      "name": "bme280_humidity",
+      "type": "value",
+      "params": [{ "name": "BME280 humidity (%)", "type": "label" }]
+    }
+  ]
+}

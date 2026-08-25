@@ -1,0 +1,42 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "24aa02uid_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init 24AA02UID", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "24aa02uid_read_uid",
+      "type": "value",
+      "params": [{ "name": "24AA02UID unique serial number (hex)", "type": "label" }]
+    },
+    {
+      "name": "24aa02uid_read_byte",
+      "type": "value",
+      "params": [
+        { "name": "24AA02UID read byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "24aa02uid_write_byte",
+      "type": "execute",
+      "params": [
+        { "name": "24AA02UID write byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    }
+  ]
+}

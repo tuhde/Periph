@@ -1,0 +1,54 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "mcp4728_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MCP4728", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp4728_set_voltage",
+      "type": "execute",
+      "params": [
+        { "name": "MCP4728 set channel output (fraction of V_DD)", "type": "label" },
+        { "name": "channel (0-3)", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "fraction", "type": "label" },
+        { "name": "_fraction", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp4728_set_raw",
+      "type": "execute",
+      "params": [
+        { "name": "MCP4728 set channel raw 12-bit code", "type": "label" },
+        { "name": "channel (0-3)", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "code", "type": "label" },
+        { "name": "_code", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp4728_set_all",
+      "type": "execute",
+      "params": [
+        { "name": "MCP4728 set all channels (fractions of V_DD)", "type": "label" },
+        { "name": "A", "type": "label" },
+        { "name": "_frac_a", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_frac_b", "type": "number" },
+        { "name": "C", "type": "label" },
+        { "name": "_frac_c", "type": "number" },
+        { "name": "D", "type": "label" },
+        { "name": "_frac_d", "type": "number" }
+      ]
+    }
+  ]
+}

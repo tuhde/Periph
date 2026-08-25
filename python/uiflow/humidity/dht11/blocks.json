@@ -1,0 +1,25 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "dht11_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init DHT11", "type": "label" },
+        { "name": "data pin", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "dht11_read_temperature",
+      "type": "value",
+      "params": [{ "name": "DHT11 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "dht11_read_humidity",
+      "type": "value",
+      "params": [{ "name": "DHT11 humidity (%)", "type": "label" }]
+    }
+  ]
+}

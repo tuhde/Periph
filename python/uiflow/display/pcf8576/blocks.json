@@ -1,0 +1,33 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "pcf8576_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init PCF8576", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8576_clear",
+      "type": "execute",
+      "params": [{ "name": "PCF8576 clear display", "type": "label" }]
+    },
+    {
+      "name": "pcf8576_set_digit",
+      "type": "execute",
+      "params": [
+        { "name": "PCF8576 set digit", "type": "label" },
+        { "name": "position (0-19)", "type": "label" },
+        { "name": "_position", "type": "number" },
+        { "name": "segments byte", "type": "label" },
+        { "name": "_segments", "type": "number" }
+      ]
+    }
+  ]
+}

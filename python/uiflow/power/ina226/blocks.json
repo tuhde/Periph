@@ -1,0 +1,36 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "ina226_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init INA226", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "shunt resistor (Ω)", "type": "label" },
+        { "name": "_r_shunt", "type": "number" },
+        { "name": "max current (A)", "type": "label" },
+        { "name": "_max_current", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina226_read_voltage",
+      "type": "value",
+      "params": [{ "name": "INA226 bus voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "ina226_read_current",
+      "type": "value",
+      "params": [{ "name": "INA226 current (A)", "type": "label" }]
+    },
+    {
+      "name": "ina226_read_power",
+      "type": "value",
+      "params": [{ "name": "INA226 power (W)", "type": "label" }]
+    }
+  ]
+}

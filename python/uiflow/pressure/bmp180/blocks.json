@@ -1,0 +1,37 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "bmp180_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BMP180", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "oversampling (0-3)", "type": "label" },
+        { "name": "_oversampling", "type": "number" }
+      ]
+    },
+    {
+      "name": "bmp180_read_temperature",
+      "type": "value",
+      "params": [{ "name": "BMP180 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "bmp180_read_pressure",
+      "type": "value",
+      "params": [{ "name": "BMP180 pressure (hPa)", "type": "label" }]
+    },
+    {
+      "name": "bmp180_read_altitude",
+      "type": "value",
+      "params": [
+        { "name": "BMP180 altitude (m), sea-level pressure (hPa)", "type": "label" },
+        { "name": "_sea_level_hpa", "type": "number" }
+      ]
+    }
+  ]
+}

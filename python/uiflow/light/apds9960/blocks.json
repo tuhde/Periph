@@ -1,0 +1,50 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "apds9960_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init APDS9960", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds9960_color_clear",
+      "type": "value",
+      "params": [{ "name": "APDS9960 clear channel", "type": "label" }]
+    },
+    {
+      "name": "apds9960_color_red",
+      "type": "value",
+      "params": [{ "name": "APDS9960 red channel", "type": "label" }]
+    },
+    {
+      "name": "apds9960_color_green",
+      "type": "value",
+      "params": [{ "name": "APDS9960 green channel", "type": "label" }]
+    },
+    {
+      "name": "apds9960_color_blue",
+      "type": "value",
+      "params": [{ "name": "APDS9960 blue channel", "type": "label" }]
+    },
+    {
+      "name": "apds9960_enable_proximity",
+      "type": "execute",
+      "params": [
+        { "name": "APDS9960 enable proximity (1) / disable (0)", "type": "label" },
+        { "name": "_enabled", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds9960_proximity",
+      "type": "value",
+      "params": [{ "name": "APDS9960 proximity count (0-255)", "type": "label" }]
+    }
+  ]
+}

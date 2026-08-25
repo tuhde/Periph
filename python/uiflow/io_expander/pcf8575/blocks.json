@@ -1,0 +1,43 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "pcf8575_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init PCF8575", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8575_set_pin_mode",
+      "type": "execute",
+      "params": [
+        { "name": "PCF8575 set pin (0-15) mode: IN=0, OUT=1", "type": "label" },
+        { "name": "_pin", "type": "number" },
+        { "name": "_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8575_write_pin",
+      "type": "execute",
+      "params": [
+        { "name": "PCF8575 write pin (0-15) value (0/1)", "type": "label" },
+        { "name": "_pin", "type": "number" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "pcf8575_read_pin",
+      "type": "value",
+      "params": [
+        { "name": "PCF8575 read pin (0-15)", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    }
+  ]
+}

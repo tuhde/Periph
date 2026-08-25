@@ -1,0 +1,37 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "bme680_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BME680", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "bme680_temperature",
+      "type": "value",
+      "params": [{ "name": "BME680 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "bme680_pressure",
+      "type": "value",
+      "params": [{ "name": "BME680 pressure (hPa)", "type": "label" }]
+    },
+    {
+      "name": "bme680_humidity",
+      "type": "value",
+      "params": [{ "name": "BME680 humidity (%)", "type": "label" }]
+    },
+    {
+      "name": "bme680_gas_resistance",
+      "type": "value",
+      "params": [{ "name": "BME680 gas resistance (Ω)", "type": "label" }]
+    }
+  ]
+}

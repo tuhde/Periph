@@ -1,0 +1,59 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "rda5807m_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init RDA5807M", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "initial frequency (MHz)", "type": "label" },
+        { "name": "_frequency_mhz", "type": "number" },
+        { "name": "initial volume (0-15)", "type": "label" },
+        { "name": "_volume", "type": "number" }
+      ]
+    },
+    {
+      "name": "rda5807m_set_frequency",
+      "type": "execute",
+      "params": [
+        { "name": "RDA5807M tune to frequency (MHz)", "type": "label" },
+        { "name": "_frequency_mhz", "type": "number" }
+      ]
+    },
+    {
+      "name": "rda5807m_frequency",
+      "type": "value",
+      "params": [{ "name": "RDA5807M current frequency (MHz)", "type": "label" }]
+    },
+    {
+      "name": "rda5807m_set_volume",
+      "type": "execute",
+      "params": [
+        { "name": "RDA5807M set volume (0-15)", "type": "label" },
+        { "name": "_level", "type": "number" }
+      ]
+    },
+    {
+      "name": "rda5807m_mute",
+      "type": "execute",
+      "params": [
+        { "name": "RDA5807M mute", "type": "label" },
+        { "name": "_enable", "type": "variable" }
+      ]
+    },
+    {
+      "name": "rda5807m_seek",
+      "type": "value",
+      "params": [
+        { "name": "RDA5807M seek next station (MHz, or None)", "type": "label" },
+        { "name": "seek up?", "type": "label" },
+        { "name": "_up", "type": "variable" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "hx711_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init HX711", "type": "label" },
+        { "name": "DOUT pin", "type": "label" },
+        { "name": "_dout", "type": "number" },
+        { "name": "PD_SCK pin", "type": "label" },
+        { "name": "_pd_sck", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx711_tare",
+      "type": "execute",
+      "params": [{ "name": "HX711 tare (zero the scale)", "type": "label" }]
+    },
+    {
+      "name": "hx711_set_scale",
+      "type": "execute",
+      "params": [
+        { "name": "HX711 set scale factor", "type": "label" },
+        { "name": "_factor", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx711_read_weight",
+      "type": "value",
+      "params": [{ "name": "HX711 weight", "type": "label" }]
+    },
+    {
+      "name": "hx711_read_raw",
+      "type": "value",
+      "params": [{ "name": "HX711 raw ADC value", "type": "label" }]
+    }
+  ]
+}

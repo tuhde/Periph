@@ -1,0 +1,59 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "ws2812b_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init WS2812B", "type": "label" },
+        { "name": "MOSI pin", "type": "label" },
+        { "name": "_mosi", "type": "number" },
+        { "name": "SCK pin", "type": "label" },
+        { "name": "_sck", "type": "number" },
+        { "name": "MISO pin", "type": "label" },
+        { "name": "_miso", "type": "number" },
+        { "name": "pixel count", "type": "label" },
+        { "name": "_n", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2812b_fill",
+      "type": "execute",
+      "params": [
+        { "name": "WS2812B fill all pixels", "type": "label" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2812b_set_pixel",
+      "type": "execute",
+      "params": [
+        { "name": "WS2812B set pixel", "type": "label" },
+        { "name": "index", "type": "label" },
+        { "name": "_index", "type": "number" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2812b_show",
+      "type": "execute",
+      "params": [{ "name": "WS2812B show (transmit buffer)", "type": "label" }]
+    },
+    {
+      "name": "ws2812b_off",
+      "type": "execute",
+      "params": [{ "name": "WS2812B off (all pixels)", "type": "label" }]
+    }
+  ]
+}

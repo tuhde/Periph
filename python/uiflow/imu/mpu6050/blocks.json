@@ -1,0 +1,57 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "mpu6050_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MPU6050", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpu6050_accel_x",
+      "type": "value",
+      "params": [{ "name": "MPU6050 acceleration X (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_accel_y",
+      "type": "value",
+      "params": [{ "name": "MPU6050 acceleration Y (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_accel_z",
+      "type": "value",
+      "params": [{ "name": "MPU6050 acceleration Z (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_gyro_x",
+      "type": "value",
+      "params": [{ "name": "MPU6050 angular rate X (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_gyro_y",
+      "type": "value",
+      "params": [{ "name": "MPU6050 angular rate Y (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_gyro_z",
+      "type": "value",
+      "params": [{ "name": "MPU6050 angular rate Z (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_temperature",
+      "type": "value",
+      "params": [{ "name": "MPU6050 die temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "mpu6050_data_ready",
+      "type": "value",
+      "params": [{ "name": "MPU6050 new data ready?", "type": "label" }]
+    }
+  ]
+}

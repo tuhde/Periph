@@ -1,0 +1,33 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "mcp4725_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MCP4725", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp4725_set_voltage",
+      "type": "execute",
+      "params": [
+        { "name": "MCP4725 set output (fraction of V_DD)", "type": "label" },
+        { "name": "_fraction", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp4725_set_raw",
+      "type": "execute",
+      "params": [
+        { "name": "MCP4725 set raw 12-bit code", "type": "label" },
+        { "name": "_code", "type": "number" }
+      ]
+    }
+  ]
+}

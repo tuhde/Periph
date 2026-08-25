@@ -1,0 +1,43 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "ina3221_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init INA3221", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "shunt resistor (Ω), all channels", "type": "label" },
+        { "name": "_r_shunt", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina3221_read_voltage",
+      "type": "value",
+      "params": [
+        { "name": "INA3221 bus voltage (V), channel", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina3221_read_current",
+      "type": "value",
+      "params": [
+        { "name": "INA3221 current (A), channel", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ina3221_read_power",
+      "type": "value",
+      "params": [
+        { "name": "INA3221 power (W), channel", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    }
+  ]
+}

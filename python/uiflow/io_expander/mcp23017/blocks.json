@@ -1,0 +1,43 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "mcp23017_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MCP23017", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp23017_set_pin_mode",
+      "type": "execute",
+      "params": [
+        { "name": "MCP23017 set pin (0-15) mode: IN=0, OUT=1", "type": "label" },
+        { "name": "_pin", "type": "number" },
+        { "name": "_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp23017_write_pin",
+      "type": "execute",
+      "params": [
+        { "name": "MCP23017 write pin (0-15) value (0/1)", "type": "label" },
+        { "name": "_pin", "type": "number" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp23017_read_pin",
+      "type": "value",
+      "params": [
+        { "name": "MCP23017 read pin (0-15)", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    }
+  ]
+}
