@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#a6bbcf",
+  "blocks": [
+    {
+      "name": "ens160_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init ENS160", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "ens160_read_aqi",
+      "type": "value",
+      "params": [{ "name": "ENS160 AQI (1-5)", "type": "label" }]
+    },
+    {
+      "name": "ens160_read_tvoc",
+      "type": "value",
+      "params": [{ "name": "ENS160 TVOC (ppb)", "type": "label" }]
+    },
+    {
+      "name": "ens160_read_eco2",
+      "type": "value",
+      "params": [{ "name": "ENS160 eCO2 (ppm)", "type": "label" }]
+    }
+  ]
+}

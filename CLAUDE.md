@@ -86,6 +86,9 @@ python/
   examples/
     <category>/
       <chip>/           # minimal.py, complete.py, demo.py
+  uiflow/
+    <category>/
+      <chip>/           # blocks.json + one .py per block — M5Stack UIFlow 2 Blockly custom blocks wrapping the chip driver
   tests/
 cpp/
   CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library
