@@ -2,9 +2,11 @@
 
 Blockly custom-block definitions that wrap [Periph](https://github.com/tuhde/Periph) MicroPython chip
 drivers for [M5Stack UIFlow 2](https://uiflow2.m5stack.com/). Each chip gets its own folder containing a
-`blocks.json` manifest plus one MicroPython file per block, following the format used by the
+`<chip>.json` manifest plus one MicroPython file per block, following the format used by the
 [UIFlow Block Maker](http://block-maker.m5stack.com/) and the community
-[uiflow-custom-block-generator](https://github.com/3110/uiflow-custom-block-generator) tool.
+[uiflow-custom-block-generator](https://github.com/3110/uiflow-custom-block-generator) tool. Verified
+end-to-end against the real generator: all 27 manifests produce valid `.m5b` files with matching block
+counts, and the generated Blockly/Python codegen correctly wires up each block's params.
 
 This is source-level integration only — no `.m5b` binaries are committed here, and nothing is
 pre-bundled into UIFlow's palette. Anyone can import a chip's blocks into their own project (see below).
@@ -15,10 +17,14 @@ pre-bundled into UIFlow's palette. Anyone can import a chip's blocks into their 
 uiflow/
   <category>/
     <chip>/
-      blocks.json              # category, color, and block/param definitions
-      <chip>_init.py           # execute block: opens the connection and constructs the driver
-      <chip>_read_<value>.py   # value block(s): return one reading each
+      <chip>.json               # category, color, and block/param definitions
+      <chip>_init.py            # execute block: opens the connection and constructs the driver
+      <chip>_read_<value>.py    # value block(s): return one reading each
 ```
+
+The manifest is named `<chip>.json`, not `blocks.json` — the generator names its output `.m5b` after the
+manifest's filename, so a shared generic name would silently overwrite one chip's output with another's if
+you batch-generate more than one into the same directory.
 
 All blocks share the `Periph` category and the `#a6bbcf` color, matching the palette color already used by
 the [Node-RED nodes](../../nodejs/packages/) so Periph-backed tooling looks consistent across integrations.
@@ -70,15 +76,15 @@ arguments. Every wrapped method already exists on the underlying driver in
 ## Using these blocks
 
 **Option A — UIFlow Block Maker.** Open [block-maker.m5stack.com](http://block-maker.m5stack.com/), create a
-block using the same `category`/`color`/`params` as the chip's `blocks.json`, and paste in the matching
+block using the same `category`/`color`/`params` as the chip's `<chip>.json`, and paste in the matching
 `.py` file's contents for each block's code field.
 
-**Option B — uiflow-custom-block-generator.** Install the generator and point it at a chip's `blocks.json`
+**Option B — uiflow-custom-block-generator.** Install the generator and point it at a chip's `<chip>.json`
 to produce an importable `.m5b` file:
 
 ```sh
 pip install git+https://github.com/3110/uiflow-custom-block-generator
-python -m uiflow_custom_block_generator python/uiflow/environmental/aht21/blocks.json
+python -m uiflow_custom_block_generator python/uiflow/environmental/aht21/aht21.json
 ```
 
 Then import the generated `.m5b` into your UIFlow 2 project via **Extension → Import**.
