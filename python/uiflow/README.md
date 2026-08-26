@@ -110,7 +110,9 @@ python/uiflow/generate.sh --check  # exits 1 if any .m5b is missing or stale (us
 
 The script pins the generator to a specific upstream commit (see the `GENERATOR_COMMIT` variable in
 [`generate.sh`](generate.sh)) rather than the PyPI release, which lags behind and produces byte-different
-output.
+output. It installs into a self-managed venv (`python/uiflow/.generator`, created automatically if
+missing) rather than the system Python — needed on Debian/Ubuntu, where a bare `pip install` is blocked
+outside a venv (PEP 668). No manual setup required; just run the script.
 
 Either way, the `periph` package must be present on the device's filesystem (or frozen into the firmware)
 for the generated blocks to import it at runtime.
