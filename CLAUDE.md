@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I²C, or other transports.
 
 Implementations:
-- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`)
+- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack UIFlow 2 Blockly custom blocks (`python/uiflow/`) wrap the MicroPython drivers rather than adding a fourth target
 - **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
