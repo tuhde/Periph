@@ -297,6 +297,11 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/io_expander/<chip>_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/io_expander/<chip>_test_linux.py` (Linux)
 
+### UIFlow 2
+- [ ] Manifest `python/uiflow/io_expander/<chip>/<chip>.json` — `Periph` category, `#a6bbcf` color
+- [ ] Blocks `python/uiflow/io_expander/<chip>/<chip>_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped (pin mode, read pin, write pin, ...)
+- [ ] Generated `python/uiflow/io_expander/<chip>/<chip>.m5b` — run `python/uiflow/generate.sh`, commit the output
+
 ### C++
 - [ ] Driver `cpp/src/chips/io_expander/<Chip>.h` — Doxygen `/** @brief */` on every class and public method; includes `IOExpanderPin` nested class
 - [ ] Driver `cpp/src/chips/io_expander/<Chip>.cpp`
