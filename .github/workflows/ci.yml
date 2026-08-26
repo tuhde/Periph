@@ -117,6 +117,14 @@ jobs:
           find python/periph python/tests python/examples -name '*.py' \
             | xargs python3 -m py_compile
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Check UIFlow 2 .m5b files are up to date
+        run: python/uiflow/generate.sh --check
+
   # -----------------------------------------------------------------------
   # Node.js — install deps, check syntax, verify chip driver loads
   # -----------------------------------------------------------------------

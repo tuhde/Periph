@@ -87,8 +87,9 @@ python/
     <category>/
       <chip>/           # minimal.py, complete.py, demo.py
   uiflow/
+    generate.sh         # regenerates every <chip>.m5b; --check verifies they're up to date (CI runs this)
     <category>/
-      <chip>/           # <chip>.json + one .py per block — M5Stack UIFlow 2 Blockly custom blocks wrapping the chip driver
+      <chip>/           # <chip>.json + one .py per block + generated <chip>.m5b — M5Stack UIFlow 2 Blockly custom blocks wrapping the chip driver; run generate.sh after editing .json/.py files here
   tests/
 cpp/
   CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library
