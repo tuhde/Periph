@@ -110,6 +110,10 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 (The Linux examples themselves use hardcoded defaults; set the variables in the file or pass them via the environment after editing.)
 
+### UIFlow 2 (M5Stack)
+
+Not an example tier — a separate deliverable. Blockly custom blocks wrapping the MicroPython driver live in `python/uiflow/<category>/<chip>/` with a committed, ready-to-import `<chip>.m5b`. See [python/uiflow/README.md](python/uiflow/README.md).
+
 ---
 
 ## C++
