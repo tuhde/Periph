@@ -179,10 +179,10 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/<category>/<chip>_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/<category>/<chip>_test_linux.py` (Linux)
 
-### UIFlow 2
-- [ ] Manifest `python/uiflow/<category>/<chip>/<chip>.json` — `Periph` category, `#a6bbcf` color
-- [ ] Blocks `python/uiflow/<category>/<chip>/<chip>_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow/<category>/<chip>/<chip>.m5b` — run `python/uiflow/generate.sh`, commit the output
+### UIFlow 1
+- [ ] Manifest `python/uiflow1/<category>/<chip>/<chip>.json` — `Periph` category, `#a6bbcf` color
+- [ ] Blocks `python/uiflow1/<category>/<chip>/<chip>_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [ ] Generated `python/uiflow1/<category>/<chip>/<chip>.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### C++
 - [ ] Driver `cpp/src/chips/<category>/<Chip>.h` — Doxygen `/** @brief */` on every class and public method

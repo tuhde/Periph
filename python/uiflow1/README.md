@@ -1,11 +1,19 @@
-# UIFlow 2 custom blocks
+# UIFlow 1 custom blocks
 
 Blockly custom-block definitions that wrap [Periph](https://github.com/tuhde/Periph) MicroPython chip
-drivers for [M5Stack UIFlow 2](https://uiflow2.m5stack.com/). Each chip gets its own folder containing a
-`<chip>.json` manifest, one MicroPython file per block, and a generated `<chip>.m5b` — the importable
-block package — following the format used by the [UIFlow Block Maker](http://block-maker.m5stack.com/)
-and the community [uiflow-custom-block-generator](https://github.com/3110/uiflow-custom-block-generator)
-tool.
+drivers in the `.m5b` format used by **M5Stack UIFlow 1** and its [Block
+Maker](http://block-maker.m5stack.com/), via the community
+[uiflow-custom-block-generator](https://github.com/3110/uiflow-custom-block-generator) tool. Each chip
+gets its own folder containing a `<chip>.json` manifest, one MicroPython file per block, and a generated
+`<chip>.m5b` — the importable block package.
+
+> **Not the same format as UIFlow 2.** M5Stack's current UIFlow 2 web IDE
+> (uiflow2.m5stack.com) has its own native custom-block format, `.m5b2`, which is
+> structurally different from `.m5b` and is documented separately in
+> [`python/uiflow2/UIFLOW2_BLOCKS.md`](../uiflow2/UIFLOW2_BLOCKS.md). Whether UIFlow 2 still
+> accepts a legacy `.m5b` via **Extension → Import** for backward compatibility is
+> unverified — see that document's open items. Don't assume the blocks below work in
+> UIFlow 2 without checking against the current web IDE first.
 
 The `.m5b` files are committed so you don't need Python or the generator installed just to import a
 chip's blocks — download the file and import it (see [Using these blocks](#using-these-blocks) below).
@@ -16,14 +24,14 @@ see [Keeping `.m5b` files in sync](#keeping-m5b-files-in-sync).
 ## Layout
 
 ```
-uiflow/
+uiflow1/
   generate.sh                  # regenerates every <chip>.m5b; --check verifies they're up to date
   <category>/
     <chip>/
       <chip>.json               # category, color, and block/param definitions
       <chip>_init.py            # execute block: opens the connection and constructs the driver
       <chip>_read_<value>.py    # value block(s): return one reading each
-      <chip>.m5b                 # generated — importable UIFlow 2 block package
+      <chip>.m5b                 # generated — importable UIFlow 1 block package
 ```
 
 The manifest is named `<chip>.json`, not `blocks.json` — the generator names its output `.m5b` after the
@@ -35,9 +43,9 @@ the [Node-RED nodes](../../nodejs/packages/) so Periph-backed tooling looks cons
 
 Each `<chip>_init` block constructs the driver via the matching `periph.connection.<transport>_auto` factory
 (`i2c_auto`, `spi_auto`, `uart_auto`, `hx711_auto`, `dhtxx_auto`, or `neopixel_auto` — whichever transport the
-chip uses; on UIFlow 2 these all resolve to the platform's `machine` module) and stores it in a module-level
-global (e.g. `_periph_aht21`) that the chip's other blocks reference. Place the init block once, before any
-other block for that chip, in your flow — matching how M5Stack's own device blocks work.
+chip uses; these all resolve to the platform's `machine` module) and stores it in a module-level global
+(e.g. `_periph_aht21`) that the chip's other blocks reference. Place the init block once, before any other
+block for that chip, in your flow — matching how M5Stack's own device blocks work.
 
 Value blocks call whichever *Full*-class getter returns a single value, so each block plugs directly into a
 number/string slot elsewhere in the flow rather than returning a dict. Execute blocks (e.g. setting a DAC
@@ -80,8 +88,8 @@ arguments. Every wrapped method already exists on the underlying driver in
 ## Using these blocks
 
 **Option A — import the committed `.m5b`.** Download a chip's `<chip>.m5b` (e.g.
-[`environmental/aht21/aht21.m5b`](environmental/aht21/aht21.m5b)) and import it into your UIFlow 2 project
-via **Extension → Import**. No local tooling required.
+[`environmental/aht21/aht21.m5b`](environmental/aht21/aht21.m5b)) and import it via **Extension → Import**.
+No local tooling required.
 
 **Option B — UIFlow Block Maker.** Open [block-maker.m5stack.com](http://block-maker.m5stack.com/), create a
 block using the same `category`/`color`/`params` as the chip's `<chip>.json`, and paste in the matching
@@ -92,10 +100,10 @@ to reproduce the committed `.m5b` yourself:
 
 ```sh
 pip install git+https://github.com/3110/uiflow-custom-block-generator
-python -m uiflow_custom_block_generator python/uiflow/environmental/aht21/aht21.json
+python -m uiflow_custom_block_generator python/uiflow1/environmental/aht21/aht21.json
 ```
 
-Then import the generated `.m5b` into your UIFlow 2 project via **Extension → Import**.
+Then import the generated `.m5b` via **Extension → Import**.
 
 ## Keeping `.m5b` files in sync
 
@@ -104,13 +112,13 @@ the same bytes. Whenever you add a chip or edit an existing `<chip>.json` / bloc
 before committing:
 
 ```sh
-python/uiflow/generate.sh          # regenerates every <chip>.m5b in place
-python/uiflow/generate.sh --check  # exits 1 if any .m5b is missing or stale (used in CI)
+python/uiflow1/generate.sh          # regenerates every <chip>.m5b in place
+python/uiflow1/generate.sh --check  # exits 1 if any .m5b is missing or stale (used in CI)
 ```
 
 The script pins the generator to a specific upstream commit (see the `GENERATOR_COMMIT` variable in
 [`generate.sh`](generate.sh)) rather than the PyPI release, which lags behind and produces byte-different
-output. It installs into a self-managed venv (`python/uiflow/.generator`, created automatically if
+output. It installs into a self-managed venv (`python/uiflow1/.generator`, created automatically if
 missing) rather than the system Python — needed on Debian/Ubuntu, where a bare `pip install` is blocked
 outside a venv (PEP 668). No manual setup required; just run the script.
 

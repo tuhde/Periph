@@ -66,14 +66,14 @@ The `chip` / `transport` label stays on the issue throughout — those describe 
 
 ## Where things go
 
-Every chip is implemented across all six languages and every supported platform within each language, plus the UIFlow 2 Blockly blocks under Python. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
+Every chip is implemented across all six languages and every supported platform within each language, plus the UIFlow 1 Blockly blocks under Python. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
 
 | Artifact | Path |
 |----------|------|
 | Python driver (all 3 targets) | `python/periph/chips/<category>/<chip>.py` |
 | Python examples | `python/examples/<category>/<chip>/{minimal,complete,demo}.py` |
-| UIFlow 2 manifest + blocks | `python/uiflow/<category>/<chip>/{<chip>.json,<chip>_*.py}` |
-| UIFlow 2 generated `.m5b` | `python/uiflow/<category>/<chip>/<chip>.m5b` — run `python/uiflow/generate.sh` after any manifest/block edit and commit the output; CI's `generate.sh --check` fails the build if it's stale |
+| UIFlow 1 manifest + blocks | `python/uiflow1/<category>/<chip>/{<chip>.json,<chip>_*.py}` |
+| UIFlow 1 generated `.m5b` | `python/uiflow1/<category>/<chip>/<chip>.m5b` — run `python/uiflow1/generate.sh` after any manifest/block edit and commit the output; CI's `generate.sh --check` fails the build if it's stale |
 | C++ driver (all platforms) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
 | C++ Arduino examples | `cpp/examples/arduino/<category>/<Chip>/{minimal,complete,demo}/{minimal,complete,demo}.ino` |
 | C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |

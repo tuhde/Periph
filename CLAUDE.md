@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I²C, or other transports.
 
 Implementations:
-- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack UIFlow 2 Blockly custom blocks (`python/uiflow/`) wrap the MicroPython drivers rather than adding a fourth target
+- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack Blockly custom blocks wrap the MicroPython drivers rather than adding a fourth target — `python/uiflow1/` for the legacy UiFlow 1 `.m5b` format, `python/uiflow2/` for the native UiFlow 2 `.m5b2` format (design-only for now, see `python/uiflow2/UIFLOW2_BLOCKS.md`)
 - **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
@@ -86,10 +86,12 @@ python/
   examples/
     <category>/
       <chip>/           # minimal.py, complete.py, demo.py
-  uiflow/
+  uiflow1/
     generate.sh         # regenerates every <chip>.m5b; --check verifies they're up to date (CI runs this)
     <category>/
-      <chip>/           # <chip>.json + one .py per block + generated <chip>.m5b — M5Stack UIFlow 2 Blockly custom blocks wrapping the chip driver; run generate.sh after editing .json/.py files here
+      <chip>/           # <chip>.json + one .py per block + generated <chip>.m5b — M5Stack UIFlow 1 Blockly custom blocks wrapping the chip driver; run generate.sh after editing .json/.py files here
+  uiflow2/
+    UIFLOW2_BLOCKS.md   # format reference + design doc for native UIFlow 2 (.m5b2) support — not yet implemented
   tests/
 cpp/
   CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library

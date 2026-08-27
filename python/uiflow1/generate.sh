@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Regenerate every UIFlow 2 .m5b file from its <chip>.json manifest, using
+# Regenerate every UIFlow 1 .m5b file from its <chip>.json manifest, using
 # uiflow-custom-block-generator. Output is deterministic (no timestamps or
 # random content), so the committed .m5b files must always match what this
 # script produces — CI runs it in --check mode to catch drift after a
 # manifest or block .py file changes without regenerating.
 #
-# Installs into a self-managed venv (python/uiflow/.generator, created here if
+# Installs into a self-managed venv (python/uiflow1/.generator, created here if
 # missing) rather than the caller's system Python — Debian/Ubuntu's PEP 668
 # "externally-managed-environment" blocks a bare `pip install` outside a venv,
 # and this keeps the pinned generator version isolated regardless. The venv
@@ -20,7 +20,7 @@
 GENERATOR_COMMIT=28c084fe81eaa9acc9a7530ac56feea6650d23f4
 
 set -euo pipefail
-cd "$(dirname "$0")"   # python/uiflow/
+cd "$(dirname "$0")"   # python/uiflow1/
 
 VENV=.generator
 [ -d "$VENV" ] || python3 -m venv "$VENV"
@@ -36,7 +36,7 @@ if [ "${1:-}" = "--check" ]; then
         expected="$(dirname "$manifest")/$name.m5b"
         "${GENERATOR[@]}" "$manifest" --target-dir "$TMP" >/dev/null
         if ! diff -q "$expected" "$TMP/$name.m5b" >/dev/null 2>&1; then
-            echo "STALE (run python/uiflow/generate.sh): $expected" >&2
+            echo "STALE (run python/uiflow1/generate.sh): $expected" >&2
             STATUS=1
         fi
         rm -f "$TMP/$name.m5b"

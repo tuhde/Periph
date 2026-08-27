@@ -6,7 +6,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 | Language | Platforms | Status |
 |----------|-----------|--------|
-| Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 2 (Blockly custom blocks) | Active |
+| Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 (Blockly custom blocks) | Active |
 | C++ | Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
@@ -145,9 +145,16 @@ Each chip has three examples per language:
 
 The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, conversion formulas. No separate docs directory; the examples serve as usage documentation.
 
-## UIFlow 2
+## UIFlow
 
-Blockly custom blocks for [M5Stack UIFlow 2](https://uiflow2.m5stack.com/) wrap 27 of the MicroPython chip drivers — see `python/uiflow/<category>/<chip>/`. Each chip's `<chip>.m5b` is committed and ready to import via **Extension → Import**; no local tooling required. Details, the full chip list, and how to regenerate after an edit: [python/uiflow/README.md](python/uiflow/README.md).
+Blockly custom blocks wrap 27 of the MicroPython chip drivers for M5Stack's UIFlow app — see
+`python/uiflow1/<category>/<chip>/`. Each chip's `<chip>.m5b` is committed and ready to import via
+**Extension → Import**; no local tooling required. Details, the full chip list, and how to regenerate
+after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
+
+This targets **UIFlow 1**'s `.m5b` format. Native support for the current [UIFlow 2](https://uiflow2.m5stack.com/)
+web IDE's `.m5b2` format is a separate, not-yet-implemented deliverable — see
+[python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md).
 
 ## Node-RED
 
