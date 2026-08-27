@@ -155,7 +155,8 @@ after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
 This targets **UIFlow 1**'s `.m5b` format. UIFlow 1 and the current
 [UIFlow 2](https://uiflow2.m5stack.com/) web IDE don't interoperate — a `.m5b` doesn't import into UIFlow 2
 and vice versa — so every chip also needs a native UIFlow 2 `.m5b2`, hand-built in the UIFlow 2 Block
-Designer (no generator exists for this format). Not yet implemented for any chip; see
+Designer (no generator exists for this format). One chip (AHT21) is implemented so far — see
+[python/uiflow2/README.md](python/uiflow2/README.md) for the chip list and
 [python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md) for the format and workflow.
 
 ## Node-RED

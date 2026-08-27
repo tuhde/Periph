@@ -112,7 +112,7 @@ I2C_BUS=1 I2C_ADDR=0x40 python3 python/examples/<category>/<chip>/minimal.py
 
 ### UIFlow (M5Stack)
 
-Not an example tier — a separate deliverable, and not one but two: UIFlow 1 and UIFlow 2 don't interoperate (a `.m5b` doesn't import into UIFlow 2 and vice versa), so both are required per chip. Blockly custom blocks wrapping the MicroPython driver live in `python/uiflow1/<category>/<chip>/` with a committed, ready-to-import `<chip>.m5b` targeting **UIFlow 1**'s format — see [python/uiflow1/README.md](python/uiflow1/README.md). Native **UIFlow 2** support (`python/uiflow2/<category>/<chip>/{<Chip>.py,<Chip>.m5b2}`) is hand-built in the UIFlow 2 Block Designer (no generator) — see [python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md); not yet implemented for any chip.
+Not an example tier — a separate deliverable, and not one but two: UIFlow 1 and UIFlow 2 don't interoperate (a `.m5b` doesn't import into UIFlow 2 and vice versa), so both are required per chip. Blockly custom blocks wrapping the MicroPython driver live in `python/uiflow1/<category>/<chip>/` with a committed, ready-to-import `<chip>.m5b` targeting **UIFlow 1**'s format — see [python/uiflow1/README.md](python/uiflow1/README.md). Native **UIFlow 2** support (`python/uiflow2/<category>/<chip>/{<Chip>.py,<Chip>.m5b2}`) is hand-built in the UIFlow 2 Block Designer (no generator) — see [python/uiflow2/README.md](python/uiflow2/README.md) for the chip list and [python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md) for the format.
 
 ---
 

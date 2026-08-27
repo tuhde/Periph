@@ -1,0 +1,106 @@
+{
+  "category": "AHT21",
+  "color": "#a6bbcf",
+  "uiflow2": {
+    "jscode": "const CUSTOM_AHT21_LANGUAGES = {\n    \"CUSTOM_AHT21\": \"AHT21\",\n    \"CUSTOM_AHT21_HUE\": \"#a6bbcf\",\n    \"CUSTOM_AHT21_INIT\": \"%1 init I2C bus %2 address %3\",\n    \"CUSTOM_AHT21_READ_TEMPERATURE\": \"%1 read temperature (\\u00b0C)\",\n    \"CUSTOM_AHT21_READ_HUMIDITY\": \"%1 read humidity (%)\"\n};\nfor (var _k in CUSTOM_AHT21_LANGUAGES) {\n    Blockly.Msg[_k] = CUSTOM_AHT21_LANGUAGES[_k];\n}\n\nBlockly.BlockRegExpList['custom_aht21'] = {\n    code: \"from AHT21 import AHT21\"\n};\n\nBlockly.utils.getcustom_aht21Options = function() {\n    var options = [];\n    var blocks = Blockly.getMainWorkspace().getAllBlocks(false);\n    for (var i = 0; i < blocks.length; i++) {\n        if (blocks[i].type === 'custom_aht21_init') {\n            var name = blocks[i].getFieldValue('VAR');\n            options.push([name, name]);\n        }\n    }\n    if (options.length === 0) {\n        options.push(['aht21_0', 'aht21_0']);\n    }\n    return options;\n};\n\n// Block custom_aht21_init\nvar custom_aht21_init_json = {\n    \"previousStatement\": null,\n    \"nextStatement\": null,\n    \"message0\": \"%{BKY_CUSTOM_AHT21_INIT}\",\n    \"args0\": [\n        {\n            \"type\": \"field_input\",\n            \"name\": \"VAR\",\n            \"text\": \"aht21_0\"\n        },\n        {\n            \"type\": \"input_value\",\n            \"name\": \"bus\",\n            \"check\": \"Number\"\n        },\n        {\n            \"type\": \"input_value\",\n            \"name\": \"address\",\n            \"check\": \"Number\"\n        }\n    ],\n    \"colour\": \"%{BKY_CUSTOM_AHT21_HUE}\"\n};\nBlockly.Blocks['custom_aht21_init'] = {\n    init: function() {\n        this.jsonInit(custom_aht21_init_json);\n    }\n};\n\nBlockly.Python['custom_aht21_init'] = function(block) {\n    var VAR = block.getFieldValue('VAR');\n    var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_ATOMIC) || '0';\n    var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_ATOMIC) || '56';\n    Blockly.Python.definitions_['import_' + VAR] = 'from AHT21 import AHT21';\n    return VAR + ' = AHT21(bus=' + bus + ', address=' + address + ')\\n';\n};\n\n// Block custom_aht21_read_temperature\nvar custom_aht21_read_temperature_json = {\n    \"output\": null,\n    \"message0\": \"%{BKY_CUSTOM_AHT21_READ_TEMPERATURE}\",\n    \"args0\": [\n        {\n            \"type\": \"field_dropdown\",\n            \"name\": \"VAR\",\n            \"options\": \"getcustom_aht21Options\"\n        }\n    ],\n    \"colour\": \"%{BKY_CUSTOM_AHT21_HUE}\"\n};\nBlockly.Blocks['custom_aht21_read_temperature'] = {\n    init: function() {\n        this.jsonInit(custom_aht21_read_temperature_json);\n    }\n};\n\nBlockly.Python['custom_aht21_read_temperature'] = function(block) {\n    var VAR = block.getFieldValue('VAR');\n    var code = VAR + '.read_temperature()';\n    return [code, Blockly.Python.ORDER_NONE];\n};\n\n// Block custom_aht21_read_humidity\nvar custom_aht21_read_humidity_json = {\n    \"output\": null,\n    \"message0\": \"%{BKY_CUSTOM_AHT21_READ_HUMIDITY}\",\n    \"args0\": [\n        {\n            \"type\": \"field_dropdown\",\n            \"name\": \"VAR\",\n            \"options\": \"getcustom_aht21Options\"\n        }\n    ],\n    \"colour\": \"%{BKY_CUSTOM_AHT21_HUE}\"\n};\nBlockly.Blocks['custom_aht21_read_humidity'] = {\n    init: function() {\n        this.jsonInit(custom_aht21_read_humidity_json);\n    }\n};\n\nBlockly.Python['custom_aht21_read_humidity'] = function(block) {\n    var VAR = block.getFieldValue('VAR');\n    var code = VAR + '.read_humidity()';\n    return [code, Blockly.Python.ORDER_NONE];\n};\n",
+    "toolbox": "<category name=\"%{BKY_CUSTOM_AHT21}\" colour=\"%{BKY_CUSTOM_AHT21_HUE}\" hidden=\"true\" toolboxitemid=\"custom_aht21\">\n<title text=\"AHT21\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_aht21_init\">\n  <field name=\"VAR\">aht21_0</field>\n  <value name=\"bus\">\n    <shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\"><field name=\"NUM\">56</field></shadow>\n  </value>\n</block>\n<block type=\"custom_aht21_read_temperature\"/>\n<block type=\"custom_aht21_read_humidity\"/>\n</category>\n",
+    "toolboxitemid": "custom_aht21",
+    "block_type": {
+      "__init__": "custom_aht21___init__",
+      "read_temperature": "custom_aht21_read_temperature",
+      "read_humidity": "custom_aht21_read_humidity"
+    }
+  },
+  "data": {
+    "name": "AHT21",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#a6bbcf",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Periph"
+    },
+    "header": {
+      "file": "AHT21",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init I2C bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "56",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "127"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = AHT21Full(I2CConnection(address, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 read temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": null,
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 read humidity (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": null,
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "aht21"
+  },
+  "pyCode": "\"\"\"\nfile     AHT21\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.aht21 import AHT21Full\n\n\nclass AHT21:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#a6bbcf'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Periph\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 56):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            address:\n                name: address\n                type: int\n                default: '56'\n                field: number\n                min: '0'\n                max: '127'\n        \"\"\"\n        self._driver = AHT21Full(I2CConnection(address, bus=bus))\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def read_humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read humidity (%)'\n        \"\"\"\n        return self._driver.read_humidity()\n",
+  "version": "alpha2"
+}
