@@ -1,0 +1,95 @@
+{
+  "category": "DHT11",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_DHT11_LANGUAGES = {\n  \"CUSTOM_DHT11_INIT\": {\n    \"en\": \"%1 init pin %2\"\n  },\n  \"CUSTOM_DHT11_READ_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_DHT11_READ_HUMIDITY\": {\n    \"en\": \"%1 humidity (%)\"\n  }\n};\n\nconst initType = 'custom_dht11_init';\nBlockly.BlockRegExpList['custom_dht11'] = {\n  regexp: new RegExp(/^custom_dht11_/),\n  code: \"from DHT11 import DHT11\",\n  initBlockType: initType,\n  categoryId: 'custom_dht11',\n}\nBlockly.utils.registerLanguages(CUSTOM_DHT11_LANGUAGES)\n\nBlockly.Msg.CUSTOM_DHT11_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_DHT11 = 'DHT11'\n\nBlockly.utils.getcustom_dht11Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['dht11_0', 'dht11_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_dht11_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DHT11_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_dht11Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'dht11_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_dht11_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = DHT11(${pin})\\n`\n}\n\nBlockly.Blocks[\"custom_dht11_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DHT11_READ_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_dht11Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_dht11_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_dht11_read_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DHT11_READ_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_dht11Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_dht11_read_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_humidity()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"DHT11\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_dht11\"><title text=\"DHT11\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_dht11_init\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_dht11_read_temperature\"/><block type=\"custom_dht11_read_humidity\"/>\n</category>\n",
+    "toolboxitemid": "custom_dht11",
+    "block_type": [
+      "custom_dht11___init__",
+      "custom_dht11_read_temperature",
+      "custom_dht11_read_humidity"
+    ]
+  },
+  "data": {
+    "name": "DHT11",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "DHT11",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.dhtxx_auto import DHTxxConnection\nfrom periph.chips.humidity.dht11 import DHT11Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init pin %2"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = DHTxxConnection(pin)\n        self._driver = DHT11Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_humidity",
+        "note": {},
+        "label": {
+          "en": "%1 humidity (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_humidity()",
+        "ast_return": {
+          "code": "self._driver.read_humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "dht11"
+  },
+  "pyCode": "\"\"\"\nfile     DHT11\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.dhtxx_auto import DHTxxConnection\nfrom periph.chips.humidity.dht11 import DHT11Full\n\n\nclass DHT11:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, pin: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init pin %2'\n        params:\n            pin:\n                name: pin\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = DHTxxConnection(pin)\n        self._driver = DHT11Full(connection)\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def read_humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 humidity (%)'\n        \"\"\"\n        return self._driver.read_humidity()\n",
+  "version": "alpha2"
+}

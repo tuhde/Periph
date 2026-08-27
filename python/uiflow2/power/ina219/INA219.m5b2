@@ -1,0 +1,148 @@
+{
+  "category": "INA219",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_INA219_LANGUAGES = {\n  \"CUSTOM_INA219_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 r_shunt %4 max_current %5\"\n  },\n  \"CUSTOM_INA219_VOLTAGE\": {\n    \"en\": \"%1 bus voltage (V)\"\n  },\n  \"CUSTOM_INA219_SHUNT_VOLTAGE\": {\n    \"en\": \"%1 shunt voltage (V)\"\n  },\n  \"CUSTOM_INA219_CURRENT\": {\n    \"en\": \"%1 current (A)\"\n  },\n  \"CUSTOM_INA219_POWER\": {\n    \"en\": \"%1 power (W)\"\n  }\n};\n\nconst initType = 'custom_ina219_init';\nBlockly.BlockRegExpList['custom_ina219'] = {\n  regexp: new RegExp(/^custom_ina219_/),\n  code: \"from INA219 import INA219\",\n  initBlockType: initType,\n  categoryId: 'custom_ina219',\n}\nBlockly.utils.registerLanguages(CUSTOM_INA219_LANGUAGES)\n\nBlockly.Msg.CUSTOM_INA219_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_INA219 = 'INA219'\n\nBlockly.utils.getcustom_ina219Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ina219_0', 'ina219_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ina219_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA219_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ina219Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ina219_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_shunt'\n        },\n        {\n          'type': 'input_value',\n          'name': 'max_current'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina219_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_shunt = Blockly.Python.valueToCode(block, 'r_shunt', Blockly.Python.ORDER_FUNCTION_CALL);\n  var max_current = Blockly.Python.valueToCode(block, 'max_current', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = INA219(${bus}, ${address}, ${r_shunt}, ${max_current})\\n`\n}\n\nBlockly.Blocks[\"custom_ina219_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA219_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina219Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina219_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ina219_shunt_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA219_SHUNT_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina219Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina219_shunt_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.shunt_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ina219_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA219_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina219Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina219_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.current()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ina219_power\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA219_POWER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina219Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina219_power\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.power()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"INA219\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ina219\"><title text=\"INA219\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ina219_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n  <value name=\"r_shunt\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n  <value name=\"max_current\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ina219_voltage\"/><block type=\"custom_ina219_shunt_voltage\"/><block type=\"custom_ina219_current\"/><block type=\"custom_ina219_power\"/>\n</category>\n",
+    "toolboxitemid": "custom_ina219",
+    "block_type": [
+      "custom_ina219___init__",
+      "custom_ina219_voltage",
+      "custom_ina219_shunt_voltage",
+      "custom_ina219_current",
+      "custom_ina219_power"
+    ]
+  },
+  "data": {
+    "name": "INA219",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "INA219",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ina219 import INA219Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 r_shunt %4 max_current %5"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_shunt",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "max_current",
+            "type": "float",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = INA219Full(connection, r_shunt, max_current)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "voltage",
+        "note": {},
+        "label": {
+          "en": "%1 bus voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.voltage()",
+        "ast_return": {
+          "code": "self._driver.voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shunt_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 shunt voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.shunt_voltage()",
+        "ast_return": {
+          "code": "self._driver.shunt_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "current",
+        "note": {},
+        "label": {
+          "en": "%1 current (A)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.current()",
+        "ast_return": {
+          "code": "self._driver.current()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power",
+        "note": {},
+        "label": {
+          "en": "%1 power (W)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.power()",
+        "ast_return": {
+          "code": "self._driver.power()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ina219"
+  },
+  "pyCode": "\"\"\"\nfile     INA219\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ina219 import INA219Full\n\n\nclass INA219:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 64, r_shunt: float = 0.1, max_current: float = 2.0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 r_shunt %4 max_current %5'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '64'\n                field: number\n            r_shunt:\n                name: r_shunt\n                type: float\n                default: '0.1'\n                field: number\n            max_current:\n                name: max_current\n                type: float\n                default: '2'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = INA219Full(connection, r_shunt, max_current)\n\n    def voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 bus voltage (V)'\n        \"\"\"\n        return self._driver.voltage()\n\n    def shunt_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 shunt voltage (V)'\n        \"\"\"\n        return self._driver.shunt_voltage()\n\n    def current(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 current (A)'\n        \"\"\"\n        return self._driver.current()\n\n    def power(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 power (W)'\n        \"\"\"\n        return self._driver.power()\n",
+  "version": "alpha2"
+}

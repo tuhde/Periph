@@ -1,0 +1,169 @@
+{
+  "category": "MCP4728",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MCP4728_LANGUAGES = {\n  \"CUSTOM_MCP4728_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MCP4728_SET_VOLTAGE\": {\n    \"en\": \"%1 set channel output (fraction of V_DD) channel %2 fraction %3\"\n  },\n  \"CUSTOM_MCP4728_SET_RAW\": {\n    \"en\": \"%1 set channel raw 12-bit code channel %2 code %3\"\n  },\n  \"CUSTOM_MCP4728_SET_ALL\": {\n    \"en\": \"%1 set all channels (fractions of V_DD) frac_a %2 frac_b %3 frac_c %4 frac_d %5\"\n  }\n};\n\nconst initType = 'custom_mcp4728_init';\nBlockly.BlockRegExpList['custom_mcp4728'] = {\n  regexp: new RegExp(/^custom_mcp4728_/),\n  code: \"from MCP4728 import MCP4728\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp4728',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP4728_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP4728_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP4728 = 'MCP4728'\n\nBlockly.utils.getcustom_mcp4728Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp4728_0', 'mcp4728_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp4728_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4728_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp4728Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp4728_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4728_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP4728(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4728_set_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4728_SET_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4728Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fraction'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4728_set_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fraction = Blockly.Python.valueToCode(block, 'fraction', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_voltage(${channel}, ${fraction})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4728_set_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4728_SET_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4728Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'code'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4728_set_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var code = Blockly.Python.valueToCode(block, 'code', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_raw(${channel}, ${code})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp4728_set_all\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP4728_SET_ALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp4728Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'frac_a'\n        },\n        {\n          'type': 'input_value',\n          'name': 'frac_b'\n        },\n        {\n          'type': 'input_value',\n          'name': 'frac_c'\n        },\n        {\n          'type': 'input_value',\n          'name': 'frac_d'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp4728_set_all\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var frac_a = Blockly.Python.valueToCode(block, 'frac_a', Blockly.Python.ORDER_FUNCTION_CALL);\n  var frac_b = Blockly.Python.valueToCode(block, 'frac_b', Blockly.Python.ORDER_FUNCTION_CALL);\n  var frac_c = Blockly.Python.valueToCode(block, 'frac_c', Blockly.Python.ORDER_FUNCTION_CALL);\n  var frac_d = Blockly.Python.valueToCode(block, 'frac_d', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_all(${frac_a}, ${frac_b}, ${frac_c}, ${frac_d})\\n`\n}\n",
+    "toolbox": "\n<category name=\"MCP4728\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp4728\"><title text=\"MCP4728\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp4728_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">96</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4728_set_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"fraction\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4728_set_raw\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"code\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp4728_set_all\">\n  <value name=\"frac_a\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"frac_b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"frac_c\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"frac_d\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_mcp4728",
+    "block_type": [
+      "custom_mcp4728___init__",
+      "custom_mcp4728_set_voltage",
+      "custom_mcp4728_set_raw",
+      "custom_mcp4728_set_all"
+    ]
+  },
+  "data": {
+    "name": "MCP4728",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP4728",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.mcp4728 import MCP4728Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "96",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP4728Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 set channel output (fraction of V_DD) channel %2 fraction %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fraction",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_voltage(channel, fraction)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_raw",
+        "note": {},
+        "label": {
+          "en": "%1 set channel raw 12-bit code channel %2 code %3"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "code",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_raw(channel, code)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_all",
+        "note": {},
+        "label": {
+          "en": "%1 set all channels (fractions of V_DD) frac_a %2 frac_b %3 frac_c %4 frac_d %5"
+        },
+        "params": [
+          {
+            "name": "frac_a",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "frac_b",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "frac_c",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "frac_d",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_all([frac_a, frac_b, frac_c, frac_d])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp4728"
+  },
+  "pyCode": "\"\"\"\nfile     MCP4728\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.mcp4728 import MCP4728Full\n\n\nclass MCP4728:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 96):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '96'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP4728Full(connection)\n\n    def set_voltage(self, channel: int, fraction: float):\n        \"\"\"\n        label:\n            en: '%1 set channel output (fraction of V_DD) channel %2 fraction %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            fraction:\n                name: fraction\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_voltage(channel, fraction)\n\n    def set_raw(self, channel: int, code: int):\n        \"\"\"\n        label:\n            en: '%1 set channel raw 12-bit code channel %2 code %3'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            code:\n                name: code\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_raw(channel, code)\n\n    def set_all(self, frac_a: float, frac_b: float, frac_c: float, frac_d: float):\n        \"\"\"\n        label:\n            en: '%1 set all channels (fractions of V_DD) frac_a %2 frac_b %3 frac_c %4 frac_d %5'\n        params:\n            frac_a:\n                name: frac_a\n                type: float\n                field: number\n            frac_b:\n                name: frac_b\n                type: float\n                field: number\n            frac_c:\n                name: frac_c\n                type: float\n                field: number\n            frac_d:\n                name: frac_d\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_all([frac_a, frac_b, frac_c, frac_d])\n",
+  "version": "alpha2"
+}

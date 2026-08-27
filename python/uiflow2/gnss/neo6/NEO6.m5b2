@@ -1,0 +1,148 @@
+{
+  "category": "NEO6",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_NEO6_LANGUAGES = {\n  \"CUSTOM_NEO6_INIT\": {\n    \"en\": \"%1 init port %2 baudrate %3 tx %4 rx %5\"\n  },\n  \"CUSTOM_NEO6_UPDATE\": {\n    \"en\": \"%1 update (got new fix?)\"\n  },\n  \"CUSTOM_NEO6_LATITUDE\": {\n    \"en\": \"%1 latitude (°)\"\n  },\n  \"CUSTOM_NEO6_LONGITUDE\": {\n    \"en\": \"%1 longitude (°)\"\n  },\n  \"CUSTOM_NEO6_ALTITUDE\": {\n    \"en\": \"%1 altitude (m)\"\n  }\n};\n\nconst initType = 'custom_neo6_init';\nBlockly.BlockRegExpList['custom_neo6'] = {\n  regexp: new RegExp(/^custom_neo6_/),\n  code: \"from NEO6 import NEO6\",\n  initBlockType: initType,\n  categoryId: 'custom_neo6',\n}\nBlockly.utils.registerLanguages(CUSTOM_NEO6_LANGUAGES)\n\nBlockly.Msg.CUSTOM_NEO6_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_NEO6 = 'NEO6'\n\nBlockly.utils.getcustom_neo6Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['neo6_0', 'neo6_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_neo6_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_NEO6_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_neo6Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'neo6_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'port'\n        },\n        {\n          'type': 'input_value',\n          'name': 'baudrate'\n        },\n        {\n          'type': 'input_value',\n          'name': 'tx'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rx'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_neo6_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var port = Blockly.Python.valueToCode(block, 'port', Blockly.Python.ORDER_FUNCTION_CALL);\n  var baudrate = Blockly.Python.valueToCode(block, 'baudrate', Blockly.Python.ORDER_FUNCTION_CALL);\n  var tx = Blockly.Python.valueToCode(block, 'tx', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rx = Blockly.Python.valueToCode(block, 'rx', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = NEO6(${port}, ${baudrate}, ${tx}, ${rx})\\n`\n}\n\nBlockly.Blocks[\"custom_neo6_update\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_NEO6_UPDATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_neo6Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_neo6_update\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.update()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_neo6_latitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_NEO6_LATITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_neo6Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_neo6_latitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.latitude()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_neo6_longitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_NEO6_LONGITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_neo6Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_neo6_longitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.longitude()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_neo6_altitude\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_NEO6_ALTITUDE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_neo6Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_neo6_altitude\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.altitude()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"NEO6\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_neo6\"><title text=\"NEO6\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_neo6_init\">\n  <value name=\"port\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"baudrate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">9600</field>\n    </shadow>\n  </value>\n  <value name=\"tx\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"rx\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_neo6_update\"/><block type=\"custom_neo6_latitude\"/><block type=\"custom_neo6_longitude\"/><block type=\"custom_neo6_altitude\"/>\n</category>\n",
+    "toolboxitemid": "custom_neo6",
+    "block_type": [
+      "custom_neo6___init__",
+      "custom_neo6_update",
+      "custom_neo6_latitude",
+      "custom_neo6_longitude",
+      "custom_neo6_altitude"
+    ]
+  },
+  "data": {
+    "name": "NEO6",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "NEO6",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.uart_auto import UARTConnection\nfrom periph.chips.gnss.neo6 import NEO6Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init port %2 baudrate %3 tx %4 rx %5"
+        },
+        "params": [
+          {
+            "name": "port",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "baudrate",
+            "type": "int",
+            "default": "9600",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "tx",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rx",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = UARTConnection(port=port, baudrate=baudrate, tx=tx, rx=rx)\n        self._driver = NEO6Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "update",
+        "note": {},
+        "label": {
+          "en": "%1 update (got new fix?)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.update()",
+        "ast_return": {
+          "code": "self._driver.update()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "latitude",
+        "note": {},
+        "label": {
+          "en": "%1 latitude (°)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.latitude()",
+        "ast_return": {
+          "code": "self._driver.latitude()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "longitude",
+        "note": {},
+        "label": {
+          "en": "%1 longitude (°)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.longitude()",
+        "ast_return": {
+          "code": "self._driver.longitude()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "altitude",
+        "note": {},
+        "label": {
+          "en": "%1 altitude (m)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.altitude()",
+        "ast_return": {
+          "code": "self._driver.altitude()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "neo6"
+  },
+  "pyCode": "\"\"\"\nfile     NEO6\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.uart_auto import UARTConnection\nfrom periph.chips.gnss.neo6 import NEO6Full\n\n\nclass NEO6:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, port: int = 1, baudrate: int = 9600, tx: int = 0, rx: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init port %2 baudrate %3 tx %4 rx %5'\n        params:\n            port:\n                name: port\n                type: int\n                default: '1'\n                field: number\n            baudrate:\n                name: baudrate\n                type: int\n                default: '9600'\n                field: number\n            tx:\n                name: tx\n                type: int\n                default: '0'\n                field: number\n            rx:\n                name: rx\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = UARTConnection(port=port, baudrate=baudrate, tx=tx, rx=rx)\n        self._driver = NEO6Full(connection)\n\n    def update(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 update (got new fix?)'\n        \"\"\"\n        return self._driver.update()\n\n    def latitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 latitude (°)'\n        \"\"\"\n        return self._driver.latitude()\n\n    def longitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 longitude (°)'\n        \"\"\"\n        return self._driver.longitude()\n\n    def altitude(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 altitude (m)'\n        \"\"\"\n        return self._driver.altitude()\n",
+  "version": "alpha2"
+}

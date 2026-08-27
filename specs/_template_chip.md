@@ -180,12 +180,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/<category>/<chip>_test_linux.py` (Linux)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/<category>/<chip>/<chip>.json` — `Periph` category, `#a6bbcf` color
+- [ ] Manifest `python/uiflow1/<category>/<chip>/<chip>.json` — `Periph` category, `#C084FC` color
 - [ ] Blocks `python/uiflow1/<category>/<chip>/<chip>_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
 - [ ] Generated `python/uiflow1/<category>/<chip>/<chip>.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/<category>/<chip>/<Chip>.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#a6bbcf` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [ ] Wrapper class `python/uiflow2/<category>/<chip>/<Chip>.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
 - [ ] Exported `python/uiflow2/<category>/<chip>/<Chip>.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++

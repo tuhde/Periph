@@ -1,0 +1,151 @@
+{
+  "category": "PCF8591",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCF8591_LANGUAGES = {\n  \"CUSTOM_PCF8591_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCF8591_READ_CHANNEL\": {\n    \"en\": \"%1 read channel %2\"\n  },\n  \"CUSTOM_PCF8591_READ_CHANNEL_VOLTAGE\": {\n    \"en\": \"%1 read channel voltage channel %2 vref %3 vagnd %4\"\n  },\n  \"CUSTOM_PCF8591_SET_DAC_VOLTAGE\": {\n    \"en\": \"%1 set DAC output (fraction of VREF-VAGND) fraction %2\"\n  }\n};\n\nconst initType = 'custom_pcf8591_init';\nBlockly.BlockRegExpList['custom_pcf8591'] = {\n  regexp: new RegExp(/^custom_pcf8591_/),\n  code: \"from PCF8591 import PCF8591\",\n  initBlockType: initType,\n  categoryId: 'custom_pcf8591',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCF8591_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCF8591_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCF8591 = 'PCF8591'\n\nBlockly.utils.getcustom_pcf8591Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pcf8591_0', 'pcf8591_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pcf8591_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8591_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pcf8591Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pcf8591_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8591_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCF8591(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8591_read_channel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8591_READ_CHANNEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8591Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8591_read_channel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_channel(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf8591_read_channel_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8591_READ_CHANNEL_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8591Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n        {\n          'type': 'input_value',\n          'name': 'vref'\n        },\n        {\n          'type': 'input_value',\n          'name': 'vagnd'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8591_read_channel_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vref = Blockly.Python.valueToCode(block, 'vref', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vagnd = Blockly.Python.valueToCode(block, 'vagnd', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_channel_voltage(${channel}, ${vref}, ${vagnd})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_pcf8591_set_dac_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8591_SET_DAC_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8591Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'fraction'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8591_set_dac_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var fraction = Blockly.Python.valueToCode(block, 'fraction', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_dac_voltage(${fraction})\\n`\n}\n",
+    "toolbox": "\n<category name=\"PCF8591\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pcf8591\"><title text=\"PCF8591\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pcf8591_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">72</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8591_read_channel\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8591_read_channel_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"vref\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"vagnd\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8591_set_dac_voltage\">\n  <value name=\"fraction\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_pcf8591",
+    "block_type": [
+      "custom_pcf8591___init__",
+      "custom_pcf8591_read_channel",
+      "custom_pcf8591_read_channel_voltage",
+      "custom_pcf8591_set_dac_voltage"
+    ]
+  },
+  "data": {
+    "name": "PCF8591",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCF8591",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.pcf8591 import PCF8591Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "72",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8591Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_channel",
+        "note": {},
+        "label": {
+          "en": "%1 read channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_channel(channel)",
+        "ast_return": {
+          "code": "self._driver.read_channel(channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_channel_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 read channel voltage channel %2 vref %3 vagnd %4"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "vref",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "vagnd",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_channel_voltage(channel, vref, vagnd)",
+        "ast_return": {
+          "code": "self._driver.read_channel_voltage(channel, vref, vagnd)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_dac_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 set DAC output (fraction of VREF-VAGND) fraction %2"
+        },
+        "params": [
+          {
+            "name": "fraction",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_dac_voltage(fraction)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pcf8591"
+  },
+  "pyCode": "\"\"\"\nfile     PCF8591\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.adc_dac.pcf8591 import PCF8591Full\n\n\nclass PCF8591:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 72):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '72'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8591Full(connection)\n\n    def read_channel(self, channel: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_channel(channel)\n\n    def read_channel_voltage(self, channel: int, vref: float, vagnd: float) -> float:\n        \"\"\"\n        label:\n            en: '%1 read channel voltage channel %2 vref %3 vagnd %4'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n            vref:\n                name: vref\n                type: float\n                field: number\n            vagnd:\n                name: vagnd\n                type: float\n                field: number\n        \"\"\"\n        return self._driver.read_channel_voltage(channel, vref, vagnd)\n\n    def set_dac_voltage(self, fraction: float):\n        \"\"\"\n        label:\n            en: '%1 set DAC output (fraction of VREF-VAGND) fraction %2'\n        params:\n            fraction:\n                name: fraction\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_dac_voltage(fraction)\n",
+  "version": "alpha2"
+}

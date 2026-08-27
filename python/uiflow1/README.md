@@ -38,7 +38,7 @@ The manifest is named `<chip>.json`, not `blocks.json` — the generator names i
 manifest's filename, so a shared generic name would silently overwrite one chip's output with another's if
 you batch-generate more than one into the same directory.
 
-All blocks share the `Periph` category and the `#a6bbcf` color, matching the palette color already used by
+All blocks share the `Periph` category and the `#C084FC` color, matching the palette color already used by
 the [Node-RED nodes](../../nodejs/packages/) so Periph-backed tooling looks consistent across integrations.
 
 Each `<chip>_init` block constructs the driver via the matching `periph.connection.<transport>_auto` factory

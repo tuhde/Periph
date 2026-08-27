@@ -1,0 +1,141 @@
+{
+  "category": "HX711",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HX711_LANGUAGES = {\n  \"CUSTOM_HX711_INIT\": {\n    \"en\": \"%1 init dout %2 pd_sck %3\"\n  },\n  \"CUSTOM_HX711_TARE\": {\n    \"en\": \"%1 tare (zero the scale)\"\n  },\n  \"CUSTOM_HX711_SET_SCALE\": {\n    \"en\": \"%1 set scale factor factor %2\"\n  },\n  \"CUSTOM_HX711_READ_WEIGHT\": {\n    \"en\": \"%1 weight\"\n  },\n  \"CUSTOM_HX711_READ_RAW\": {\n    \"en\": \"%1 raw ADC value\"\n  }\n};\n\nconst initType = 'custom_hx711_init';\nBlockly.BlockRegExpList['custom_hx711'] = {\n  regexp: new RegExp(/^custom_hx711_/),\n  code: \"from HX711 import HX711\",\n  initBlockType: initType,\n  categoryId: 'custom_hx711',\n}\nBlockly.utils.registerLanguages(CUSTOM_HX711_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HX711_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HX711 = 'HX711'\n\nBlockly.utils.getcustom_hx711Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hx711_0', 'hx711_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hx711_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX711_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hx711Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hx711_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'dout'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pd_sck'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx711_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var dout = Blockly.Python.valueToCode(block, 'dout', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pd_sck = Blockly.Python.valueToCode(block, 'pd_sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HX711(${dout}, ${pd_sck})\\n`\n}\n\nBlockly.Blocks[\"custom_hx711_tare\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX711_TARE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx711Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx711_tare\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.tare()\\n`\n}\n\nBlockly.Blocks[\"custom_hx711_set_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX711_SET_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx711Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'factor'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx711_set_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var factor = Blockly.Python.valueToCode(block, 'factor', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_scale(${factor})\\n`\n}\n\nBlockly.Blocks[\"custom_hx711_read_weight\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX711_READ_WEIGHT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx711Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx711_read_weight\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_weight()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx711_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX711_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx711Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx711_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"HX711\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hx711\"><title text=\"HX711\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hx711_init\">\n  <value name=\"dout\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pd_sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx711_tare\"/><block type=\"custom_hx711_set_scale\">\n  <value name=\"factor\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx711_read_weight\"/><block type=\"custom_hx711_read_raw\"/>\n</category>\n",
+    "toolboxitemid": "custom_hx711",
+    "block_type": [
+      "custom_hx711___init__",
+      "custom_hx711_tare",
+      "custom_hx711_set_scale",
+      "custom_hx711_read_weight",
+      "custom_hx711_read_raw"
+    ]
+  },
+  "data": {
+    "name": "HX711",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HX711",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.hx711_auto import HX711Connection\nfrom periph.chips.adc_dac.hx711 import HX711Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init dout %2 pd_sck %3"
+        },
+        "params": [
+          {
+            "name": "dout",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "pd_sck",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = HX711Connection(dout, pd_sck)\n        self._driver = HX711Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tare",
+        "note": {},
+        "label": {
+          "en": "%1 tare (zero the scale)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.tare()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_scale",
+        "note": {},
+        "label": {
+          "en": "%1 set scale factor factor %2"
+        },
+        "params": [
+          {
+            "name": "factor",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_scale(factor)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_weight",
+        "note": {},
+        "label": {
+          "en": "%1 weight"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_weight()",
+        "ast_return": {
+          "code": "self._driver.read_weight()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw ADC value"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hx711"
+  },
+  "pyCode": "\"\"\"\nfile     HX711\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.hx711_auto import HX711Connection\nfrom periph.chips.adc_dac.hx711 import HX711Full\n\n\nclass HX711:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, dout: int = 0, pd_sck: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init dout %2 pd_sck %3'\n        params:\n            dout:\n                name: dout\n                type: int\n                default: '0'\n                field: number\n            pd_sck:\n                name: pd_sck\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = HX711Connection(dout, pd_sck)\n        self._driver = HX711Full(connection)\n\n    def tare(self):\n        \"\"\"\n        label:\n            en: '%1 tare (zero the scale)'\n        \"\"\"\n        self._driver.tare()\n\n    def set_scale(self, factor: float):\n        \"\"\"\n        label:\n            en: '%1 set scale factor factor %2'\n        params:\n            factor:\n                name: factor\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_scale(factor)\n\n    def read_weight(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 weight'\n        \"\"\"\n        return self._driver.read_weight()\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw ADC value'\n        \"\"\"\n        return self._driver.read_raw()\n",
+  "version": "alpha2"
+}

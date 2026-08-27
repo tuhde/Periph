@@ -327,6 +327,13 @@ All values use SI units exclusively — no imperial units, no non-SI conventiona
 
 This applies to specs, source code, comments, examples, and documentation.
 
+## Block/node color
+
+Every Periph-authored Blockly custom block (UIFlow 1 `.m5b`, UIFlow 2 `.m5b2`) and Node-RED
+node uses a single shared accent color, `#C084FC`, so Periph-backed tooling looks consistent
+across integrations. Use it for any new chip's blocks/nodes; don't invent a per-chip or
+per-category color.
+
 ## Documentation
 
 The spec (`specs/<category>/<chip>.md`) is the reference documentation — register maps, API tables, data conversion formulas, and timing constraints all live there. No separate `docs/` directory.

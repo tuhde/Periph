@@ -1,0 +1,146 @@
+{
+  "category": "INA3221",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_INA3221_LANGUAGES = {\n  \"CUSTOM_INA3221_INIT\": {\n    \"en\": \"%1 init bus %2 address %3 r_shunt %4\"\n  },\n  \"CUSTOM_INA3221_READ_VOLTAGE\": {\n    \"en\": \"%1 bus voltage (V) channel %2\"\n  },\n  \"CUSTOM_INA3221_READ_CURRENT\": {\n    \"en\": \"%1 current (A) channel %2\"\n  },\n  \"CUSTOM_INA3221_READ_POWER\": {\n    \"en\": \"%1 power (W) channel %2\"\n  }\n};\n\nconst initType = 'custom_ina3221_init';\nBlockly.BlockRegExpList['custom_ina3221'] = {\n  regexp: new RegExp(/^custom_ina3221_/),\n  code: \"from INA3221 import INA3221\",\n  initBlockType: initType,\n  categoryId: 'custom_ina3221',\n}\nBlockly.utils.registerLanguages(CUSTOM_INA3221_LANGUAGES)\n\nBlockly.Msg.CUSTOM_INA3221_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_INA3221 = 'INA3221'\n\nBlockly.utils.getcustom_ina3221Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ina3221_0', 'ina3221_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ina3221_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA3221_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ina3221Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ina3221_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r_shunt'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina3221_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r_shunt = Blockly.Python.valueToCode(block, 'r_shunt', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = INA3221(${bus}, ${address}, ${r_shunt})\\n`\n}\n\nBlockly.Blocks[\"custom_ina3221_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA3221_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina3221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina3221_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_voltage(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ina3221_read_current\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA3221_READ_CURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina3221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina3221_read_current\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_current(${channel})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ina3221_read_power\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_INA3221_READ_POWER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ina3221Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ina3221_read_power\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_power(${channel})`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"INA3221\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ina3221\"><title text=\"INA3221\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ina3221_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">64</field>\n    </shadow>\n  </value>\n  <value name=\"r_shunt\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ina3221_read_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ina3221_read_current\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ina3221_read_power\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ina3221",
+    "block_type": [
+      "custom_ina3221___init__",
+      "custom_ina3221_read_voltage",
+      "custom_ina3221_read_current",
+      "custom_ina3221_read_power"
+    ]
+  },
+  "data": {
+    "name": "INA3221",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "INA3221",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ina3221 import INA3221Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3 r_shunt %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "64",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r_shunt",
+            "type": "float",
+            "default": "0.1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = INA3221Full(connection, r_shunt)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 bus voltage (V) channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.voltage(channel)",
+        "ast_return": {
+          "code": "self._driver.voltage(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_current",
+        "note": {},
+        "label": {
+          "en": "%1 current (A) channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.current(channel)",
+        "ast_return": {
+          "code": "self._driver.current(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_power",
+        "note": {},
+        "label": {
+          "en": "%1 power (W) channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.power(channel)",
+        "ast_return": {
+          "code": "self._driver.power(channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ina3221"
+  },
+  "pyCode": "\"\"\"\nfile     INA3221\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ina3221 import INA3221Full\n\n\nclass INA3221:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 64, r_shunt: float = 0.1):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3 r_shunt %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '64'\n                field: number\n            r_shunt:\n                name: r_shunt\n                type: float\n                default: '0.1'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = INA3221Full(connection, r_shunt)\n\n    def read_voltage(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 bus voltage (V) channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.voltage(channel)\n\n    def read_current(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 current (A) channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.current(channel)\n\n    def read_power(self, channel: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 power (W) channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.power(channel)\n",
+  "version": "alpha2"
+}

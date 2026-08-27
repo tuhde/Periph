@@ -1,6 +1,6 @@
 {
   "category": "Periph",
-  "color": "#a6bbcf",
+  "color": "#C084FC",
   "blocks": [
     {
       "name": "as5600_init",

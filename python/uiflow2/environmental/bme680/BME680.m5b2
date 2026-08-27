@@ -1,0 +1,134 @@
+{
+  "category": "BME680",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_BME680_LANGUAGES = {\n  \"CUSTOM_BME680_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_BME680_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_BME680_PRESSURE\": {\n    \"en\": \"%1 pressure (hPa)\"\n  },\n  \"CUSTOM_BME680_HUMIDITY\": {\n    \"en\": \"%1 humidity (%)\"\n  },\n  \"CUSTOM_BME680_GAS_RESISTANCE\": {\n    \"en\": \"%1 gas resistance (Ω)\"\n  }\n};\n\nconst initType = 'custom_bme680_init';\nBlockly.BlockRegExpList['custom_bme680'] = {\n  regexp: new RegExp(/^custom_bme680_/),\n  code: \"from BME680 import BME680\",\n  initBlockType: initType,\n  categoryId: 'custom_bme680',\n}\nBlockly.utils.registerLanguages(CUSTOM_BME680_LANGUAGES)\n\nBlockly.Msg.CUSTOM_BME680_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_BME680 = 'BME680'\n\nBlockly.utils.getcustom_bme680Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['bme680_0', 'bme680_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_bme680_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BME680_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_bme680Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'bme680_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_bme680_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = BME680(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_bme680_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BME680_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bme680Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bme680_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bme680_pressure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BME680_PRESSURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bme680Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bme680_pressure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.pressure()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bme680_humidity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BME680_HUMIDITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bme680Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bme680_humidity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.humidity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_bme680_gas_resistance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_BME680_GAS_RESISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_bme680Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_bme680_gas_resistance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gas_resistance()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"BME680\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_bme680\"><title text=\"BME680\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_bme680_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">118</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_bme680_temperature\"/><block type=\"custom_bme680_pressure\"/><block type=\"custom_bme680_humidity\"/><block type=\"custom_bme680_gas_resistance\"/>\n</category>\n",
+    "toolboxitemid": "custom_bme680",
+    "block_type": [
+      "custom_bme680___init__",
+      "custom_bme680_temperature",
+      "custom_bme680_pressure",
+      "custom_bme680_humidity",
+      "custom_bme680_gas_resistance"
+    ]
+  },
+  "data": {
+    "name": "BME680",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "BME680",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.bme680 import BME680Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "118",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = BME680Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "pressure",
+        "note": {},
+        "label": {
+          "en": "%1 pressure (hPa)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.pressure()",
+        "ast_return": {
+          "code": "self._driver.pressure()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "humidity",
+        "note": {},
+        "label": {
+          "en": "%1 humidity (%)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.humidity()",
+        "ast_return": {
+          "code": "self._driver.humidity()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gas_resistance",
+        "note": {},
+        "label": {
+          "en": "%1 gas resistance (Ω)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gas_resistance()",
+        "ast_return": {
+          "code": "self._driver.gas_resistance()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "bme680"
+  },
+  "pyCode": "\"\"\"\nfile     BME680\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.environmental.bme680 import BME680Full\n\n\nclass BME680:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 118):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '118'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = BME680Full(connection)\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def pressure(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 pressure (hPa)'\n        \"\"\"\n        return self._driver.pressure()\n\n    def humidity(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 humidity (%)'\n        \"\"\"\n        return self._driver.humidity()\n\n    def gas_resistance(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 gas resistance (Ω)'\n        \"\"\"\n        return self._driver.gas_resistance()\n",
+  "version": "alpha2"
+}

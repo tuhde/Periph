@@ -1,0 +1,192 @@
+{
+  "category": "WS2812B",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_WS2812B_LANGUAGES = {\n  \"CUSTOM_WS2812B_INIT\": {\n    \"en\": \"%1 init mosi %2 sck %3 miso %4 n %5\"\n  },\n  \"CUSTOM_WS2812B_FILL\": {\n    \"en\": \"%1 fill all pixels r %2 g %3 b %4\"\n  },\n  \"CUSTOM_WS2812B_SET_PIXEL\": {\n    \"en\": \"%1 set pixel index %2 r %3 g %4 b %5\"\n  },\n  \"CUSTOM_WS2812B_SHOW\": {\n    \"en\": \"%1 show (transmit buffer)\"\n  },\n  \"CUSTOM_WS2812B_OFF\": {\n    \"en\": \"%1 off (all pixels)\"\n  }\n};\n\nconst initType = 'custom_ws2812b_init';\nBlockly.BlockRegExpList['custom_ws2812b'] = {\n  regexp: new RegExp(/^custom_ws2812b_/),\n  code: \"from WS2812B import WS2812B\",\n  initBlockType: initType,\n  categoryId: 'custom_ws2812b',\n}\nBlockly.utils.registerLanguages(CUSTOM_WS2812B_LANGUAGES)\n\nBlockly.Msg.CUSTOM_WS2812B_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_WS2812B = 'WS2812B'\n\nBlockly.utils.getcustom_ws2812bOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ws2812b_0', 'ws2812b_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ws2812b_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_WS2812B_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ws2812bOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ws2812b_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mosi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sck'\n        },\n        {\n          'type': 'input_value',\n          'name': 'miso'\n        },\n        {\n          'type': 'input_value',\n          'name': 'n'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ws2812b_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mosi = Blockly.Python.valueToCode(block, 'mosi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sck = Blockly.Python.valueToCode(block, 'sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  var miso = Blockly.Python.valueToCode(block, 'miso', Blockly.Python.ORDER_FUNCTION_CALL);\n  var n = Blockly.Python.valueToCode(block, 'n', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = WS2812B(${mosi}, ${sck}, ${miso}, ${n})\\n`\n}\n\nBlockly.Blocks[\"custom_ws2812b_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_WS2812B_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ws2812bOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'r'\n        },\n        {\n          'type': 'input_value',\n          'name': 'g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'b'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ws2812b_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var r = Blockly.Python.valueToCode(block, 'r', Blockly.Python.ORDER_FUNCTION_CALL);\n  var g = Blockly.Python.valueToCode(block, 'g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var b = Blockly.Python.valueToCode(block, 'b', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${r}, ${g}, ${b})\\n`\n}\n\nBlockly.Blocks[\"custom_ws2812b_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_WS2812B_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ws2812bOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r'\n        },\n        {\n          'type': 'input_value',\n          'name': 'g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'b'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ws2812b_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r = Blockly.Python.valueToCode(block, 'r', Blockly.Python.ORDER_FUNCTION_CALL);\n  var g = Blockly.Python.valueToCode(block, 'g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var b = Blockly.Python.valueToCode(block, 'b', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${index}, ${r}, ${g}, ${b})\\n`\n}\n\nBlockly.Blocks[\"custom_ws2812b_show\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_WS2812B_SHOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ws2812bOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ws2812b_show\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.show()\\n`\n}\n\nBlockly.Blocks[\"custom_ws2812b_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_WS2812B_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ws2812bOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ws2812b_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.off()\\n`\n}\n",
+    "toolbox": "\n<category name=\"WS2812B\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ws2812b\"><title text=\"WS2812B\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ws2812b_init\">\n  <value name=\"mosi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"miso\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"n\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ws2812b_fill\">\n  <value name=\"r\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ws2812b_set_pixel\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"r\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ws2812b_show\"/><block type=\"custom_ws2812b_off\"/>\n</category>\n",
+    "toolboxitemid": "custom_ws2812b",
+    "block_type": [
+      "custom_ws2812b___init__",
+      "custom_ws2812b_fill",
+      "custom_ws2812b_set_pixel",
+      "custom_ws2812b_show",
+      "custom_ws2812b_off"
+    ]
+  },
+  "data": {
+    "name": "WS2812B",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "WS2812B",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.neopixel_auto import NeoPixelConnection\nfrom periph.chips.led.ws2812b import WS2812BFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init mosi %2 sck %3 miso %4 n %5"
+        },
+        "params": [
+          {
+            "name": "mosi",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sck",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "miso",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "n",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = NeoPixelConnection(mosi=mosi, sck=sck, miso=miso)\n        self._driver = WS2812BFull(connection, n)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill all pixels r %2 g %3 b %4"
+        },
+        "params": [
+          {
+            "name": "r",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "g",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "b",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(r, g, b)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel index %2 r %3 g %4 b %5"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "r",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "g",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "b",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(index, r, g, b)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show",
+        "note": {},
+        "label": {
+          "en": "%1 show (transmit buffer)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.show()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "off",
+        "note": {},
+        "label": {
+          "en": "%1 off (all pixels)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.off()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ws2812b"
+  },
+  "pyCode": "\"\"\"\nfile     WS2812B\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.neopixel_auto import NeoPixelConnection\nfrom periph.chips.led.ws2812b import WS2812BFull\n\n\nclass WS2812B:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, mosi: int = 0, sck: int = 0, miso: int = 0, n: int = 1):\n        \"\"\"\n        label:\n            en: '%1 init mosi %2 sck %3 miso %4 n %5'\n        params:\n            mosi:\n                name: mosi\n                type: int\n                default: '0'\n                field: number\n            sck:\n                name: sck\n                type: int\n                default: '0'\n                field: number\n            miso:\n                name: miso\n                type: int\n                default: '0'\n                field: number\n            n:\n                name: n\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        connection = NeoPixelConnection(mosi=mosi, sck=sck, miso=miso)\n        self._driver = WS2812BFull(connection, n)\n\n    def fill(self, r: int, g: int, b: int):\n        \"\"\"\n        label:\n            en: '%1 fill all pixels r %2 g %3 b %4'\n        params:\n            r:\n                name: r\n                type: int\n                field: number\n            g:\n                name: g\n                type: int\n                field: number\n            b:\n                name: b\n                type: int\n                field: number\n        \"\"\"\n        self._driver.fill(r, g, b)\n\n    def set_pixel(self, index: int, r: int, g: int, b: int):\n        \"\"\"\n        label:\n            en: '%1 set pixel index %2 r %3 g %4 b %5'\n        params:\n            index:\n                name: index\n                type: int\n                field: number\n            r:\n                name: r\n                type: int\n                field: number\n            g:\n                name: g\n                type: int\n                field: number\n            b:\n                name: b\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_pixel(index, r, g, b)\n\n    def show(self):\n        \"\"\"\n        label:\n            en: '%1 show (transmit buffer)'\n        \"\"\"\n        self._driver.show()\n\n    def off(self):\n        \"\"\"\n        label:\n            en: '%1 off (all pixels)'\n        \"\"\"\n        self._driver.off()\n",
+  "version": "alpha2"
+}

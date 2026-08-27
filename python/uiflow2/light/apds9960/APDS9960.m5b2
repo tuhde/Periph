@@ -1,0 +1,173 @@
+{
+  "category": "APDS9960",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_APDS9960_LANGUAGES = {\n  \"CUSTOM_APDS9960_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_APDS9960_COLOR_CLEAR\": {\n    \"en\": \"%1 clear channel\"\n  },\n  \"CUSTOM_APDS9960_COLOR_RED\": {\n    \"en\": \"%1 red channel\"\n  },\n  \"CUSTOM_APDS9960_COLOR_GREEN\": {\n    \"en\": \"%1 green channel\"\n  },\n  \"CUSTOM_APDS9960_COLOR_BLUE\": {\n    \"en\": \"%1 blue channel\"\n  },\n  \"CUSTOM_APDS9960_ENABLE_PROXIMITY\": {\n    \"en\": \"%1 enable (1) / disable (0) proximity enabled %2\"\n  },\n  \"CUSTOM_APDS9960_PROXIMITY\": {\n    \"en\": \"%1 proximity count (0-255)\"\n  }\n};\n\nconst initType = 'custom_apds9960_init';\nBlockly.BlockRegExpList['custom_apds9960'] = {\n  regexp: new RegExp(/^custom_apds9960_/),\n  code: \"from APDS9960 import APDS9960\",\n  initBlockType: initType,\n  categoryId: 'custom_apds9960',\n}\nBlockly.utils.registerLanguages(CUSTOM_APDS9960_LANGUAGES)\n\nBlockly.Msg.CUSTOM_APDS9960_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_APDS9960 = 'APDS9960'\n\nBlockly.utils.getcustom_apds9960Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['apds9960_0', 'apds9960_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_apds9960_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_apds9960Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'apds9960_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = APDS9960(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9960_color_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_COLOR_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_color_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.color_clear()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9960_color_red\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_COLOR_RED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_color_red\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.color_red()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9960_color_green\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_COLOR_GREEN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_color_green\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.color_green()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9960_color_blue\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_COLOR_BLUE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_color_blue\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.color_blue()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9960_enable_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_ENABLE_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_enable_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_proximity(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9960_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9960_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9960Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9960_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.proximity()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"APDS9960\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_apds9960\"><title text=\"APDS9960\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_apds9960_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">57</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9960_color_clear\"/><block type=\"custom_apds9960_color_red\"/><block type=\"custom_apds9960_color_green\"/><block type=\"custom_apds9960_color_blue\"/><block type=\"custom_apds9960_enable_proximity\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9960_proximity\"/>\n</category>\n",
+    "toolboxitemid": "custom_apds9960",
+    "block_type": [
+      "custom_apds9960___init__",
+      "custom_apds9960_color_clear",
+      "custom_apds9960_color_red",
+      "custom_apds9960_color_green",
+      "custom_apds9960_color_blue",
+      "custom_apds9960_enable_proximity",
+      "custom_apds9960_proximity"
+    ]
+  },
+  "data": {
+    "name": "APDS9960",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "APDS9960",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.apds9960 import APDS9960Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "57",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = APDS9960Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "color_clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear channel"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.color_clear()",
+        "ast_return": {
+          "code": "self._driver.color_clear()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "color_red",
+        "note": {},
+        "label": {
+          "en": "%1 red channel"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.color_red()",
+        "ast_return": {
+          "code": "self._driver.color_red()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "color_green",
+        "note": {},
+        "label": {
+          "en": "%1 green channel"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.color_green()",
+        "ast_return": {
+          "code": "self._driver.color_green()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "color_blue",
+        "note": {},
+        "label": {
+          "en": "%1 blue channel"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.color_blue()",
+        "ast_return": {
+          "code": "self._driver.color_blue()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_proximity",
+        "note": {},
+        "label": {
+          "en": "%1 enable (1) / disable (0) proximity enabled %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_proximity(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "proximity",
+        "note": {},
+        "label": {
+          "en": "%1 proximity count (0-255)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.proximity()",
+        "ast_return": {
+          "code": "self._driver.proximity()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "apds9960"
+  },
+  "pyCode": "\"\"\"\nfile     APDS9960\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.apds9960 import APDS9960Full\n\n\nclass APDS9960:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 57):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '57'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = APDS9960Full(connection)\n\n    def color_clear(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 clear channel'\n        \"\"\"\n        return self._driver.color_clear()\n\n    def color_red(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 red channel'\n        \"\"\"\n        return self._driver.color_red()\n\n    def color_green(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 green channel'\n        \"\"\"\n        return self._driver.color_green()\n\n    def color_blue(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 blue channel'\n        \"\"\"\n        return self._driver.color_blue()\n\n    def enable_proximity(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 enable (1) / disable (0) proximity enabled %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.enable_proximity(bool(enabled))\n\n    def proximity(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 proximity count (0-255)'\n        \"\"\"\n        return self._driver.proximity()\n",
+  "version": "alpha2"
+}

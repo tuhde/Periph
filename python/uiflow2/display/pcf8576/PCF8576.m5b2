@@ -1,0 +1,115 @@
+{
+  "category": "PCF8576",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_PCF8576_LANGUAGES = {\n  \"CUSTOM_PCF8576_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_PCF8576_CLEAR\": {\n    \"en\": \"%1 clear display\"\n  },\n  \"CUSTOM_PCF8576_SET_DIGIT\": {\n    \"en\": \"%1 set digit position %2 segments %3\"\n  }\n};\n\nconst initType = 'custom_pcf8576_init';\nBlockly.BlockRegExpList['custom_pcf8576'] = {\n  regexp: new RegExp(/^custom_pcf8576_/),\n  code: \"from PCF8576 import PCF8576\",\n  initBlockType: initType,\n  categoryId: 'custom_pcf8576',\n}\nBlockly.utils.registerLanguages(CUSTOM_PCF8576_LANGUAGES)\n\nBlockly.Msg.CUSTOM_PCF8576_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_PCF8576 = 'PCF8576'\n\nBlockly.utils.getcustom_pcf8576Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['pcf8576_0', 'pcf8576_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_pcf8576_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8576_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_pcf8576Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'pcf8576_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8576_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = PCF8576(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8576_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8576_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8576Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8576_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_pcf8576_set_digit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_PCF8576_SET_DIGIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_pcf8576Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'position'\n        },\n        {\n          'type': 'input_value',\n          'name': 'segments'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_pcf8576_set_digit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var position = Blockly.Python.valueToCode(block, 'position', Blockly.Python.ORDER_FUNCTION_CALL);\n  var segments = Blockly.Python.valueToCode(block, 'segments', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_digit(${position}, ${segments})\\n`\n}\n",
+    "toolbox": "\n<category name=\"PCF8576\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_pcf8576\"><title text=\"PCF8576\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_pcf8576_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_pcf8576_clear\"/><block type=\"custom_pcf8576_set_digit\">\n  <value name=\"position\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"segments\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_pcf8576",
+    "block_type": [
+      "custom_pcf8576___init__",
+      "custom_pcf8576_clear",
+      "custom_pcf8576_set_digit"
+    ]
+  },
+  "data": {
+    "name": "PCF8576",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "PCF8576",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.display.pcf8576 import PCF8576Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8576Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear display"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_digit",
+        "note": {},
+        "label": {
+          "en": "%1 set digit position %2 segments %3"
+        },
+        "params": [
+          {
+            "name": "position",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "segments",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_digit_7seg(position, segments)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "pcf8576"
+  },
+  "pyCode": "\"\"\"\nfile     PCF8576\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.display.pcf8576 import PCF8576Full\n\n\nclass PCF8576:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = PCF8576Full(connection)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear display'\n        \"\"\"\n        self._driver.clear()\n\n    def set_digit(self, position: int, segments: int):\n        \"\"\"\n        label:\n            en: '%1 set digit position %2 segments %3'\n        params:\n            position:\n                name: position\n                type: int\n                field: number\n            segments:\n                name: segments\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_digit_7seg(position, segments)\n",
+  "version": "alpha2"
+}

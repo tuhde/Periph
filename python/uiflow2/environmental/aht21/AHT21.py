@@ -15,10 +15,10 @@ class AHT21:
     note:
         en: ''
     details:
-        color: '#a6bbcf'
+        color: '#C084FC'
         link: https://github.com/tuhde/Periph
         image: ''
-        category: Periph
+        category: Custom
     example: ''
     """
 

@@ -1,0 +1,198 @@
+{
+  "category": "MPU6050",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MPU6050_LANGUAGES = {\n  \"CUSTOM_MPU6050_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MPU6050_ACCEL_X\": {\n    \"en\": \"%1 acceleration X (m/s²)\"\n  },\n  \"CUSTOM_MPU6050_ACCEL_Y\": {\n    \"en\": \"%1 acceleration Y (m/s²)\"\n  },\n  \"CUSTOM_MPU6050_ACCEL_Z\": {\n    \"en\": \"%1 acceleration Z (m/s²)\"\n  },\n  \"CUSTOM_MPU6050_GYRO_X\": {\n    \"en\": \"%1 angular rate X (rad/s)\"\n  },\n  \"CUSTOM_MPU6050_GYRO_Y\": {\n    \"en\": \"%1 angular rate Y (rad/s)\"\n  },\n  \"CUSTOM_MPU6050_GYRO_Z\": {\n    \"en\": \"%1 angular rate Z (rad/s)\"\n  },\n  \"CUSTOM_MPU6050_TEMPERATURE\": {\n    \"en\": \"%1 die temperature (°C)\"\n  },\n  \"CUSTOM_MPU6050_DATA_READY\": {\n    \"en\": \"%1 new data ready?\"\n  }\n};\n\nconst initType = 'custom_mpu6050_init';\nBlockly.BlockRegExpList['custom_mpu6050'] = {\n  regexp: new RegExp(/^custom_mpu6050_/),\n  code: \"from MPU6050 import MPU6050\",\n  initBlockType: initType,\n  categoryId: 'custom_mpu6050',\n}\nBlockly.utils.registerLanguages(CUSTOM_MPU6050_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MPU6050_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MPU6050 = 'MPU6050'\n\nBlockly.utils.getcustom_mpu6050Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mpu6050_0', 'mpu6050_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mpu6050_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mpu6050Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mpu6050_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MPU6050(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mpu6050_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_gyro_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_GYRO_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_gyro_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_gyro_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_GYRO_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_gyro_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_gyro_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_GYRO_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_gyro_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpu6050_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPU6050_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpu6050Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpu6050_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"MPU6050\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mpu6050\"><title text=\"MPU6050\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mpu6050_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">104</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpu6050_accel_x\"/><block type=\"custom_mpu6050_accel_y\"/><block type=\"custom_mpu6050_accel_z\"/><block type=\"custom_mpu6050_gyro_x\"/><block type=\"custom_mpu6050_gyro_y\"/><block type=\"custom_mpu6050_gyro_z\"/><block type=\"custom_mpu6050_temperature\"/><block type=\"custom_mpu6050_data_ready\"/>\n</category>\n",
+    "toolboxitemid": "custom_mpu6050",
+    "block_type": [
+      "custom_mpu6050___init__",
+      "custom_mpu6050_accel_x",
+      "custom_mpu6050_accel_y",
+      "custom_mpu6050_accel_z",
+      "custom_mpu6050_gyro_x",
+      "custom_mpu6050_gyro_y",
+      "custom_mpu6050_gyro_z",
+      "custom_mpu6050_temperature",
+      "custom_mpu6050_data_ready"
+    ]
+  },
+  "data": {
+    "name": "MPU6050",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MPU6050",
+      "time": "2026-08-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.mpu6050 import MPU6050Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "104",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MPU6050Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[0]",
+        "ast_return": {
+          "code": "self._driver.accel()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[1]",
+        "ast_return": {
+          "code": "self._driver.accel()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[2]",
+        "ast_return": {
+          "code": "self._driver.accel()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_x",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate X (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[0]",
+        "ast_return": {
+          "code": "self._driver.gyro()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_y",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Y (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[1]",
+        "ast_return": {
+          "code": "self._driver.gyro()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_z",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Z (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[2]",
+        "ast_return": {
+          "code": "self._driver.gyro()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 die temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 new data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mpu6050"
+  },
+  "pyCode": "\"\"\"\nfile     MPU6050\ntime     2026-08-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.mpu6050 import MPU6050Full\n\n\nclass MPU6050:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 104):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '104'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MPU6050Full(connection)\n\n    def accel_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (m/s²)'\n        \"\"\"\n        return self._driver.accel()[0]\n\n    def accel_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (m/s²)'\n        \"\"\"\n        return self._driver.accel()[1]\n\n    def accel_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (m/s²)'\n        \"\"\"\n        return self._driver.accel()[2]\n\n    def gyro_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate X (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[0]\n\n    def gyro_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Y (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[1]\n\n    def gyro_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Z (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[2]\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 die temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n",
+  "version": "alpha2"
+}
