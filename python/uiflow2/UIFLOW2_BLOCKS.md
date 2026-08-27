@@ -1,19 +1,19 @@
 # UIFlow 2 native custom blocks (`.m5b2`) — reference for this repo
 
 This document specifies the `.m5b2` format used by the current M5Stack UIFlow 2 web IDE
-(uiflow2.m5stack.com) and how a `.m5b2` should be generated for a Periph chip. It is a
+(uiflow2.m5stack.com) and how a Periph chip's `.m5b2` is authored for this repo. It is the
 design reference for the `feature/uiflow2` effort — **nothing described here is
-implemented in this repo yet.** No `m5b2gen.py`, no wrapper classes, no `.m5b2`
-output exist at the time of writing; this directory currently holds only this document.
+implemented in this repo yet.** No wrapper classes and no `.m5b2` output exist at the time
+of writing; this directory currently holds only this document.
 
 > **Format status:** `.m5b2` carries the internal version tag `"alpha2"`. M5Stack has not
-> published a spec for it. Everything below was reverse-engineered from a UiFlow2-exported
-> file and cross-checked with a verified round-trip. Treat it as liable to break on a
-> UiFlow2 update — see [Verification](#6-verification).
+> published a spec for it. Everything below was reverse-engineered from a UiFlow 2 export
+> and cross-checked with a verified round-trip. Treat it as liable to break on a UiFlow 2
+> update — see [Troubleshooting](#6-troubleshooting).
 
 ---
 
-## 0. Why this is a separate directory from `python/uiflow1/`
+## 0. Why this is a separate directory from `python/uiflow1/`, and why both are mandatory
 
 This repo used to have a single `python/uiflow/` directory that the root
 [README](../../README.md), [CLAUDE.md](../../CLAUDE.md), and 27 shipped chips called
@@ -23,19 +23,16 @@ This repo used to have a single `python/uiflow/` directory that the root
 
 The reverse-engineering below showed that `.m5b` and the 3110 tool actually belong to
 **UiFlow 1**, the predecessor app — not the current UiFlow 2 web IDE, whose native
-custom-block format is `.m5b2`: a different container, a different authoring convention
-(one annotated Python class per chip instead of a JSON manifest plus one file per block),
-and no official generator. The formats are incompatible and there is no `.m5b` → `.m5b2`
-converter, so this can't be folded into the existing tree as a variant — it's a distinct
-platform.
+custom-block format is `.m5b2`: a different container and a different authoring convention
+(one annotated Python class per chip instead of a JSON manifest plus one file per block).
+The formats are incompatible and there is no `.m5b` → `.m5b2` converter.
 
-That directory was renamed to `python/uiflow1/` and this `python/uiflow2/` directory was
-created alongside it to hold true UiFlow 2 (`.m5b2`) support once implemented. Whether
-UiFlow 2's Extension → Import still also accepts a legacy `.m5b` (so the 27 chips already
-in `python/uiflow1/` might still work there too, coincidentally) is unverified — see
-[Open items](#8-open-items). That's a compatibility question, not a reason to merge the
-two trees: even if `.m5b` still imports, `.m5b2` is the format the app is actually built
-around now.
+That directory was renamed to `python/uiflow1/`, and this `python/uiflow2/` directory holds
+true UiFlow 2 (`.m5b2`) support. **Confirmed: UIFlow 1 and UIFlow 2 cannot interact — a
+`.m5b` does not work in the UIFlow 2 app and a `.m5b2` does not work in UIFlow 1.** Both are
+therefore mandatory, non-optional deliverables for every chip, not alternatives to choose
+between — see the `### UIFlow 2` section added to `specs/_template_chip.md` and
+`specs/_template_chip_io_expander.md`.
 
 ---
 
@@ -48,15 +45,25 @@ around now.
 | Container | ZIP-like | plain JSON |
 | Block definition | JSON manifest + one `.py` file per block | **one Python class with YAML docstrings** |
 | Block type | explicit (`"type": "value"` / `"execute"`) | **derived from the return annotation** |
-| Generator tool | `uiflow-custom-block-generator` (3110) — what `python/uiflow1/generate.sh` uses today | none official → would be a new `python/uiflow2/m5b2gen.py` in this repo |
+| How a Periph chip's blocks get built | `python/uiflow1/generate.sh` runs the community `uiflow-custom-block-generator` (3110) | **written and exported by hand in the UiFlow 2 web IDE's Block Designer** — see [§5](#5-workflow-adding-a-chips-m5b2) |
 
 The formats are **not** compatible and there is no official `.m5b` → `.m5b2` converter.
 The existing `python/uiflow1/<category>/<chip>/*.py` block files cannot be reused as-is for
 `.m5b2` — for UiFlow 2, each chip needs one annotated Python class instead.
 
+This repo does not build a `.m5b2` generator. Unlike the 3110 tool for `.m5b`, there is no
+official (or unofficial) generator for `.m5b2`, and reverse-engineering one well enough to
+reproduce the format byte-for-byte (see the internals in [§2](#2-anatomy-of-a-m5b2-file))
+is more risk than it's worth for a format M5Stack could change without notice. The wrapper
+class is still written by hand as ordinary Python — only the `.m5b2` itself is produced by
+the real Block Designer instead of a script.
+
 ---
 
 ## 2. Anatomy of a `.m5b2` file
+
+Background for understanding what the Block Designer produces and for troubleshooting when
+something looks wrong — you won't need to construct this by hand.
 
 Plain JSON, UTF-8, five top-level keys plus `version`:
 
@@ -77,25 +84,23 @@ Plain JSON, UTF-8, five top-level keys plus `version`:
 `python/uiflow1/README.md`.)
 
 **Key fact: `pyCode` is the single source of truth.** `data` is the parsed AST
-representation of it; `uiflow2` is the Blockly code generated from it. If `pyCode`
-changes, `data` and `uiflow2` must be regenerated — UiFlow 2 does not re-derive them at
-runtime.
+representation of it; `uiflow2` is the Blockly code generated from it. The Block Designer
+derives both automatically whenever you edit the class — you never edit `data` or
+`uiflow2` yourself.
 
-**Exception — the header block is re-rendered.** The code shown in the Block Designer is
-byte-identical to the stored `pyCode` except for one field: the `time` entry in the module
-docstring carries the **current** date, while `data.header.time` keeps the **creation**
-date. In the reference export, `pyCode` shows `time 2026-08-27` while `data.header.time`
-still reads `2024-09-14`.
-
-Consequence: never derive `data.header.time` from `pyCode`. When regenerating an existing
-`.m5b2`, pass the original value through explicitly (e.g. a `--created` flag on the future
-generator), or the creation date will churn on every rebuild and produce diff noise —
-exactly the failure mode `python/uiflow1/generate.sh` was made deterministic to avoid for
-`.m5b` (see its header comment).
+**A quirk to be aware of — the header block is re-rendered.** The code shown in the Block
+Designer is byte-identical to the stored `pyCode` except for one field: the `time` entry in
+the module docstring carries the **current** date, while `data.header.time` keeps the
+**creation** date. In the reference export, `pyCode` shows `time 2026-08-27` while
+`data.header.time` still reads `2024-09-14`. This is the app's own bookkeeping — it means
+the `time` field inside an exported `.m5b2`'s embedded `pyCode` will read differently every
+time you re-export, even with no real change. That's expected diff noise in the committed
+binary and not worth fighting.
 
 ### 2.1 `pyCode` — the source
 
-A Python class whose docstrings contain YAML:
+A Python class whose docstrings contain YAML. This is the format you actually write and
+paste into the Block Designer:
 
 ```python
 """
@@ -115,7 +120,7 @@ class ExampleClass:
         color: '#a6bbcf'
         link: https://github.com/tuhde/Periph
         image: ''
-        category: Custom
+        category: Periph
     example: ''
     """
 
@@ -163,6 +168,10 @@ class ExampleClass:
         pass
 ```
 
+(`category: Periph` above matches the toolbox category name `python/uiflow1/` already
+groups all its blocks under — keep every chip's `.m5b2` in that same category so Periph
+blocks stay together in the UiFlow 2 toolbox too.)
+
 Rules for `label`:
 
 - `%1` is **always** the instance field (the object instance's variable name).
@@ -174,7 +183,7 @@ classes (`<Chip>Minimal` / `<Chip>Full`) have no return-type annotations — see
 `python/periph/chips/power/ina219.py`, where `voltage(self):` returns a float but is not
 annotated `-> float`. Since block type in `.m5b2` is derived purely from the presence and
 value of a return annotation (see [§3.1](#31-the-return-annotation-decides-the-block-type)),
-feeding a driver file straight into the generator would misclassify every getter as a
+pasting a driver file straight into the Block Designer would misclassify every getter as a
 statement block. The `.m5b2` source must be a thin wrapper class — analogous to the
 `<chip>_init.py` / `<chip>_read_<value>.py` block files already written by hand for the
 `.m5b` blocks — that calls into the `Full` class and adds the annotations UiFlow 2 needs.
@@ -222,7 +231,7 @@ Per class, this contains:
 
 ---
 
-## 3. Three rules you have to know
+## 3. Rules to know when writing the wrapper class
 
 ### 3.1 The return annotation decides the block type
 
@@ -233,7 +242,7 @@ Per class, this contains:
 | `def m(self) -> int` | `"int"` | `'output': null` | `return [..., ORDER_NONE]` |
 
 **Merely having a return annotation makes the block a value block — even `-> None`.**
-This looks like a UiFlow 2 bug, but it's the observed behavior and must be reproduced.
+This looks like a UiFlow 2 bug, but it's the observed behavior.
 
 Practical consequence for Periph wrapper methods: methods with no return value (`set_mode`,
 `write`, `reset`) get **no** annotation. Methods that return something (`read_temperature`,
@@ -243,14 +252,14 @@ underlying `Full`-class method they call is unannotated.
 ### 3.2 File name and class name must match exactly
 
 The generated JS hard-codes `from <Class> import <Class>`. The wrapper file must therefore
-be deployed to the device as `<ClassName>.py`. `data.python_file_name` additionally stores
-the lowercase form — both fields must agree.
+be deployed to the device as `<ClassName>.py`.
 
-### 3.3 A known inconsistency in `block_type`
+### 3.3 A cosmetic inconsistency you'll see in the exported file
 
 `uiflow2.block_type` lists the constructor as `custom_<lower>___init__` (three
-underscores), while `jscode` registers it as `custom_<lower>_init`. This is how the
-original does it and any generator should reproduce it deliberately. **Do not "fix" it.**
+underscores), while `jscode` registers it as `custom_<lower>_init`. This is the Block
+Designer's own doing, not something to "fix" if you ever diff a committed `.m5b2` and
+notice it.
 
 ---
 
@@ -264,12 +273,12 @@ original does it and any generator should reproduce it deliberately. **Do not "f
 | — (`__init__` only) | `field_input` defaulting to `<lower>_0` | — |
 
 `min`/`max` are carried through in `data.params`. Other field types (boolean, color, angle)
-are **unverified** — if a chip needs one, build a test block in the UiFlow 2 web IDE first,
-export it, and add the mapping.
+are **unverified** — if a chip needs one, build a test block in the UiFlow 2 web IDE first
+and confirm it behaves as expected before relying on it.
 
 ---
 
-## 5. Workflow: adding a chip's `.m5b2` (once `feature/uiflow2` lands the generator)
+## 5. Workflow: adding a chip's `.m5b2`
 
 ### Step 1 — write the wrapper class
 
@@ -279,162 +288,94 @@ One class per chip, class name == file name, wrapping the chip's `Full` class fr
 `.m5b` blocks). Methods prefixed with `_` (other than `__init__`) are ignored and produce
 no blocks, so internals stay hidden.
 
-The body can hold real code — for a pure block definition, `pass` is enough, but a
-runnable body means the same file can be dropped on a device and imported directly.
+Save it at `python/uiflow2/<category>/<chip>/<Chip>.py` — mirroring `python/uiflow1/`'s
+`<category>/<chip>/` layout. The body can hold real code — for a pure block definition,
+`pass` is enough, but a runnable body means the same file can be dropped on a device and
+imported directly.
 
 ### Step 2 — add YAML docstrings
 
-Class docstring: `note`, `details` (with `color`, `link`, `image`, `category`), `example`.
-Method docstrings: `label` and `params` as in [§2.1](#21-pycode--the-source).
+Class docstring: `note`, `details` (with `color`, `link`, `image`, `category: Periph`),
+`example`. Method docstrings: `label` and `params` as in [§2.1](#21-pycode--the-source).
 
-Keep the color consistent per chip family — Periph already standardizes on `#a6bbcf` for
-its `.m5b` blocks; reuse it here unless there's a reason to diverge per category.
+Keep the color `#a6bbcf` and category `Periph` consistent with `python/uiflow1/`'s blocks
+so both platforms' Periph blocks look and group the same way.
 
-### Step 3 — generate
+### Step 3 — build it in the UiFlow 2 Block Designer
 
-```bash
-# would follow the same self-managed-venv pattern as python/uiflow1/generate.sh once
-# python/uiflow2/m5b2gen.py exists:
-python3 python/uiflow2/m5b2gen.py <Chip>.py -o <category>/<chip>/<Chip>.m5b2
+Open the Block Designer in the UiFlow 2 web IDE, create a class-based custom block
+extension, and enter the wrapper class's code in its code view — `pyCode` in
+[§2.1](#21-pycode--the-source) is exactly this input format. The Designer parses the
+YAML docstrings and derives the blocks automatically; no local tooling is involved.
 
-# rebuilding an existing chip: pass the original creation date through
-python3 python/uiflow2/m5b2gen.py <Chip>.py -o <category>/<chip>/<Chip>.m5b2 --created 2024-09-14
-```
+### Step 4 — check the blocks
 
-The generator should derive:
-- type hints and defaults from the signature (YAML overrides on conflict)
-- block type from the return annotation
-- `header` fields (`author`, `email`, `license`) from the module docstring
-- `time` from `--created`, else the current date
+Drag the init block plus one block per method onto the canvas, switch to the code view, and
+confirm the generated MicroPython matches what you expect (correct types, correct defaults,
+correct dropdown options).
 
-Empty header fields in the module docstring (`author` followed by whitespace and a
-newline) should stay empty. This is deliberate: an earlier version of a similar generator
-matched `\s+` across the newline and swallowed the next line as the value. When writing
-the header regex, use `[ \t]`, not `\s`.
+### Step 5 — export and commit
 
-### Step 4 — verify
+Export the `.m5b2` and save it as `python/uiflow2/<category>/<chip>/<Chip>.m5b2`, committed
+alongside the wrapper class from Step 1. Then deploy the wrapper (and the `periph` package)
+to a device and run it for real — the Designer's code view confirms syntax, not hardware
+behavior.
 
-See [Verification](#6-verification).
-
-### Step 5 — test in the web IDE
-
-Import the `.m5b2` into UiFlow 2, drag an init block plus one block per method onto the
-canvas, switch to the code view, and confirm the generated MicroPython is correct. Then
-deploy the wrapper (and the `periph` package) to a device and actually run it.
+There is no `--check`-style CI step for `.m5b2` the way `python/uiflow1/generate.sh --check`
+verifies `.m5b`: without a generator, there's nothing local to regenerate against and diff.
+Keeping the wrapper class and its exported `.m5b2` in sync is a manual discipline — re-open
+the class in the Block Designer and re-export whenever the wrapper class changes.
 
 ---
 
-## 6. Verification
+## 6. Troubleshooting
 
-The format is undocumented, so every generator change needs:
-
-### Round-trip against a reference file
-
-A committed, unmodified UiFlow 2 export (e.g. `python/uiflow2/tests/fixtures/ExampleClass.m5b2`) serves as
-the gold standard. Extract its `pyCode`, run it back through the generator, and compare:
-
-```bash
-python3 - <<'EOF'
-import json, subprocess, pathlib
-ref = json.load(open('python/uiflow2/tests/fixtures/ExampleClass.m5b2'))
-pathlib.Path('/tmp/ExampleClass.py').write_text(ref['pyCode'])
-# pass --created the fixture's own value, or header.time comparison fails
-subprocess.run(['python3', 'python/uiflow2/m5b2gen.py', '/tmp/ExampleClass.py',
-                 '-o', '/tmp/out.m5b2',
-                 '--created', ref['data']['header']['time']], check=True)
-gen = json.load(open('/tmp/out.m5b2'))
-
-for key in ('category', 'color', 'version'):
-    assert ref[key] == gen[key], key
-assert ref['data'] == gen['data'], 'data block differs'
-for key in ('toolbox', 'toolboxitemid', 'block_type'):
-    assert ref['uiflow2'][key] == gen['uiflow2'][key], key
-print('OK')
-EOF
-```
-
-**Expected result:** every assertion passes. The **entire** `data` block (including
-`header`, `details`, `members`, `python_file_name`) plus `toolbox`, `toolboxitemid`,
-`block_type`, `category`, `color`, and `version` are byte-identical to the original. Only
-`jscode` differs cosmetically (see below) — this mirrors how `python/uiflow1/generate.sh`
-already treats `.m5b` output as deterministic and diffs it in CI, and a future `.m5b2`
-generator should get the same `--check` treatment.
-
-**Known, accepted differences in `jscode`** (cosmetic only, semantically equivalent):
-
-1. UiFlow 2 leaves a commented-out `field_dropdown` line in the init block that a generator
-   can omit.
-2. Line breaks in `args0`: the original writes `'args0': [{`, a generator may write
-   `'args0': [\n        {`.
-3. An extra blank line before `return` in the generated Python.
-
-For this reason `jscode` should **not** be byte-compared in tests. If a test flags a
-difference there, check first whether it's one of these three before treating it as a bug.
-
-### If UiFlow 2 stops loading the files
+The format is undocumented, so if a previously-working `.m5b2` stops behaving:
 
 1. Build a test block in the current web IDE and export it.
 2. Check `version` in the export — anything other than `alpha2` means the format changed.
-3. Diff the new export against `python/uiflow2/tests/fixtures/ExampleClass.m5b2` and adjust the generator.
-4. Replace the fixture with the new export; keep the old one as `ExampleClass.alpha2.m5b2`.
+3. Diff the new export against a previously committed `.m5b2` for the same chip (or against
+   any known-good `.m5b2`) to see what's different.
+4. Re-open the affected chip's class in the Block Designer, re-export, and commit the
+   result.
+
+**Known, cosmetic quirks in `jscode`** (harmless — don't treat these as the format having
+changed):
+
+1. UiFlow 2 leaves a commented-out `field_dropdown` line in the init block.
+2. `args0` formatting varies slightly between exports (inline vs. multi-line).
+3. An extra blank line sometimes appears before `return` in the generated Python.
 
 ---
 
-## 7. Reference: generator internals (for whoever writes `python/uiflow2/m5b2gen.py`)
+## 7. Open items
 
-Depends only on `pyyaml` and the standard library — same dependency footprint as
-`python/uiflow1/generate.sh`'s generator, so it can follow the same self-managed-venv
-pattern (`python/uiflow1/.generator`, pinned to a specific commit rather than a PyPI
-release) once written.
-
-| Function | Job |
-|---|---|
-| `parse_doc_yaml(node)` | fetch a docstring and parse it as YAML |
-| `extract_members(cls)` | AST → `data.members`, including defaults and annotations |
-| `js_block(...)` | one `Blockly.Blocks` + `Blockly.Python` pair |
-| `build_jscode(...)` | the complete `uiflow2.jscode` |
-| `build_toolbox(...)` | toolbox XML with shadow blocks |
-| `generate(py, out)` | orchestrates all of the above, writes the JSON file |
-
-Extension points for new field types: `js_block()` (Blockly definition) and
-`build_toolbox()` (shadow mapping) — both must be changed together.
-
----
-
-## 8. Open items
-
-Format unknowns, carried over from the reverse-engineering session:
+Format unknowns:
 
 - Boolean, color, and angle field types are unverified.
-- Multi-language labels are supported by the format (`label.en`, other keys) but a
-  generator would only need to pass them through, not validate them.
+- Multi-language labels are supported by the format (`label.en`, other keys) but untested
+  beyond `en`.
 - `assignments`, `source_internal`, `source_external` are empty in every known export;
   their purpose is unknown.
-- Classes with inheritance, or multiple classes per file, are unsupported — a reference
-  generator should fail loudly rather than emit something wrong.
+- Classes with inheritance, or multiple classes per file, are untested — stick to one plain
+  class per wrapper file until someone verifies otherwise.
 - Whether UiFlow 2 accepts a `.m5b2` with multiple categories in one file is untested.
 
-Periph-specific decisions still open for `feature/uiflow2`:
+Resolved (2026-08-27):
 
-- **Does UiFlow 2's Extension → Import still accept the legacy `.m5b` files** in
-  `python/uiflow1/`? If yes, `.m5b2` may only be worth adding for chips where the legacy
-  format visibly fails in the current web IDE. If no, every chip's `.m5b2` is a required,
-  non-optional addition alongside its `.m5b`.
-- **Layout within `python/uiflow2/`.** Not yet fixed — the natural mirror of
-  `python/uiflow1/` would be `python/uiflow2/<category>/<chip>/{<Chip>.py,<Chip>.m5b2}`
-  plus a top-level `python/uiflow2/generate.sh` and `m5b2gen.py`, analogous to
-  `python/uiflow1/generate.sh`, but confirm against whatever the first implemented chip
-  actually needs before treating it as settled.
-- **`specs/_template_chip.md`'s `## Implementation Checklist`** now has a `### UIFlow 1`
-  section requiring `.m5b` (renamed from the old, misleadingly-labeled `### UIFlow 2`
-  section — see [[project_uiflow2_format_gap]]). It does **not** yet require `.m5b2`. Add
-  a `### UIFlow 2` section (and update `AGENTS.md` / the wiki's `Adding-a-Chip` page to
-  match) once `python/uiflow2/m5b2gen.py` exists and at least one chip has gone through
-  this workflow end-to-end — don't mandate a deliverable with no working tooling yet.
+- **Both `.m5b` and `.m5b2` are mandatory per chip** — UIFlow 1 and UIFlow 2 don't
+  interoperate at all, so neither format can stand in for the other. `specs/_template_chip.md`
+  and `specs/_template_chip_io_expander.md` now have a `### UIFlow 2` checklist section
+  alongside `### UIFlow 1`.
+- **Layout confirmed:** `python/uiflow2/<category>/<chip>/{<Chip>.py,<Chip>.m5b2}`, mirroring
+  `python/uiflow1/`.
+- **No generator will be built** — see [§1](#1-uiflow-1-vs-uiflow-2). `.m5b2` is produced by
+  hand in the real UiFlow 2 Block Designer (Step 3 in [§5](#5-workflow-adding-a-chips-m5b2)),
+  not by a script in this repo.
 
 ---
 
-## 9. Sources
+## 8. Sources
 
 - Reverse engineering of a UiFlow 2 export (`ExampleClass.m5b2`, `version: alpha2`)
 - Comparison of the stored `pyCode` against the code the Block Designer displays in its UI:

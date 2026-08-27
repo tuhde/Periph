@@ -66,7 +66,7 @@ The `chip` / `transport` label stays on the issue throughout — those describe 
 
 ## Where things go
 
-Every chip is implemented across all six languages and every supported platform within each language, plus the UIFlow 1 Blockly blocks under Python. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
+Every chip is implemented across all six languages and every supported platform within each language, plus both the UIFlow 1 and UIFlow 2 Blockly blocks under Python — the two don't interoperate, so neither substitutes for the other. Replace `<chip>` with the lowercase chip name (e.g. `ina226`) and `<Chip>` with the title-case chip name (e.g. `INA226`).
 
 | Artifact | Path |
 |----------|------|
@@ -74,6 +74,8 @@ Every chip is implemented across all six languages and every supported platform 
 | Python examples | `python/examples/<category>/<chip>/{minimal,complete,demo}.py` |
 | UIFlow 1 manifest + blocks | `python/uiflow1/<category>/<chip>/{<chip>.json,<chip>_*.py}` |
 | UIFlow 1 generated `.m5b` | `python/uiflow1/<category>/<chip>/<chip>.m5b` — run `python/uiflow1/generate.sh` after any manifest/block edit and commit the output; CI's `generate.sh --check` fails the build if it's stale |
+| UIFlow 2 wrapper class | `python/uiflow2/<category>/<chip>/<Chip>.py` — see `python/uiflow2/UIFLOW2_BLOCKS.md` for the YAML-docstring convention |
+| UIFlow 2 exported `.m5b2` | `python/uiflow2/<category>/<chip>/<Chip>.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator, no CI check); commit the output alongside the wrapper class |
 | C++ driver (all platforms) | `cpp/src/chips/<category>/<Chip>.h` and `<Chip>.cpp` |
 | C++ Arduino examples | `cpp/examples/arduino/<category>/<Chip>/{minimal,complete,demo}/{minimal,complete,demo}.ino` |
 | C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |

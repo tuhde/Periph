@@ -6,7 +6,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 | Language | Platforms | Status |
 |----------|-----------|--------|
-| Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 (Blockly custom blocks) | Active |
+| Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 + UIFlow 2 (Blockly custom blocks) | Active |
 | C++ | Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK | Active |
 | Node.js / Node-RED | Linux, any Node.js host | Active |
 | Rust | Linux (`linux-embedded-hal`), any `embedded-hal` target | Active |
@@ -152,9 +152,11 @@ Blockly custom blocks wrap 27 of the MicroPython chip drivers for M5Stack's UIFl
 **Extension → Import**; no local tooling required. Details, the full chip list, and how to regenerate
 after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
 
-This targets **UIFlow 1**'s `.m5b` format. Native support for the current [UIFlow 2](https://uiflow2.m5stack.com/)
-web IDE's `.m5b2` format is a separate, not-yet-implemented deliverable — see
-[python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md).
+This targets **UIFlow 1**'s `.m5b` format. UIFlow 1 and the current
+[UIFlow 2](https://uiflow2.m5stack.com/) web IDE don't interoperate — a `.m5b` doesn't import into UIFlow 2
+and vice versa — so every chip also needs a native UIFlow 2 `.m5b2`, hand-built in the UIFlow 2 Block
+Designer (no generator exists for this format). Not yet implemented for any chip; see
+[python/uiflow2/UIFLOW2_BLOCKS.md](python/uiflow2/UIFLOW2_BLOCKS.md) for the format and workflow.
 
 ## Node-RED
 

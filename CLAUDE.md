@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I²C, or other transports.
 
 Implementations:
-- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack Blockly custom blocks wrap the MicroPython drivers rather than adding a fourth target — `python/uiflow1/` for the legacy UiFlow 1 `.m5b` format, `python/uiflow2/` for the native UiFlow 2 `.m5b2` format (design-only for now, see `python/uiflow2/UIFLOW2_BLOCKS.md`)
+- **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack Blockly custom blocks wrap the MicroPython drivers rather than adding a fourth target — `python/uiflow1/` for UiFlow 1's `.m5b` format (generated), `python/uiflow2/` for UiFlow 2's native `.m5b2` format (hand-built in the UiFlow 2 Block Designer, no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md`); the two formats don't interoperate, so both are mandatory per chip
 - **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
@@ -91,7 +91,9 @@ python/
     <category>/
       <chip>/           # <chip>.json + one .py per block + generated <chip>.m5b — M5Stack UIFlow 1 Blockly custom blocks wrapping the chip driver; run generate.sh after editing .json/.py files here
   uiflow2/
-    UIFLOW2_BLOCKS.md   # format reference + design doc for native UIFlow 2 (.m5b2) support — not yet implemented
+    UIFLOW2_BLOCKS.md   # format reference + workflow for native UIFlow 2 (.m5b2) support — no generator; built by hand in the UiFlow 2 Block Designer
+    <category>/
+      <chip>/           # <Chip>.py (annotated wrapper class) + <Chip>.m5b2 (exported from the Block Designer) — mandatory alongside uiflow1/'s .m5b, the two formats don't interoperate
   tests/
 cpp/
   CMakeLists.txt        # Zephyr module build file (see zephyr/module.yml) — builds every chip driver into a "periph" library
