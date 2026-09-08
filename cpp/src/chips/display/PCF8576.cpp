@@ -75,7 +75,11 @@ uint8_t PCF8576Full::_mode_code(uint8_t backplanes) const {
 }
 
 void PCF8576Full::_apply_mode() {
-    uint8_t bias_bits = (_bias == BIAS_1_2) ? BIAS_1_2 : BIAS_1_3;
+    // PCF8576Full::BIAS_1_2/BIAS_1_3 (0/1, set_mode()'s bias selector) shadow
+    // PCF8576Minimal::BIAS_1_2/BIAS_1_3 (0x04/0x00, the actual register bit
+    // pattern) - must qualify explicitly here or the wrong constant gets
+    // encoded into the mode-set command byte.
+    uint8_t bias_bits = (_bias == BIAS_1_2) ? PCF8576Minimal::BIAS_1_2 : PCF8576Minimal::BIAS_1_3;
     uint8_t cmd = _cmd_mode(_enabled, bias_bits, _mode_code(_backplanes));
     _send_commands(&cmd, 1);
 }

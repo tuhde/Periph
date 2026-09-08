@@ -84,7 +84,7 @@ type PCF8576Minimal struct {
 // connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x38 when SA0 = VSS, 0x39 when SA0 = VDD).
 func NewPCF8576Minimal(t connection.Connection) (*PCF8576Minimal, error) {
-	d := &PCF8576Minimal{connection: t, backplanes: PCF8576Mode1_4}
+	d := &PCF8576Minimal{connection: t, backplanes: PCF8576Backplanes4}
 	if err := d.doClear(); err != nil {
 		return nil, err
 	}

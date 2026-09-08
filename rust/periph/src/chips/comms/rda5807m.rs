@@ -414,3 +414,297 @@ impl<I2C: I2c> RDA5807MFull<I2C> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x10;
+
+    fn regs_bytes(regs: &[u16; 6]) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(12);
+        for r in regs {
+            buf.push((r >> 8) as u8);
+            buf.push((r & 0xFF) as u8);
+        }
+        buf
+    }
+
+    fn status_bytes(words: &[u16]) -> Vec<u8> {
+        let mut buf = Vec::with_capacity(words.len() * 2);
+        for w in words {
+            buf.push((w >> 8) as u8);
+            buf.push((w & 0xFF) as u8);
+        }
+        buf
+    }
+
+    // Expected post-init shadow register array (TUNE still set, matching what
+    // the driver writes to the bus before it observes STC and clears the
+    // shadow bit).
+    fn init_regs(frequency_mhz: f32, volume: u8) -> [u16; 6] {
+        let chan0 = freq_to_chan(BAND_WORLD, SPACE_100K, false, frequency_mhz);
+        [
+            DHIZ | DMUTE | SKMODE | NEW_METHOD | ENABLE,
+            (chan0 << 6) | TUNE | ((BAND_WORLD as u16) << 2) | SPACE_100K as u16,
+            SOFTMUTE_EN | DE,
+            INT_MODE | (8 << 8) | (volume as u16 & 0x0F),
+            0x0000,
+            (16 << 10) | BAND_65M_50M | 0x0002,
+        ]
+    }
+
+    // Construct a fresh RDA5807MFull backed by an I2cMock preloaded with the
+    // init write + a queued STC-set status read, and return (sensor, regs)
+    // where regs is the expected shadow register array after init (TUNE
+    // cleared, mirroring what the driver does once it observes STC).
+    fn new_sensor(frequency_mhz: f32, volume: u8) -> (RDA5807MFull<I2cMock>, [u16; 6]) {
+        let regs = init_regs(frequency_mhz, volume);
+        let transactions = vec![
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+            I2cTransaction::read(ADDR, status_bytes(&[STC])),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let sensor = RDA5807MFull::new(i2c, ADDR, frequency_mhz, volume).expect("init");
+        let mut final_regs = regs;
+        final_regs[1] &= !TUNE;
+        (sensor, final_regs)
+    }
+
+    fn expect_write(sensor: &mut RDA5807MFull<I2cMock>, regs: &[u16; 6]) {
+        sensor.inner.i2c.update_expectations(&[I2cTransaction::write(ADDR, regs_bytes(regs))]);
+    }
+
+    fn expect_read(sensor: &mut RDA5807MFull<I2cMock>, words: &[u16]) {
+        sensor.inner.i2c.update_expectations(&[I2cTransaction::read(ADDR, status_bytes(words))]);
+    }
+
+    // For a single driver call that performs more than one bus transaction
+    // (e.g. write-then-poll-for-STC): I2cMock's update_expectations() panics
+    // unless every prior expectation was already consumed, so all
+    // transactions belonging to one call must be queued together in one
+    // batch, in the exact order the driver issues them.
+    fn expect_batch(sensor: &mut RDA5807MFull<I2cMock>, transactions: &[I2cTransaction]) {
+        sensor.inner.i2c.update_expectations(transactions);
+    }
+
+    #[test]
+    fn init_writes_regs() {
+        let (mut sensor, _regs) = new_sensor(100.0, 8);
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn frequency() {
+        let (mut sensor, _regs) = new_sensor(100.0, 8);
+        expect_read(&mut sensor, &[250]);
+        let freq = sensor.frequency().unwrap();
+        assert_eq!(freq, chan_to_freq(BAND_WORLD, SPACE_100K, false, 250));
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn set_frequency_writes() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        let chan1 = freq_to_chan(BAND_WORLD, SPACE_100K, false, 103.5);
+        regs[1] = (chan1 << 6) | TUNE | ((BAND_WORLD as u16) << 2) | SPACE_100K as u16;
+        expect_batch(&mut sensor, &[
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+            I2cTransaction::read(ADDR, status_bytes(&[STC])),
+        ]);
+        sensor.set_frequency(103.5).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn set_volume() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[3] = (regs[3] & !0x000F) | (5 & 0x0F);
+        expect_write(&mut sensor, &regs);
+        sensor.set_volume(5).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn mute() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] &= !DMUTE;
+        expect_write(&mut sensor, &regs);
+        sensor.mute(true).unwrap();
+        regs[0] |= DMUTE;
+        expect_write(&mut sensor, &regs);
+        sensor.mute(false).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn seek_up_found() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] |= SEEKUP;
+        regs[0] |= SEEK;
+        let seeking = regs_bytes(&regs);
+        regs[0] &= !SEEK;
+        let cleared = regs_bytes(&regs);
+        expect_batch(&mut sensor, &[
+            I2cTransaction::write(ADDR, seeking),
+            I2cTransaction::read(ADDR, status_bytes(&[STC | 300])),
+            I2cTransaction::write(ADDR, cleared),
+        ]);
+        let result = sensor.seek(true).unwrap();
+        assert_eq!(result, Some(chan_to_freq(BAND_WORLD, SPACE_100K, false, 300)));
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn seek_fails() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] &= !SEEKUP;
+        regs[0] |= SEEK;
+        let seeking = regs_bytes(&regs);
+        regs[0] &= !SEEK;
+        let cleared = regs_bytes(&regs);
+        expect_batch(&mut sensor, &[
+            I2cTransaction::write(ADDR, seeking),
+            I2cTransaction::read(ADDR, status_bytes(&[STC | SF])),
+            I2cTransaction::write(ADDR, cleared),
+        ]);
+        let result = sensor.seek(false).unwrap();
+        assert_eq!(result, None);
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn configure_retunes() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        let current_freq = chan_to_freq(BAND_WORLD, SPACE_100K, false, 500);
+
+        regs[2] &= !DE;
+        regs[2] |= AFCD;
+        regs[3] = (regs[3] & !0x0F00) | ((10u16 & 0x0F) << 8);
+        regs[0] &= !SKMODE;
+        regs[0] = (regs[0] & !0x0070) | ((3u16 & 0x07) << 4);
+        let chan2 = freq_to_chan(BAND_US_EUROPE, SPACE_50K, false, current_freq);
+        regs[1] = (chan2 << 6) | TUNE | ((BAND_US_EUROPE as u16) << 2) | SPACE_50K as u16;
+
+        expect_batch(&mut sensor, &[
+            I2cTransaction::read(ADDR, status_bytes(&[500])), // configure() reads current frequency() first
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+            I2cTransaction::read(ADDR, status_bytes(&[STC])), // the resulting retune's wait_stc
+        ]);
+
+        sensor.configure(
+            Some(BAND_US_EUROPE), Some(SPACE_50K), Some(false),
+            Some(10), Some(false), Some(3), Some(true), None,
+        ).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn configure_no_retune() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[3] = (regs[3] & !0x0F00) | ((4u16 & 0x0F) << 8);
+        expect_batch(&mut sensor, &[
+            I2cTransaction::read(ADDR, status_bytes(&[0])), // configure() still reads frequency() first
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+        ]);
+        sensor.configure(None, None, None, Some(4), None, None, None, None).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn bass_mono_softmute_rds() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] |= BASS;
+        expect_write(&mut sensor, &regs);
+        sensor.set_bass_boost(true).unwrap();
+
+        regs[0] |= MONO;
+        expect_write(&mut sensor, &regs);
+        sensor.set_mono(true).unwrap();
+
+        regs[2] &= !SOFTMUTE_EN;
+        expect_write(&mut sensor, &regs);
+        sensor.set_softmute(false).unwrap();
+
+        regs[0] |= RDS_EN;
+        expect_write(&mut sensor, &regs);
+        sensor.enable_rds(true).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn rds_ready_and_group() {
+        let (mut sensor, _regs) = new_sensor(100.0, 8);
+        expect_read(&mut sensor, &[RDSR]);
+        assert!(sensor.rds_ready().unwrap());
+        expect_read(&mut sensor, &[0]);
+        assert!(!sensor.rds_ready().unwrap());
+
+        expect_read(&mut sensor, &[RDSR, 0, 0x1122, 0x3344, 0x5566, 0x7788]);
+        assert_eq!(sensor.read_rds_group().unwrap(), Some((0x1122, 0x3344, 0x5566, 0x7788)));
+        expect_read(&mut sensor, &[0, 0, 0, 0, 0, 0]);
+        assert_eq!(sensor.read_rds_group().unwrap(), None);
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn status_flags() {
+        let (mut sensor, _regs) = new_sensor(100.0, 8);
+        expect_read(&mut sensor, &[ST]);
+        assert!(sensor.is_stereo().unwrap());
+        expect_read(&mut sensor, &[0, FM_TRUE]);
+        assert!(sensor.is_station().unwrap());
+        expect_read(&mut sensor, &[0, FM_READY]);
+        assert!(sensor.is_ready().unwrap());
+        expect_read(&mut sensor, &[0, (100u16 << 9) & 0xFFFF]);
+        assert_eq!(sensor.signal_strength().unwrap(), 100);
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn standby_down_and_up() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] &= !ENABLE;
+        expect_write(&mut sensor, &regs);
+        let mut delay = NoopDelay::new();
+        sensor.standby(true, &mut delay).unwrap();
+
+        // standby(false): write(ENABLE set, old CHAN/TUNE=0), then the
+        // internal retune's write(new CHAN, TUNE=1) + read(STC).
+        regs[0] |= ENABLE;
+        let enable_write = regs_bytes(&regs);
+        // new_sensor()'s default frequency, unchanged so far.
+        let chan3 = freq_to_chan(BAND_WORLD, SPACE_100K, false, 100.0);
+        regs[1] = (chan3 << 6) | TUNE | ((BAND_WORLD as u16) << 2) | SPACE_100K as u16;
+        expect_batch(&mut sensor, &[
+            I2cTransaction::write(ADDR, enable_write),
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+            I2cTransaction::read(ADDR, status_bytes(&[STC])),
+        ]);
+        sensor.standby(false, &mut delay).unwrap();
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn soft_reset_writes() {
+        let (mut sensor, mut regs) = new_sensor(100.0, 8);
+        regs[0] |= SOFT_RESET;
+        let set_write = regs_bytes(&regs);
+        regs[0] &= !SOFT_RESET;
+        let clear_write = regs_bytes(&regs);
+        // new_sensor()'s default frequency, unchanged so far.
+        let chan4 = freq_to_chan(BAND_WORLD, SPACE_100K, false, 100.0);
+        regs[1] = (chan4 << 6) | TUNE | ((BAND_WORLD as u16) << 2) | SPACE_100K as u16;
+        expect_batch(&mut sensor, &[
+            I2cTransaction::write(ADDR, set_write),
+            I2cTransaction::write(ADDR, clear_write),
+            I2cTransaction::write(ADDR, regs_bytes(&regs)),
+            I2cTransaction::read(ADDR, status_bytes(&[STC])),
+        ]);
+        let mut delay = NoopDelay::new();
+        sensor.soft_reset(&mut delay).unwrap();
+        sensor.inner.i2c.done();
+    }
+}
