@@ -92,21 +92,21 @@ open class Bme280Minimal @JvmOverloads constructor(
     protected fun readCalibration() {
         val cal = connection.writeRead(byteArrayOf(REG_CALIB.toByte()), 26)
         digT1 = ((cal[1].toInt() and 0xFF) shl 8) or (cal[0].toInt() and 0xFF)
-        digT2 = ((cal[3].toInt() and 0xFF) shl 8) or (cal[2].toInt() and 0xFF)
-        digT3 = ((cal[5].toInt() and 0xFF) shl 8) or (cal[4].toInt() and 0xFF)
+        digT2 = (((cal[3].toInt() and 0xFF) shl 8) or (cal[2].toInt() and 0xFF)).toShort().toInt()
+        digT3 = (((cal[5].toInt() and 0xFF) shl 8) or (cal[4].toInt() and 0xFF)).toShort().toInt()
         digP1 = ((cal[7].toInt() and 0xFF) shl 8) or (cal[6].toInt() and 0xFF)
-        digP2 = ((cal[9].toInt() and 0xFF) shl 8) or (cal[8].toInt() and 0xFF)
-        digP3 = ((cal[11].toInt() and 0xFF) shl 8) or (cal[10].toInt() and 0xFF)
-        digP4 = ((cal[13].toInt() and 0xFF) shl 8) or (cal[12].toInt() and 0xFF)
-        digP5 = ((cal[15].toInt() and 0xFF) shl 8) or (cal[14].toInt() and 0xFF)
-        digP6 = ((cal[17].toInt() and 0xFF) shl 8) or (cal[16].toInt() and 0xFF)
-        digP7 = ((cal[19].toInt() and 0xFF) shl 8) or (cal[18].toInt() and 0xFF)
-        digP8 = ((cal[21].toInt() and 0xFF) shl 8) or (cal[20].toInt() and 0xFF)
-        digP9 = ((cal[23].toInt() and 0xFF) shl 8) or (cal[22].toInt() and 0xFF)
+        digP2 = (((cal[9].toInt() and 0xFF) shl 8) or (cal[8].toInt() and 0xFF)).toShort().toInt()
+        digP3 = (((cal[11].toInt() and 0xFF) shl 8) or (cal[10].toInt() and 0xFF)).toShort().toInt()
+        digP4 = (((cal[13].toInt() and 0xFF) shl 8) or (cal[12].toInt() and 0xFF)).toShort().toInt()
+        digP5 = (((cal[15].toInt() and 0xFF) shl 8) or (cal[14].toInt() and 0xFF)).toShort().toInt()
+        digP6 = (((cal[17].toInt() and 0xFF) shl 8) or (cal[16].toInt() and 0xFF)).toShort().toInt()
+        digP7 = (((cal[19].toInt() and 0xFF) shl 8) or (cal[18].toInt() and 0xFF)).toShort().toInt()
+        digP8 = (((cal[21].toInt() and 0xFF) shl 8) or (cal[20].toInt() and 0xFF)).toShort().toInt()
+        digP9 = (((cal[23].toInt() and 0xFF) shl 8) or (cal[22].toInt() and 0xFF)).toShort().toInt()
         digH1 = cal[25].toInt() and 0xFF
 
         val h = connection.writeRead(byteArrayOf(REG_CAL_H2.toByte()), 7)
-        digH2 = ((h[1].toInt() and 0xFF) shl 8) or (h[0].toInt() and 0xFF)
+        digH2 = (((h[1].toInt() and 0xFF) shl 8) or (h[0].toInt() and 0xFF)).toShort().toInt()
         digH3 = h[2].toInt() and 0xFF
         val h4raw = ((h[3].toInt() and 0xFF) shl 4) or (h[4].toInt() and 0x0F)
         val h5raw = ((h[5].toInt() and 0xFF) shl 4) or ((h[4].toInt() shr 4) and 0x0F)
@@ -126,9 +126,17 @@ open class Bme280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun triggerAndRead(): ByteArray {
-        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
-        try { Thread.sleep(MEAS_TIME_MS) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
+        // In normal mode (mode bits == 0x03) the chip cycles continuously on
+        // its own; re-triggering a forced conversion here would fight that
+        // cycle, so only trigger when not already in normal mode (matches
+        // every other language's driver and the spec's "In normal mode,
+        // calls ... should not re-trigger; just read the most recent shadow
+        // registers").
+        if ((ctrlMeas and 0x03) != 0x03) {
+            connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), ctrlHum.toByte()))
+            connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
+            try { Thread.sleep(MEAS_TIME_MS) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
+        }
         return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 8)
     }
 

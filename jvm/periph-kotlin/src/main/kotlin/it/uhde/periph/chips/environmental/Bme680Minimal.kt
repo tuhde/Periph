@@ -185,7 +185,7 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun configureHeaterProfile(profile: Int, targetTempC: Int, durationMs: Int) {
-        val resHeat = calcHeaterResistance(targetTempC, ambientTemp.toInt())
+        val resHeat = calcHeaterResistance(targetTempC, ambientTemp)
         connection.write(
             byteArrayOf(
                 (REG_RES_HEAT_BASE + profile).toByte(),
@@ -311,8 +311,12 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @param ambTempC ambient temperature in °C (from on-chip reading or estimate)
      * @return 8-bit heater resistance value to write to res_heat_x
      */
-    protected fun calcHeaterResistance(targetTempC: Int, ambTempC: Int): Int {
-        val var1 = ((ambTempC.toLong() * parG3) / 10) shl 8
+    protected fun calcHeaterResistance(targetTempC: Int, ambTempC: Double): Int {
+        // Multiply as Double before flooring to whole tenths, matching the
+        // spec's `((amb_temp_c * par_G3) // 10) << 8` - truncating ambTempC
+        // to an integer *before* the multiply (the previous implementation)
+        // silently discards its fractional part.
+        val var1 = kotlin.math.floor((ambTempC * parG3) / 10.0).toLong() shl 8
         val var2 = (parG1.toLong() + 784) *
                 (((((parG2.toLong() + 154009) * targetTempC * 5) / 100) + 3276800L) / 10)
         val var3 = var1 + (var2 shr 1)

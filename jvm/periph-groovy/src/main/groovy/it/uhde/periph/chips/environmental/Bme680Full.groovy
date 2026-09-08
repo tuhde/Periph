@@ -158,7 +158,7 @@ class Bme680Full extends Bme680Minimal {
     void setHeaterProfile(int index, int tempC, int durationMs) {
         heaterTemp = tempC
         heaterDuration = durationMs
-        int resHeat = calcHeaterResistance(tempC, (int) ambientTemp)
+        int resHeat = calcHeaterResistance(tempC, ambientTemp)
         int gasWait = encodeGasWait(durationMs)
         connection.write([(byte)(REG_RES_HEAT_0 + index), (byte) resHeat] as byte[])
         connection.write([(byte)(REG_GAS_WAIT_0 + index), (byte) gasWait] as byte[])
@@ -208,7 +208,7 @@ class Bme680Full extends Bme680Minimal {
     void setAmbientTemperature(double tempC) {
         ambientTemp = tempC
         int profile = ctrlGas1 & 0x0F
-        int resHeat = calcHeaterResistance(heaterTemp, (int) ambientTemp)
+        int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
         connection.write([(byte)(REG_RES_HEAT_0 + profile), (byte) resHeat] as byte[])
     }
 
@@ -308,7 +308,7 @@ class Bme680Full extends Bme680Minimal {
         readCalibration()
         writeSettings()
         int profile = ctrlGas1 & 0x0F
-        int resHeat = calcHeaterResistance(heaterTemp, (int) ambientTemp)
+        int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
         connection.write([(byte)(REG_RES_HEAT_0 + profile), (byte) resHeat] as byte[])
         int gasWait = encodeGasWait(heaterDuration)
         connection.write([(byte)(REG_GAS_WAIT_0 + profile), (byte) gasWait] as byte[])

@@ -68,6 +68,15 @@ ANN_WRITE   = 0
 ANN_READ    = 1
 ANN_WARNING = 2
 
+# Named start/end annotation pair for the als_integration conformance check
+# (see specs/light/apds9960.md, Timing Constraints: "PON to first AVALID: one
+# complete integration cycle after AEN is set"). Appended additively after
+# the original three annotation classes above so existing PulseView manual
+# verification (which references ANN_WRITE/ANN_READ/ANN_WARNING) is
+# unaffected.
+ANN_ALS_INTEGRATION_START = 3
+ANN_ALS_INTEGRATION_DONE  = 4
+
 
 def _decode_enable(raw):
     bits = []
@@ -134,10 +143,13 @@ class Decoder(srd.Decoder):
         ('reg-write', 'Register write'),
         ('reg-read',  'Register read'),
         ('warning',   'Warning'),
+        ('als-integration-start', 'ALS integration start'),
+        ('als-integration-done',  'ALS integration done'),
     )
     annotation_rows = (
-        ('data',     'Data',     (ANN_WRITE, ANN_READ)),
+        ('data',    'Data',    (ANN_WRITE, ANN_READ)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',  'Timing',  (ANN_ALS_INTEGRATION_START, ANN_ALS_INTEGRATION_DONE)),
     )
 
     def __init__(self):
@@ -192,6 +204,10 @@ class Decoder(srd.Decoder):
                 if reg == 0x93:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_READ, [_decode_status(val), 'STATUS 0x%02X' % val]])
+                    if val & 0x01:  # AVALID
+                        self.put(self.ss_block, self.es, self.out_ann,
+                                 [ANN_ALS_INTEGRATION_DONE,
+                                  ['als_integration_done (AVALID)', 'AVALID']])
                 elif reg == 0x9C:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_READ, ['PDATA %d' % val, 'P=%d' % val]])
@@ -229,6 +245,10 @@ class Decoder(srd.Decoder):
                 if reg == 0x80:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_WRITE, [_decode_enable(val), 'ENABLE 0x%02X' % val]])
+                    if val & 0x02:  # AEN
+                        self.put(self.ss_block, self.es, self.out_ann,
+                                 [ANN_ALS_INTEGRATION_START,
+                                  ['als_integration_start (AEN)', 'AEN']])
                 elif reg == 0x81:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_WRITE, [_decode_atime(val), 'ATIME 0x%02X' % val]])

@@ -219,7 +219,7 @@ class Bme680Full @JvmOverloads constructor(
         ambientTemp = tempC
         val resHeat = calcHeaterResistance(
             heaterProfileTempC[activeProfile],
-            tempC.toInt()
+            tempC
         )
         connection.write(
             byteArrayOf(

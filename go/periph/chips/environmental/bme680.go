@@ -325,7 +325,11 @@ func bme680CalcHeaterResistance(targetTemp int16, ambientC float32, c bme680Cali
 	rhr := int32(c.resHeatRange)
 	rhv := int32(c.resHeatVal)
 
-	var1 := ((int32(ambientC) * parG3) / 10) << 8
+	// Multiply as float before flooring to whole tenths, matching the spec's
+	// `((amb_temp_c * par_G3) // 10) << 8` - truncating ambientC to int32
+	// *before* the multiply (the previous implementation) silently discards
+	// its fractional part and drifts from every other language's driver.
+	var1 := int32(math.Floor(float64(ambientC)*float64(parG3)/10.0)) << 8
 	var2 := (parG1 + 784) * ((((parG2+154009)*int32(targetTemp)*5)/100 + 3276800) / 10)
 	var3 := var1 + (var2 >> 1)
 	var4 := var3 / (rhr + 4)

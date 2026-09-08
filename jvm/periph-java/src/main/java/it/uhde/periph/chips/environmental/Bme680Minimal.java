@@ -285,8 +285,11 @@ public class Bme680Minimal {
      * @return 8-bit register value for res_heat_x
      */
     protected int calcHeaterResistance(int targetTempC, double ambTempC) {
-        long ambTemp = (long) ambTempC;
-        long var1 = (((ambTemp * parG3) / 10) << 8);
+        // Multiply as double before flooring to whole tenths, matching the
+        // spec's `((amb_temp_c * par_G3) // 10) << 8` - truncating ambTempC
+        // to long *before* the multiply (the previous implementation)
+        // silently discards its fractional part.
+        long var1 = ((long) Math.floor((ambTempC * parG3) / 10.0)) << 8;
         long var2 = ((long) (parG1 + 784))
                   * ((((((long) (parG2 + 154009)) * targetTempC * 5) / 100) + 3276800L) / 10);
         long var3 = var1 + (var2 >> 1);

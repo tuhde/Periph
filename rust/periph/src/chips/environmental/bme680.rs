@@ -276,7 +276,11 @@ fn calc_heater_resistance(target_temp: i16, ambient_temp: f32, cal: &Calibration
     let rhr = cal.res_heat_range as i32;
     let rhv = cal.res_heat_val as i32;
 
-    let var1 = ((ambient_temp as i32 * par_g3) / 10) << 8;
+    // Multiply as float before flooring to whole tenths, matching the spec's
+    // `((amb_temp_c * par_G3) // 10) << 8` - truncating ambient_temp to i32
+    // *before* the multiply (the previous implementation) silently discards
+    // its fractional part and drifts from every other language's driver.
+    let var1 = (((ambient_temp * par_g3 as f32) / 10.0).floor() as i32) << 8;
     let var2 = (par_g1 + 784) * ((((par_g2 + 154009) * target_temp as i32 * 5 / 100) + 3276800) / 10);
     let var3 = var1 + (var2 >> 1);
     let var4 = var3 / (rhr + 4);
@@ -575,5 +579,164 @@ impl<I2C: I2c> Bme680Full<I2C> {
     /// Read gas sensor resistance.
     pub fn gas_resistance(&mut self) -> Result<f32, I2C::Error> {
         self.inner.gas_resistance()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x76;
+
+    // Calibration block 1 (23 bytes from 0x8A). No published worked example
+    // exists for BME680 (see spec's Data Conversion > Validation) - these are
+    // self-consistent, hand-derived values used to check every language's
+    // translation against the same formula.
+    const CAL1: [u8; 23] = [
+        0x43, 0x67, 0x03, 0x00, 0x7D, 0x8E, 0x43, 0xD6, 0x58, 0x00, 0x27,
+        0x0B, 0x8C, 0x00, 0x0F, 0xF9, 0x00, 0x00, 0xF8, 0xC6, 0x70, 0x17, 0x1E,
+    ];
+    // Calibration block 2 (14 bytes from 0xE1).
+    const CAL2: [u8; 14] = [0x2B, 0xC8, 0x25, 0x00, 0x2D, 0x14, 0x78, 0x9C, 0x90, 0x65, 0x0C, 0xE5, 0xE2, 0x1E];
+    // Single-byte calibration: res_heat_val=50, res_heat_range=2, range_switching_error=0.
+    const S1: [u8; 1] = [0x32];
+    const S2: [u8; 1] = [0x20];
+    const S3: [u8; 1] = [0x00];
+    // ADC burst (13 bytes from 0x1F): press_adc=415148, temp_adc=419888,
+    // hum_adc=20000, gas_adc=400, gas_range=5, gas_valid=1, heat_stab=1.
+    const ADC: [u8; 13] = [0x65, 0x5A, 0xC0, 0x66, 0x83, 0x00, 0x4E, 0x20, 0x00, 0x00, 0x00, 0x64, 0x35];
+
+    const EXPECTED_T: f32 = 1.23;
+    const EXPECTED_P: f32 = 969.4;
+    const EXPECTED_H: f32 = 39.826;
+    const EXPECTED_GAS: f32 = 271155.0;
+
+    fn cal_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_BLOCK1], CAL1.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_BLOCK2], CAL2.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_RES_HEAT_VAL], S1.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_RES_HEAT_RANGE], S2.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_RANGE_SW_ERR], S3.to_vec()),
+        ]
+    }
+
+    fn trigger_transactions(ctrl_hum: u8, ctrl_meas: u8) -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, ctrl_hum]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, ctrl_meas]),
+            I2cTransaction::write_read(ADDR, vec![REG_PRESS_MSB], ADC.to_vec()),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = cal_transactions();
+        // Construction: ctrl_hum=1, ctrl_meas=0x24 (sleep), config=0,
+        // default heater profile 0 (320 degC / 150 ms, ambient=25.0).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0]),
+            I2cTransaction::write(ADDR, vec![0x5A, 0x52]),
+            I2cTransaction::write(ADDR, vec![0x64, 0x65]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, (1 << 4) | 0]),
+        ]);
+        // set_heater(300, 200) at ambient=25.0 (unchanged since construction).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![0x5A, 0x4E]),
+            I2cTransaction::write(ADDR, vec![0x64, 0x72]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, (1 << 4) | 0]),
+        ]);
+        // set_heater_profile(4, 280, 50) at ambient=25.0 (still unchanged).
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![0x5A + 4, 0x49]),
+            I2cTransaction::write(ADDR, vec![0x64 + 4, 0x32]),
+        ]);
+        // temperature(), pressure(), humidity(), gas_resistance(): each
+        // triggers a fresh forced TPHG cycle with ctrl_hum=1, ctrl_meas=0x25.
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        // configure(2, 3, 1, 0, 3): ctrl_hum=1, config=0x0C, ctrl_meas=0x4C
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 3 << 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (2 << 5) | (3 << 2) | 0]),
+        ]);
+        // set_oversampling(3, 4, 2): ctrl_hum=2, ctrl_meas=0x70
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 0]),
+        ]);
+        // set_filter(5): config=0x14
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 5 << 2]));
+        // select_heater_profile(2): ctrl_gas_1=0x12
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, (1 << 4) | 2]));
+        // set_gas_enabled(false)/true
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, (1 << 4) | 2]));
+        // set_heater_off(true)/false
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_0, 0x08]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_0, 0x00]));
+        // read_all(): triggers with the now-current oversampling (ctrl_hum=2, ctrl_meas=0x71)
+        transactions.extend(trigger_transactions(2, 0x71));
+        // gas_valid(), heater_stable(): each reads gas_r_lsb (0x2B) directly
+        transactions.push(I2cTransaction::write_read(ADDR, vec![0x2B], vec![0x35]));
+        transactions.push(I2cTransaction::write_read(ADDR, vec![0x2B], vec![0x35]));
+        // status()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_MEAS_STATUS], vec![0xA0]));
+        // chip_id()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_ID], vec![CHIP_ID]));
+        // reset(): reset write, re-read calibration, re-apply ctrl_hum/config/
+        // ctrl_meas, re-apply heater profile 2 (heat_temp=300/heat_dur=200,
+        // ambient now 1.23 from the temperature()/read_all() calls above),
+        // re-apply ctrl_gas_1 (gas_enabled=true, nb_conv=2).
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_RESET, RESET_CMD]));
+        transactions.extend(cal_transactions());
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 5 << 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (3 << 5) | (4 << 2) | 0]));
+        transactions.push(I2cTransaction::write(ADDR, vec![0x5A + 2, 0x4D]));
+        transactions.push(I2cTransaction::write(ADDR, vec![0x64 + 2, 0x72]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_GAS_1, (1 << 4) | 2]));
+
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Bme680Full::new(i2c, ADDR).expect("init");
+
+        sensor.set_heater(300, 200).unwrap();
+        sensor.set_heater_profile(4, 280, 50).unwrap();
+
+        assert!((sensor.temperature().unwrap() - EXPECTED_T).abs() < 0.01);
+        assert!((sensor.pressure().unwrap() - EXPECTED_P).abs() < 0.1);
+        assert!((sensor.humidity().unwrap() - EXPECTED_H).abs() < 0.01);
+        assert!((sensor.gas_resistance().unwrap() - EXPECTED_GAS).abs() < 1.0);
+
+        sensor.configure(2, 3, 1, 0, 3).unwrap();
+        sensor.set_oversampling(3, 4, 2).unwrap();
+        sensor.set_filter(5).unwrap();
+        sensor.select_heater_profile(2).unwrap();
+        sensor.set_gas_enabled(false).unwrap();
+        sensor.set_gas_enabled(true).unwrap();
+        sensor.set_heater_off(true).unwrap();
+        sensor.set_heater_off(false).unwrap();
+
+        let (t, p, h, g) = sensor.read_all().unwrap();
+        assert!((t - EXPECTED_T).abs() < 0.01);
+        assert!((p - EXPECTED_P).abs() < 0.1);
+        assert!((h - EXPECTED_H).abs() < 0.01);
+        assert!((g - EXPECTED_GAS).abs() < 1.0);
+
+        assert!(sensor.gas_valid().unwrap());
+        assert!(sensor.heater_stable().unwrap());
+
+        assert_eq!(sensor.status().unwrap(), 0xA0);
+        assert_eq!(sensor.chip_id().unwrap(), 0x61);
+
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
     }
 }
