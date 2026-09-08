@@ -20,6 +20,12 @@ READONLY = {0x0E, 0x0F, 0x10, 0x11}
 
 ANN_REG  = 0
 ANN_WARN = 1
+# Named start/end pair for the register_read_cycle conformance check (see
+# specs/io_expander/mcp23017.md, "Timing Constraints" and "Sigrok Decoder",
+# and specs/io_expander/mcp23017_timing.conf). Additive: does not change the
+# existing reg/warn annotations PulseView's manual verification depends on.
+ANN_READ_CYCLE_START = 2
+ANN_READ_CYCLE_DONE  = 3
 
 
 def _ann_reg(reg, byte):
@@ -61,10 +67,13 @@ class Decoder(srd.Decoder):
     annotations = (
         ('reg',  'Register'),
         ('warn', 'Warning'),
+        ('read-cycle-start', 'Register read cycle start'),
+        ('read-cycle-done',  'Register read cycle done'),
     )
     annotation_rows = (
         ('data',    'Data',    (ANN_REG,)),
         ('warnings','Warnings',(ANN_WARN,)),
+        ('timing',  'Timing',  (ANN_READ_CYCLE_START, ANN_READ_CYCLE_DONE)),
     )
 
     def __init__(self):
@@ -127,6 +136,10 @@ class Decoder(srd.Decoder):
             self.addr      = addr
             self.reg_byte  = self.ptr_reg   # may be None if no prior pointer-set
             self.state     = 'WAIT_DATA_R'
+            if self.ptr_reg is not None:
+                # register_read_cycle start: the repeated-start ADDRESS READ
+                # that begins the read phase of a register-pointer read.
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['register_read_start']])
 
         elif ptype == 'DATA WRITE':
             if self.state == 'WAIT_REG':
@@ -164,6 +177,9 @@ class Decoder(srd.Decoder):
                 if reg is not None and reg in REGISTERS:
                     val = self.data_byte if self.data_byte is not None else 0
                     self._emit(self.ss_block, es, 'R', reg, val)
+                    # register_read_cycle done: the STOP that ends the read
+                    # phase started by the ANN_READ_CYCLE_START annotation above.
+                    self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['register_read_done']])
                 self.ptr_reg = None
 
             self.state     = 'IDLE'

@@ -211,3 +211,66 @@ impl<I2C: I2c> Pcf8574Full<I2C> {
         Ok(changed)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x20;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // Pcf8574Minimal::new(): write_port(0xFF)
+            I2cTransaction::write(ADDR, vec![0xFF]),
+            // Pcf8574Full::new(): seeds `prev` via read_port()
+            I2cTransaction::read(ADDR, vec![0xFF]),
+            // read_port()
+            I2cTransaction::read(ADDR, vec![0x5A]),
+            // write_port(0x3C)
+            I2cTransaction::write(ADDR, vec![0x3C]),
+            // pin(3).is_high() -> read_port()
+            I2cTransaction::read(ADDR, vec![0x08]),
+            // write_port(0xFF) reset
+            I2cTransaction::write(ADDR, vec![0xFF]),
+            // pin3.set_low() / pin5.set_low() / pin3.set_high()
+            I2cTransaction::write(ADDR, vec![0xF7]),
+            I2cTransaction::write(ADDR, vec![0xD7]),
+            I2cTransaction::write(ADDR, vec![0xDF]),
+            // clear_interrupt() x2
+            I2cTransaction::read(ADDR, vec![0xF7]),
+            I2cTransaction::read(ADDR, vec![0xF7]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let chip = Pcf8574Full::new(i2c, ADDR).expect("init");
+        assert_eq!(chip.inner.shadow.get(), 0xFF);
+
+        assert_eq!(chip.read_port().unwrap(), 0x5A);
+
+        chip.write_port(0x3C).unwrap();
+        assert_eq!(chip.inner.shadow.get(), 0x3C);
+
+        let mut pin3 = chip.pin(3);
+        assert!(pin3.is_high().unwrap());
+
+        chip.write_port(0xFF).unwrap();
+        let mut pin3w = chip.pin(3);
+        pin3w.set_low().unwrap();
+        assert_eq!(chip.inner.shadow.get(), 0xF7);
+        let mut pin5 = chip.pin(5);
+        pin5.set_low().unwrap();
+        assert_eq!(chip.inner.shadow.get(), 0xD7);
+        let mut pin3h = chip.pin(3);
+        pin3h.set_high().unwrap();
+        assert_eq!(chip.inner.shadow.get(), 0xDF);
+        assert!(pin3h.is_set_high().unwrap()); // StatefulOutputPin: reads shadow, no bus transaction
+
+        // Baseline set by the constructor's prev-seed read (0xFF, above).
+        assert_eq!(chip.clear_interrupt().unwrap(), 0x08); // 0xFF ^ 0xF7
+        assert_eq!(chip.clear_interrupt().unwrap(), 0x00); // no further change
+
+        chip.inner.i2c.borrow_mut().done();
+    }
+}
