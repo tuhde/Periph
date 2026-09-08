@@ -1,4 +1,5 @@
 #include "MPU6050.h"
+#include <stdlib.h>
 
 #if defined(__linux__)
 #include <unistd.h>
@@ -25,7 +26,13 @@ MPU6050Minimal::MPU6050Minimal(Connection& connection)
     _write_reg(REG_PWR_MGMT_1, 0x01);
     uint8_t who = _read_reg(REG_WHO_AM_I);
     if (who != WHO_AM_I_VALUE) {
-        return;
+        // Match this repo's established C++ convention for a failed identity
+        // check (see ENS160Minimal's PART_ID check) - the spec requires
+        // raising an error here, and the Python port raises ValueError.
+        // Silently returning left the device half-initialized (SLEEP already
+        // cleared, but gyro/accel/DLPF/sample-rate never configured) with no
+        // signal to the caller that construction failed.
+        abort();
     }
     _write_reg(REG_GYRO_CONFIG, 0x00);
     _write_reg(REG_ACCEL_CONFIG, 0x00);
