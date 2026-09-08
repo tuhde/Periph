@@ -125,7 +125,11 @@ int32_t BMP180Minimal::_compensate_pressure(int32_t up) {
 float BMP180Minimal::temperature() {
     uint16_t ut = _read_raw_temp();
     int32_t b5 = _compensate_temp(ut);
-    return ((float)(b5 + 8)) / 160.0f;
+    // Datasheet formula is T = ((B5+8) >> 4) / 10.0 - an integer right-shift
+    // (truncating), THEN a float divide. Dividing (b5+8) by 160.0f directly
+    // is not equivalent: it skips the truncation the shift performs whenever
+    // (b5+8) isn't a multiple of 16, silently rounding up instead of down.
+    return (float)((b5 + 8) >> 4) / 10.0f;
 }
 
 float BMP180Minimal::pressure() {
