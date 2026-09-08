@@ -178,3 +178,75 @@ fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Erro
 fn read_reg_signed<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<i16, I2C::Error> {
     Ok(read_reg(i2c, addr, reg)? as i16)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x40;
+    // r_shunt=0.1, max_current=2.0 -> current_lsb=2.0/32768,
+    // cal=(0.04096/(current_lsb*r_shunt)) as u16 & 0xFFFE = 0x1A36.
+    const CAL: u16 = 0x1A36;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // new(): writes Calibration.
+            I2cTransaction::write(ADDR, vec![REG_CAL, 0x1A, 0x36]),
+            // voltage()/conversion_ready()/overflow(): Bus Voltage raw=(1000<<3)|0b010=0x1F42.
+            I2cTransaction::write_read(ADDR, vec![REG_BUS], vec![0x1F, 0x42]),
+            I2cTransaction::write_read(ADDR, vec![REG_BUS], vec![0x1F, 0x42]),
+            I2cTransaction::write_read(ADDR, vec![REG_BUS], vec![0x1F, 0x42]),
+            // overflow() again: raw=(1000<<3)|0b001=0x1F41 -> OVF=1.
+            I2cTransaction::write_read(ADDR, vec![REG_BUS], vec![0x1F, 0x41]),
+            // shunt_voltage(): raw=-500 (0xFE0C).
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT], vec![0xFE, 0x0C]),
+            // current(): raw=1000 (0x03E8).
+            I2cTransaction::write_read(ADDR, vec![REG_CURRENT], vec![0x03, 0xE8]),
+            // power(): raw=2000 (0x07D0).
+            I2cTransaction::write_read(ADDR, vec![REG_POWER], vec![0x07, 0xD0]),
+            // configure(0, 1, 0x0B, 0x02, 5) -> config=0x0D95; re-writes Calibration.
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x0D, 0x95]),
+            I2cTransaction::write(ADDR, vec![REG_CAL, 0x1A, 0x36]),
+            // shutdown(): reads CONFIG (0x0D95), writes MODE=0 -> 0x0D90.
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x0D, 0x95]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x0D, 0x90]),
+            // wake(): reads CONFIG (0x0D90), restores mode 5 -> 0x0D95.
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x0D, 0x90]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x0D, 0x95]),
+            // trigger(): reads CONFIG (0x0D95), re-writes unchanged.
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x0D, 0x95]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x0D, 0x95]),
+            // reset(): sets RST, re-writes Calibration (no config restore in this driver).
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x80, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CAL, 0x1A, 0x36]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Ina219Full::new(i2c, ADDR, 0.1, 2.0).expect("init");
+        assert_eq!(sensor.inner.cal, CAL);
+
+        assert!((sensor.voltage().unwrap() - 4.0).abs() < 1e-6);
+        assert!(sensor.conversion_ready().unwrap());
+        assert!(!sensor.overflow().unwrap());
+
+        assert!(sensor.overflow().unwrap());
+
+        assert!((sensor.shunt_voltage().unwrap() - (-0.005)).abs() < 1e-6);
+
+        let expected_current = 1000.0 * (2.0 / 32768.0);
+        assert!((sensor.current().unwrap() - expected_current).abs() < 1e-6);
+
+        let expected_power = 2000.0 * 20.0 * (2.0 / 32768.0);
+        assert!((sensor.power().unwrap() - expected_power).abs() < 1e-6);
+
+        sensor.configure(0, 1, 0x0B, 0x02, 5).unwrap();
+        sensor.shutdown().unwrap();
+        sensor.wake().unwrap();
+        sensor.trigger().unwrap();
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+}
