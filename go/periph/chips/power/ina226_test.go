@@ -2,83 +2,11 @@ package power
 
 import (
 	"testing"
-
-	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// mockConnection is an in-memory fake connection.Connection for unit tests —
-// no hardware, no bus.
-//
-// Supports the two access patterns chip drivers in this repo use:
-//   - Register-addressed reads (WriteRead([]byte{reg}, n)): backed by a
-//     byte-addressable registers map. Preload it with setRegister.
-//   - Plain streamed reads (Read(n), no register address): backed by a FIFO
-//     queue. Preload responses with queueRead; each Read(n) call pops the
-//     next one. Falls back to n zero bytes if the queue is empty.
-//
-// Every Write call (register writes and plain command writes alike) is
-// appended to writes for assertions, and 2+ byte writes are also applied to
-// registers so a later WriteRead sees them.
-type mockConnection struct {
-	registers map[byte]byte
-	writes    [][]byte
-	readQueue [][]byte
-}
-
-func newMockConnection() *mockConnection {
-	return &mockConnection{registers: map[byte]byte{}}
-}
-
-func (m *mockConnection) setRegister(reg byte, values ...byte) {
-	for i, v := range values {
-		m.registers[reg+byte(i)] = v
-	}
-}
-
-func (m *mockConnection) queueRead(data []byte) {
-	m.readQueue = append(m.readQueue, data)
-}
-
-func (m *mockConnection) Write(data []byte) error {
-	cp := append([]byte(nil), data...)
-	m.writes = append(m.writes, cp)
-	if len(data) >= 2 {
-		reg := data[0]
-		for i := 1; i < len(data); i++ {
-			m.registers[reg+byte(i-1)] = data[i]
-		}
-	}
-	return nil
-}
-
-func (m *mockConnection) Read(n int) ([]byte, error) {
-	if len(m.readQueue) > 0 {
-		front := m.readQueue[0]
-		m.readQueue = m.readQueue[1:]
-		out := make([]byte, n)
-		copy(out, front)
-		return out, nil
-	}
-	return make([]byte, n), nil
-}
-
-func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
-	cp := append([]byte(nil), data...)
-	m.writes = append(m.writes, cp)
-	reg := data[0]
-	out := make([]byte, n)
-	for i := 0; i < n; i++ {
-		out[i] = m.registers[reg+byte(i)]
-	}
-	return out, nil
-}
-
-func (m *mockConnection) Close() error                { return nil }
-func (m *mockConnection) Enable()                     {}
-func (m *mockConnection) Disable()                    {}
-func (m *mockConnection) IsEnabled() bool             { return true }
-func (m *mockConnection) IntPin() connection.InputPin { return nil }
-func (m *mockConnection) EnPin() connection.OutputPin { return nil }
+// mockConnection and newMockConnection are defined in ina219_test.go
+// (shared within this package - Go doesn't allow redeclaring a type/func
+// across files in the same package).
 
 func lastWriteTo(writes [][]byte, reg byte) []byte {
 	var last []byte
