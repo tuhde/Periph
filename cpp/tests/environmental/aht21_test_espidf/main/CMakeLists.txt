@@ -6,5 +6,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/environmental
-    REQUIRES driver
+    REQUIRES driver esp_driver_i2c
 )

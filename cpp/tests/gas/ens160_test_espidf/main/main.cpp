@@ -35,7 +35,9 @@ extern "C" void app_main(void) {
         .scl_io_num = static_cast<gpio_num_t>(22),
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
-        .flags = { .enable_internal_pullup = true },
+        .intr_priority = 0,
+        .trans_queue_depth = 0,
+        .flags = { .enable_internal_pullup = true, .allow_pd = false },
     };
     i2c_master_bus_handle_t bus;
     i2c_new_master_bus(&bus_cfg, &bus);
@@ -44,6 +46,8 @@ extern "C" void app_main(void) {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address  = 0x52,
         .scl_speed_hz    = 400000,
+        .scl_wait_us     = 0,
+        .flags           = {},
     };
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);

@@ -29,8 +29,10 @@ int main(void) {
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
-    check_true(sensor.data_ready(), "data_ready");
-    int tvoc = sensor.tvoc(); int eco2 = sensor.eco2();
+    uint8_t status = sensor.status();
+    check_true(status != ENS160Full::VALIDITY_INVALID, "status_valid");
+    float tvoc = sensor.read_tvoc();
+    float eco2 = sensor.read_eco2();
     check_true(tvoc >= 0, "tvoc non-negative");
     check_true(eco2 >= 400 && eco2 <= 5000, "eco2 range");
 
