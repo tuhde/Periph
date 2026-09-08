@@ -100,7 +100,7 @@ impl<I2C: I2c> Pcf8576Minimal<I2C> {
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x38 or 0x39).
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let mut s = Self { i2c, addr, backplanes: MODE_1_4 };
+        let mut s = Self { i2c, addr, backplanes: BACKPLANES_4 };
         s.do_clear()?;
         Ok(s)
     }
@@ -253,5 +253,94 @@ impl<I2C: I2c> Pcf8576Full<I2C> {
     /// Write one 7-segment byte at column `position * 2`.
     pub fn set_digit_7seg(&mut self, position: u8, segments: u8) -> Result<(), I2C::Error> {
         self.inner.set_digit_7seg(position, segments)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = ADDR_SA0_LOW;
+
+    fn zeros21() -> Vec<u8> {
+        let mut v = vec![0x00u8];
+        v.extend(std::iter::repeat(0u8).take(20));
+        v
+    }
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // init: mode-set (E=1, bias=1/3, mode=1:4 -> 0x48), then
+            // load-ptr(0) + 20 zero bytes to blank all RAM.
+            I2cTransaction::write(ADDR, vec![0x48]),
+            I2cTransaction::write(ADDR, zeros21()),
+            // clear()
+            I2cTransaction::write(ADDR, vec![0x48]),
+            I2cTransaction::write(ADDR, zeros21()),
+            // write_raw(5, [0xAB, 0xCD])
+            I2cTransaction::write(ADDR, vec![0x05, 0xAB, 0xCD]),
+            // write_raw(3, []) is a no-op - no bus transaction.
+            // set_digit_7seg(3, SEVEN_SEG[7]=0xE0) -> write_raw(6, [0xE0])
+            I2cTransaction::write(ADDR, vec![0x06, 0xE0]),
+            // disable() / enable()
+            I2cTransaction::write(ADDR, vec![0x40]),
+            I2cTransaction::write(ADDR, vec![0x48]),
+            // set_mode(): mode-set byte = 0x40 | E(0x08) | bias | mode.
+            I2cTransaction::write(ADDR, vec![0x4D]), // BACKPLANES_1, BIAS_1_2 -> 0x40|8|4|1
+            I2cTransaction::write(ADDR, vec![0x4A]), // BACKPLANES_2, BIAS_1_3 -> 0x40|8|0|2
+            I2cTransaction::write(ADDR, vec![0x4B]), // BACKPLANES_3, BIAS_1_3 -> 0x40|8|0|3
+            I2cTransaction::write(ADDR, vec![0x48]), // BACKPLANES_4, BIAS_1_3 -> 0x40|8|0|0
+            // set_blink()
+            I2cTransaction::write(ADDR, vec![0x72]), // BLINK_1_HZ -> 0x70|0|2
+            I2cTransaction::write(ADDR, vec![0x75]), // BLINK_2_HZ, alternate_bank -> 0x70|4|1
+            // set_bank(1, 0)
+            I2cTransaction::write(ADDR, vec![0x7A]), // 0x78|(1<<1)|0
+            // device_select(5)
+            I2cTransaction::write(ADDR, vec![0x65]), // 0x60|5
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Pcf8576Full::new(i2c, ADDR).expect("init");
+
+        sensor.clear().unwrap();
+        sensor.write_raw(5, &[0xAB, 0xCD]).unwrap();
+        sensor.write_raw(3, &[]).unwrap();
+        sensor.set_digit_7seg(3, SEVEN_SEG[7]).unwrap();
+
+        sensor.disable().unwrap();
+        sensor.enable().unwrap();
+
+        sensor.set_mode(BACKPLANES_1, BIAS_1_2).unwrap();
+        sensor.set_mode(BACKPLANES_2, BIAS_1_3).unwrap();
+        sensor.set_mode(BACKPLANES_3, BIAS_1_3).unwrap();
+        sensor.set_mode(BACKPLANES_4, BIAS_1_3).unwrap();
+
+        sensor.set_blink(BLINK_1_HZ, false).unwrap();
+        sensor.set_blink(BLINK_2_HZ, true).unwrap();
+
+        sensor.set_bank(1, 0).unwrap();
+        sensor.device_select(5).unwrap();
+
+        sensor.release().done();
+    }
+
+    #[test]
+    fn minimal_init_matches_default_backplanes() {
+        // Regression test for a bug where Pcf8576Minimal::new() initialised
+        // `backplanes` to MODE_1_4 (0x00, a drive-mode bit pattern) instead
+        // of the backplane count 4 - harmless only by coincidence, since
+        // Pcf8576Full::mode_code()'s default arm also happens to return
+        // MODE_1_4. Assert the field actually holds the documented default
+        // (1:4 multiplex, 4 backplanes) so a future change to mode_code()'s
+        // default can't silently break this again.
+        let transactions = vec![
+            I2cTransaction::write(ADDR, vec![0x48]),
+            I2cTransaction::write(ADDR, zeros21()),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let sensor = Pcf8576Minimal::new(i2c, ADDR).expect("init");
+        assert_eq!(sensor.backplanes, BACKPLANES_4);
+        sensor.release().done();
     }
 }

@@ -42,7 +42,9 @@ open class Pcf8576Minimal(protected val connection: Connection) {
         )
     }
 
-    protected var backplanes: Int = MODE_1_4
+    // Backplane count (1/2/3/4), not a MODE_* bit pattern - default matches
+    // the 1:4 multiplex drive mode this constructor initialises the chip to.
+    protected var backplanes: Int = 4
 
     init {
         doClear()

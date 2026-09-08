@@ -42,7 +42,9 @@ public class Pcf8576Minimal {
     };
 
     protected final Connection connection;
-    protected int backplanes = MODE_1_4;
+    // Backplane count (1/2/3/4), not a MODE_* bit pattern - default matches
+    // the 1:4 multiplex drive mode this constructor initialises the chip to.
+    protected int backplanes = 4;
 
     /**
      * Construct the driver and initialise the chip with defaults.
