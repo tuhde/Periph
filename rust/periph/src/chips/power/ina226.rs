@@ -238,3 +238,87 @@ fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Erro
 fn read_reg_signed<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<i16, I2C::Error> {
     Ok(read_reg(i2c, addr, reg)? as i16)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x40;
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            // CONFIG_DEFAULT = 0x4127
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x41, 0x27]),
+            // cal = (0.00512 / (current_lsb * r_shunt)) as u16 = 838 (0x0346),
+            // with r_shunt=0.1, max_current=2.0 -> current_lsb = 6.103515625e-5
+            I2cTransaction::write(ADDR, vec![REG_CAL, 0x03, 0x46]),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        transactions.extend(vec![
+            // voltage(): raw=6400 (0x1900) -> 6400 * 1.25e-3 = 8.0 V
+            I2cTransaction::write_read(ADDR, vec![REG_BUS], vec![0x19, 0x00]),
+            // shunt_voltage(): raw signed = -100 (0xFF9C) -> -100 * 2.5e-6 V
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT], vec![0xFF, 0x9C]),
+            // current(): raw signed = 1000 (0x03E8) -> 1000 * current_lsb
+            I2cTransaction::write_read(ADDR, vec![REG_CURRENT], vec![0x03, 0xE8]),
+            // power(): raw = 500 (0x01F4) -> 500 * 25 * current_lsb
+            I2cTransaction::write_read(ADDR, vec![REG_POWER], vec![0x01, 0xF4]),
+            // configure(2, 3, 5, 6) -> config = 0x04EE
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x04, 0xEE]),
+            // conversion_ready(): CVRF bit (0x0008) set
+            I2cTransaction::write_read(ADDR, vec![REG_MASK], vec![0x00, 0x08]),
+            // overflow(): OVF bit (0x0004) set
+            I2cTransaction::write_read(ADDR, vec![REG_MASK], vec![0x00, 0x04]),
+            // set_alert(POL, 1.5, true, true): raw = (1.5/(25*current_lsb)) as u16 = 983 (0x03D7);
+            // mask = POL | 0x0002 | 0x0001 = 0x0803
+            I2cTransaction::write(ADDR, vec![REG_MASK, 0x08, 0x03]),
+            I2cTransaction::write(ADDR, vec![REG_ALERT, 0x03, 0xD7]),
+            // alert_flags()
+            I2cTransaction::write_read(ADDR, vec![REG_MASK], vec![0x08, 0x03]),
+            // reset(): CONFIG=0x8000, then re-write CAL
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x80, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CAL, 0x03, 0x46]),
+            // shutdown(): read CONFIG=0x4127, write CONFIG & 0xFFF8 = 0x4120
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x41, 0x27]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x41, 0x20]),
+            // wake(): read CONFIG=0x4120, write (config&0xFFF8)|mode(7) = 0x4127
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x41, 0x20]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x41, 0x27]),
+            // manufacturer_id() / die_id()
+            I2cTransaction::write_read(ADDR, vec![REG_MFR_ID], vec![0x54, 0x49]),
+            I2cTransaction::write_read(ADDR, vec![REG_DIE_ID], vec![0x22, 0x60]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Ina226Full::new(i2c, ADDR, 0.1, 2.0).expect("init");
+
+        assert_eq!(sensor.voltage().unwrap(), 8.0);
+        assert!((sensor.shunt_voltage().unwrap() - (-2.5e-4)).abs() < 1e-9);
+        let current_lsb = 2.0f32 / 32768.0;
+        assert!((sensor.current().unwrap() - (1000.0 * current_lsb)).abs() < 1e-9);
+        assert!((sensor.power().unwrap() - (500.0 * 25.0 * current_lsb)).abs() < 1e-6);
+
+        sensor.configure(2, 3, 5, 6).unwrap();
+
+        assert!(sensor.conversion_ready().unwrap());
+        assert!(sensor.overflow().unwrap());
+
+        sensor.set_alert(POL, 1.5, true, true).unwrap();
+
+        assert_eq!(sensor.alert_flags().unwrap(), 0x0803);
+
+        sensor.reset().unwrap();
+        sensor.shutdown().unwrap();
+        sensor.wake().unwrap();
+
+        assert_eq!(sensor.manufacturer_id().unwrap(), 0x5449);
+        assert_eq!(sensor.die_id().unwrap(), 0x2260);
+
+        sensor.inner.i2c.done();
+    }
+}
