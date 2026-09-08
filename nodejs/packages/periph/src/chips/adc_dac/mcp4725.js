@@ -105,12 +105,13 @@ class MCP4725Full extends MCP4725Minimal {
      */
     async read() {
         const buf = await this._conn.writeRead(Buffer.from([0x00]), 5);
+        const code = (buf[1] << 4) | ((buf[2] >> 4) & 0x0F);
         return {
-            code: ((buf[1] & 0x0F) << 8) | buf[2],
-            voltage_fraction: (((buf[1] & 0x0F) << 8) | buf[2]) / 4095.0,
+            code: code,
+            voltage_fraction: code / 4095.0,
             power_down: (buf[0] >> 2) & 0x03,
             eeprom_code: ((buf[3] & 0x0F) << 8) | buf[4],
-            eeprom_power_down: (buf[3] >> 6) & 0x03,
+            eeprom_power_down: (buf[3] >> 5) & 0x03,
             eeprom_ready: !!(buf[0] & 0x80),
         };
     }

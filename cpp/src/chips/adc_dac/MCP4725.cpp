@@ -47,9 +47,9 @@ MCP4725Full::ReadResult MCP4725Full::read() {
     ReadResult result = {};
     result.eeprom_ready = (buf[0] & 0x80) != 0;
     result.power_down = (buf[0] >> 2) & 0x03;
-    result.code = ((uint16_t)(buf[1] & 0x0F) << 8) | buf[2];
+    result.code = ((uint16_t)buf[1] << 4) | ((buf[2] >> 4) & 0x0F);
     result.voltage_fraction = result.code / 4095.0f;
-    result.eeprom_power_down = (buf[3] >> 6) & 0x03;
+    result.eeprom_power_down = (buf[3] >> 5) & 0x03;
     result.eeprom_code = ((uint16_t)(buf[3] & 0x0F) << 8) | buf[4];
     return result;
 }

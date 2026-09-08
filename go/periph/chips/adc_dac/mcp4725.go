@@ -151,14 +151,14 @@ func (d *MCP4725Full) Read() (MCP4725State, error) {
 	if err != nil {
 		return MCP4725State{}, err
 	}
-	code := (uint16(buf[1]&0x0F) << 8) | uint16(buf[2])
+	code := (uint16(buf[1]) << 4) | (uint16(buf[2]) >> 4)
 	eepromCode := (uint16(buf[3]&0x0F) << 8) | uint16(buf[4])
 	return MCP4725State{
 		Code:            code,
 		VoltageFraction: float32(code) / 4095.0,
 		PowerDown:       (buf[0] >> 2) & 0x03,
 		EEPROMCode:      eepromCode,
-		EEPROMPowerDown: (buf[3] >> 6) & 0x03,
+		EEPROMPowerDown: (buf[3] >> 5) & 0x03,
 		EEPROMReady:     buf[0]&0x80 != 0,
 	}, nil
 }
@@ -180,13 +180,13 @@ func (d *MCP4725Full) SetPowerDown(mode uint8) error {
 // WakeUp sends the General Call Wake-Up command (0x00, 0x09) to clear the
 // power-down bits in the DAC register.
 func (d *MCP4725Full) WakeUp() error {
-	return d.connection.Write([]byte{mcp4725GCWake})
+	return d.connection.Write([]byte{mcp4725AddrGeneralCall, mcp4725GCWake})
 }
 
 // Reset sends the General Call Reset command (0x00, 0x06) to trigger an
 // internal power-on reset and reload the EEPROM into the DAC register.
 func (d *MCP4725Full) Reset() error {
-	return d.connection.Write([]byte{mcp4725GCReset})
+	return d.connection.Write([]byte{mcp4725AddrGeneralCall, mcp4725GCReset})
 }
 
 // IsEEPROMReady returns true when any pending EEPROM write has completed.

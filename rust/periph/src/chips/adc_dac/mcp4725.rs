@@ -105,11 +105,11 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
     pub fn read(&mut self) -> Result<(u16, f32, u8, u16, u8, bool), I2C::Error> {
         let mut buf = [0u8; 5];
         self.inner.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
-        let code = (((buf[1] & 0x0F) as u16) << 8) | buf[2] as u16;
+        let code = ((buf[1] as u16) << 4) | ((buf[2] as u16) >> 4);
         let voltage_fraction = code as f32 / 4095.0;
         let power_down = (buf[0] >> 2) & 0x03;
         let eeprom_code = (((buf[3] & 0x0F) as u16) << 8) | buf[4] as u16;
-        let eeprom_power_down = (buf[3] >> 6) & 0x03;
+        let eeprom_power_down = (buf[3] >> 5) & 0x03;
         let eeprom_ready = (buf[0] & 0x80) != 0;
         Ok((code, voltage_fraction, power_down, eeprom_code, eeprom_power_down, eeprom_ready))
     }
@@ -155,5 +155,79 @@ impl<I2C: I2c> Mcp4725Full<I2C> {
         let mut buf = [0u8; 2];
         self.inner.i2c.write_read(self.inner.addr, &[0x00], &mut buf)?;
         Ok(((buf[0] & 0x0F) as u16) << 8 | buf[1] as u16)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x60;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // set_voltage(0.5): (0.5 * 4095.0) as u16 truncates to 2047 (0x7FF), not 2048.
+            I2cTransaction::write(ADDR, vec![0x07, 0xFF]),
+            // set_voltage(2.0) clamps to 1.0 -> code 4095.
+            I2cTransaction::write(ADDR, vec![0x0F, 0xFF]),
+            // set_voltage(-1.0) clamps to 0.0 -> code 0.
+            I2cTransaction::write(ADDR, vec![0x00, 0x00]),
+            // set_raw(4095).
+            I2cTransaction::write(ADDR, vec![0x0F, 0xFF]),
+            // set_raw(9000) clamps to 4095.
+            I2cTransaction::write(ADDR, vec![0x0F, 0xFF]),
+            // set_voltage_eeprom(0.5): code truncates to 2047 (0x7FF).
+            // byte1=0x60, byte2=code>>4=0x7F, byte3=(code&0xF)<<4=0xF0.
+            I2cTransaction::write(ADDR, vec![0x60, 0x7F, 0xF0]),
+            // set_raw_eeprom(4095): byte2=0xFF, byte3=0xF0.
+            I2cTransaction::write(ADDR, vec![0x60, 0xFF, 0xF0]),
+            // read(): rdy_bsy=1, por=1, pd_dac=2, code=0x123, eeprom byte4=0x40
+            // (0100_0000) -> PD1:PD0 at bits 6:5 = 2, eeprom_code=0xAB.
+            I2cTransaction::write_read(ADDR, vec![0x00], vec![0xC8, 0x12, 0x30, 0x40, 0xAB]),
+            // set_power_down(2): reads current 2-byte DAC code (0x0AB), Fast Writes PD=2.
+            I2cTransaction::write_read(ADDR, vec![0x00], vec![0x00, 0xAB]),
+            I2cTransaction::write(ADDR, vec![0x20, 0xAB]),
+            // set_power_down(9) clamps mode to 3; DAC code read as 0.
+            I2cTransaction::write_read(ADDR, vec![0x00], vec![0x00, 0x00]),
+            I2cTransaction::write(ADDR, vec![0x30, 0x00]),
+            // wake_up() / reset(): General Call, address 0x00.
+            I2cTransaction::write(0x00, vec![0x09]),
+            I2cTransaction::write(0x00, vec![0x06]),
+            // is_eeprom_ready(): RDY/BSY bit.
+            I2cTransaction::write_read(ADDR, vec![0x00], vec![0x80]),
+            I2cTransaction::write_read(ADDR, vec![0x00], vec![0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut dac = Mcp4725Full::new(i2c, ADDR).expect("init");
+
+        dac.set_voltage(0.5).unwrap();
+        dac.set_voltage(2.0).unwrap();
+        dac.set_voltage(-1.0).unwrap();
+        dac.set_raw(4095).unwrap();
+        dac.set_raw(9000).unwrap();
+        dac.set_voltage_eeprom(0.5).unwrap();
+        dac.set_raw_eeprom(4095).unwrap();
+
+        let (code, voltage_fraction, power_down, eeprom_code, eeprom_power_down, eeprom_ready) =
+            dac.read().unwrap();
+        assert_eq!(code, 0x123);
+        assert!((voltage_fraction - (0x123 as f32 / 4095.0)).abs() < 1e-6);
+        assert_eq!(power_down, 2);
+        assert_eq!(eeprom_code, 0xAB);
+        assert_eq!(eeprom_power_down, 2);
+        assert!(eeprom_ready);
+
+        dac.set_power_down(2).unwrap();
+        dac.set_power_down(9).unwrap();
+
+        dac.wake_up().unwrap();
+        dac.reset().unwrap();
+
+        assert!(dac.is_eeprom_ready().unwrap());
+        assert!(!dac.is_eeprom_ready().unwrap());
+
+        dac.inner.i2c.done();
     }
 }
