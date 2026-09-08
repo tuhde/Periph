@@ -15,6 +15,15 @@ ANN_REG_WRITE = 0
 ANN_REG_READ  = 1
 ANN_PTR_WRITE = 2
 ANN_WARNING   = 3
+# Conformance-only annotations (see specs/testing_framework.md, "Conformance
+# Implementation" and specs/memory/24aa02uid_timing.conf): a named
+# start/end pair marking the internal write-cycle window (STOP of a byte/
+# page write to the first subsequent bus transaction, which in a correct
+# driver only happens once the chip ACKs again - see the chip spec's
+# "ACK Polling" section). Additive to the generic annotations above so
+# existing PulseView manual-verification rows are unaffected.
+ANN_WRITE_CYCLE_START = 4
+ANN_WRITE_CYCLE_DONE  = 5
 
 
 def _decode_read(addr, data):
@@ -79,10 +88,13 @@ class Decoder(srd.Decoder):
         ('mem-read',   'Memory read'),
         ('ptr-write',  'Address pointer write'),
         ('warning',    'Warning'),
+        ('write-cycle-start', 'Write cycle start (conformance: write_cycle start)'),
+        ('write-cycle-done',  'Write cycle done (conformance: write_cycle end)'),
     )
     annotation_rows = (
-        ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('warnings',    'Warnings',    (ANN_WARNING,)),
+        ('conformance', 'Conformance', (ANN_WRITE_CYCLE_START, ANN_WRITE_CYCLE_DONE)),
     )
 
     def __init__(self):
@@ -97,6 +109,7 @@ class Decoder(srd.Decoder):
         self.ss_block = None
         self.ss_seq   = None   # start of the current sequential read
         self.seq_addr = None   # start address of the current sequential read
+        self.awaiting_write_done = False  # True right after a data write's STOP
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
@@ -170,6 +183,11 @@ class Decoder(srd.Decoder):
                     self._warn(self.ss_block, self.es,
                                'Write to write-protected region 0x%02X-0x%02X' %
                                (reg, reg + len(self.databuf) - 1))
+                # write_cycle start: the internal write cycle begins once
+                # STOP is issued (see the chip spec's "Byte Write" section).
+                self.put(self.ss_block, self.es, self.out_ann,
+                         [ANN_WRITE_CYCLE_START, ['write_cycle_start', 'write_cycle_start']])
+                self.awaiting_write_done = True
 
     def _finish_sequential(self):
         """Called on STOP after a sequential read (no register pointer)."""
@@ -197,6 +215,15 @@ class Decoder(srd.Decoder):
     def decode(self, ss, es, data):
         ptype, pdata = data
         self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT') and self.awaiting_write_done:
+            # write_cycle end: the first bus activity after a write's STOP -
+            # in a correct driver, this only happens once the chip ACKs
+            # again (ACK-polling) or after waiting the worst-case write
+            # cycle time (see the chip spec's "ACK Polling" section).
+            self.put(ss, ss, self.out_ann,
+                     [ANN_WRITE_CYCLE_DONE, ['write_cycle_done', 'write_cycle_done']])
+            self.awaiting_write_done = False
 
         if ptype in ('START', 'START REPEAT'):
             if ptype == 'START REPEAT' and self.state in ('GET_REG_PTR', 'GET_DATA_WRITE') and self.reg_ptr is not None and not self.databuf:
