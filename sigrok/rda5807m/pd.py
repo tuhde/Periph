@@ -16,6 +16,15 @@ READ_REGS = ['STATUSA (0x0A)', 'STATUSB (0x0B)', 'RDSA (0x0C)', 'RDSB (0x0D)', '
 ANN_REG_WRITE = 0
 ANN_REG_READ = 1
 ANN_WARNING = 2
+# Conformance-check annotations (specs/testing_framework.md, "Conformance
+# Implementation"), added additively alongside the two rows above - never
+# remove/rename ANN_REG_WRITE/ANN_REG_READ/ANN_WARNING, PulseView manual
+# verification already depends on them. Text is the literal check name
+# specs/comms/rda5807m_timing.conf's check names match against.
+ANN_READY_SETTLE_START = 3
+ANN_READY_SETTLE_DONE = 4
+ANN_RESET_RECOVERY_START = 5
+ANN_RESET_RECOVERY_DONE = 6
 
 
 def _freq_mhz(band, space, chan):
@@ -127,10 +136,16 @@ class Decoder(srd.Decoder):
         ('reg-write', 'Register write'),
         ('reg-read', 'Register read'),
         ('warning', 'Warning'),
+        ('ready-settle-start', 'FM_READY settle: write'),
+        ('ready-settle-done', 'FM_READY settle: reasserted'),
+        ('reset-recovery-start', 'Reset recovery: SOFT_RESET pulsed'),
+        ('reset-recovery-done', 'Reset recovery: STC observed'),
     )
     annotation_rows = (
         ('data', 'Data', (ANN_REG_WRITE, ANN_REG_READ)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('conformance', 'Conformance', (ANN_READY_SETTLE_START, ANN_READY_SETTLE_DONE,
+                                         ANN_RESET_RECOVERY_START, ANN_RESET_RECOVERY_DONE)),
     )
 
     def __init__(self):
@@ -175,8 +190,20 @@ class Decoder(srd.Decoder):
                     break
                 if i == 0:
                     lines.append(_decode_status_a(raw, self.last_band, self.last_space))
+                    # reset_recovery_done: STC (bit 14) observed - marks the
+                    # end of the soft-reset/re-enable recovery window (see
+                    # specs/comms/rda5807m_timing.conf's reset_recovery check).
+                    if raw & 0x4000:
+                        self._emit(ANN_RESET_RECOVERY_DONE, self.ss_block, self.es,
+                                   ['reset_recovery_done', 'RD'])
                 elif i == 1:
                     lines.append(_decode_status_b(raw))
+                    # ready_settle_done: FM_READY (bit 7) observed set - marks
+                    # the end of the post-write settle window (see
+                    # specs/comms/rda5807m_timing.conf's ready_settle check).
+                    if raw & 0x0080:
+                        self._emit(ANN_READY_SETTLE_DONE, self.ss_block, self.es,
+                                   ['ready_settle_done', 'RS'])
                 else:
                     lines.append('%s = 0x%04X ("%s")' % (names[i], raw, _ascii_pair(raw)))
             summary = ' | '.join(lines)
@@ -191,6 +218,16 @@ class Decoder(srd.Decoder):
                     break
                 if i == 0:
                     lines.append(_decode_ctrl(raw))
+                    # reset_recovery_start: SOFT_RESET (bit 1) pulsed - a rare,
+                    # unambiguous marker for the soft-reset recovery window
+                    # (see specs/comms/rda5807m_timing.conf's reset_recovery
+                    # check; standby()'s re-enable write shares the same
+                    # ~200 ms recovery requirement per the datasheet note but
+                    # ENABLE=1 is present on nearly every write, so it would
+                    # not be a distinctive start marker).
+                    if raw & 0x0002:
+                        self._emit(ANN_RESET_RECOVERY_START, self.ss_block, self.es,
+                                   ['reset_recovery_start', 'RR'])
                 elif i == 1:
                     text, band, space = _decode_chan(raw)
                     lines.append(text)
@@ -206,6 +243,12 @@ class Decoder(srd.Decoder):
             summary = ' | '.join(lines)
             self._emit(ANN_REG_WRITE, self.ss_block, self.es,
                        ['Write: %s' % summary, 'W %d words' % len(words)])
+            # ready_settle_start: any register write - the datasheet notes
+            # FM_READY deasserts after any write and takes up to ~20 ms to
+            # reassert (see specs/comms/rda5807m_timing.conf's ready_settle
+            # check).
+            self._emit(ANN_READY_SETTLE_START, self.ss_block, self.es,
+                       ['ready_settle_start', 'W>'])
 
     def decode(self, ss, es, data):
         ptype, pdata = data
