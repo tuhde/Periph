@@ -415,3 +415,206 @@ fn encode_offset(value: i8) -> u8 {
         value as u8 & 0x7F
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x39;
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_ATIME, ATIME_DEFAULT]),
+            I2cTransaction::write(ADDR, vec![REG_CONTROL, CONTROL_DEFAULT]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG2, CONFIG2_DEFAULT]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x03]),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut delay = NoopDelay::new();
+        let mut transactions = init_transactions();
+        // RGBC burst: clear=0x1234, red=0x0102, green=0x0304, blue=0x0506 (LE).
+        const RGBC: [u8; 8] = [0x34, 0x12, 0x02, 0x01, 0x04, 0x03, 0x06, 0x05];
+        transactions.extend(vec![
+            // color()
+            I2cTransaction::write_read(ADDR, vec![REG_CDATAL], RGBC.to_vec()),
+            // color_clear()
+            I2cTransaction::write_read(ADDR, vec![REG_CDATAL], vec![0x34, 0x12]),
+            // color_red()
+            I2cTransaction::write_read(ADDR, vec![REG_CDATAL], RGBC.to_vec()),
+            // color_green()
+            I2cTransaction::write_read(ADDR, vec![REG_CDATAL], RGBC.to_vec()),
+            // color_blue()
+            I2cTransaction::write_read(ADDR, vec![REG_CDATAL], RGBC.to_vec()),
+            // enable_proximity(true): ENABLE 0x03 -> 0x07
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x03]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x07]),
+            // enable_proximity(false): ENABLE 0x07 -> 0x03
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x07]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x03]),
+            // proximity()
+            I2cTransaction::write_read(ADDR, vec![REG_PDATA], vec![200]),
+            // enable_wait(true): ENABLE 0x03 -> 0x0B
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x03]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x0B]),
+            // enable_wait(false): ENABLE 0x0B -> 0x03
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x0B]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x03]),
+            // configure_wait(100, true): CONFIG1 0x00 -> 0x62
+            I2cTransaction::write(ADDR, vec![REG_WTIME, 100]),
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG1], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG1, 0x62]),
+            // configure_wait(50, false): CONFIG1 0x62 -> 0x60
+            I2cTransaction::write(ADDR, vec![REG_WTIME, 50]),
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG1], vec![0x62]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG1, 0x60]),
+            // configure_als(0xDB, 2): CONTROL 0x01 -> 0x02
+            I2cTransaction::write(ADDR, vec![REG_ATIME, 0xDB]),
+            I2cTransaction::write_read(ADDR, vec![REG_CONTROL], vec![0x01]),
+            I2cTransaction::write(ADDR, vec![REG_CONTROL, 0x02]),
+            // configure_proximity_led(1, 2, 10, 3): CONTROL 0x02 -> 0x4A, PPULSE -> 0xCA
+            I2cTransaction::write_read(ADDR, vec![REG_CONTROL], vec![0x02]),
+            I2cTransaction::write(ADDR, vec![REG_CONTROL, 0x4A]),
+            I2cTransaction::write(ADDR, vec![REG_PPULSE, 0xCA]),
+            // set_led_boost(2): CONFIG2 0x01 -> 0x21
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG2], vec![0x01]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG2, 0x21]),
+            // als_threshold(0x1234, 0x5678)
+            I2cTransaction::write(ADDR, vec![REG_AILTL, 0x34]),
+            I2cTransaction::write(ADDR, vec![REG_AILTH, 0x12]),
+            I2cTransaction::write(ADDR, vec![REG_AIHTL, 0x78]),
+            I2cTransaction::write(ADDR, vec![REG_AIHTH, 0x56]),
+            // proximity_threshold(10, 200)
+            I2cTransaction::write(ADDR, vec![REG_PILT, 10]),
+            I2cTransaction::write(ADDR, vec![REG_PIHT, 200]),
+            // set_persistence(5, 3) -> 0x53
+            I2cTransaction::write(ADDR, vec![REG_PERS, 0x53]),
+            // enable_als_interrupt(true): ENABLE 0x03 -> 0x13
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x03]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x13]),
+            // enable_proximity_interrupt(true): ENABLE 0x13 -> 0x33
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x13]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x33]),
+            // clear_*_interrupt(): address-only 1-byte writes
+            I2cTransaction::write(ADDR, vec![REG_PICLEAR]),
+            I2cTransaction::write(ADDR, vec![REG_CICLEAR]),
+            I2cTransaction::write(ADDR, vec![REG_AICLEAR]),
+            // set_proximity_offset(-50, 100): sign-magnitude -> 0xB2, 0x64
+            I2cTransaction::write(ADDR, vec![REG_POFFSET_UR, 0xB2]),
+            I2cTransaction::write(ADDR, vec![REG_POFFSET_DL, 0x64]),
+            // set_proximity_mask(true, false, true, false): CONFIG3 0x00 -> 0x0A
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG3], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG3, 0x0A]),
+            // enable_gesture(true): ENABLE 0x33 -> 0x73, GCONF4 0x00 -> 0x01
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x33]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x73]),
+            I2cTransaction::write_read(ADDR, vec![REG_GCONF4], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_GCONF4, 0x01]),
+            // enable_gesture(false): ENABLE 0x73 -> 0x33, GCONF4 0x01 -> 0x00
+            I2cTransaction::write_read(ADDR, vec![REG_ENABLE], vec![0x73]),
+            I2cTransaction::write(ADDR, vec![REG_ENABLE, 0x33]),
+            I2cTransaction::write_read(ADDR, vec![REG_GCONF4], vec![0x01]),
+            I2cTransaction::write(ADDR, vec![REG_GCONF4, 0x00]),
+            // configure_gesture(1, 2, 20, 3, 5, 30, 10)
+            I2cTransaction::write(ADDR, vec![REG_GPENTH, 30]),
+            I2cTransaction::write(ADDR, vec![REG_GEXTH, 10]),
+            I2cTransaction::write(ADDR, vec![REG_GCONF2, 0x35]),
+            I2cTransaction::write(ADDR, vec![REG_GPULSE, 0xD4]),
+            // gesture_available()
+            I2cTransaction::write_read(ADDR, vec![REG_GSTATUS], vec![0x01]),
+            // read_gesture_fifo(): GFLVL=2, then two 4-byte FIFO bursts
+            I2cTransaction::write_read(ADDR, vec![REG_GFLVL], vec![2]),
+            I2cTransaction::write_read(ADDR, vec![REG_GFIFO_U], vec![10, 20, 30, 40]),
+            I2cTransaction::write_read(ADDR, vec![REG_GFIFO_U], vec![50, 60, 70, 80]),
+            // read_gesture_fifo(): GFLVL=0, no FIFO reads
+            I2cTransaction::write_read(ADDR, vec![REG_GFLVL], vec![0]),
+            // gesture_fifo_level()
+            I2cTransaction::write_read(ADDR, vec![REG_GFLVL], vec![0]),
+            // clear_gesture_fifo(): GCONF4 0x00 -> 0x04
+            I2cTransaction::write_read(ADDR, vec![REG_GCONF4], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_GCONF4, 0x04]),
+            // enable_gesture_interrupt(true): GCONF4 0x04 -> 0x06
+            I2cTransaction::write_read(ADDR, vec![REG_GCONF4], vec![0x04]),
+            I2cTransaction::write(ADDR, vec![REG_GCONF4, 0x06]),
+            // status()/is_*_valid()/is_*_saturated(): STATUS=0x93 (CPSAT|PVALID|AVALID)
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x93]),
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x93]),
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x93]),
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x93]),
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x93]),
+            // chip_id()
+            I2cTransaction::write_read(ADDR, vec![REG_ID], vec![0xAB]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Apds9960Full::new(i2c, ADDR, &mut delay).expect("init");
+
+        let (c, r, g, b) = sensor.color().unwrap();
+        assert_eq!((c, r, g, b), (0x1234, 0x0102, 0x0304, 0x0506));
+        assert_eq!(sensor.color_clear().unwrap(), 0x1234);
+        assert_eq!(sensor.color_red().unwrap(), 0x0102);
+        assert_eq!(sensor.color_green().unwrap(), 0x0304);
+        assert_eq!(sensor.color_blue().unwrap(), 0x0506);
+
+        sensor.enable_proximity(true).unwrap();
+        sensor.enable_proximity(false).unwrap();
+
+        assert_eq!(sensor.proximity().unwrap(), 200);
+
+        sensor.enable_wait(true).unwrap();
+        sensor.enable_wait(false).unwrap();
+
+        sensor.configure_wait(100, true).unwrap();
+        sensor.configure_wait(50, false).unwrap();
+
+        sensor.configure_als(0xDB, 2).unwrap();
+        sensor.configure_proximity_led(1, 2, 10, 3).unwrap();
+        sensor.set_led_boost(2).unwrap();
+        sensor.als_threshold(0x1234, 0x5678).unwrap();
+        sensor.proximity_threshold(10, 200).unwrap();
+        sensor.set_persistence(5, 3).unwrap();
+        sensor.enable_als_interrupt(true).unwrap();
+        sensor.enable_proximity_interrupt(true).unwrap();
+        sensor.clear_proximity_interrupt().unwrap();
+        sensor.clear_als_interrupt().unwrap();
+        sensor.clear_all_interrupts().unwrap();
+
+        // Sign-magnitude proximity offset encoding.
+        sensor.set_proximity_offset(-50, 100).unwrap();
+        sensor.set_proximity_mask(true, false, true, false).unwrap();
+
+        sensor.enable_gesture(true).unwrap();
+        sensor.enable_gesture(false).unwrap();
+        sensor.configure_gesture(1, 2, 20, 3, 5, 30, 10).unwrap();
+
+        assert!(sensor.gesture_available().unwrap());
+
+        let mut buf = [(0u8, 0u8, 0u8, 0u8); 4];
+        let count = sensor.read_gesture_fifo(&mut buf).unwrap();
+        assert_eq!(count, 2);
+        assert_eq!(buf[0], (10, 20, 30, 40));
+        assert_eq!(buf[1], (50, 60, 70, 80));
+
+        let empty_count = sensor.read_gesture_fifo(&mut buf).unwrap();
+        assert_eq!(empty_count, 0);
+        assert_eq!(sensor.gesture_fifo_level().unwrap(), 0);
+
+        sensor.clear_gesture_fifo().unwrap();
+        sensor.enable_gesture_interrupt(true).unwrap();
+
+        assert_eq!(sensor.status().unwrap(), 0x93);
+        assert!(sensor.is_als_valid().unwrap());
+        assert!(sensor.is_proximity_valid().unwrap());
+        assert!(sensor.is_als_saturated().unwrap());
+        assert!(!sensor.is_proximity_saturated().unwrap());
+
+        assert_eq!(sensor.chip_id().unwrap(), 0xAB);
+
+        sensor.inner.i2c.done();
+    }
+}

@@ -17,6 +17,9 @@ class APDS9960Minimal:
 
     Args:
         connection: Configured I2C connection pointing at the device (address 0x39).
+
+    Raises:
+        ValueError: If the ID register does not read back 0xAB.
     """
 
     _REG_ENABLE   = 0x80
@@ -73,6 +76,9 @@ class APDS9960Minimal:
     def __init__(self, connection):
         self._connection = connection
         time.sleep(0.006)
+        chip_id = self._read_reg(self._REG_ID)
+        if chip_id != 0xAB:
+            raise ValueError('APDS-9960 not found (ID=0x{:02X}, expected 0xAB)'.format(chip_id))
         self._write_reg(self._REG_ENABLE, 0x00)
         self._write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
         self._write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
