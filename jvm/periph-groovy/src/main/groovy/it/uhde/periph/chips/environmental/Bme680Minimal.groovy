@@ -144,7 +144,7 @@ class Bme680Minimal {
         readCalibration()
         writeSettings()
 
-        int resHeat = calcHeaterResistance(heaterTemp, (int) ambientTemp)
+        int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
         connection.write([(byte) REG_RES_HEAT_0, (byte) resHeat] as byte[])
         int gasWait = encodeGasWait(heaterDuration)
         connection.write([(byte) REG_GAS_WAIT_0, (byte) gasWait] as byte[])
@@ -320,8 +320,12 @@ class Bme680Minimal {
      * @param ambTemp    ambient temperature in °C
      * @return byte value to write to a res_heat_x register
      */
-    protected int calcHeaterResistance(int targetTemp, int ambTemp) {
-        long var1 = (((long) ambTemp * (long) parG3).intdiv(10L)) << 8
+    protected int calcHeaterResistance(int targetTemp, double ambTemp) {
+        // Multiply as double before flooring to whole tenths, matching the
+        // spec's `((amb_temp_c * par_G3) // 10) << 8` - truncating ambTemp
+        // to long *before* the multiply (the previous implementation)
+        // silently discards its fractional part.
+        long var1 = ((long) Math.floor((ambTemp * parG3) / 10.0d)) << 8
         long var2 = (long)(parG1 + 784) * ((((long)(parG2 + 154009) * (long) targetTemp * 5L).intdiv(100L)) + 3276800L).intdiv(10L)
         long var3 = var1 + (var2 >> 1)
         long var4 = var3.intdiv((long)(resHeatRange + 4))
