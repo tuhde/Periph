@@ -1,0 +1,133 @@
+package it.uhde.periph.chips.pressure;
+
+import it.uhde.periph.connection.MockConnection;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class Bmp280Test {
+
+    private static void preloadCalibration(MockConnection connection) {
+        // Spec's Data Conversion "Validation" worked example (datasheet page 23):
+        // dig_T1=27504, dig_T2=26435, dig_T3=-1000, dig_P1=36477, dig_P2=-10685,
+        // dig_P3=3024, dig_P4=2855, dig_P5=140, dig_P6=-7, dig_P7=15500,
+        // dig_P8=-14600, dig_P9=6000. Calibration NVM is little-endian.
+        connection.setRegister(Bmp280Minimal.REG_CALIB,
+                0x70, 0x6B,  // dig_T1 = 27504
+                0x43, 0x67,  // dig_T2 = 26435
+                0x18, 0xFC,  // dig_T3 = -1000
+                0x7D, 0x8E,  // dig_P1 = 36477
+                0x43, 0xD6,  // dig_P2 = -10685
+                0xD0, 0x0B,  // dig_P3 = 3024
+                0x27, 0x0B,  // dig_P4 = 2855
+                0x8C, 0x00,  // dig_P5 = 140
+                0xF9, 0xFF,  // dig_P6 = -7
+                0x8C, 0x3C,  // dig_P7 = 15500
+                0xF8, 0xC6,  // dig_P8 = -14600
+                0x70, 0x17); // dig_P9 = 6000
+    }
+
+    private static void preloadData(MockConnection connection) {
+        // UT=519888, UP=415148 (same worked example), one 6-byte burst.
+        connection.setRegister(Bmp280Minimal.REG_DATA,
+                0x65, 0x5A, 0xC0,  // adc_P = 415148
+                0x7E, 0xED, 0x00); // adc_T = 519888
+    }
+
+    @Test
+    void fullApi() throws Exception {
+        MockConnection connection = new MockConnection();
+        // Unlike Python/C++/JS/Rust/Go, the Java driver doesn't write default
+        // CTRL_MEAS/CONFIG at construction - it only verifies the chip ID and
+        // reads calibration; readRawData() writes CTRL_MEAS unconditionally
+        // on every call (always forced mode).
+        connection.setRegister(Bmp280Minimal.REG_ID, 0x58);
+        preloadCalibration(connection);
+        preloadData(connection);
+
+        Bmp280Full sensor = new Bmp280Full(connection);
+
+        // temperature(): worked example -> T = 25.08 degC.
+        assertEquals(25.08, sensor.temperature(), 1e-3);
+        boolean sawForcedTrigger = connection.writes().stream()
+                .anyMatch(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS && (w[1] & 0xFF) == 0x25);
+        assertTrue(sawForcedTrigger, "temperature() should trigger forced mode (CTRL_MEAS=0x25)");
+
+        // pressure(): worked example -> p = 25767233/256/100 = 1006.5325... hPa.
+        assertEquals(1006.5325390625, sensor.pressure(), 1e-2);
+
+        // chipId(): expect 0x58.
+        assertEquals(0x58, sensor.chipId());
+
+        // status(): raw status byte.
+        connection.setRegister(Bmp280Minimal.REG_STATUS, 0x09);
+        assertEquals(0x09, sensor.status());
+
+        // configure(osrsT=2, osrsP=3, mode=3, filter=2, tSb=4):
+        // config=(4<<5)|(2<<2)=0x88; ctrlMeas=(2<<5)|(3<<2)|3=0x4F.
+        sensor.configure(2, 3, 3, 2, 4);
+        byte[] configureConfig = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CONFIG)
+                .reduce((a, b) -> b).orElseThrow();
+        byte[] configureCtrl = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0x88, configureConfig[1]);
+        assertEquals((byte) 0x4F, configureCtrl[1]);
+
+        // setOversampling(4, 5): mode bits preserved (3) -> ctrlMeas=0x97.
+        sensor.setOversampling(4, 5);
+        byte[] setOversamplingWrite = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0x97, setOversamplingWrite[1]);
+
+        // setMode(1): oversampling bits preserved -> ctrlMeas=0x95.
+        sensor.setMode(1);
+        byte[] setModeWrite = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0x95, setModeWrite[1]);
+
+        // setFilter(3): standby bits preserved -> config=0x8C.
+        sensor.setFilter(3);
+        byte[] setFilterWrite = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CONFIG)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0x8C, setFilterWrite[1]);
+
+        // setStandby(6): filter bits preserved -> config=0xCC.
+        sensor.setStandby(6);
+        byte[] setStandbyWrite = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CONFIG)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0xCC, setStandbyWrite[1]);
+
+        // altitude(): pressure() re-triggers + re-reads the same DATA bytes.
+        assertEquals(56.07668235692459, sensor.altitude(), 0.5);
+
+        // seaLevelPressure(altitudeM=200)
+        assertEquals(1030.736388797547, sensor.seaLevelPressure(200), 0.5);
+
+        // reset(): writes soft-reset command, re-reads calibration, re-applies
+        // current ctrlMeas/config (0x95, 0xCC from above).
+        preloadCalibration(connection);
+        sensor.reset();
+        boolean sawSoftReset = connection.writes().stream()
+                .anyMatch(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_SOFT_RST && (w[1] & 0xFF) == 0xB6);
+        assertTrue(sawSoftReset, "reset should write the soft-reset command");
+        long calReads = connection.writes().stream()
+                .filter(w -> w.length == 1 && (w[0] & 0xFF) == Bmp280Minimal.REG_CALIB)
+                .count();
+        assertTrue(calReads >= 2, "reset should re-read calibration");
+        byte[] reappliedConfig = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CONFIG)
+                .reduce((a, b) -> b).orElseThrow();
+        byte[] reappliedCtrl = connection.writes().stream()
+                .filter(w -> w.length == 2 && (w[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS)
+                .reduce((a, b) -> b).orElseThrow();
+        assertEquals((byte) 0xCC, reappliedConfig[1]);
+        assertEquals((byte) 0x95, reappliedCtrl[1]);
+    }
+}
