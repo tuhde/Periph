@@ -347,10 +347,17 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     /// * `channels` — Slice of channel numbers to sum (e.g. `[1, 2, 3]`).
     /// * `limit_v`  — Shunt-voltage sum limit in volts.
     pub fn set_summation_channels(&mut self, channels: &[u8], limit_v: f32) -> Result<(), I2C::Error> {
-        let mut cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN)? & !0xE000;
+        // SCC1/SCC2/SCC3 occupy bits 14/13/12 - clear all three (0x7000), not
+        // just bits 15:13 (0xE000), or a previously-set SCC3 would survive a
+        // call that no longer includes channel 3.
+        let mut cfg = read_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN)? & !0x7000;
         for &ch in channels {
             let _ = channel_valid(ch);
-            cfg |= 1u16 << (15 - (ch - 1));
+            // SCC1/SCC2/SCC3 are bits 14/13/12 (same positions as CH1en/
+            // CH2en/CH3en in enable_channel) - 14-(ch-1), not 15-(ch-1), or
+            // channel 1 would incorrectly toggle the reserved bit 15
+            // instead of SCC1.
+            cfg |= 1u16 << (14 - (ch - 1));
         }
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_MASK_EN, cfg)?;
         let raw = (((limit_v / 40e-6) as i32) << 1) as u16 & 0xFFFE;
@@ -361,8 +368,11 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     ///
     /// Returns the sum of selected channels' shunt voltages in volts.
     pub fn summation_value(&mut self) -> Result<f32, I2C::Error> {
+        // The Sum register is 14-bit signed, left-aligned by 1 bit (bit 0
+        // reserved) -- not by 3 bits like the per-channel shunt registers --
+        // so the raw-as-i16 shortcut scale is 40e-6 / 2 = 20e-6, not 5e-6.
         let raw = read_reg_signed(&mut self.inner.i2c, self.inner.addr, REG_SUM)?;
-        Ok(raw as f32 * 5e-6)
+        Ok(raw as f32 * 20e-6)
     }
 
     /// Set the Power-Valid upper and lower voltage limits.
@@ -410,5 +420,135 @@ impl<I2C: I2c> Ina3221Full<I2C> {
     /// Read the Die ID register. Expect `0x3220`.
     pub fn die_id(&mut self) -> Result<u16, I2C::Error> {
         read_reg(&mut self.inner.i2c, self.inner.addr, REG_DIE_ID)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x40;
+
+    #[test]
+    fn full_api() {
+        let mut transactions: Vec<I2cTransaction> = vec![
+            // --- Channel 1 ---
+            // voltage(1): Bus1 raw=10000 (0x2710) -> (10000>>3)*8e-3 = 10.0 V
+            I2cTransaction::write_read(ADDR, vec![REG_BUS1], vec![0x27, 0x10]),
+            // shunt_voltage(1): Shunt1 raw signed=-400 (0xFE70) -> -400*5e-6 = -0.002 V
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT1], vec![0xFE, 0x70]),
+            // current(1): re-reads shunt_voltage(1)
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT1], vec![0xFE, 0x70]),
+            // power(1): voltage(1) then current(1)->shunt_voltage(1).
+            // SHUNT1=0xFF10 (-240 signed) -> -0.0012 V; BUS1=0x1000 (4096) -> 4.096 V.
+            I2cTransaction::write_read(ADDR, vec![REG_BUS1], vec![0x10, 0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT1], vec![0xFF, 0x10]),
+            // --- Channel 2 ---
+            // voltage(2): Bus2 raw=4096 (0x1000) -> (4096>>3)*8e-3 = 4.096 V
+            I2cTransaction::write_read(ADDR, vec![REG_BUS2], vec![0x10, 0x00]),
+            // shunt_voltage(2): Shunt2 raw=800 (0x0320) -> 800*5e-6 = 0.004 V
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT2], vec![0x03, 0x20]),
+            // current(2): re-reads shunt_voltage(2)
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT2], vec![0x03, 0x20]),
+            // power(2): voltage(2) then current(2)->shunt_voltage(2).
+            // SHUNT2=0x0108 (264) -> 0.00132 V; BUS2=0x0800 (2048) -> 2.048 V.
+            I2cTransaction::write_read(ADDR, vec![REG_BUS2], vec![0x08, 0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_SHUNT2], vec![0x01, 0x08]),
+            // configure(3, 2, 1, 5) -> config_base=0x068D | (0x7127 & 0x7000) = 0x768D
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x71, 0x27]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x76, 0x8D]),
+            // enable_channel(2, true): CH2en is bit 13
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x01, 0x27]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x21, 0x27]),
+            // channel_enabled(1): CH1en is bit 14
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x41, 0x27]),
+            // conversion_ready(): CVRF is bit 0
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x00, 0x01]),
+            // set_critical_alert(2, 0.048, true): raw = (1200 << 3) & 0xFFF8 = 0x2580
+            I2cTransaction::write(ADDR, vec![REG_CH2_CRIT, 0x25, 0x80]),
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x00, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_MASK_EN, 0x04, 0x00]),
+            // set_warning_alert(1, 0.024, false): raw = (600 << 3) & 0xFFF8 = 0x12C0
+            I2cTransaction::write(ADDR, vec![REG_CH1_WARN, 0x12, 0xC0]),
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x04, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_MASK_EN, 0x04, 0x00]),
+            // alert_flags()
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x02, 0x41]),
+            // set_summation_channels(&[1], 0.1) with stale SCC3 (0x1000):
+            // fixed clear-mask (0x7000) and bit formula (14-(ch-1)) -> 0x4000
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x10, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_MASK_EN, 0x40, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_SUM_LIMIT, 0x13, 0x88]),
+            // summation_value(): raw=0x2328 (9000) -> 9000*20e-6 = 0.18 V
+            I2cTransaction::write_read(ADDR, vec![REG_SUM], vec![0x23, 0x28]),
+            // set_power_valid_limits(8.112, 4.096): raw_upper=0x1FB0, raw_lower=0x1000
+            I2cTransaction::write(ADDR, vec![REG_PV_UPPER, 0x1F, 0xB0]),
+            I2cTransaction::write(ADDR, vec![REG_PV_LOWER, 0x10, 0x00]),
+            // power_valid(): PVF is bit 2
+            I2cTransaction::write_read(ADDR, vec![REG_MASK_EN], vec![0x00, 0x04]),
+            // shutdown(): reads CONFIG=0x7127, writes CONFIG & 0xFFF8 = 0x7120
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x71, 0x27]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x71, 0x20]),
+            // wake(): reads CONFIG=0x7120, writes back with saved mode (7) restored
+            I2cTransaction::write_read(ADDR, vec![REG_CONFIG], vec![0x71, 0x20]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x71, 0x27]),
+            // reset(): writes CONFIG=0x8000 only
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x80, 0x00]),
+            // manufacturer_id() / die_id()
+            I2cTransaction::write_read(ADDR, vec![REG_MFR_ID], vec![0x54, 0x49]),
+            I2cTransaction::write_read(ADDR, vec![REG_DIE_ID], vec![0x32, 0x20]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Ina3221Full::new(i2c, ADDR, 0.1);
+
+        assert_eq!(sensor.voltage(1).unwrap(), 10.0);
+        assert!((sensor.shunt_voltage(1).unwrap() - (-0.002)).abs() < 1e-6);
+        assert!((sensor.current(1).unwrap() - (-0.02)).abs() < 1e-6);
+        assert!((sensor.power(1).unwrap() - (4.096 * -0.012)).abs() < 1e-6);
+
+        assert_eq!(sensor.voltage(2).unwrap(), 4.096);
+        assert!((sensor.shunt_voltage(2).unwrap() - 0.004).abs() < 1e-6);
+        assert!((sensor.current(2).unwrap() - 0.04).abs() < 1e-6);
+        assert!((sensor.power(2).unwrap() - (2.048 * 0.0132)).abs() < 1e-6);
+
+        sensor.configure(3, 2, 1, 5).unwrap();
+        sensor.enable_channel(2, true).unwrap();
+        assert!(sensor.channel_enabled(1).unwrap());
+        assert!(sensor.conversion_ready().unwrap());
+
+        sensor.set_critical_alert(2, 0.048, true).unwrap();
+        sensor.set_warning_alert(1, 0.024, false).unwrap();
+
+        assert_eq!(sensor.alert_flags().unwrap(), 0x0241);
+
+        sensor.set_summation_channels(&[1], 0.1).unwrap();
+        assert!((sensor.summation_value().unwrap() - 0.18).abs() < 1e-6);
+
+        sensor.set_power_valid_limits(8.112, 4.096).unwrap();
+        assert!(sensor.power_valid().unwrap());
+
+        sensor.shutdown().unwrap();
+        sensor.wake().unwrap();
+        sensor.reset().unwrap();
+
+        assert_eq!(sensor.manufacturer_id().unwrap(), 0x5449);
+        assert_eq!(sensor.die_id().unwrap(), 0x3220);
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn invalid_channel_clamps_to_1() {
+        let transactions = vec![
+            I2cTransaction::write_read(ADDR, vec![REG_BUS1], vec![0x27, 0x10]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Ina3221Full::new(i2c, ADDR, 0.1);
+        // channel_valid() silently clamps out-of-range channels to 1, so
+        // voltage(9) reads BUS1 rather than panicking.
+        assert_eq!(sensor.voltage(9).unwrap(), 10.0);
+        sensor.inner.i2c.done();
     }
 }

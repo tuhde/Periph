@@ -214,8 +214,12 @@ class Ina3221Full : Ina3221Minimal {
             me = me or (1 shl (15 - ch))
         }
         writeReg(REG_MASK_ENABLE, me and 0xFFFF)
-        val raw = (limitV / 40e-6).roundToInt() and 0x7FFE
-        writeReg(REG_SV_SUM_LIMIT, (raw shl 1) and 0xFFFE)
+        // The count itself must not be masked before shifting - masking with
+        // 0x7FFE first and then shifting left and masking with 0xFFFE again
+        // silently drops one more bit of precision than the single-shift
+        // formula in every other language's driver.
+        val raw = ((limitV / 40e-6).roundToInt() shl 1) and 0xFFFE
+        writeReg(REG_SV_SUM_LIMIT, raw)
     }
 
     /**

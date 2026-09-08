@@ -238,9 +238,13 @@ public class Ina3221Full extends Ina3221Minimal {
             me |= (1 << (15 - ch));
         }
         writeReg(REG_MASK_ENABLE, me & 0xFFFF);
-        // Sum limit uses left-aligned 14-bit signed format (shift left by 1)
-        int raw = ((int) Math.round(limitV / 40e-6)) & 0x7FFE;
-        writeReg(REG_SV_SUM_LIMIT, (raw << 1) & 0xFFFE);
+        // Sum limit uses left-aligned 14-bit signed format (shift left by 1).
+        // The count itself must not be masked before shifting - masking with
+        // 0x7FFE first and then shifting left and masking with 0xFFFE again
+        // silently drops one more bit of precision (equivalent to & 0xFFFC)
+        // than the single-shift formula in every other language's driver.
+        int raw = (((int) Math.round(limitV / 40e-6)) << 1) & 0xFFFE;
+        writeReg(REG_SV_SUM_LIMIT, raw);
     }
 
     /**

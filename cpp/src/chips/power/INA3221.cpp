@@ -132,10 +132,16 @@ uint16_t INA3221Full::alert_flags() {
 
 void INA3221Full::set_summation_channels(const uint8_t* channels, uint8_t n, float limit_v) {
     uint16_t cfg = _read_reg(REG_MASK_EN);
-    cfg &= ~0xE000u;
+    // SCC1/SCC2/SCC3 occupy bits 14/13/12 - clear all three (0x7000), not
+    // just bits 15:13 (0xE000), or a previously-set SCC3 would survive a
+    // call that no longer includes channel 3.
+    cfg &= ~0x7000u;
     for (uint8_t k = 0; k < n; k++) {
         uint8_t ch = _channel_valid(channels[k]);
-        cfg |= 1u << (15 - (ch - 1));
+        // SCC1/SCC2/SCC3 are bits 14/13/12 (same positions as CH1en/CH2en/
+        // CH3en in enable_channel) - 14-(ch-1), not 15-(ch-1), or channel 1
+        // would incorrectly toggle the reserved bit 15 instead of SCC1.
+        cfg |= 1u << (14 - (ch - 1));
     }
     _write_reg(REG_MASK_EN, cfg);
     uint16_t raw = (uint16_t)((int)(limit_v / 40e-6f) << 1) & 0xFFFEu;
@@ -143,8 +149,11 @@ void INA3221Full::set_summation_channels(const uint8_t* channels, uint8_t n, flo
 }
 
 float INA3221Full::summation_value() {
+    // The Sum register is 14-bit signed, left-aligned by 1 bit (bit 0
+    // reserved) -- not by 3 bits like the per-channel shunt registers --
+    // so the raw-as-i16 shortcut scale is 40e-6 / 2 = 20e-6, not 5e-6.
     int16_t raw = _read_reg_signed(REG_SUM);
-    return raw * 5e-6f;
+    return raw * 20e-6f;
 }
 
 void INA3221Full::set_power_valid_limits(float upper_v, float lower_v) {
