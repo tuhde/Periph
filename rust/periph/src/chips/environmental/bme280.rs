@@ -466,3 +466,120 @@ impl<I2C: I2c> Bme280Full<I2C> {
         self.inner.humidity()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x76;
+
+    // Calibration NVM block 1 (26 bytes from 0x88), from the BMP280 datasheet's
+    // worked example (dig_T1=27504, dig_T2=26435, dig_T3=-1000, dig_P1=36477,
+    // dig_P2=-10685, dig_P3=3024, dig_P4=2855, dig_P5=140, dig_P6=-7,
+    // dig_P7=15500, dig_P8=-14600, dig_P9=6000), plus dig_H1=75 at 0xA1 — reused
+    // per the spec ("use the BMP280's worked example to validate the pressure
+    // and temperature paths").
+    const CAL1: [u8; 26] = [
+        0x70, 0x6B, 0x43, 0x67, 0x18, 0xFC, 0x7D, 0x8E, 0x43, 0xD6, 0xD0,
+        0x0B, 0x27, 0x0B, 0x8C, 0x00, 0xF9, 0xFF, 0x8C, 0x3C, 0xF8, 0xC6,
+        0x70, 0x17, 0x00, 0x4B,
+    ];
+    // Calibration NVM block 2 (7 bytes from 0xE1): dig_H2=384, dig_H3=0,
+    // dig_H4=301, dig_H5=50, dig_H6=30.
+    const CAL2: [u8; 7] = [0x80, 0x01, 0x00, 0x12, 0x2D, 0x03, 0x1E];
+    // ADC burst (8 bytes from 0xF7): adc_P=415148, adc_T=519888, adc_H=32768.
+    const ADC: [u8; 8] = [0x65, 0x5A, 0xC0, 0x7E, 0xED, 0x00, 0x80, 0x00];
+
+    const EXPECTED_T: f32 = 25.08;
+    const EXPECTED_P: f32 = 1006.5325390625;
+    const EXPECTED_H: f32 = 79.0869140625;
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL1.to_vec()),
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_H2], CAL2.to_vec()),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0]),
+        ]
+    }
+
+    fn trigger_transactions(ctrl_hum: u8, ctrl_meas: u8) -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, ctrl_hum]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, ctrl_meas]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_START], ADC.to_vec()),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        // temperature(), pressure(), humidity(): each triggers a fresh forced
+        // conversion (mode=0 initially, != MODE_NORMAL) with ctrl_hum=1, ctrl_meas=0x25.
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        transactions.extend(trigger_transactions(1, 0x25));
+        // configure(2, 3, 1, 3, 2, 5): ctrl_hum=1, config=0xA8, ctrl_meas=0x4F
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 1]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xA8]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x4F]),
+        ]);
+        // set_oversampling(3, 4, 2): ctrl_hum=2, ctrl_meas=0x73 (mode still 3)
+        transactions.extend(vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x73]),
+        ]);
+        // set_mode(1): ctrl_meas=0x71
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x71]));
+        // set_filter(3): config=0xAC
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xAC]));
+        // set_standby(6): config=0xCC
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xCC]));
+        // status()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x08]));
+        // altitude() -> pressure(): mode=1 (!= MODE_NORMAL) triggers again with ctrl_hum=2, ctrl_meas=0x71
+        transactions.extend(trigger_transactions(2, 0x71));
+        // sea_level_pressure() -> pressure() again
+        transactions.extend(trigger_transactions(2, 0x71));
+        // dew_point() -> temperature() then humidity(), each its own trigger
+        transactions.extend(trigger_transactions(2, 0x71));
+        transactions.extend(trigger_transactions(2, 0x71));
+        // chip_id()
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_ID], vec![CHIP_ID]));
+        // reset(): reset write, re-read calibration, re-apply ctrl_hum/config/ctrl_meas
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_RESET, RESET_CMD]));
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL1.to_vec()));
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_CAL_H2], CAL2.to_vec()));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_HUM, 2]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xCC]));
+        transactions.push(I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x71]));
+
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = Bme280Full::new(i2c, ADDR, false).expect("init");
+
+        assert!((sensor.temperature().unwrap() - EXPECTED_T).abs() < 0.01);
+        assert!((sensor.pressure().unwrap() - EXPECTED_P).abs() < 0.01);
+        assert!((sensor.humidity().unwrap() - EXPECTED_H).abs() < 0.01);
+
+        sensor.configure(2, 3, 1, 3, 2, 5).unwrap();
+        sensor.set_oversampling(3, 4, 2).unwrap();
+        sensor.set_mode(1).unwrap();
+        sensor.set_filter(3).unwrap();
+        sensor.set_standby(6).unwrap();
+
+        assert_eq!(sensor.status().unwrap(), 0x08);
+
+        assert!((sensor.altitude(1013.25).unwrap() - 56.07668235692459).abs() < 0.05);
+        assert!((sensor.sea_level_pressure(56.07668235692459).unwrap() - 1013.25).abs() < 0.05);
+        assert!((sensor.dew_point().unwrap() - 21.191706255732008).abs() < 0.05);
+
+        assert_eq!(sensor.chip_id().unwrap(), 0x60);
+
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+}

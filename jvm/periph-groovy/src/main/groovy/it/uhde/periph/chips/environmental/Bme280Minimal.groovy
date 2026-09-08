@@ -125,9 +125,17 @@ class Bme280Minimal {
     }
 
     protected byte[] triggerAndRead() throws IOException {
-        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)})
-        try { Thread.sleep(MEAS_TIME_MS) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
+        // In normal mode (mode bits == 0x03) the chip cycles continuously on
+        // its own; re-triggering a forced conversion here would fight that
+        // cycle, so only trigger when not already in normal mode (matches
+        // every other language's driver and the spec's "In normal mode,
+        // calls ... should not re-trigger; just read the most recent shadow
+        // registers").
+        if ((ctrlMeas & 0x03) != 0x03) {
+            connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
+            connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)})
+            try { Thread.sleep(MEAS_TIME_MS) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
+        }
         return connection.writeRead(new byte[]{(byte) REG_DATA}, 8)
     }
 
