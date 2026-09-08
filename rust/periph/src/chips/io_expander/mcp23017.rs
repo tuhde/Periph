@@ -330,3 +330,88 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
         self.inner.read_reg(REG_INTFA + port)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x20;
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_OLATB, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_IODIRA, 0x7F]),
+            I2cTransaction::write(ADDR, vec![REG_IODIRB, 0x7F]),
+            I2cTransaction::write(ADDR, vec![REG_IPOLA, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_IPOLB, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_GPPUA, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_GPPUB, 0x00]),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        transactions.extend(vec![
+            // read_port(0)/(1) -> GPIOA/GPIOB
+            I2cTransaction::write_read(ADDR, vec![REG_GPIOA], vec![0xA5]),
+            I2cTransaction::write_read(ADDR, vec![REG_GPIOB], vec![0x5A]),
+            // write_port(0, 0x3C) -> OLATA
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x3C]),
+            // pin(0).is_high() / pin(9).is_high()
+            I2cTransaction::write_read(ADDR, vec![REG_GPIOA], vec![0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_GPIOB], vec![0x02]),
+            // write_port(0, 0x00) reset, then pin0/pin2 set_high, pin0 set_low
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x01]),
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x05]),
+            I2cTransaction::write(ADDR, vec![REG_OLATA, 0x04]),
+            // configure_pullup(0, 0xFF) / configure_polarity(1, 0x0F)
+            I2cTransaction::write(ADDR, vec![REG_GPPUA, 0xFF]),
+            I2cTransaction::write(ADDR, vec![REG_IPOLB, 0x0F]),
+            // clear_interrupt(0): reads INTCAPA (discarded) then GPIOA
+            I2cTransaction::write_read(ADDR, vec![REG_INTCAPA], vec![0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_GPIOA], vec![0x08]),
+            // read_interrupt_flags(1) -> INTFB
+            I2cTransaction::write_read(ADDR, vec![REG_INTFB], vec![0x22]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let chip = Mcp23017Full::new(i2c, ADDR).expect("init");
+
+        assert_eq!(chip.read_port(0).unwrap(), 0xA5);
+        assert_eq!(chip.read_port(1).unwrap(), 0x5A);
+
+        chip.write_port(0, 0x3C).unwrap();
+        assert_eq!(chip.inner.shadow[0].get(), 0x3C);
+
+        let mut pin0 = chip.pin(0);
+        assert!(pin0.is_high().unwrap());
+        let mut pin9 = chip.pin(9);
+        assert!(pin9.is_high().unwrap());
+
+        chip.write_port(0, 0x00).unwrap();
+        let mut pin0w = chip.pin(0);
+        pin0w.set_high().unwrap();
+        assert_eq!(chip.inner.shadow[0].get(), 0x01);
+        let mut pin2 = chip.pin(2);
+        pin2.set_high().unwrap();
+        assert_eq!(chip.inner.shadow[0].get(), 0x05);
+        let mut pin0l = chip.pin(0);
+        pin0l.set_low().unwrap();
+        assert_eq!(chip.inner.shadow[0].get(), 0x04);
+
+        chip.configure_pullup(0, 0xFF).unwrap();
+        chip.configure_polarity(1, 0x0F).unwrap();
+
+        // Direct baseline for clear_interrupt's XOR comparison, independent
+        // of the pin exercises above.
+        chip.prev[0].set(0x00);
+        assert_eq!(chip.clear_interrupt(0).unwrap(), 0x08);
+        assert_eq!(chip.read_interrupt_flags(1).unwrap(), 0x22);
+
+        chip.inner.i2c.borrow_mut().done();
+    }
+}

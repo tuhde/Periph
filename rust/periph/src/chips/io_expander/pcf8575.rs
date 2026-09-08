@@ -210,6 +210,80 @@ impl<I2C: I2c> Pcf8575Full<I2C> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x20;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // Pcf8575Minimal::new(): write_both([0xFF, 0xFF])
+            I2cTransaction::write(ADDR, vec![0xFF, 0xFF]),
+            // Pcf8575Full::new(): seeds `prev` via read_both()
+            I2cTransaction::read(ADDR, vec![0xFF, 0xFF]),
+            // read_port(0)/(1) -> both derived from one 2-byte read
+            I2cTransaction::read(ADDR, vec![0x5A, 0xA5]),
+            I2cTransaction::read(ADDR, vec![0x5A, 0xA5]),
+            // write_port(0, 0x3C) / write_port(1, 0x0F)
+            I2cTransaction::write(ADDR, vec![0x3C, 0xFF]),
+            I2cTransaction::write(ADDR, vec![0x3C, 0x0F]),
+            // pin(3).is_high() / pin(11).is_high()
+            I2cTransaction::read(ADDR, vec![0x08, 0x00]),
+            I2cTransaction::read(ADDR, vec![0x00, 0x08]),
+            // write_port(0, 0xFF) / write_port(1, 0xFF) reset
+            I2cTransaction::write(ADDR, vec![0xFF, 0x0F]),
+            I2cTransaction::write(ADDR, vec![0xFF, 0xFF]),
+            // pin3.set_low() / pin5.set_low() / pin11.set_low()
+            I2cTransaction::write(ADDR, vec![0xF7, 0xFF]),
+            I2cTransaction::write(ADDR, vec![0xD7, 0xFF]),
+            I2cTransaction::write(ADDR, vec![0xD7, 0xF7]),
+            // clear_interrupt() x2
+            I2cTransaction::read(ADDR, vec![0xF7, 0xFE]),
+            I2cTransaction::read(ADDR, vec![0xF7, 0xFE]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let chip = Pcf8575Full::new(i2c, ADDR).expect("init");
+        assert_eq!(chip.inner.shadow_byte(0), 0xFF);
+        assert_eq!(chip.inner.shadow_byte(1), 0xFF);
+
+        assert_eq!(chip.read_port(0).unwrap(), 0x5A);
+        assert_eq!(chip.read_port(1).unwrap(), 0xA5);
+
+        chip.write_port(0, 0x3C).unwrap();
+        chip.write_port(1, 0x0F).unwrap();
+
+        let mut pin3 = chip.pin(3);
+        assert!(pin3.is_high().unwrap());
+        let mut pin11 = chip.pin(11);
+        assert!(pin11.is_high().unwrap());
+
+        chip.write_port(0, 0xFF).unwrap();
+        chip.write_port(1, 0xFF).unwrap();
+        let mut pin3w = chip.pin(3);
+        pin3w.set_low().unwrap();
+        assert_eq!(chip.inner.shadow_byte(0), 0xF7);
+        let mut pin5 = chip.pin(5);
+        pin5.set_low().unwrap();
+        assert_eq!(chip.inner.shadow_byte(0), 0xD7);
+        let mut pin11w = chip.pin(11);
+        pin11w.set_low().unwrap();
+        assert_eq!(chip.inner.shadow_byte(1), 0xF7);
+
+        // Direct baseline for clear_interrupt's XOR comparison, independent
+        // of the pin exercises above.
+        chip.prev[0].set(0xFF);
+        chip.prev[1].set(0xFF);
+        assert_eq!(chip.clear_interrupt().unwrap(), 0x08 | (0x01 << 8));
+        assert_eq!(chip.clear_interrupt().unwrap(), 0x00);
+
+        chip.inner.i2c.borrow_mut().done();
+    }
+}
+
 impl<I2C: I2c> embedded_hal::digital::ErrorType for Pcf8575Full<I2C> {
     type Error = PinError<I2C::Error>;
 }

@@ -195,10 +195,7 @@ class Pcf8575Minimal:
         @direction.setter
         def direction(self, d):
             self._direction = d
-            port_idx = self._n // 8
-            bit = self._n % 8
-            self._chip._shadow[port_idx] |= (1 << bit)
-            self._chip._write_both()
+            self._chip._set_pin(self._n, 1 if d == _digitalio.Direction.INPUT else 0)
 
         @property
         def value(self):
