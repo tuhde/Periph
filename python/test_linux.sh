@@ -151,9 +151,15 @@ run_unit() {
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
     resolve_addr
+    # Most chips have a dedicated Linux test file; a few newer ones (ENS160,
+    # AHT21) instead share one i2c_auto-based test with test_mp.sh, which
+    # auto-detects Linux vs MicroPython at import time - fall back to that.
     local test_file="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux.py"
     if [ ! -f "$test_file" ]; then
-        echo "ERROR: test file not found: $test_file" >&2
+        test_file="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test.py"
+    fi
+    if [ ! -f "$test_file" ]; then
+        echo "ERROR: test file not found: $SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux.py (or _test.py)" >&2
         exit 1
     fi
     echo "=== [hil] Running $TARGET on Linux I2C bus $LINUX_I2C_BUS ==="
