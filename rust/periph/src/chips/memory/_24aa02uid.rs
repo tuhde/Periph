@@ -202,3 +202,59 @@ impl<I2C: I2c> Eeprom24Aa02UidFull<I2C> {
         self.inner.read_byte(ADDR_DEV_CODE)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x50;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // read_uid(): 0xFC-0xFF, MSB first.
+            I2cTransaction::write_read(ADDR, vec![ADDR_UID_BASE], vec![0xAA, 0xBB, 0xCC, 0xDD]),
+            // read_byte(0x10)
+            I2cTransaction::write_read(ADDR, vec![0x10], vec![0x42]),
+            // write_byte(0x10, 0x99)
+            I2cTransaction::write(ADDR, vec![0x10, 0x99]),
+            // read(0x05, 4 bytes)
+            I2cTransaction::write_read(ADDR, vec![0x05], vec![1, 2, 3, 4]),
+            // write_page(0x08, [10, 20, 30])
+            I2cTransaction::write(ADDR, vec![0x08, 10, 20, 30]),
+            // write(0x05, 10 bytes) spanning the 0x08 page boundary:
+            // [0x05,0x06,0x07] (3 bytes, page 0) then [0x08..0x0E] (7 bytes, page 1).
+            I2cTransaction::write(ADDR, vec![0x05, 100, 101, 102]),
+            I2cTransaction::write(ADDR, vec![0x08, 103, 104, 105, 106, 107, 108, 109]),
+            // read_manufacturer_code()
+            I2cTransaction::write_read(ADDR, vec![ADDR_MFR_CODE], vec![0x29]),
+            // read_device_code()
+            I2cTransaction::write_read(ADDR, vec![ADDR_DEV_CODE], vec![0x41]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut delay = NoopDelay::new();
+
+        let mut eeprom = Eeprom24Aa02UidFull::new(i2c, ADDR);
+
+        assert_eq!(eeprom.read_uid().unwrap(), [0xAA, 0xBB, 0xCC, 0xDD]);
+        assert_eq!(eeprom.read_byte(0x10).unwrap(), 0x42);
+
+        eeprom.write_byte(0x10, 0x99, &mut delay).unwrap();
+
+        let mut buf4 = [0u8; 4];
+        eeprom.read(0x05, &mut buf4).unwrap();
+        assert_eq!(buf4, [1, 2, 3, 4]);
+
+        eeprom.write_page(0x08, &[10, 20, 30], &mut delay).unwrap();
+
+        let data10: Vec<u8> = (100..110).collect();
+        eeprom.write(0x05, &data10, &mut delay).unwrap();
+
+        assert_eq!(eeprom.read_manufacturer_code().unwrap(), 0x29);
+        assert_eq!(eeprom.read_device_code().unwrap(), 0x41);
+
+        eeprom.inner.i2c.done();
+    }
+}

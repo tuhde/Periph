@@ -47,7 +47,9 @@ impl<I2C: I2c> As5600Minimal<I2C> {
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let status = read_reg8(&mut i2c, addr, REG_STATUS)?;
         if status & STATUS_MD == 0 {
-            // Return Ok anyway; caller can check is_magnet_detected()
+            // Matches the ENS160 driver's construction-time validation
+            // convention (panic on an unexpected/invalid chip state).
+            panic!("AS5600: magnet not detected (MD=0)");
         }
         Ok(Self { i2c, addr })
     }
@@ -64,7 +66,7 @@ impl<I2C: I2c> As5600Minimal<I2C> {
     /// Returns scaled angle count, 0–4095 (respects ZPOS/MPOS if programmed).
     pub fn angle_raw(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.i2c, self.addr, REG_ANGLE_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Check if a magnet is detected.
@@ -136,7 +138,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     /// Returns raw angle count, 0–4095 (unaffected by ZPOS/MPOS).
     pub fn raw_angle(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.inner.i2c, self.inner.addr, REG_RAW_ANGLE_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Read the unscaled raw angle in degrees.
@@ -159,7 +161,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     /// Returns 12-bit CORDIC magnitude value.
     pub fn magnitude(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.inner.i2c, self.inner.addr, REG_MAGNITUDE_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Read the raw STATUS register byte.
@@ -222,7 +224,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     /// Returns ZPOS value 0–4095.
     pub fn zero_position(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.inner.i2c, self.inner.addr, REG_ZPOS_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Read the maximum position (stop angle).
@@ -230,7 +232,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     /// Returns MPOS value 0–4095.
     pub fn max_position(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.inner.i2c, self.inner.addr, REG_MPOS_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Read the maximum angle span.
@@ -238,7 +240,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     /// Returns MANG value 0–4095.
     pub fn max_angle(&mut self) -> Result<u16, I2C::Error> {
         let raw = read_reg16(&mut self.inner.i2c, self.inner.addr, REG_MANG_H)?;
-        Ok((raw >> 4) & 0x0FFF)
+        Ok(raw & 0x0FFF)
     }
 
     /// Read the number of permanent ZPOS/MPOS burns already performed.
@@ -254,11 +256,11 @@ impl<I2C: I2c> As5600Full<I2C> {
     pub fn burn_angle(&mut self) -> Result<(), I2C::Error> {
         let status = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_STATUS)?;
         if status & STATUS_MD == 0 {
-            return Ok(()); // silently return; no error type for this
+            panic!("AS5600: cannot burn angle — magnet not detected");
         }
         let zmco = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ZMCO)? & 0x03;
         if zmco >= 3 {
-            return Ok(());
+            panic!("AS5600: cannot burn angle — ZMCO limit reached (3)");
         }
         write_reg8(&mut self.inner.i2c, self.inner.addr, REG_BURN, 0x80)
     }
@@ -269,7 +271,7 @@ impl<I2C: I2c> As5600Full<I2C> {
     pub fn burn_setting(&mut self) -> Result<(), I2C::Error> {
         let zmco = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ZMCO)? & 0x03;
         if zmco != 0 {
-            return Ok(());
+            panic!("AS5600: cannot burn setting — ZMCO must be 0");
         }
         write_reg8(&mut self.inner.i2c, self.inner.addr, REG_BURN, 0x40)
     }
@@ -295,4 +297,138 @@ fn read_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Er
     let mut buf = [0u8; 2];
     i2c.write_read(addr, &[reg], &mut buf)?;
     Ok(((buf[0] as u16) << 8) | buf[1] as u16)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x36;
+
+    fn init_transactions(status: u8) -> Vec<I2cTransaction> {
+        vec![I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![status])]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions(0x08); // MD=1
+        transactions.extend(vec![
+            // is_magnet_detected()
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x08]),
+            // is_magnet_too_strong()
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x08]),
+            // is_magnet_too_weak()
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x08]),
+            // angle_raw(): ANGLE_H=0x01, ANGLE_L=0x23 -> raw = 0x0123 = 291
+            I2cTransaction::write_read(ADDR, vec![REG_ANGLE_H], vec![0x01, 0x23]),
+            // angle() re-reads angle_raw()
+            I2cTransaction::write_read(ADDR, vec![REG_ANGLE_H], vec![0x01, 0x23]),
+            // raw_angle(): RAW_ANGLE_H=0x02, RAW_ANGLE_L=0x00 -> raw = 512 -> 45.0 deg
+            I2cTransaction::write_read(ADDR, vec![REG_RAW_ANGLE_H], vec![0x02, 0x00]),
+            // raw_angle_degrees() re-reads raw_angle()
+            I2cTransaction::write_read(ADDR, vec![REG_RAW_ANGLE_H], vec![0x02, 0x00]),
+            // agc()
+            I2cTransaction::write_read(ADDR, vec![REG_AGC], vec![128]),
+            // magnitude(): MAGNITUDE_H=0x00, MAGNITUDE_L=0x64 -> raw = 100
+            I2cTransaction::write_read(ADDR, vec![REG_MAGNITUDE_H], vec![0x00, 0x64]),
+            // is_magnet_too_strong() again, now MD=1, MH=1
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x28]),
+            // status_byte()
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x28]),
+            // configure(1, 2, 1, 3, 2, 5, true): CONF_H preloaded 0xC5, CONF_L 0x00
+            I2cTransaction::write_read(ADDR, vec![REG_CONF_H], vec![0xC5]),
+            I2cTransaction::write_read(ADDR, vec![REG_CONF_L], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CONF_H, 0xF6, 0xD9]),
+            // set_zero_position(1000): 1000 = 0x3E8 -> H=0x03, L=0xE8
+            I2cTransaction::write(ADDR, vec![REG_ZPOS_H, 0x03]),
+            I2cTransaction::write(ADDR, vec![REG_ZPOS_L, 0xE8]),
+            // zero_position()
+            I2cTransaction::write_read(ADDR, vec![REG_ZPOS_H], vec![0x03, 0xE8]),
+            // set_max_position(2000): 2000 = 0x7D0 -> H=0x07, L=0xD0
+            I2cTransaction::write(ADDR, vec![REG_MPOS_H, 0x07]),
+            I2cTransaction::write(ADDR, vec![REG_MPOS_L, 0xD0]),
+            // max_position()
+            I2cTransaction::write_read(ADDR, vec![REG_MPOS_H], vec![0x07, 0xD0]),
+            // set_max_angle(2048): 2048 = 0x800 -> H=0x08, L=0x00
+            I2cTransaction::write(ADDR, vec![REG_MANG_H, 0x08]),
+            I2cTransaction::write(ADDR, vec![REG_MANG_L, 0x00]),
+            // max_angle()
+            I2cTransaction::write_read(ADDR, vec![REG_MANG_H], vec![0x08, 0x00]),
+            // burn_count(): ZMCO=2
+            I2cTransaction::write_read(ADDR, vec![REG_ZMCO], vec![2]),
+            // burn_angle(): MD=1 (STATUS=0x28), ZMCO=2 < 3 -> writes BURN=0x80
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x28]),
+            I2cTransaction::write_read(ADDR, vec![REG_ZMCO], vec![2]),
+            I2cTransaction::write(ADDR, vec![REG_BURN, 0x80]),
+            // burn_setting(): ZMCO=0 -> writes BURN=0x40
+            I2cTransaction::write_read(ADDR, vec![REG_ZMCO], vec![0]),
+            I2cTransaction::write(ADDR, vec![REG_BURN, 0x40]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = As5600Full::new(i2c, ADDR).expect("init");
+
+        assert!(sensor.is_magnet_detected().unwrap());
+        assert!(!sensor.is_magnet_too_strong().unwrap());
+        assert!(!sensor.is_magnet_too_weak().unwrap());
+
+        assert_eq!(sensor.angle_raw().unwrap(), 291);
+        assert!((sensor.angle().unwrap() - (291.0 * 360.0 / 4096.0)).abs() < 1e-4);
+
+        assert_eq!(sensor.raw_angle().unwrap(), 512);
+        assert!((sensor.raw_angle_degrees().unwrap() - 45.0).abs() < 1e-4);
+
+        assert_eq!(sensor.agc().unwrap(), 128);
+        assert_eq!(sensor.magnitude().unwrap(), 100);
+
+        assert!(sensor.is_magnet_too_strong().unwrap());
+        assert_eq!(sensor.status_byte().unwrap(), 0x28);
+
+        sensor.configure(1, 2, 1, 3, 2, 5, true).unwrap();
+
+        sensor.set_zero_position(1000).unwrap();
+        assert_eq!(sensor.zero_position().unwrap(), 1000);
+
+        sensor.set_max_position(2000).unwrap();
+        assert_eq!(sensor.max_position().unwrap(), 2000);
+
+        sensor.set_max_angle(2048).unwrap();
+        assert_eq!(sensor.max_angle().unwrap(), 2048);
+
+        assert_eq!(sensor.burn_count().unwrap(), 2);
+
+        sensor.burn_angle().unwrap();
+        sensor.burn_setting().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    #[should_panic]
+    fn new_rejects_no_magnet() {
+        let transactions = init_transactions(0x00); // MD=0
+        let i2c = I2cMock::new(&transactions);
+        let _ = As5600Full::new(i2c, ADDR);
+    }
+
+    #[test]
+    #[should_panic]
+    fn burn_angle_rejects_no_magnet() {
+        let mut transactions = init_transactions(0x08); // MD=1 at construction
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x00])); // MD=0 at burn time
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = As5600Full::new(i2c, ADDR).expect("init");
+        let _ = sensor.burn_angle();
+    }
+
+    #[test]
+    #[should_panic]
+    fn burn_setting_rejects_nonzero_zmco() {
+        let mut transactions = init_transactions(0x08); // MD=1
+        transactions.push(I2cTransaction::write_read(ADDR, vec![REG_ZMCO], vec![1])); // ZMCO=1
+        let i2c = I2cMock::new(&transactions);
+        let mut sensor = As5600Full::new(i2c, ADDR).expect("init");
+        let _ = sensor.burn_setting();
+    }
 }

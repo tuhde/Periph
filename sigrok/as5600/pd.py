@@ -37,6 +37,13 @@ ANN_REG_WRITE = 0
 ANN_REG_READ  = 1
 ANN_PTR_WRITE = 2
 ANN_WARNING   = 3
+# Conformance-only annotations (see specs/testing_framework.md, "Conformance
+# Implementation" and specs/magnetometer/as5600_timing.conf): named
+# start/end pairs that conformance/magnetometer/as5600_conformance.py keys
+# off of, additive to the generic reg-write/-read annotations above so
+# existing PulseView manual-verification rows are unaffected.
+ANN_BURN_COMMAND     = 4  # start of "burn_settle": BURN written 0x80/0x40
+ANN_OTP_RELOAD_START = 5  # end of "burn_settle": BURN written 0x01 (reload sequence)
 
 
 def _decode_status(raw):
@@ -117,10 +124,13 @@ class Decoder(srd.Decoder):
         ('reg-read',  'Register read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('burn-command', 'Burn command (conformance: burn_settle start)'),
+        ('otp-reload-start', 'OTP reload start (conformance: burn_settle end)'),
     )
     annotation_rows = (
-        ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('warnings',     'Warnings',    (ANN_WARNING,)),
+        ('conformance', 'Conformance', (ANN_BURN_COMMAND, ANN_OTP_RELOAD_START)),
     )
 
     def __init__(self):
@@ -213,6 +223,16 @@ class Decoder(srd.Decoder):
                 text = _decode_burn(raw)
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_REG_WRITE, [text, 'W BURN 0x%02X' % raw]])
+                if raw in (0x80, 0x40):
+                    # burn_settle start: Burn_Angle or Burn_Setting command issued.
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_BURN_COMMAND, ['burn_command', 'burn_command']])
+                elif raw == 0x01:
+                    # burn_settle end: first byte of the OTP reload/verify
+                    # sequence (0x01, 0x11, 0x10), which the driver must not
+                    # issue until >=1 ms after the burn command.
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_OTP_RELOAD_START, ['otp_reload_start', 'otp_reload_start']])
             elif reg in (0x01, 0x03, 0x05) and len(self.databuf) == 2:
                 # ZPOS, MPOS, MANG: 12-bit pair writes
                 hi = self.databuf[0]

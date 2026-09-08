@@ -92,7 +92,7 @@ class AS5600Minimal {
      */
     async angleRaw() {
         const raw = await this._readReg16(_REG_ANGLE_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
@@ -149,7 +149,7 @@ class AS5600Full extends AS5600Minimal {
      */
     async rawAngle() {
         const raw = await this._readReg16(_REG_RAW_ANGLE_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
@@ -174,7 +174,7 @@ class AS5600Full extends AS5600Minimal {
      */
     async magnitude() {
         const raw = await this._readReg16(_REG_MAGNITUDE_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
@@ -244,7 +244,7 @@ class AS5600Full extends AS5600Minimal {
      */
     async zeroPosition() {
         const raw = await this._readReg16(_REG_ZPOS_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
@@ -253,7 +253,7 @@ class AS5600Full extends AS5600Minimal {
      */
     async maxPosition() {
         const raw = await this._readReg16(_REG_MPOS_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
@@ -262,7 +262,7 @@ class AS5600Full extends AS5600Minimal {
      */
     async maxAngle() {
         const raw = await this._readReg16(_REG_MANG_H);
-        return (raw >> 4) & 0x0FFF;
+        return raw & 0x0FFF;
     }
 
     /**
