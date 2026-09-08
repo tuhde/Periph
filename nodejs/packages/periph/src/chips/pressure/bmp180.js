@@ -144,7 +144,12 @@ class BMP180Minimal {
     async temperature() {
         const ut = await this._readRawTemp();
         const b5 = this._compensateTemp(ut);
-        return ((b5 + 8) / 160.0);
+        // Datasheet formula is T = ((B5+8) >> 4) / 10.0 - an integer
+        // right-shift (floor), THEN a float divide. Dividing (b5+8) by
+        // 160.0 directly is not equivalent: it skips the flooring the
+        // shift performs whenever (b5+8) isn't a multiple of 16, silently
+        // rounding up instead of down.
+        return Math.floor((b5 + 8) / 16) / 10.0;
     }
 
     /**

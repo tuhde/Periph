@@ -45,6 +45,14 @@ ANN_REG_WRITE = 0
 ANN_REG_READ  = 1
 ANN_PTR_WRITE = 2
 ANN_WARNING   = 3
+# Named start/end pair for the "conversion_ready" conformance check (see
+# specs/power/ina3221.md, Timing Constraints, and
+# specs/power/ina3221_timing.conf): a Configuration-register write clears
+# CVRF (conversion_ready_start); the next Mask/Enable read showing CVRF set
+# marks the conversion as ready (conversion_ready_done). Additive - does not
+# replace the generic reg-write/reg-read annotations emitted alongside these.
+ANN_CONVERSION_READY_START = 4
+ANN_CONVERSION_READY_DONE  = 5
 
 
 def _decode_config(raw):
@@ -146,10 +154,13 @@ class Decoder(srd.Decoder):
         ('reg-read',  'Register read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('conversion-ready-start', 'Conversion ready: start'),
+        ('conversion-ready-done',  'Conversion ready: done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_CONVERSION_READY_START, ANN_CONVERSION_READY_DONE)),
     )
 
     def __init__(self):
@@ -183,6 +194,12 @@ class Decoder(srd.Decoder):
                          [ANN_REG_READ,
                           ['Read %s: %s' % (name, _decode_reg(reg, raw)),
                            'R %s 0x%04X' % (name, raw)]])
+                # conversion_ready_done: Mask/Enable read with CVRF (bit 0) set.
+                if reg == 0x0F and (raw & 0x0001):
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_CONVERSION_READY_DONE,
+                              ['conversion_ready_done: CVRF set (Mask/Enable=0x%04X)' % raw,
+                               'conversion_ready_done']])
             elif self.databuf:
                 self._warn(self.ss_block, self.es,
                            'Unexpected read length %d for %s' % (len(self.databuf), name))
@@ -198,6 +215,13 @@ class Decoder(srd.Decoder):
                          [ANN_REG_WRITE,
                           ['Write %s: %s' % (name, _decode_reg(reg, raw)),
                            'W %s 0x%04X' % (name, raw)]])
+                # conversion_ready_start: a Configuration-register write clears
+                # CVRF and (re)starts the shunt/bus conversion cycle.
+                if reg == 0x00:
+                    self.put(self.ss_block, self.es, self.out_ann,
+                             [ANN_CONVERSION_READY_START,
+                              ['conversion_ready_start: Configuration written (CVRF cleared)',
+                               'conversion_ready_start']])
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected write length %d for %s' % (len(self.databuf), name))

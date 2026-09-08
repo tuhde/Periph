@@ -263,10 +263,17 @@ class INA3221Full extends INA3221Minimal {
      * @returns {Promise<void>}
      */
     async setSummationChannels(channels, limitV) {
-        let cfg = (await this._readReg(_REG_MASK_EN)) & ~0xE000;
+        // SCC1/SCC2/SCC3 occupy bits 14/13/12 - clear all three (0x7000), not
+        // just bits 15:13 (0xE000), or a previously-set SCC3 would survive a
+        // call that no longer includes channel 3.
+        let cfg = (await this._readReg(_REG_MASK_EN)) & ~0x7000;
         for (const ch of channels) {
             this._channelValid(ch);
-            cfg |= 1 << (15 - (Number(ch) - 1));
+            // SCC1/SCC2/SCC3 are bits 14/13/12 (same positions as CH1en/
+            // CH2en/CH3en in enableChannel) - 14-(ch-1), not 15-(ch-1), or
+            // channel 1 would incorrectly toggle the reserved bit 15
+            // instead of SCC1.
+            cfg |= 1 << (14 - (Number(ch) - 1));
         }
         await this._writeReg(_REG_MASK_EN, cfg);
         const raw = (Math.floor(limitV / 40e-6) << 1) & 0xFFFE;
@@ -278,8 +285,11 @@ class INA3221Full extends INA3221Minimal {
      * @returns {Promise<number>} Sum of selected channels' shunt voltages in volts.
      */
     async summationValue() {
+        // The Sum register is 14-bit signed, left-aligned by 1 bit (bit 0
+        // reserved) -- not by 3 bits like the per-channel shunt registers --
+        // so the raw-as-i16 shortcut scale is 40e-6 / 2 = 20e-6, not 5e-6.
         const raw = await this._readRegSigned(_REG_SUM);
-        return raw * 5e-6;
+        return raw * 20e-6;
     }
 
     /**

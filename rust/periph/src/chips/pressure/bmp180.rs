@@ -115,8 +115,12 @@ fn compensate_pressure(up: i32, oss: i32, ac1: i32, ac2: i32, ac3: i32, ac4: i32
     let b4 = ((ac4 as u32 * (x3 + 32768) as u32) >> 15) as i32;
     let b7 = ((up - b3) as u32 * (50000u32 >> oss)) as i32;
 
+    // b7 is conceptually unsigned (per the datasheet, B7 < 0x80000000 is the
+    // "small" branch); doubling it as a signed i32 (`b7 * 2`) can overflow
+    // i32::MAX even though the doubled value fits comfortably in u32 - cast
+    // to u32 *before* multiplying, not after.
     let p = if b7 >= 0 {
-        ((b7 * 2) as u32 / b4 as u32) as i32
+        ((b7 as u32) * 2 / b4 as u32) as i32
     } else {
         ((b7 as u32 / b4 as u32) * 2) as i32
     };
@@ -292,5 +296,91 @@ impl<I2C: I2c> Bmp180Full<I2C> {
     /// Read calibrated pressure.
     pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
         self.inner.pressure()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x77;
+
+    // Datasheet worked example (Figure 4, page 15): AC1=408, AC2=-72,
+    // AC3=-14383, AC4=32741, AC5=32757, AC6=23153, B1=6190, B2=4,
+    // MB=-32768, MC=-8711, MD=2868.
+    const CAL_BYTES: [u8; 22] = [
+        0x01, 0x98, // AC1 = 408
+        0xFF, 0xB8, // AC2 = -72
+        0xC7, 0xD1, // AC3 = -14383
+        0x7F, 0xE5, // AC4 = 32741
+        0x7F, 0xF5, // AC5 = 32757
+        0x5A, 0x71, // AC6 = 23153
+        0x18, 0x2E, // B1 = 6190
+        0x00, 0x04, // B2 = 4
+        0x80, 0x00, // MB = -32768
+        0xDD, 0xF9, // MC = -8711
+        0x0B, 0x34, // MD = 2868
+    ];
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec())]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        transactions.extend(vec![
+            // temperature(): UT=0x6CFA (27898)
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_TEMP]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA]),
+            // pressure(): re-reads UT (2 bytes), then UP (3 bytes) from the
+            // same OUT_MSB register - both reflect the same underlying bytes
+            // (0x6CFA), so UT and the top 16 bits of UP are the same value
+            // here; the expected p below is computed from the real
+            // compensation formula with UT=UP=27898, not the datasheet's
+            // (necessarily UT!=UP) worked example.
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_TEMP]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_PRESSURE_OSS0]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA, 0x00]),
+            // chip_id()
+            I2cTransaction::write_read(ADDR, vec![REG_ID], vec![0x55]),
+            // altitude(): pressure() re-reads UT/UP internally
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_TEMP]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_PRESSURE_OSS0]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA, 0x00]),
+            // sea_level_pressure(): pressure() re-reads UT/UP internally
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_TEMP]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, CMD_PRESSURE_OSS0]),
+            I2cTransaction::write_read(ADDR, vec![REG_OUT_MSB], vec![0x6C, 0xFA, 0x00]),
+            // reset(): soft-reset write, then re-read calibration
+            I2cTransaction::write(ADDR, vec![REG_SOFT_RESET, SOFT_RESET_CMD]),
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Bmp180Full::new(i2c, ADDR, 0).expect("init");
+
+        assert_eq!(sensor.temperature().unwrap(), 15.0);
+        assert!((sensor.pressure().unwrap() - 820.8).abs() < 1e-3);
+        assert_eq!(sensor.chip_id().unwrap(), 0x55);
+
+        assert_eq!(sensor.oversampling(), 0);
+        sensor.set_oversampling(OSS_STANDARD);
+        assert_eq!(sensor.oversampling(), 1);
+        sensor.set_oversampling(0);
+
+        let alt = sensor.altitude(1013.25).unwrap();
+        assert!((alt - 1741.7604174).abs() < 0.5, "altitude = {}", alt);
+
+        let slp = sensor.sea_level_pressure(100.0).unwrap();
+        assert!((slp - 830.599010429).abs() < 0.5, "sea_level_pressure = {}", slp);
+
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
     }
 }

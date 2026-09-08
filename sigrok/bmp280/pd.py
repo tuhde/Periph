@@ -56,6 +56,15 @@ ANN_CAL_READ  = 2
 ANN_DATA_READ = 3
 ANN_PTR_WRITE = 4
 ANN_WARNING   = 5
+# Named start/end pair for the "conversion" conformance check (see
+# specs/pressure/bmp280.md, Timing Constraints, and
+# specs/pressure/bmp280_timing.conf): a ctrl_meas write with mode=Forced
+# marks the start of a forced-mode measurement; the following 6-byte data
+# burst read (0xF7-0xFC) marks the result as ready. Additive - does not
+# replace the generic reg-write/data-read annotations emitted alongside
+# these.
+ANN_CONVERSION_START = 6
+ANN_CONVERSION_DONE  = 7
 
 
 def _s16(raw):
@@ -108,11 +117,14 @@ class Decoder(srd.Decoder):
         ('data-read', 'ADC data read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('conversion-start', 'Conversion: start'),
+        ('conversion-done',  'Conversion: done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CAL_READ,
                                   ANN_DATA_READ, ANN_PTR_WRITE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_CONVERSION_START, ANN_CONVERSION_DONE)),
     )
 
     def __init__(self):
@@ -190,6 +202,10 @@ class Decoder(srd.Decoder):
                      [ANN_DATA_READ,
                       ['ADC: adc_P=%d adc_T=%d (raw)' % (adc_p, adc_t),
                        'P=%d T=%d' % (adc_p, adc_t)]])
+            self.put(ss, es, self.out_ann,
+                     [ANN_CONVERSION_DONE,
+                      ['conversion_done: data burst read (adc_P=%d adc_T=%d)' % (adc_p, adc_t),
+                       'conversion_done']])
             return
 
         if reg == 0xD0 and len(buf) == 1:
@@ -236,6 +252,14 @@ class Decoder(srd.Decoder):
         if reg == 0xF4 and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_ctrl_meas(buf[0]), 'ctrl 0x%02X' % buf[0]]])
+            # conversion_start: mode bits 01/10 both trigger a forced-mode
+            # single-shot conversion (see MODE_NAMES).
+            mode = buf[0] & 3
+            if mode in (1, 2):
+                self.put(ss, es, self.out_ann,
+                         [ANN_CONVERSION_START,
+                          ['conversion_start: ctrl_meas triggers forced mode',
+                           'conversion_start']])
             return
 
         if reg == 0xF5 and len(buf) == 1:
