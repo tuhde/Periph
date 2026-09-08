@@ -246,8 +246,9 @@ public class Mcp4728Full extends Mcp4728Minimal {
     }
 
     private void singleWrite(int channel, int code, int vref, int pd, int gain, int udac) throws IOException {
+        int g = (gain == GAIN_X2) ? 1 : 0;
         int byte1 = CMD_SINGLE_WRITE | ((channel & 0x03) << 1) | (udac & 0x01);
-        int byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | ((gain & 0x01) << 4) | ((code >> 8) & 0x0F);
+        int byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | (g << 4) | ((code >> 8) & 0x0F);
         int byte3 = code & 0xFF;
         connection.write(new byte[]{(byte) byte1, (byte) byte2, (byte) byte3});
     }

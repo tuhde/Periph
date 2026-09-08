@@ -299,19 +299,19 @@ func (d *MCP4728Full) IsEEPROMReady() (bool, error) {
 // SoftwareUpdate sends the General Call Software Update command (0x00, 0x08)
 // to latch all four V_OUT simultaneously.
 func (d *MCP4728Full) SoftwareUpdate() error {
-	return d.connection.Write([]byte{mcp4728GCSoftwareUpdate})
+	return d.connection.Write([]byte{mcp4728AddrGeneralCall, mcp4728GCSoftwareUpdate})
 }
 
 // WakeUp sends the General Call Wake-Up command (0x00, 0x09) to clear all
 // power-down bits.
 func (d *MCP4728Full) WakeUp() error {
-	return d.connection.Write([]byte{mcp4728GCWake})
+	return d.connection.Write([]byte{mcp4728AddrGeneralCall, mcp4728GCWake})
 }
 
 // Reset sends the General Call Reset command (0x00, 0x06) to reload EEPROM
 // into all DAC input and output registers.
 func (d *MCP4728Full) Reset() error {
-	return d.connection.Write([]byte{mcp4728GCReset})
+	return d.connection.Write([]byte{mcp4728AddrGeneralCall, mcp4728GCReset})
 }
 
 // singleWrite issues the 3-byte Single Write command (DAC + EEPROM) for
@@ -323,9 +323,13 @@ func (d *MCP4728Full) singleWrite(channel uint8, code uint16, vref uint8, pd uin
 	if code > 4095 {
 		code = 4095
 	}
+	g := uint8(0)
+	if gain == 2 {
+		g = 1
+	}
 	buf := []byte{
 		mcp4728CmdSingleWrite | byte((channel&0x03)<<1) | byte(udac&0x01),
-		byte((vref&0x01)<<7) | byte((pd&0x03)<<5) | byte((gain&0x01)<<4) | byte((code>>8)&0x0F),
+		byte((vref&0x01)<<7) | byte((pd&0x03)<<5) | byte(g<<4) | byte((code>>8)&0x0F),
 		byte(code & 0xFF),
 	}
 	if err := d.connection.Write(buf); err != nil {
