@@ -170,7 +170,9 @@ run_conformance() {
         exit 1
     fi
     echo "=== [conformance] Running $TARGET via $checker ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" python3 "$checker" --lang nodejs
+    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+        python3 "$checker" --lang nodejs
 }
 
 # --- dispatch ----------------------------------------------------------------

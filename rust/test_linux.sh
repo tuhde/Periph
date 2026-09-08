@@ -202,6 +202,7 @@ run_conformance() {
 
     echo "=== [conformance] Running via $checker ==="
     I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
         python3 "$checker" --lang rust --binary "$SCRIPT_DIR/target/release/${CHIP}_test"
 }
 

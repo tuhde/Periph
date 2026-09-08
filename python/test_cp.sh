@@ -206,7 +206,8 @@ case "$EFFECTIVE_LEVEL" in
             exit 1
         fi
         echo "=== [conformance] Running $TARGET via $CHECKER ==="
-        python3 "$CHECKER" --lang circuitpython --cp-port "$CP_PORT" --cp-test "$TEST_FILE"
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+            python3 "$CHECKER" --lang circuitpython --cp-port "$CP_PORT" --cp-test "$TEST_FILE"
         ;;
     *)
         echo "ERROR: unknown --level '$EFFECTIVE_LEVEL' (expected hil|conformance)" >&2

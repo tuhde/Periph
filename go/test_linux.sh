@@ -201,7 +201,9 @@ run_conformance() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [conformance] Running via $checker ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" python3 "$checker" --lang go --binary "$bin"
+    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+        python3 "$checker" --lang go --binary "$bin"
 }
 
 # --- dispatch ----------------------------------------------------------------

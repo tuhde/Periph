@@ -188,7 +188,9 @@ run_conformance() {
     local test_file
     test_file=$(find_test_file)
     echo "=== [conformance] Running $TARGET via $checker ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" python3 "$checker" --lang jvm-kotlin --jbang-test "$test_file"
+    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" \
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+        python3 "$checker" --lang jvm-kotlin --jbang-test "$test_file"
 }
 
 # --- dispatch ----------------------------------------------------------------

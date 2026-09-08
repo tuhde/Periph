@@ -239,7 +239,8 @@ run_conformance() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [conformance] Running via $checker ==="
-    python3 "$checker" --lang cpp --binary "$bin"
+    SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+        python3 "$checker" --lang cpp --binary "$bin"
 }
 
 # --- dispatch ----------------------------------------------------------------

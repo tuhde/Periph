@@ -182,7 +182,8 @@ case "$EFFECTIVE_LEVEL" in
             exit 1
         fi
         echo "=== [conformance] Running via $CHECKER ==="
-        python3 "$CHECKER" --lang cpp-picosdk --port "$PORT" --serial-timeout "${SERIAL_TIMEOUT:-20}"
+        SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
+            python3 "$CHECKER" --lang cpp-picosdk --port "$PORT" --serial-timeout "${SERIAL_TIMEOUT:-20}"
         ;;
     *)
         echo "ERROR: unknown --level '$EFFECTIVE_LEVEL' (expected hil|conformance)" >&2
