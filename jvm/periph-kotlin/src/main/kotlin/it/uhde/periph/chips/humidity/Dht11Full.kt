@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.connection.DHTxxConnection
+import it.uhde.periph.connection.DHTxxConn
 import java.io.IOException
 
 /**
@@ -11,7 +11,7 @@ import java.io.IOException
  * unprocessed 5-byte frame.
  */
 class Dht11Full @JvmOverloads constructor(
-    connection: DHTxxConnection,
+    connection: DHTxxConn,
     private val maxRetries: Int = 3
 ) : Dht11Minimal(connection) {
 

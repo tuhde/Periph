@@ -169,3 +169,253 @@ where
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::convert::Infallible;
+    use embedded_hal::digital::ErrorType;
+    use std::collections::VecDeque;
+
+    // Dht11Minimal/Dht11Full (Linux) wrap the *concrete* DHTxxConnectionLinux<P>
+    // rather than a connection trait, and that connection's read() drives a
+    // single bidirectional pin through nested while-loops that measure pulse
+    // widths as *poll counts* (not wall-clock time — see
+    // BIT_THRESHOLD_US/RESPONSE_TIMEOUT_US in connection/dhtxx.rs), so a fake
+    // pin can reproduce the exact bit sequence deterministically without any
+    // real timing. FakePin below is a single struct implementing both
+    // InputPin and OutputPin (one physical pin switches direction, unlike
+    // HX711's separate DOUT/SCK pins). is_high() pops from a queue of
+    // (level, run-length) pairs; queue_frame()/queue_timeout() build that
+    // queue to match read()'s actual call pattern:
+    //   - a "while is_high() {}" loop is satisfied by N `true` pops followed
+    //     by one `false` pop (which ends the loop);
+    //   - a "while !is_high() {}" loop is satisfied by N `false` pops
+    //     followed by one `true` pop;
+    //   - each bit's "count while high" loop just needs enough `true` pops
+    //     to push high_us (= count/1000) past BIT_THRESHOLD_US (40) for a
+    //     '1' bit, or zero for a '0' bit, followed by one `false` pop.
+    // set_low()/set_high() (direction-switch/start-pulse calls) are recorded
+    // but otherwise no-ops.
+    struct FakePin {
+        runs: VecDeque<(bool, u32)>,
+    }
+
+    impl FakePin {
+        fn new() -> Self {
+            Self { runs: VecDeque::new() }
+        }
+
+        fn push_high(&mut self, count: u32) {
+            if count > 0 {
+                self.runs.push_back((true, count));
+            }
+        }
+        fn push_low(&mut self, count: u32) {
+            if count > 0 {
+                self.runs.push_back((false, count));
+            }
+        }
+
+        /// Run consumed by a `while is_high() {}` loop.
+        fn wait_while_high(&mut self, extra: u32) {
+            self.push_high(extra);
+            self.push_low(1);
+        }
+        /// Run consumed by a `while !is_high() {}` loop.
+        fn wait_while_low(&mut self, extra: u32) {
+            self.push_low(extra);
+            self.push_high(1);
+        }
+        /// Run consumed by a bit's "count while high" loop. `count >=
+        /// 41_000` decodes as bit '1' (high_us = count/1000 > 40); `count ==
+        /// 0` decodes as bit '0'.
+        fn count_high(&mut self, count: u32) {
+            self.push_high(count);
+            self.push_low(1);
+        }
+
+        /// Queue one full successful 40-bit transmission of `frame`,
+        /// matching read()'s response-wait + per-bit call pattern exactly.
+        fn queue_frame(&mut self, frame: [u8; 5]) {
+            self.wait_while_high(2); // response: wait for sensor to pull low
+            self.wait_while_low(2); // response: wait for sensor to release high
+            for byte in frame {
+                for bit_idx in (0..8).rev() {
+                    self.wait_while_high(2); // wait for start-of-bit low pulse
+                    let bit = (byte >> bit_idx) & 1;
+                    self.count_high(if bit == 1 { 41_000 } else { 0 });
+                }
+            }
+        }
+
+        /// Queue a response that never goes low, so read()'s first wait loop
+        /// exhausts its 1_000_000-iteration guard and returns
+        /// DHTxxError::Timeout. Sized to exactly the number of is_high()
+        /// calls that loop consumes before erroring, so nothing is left over
+        /// in the queue for a subsequent read() call.
+        fn queue_timeout(&mut self) {
+            self.push_high(1_000_001);
+        }
+    }
+
+    impl ErrorType for FakePin {
+        type Error = Infallible;
+    }
+
+    impl embedded_hal::digital::InputPin for FakePin {
+        fn is_high(&mut self) -> Result<bool, Infallible> {
+            loop {
+                match self.runs.front_mut() {
+                    Some((level, count)) => {
+                        if *count == 0 {
+                            self.runs.pop_front();
+                            continue;
+                        }
+                        *count -= 1;
+                        return Ok(*level);
+                    }
+                    None => return Ok(false),
+                }
+            }
+        }
+        fn is_low(&mut self) -> Result<bool, Infallible> {
+            Ok(!self.is_high()?)
+        }
+    }
+
+    impl embedded_hal::digital::OutputPin for FakePin {
+        fn set_low(&mut self) -> Result<(), Infallible> {
+            Ok(())
+        }
+        fn set_high(&mut self) -> Result<(), Infallible> {
+            Ok(())
+        }
+    }
+
+    const GOOD_FRAME: [u8; 5] = [0x35, 0x00, 0x18, 0x04, 0x51];
+    const NEG_TEMP_FRAME: [u8; 5] = [0x20, 0x00, 0x0A, 0x81, 0xAB];
+    const BAD_CHECKSUM_FRAME: [u8; 5] = [0x35, 0x00, 0x18, 0x04, 0x00];
+
+    fn close_enough(a: f32, b: f32) -> bool {
+        (a - b).abs() < 0.001
+    }
+
+    // --- decode_frame(): pure checksum/conversion logic, no I/O. Covers the
+    // datasheet decode examples and checksum validation directly, without
+    // needing to fake any GPIO timing at all. ---
+
+    #[test]
+    fn decode_datasheet_example() {
+        let (t, h) = decode_frame(&GOOD_FRAME).unwrap();
+        assert!(close_enough(t, 24.4) && close_enough(h, 53.0));
+    }
+
+    #[test]
+    fn decode_negative_temperature() {
+        let (t, h) = decode_frame(&NEG_TEMP_FRAME).unwrap();
+        assert!(close_enough(t, -10.1) && close_enough(h, 32.0));
+    }
+
+    #[test]
+    fn decode_checksum_error() {
+        let err = decode_frame(&BAD_CHECKSUM_FRAME).unwrap_err();
+        assert!(matches!(err, Dht11Error::Checksum { .. }));
+    }
+
+    // Wrong-length frame: skipped intentionally — decode_frame takes a fixed
+    // &[u8; 5], and DHTxxConnectionLinux::read() always returns a fixed
+    // [u8; 5] too, so Rust's array type can't represent a short frame at
+    // this level. The connection's own Framing/Timeout error is the
+    // equivalent failure mode and is exercised by
+    // read_retry_recovers_from_transport_error below.
+
+    // --- Dht11Minimal/Dht11Full driven end-to-end through the real
+    // DHTxxConnectionLinux::read() bit-bang loop via FakePin. ---
+
+    #[test]
+    fn minimal_read_decodes_datasheet_example() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(GOOD_FRAME);
+        let mut sensor = Dht11Minimal::new(DHTxxConnectionLinux::new(pin));
+        let (t, h) = sensor.read().unwrap();
+        assert!(close_enough(t, 24.4) && close_enough(h, 53.0));
+    }
+
+    #[test]
+    fn minimal_read_checksum_error() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        let mut sensor = Dht11Minimal::new(DHTxxConnectionLinux::new(pin));
+        let err = sensor.read().unwrap_err();
+        assert!(matches!(err, Dht11Error::Checksum { .. }));
+    }
+
+    #[test]
+    fn full_read_temperature_and_humidity() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(GOOD_FRAME);
+        pin.queue_frame(GOOD_FRAME);
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 3);
+        assert!(close_enough(sensor.read_temperature().unwrap(), 24.4));
+        assert!(close_enough(sensor.read_humidity().unwrap(), 53.0));
+    }
+
+    #[test]
+    fn full_read_raw_returns_frame_and_rejects_bad_checksum() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(GOOD_FRAME);
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 3);
+        assert_eq!(sensor.read_raw().unwrap(), GOOD_FRAME);
+        assert!(matches!(sensor.read_raw().unwrap_err(), Dht11Error::Checksum { .. }));
+    }
+
+    #[test]
+    fn full_read_retry_succeeds_after_one_bad_attempt() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(BAD_CHECKSUM_FRAME); // attempt 1: bad checksum
+        pin.queue_frame(GOOD_FRAME); // attempt 2: good
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 3);
+        let (t, h) = sensor.read_retry(3).unwrap();
+        assert!(close_enough(t, 24.4) && close_enough(h, 53.0));
+    }
+
+    #[test]
+    fn full_read_retry_exhausted_on_persistent_checksum_error() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 2);
+        assert!(sensor.read_retry(2).is_err());
+    }
+
+    // Unlike Python's read_retry (which only catches its checksum-specific
+    // DHT11Error and lets a transport-level error propagate immediately),
+    // Rust's read_retry loop retries on ANY Err returned by self.read() —
+    // see dht11.rs's read_retry: `match self.read() { Ok(v) => return
+    // Ok(v), Err(e) => last_err = Some(e) }` has no branch that
+    // distinguishes Dht11Error::Connection from Dht11Error::Checksum. A
+    // transient connection-level error (timeout/framing) should therefore
+    // still be recovered by a later successful attempt within max_retries.
+    #[test]
+    fn full_read_retry_recovers_from_transport_error() {
+        let mut pin = FakePin::new();
+        pin.queue_timeout(); // attempt 1: connection-level timeout
+        pin.queue_frame(GOOD_FRAME); // attempt 2: good
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 3);
+        let (t, h) = sensor.read_retry(3).unwrap();
+        assert!(close_enough(t, 24.4) && close_enough(h, 53.0));
+    }
+
+    #[test]
+    fn full_read_retry_zero_uses_constructor_default() {
+        let mut pin = FakePin::new();
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        pin.queue_frame(BAD_CHECKSUM_FRAME);
+        pin.queue_frame(GOOD_FRAME); // 3rd attempt succeeds
+        let mut sensor = Dht11Full::new(DHTxxConnectionLinux::new(pin), 3);
+        let (t, _h) = sensor.read_retry(0).unwrap(); // 0 -> constructor's default (3)
+        assert!(close_enough(t, 24.4));
+    }
+}
