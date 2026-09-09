@@ -142,4 +142,50 @@ class Bmp280Spec extends Specification {
         reappliedConfig[1] == (byte) 0xCC
         reappliedCtrl[1] == (byte) 0x95
     }
+
+    def "SPI masks write addresses"() {
+        given: "Per specs/pressure/bmp280.md's SPI Register-address protocol:\n" +
+                "BMP280's I2C register addresses already have bit 7 set (0x88-0xFC), so\n" +
+                "SPI reads use the same value unmasked; only writes differ, clearing\n" +
+                "bit 7 (reg & 0x7F)."
+        def connection = new MockConnection()
+        connection.setRegister(Bmp280Minimal.REG_ID, 0x58)
+        preloadCalibration(connection)
+        preloadData(connection)
+
+        when:
+        def sensor = new Bmp280Full(connection, 0x76, Bmp280Minimal.BUS_SPI)
+
+        then:
+        noExceptionThrown()
+
+        when: "temperature() triggers a forced-mode write to CTRL_MEAS"
+        def temp = sensor.temperature()
+
+        then: "on SPI the write address must have bit 7 cleared (0xF4 & 0x7F = 0x74)"
+        Math.abs(temp - 25.08d) < 1e-3
+        connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == (Bmp280Minimal.REG_CTRL_MEAS & 0x7F)
+        }
+        !connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == Bmp280Minimal.REG_CTRL_MEAS
+        }
+
+        when: "reads stay unmasked - pressure() still works via the same register constants"
+        def pres = sensor.pressure()
+
+        then:
+        Math.abs(pres - 1006.5325390625d) < 1e-2
+
+        when: "configure() also routes through writeReg, so CONFIG/CTRL_MEAS writes stay masked"
+        sensor.configure(2, 3, 3, 2, 4)
+
+        then:
+        connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == (Bmp280Minimal.REG_CONFIG & 0x7F)
+        }
+        !connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == Bmp280Minimal.REG_CONFIG
+        }
+    }
 }

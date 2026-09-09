@@ -113,6 +113,24 @@ public class Bmp280Full extends Bmp280Minimal {
     }
 
     /**
+     * Construct the full driver at the given address and bus type, verify
+     * chip ID, and load calibration.
+     *
+     * <p>Pass {@link #BUS_SPI} for SPI — per the datasheet's register-address
+     * protocol, BMP280's I²C register addresses already have bit 7 set
+     * (0x88-0xFC), so SPI reads use the same value unmasked; only writes
+     * differ, clearing bit 7 ({@code reg & 0x7F}).
+     *
+     * @param connection I²C or SPI connection bound to the device
+     * @param addr      I²C device address (0x76 or 0x77); unused for SPI
+     * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
+     * @throws IOException on bus error, wrong chip ID, or invalid calibration
+     */
+    public Bmp280Full(Connection connection, int addr, int busType) throws IOException {
+        super(connection, addr, busType);
+    }
+
+    /**
      * Configure oversampling, operating mode, IIR filter, and standby time in
      * one call.
      *
@@ -126,8 +144,8 @@ public class Bmp280Full extends Bmp280Minimal {
     public void configure(int osrsT, int osrsP, int mode, int filter, int tSb) throws IOException {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03);
         config   = ((tSb   & 0x07) << 5) | ((filter & 0x07) << 2);
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        writeReg(REG_CONFIG, config);
+        writeReg(REG_CTRL_MEAS, ctrlMeas);
     }
 
     /**
@@ -141,7 +159,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setOversampling(int osrsT, int osrsP) throws IOException {
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03);
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        writeReg(REG_CTRL_MEAS, ctrlMeas);
     }
 
     /**
@@ -154,7 +172,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setMode(int mode) throws IOException {
         ctrlMeas = (ctrlMeas & 0xFC) | (mode & 0x03);
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        writeReg(REG_CTRL_MEAS, ctrlMeas);
     }
 
     /**
@@ -167,7 +185,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setFilter(int coeff) throws IOException {
         config = (config & 0xE3) | ((coeff & 0x07) << 2);
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        writeReg(REG_CONFIG, config);
     }
 
     /**
@@ -180,7 +198,7 @@ public class Bmp280Full extends Bmp280Minimal {
      */
     public void setStandby(int tSb) throws IOException {
         config = (config & 0x1F) | ((tSb & 0x07) << 5);
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        writeReg(REG_CONFIG, config);
     }
 
     /**
@@ -260,14 +278,14 @@ public class Bmp280Full extends Bmp280Minimal {
      * @throws IOException on I²C error
      */
     public void reset() throws IOException {
-        connection.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
+        writeReg(REG_SOFT_RST, 0xB6);
         try {
             Thread.sleep(2);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         readCalibration();
-        connection.write(new byte[]{(byte) REG_CONFIG,    (byte) config});
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        writeReg(REG_CONFIG, config);
+        writeReg(REG_CTRL_MEAS, ctrlMeas);
     }
 }
