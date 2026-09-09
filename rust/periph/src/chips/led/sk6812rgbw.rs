@@ -55,7 +55,7 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
             self.buf[i * 4 + 2] = b;
             self.buf[i * 4 + 3] = w;
         }
-        self.conn.write(&self.buf[..self.n * 4])
+        self.conn.write_ext(&self.buf[..self.n * 4], 24)
     }
 
     /// Turn off all pixels (fill with all zeros and send).
@@ -119,14 +119,14 @@ impl<SPI: SpiBus> Sk6812RgbwFull<SPI> {
         let bri = self.brightness;
         let n4 = self.inner.n * 4;
         if bri == 255 {
-            return self.inner.conn.write(&self.inner.buf[..n4]);
+            return self.inner.conn.write_ext(&self.inner.buf[..n4], 24);
         }
         let mut scaled: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
         scaled.resize_default(n4).ok();
         for i in 0..n4 {
             scaled[i] = (self.inner.buf[i] as u16 * bri as u16 / 255) as u8;
         }
-        self.inner.conn.write(&scaled[..n4])
+        self.inner.conn.write_ext(&scaled[..n4], 24)
     }
 
     /// Get the global brightness scalar (0–255).
@@ -169,3 +169,114 @@ impl<SPI: SpiBus> Sk6812RgbwFull<SPI> {
 }
 
 use super::color::hsv_to_rgb;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    // Same reasoning as ws2812b.rs's test module: mirrors
+    // NeoPixelConnection's private encode() (0 -> 0b100 triplet, 1 -> 0b110
+    // triplet, MSB-first) to compute the exact SPI bytes the mock should
+    // expect, parametrized by reset_bytes since this chip requests 24
+    // (~80us) instead of WS2812B's default 16 (~53us) - see
+    // rust/periph/src/connection/neopixel.rs's write_ext().
+    fn encode(data: &[u8], reset_bytes: usize) -> Vec<u8> {
+        let mut out = Vec::with_capacity(data.len() * 3 + reset_bytes);
+        for &byte in data {
+            let mut bits: u32 = 0;
+            for bit in (0..8).rev() {
+                bits = (bits << 3) | if (byte >> bit) & 1 == 1 { 0b110 } else { 0b100 };
+            }
+            out.push(((bits >> 16) & 0xFF) as u8);
+            out.push(((bits >> 8) & 0xFF) as u8);
+            out.push((bits & 0xFF) as u8);
+        }
+        out.extend(std::iter::repeat(0u8).take(reset_bytes));
+        out
+    }
+
+    const N: usize = 3;
+
+    #[test]
+    fn fill_transmits_grbw_order() {
+        let expected = encode(&[0x22, 0x11, 0x33, 0x44].repeat(N), 24);
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.fill(0x11, 0x22, 0x33, 0x44).unwrap();
+        sensor.inner.conn.spi.done();
+    }
+
+    #[test]
+    fn fill_white_defaults_zero() {
+        let expected = encode(&[0x20, 0x10, 0x30, 0x00].repeat(N), 24);
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.fill(0x10, 0x20, 0x30, 0).unwrap();
+        sensor.inner.conn.spi.done();
+    }
+
+    #[test]
+    fn set_pixel_then_show_and_index_clamp() {
+        let mut buf = vec![0u8; N * 4];
+        buf[4] = 0xBB; buf[5] = 0xAA; buf[6] = 0xCC; buf[7] = 0xDD; // pixel 1, GRBW
+        let mut buf2 = buf.clone();
+        buf2[(N - 1) * 4] = 0x06; buf2[(N - 1) * 4 + 1] = 0x05;
+        buf2[(N - 1) * 4 + 2] = 0x07; buf2[(N - 1) * 4 + 3] = 0x08; // clamped index 99 -> N-1
+
+        let spi = SpiMock::new(&[
+            SpiTransaction::write_vec(encode(&buf, 24)),
+            SpiTransaction::write_vec(encode(&buf2, 24)),
+        ]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.set_pixel(1, 0xAA, 0xBB, 0xCC, 0xDD);
+        sensor.show().unwrap();
+        sensor.set_pixel(99, 0x05, 0x06, 0x07, 0x08);
+        sensor.show().unwrap();
+        sensor.inner.conn.spi.done();
+    }
+
+    #[test]
+    fn brightness_scaling() {
+        let stored: [u8; 4] = [200, 100, 50, 40]; // r, g, b, w for pixel 0
+        let bri: u16 = 128;
+        let mut expected_buf = vec![0u8; N * 4];
+        expected_buf[0] = (stored[1] as u16 * bri / 255) as u8; // g
+        expected_buf[1] = (stored[0] as u16 * bri / 255) as u8; // r
+        expected_buf[2] = (stored[2] as u16 * bri / 255) as u8; // b
+        expected_buf[3] = (stored[3] as u16 * bri / 255) as u8; // w
+
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected_buf, 24))]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.set_brightness(128);
+        sensor.set_pixel(0, stored[0], stored[1], stored[2], stored[3]);
+        sensor.show().unwrap();
+        sensor.inner.conn.spi.done();
+    }
+
+    #[test]
+    fn rotate_shifts_left_by_whole_pixels() {
+        // Pixels (r-only): [1,0,0,0], [2,0,0,0], [3,0,0,0]. After rotate(1):
+        // [2,0,0,0], [3,0,0,0], [1,0,0,0].
+        let expected: Vec<u8> = vec![0, 2, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0];
+
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected, 24))]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.set_pixel(0, 1, 0, 0, 0);
+        sensor.set_pixel(1, 2, 0, 0, 0);
+        sensor.set_pixel(2, 3, 0, 0, 0);
+        sensor.rotate(1);
+        sensor.show().unwrap();
+        sensor.inner.conn.spi.done();
+    }
+
+    #[test]
+    fn fill_hsv_red() {
+        // Pure red: h=0, s=1, v=1 -> RGB (255, 0, 0), white=0.
+        let expected = encode(&[0x00, 0xFF, 0x00, 0x00].repeat(N), 24); // GRBW
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
+        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        sensor.fill_hsv(0.0, 1.0, 1.0).unwrap();
+        sensor.inner.conn.spi.done();
+    }
+}

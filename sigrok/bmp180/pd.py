@@ -34,6 +34,17 @@ ANN_REG_READ  = 1
 ANN_CAL_READ  = 2
 ANN_PTR_WRITE = 3
 ANN_WARNING   = 4
+# Named start/end pairs for the "temp_conversion" / "pressure_conversion"
+# conformance checks (see specs/pressure/bmp180.md, Timing Constraints, and
+# specs/pressure/bmp180_timing.conf): a ctrl_meas write that triggers a
+# temperature or pressure measurement marks the start; the following
+# OUT_MSB read of the matching length (2 bytes for UT, 3 for UP) marks the
+# result as ready. Additive - does not replace the generic reg-write/
+# reg-read annotations emitted alongside these.
+ANN_TEMP_CONV_START     = 5
+ANN_TEMP_CONV_DONE      = 6
+ANN_PRESSURE_CONV_START = 7
+ANN_PRESSURE_CONV_DONE  = 8
 
 
 def _s16(raw):
@@ -71,10 +82,16 @@ class Decoder(srd.Decoder):
         ('cal-read',  'Calibration read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('temp-conversion-start',     'Temp conversion: start'),
+        ('temp-conversion-done',      'Temp conversion: done'),
+        ('pressure-conversion-start', 'Pressure conversion: start'),
+        ('pressure-conversion-done',  'Pressure conversion: done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CAL_READ, ANN_PTR_WRITE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_TEMP_CONV_START, ANN_TEMP_CONV_DONE,
+                                   ANN_PRESSURE_CONV_START, ANN_PRESSURE_CONV_DONE)),
     )
 
     def __init__(self):
@@ -155,11 +172,19 @@ class Decoder(srd.Decoder):
                          [ANN_REG_READ,
                           ['ADC pressure (oss=%d): UP=%d (raw)' % (self.last_oss, up),
                            'UP=%d' % up]])
+                self.put(ss, es, self.out_ann,
+                         [ANN_PRESSURE_CONV_DONE,
+                          ['pressure_conversion_done: UP read (raw=%d)' % up,
+                           'pressure_conversion_done']])
             else:
                 ut = (buf[0] << 8) | buf[1]
                 self.put(ss, es, self.out_ann,
                          [ANN_REG_READ,
                           ['ADC temperature: UT=%d (raw)' % ut, 'UT=%d' % ut]])
+                self.put(ss, es, self.out_ann,
+                         [ANN_TEMP_CONV_DONE,
+                          ['temp_conversion_done: UT read (raw=%d)' % ut,
+                           'temp_conversion_done']])
             return
 
         # Generic
@@ -188,6 +213,16 @@ class Decoder(srd.Decoder):
                 self.last_oss = oss
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_ctrl_meas(raw), 'ctrl 0x%02X' % raw]])
+            if meas == 0x0E:
+                self.put(ss, es, self.out_ann,
+                         [ANN_TEMP_CONV_START,
+                          ['temp_conversion_start: ctrl_meas triggers temperature',
+                           'temp_conversion_start']])
+            elif meas == 0x14:
+                self.put(ss, es, self.out_ann,
+                         [ANN_PRESSURE_CONV_START,
+                          ['pressure_conversion_start: ctrl_meas triggers pressure (oss=%d)' % oss,
+                           'pressure_conversion_start']])
             return
 
         if reg == 0xE0 and len(buf) == 1:

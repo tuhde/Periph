@@ -5,10 +5,12 @@ GC_ADDR  = 0x00   # General Call address
 
 PD_MODE = {0: 'Normal', 1: '1kΩ→GND', 2: '100kΩ→GND', 3: '500kΩ→GND'}
 
-ANN_WRITE   = 0
-ANN_READ    = 1
-ANN_GC      = 2
-ANN_WARNING = 3
+ANN_WRITE             = 0
+ANN_READ              = 1
+ANN_GC                = 2
+ANN_WARNING           = 3
+ANN_EEPROM_WRITE_START = 4
+ANN_EEPROM_WRITE_DONE  = 5
 
 
 def _pd_str(pd):
@@ -31,14 +33,17 @@ class Decoder(srd.Decoder):
     tags = ['IC', 'DAC']
 
     annotations = (
-        ('write',   'Write command'),
-        ('read',    'Read response'),
-        ('gc',      'General Call'),
-        ('warning', 'Warning'),
+        ('write',              'Write command'),
+        ('read',               'Read response'),
+        ('gc',                 'General Call'),
+        ('warning',            'Warning'),
+        ('eeprom-write-start', 'EEPROM write start'),
+        ('eeprom-write-done',  'EEPROM write done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ, ANN_GC)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_EEPROM_WRITE_START, ANN_EEPROM_WRITE_DONE)),
     )
 
     def __init__(self):
@@ -106,6 +111,11 @@ class Decoder(srd.Decoder):
                       ['Write DAC+EEPROM: 0x%03X (%.4f V at 3.3V), PD=%s' %
                        (code, _dac_voltage(code), _pd_str(pd)),
                        'W DAC+EE 0x%03X' % code]])
+            # Named timing annotation (see specs/adc_dac/mcp4725_timing.conf,
+            # check "eeprom_write_time"): marks the start of the EEPROM write
+            # cycle that follows this command.
+            self.put(ss, es, self.out_ann,
+                     [ANN_EEPROM_WRITE_START, ['eeprom_write_start', 'EE-W start']])
         else:
             self._warn(ss, es, 'Unknown command 0x%02X' % b0)
 
@@ -135,6 +145,12 @@ class Decoder(srd.Decoder):
                    (dac_code, _dac_voltage(dac_code), _pd_str(pd_dac),
                     eep_code, _dac_voltage(eep_code), _pd_str(pd_ee), status_str),
                    'R DAC=0x%03X EE=0x%03X' % (dac_code, eep_code)]])
+        if rdy:
+            # Named timing annotation (see specs/adc_dac/mcp4725_timing.conf,
+            # check "eeprom_write_time"): marks any read that observes
+            # RDY/BSY=1, i.e. no EEPROM write in progress.
+            self.put(ss, es, self.out_ann,
+                     [ANN_EEPROM_WRITE_DONE, ['eeprom_write_done', 'EE-W done']])
 
     def _decode_gc(self, ss, es):
         buf = self.databuf

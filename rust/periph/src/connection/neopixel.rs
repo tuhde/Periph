@@ -24,11 +24,14 @@
 
 /// Encode pixel data into WS2812B-compatible SPI bitstream.
 ///
-/// Each NeoPixel byte becomes 3 SPI bytes (24 bits), followed by 16 trailing
-/// zero bytes for the reset pulse. The encoding is MSB-first.
-fn encode(data: &[u8]) -> heapless::Vec<u8, 768> {
+/// Each NeoPixel byte becomes 3 SPI bytes (24 bits), followed by
+/// `reset_bytes` trailing zero bytes for the reset pulse (16 bytes ≈ 53 µs
+/// for WS2812B's ≥50 µs minimum; chips needing a longer reset, e.g.
+/// SK6812RGBW's ≥80 µs, pass more via [`NeoPixelConnection::write_ext`]).
+/// The encoding is MSB-first.
+fn encode(data: &[u8], reset_bytes: usize) -> heapless::Vec<u8, 768> {
     let mut out = heapless::Vec::new();
-    out.resize_default(data.len() * 3 + 16).ok();
+    out.resize_default(data.len() * 3 + reset_bytes).ok();
 
     for (i, &byte) in data.iter().enumerate() {
         let mut bits: u32 = 0;
@@ -48,7 +51,11 @@ fn encode(data: &[u8]) -> heapless::Vec<u8, 768> {
 /// Wraps any `embedded_hal::spi::SpiBus` configured at 2.4 MHz, mode 0.
 /// The caller is responsible for configuring the SPI bus before passing it.
 pub struct NeoPixelConnection<SPI> {
-    spi: SPI,
+    // pub(crate) rather than private so chip drivers' own unit tests (e.g.
+    // ws2812b.rs's `mod tests`) can reach the underlying mock's .done() to
+    // verify every expected SPI transaction actually happened - not part
+    // of the public API.
+    pub(crate) spi: SPI,
     enabled: bool,
 }
 
@@ -70,17 +77,33 @@ impl<SPI: embedded_hal::spi::SpiBus> NeoPixelConnection<SPI> {
     /// Return the current software-gate state.
     pub fn is_enabled(&self) -> bool { self.enabled }
 
-    /// Encode and transmit pixel data, then hold MOSI low for reset.
+    /// Encode and transmit pixel data, then hold MOSI low for a 16-byte
+    /// (≈53 µs) reset. Shorthand for [`write_ext`](Self::write_ext) with
+    /// WS2812B's default reset length - chips needing a longer minimum
+    /// reset pulse (e.g. SK6812RGBW's ≥80 µs) should call `write_ext`
+    /// directly instead.
     ///
     /// No-op if this connection is disabled.
     ///
     /// # Arguments
     /// * `data` — Pixel bytes to send (3 bytes per RGB pixel, 4 bytes per RGBW pixel).
     pub fn write(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.write_ext(data, 16)
+    }
+
+    /// Encode and transmit pixel data, then hold MOSI low for `reset_bytes`
+    /// zero bytes (`reset_bytes * 416.7 ns`) instead of the default 16.
+    ///
+    /// No-op if this connection is disabled.
+    ///
+    /// # Arguments
+    /// * `data` — Pixel bytes to send (3 bytes per RGB pixel, 4 bytes per RGBW pixel).
+    /// * `reset_bytes` — Trailing zero bytes to append after the encoded data.
+    pub fn write_ext(&mut self, data: &[u8], reset_bytes: usize) -> Result<(), SPI::Error> {
         if !self.enabled {
             return Ok(());
         }
-        let encoded = encode(data);
+        let encoded = encode(data, reset_bytes);
         self.spi.write(&encoded)
     }
 }

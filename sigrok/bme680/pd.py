@@ -43,6 +43,14 @@ ANN_DATA_READ = 3
 ANN_PTR_WRITE = 4
 ANN_WARNING   = 5
 
+# Named start/end annotation pair for the measurement_trigger conformance
+# check (see specs/environmental/bme680.md, Timing Constraints: forced-cycle
+# TPHG measurement time). Appended additively after the original six
+# annotation classes above so existing PulseView manual verification is
+# unaffected.
+ANN_MEASUREMENT_TRIGGER_START = 6
+ANN_MEASUREMENT_TRIGGER_DONE  = 7
+
 
 def _s8(raw):
     return raw if raw < 0x80 else raw - 0x100
@@ -117,11 +125,14 @@ class Decoder(srd.Decoder):
         ('data-read', 'ADC data read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('measurement-trigger-start', 'Measurement trigger start'),
+        ('measurement-trigger-done',  'Measurement trigger done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CAL_READ,
                                   ANN_DATA_READ, ANN_PTR_WRITE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_MEASUREMENT_TRIGGER_START, ANN_MEASUREMENT_TRIGGER_DONE)),
     )
 
     def __init__(self):
@@ -223,6 +234,9 @@ class Decoder(srd.Decoder):
                       ['ADC: P=%d T=%d H=%d G=%d range=%d valid=%d stab=%d'
                        % (press_adc, temp_adc, hum_adc, gas_adc, gas_range, gas_valid, heat_stab),
                         'P=%d T=%d H=%d G=%d' % (press_adc, temp_adc, hum_adc, gas_adc)]])
+            self.put(ss, es, self.out_ann,
+                     [ANN_MEASUREMENT_TRIGGER_DONE,
+                      ['measurement_trigger_done (ADC burst read)', 'MEAS_DONE']])
             return
 
         if reg == 0xD0 and len(buf) == 1:
@@ -286,6 +300,10 @@ class Decoder(srd.Decoder):
         if reg == 0x74 and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_ctrl_meas(buf[0]), 'ctrl 0x%02X' % buf[0]]])
+            if (buf[0] & 0x03) == 0x01:  # mode == Forced
+                self.put(ss, es, self.out_ann,
+                         [ANN_MEASUREMENT_TRIGGER_START,
+                          ['measurement_trigger_start (ctrl_meas mode=Forced)', 'MEAS_START']])
             return
 
         if reg == 0x72 and len(buf) == 1:

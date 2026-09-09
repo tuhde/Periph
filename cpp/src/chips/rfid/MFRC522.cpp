@@ -1,8 +1,9 @@
 #include "MFRC522.h"
 #include <string.h>
 
-#ifndef ARDUINO
-#ifdef __ZEPHYR__
+#ifdef ARDUINO
+#include <Arduino.h>
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 static inline void arduino_delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
@@ -15,7 +16,6 @@ static inline void arduino_delay(unsigned long ms) { sleep_ms(ms); }
 #else
 #include <unistd.h>
 static inline void arduino_delay(unsigned long ms) { usleep(ms * 1000UL); }
-#endif
 #endif
 
 void MFRC522Minimal::_delay_ms(unsigned long ms) {
@@ -66,11 +66,12 @@ void MFRC522Minimal::_clear_bits(uint8_t reg, uint8_t mask) {
 void MFRC522Minimal::_init_chip() {
     _write_reg(REG_COMMAND, CMD_SOFT_RESET);
     // Wait for PowerDown bit to clear (oscillator started)
+    bool cleared = false;
     for (int i = 0; i < 50; i++) {
-        if ((_read_reg(REG_COMMAND) & 0x10) == 0) break;
+        if ((_read_reg(REG_COMMAND) & 0x10) == 0) { cleared = true; break; }
         _delay_ms(1);
     }
-    _delay_ms(50);
+    if (!cleared) _delay_ms(50);
     // Timer: ~25 ms auto-timeout
     _write_reg(REG_T_MODE,      0x80);
     _write_reg(REG_T_PRESCALER, 0xA9);

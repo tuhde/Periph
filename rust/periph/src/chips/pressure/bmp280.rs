@@ -194,15 +194,16 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
+    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
         let cal = read_calibration(&mut i2c, addr)?;
         let mut s = Self {
-            i2c, addr, spi: false, mode: 0,
+            i2c, addr, spi, mode: 0,
             osrs_t: 1, osrs_p: 1, filter: 0, t_sb: 0,
             t_fine: 0, cal,
         };
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0, false)?;
-        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0, false)?;
+        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0, s.spi)?;
+        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0, s.spi)?;
         Ok(s)
     }
 
@@ -254,8 +255,9 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let inner = Bmp280Minimal::new(i2c, addr)?;
+    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
+    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
+        let inner = Bmp280Minimal::new(i2c, addr, spi)?;
         Ok(Self { inner })
     }
 
@@ -365,5 +367,131 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// Read calibrated pressure.
     pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
         self.inner.pressure()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x76;
+
+    // Spec's Data Conversion "Validation" worked example (datasheet page 23):
+    // dig_T1=27504, dig_T2=26435, dig_T3=-1000, dig_P1=36477, dig_P2=-10685,
+    // dig_P3=3024, dig_P4=2855, dig_P5=140, dig_P6=-7, dig_P7=15500,
+    // dig_P8=-14600, dig_P9=6000. Calibration NVM is little-endian.
+    const CAL_BYTES: [u8; 24] = [
+        0x70, 0x6B, // dig_T1 = 27504
+        0x43, 0x67, // dig_T2 = 26435
+        0x18, 0xFC, // dig_T3 = -1000
+        0x7D, 0x8E, // dig_P1 = 36477
+        0x43, 0xD6, // dig_P2 = -10685
+        0xD0, 0x0B, // dig_P3 = 3024
+        0x27, 0x0B, // dig_P4 = 2855
+        0x8C, 0x00, // dig_P5 = 140
+        0xF9, 0xFF, // dig_P6 = -7
+        0x8C, 0x3C, // dig_P7 = 15500
+        0xF8, 0xC6, // dig_P8 = -14600
+        0x70, 0x17, // dig_P9 = 6000
+    ];
+
+    // UT=519888, UP=415148 (same worked example), one 6-byte burst - unlike
+    // BMP180, both ADCs come from a single read.
+    const DATA_BYTES: [u8; 6] = [0x65, 0x5A, 0xC0, 0x7E, 0xED, 0x00];
+
+    fn init_transactions() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
+            // Minimal::new(): CTRL_MEAS=(1<<5)|(1<<2)|0=0x24, CONFIG=0x00
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x24]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x00]),
+        ]
+    }
+
+    #[test]
+    fn full_api() {
+        let mut transactions = init_transactions();
+        transactions.extend(vec![
+            // temperature(): triggers forced (mode=0 != NORMAL) -> ctrl=0x25, then reads 6 bytes
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x25]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_START], DATA_BYTES.to_vec()),
+            // pressure(): same trigger + read sequence
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x25]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_START], DATA_BYTES.to_vec()),
+            // chip_id()
+            I2cTransaction::write_read(ADDR, vec![REG_ID], vec![0x58]),
+            // status()
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x09]),
+            // configure(2, 3, 3, 2, 4): CONFIG=(4<<5)|(2<<2)=0x88; CTRL_MEAS=(2<<5)|(3<<2)|3=0x4F
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x88]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x4F]),
+            // set_oversampling(4, 5): mode stays 3 -> CTRL_MEAS=(4<<5)|(5<<2)|3=0x97
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x97]),
+            // set_mode(1): CTRL_MEAS=(4<<5)|(5<<2)|1=0x95
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x95]),
+            // set_filter(3): CONFIG=(4<<5)|(3<<2)=0x8C
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x8C]),
+            // set_standby(6): CONFIG=(6<<5)|(3<<2)=0xCC
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xCC]),
+            // altitude(): pressure() re-triggers (mode=1=forced != NORMAL) + reads
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x95]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_START], DATA_BYTES.to_vec()),
+            // sea_level_pressure(): same
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x95]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_START], DATA_BYTES.to_vec()),
+            // reset(): RESET write, re-read calibration, re-apply config (t_sb=6,
+            // filter=3, osrs_t=4, osrs_p=5, mode=1)
+            I2cTransaction::write(ADDR, vec![REG_RESET, RESET_CMD]),
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0xCC]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS, 0x95]),
+        ]);
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Bmp280Full::new(i2c, ADDR, false).expect("init");
+
+        assert!((sensor.temperature().unwrap() - 25.08).abs() < 1e-3);
+        assert!((sensor.pressure().unwrap() - 1006.5325390625).abs() < 1e-2);
+        assert_eq!(sensor.chip_id().unwrap(), 0x58);
+        assert_eq!(sensor.status().unwrap(), 0x09);
+
+        sensor.configure(2, 3, 3, 2, 4).unwrap();
+        sensor.set_oversampling(4, 5).unwrap();
+        sensor.set_mode(1).unwrap();
+        sensor.set_filter(3).unwrap();
+        sensor.set_standby(6).unwrap();
+
+        let alt = sensor.altitude(1013.25).unwrap();
+        assert!((alt - 56.07668235692459).abs() < 0.5, "altitude = {}", alt);
+
+        let slp = sensor.sea_level_pressure(200.0).unwrap();
+        assert!((slp - 1030.736388797547).abs() < 0.5, "sea_level_pressure = {}", slp);
+
+        sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn spi_masks_write_addresses() {
+        // Per specs/pressure/bmp280.md's SPI Register-address protocol:
+        // BMP280's I2C register addresses already have bit 7 set
+        // (0x88-0xFC), so SPI reads use the same reg value unmasked; only
+        // writes differ, clearing bit 7 (reg & 0x7F). embedded-hal-mock's
+        // I2C transactions still model this fine since the driver just
+        // sends different bytes - it doesn't need a real SPI mock to prove
+        // the masking is correct.
+        let transactions = vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
+            // Masked write addresses (reg & 0x7F): CTRL_MEAS 0xF4->0x74, CONFIG 0xF5->0x75.
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS & 0x7F, 0x24]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG & 0x7F, 0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Bmp280Full::new(i2c, ADDR, true).expect("init");
+
+        sensor.inner.i2c.done();
     }
 }

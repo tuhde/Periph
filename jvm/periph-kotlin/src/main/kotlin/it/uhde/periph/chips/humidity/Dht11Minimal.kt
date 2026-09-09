@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.connection.DHTxxConnection
+import it.uhde.periph.connection.DHTxxConn
 import java.io.IOException
 
 /**
@@ -16,7 +16,7 @@ import java.io.IOException
  *  - Caller responsible for respecting the ≥ 2 s sampling interval
  */
 open class Dht11Minimal @JvmOverloads constructor(
-    protected val connection: DHTxxConnection
+    protected val connection: DHTxxConn
 ) {
     /** Raised on checksum error or invalid frame length. */
     class Dht11Exception(detail: String) : IOException(detail)

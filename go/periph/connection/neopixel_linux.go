@@ -37,21 +37,31 @@ func (n *NeoPixelConnection) Close() error {
 
 // Write encodes the buffer and transmits it to the LED strip in a
 // single SPI transfer. Each NeoPixel byte is encoded as three SPI
-// bytes; 16 trailing zero bytes produce the reset pulse. Writes are
-// dropped when disabled.
+// bytes; 16 trailing zero bytes produce the reset pulse (~53us,
+// WS2812B's default). Writes are dropped when disabled. Chips needing a
+// longer minimum reset (e.g. SK6812RGBW's >=80us) should call WriteExt
+// instead - see ResetExtender in connection.go.
 func (n *NeoPixelConnection) Write(data []byte) error {
+	return n.WriteExt(data, 16)
+}
+
+// WriteExt is like Write but with a caller-chosen number of trailing
+// zero bytes for the reset pulse instead of the default 16
+// (resetBytes * 416.7ns per byte at the fixed 2.4MHz encoding rate).
+// Implements connection.ResetExtender.
+func (n *NeoPixelConnection) WriteExt(data []byte, resetBytes int) error {
 	if !n.IsEnabled() {
 		return nil
 	}
-	encoded := encodeNeoPixel(data)
+	encoded := encodeNeoPixel(data, resetBytes)
 	return n.spi.Write(encoded)
 }
 
 // encodeNeoPixel converts a buffer of NeoPixel bytes into 3-bits-per-bit
-// SPI bytes, with 16 trailing zero bytes for the reset. Each NeoPixel
-// bit maps to 3 SPI bits at 2.4 MHz: `100` for a 0, `110` for a 1.
-func encodeNeoPixel(data []byte) []byte {
-	out := make([]byte, len(data)*3+16)
+// SPI bytes, with resetBytes trailing zero bytes for the reset. Each
+// NeoPixel bit maps to 3 SPI bits at 2.4 MHz: `100` for a 0, `110` for a 1.
+func encodeNeoPixel(data []byte, resetBytes int) []byte {
+	out := make([]byte, len(data)*3+resetBytes)
 	for i, b := range data {
 		var bits uint32
 		for bit := 7; bit >= 0; bit-- {

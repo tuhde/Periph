@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.led
 
 import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.ResetExtender
 
 /**
  * SK6812RGBW addressable RGBW LED strip — minimal interface.
@@ -20,8 +21,33 @@ open class SK6812RGBWMinimal(
     protected val connection: Connection,
     protected val n: Int
 ) {
+    companion object {
+        // Reset-pulse length (trailing zero bytes, post bit-encoding) requested
+        // via ResetExtender to guarantee the SK6812RGBW's ≥80 µs reset pulse -
+        // longer than a plain write's default ≈53 µs (correct for WS2812B, too
+        // short for this chip). Padding the *pre-encoded* pixel buffer with
+        // extra zero bytes instead would not achieve this: those bytes get
+        // bit-encoded as more zero-value data bits (periodic low-with-brief-
+        // highs), not a continuous low - see ResetExtender's doc comment.
+        private const val RESET_BYTES = 24
+    }
+
     /** Internal pixel buffer in GRBW wire order (G, R, B, W per pixel). */
     protected val buf: ByteArray = ByteArray(n * 4)
+
+    /**
+     * Send [data] with the extended reset pulse SK6812RGBW needs, if the
+     * connection supports requesting one ([ResetExtender]); falls back to
+     * a plain write otherwise.
+     */
+    protected fun transmit(data: ByteArray) {
+        val conn = connection
+        if (conn is ResetExtender) {
+            conn.writeExt(data, RESET_BYTES)
+        } else {
+            conn.write(data)
+        }
+    }
 
     /**
      * Fill every pixel with one colour and transmit immediately.
@@ -45,7 +71,7 @@ open class SK6812RGBWMinimal(
             buf[i * 4 + 2] = bc.toByte()
             buf[i * 4 + 3] = wc.toByte()
         }
-        connection.write(buf)
+        transmit(buf)
     }
 
     /**

@@ -58,7 +58,14 @@ impl<I2C: I2c> MPU6050Minimal<I2C> {
         write_reg(&mut i2c, addr, REG_PWR_MGMT_1, 0x01)?;
         let who = read_reg8(&mut i2c, addr, REG_WHO_AM_I)?;
         if who != WHO_AM_I_VALUE {
-            return Err(read_reg8(&mut i2c, addr, REG_WHO_AM_I).unwrap_err());
+            // Re-reading WHO_AM_I and unwrapping it as an error was wrong on
+            // two counts: the re-read almost always succeeds (Ok), so
+            // .unwrap_err() panicked unconditionally with the wrong message,
+            // and I2C::Error is HAL-defined/opaque - this driver has no way
+            // to construct one of its own to return here. panic!() matches
+            // this repo's established convention for a failed identity check
+            // in a Rust driver (see Ens160Minimal::new's PART_ID check).
+            panic!("MPU6050 WHO_AM_I: expected 0x{:02X}, got 0x{:02X}", WHO_AM_I_VALUE, who);
         }
         write_reg(&mut i2c, addr, REG_GYRO_CONFIG, 0x00)?;
         write_reg(&mut i2c, addr, REG_ACCEL_CONFIG, 0x00)?;
@@ -287,4 +294,154 @@ fn read_reg16_signed<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<i16, 
     let mut buf = [0u8; 2];
     i2c.write_read(addr, &[reg], &mut buf)?;
     Ok(i16::from_be_bytes([buf[0], buf[1]]))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x68;
+
+    // Encode a signed 16-bit value as its two big-endian bytes.
+    fn s16(value: i16) -> [u8; 2] {
+        value.to_be_bytes()
+    }
+
+    #[test]
+    fn full_api() {
+        let init_transactions = vec![
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x80]),
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![WHO_AM_I_VALUE]),
+            I2cTransaction::write(ADDR, vec![REG_GYRO_CONFIG, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x03]),
+            I2cTransaction::write(ADDR, vec![REG_SMPLRT_DIV, 0x04]),
+        ];
+        let mut transactions = init_transactions.clone();
+        transactions.extend(vec![
+            // accel(): raw (16384, -8192, 4096) at default AFS_SEL=0 (16384 LSB/g).
+            I2cTransaction::write_read(ADDR, vec![REG_ACCEL_XOUT_H],
+                [s16(16384), s16(-8192), s16(4096)].concat()),
+            // gyro(): raw (131, -131, 262) at default FS_SEL=0 -> (1, -1, 2) dps.
+            I2cTransaction::write_read(ADDR, vec![REG_GYRO_XOUT_H],
+                [s16(131), s16(-131), s16(262)].concat()),
+            // configure_gyro(2)
+            I2cTransaction::write(ADDR, vec![REG_GYRO_CONFIG, 2 << 3]),
+            // gyro() again: FS_SEL=2 sensitivity 32.8 LSB/(deg/s); raw=328 -> 10 dps.
+            I2cTransaction::write_read(ADDR, vec![REG_GYRO_XOUT_H],
+                [s16(328), s16(0), s16(0)].concat()),
+            // configure_accel(1)
+            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG, 1 << 3]),
+            // accel() again: AFS_SEL=1 sensitivity 8192 LSB/g; raw=8192 -> 1g.
+            I2cTransaction::write_read(ADDR, vec![REG_ACCEL_XOUT_H],
+                [s16(8192), s16(0), s16(0)].concat()),
+            // configure_dlpf(5)
+            I2cTransaction::write(ADDR, vec![REG_CONFIG, 5]),
+            // configure_sample_rate(9)
+            I2cTransaction::write(ADDR, vec![REG_SMPLRT_DIV, 9]),
+            // temperature(): raw=340 -> 340/340 + 36.53 = 37.53 degC.
+            I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_H], s16(340).to_vec()),
+            // accel_raw()
+            I2cTransaction::write_read(ADDR, vec![REG_ACCEL_XOUT_H],
+                [s16(100), s16(-200), s16(300)].concat()),
+            // gyro_raw()
+            I2cTransaction::write_read(ADDR, vec![REG_GYRO_XOUT_H],
+                [s16(-50), s16(60), s16(-70)].concat()),
+            // data_ready() true then false
+            I2cTransaction::write_read(ADDR, vec![REG_INT_STATUS], vec![0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_STATUS], vec![0x00]),
+            // set_sleep(true): PWR_MGMT_1 is 0x01 after init.
+            I2cTransaction::write_read(ADDR, vec![REG_PWR_MGMT_1], vec![0x01]),
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x41]),
+            // set_sleep(false)
+            I2cTransaction::write_read(ADDR, vec![REG_PWR_MGMT_1], vec![0x41]),
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x01]),
+            // set_standby(xa=true, zg=true)
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_2, 0x21]),
+            // fifo_count()
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_COUNTH], vec![0x03, 0x45]),
+            // read_fifo(): count=2, data [0xAA, 0xBB]
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_COUNTH], vec![0x00, 0x02]),
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_R_W], vec![0xAA, 0xBB]),
+            // read_fifo(): count=0 -> no further bus transaction
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_COUNTH], vec![0x00, 0x00]),
+            // enable_fifo(gyro=true, accel=true, temp=false)
+            I2cTransaction::write(ADDR, vec![REG_FIFO_EN, (1 << 3) | (1 << 4)]),
+            I2cTransaction::write_read(ADDR, vec![REG_USER_CTRL], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_USER_CTRL, 0x40]),
+            // reset_fifo(): USER_CTRL is 0x40 after enable_fifo().
+            I2cTransaction::write_read(ADDR, vec![REG_USER_CTRL], vec![0x40]),
+            I2cTransaction::write(ADDR, vec![REG_USER_CTRL, 0x44]),
+        ]);
+
+        let i2c = I2cMock::new(&transactions);
+        let mut delay = NoopDelay::new();
+        let mut sensor = MPU6050Full::new(i2c, ADDR, &mut delay).expect("init");
+
+        let (ax, ay, az) = sensor.accel().unwrap();
+        assert!((ax - 9.80665).abs() < 1e-3);
+        assert!((ay - (-4.903325)).abs() < 1e-3);
+        assert!((az - 2.4516625).abs() < 1e-3);
+
+        let deg2rad = core::f32::consts::PI / 180.0;
+        let (gx, gy, gz) = sensor.gyro().unwrap();
+        assert!((gx - 1.0 * deg2rad).abs() < 1e-4);
+        assert!((gy - (-1.0) * deg2rad).abs() < 1e-4);
+        assert!((gz - 2.0 * deg2rad).abs() < 1e-4);
+
+        sensor.configure_gyro(2).unwrap();
+        let (gx2, _, _) = sensor.gyro().unwrap();
+        assert!((gx2 - 10.0 * deg2rad).abs() < 1e-3);
+
+        sensor.configure_accel(1).unwrap();
+        let (ax2, _, _) = sensor.accel().unwrap();
+        assert!((ax2 - 9.80665).abs() < 1e-3);
+
+        sensor.configure_dlpf(5).unwrap();
+        sensor.configure_sample_rate(9).unwrap();
+
+        let temp = sensor.temperature().unwrap();
+        assert!((temp - 37.53).abs() < 1e-2);
+
+        assert_eq!(sensor.accel_raw().unwrap(), (100, -200, 300));
+        assert_eq!(sensor.gyro_raw().unwrap(), (-50, 60, -70));
+
+        assert!(sensor.data_ready().unwrap());
+        assert!(!sensor.data_ready().unwrap());
+
+        sensor.set_sleep(true).unwrap();
+        sensor.set_sleep(false).unwrap();
+        sensor.set_standby(true, false, false, false, false, true).unwrap();
+
+        assert_eq!(sensor.fifo_count().unwrap(), ((0x03u16 & 0x1F) << 8) | 0x45);
+
+        let mut fifo_buf = [0u8; 8];
+        let n = sensor.read_fifo(&mut fifo_buf).unwrap();
+        assert_eq!(n, 2);
+        assert_eq!(&fifo_buf[..2], &[0xAA, 0xBB]);
+
+        let n2 = sensor.read_fifo(&mut fifo_buf).unwrap();
+        assert_eq!(n2, 0);
+
+        sensor.enable_fifo(true, true, false).unwrap();
+        sensor.reset_fifo().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    #[should_panic(expected = "WHO_AM_I")]
+    fn who_am_i_mismatch_panics() {
+        let transactions = vec![
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x80]),
+            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut delay = NoopDelay::new();
+        let _ = MPU6050Minimal::new(i2c, ADDR, &mut delay);
+    }
 }

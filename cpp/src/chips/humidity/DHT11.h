@@ -135,10 +135,12 @@ public:
     /** @brief Read the raw 5-byte frame.
      *
      *  @param out Pointer to a 5-byte buffer to receive the frame.
-     *  @return `true` on success, `false` if the frame's checksum is invalid.
+     *  @return `true` on success, `false` if the connection failed or the frame's checksum is invalid.
      */
     bool read_raw(uint8_t* out) {
-        return this->_connection.read(out);
+        if (!this->_connection.read(out)) return false;
+        uint8_t expected = (uint8_t)((out[0] + out[1] + out[2] + out[3]) & 0xFF);
+        return expected == out[4];
     }
 
     /** @brief Read the raw 5-byte frame using the default retry count.

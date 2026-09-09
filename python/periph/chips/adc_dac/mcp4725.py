@@ -117,7 +117,7 @@ class MCP4725Full(MCP4725Minimal):
         por = bool(buf[0] & 0x40)
         pd_dac = (buf[0] >> 2) & 0x03
         code = ((buf[1] << 4) | ((buf[2] >> 4) & 0x0F))
-        pd_eeprom = (buf[3] >> 6) & 0x03
+        pd_eeprom = (buf[3] >> 5) & 0x03
         eeprom_code = ((buf[3] & 0x0F) << 8) | buf[4]
         return {
             'code': code,

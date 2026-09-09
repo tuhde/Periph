@@ -22,7 +22,7 @@ import java.lang.invoke.*;
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public final class UARTConnection extends AbstractConnection {
+public final class UARTConnection extends AbstractConnection implements AvailableConnection {
 
     // open() flags
     private static final int O_RDWR   = 2;

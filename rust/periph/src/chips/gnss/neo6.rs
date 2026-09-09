@@ -710,3 +710,397 @@ impl<B: ByteSource> Neo6Full<B> {
         self.send_ubx(0x06, 0x09, &payload)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::VecDeque;
+
+    // --- FakeBus: a plain byte-queue implementing ByteSource directly.
+    //
+    // NEO-6's driver treats UART, I2C (DDC), and SPI as the same underlying
+    // NMEA/UBX byte stream (see specs/gnss/neo-6.md's "Connection
+    // abstraction" note) - only the byte-fetch mechanism differs, and that
+    // mechanism lives in UartBus/I2cBus/SpiBus, not in Neo6Minimal/Neo6Full
+    // themselves. So FakeBus - which implements ByteSource directly, the
+    // same trait those three wrapper types implement - is transport-shape
+    // agnostic by construction: no bit-timing or register model to fake,
+    // just a shared queue that read_byte() pops from and write_bytes()
+    // appends to (mirroring the Python/Go reference mocks' shared-FIFO
+    // design). Separate smoke tests below (uart_bus_*, i2c_bus_*, spi_bus_*)
+    // confirm UartBus/I2cBus/SpiBus themselves dispatch read_byte/
+    // write_bytes correctly through a real embedded-io/embedded-hal fake,
+    // since that dispatch logic is NOT exercised by FakeBus-based tests.
+    struct FakeBus {
+        stream: VecDeque<u8>,
+        writes: Vec<Vec<u8>>,
+    }
+
+    impl FakeBus {
+        fn new() -> Self {
+            Self { stream: VecDeque::new(), writes: Vec::new() }
+        }
+
+        fn queue_bytes(&mut self, data: &[u8]) {
+            self.stream.extend(data.iter().copied());
+        }
+    }
+
+    impl ByteSource for FakeBus {
+        type Error = ();
+
+        fn read_byte(&mut self) -> Result<Option<u8>, Self::Error> {
+            Ok(self.stream.pop_front())
+        }
+
+        fn write_bytes(&mut self, data: &[u8]) -> Result<(), Self::Error> {
+            self.writes.push(data.to_vec());
+            Ok(())
+        }
+    }
+
+    /// Build a `$<body>*XX\r\n` NMEA sentence with a correct XOR checksum,
+    /// computed here - independent of this module's own `nmea_checksum_ok`.
+    fn nmea_sentence(body: &str) -> Vec<u8> {
+        let mut checksum: u8 = 0;
+        for &b in body.as_bytes() {
+            checksum ^= b;
+        }
+        format!("${}*{:02X}\r\n", body, checksum).into_bytes()
+    }
+
+    /// Build a UBX frame with a correct Fletcher checksum, computed here -
+    /// independent of this module's own (private) `ubx_checksum`, mirroring
+    /// `Neo6Full::send_ubx`'s own framing.
+    fn ubx_frame(msg_class: u8, msg_id: u8, payload: &[u8]) -> Vec<u8> {
+        let length = payload.len();
+        let mut body = vec![msg_class, msg_id, (length & 0xFF) as u8, ((length >> 8) & 0xFF) as u8];
+        body.extend_from_slice(payload);
+        let mut ck_a: u8 = 0;
+        let mut ck_b: u8 = 0;
+        for &b in &body {
+            ck_a = ck_a.wrapping_add(b);
+            ck_b = ck_b.wrapping_add(ck_a);
+        }
+        let mut frame = vec![0xB5, 0x62];
+        frame.extend_from_slice(&body);
+        frame.push(ck_a);
+        frame.push(ck_b);
+        frame
+    }
+
+    /// Queue `data` onto `gps`'s bus and drive `update()` enough times to
+    /// consume it all, returning true if any call reported a parsed GGA fix.
+    fn queue_and_feed_minimal(gps: &mut Neo6Minimal<FakeBus>, data: &[u8]) -> bool {
+        gps.bus.queue_bytes(data);
+        let mut got_fix = false;
+        for _ in 0..data.len() {
+            if gps.update().unwrap() {
+                got_fix = true;
+            }
+        }
+        got_fix
+    }
+
+    /// Same as [`queue_and_feed_minimal`], for a [`Neo6Full`].
+    fn queue_and_feed_full(gps: &mut Neo6Full<FakeBus>, data: &[u8]) -> bool {
+        gps.inner.bus.queue_bytes(data);
+        let mut got_fix = false;
+        for _ in 0..data.len() {
+            if gps.update().unwrap() {
+                got_fix = true;
+            }
+        }
+        got_fix
+    }
+
+    fn close_enough(a: f32, b: f32, eps: f32) -> bool {
+        (a - b).abs() < eps
+    }
+
+    // Field lists are built explicitly and joined with ',' rather than
+    // hand-typed as comma-heavy literals, to avoid miscounting empty fields.
+    fn gga_fix() -> String {
+        [
+            "GPGGA", "092750.000", "5321.6802", "N", "00630.3372", "W",
+            "1", "08", "1.03", "61.7", "M", "55.2", "M", "", "",
+        ]
+        .join(",")
+    }
+
+    fn gga_no_fix() -> String {
+        [
+            "GPGGA", "092750.000", "", "", "", "",
+            "0", "00", "", "", "", "", "", "", "",
+        ]
+        .join(",")
+    }
+
+    fn rmc() -> String {
+        [
+            "GPRMC", "092750.000", "A", "5321.6802", "N", "00630.3372", "W",
+            "022.4", "084.4", "230394", "003.1", "W", "A",
+        ]
+        .join(",")
+    }
+
+    fn vtg() -> String {
+        ["GPVTG", "084.4", "T", "077.4", "M", "022.4", "N", "041.5", "K", "A"].join(",")
+    }
+
+    // --- Neo6Minimal: GGA decode with a valid fix ---
+
+    #[test]
+    fn gga_decode_with_fix() {
+        let mut gps = Neo6Minimal::new(FakeBus::new());
+        assert_eq!(gps.fix(), 0);
+        assert_eq!(gps.latitude(), None);
+
+        let got_fix = queue_and_feed_minimal(&mut gps, &nmea_sentence(&gga_fix()));
+        assert!(got_fix, "update() never reported a fix");
+        assert_eq!(gps.fix(), 1);
+        assert_eq!(gps.satellites(), 8);
+        assert!(close_enough(gps.latitude().unwrap(), 53.361336667, 1e-4));
+        assert!(close_enough(gps.longitude().unwrap(), -6.505620, 1e-4));
+        assert!(close_enough(gps.altitude().unwrap(), 61.7, 1e-3));
+    }
+
+    // --- Neo6Minimal: no-fix GGA updates fix/satellites but not lat/lon ---
+
+    #[test]
+    fn no_fix_keeps_last_position() {
+        let mut gps = Neo6Minimal::new(FakeBus::new());
+        queue_and_feed_minimal(&mut gps, &nmea_sentence(&gga_fix()));
+        let got_fix = queue_and_feed_minimal(&mut gps, &nmea_sentence(&gga_no_fix()));
+        assert!(!got_fix);
+        assert_eq!(gps.fix(), 0);
+        assert!(close_enough(gps.latitude().unwrap(), 53.361336667, 1e-4));
+    }
+
+    // --- Checksum validation: a corrupted sentence is silently discarded ---
+
+    #[test]
+    fn bad_checksum_discarded() {
+        let mut gps = Neo6Minimal::new(FakeBus::new());
+        let mut bad = nmea_sentence(&gga_fix());
+        let len = bad.len();
+        bad[len - 4] ^= 0xFF; // corrupt one checksum hex digit
+        let got_fix = queue_and_feed_minimal(&mut gps, &bad);
+        assert!(!got_fix);
+        assert_eq!(gps.fix(), 0);
+    }
+
+    // --- Leading 0xFF idle-filler bytes before '$' are ignored ---
+
+    #[test]
+    fn leading_garbage_ignored() {
+        let mut gps = Neo6Minimal::new(FakeBus::new());
+        let mut data = vec![0xFF, 0xFF, 0xFF];
+        data.extend_from_slice(&nmea_sentence(&gga_fix()));
+        let got_fix = queue_and_feed_minimal(&mut gps, &data);
+        assert!(got_fix, "update() never reported a fix after leading garbage");
+    }
+
+    // --- Neo6Full: RMC (speed/course/utc_time/utc_date) ---
+
+    #[test]
+    fn rmc_fields() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        queue_and_feed_full(&mut gps, &nmea_sentence(&rmc()));
+        assert!(close_enough(gps.speed().unwrap(), 22.4 * 0.514444, 1e-3));
+        assert!(close_enough(gps.course().unwrap(), 84.4, 1e-3));
+        assert_eq!(gps.utc_time(), Some("092750.000"));
+        assert_eq!(gps.utc_date(), Some("230394"));
+    }
+
+    // --- Neo6Full: VTG (course/speed) ---
+
+    #[test]
+    fn vtg_fields() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        queue_and_feed_full(&mut gps, &nmea_sentence(&vtg()));
+        assert!(close_enough(gps.course().unwrap(), 84.4, 1e-3));
+        assert!(close_enough(gps.speed().unwrap(), 41.5 / 3.6, 1e-3));
+    }
+
+    // --- Neo6Full: GGA-derived HDOP ---
+
+    #[test]
+    fn gga_hdop() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        queue_and_feed_full(&mut gps, &nmea_sentence(&gga_fix()));
+        assert!(close_enough(gps.hdop().unwrap(), 1.03, 1e-3));
+    }
+
+    // --- Neo6Full: send_ubx frames a correct message ---
+
+    #[test]
+    fn send_ubx_frames_correctly() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.send_ubx(0x06, 0x08, &[1, 2, 3]).unwrap();
+        assert_eq!(gps.inner.bus.writes.last().unwrap(), &ubx_frame(0x06, 0x08, &[1, 2, 3]));
+    }
+
+    // --- Neo6Full: set_rate / set_platform / cold_start / save_config ---
+
+    #[test]
+    fn set_rate_sends_cfg_rate() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.set_rate(5).unwrap();
+        let meas_rate_ms: u16 = 1000 / 5;
+        let expected = [
+            (meas_rate_ms & 0xFF) as u8,
+            (meas_rate_ms >> 8) as u8,
+            1,
+            0,
+            0,
+            0,
+        ];
+        assert_eq!(gps.inner.bus.writes.last().unwrap(), &ubx_frame(0x06, 0x08, &expected));
+    }
+
+    #[test]
+    fn set_platform_sends_cfg_nav5() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.set_platform(4).unwrap();
+        let mut expected = [0u8; 36];
+        expected[0] = 0x01;
+        expected[2] = 4;
+        assert_eq!(gps.inner.bus.writes.last().unwrap(), &ubx_frame(0x06, 0x24, &expected));
+    }
+
+    #[test]
+    fn cold_start_sends_cfg_rst() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.cold_start().unwrap();
+        let expected = [0xFF, 0xFF, 0x02, 0x00];
+        assert_eq!(gps.inner.bus.writes.last().unwrap(), &ubx_frame(0x06, 0x04, &expected));
+    }
+
+    #[test]
+    fn save_config_sends_cfg_cfg() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.save_config().unwrap();
+        let expected = [
+            0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x07,
+        ];
+        assert_eq!(gps.inner.bus.writes.last().unwrap(), &ubx_frame(0x06, 0x09, &expected));
+    }
+
+    // --- Neo6Full: poll_ubx returns the response payload on a matching frame ---
+
+    #[test]
+    fn poll_ubx_returns_payload() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        let response_payload: Vec<u8> = (0..28u8).collect();
+        gps.inner.bus.queue_bytes(&ubx_frame(0x01, 0x02, &response_payload));
+        let payload = gps.poll_ubx(0x01, 0x02).unwrap();
+        assert_eq!(payload.as_slice(), response_payload.as_slice());
+        assert_eq!(gps.inner.bus.writes[0], ubx_frame(0x01, 0x02, &[]));
+    }
+
+    // --- Neo6Full: poll_ubx errors on an ACK-NAK response ---
+
+    #[test]
+    fn poll_ubx_nak_errors() {
+        let mut gps = Neo6Full::new(FakeBus::new());
+        gps.inner.bus.queue_bytes(&ubx_frame(0x05, 0x00, &[0x06, 0x08])); // ACK-NAK for CFG-RATE
+        let result = gps.poll_ubx(0x06, 0x08);
+        assert!(matches!(result, Err(Neo6Error::Nak)));
+    }
+
+    // --- Bus-wrapper smoke tests: confirm UartBus/I2cBus/SpiBus dispatch
+    // read_byte()/write_bytes() correctly through a real embedded-io /
+    // embedded-hal fake. This is the Rust-idiomatic equivalent of the
+    // Python/Go three-bus-type loop: since Rust's abstraction is a
+    // compile-time generic (ByteSource) rather than a runtime bus_type
+    // parameter, the *parsing* logic only needs exercising once (above, via
+    // FakeBus); what's specific to each wrapper is purely the byte-fetch
+    // mechanism, which these three tests check directly.
+
+    /// Minimal fake `embedded_io::Read + Write` peer for [`UartBus`]. A
+    /// `read()` on an empty queue returns `Ok(0)`, which `UartBus::read_byte`
+    /// treats as "no byte yet" (`Ok(None)`) - matching how a real timeout
+    /// would be handled, without needing to fake `ErrorKind::TimedOut`.
+    struct FakeIoUart {
+        read_data: VecDeque<u8>,
+        writes: Vec<u8>,
+    }
+
+    impl embedded_io::ErrorType for FakeIoUart {
+        type Error = embedded_io::ErrorKind;
+    }
+
+    impl embedded_io::Read for FakeIoUart {
+        fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::Error> {
+            let mut n = 0;
+            while n < buf.len() {
+                match self.read_data.pop_front() {
+                    Some(b) => {
+                        buf[n] = b;
+                        n += 1;
+                    }
+                    None => break,
+                }
+            }
+            Ok(n)
+        }
+    }
+
+    impl embedded_io::Write for FakeIoUart {
+        fn write(&mut self, buf: &[u8]) -> Result<usize, Self::Error> {
+            self.writes.extend_from_slice(buf);
+            Ok(buf.len())
+        }
+
+        fn flush(&mut self) -> Result<(), Self::Error> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn uart_bus_dispatches_read_and_write() {
+        let fake = FakeIoUart { read_data: VecDeque::from(vec![0x24]), writes: Vec::new() };
+        let mut bus = UartBus(fake);
+        assert_eq!(bus.read_byte().unwrap(), Some(0x24));
+        assert_eq!(bus.read_byte().unwrap(), None); // empty -> "no byte yet"
+        bus.write_bytes(&[1, 2, 3]).unwrap();
+        assert_eq!(bus.0.writes, vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn i2c_bus_dispatches_read_and_write() {
+        use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+        let expectations = [
+            I2cTransaction::write_read(0x42, vec![0xFF], vec![0x24]),
+            I2cTransaction::write(0x42, vec![0xAA, 0xBB]),
+        ];
+        let i2c = I2cMock::new(&expectations);
+        let mut bus = I2cBus { i2c, addr: 0x42 };
+        // DDC random-read to register 0xFF returns the next stream byte.
+        assert_eq!(bus.read_byte().unwrap(), Some(0x24));
+        bus.write_bytes(&[0xAA, 0xBB]).unwrap();
+        bus.i2c.done();
+    }
+
+    #[test]
+    fn spi_bus_dispatches_read_and_write() {
+        use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+        let expectations = [
+            SpiTransaction::transaction_start(),
+            SpiTransaction::transfer_in_place(vec![0xFF], vec![0x24]),
+            SpiTransaction::transaction_end(),
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![0xAA, 0xBB]),
+            SpiTransaction::transaction_end(),
+        ];
+        let spi = SpiMock::new(&expectations);
+        let mut bus = SpiBus(spi);
+        // SPI full-duplex transfer with 0xFF filler on MOSI.
+        assert_eq!(bus.read_byte().unwrap(), Some(0x24));
+        bus.write_bytes(&[0xAA, 0xBB]).unwrap();
+        bus.0.done();
+    }
+}

@@ -28,7 +28,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x76, nil, nil)
-	chip, err := pressure.NewBMP280Full(conn)
+	chip, err := pressure.NewBMP280Full(conn, false)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

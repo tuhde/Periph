@@ -119,6 +119,7 @@ ANN_REG_READ    = 1
 ANN_CMD_WRITE   = 2
 ANN_FIFO_FRAME  = 3
 ANN_WARNING     = 4
+ANN_RESET_RECOVERY = 5
 
 
 def _reg_name(addr_byte):
@@ -195,10 +196,12 @@ class Decoder(srd.Decoder):
         ('cmd-write',   'CommandReg write'),
         ('fifo-frame',  'FIFO frame'),
         ('warning',     'Warning'),
+        ('reset-recovery', 'Reset recovery'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CMD_WRITE, ANN_FIFO_FRAME)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_RESET_RECOVERY,)),
     )
 
     def __init__(self):
@@ -209,6 +212,10 @@ class Decoder(srd.Decoder):
         self.miso_buf    = []
         self.ss_block    = None
         self.cs_active   = False
+        # Set on a SoftReset CommandReg write, cleared on the next CommandReg
+        # read showing PowerDown clear - marks the reset_recovery timing
+        # check's start/end (see specs/rfid/mfrc522_timing.conf).
+        self._reset_pending = False
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
@@ -227,6 +234,11 @@ class Decoder(srd.Decoder):
         if read:
             # Read: addr byte + 0 or more dummy data; the miso_buf holds the response
             resp = self.miso_buf[1:] if len(self.miso_buf) > 1 else []
+            if reg == 0x01 and len(resp) >= 1 and self._reset_pending and (resp[0] & 0x10) == 0:
+                self._reset_pending = False
+                self.put(ss, es, self.out_ann,
+                         [ANN_RESET_RECOVERY, ['reset_recovery_done', 'reset_done']])
+                # Fall through - still annotate the read itself normally below.
             if reg == 0x37 and len(resp) >= 1:
                 self.put(ss, es, self.out_ann,
                          [ANN_REG_READ, ['Read %s: 0x%02X' % (name, resp[0]), '%s=0x%02X' % (name, resp[0])]])
@@ -247,6 +259,10 @@ class Decoder(srd.Decoder):
             return
         # Write: addr byte + 1 or more data bytes
         if reg == 0x01 and len(self.mosi_buf) >= 2:
+            if (self.mosi_buf[1] & 0x0F) == 0x0F:  # SoftReset
+                self._reset_pending = True
+                self.put(ss, es, self.out_ann,
+                         [ANN_RESET_RECOVERY, ['reset_recovery_start', 'reset_start']])
             self.put(ss, es, self.out_ann,
                      [ANN_CMD_WRITE, [_decode_command_reg(self.mosi_buf[1]),
                                        'cmd=0x%02X' % (self.mosi_buf[1] & 0x0F)]])

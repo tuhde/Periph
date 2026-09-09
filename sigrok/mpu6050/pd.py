@@ -47,6 +47,15 @@ ACCEL_SENS = {0: 16384.0, 1: 8192.0, 2: 4096.0, 3: 2048.0}
 ANN_WRITE   = 0
 ANN_READ    = 1
 ANN_WARNING = 2
+# Conformance-check annotations (specs/testing_framework.md, "Conformance
+# Implementation"), added additively alongside the two rows above - never
+# remove/rename ANN_WRITE/ANN_READ/ANN_WARNING, PulseView manual
+# verification already depends on them. Text is the literal check name
+# specs/imu/mpu6050_timing.conf's check names match against.
+ANN_RESET_RECOVERY_START = 3
+ANN_RESET_RECOVERY_DONE  = 4
+ANN_GYRO_STARTUP_START   = 5
+ANN_GYRO_STARTUP_DONE    = 6
 
 
 def _signed16(hi, lo):
@@ -159,10 +168,16 @@ class Decoder(srd.Decoder):
         ('reg-write', 'Register write'),
         ('reg-read',  'Register read'),
         ('warning',   'Warning'),
+        ('reset-recovery-start', 'Reset recovery: DEVICE_RESET written'),
+        ('reset-recovery-done', 'Reset recovery: PWR_MGMT_1 rewritten'),
+        ('gyro-startup-start', 'Gyro startup: SLEEP cleared'),
+        ('gyro-startup-done', 'Gyro startup: first sensor read'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('conformance', 'Conformance', (ANN_RESET_RECOVERY_START, ANN_RESET_RECOVERY_DONE,
+                                         ANN_GYRO_STARTUP_START, ANN_GYRO_STARTUP_DONE)),
     )
 
     def __init__(self):
@@ -188,6 +203,14 @@ class Decoder(srd.Decoder):
 
         reg  = self.reg_ptr
         name = REGS.get(reg, 'Reg[0x%02X]' % reg) if reg is not None else '?'
+
+        if self.is_read and reg == 0x3B and self.databuf:
+            # gyro_startup_done: any sensor-data read at ACCEL_XOUT_H,
+            # regardless of burst length - emitted independently of the
+            # descriptive dispatch below, which only decodes full 14-byte
+            # bursts (see specs/imu/mpu6050_timing.conf's gyro_startup check).
+            self.put(self.ss_block, self.es, self.out_ann,
+                     [ANN_GYRO_STARTUP_DONE, ['gyro_startup_done', 'GD']])
 
         if self.is_read:
             if reg == 0x75 and len(self.databuf) == 1:
@@ -239,6 +262,25 @@ class Decoder(srd.Decoder):
                     desc = _decode_config(val)
                 elif reg == 0x6B:
                     desc = _decode_pwr_mgmt_1(val)
+                    if val & 0x80:
+                        # reset_recovery_start: DEVICE_RESET written (see
+                        # specs/imu/mpu6050_timing.conf's reset_recovery
+                        # check).
+                        self.put(self.ss_block, self.es, self.out_ann,
+                                 [ANN_RESET_RECOVERY_START, ['reset_recovery_start', 'RR']])
+                    else:
+                        # reset_recovery_done: any subsequent (non-reset)
+                        # PWR_MGMT_1 write - in practice the wake-up write
+                        # that follows DEVICE_RESET.
+                        self.put(self.ss_block, self.es, self.out_ann,
+                                 [ANN_RESET_RECOVERY_DONE, ['reset_recovery_done', 'RD']])
+                        if not (val & 0x40):
+                            # gyro_startup_start: SLEEP cleared, i.e. the
+                            # chip was just commanded awake (see
+                            # specs/imu/mpu6050_timing.conf's gyro_startup
+                            # check).
+                            self.put(self.ss_block, self.es, self.out_ann,
+                                     [ANN_GYRO_STARTUP_START, ['gyro_startup_start', 'GS']])
                 elif reg == 0x6C:
                     desc = _decode_pwr_mgmt_2(val)
                 elif reg == 0x23:

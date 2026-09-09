@@ -46,7 +46,7 @@ class Mfrc522Full extends Mfrc522Minimal {
             case 38: gain = RX_GAIN_38_DB; break
             case 43: gain = RX_GAIN_43_DB; break
             case 48: gain = RX_GAIN_48_DB; break
-            default: return
+            default: throw new IllegalArgumentException("Unsupported gain: ${dB} dB (choose 18, 23, 33, 38, 43, 48)")
         }
         try {
             int cur = readReg(REG_RF_CFG) & 0x8F

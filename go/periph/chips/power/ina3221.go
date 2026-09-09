@@ -370,13 +370,19 @@ func (d *INA3221Full) SetSummationChannels(channels []uint8, limitV float32) err
 	if err != nil {
 		return err
 	}
-	cfg &^= 0xE000
+	// SCC1/SCC2/SCC3 occupy bits 14/13/12 - clear all three (0x7000), not
+	// just bits 15:13 (0xE000), or a previously-set SCC3 would survive a
+	// call that no longer includes channel 3.
+	cfg &^= 0x7000
 	for _, ch := range channels {
 		idx, err := ina3221ValidChannel(ch)
 		if err != nil {
 			return err
 		}
-		cfg |= uint16(1) << uint(15-idx)
+		// SCC1/SCC2/SCC3 are bits 14/13/12 (same positions as CH1en/CH2en/
+		// CH3en in EnableChannel) - 14-idx, not 15-idx, or channel 1 (idx=0)
+		// would incorrectly toggle the reserved bit 15 instead of SCC1.
+		cfg |= uint16(1) << uint(14-idx)
 	}
 	if err := d.writeReg(ina3221RegMaskEn, cfg); err != nil {
 		return err
@@ -388,11 +394,14 @@ func (d *INA3221Full) SetSummationChannels(channels []uint8, limitV float32) err
 // SummationValue reads the Shunt-Voltage Sum Register and returns the
 // sum of the selected channels' shunt voltages in volts.
 func (d *INA3221Full) SummationValue() (float32, error) {
+	// The Sum register is 14-bit signed, left-aligned by 1 bit (bit 0
+	// reserved) -- not by 3 bits like the per-channel shunt registers --
+	// so the raw-as-i16 shortcut scale is 40e-6 / 2 = 20e-6, not 5e-6.
 	raw, err := d.readRegSigned(ina3221RegSum)
 	if err != nil {
 		return 0, err
 	}
-	return float32(raw) * 5e-6, nil
+	return float32(raw) * 20e-6, nil
 }
 
 // SetPowerValidLimits writes the Power-Valid upper and lower bus-voltage

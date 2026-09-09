@@ -35,7 +35,7 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut chip = match Bmp280Full::new(i2c, TEST_ADDR) {
+    let mut chip = match Bmp280Full::new(i2c, TEST_ADDR, false) {
         Ok(c) => c,
         Err(_) => {
             println!("FAIL init: could not reach BMP280 at 0x{:02X}", TEST_ADDR);

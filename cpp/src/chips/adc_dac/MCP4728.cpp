@@ -153,10 +153,11 @@ void MCP4728Full::_single_write(uint8_t channel, uint16_t code, uint8_t vref,
                                 uint8_t pd, uint8_t gain, uint8_t udac) {
     if (channel > 3) channel = 3;
     if (code > 4095) code = 4095;
+    uint8_t g = (gain == 2) ? 1 : 0;
     uint8_t buf[3] = {
         (uint8_t)(CMD_SINGLE_WRITE | ((channel & 0x03) << 1) | (udac & 0x01)),
         (uint8_t)(((vref & 0x01) << 7) | ((pd & 0x03) << 5) |
-                  ((gain & 0x01) << 4) | ((code >> 8) & 0x0F)),
+                  (g << 4) | ((code >> 8) & 0x0F)),
         (uint8_t)(code & 0xFF)
     };
     _connection.write(buf, 3);

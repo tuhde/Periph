@@ -8,6 +8,8 @@ ANN_WRITE     = 0
 ANN_READ      = 1
 ANN_GC        = 2
 ANN_WARNING   = 3
+ANN_EEPROM_WRITE_START = 4
+ANN_EEPROM_WRITE_DONE  = 5
 
 VREF_NAMES = {0: 'V_DD', 1: 'INT (2.048V)'}
 PD_NAMES   = {0: 'Normal', 1: '1kΩ→GND', 2: '100kΩ→GND', 3: '500kΩ→GND'}
@@ -64,14 +66,17 @@ class Decoder(srd.Decoder):
     tags = ['IC', 'DAC']
 
     annotations = (
-        ('write',  'Write'),
-        ('read',   'Read'),
-        ('gc',     'General Call'),
-        ('warning','Warning'),
+        ('write',              'Write'),
+        ('read',               'Read'),
+        ('gc',                 'General Call'),
+        ('warning',            'Warning'),
+        ('eeprom-write-start', 'EEPROM write start'),
+        ('eeprom-write-done',  'EEPROM write done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ, ANN_GC)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_EEPROM_WRITE_START, ANN_EEPROM_WRITE_DONE)),
     )
 
     def __init__(self):
@@ -123,6 +128,13 @@ class Decoder(srd.Decoder):
             self._warn(ss, es,
                        'Unexpected read length %d (expected 24)' % len(buf))
             return
+        # Named timing annotation (see specs/adc_dac/mcp4728_timing.conf,
+        # check "eeprom_write_time"): RDY/BSY (bit 7 of byte 0, shared across
+        # all four channels' input registers) marks any read that observes
+        # no EEPROM write in progress.
+        if (buf[0] >> 7) & 0x01:
+            self._emit(ANN_EEPROM_WRITE_DONE, ss, es,
+                       ['eeprom_write_done', 'EE-W done'])
         # 4 channels × 3 bytes input register + 3 bytes EEPROM
         for i, ch in enumerate(CHANNELS):
             inp = buf[i * 3: i * 3 + 3]
@@ -224,6 +236,11 @@ class Decoder(srd.Decoder):
                 s += ' UDAC=%d' % udac
                 self._emit(ANN_WRITE, ss, es,
                            [s, 'SW %d 0x%02X' % (n, buf[0])])
+                # Named timing annotation (see specs/adc_dac/mcp4728_timing.conf,
+                # check "eeprom_write_time"): Sequential Write always persists
+                # to EEPROM at the end of the transaction.
+                self._emit(ANN_EEPROM_WRITE_START, ss, es,
+                           ['eeprom_write_start', 'EE-W start'])
                 return
             if w == 0b11:
                 # Single Write: 1 + 2 = 3 bytes (one channel + EEPROM)
@@ -238,6 +255,11 @@ class Decoder(srd.Decoder):
                 s += ' UDAC=%d' % udac
                 self._emit(ANN_WRITE, ss, es,
                            [s, 'SW+EE %s 0x%03X' % (ch_letter, code)])
+                # Named timing annotation (see specs/adc_dac/mcp4728_timing.conf,
+                # check "eeprom_write_time"): Single Write always persists to
+                # EEPROM.
+                self._emit(ANN_EEPROM_WRITE_START, ss, es,
+                           ['eeprom_write_start', 'EE-W start'])
                 return
 
         # 00x xxx = Fast Write (8 data bytes, A→D)

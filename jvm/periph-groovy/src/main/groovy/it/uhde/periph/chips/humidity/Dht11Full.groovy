@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.humidity
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.DHTxxConnection
+import it.uhde.periph.connection.DHTxxConn
 
 /**
  * DHT11 — combined temperature and humidity sensor (full driver).
@@ -15,11 +15,11 @@ class Dht11Full extends Dht11Minimal {
 
     private final int maxRetries
 
-    Dht11Full(DHTxxConnection connection) {
+    Dht11Full(DHTxxConn connection) {
         this(connection, 3)
     }
 
-    Dht11Full(DHTxxConnection connection, int maxRetries) {
+    Dht11Full(DHTxxConn connection, int maxRetries) {
         super(connection)
         this.maxRetries = maxRetries
     }

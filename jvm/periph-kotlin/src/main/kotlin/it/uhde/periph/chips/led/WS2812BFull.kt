@@ -38,6 +38,7 @@ class WS2812BFull(connection: Connection, n: Int) : WS2812BMinimal(connection, n
      * @param b blue channel (0–255)
      */
     fun setPixel(index: Int, r: Int, g: Int, b: Int) {
+        if (n == 0) return
         val i = index.coerceIn(0, n - 1)
         buf[i * 3]     = g.coerceIn(0, 255).toByte()
         buf[i * 3 + 1] = r.coerceIn(0, 255).toByte()
@@ -83,6 +84,7 @@ class WS2812BFull(connection: Connection, n: Int) : WS2812BMinimal(connection, n
      * @param steps number of pixel positions to shift left (default 1)
      */
     fun rotate(steps: Int = 1) {
+        if (n == 0) return
         val s = ((steps % n) + n) % n
         if (s == 0) return
         val s3 = s * 3

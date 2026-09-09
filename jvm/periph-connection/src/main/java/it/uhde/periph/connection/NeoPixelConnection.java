@@ -16,7 +16,7 @@ import java.lang.invoke.*;
  * <p>Connect the WS2812B DIN pin to the SPI MOSI pin. SCK, MISO, and CS are
  * unused by the LED strip.
  */
-public final class NeoPixelConnection extends AbstractConnection {
+public final class NeoPixelConnection extends AbstractConnection implements ResetExtender {
 
     private static final int O_RDWR = 2;
 
@@ -108,15 +108,37 @@ public final class NeoPixelConnection extends AbstractConnection {
     }
 
     /**
-     * Encode {@code data} with the 3-bit SPI scheme and transmit as a single
-     * SPI_IOC_MESSAGE transfer (continuous CS, no inter-byte gaps).
+     * Encode {@code data} with the default 16-byte (≈53 µs) reset and
+     * transmit. Delegates to {@link #writeExt}; chips needing a longer
+     * minimum reset (e.g. SK6812RGBW's ≥80 µs) should call that directly —
+     * see {@link ResetExtender}.
      *
      * @param data raw GRB bytes to send (n pixels × 3 bytes each)
      * @throws IOException on SPI error
      */
     @Override
     protected void _write(byte[] data) throws IOException {
-        byte[] encoded = encode(data);
+        // AbstractConnection.write() already checked isEnabled() before
+        // calling this, but writeExt() re-checks it too since chip drivers
+        // needing a longer reset call it directly, bypassing that gate.
+        writeExt(data, 16);
+    }
+
+    /**
+     * Encode {@code data} with the 3-bit SPI scheme and {@code resetBytes}
+     * trailing zero bytes for the reset, then transmit as a single
+     * SPI_IOC_MESSAGE transfer (continuous CS, no inter-byte gaps).
+     *
+     * @param data       raw GRB(W) bytes to send
+     * @param resetBytes trailing zero bytes to append after encoding
+     *                   ({@code resetBytes * 416.7 ns} at the fixed 2.4 MHz
+     *                   encoding rate)
+     * @throws IOException on SPI error
+     */
+    @Override
+    public void writeExt(byte[] data, int resetBytes) throws IOException {
+        if (!isEnabled()) return;
+        byte[] encoded = encode(data, resetBytes);
         try (var arena = Arena.ofConfined()) {
             var txBuf = arena.allocate(encoded.length);
             txBuf.copyFrom(MemorySegment.ofArray(encoded));
@@ -162,11 +184,12 @@ public final class NeoPixelConnection extends AbstractConnection {
     // BCM2835 SPI0 uses DMA (gap-free) for transfers >= 96 bytes; below that it
     // falls back to polling mode which has inter-byte MOSI gaps that corrupt
     // NeoPixel timing. Pad to at least 96 bytes with trailing zeros (extra reset).
-    // Each input byte → 3 SPI bytes (24 bits); 16 trailing zeros = ≥50 µs reset.
+    // Each input byte → 3 SPI bytes (24 bits); resetBytes trailing zeros give
+    // resetBytes * 416.7 ns of reset (16 bytes = ≥50 µs, WS2812B's default).
     private static final int BCM2835_DMA_MIN_LEN = 96;
 
-    private static byte[] encode(byte[] data) {
-        byte[] out = new byte[Math.max(data.length * 3 + 16, BCM2835_DMA_MIN_LEN)];
+    private static byte[] encode(byte[] data, int resetBytes) {
+        byte[] out = new byte[Math.max(data.length * 3 + resetBytes, BCM2835_DMA_MIN_LEN)];
         for (int i = 0; i < data.length; i++) {
             int b = data[i] & 0xFF;
             int bits = 0;

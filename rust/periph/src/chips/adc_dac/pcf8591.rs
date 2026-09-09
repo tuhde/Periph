@@ -183,3 +183,71 @@ impl<I2C: I2c> Pcf8591Full<I2C> {
         self.inner.i2c.write(self.inner.addr, &[ctrl])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x48;
+
+    #[test]
+    fn full_api() {
+        let transactions = vec![
+            // read_channel(2): writes control CHN=2, reads 2 bytes; byte0 stale, byte1 fresh.
+            I2cTransaction::write(ADDR, vec![0x02]),
+            I2cTransaction::read(ADDR, vec![0x11, 0x7F]),
+            // read_channel(9) clamps to channel 0.
+            I2cTransaction::write(ADDR, vec![0x00]),
+            I2cTransaction::read(ADDR, vec![0x00, 0x55]),
+            // read_all(): control AI=1 (0x04), reads 5 bytes, discards stale byte.
+            I2cTransaction::write(ADDR, vec![0x04]),
+            I2cTransaction::read(ADDR, vec![0x00, 0x10, 0x20, 0x30, 0x40]),
+            // configure(3, true, true) -> control 0x74.
+            I2cTransaction::write(ADDR, vec![0x74]),
+            // read_channel_voltage(0, 3.3, 0.0): read_channel ignores cached control (Minimal).
+            I2cTransaction::write(ADDR, vec![0x00]),
+            I2cTransaction::read(ADDR, vec![0x00, 128]),
+            // read_all_voltage(3.3, 0.0).
+            I2cTransaction::write(ADDR, vec![0x04]),
+            I2cTransaction::read(ADDR, vec![0x00, 0, 64, 128, 255]),
+            // read_differential(1): ctrl = control(0x74) | channel(1) = 0x75.
+            I2cTransaction::write(ADDR, vec![0x75]),
+            I2cTransaction::read(ADDR, vec![0x00, 200]),
+            I2cTransaction::write(ADDR, vec![0x75]),
+            I2cTransaction::read(ADDR, vec![0x00, 100]),
+            // set_dac(200): ctrl = (0x74|0x40) & !0x04 = 0x70.
+            I2cTransaction::write(ADDR, vec![0x70, 200]),
+            // set_dac_voltage(0.5): (0.5*255.0) as u8 truncates to 127, ctrl stays 0x70.
+            I2cTransaction::write(ADDR, vec![0x70, 127]),
+            // disable_dac(): clears AOE -> 0x30.
+            I2cTransaction::write(ADDR, vec![0x30]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+        let mut adc = Pcf8591Full::new(i2c, ADDR).expect("init");
+
+        assert_eq!(adc.read_channel(2).unwrap(), 0x7F);
+        assert_eq!(adc.read_channel(9).unwrap(), 0x55);
+        assert_eq!(adc.read_all().unwrap(), [0x10, 0x20, 0x30, 0x40]);
+
+        adc.configure(3, true, true).unwrap();
+
+        let v = adc.read_channel_voltage(0, 3.3, 0.0).unwrap();
+        assert!((v - (128.0 * 3.3 / 256.0)).abs() < 1e-4);
+
+        let voltages = adc.read_all_voltage(3.3, 0.0).unwrap();
+        let raws = [0.0f32, 64.0, 128.0, 255.0];
+        for i in 0..4 {
+            assert!((voltages[i] - raws[i] * 3.3 / 256.0).abs() < 1e-4);
+        }
+
+        assert_eq!(adc.read_differential(1).unwrap(), -56);
+        assert_eq!(adc.read_differential(1).unwrap(), 100);
+
+        adc.set_dac(200).unwrap();
+        adc.set_dac_voltage(0.5).unwrap();
+        adc.disable_dac().unwrap();
+
+        adc.inner.i2c.done();
+    }
+}

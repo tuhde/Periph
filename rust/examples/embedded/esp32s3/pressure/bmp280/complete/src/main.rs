@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp280Full::new(i2c, ADDR).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
+    let mut bmp = Bmp280Full::new(i2c, ADDR, false).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
     let cid = bmp.chip_id().expect("read chip id");                 // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                              // returns 0x58 for BMP280
     bmp.configure(OSRS_X1, OSRS_X1, MODE_FORCED, FILTER_OFF, T_SB_0_5_MS).expect("configure");  // Configure chip, (osrs_t 0–5, osrs_p 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → ()

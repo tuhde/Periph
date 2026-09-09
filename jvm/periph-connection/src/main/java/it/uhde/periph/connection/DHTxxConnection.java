@@ -30,11 +30,13 @@ import java.lang.foreign.Linker;
  *
  * <p>This is a custom protocol with no generic byte read/write, so it does
  * not implement {@link Connection} — it carries its own enabled flag and
- * EN pin instead.
+ * EN pin instead. It implements the narrower {@link DHTxxConn} capability
+ * ({@code read()} only), which chip drivers depend on so a fake connection
+ * can stand in for unit testing.
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public class DHTxxConnection implements AutoCloseable {
+public class DHTxxConnection implements AutoCloseable, DHTxxConn {
 
     /** Raised when the DHTxx connection cannot complete a read. */
     public static class DHTxxConnectionException extends IOException {
@@ -293,6 +295,7 @@ public class DHTxxConnection implements AutoCloseable {
      * @return 5 bytes — [hum_int, hum_dec, temp_int, temp_dec, checksum].
      * @throws DHTxxConnectionException On timeout or framing error.
      */
+    @Override
     public byte[] read() throws IOException {
         if (!enabled) return new byte[5];
 

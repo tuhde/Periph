@@ -6,6 +6,7 @@
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 #include "I2CConnectionLinux.h"
 #include "ENS160.h"
 

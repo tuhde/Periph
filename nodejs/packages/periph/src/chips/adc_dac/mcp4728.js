@@ -284,10 +284,11 @@ class MCP4728Full extends MCP4728Minimal {
     async _single_write(channel, code, vref, pd, gain, udac) {
         const ch = Math.max(0, Math.min(3, channel | 0));
         const c = Math.max(0, Math.min(4095, code | 0));
+        const g = (gain === 2) ? 1 : 0;
         const buf = Buffer.alloc(3);
         buf[0] = CMD_SINGLE_WRITE | ((ch & 0x03) << 1) | (udac & 0x01);
         buf[1] = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) |
-                 ((gain & 0x01) << 4) | ((c >> 8) & 0x0F);
+                 (g << 4) | ((c >> 8) & 0x0F);
         buf[2] = c & 0xFF;
         await this._conn.write(buf);
     }

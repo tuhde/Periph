@@ -5,6 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c_master.h"
+#include "esp_idf_version.h"
 #include "I2CConnectionESPIDF.h"
 #include "ENS160.h"
 
@@ -35,7 +36,16 @@ extern "C" void app_main(void) {
         .scl_io_num = static_cast<gpio_num_t>(22),
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .glitch_ignore_cnt = 7,
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+        // intr_priority/trans_queue_depth/flags.allow_pd were added to
+        // i2c_master_bus_config_t in ESP-IDF v6.0 - this repo's CI still
+        // pins v5.2.7, where these fields don't exist on the struct.
+        .intr_priority = 0,
+        .trans_queue_depth = 0,
+        .flags = { .enable_internal_pullup = true, .allow_pd = false },
+#else
         .flags = { .enable_internal_pullup = true },
+#endif
     };
     i2c_master_bus_handle_t bus;
     i2c_new_master_bus(&bus_cfg, &bus);
@@ -44,6 +54,12 @@ extern "C" void app_main(void) {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address  = 0x52,
         .scl_speed_hz    = 400000,
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
+        // scl_wait_us/flags were added to i2c_device_config_t in v6.0 -
+        // see the bus_cfg comment above.
+        .scl_wait_us     = 0,
+        .flags           = {},
+#endif
     };
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);

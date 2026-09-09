@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <cmath>
 
-#ifndef ARDUINO
-#ifdef __ZEPHYR__
+#ifdef ARDUINO
+#include <Arduino.h>
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 static inline void delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
@@ -16,7 +17,6 @@ static inline void delay(unsigned long ms) { sleep_ms(ms); }
 #else
 #include <unistd.h>
 static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
-#endif
 #endif
 
 ENS160Minimal::ENS160Minimal(Connection& connection)
@@ -57,26 +57,17 @@ uint8_t ENS160Minimal::_read_device_status() {
 }
 
 bool ENS160Minimal::_wait_for_new_data(uint32_t timeout_ms) {
-    uint32_t start = 0;
-    #ifdef ARDUINO
-    start = millis();
-    #else
-    start = 0;
-    #endif
+    uint32_t elapsed_ms = 0;
     while (true) {
         uint8_t status = _read_device_status();
         if (status & 0x02) {
             return true;
         }
-        #ifdef ARDUINO
-        if (millis() - start > timeout_ms) {
+        if (elapsed_ms >= timeout_ms) {
             return false;
         }
-        #else
-        (void)start;
-        (void)timeout_ms;
-        #endif
         delay(10);
+        elapsed_ms += 10;
     }
 }
 

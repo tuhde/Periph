@@ -166,6 +166,11 @@ public class Ina219Full extends Ina219Minimal {
                | ((sadc & 0x0F) << 3)
                | (mode  & 0x07);
         writeReg(REG_CONFIG, config);
+        // Per the chip spec's configure() contract, the Calibration Register
+        // is re-written after every Configuration Register write (matching
+        // every other language's driver for this chip).
+        int cal = (int) (0.04096 / (currentLsb * rShunt)) & 0xFFFE;
+        writeReg(REG_CALIBRATE, cal);
     }
 
     // ------------------------------------------------------------------

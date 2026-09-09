@@ -75,3 +75,43 @@ func (b *connectionBase) IntPin() InputPin { return b.intPin }
 
 // EnPin returns the OutputPin wired to this device's EN line, or nil.
 func (b *connectionBase) EnPin() OutputPin { return b.enPin }
+
+// ResetExtender is an optional capability a Connection implementation may
+// support: a Write variant that appends a caller-chosen number of trailing
+// zero bytes *after* whatever bit-encoding it applies, instead of a fixed
+// default. NeoPixelConnection (Linux) implements this so chips needing a
+// longer minimum reset pulse than WS2812B's default (e.g. SK6812RGBW's
+// >=80us vs. the connection's default ~53us) can request one - see
+// NeoPixelConnection.WriteExt. Padding the *pre-encoded* data buffer with
+// extra zero bytes instead (as this repo's own drivers used to do) does not
+// achieve this: those bytes get bit-encoded as more zero-value data bits,
+// which is periodic low-with-brief-highs, not the continuous low a reset
+// pulse actually requires - check for this interface via a type assertion
+// rather than assuming every Connection accepts a longer reset.
+type ResetExtender interface {
+	WriteExt(data []byte, resetBytes int) error
+}
+
+// HX711Conn is the abstraction HX711Minimal/HX711Full depend on, satisfied
+// by *HX711Connection on both Linux and TinyGo. It is not the same as
+// Connection: HX711's 2-wire bit-bang protocol has no byte-oriented
+// read/write, so it needs its own narrow interface instead of the shared
+// one every I2C/SPI/NeoPixel chip driver uses (see HX711Connection's own
+// doc comment in hx711_linux.go / hx711_tinygo.go). Kept separate so unit
+// tests can substitute an in-memory fake without touching real hardware.
+type HX711Conn interface {
+	IsReady() (bool, error)
+	ReadRaw(numPulses int) (int32, error)
+	PowerDown() error
+	PowerUp() error
+}
+
+// DHTxxConn is the abstraction DHT11Minimal/DHT11Full depend on, satisfied
+// by *DHTxxConnection on both Linux and TinyGo. Like HX711Conn, this is not
+// the shared Connection interface: DHTxx's single-wire protocol has no
+// separate write/writeRead phase (see DHTxxConnection's own doc comment in
+// dhtxx_linux.go / dhtxx_tinygo.go). Kept separate so unit tests can
+// substitute an in-memory fake without touching real hardware.
+type DHTxxConn interface {
+	Read() ([]byte, error)
+}

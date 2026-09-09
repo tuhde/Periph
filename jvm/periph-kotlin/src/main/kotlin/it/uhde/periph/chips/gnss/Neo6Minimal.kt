@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gnss
 
+import it.uhde.periph.connection.AvailableConnection
 import it.uhde.periph.connection.Connection
-import it.uhde.periph.connection.UARTConnection
 
 /**
  * Connection kind [Neo6Minimal] was constructed with.
@@ -85,7 +85,7 @@ open class Neo6Minimal @JvmOverloads constructor(
     /** Fetch one byte if available, or null if none is ready yet. */
     protected fun readByte(): Int? {
         return if (busType == BusType.UART) {
-            val uart = connection as UARTConnection
+            val uart = connection as AvailableConnection
             if (uart.available() <= 0) return null
             val b = connection.read(1)
             if (b.isNotEmpty()) b[0].toInt() and 0xFF else null

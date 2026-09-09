@@ -349,11 +349,14 @@ class MFRC522Full extends MFRC522Minimal {
      * Set the receiver gain.
      * @param {number} dB - One of 18, 23, 33, 38, 43, or 48 dB.
      * @returns {Promise<void>}
+     * @throws {RangeError} If dB is not one of the supported gains.
      */
     async setAntennaGain(dB) {
         const map = { 18: 0x00, 23: 0x10, 33: 0x40, 38: 0x50, 43: 0x60, 48: 0x70 };
         const gain = map[dB];
-        if (gain === undefined) return;
+        if (gain === undefined) {
+            throw new RangeError(`Unsupported gain: ${dB} dB (choose 18, 23, 33, 38, 43, 48)`);
+        }
         const cur = (await this._readReg(_REG_RF_CFG)) & 0x8F;
         await this._writeReg(_REG_RF_CFG, cur | gain);
     }

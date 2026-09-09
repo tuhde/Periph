@@ -272,7 +272,13 @@ Package: `node-red-contrib-periph-io-expander`
 
 ## Timing Constraints
 
-<!-- Startup time, I²C transaction latency, interrupt response latency. -->
+<!-- Startup time, I²C transaction latency, interrupt response latency.
+     Every constraint listed here that will get a conformance check (see
+     specs/testing_framework.md, "Conformance Implementation") must name the
+     sigrok decoder annotation pair that marks its start/end (e.g.
+     "conversion_start" / "conversion_done") - add that pairing to the Sigrok
+     Decoder section below, and mirror the bound + capture parameters in
+     specs/io_expander/<chip>_timing.conf. -->
 
 ## Implementation Notes
 
@@ -282,7 +288,13 @@ Package: `node-red-contrib-periph-io-expander`
 
 <!-- One paragraph describing what the sigrok decoder annotates: which registers,
      which bit fields, which computed values are shown. Mention input transport
-     (i2c or logic), the decoder id, and the addresses / channels it matches. -->
+     (i2c or logic), the decoder id, and the addresses / channels it matches.
+
+     For each Timing Constraint above that gets a conformance check, name the
+     annotation pair the decoder emits to mark it, e.g. "conversion_start" /
+     "conversion_done" - specs/io_expander/<chip>_timing.conf's check names
+     must match these annotation names exactly (see
+     specs/testing_framework.md, "Conformance Implementation"). -->
 
 ## Implementation Checklist
 
@@ -296,6 +308,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/io_expander/<chip>_test.py` (MicroPython)
 - [ ] Tests `python/tests/io_expander/<chip>_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/io_expander/<chip>_test_linux.py` (Linux)
+- [ ] Unit test `python/tests/io_expander/<chip>_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
 - [ ] Manifest `python/uiflow1/io_expander/<chip>/<chip>.json` — `Periph` category, `#C084FC` color
@@ -318,6 +331,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `cpp/tests/io_expander/<chip>_test/<chip>_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_linux/<chip>_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_zephyr/src/main.cpp` (Zephyr)
+- [ ] Unit test `cpp/tests/io_expander/<chip>_test_unit/<chip>_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
 - [ ] Driver `nodejs/packages/periph/src/chips/io_expander/<chip>.js` — JSDoc on every class and exported method; includes `_Pin` inner class
@@ -325,6 +339,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `nodejs/packages/periph/examples/io_expander/<chip>/complete.js` — Tier-1 + Tier-2
 - [ ] Examples `nodejs/packages/periph/examples/io_expander/<chip>/demo.js` — Tier-1 + Tier-3
 - [ ] Tests `nodejs/tests/io_expander/<chip>_test.js`
+- [ ] Unit test `nodejs/tests/io_expander/<chip>_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
 - [ ] Node runtime `nodejs/packages/node-red-contrib-periph-io-expander/nodes/<chip>/<chip>.js`
@@ -339,6 +354,19 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `rust/examples/<chip>_demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/io_expander/<chip>_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/io_expander/<chip>_test_esp32s3/src/main.rs` (ESP32-S3)
+- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/io_expander/<chip>.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+
+### Go
+- [ ] Driver `go/periph/chips/io_expander/<chip>.go` — Go doc comment on every exported type and method
+- [ ] Examples `go/examples/linux/io_expander/<chip>/minimal/minimal.go` — Tier-1 signature comment on every call
+- [ ] Examples `go/examples/linux/io_expander/<chip>/complete/complete.go` — Tier-1 + Tier-2
+- [ ] Examples `go/examples/linux/io_expander/<chip>/demo/demo.go` — Tier-1 + Tier-3
+- [ ] Examples `go/examples/tinygo/io_expander/<chip>/minimal/minimal.go` — Tier-1 (TinyGo)
+- [ ] Examples `go/examples/tinygo/io_expander/<chip>/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [ ] Examples `go/examples/tinygo/io_expander/<chip>/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [ ] Tests `go/tests/io_expander/<chip>_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [ ] Tests `go/tests/io_expander/<chip>_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [ ] Unit test `go/periph/chips/io_expander/<chip>_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/io_expander/<Chip>Minimal.java` — Javadoc on every class and public method; includes `Pin` inner class
@@ -357,7 +385,14 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `jvm/examples/groovy/io_expander/<chip>/Complete.groovy` — Tier-1 + Tier-2
 - [ ] Examples `jvm/examples/groovy/io_expander/<chip>/Demo.groovy` — Tier-1 + Tier-3
 - [ ] Tests `jvm/tests/io_expander/<chip>/<Chip>Test.java` (Pi hardware, JBang)
+- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/io_expander/<Chip>Test.java` (JUnit)
+- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/io_expander/<Chip>Test.kt` (Kotest/JUnit5)
+- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/io_expander/<Chip>Spec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
 - [ ] Decoder `sigrok/<chip>/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only; for every Timing Constraint above with a conformance check, also emits the named start/end annotation pair the Sigrok Decoder section names
+
+### Conformance
+- [ ] Checker `conformance/io_expander/<chip>_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [ ] Timing config `specs/io_expander/<chip>_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint

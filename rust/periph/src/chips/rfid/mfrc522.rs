@@ -187,15 +187,15 @@ impl<SPI: SpiDevice> Mfrc522Minimal<SPI> {
         Ok(false)
     }
 
-    fn transceive(&mut self, send: &[u8]) -> Result<Option<[u8; 64]>, SPI::Error> {
-        let len = self.card_command(CMD_TRANSCEIVE, IRQ_RX | IRQ_IDLE, send)?;
-        if !len { return Ok(None); }
+    fn transceive(&mut self, send: &[u8]) -> Result<Option<([u8; 64], usize)>, SPI::Error> {
+        let ok = self.card_command(CMD_TRANSCEIVE, IRQ_RX | IRQ_IDLE, send)?;
+        if !ok { return Ok(None); }
         let err = self.read_reg(REG_ERROR)?;
         if err & 0x13 != 0 { return Ok(None); }
         let fifo_level = self.read_reg(REG_FIFO_LEVEL)? as usize;
         if fifo_level == 0 { return Ok(None); }
         let out = self.read_fifo(fifo_level)?;
-        Ok(Some(out))
+        Ok(Some((out, fifo_level)))
     }
 
     fn calc_crc(&mut self, data: &[u8]) -> Result<[u8; 2], SPI::Error> {
@@ -221,8 +221,8 @@ impl<SPI: SpiDevice> Mfrc522Minimal<SPI> {
         send[1] = 0x20;
         delay_ms(1);
         let back = self.transceive(&send)?;
-        let back = match back { Some(b) => b, None => return Ok(None) };
-        if back[4] == 0 { return Ok(None); }
+        let (back, len) = match back { Some(b) => b, None => return Ok(None) };
+        if len != 5 { return Ok(None); }
         let mut bcc = 0;
         for i in 0..4 { bcc ^= back[i]; }
         if bcc != back[4] { return Ok(None); }
@@ -246,8 +246,8 @@ impl<SPI: SpiDevice> Mfrc522Minimal<SPI> {
         let back = self.transceive(&buf)?;
         self.write_reg(REG_TX_MODE, 0x00)?;
         self.write_reg(REG_RX_MODE, 0x00)?;
-        let back = match back { Some(b) => b, None => return Ok(None) };
-        if back[0] == 0 { return Ok(None); }
+        let (back, len) = match back { Some(b) => b, None => return Ok(None) };
+        if len < 1 { return Ok(None); }
         Ok(Some(back[0]))
     }
 
@@ -300,7 +300,7 @@ impl<SPI: SpiDevice> Mfrc522Minimal<SPI> {
         self.write_reg(REG_TX_MODE, 0x00)?;
         self.write_reg(REG_RX_MODE, 0x00)?;
         let back = self.transceive(&[PICC_REQA])?;
-        Ok(matches!(back, Some(b) if b[1] == 2))
+        Ok(matches!(back, Some((_, len)) if len == 2))
     }
 
     /// Detect a card, run anticollision/Select (all cascade levels), and HLTA.
@@ -413,7 +413,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
         let back = self.inner.transceive(&[PICC_WUPA])?;
-        Ok(matches!(back, Some(b) if b[1] == 2))
+        Ok(matches!(back, Some((_, len)) if len == 2))
     }
 
     /// Run anticollision / Select only — leaves the card active for further ops.
@@ -465,8 +465,8 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back = self.inner.transceive(&full)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        let back = match back { Some(b) => b, None => return Ok(None) };
-        if back[0] != 16 { return Ok(None); }
+        let (back, len) = match back { Some(b) => b, None => return Ok(None) };
+        if len != 16 { return Ok(None); }
         let mut out = [0u8; 16];
         out.copy_from_slice(&back[..16]);
         Ok(Some(out))
@@ -483,7 +483,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         full[..2].copy_from_slice(&c);
         full[2..].copy_from_slice(&crc);
         let back = self.inner.transceive(&full)?;
-        if !matches!(&back, Some(b) if b[0] & 0x0F == 0x0A) {
+        if !matches!(&back, Some((b, len)) if *len >= 1 && b[0] & 0x0F == 0x0A) {
             self.inner.write_reg(REG_TX_MODE, 0x00)?;
             self.inner.write_reg(REG_RX_MODE, 0x00)?;
             return Ok(false);
@@ -496,7 +496,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back2 = self.inner.transceive(&buf)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        Ok(matches!(back2, Some(b) if b[0] & 0x0F == 0x0A))
+        Ok(matches!(back2, Some((b, len)) if len >= 1 && b[0] & 0x0F == 0x0A))
     }
 
     /// Increment the value block at `block_address` by `delta` and transfer it back.
@@ -531,7 +531,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         full[..2].copy_from_slice(&c);
         full[2..].copy_from_slice(&crc);
         let back = self.inner.transceive(&full)?;
-        if !matches!(&back, Some(b) if b[0] & 0x0F == 0x0A) {
+        if !matches!(&back, Some((b, len)) if *len >= 1 && b[0] & 0x0F == 0x0A) {
             self.inner.write_reg(REG_TX_MODE, 0x00)?;
             self.inner.write_reg(REG_RX_MODE, 0x00)?;
             return Ok(false);
@@ -550,7 +550,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back2 = self.inner.transceive(&data)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        Ok(matches!(back2, Some(b) if b[0] & 0x0F == 0x0A))
+        Ok(matches!(back2, Some((b, len)) if len >= 1 && b[0] & 0x0F == 0x0A))
     }
 
     fn transfer(&mut self, block_address: u8) -> Result<bool, SPI::Error> {
@@ -564,7 +564,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back = self.inner.transceive(&full)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        Ok(matches!(back, Some(b) if b[0] & 0x0F == 0x0A))
+        Ok(matches!(back, Some((b, len)) if len >= 1 && b[0] & 0x0F == 0x0A))
     }
 
     /// Read 4 consecutive pages (16 bytes) starting at `page_address`.
@@ -579,8 +579,8 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back = self.inner.transceive(&full)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        let back = match back { Some(b) => b, None => return Ok(None) };
-        if back[0] != 16 { return Ok(None); }
+        let (back, len) = match back { Some(b) => b, None => return Ok(None) };
+        if len != 16 { return Ok(None); }
         let mut out = [0u8; 16];
         out.copy_from_slice(&back[..16]);
         Ok(Some(out))
@@ -599,7 +599,7 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
         let back = self.inner.transceive(&buf)?;
         self.inner.write_reg(REG_TX_MODE, 0x00)?;
         self.inner.write_reg(REG_RX_MODE, 0x00)?;
-        Ok(matches!(back, Some(b) if b[0] & 0x0F == 0x0A))
+        Ok(matches!(back, Some((b, len)) if len >= 1 && b[0] & 0x0F == 0x0A))
     }
 
     /// Run the Generate RandomID command and return the 10-byte ID.
@@ -627,5 +627,350 @@ impl<SPI: SpiDevice> Mfrc522Full<SPI> {
     /// Detect a card, run anticollision/Select (all cascade levels), and HLTA.
     pub fn read_uid(&mut self) -> Result<Option<([u8; 10], usize)>, SPI::Error> {
         self.inner.read_uid()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    // NXP self-test reference table for firmware v1.0 (VersionReg = 0x91).
+    const REF_V10: [u8; 64] = [
+        0x00, 0x87, 0x98, 0x0F, 0x49, 0xFF, 0x07, 0x19,
+        0xBF, 0x22, 0x30, 0x49, 0x59, 0x63, 0xAD, 0xCA,
+        0x7F, 0xE3, 0x4E, 0x03, 0x5C, 0x4E, 0x49, 0x50,
+        0x47, 0x9A, 0x37, 0x61, 0xE7, 0xE2, 0xC6, 0x2E,
+        0x75, 0x5A, 0xED, 0x04, 0x3D, 0x02, 0x4B, 0x78,
+        0x32, 0xFF, 0x58, 0x3B, 0x7C, 0xE9, 0x00, 0x94,
+        0xB4, 0x4A, 0x59, 0x5B, 0xFD, 0xC9, 0x29, 0xDF,
+        0x35, 0x96, 0x98, 0x9E, 0x4F, 0x30, 0x32, 0x8D,
+    ];
+
+    // Every SPI call the driver makes is a single `SpiDevice` convenience
+    // method (`write`/`transfer`), and each of those lowers to exactly one
+    // `transaction()` call wrapping a single operation - so every register
+    // access is `[transaction_start, <op>, transaction_end]` on the mock's
+    // ordered expectation queue. w()/r() build that triple for one register
+    // write/read; the higher-level *_seq() helpers below stitch together the
+    // exact SPI sequence a given driver method issues, byte for byte, so
+    // that every scripted poll loop (PowerDown-clear, ComIrq, DivIrq, ...)
+    // succeeds on its first check and the expectation list stays finite.
+
+    fn w(reg: u8, value: u8) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![addr_for(reg, false), value]),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn r(reg: u8, response: u8) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::transfer(vec![addr_for(reg, true)], vec![response]),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    // init_chip(): SoftReset, PowerDown-clear poll (exits on the first read),
+    // timer/ForceASK/Mode registers, then antenna-on (set_bits reads current
+    // TxControlReg, ORs in 0x03, and writes it back).
+    fn init_seq() -> Vec<SpiTransaction<u8>> {
+        let mut v = Vec::new();
+        v.extend(w(REG_COMMAND, CMD_SOFT_RESET));
+        v.extend(r(REG_COMMAND, 0x00));
+        v.extend(w(REG_T_MODE, 0x80));
+        v.extend(w(REG_T_PRESCALER, 0xA9));
+        v.extend(w(REG_T_RELOAD_H, 0x03));
+        v.extend(w(REG_T_RELOAD_L, 0xE8));
+        v.extend(w(REG_TX_ASK, 0x40));
+        v.extend(w(REG_MODE, 0x3D));
+        v.extend(r(REG_TX_CONTROL, 0x00));
+        v.extend(w(REG_TX_CONTROL, 0x03));
+        v
+    }
+
+    // card_command(TRANSCEIVE, ...): Idle, clear all IRQs, flush+fill FIFO,
+    // start Transceive, set StartSend (BitFramingReg |= 0x80), then poll
+    // ComIrqReg - `irq_resp` is the byte returned on that single poll.
+    fn card_command_seq(send: &[u8], irq_resp: u8) -> Vec<SpiTransaction<u8>> {
+        let mut v = Vec::new();
+        v.extend(w(REG_COMMAND, CMD_IDLE));
+        v.extend(w(REG_COM_IRQ, IRQ_ALL));
+        v.extend(w(REG_FIFO_LEVEL, FIFO_FLUSH));
+        for &b in send {
+            v.extend(w(REG_FIFO_DATA, b));
+        }
+        v.extend(w(REG_COMMAND, CMD_TRANSCEIVE));
+        v.extend(r(REG_BIT_FRAMING, 0x00));
+        v.extend(w(REG_BIT_FRAMING, 0x80));
+        v.extend(r(REG_COM_IRQ, irq_resp));
+        v
+    }
+
+    // transceive(): a successful card_command() followed by an ErrorReg
+    // check and a FIFO drain of exactly `resp.len()` bytes.
+    fn transceive_ok_seq(send: &[u8], resp: &[u8]) -> Vec<SpiTransaction<u8>> {
+        let mut v = card_command_seq(send, IRQ_RX | IRQ_IDLE);
+        v.extend(r(REG_ERROR, 0x00));
+        v.extend(r(REG_FIFO_LEVEL, resp.len() as u8));
+        for &b in resp {
+            v.extend(r(REG_FIFO_DATA, b));
+        }
+        v
+    }
+
+    // transceive(): card_command() reports TimerIRq only (no card answered) -
+    // no ErrorReg/FIFO read follows.
+    fn transceive_fail_seq(send: &[u8]) -> Vec<SpiTransaction<u8>> {
+        card_command_seq(send, 0x01)
+    }
+
+    // calc_crc(): Idle, clear DivIrqReg's CRCIRq, flush+fill FIFO, start
+    // CalcCRC, poll DivIrqReg (one check, scripted to succeed immediately),
+    // Idle, then read back CRC_RESULT_H/L.
+    fn calc_crc_seq(data: &[u8], crc: [u8; 2]) -> Vec<SpiTransaction<u8>> {
+        let mut v = Vec::new();
+        v.extend(w(REG_COMMAND, CMD_IDLE));
+        v.extend(w(REG_DIV_IRQ, 0x04));
+        v.extend(w(REG_FIFO_LEVEL, FIFO_FLUSH));
+        for &b in data {
+            v.extend(w(REG_FIFO_DATA, b));
+        }
+        v.extend(w(REG_COMMAND, CMD_CALC_CRC));
+        v.extend(r(REG_DIV_IRQ, 0x04));
+        v.extend(w(REG_COMMAND, CMD_IDLE));
+        v.extend(r(REG_CRC_RESULT_H, crc[0]));
+        v.extend(r(REG_CRC_RESULT_L, crc[1]));
+        v
+    }
+
+    #[test]
+    fn init_sequence() {
+        let spi = SpiMock::new(&init_seq());
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn is_card_present_true() {
+        let mut t = init_seq();
+        t.extend(w(REG_BIT_FRAMING, 0x07));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        t.extend(transceive_ok_seq(&[PICC_REQA], &[0x04, 0x00]));
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert!(sensor.is_card_present().unwrap());
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn is_card_present_false() {
+        let mut t = init_seq();
+        t.extend(w(REG_BIT_FRAMING, 0x07));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        t.extend(transceive_fail_seq(&[PICC_REQA]));
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert!(!sensor.is_card_present().unwrap());
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn read_uid_single_cascade_level() {
+        let uid = [0x12u8, 0x34, 0x56, 0x78];
+        let bcc = uid.iter().fold(0u8, |a, &b| a ^ b);
+
+        let mut t = init_seq();
+        // is_card_present() -> REQA -> 2-byte ATQA
+        t.extend(w(REG_BIT_FRAMING, 0x07));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        t.extend(transceive_ok_seq(&[PICC_REQA], &[0x04, 0x00]));
+        // anticollision(CL1): 0x93 0x20 + 5 zero-padding bytes -> UID+BCC
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        t.extend(w(REG_BIT_FRAMING, 0x00));
+        let anti_send = [0x93u8, 0x20, 0, 0, 0, 0, 0];
+        t.extend(transceive_ok_seq(&anti_send, &[uid[0], uid[1], uid[2], uid[3], bcc]));
+        // select(CL1): cmd+sel_bit+uid+bcc+CRC -> SAK=0x00 (complete, single-size UID)
+        let sel_head = [0x93u8, 0x70, uid[0], uid[1], uid[2], uid[3], bcc];
+        t.extend(calc_crc_seq(&sel_head, [0xAB, 0xCD]));
+        t.extend(w(REG_TX_MODE, 0x80));
+        t.extend(w(REG_RX_MODE, 0x80));
+        let sel_full = [0x93u8, 0x70, uid[0], uid[1], uid[2], uid[3], bcc, 0xAB, 0xCD];
+        t.extend(transceive_ok_seq(&sel_full, &[0x00]));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        // halt_card(): HLTA + CRC, Transceive result ignored
+        t.extend(w(REG_TX_MODE, 0x80));
+        t.extend(w(REG_RX_MODE, 0x80));
+        t.extend(calc_crc_seq(&[0x50, 0x00], [0xAB, 0xCD]));
+        t.extend(card_command_seq(&[0x50, 0x00, 0xAB, 0xCD], IRQ_RX | IRQ_IDLE));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        let (got, len) = sensor.read_uid().unwrap().expect("card present");
+        assert_eq!(len, 4);
+        assert_eq!(&got[..4], &uid);
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn read_uid_none() {
+        let mut t = init_seq();
+        t.extend(w(REG_BIT_FRAMING, 0x07));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        t.extend(transceive_fail_seq(&[PICC_REQA]));
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert!(sensor.read_uid().unwrap().is_none());
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn antenna_on_off() {
+        let mut t = init_seq();
+        t.extend(r(REG_TX_CONTROL, 0x03)); // antenna_off(): clear_bits reads then writes
+        t.extend(w(REG_TX_CONTROL, 0x00));
+        t.extend(r(REG_TX_CONTROL, 0x00)); // antenna_on(): set_bits reads then writes
+        t.extend(w(REG_TX_CONTROL, 0x03));
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        sensor.antenna_off().unwrap();
+        sensor.antenna_on().unwrap();
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn antenna_gain_get_set() {
+        let mut t = init_seq();
+        // set_antenna_gain(RX_GAIN_38_DB): read RfCfgReg, clear bits 4-6, OR in 0x50
+        t.extend(r(REG_RF_CFG, 0x00));
+        t.extend(w(REG_RF_CFG, RX_GAIN_38_DB));
+        // antenna_gain(): raw RfCfgReg bits 4-6
+        t.extend(r(REG_RF_CFG, RX_GAIN_43_DB));
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        sensor.set_antenna_gain(RX_GAIN_38_DB).unwrap();
+        assert_eq!(sensor.antenna_gain().unwrap(), RX_GAIN_43_DB);
+        sensor.inner.spi.done();
+        // NOTE: unlike Python's set_antenna_gain(dB), which validates against
+        // a fixed set of dB values and raises ValueError otherwise, Rust's
+        // set_antenna_gain(db: u8) takes one of the RX_GAIN_*_DB register-bit
+        // constants directly and ORs it in with no validation - there is no
+        // "invalid gain rejected" runtime case to test here (confirmed by
+        // reading the source: no bounds check exists in this API).
+    }
+
+    #[test]
+    fn version() {
+        let mut t = init_seq();
+        t.extend(r(REG_VERSION, 0x92)); // chip_type=9, version=2
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert_eq!(sensor.version().unwrap(), (9, 2));
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn self_test_v10() {
+        let mut t = init_seq();
+        t.extend(r(REG_VERSION, 0x91)); // version=1 -> v1.0 reference table
+        t.extend(w(REG_AUTO_TEST, 0x09));
+        t.extend(w(REG_FIFO_LEVEL, FIFO_FLUSH));
+        t.extend(w(REG_COMMAND, CMD_IDLE));
+        // FIFO already >= 64 on the first poll -> loop exits without ever
+        // issuing another CalcCRC.
+        t.extend(r(REG_FIFO_LEVEL, 64));
+        t.extend(w(REG_AUTO_TEST, 0x00));
+        t.extend(w(REG_COMMAND, CMD_SOFT_RESET));
+        t.extend(init_seq()); // _stop_self_test()'s trailing init_chip()
+        for &b in REF_V10.iter() {
+            t.extend(r(REG_FIFO_DATA, b));
+        }
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert!(sensor.self_test().unwrap());
+        sensor.inner.spi.done();
+    }
+
+    #[test]
+    fn authenticate_and_stop_crypto() {
+        let key = [0xFFu8; 6];
+        let uid = [0x12u8, 0x34, 0x56, 0x78];
+        let mut buf = [0u8; 12];
+        buf[0] = KEY_A;
+        buf[1] = 4;
+        buf[2..8].copy_from_slice(&key);
+        buf[8..12].copy_from_slice(&uid);
+
+        let mut t = init_seq();
+        t.extend(w(REG_COM_IRQ, IRQ_ALL));
+        t.extend(w(REG_STATUS_2, 0x00));
+        t.extend(w(REG_FIFO_LEVEL, FIFO_FLUSH));
+        for &b in &buf {
+            t.extend(w(REG_FIFO_DATA, b));
+        }
+        t.extend(w(REG_COMMAND, CMD_MFAUTHENT));
+        t.extend(r(REG_STATUS_2, STATUS_2_CRYPTO1ON)); // MFCrypto1On set immediately
+        t.extend(r(REG_STATUS_2, STATUS_2_CRYPTO1ON)); // stop_crypto(): clear_bits reads then writes
+        t.extend(w(REG_STATUS_2, 0x00));
+
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert!(sensor.authenticate(4, KEY_A, &key, &uid).unwrap());
+        sensor.stop_crypto().unwrap();
+        sensor.inner.spi.done();
+        // NOTE: Python separately tests a "bad key length" rejection because
+        // its authenticate() takes runtime-sized key/uid arguments. Rust's
+        // signature is `key: &[u8; 6], uid: &[u8; 4]` - fixed-size arrays are
+        // part of the type, so a wrong-length key/uid is a compile error, not
+        // a value this API can ever be called with at runtime. No equivalent
+        // test exists (confirmed by reading the signature).
+    }
+
+    #[test]
+    fn read_block_and_write_block() {
+        let block_data = {
+            let mut d = [0u8; 16];
+            for (i, b) in d.iter_mut().enumerate() {
+                *b = i as u8;
+            }
+            d
+        };
+
+        let mut t = init_seq();
+        // read_block(4)
+        t.extend(w(REG_TX_MODE, 0x80));
+        t.extend(w(REG_RX_MODE, 0x80));
+        t.extend(calc_crc_seq(&[0x30, 4], [0xAB, 0xCD]));
+        t.extend(transceive_ok_seq(&[0x30, 4, 0xAB, 0xCD], &block_data));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+        // write_block(4, block_data): phase 1 (cmd+addr+CRC -> ACK), phase 2 (16 data bytes+CRC -> ACK)
+        t.extend(w(REG_TX_MODE, 0x80));
+        t.extend(w(REG_RX_MODE, 0x80));
+        t.extend(calc_crc_seq(&[0xA0, 4], [0xAB, 0xCD]));
+        t.extend(transceive_ok_seq(&[0xA0, 4, 0xAB, 0xCD], &[0x0A]));
+        let mut phase2 = block_data.to_vec();
+        phase2.push(0xAB);
+        phase2.push(0xCD);
+        t.extend(calc_crc_seq(&block_data, [0xAB, 0xCD]));
+        t.extend(transceive_ok_seq(&phase2, &[0x0A]));
+        t.extend(w(REG_TX_MODE, 0x00));
+        t.extend(w(REG_RX_MODE, 0x00));
+
+        let spi = SpiMock::new(&t);
+        let mut sensor = Mfrc522Full::new(spi).expect("init");
+        assert_eq!(sensor.read_block(4).unwrap().unwrap(), block_data);
+        assert!(sensor.write_block(4, &block_data).unwrap());
+        sensor.inner.spi.done();
     }
 }

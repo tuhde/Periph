@@ -229,6 +229,7 @@ func bme280CompensateHumidity(adcH uint16, tFine int32, c bme280Calibration) flo
 // measurement and reads all three ADCs in one burst.
 type BME280Minimal struct {
 	connection connection.Connection
+	spi        bool
 
 	osrsT  uint8
 	osrsP  uint8
@@ -244,15 +245,19 @@ type BME280Minimal struct {
 // NewBME280Minimal creates a BME280Minimal, reads the 18 trimming
 // coefficients, and applies the default weather-monitoring configuration.
 //
-// connection must be a configured I²C connection bound to the chip's 7-bit
-// address (0x76 or 0x77).
-func NewBME280Minimal(t connection.Connection) (*BME280Minimal, error) {
+// connection must be a configured I²C or SPI connection bound to the chip
+// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI -
+// per the datasheet's register-address protocol, BME280's I²C register
+// addresses already have bit 7 set, so SPI reads use the same value
+// unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
+func NewBME280Minimal(t connection.Connection, spi bool) (*BME280Minimal, error) {
 	cal, err := bme280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BME280Minimal{
 		connection: t,
+		spi:       spi,
 		osrsT:     BME280OSRSX1,
 		osrsP:     BME280OSRSX1,
 		osrsH:     BME280OSRSX1,
@@ -276,7 +281,11 @@ func NewBME280Minimal(t connection.Connection) (*BME280Minimal, error) {
 
 // writeReg writes a single byte to a register.
 func (d *BME280Minimal) writeReg(reg, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
+	addr := reg
+	if d.spi {
+		addr &= 0x7F
+	}
+	return d.connection.Write([]byte{addr, val})
 }
 
 // readReg8 reads a single byte from a register.
@@ -366,10 +375,10 @@ type BME280Full struct {
 
 // NewBME280Full creates a BME280Full and applies the default configuration.
 //
-// connection must be a configured I²C connection bound to the chip's 7-bit
-// address (0x76 or 0x77).
-func NewBME280Full(t connection.Connection) (*BME280Full, error) {
-	m, err := NewBME280Minimal(t)
+// connection must be a configured I²C or SPI connection bound to the chip
+// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI.
+func NewBME280Full(t connection.Connection, spi bool) (*BME280Full, error) {
+	m, err := NewBME280Minimal(t, spi)
 	if err != nil {
 		return nil, err
 	}

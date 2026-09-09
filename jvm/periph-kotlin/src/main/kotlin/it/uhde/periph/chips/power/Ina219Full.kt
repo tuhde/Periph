@@ -110,6 +110,11 @@ class Ina219Full @JvmOverloads constructor(
                  ((sadc and 0x0F) shl  3) or
                  (mode  and 0x07)
         writeReg(REG_CONFIG, config)
+        // Per the chip spec's configure() contract, the Calibration Register
+        // is re-written after every Configuration Register write (matching
+        // every other language's driver for this chip).
+        val cal = (0.04096 / (currentLsb * rShunt)).toInt() and 0xFFFE
+        writeReg(REG_CALIBRATE, cal)
     }
 
     /**

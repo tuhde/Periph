@@ -10,9 +10,12 @@ cpp/testconfig_picosdk
 .claude/
 rust/testconfig
 rust/testconfig_esp32s3
+rust/testconfig_wiring
+cpp/testconfig_wiring
 jvm/testconfig
 go/testconfig
 go/testconfig_tinygo
+go/testconfig_wiring
 rust/target/
 rust/tests/power/ina226_test_esp32s3/target/
 jvm/**/target/

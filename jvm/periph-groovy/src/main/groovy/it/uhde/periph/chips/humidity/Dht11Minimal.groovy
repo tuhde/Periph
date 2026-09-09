@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity
 
-import it.uhde.periph.connection.DHTxxConnection
+import it.uhde.periph.connection.DHTxxConn
 
 /**
  * DHT11 — combined temperature and humidity sensor (minimal driver).
@@ -21,9 +21,9 @@ class Dht11Minimal {
         Dht11Exception(String detail) { super(detail) }
     }
 
-    protected final DHTxxConnection connection
+    protected final DHTxxConn connection
 
-    Dht11Minimal(DHTxxConnection connection) {
+    Dht11Minimal(DHTxxConn connection) {
         this.connection = connection
     }
 

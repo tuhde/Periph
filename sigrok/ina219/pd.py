@@ -43,6 +43,20 @@ ANN_REG_WRITE = 0
 ANN_REG_READ  = 1
 ANN_PTR_WRITE = 2
 ANN_WARNING   = 3
+# Conformance-only annotations (see specs/testing_framework.md, "Conformance
+# Implementation" and specs/power/ina219_timing.conf): named start/end pairs
+# additive to the generic annotations above so existing PulseView
+# manual-verification rows are unaffected.
+#   wake_write / wake_done - Configuration written with an active (non-zero)
+#     MODE to the next bus transaction, for the "Recovery from power-down
+#     mode: 40 us" constraint.
+#   conversion_ready - Bus Voltage read with CNVR=1; used as both the start
+#     and end of the "conversion_cycle" check (successive ready cycles),
+#     mirroring sigrok/gas/ens160/pd.py-style same-annotation-for-both-ends
+#     checks for a repeating-event constraint.
+ANN_WAKE_WRITE       = 4
+ANN_WAKE_DONE        = 5
+ANN_CONVERSION_READY = 6
 
 
 def _decode_config(raw):
@@ -114,10 +128,14 @@ class Decoder(srd.Decoder):
         ('reg-read',  'Register read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('wake-write', 'Wake write (conformance: wake_recovery start)'),
+        ('wake-done',  'Wake done (conformance: wake_recovery end)'),
+        ('conversion-ready', 'Conversion ready (conformance: conversion_cycle)'),
     )
     annotation_rows = (
-        ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('warnings',    'Warnings',    (ANN_WARNING,)),
+        ('conformance', 'Conformance', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
     )
 
     def __init__(self):
@@ -130,6 +148,7 @@ class Decoder(srd.Decoder):
         self.reg_ptr  = None
         self.databuf  = []
         self.ss_block = None
+        self.awaiting_wake_done = False  # True right after a wake_write's STOP
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
@@ -154,6 +173,10 @@ class Decoder(srd.Decoder):
                 self._emit(ANN_REG_READ, self.ss_block, self.es,
                            ['Read %s: %s' % (name, detail),
                             'R %s 0x%04X' % (name, raw)])
+                if reg == 0x02 and (raw & 0x02):
+                    # conversion_cycle: Bus Voltage read with CNVR=1 (data ready).
+                    self._emit(ANN_CONVERSION_READY, self.ss_block, self.es,
+                               ['conversion_ready', 'conversion_ready'])
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected read length %d for %s' % (len(self.databuf), name))
@@ -169,6 +192,13 @@ class Decoder(srd.Decoder):
                 self._emit(ANN_REG_WRITE, self.ss_block, self.es,
                            ['Write %s: %s' % (name, detail),
                             'W %s 0x%04X' % (name, raw)])
+                if reg == 0x00 and (raw & 0x07) != 0:
+                    # wake_recovery start: Configuration written with an
+                    # active (non-power-down) MODE - see the chip spec's
+                    # "Recovery from power-down mode: 40 us" constraint.
+                    self._emit(ANN_WAKE_WRITE, self.ss_block, self.es,
+                               ['wake_write', 'wake_write'])
+                    self.awaiting_wake_done = True
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected write length %d for %s' % (len(self.databuf), name))
@@ -176,6 +206,13 @@ class Decoder(srd.Decoder):
     def decode(self, ss, es, data):
         ptype, pdata = data
         self.ss, self.es = ss, es
+
+        if ptype in ('START', 'START REPEAT') and self.awaiting_wake_done:
+            # wake_recovery end: first bus activity after a wake_write - a
+            # correct driver waits >= 40 us (the chip's power-down recovery
+            # time) before this happens.
+            self.put(ss, ss, self.out_ann, [ANN_WAKE_DONE, ['wake_done', 'wake_done']])
+            self.awaiting_wake_done = False
 
         if ptype in ('START', 'START REPEAT'):
             if self.state == 'GET_DATA_READ' and ptype == 'START REPEAT':

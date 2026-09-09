@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.led;
 
 import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.ResetExtender;
 
 import java.io.IOException;
 
@@ -17,10 +18,32 @@ import java.io.IOException;
  */
 public class SK6812RGBWMinimal {
 
+    // Reset-pulse length (trailing zero bytes, post bit-encoding) requested via
+    // ResetExtender to guarantee the SK6812RGBW's ≥80 µs reset pulse - longer
+    // than a plain write's default ≈53 µs (correct for WS2812B, too short for
+    // this chip). Padding the *pre-encoded* pixel buffer with extra zero bytes
+    // instead would not achieve this: those bytes get bit-encoded as more
+    // zero-value data bits (periodic low-with-brief-highs), not a continuous
+    // low - see ResetExtender's doc comment.
+    private static final int RESET_BYTES = 24;
+
     protected final Connection connection;
     protected final int n;
     /** Internal pixel buffer in GRBW wire order (G, R, B, W per pixel). */
     protected final byte[] buf;
+
+    /**
+     * Send {@code data} with the extended reset pulse SK6812RGBW needs, if the
+     * connection supports requesting one ({@link ResetExtender}); falls back
+     * to a plain write otherwise.
+     */
+    protected void transmit(byte[] data) throws IOException {
+        if (connection instanceof ResetExtender re) {
+            re.writeExt(data, RESET_BYTES);
+        } else {
+            connection.write(data);
+        }
+    }
 
     /**
      * Construct the driver.
@@ -57,7 +80,7 @@ public class SK6812RGBWMinimal {
             buf[i * 4 + 2] = (byte) b;
             buf[i * 4 + 3] = (byte) w;
         }
-        connection.write(buf);
+        transmit(buf);
     }
 
     /**

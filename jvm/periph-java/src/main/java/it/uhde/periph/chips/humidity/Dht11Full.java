@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity;
 
-import it.uhde.periph.connection.DHTxxConnection;
+import it.uhde.periph.connection.DHTxxConn;
 
 import java.io.IOException;
 
@@ -21,11 +21,11 @@ public class Dht11Full extends Dht11Minimal {
      * @param connection   Configured DHTxx connection bound to the chip's DATA pin.
      * @param maxRetries  Default retry count for {@link #readRetry(int)} (default 3).
      */
-    public Dht11Full(DHTxxConnection connection) {
+    public Dht11Full(DHTxxConn connection) {
         this(connection, 3);
     }
 
-    public Dht11Full(DHTxxConnection connection, int maxRetries) {
+    public Dht11Full(DHTxxConn connection, int maxRetries) {
         super(connection);
         this.maxRetries = maxRetries;
     }

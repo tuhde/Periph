@@ -1,10 +1,15 @@
 #include "AS5600.h"
+#include <cstdlib>
 
 AS5600Minimal::AS5600Minimal(Connection& connection)
     : _connection(connection) {
     uint8_t status = _read_reg8(REG_STATUS);
     if (!(status & STATUS_MD)) {
-        // In C++ we use a simple flag; caller should check is_magnet_detected()
+        // Matches the ENS160 driver's construction-time validation
+        // convention (abort() rather than an exception) — a magnet-absent
+        // AS5600 has no valid angle output, so failing fast here mirrors
+        // ENS160's abort() on an unexpected PART_ID.
+        abort();
     }
 }
 

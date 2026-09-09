@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.humidity;
 
-import it.uhde.periph.connection.DHTxxConnection;
+import it.uhde.periph.connection.DHTxxConn;
 
 import java.io.IOException;
 
@@ -25,14 +25,14 @@ public class Dht11Minimal {
         public Dht11Exception(String detail) { super(detail); }
     }
 
-    protected final DHTxxConnection connection;
+    protected final DHTxxConn connection;
 
     /**
      * Construct the driver.
      *
      * @param connection Configured DHTxx connection bound to the chip's DATA pin.
      */
-    public Dht11Minimal(DHTxxConnection connection) {
+    public Dht11Minimal(DHTxxConn connection) {
         this.connection = connection;
     }
 

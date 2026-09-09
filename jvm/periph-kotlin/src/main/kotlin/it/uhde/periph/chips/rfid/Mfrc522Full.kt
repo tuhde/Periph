@@ -37,7 +37,7 @@ class Mfrc522Full @JvmOverloads constructor(
             38 -> RX_GAIN_38_DB
             43 -> RX_GAIN_43_DB
             48 -> RX_GAIN_48_DB
-            else -> return
+            else -> throw IllegalArgumentException("Unsupported gain: $dB dB (choose 18, 23, 33, 38, 43, 48)")
         }
         val cur = readReg(REG_RF_CFG) and 0x8F
         writeReg(REG_RF_CFG, cur or gain)

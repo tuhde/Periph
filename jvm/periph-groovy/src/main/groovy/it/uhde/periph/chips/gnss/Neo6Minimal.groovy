@@ -1,8 +1,8 @@
 package it.uhde.periph.chips.gnss
 
 import groovy.transform.CompileStatic
+import it.uhde.periph.connection.AvailableConnection
 import it.uhde.periph.connection.Connection
-import it.uhde.periph.connection.UARTConnection
 
 import java.nio.charset.StandardCharsets
 
@@ -59,7 +59,7 @@ class Neo6Minimal {
     /** Fetch one byte if available, or null if none is ready yet. */
     protected Integer readByte() {
         if (busType == BusType.UART) {
-            UARTConnection uart = (UARTConnection) connection
+            AvailableConnection uart = (AvailableConnection) connection
             if (uart.available() <= 0) return null
             byte[] b = connection.read(1)
             return b.length > 0 ? (b[0] & 0xFF) : null

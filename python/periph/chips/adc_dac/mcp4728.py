@@ -293,9 +293,10 @@ class MCP4728Full(MCP4728Minimal):
     def _single_write(self, channel, code, vref, pd, gain, udac):
         ch = max(0, min(3, channel))
         c = int(max(0, min(4095, code)))
+        g = 1 if gain == 2 else 0
         byte1 = self._CMD_SINGLE_WRITE | ((ch & 0x03) << 1) | (udac & 0x01)
         byte2 = ((vref & 0x01) << 7) | ((pd & 0x03) << 5) | \
-                ((gain & 0x01) << 4) | ((c >> 8) & 0x0F)
+                (g << 4) | ((c >> 8) & 0x0F)
         byte3 = c & 0xFF
         self._connection.write(bytes([byte1, byte2, byte3]))
 

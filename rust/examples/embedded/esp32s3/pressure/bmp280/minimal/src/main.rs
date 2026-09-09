@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp280Minimal::new(i2c, ADDR).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
+    let mut bmp = Bmp280Minimal::new(i2c, ADDR, false).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
 
     for _ in 0..5 {
         let t = bmp.temperature().expect("read temperature");      // Read temperature, () → f32 °C

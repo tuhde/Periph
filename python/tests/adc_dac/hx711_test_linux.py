@@ -41,6 +41,14 @@ time.sleep(0.01)
 
 check_true('is_ready returns bool', isinstance(chip.is_ready(), bool))
 
+# Exercise power_down()/power_up() early (conformance's powerdown_pulse
+# check captures this call - see conformance/adc_dac/hx711_conformance.py).
+chip.power_down()
+time.sleep(0.001)
+chip.power_up()
+time.sleep(0.5)  # settling time after power-up before the next conversion
+check_true('power_down_then_power_up_accepted', True)
+
 raw = chip.read_raw()
 time.sleep(0.01)
 check_true('read_raw returns int', isinstance(raw, int))

@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	chip, err := pressure.NewBMP280Minimal(conn)
+	chip, err := pressure.NewBMP280Minimal(conn, false)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -66,7 +66,7 @@ func main() {
 	}
 	defer conn2.Close()
 
-	full, err := pressure.NewBMP280Full(conn2)
+	full, err := pressure.NewBMP280Full(conn2, false)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

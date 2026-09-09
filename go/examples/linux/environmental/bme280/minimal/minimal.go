@@ -32,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := environmental.NewBME280Minimal(conn) // Create BME280 driver, (connection) → (*BME280Minimal, error)
+	chip, err := environmental.NewBME280Minimal(conn, false) // Create BME280 driver, (connection) → (*BME280Minimal, error)
 	if err != nil {
 		panic(err)
 	}

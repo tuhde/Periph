@@ -27,7 +27,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x76, nil, nil)            // Create I2C connection, (i2c, addr=0x76) → (*I2CConnection)
-	chip, err := environmental.NewBME280Minimal(conn)       // Create BME280 driver, (connection) → (*BME280Minimal, error)
+	chip, err := environmental.NewBME280Minimal(conn, false)       // Create BME280 driver, (connection) → (*BME280Minimal, error)
 	if err != nil {
 		panic(err)
 	}

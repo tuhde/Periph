@@ -32,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := pressure.NewBMP280Minimal(conn) // Create BMP280 driver, (connection) → (*BMP280Minimal, error)
+	chip, err := pressure.NewBMP280Minimal(conn, false) // Create BMP280 driver, (connection) → (*BMP280Minimal, error)
 	if err != nil {
 		panic(err)
 	}

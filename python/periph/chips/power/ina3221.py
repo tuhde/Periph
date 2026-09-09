@@ -280,10 +280,17 @@ class INA3221Full(INA3221Minimal):
             limit_v: Shunt-voltage sum limit in volts.
         """
         cfg = self._read_reg(self._REG_MASK_EN)
-        cfg &= ~0xE000
+        # SCC1/SCC2/SCC3 occupy bits 14/13/12 - clear all three (0x7000),
+        # not just bits 15:13 (0xE000), or a previously-set SCC3 would
+        # survive a call that no longer includes channel 3.
+        cfg &= ~0x7000
         for ch in channels:
             self._channel_valid(ch)
-            cfg |= 1 << (15 - (ch - 1))
+            # SCC1/SCC2/SCC3 are bits 14/13/12 (same positions as CH1en/
+            # CH2en/CH3en in enable_channel) - 14-(ch-1), not 15-(ch-1),
+            # or channel 1 would incorrectly toggle the reserved bit 15
+            # instead of SCC1.
+            cfg |= 1 << (14 - (ch - 1))
         self._write_reg(self._REG_MASK_EN, cfg)
         raw = (int(limit_v / 40e-6) << 1) & 0xFFFE
         self._write_reg(self._REG_SUM_LIMIT, raw)
@@ -294,8 +301,11 @@ class INA3221Full(INA3221Minimal):
         Returns:
             float: Sum of selected channels' shunt voltages in volts.
         """
+        # The Sum register is 14-bit signed, left-aligned by 1 bit (bit 0
+        # reserved) -- not by 3 bits like the per-channel shunt registers --
+        # so the raw-as-i16 shortcut scale is 40e-6 / 2 = 20e-6, not 5e-6.
         raw = self._read_reg_signed(self._REG_SUM)
-        return raw * 5e-6
+        return raw * 20e-6
 
     def set_power_valid_limits(self, upper_v, lower_v):
         """Set the Power-Valid upper and lower voltage limits.

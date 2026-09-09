@@ -5,6 +5,13 @@ ADDRS = set(range(0x20, 0x28))
 ANN_READ    = 0
 ANN_WRITE   = 1
 ANN_WARNING = 2
+# Named start/end pair for the read_cycle conformance check (see
+# specs/io_expander/pcf8575.md, "Timing Constraints" and "Sigrok Decoder",
+# and specs/io_expander/pcf8575_timing.conf). Additive: does not change the
+# existing read/write/warning annotations PulseView's manual verification
+# depends on.
+ANN_READ_CYCLE_START = 3
+ANN_READ_CYCLE_DONE  = 4
 
 
 def _fmt_port_pins(port, byte):
@@ -26,10 +33,13 @@ class Decoder(srd.Decoder):
         ('read',    'Read'),
         ('write',   'Write'),
         ('warning', 'Warning'),
+        ('read-cycle-start', 'Read cycle start'),
+        ('read-cycle-done',  'Read cycle done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_READ, ANN_WRITE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('timing',   'Timing',   (ANN_READ_CYCLE_START, ANN_READ_CYCLE_DONE)),
     )
 
     def __init__(self):
@@ -64,6 +74,10 @@ class Decoder(srd.Decoder):
             self.addr    = addr
             self.is_read = (ptype == 'ADDRESS READ')
             self.state   = 'GET_DATA'
+            if self.is_read:
+                # read_cycle start: the ADDRESS READ that begins the 2-byte
+                # read transaction.
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['read_cycle_start']])
 
         elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
             self.data_bytes.append(pdata)
@@ -91,6 +105,9 @@ class Decoder(srd.Decoder):
                           ['PCF8575 Read %s: P1=%s  P0=%s' % (hx, pins1, pins0),
                            'R %s' % hx,
                            'R']])
+                # read_cycle done: the STOP that ends the read transaction
+                # started by the ANN_READ_CYCLE_START annotation above.
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['read_cycle_done']])
             else:
                 self.put(self.ss_block, es, self.out_ann,
                          [ANN_WRITE,
