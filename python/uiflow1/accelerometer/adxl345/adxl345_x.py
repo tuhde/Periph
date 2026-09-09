@@ -1,0 +1,1 @@
+_periph_adxl345.read()[0]
