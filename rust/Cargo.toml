@@ -34,6 +34,7 @@ exclude = [
     "tests/gnss/neo6_test_esp32s3",
     "tests/humidity/dht11_test_esp32s3",
     "tests/rfid/mfrc522_test_esp32s3",
+    "tests/comms/rfm9x_test_esp32s3",
 ]
 members = [
     "periph",
@@ -73,6 +74,7 @@ members = [
     "tests/gnss/neo6_test_spi",
     "tests/humidity/dht11_test",
     "tests/rfid/mfrc522_test",
+    "tests/comms/rfm9x_test",
 ]
 
 [workspace.dependencies]
