@@ -32,21 +32,22 @@ func (e *DHT11Error) Error() string {
 //
 // The DHT11 returns a 40-bit reading (humidity integer + decimal,
 // temperature integer + decimal, checksum) over a single bidirectional
-// data line. The driver accepts a `*DHTxxConnection` that handles the
-// underlying single-wire protocol; this class is responsible only for
-// validating the frame and converting it to engineering units.
+// data line. The driver accepts a `connection.DHTxxConn` (satisfied by
+// `*connection.DHTxxConnection`) that handles the underlying single-wire
+// protocol; this class is responsible only for validating the frame and
+// converting it to engineering units.
 //
 // Default configuration (baked in at construction):
 //   - Single read attempt; returns an error on checksum mismatch
 //   - Caller responsible for respecting the ≥ 2 s sampling interval
 type DHT11Minimal struct {
-	connection *connection.DHTxxConnection
+	connection connection.DHTxxConn
 }
 
 // NewDHT11Minimal creates a new DHT11Minimal bound to the given DHTxx
-// connection. The connection must be a configured `*DHTxxConnection`
+// connection. The connection must be a configured `*connection.DHTxxConnection`
 // bound to the chip's DATA pin.
-func NewDHT11Minimal(t *connection.DHTxxConnection) (*DHT11Minimal, error) {
+func NewDHT11Minimal(t connection.DHTxxConn) (*DHT11Minimal, error) {
 	return &DHT11Minimal{connection: t}, nil
 }
 
@@ -111,7 +112,7 @@ type DHT11Full struct {
 // NewDHT11Full creates a new DHT11Full bound to the given DHTxx connection.
 // The default maxRetries is 3 — callers may override it per call via
 // ReadRetry.
-func NewDHT11Full(t *connection.DHTxxConnection) (*DHT11Full, error) {
+func NewDHT11Full(t connection.DHTxxConn) (*DHT11Full, error) {
 	m, err := NewDHT11Minimal(t)
 	if err != nil {
 		return nil, err

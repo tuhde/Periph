@@ -105,3 +105,13 @@ type HX711Conn interface {
 	PowerDown() error
 	PowerUp() error
 }
+
+// DHTxxConn is the abstraction DHT11Minimal/DHT11Full depend on, satisfied
+// by *DHTxxConnection on both Linux and TinyGo. Like HX711Conn, this is not
+// the shared Connection interface: DHTxx's single-wire protocol has no
+// separate write/writeRead phase (see DHTxxConnection's own doc comment in
+// dhtxx_linux.go / dhtxx_tinygo.go). Kept separate so unit tests can
+// substitute an in-memory fake without touching real hardware.
+type DHTxxConn interface {
+	Read() ([]byte, error)
+}
