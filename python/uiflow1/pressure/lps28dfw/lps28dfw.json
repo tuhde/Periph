@@ -1,0 +1,53 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lps28dfw_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LPS28DFW", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "lps28dfw_read_pressure",
+      "type": "value",
+      "params": [{ "name": "LPS28DFW pressure (hPa)", "type": "label" }]
+    },
+    {
+      "name": "lps28dfw_read_temperature",
+      "type": "value",
+      "params": [{ "name": "LPS28DFW temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "lps28dfw_configure",
+      "type": "execute",
+      "params": [
+        { "name": "LPS28DFW configure", "type": "label" },
+        { "name": "ODR", "type": "label" },
+        { "name": "_odr", "type": "number" },
+        { "name": "AVG", "type": "label" },
+        { "name": "_avg", "type": "number" },
+        { "name": "FS mode", "type": "label" },
+        { "name": "_fs_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "lps28dfw_set_threshold",
+      "type": "execute",
+      "params": [
+        { "name": "LPS28DFW threshold", "type": "label" },
+        { "name": "threshold (hPa)", "type": "label" },
+        { "name": "_threshold_hpa", "type": "number" },
+        { "name": "high", "type": "label" },
+        { "name": "_high", "type": "number" },
+        { "name": "low", "type": "label" },
+        { "name": "_low", "type": "number" }
+      ]
+    }
+  ]
+}
