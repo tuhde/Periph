@@ -43,7 +43,7 @@ func TestBMP280FullAPI(t *testing.T) {
 	preloadBmp280Calibration(conn)
 	preloadBmp280Data(conn)
 
-	sensor, err := NewBMP280Full(conn)
+	sensor, err := NewBMP280Full(conn, false)
 	if err != nil {
 		t.Fatalf("NewBMP280Full: %v", err)
 	}
@@ -157,5 +157,34 @@ func TestBMP280FullAPI(t *testing.T) {
 	}
 	if w := lastWriteTo(conn.writes, bmp280RegCtrlMeas); w == nil || w[1] != 0x95 {
 		t.Errorf("Reset: expected re-applied CTRL_MEAS=0x95, got %v", w)
+	}
+}
+
+// TestBMP280SPIMasksWriteAddresses covers the spi=true path: per
+// specs/pressure/bmp280.md's SPI Register-address protocol, BMP280's I2C
+// register addresses already have bit 7 set (0x88-0xFC), so SPI reads use
+// the same reg value unmasked; only writes differ, clearing bit 7 (reg &
+// 0x7F).
+func TestBMP280SPIMasksWriteAddresses(t *testing.T) {
+	conn := newMockConnection()
+	preloadBmp280Calibration(conn)
+
+	sensor, err := NewBMP280Full(conn, true)
+	if err != nil {
+		t.Fatalf("NewBMP280Full(spi): %v", err)
+	}
+
+	if w := lastWriteTo(conn.writes, bmp280RegCtrlMeas&0x7F); w == nil || w[1] != 0x24 {
+		t.Errorf("spi init: expected masked CTRL_MEAS write (0x74)=0x24, got %v", w)
+	}
+	for _, w := range conn.writes {
+		if len(w) == 2 && w[0] == bmp280RegCtrlMeas {
+			t.Errorf("spi init: found unmasked CTRL_MEAS write %v, want bit 7 cleared", w)
+		}
+	}
+
+	preloadBmp280Data(conn)
+	if v, err := sensor.Temperature(); err != nil || math.Abs(float64(v)-25.08) > 1e-3 {
+		t.Errorf("spi Temperature() = %v, %v, want 25.08, nil", v, err)
 	}
 }

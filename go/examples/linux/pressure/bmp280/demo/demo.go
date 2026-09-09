@@ -39,7 +39,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := pressure.NewBMP280Full(conn) // Create BMP280 driver, (connection) → (*BMP280Full, error)
+	chip, err := pressure.NewBMP280Full(conn, false) // Create BMP280 driver, (connection) → (*BMP280Full, error)
 	if err != nil {
 		panic(err)
 	}

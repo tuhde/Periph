@@ -34,7 +34,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := environmental.NewBME280Full(conn) // Create BME280 driver, (connection) → (*BME280Full, error)
+	chip, err := environmental.NewBME280Full(conn, false) // Create BME280 driver, (connection) → (*BME280Full, error)
 	if err != nil {
 		panic(err)
 	}

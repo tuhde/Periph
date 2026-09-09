@@ -164,6 +164,30 @@ int main() {
     check_true(sawReappliedConfig, "reset_reapplies_config");
     check_true(sawReappliedCtrl, "reset_reapplies_ctrl_meas");
 
+    // --- SPI transport (spi=true) -------------------------------------
+    // Per specs/pressure/bmp280.md's SPI Register-address protocol: BMP280's
+    // I2C register addresses already have bit 7 set (0x88-0xFC), so SPI
+    // reads use the same reg value unmasked; only writes differ, clearing
+    // bit 7 (reg & 0x7F). Preloading calibration/data at the plain REG_*
+    // constants works unchanged for reads - only write-address checks need
+    // the mask applied.
+    I2CConnectionMock spiConnection;
+    preloadCalibration(spiConnection);
+    preloadData(spiConnection);
+    BMP280TestAccess spiSensor(spiConnection, /*spi=*/true);
+    check_true(true, "spi_init");
+
+    bool sawMaskedCtrlMeas = false, sawUnmaskedCtrlMeas = false;
+    for (const auto& w : spiConnection.writes()) {
+        if (w.size() == 2 && w[0] == (BMP280TestAccess::REG_CTRL_MEAS & 0x7F) && w[1] == 0x24) sawMaskedCtrlMeas = true;
+        if (w.size() == 2 && w[0] == BMP280TestAccess::REG_CTRL_MEAS) sawUnmaskedCtrlMeas = true;
+    }
+    check_true(sawMaskedCtrlMeas, "spi_init_writes_ctrl_meas_masked");
+    check_true(!sawUnmaskedCtrlMeas, "spi_init_no_unmasked_ctrl_meas_write");
+
+    check_true(fabsf(spiSensor.temperature() - 25.08f) < 1e-3f, "spi_temperature");
+    check_true(fabsf(spiSensor.pressure() - 1006.5325390625f) < 1e-2f, "spi_pressure");
+
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }

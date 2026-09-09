@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x76);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp280Full::new(dev, addr).expect("init BMP280"); // Create BMP280 driver, (i2c, addr=0x76)
+    let mut bmp = Bmp280Full::new(dev, addr, false).expect("init BMP280"); // Create BMP280 driver, (i2c, addr=0x76)
 
     // --- Weather monitoring preset: lowest power, forced mode ---
     // BMP280 datasheet Table 7: ×1/×1, filter off, forced mode.

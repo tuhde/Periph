@@ -138,6 +138,30 @@ async function main() {
     checkTrue('reset_reapplies_config', reappliedConfig[1] === 0xCC);
     checkTrue('reset_reapplies_ctrl_meas', reappliedCtrl[1] === 0x95);
 
+    // --- SPI transport (busType='spi') -------------------------------
+    // Per specs/pressure/bmp280.md's SPI Register-address protocol: BMP280's
+    // I2C register addresses already have bit 7 set (0x88-0xFC), so SPI
+    // reads use the same reg value unmasked; only writes differ, clearing
+    // bit 7 (reg & 0x7F). Preloading calibration/data at the plain REG_*
+    // constants works unchanged for reads - only write-address checks need
+    // the mask applied.
+    const spiConnection = new I2CConnectionMock();
+    preloadCalibration(spiConnection);
+    preloadData(spiConnection);
+    const spiSensor = new BMP280Full(spiConnection, 'spi');
+    await flushMicrotasks();
+    checkTrue('spi_init', true);
+
+    const spiMaskedCtrlMeas = spiConnection.writes.some(
+        (w) => w.length === 2 && w[0] === (_REG_CTRL_MEAS & 0x7F) && w[1] === 0x24);
+    const spiUnmaskedCtrlMeas = spiConnection.writes.some(
+        (w) => w.length === 2 && w[0] === _REG_CTRL_MEAS);
+    checkTrue('spi_init_writes_ctrl_meas_masked', spiMaskedCtrlMeas);
+    checkTrue('spi_init_no_unmasked_ctrl_meas_write', !spiUnmaskedCtrlMeas);
+
+    checkTrue('spi_temperature', Math.abs((await spiSensor.temperature()) - 25.08) < 1e-6);
+    checkTrue('spi_pressure', Math.abs((await spiSensor.pressure()) - 1006.5325390625) < 1e-6);
+
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);
 }

@@ -107,7 +107,7 @@ func TestBME280FullAPI(t *testing.T) {
 	conn.setRegister(bme280RegCalH2, bme280Cal2...)
 	conn.setRegister(bme280RegData, bme280Adc...)
 
-	sensor, err := NewBME280Full(conn)
+	sensor, err := NewBME280Full(conn, false)
 	if err != nil {
 		t.Fatalf("NewBME280Full: %v", err)
 	}
@@ -232,5 +232,33 @@ func TestBME280FullAPI(t *testing.T) {
 	}
 	if v := conn.registers[bme280RegCtrlMeas]; v != ((3 << 5) | (4 << 2) | 1) {
 		t.Errorf("Reset: ctrl_meas = 0x%02X, want 0x71 (reapplied)", v)
+	}
+}
+
+// TestBME280SPIMasksWriteAddresses covers the spi=true path: per
+// specs/environmental/bme280.md's SPI Register-address protocol, BME280's
+// I2C register addresses already have bit 7 set, so SPI reads use the same
+// reg value unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
+func TestBME280SPIMasksWriteAddresses(t *testing.T) {
+	conn := newMockRegConnection()
+	conn.setRegister(bme280RegCalStart, bme280Cal1...)
+	conn.setRegister(bme280RegCalH2, bme280Cal2...)
+	conn.setRegister(bme280RegData, bme280Adc...)
+
+	_, err := NewBME280Full(conn, true)
+	if err != nil {
+		t.Fatalf("NewBME280Full(spi): %v", err)
+	}
+
+	if v := conn.registers[bme280RegCtrlHum&0x7F]; v != 1 {
+		t.Errorf("spi init: masked ctrl_hum = 0x%02X, want 0x01", v)
+	}
+	if v := conn.registers[bme280RegCtrlMeas&0x7F]; v != ((1 << 5) | (1 << 2) | 0) {
+		t.Errorf("spi init: masked ctrl_meas = 0x%02X, want 0x24", v)
+	}
+	for _, w := range conn.writes {
+		if len(w) == 2 && (w[0] == bme280RegCtrlHum || w[0] == bme280RegCtrlMeas || w[0] == bme280RegConfig) {
+			t.Errorf("spi init: found unmasked write %v, want bit 7 cleared", w)
+		}
 	}
 }

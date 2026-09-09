@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp280Full::new(i2c, ADDR).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
+    let mut bmp = Bmp280Full::new(i2c, ADDR, false).expect("init BMP280"); // Create BMP280 driver, (i2c, ADDR=0x76)
 
     // --- Weather monitoring preset: lowest power, forced mode ---
     // BMP280 datasheet Table 7: ×1/×1, filter off, forced mode.

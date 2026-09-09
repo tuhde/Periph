@@ -129,5 +129,36 @@ ctrl_meas_writes = [w for w in connection.writes if len(w) == 2 and w[0] == BMP2
 check_true('reset_reapplies_config', config_writes[-1][1] == 0xCC)
 check_true('reset_reapplies_ctrl_meas', ctrl_meas_writes[-1][1] == 0x95)
 
+# --- SPI transport (bus_type='spi') ---------------------------------------
+# Per specs/pressure/bmp280.md's SPI Register-address protocol: BMP280's I2C
+# register addresses already have bit 7 set (0x88-0xFC), so SPI reads use the
+# same reg value unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
+# The mock's write_read()/write() only look at the byte(s) actually sent, so
+# preloading calibration/data at the plain REG_* constants (unmasked) works
+# unchanged for reads - only write-address assertions need the mask applied.
+spi_connection = I2CConnectionMock()
+preload_calibration(spi_connection)
+preload_data(spi_connection)
+
+spi_sensor = BMP280Full(spi_connection, bus_type='spi')
+check_true('spi_init', True)
+
+spi_ctrl_meas_writes = [w for w in spi_connection.writes
+                         if len(w) == 2 and w[0] == (BMP280Full._REG_CTRL_MEAS & 0x7F)]
+check_true('spi_init_writes_ctrl_meas_masked', spi_ctrl_meas_writes[0][1] == 0x24)
+check_true('spi_init_no_unmasked_ctrl_meas_write',
+           all(w[0] != BMP280Full._REG_CTRL_MEAS for w in spi_connection.writes if len(w) == 2))
+
+check_true('spi_temperature', abs(spi_sensor.temperature() - 25.08) < 1e-6)
+check_true('spi_pressure', abs(spi_sensor.pressure() - 1006.5325390625) < 1e-6)
+
+spi_connection.set_register(BMP280Full._REG_ID, 0x58)
+check_true('spi_chip_id', spi_sensor.chip_id() == 0x58)
+
+spi_sensor.configure(osrs_t=2, osrs_p=3, mode=3, filter=2, t_sb=4)
+spi_config_writes = [w for w in spi_connection.writes
+                      if len(w) == 2 and w[0] == (BMP280Full._REG_CONFIG & 0x7F)]
+check_true('spi_configure_config_masked', spi_config_writes[-1][1] == 0x88)
+
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

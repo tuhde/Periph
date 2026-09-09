@@ -194,15 +194,16 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
+    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
         let cal = read_calibration(&mut i2c, addr)?;
         let mut s = Self {
-            i2c, addr, spi: false, mode: 0,
+            i2c, addr, spi, mode: 0,
             osrs_t: 1, osrs_p: 1, filter: 0, t_sb: 0,
             t_fine: 0, cal,
         };
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0, false)?;
-        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0, false)?;
+        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0, s.spi)?;
+        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0, s.spi)?;
         Ok(s)
     }
 
@@ -254,8 +255,9 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        let inner = Bmp280Minimal::new(i2c, addr)?;
+    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
+    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
+        let inner = Bmp280Minimal::new(i2c, addr, spi)?;
         Ok(Self { inner })
     }
 
@@ -447,7 +449,7 @@ mod tests {
         ]);
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Bmp280Full::new(i2c, ADDR).expect("init");
+        let mut sensor = Bmp280Full::new(i2c, ADDR, false).expect("init");
 
         assert!((sensor.temperature().unwrap() - 25.08).abs() < 1e-3);
         assert!((sensor.pressure().unwrap() - 1006.5325390625).abs() < 1e-2);
@@ -467,6 +469,28 @@ mod tests {
         assert!((slp - 1030.736388797547).abs() < 0.5, "sea_level_pressure = {}", slp);
 
         sensor.reset().unwrap();
+
+        sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn spi_masks_write_addresses() {
+        // Per specs/pressure/bmp280.md's SPI Register-address protocol:
+        // BMP280's I2C register addresses already have bit 7 set
+        // (0x88-0xFC), so SPI reads use the same reg value unmasked; only
+        // writes differ, clearing bit 7 (reg & 0x7F). embedded-hal-mock's
+        // I2C transactions still model this fine since the driver just
+        // sends different bytes - it doesn't need a real SPI mock to prove
+        // the masking is correct.
+        let transactions = vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
+            // Masked write addresses (reg & 0x7F): CTRL_MEAS 0xF4->0x74, CONFIG 0xF5->0x75.
+            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS & 0x7F, 0x24]),
+            I2cTransaction::write(ADDR, vec![REG_CONFIG & 0x7F, 0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Bmp280Full::new(i2c, ADDR, true).expect("init");
 
         sensor.inner.i2c.done();
     }

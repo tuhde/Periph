@@ -173,6 +173,7 @@ func bmp280CompensatePressure(adcP uint32, tFine int32, c bmp280Calibration) flo
 // ADCs in one burst.
 type BMP280Minimal struct {
 	connection connection.Connection
+	spi        bool
 
 	osrsT  uint8
 	osrsP  uint8
@@ -187,15 +188,19 @@ type BMP280Minimal struct {
 // NewBMP280Minimal creates a BMP280Minimal, reads the 12 trimming
 // coefficients, and applies the default ultra-low-power configuration.
 //
-// connection must be a configured I²C connection bound to the chip's 7-bit
-// address (0x76 or 0x77).
-func NewBMP280Minimal(t connection.Connection) (*BMP280Minimal, error) {
+// connection must be a configured I²C or SPI connection bound to the chip
+// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI -
+// per the datasheet's register-address protocol, BMP280's I²C register
+// addresses already have bit 7 set (0x88-0xFC), so SPI reads use the same
+// value unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
+func NewBMP280Minimal(t connection.Connection, spi bool) (*BMP280Minimal, error) {
 	cal, err := bmp280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BMP280Minimal{
 		connection: t,
+		spi:       spi,
 		osrsT:     BMP280OSRSX1,
 		osrsP:     BMP280OSRSX1,
 		mode:      BMP280ModeSleep,
@@ -214,7 +219,11 @@ func NewBMP280Minimal(t connection.Connection) (*BMP280Minimal, error) {
 
 // writeReg writes a single byte to a register.
 func (d *BMP280Minimal) writeReg(reg, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
+	addr := reg
+	if d.spi {
+		addr &= 0x7F
+	}
+	return d.connection.Write([]byte{addr, val})
 }
 
 // readReg8 reads a single byte from a register.
@@ -285,10 +294,10 @@ type BMP280Full struct {
 
 // NewBMP280Full creates a BMP280Full and applies the default configuration.
 //
-// connection must be a configured I²C connection bound to the chip's 7-bit
-// address (0x76 or 0x77).
-func NewBMP280Full(t connection.Connection) (*BMP280Full, error) {
-	m, err := NewBMP280Minimal(t)
+// connection must be a configured I²C or SPI connection bound to the chip
+// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI.
+func NewBMP280Full(t connection.Connection, spi bool) (*BMP280Full, error) {
+	m, err := NewBMP280Minimal(t, spi)
 	if err != nil {
 		return nil, err
 	}

@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp280Minimal::new(dev, addr).expect("init BMP280");
+    let mut bmp = Bmp280Minimal::new(dev, addr, false).expect("init BMP280");
 
     let t = bmp.temperature().unwrap();
     check_true!(t >= -40.0 && t <= 85.0, "temperature_range", passed, failed);
@@ -30,7 +30,7 @@ fn main() {
     drop(bmp);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp_full = Bmp280Full::new(dev, addr).expect("init BMP280 Full");
+    let mut bmp_full = Bmp280Full::new(dev, addr, false).expect("init BMP280 Full");
 
     bmp_full.set_oversampling(OSRS_X4, OSRS_X2).unwrap();
     check_true!(true, "set_oversampling", passed, failed);
