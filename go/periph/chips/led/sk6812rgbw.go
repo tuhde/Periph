@@ -10,12 +10,27 @@ import (
 // silently.
 const MaxPixelsSK6812RGBW = 256
 
-// sk6812RgbwResetBytes is the number of trailing zero bytes appended
-// to every transmission to guarantee the SK6812RGBW's ≥80 µs reset
-// pulse. The connection already appends 16 zero bytes (~53 µs); we add
-// 24 more (~80 µs at 2.4 MHz SPI encoding) so the total reset exceeds
-// the chip's 80 µs minimum.
+// sk6812RgbwResetBytes is the reset-pulse length (in trailing zero bytes,
+// post bit-encoding) requested via connection.ResetExtender to guarantee
+// the SK6812RGBW's ≥80 µs reset pulse - longer than a plain Write's
+// default ~53 µs (correct for WS2812B, too short for this chip). Padding
+// the *pre-encoded* pixel buffer with extra zero bytes instead would not
+// achieve this: those bytes get bit-encoded as more zero-value data bits
+// (periodic low-with-brief-highs), not a continuous low - see
+// connection.ResetExtender's doc comment.
 const sk6812RgbwResetBytes = 24
+
+// write sends data with the extended reset pulse SK6812RGBW needs, if the
+// connection supports requesting one (connection.ResetExtender - Linux's
+// NeoPixelConnection does; TinyGo's ws2812-backed one does not, since that
+// board-native driver has no equivalent hook, so this falls back to a
+// plain Write there).
+func sk6812rgbwWrite(conn connection.Connection, data []byte) error {
+	if re, ok := conn.(connection.ResetExtender); ok {
+		return re.WriteExt(data, sk6812RgbwResetBytes)
+	}
+	return conn.Write(data)
+}
 
 // SK6812RGBWMinimal is the SK6812RGBW addressable RGBW LED strip driver
 // — minimal interface.
@@ -24,15 +39,15 @@ const sk6812RgbwResetBytes = 24
 // buffer. `Fill` updates every pixel and transmits immediately;
 // `Off` is shorthand for `Fill(0, 0, 0, 0)`.
 type SK6812RGBWMinimal struct {
-	connection *connection.NeoPixelConnection
-	n         int
-	buf       []byte
+	connection connection.Connection
+	n          int
+	buf        []byte
 }
 
 // NewSK6812RGBWMinimal creates a new SK6812RGBWMinimal bound to the
 // given NeoPixel connection and pixel count. The pixel count is
 // clamped to `MaxPixelsSK6812RGBW`.
-func NewSK6812RGBWMinimal(t *connection.NeoPixelConnection, n int) (*SK6812RGBWMinimal, error) {
+func NewSK6812RGBWMinimal(t connection.Connection, n int) (*SK6812RGBWMinimal, error) {
 	if n > MaxPixelsSK6812RGBW {
 		n = MaxPixelsSK6812RGBW
 	}
@@ -41,16 +56,16 @@ func NewSK6812RGBWMinimal(t *connection.NeoPixelConnection, n int) (*SK6812RGBWM
 	}
 	return &SK6812RGBWMinimal{
 		connection: t,
-		n:         n,
-		buf:       make([]byte, n*4),
+		n:          n,
+		buf:        make([]byte, n*4),
 	}, nil
 }
 
 // Fill fills every pixel with one RGBW colour and sends to the strip
 // immediately. Each channel is clamped to [0, 255]. Stores G, R, B, W
-// in the internal buffer (GRBW wire order) then calls
-// `connection.Write` with trailing reset bytes for the chip's ≥80 µs
-// reset pulse.
+// in the internal buffer (GRBW wire order) then sends it via
+// sk6812rgbwWrite, requesting the chip's ≥80 µs reset pulse where the
+// connection supports it.
 func (d *SK6812RGBWMinimal) Fill(r, g, b, w uint8) error {
 	for i := 0; i < d.n; i++ {
 		d.buf[i*4+0] = g
@@ -58,9 +73,7 @@ func (d *SK6812RGBWMinimal) Fill(r, g, b, w uint8) error {
 		d.buf[i*4+2] = b
 		d.buf[i*4+3] = w
 	}
-	payload := make([]byte, d.n*4+sk6812RgbwResetBytes)
-	copy(payload, d.buf[:d.n*4])
-	return d.connection.Write(payload)
+	return sk6812rgbwWrite(d.connection, d.buf[:d.n*4])
 }
 
 // Off turns off all pixels (fill with all zeros and send).
@@ -81,7 +94,7 @@ type SK6812RGBWFull struct {
 }
 
 // NewSK6812RGBWFull creates a new SK6812RGBWFull with default brightness 255.
-func NewSK6812RGBWFull(t *connection.NeoPixelConnection, n int) (*SK6812RGBWFull, error) {
+func NewSK6812RGBWFull(t connection.Connection, n int) (*SK6812RGBWFull, error) {
 	m, err := NewSK6812RGBWMinimal(t, n)
 	if err != nil {
 		return nil, err
@@ -112,8 +125,8 @@ func (d *SK6812RGBWFull) SetPixel(index int, r, g, b, w uint8) {
 
 // Show transmits the current buffer to the strip, applying brightness
 // scaling. Each channel is scaled: `sent = stored * brightness / 255`.
-// Appends 24 trailing zero bytes to guarantee the chip's ≥80 µs
-// reset pulse.
+// Sent via sk6812rgbwWrite, requesting the chip's ≥80 µs reset pulse
+// where the connection supports it.
 func (d *SK6812RGBWFull) Show() error {
 	scaled := make([]byte, d.n*4)
 	if d.brightness == 255 {
@@ -123,9 +136,7 @@ func (d *SK6812RGBWFull) Show() error {
 			scaled[i] = uint8(uint16(d.buf[i]) * uint16(d.brightness) / 255)
 		}
 	}
-	payload := make([]byte, d.n*4+sk6812RgbwResetBytes)
-	copy(payload, scaled)
-	return d.connection.Write(payload)
+	return sk6812rgbwWrite(d.connection, scaled)
 }
 
 // GetBrightness returns the global brightness scalar (0–255).

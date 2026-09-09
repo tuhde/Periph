@@ -75,3 +75,19 @@ func (b *connectionBase) IntPin() InputPin { return b.intPin }
 
 // EnPin returns the OutputPin wired to this device's EN line, or nil.
 func (b *connectionBase) EnPin() OutputPin { return b.enPin }
+
+// ResetExtender is an optional capability a Connection implementation may
+// support: a Write variant that appends a caller-chosen number of trailing
+// zero bytes *after* whatever bit-encoding it applies, instead of a fixed
+// default. NeoPixelConnection (Linux) implements this so chips needing a
+// longer minimum reset pulse than WS2812B's default (e.g. SK6812RGBW's
+// >=80us vs. the connection's default ~53us) can request one - see
+// NeoPixelConnection.WriteExt. Padding the *pre-encoded* data buffer with
+// extra zero bytes instead (as this repo's own drivers used to do) does not
+// achieve this: those bytes get bit-encoded as more zero-value data bits,
+// which is periodic low-with-brief-highs, not the continuous low a reset
+// pulse actually requires - check for this interface via a type assertion
+// rather than assuming every Connection accepts a longer reset.
+type ResetExtender interface {
+	WriteExt(data []byte, resetBytes int) error
+}

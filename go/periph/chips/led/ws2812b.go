@@ -17,15 +17,15 @@ const MaxPixelsWS2812B = 256
 // buffer. `Fill` updates every pixel and transmits immediately;
 // `Off` is shorthand for `Fill(0, 0, 0)`.
 type WS2812BMinimal struct {
-	connection *connection.NeoPixelConnection
-	n         int
-	buf       []byte
+	connection connection.Connection
+	n          int
+	buf        []byte
 }
 
 // NewWS2812BMinimal creates a new WS2812BMinimal bound to the given
 // NeoPixel connection and pixel count. The pixel count is clamped to
 // `MaxPixelsWS2812B`.
-func NewWS2812BMinimal(t *connection.NeoPixelConnection, n int) (*WS2812BMinimal, error) {
+func NewWS2812BMinimal(t connection.Connection, n int) (*WS2812BMinimal, error) {
 	if n > MaxPixelsWS2812B {
 		n = MaxPixelsWS2812B
 	}
@@ -34,8 +34,8 @@ func NewWS2812BMinimal(t *connection.NeoPixelConnection, n int) (*WS2812BMinimal
 	}
 	return &WS2812BMinimal{
 		connection: t,
-		n:         n,
-		buf:       make([]byte, n*3),
+		n:          n,
+		buf:        make([]byte, n*3),
 	}, nil
 }
 
@@ -69,7 +69,7 @@ type WS2812BFull struct {
 }
 
 // NewWS2812BFull creates a new WS2812BFull with default brightness 255.
-func NewWS2812BFull(t *connection.NeoPixelConnection, n int) (*WS2812BFull, error) {
+func NewWS2812BFull(t connection.Connection, n int) (*WS2812BFull, error) {
 	m, err := NewWS2812BMinimal(t, n)
 	if err != nil {
 		return nil, err
