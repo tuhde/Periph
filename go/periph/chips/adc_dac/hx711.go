@@ -51,13 +51,13 @@ func (e *HX711Error) Error() string {
 // averaging, tare offset capture, scale factor calibration, and power
 // management on top of the Minimal API.
 type HX711Minimal struct {
-	connection *connection.HX711Connection
+	connection connection.HX711Conn
 }
 
 // NewHX711Minimal creates a new HX711Minimal bound to the given HX711
 // connection. Discards the first post-power-up conversion so the next
 // read returns a valid result.
-func NewHX711Minimal(t *connection.HX711Connection) (*HX711Minimal, error) {
+func NewHX711Minimal(t connection.HX711Conn) (*HX711Minimal, error) {
 	d := &HX711Minimal{connection: t}
 	if _, err := d.connection.ReadRaw(int(hx711Pulses128)); err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ type HX711Full struct {
 
 // NewHX711Full creates a new HX711Full with default gain 128, offset 0,
 // and scale 1.0. Discards the first post-power-up conversion.
-func NewHX711Full(t *connection.HX711Connection) (*HX711Full, error) {
+func NewHX711Full(t connection.HX711Conn) (*HX711Full, error) {
 	m, err := NewHX711Minimal(t)
 	if err != nil {
 		return nil, err

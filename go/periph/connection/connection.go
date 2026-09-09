@@ -91,3 +91,17 @@ func (b *connectionBase) EnPin() OutputPin { return b.enPin }
 type ResetExtender interface {
 	WriteExt(data []byte, resetBytes int) error
 }
+
+// HX711Conn is the abstraction HX711Minimal/HX711Full depend on, satisfied
+// by *HX711Connection on both Linux and TinyGo. It is not the same as
+// Connection: HX711's 2-wire bit-bang protocol has no byte-oriented
+// read/write, so it needs its own narrow interface instead of the shared
+// one every I2C/SPI/NeoPixel chip driver uses (see HX711Connection's own
+// doc comment in hx711_linux.go / hx711_tinygo.go). Kept separate so unit
+// tests can substitute an in-memory fake without touching real hardware.
+type HX711Conn interface {
+	IsReady() (bool, error)
+	ReadRaw(numPulses int) (int32, error)
+	PowerDown() error
+	PowerUp() error
+}

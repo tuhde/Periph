@@ -118,10 +118,21 @@ def decode_annotations(sr_file, decoder_id, channel_map, protocol='i2c', extra_d
     'spi'; NeoPixel chips: 'neopixel') - check the chip decoder's own
     `inputs = [...]` to know which. extra_decoder_opts appends any non-channel
     decoder options the bus decoder needs, e.g. ":reset_us=50" for neopixel -
-    check that decoder's own `options = [...]` for what it accepts."""
+    check that decoder's own `options = [...]` for what it accepts.
+
+    decoder_id=None means the chip has no separate stacked decoder because
+    its own sigrok/<chip>/pd.py already consumes raw logic channels directly
+    (`inputs = ['logic']`) and emits chip-specific annotations itself - e.g.
+    HX711, whose 2-wire bit-bang protocol has no shared bus decoder to stack
+    on the way I2C/SPI/NeoPixel chips do. In that case `protocol` names that
+    self-contained decoder directly and nothing is appended after the
+    channel map."""
+    pd_arg = f'{protocol}:{channel_map}{extra_decoder_opts}'
+    if decoder_id is not None:
+        pd_arg += f',{decoder_id}'
     cmd = [
         'sigrok-cli', '-i', sr_file,
-        '-P', f'{protocol}:{channel_map}{extra_decoder_opts},{decoder_id}',
+        '-P', pd_arg,
         '--protocol-decoder-samplenum',
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=_sigrok_env())
@@ -176,8 +187,10 @@ def run_checks(chip_label, decoder_id, sigrok_channels, checks_table, trigger, t
     "D0=CLK,D1=MOSI,D2=MISO,D3=CS" (spi), or "D0=DIN" (neopixel). protocol
     names which bus decoder the chip decoder stacks on, and
     extra_decoder_opts passes any of that bus decoder's non-channel options -
-    see decode_annotations(). Prints PASS/FAIL/DONE, returns 0 if every
-    check passed, else 1."""
+    see decode_annotations(). decoder_id may be None for a chip whose own
+    decoder consumes raw logic channels directly with no separate bus
+    decoder to stack on (e.g. HX711 - see decode_annotations()). Prints
+    PASS/FAIL/DONE, returns 0 if every check passed, else 1."""
     channel_names = channel_names_from_sigrok_channels(sigrok_channels)
     channel_map = channels_from_sigrok_channels(sigrok_channels)
     timing = parse_timing_conf(timing_conf_path)
