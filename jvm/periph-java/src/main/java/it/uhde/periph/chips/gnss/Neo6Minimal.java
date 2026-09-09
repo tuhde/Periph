@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gnss;
 
+import it.uhde.periph.connection.AvailableConnection;
 import it.uhde.periph.connection.Connection;
-import it.uhde.periph.connection.UARTConnection;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -76,7 +76,7 @@ public class Neo6Minimal {
      */
     protected Integer readByte() throws IOException {
         if (busType == BusType.UART) {
-            UARTConnection uart = (UARTConnection) connection;
+            AvailableConnection uart = (AvailableConnection) connection;
             if (uart.available() <= 0) return null;
             byte[] b = connection.read(1);
             return b.length > 0 ? (b[0] & 0xFF) : null;
