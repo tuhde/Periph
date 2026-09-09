@@ -9,31 +9,32 @@ import (
 
 // MFRC522 register addresses (6 bits, 0x00–0x3F).
 const (
-	mfrcRegCommand      uint8 = 0x01
-	mfrcRegComIEn       uint8 = 0x02
-	mfrcRegComIrq       uint8 = 0x04
-	mfrcRegError        uint8 = 0x06
-	mfrcRegStatus1      uint8 = 0x07
-	mfrcRegStatus2      uint8 = 0x08
-	mfrcRegFIFOData     uint8 = 0x09
-	mfrcRegFIFOLevel    uint8 = 0x0A
-	mfrcRegControl      uint8 = 0x0C
-	mfrcRegBitFraming   uint8 = 0x0D
-	mfrcRegColl         uint8 = 0x0E
-	mfrcRegMode         uint8 = 0x11
-	mfrcRegTxMode       uint8 = 0x12
-	mfrcRegRxMode       uint8 = 0x13
-	mfrcRegTxControl    uint8 = 0x14
-	mfrcRegTxASK        uint8 = 0x15
-	mfrcRegCRCResultH   uint8 = 0x21
-	mfrcRegCRCResultL   uint8 = 0x22
-	mfrcRegRFCfg        uint8 = 0x26
-	mfrcRegTMode        uint8 = 0x2A
-	mfrcRegTPrescaler   uint8 = 0x2B
-	mfrcRegTReloadH     uint8 = 0x2C
-	mfrcRegTReloadL     uint8 = 0x2D
-	mfrcRegAutoTest     uint8 = 0x36
-	mfrcRegVersion      uint8 = 0x37
+	mfrcRegCommand    uint8 = 0x01
+	mfrcRegComIEn     uint8 = 0x02
+	mfrcRegComIrq     uint8 = 0x04
+	mfrcRegDivIrq     uint8 = 0x05
+	mfrcRegError      uint8 = 0x06
+	mfrcRegStatus1    uint8 = 0x07
+	mfrcRegStatus2    uint8 = 0x08
+	mfrcRegFIFOData   uint8 = 0x09
+	mfrcRegFIFOLevel  uint8 = 0x0A
+	mfrcRegControl    uint8 = 0x0C
+	mfrcRegBitFraming uint8 = 0x0D
+	mfrcRegColl       uint8 = 0x0E
+	mfrcRegMode       uint8 = 0x11
+	mfrcRegTxMode     uint8 = 0x12
+	mfrcRegRxMode     uint8 = 0x13
+	mfrcRegTxControl  uint8 = 0x14
+	mfrcRegTxASK      uint8 = 0x15
+	mfrcRegCRCResultH uint8 = 0x21
+	mfrcRegCRCResultL uint8 = 0x22
+	mfrcRegRFCfg      uint8 = 0x26
+	mfrcRegTMode      uint8 = 0x2A
+	mfrcRegTPrescaler uint8 = 0x2B
+	mfrcRegTReloadH   uint8 = 0x2C
+	mfrcRegTReloadL   uint8 = 0x2D
+	mfrcRegAutoTest   uint8 = 0x36
+	mfrcRegVersion    uint8 = 0x37
 )
 
 // MFRC522 command codes (CommandReg.Command[3:0]).
@@ -70,11 +71,11 @@ const (
 
 // ISO/IEC 14443-3 Type A short-frame commands.
 const (
-	piccREQA  uint8 = 0x26
-	piccWUPA  uint8 = 0x52
-	piccHLTA  uint8 = 0x50
-	piccCT    uint8 = 0x88
-	piccSelBit uint8 = 0x70
+	piccREQA           uint8 = 0x26
+	piccWUPA           uint8 = 0x52
+	piccHLTA           uint8 = 0x50
+	piccCT             uint8 = 0x88
+	piccSelBit         uint8 = 0x70
 	piccSAKNotComplete uint8 = 0x04
 )
 
@@ -299,6 +300,9 @@ func (d *MFRC522Minimal) calcCRC(data []byte) ([2]byte, error) {
 	if err := d.writeReg(mfrcRegComIrq, 0x04); err != nil {
 		return [2]byte{}, err
 	}
+	if err := d.writeReg(mfrcRegDivIrq, 0x04); err != nil {
+		return [2]byte{}, err
+	}
 	if err := d.flushFIFO(); err != nil {
 		return [2]byte{}, err
 	}
@@ -309,7 +313,9 @@ func (d *MFRC522Minimal) calcCRC(data []byte) ([2]byte, error) {
 		return [2]byte{}, err
 	}
 	for i := 0; i < 100; i++ {
-		v, err := d.readReg(mfrcRegComIrq)
+		// CRCIRq lives in DivIrqReg (0x05), not ComIrqReg — polling
+		// ComIrqReg here would never see it complete on real hardware.
+		v, err := d.readReg(mfrcRegDivIrq)
 		if err != nil {
 			return [2]byte{}, err
 		}
@@ -361,7 +367,10 @@ func (d *MFRC522Minimal) anticollision(cmd uint8) ([]byte, error) {
 	return back[0:4], nil
 }
 
-func (d *MFRC522Minimal) piccSelect(cmd uint8, uidPart []byte) (uint8, error) {
+// piccSelect returns (sak, ok, err). ok is false only when the card did not
+// answer — SAK == 0x00 is itself a valid, common response (single-size UID,
+// cascade complete) and must not be conflated with "no answer".
+func (d *MFRC522Minimal) piccSelect(cmd uint8, uidPart []byte) (uint8, bool, error) {
 	buf := make([]byte, 9)
 	buf[0] = cmd
 	buf[1] = piccSelBit
@@ -373,31 +382,31 @@ func (d *MFRC522Minimal) piccSelect(cmd uint8, uidPart []byte) (uint8, error) {
 	buf[6] = bcc
 	crc, err := d.calcCRC(buf[0:7])
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	buf[7] = crc[0]
 	buf[8] = crc[1]
 	if err := d.writeReg(mfrcRegTxMode, 0x80); err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	if err := d.writeReg(mfrcRegRxMode, 0x80); err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	time.Sleep(mfrcDelay)
 	back, err := d.transceive(buf)
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	if err := d.writeReg(mfrcRegTxMode, 0x00); err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	if err := d.writeReg(mfrcRegRxMode, 0x00); err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	if back == nil || len(back) < 1 {
-		return 0, nil
+		return 0, false, nil
 	}
-	return back[0], nil
+	return back[0], true, nil
 }
 
 func (d *MFRC522Minimal) selectCard() ([]byte, error) {
@@ -407,8 +416,8 @@ func (d *MFRC522Minimal) selectCard() ([]byte, error) {
 		if err != nil || part == nil {
 			return nil, err
 		}
-		sak, err := d.piccSelect(piccSelectCL[i], part)
-		if err != nil || sak == 0 {
+		sak, ok, err := d.piccSelect(piccSelectCL[i], part)
+		if err != nil || !ok {
 			return nil, err
 		}
 		if sak&piccSAKNotComplete == 0 {
