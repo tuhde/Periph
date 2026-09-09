@@ -109,13 +109,16 @@ def capture(driver, conn, channel_names, samplerate, capture_ms, out_file):
     subprocess.run(cmd, check=True, env=_sigrok_env(), stdout=subprocess.DEVNULL)
 
 
-def decode_annotations(sr_file, decoder_id, channel_map):
+def decode_annotations(sr_file, decoder_id, channel_map, protocol='i2c'):
     """Return decoded annotations as a list of (start_sample, end_sample, text).
-    channel_map: the i2c decoder's role mapping, e.g. "scl=D0:sda=D1" - see
-    channels_from_sigrok_channels()."""
+    channel_map: the stacked bus decoder's role mapping, e.g. "scl=D0:sda=D1"
+    for i2c or "clk=D0:mosi=D1:miso=D2:cs=D3" for spi - see
+    channels_from_sigrok_channels(). protocol is which bus decoder the chip
+    decoder stacks on (most chips: 'i2c'; SPI-only chips like MFRC522: 'spi') -
+    check the chip decoder's own `inputs = [...]` to know which."""
     cmd = [
         'sigrok-cli', '-i', sr_file,
-        '-P', f'i2c:{channel_map},{decoder_id}',
+        '-P', f'{protocol}:{channel_map},{decoder_id}',
         '--protocol-decoder-samplenum',
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=_sigrok_env())
@@ -153,9 +156,11 @@ def find_delta_samples(annotations, is_start, is_end):
 
 
 def run_checks(chip_label, decoder_id, sigrok_channels, checks_table, trigger, timing_conf_path,
-                sigrok_driver, sigrok_conn):
+                sigrok_driver, sigrok_conn, protocol='i2c'):
     """checks_table: {name: (is_start_fn, is_end_fn)}. sigrok_channels is the
-    testconfig_wiring SIGROK_CHANNELS value, e.g. "D0=SCL,D1=SDA". Prints
+    testconfig_wiring SIGROK_CHANNELS value, e.g. "D0=SCL,D1=SDA" (i2c) or
+    "D0=CLK,D1=MOSI,D2=MISO,D3=CS" (spi). protocol names which bus decoder
+    the chip decoder stacks on - see decode_annotations(). Prints
     PASS/FAIL/DONE, returns 0 if every check passed, else 1."""
     channel_names = channel_names_from_sigrok_channels(sigrok_channels)
     channel_map = channels_from_sigrok_channels(sigrok_channels)
@@ -183,7 +188,7 @@ def run_checks(chip_label, decoder_id, sigrok_channels, checks_table, trigger, t
             trigger(name)
             cap_thread.join()
 
-            annotations = decode_annotations(sr_file, decoder_id, channel_map)
+            annotations = decode_annotations(sr_file, decoder_id, channel_map, protocol=protocol)
             delta_samples = find_delta_samples(annotations, is_start, is_end)
             if delta_samples is None:
                 print(f'FAIL {name}: start/end annotation pair not found in capture')

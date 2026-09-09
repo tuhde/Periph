@@ -125,7 +125,14 @@ _PICC_SAK_NOT_COMPLETE = 0x04
 
 
 def _delay_ms(ms):
-    time.sleep_ms(ms)
+    if hasattr(time, 'sleep_ms'):
+        time.sleep_ms(ms)
+    else:
+        time.sleep(ms / 1000.0)
+
+
+def _ticks_ms():
+    return time.ticks_ms() if hasattr(time, 'ticks_ms') else int(time.time() * 1000)
 
 
 class MFRC522Minimal:
@@ -212,14 +219,14 @@ class MFRC522Minimal:
         if command == _CMD_TRANSCEIVE:
             self._set_bits(_REG_BIT_FRAMING, 0x80)
         # Wait for IRQ (or timeout)
-        deadline = time.ticks_ms() + 50
+        deadline = _ticks_ms() + 50
         while True:
             n = self._read_reg(_REG_COM_IRQ)
             if n & wait_irq:
                 return True
             if n & 0x01:        # TimerIRq
                 return False
-            if time.ticks_ms() > deadline:
+            if _ticks_ms() > deadline:
                 return False
 
     def _transceive(self, send_data, rx_align=0, tx_last_bits=0, valid_bits=0):
@@ -296,7 +303,7 @@ class MFRC522Minimal:
                 return None
             if not (sak & _PICC_SAK_NOT_COMPLETE):
                 # Combine the parts. If first byte is 0x88 (cascade tag), drop it.
-                if uid_part[0] == _PICC_CT:
+                if uid_part[0] == _PICC_CMD_CT:
                     uid.extend(uid_part[1:4])
                 else:
                     uid.extend(uid_part[0:4])
@@ -341,16 +348,18 @@ class MFRC522Minimal:
             # hard-resolves collisions at the chip level when RxAlign=0
             # and ValuesAfterColl=0, so a single read is sufficient.
             break
-        # BCC = XOR of first 4 bytes
+        # BCC = XOR of first 4 bytes, checked against the 5th byte the card
+        # actually sent (back_data[4] - ser_num only ever holds 4 bytes, so
+        # indexing ser_num[4] here would always raise IndexError).
         bcc = 0
         for b in ser_num[0:4]:
             bcc ^= b
-        if bcc != ser_num[4]:
+        if bcc != back_data[4]:
             return None
         return bytes(ser_num[0:4])
 
     def _select(self, cmd, uid_part):
-        buf = bytearray(2 + 4 + 2)
+        buf = bytearray(2 + 4 + 1 + 2)  # cmd, sel_bit, uid(4), bcc, crc(2)
         buf[0] = cmd
         buf[1] = _PICC_SEL_BIT
         buf[2:6] = uid_part
