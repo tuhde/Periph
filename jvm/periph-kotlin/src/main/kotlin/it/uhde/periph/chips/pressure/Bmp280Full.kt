@@ -26,8 +26,9 @@ import java.io.IOException
  */
 class Bmp280Full @JvmOverloads constructor(
     connection: Connection,
-    addr: Int = 0x76
-) : Bmp280Minimal(connection, addr) {
+    addr: Int = 0x76,
+    busType: Int = BUS_I2C
+) : Bmp280Minimal(connection, addr, busType) {
 
     companion object {
         // Oversampling constants
@@ -105,8 +106,8 @@ class Bmp280Full @JvmOverloads constructor(
     fun configure(osrsT: Int, osrsP: Int, mode: Int, filter: Int, tSb: Int) {
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (mode and 0x03)
         config   = ((tSb   and 0x07) shl 5) or ((filter and 0x07) shl 2)
-        connection.write(byteArrayOf(REG_CONFIG.toByte(),    config.toByte()))
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        writeReg(REG_CONFIG, config)
+        writeReg(REG_CTRL_MEAS, ctrlMeas)
     }
 
     /**
@@ -120,7 +121,7 @@ class Bmp280Full @JvmOverloads constructor(
      */
     fun setOversampling(osrsT: Int, osrsP: Int) {
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (ctrlMeas and 0x03)
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        writeReg(REG_CTRL_MEAS, ctrlMeas)
     }
 
     /**
@@ -133,7 +134,7 @@ class Bmp280Full @JvmOverloads constructor(
      */
     fun setMode(mode: Int) {
         ctrlMeas = (ctrlMeas and 0xFC) or (mode and 0x03)
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        writeReg(REG_CTRL_MEAS, ctrlMeas)
     }
 
     /**
@@ -146,7 +147,7 @@ class Bmp280Full @JvmOverloads constructor(
      */
     fun setFilter(coeff: Int) {
         config = (config and 0xE3) or ((coeff and 0x07) shl 2)
-        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        writeReg(REG_CONFIG, config)
     }
 
     /**
@@ -159,7 +160,7 @@ class Bmp280Full @JvmOverloads constructor(
      */
     fun setStandby(tSb: Int) {
         config = (config and 0x1F) or ((tSb and 0x07) shl 5)
-        connection.write(byteArrayOf(REG_CONFIG.toByte(), config.toByte()))
+        writeReg(REG_CONFIG, config)
     }
 
     /**
@@ -236,10 +237,10 @@ class Bmp280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun reset() {
-        connection.write(byteArrayOf(REG_SOFT_RST.toByte(), 0xB6.toByte()))
+        writeReg(REG_SOFT_RST, 0xB6)
         Thread.sleep(2)
         readCalibration()
-        connection.write(byteArrayOf(REG_CONFIG.toByte(),    config.toByte()))
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ctrlMeas.toByte()))
+        writeReg(REG_CONFIG, config)
+        writeReg(REG_CTRL_MEAS, ctrlMeas)
     }
 }

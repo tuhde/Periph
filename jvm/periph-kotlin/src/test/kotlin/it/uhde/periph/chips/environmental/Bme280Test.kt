@@ -86,4 +86,54 @@ class Bme280Test {
         assertEquals((6 shl 5) or (3 shl 2), connection.registers()[Bme280Minimal.REG_CONFIG])
         assertEquals((3 shl 5) or (4 shl 2) or 1, connection.registers()[Bme280Minimal.REG_CTRL_MEAS])
     }
+
+    @Test
+    fun spiMasksWriteAddresses() {
+        // Per specs/environmental/bme280.md's SPI Register-address protocol:
+        // BME280's I2C register addresses already have bit 7 set, so SPI
+        // reads use the same value unmasked; only writes differ, clearing
+        // bit 7 (reg and 0x7F).
+        val connection = MockConnection()
+        connection.setRegister(Bme280Minimal.REG_ID, 0x60)
+        connection.setRegister(
+            Bme280Minimal.REG_CALIB,
+            0x70, 0x6B, 0x43, 0x67, 0x18, 0xFC, 0x7D, 0x8E, 0x43, 0xD6, 0xD0,
+            0x0B, 0x27, 0x0B, 0x8C, 0x00, 0xF9, 0xFF, 0x8C, 0x3C, 0xF8, 0xC6,
+            0x70, 0x17, 0x00, 0x4B
+        )
+        connection.setRegister(Bme280Minimal.REG_CAL_H2, 0x80, 0x01, 0x00, 0x12, 0x2D, 0x03, 0x1E)
+        connection.setRegister(Bme280Minimal.REG_DATA, 0x65, 0x5A, 0xC0, 0x7E, 0xED, 0x00, 0x80, 0x00)
+
+        val expectedT = 25.08
+        val expectedP = 1006.5325390625
+        val expectedH = 79.0869140625
+
+        val sensor = Bme280Full(connection, 0x76, Bme280Minimal.BUS_SPI)
+
+        // Construction writes ctrl_hum/ctrl_meas/config - on SPI these must
+        // all be masked (bit 7 cleared), never the raw I2C address.
+        for (reg in listOf(Bme280Minimal.REG_CTRL_HUM, Bme280Minimal.REG_CTRL_MEAS, Bme280Minimal.REG_CONFIG)) {
+            val sawMasked = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == (reg and 0x7F) }
+            assertTrue(sawMasked, "spi init should write masked address 0x${(reg and 0x7F).toString(16)}")
+            val sawUnmasked = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == reg }
+            assertTrue(!sawUnmasked, "spi init should never write unmasked address 0x${reg.toString(16)}")
+        }
+
+        // Reads stay unmasked - calibration/data preloading and read-based
+        // assertions behave exactly as in I2C mode.
+        assertClose(expectedT, sensor.temperature(), 0.01)
+        assertClose(expectedP, sensor.pressure(), 0.01)
+        assertClose(expectedH, sensor.humidity(), 0.01)
+
+        // reset() also routes every write through writeReg, so the
+        // soft-reset command itself must be masked too.
+        sensor.reset()
+        val sawMaskedReset = connection.writes().any {
+            it.size == 2 && (it[0].toInt() and 0xFF) == (Bme280Minimal.REG_SOFT_RST and 0x7F) &&
+                (it[1].toInt() and 0xFF) == Bme280Minimal.RESET_CMD
+        }
+        assertTrue(sawMaskedReset, "spi reset() should mask the soft-reset write address")
+        val sawUnmaskedReset = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == Bme280Minimal.REG_SOFT_RST }
+        assertTrue(!sawUnmaskedReset, "spi should never write the unmasked soft-reset address (0xE0)")
+    }
 }

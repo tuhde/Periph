@@ -17,12 +17,25 @@ import java.nio.ByteOrder
  * Default settings: osrs_t=×1, osrs_p=×1, filter off; measurements are
  * triggered in forced mode (one shot per call).
  */
+/**
+ * @param addr I²C device address (0x76 or 0x77); unused for SPI.
+ * @param busType [BUS_I2C] (default) or [BUS_SPI] — per the datasheet's
+ * register-address protocol, BMP280's I²C register addresses already have
+ * bit 7 set (0x88-0xFC), so SPI reads use the same value unmasked; only
+ * writes differ, clearing bit 7 (`reg and 0x7F`).
+ */
 open class Bmp280Minimal @JvmOverloads constructor(
     protected val connection: Connection,
-    addr: Int = 0x76
+    addr: Int = 0x76,
+    protected val busType: Int = BUS_I2C
 ) {
 
     companion object {
+        /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
+        const val BUS_I2C = 0
+        /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
+        const val BUS_SPI = 1
+
         const val REG_CALIB     = 0x88
         const val REG_ID        = 0xD0
         const val REG_SOFT_RST  = 0xE0
@@ -95,6 +108,21 @@ open class Bmp280Minimal @JvmOverloads constructor(
     }
 
     /**
+     * Write a single byte to a register, applying the SPI write-address mask
+     * if this driver was constructed with [BUS_SPI].
+     *
+     * Register constants are defined in their I²C (unmasked) form; on SPI,
+     * bit 7 is cleared for writes only (reads use the same constant unmasked).
+     *
+     * @param reg register address (I²C / unmasked form)
+     * @param value byte value to write
+     */
+    protected fun writeReg(reg: Int, value: Int) {
+        val addr = if (busType == BUS_SPI) reg and 0x7F else reg
+        connection.write(byteArrayOf(addr.toByte(), value.toByte()))
+    }
+
+    /**
      * Trigger a forced-mode measurement and burst-read 6 bytes from 0xF7.
      *
      * Writes ctrl_meas with mode=01 (forced), waits 7 ms, then reads
@@ -104,7 +132,7 @@ open class Bmp280Minimal @JvmOverloads constructor(
      *         temp_msb, temp_lsb, temp_xlsb]
      */
     protected fun readRawData(): ByteArray {
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), ((ctrlMeas and 0xFC) or 0x01).toByte()))
+        writeReg(REG_CTRL_MEAS, (ctrlMeas and 0xFC) or 0x01)
         Thread.sleep(7)
         return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 6)
     }

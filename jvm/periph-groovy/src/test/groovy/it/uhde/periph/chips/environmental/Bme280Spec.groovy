@@ -101,4 +101,49 @@ class Bme280Spec extends Specification {
         connection.registers().get(Bme280Minimal.REG_CONFIG) == ((6 << 5) | (3 << 2))
         connection.registers().get(Bme280Minimal.REG_CTRL_MEAS) == ((3 << 5) | (4 << 2) | 1)
     }
+
+    def "SPI masks write addresses"() {
+        given: "Per specs/environmental/bme280.md's SPI Register-address protocol:\n" +
+                "BME280's I2C register addresses already have bit 7 set, so SPI reads\n" +
+                "use the same value unmasked; only writes differ, clearing bit 7\n" +
+                "(reg & 0x7F)."
+        def connection = new MockConnection()
+        connection.setRegister(Bme280Minimal.REG_ID, 0x60)
+        connection.setRegister(Bme280Minimal.REG_CALIB,
+                0x70, 0x6B, 0x43, 0x67, 0x18, 0xFC, 0x7D, 0x8E, 0x43, 0xD6, 0xD0,
+                0x0B, 0x27, 0x0B, 0x8C, 0x00, 0xF9, 0xFF, 0x8C, 0x3C, 0xF8, 0xC6,
+                0x70, 0x17, 0x00, 0x4B)
+        connection.setRegister(Bme280Minimal.REG_CAL_H2, 0x80, 0x01, 0x00, 0x12, 0x2D, 0x03, 0x1E)
+        connection.setRegister(Bme280Minimal.REG_DATA, 0x65, 0x5A, 0xC0, 0x7E, 0xED, 0x00, 0x80, 0x00)
+
+        def expectedT = 25.08d
+        def expectedP = 1006.5325390625d
+        def expectedH = 79.0869140625d
+
+        when: "construction writes ctrl_hum/ctrl_meas/config"
+        def sensor = new Bme280Full(connection, 0x76, Bme280Minimal.BUS_SPI)
+
+        then: "on SPI these must all be masked (bit 7 cleared), never the raw I2C address"
+        [Bme280Minimal.REG_CTRL_HUM, Bme280Minimal.REG_CTRL_MEAS, Bme280Minimal.REG_CONFIG].every { reg ->
+            connection.writes().any { it.length == 2 && (it[0] & 0xFF) == (reg & 0x7F) } &&
+            !connection.writes().any { it.length == 2 && (it[0] & 0xFF) == reg }
+        }
+
+        expect: "reads stay unmasked - calibration/data preloading and read-based\n" +
+                "assertions behave exactly as in I2C mode"
+        Math.abs(sensor.temperature() - expectedT) < 0.01
+        Math.abs(sensor.pressure() - expectedP) < 0.01
+        Math.abs(sensor.humidity() - expectedH) < 0.01
+
+        when: "reset() also routes every write through writeReg"
+        sensor.reset()
+
+        then: "the soft-reset command itself must be masked too"
+        connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == (Bme280Minimal.REG_RESET & 0x7F) && (it[1] & 0xFF) == Bme280Minimal.RESET_CMD
+        }
+        !connection.writes().any {
+            it.length == 2 && (it[0] & 0xFF) == Bme280Minimal.REG_RESET
+        }
+    }
 }

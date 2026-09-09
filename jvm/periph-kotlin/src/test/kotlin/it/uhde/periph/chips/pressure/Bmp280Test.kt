@@ -109,4 +109,38 @@ class Bmp280Test {
         assertEquals(0xCC.toByte(), reappliedConfig[1])
         assertEquals(0x95.toByte(), reappliedCtrl[1])
     }
+
+    @Test
+    fun spiMasksWriteAddresses() {
+        // Per specs/pressure/bmp280.md's SPI Register-address protocol:
+        // BMP280's I2C register addresses already have bit 7 set (0x88-0xFC),
+        // so SPI reads use the same value unmasked; only writes differ,
+        // clearing bit 7 (reg and 0x7F).
+        val connection = MockConnection()
+        connection.setRegister(Bmp280Minimal.REG_ID, 0x58)
+        preloadCalibration(connection)
+        preloadData(connection)
+
+        val sensor = Bmp280Full(connection, 0x76, Bmp280Minimal.BUS_SPI)
+
+        // temperature() triggers a forced-mode write to CTRL_MEAS; on SPI the
+        // write address must have bit 7 cleared (0xF4 and 0x7F = 0x74).
+        assertEquals(25.08, sensor.temperature(), 1e-3)
+        val sawMaskedWrite = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == (Bmp280Minimal.REG_CTRL_MEAS and 0x7F) }
+        assertTrue(sawMaskedWrite, "spi write should use masked CTRL_MEAS address (0x74)")
+        val sawUnmaskedWrite = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == Bmp280Minimal.REG_CTRL_MEAS }
+        assertTrue(!sawUnmaskedWrite, "spi should never write the unmasked CTRL_MEAS address (0xF4)")
+
+        // Reads stay unmasked - pressure() still works via the same register
+        // constants used for I2C.
+        assertEquals(1006.5325390625, sensor.pressure(), 1e-2)
+
+        // configure() also routes through writeReg, so CONFIG/CTRL_MEAS
+        // writes stay masked.
+        sensor.configure(2, 3, 3, 2, 4)
+        val sawMaskedConfig = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == (Bmp280Minimal.REG_CONFIG and 0x7F) }
+        assertTrue(sawMaskedConfig, "spi configure() should mask the CONFIG write address")
+        val sawUnmaskedConfig = connection.writes().any { it.size == 2 && (it[0].toInt() and 0xFF) == Bmp280Minimal.REG_CONFIG }
+        assertTrue(!sawUnmaskedConfig, "spi should never write the unmasked CONFIG address (0xF5)")
+    }
 }

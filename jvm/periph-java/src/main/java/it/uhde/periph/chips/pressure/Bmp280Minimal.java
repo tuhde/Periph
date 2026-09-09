@@ -20,6 +20,11 @@ import java.nio.ByteOrder;
  */
 public class Bmp280Minimal {
 
+    /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
+    public static final int BUS_I2C = 0;
+    /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
+    public static final int BUS_SPI = 1;
+
     // Register addresses
     protected static final int REG_CALIB      = 0x88;
     protected static final int REG_ID         = 0xD0;
@@ -34,6 +39,7 @@ public class Bmp280Minimal {
     protected static final int CHIP_ID_BME280 = 0x60;
 
     protected final Connection connection;
+    protected final int busType;
 
     // Calibration coefficients
     protected int digT1;   // uint16
@@ -77,7 +83,26 @@ public class Bmp280Minimal {
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
     public Bmp280Minimal(Connection connection, int addr) throws IOException {
+        this(connection, addr, BUS_I2C);
+    }
+
+    /**
+     * Construct the driver at the given address and bus type, verify the chip
+     * ID, and load calibration data.
+     *
+     * <p>Pass {@link #BUS_SPI} for SPI — per the datasheet's register-address
+     * protocol, BMP280's I²C register addresses already have bit 7 set
+     * (0x88-0xFC), so SPI reads use the same value unmasked; only writes
+     * differ, clearing bit 7 ({@code reg & 0x7F}).
+     *
+     * @param connection I²C or SPI connection bound to the device
+     * @param addr      I²C device address (0x76 or 0x77); unused for SPI
+     * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
+     * @throws IOException on bus error, wrong chip ID, or invalid calibration
+     */
+    public Bmp280Minimal(Connection connection, int addr, int busType) throws IOException {
         this.connection = connection;
+        this.busType = busType;
 
         // Verify chip ID
         byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
@@ -118,6 +143,22 @@ public class Bmp280Minimal {
     }
 
     /**
+     * Write a single byte to a register, applying the SPI write-address mask
+     * if this driver was constructed with {@link #BUS_SPI}.
+     *
+     * <p>Register constants are defined in their I²C (unmasked) form; on SPI,
+     * bit 7 is cleared for writes only (reads use the same constant unmasked).
+     *
+     * @param reg   register address (I²C / unmasked form)
+     * @param value byte value to write
+     * @throws IOException on bus error
+     */
+    protected void writeReg(int reg, int value) throws IOException {
+        int addr = (busType == BUS_SPI) ? (reg & 0x7F) : reg;
+        connection.write(new byte[]{(byte) addr, (byte) value});
+    }
+
+    /**
      * Trigger a forced-mode measurement and burst-read 6 bytes from 0xF7.
      *
      * <p>Writes ctrl_meas with mode=01 (forced), waits 7 ms, then reads
@@ -129,7 +170,7 @@ public class Bmp280Minimal {
      */
     protected byte[] readRawData() throws IOException {
         // Write forced mode — bits [1:0] = 01
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)});
+        writeReg(REG_CTRL_MEAS, (ctrlMeas & 0xFC) | 0x01);
         try { Thread.sleep(7); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         return connection.writeRead(new byte[]{(byte) REG_DATA}, 6);
     }

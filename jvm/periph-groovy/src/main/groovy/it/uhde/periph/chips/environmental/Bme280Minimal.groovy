@@ -20,6 +20,11 @@ import java.io.IOException
 @CompileStatic
 class Bme280Minimal {
 
+    /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
+    static final int BUS_I2C = 0
+    /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
+    static final int BUS_SPI = 1
+
     static final int REG_CALIB       = 0x88
     static final int REG_H1          = 0xA1
     static final int REG_ID          = 0xD0
@@ -36,6 +41,7 @@ class Bme280Minimal {
     static final int MEAS_TIME_MS    = 9
 
     protected final Connection connection
+    protected final int busType
 
     protected int digT1
     protected int digT2
@@ -83,7 +89,26 @@ class Bme280Minimal {
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
     Bme280Minimal(Connection connection, int addr) throws IOException {
+        this(connection, addr, BUS_I2C)
+    }
+
+    /**
+     * Construct the driver at the given address and bus type, verify the chip
+     * ID, and load calibration data.
+     *
+     * <p>Pass {@link #BUS_SPI} for SPI — per the datasheet's register-address
+     * protocol, BME280's I²C register addresses already have bit 7 set, so
+     * SPI reads use the same value unmasked; only writes differ, clearing
+     * bit 7 ({@code reg & 0x7F}).
+     *
+     * @param connection I²C or SPI connection bound to the device
+     * @param addr      I²C device address (0x76 or 0x77); unused for SPI
+     * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
+     * @throws IOException on bus error, wrong chip ID, or invalid calibration
+     */
+    Bme280Minimal(Connection connection, int addr, int busType) throws IOException {
         this.connection = connection
+        this.busType = busType
 
         byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1)
         int chipId = id[0] & 0xFF
@@ -93,9 +118,25 @@ class Bme280Minimal {
 
         readCalibration()
 
-        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas})
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config})
+        writeReg(REG_CTRL_HUM, ctrlHum)
+        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        writeReg(REG_CONFIG, config)
+    }
+
+    /**
+     * Write a single byte to a register, applying the SPI write-address mask
+     * if this driver was constructed with {@link #BUS_SPI}.
+     *
+     * <p>Register constants are defined in their I²C (unmasked) form; on SPI,
+     * bit 7 is cleared for writes only (reads use the same constant unmasked).
+     *
+     * @param reg   register address (I²C / unmasked form)
+     * @param value byte value to write
+     * @throws IOException on bus error
+     */
+    protected void writeReg(int reg, int value) throws IOException {
+        int addr = (busType == BUS_SPI) ? (reg & 0x7F) : reg
+        connection.write(new byte[]{(byte) addr, (byte) value})
     }
 
     protected void readCalibration() throws IOException {
@@ -132,8 +173,8 @@ class Bme280Minimal {
         // calls ... should not re-trigger; just read the most recent shadow
         // registers").
         if ((ctrlMeas & 0x03) != 0x03) {
-            connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum})
-            connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ((ctrlMeas & 0xFC) | 0x01)})
+            writeReg(REG_CTRL_HUM, ctrlHum)
+            writeReg(REG_CTRL_MEAS, (ctrlMeas & 0xFC) | 0x01)
             try { Thread.sleep(MEAS_TIME_MS) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         }
         return connection.writeRead(new byte[]{(byte) REG_DATA}, 8)
