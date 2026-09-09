@@ -64,6 +64,7 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
      * @param w     white channel (0–255)
      */
     public void setPixel(int index, int r, int g, int b, int w) {
+        if (n == 0) return;
         index = Math.max(0, Math.min(n - 1, index));
         buf[index * 4]     = (byte) Math.max(0, Math.min(255, g));
         buf[index * 4 + 1] = (byte) Math.max(0, Math.min(255, r));
@@ -99,13 +100,13 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
      */
     public void show() throws IOException {
         if (brightness == 255) {
-            connection.write(buf);
+            transmit(buf);
         } else {
             byte[] scaled = new byte[buf.length];
             for (int i = 0; i < buf.length; i++) {
                 scaled[i] = (byte) ((buf[i] & 0xFF) * brightness / 255);
             }
-            connection.write(scaled);
+            transmit(scaled);
         }
     }
 
@@ -117,6 +118,7 @@ public class SK6812RGBWFull extends SK6812RGBWMinimal {
      * @param steps number of pixel positions to shift left
      */
     public void rotate(int steps) {
+        if (n == 0) return;
         steps = ((steps % n) + n) % n;
         if (steps == 0) return;
         int s4 = steps * 4;

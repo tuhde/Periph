@@ -63,6 +63,7 @@ class WS2812BFull extends WS2812BMinimal {
      * @param b blue channel (0–255)
      */
     void setPixel(int index, int r, int g, int b) {
+        if (n == 0) return
         index = Math.max(0, Math.min(n - 1, index))
         buf[index * 3]     = (byte) Math.max(0, Math.min(255, g))
         buf[index * 3 + 1] = (byte) Math.max(0, Math.min(255, r))
@@ -110,6 +111,7 @@ class WS2812BFull extends WS2812BMinimal {
      * @param steps number of pixel positions to shift left
      */
     void rotate(int steps) {
+        if (n == 0) return
         steps = ((steps % n) + n) % n
         if (steps == 0) return
         int s3 = steps * 3

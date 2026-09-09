@@ -39,6 +39,7 @@ class SK6812RGBWFull(connection: Connection, n: Int) : SK6812RGBWMinimal(connect
      * @param w white channel (0–255)
      */
     fun setPixel(index: Int, r: Int, g: Int, b: Int, w: Int = 0) {
+        if (n == 0) return
         val i = index.coerceIn(0, n - 1)
         buf[i * 4]     = g.coerceIn(0, 255).toByte()
         buf[i * 4 + 1] = r.coerceIn(0, 255).toByte()
@@ -71,12 +72,12 @@ class SK6812RGBWFull(connection: Connection, n: Int) : SK6812RGBWMinimal(connect
      */
     fun show() {
         if (brightness == 255) {
-            connection.write(buf)
+            transmit(buf)
         } else {
             val scaled = ByteArray(buf.size) { i ->
                 ((buf[i].toInt() and 0xFF) * brightness / 255).toByte()
             }
-            connection.write(scaled)
+            transmit(scaled)
         }
     }
 
@@ -88,6 +89,7 @@ class SK6812RGBWFull(connection: Connection, n: Int) : SK6812RGBWMinimal(connect
      * @param steps number of pixel positions to shift left (default 1)
      */
     fun rotate(steps: Int = 1) {
+        if (n == 0) return
         val s = ((steps % n) + n) % n
         if (s == 0) return
         val s4 = s * 4
