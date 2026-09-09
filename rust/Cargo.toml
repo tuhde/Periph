@@ -28,6 +28,7 @@ exclude = [
     "tests/memory/24aa02uid_test_esp32s3",
     "tests/light/apds9960_test_esp32s3",
     "tests/imu/mpu6050_test_esp32s3",
+    "tests/accelerometer/adxl345_test_esp32s3",
     "tests/environmental/bme680_test_esp32s3",
     "tests/display/pcf8576_test_esp32s3",
     "tests/comms/rda5807m_test_esp32s3",
@@ -37,6 +38,7 @@ exclude = [
 ]
 members = [
     "periph",
+    "tests/accelerometer/adxl345_test",
     "tests/connection/uart_test",
     "examples/linux/*/*/*",
     "tests/power/ina226_test",
