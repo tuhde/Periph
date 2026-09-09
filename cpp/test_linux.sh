@@ -61,10 +61,11 @@ LINUX_I2C_BUS="${LINUX_I2C_BUS:-1}"
 SRC_DIR="$SCRIPT_DIR/src"
 CONNECTION_SRC="$SRC_DIR/connection/I2CConnectionLinux.cpp"
 CHIP_SRC=$(find "$SRC_DIR/chips/$CATEGORY" -maxdepth 1 -iname "${CHIP}.cpp" | head -1)
-if [ -z "$CHIP_SRC" ]; then
-    echo "ERROR: no chip source found for $CATEGORY/$CHIP in $SRC_DIR/chips/$CATEGORY"
-    exit 1
-fi
+# CHIP_SRC may legitimately be empty for header-only/template chip drivers
+# (e.g. HX711.h, DHT11.h, NeoPixelColor.h have no matching .cpp) — unit-level
+# tests only need the header via -I and work fine without it. hil/conformance
+# levels compile a standalone .cpp translation unit and do require CHIP_SRC,
+# so they check for it themselves (see run_hil/run_conformance).
 
 # --- helpers -----------------------------------------------------------------
 
@@ -167,10 +168,12 @@ run_unit() {
     bin="$build_dir/${CHIP}_test_unit"
 
     echo "=== [unit] Compiling $TARGET for Linux GCC ==="
+    local extra_srcs=()
+    [ -n "$CHIP_SRC" ] && extra_srcs+=("$CHIP_SRC")
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
         -I"$SRC_DIR/chips/$CATEGORY" \
-        "$unit_src" "$CHIP_SRC" \
+        "$unit_src" "${extra_srcs[@]}" \
         -o "$bin"
     echo "Compile OK"
 
@@ -186,6 +189,10 @@ run_hil() {
     local test_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"
     if [ ! -f "$test_src" ]; then
         echo "ERROR: test source not found: $test_src" >&2
+        exit 1
+    fi
+    if [ -z "$CHIP_SRC" ]; then
+        echo "ERROR: no chip source found for $CATEGORY/$CHIP in $SRC_DIR/chips/$CATEGORY" >&2
         exit 1
     fi
     build_dir=$(mktemp -d)
@@ -220,6 +227,10 @@ run_conformance() {
     if [ ! -f "$checker" ]; then
         echo "ERROR: conformance checker not found: $checker" >&2
         echo "       (no conformance implementation yet for $CATEGORY/$CHIP)" >&2
+        exit 1
+    fi
+    if [ -z "$CHIP_SRC" ]; then
+        echo "ERROR: no chip source found for $CATEGORY/$CHIP in $SRC_DIR/chips/$CATEGORY" >&2
         exit 1
     fi
     build_dir=$(mktemp -d)
