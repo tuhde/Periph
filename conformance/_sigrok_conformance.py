@@ -109,16 +109,19 @@ def capture(driver, conn, channel_names, samplerate, capture_ms, out_file):
     subprocess.run(cmd, check=True, env=_sigrok_env(), stdout=subprocess.DEVNULL)
 
 
-def decode_annotations(sr_file, decoder_id, channel_map, protocol='i2c'):
+def decode_annotations(sr_file, decoder_id, channel_map, protocol='i2c', extra_decoder_opts=''):
     """Return decoded annotations as a list of (start_sample, end_sample, text).
     channel_map: the stacked bus decoder's role mapping, e.g. "scl=D0:sda=D1"
-    for i2c or "clk=D0:mosi=D1:miso=D2:cs=D3" for spi - see
-    channels_from_sigrok_channels(). protocol is which bus decoder the chip
-    decoder stacks on (most chips: 'i2c'; SPI-only chips like MFRC522: 'spi') -
-    check the chip decoder's own `inputs = [...]` to know which."""
+    for i2c, "clk=D0:mosi=D1:miso=D2:cs=D3" for spi, or "din=D0" for neopixel -
+    see channels_from_sigrok_channels(). protocol is which bus decoder the
+    chip decoder stacks on (most chips: 'i2c'; SPI-only chips like MFRC522:
+    'spi'; NeoPixel chips: 'neopixel') - check the chip decoder's own
+    `inputs = [...]` to know which. extra_decoder_opts appends any non-channel
+    decoder options the bus decoder needs, e.g. ":reset_us=50" for neopixel -
+    check that decoder's own `options = [...]` for what it accepts."""
     cmd = [
         'sigrok-cli', '-i', sr_file,
-        '-P', f'{protocol}:{channel_map},{decoder_id}',
+        '-P', f'{protocol}:{channel_map}{extra_decoder_opts},{decoder_id}',
         '--protocol-decoder-samplenum',
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=True, env=_sigrok_env())
@@ -138,7 +141,18 @@ def find_delta_samples(annotations, is_start, is_end):
     text match - for checks with no bus-decodable start event, e.g. a
     power-on-to-ready delay where the operator power-cycles the device
     right as the capture begins (see conformance/environmental/
-    aht21_conformance.py's poweron_ready check)."""
+    aht21_conformance.py's poweron_ready check).
+
+    is_end=None means "the check is one annotation's own (ss, es) span",
+    not a delta between two different annotations - e.g. a decoder that
+    already emits one timed annotation for the whole thing being measured
+    (a NeoPixel transport decoder's single "reset" annotation spans the
+    reset pulse itself; there's no separate start/end pair to look for)."""
+    if is_end is None:
+        for ss, es, text in annotations:
+            if is_start(text):
+                return es - ss
+        return None
     if is_start is None:
         for ss, es, text in annotations:
             if is_end(text):
@@ -156,12 +170,14 @@ def find_delta_samples(annotations, is_start, is_end):
 
 
 def run_checks(chip_label, decoder_id, sigrok_channels, checks_table, trigger, timing_conf_path,
-                sigrok_driver, sigrok_conn, protocol='i2c'):
+                sigrok_driver, sigrok_conn, protocol='i2c', extra_decoder_opts=''):
     """checks_table: {name: (is_start_fn, is_end_fn)}. sigrok_channels is the
-    testconfig_wiring SIGROK_CHANNELS value, e.g. "D0=SCL,D1=SDA" (i2c) or
-    "D0=CLK,D1=MOSI,D2=MISO,D3=CS" (spi). protocol names which bus decoder
-    the chip decoder stacks on - see decode_annotations(). Prints
-    PASS/FAIL/DONE, returns 0 if every check passed, else 1."""
+    testconfig_wiring SIGROK_CHANNELS value, e.g. "D0=SCL,D1=SDA" (i2c),
+    "D0=CLK,D1=MOSI,D2=MISO,D3=CS" (spi), or "D0=DIN" (neopixel). protocol
+    names which bus decoder the chip decoder stacks on, and
+    extra_decoder_opts passes any of that bus decoder's non-channel options -
+    see decode_annotations(). Prints PASS/FAIL/DONE, returns 0 if every
+    check passed, else 1."""
     channel_names = channel_names_from_sigrok_channels(sigrok_channels)
     channel_map = channels_from_sigrok_channels(sigrok_channels)
     timing = parse_timing_conf(timing_conf_path)
@@ -188,7 +204,8 @@ def run_checks(chip_label, decoder_id, sigrok_channels, checks_table, trigger, t
             trigger(name)
             cap_thread.join()
 
-            annotations = decode_annotations(sr_file, decoder_id, channel_map, protocol=protocol)
+            annotations = decode_annotations(sr_file, decoder_id, channel_map, protocol=protocol,
+                                              extra_decoder_opts=extra_decoder_opts)
             delta_samples = find_delta_samples(annotations, is_start, is_end)
             if delta_samples is None:
                 print(f'FAIL {name}: start/end annotation pair not found in capture')
