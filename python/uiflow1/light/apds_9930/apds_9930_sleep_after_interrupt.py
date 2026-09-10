@@ -1,0 +1,1 @@
+_periph_apds9930.sleep_after_interrupt(enable=${_enable})
