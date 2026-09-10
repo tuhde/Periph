@@ -20,3 +20,4 @@ rust/target/
 rust/tests/power/ina226_test_esp32s3/target/
 jvm/**/target/
 sigrok/CONFIGS.md
+uiflow/
