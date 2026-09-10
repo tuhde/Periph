@@ -1,0 +1,5 @@
+{
+  "category": "ADXL345",
+  "color": "#C084FC",
+  "_note": "Placeholder — replace by hand with the JSON exported from the UiFlow 2 Block Designer after pasting ADXL345.py into the IDE (see python/uiflow2/UIFLOW2_BLOCKS.md)."
+}

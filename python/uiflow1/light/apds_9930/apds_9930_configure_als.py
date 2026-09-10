@@ -1,0 +1,1 @@
+_periph_apds9930.configure_als(atime=${_atime}, again=${_again}, agl=${_agl})
