@@ -1,0 +1,112 @@
+[
+    {
+        "id": "tab-apds9930-demo",
+        "type": "tab",
+        "label": "APDS-9930 Light + Proximity",
+        "disabled": false,
+        "info": "Reads ambient illuminance (lux) and raw proximity from an APDS-9930 every 2 seconds. A Switch node routes the flow when proximity exceeds 500 counts (phone-screen-disable trigger) or when lux drops below 10 lx (dim backlight trigger). Cover the sensor with a hand to see the proximity branch fire; dim the room light to see the dim-backlight branch. Adjust the inject interval or change the threshold values to taste."
+    },
+    {
+        "id": "cfg-apds9930",
+        "type": "apds9930-device",
+        "name": "APDS-9930",
+        "bus": "1",
+        "address": "39"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 2 s",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-apds9930-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-apds9930"]]
+    },
+    {
+        "id": "read-apds9930",
+        "type": "apds9930",
+        "name": "APDS-9930",
+        "device": "cfg-apds9930",
+        "z": "tab-apds9930-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["fmt-readings", "sw-prox"]]
+    },
+    {
+        "id": "fmt-readings",
+        "type": "function",
+        "name": "format readings",
+        "func": "const p = msg.payload;\nmsg.payload = 'lux=' + p.lux.toFixed(1) + ' lx  proximity=' + p.proximity;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-apds9930-demo",
+        "x": 480,
+        "y": 120,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "sw-prox",
+        "type": "switch",
+        "name": "proximity > 500",
+        "property": "payload.proximity",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "500",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "z": "tab-apds9930-demo",
+        "x": 480,
+        "y": 200,
+        "wires": [["dbg-screen-off"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "readings",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-apds9930-demo",
+        "x": 650,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "dbg-screen-off",
+        "type": "debug",
+        "name": "disable screen",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "z": "tab-apds9930-demo",
+        "x": 650,
+        "y": 200,
+        "wires": []
+    }
+]

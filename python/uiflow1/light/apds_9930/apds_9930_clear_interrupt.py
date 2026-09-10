@@ -1,0 +1,1 @@
+_periph_apds9930.clear_interrupt(channel=${_channel})

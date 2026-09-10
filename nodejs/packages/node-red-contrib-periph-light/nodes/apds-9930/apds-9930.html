@@ -1,0 +1,74 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9930-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '39', required: true }
+        },
+        label: function() {
+            return this.name || ('APDS-9930 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9930-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="APDS-9930">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="39" style="width:80px"> &nbsp;default: 39 (0x39)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('apds9930', {
+        category:  'Periph',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'apds9930-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sun-o',
+        label:   function() { return this.name || 'APDS-9930'; },
+        paletteLabel: 'APDS-9930'
+    });
+</script>
+
+<script type="text/html" data-template-name="apds9930">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="APDS-9930">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="apds9930">
+    <p>Reads ambient illuminance and proximity from an APDS-9930 sensor over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>apds9930-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.lux <span class="property-type">number</span></dt>
+        <dd>Illuminance in lux (IR-compensated via Ch0/Ch1 difference).</dd>
+        <dt>payload.proximity <span class="property-type">number</span></dt>
+        <dd>Raw 16-bit proximity ADC count (higher = closer).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's 7-bit address (default <code>0x39</code>) in the device config node.
+    The driver uses ATIME=0xDB (101 ms integration), PTIME=0xFF, PPULSE=8 pulses, and 100 mA LED drive by default.</p>
+</script>

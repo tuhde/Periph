@@ -16,6 +16,8 @@ npm install node-red-contrib-periph-light
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `apds9930-device` | config | I²C bus and address for an APDS9930 |
+| `apds9930` | input | Reads ambient illuminance and proximity from an APDS-9930 sensor over I²C. |
 | `apds9960-device` | config | I²C bus and address for an APDS9960 |
 | `apds9960` | input | Reads ambient light and color (RGBC) from an APDS-9960 sensor over I²C. |
 
