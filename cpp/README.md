@@ -55,6 +55,7 @@ Each chip exposes two classes:
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
+| Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
