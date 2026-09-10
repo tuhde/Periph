@@ -2,74 +2,7 @@ package light
 
 import (
 	"testing"
-
-	"github.com/tuhde/Periph/go/periph/connection"
 )
-
-// mockConnection is an in-memory fake connection.Connection for unit tests —
-// no hardware, no bus.
-//
-// The APDS-9930 uses a command-register protocol: every bus transaction
-// starts with a command byte whose high bits are the type (0x80=write,
-// 0xA0=auto-increment read, 0xE0=special) and whose low 5 bits are the
-// register address. The mock is addressed by raw byte index, so this
-// test preloads registers at the command-byte addresses the driver uses.
-type mockConnection struct {
-	registers map[byte]byte
-	writes    [][]byte
-	readQueue [][]byte
-}
-
-func newMockConnection() *mockConnection {
-	return &mockConnection{registers: map[byte]byte{}}
-}
-
-func (m *mockConnection) setRegister(reg byte, values ...byte) {
-	for i, v := range values {
-		m.registers[reg+byte(i)] = v
-	}
-}
-
-func (m *mockConnection) Write(data []byte) error {
-	cp := append([]byte(nil), data...)
-	m.writes = append(m.writes, cp)
-	if len(data) >= 2 {
-		reg := data[0]
-		for i := 1; i < len(data); i++ {
-			m.registers[reg+byte(i-1)] = data[i]
-		}
-	}
-	return nil
-}
-
-func (m *mockConnection) Read(n int) ([]byte, error) {
-	if len(m.readQueue) > 0 {
-		front := m.readQueue[0]
-		m.readQueue = m.readQueue[1:]
-		out := make([]byte, n)
-		copy(out, front)
-		return out, nil
-	}
-	return make([]byte, n), nil
-}
-
-func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
-	cp := append([]byte(nil), data...)
-	m.writes = append(m.writes, cp)
-	reg := data[0]
-	out := make([]byte, n)
-	for i := 0; i < n; i++ {
-		out[i] = m.registers[reg+byte(i)]
-	}
-	return out, nil
-}
-
-func (m *mockConnection) Close() error                { return nil }
-func (m *mockConnection) Enable()                     {}
-func (m *mockConnection) Disable()                    {}
-func (m *mockConnection) IsEnabled() bool             { return true }
-func (m *mockConnection) IntPin() connection.InputPin { return nil }
-func (m *mockConnection) EnPin() connection.OutputPin { return nil }
 
 func cw9930(reg byte) byte { return apds9930CmdWrite(reg) }
 func cr9930(reg byte) byte { return apds9930CmdRead(reg) }
@@ -117,7 +50,7 @@ func TestAPDS9930LuxAndProximity(t *testing.T) {
 	conn.setRegister(cr9930(apds9930RegCONFIG), 0x00)
 	conn.setRegister(cr9930(apds9930RegATIME), 0xDB)
 
-	// Ch0 = 0x1000 (BE), Ch1 = 0x0000 → IAc > 0
+	// Ch0 = 0x0010 (LE), Ch1 = 0x0000 → IAc > 0
 	conn.setRegister(cr9930(apds9930RegCH0DATAL), 0x10, 0x00)
 	conn.setRegister(cr9930(apds9930RegCH1DATAL), 0x00, 0x00)
 
@@ -145,8 +78,8 @@ func TestAPDS9930LuxAndProximity(t *testing.T) {
 		t.Errorf("Lux(dark) = %f, want 0", lx)
 	}
 
-	// Proximity: 0x1234 (BE)
-	conn.setRegister(cr9930(apds9930RegPDATAL), 0x12, 0x34)
+	// Proximity: 0x1234 (LE)
+	conn.setRegister(cr9930(apds9930RegPDATAL), 0x34, 0x12)
 	p, err := chip.Proximity()
 	if err != nil {
 		t.Fatalf("Proximity: %v", err)

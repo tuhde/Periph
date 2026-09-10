@@ -142,15 +142,13 @@ public class Apds9930Minimal {
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] buf = new byte[1];
-        connection.writeRead(new byte[] { (byte) cmdRead(reg) }, buf);
+        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 1);
         return buf[0] & 0xFF;
     }
 
     protected int readReg16(int reg) throws IOException {
-        byte[] buf = new byte[2];
-        connection.writeRead(new byte[] { (byte) cmdRead(reg) }, buf);
-        return ((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF);
+        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 2);
+        return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
     }
 
     protected void special(int functionCode) throws IOException {

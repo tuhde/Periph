@@ -24,10 +24,6 @@ _CMD_WRITE = 0x80
 _CMD_READ   = 0xA0
 
 
-_CMD_WRITE = 0x80
-_CMD_READ   = 0xA0
-
-
 def _encode_offset(value):
     """Encode a signed offset (-127..+127) into the sign-magnitude POFFSET byte.
 

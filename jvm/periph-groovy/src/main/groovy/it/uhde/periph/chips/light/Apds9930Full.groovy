@@ -1,6 +1,6 @@
-@CompileStatic
 package it.uhde.periph.chips.light
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Connection
 
 /**
@@ -8,6 +8,7 @@ import it.uhde.periph.connection.Connection
  * configuration, raw channel reads, interrupt thresholds with persistence,
  * status decoding, sleep-after-interrupt, and proximity offset compensation.
  */
+@CompileStatic
 class Apds9930Full extends Apds9930Minimal {
 
     static class Status {

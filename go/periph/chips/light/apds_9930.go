@@ -176,7 +176,7 @@ func (d *APDS9930Minimal) readReg16(reg uint8) (uint16, error) {
 	if err != nil {
 		return 0, err
 	}
-	return (uint16(buf[0]) << 8) | uint16(buf[1]), nil
+	return (uint16(buf[1]) << 8) | uint16(buf[0]), nil
 }
 
 func (d *APDS9930Minimal) special(f uint8) error {
@@ -213,7 +213,7 @@ func (d *APDS9930Minimal) Lux() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	alsitMs := 2.73 * float64(256-atime)
+	alsitMs := 2.73 * (256.0 - float64(atime))
 	againX := float64(apds9930AgainFactor(ctrl&0x03, cfg&0x04 != 0))
 	iac1 := float64(ch0) - 1.862*float64(ch1)
 	iac2 := 0.746*float64(ch0) - 1.291*float64(ch1)

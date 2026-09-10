@@ -26,6 +26,7 @@ class Apds9930Spec extends Specification {
         when: "bad ID rejects construction"
         def badConnection = new MockConnection()
         badConnection.setRegister(cr(Apds9930Minimal.REG_ID), 0xAB)
+        new Apds9930Full(badConnection)
 
         then:
         thrown(java.io.IOException)
@@ -48,7 +49,7 @@ class Apds9930Spec extends Specification {
         sensor.lux() == 0.0f
 
         when: "proximity read"
-        connection.setRegister(cr(Apds9930Minimal.REG_PDATAL), 0x12, 0x34)
+        connection.setRegister(cr(Apds9930Minimal.REG_PDATAL), 0x34, 0x12)
 
         then:
         sensor.proximity() == 0x1234
@@ -122,19 +123,19 @@ class Apds9930Spec extends Specification {
         sensor.clearInterrupt(0)
 
         then:
-        connection.writes().last() as List == [0xE7] as List
+        connection.writes().last()[0] == (byte) 0xE7
 
         when:
         sensor.clearInterrupt(1)
 
         then:
-        connection.writes().last() as List == [0xE6] as List
+        connection.writes().last()[0] == (byte) 0xE6
 
         when:
         sensor.clearInterrupt(2)
 
         then:
-        connection.writes().last() as List == [0xE5] as List
+        connection.writes().last()[0] == (byte) 0xE5
 
         expect:
         sensor.chipId() == 0x39

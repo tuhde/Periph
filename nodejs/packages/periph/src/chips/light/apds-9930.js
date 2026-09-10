@@ -111,7 +111,7 @@ class APDS9930Minimal {
 
     async _readReg16(reg) {
         const buf = await this._conn.writeRead(Buffer.from([_cmdRead(reg)]), 2);
-        return (buf[0] << 8) | buf[1];
+        return (buf[1] << 8) | buf[0];
     }
 
     async _special(functionCode) {

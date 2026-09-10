@@ -49,7 +49,7 @@ uint16_t APDS9930Minimal::_read_reg16(uint8_t reg) {
     uint8_t cmd = cmd_read(reg);
     uint8_t buf[2] = { 0, 0 };
     _connection.write_read(&cmd, 1, buf, 2);
-    return ((uint16_t)buf[0] << 8) | buf[1];
+    return ((uint16_t)buf[1] << 8) | buf[0];
 }
 
 void APDS9930Minimal::_special(uint8_t function_code) {

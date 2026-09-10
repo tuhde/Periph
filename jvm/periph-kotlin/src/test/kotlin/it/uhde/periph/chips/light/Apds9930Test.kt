@@ -35,7 +35,7 @@ class Apds9930Test {
         badConnection.setRegister(cr(Apds9930Minimal.REG_ID), 0xAB)
         assertThrows(java.io.IOException::class.java) { Apds9930Full(badConnection) }
 
-        // Lux: Ch0=0x1000 (BE), Ch1=0x0000 → lux > 0
+        // Lux: Ch0=0x0010 (LE), Ch1=0x0000 → lux > 0
         connection.setRegister(cr(Apds9930Minimal.REG_CH0DATAL), 0x10, 0x00)
         connection.setRegister(cr(Apds9930Minimal.REG_CH1DATAL), 0x00, 0x00)
         connection.setRegister(cr(Apds9930Minimal.REG_CONTROL), Apds9930Minimal.CONTROL_DEFAULT)
@@ -48,8 +48,8 @@ class Apds9930Test {
         connection.setRegister(cr(Apds9930Minimal.REG_CH1DATAL), 0x00, 0x00)
         assertEquals(0.0f, sensor.lux())
 
-        // Proximity: 0x1234 (BE)
-        connection.setRegister(cr(Apds9930Minimal.REG_PDATAL), 0x12, 0x34)
+        // Proximity: 0x1234 (LE)
+        connection.setRegister(cr(Apds9930Minimal.REG_PDATAL), 0x34, 0x12)
         assertEquals(0x1234, sensor.proximity())
 
         // configureAls(0xF6, 2, false)

@@ -73,16 +73,14 @@ open class Apds9930Minimal protected constructor(
 
     @Throws(IOException::class)
     protected fun readReg(reg: Int): Int {
-        val buf = ByteArray(1)
-        connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), buf)
+        val buf = connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), 1)
         return buf[0].toInt() and 0xFF
     }
 
     @Throws(IOException::class)
     protected fun readReg16(reg: Int): Int {
-        val buf = ByteArray(2)
-        connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), buf)
-        return ((buf[0].toInt() and 0xFF) shl 8) or (buf[1].toInt() and 0xFF)
+        val buf = connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), 2)
+        return ((buf[1].toInt() and 0xFF) shl 8) or (buf[0].toInt() and 0xFF)
     }
 
     @Throws(IOException::class)

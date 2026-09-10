@@ -321,6 +321,7 @@ impl<I2C: I2c> Apds9930Full<I2C> {
 }
 
 /// STATUS register decoded fields.
+#[derive(Debug, Clone, Copy)]
 pub struct Status {
     pub avalid: bool,
     pub pvalid: bool,
@@ -342,7 +343,7 @@ fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error
 fn read_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
     i2c.write_read(addr, &[cmd_read(reg)], &mut buf)?;
-    Ok(((buf[0] as u16) << 8) | (buf[1] as u16))
+    Ok(((buf[1] as u16) << 8) | (buf[0] as u16))
 }
 
 fn encode_offset(value: i8) -> u8 {
@@ -373,25 +374,25 @@ mod tests {
             I2cTransaction::write(ADDR, vec![cmd_write(REG_ENABLE), ENABLE_DEFAULT]),
             // chip_id()
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_ID)], vec![0x39]),
-            // lux(): Ch0=0x1000 (BE), Ch1=0x0000, CONTROL=0x20, CONFIG=0x00, ATIME=0xDB
+            // lux(): Ch0=0x0010 (LE), Ch1=0x0000, CONTROL=0x20, CONFIG=0x00, ATIME=0xDB
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH0DATAL)], vec![0x10, 0x00]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH1DATAL)], vec![0x00, 0x00]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONTROL)], vec![0x20]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONFIG)], vec![0x00]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_ATIME)], vec![0xDB]),
-            // proximity(): PDATA=0x1234 (BE)
-            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_PDATAL)], vec![0x12, 0x34]),
+            // proximity(): PDATA=0x1234 (LE)
+            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_PDATAL)], vec![0x34, 0x12]),
             // configure_als(0xF6, 2, false): writes ATIME, reads CONTROL 0x20, writes CONTROL 0x22
             I2cTransaction::write(ADDR, vec![cmd_write(REG_ATIME), 0xF6]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONTROL)], vec![0x20]),
             I2cTransaction::write(ADDR, vec![cmd_write(REG_CONTROL), 0x22]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONFIG)], vec![0x00]),
             I2cTransaction::write(ADDR, vec![cmd_write(REG_CONFIG), 0x00]),
-            // configure_proximity(8, 1, 2, false, 0xFF): PPULSE, PTIME, CONTROL 0x22->0xA4, CONFIG 0x00->0x00
+            // configure_proximity(8, 1, 2, false, 0xFF): PPULSE, PTIME, CONTROL 0x22->0xA6, CONFIG 0x00->0x00
             I2cTransaction::write(ADDR, vec![cmd_write(REG_PPULSE), 8]),
             I2cTransaction::write(ADDR, vec![cmd_write(REG_PTIME), 0xFF]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONTROL)], vec![0x22]),
-            I2cTransaction::write(ADDR, vec![cmd_write(REG_CONTROL), 0xA4]),
+            I2cTransaction::write(ADDR, vec![cmd_write(REG_CONTROL), 0xA6]),
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CONFIG)], vec![0x00]),
             I2cTransaction::write(ADDR, vec![cmd_write(REG_CONFIG), 0x00]),
             // configure_wait(0x80, true): WTIME, CONFIG 0x00->0x02, ENABLE 0x07->0x0F
@@ -404,9 +405,9 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_ENABLE)], vec![0x0F]),
             I2cTransaction::write(ADDR, vec![cmd_write(REG_ENABLE), 0x07]),
             // ch0(): Ch0=0x0001
-            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH0DATAL)], vec![0x00, 0x01]),
+            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH0DATAL)], vec![0x01, 0x00]),
             // ch1(): Ch1=0x0002
-            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH1DATAL)], vec![0x00, 0x02]),
+            I2cTransaction::write_read(ADDR, vec![cmd_read(REG_CH1DATAL)], vec![0x02, 0x00]),
             // status(): STATUS=0x01 (AVALID)
             I2cTransaction::write_read(ADDR, vec![cmd_read(REG_STATUS)], vec![0x01]),
             // set_als_thresholds(100, 60000, 1): writes 4 threshold bytes, PERS 0x00->0x01, ENABLE 0x07->0x17

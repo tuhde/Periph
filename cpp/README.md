@@ -41,6 +41,7 @@ Each chip exposes two classes:
 |------|----------|--------|
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
+| Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |

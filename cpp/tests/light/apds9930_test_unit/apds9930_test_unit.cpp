@@ -59,7 +59,7 @@ static void test_proximity_returns_16bit() {
     mock.setRegister(CR(0x0D), {0x00});
     mock.setRegister(CR(0x14), {0x00, 0x00});
     mock.setRegister(CR(0x16), {0x00, 0x00});
-    mock.setRegister(CR(0x18), {0x34, 0x12});  // PDATA = 0x1234 big-endian
+    mock.setRegister(CR(0x18), {0x34, 0x12});  // PDATA = 0x1234 little-endian
     APDS9930Minimal chip(mock);
     check_true(chip.proximity() == 0x1234, "proximity is 0x1234");
 }

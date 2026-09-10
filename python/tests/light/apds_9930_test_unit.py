@@ -118,7 +118,7 @@ def test_lux_positive_when_ch0_only():
 
 
 def test_proximity_returns_16bit():
-    """proximity reads Ch0DATAL/H as a big-endian 16-bit value."""
+    """proximity reads PDATAL/H as a little-endian 16-bit value."""
     global passed, failed
     mock = I2CConnectionMock()
     mock.registers[cmd_read(0x12)] = 0x39

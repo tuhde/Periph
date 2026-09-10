@@ -1,6 +1,6 @@
-@CompileStatic
 package it.uhde.periph.chips.light
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Connection
 
 /**
@@ -18,6 +18,7 @@ import it.uhde.periph.connection.Connection
  * - CONTROL: 0x20 (PDIODE=Ch1, PDRIVE=100 mA, PGAIN=1x, AGAIN=1x)
  * - ENABLE: 0x07 (PON + AEN + PEN)
  */
+@CompileStatic
 class Apds9930Minimal {
 
     static final int REG_ENABLE   = 0x00
@@ -100,7 +101,7 @@ class Apds9930Minimal {
         float iac = iac1
         if (iac2 > iac) iac = iac2
         if (iac < 0.0f) iac = 0.0f
-        float lpc = (0.49f * 52.0f) / (alsitMs * againX)
+        float lpc = (float) ((0.49f * 52.0f) / (alsitMs * againX))
         return iac * lpc
     }
 
@@ -113,15 +114,13 @@ class Apds9930Minimal {
     }
 
     protected int readReg(int reg) {
-        byte[] buf = new byte[1]
-        connection.writeRead(new byte[] { (byte) cmdRead(reg) }, buf)
+        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 1)
         return buf[0] & 0xFF
     }
 
     protected int readReg16(int reg) {
-        byte[] buf = new byte[2]
-        connection.writeRead(new byte[] { (byte) cmdRead(reg) }, buf)
-        return ((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)
+        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 2)
+        return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
     }
 
     protected void special(int functionCode) {

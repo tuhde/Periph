@@ -32,6 +32,7 @@ Each chip exposes two classes:
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
+| APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
