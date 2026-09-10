@@ -1,0 +1,35 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lps22df_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LPS22DF", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "lps22df_read_temperature",
+      "type": "value",
+      "params": [{ "name": "LPS22DF temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "lps22df_read_pressure",
+      "type": "value",
+      "params": [{ "name": "LPS22DF pressure (Pa)", "type": "label" }]
+    },
+    {
+      "name": "lps22df_read_altitude",
+      "type": "value",
+      "params": [
+        { "name": "LPS22DF altitude (m), sea-level pressure (Pa)", "type": "label" },
+        { "name": "_sea_level_pa", "type": "number" }
+      ]
+    }
+  ]
+}
