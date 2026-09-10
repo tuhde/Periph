@@ -316,7 +316,7 @@ Section boundary comments:
 
 - Software reset (`SWRESET=1`): self-clears within one ODR clock cycle; poll until clear before proceeding.
 - Boot (`BOOT=1`): takes up to one ODR cycle; poll until self-cleared.
-- ONE_SHOT measurement: poll `STATUS` bits P_DA and T_DA until both are 1; typically completes in <1 ms.
+- ONE_SHOT measurement: poll `STATUS` bits P_DA and T_DA until both are 1; typically completes in <1 ms. **Conformance-checked**: `one_shot_conversion` — sigrok annotation pair `one_shot_start` (write of CTRL_REG2 with ONE_SHOT=1 reaches the bus) → `one_shot_done` (STATUS read with both P_DA=1 and T_DA=1). At ODR=000 (power-down), the one-shot cycle is bounded by ~1 ms per the datasheet. See `specs/pressure/lps33hw_timing.conf`.
 - BDU=1: `PRESS_OUT_H` (0x2A) must be the last register accessed in a pressure read sequence to release the output-register latch and allow the next measurement to be stored.
 - LC_EN: must only be modified when the device is in power-down (ODR=000). Takes effect for both one-shot and continuous modes.
 - LPF transitory: after enabling EN_LPFP, read `LPFP_RES` (0x33) before starting measurements to flush the filter pipeline.
@@ -334,11 +334,30 @@ Section boundary comments:
 
 ## Sigrok Decoder
 
-Decoder ID: `lps33hw`  
-Transport: I²C or SPI  
-I²C addresses decoded: `0x5C`, `0x5D`
+Decoder id `lps33hw`, input `['i2c']` (or `['spi']` — same address framing rules). Matches I²C addresses `0x5C` / `0x5D`. The decoder sits on top of the `i2c` sigrok decoder and translates raw I²C transactions into chip-specific register names and decoded field values. It annotates every register defined in the Register Map:
 
-Annotates: all named register reads and writes with field-level decoding (ODR value in Hz, BDU, EN_LPFP/LPFP_CFG bandwidth, FIFO mode name, watermark value, SWRESET/BOOT pulses, ONE_SHOT trigger). Output registers are decoded to physical values: pressure in Pa and hPa, temperature in °C. STATUS annotations show P_DA/T_DA as "Pressure ready"/"Temperature ready". INT_SOURCE decoded as "Pressure high"/"Pressure low"/"Interrupt active". FIFO_STATUS decoded as count and OVR/FTH flags.
+- `INTERRUPT_CFG` (`0x0B`) byte decoded to named bits (AUTORIFP, RESET_ARP, AUTOZERO, RESET_AZ, DIFF_EN, LIR, PLE, PHE).
+- `THS_P_L` / `THS_P_H` (`0x0C`–`0x0D`) shown as a single 16-bit pressure threshold in hPa (LSB = 1/16 hPa).
+- `WHO_AM_I` (`0x0F`) read annotated as expected value `0xB1`.
+- `CTRL_REG1` (`0x10`) byte decoded to ODR value in Hz (Power-down / 1 / 10 / 25 / 50 / 75), BDU flag, EN_LPFP / LPFP_CFG bandwidth (ODR/9 or ODR/20 when enabled), SIM (SPI mode).
+- `CTRL_REG2` (`0x11`) byte decoded to BOOT/SWRESET/ONE_SHOT pulses, FIFO_EN, STOP_ON_FTH, IF_ADD_INC, I2C_DIS.
+- `CTRL_REG3` (`0x12`) byte decoded to INT_H_L polarity, PP_OD drive mode, and the four routing flags (F_FSS5, F_FTH, F_OVR, DRDY) plus INT_S[1:0] signal selection.
+- `FIFO_CTRL` (`0x14`) byte decoded to F_MODE name (Bypass / FIFO / Stream / Stream-to-FIFO / Bypass-to-Stream / Dynamic-Stream / Bypass-to-FIFO) and watermark value (0–31).
+- `REF_P_XL` / `REF_P_L` / `REF_P_H` (`0x15`–`0x17`) auto-increment read shown as a single 24-bit reference pressure in hPa.
+- `RPDS_L` / `RPDS_H` (`0x18`–`0x19`) auto-increment read shown as a single 16-bit signed pressure offset in hPa (LSB = 1/16 hPa).
+- `RES_CONF` (`0x1A`) byte decoded to LC_EN low-current mode flag.
+- `INT_SOURCE` (`0x25`) byte decoded to named flags (BOOT_STATUS, IA, PL, PH) as "Pressure low"/"Pressure high"/"Interrupt active".
+- `FIFO_STATUS` (`0x26`) byte decoded to FTH_FIFO flag, OVR flag, and FSS[5:0] count (0=empty, 32=full).
+- `STATUS` (`0x27`) byte decoded to named flags (T_OR, P_OR, T_DA, P_DA) annotated as "Pressure ready"/"Temperature ready".
+- `PRESS_OUT_XL` / `PRESS_OUT_L` / `PRESS_OUT_H` (`0x28`–`0x2A`) auto-increment read shown as a single 24-bit two's complement signed raw count, plus the converted pressure in Pa and hPa (1 count = 100/4096 Pa). Note that with BDU=1 the latch only releases when `PRESS_OUT_H` is the last register read; the decoder emits the burst-read end timestamp at the end of the `PRESS_OUT_H` byte.
+- `TEMP_OUT_L` / `TEMP_OUT_H` (`0x2B`–`0x2C`) auto-increment read shown as a single 16-bit two's complement signed raw count, plus the converted temperature in °C (1 count = 0.01 °C).
+- `LPFP_RES` (`0x33`) read annotated as "LPF reset" (read to flush transitory state).
+
+For each Timing Constraint flagged for conformance, the decoder emits the named annotation pair the Timing Constraints section names — the checker reads these timestamps directly from the decoded capture:
+
+- `one_shot_start` / `one_shot_done` — `one_shot_conversion` conformance check (≤ 1.4 ms max at ODR=000).
+
+These annotation names are referenced verbatim from `specs/pressure/lps33hw_timing.conf`.
 
 ## Implementation Checklist
 
@@ -352,19 +371,36 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/pressure/lps33hw_test.py` (MicroPython)
 - [ ] Tests `python/tests/pressure/lps33hw_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/pressure/lps33hw_test_linux.py` (Linux)
+- [ ] Unit test `python/tests/pressure/lps33hw_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+
+### UIFlow 1
+- [ ] Manifest `python/uiflow1/pressure/lps33hw/lps33hw.json` — `Periph` category, `#C084FC` color
+- [ ] Blocks `python/uiflow1/pressure/lps33hw/lps33hw_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [ ] Generated `python/uiflow1/pressure/lps33hw/lps33hw.m5b` — run `python/uiflow1/generate.sh`, commit the output
+
+### UIFlow 2
+- [ ] Wrapper class `python/uiflow2/pressure/lps33hw/Lps33hw.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [ ] Exported `python/uiflow2/pressure/lps33hw/Lps33hw.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
 - [ ] Driver `cpp/src/chips/pressure/Lps33hw.h` — Doxygen `/** @brief */` on every class and public method
 - [ ] Driver `cpp/src/chips/pressure/Lps33hw.cpp`
-- [ ] Examples `cpp/examples/Lps33hw_Minimal/Lps33hw_Minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/Lps33hw_Complete/Lps33hw_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/Lps33hw_Demo/Lps33hw_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/Lps33hw_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/Lps33hw_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/Lps33hw_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/arduino/pressure/Lps33hw/minimal/minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/arduino/pressure/Lps33hw/complete/complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/arduino/pressure/Lps33hw/demo/demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/zephyr/pressure/Lps33hw/minimal/{main.cpp,CMakeLists.txt,prj.conf}` — Tier-1
+- [ ] Examples `cpp/examples/zephyr/pressure/Lps33hw/complete/{main.cpp,CMakeLists.txt,prj.conf}` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/zephyr/pressure/Lps33hw/demo/{main.cpp,CMakeLists.txt,prj.conf}` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/espidf/pressure/Lps33hw/minimal/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` — Tier-1
+- [ ] Examples `cpp/examples/espidf/pressure/Lps33hw/complete/{...}` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/espidf/pressure/Lps33hw/demo/{...}` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/minimal/{CMakeLists.txt,src/main.cpp}` — Tier-1
+- [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/complete/{...}` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/demo/{...}` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/pressure/lps33hw_test/lps33hw_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/pressure/lps33hw_test_linux/lps33hw_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/pressure/lps33hw_test_zephyr/src/main.cpp` (Zephyr)
+- [ ] Unit test `cpp/tests/pressure/lps33hw_test_unit/lps33hw_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
 - [ ] Driver `nodejs/packages/periph/src/chips/pressure/lps33hw.js` — JSDoc on every class and exported method
@@ -372,6 +408,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `nodejs/packages/periph/examples/pressure/lps33hw/complete.js` — Tier-1 + Tier-2
 - [ ] Examples `nodejs/packages/periph/examples/pressure/lps33hw/demo.js` — Tier-1 + Tier-3
 - [ ] Tests `nodejs/tests/pressure/lps33hw_test.js`
+- [ ] Unit test `nodejs/tests/pressure/lps33hw_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
 - [ ] Node runtime `nodejs/packages/node-red-contrib-periph-pressure/nodes/lps33hw/lps33hw.js`
@@ -380,11 +417,27 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Rust
 - [ ] Driver `rust/periph/src/chips/pressure/lps33hw.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/lps33hw_minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/lps33hw_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/lps33hw_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Examples `rust/examples/linux/pressure/lps33hw/minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/linux/pressure/lps33hw/complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/linux/pressure/lps33hw/demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Examples `rust/examples/embedded/esp32s3/pressure/lps33hw/minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/embedded/esp32s3/pressure/lps33hw/complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/embedded/esp32s3/pressure/lps33hw/demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/pressure/lps33hw_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/pressure/lps33hw_test_esp32s3/src/main.rs` (ESP32-S3)
+- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/pressure/lps33hw.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+
+### Go
+- [ ] Driver `go/periph/chips/pressure/lps33hw.go` — Go doc comment on every exported type and method
+- [ ] Examples `go/examples/linux/pressure/lps33hw/minimal/minimal.go` — Tier-1 signature comment on every call
+- [ ] Examples `go/examples/linux/pressure/lps33hw/complete/complete.go` — Tier-1 + Tier-2
+- [ ] Examples `go/examples/linux/pressure/lps33hw/demo/demo.go` — Tier-1 + Tier-3
+- [ ] Examples `go/examples/tinygo/pressure/lps33hw/minimal/minimal.go` — Tier-1 (TinyGo)
+- [ ] Examples `go/examples/tinygo/pressure/lps33hw/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [ ] Examples `go/examples/tinygo/pressure/lps33hw/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [ ] Tests `go/tests/pressure/lps33hw_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [ ] Tests `go/tests/pressure/lps33hw_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [ ] Unit test `go/periph/chips/pressure/lps33hw_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/pressure/Lps33hwMinimal.java` — Javadoc on every class and public method
@@ -403,7 +456,15 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `jvm/examples/groovy/pressure/lps33hw/Complete.groovy` — Tier-1 + Tier-2
 - [ ] Examples `jvm/examples/groovy/pressure/lps33hw/Demo.groovy` — Tier-1 + Tier-3
 - [ ] Tests `jvm/tests/pressure/lps33hw/Lps33hwTest.java` (Pi hardware, JBang)
+- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/pressure/Lps33hwTest.java` (JUnit)
+- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/pressure/Lps33hwTest.kt` (Kotest/JUnit5)
+- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/pressure/Lps33hwSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
 - [ ] Decoder `sigrok/lps33hw/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [ ] Decoder `sigrok/lps33hw/pd.py` — for every Timing Constraint above with a conformance check, emits the named start/end annotation pair the Sigrok Decoder section names
+
+### Conformance
+- [ ] Checker `conformance/pressure/lps33hw_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [ ] Timing config `specs/pressure/lps33hw_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
 - [ ] Decoder `sigrok/lps33hw/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
