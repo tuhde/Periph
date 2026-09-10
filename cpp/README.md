@@ -40,6 +40,7 @@ Each chip exposes two classes:
 | Chip | Category | Header |
 |------|----------|--------|
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
+| ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |

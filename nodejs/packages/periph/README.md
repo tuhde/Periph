@@ -31,6 +31,7 @@ Each chip exposes two classes:
 | Chip | Category | Require path |
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |

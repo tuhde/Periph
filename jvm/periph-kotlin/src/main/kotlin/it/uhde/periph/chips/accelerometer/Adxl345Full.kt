@@ -85,8 +85,8 @@ class Adxl345Full @JvmOverloads constructor(
     /** Configure single-tap detection and enable the SINGLE_TAP interrupt. */
     @Throws(IOException::class)
     fun setTapDetection(thresholdG: Double, durationMs: Double, axes: Int = 0x07, suppress: Boolean = false) {
-        writeReg(REG_THRESH_TAP, Math.round(thresholdG / 62.5e-3))
-        writeReg(REG_DUR, Math.round(durationMs / 0.625))
+        writeReg(REG_THRESH_TAP, Math.round(thresholdG / 62.5e-3).toInt())
+        writeReg(REG_DUR, Math.round(durationMs / 0.625).toInt())
         val tapAxes = (axes and 0x07) or (if (suppress) 0x08 else 0x00)
         writeReg(REG_TAP_AXES, tapAxes)
         enableInterrupt(INT_SINGLE_TAP)
@@ -95,15 +95,15 @@ class Adxl345Full @JvmOverloads constructor(
     /** Configure double-tap latency and window; enable DOUBLE_TAP interrupt. */
     @Throws(IOException::class)
     fun setDoubleTap(latencyMs: Double, windowMs: Double) {
-        writeReg(REG_LATENT, Math.round(latencyMs / 1.25))
-        writeReg(REG_WINDOW, Math.round(windowMs / 1.25))
+        writeReg(REG_LATENT, Math.round(latencyMs / 1.25).toInt())
+        writeReg(REG_WINDOW, Math.round(windowMs / 1.25).toInt())
         enableInterrupt(INT_DOUBLE_TAP)
     }
 
     /** Configure activity detection. */
     @Throws(IOException::class)
     fun setActivity(thresholdG: Double, axes: Int = 0x70, acCoupled: Boolean = true) {
-        writeReg(REG_THRESH_ACT, Math.round(thresholdG / 62.5e-3))
+        writeReg(REG_THRESH_ACT, Math.round(thresholdG / 62.5e-3).toInt())
         var aic = readReg(REG_ACT_INACT_CTL)
         aic = aic and 0xF0.inv()
         if (acCoupled) aic = aic or 0x80
@@ -115,8 +115,8 @@ class Adxl345Full @JvmOverloads constructor(
     /** Configure inactivity detection. */
     @Throws(IOException::class)
     fun setInactivity(thresholdG: Double, timeSec: Double, axes: Int = 0x07, acCoupled: Boolean = false) {
-        writeReg(REG_THRESH_INACT, Math.round(thresholdG / 62.5e-3))
-        writeReg(REG_TIME_INACT, Math.round(timeSec))
+        writeReg(REG_THRESH_INACT, Math.round(thresholdG / 62.5e-3).toInt())
+        writeReg(REG_TIME_INACT, Math.round(timeSec).toInt())
         var aic = readReg(REG_ACT_INACT_CTL)
         aic = aic and 0x0F.inv()
         if (acCoupled) aic = aic or 0x08
@@ -128,8 +128,8 @@ class Adxl345Full @JvmOverloads constructor(
     /** Configure free-fall detection and enable the FREE_FALL interrupt. */
     @Throws(IOException::class)
     fun setFreeFall(thresholdG: Double, timeMs: Double) {
-        writeReg(REG_THRESH_FF, Math.round(thresholdG / 62.5e-3))
-        writeReg(REG_TIME_FF, Math.round(timeMs / 5.0))
+        writeReg(REG_THRESH_FF, Math.round(thresholdG / 62.5e-3).toInt())
+        writeReg(REG_TIME_FF, Math.round(timeMs / 5.0).toInt())
         enableInterrupt(INT_FREE_FALL)
     }
 
@@ -228,7 +228,7 @@ class Adxl345Full @JvmOverloads constructor(
         var raw = Math.round(offsetG / 15.6e-3)
         if (raw >  127) raw =  127
         if (raw < -128) raw = -128
-        return raw and 0xFF
+        return (raw and 0xFF).toInt()
     }
 
     companion object {

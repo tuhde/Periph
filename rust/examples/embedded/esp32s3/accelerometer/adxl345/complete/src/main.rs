@@ -1,17 +1,28 @@
-use linux_embedded_hal::I2cdev;
-use periph::chips::accelerometer::{
-    Adxl345Full, FIFO_STREAM, INT_WATERMARK,
-};
+#![no_std]
+#![no_main]
 
-fn main() {
-    let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
-    let addr: u8 = std::env::var("I2C_ADDR")
-        .ok()
-        .and_then(|v| u8::from_str_radix(v.trim_start_matches("0x"), 16).ok())
-        .unwrap_or(0x53);
+use esp_backtrace as _;
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
+use esp_hal::i2c::master::{Config, I2c};
+use esp_println::println;
+use periph::chips::accelerometer::{Adxl345Full, FIFO_STREAM, INT_WATERMARK};
 
-    let dev  = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel = Adxl345Full::new(dev, addr, false).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53, spi=false)
+esp_app_desc!();
+
+const ADDR: u8 = 0x53;
+
+#[esp_hal::main]
+fn main() -> ! {
+    let peripherals = esp_hal::init(esp_hal::Config::default());
+
+    let i2c = I2c::new(peripherals.I2C0, Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1)
+        .with_scl(peripherals.GPIO2);
+    let delay = Delay::new();
+
+    let mut accel = Adxl345Full::new(i2c, ADDR, false).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53, spi=false)
 
     accel.set_range(4).expect("set_range");                            // Set measurement range, (range_g) → () g
                                                                             // selects ±4 g; FULL_RES preserved so scale stays 3.9 mg/LSB
@@ -52,4 +63,8 @@ fn main() {
     println!("x={:.3} y={:.3} z={:.3} g", x, y, z);
     println!("fifo_count={} interrupts=0x{:02X}", count, src);
     println!("samples={}", n_samples);
+
+    loop {
+        delay.delay_ms(1000);
+    }
 }
