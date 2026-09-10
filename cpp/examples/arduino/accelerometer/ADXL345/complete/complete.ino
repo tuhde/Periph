@@ -1,28 +1,13 @@
-#ifndef TEST_SDA
-#define TEST_SDA 8
-#endif
-#ifndef TEST_SCL
-#define TEST_SCL 9
-#endif
-
-#include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/accelerometer/ADXL345.h"
+#include "I2CConnection.h"
+#include "ADXL345.h"
 
-static int passed = 0, failed = 0;
-
-static void check_true(bool cond, const char *label) {
-    if (cond) { Serial.print("PASS "); Serial.println(label); passed++; }
-    else       { Serial.print("FAIL "); Serial.println(label); failed++; }
-}
+I2CConnection connection(Wire, 0x53);
+ADXL345Full accel(connection);                           // Create ADXL345 Full driver, (connection, spi=false)
 
 void setup() {
     Serial.begin(115200);
-    delay(2000);
-    Wire.begin(TEST_SDA, TEST_SCL, 400000);
-    I2CConnection connection(Wire, 0x53);
-    ADXL345Full accel(connection);                           // Create ADXL345 Full driver, (connection, spi=false)
+    Wire.begin();
 
     accel.set_range(4);                                      // Set measurement range, (range_g) → g
                                                                // selects ±4 g; FULL_RES is preserved so scale stays 3.9 mg/LSB
@@ -61,12 +46,10 @@ void setup() {
     accel.set_auto_sleep(false);                             // Set auto-sleep, (enabled) → None
                                                                // AUTO_SLEEP bit cleared
 
-    (void)n; (void)count; (void)src;
-    Serial.print("===DONE: ");
-    Serial.print(passed);
-    Serial.print(" passed, ");
-    Serial.print(failed);
-    Serial.println(" failed===");
+    (void)n;
+    Serial.print(x, 3); Serial.print(" "); Serial.print(y, 3); Serial.print(" "); Serial.print(z, 3); Serial.println(" g");
+    Serial.print("fifo_count="); Serial.print(count);
+    Serial.print(" interrupts=0x"); Serial.println(src, HEX);
 }
 
-void loop() { delay(1000); }
+void loop() {}
