@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "adxl345_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init ADXL345", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "adxl345_x",
+      "type": "value",
+      "params": [{ "name": "ADXL345 acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "adxl345_y",
+      "type": "value",
+      "params": [{ "name": "ADXL345 acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "adxl345_z",
+      "type": "value",
+      "params": [{ "name": "ADXL345 acceleration Z (g)", "type": "label" }]
+    }
+  ]
+}
