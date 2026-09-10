@@ -24,7 +24,7 @@
 //! Status flags: [`STATUS_P_DA`], [`STATUS_T_DA`], [`STATUS_P_OR`],
 //! [`STATUS_T_OR`]
 
-use embedded_hal::i2c::{ErrorKind, I2c};
+use embedded_hal::i2c::I2c;
 
 const REG_INTERRUPT_CFG: u8 = 0x0B;
 const REG_THS_P_L: u8      = 0x0C;
@@ -134,6 +134,22 @@ fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Erro
     Ok(buf[0])
 }
 
+/// Error type for [`Lps33hwMinimal`] / [`Lps33hwFull`] construction: wraps
+/// the underlying bus error plus the LPS33HW-specific chip-ID mismatch.
+#[derive(Debug)]
+pub enum Lps33hwError<E> {
+    /// The underlying I²C bus returned an error.
+    Bus(E),
+    /// `WHO_AM_I` did not read back `0xB1` — wrong or absent chip.
+    WrongChipId(u8),
+}
+
+impl<E> From<E> for Lps33hwError<E> {
+    fn from(e: E) -> Self {
+        Lps33hwError::Bus(e)
+    }
+}
+
 /// LPS33HW minimal driver — pressure (Pa) and temperature (°C).
 ///
 /// Default: ODR = 1 Hz, BDU = 1, EN_LPFP = 0, IF_ADD_INC = 1.
@@ -149,11 +165,11 @@ impl<I2C: I2c> Lps33hwMinimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x5C or 0x5D).
-    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, Lps33hwError<I2C::Error>> {
         let mut s = Self { i2c, addr };
         let chip_id = read_reg8(&mut s.i2c, s.addr, REG_WHO_AM_I)?;
         if chip_id != CHIP_ID {
-            return Err(ErrorKind::Other.into());
+            return Err(Lps33hwError::WrongChipId(chip_id));
         }
         // Software reset, then restore IF_ADD_INC=1, then default CTRL_REG1.
         write_reg(&mut s.i2c, s.addr, REG_CTRL_REG2, CTRL_REG2_RESET)?;
@@ -221,7 +237,7 @@ pub struct Lps33hwFull<I2C> {
 
 impl<I2C: I2c> Lps33hwFull<I2C> {
     /// Create a new `Lps33hwFull`.
-    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, Lps33hwError<I2C::Error>> {
         let inner = Lps33hwMinimal::new(i2c, addr)?;
         Ok(Self { inner })
     }
@@ -505,18 +521,15 @@ mod tests {
             // configure(odr=2, bdu=true, en_lpfp=true, lpfp_cfg=1, lc_en=false, sim=false):
             //   ctrl1 = (2<<4)|(1<<3)|(1<<2)|(1<<1)|0 = 0x2E
             //   res_conf = (current & 0xFE) | 0 = 0x00
-            I2cTransaction::write_read(ADDR, vec![REG_RES_CONF], vec![0x00]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x2E]),
+            I2cTransaction::write_read(ADDR, vec![REG_RES_CONF], vec![0x00]),
             I2cTransaction::write(ADDR, vec![REG_RES_CONF, 0x00]),
             // one_shot():
             //   ctrl2 (current default 0x10) | 0x01 = 0x11
-            //   status read returns 0x03 (inside one_shot's poll loop)
-            //   one_shot then enters its `if` branch and calls read_press_temp,
-            //   which calls wait_status (re-reads STATUS = 0x03) and bursts
-            //   PRESS_XL..TEMP_OUT_H.
+            //   status read returns 0x03, satisfying P_DA|T_DA on the first
+            //   poll iteration, then bursts PRESS_XL..TEMP_OUT_H.
             I2cTransaction::write_read(ADDR, vec![REG_CTRL_REG2], vec![0x10]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x11]),
-            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x03]),
             I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x03]),
             I2cTransaction::write_read(ADDR, vec![REG_PRESS_XL],
                 vec![0x00, 0x10, 0x00, 0xC4, 0x09]),
