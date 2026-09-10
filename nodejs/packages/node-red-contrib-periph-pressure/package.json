@@ -13,7 +13,8 @@
   "node-red": {
     "nodes": {
       "bmp180": "nodes/bmp180/bmp180.js",
-      "bmp280": "nodes/bmp280/bmp280.js"
+      "bmp280": "nodes/bmp280/bmp280.js",
+      "bmp581": "nodes/bmp581/bmp581.js"
     }
   },
   "dependencies": {

@@ -1,0 +1,142 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bmp581-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            addr:    { value: '0x46', required: true },
+            odr:     { value: '28', required: true, validate: RED.validators.number() },
+            osrP:    { value: '0', required: true, validate: RED.validators.number() },
+            osrT:    { value: '0', required: true, validate: RED.validators.number() },
+            pressEn: { value: 'true' }
+        },
+        label: function() {
+            return this.name || ('BMP581 @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bmp581-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BMP581">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x46" selected>0x46 (SDO=GND)</option>
+            <option value="0x47">0x47 (SDO=VDDIO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output Data Rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0">240 Hz</option>
+            <option value="4">160 Hz</option>
+            <option value="8">120 Hz</option>
+            <option value="13">70 Hz</option>
+            <option value="14">60 Hz</option>
+            <option value="15">50 Hz</option>
+            <option value="17">10 Hz</option>
+            <option value="28" selected>1 Hz</option>
+            <option value="29">0.5 Hz</option>
+            <option value="30">0.25 Hz</option>
+            <option value="31">0.125 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrP">Pressure oversampling</label>
+        <select id="node-config-input-osrP" style="width:180px">
+            <option value="0" selected>×1</option>
+            <option value="1">×2</option>
+            <option value="2">×4</option>
+            <option value="3">×8</option>
+            <option value="4">×16</option>
+            <option value="5">×32</option>
+            <option value="6">×64</option>
+            <option value="7">×128</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrT">Temperature oversampling</label>
+        <select id="node-config-input-osrT" style="width:180px">
+            <option value="0" selected>×1</option>
+            <option value="1">×2</option>
+            <option value="2">×4</option>
+            <option value="3">×8</option>
+            <option value="4">×16</option>
+            <option value="5">×32</option>
+            <option value="6">×64</option>
+            <option value="7">×128</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pressEn"><i class="fa fa-microchip"></i> Enable pressure</label>
+        <input type="checkbox" id="node-config-input-pressEn" checked>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-bmp581', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            device:      { value: '', type: 'bmp581-device', required: true },
+            seaLevelPa:  { value: '101325' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'BMP581'; },
+        paletteLabel: 'BMP581'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-bmp581">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BMP581">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelPa">Sea-level pressure (Pa)</label>
+        <input type="number" id="node-input-seaLevelPa" min="80000" max="110000" step="1" style="width:120px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-bmp581">
+    <p>Reads pressure, temperature, and altitude from a BMP581 barometric pressure sensor.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>bmp581-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in Pa.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x46</code> or <code>0x47</code>),
+    output data rate, pressure and temperature oversampling, and whether pressure measurements
+    are enabled in the device config node. The sea-level reference pressure defaults to
+    <code>101325</code> Pa and can be adjusted in the read node config panel.</p>
+</script>
