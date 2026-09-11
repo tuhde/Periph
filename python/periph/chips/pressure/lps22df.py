@@ -77,7 +77,7 @@ class LPS22DFMinimal:
 
     def _read_reg(self, reg, n):
         if self._bus_type == 'spi':
-            reg = reg & 0x7F
+            reg = reg | 0x80
         return self._connection.write_read(bytes([reg]), n)
 
     def _wait_p_da(self):

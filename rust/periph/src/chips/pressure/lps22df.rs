@@ -7,9 +7,9 @@
 //!
 //! ## Constants
 //!
-//! Output data rate: [`ODR_POWER_DOWN`] through [`ODR_200_HZ`]
-//! Averaging filter: [`AVG_4`] through [`AVG_512`]
-//! FIFO modes: [`FIFO_BYPASS`] through [`FIFO_CONT_TO_FIFO`]
+//! Output data rate: [`LPS22DF_ODR_POWER_DOWN`] through [`LPS22DF_ODR_200_HZ`]
+//! Averaging filter: [`LPS22DF_AVG_4`] through [`LPS22DF_AVG_512`]
+//! FIFO modes: [`LPS22DF_FIFO_BYPASS`] through [`LPS22DF_FIFO_CONT_TO_FIFO`]
 
 use embedded_hal::i2c::I2c;
 
@@ -38,63 +38,63 @@ const REG_FIFO_PRESS_XL: u8 = 0x78;
 const CHIP_ID: u8 = 0xB4;
 
 /// Output data rate: power-down / one-shot.
-pub const ODR_POWER_DOWN: u8 = 0;
+pub const LPS22DF_ODR_POWER_DOWN: u8 = 0;
 /// Output data rate: 1 Hz.
-pub const ODR_1_HZ: u8       = 1;
+pub const LPS22DF_ODR_1_HZ: u8       = 1;
 /// Output data rate: 4 Hz.
-pub const ODR_4_HZ: u8       = 2;
+pub const LPS22DF_ODR_4_HZ: u8       = 2;
 /// Output data rate: 10 Hz.
-pub const ODR_10_HZ: u8      = 3;
+pub const LPS22DF_ODR_10_HZ: u8      = 3;
 /// Output data rate: 25 Hz.
-pub const ODR_25_HZ: u8      = 4;
+pub const LPS22DF_ODR_25_HZ: u8      = 4;
 /// Output data rate: 50 Hz.
-pub const ODR_50_HZ: u8       = 5;
+pub const LPS22DF_ODR_50_HZ: u8       = 5;
 /// Output data rate: 75 Hz.
-pub const ODR_75_HZ: u8      = 6;
+pub const LPS22DF_ODR_75_HZ: u8      = 6;
 /// Output data rate: 100 Hz.
-pub const ODR_100_HZ: u8     = 7;
+pub const LPS22DF_ODR_100_HZ: u8     = 7;
 /// Output data rate: 200 Hz.
-pub const ODR_200_HZ: u8     = 8;
+pub const LPS22DF_ODR_200_HZ: u8     = 8;
 
 /// Averaging filter: 4 samples.
-pub const AVG_4: u8   = 0;
+pub const LPS22DF_AVG_4: u8   = 0;
 /// Averaging filter: 8 samples.
-pub const AVG_8: u8   = 1;
+pub const LPS22DF_AVG_8: u8   = 1;
 /// Averaging filter: 16 samples.
-pub const AVG_16: u8  = 2;
+pub const LPS22DF_AVG_16: u8  = 2;
 /// Averaging filter: 32 samples.
-pub const AVG_32: u8  = 3;
+pub const LPS22DF_AVG_32: u8  = 3;
 /// Averaging filter: 64 samples.
-pub const AVG_64: u8  = 4;
+pub const LPS22DF_AVG_64: u8  = 4;
 /// Averaging filter: 128 samples.
-pub const AVG_128: u8 = 5;
+pub const LPS22DF_AVG_128: u8 = 5;
 /// Averaging filter: 512 samples.
-pub const AVG_512: u8 = 7;
+pub const LPS22DF_AVG_512: u8 = 7;
 
 /// FIFO mode: bypass (disabled).
-pub const FIFO_BYPASS: u8         = 0;
+pub const LPS22DF_FIFO_BYPASS: u8         = 0;
 /// FIFO mode: FIFO.
-pub const FIFO_FIFO: u8           = 1;
+pub const LPS22DF_FIFO_FIFO: u8           = 1;
 /// FIFO mode: continuous (dynamic-stream).
-pub const FIFO_CONTINUOUS: u8     = 2;
+pub const LPS22DF_FIFO_CONTINUOUS: u8     = 2;
 /// FIFO mode: bypass-to-FIFO.
-pub const FIFO_BYPASS_TO_FIFO: u8 = 3;
+pub const LPS22DF_FIFO_BYPASS_TO_FIFO: u8 = 3;
 /// FIFO mode: bypass-to-continuous.
-pub const FIFO_BYPASS_TO_CONT: u8 = 4;
+pub const LPS22DF_FIFO_BYPASS_TO_CONT: u8 = 4;
 /// FIFO mode: continuous-to-FIFO.
-pub const FIFO_CONT_TO_FIFO: u8   = 5;
+pub const LPS22DF_FIFO_CONT_TO_FIFO: u8   = 5;
 
 /// Status flag: pressure data available.
-pub const STATUS_P_DA: u8 = 0x01;
+pub const LPS22DF_STATUS_P_DA: u8 = 0x01;
 
 /// Interrupt source: boot in progress.
-pub const INT_BOOT_ON: u8 = 0x80;
+pub const LPS22DF_INT_BOOT_ON: u8 = 0x80;
 /// Interrupt source: at least one event pending.
-pub const INT_IA: u8      = 0x04;
+pub const LPS22DF_INT_IA: u8      = 0x04;
 /// Interrupt source: pressure-low event.
-pub const INT_PL: u8      = 0x02;
+pub const LPS22DF_INT_PL: u8      = 0x02;
 /// Interrupt source: pressure-high event.
-pub const INT_PH: u8      = 0x01;
+pub const LPS22DF_INT_PH: u8      = 0x01;
 
 fn delay_ms(ms: u32) {
     #[cfg(feature = "std")]
@@ -108,8 +108,9 @@ fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8, spi: bool) -
     i2c.write(addr, &[r, value])
 }
 
-fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8], spi: bool) -> Result<(), I2C::Error> {
+    let r = if spi { reg | 0x80 } else { reg };
+    i2c.write_read(addr, &[r], buf)
 }
 
 /// LPS22DF minimal driver — pressure (Pa) and temperature (°C).
@@ -128,14 +129,14 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x5C or 0x5D).
-    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
+    /// * `spi` — Pass `true` for SPI bus (clears bit 7 on writes, sets it on reads).
     pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
         let mut who = [0u8; 1];
-        read_reg_bytes(&mut i2c, addr, REG_WHO_AM_I, &mut who)?;
+        read_reg_bytes(&mut i2c, addr, REG_WHO_AM_I, &mut who, spi)?;
         let _ = who[0];
         write_reg(&mut i2c, addr, REG_CTRL_REG2, 0x04, spi)?;  // SWRESET
         delay_ms(1);
-        write_reg(&mut i2c, addr, REG_CTRL_REG1, (ODR_10_HZ << 3) | AVG_4, spi)?;
+        write_reg(&mut i2c, addr, REG_CTRL_REG1, (LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4, spi)?;
         write_reg(&mut i2c, addr, REG_CTRL_REG2, 0x08, spi)?;  // BDU=1
         Ok(Self { i2c, addr, spi })
     }
@@ -143,8 +144,8 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     fn wait_p_da(&mut self) -> Result<(), I2C::Error> {
         loop {
             let mut status = [0u8; 1];
-            read_reg_bytes(&mut self.i2c, self.addr, REG_STATUS, &mut status)?;
-            if status[0] & STATUS_P_DA != 0 { return Ok(()); }
+            read_reg_bytes(&mut self.i2c, self.addr, REG_STATUS, &mut status, self.spi)?;
+            if status[0] & LPS22DF_STATUS_P_DA != 0 { return Ok(()); }
             delay_ms(1);
         }
     }
@@ -158,7 +159,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
         self.wait_p_da()?;
         let mut raw = [0u8; 3];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_OUT_XL, &mut raw)?;
+        read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_OUT_XL, &mut raw, self.spi)?;
         let mut value = (raw[0] as i32) | ((raw[1] as i32) << 8) | ((raw[2] as i32) << 16);
         if value & 0x800000 != 0 { value -= 0x1000000; }
         Ok((value as f32 / 4096.0) * 100.0)
@@ -172,7 +173,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     /// Returns temperature in degrees Celsius.
     pub fn temperature(&mut self) -> Result<f32, I2C::Error> {
         let mut raw = [0u8; 2];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_TEMP_OUT_L, &mut raw)?;
+        read_reg_bytes(&mut self.i2c, self.addr, REG_TEMP_OUT_L, &mut raw, self.spi)?;
         let value = i16::from_le_bytes([raw[0], raw[1]]);
         Ok(value as f32 / 100.0)
     }
@@ -180,7 +181,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     /// Re-read the chip ID register (expected 0xB4).
     pub fn who_am_i(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_WHO_AM_I, &mut v)?;
+        read_reg_bytes(&mut self.i2c, self.addr, REG_WHO_AM_I, &mut v, self.spi)?;
         Ok(v[0])
     }
 }
@@ -302,7 +303,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
     /// Read the stored AUTOZERO/AUTOREFP reference pressure.
     pub fn reference_pressure(&mut self) -> Result<f32, I2C::Error> {
         let mut raw = [0u8; 2];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_REF_P_L, &mut raw)?;
+        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_REF_P_L, &mut raw, self.inner.spi)?;
         let value = i16::from_le_bytes([raw[0], raw[1]]);
         Ok((value as f32 / 4096.0) * 100.0)
     }
@@ -328,7 +329,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
     /// Read the FIFO sample count.
     pub fn fifo_sample_count(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS1, &mut v)?;
+        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS1, &mut v, self.inner.spi)?;
         Ok(v[0])
     }
 
@@ -341,7 +342,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         let max = core::cmp::min(count as usize, out.len());
         if max == 0 { return Ok(0); }
         let mut raw = [0u8; 3 * 128];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_PRESS_XL, &mut raw[..max * 3])?;
+        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_PRESS_XL, &mut raw[..max * 3], self.inner.spi)?;
         for i in 0..max {
             let base = i * 3;
             let mut value = (raw[base] as i32) | ((raw[base + 1] as i32) << 8) | ((raw[base + 2] as i32) << 16);
@@ -354,7 +355,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
     /// Read and clear the INT_SOURCE register.
     pub fn interrupt_source(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, &mut v)?;
+        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, &mut v, self.inner.spi)?;
         Ok(v[0])
     }
 
@@ -386,8 +387,10 @@ mod tests {
         let transactions = vec![
             I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![0xB4]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x04]),
-            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, (ODR_10_HZ << 3) | AVG_4]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, (LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x08]),
+            // who_am_i(): re-read WHO_AM_I.
+            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![0xB4]),
             // pressure(): STATUS read returns P_DA, then 3-byte pressure read.
             I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x01]),
             I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL],
@@ -417,7 +420,7 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_INTERRUPT_CFG, 0x07]),
             // autozero() -> 0x20
             I2cTransaction::write(ADDR, vec![REG_INTERRUPT_CFG, 0x20]),
-            // set_fifo_mode(FIFO_FIFO=1) -> 0x01
+            // set_fifo_mode(LPS22DF_FIFO_FIFO=1) -> 0x01
             I2cTransaction::write(ADDR, vec![REG_FIFO_CTRL, 0x01]),
             // set_fifo_watermark(100) -> 0x64
             I2cTransaction::write(ADDR, vec![REG_FIFO_WTM, 100]),
@@ -451,12 +454,35 @@ mod tests {
         sensor.configure_interrupt(true, true, true, true, true, true, true, true).unwrap();
         sensor.configure_pressure_event(true, true, true).unwrap();
         sensor.autozero().unwrap();
-        sensor.set_fifo_mode(FIFO_FIFO).unwrap();
+        sensor.set_fifo_mode(LPS22DF_FIFO_FIFO).unwrap();
         sensor.set_fifo_watermark(100).unwrap();
         let ref_p = sensor.reference_pressure().unwrap();
         assert!((ref_p - 100.0).abs() < 0.01, "reference_pressure = {}", ref_p);
         assert_eq!(sensor.interrupt_source().unwrap(), 0x87);
 
         sensor.inner.i2c.done();
+    }
+
+    #[test]
+    fn spi_read_sets_rw_bit_write_clears_it() {
+        // LPS22DF register addresses (0x0B-0x7A) never have bit 7 set
+        // naturally, so a write address mask (reg & 0x7F) is a no-op — the
+        // only observable behavior is that reads must be sent with bit 7
+        // set (R/W̄=1) while writes are sent with bit 7 clear.
+        let transactions = vec![
+            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I | 0x80], vec![0xB4]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x04]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, (LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x08]),
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS | 0x80], vec![0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL | 0x80], vec![0x00, 0x10, 0x00]),
+        ];
+        let i2c = I2cMock::new(&transactions);
+
+        let mut sensor = Lps22dfMinimal::new(i2c, ADDR, true).expect("init");
+        let p = sensor.pressure().unwrap();
+        assert!((p - 100.0).abs() < 0.01, "pressure = {}", p);
+
+        sensor.i2c.done();
     }
 }

@@ -65,7 +65,7 @@ class Lps22dfMinimal {
         this.addr = addr
         this.busType = busType
 
-        byte[] who = connection.writeRead(new byte[]{(byte) REG_WHO_AM_I}, 1)
+        byte[] who = readReg(REG_WHO_AM_I, 1)
         if ((who[0] & 0xFF) != CHIP_ID) {
             throw new IOException(
                 "LPS22DF not found: expected WHO_AM_I 0x${Integer.toHexString(CHIP_ID)}, got 0x${Integer.toHexString(who[0] & 0xFF)}"
@@ -83,7 +83,7 @@ class Lps22dfMinimal {
     }
 
     protected byte[] readReg(int reg, int len) {
-        int a = (busType == BUS_SPI) ? (reg & 0x7F) : reg
+        int a = (busType == BUS_SPI) ? (reg | 0x80) : reg
         return connection.writeRead(new byte[]{(byte) a}, len)
     }
 

@@ -22,7 +22,7 @@ public class Lps22dfMinimal {
 
     /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
     public static final int BUS_I2C = 0;
-    /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
+    /** Bus type: SPI — write addresses have bit 7 cleared, read addresses have bit 7 set. */
     public static final int BUS_SPI = 1;
 
     // Register addresses
@@ -92,7 +92,7 @@ public class Lps22dfMinimal {
         this.addr = addr;
         this.busType = busType;
 
-        byte[] who = connection.writeRead(new byte[]{(byte) REG_WHO_AM_I}, 1);
+        byte[] who = readReg(REG_WHO_AM_I, 1);
         if ((who[0] & 0xFF) != CHIP_ID) {
             throw new IOException(
                     "LPS22DF not found: expected WHO_AM_I 0x" + Integer.toHexString(CHIP_ID)
@@ -121,7 +121,7 @@ public class Lps22dfMinimal {
     }
 
     /**
-     * Read bytes from a register, applying the SPI read-address mask when
+     * Read bytes from a register, setting the SPI read-address bit when
      * this driver was constructed with {@link #BUS_SPI}.
      *
      * @param reg register address
@@ -130,7 +130,7 @@ public class Lps22dfMinimal {
      * @throws IOException on bus error
      */
     protected byte[] readReg(int reg, int len) throws IOException {
-        int a = (busType == BUS_SPI) ? (reg & 0x7F) : reg;
+        int a = (busType == BUS_SPI) ? (reg | 0x80) : reg;
         return connection.writeRead(new byte[]{(byte) a}, len);
     }
 

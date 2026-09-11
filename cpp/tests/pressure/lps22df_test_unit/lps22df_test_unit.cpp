@@ -195,16 +195,33 @@ int main() {
     check_true(fabsf(samples[2] - 102000.0f) < 0.01f, "read_fifo_sample_2");
 
     // --- SPI transport ---
+    // LPS22DF register addresses (0x0B-0x7A) never have bit 7 set naturally,
+    // so a write address mask (reg & 0x7F) is a no-op — the only way to
+    // verify the R/W̄ framing is correct is to check that *reads* set bit 7
+    // (0x80) while writes leave it clear. The mock's register map is
+    // addressed by whatever byte the driver actually sends, so a correctly
+    // masked read must be preloaded at (reg | 0x80).
     I2CConnectionMock spiConnection;
-    spiConnection.setRegister(LPS22DFTestAccess::REG_WHO_AM_I, {0xB4});
+    spiConnection.setRegister(LPS22DFTestAccess::REG_WHO_AM_I | 0x80, {0xB4});
     LPS22DFTestAccess spiSensor(spiConnection, true);
-    bool sawMaskedCtrl1 = false, sawUnmaskedCtrl1 = false;
+    bool sawSpiWhoAmIRead = false, sawUnmaskedWhoAmIRead = false;
     for (const auto& w : spiConnection.writes()) {
-        if (w.size() == 2 && w[0] == (LPS22DFTestAccess::REG_CTRL_REG1 & 0x7F) && w[1] == 0x18) sawMaskedCtrl1 = true;
-        if (w.size() == 2 && w[0] == LPS22DFTestAccess::REG_CTRL_REG1) sawUnmaskedCtrl1 = true;
+        if (w.size() == 1 && w[0] == (LPS22DFTestAccess::REG_WHO_AM_I | 0x80)) sawSpiWhoAmIRead = true;
+        if (w.size() == 1 && w[0] == LPS22DFTestAccess::REG_WHO_AM_I) sawUnmaskedWhoAmIRead = true;
     }
-    check_true(sawMaskedCtrl1, "spi_init_writes_ctrl_reg1_masked");
-    check_true(!sawUnmaskedCtrl1, "spi_init_no_unmasked_ctrl_reg1_write");
+    check_true(sawSpiWhoAmIRead, "spi_read_sets_rw_bit");
+    check_true(!sawUnmaskedWhoAmIRead, "spi_read_no_unmasked_address");
+    check_true(spiSensor.who_am_i() == 0xB4, "spi_who_am_i_roundtrip");
+
+    bool sawCtrl1Write = false;
+    for (const auto& w : spiConnection.writes()) {
+        if (w.size() == 2 && w[0] == LPS22DFTestAccess::REG_CTRL_REG1 && w[1] == 0x18) sawCtrl1Write = true;
+    }
+    check_true(sawCtrl1Write, "spi_init_writes_ctrl_reg1");
+
+    spiConnection.setRegister(LPS22DFTestAccess::REG_STATUS | 0x80, {0x01});
+    spiConnection.setRegister(LPS22DFTestAccess::REG_PRESS_OUT_XL | 0x80, {0x00, 0x10, 0x00});
+    check_true(fabsf(spiSensor.pressure() - 100.0f) < 0.01f, "spi_pressure_roundtrip");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bmp384_demo_tab",
+    "type": "tab",
+    "label": "BMP384 demo",
+    "info": "Altitude logger: every 5 seconds the inject node triggers the BMP384, which emits pressure, temperature, and computed altitude. The altitude uses the international barometric formula with P0 = 1013.25 hPa (ISA sea-level reference). Adjust the sea-level reference in the bmp384-device config to match your local conditions for an absolute reading; the relative drift over the session still tracks indoor / outdoor altitude change.",
+    "disabled": false,
+    "info_columns": 2
+  },
+  {
+    "id": "bmp384_device",
+    "type": "bmp384-device",
+    "name": "BMP384 on bus 1",
+    "bus": "1",
+    "addr": "0x76",
+    "osrP": "4",
+    "osrT": "1",
+    "iir": "2",
+    "odr": "3"
+  },
+  {
+    "id": "bmp384_inject",
+    "type": "inject",
+    "z": "bmp384_demo_tab",
+    "name": "every 5 s",
+    "props": [{ "p": "payload" }, { "p": "topic", "vt": "str", "v": "tick" }],
+    "repeat": "5",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 200,
+    "y": 100,
+    "wires": [["bmp384_read"]]
+  },
+  {
+    "id": "bmp384_read",
+    "type": "periph-bmp384",
+    "z": "bmp384_demo_tab",
+    "name": "BMP384",
+    "device": "bmp384_device",
+    "seaLevelHpa": "1013.25",
+    "x": 410,
+    "y": 100,
+    "wires": [["bmp384_debug"]]
+  },
+  {
+    "id": "bmp384_debug",
+    "type": "debug",
+    "z": "bmp384_demo_tab",
+    "name": "pressure / temp / altitude",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 670,
+    "y": 100,
+    "wires": []
+  }
+]

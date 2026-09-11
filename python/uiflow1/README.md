@@ -62,6 +62,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [MCP4728](adc_dac/mcp4728/) | adc_dac | `mcp4728_init`, `mcp4728_set_voltage`, `mcp4728_set_raw`, `mcp4728_set_all` |
 | [PCF8591](adc_dac/pcf8591/) | adc_dac | `pcf8591_init`, `pcf8591_read_channel`, `pcf8591_read_channel_voltage`, `pcf8591_set_dac_voltage` |
 | [RDA5807M](comms/rda5807m/) | comms | `rda5807m_init`, `rda5807m_set_frequency`, `rda5807m_frequency`, `rda5807m_set_volume`, `rda5807m_mute`, `rda5807m_seek` |
+| [RFM9x](comms/rfm9x/) | comms | `rfm9x_init`, `rfm9x_send`, `rfm9x_receive`, `rfm9x_configure`, `rfm9x_set_tx_power`, `rfm9x_last_packet_rssi`, `rfm9x_last_packet_snr`, `rfm9x_sleep` |
 | [PCF8576](display/pcf8576/) | display | `pcf8576_init`, `pcf8576_clear`, `pcf8576_set_digit` |
 | [AHT21](environmental/aht21/) | environmental | `aht21_init`, `aht21_read_temperature`, `aht21_read_humidity` |
 | [BME280](environmental/bme280/) | environmental | `bme280_init`, `bme280_temperature`, `bme280_pressure`, `bme280_humidity` |

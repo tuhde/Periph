@@ -1,0 +1,137 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lps33hw-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            addr:    { value: '0x5C', required: true },
+            odr:     { value: '1', required: true, validate: RED.validators.number() },
+            bdu:     { value: '1', required: true, validate: RED.validators.number() },
+            enLpfp:  { value: '0', required: true, validate: RED.validators.number() },
+            lpfpCfg: { value: '0', required: true, validate: RED.validators.number() },
+            lcEn:    { value: '0', required: true, validate: RED.validators.number() },
+            sim:     { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('LPS33HW @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lps33hw-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LPS33HW">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:140px">
+            <option value="0x5C" selected>0x5C (SA0=GND)</option>
+            <option value="0x5D">0x5D (SA0=VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output data rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0">Power-down</option>
+            <option value="1" selected>1 Hz</option>
+            <option value="2">10 Hz</option>
+            <option value="3">25 Hz</option>
+            <option value="4">50 Hz</option>
+            <option value="5">75 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bdu">Block data update</label>
+        <select id="node-config-input-bdu" style="width:120px">
+            <option value="0">Disable</option>
+            <option value="1" selected>Enable</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-enLpfp">Low-pass filter</label>
+        <select id="node-config-input-enLpfp" style="width:180px">
+            <option value="0" selected>Disabled</option>
+            <option value="1">Enabled</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lpfpCfg">LPF bandwidth</label>
+        <select id="node-config-input-lpfpCfg" style="width:180px">
+            <option value="0" selected>ODR/9</option>
+            <option value="1">ODR/20</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lcEn">Low-current mode</label>
+        <select id="node-config-input-lcEn" style="width:120px">
+            <option value="0" selected>Disabled</option>
+            <option value="1">Enabled</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-sim">SPI mode (3-wire)</label>
+        <select id="node-config-input-sim" style="width:120px">
+            <option value="0" selected>4-wire</option>
+            <option value="1">3-wire</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lps33hw', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            device:  { value: '', type: 'lps33hw-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'LPS33HW'; },
+        paletteLabel: 'LPS33HW'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lps33hw">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LPS33HW">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lps33hw">
+    <p>Reads pressure and temperature from an LPS33HW water-resistant MEMS absolute pressure sensor.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>lps33hw-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure_Pa <span class="property-type">number</span></dt>
+        <dd>Absolute pressure in pascals.</dd>
+        <dt>payload.temperature_C <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x5C</code> for SA0=GND or <code>0x5D</code> for SA0=VDD),
+    output data rate (1–75 Hz), block-data-update, low-pass filter enable and bandwidth (ODR/9 or ODR/20),
+    low-current mode, and SPI 3-wire mode in the device config node.
+    The 10 Hz ODR with ODR/20 LPF is a good starting point for altimeter / floor-detection applications.</p>
+</script>

@@ -81,7 +81,7 @@ func main() {
 
 	_ = full.SetPressureThreshold(102000.0)
 	_ = full.ConfigureInterrupt(false, false, true, false, true, false, false, false)
-	src, err := full.InterruptSource()
+	_, err = full.InterruptSource()
 	check("interrupt_source", err == nil)
 
 	count, _ := full.FifoSampleCount()

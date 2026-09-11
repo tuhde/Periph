@@ -65,7 +65,7 @@ class LPS22DFMinimal {
     }
 
     async _readReg(reg, n) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
+        const addr = this._busType === 'spi' ? (reg | 0x80) : reg;
         return this._conn.writeRead(Buffer.from([addr]), n);
     }
 

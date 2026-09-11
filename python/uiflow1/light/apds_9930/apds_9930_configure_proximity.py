@@ -1,0 +1,1 @@
+_periph_apds9930.configure_proximity(ppulse=${_ppulse}, pgain=${_pgain}, pdrive=${_pdrive}, pdl=${_pdl}, ptime=${_ptime})

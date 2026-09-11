@@ -1,3 +1,4 @@
+pub mod accelerometer;
 pub mod adc_dac;
 pub mod comms;
 pub mod display;

@@ -25,7 +25,7 @@ open class Lps22dfMinimal(
     companion object {
         /** Bus type: I²C — register addresses used unmasked. */
         const val BUS_I2C = 0
-        /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
+        /** Bus type: SPI — write addresses have bit 7 cleared, read addresses have bit 7 set. */
         const val BUS_SPI = 1
 
         // Register addresses
@@ -58,7 +58,7 @@ open class Lps22dfMinimal(
     }
 
     init {
-        val who = conn.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val who = readReg(REG_WHO_AM_I, 1)
         if ((who[0].toInt() and 0xFF) != CHIP_ID) {
             throw IOException(
                 "LPS22DF not found: expected WHO_AM_I 0x${CHIP_ID.toString(16)}, got 0x${(who[0].toInt() and 0xFF).toString(16)}"
@@ -76,9 +76,9 @@ open class Lps22dfMinimal(
         conn.write(byteArrayOf(a.toByte(), value.toByte()))
     }
 
-    /** Read bytes from a register, applying the SPI read-address mask when needed. */
+    /** Read bytes from a register, setting the SPI read-address bit when needed. */
     protected fun readReg(reg: Int, len: Int): ByteArray {
-        val a = if (busType == BUS_SPI) (reg and 0x7F) else reg
+        val a = if (busType == BUS_SPI) (reg or 0x80) else reg
         return conn.writeRead(byteArrayOf(a.toByte()), len)
     }
 

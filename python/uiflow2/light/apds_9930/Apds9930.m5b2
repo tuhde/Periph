@@ -1,0 +1,388 @@
+{
+  "category": "Apds9930",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_APDS9930_LANGUAGES = {\n  \"CUSTOM_APDS9930_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_APDS9930_LUX\": {\n    \"en\": \"%1 lux\"\n  },\n  \"CUSTOM_APDS9930_PROXIMITY\": {\n    \"en\": \"%1 proximity count (0-1023)\"\n  },\n  \"CUSTOM_APDS9930_CH0\": {\n    \"en\": \"%1 Ch0 raw (visible + IR)\"\n  },\n  \"CUSTOM_APDS9930_CH1\": {\n    \"en\": \"%1 Ch1 raw (IR only)\"\n  },\n  \"CUSTOM_APDS9930_CONFIGURE_ALS\": {\n    \"en\": \"%1 configure ALS atime %2 again %3 agl %4\"\n  },\n  \"CUSTOM_APDS9930_CONFIGURE_PROXIMITY\": {\n    \"en\": \"%1 configure proximity ppulse %2 pgain %3 pdrive %4 pdl %5 ptime %6\"\n  },\n  \"CUSTOM_APDS9930_DISABLE_WAIT\": {\n    \"en\": \"%1 disable wait timer\"\n  },\n  \"CUSTOM_APDS9930_SET_ALS_THRESHOLDS\": {\n    \"en\": \"%1 set ALS thresholds low %2 high %3 persistence %4\"\n  },\n  \"CUSTOM_APDS9930_SET_PROXIMITY_THRESHOLDS\": {\n    \"en\": \"%1 set proximity thresholds low %2 high %3 persistence %4\"\n  },\n  \"CUSTOM_APDS9930_CLEAR_INTERRUPT\": {\n    \"en\": \"%1 clear interrupt channel %2\"\n  },\n  \"CUSTOM_APDS9930_SET_PROXIMITY_OFFSET\": {\n    \"en\": \"%1 set proximity offset %2\"\n  },\n  \"CUSTOM_APDS9930_SLEEP_AFTER_INTERRUPT\": {\n    \"en\": \"%1 sleep after interrupt %2\"\n  }\n};\n\nconst initType = 'custom_apds9930_init';\nBlockly.BlockRegExpList['custom_apds9930'] = {\n  regexp: new RegExp(/^custom_apds9930_/),\n  code: \"from Apds9930 import Apds9930\",\n  initBlockType: initType,\n  categoryId: 'custom_apds9930',\n}\nBlockly.utils.registerLanguages(CUSTOM_APDS9930_LANGUAGES)\n\nBlockly.Msg.CUSTOM_APDS9930_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_APDS9930 = 'Apds9930'\n\nBlockly.utils.getcustom_apds9930Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['apds9930_0', 'apds9930_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_apds9930_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_INIT,\n      'args0': [\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'apds9930_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Apds9930(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_lux\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_LUX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_lux\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.lux()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9930_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.proximity()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9930_ch0\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_CH0,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_ch0\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ch0()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9930_ch1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_CH1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_ch1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.ch1()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apds9930_configure_als\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_CONFIGURE_ALS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'atime'\n        },\n        {\n          'type': 'input_value',\n          'name': 'again'\n        },\n        {\n          'type': 'input_value',\n          'name': 'agl'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_configure_als\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var atime = Blockly.Python.valueToCode(block, 'atime', Blockly.Python.ORDER_FUNCTION_CALL);\n  var again = Blockly.Python.valueToCode(block, 'again', Blockly.Python.ORDER_FUNCTION_CALL);\n  var agl = Blockly.Python.valueToCode(block, 'agl', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_als(${atime}, ${again}, ${agl})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_configure_proximity\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_CONFIGURE_PROXIMITY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'ppulse'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pgain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pdrive'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pdl'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ptime'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_configure_proximity\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var ppulse = Blockly.Python.valueToCode(block, 'ppulse', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pgain = Blockly.Python.valueToCode(block, 'pgain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pdrive = Blockly.Python.valueToCode(block, 'pdrive', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pdl = Blockly.Python.valueToCode(block, 'pdl', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ptime = Blockly.Python.valueToCode(block, 'ptime', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_proximity(${ppulse}, ${pgain}, ${pdrive}, ${pdl}, ${ptime})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_disable_wait\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_DISABLE_WAIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_disable_wait\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.disable_wait()\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_set_als_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_SET_ALS_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'persistence'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_set_als_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var persistence = Blockly.Python.valueToCode(block, 'persistence', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_als_thresholds(${low}, ${high}, ${persistence})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_set_proximity_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_SET_PROXIMITY_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'persistence'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_set_proximity_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var persistence = Blockly.Python.valueToCode(block, 'persistence', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_proximity_thresholds(${low}, ${high}, ${persistence})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_clear_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_CLEAR_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_clear_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.clear_interrupt(${channel})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_set_proximity_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_SET_PROXIMITY_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_set_proximity_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var offset = Blockly.Python.valueToCode(block, 'offset', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_proximity_offset(${offset})\\n`\n}\n\nBlockly.Blocks[\"custom_apds9930_sleep_after_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APDS9930_SLEEP_AFTER_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apds9930Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apds9930_sleep_after_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.sleep_after_interrupt(${enable})\\n`\n}",
+    "toolbox": "\n<category name=\"Apds9930\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_apds9930\"><title text=\"Apds9930\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_apds9930_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">57</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_lux\"/><block type=\"custom_apds9930_proximity\"/><block type=\"custom_apds9930_ch0\"/><block type=\"custom_apds9930_ch1\"/><block type=\"custom_apds9930_configure_als\">\n  <value name=\"atime\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">219</field>\n    </shadow>\n  </value>\n  <value name=\"again\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"agl\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_configure_proximity\">\n  <value name=\"ppulse\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">8</field>\n    </shadow>\n  </value>\n  <value name=\"pgain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pdrive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pdl\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"ptime\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">255</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_disable_wait\"/><block type=\"custom_apds9930_set_als_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">65535</field>\n    </shadow>\n  </value>\n  <value name=\"persistence\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_set_proximity_thresholds\">\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1023</field>\n    </shadow>\n  </value>\n  <value name=\"persistence\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_clear_interrupt\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_set_proximity_offset\">\n  <value name=\"offset\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apds9930_sleep_after_interrupt\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_apds9930",
+    "block_type": [
+      "custom_apds9930___init__",
+      "custom_apds9930_lux",
+      "custom_apds9930_proximity",
+      "custom_apds9930_ch0",
+      "custom_apds9930_ch1",
+      "custom_apds9930_configure_als",
+      "custom_apds9930_configure_proximity",
+      "custom_apds9930_disable_wait",
+      "custom_apds9930_set_als_thresholds",
+      "custom_apds9930_set_proximity_thresholds",
+      "custom_apds9930_clear_interrupt",
+      "custom_apds9930_set_proximity_offset",
+      "custom_apds9930_sleep_after_interrupt"
+    ]
+  },
+  "data": {
+    "name": "Apds9930",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Apds9930",
+      "time": "2026-09-10",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.apds_9930 import APDS9930Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "57",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = APDS9930Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lux",
+        "note": {},
+        "label": {
+          "en": "%1 lux"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.lux()",
+        "ast_return": {
+          "code": "self._driver.lux()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "proximity",
+        "note": {},
+        "label": {
+          "en": "%1 proximity count (0-1023)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.proximity()",
+        "ast_return": {
+          "code": "self._driver.proximity()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ch0",
+        "note": {},
+        "label": {
+          "en": "%1 Ch0 raw (visible + IR)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.ch0()",
+        "ast_return": {
+          "code": "self._driver.ch0()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "ch1",
+        "note": {},
+        "label": {
+          "en": "%1 Ch1 raw (IR only)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.ch1()",
+        "ast_return": {
+          "code": "self._driver.ch1()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_als",
+        "note": {},
+        "label": {
+          "en": "%1 configure ALS atime %2 again %3 agl %4"
+        },
+        "params": [
+          {
+            "name": "atime",
+            "type": "int",
+            "default": "219",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "again",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "agl",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_als(atime=atime, again=again, agl=bool(agl))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_proximity",
+        "note": {},
+        "label": {
+          "en": "%1 configure proximity ppulse %2 pgain %3 pdrive %4 pdl %5 ptime %6"
+        },
+        "params": [
+          {
+            "name": "ppulse",
+            "type": "int",
+            "default": "8",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "pgain",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "pdrive",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "pdl",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "ptime",
+            "type": "int",
+            "default": "255",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_proximity(ppulse=ppulse, pgain=pgain, pdrive=pdrive,\n                                         pdl=bool(pdl), ptime=ptime)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_wait",
+        "note": {},
+        "label": {
+          "en": "%1 disable wait timer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_wait()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_als_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 set ALS thresholds low %2 high %3 persistence %4"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "65535",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "persistence",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_als_thresholds(low=low, high=high, persistence=persistence)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_proximity_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 set proximity thresholds low %2 high %3 persistence %4"
+        },
+        "params": [
+          {
+            "name": "low",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "high",
+            "type": "int",
+            "default": "1023",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "persistence",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_proximity_thresholds(low=low, high=high, persistence=persistence)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 clear interrupt channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.clear_interrupt(channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_proximity_offset",
+        "note": {},
+        "label": {
+          "en": "%1 set proximity offset %2"
+        },
+        "params": [
+          {
+            "name": "offset",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_proximity_offset(offset)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep_after_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 sleep after interrupt %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.sleep_after_interrupt(bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "apds9930"
+  },
+  "pyCode": "\"\"\"\nfile     Apds9930\ntime     2026-09-10\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.light.apds_9930 import APDS9930Full\n\n\nclass Apds9930:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 57):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '57'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = APDS9930Full(connection)\n\n    def lux(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 lux'\n        \"\"\"\n        return self._driver.lux()\n\n    def proximity(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 proximity count (0-1023)'\n        \"\"\"\n        return self._driver.proximity()\n\n    def ch0(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 Ch0 raw (visible + IR)'\n        \"\"\"\n        return self._driver.ch0()\n\n    def ch1(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 Ch1 raw (IR only)'\n        \"\"\"\n        return self._driver.ch1()\n\n    def configure_als(self, atime: int = 219, again: int = 0, agl: int = 0):\n        \"\"\"\n        label:\n            en: '%1 configure ALS atime %2 again %3 agl %4'\n        params:\n            atime:\n                name: atime\n                type: int\n                default: '219'\n                field: number\n            again:\n                name: again\n                type: int\n                default: '0'\n                field: number\n            agl:\n                name: agl\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.configure_als(atime=atime, again=again, agl=bool(agl))\n\n    def configure_proximity(self, ppulse: int = 8, pgain: int = 0, pdrive: int = 0, pdl: int = 0, ptime: int = 255):\n        \"\"\"\n        label:\n            en: '%1 configure proximity ppulse %2 pgain %3 pdrive %4 pdl %5 ptime %6'\n        params:\n            ppulse:\n                name: ppulse\n                type: int\n                default: '8'\n                field: number\n            pgain:\n                name: pgain\n                type: int\n                default: '0'\n                field: number\n            pdrive:\n                name: pdrive\n                type: int\n                default: '0'\n                field: number\n            pdl:\n                name: pdl\n                type: int\n                default: '0'\n                field: number\n            ptime:\n                name: ptime\n                type: int\n                default: '255'\n                field: number\n        \"\"\"\n        self._driver.configure_proximity(ppulse=ppulse, pgain=pgain, pdrive=pdrive,\n                                         pdl=bool(pdl), ptime=ptime)\n\n    def disable_wait(self):\n        \"\"\"\n        label:\n            en: '%1 disable wait timer'\n        \"\"\"\n        self._driver.disable_wait()\n\n    def set_als_thresholds(self, low: int = 0, high: int = 65535, persistence: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set ALS thresholds low %2 high %3 persistence %4'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n            high:\n                name: high\n                type: int\n                default: '65535'\n                field: number\n            persistence:\n                name: persistence\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_als_thresholds(low=low, high=high, persistence=persistence)\n\n    def set_proximity_thresholds(self, low: int = 0, high: int = 1023, persistence: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set proximity thresholds low %2 high %3 persistence %4'\n        params:\n            low:\n                name: low\n                type: int\n                default: '0'\n                field: number\n            high:\n                name: high\n                type: int\n                default: '1023'\n                field: number\n            persistence:\n                name: persistence\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_proximity_thresholds(low=low, high=high, persistence=persistence)\n\n    def clear_interrupt(self, channel: int = 0):\n        \"\"\"\n        label:\n            en: '%1 clear interrupt channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.clear_interrupt(channel)\n\n    def set_proximity_offset(self, offset: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set proximity offset %2'\n        params:\n            offset:\n                name: offset\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_proximity_offset(offset)\n\n    def sleep_after_interrupt(self, enable: int = 0):\n        \"\"\"\n        label:\n            en: '%1 sleep after interrupt %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.sleep_after_interrupt(bool(enable))",
+  "version": "alpha2"
+}

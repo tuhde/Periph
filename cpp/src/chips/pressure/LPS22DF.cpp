@@ -43,7 +43,7 @@ void LPS22DFMinimal::_write_reg(uint8_t reg, uint8_t value) {
 }
 
 void LPS22DFMinimal::_read_reg(uint8_t reg, uint8_t* buf, uint8_t len) {
-    uint8_t addr = _spi ? (reg & 0x7F) : reg;
+    uint8_t addr = _spi ? (reg | 0x80) : reg;
     _connection.write_read(&addr, 1, buf, len);
 }
 

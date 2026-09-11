@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Lps22dfFull, FIFO_FIFO};
+use periph::chips::pressure::{Lps22dfFull, LPS22DF_FIFO_FIFO};
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
@@ -25,13 +25,13 @@ fn main() {
     lps.configure_pressure_event(true, false, false).expect("pressure_event");  // Configure pressure event, (phe=true, ple=false, lir=false) → ()
     lps.autozero().expect("autozero");                                   // Capture AUTOZERO reference, () → ()
     lps.reset_reference().expect("reset_reference");                     // Reset reference, () → ()
-    let ref = lps.reference_pressure().expect("ref");                    // Read reference pressure, () → f32 Pa
-    lps.set_fifo_mode(FIFO_FIFO).expect("set_fifo_mode");                // Set FIFO mode, (mode 0–5) → ()
+    let ref_p = lps.reference_pressure().expect("ref");                  // Read reference pressure, () → f32 Pa
+    lps.set_fifo_mode(LPS22DF_FIFO_FIFO).expect("set_fifo_mode");        // Set FIFO mode, (mode 0–5) → ()
     lps.set_fifo_watermark(64).expect("watermark");                      // Set FIFO watermark, (level 0–127) → ()
     let count = lps.fifo_sample_count().expect("fifo_sample_count");    // Read FIFO sample count, () → u8
     let mut samples = [0.0f32; 128];
     let n_read = lps.read_fifo(&mut samples).expect("read_fifo");       // Read FIFO samples, (out: &mut [f32]) → u8
     let src = lps.interrupt_source().expect("interrupt_source");         // Read interrupt source, () → u8
     println!("T={:.2} C, P={:.0} Pa, alt={:.1} m", t, p, alt);
-    println!("ref={:.0} Pa, fifo={}/{}, src=0x{:02X}", ref, n_read, count, src);
+    println!("ref={:.0} Pa, fifo={}/{}, src=0x{:02X}", ref_p, n_read, count, src);
 }

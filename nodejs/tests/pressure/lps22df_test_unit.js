@@ -149,17 +149,30 @@ async function main() {
         Math.abs(samples[1] - 101000.0) < 0.01 &&
         Math.abs(samples[2] - 102000.0) < 0.01);
 
-    // SPI transport
+    // SPI transport: reads set bit 7 (R/W̄=1), writes leave it clear.
+    // LPS22DF register addresses (0x0B-0x7A) never have bit 7 set naturally,
+    // so a write address mask (reg & 0x7F) is a no-op — the only observable
+    // check is that reads are sent with bit 7 set. The mock's register map
+    // is keyed by whatever byte is actually sent, so preload reads at
+    // (reg | 0x80).
     const spiConnection = new I2CConnectionMock();
-    spiConnection.setRegister(_REG_WHO_AM_I, [0xB4]);
+    spiConnection.setRegister(_REG_WHO_AM_I | 0x80, [0xB4]);
     const spiSensor = new LPS22DFFull(spiConnection, 'spi');
     await flushMicrotasks();
-    const spiMaskedCtrl1 = spiConnection.writes.some(
-        (w) => w.length === 2 && w[0] === (_REG_CTRL_REG1 & 0x7F) && w[1] === 0x18);
-    const spiUnmaskedCtrl1 = spiConnection.writes.some(
-        (w) => w.length === 2 && w[0] === _REG_CTRL_REG1);
-    checkTrue('spi_init_writes_ctrl_reg1_masked', spiMaskedCtrl1);
-    checkTrue('spi_init_no_unmasked_ctrl_reg1_write', !spiUnmaskedCtrl1);
+    const spiWhoAmIRead = spiConnection.writes.some(
+        (w) => w.length === 1 && w[0] === (_REG_WHO_AM_I | 0x80));
+    const spiWhoAmIUnmasked = spiConnection.writes.some(
+        (w) => w.length === 1 && w[0] === _REG_WHO_AM_I);
+    checkTrue('spi_read_sets_rw_bit', spiWhoAmIRead);
+    checkTrue('spi_read_no_unmasked_address', !spiWhoAmIUnmasked);
+
+    const spiCtrl1 = spiConnection.writes.some(
+        (w) => w.length === 2 && w[0] === _REG_CTRL_REG1 && w[1] === 0x18);
+    checkTrue('spi_init_writes_ctrl_reg1', spiCtrl1);
+
+    spiConnection.setRegister(_REG_STATUS | 0x80, [0x01]);
+    spiConnection.setRegister(_REG_PRESS_OUT_XL | 0x80, packPress(1013.25));
+    checkTrue('spi_pressure', Math.abs((await spiSensor.pressure()) - 101325.0) < 0.01);
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

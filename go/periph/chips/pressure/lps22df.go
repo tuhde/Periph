@@ -131,16 +131,16 @@ type LPS22DFMinimal struct {
 // connection must be a configured I²C or SPI connection bound to the chip
 // (I²C address 0x5C/0x5D, or an SPI chip-select). Pass spi=true for SPI —
 // per the datasheet's register-address protocol, write addresses have bit 7
-// cleared (reg & 0x7F); reads stay unmasked.
+// cleared (reg & 0x7F) and read addresses have bit 7 set (reg | 0x80).
 func NewLPS22DFMinimal(t connection.Connection, spi bool) (*LPS22DFMinimal, error) {
-	buf, err := t.WriteRead([]byte{lps22dfRegWhoAmI}, 1)
+	d := &LPS22DFMinimal{connection: t, spi: spi}
+	buf, err := d.readRegBytes(lps22dfRegWhoAmI, 1)
 	if err != nil {
 		return nil, err
 	}
 	if buf[0] != lps22dfChipID {
 		return nil, fmt.Errorf("LPS22DF not found: WHO_AM_I expected 0x%02X, got 0x%02X", lps22dfChipID, buf[0])
 	}
-	d := &LPS22DFMinimal{connection: t, spi: spi}
 	if err := d.writeReg(lps22dfRegCtrlReg2, 0x04); err != nil { // SWRESET=1
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func (d *LPS22DFMinimal) writeReg(reg, val uint8) error {
 }
 
 func (d *LPS22DFMinimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.readRegBytes(reg, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -171,7 +171,11 @@ func (d *LPS22DFMinimal) readReg8(reg uint8) (uint8, error) {
 }
 
 func (d *LPS22DFMinimal) readRegBytes(reg uint8, n int) ([]byte, error) {
-	return d.connection.WriteRead([]byte{reg}, n)
+	addr := reg
+	if d.spi {
+		addr |= 0x80
+	}
+	return d.connection.WriteRead([]byte{addr}, n)
 }
 
 func (d *LPS22DFMinimal) waitPDa() error {
