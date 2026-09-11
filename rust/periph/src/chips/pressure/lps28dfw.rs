@@ -5,7 +5,7 @@
 //!
 //! ## Constants
 //!
-//! ODR: [`ODR_POWER_DOWN`] through [`ODR_200_HZ`]
+//! ODR: [`LPS28DFW_ODR_POWER_DOWN`] through [`LPS28DFW_ODR_200_HZ`]
 //! AVG: [`AVG_4`] through [`AVG_512`]
 //! Full-scale: [`FS_MODE_1`], [`FS_MODE_2`]
 //! IIR filter: [`LFPF_ODR_OVER_4`], [`LFPF_ODR_OVER_9`]
@@ -34,23 +34,23 @@ const CHIP_ID: u8 = 0xB4;
 const BOOT_WAIT_MS: u32 = 2;
 
 /// ODR code: power-down / one-shot.
-pub const ODR_POWER_DOWN: u8 = 0x00;
+pub const LPS28DFW_ODR_POWER_DOWN: u8 = 0x00;
 /// ODR code: 1 Hz.
-pub const ODR_1_HZ: u8 = 0x01;
+pub const LPS28DFW_ODR_1_HZ: u8 = 0x01;
 /// ODR code: 4 Hz.
-pub const ODR_4_HZ: u8 = 0x02;
+pub const LPS28DFW_ODR_4_HZ: u8 = 0x02;
 /// ODR code: 10 Hz.
-pub const ODR_10_HZ: u8 = 0x03;
+pub const LPS28DFW_ODR_10_HZ: u8 = 0x03;
 /// ODR code: 25 Hz.
-pub const ODR_25_HZ: u8 = 0x04;
+pub const LPS28DFW_ODR_25_HZ: u8 = 0x04;
 /// ODR code: 50 Hz.
-pub const ODR_50_HZ: u8 = 0x05;
+pub const LPS28DFW_ODR_50_HZ: u8 = 0x05;
 /// ODR code: 75 Hz.
-pub const ODR_75_HZ: u8 = 0x06;
+pub const LPS28DFW_ODR_75_HZ: u8 = 0x06;
 /// ODR code: 100 Hz.
-pub const ODR_100_HZ: u8 = 0x07;
+pub const LPS28DFW_ODR_100_HZ: u8 = 0x07;
 /// ODR code: 200 Hz.
-pub const ODR_200_HZ: u8 = 0x08;
+pub const LPS28DFW_ODR_200_HZ: u8 = 0x08;
 
 /// Averaging: 4 samples.
 pub const AVG_4: u8 = 0x00;

@@ -31,19 +31,23 @@ Each chip exposes two classes:
 | Chip | Category | Require path |
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
+| APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
 | BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
+| BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
+| LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
@@ -55,6 +59,7 @@ Each chip exposes two classes:
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
+| RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 

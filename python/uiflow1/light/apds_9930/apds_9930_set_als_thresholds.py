@@ -1,0 +1,1 @@
+_periph_apds9930.set_als_thresholds(low=${_low}, high=${_high}, persistence=${_persistence})

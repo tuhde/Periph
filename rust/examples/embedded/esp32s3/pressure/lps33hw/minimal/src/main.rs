@@ -1,0 +1,34 @@
+#![no_std]
+#![no_main]
+
+use esp_backtrace as _;
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
+use esp_hal::i2c::master::{Config, I2c};
+use esp_println::println;
+use periph::chips::pressure::Lps33hwMinimal;
+
+esp_app_desc!();
+
+const ADDR: u8 = 0x5C;
+
+#[esp_hal::main]
+fn main() -> ! {
+    let peripherals = esp_hal::init(esp_hal::Config::default());
+
+    let i2c = I2c::new(peripherals.I2C0, Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1)
+        .with_scl(peripherals.GPIO2);
+    let mut delay = Delay::new();
+
+    let mut chip = Lps33hwMinimal::new(i2c, ADDR).expect("init LPS33HW"); // Create LPS33HW driver, (i2c, ADDR=0x5C)
+
+    for _ in 0..5 {
+        let t = chip.temperature().expect("read temperature");      // Read temperature, () → f32 °C
+        let p = chip.pressure().expect("read pressure");            // Read pressure, () → f32 Pa
+        println!("{:.2} C, {:.1} Pa", t, p);
+        delay.delay_ms(1000);
+    }
+    loop {}
+}
