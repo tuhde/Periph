@@ -50,6 +50,15 @@ public:
     double _compensate_temperature(uint32_t uncomp_temp);
     double _compensate_pressure(uint32_t uncomp_press);
 
+    // Configuration / mode state — public so unit tests can assert on it
+    // after configure()/set_mode() calls.
+    uint8_t   _osr_p = 4;
+    uint8_t   _osr_t = 1;
+    uint8_t   _iir   = 2;
+    uint8_t   _odr   = 0x03;   // 25 Hz
+    uint8_t   _mode  = MODE_NORMAL;
+    double    _t_lin = 0.0;
+
 protected:
     static constexpr uint8_t REG_CHIP_ID    = 0x00;
     static constexpr uint8_t REG_STATUS     = 0x03;
@@ -78,12 +87,6 @@ protected:
 
     Connection& _connection;
     bool      _spi;
-    uint8_t   _osr_p = 4;
-    uint8_t   _osr_t = 1;
-    uint8_t   _iir   = 2;
-    uint8_t   _odr   = 0x03;   // 25 Hz
-    uint8_t   _mode  = MODE_NORMAL;
-    double    _t_lin = 0.0;
 
     void     _read_calibration();
     void     _verify_chip_id();

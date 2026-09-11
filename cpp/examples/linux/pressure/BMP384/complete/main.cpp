@@ -23,7 +23,7 @@ int main() {
 
     bmp.configure(4, 1, 2, 0x03);                          // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
                                                             // sets oversampling, IIR coefficient, and output data rate
-    bmp.set_mode(BMP384Full.MODE_NORMAL);                   // Set power mode, (mode 0/1/3) → None
+    bmp.set_mode(BMP384Full::MODE_NORMAL);                   // Set power mode, (mode 0/1/3) → None
     bool ready = bmp.is_data_ready();                       // Check data-ready flag, () → bool
                                                             // true if STATUS.drdy_press is set
     float t = bmp.temperature();                            // Read temperature, () → float °C
