@@ -56,6 +56,7 @@ Each chip exposes two classes:
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
+| LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
