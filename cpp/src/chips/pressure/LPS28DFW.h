@@ -33,6 +33,15 @@ public:
      */
     float read_temperature();
 
+    // Configuration state — public so unit tests can assert on it after
+    // configure() calls.
+    uint8_t _fs_mode = 0;
+    uint8_t _odr     = 0x04;
+    uint8_t _avg     = 0x02;
+    uint8_t _lpf_en  = 1;
+    uint8_t _lpf_cfg = 0;
+    uint8_t _bdu     = 1;
+
 protected:
     static constexpr uint8_t REG_INTERRUPT_CFG = 0x0B;
     static constexpr uint8_t REG_WHO_AM_I      = 0x0F;
@@ -53,12 +62,6 @@ protected:
     static constexpr float   SENSITIVITY_LSB_PER_HPA_MODE2 = 2048.0f;
 
     Connection& _connection;
-    uint8_t _fs_mode = 0;
-    uint8_t _odr     = 0x04;
-    uint8_t _avg     = 0x02;
-    uint8_t _lpf_en  = 1;
-    uint8_t _lpf_cfg = 0;
-    uint8_t _bdu     = 1;
 
     void    _init();
     void    _write_reg(uint8_t reg, uint8_t value);
