@@ -108,11 +108,11 @@ class Bmp581Full @JvmOverloads constructor(
 
     /** Configure INT pin: latching, polarity, drive mode, pin enable. */
     fun configureInterrupt(mode: Int, polarity: Int, openDrain: Boolean, enable: Boolean) {
-        var val = if (enable) 0x08 else 0
-        if (openDrain) val = val or 0x04
-        if (polarity != 0) val = val or 0x02
-        if (mode != 0) val = val or 0x01
-        writeReg(REG_INT_CONFIG, val)
+        var v = if (enable) 0x08 else 0
+        if (openDrain) v = v or 0x04
+        if (polarity != 0) v = v or 0x02
+        if (mode != 0) v = v or 0x01
+        writeReg(REG_INT_CONFIG, v)
     }
 
     private fun setIntSource(source: Int, enable: Boolean) {
@@ -294,21 +294,21 @@ class Bmp581Full @JvmOverloads constructor(
         const val INT_SOURCE_OOR_P = 0x08
 
         // Full-only register addresses.
-        private const val REG_REV_ID = 0x02
-        private const val REG_INT_SOURCE = 0x15
-        private const val REG_INT_CONFIG = 0x14
-        private const val REG_FIFO_SEL = 0x18
-        private const val REG_FIFO_CONFIG = 0x16
-        private const val REG_FIFO_COUNT = 0x17
-        private const val REG_DSP_CONFIG = 0x30
-        private const val REG_DSP_IIR = 0x31
-        private const val REG_OOR_THR_P_LSB = 0x32
-        private const val REG_OOR_THR_P_MSB = 0x33
-        private const val REG_OOR_RANGE = 0x34
-        private const val REG_OOR_CONFIG = 0x35
-        private const val REG_OSR_EFF = 0x38
-        private const val REG_NVM_ADDR = 0x2B
-        private const val REG_NVM_DATA_LSB = 0x2C
-        private const val REG_NVM_DATA_MSB = 0x2D
+        const val REG_REV_ID = 0x02
+        const val REG_INT_SOURCE = 0x15
+        const val REG_INT_CONFIG = 0x14
+        const val REG_FIFO_SEL = 0x18
+        const val REG_FIFO_CONFIG = 0x16
+        const val REG_FIFO_COUNT = 0x17
+        const val REG_DSP_CONFIG = 0x30
+        const val REG_DSP_IIR = 0x31
+        const val REG_OOR_THR_P_LSB = 0x32
+        const val REG_OOR_THR_P_MSB = 0x33
+        const val REG_OOR_RANGE = 0x34
+        const val REG_OOR_CONFIG = 0x35
+        const val REG_OSR_EFF = 0x38
+        const val REG_NVM_ADDR = 0x2B
+        const val REG_NVM_DATA_LSB = 0x2C
+        const val REG_NVM_DATA_MSB = 0x2D
     }
 }

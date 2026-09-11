@@ -522,12 +522,12 @@ mod tests {
     fn full_api() {
         let mut transactions = chip_id_data();
         transactions.extend(vec![
-            // temperature(): pressure register bytes -> 0.0625 Pa
-            I2cTransaction::write_read(ADDR, vec![REG_PRESS_XLSB], vec![0x04, 0x00, 0x00]),
             // temperature(): temp register bytes -> 0.0625 °C
             I2cTransaction::write_read(ADDR, vec![REG_TEMP_XLSB], vec![0x00, 0x10, 0x00]),
-            // pressure(): same
+            // pressure(): pressure register bytes -> 0.0625 Pa
             I2cTransaction::write_read(ADDR, vec![REG_PRESS_XLSB], vec![0x04, 0x00, 0x00]),
+            // both(): single 6-byte burst from REG_TEMP_XLSB (temp bytes then press bytes)
+            I2cTransaction::write_read(ADDR, vec![REG_TEMP_XLSB], vec![0x00, 0x10, 0x00, 0x04, 0x00, 0x00]),
             // chip_id
             I2cTransaction::write_read(ADDR, vec![REG_CHIP_ID], vec![0x50]),
             // rev_id
@@ -561,9 +561,9 @@ mod tests {
             // configure_interrupt(mode=1, pol=1, od=true, enable=true) = 0x0F
             I2cTransaction::write(ADDR, vec![REG_INT_CONFIG, 0x0F]),
             // set_oor_threshold
-            I2cTransaction::write(ADDR, vec![REG_OOR_THR_P_LSB, 0x70]),
-            I2cTransaction::write(ADDR, vec![REG_OOR_THR_P_MSB, 0x0B]),
-            I2cTransaction::write(ADDR, vec![REG_OOR_RANGE, 0x0C]),
+            I2cTransaction::write(ADDR, vec![REG_OOR_THR_P_LSB, 0xD8]),
+            I2cTransaction::write(ADDR, vec![REG_OOR_THR_P_MSB, 0xD6]),
+            I2cTransaction::write(ADDR, vec![REG_OOR_RANGE, 0x64]),
             I2cTransaction::write(ADDR, vec![REG_OOR_CONFIG, 0x80]),
             // configure_fifo(FIFO_BOTH, FIFO_STREAM, 8): set_mode(0) first
             I2cTransaction::write(ADDR, vec![REG_ODR_CONFIG, 0x5C]),
@@ -576,8 +576,8 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_OSR_EFF], vec![0xA0]),
             // odr_is_valid
             I2cTransaction::write_read(ADDR, vec![REG_OSR_EFF], vec![0xA0]),
-            // altitude -> pressure() again
-            I2cTransaction::write_read(ADDR, vec![REG_PRESS_XLSB], vec![0x04, 0x00, 0x00]),
+            // altitude -> pressure() again; 101325 Pa raw (sea level, so altitude ~= 0 m)
+            I2cTransaction::write_read(ADDR, vec![REG_PRESS_XLSB], vec![0x40, 0xF3, 0x62]),
         ]);
         let i2c = I2cMock::new(&transactions);
 
@@ -613,6 +613,6 @@ mod tests {
         let alt = sensor.altitude(101325.0).unwrap();
         assert!(alt >= -500.0 && alt <= 9000.0, "altitude = {}", alt);
 
-        sensor.inner.inner.i2c.done();
+        sensor.inner.i2c.done();
     }
 }

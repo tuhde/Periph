@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Bmp581Full, Bmp581Minimal, MODE_NORMAL};
+use periph::chips::pressure::{Bmp581Full, Bmp581Minimal, BMP581_MODE_NORMAL};
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -33,7 +33,7 @@ fn main() {
     let mut bmp_full = Bmp581Full::new(dev, addr, false).expect("init BMP581 Full");
 
     bmp_full.configure(0x1C, 0, 0, true).unwrap();
-    bmp_full.set_mode(MODE_NORMAL).unwrap();
+    bmp_full.set_mode(BMP581_MODE_NORMAL).unwrap();
     let alt = bmp_full.altitude(101325.0).unwrap_or(-1.0);
     check_true!(alt >= -500.0 && alt <= 9000.0, "altitude_range", passed, failed);
 

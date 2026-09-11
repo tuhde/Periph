@@ -1,9 +1,9 @@
 package it.uhde.periph.chips.pressure
 
 import it.uhde.periph.connection.MockConnection
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class Bmp581Test {
 

@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Bmp581Full, FIFO_BOTH, FIFO_STREAM, IIR_BYPASS, IIR_COEFF_3, MODE_NORMAL, OSR_1X};
+use periph::chips::pressure::{Bmp581Full, FIFO_BOTH, FIFO_STREAM, IIR_BYPASS, IIR_COEFF_3, BMP581_MODE_NORMAL, OSR_1X};
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
@@ -14,7 +14,7 @@ fn main() {
     println!("chip_id={:#x} (expect 0x50)", cid);
 
     bmp.configure(0x1C, OSR_1X, OSR_1X, true).expect("configure");        // Configure chip, (odr 0x00–0x1F, osr_p 0–7, osr_t 0–7, press_en bool) → Result<(), E>
-    bmp.set_mode(MODE_NORMAL).expect("set_mode");                          // Set power mode, (mode 0/1/2/3) → Result<(), E>
+    bmp.set_mode(BMP581_MODE_NORMAL).expect("set_mode");                    // Set power mode, (mode 0/1/2/3) → Result<(), E>
     bmp.set_iir_filter(IIR_COEFF_3, IIR_BYPASS).expect("set_iir");          // Set IIR filter, (coeff_p 0–7, coeff_t 0–7) → Result<(), E>
     bmp.configure_fifo(FIFO_BOTH, FIFO_STREAM, 8).expect("configure_fifo"); // Configure FIFO, (frame_sel 0–3, mode 0/1, threshold 0–31) → Result<(), E>
     let n = bmp.fifo_count().expect("fifo_count");                         // Read FIFO frame count, () → Result<u8, E>

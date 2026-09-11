@@ -50,6 +50,8 @@ protected:
     static constexpr uint8_t STATUS_NVM_RDY    = 0x02;
     static constexpr uint8_t STATUS_NVM_ERR    = 0x04;
     static constexpr uint8_t INT_STATUS_DRDY   = 0x01;
+    /** Power mode: forced. Shared with BMP581Full::MODE_FORCED. */
+    static constexpr uint8_t MODE_FORCED       = 2;
 
     Connection& _connection;
     bool _spi;

@@ -22,6 +22,9 @@ open class Bmp581Minimal @JvmOverloads constructor(
     private val addr: Int = 0x46,
 ) {
 
+    protected var odr: Int = 0x1C
+    protected var pwrMode: Int = 0x01
+
     init {
         init(addr)
     }
@@ -141,23 +144,21 @@ open class Bmp581Minimal @JvmOverloads constructor(
         /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
         const val BUS_SPI = 1
 
-        protected const val REG_CHIP_ID = 0x01
-        protected const val REG_STATUS = 0x28
-        protected const val REG_INT_STATUS = 0x27
-        protected const val REG_TEMP_XLSB = 0x1D
-        protected const val REG_PRESS_XLSB = 0x20
-        protected const val REG_OSR_CONFIG = 0x36
-        protected const val REG_ODR_CONFIG = 0x37
-        protected const val REG_CMD = 0x7E
+        const val REG_CHIP_ID = 0x01
+        const val REG_STATUS = 0x28
+        const val REG_INT_STATUS = 0x27
+        const val REG_TEMP_XLSB = 0x1D
+        const val REG_PRESS_XLSB = 0x20
+        const val REG_OSR_CONFIG = 0x36
+        const val REG_ODR_CONFIG = 0x37
+        const val REG_CMD = 0x7E
 
-        protected const val CHIP_ID = 0x50
-        protected const val SOFT_RESET = 0xB6
-        protected const val STATUS_NVM_RDY = 0x02
-        protected const val STATUS_NVM_ERR = 0x04
-        protected const val INT_STATUS_DRDY = 0x01
+        const val CHIP_ID = 0x50
+        const val SOFT_RESET = 0xB6
+        const val STATUS_NVM_RDY = 0x02
+        const val STATUS_NVM_ERR = 0x04
+        const val INT_STATUS_DRDY = 0x01
         /** Shared with Full. */
-        protected const val MODE_FORCED = 2
-
-        protected var pwrMode: Int = 0x01
+        const val MODE_FORCED = 2
     }
 }
