@@ -58,6 +58,7 @@ Each chip exposes two classes:
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
+| RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 
