@@ -1,6 +1,6 @@
 use linux_embedded_hal::I2cdev;
 use periph::chips::pressure::{
-    Lps28dfwFull, ODR_25_HZ, AVG_64, FS_MODE_1, LFPF_ODR_OVER_4,
+    Lps28dfwFull, LPS28DFW_ODR_25_HZ, AVG_64, FS_MODE_1, LFPF_ODR_OVER_4,
     FIFO_FIFO, STATUS_P_DA,
 };
 
@@ -15,7 +15,7 @@ fn main() {
     let mut lps = Lps28dfwFull::new(dev, addr).expect("init LPS28DFW"); // Create LPS28DFW driver, (i2c, addr=0x5C)
     let cid = lps.chip_id().expect("read chip id");                       // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                                    // returns 0xB4 for LPS28DFW
-    lps.configure(ODR_25_HZ, AVG_64, FS_MODE_1, true, LFPF_ODR_OVER_4).expect("configure");  // Configure chip, (odr 0–8, avg 0–7, fs_mode 0/1, lpf_en bool, lpf_cfg 0/1) → ()
+    lps.configure(LPS28DFW_ODR_25_HZ, AVG_64, FS_MODE_1, true, LFPF_ODR_OVER_4).expect("configure");  // Configure chip, (odr 0–8, avg 0–7, fs_mode 0/1, lpf_en bool, lpf_cfg 0/1) → ()
                                                                           // sets output data rate, averaging, full-scale, IIR filter
     lps.set_threshold(1050.0, true, true).expect("set threshold");         // Set pressure threshold, (threshold_hpa, high, low) → ()
                                                                           // arms PH/PL when pressure crosses threshold_hpa

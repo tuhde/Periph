@@ -104,7 +104,8 @@ type LPS28DFWMinimal struct {
 	bdu     uint8
 }
 
-// NewLPS28DFWMinimal creates an LPS28DFWMinimal and applies the default configuration.
+// NewLPS28DFWMinimal creates an LPS28DFWMinimal, verifies the chip ID, and
+// applies the default configuration.
 func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
 	d := &LPS28DFWMinimal{
 		connection: t,
@@ -115,6 +116,14 @@ func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
 		lpfCfg:     0,
 		bdu:        1,
 	}
+	id, err := d.readReg8(lps28dfwRegWhoAmI)
+	if err != nil {
+		return nil, err
+	}
+	if id != lps28dfwChipID {
+		return nil, &lps28dfwChipIDError{expected: lps28dfwChipID, got: id}
+	}
+	time.Sleep(lps28dfwBootWait)
 	if err := d.writeReg(lps28dfwRegCtrlReg2, (d.fsMode<<6)|(d.lpfCfg<<5)|(d.lpfEn<<4)|(d.bdu<<3)); err != nil {
 		return nil, err
 	}
@@ -122,6 +131,17 @@ func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
 		return nil, err
 	}
 	return d, nil
+}
+
+// lps28dfwChipIDError is returned by NewLPS28DFWMinimal when the chip
+// responds with an unexpected WHO_AM_I byte.
+type lps28dfwChipIDError struct {
+	expected uint8
+	got      uint8
+}
+
+func (e *lps28dfwChipIDError) Error() string {
+	return "LPS28DFW not found: expected 0x" + uint8Hex(e.expected) + ", got 0x" + uint8Hex(e.got)
 }
 
 func (d *LPS28DFWMinimal) writeReg(reg, val uint8) error {

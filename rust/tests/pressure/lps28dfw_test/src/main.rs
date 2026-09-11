@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Lps28dfwMinimal, Lps28dfwFull, ODR_100_HZ, AVG_128, FS_MODE_2};
+use periph::chips::pressure::{Lps28dfwMinimal, Lps28dfwFull, LPS28DFW_ODR_100_HZ, AVG_128, FS_MODE_2};
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -32,7 +32,7 @@ fn main() {
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
     let mut lps_full = Lps28dfwFull::new(dev, addr).expect("init LPS28DFW Full");
 
-    lps_full.configure(ODR_100_HZ, AVG_128, FS_MODE_2, false, 1).unwrap();
+    lps_full.configure(LPS28DFW_ODR_100_HZ, AVG_128, FS_MODE_2, false, 1).unwrap();
     check_true!(lps_full.read_pressure().is_ok(), "configure", passed, failed);
 
     let threshold_raw = (1050.0_f32 * 16.0_f32) as i32;

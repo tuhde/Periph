@@ -5,7 +5,7 @@ use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::pressure::{Lps28dfwFull, ODR_100_HZ, AVG_128, FS_MODE_2};
+use periph::chips::pressure::{Lps28dfwFull, LPS28DFW_ODR_100_HZ, AVG_128, FS_MODE_2};
 
 esp_app_desc!();
 
@@ -53,7 +53,7 @@ fn main() -> ! {
     let p_ok = chip.read_pressure().map(|p| p >= 260.0 && p <= 1260.0).unwrap_or(false);
     check_true!(p_ok, "pressure_range", passed, failed);
 
-    let cfg_ok = chip.configure(ODR_100_HZ, AVG_128, FS_MODE_2, false, 1).is_ok();
+    let cfg_ok = chip.configure(LPS28DFW_ODR_100_HZ, AVG_128, FS_MODE_2, false, 1).is_ok();
     check_true!(cfg_ok, "configure", passed, failed);
 
     let alt_ok = chip.altitude(1013.25).map(|a| a >= -500.0 && a <= 9000.0).unwrap_or(false);

@@ -1,4 +1,5 @@
 #include "LPS28DFW.h"
+#include <cmath>
 
 #ifdef ARDUINO
 #include <Arduino.h>
