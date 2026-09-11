@@ -1,0 +1,92 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('adxl345-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '53', required: true },
+            range:    { value: '2', required: true, validate: RED.validators.number() },
+            dataRate: { value: '100', required: true }
+        },
+        label: function() {
+            return this.name || ('ADXL345 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="adxl345-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ADXL345">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="53" style="width:80px"> &nbsp;default: 53 (0x53)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:150px">
+            <option value="2">±2 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+            <option value="16">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-dataRate">Data rate (Hz)</label>
+        <input type="number" id="node-config-input-dataRate" min="6.25" max="3200" step="0.01" style="width:100px"> &nbsp;6.25–3200
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('adxl345', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'adxl345-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'ADXL345'; },
+        paletteLabel: 'ADXL345'
+    });
+</script>
+
+<script type="text/html" data-template-name="adxl345">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADXL345">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="adxl345">
+    <p>Reads 3-axis acceleration from an ADXL345 3-axis accelerometer over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>adxl345-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x53</code>),
+    the measurement range (±2/±4/±8/±16 g), and the output data rate (6.25–3200 Hz)
+    in the device config node.</p>
+</script>

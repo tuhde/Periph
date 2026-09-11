@@ -1,0 +1,1 @@
+_periph_apds9930.set_proximity_thresholds(low=${_low}, high=${_high}, persistence=${_persistence})

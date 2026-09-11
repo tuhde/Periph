@@ -1,0 +1,125 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "apds_9930_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init APDS9930", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_lux",
+      "type": "value",
+      "params": [{ "name": "APDS9930 lux", "type": "label" }]
+    },
+    {
+      "name": "apds_9930_proximity",
+      "type": "value",
+      "params": [{ "name": "APDS9930 proximity", "type": "label" }]
+    },
+    {
+      "name": "apds_9930_ch0",
+      "type": "value",
+      "params": [{ "name": "APDS9930 Ch0 raw", "type": "label" }]
+    },
+    {
+      "name": "apds_9930_ch1",
+      "type": "value",
+      "params": [{ "name": "APDS9930 Ch1 raw", "type": "label" }]
+    },
+    {
+      "name": "apds_9930_configure_als",
+      "type": "execute",
+      "params": [
+        { "name": "Configure ALS", "type": "label" },
+        { "name": "atime", "type": "label" },
+        { "name": "_atime", "type": "number" },
+        { "name": "again", "type": "label" },
+        { "name": "_again", "type": "number" },
+        { "name": "agl (0/1)", "type": "label" },
+        { "name": "_agl", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_configure_proximity",
+      "type": "execute",
+      "params": [
+        { "name": "Configure proximity", "type": "label" },
+        { "name": "ppulse", "type": "label" },
+        { "name": "_ppulse", "type": "number" },
+        { "name": "pgain", "type": "label" },
+        { "name": "_pgain", "type": "number" },
+        { "name": "pdrive", "type": "label" },
+        { "name": "_pdrive", "type": "number" },
+        { "name": "pdl (0/1)", "type": "label" },
+        { "name": "_pdl", "type": "number" },
+        { "name": "ptime", "type": "label" },
+        { "name": "_ptime", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_set_als_thresholds",
+      "type": "execute",
+      "params": [
+        { "name": "Set ALS thresholds", "type": "label" },
+        { "name": "low", "type": "label" },
+        { "name": "_low", "type": "number" },
+        { "name": "high", "type": "label" },
+        { "name": "_high", "type": "number" },
+        { "name": "persistence", "type": "label" },
+        { "name": "_persistence", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_set_proximity_thresholds",
+      "type": "execute",
+      "params": [
+        { "name": "Set proximity thresholds", "type": "label" },
+        { "name": "low", "type": "label" },
+        { "name": "_low", "type": "number" },
+        { "name": "high", "type": "label" },
+        { "name": "_high", "type": "number" },
+        { "name": "persistence", "type": "label" },
+        { "name": "_persistence", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_clear_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "Clear interrupt", "type": "label" },
+        { "name": "channel", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_set_proximity_offset",
+      "type": "execute",
+      "params": [
+        { "name": "Set proximity offset", "type": "label" },
+        { "name": "offset", "type": "label" },
+        { "name": "_offset", "type": "number" }
+      ]
+    },
+    {
+      "name": "apds_9930_disable_wait",
+      "type": "execute",
+      "params": [{ "name": "Disable wait timer", "type": "label" }]
+    },
+    {
+      "name": "apds_9930_sleep_after_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "Sleep after interrupt", "type": "label" },
+        { "name": "enable (0/1)", "type": "label" },
+        { "name": "_enable", "type": "number" }
+      ]
+    }
+  ]
+}

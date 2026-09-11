@@ -1,0 +1,86 @@
+[
+    {
+        "id": "tab-adxl345-demo",
+        "type": "tab",
+        "label": "ADXL345 Tilt Logger",
+        "disabled": false,
+        "info": "Reads 3-axis acceleration from an ADXL345 every 100 ms. A function node computes the magnitude √(x²+y²+z²), showing how the total vector stays near 1 g even as the static gravity component shifts between X, Y, and Z when the sensor is tilted. Demonstrates continuous tilt/orientation monitoring. Adjust the measurement range and data rate in the device config node to match the application's dynamic range and bandwidth."
+    },
+    {
+        "id": "cfg-adxl345",
+        "type": "adxl345-device",
+        "name": "ADXL345",
+        "bus": "1",
+        "address": "53",
+        "range": "4",
+        "dataRate": "100"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-adxl345-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-adxl345"]]
+    },
+    {
+        "id": "read-adxl345",
+        "type": "adxl345",
+        "name": "ADXL345 read",
+        "device": "cfg-adxl345",
+        "z": "tab-adxl345-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-magnitude", "dbg-axes"]]
+    },
+    {
+        "id": "fn-magnitude",
+        "type": "function",
+        "name": "magnitude √(x²+y²+z²)",
+        "func": "const {x, y, z} = msg.payload;\nmsg.payload = { x, y, z, magnitude: Math.sqrt(x*x + y*y + z*z) };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-adxl345-demo",
+        "x": 540,
+        "y": 100,
+        "wires": [["dbg-magnitude"]]
+    },
+    {
+        "id": "dbg-axes",
+        "type": "debug",
+        "name": "x, y, z",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-adxl345-demo",
+        "x": 520,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-magnitude",
+        "type": "debug",
+        "name": "magnitude",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-adxl345-demo",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    }
+]
