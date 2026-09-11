@@ -50,6 +50,7 @@ Each chip exposes two classes:
 | BMP180 | Pressure sensor | `chips/pressure/BMP180.h` |
 | BMP280 | Pressure sensor | `chips/pressure/BMP280.h` |
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
+| BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
