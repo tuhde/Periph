@@ -55,8 +55,8 @@ void setup() {
     bmp_full.configure(2, 1, 1, 0x04);                     // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
     check_true(bmp_full._osr_p == 2 && bmp_full._iir == 1 && bmp_full._odr == 0x04, "configure_writes_through");
 
-    bmp_full.set_mode(BMP384Full.MODE_FORCED);             // Set power mode, (mode 0/1/3) → None
-    check_true(bmp_full._mode == BMP384Full.MODE_FORCED, "set_mode_forced");
+    bmp_full.set_mode(BMP384Full::MODE_FORCED);             // Set power mode, (mode 0/1/3) → None
+    check_true(bmp_full._mode == BMP384Full::MODE_FORCED, "set_mode_forced");
 
     bmp_full.fifo_configure(true, true, 10);               // Configure FIFO, (press_en bool, temp_en bool, wtm 0–511, stop_on_full=false) → None
     const char* types[16];
