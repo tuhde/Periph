@@ -1,0 +1,138 @@
+<!--Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lps22df-device', {
+        category: 'config',
+        defaults: {
+            name:   { value: '' },
+            bus:    { value: '1', required: true, validate: RED.validators.number() },
+            addr:   { value: '0x5C', required: true },
+            odr:    { value: '3', required: true, validate: RED.validators.number() },
+            avg:    { value: '0', required: true, validate: RED.validators.number() },
+            enLpfp: { value: 'false' },
+            lfpfCfg:{ value: '0', required: true, validate: RED.validators.number() },
+            bdu:    { value: 'true' }
+        },
+        label: function() {
+            return this.name || ('LPS22DF @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lps22df-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LPS22DF">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x5C">0x5C (SA0=GND)</option>
+            <option value="0x5D">0x5D (SA0=VDDIO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output data rate</label>
+        <select id="node-config-input-odr" style="width:140px">
+            <option value="0">Power-down</option>
+            <option value="1">1 Hz</option>
+            <option value="2">4 Hz</option>
+            <option value="3" selected>10 Hz</option>
+            <option value="4">25 Hz</option>
+            <option value="5">50 Hz</option>
+            <option value="6">75 Hz</option>
+            <option value="7">100 Hz</option>
+            <option value="8">200 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-avg">Averaging</label>
+        <select id="node-config-input-avg" style="width:140px">
+            <option value="0" selected>4 samples</option>
+            <option value="1">8</option>
+            <option value="2">16</option>
+            <option value="3">32</option>
+            <option value="4">64</option>
+            <option value="5">128</option>
+            <option value="7">512</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-enLpfp">Low-pass filter</label>
+        <input type="checkbox" id="node-config-input-enLpfp" style="width:auto;vertical-align:middle"> Enable on pressure
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lfpfCfg">LPF cutoff</label>
+        <select id="node-config-input-lfpfCfg" style="width:140px">
+            <option value="0" selected>ODR/4</option>
+            <option value="1">ODR/9</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bdu">Block data update</label>
+        <input type="checkbox" id="node-config-input-bdu" style="width:auto;vertical-align:middle" checked> BDU (recommended on)
+    </div>
+</script>
+
+<!--Read node: trigger -> measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lps22df', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            device:     { value: '', type: 'lps22df-device', required: true },
+            seaLevelPa: { value: '101325' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'LPS22DF'; },
+        paletteLabel: 'LPS22DF'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lps22df">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LPS22DF">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelPa">Sea-level pressure (Pa)</label>
+        <input type="number" id="node-input-seaLevelPa" min="80000" max="110000" step="1" style="width:120px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lps22df">
+    <p>Reads pressure, temperature, and altitude from an LPS22DF absolute pressure sensor.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>lps22df-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in pascals.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x5C</code> or <code>0x5D</code>), output
+    data rate (1–200 Hz), averaging depth (4–512 samples), low-pass filter cutoff, and
+    block-data-update behaviour in the device config node. The sea-level reference pressure
+    defaults to <code>101325</code> Pa and can be adjusted in the read node config panel.</p>
+</script>

@@ -1,0 +1,1 @@
+_periph_lps33hw.temperature()

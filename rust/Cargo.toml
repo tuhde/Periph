@@ -8,6 +8,10 @@ exclude = [
     "tests/pressure/bmp180_test_esp32s3",
     "tests/pressure/bmp280_test_esp32s3",
     "tests/pressure/bmp581_test_esp32s3",
+    "tests/pressure/lps28dfw_test_esp32s3",
+    "tests/pressure/bmp384_test_esp32s3",
+    "tests/pressure/lps33hw_test_esp32s3",
+    "tests/pressure/lps22df_test_esp32s3",
     "tests/adc_dac/mcp4725_test_esp32s3",
     "tests/adc_dac/mcp4728_test_esp32s3",
     "tests/connection/smbus_test_esp32s3",
@@ -29,15 +33,18 @@ exclude = [
     "tests/memory/24aa02uid_test_esp32s3",
     "tests/light/apds9960_test_esp32s3",
     "tests/imu/mpu6050_test_esp32s3",
+    "tests/accelerometer/adxl345_test_esp32s3",
     "tests/environmental/bme680_test_esp32s3",
     "tests/display/pcf8576_test_esp32s3",
     "tests/comms/rda5807m_test_esp32s3",
     "tests/gnss/neo6_test_esp32s3",
     "tests/humidity/dht11_test_esp32s3",
     "tests/rfid/mfrc522_test_esp32s3",
+    "tests/comms/rfm9x_test_esp32s3",
 ]
 members = [
     "periph",
+    "tests/accelerometer/adxl345_test",
     "tests/connection/uart_test",
     "examples/linux/*/*/*",
     "tests/power/ina226_test",
@@ -46,6 +53,10 @@ members = [
     "tests/pressure/bmp180_test",
     "tests/pressure/bmp280_test",
     "tests/pressure/bmp581_test",
+    "tests/pressure/lps28dfw_test",
+    "tests/pressure/bmp384_test",
+    "tests/pressure/lps33hw_test",
+    "tests/pressure/lps22df_test",
     "tests/adc_dac/mcp4725_test",
     "tests/adc_dac/mcp4728_test",
     "tests/connection/smbus_test",
@@ -75,6 +86,7 @@ members = [
     "tests/gnss/neo6_test_spi",
     "tests/humidity/dht11_test",
     "tests/rfid/mfrc522_test",
+    "tests/comms/rfm9x_test",
 ]
 
 [workspace.dependencies]

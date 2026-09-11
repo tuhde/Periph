@@ -1,0 +1,32 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lps33hw_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LPS33HW", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "lps33hw_read_pressure",
+      "type": "value",
+      "params": [{ "name": "LPS33HW pressure (Pa)", "type": "label" }]
+    },
+    {
+      "name": "lps33hw_read_temperature",
+      "type": "value",
+      "params": [{ "name": "LPS33HW temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "lps33hw_one_shot",
+      "type": "execute",
+      "params": [{ "name": "Trigger LPS33HW one-shot read", "type": "label" }]
+    }
+  ]
+}

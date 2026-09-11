@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-rfm9x', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '0', required: true, validate: RED.validators.number() },
+            device:    { value: '0', required: true, validate: RED.validators.number() },
+            variant:   { value: 'RFM95W' },
+            frequency: { value: '868000000', required: true, validate: RED.validators.number() },
+            sf:        { value: '7' },
+            bandwidth: { value: '125' },
+            cr:        { value: '5' },
+            crc:       { value: true },
+            power:     { value: '17' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-signal',
+        label:   function() { return this.name || (this.variant + ' @ ' + this.frequency + ' Hz'); },
+        paletteLabel: 'RFM9x'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-rfm9x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="RFM9x">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-variant">Variant</label>
+        <select id="node-input-variant" style="width:200px">
+            <option value="RFM95W">RFM95W (868/915 MHz, SF ≤ 12)</option>
+            <option value="RFM96W">RFM96W (433/470 MHz, SF ≤ 12)</option>
+            <option value="RFM97W">RFM97W (868/915 MHz, SF ≤ 9)</option>
+            <option value="RFM98W">RFM98W (433/470 MHz, SF ≤ 12)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-frequency">Frequency (Hz)</label>
+        <input type="number" id="node-input-frequency" min="410000000" max="1020000000" style="width:160px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sf">Spreading Factor</label>
+        <input type="number" id="node-input-sf" min="6" max="12" style="width:60px"> &nbsp;(6–9 for RFM97W)
+    </div>
+    <div class="form-row">
+        <label for="node-input-bandwidth">Bandwidth (kHz)</label>
+        <input type="number" id="node-input-bandwidth" style="width:80px"> &nbsp;(7.8, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250, 500)
+    </div>
+    <div class="form-row">
+        <label for="node-input-cr">Coding Rate</label>
+        <select id="node-input-cr" style="width:100px">
+            <option value="5">4/5</option>
+            <option value="6">4/6</option>
+            <option value="7">4/7</option>
+            <option value="8">4/8</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-crc">CRC</label>
+        <input type="checkbox" id="node-input-crc" checked>
+    </div>
+    <div class="form-row">
+        <label for="node-input-power">TX Power (dBm)</label>
+        <input type="number" id="node-input-power" min="2" max="20" style="width:60px"> &nbsp;(−1 to +14 on RFO, +2 to +20 on PA_BOOST)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-rfm9x">
+    <p>Sends and receives LoRa packets with the HopeRF RFM95/96/97/98W transceiver module over SPI.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd><code>send</code>, <code>receive</code>, or <code>frequency</code>.</dd>
+        <dt>payload.data <span class="property-type">Buffer | string</span></dt>
+        <dd>For <code>send</code>: payload bytes (string is UTF-8 encoded); max 255 bytes.</dd>
+        <dt>payload.timeout <span class="property-type">number</span></dt>
+        <dd>For <code>receive</code>: timeout in ms (default 1000).</dd>
+        <dt>payload.frequency <span class="property-type">number</span></dt>
+        <dd>For <code>frequency</code>: new carrier frequency in Hz.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.sent <span class="property-type">boolean</span></dt>
+        <dd>True after a successful send; payload.bytes is the byte count.</dd>
+        <dt>payload.data <span class="property-type">Buffer</span></dt>
+        <dd>Received payload bytes; null on receive timeout.</dd>
+        <dt>payload.rssi <span class="property-type">number</span></dt>
+        <dd>RSSI of the received packet in dBm, or null on timeout.</dd>
+        <dt>payload.snr <span class="property-type">number</span></dt>
+        <dd>SNR of the received packet in dB, or null on timeout.</dd>
+        <dt>payload.frequency <span class="property-type">number</span></dt>
+        <dd>Updated carrier frequency in Hz.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus and CS line (Linux <code>/dev/spidevBUS.DEVICE</code>), the chip
+    variant, the carrier frequency (validated against the variant range), the spreading
+    factor, bandwidth, coding rate, CRC enable, and TX power. RFM97W is capped at SF 9.
+    Frequencies below 525 MHz require an LF variant (RFM96W/RFM98W).</p>
+</script>
