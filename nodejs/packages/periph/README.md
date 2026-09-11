@@ -47,6 +47,7 @@ Each chip exposes two classes:
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
+| LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |

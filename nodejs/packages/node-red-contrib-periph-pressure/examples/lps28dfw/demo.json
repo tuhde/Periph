@@ -1,0 +1,70 @@
+[
+    {
+        "id": "lps28dfw-device-1",
+        "type": "lps28dfw-device",
+        "name": "LPS28DFW @ i2c-1",
+        "bus": "1",
+        "addr": "0x5C",
+        "odr": "4",
+        "avg": "2",
+        "fsMode": "0",
+        "lpfEn": "true",
+        "lpfCfg": "0"
+    },
+    {
+        "id": "lps28dfw-read-1",
+        "type": "periph-lps28dfw",
+        "name": "LPS28DFW Weather",
+        "device": "lps28dfw-device-1",
+        "seaLevelHpa": "1013.25",
+        "wires": [["debug-1", "function-altitude-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "wires": [["lps28dfw-read-1"]]
+    },
+    {
+        "id": "function-altitude-1",
+        "type": "function",
+        "name": "Re-add altitude from payload",
+        "func": "// payload already contains altitude; just pass through.\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "wires": [["debug-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Pressure / Temperature / Altitude",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 800,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "tab-flow-1",
+        "type": "tab",
+        "label": "LPS28DFW weather",
+        "disabled": false,
+        "info": "An inject node fires every 5 seconds, triggering the periph-lps28dfw node which reads pressure and temperature from the LPS28DFW dual full-scale digital barometer. The node also computes an estimated altitude from the barometric formula using a configurable sea-level reference (default 1013.25 hPa). The debug tab displays pressure (hPa), temperature (°C), and altitude (m). Adjust the lps28dfw-device config node to switch between Mode 1 (0–1260 hPa) and Mode 2 (0–4060 hPa) full-scale, change the averaging depth (4 to 512 samples), set the output data rate, and enable/disable the IIR low-pass filter."
+    }
+]
