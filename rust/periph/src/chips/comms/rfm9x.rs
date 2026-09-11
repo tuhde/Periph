@@ -11,6 +11,18 @@
 //!
 //! Generic over [`SpiDevice`] from `embedded-hal` 1.0; chip drivers never
 //! assert or deassert CS themselves — the `SpiDevice` implementation owns CS.
+//!
+//! `_Rfm9xBase` holds every register-level operation, but only `send` and
+//! `receive` are `pub` there — everything Full-only (`configure`,
+//! `set_frequency`, `set_tx_power`, `standby`, `sleep`, `version`,
+//! `receive_continuous`, `read_packet`, `stop_receive`, `rssi`,
+//! `last_packet_rssi`, `last_packet_snr`) is `pub(crate)` so it is invisible
+//! outside this module. `Rfm95Minimal` etc. wrap `_Rfm9xBase` and expose only
+//! `send`/`receive` publicly; `Rfm95Full` etc. wrap the corresponding
+//! `*Minimal` and reach the base's `pub(crate)` methods through a
+//! `pub(crate) fn base(&mut self)` accessor on `*Minimal`, adding thin
+//! one-line delegating `pub fn`s for everything else. No register-level logic
+//! is duplicated between Minimal and Full.
 
 use embedded_hal::spi::{Operation, SpiDevice};
 
@@ -96,14 +108,15 @@ fn burst_write<SPI: SpiDevice>(spi: &mut SPI, reg: u8, data: &[u8]) -> Result<()
 
 fn burst_read<SPI: SpiDevice>(spi: &mut SPI, reg: u8, len: usize) -> Result<[u8; 256], SPI::Error> {
     let mut buf = [0u8; 256];
-    let mut cmd = [reg & 0x7F];
-    let mut tmp = [0u8; 256];
-    tmp[..len].copy_from_slice(&buf[..len]);
+    let cmd = [reg & 0x7F];
+    // `Operation::Transfer` is full-duplex: it clocks `zero` out on MOSI
+    // while simultaneously clocking the received bytes into `buf` on MISO.
+    // The write side must be padding (0x00) since only the read matters here.
+    let zero = [0u8; 256];
     spi.transaction(&mut [
         Operation::Write(&cmd),
-        Operation::Transfer(&mut tmp[..len]),
+        Operation::Transfer(&mut buf[..len], &zero[..len]),
     ])?;
-    buf[..len].copy_from_slice(&tmp[..len]);
     Ok(buf)
 }
 
@@ -127,7 +140,11 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(s)
     }
 
-    fn init(&mut self) -> Result<(), SPI::Error> {
+    /// Run the LoRa init/reset register sequence (also used by `Rfm95Full::reset`
+    /// and friends as a software-only reset — this driver does not accept a
+    /// NRESET GPIO pin, so `reset()` re-applies this sequence instead of
+    /// toggling hardware reset, mirroring the JVM driver's `_Rfm9xFull.reset()`).
+    pub(crate) fn init(&mut self) -> Result<(), SPI::Error> {
         delay_ms(10);
         write_reg(&mut self.spi, REG_OP_MODE, 0x00)?;
         delay_ms(1);
@@ -157,8 +174,8 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(())
     }
 
-    /// Set the carrier frequency.
-    pub fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
+    /// Set the carrier frequency. Full-only; called internally by `init`.
+    pub(crate) fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
         if frequency_hz < self.freq_min_hz || frequency_hz > self.freq_max_hz { return Ok(()); }
         let frf = ((frequency_hz as u64) << 19) / FXOSC;
         write_reg(&mut self.spi, REG_FRF_MSB, ((frf >> 16) & 0xFF) as u8)?;
@@ -168,8 +185,8 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(())
     }
 
-    /// Set TX output power.
-    pub fn set_tx_power(&mut self, mut power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
+    /// Set TX output power. Full-only; called internally by `init`.
+    pub(crate) fn set_tx_power(&mut self, mut power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
         if use_pa_boost {
             if power_dbm > 17 {
                 if power_dbm > 20 { power_dbm = 20; }
@@ -195,8 +212,8 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(())
     }
 
-    /// Configure LoRa modulation parameters.
-    pub fn configure(&mut self, mut sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
+    /// Configure LoRa modulation parameters. Full-only.
+    pub(crate) fn configure(&mut self, mut sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
         let bw_table = [7.8f32, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125.0, 250.0, 500.0];
         let mut bw_code: u8 = 0x07;
         for (i, b) in bw_table.iter().enumerate() {
@@ -219,18 +236,19 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(())
     }
 
-    /// Enter STDBY mode.
-    pub fn standby(&mut self) -> Result<(), SPI::Error> {
+    /// Enter STDBY mode. Full-only in the public API; used internally by
+    /// `send`/`receive`, which stay `pub` since Minimal needs them directly.
+    pub(crate) fn standby(&mut self) -> Result<(), SPI::Error> {
         write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | band_flag(self.lf_band) | MODE_STANDBY)
     }
 
-    /// Enter SLEEP mode.
-    pub fn sleep(&mut self) -> Result<(), SPI::Error> {
+    /// Enter SLEEP mode. Full-only.
+    pub(crate) fn sleep(&mut self) -> Result<(), SPI::Error> {
         write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | band_flag(self.lf_band) | MODE_SLEEP)
     }
 
-    /// Read `RegVersion`. Expect 0x12 (SX1276).
-    pub fn version(&mut self) -> Result<u8, SPI::Error> {
+    /// Read `RegVersion`. Expect 0x12 (SX1276). Full-only.
+    pub(crate) fn version(&mut self) -> Result<u8, SPI::Error> {
         read_reg(&mut self.spi, REG_VERSION)
     }
 
@@ -281,35 +299,45 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         let current = read_reg(&mut self.spi, REG_FIFO_RX_CURRENT)?;
         write_reg(&mut self.spi, REG_FIFO_ADDR_PTR, current)?;
         let n = read_reg(&mut self.spi, REG_RX_NB_BYTES)? as usize;
-        let _ = burst_read(&mut self.spi, REG_FIFO, n)?;
-        Ok([0u8; 256])
+        burst_read(&mut self.spi, REG_FIFO, n)
     }
 
-    /// Enter continuous receive mode.
-    pub fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
+    /// Enter continuous receive mode. Full-only.
+    pub(crate) fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
         self.standby()?;
         write_reg(&mut self.spi, REG_DIO_MAPPING_1, DIO0_RX_DONE)?;
         write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | band_flag(self.lf_band) | MODE_RX_CONT)?;
         Ok(())
     }
 
-    /// Return to STDBY from continuous receive mode.
-    pub fn stop_receive(&mut self) -> Result<(), SPI::Error> {
+    /// Read one packet from the FIFO while in continuous receive mode.
+    /// Returns `None` if no packet is waiting. Full-only.
+    pub(crate) fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+        let irq = read_reg(&mut self.spi, REG_IRQ_FLAGS)?;
+        if irq & IRQ_RX_DONE == 0 {
+            return Ok(None);
+        }
+        write_reg(&mut self.spi, REG_IRQ_FLAGS, IRQ_RX_DONE)?;
+        Ok(Some(self.read_payload()?))
+    }
+
+    /// Return to STDBY from continuous receive mode. Full-only.
+    pub(crate) fn stop_receive(&mut self) -> Result<(), SPI::Error> {
         self.standby()
     }
 
-    /// Current channel RSSI in dBm.
-    pub fn rssi(&mut self) -> Result<f32, SPI::Error> {
+    /// Current channel RSSI in dBm. Full-only.
+    pub(crate) fn rssi(&mut self) -> Result<f32, SPI::Error> {
         Ok(-137.0 + read_reg(&mut self.spi, REG_RSSI)? as f32)
     }
 
-    /// RSSI of last received packet in dBm.
-    pub fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
+    /// RSSI of last received packet in dBm. Full-only.
+    pub(crate) fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
         Ok(-137.0 + read_reg(&mut self.spi, REG_PKT_RSSI)? as f32)
     }
 
-    /// SNR of last received packet in dB.
-    pub fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
+    /// SNR of last received packet in dB. Full-only.
+    pub(crate) fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
         let raw = read_reg(&mut self.spi, REG_PKT_SNR)? as i8;
         Ok(raw as f32 / 4.0)
     }
@@ -323,6 +351,22 @@ impl<SPI: SpiDevice> Rfm95Minimal<SPI> {
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: _Rfm9xBase::new(spi, frequency_hz, 862_000_000, 1_020_000_000, 12, false)? })
     }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Access the shared register-level base. `pub(crate)` so only `Rfm95Full`
+    /// (in this module) can reach the Full-only `pub(crate)` methods on it.
+    pub(crate) fn base(&mut self) -> &mut _Rfm9xBase<SPI> {
+        &mut self.inner
+    }
 }
 
 /// RFM96W minimal driver — 433/470 MHz LF band, max SF=12.
@@ -332,6 +376,22 @@ impl<SPI: SpiDevice> Rfm96Minimal<SPI> {
     /// Construct an RFM96W driver at the given carrier frequency.
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: _Rfm9xBase::new(spi, frequency_hz, 410_000_000, 525_000_000, 12, true)? })
+    }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Access the shared register-level base. `pub(crate)` so only `Rfm96Full`
+    /// (in this module) can reach the Full-only `pub(crate)` methods on it.
+    pub(crate) fn base(&mut self) -> &mut _Rfm9xBase<SPI> {
+        &mut self.inner
     }
 }
 
@@ -343,6 +403,22 @@ impl<SPI: SpiDevice> Rfm97Minimal<SPI> {
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: _Rfm9xBase::new(spi, frequency_hz, 862_000_000, 1_020_000_000, 9, false)? })
     }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Access the shared register-level base. `pub(crate)` so only `Rfm97Full`
+    /// (in this module) can reach the Full-only `pub(crate)` methods on it.
+    pub(crate) fn base(&mut self) -> &mut _Rfm9xBase<SPI> {
+        &mut self.inner
+    }
 }
 
 /// RFM98W minimal driver — 433/470 MHz LF band, max SF=12.
@@ -352,6 +428,22 @@ impl<SPI: SpiDevice> Rfm98Minimal<SPI> {
     /// Construct an RFM98W driver at the given carrier frequency.
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: _Rfm9xBase::new(spi, frequency_hz, 410_000_000, 525_000_000, 12, true)? })
+    }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Access the shared register-level base. `pub(crate)` so only `Rfm98Full`
+    /// (in this module) can reach the Full-only `pub(crate)` methods on it.
+    pub(crate) fn base(&mut self) -> &mut _Rfm9xBase<SPI> {
+        &mut self.inner
     }
 }
 
@@ -363,6 +455,88 @@ impl<SPI: SpiDevice> Rfm95Full<SPI> {
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: Rfm95Minimal::new(spi, frequency_hz)? })
     }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Re-run the register-level init sequence as a software reset. This
+    /// driver does not accept a NRESET GPIO pin (see module docs), so unlike
+    /// a real hardware reset this simply re-applies the SLEEP→LoRa→STANDBY
+    /// sequence used by the constructor, mirroring the JVM driver's
+    /// `_Rfm9xFull.reset()`.
+    pub fn reset(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().init()
+    }
+
+    /// Configure LoRa modulation parameters.
+    pub fn configure(&mut self, sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
+        self.inner.base().configure(sf, bandwidth_khz, coding_rate, crc)
+    }
+
+    /// Set the carrier frequency.
+    pub fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
+        self.inner.base().set_frequency(frequency_hz)
+    }
+
+    /// Set TX output power.
+    pub fn set_tx_power(&mut self, power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
+        self.inner.base().set_tx_power(power_dbm, use_pa_boost)
+    }
+
+    /// Receive a single packet. `use_interrupt` is accepted for API parity
+    /// with the spec, but this driver does not accept a DIO0 pin, so both
+    /// modes currently poll `RegIrqFlags` over SPI.
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Enter continuous receive mode.
+    pub fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().receive_continuous()
+    }
+
+    /// Read one packet from the FIFO in continuous receive mode. `None` if
+    /// nothing is ready.
+    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.base().read_packet()
+    }
+
+    /// Return to STDBY from continuous receive mode.
+    pub fn stop_receive(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().stop_receive()
+    }
+
+    /// Current channel RSSI in dBm.
+    pub fn rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().rssi()
+    }
+
+    /// RSSI of last received packet in dBm.
+    pub fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_rssi()
+    }
+
+    /// SNR of last received packet in dB.
+    pub fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_snr()
+    }
+
+    /// Enter SLEEP mode.
+    pub fn sleep(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().sleep()
+    }
+
+    /// Enter STDBY mode.
+    pub fn standby(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().standby()
+    }
+
+    /// Read `RegVersion`. Expect 0x12 (SX1276).
+    pub fn version(&mut self) -> Result<u8, SPI::Error> {
+        self.inner.base().version()
+    }
 }
 
 /// RFM96W full driver.
@@ -372,6 +546,88 @@ impl<SPI: SpiDevice> Rfm96Full<SPI> {
     /// Construct an RFM96W full driver at the given carrier frequency.
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: Rfm96Minimal::new(spi, frequency_hz)? })
+    }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Re-run the register-level init sequence as a software reset. This
+    /// driver does not accept a NRESET GPIO pin (see module docs), so unlike
+    /// a real hardware reset this simply re-applies the SLEEP→LoRa→STANDBY
+    /// sequence used by the constructor, mirroring the JVM driver's
+    /// `_Rfm9xFull.reset()`.
+    pub fn reset(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().init()
+    }
+
+    /// Configure LoRa modulation parameters.
+    pub fn configure(&mut self, sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
+        self.inner.base().configure(sf, bandwidth_khz, coding_rate, crc)
+    }
+
+    /// Set the carrier frequency.
+    pub fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
+        self.inner.base().set_frequency(frequency_hz)
+    }
+
+    /// Set TX output power.
+    pub fn set_tx_power(&mut self, power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
+        self.inner.base().set_tx_power(power_dbm, use_pa_boost)
+    }
+
+    /// Receive a single packet. `use_interrupt` is accepted for API parity
+    /// with the spec, but this driver does not accept a DIO0 pin, so both
+    /// modes currently poll `RegIrqFlags` over SPI.
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Enter continuous receive mode.
+    pub fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().receive_continuous()
+    }
+
+    /// Read one packet from the FIFO in continuous receive mode. `None` if
+    /// nothing is ready.
+    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.base().read_packet()
+    }
+
+    /// Return to STDBY from continuous receive mode.
+    pub fn stop_receive(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().stop_receive()
+    }
+
+    /// Current channel RSSI in dBm.
+    pub fn rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().rssi()
+    }
+
+    /// RSSI of last received packet in dBm.
+    pub fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_rssi()
+    }
+
+    /// SNR of last received packet in dB.
+    pub fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_snr()
+    }
+
+    /// Enter SLEEP mode.
+    pub fn sleep(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().sleep()
+    }
+
+    /// Enter STDBY mode.
+    pub fn standby(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().standby()
+    }
+
+    /// Read `RegVersion`. Expect 0x12 (SX1276).
+    pub fn version(&mut self) -> Result<u8, SPI::Error> {
+        self.inner.base().version()
     }
 }
 
@@ -383,6 +639,88 @@ impl<SPI: SpiDevice> Rfm97Full<SPI> {
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: Rfm97Minimal::new(spi, frequency_hz)? })
     }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Re-run the register-level init sequence as a software reset. This
+    /// driver does not accept a NRESET GPIO pin (see module docs), so unlike
+    /// a real hardware reset this simply re-applies the SLEEP→LoRa→STANDBY
+    /// sequence used by the constructor, mirroring the JVM driver's
+    /// `_Rfm9xFull.reset()`.
+    pub fn reset(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().init()
+    }
+
+    /// Configure LoRa modulation parameters.
+    pub fn configure(&mut self, sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
+        self.inner.base().configure(sf, bandwidth_khz, coding_rate, crc)
+    }
+
+    /// Set the carrier frequency.
+    pub fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
+        self.inner.base().set_frequency(frequency_hz)
+    }
+
+    /// Set TX output power.
+    pub fn set_tx_power(&mut self, power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
+        self.inner.base().set_tx_power(power_dbm, use_pa_boost)
+    }
+
+    /// Receive a single packet. `use_interrupt` is accepted for API parity
+    /// with the spec, but this driver does not accept a DIO0 pin, so both
+    /// modes currently poll `RegIrqFlags` over SPI.
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Enter continuous receive mode.
+    pub fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().receive_continuous()
+    }
+
+    /// Read one packet from the FIFO in continuous receive mode. `None` if
+    /// nothing is ready.
+    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.base().read_packet()
+    }
+
+    /// Return to STDBY from continuous receive mode.
+    pub fn stop_receive(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().stop_receive()
+    }
+
+    /// Current channel RSSI in dBm.
+    pub fn rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().rssi()
+    }
+
+    /// RSSI of last received packet in dBm.
+    pub fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_rssi()
+    }
+
+    /// SNR of last received packet in dB.
+    pub fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_snr()
+    }
+
+    /// Enter SLEEP mode.
+    pub fn sleep(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().sleep()
+    }
+
+    /// Enter STDBY mode.
+    pub fn standby(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().standby()
+    }
+
+    /// Read `RegVersion`. Expect 0x12 (SX1276).
+    pub fn version(&mut self) -> Result<u8, SPI::Error> {
+        self.inner.base().version()
+    }
 }
 
 /// RFM98W full driver.
@@ -392,5 +730,87 @@ impl<SPI: SpiDevice> Rfm98Full<SPI> {
     /// Construct an RFM98W full driver at the given carrier frequency.
     pub fn new(spi: SPI, frequency_hz: u32) -> Result<Self, SPI::Error> {
         Ok(Self { inner: Rfm98Minimal::new(spi, frequency_hz)? })
+    }
+
+    /// Send a packet.
+    pub fn send(&mut self, data: &[u8]) -> Result<(), SPI::Error> {
+        self.inner.send(data)
+    }
+
+    /// Re-run the register-level init sequence as a software reset. This
+    /// driver does not accept a NRESET GPIO pin (see module docs), so unlike
+    /// a real hardware reset this simply re-applies the SLEEP→LoRa→STANDBY
+    /// sequence used by the constructor, mirroring the JVM driver's
+    /// `_Rfm9xFull.reset()`.
+    pub fn reset(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().init()
+    }
+
+    /// Configure LoRa modulation parameters.
+    pub fn configure(&mut self, sf: u8, bandwidth_khz: f32, coding_rate: u8, crc: bool) -> Result<(), SPI::Error> {
+        self.inner.base().configure(sf, bandwidth_khz, coding_rate, crc)
+    }
+
+    /// Set the carrier frequency.
+    pub fn set_frequency(&mut self, frequency_hz: u32) -> Result<(), SPI::Error> {
+        self.inner.base().set_frequency(frequency_hz)
+    }
+
+    /// Set TX output power.
+    pub fn set_tx_power(&mut self, power_dbm: i8, use_pa_boost: bool) -> Result<(), SPI::Error> {
+        self.inner.base().set_tx_power(power_dbm, use_pa_boost)
+    }
+
+    /// Receive a single packet. `use_interrupt` is accepted for API parity
+    /// with the spec, but this driver does not accept a DIO0 pin, so both
+    /// modes currently poll `RegIrqFlags` over SPI.
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.receive(timeout_ms)
+    }
+
+    /// Enter continuous receive mode.
+    pub fn receive_continuous(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().receive_continuous()
+    }
+
+    /// Read one packet from the FIFO in continuous receive mode. `None` if
+    /// nothing is ready.
+    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+        self.inner.base().read_packet()
+    }
+
+    /// Return to STDBY from continuous receive mode.
+    pub fn stop_receive(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().stop_receive()
+    }
+
+    /// Current channel RSSI in dBm.
+    pub fn rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().rssi()
+    }
+
+    /// RSSI of last received packet in dBm.
+    pub fn last_packet_rssi(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_rssi()
+    }
+
+    /// SNR of last received packet in dB.
+    pub fn last_packet_snr(&mut self) -> Result<f32, SPI::Error> {
+        self.inner.base().last_packet_snr()
+    }
+
+    /// Enter SLEEP mode.
+    pub fn sleep(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().sleep()
+    }
+
+    /// Enter STDBY mode.
+    pub fn standby(&mut self) -> Result<(), SPI::Error> {
+        self.inner.base().standby()
+    }
+
+    /// Read `RegVersion`. Expect 0x12 (SX1276).
+    pub fn version(&mut self) -> Result<u8, SPI::Error> {
+        self.inner.base().version()
     }
 }

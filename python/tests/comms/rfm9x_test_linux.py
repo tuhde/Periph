@@ -1,7 +1,7 @@
 import os
 import sys
 
-from periph.transport.spi_linux import SPITransport
+from periph.connection.spi_linux import SPIConnection
 from periph.chips.comms.rfm9x import RFM95Full
 
 passed = 0
@@ -30,8 +30,8 @@ SPI_BUS  = int(os.environ.get('SPI_BUS', '0'))
 SPI_DEV  = int(os.environ.get('SPI_DEV', '0'))
 FREQ_HZ  = int(os.environ.get('RFM9X_FREQ', '868000000'))
 
-transport = SPITransport(SPI_BUS, SPI_DEV, mode=0, max_speed_hz=5_000_000)
-radio = RFM95Full(transport, FREQ_HZ)
+connection = SPIConnection(SPI_BUS, SPI_DEV, mode=0, max_speed_hz=5_000_000)
+radio = RFM95Full(connection, FREQ_HZ)
 
 check_eq('version', radio.version(), 0x12)
 
@@ -53,7 +53,7 @@ check_eq('sleep_op_mode', radio._read_reg(0x01) & 0x07, 0x00)
 
 radio.standby()
 
-transport.close()
+connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

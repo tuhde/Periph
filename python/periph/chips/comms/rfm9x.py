@@ -9,7 +9,9 @@ logic. Four thin variant subclasses supply their frequency limits,
 maximum SF, and band flag. The Minimal and Full stages are layered on
 top: Minimal exposes the primary use case (send/receive at a fixed
 frequency), Full adds complete LoRa configuration plus hardware reset
-and DIO0 interrupt-driven receive.
+and DIO0 interrupt-driven receive. Full-only functionality lives behind
+private methods on `_RFM9xBase` and is re-exposed publicly by
+`_RFM9xFullMixin`, so Minimal instances never see it.
 """
 
 
@@ -19,9 +21,12 @@ class _RFM9xBase:
     Owns all register-level logic and accepts a carrier frequency in Hz.
     Four variant subclasses — RFM95Minimal, RFM96Minimal, RFM97Minimal,
     RFM98Minimal — supply the variant-specific limits and band flag.
+    Only the Minimal-stage public API (`send`, `receive`) lives here;
+    Full-stage functionality is implemented as private methods and
+    re-exposed publicly by `_RFM9xFullMixin`.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz; must lie in the variant's range.
         reset_pin: Optional MicroPython/CircuitPython Pin for hardware reset.
             When None, the driver waits 10 ms after construction for POR.
@@ -89,8 +94,10 @@ class _RFM9xBase:
     _DIO0_RX_DONE = 0x00
     _DIO0_TX_DONE = 0x40
 
-    def __init__(self, transport, frequency_hz, reset_pin=None, dio0_pin=None):
-        self._transport = transport
+    def __init__(self, connection, frequency_hz, reset_pin=None, dio0_pin=None):
+        self._connection = connection
+        self._reset_pin = reset_pin
+        self._dio0_pin = dio0_pin
         if not (self.FREQ_MIN_HZ <= frequency_hz <= self.FREQ_MAX_HZ):
             raise ValueError(
                 "frequency_hz %d out of range [%d, %d]"
@@ -103,6 +110,10 @@ class _RFM9xBase:
         else:
             self._sleep_ms(10)
 
+        self._init_registers()
+
+    def _init_registers(self):
+        """Run the register-level init sequence (also used by `reset()` in Full)."""
         version = self._read_reg(self._REG_VERSION)
         if version != self._EXPECTED_VERSION:
             raise OSError(
@@ -115,21 +126,17 @@ class _RFM9xBase:
         lna = self._read_reg(self._REG_LNA)
         if self._LF_BAND:
             self._write_reg(self._REG_LNA, lna & 0x3F)
-            self._write_reg(
-                self._REG_MODEM_CONFIG_3,
-                self._read_reg(self._REG_MODEM_CONFIG_3) | 0x04,
-            )
         else:
             self._write_reg(self._REG_LNA, 0x23)
-            self._write_reg(
-                self._REG_MODEM_CONFIG_3,
-                self._read_reg(self._REG_MODEM_CONFIG_3) | 0x04,
-            )
+        self._write_reg(
+            self._REG_MODEM_CONFIG_3,
+            self._read_reg(self._REG_MODEM_CONFIG_3) | 0x04,
+        )
 
         self._write_reg(self._REG_FIFO_TX_BASE, 0x80)
         self._write_reg(self._REG_FIFO_RX_BASE, 0x00)
 
-        self.set_frequency(frequency_hz)
+        self._set_frequency(self._frequency_hz)
 
         self._bw_code = 0x07
         self._cr_code = 0x01
@@ -141,9 +148,9 @@ class _RFM9xBase:
         self._write_reg(self._REG_PREAMBLE_MSB, 0x00)
         self._write_reg(self._REG_PREAMBLE_LSB, 0x08)
 
-        self.set_tx_power(17, use_pa_boost=True)
+        self._set_tx_power(17, use_pa_boost=True)
 
-        self.standby()
+        self._standby()
 
     def _reset_via_pin(self, pin):
         pin.value(0)
@@ -157,16 +164,16 @@ class _RFM9xBase:
         time.sleep(ms / 1000.0 if isinstance(ms, (int, float)) else ms)
 
     def _write_reg(self, reg, value):
-        self._transport.write(bytes([reg | 0x80, value & 0xFF]))
+        self._connection.write(bytes([reg | 0x80, value & 0xFF]))
 
     def _read_reg(self, reg):
-        return self._transport.write_read(bytes([reg & 0x7F]), 1)[0]
+        return self._connection.write_read(bytes([reg & 0x7F]), 1)[0]
 
     def _burst_write(self, reg, data):
-        self._transport.write(bytes([reg | 0x80]) + bytes(data))
+        self._connection.write(bytes([reg | 0x80]) + bytes(data))
 
     def _burst_read(self, reg, n):
-        return self._transport.write_read(bytes([reg & 0x7F]), n)
+        return self._connection.write_read(bytes([reg & 0x7F]), n)
 
     def _enter_lora_sleep(self):
         self._write_reg(self._REG_OP_MODE, 0x00)
@@ -175,15 +182,7 @@ class _RFM9xBase:
         self._write_reg(self._REG_OP_MODE, op)
         self._sleep_ms(0.001)
 
-    def set_frequency(self, frequency_hz):
-        """Set the carrier frequency.
-
-        Args:
-            frequency_hz: Carrier frequency in Hz; must lie in the variant's range.
-
-        Raises:
-            ValueError: If `frequency_hz` is outside the variant's range.
-        """
+    def _set_frequency(self, frequency_hz):
         if not (self.FREQ_MIN_HZ <= frequency_hz <= self.FREQ_MAX_HZ):
             raise ValueError(
                 "frequency_hz %d out of range [%d, %d]"
@@ -195,15 +194,7 @@ class _RFM9xBase:
         self._write_reg(self._REG_FRF_LSB, frf & 0xFF)
         self._frequency_hz = frequency_hz
 
-    def set_tx_power(self, power_dbm, use_pa_boost=True):
-        """Set TX output power.
-
-        Args:
-            power_dbm: Output power in dBm. Range −1 to +14 dBm on the RFO pin,
-                or +2 to +17 dBm on PA_BOOST; +20 dBm is supported on PA_BOOST
-                with the high-power register set.
-            use_pa_boost: True to use the PA_BOOST pin (default), False for RFO.
-        """
+    def _set_tx_power(self, power_dbm, use_pa_boost=True):
         if use_pa_boost:
             if power_dbm > 17:
                 if power_dbm > 20:
@@ -229,22 +220,7 @@ class _RFM9xBase:
                 output_power = 15
             self._write_reg(self._REG_PA_CONFIG, (max_power << 4) | output_power)
 
-    def configure(self, sf, bandwidth_khz, coding_rate, crc=True):
-        """Configure LoRa modulation parameters.
-
-        Args:
-            sf: Spreading factor 6–12 (variant-capped; RFM97W max 9).
-            bandwidth_khz: Signal bandwidth in kHz (one of 7.8, 10.4, 15.6, 20.8,
-                31.25, 41.7, 62.5, 125, 250, 500). 250/500 kHz are not supported
-                on the LF band below 169 MHz.
-            coding_rate: Coding rate denominator 5–8 (4/5 … 4/8).
-            crc: True to enable CRC on RX payloads (default), False to disable.
-
-        Raises:
-            ValueError: If `sf` exceeds the variant maximum, `bandwidth_khz` is
-                not one of the 10 supported values, or BW is invalid for the
-                variant's frequency range.
-        """
+    def _configure(self, sf, bandwidth_khz, coding_rate, crc=True):
         bw_table = {
             7.8: 0, 10.4: 1, 15.6: 2, 20.8: 3, 31.25: 4,
             41.7: 5, 62.5: 6, 125.0: 7, 250.0: 8, 500.0: 9,
@@ -295,7 +271,7 @@ class _RFM9xBase:
         if len(data) > 255:
             raise ValueError("payload length %d exceeds 255" % len(data))
 
-        self.standby()
+        self._standby()
         self._write_reg(self._REG_FIFO_ADDR_PTR, 0x80)
         self._burst_write(self._REG_FIFO, data)
         self._write_reg(self._REG_PAYLOAD_LENGTH, len(data))
@@ -308,7 +284,7 @@ class _RFM9xBase:
                 break
             self._sleep_ms(0.002)
         self._write_reg(self._REG_IRQ_FLAGS, self._IRQ_TX_DONE)
-        self.standby()
+        self._standby()
 
     def receive(self, timeout_ms=2000):
         """Receive a single packet.
@@ -319,7 +295,10 @@ class _RFM9xBase:
         Returns:
             bytes | None: Received payload bytes, or None on timeout.
         """
-        self.standby()
+        return self._receive_polling(timeout_ms)
+
+    def _receive_polling(self, timeout_ms):
+        self._standby()
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
         self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
 
@@ -338,18 +317,152 @@ class _RFM9xBase:
         self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
         return None
 
+    def _receive_interrupt(self, timeout_ms):
+        self._standby()
+        self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
+
+        elapsed = 0
+        step_ms = 5
+        while elapsed < timeout_ms:
+            if self._dio0_pin.value():
+                irq = self._read_reg(self._REG_IRQ_FLAGS)
+                self._write_reg(self._REG_IRQ_FLAGS, irq)
+                if irq & self._IRQ_RX_DONE:
+                    return self._read_payload()
+                return None
+            self._sleep_ms(step_ms / 1000.0)
+            elapsed += step_ms
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+        return None
+
     def _read_payload(self):
         current = self._read_reg(self._REG_FIFO_RX_CURRENT)
         self._write_reg(self._REG_FIFO_ADDR_PTR, current)
         length = self._read_reg(self._REG_RX_NB_BYTES)
         return bytes(self._burst_read(self._REG_FIFO, length))
 
-    def receive_continuous(self):
-        """Enter continuous receive mode; subsequent `read_packet()` calls drain the FIFO."""
-        self.standby()
+    def _receive_continuous(self):
+        self._standby()
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
         self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_CONT)
         self._continuous = True
+
+    def _read_packet(self):
+        irq = self._read_reg(self._REG_IRQ_FLAGS)
+        if not (irq & self._IRQ_RX_DONE):
+            return None
+        self._write_reg(self._REG_IRQ_FLAGS, self._IRQ_RX_DONE)
+        return self._read_payload()
+
+    def _stop_receive(self):
+        self._standby()
+        self._continuous = False
+
+    def _standby(self):
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+
+    def _sleep(self):
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_SLEEP)
+
+    def _version(self):
+        return self._read_reg(self._REG_VERSION)
+
+    def _rssi(self):
+        return -137 + self._read_reg(self._REG_RSSI)
+
+    def _last_packet_rssi(self):
+        return -137 + self._read_reg(self._REG_PKT_RSSI)
+
+    def _last_packet_snr(self):
+        raw = self._read_reg(self._REG_PKT_SNR)
+        if raw & 0x80:
+            raw = raw - 0x100
+        return raw / 4.0
+
+
+class _RFM9xFullMixin:
+    """Mixin that re-exposes `_RFM9xBase`'s Full-only functionality publicly.
+
+    Combined with a `*Minimal` subclass via `class XxxFull(_RFM9xFullMixin, XxxMinimal)`.
+    Adds hardware reset and DIO0 interrupt-driven receive on top of the
+    private register logic already implemented in `_RFM9xBase`.
+    """
+
+    def reset(self):
+        """Hardware reset via NRESET pin; re-runs the init sequence.
+
+        Raises:
+            OSError: If no `reset_pin` was passed to the constructor.
+        """
+        if self._reset_pin is None:
+            raise OSError("reset() requires a reset_pin")
+        self._reset_via_pin(self._reset_pin)
+        self._init_registers()
+
+    def configure(self, sf, bandwidth_khz, coding_rate, crc=True):
+        """Configure LoRa modulation parameters.
+
+        Args:
+            sf: Spreading factor 6–12 (variant-capped; RFM97W max 9).
+            bandwidth_khz: Signal bandwidth in kHz (one of 7.8, 10.4, 15.6, 20.8,
+                31.25, 41.7, 62.5, 125, 250, 500). 250/500 kHz are not supported
+                on the LF band below 169 MHz.
+            coding_rate: Coding rate denominator 5–8 (4/5 … 4/8).
+            crc: True to enable CRC on RX payloads (default), False to disable.
+
+        Raises:
+            ValueError: If `sf` exceeds the variant maximum, `bandwidth_khz` is
+                not one of the 10 supported values, or BW is invalid for the
+                variant's frequency range.
+        """
+        self._configure(sf, bandwidth_khz, coding_rate, crc)
+
+    def set_frequency(self, frequency_hz):
+        """Set the carrier frequency.
+
+        Args:
+            frequency_hz: Carrier frequency in Hz; must lie in the variant's range.
+
+        Raises:
+            ValueError: If `frequency_hz` is outside the variant's range.
+        """
+        self._set_frequency(frequency_hz)
+
+    def set_tx_power(self, power_dbm, use_pa_boost=True):
+        """Set TX output power.
+
+        Args:
+            power_dbm: Output power in dBm. Range −1 to +14 dBm on the RFO pin,
+                or +2 to +17 dBm on PA_BOOST; +20 dBm is supported on PA_BOOST
+                with the high-power register set.
+            use_pa_boost: True to use the PA_BOOST pin (default), False for RFO.
+        """
+        self._set_tx_power(power_dbm, use_pa_boost)
+
+    def receive(self, timeout_ms=2000, use_interrupt=False):
+        """Receive a single packet.
+
+        Args:
+            timeout_ms: Receive timeout in milliseconds.
+            use_interrupt: True to poll the DIO0 pin instead of the IRQ status
+                register (requires `dio0_pin` passed to the constructor).
+
+        Returns:
+            bytes | None: Received payload bytes, or None on timeout.
+
+        Raises:
+            OSError: If `use_interrupt` is True but no `dio0_pin` was configured.
+        """
+        if use_interrupt:
+            if self._dio0_pin is None:
+                raise OSError("use_interrupt=True requires dio0_pin")
+            return self._receive_interrupt(timeout_ms)
+        return self._receive_polling(timeout_ms)
+
+    def receive_continuous(self):
+        """Enter continuous receive mode; subsequent `read_packet()` calls drain the FIFO."""
+        self._receive_continuous()
 
     def read_packet(self):
         """Read one packet from the FIFO in continuous receive mode.
@@ -357,36 +470,31 @@ class _RFM9xBase:
         Returns:
             bytes | None: Payload bytes, or None if no packet is waiting.
         """
-        irq = self._read_reg(self._REG_IRQ_FLAGS)
-        if not (irq & self._IRQ_RX_DONE):
-            return None
-        self._write_reg(self._REG_IRQ_FLAGS, self._IRQ_RX_DONE)
-        return self._read_payload()
+        return self._read_packet()
 
     def stop_receive(self):
         """Return to STDBY from continuous receive mode."""
-        self.standby()
-        self._continuous = False
+        self._stop_receive()
 
     def standby(self):
         """Enter STDBY mode (crystal on, RF/PLL off, FIFO accessible)."""
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+        self._standby()
 
     def sleep(self):
         """Enter SLEEP mode (lowest power; FIFO inaccessible)."""
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_SLEEP)
+        self._sleep()
 
     def version(self):
         """Read `RegVersion`. Expect 0x12 (SX1276)."""
-        return self._read_reg(self._REG_VERSION)
+        return self._version()
 
     def rssi(self):
         """Current channel RSSI in dBm (readable in continuous RX mode)."""
-        return -137 + self._read_reg(self._REG_RSSI)
+        return self._rssi()
 
     def last_packet_rssi(self):
         """RSSI of last received packet in dBm."""
-        return -137 + self._read_reg(self._REG_PKT_RSSI)
+        return self._last_packet_rssi()
 
     def last_packet_snr(self):
         """SNR of last received packet in dB.
@@ -394,10 +502,7 @@ class _RFM9xBase:
         The raw register holds a signed 8-bit value with 0.25 dB resolution;
         values below zero mean the signal is below the noise floor.
         """
-        raw = self._read_reg(self._REG_PKT_SNR)
-        if raw & 0x80:
-            raw = raw - 0x100
-        return raw / 4.0
+        return self._last_packet_snr()
 
 
 class RFM95Minimal(_RFM9xBase):
@@ -406,7 +511,7 @@ class RFM95Minimal(_RFM9xBase):
     Subclass of `_RFM9xBase` that supplies the HF variant limits.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz (862–1020 MHz).
         reset_pin: Optional GPIO pin for hardware reset.
         dio0_pin: Optional GPIO pin for DIO0 interrupt (Full only).
@@ -422,7 +527,7 @@ class RFM96Minimal(_RFM9xBase):
     """RFM96W minimal driver — 433/470 MHz LF band, max SF=12.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz (410–525 MHz).
         reset_pin: Optional GPIO pin for hardware reset.
         dio0_pin: Optional GPIO pin for DIO0 interrupt (Full only).
@@ -438,7 +543,7 @@ class RFM97Minimal(_RFM9xBase):
     """RFM97W minimal driver — 868/915 MHz HF band, max SF=9.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz (862–1020 MHz).
         reset_pin: Optional GPIO pin for hardware reset.
         dio0_pin: Optional GPIO pin for DIO0 interrupt (Full only).
@@ -454,7 +559,7 @@ class RFM98Minimal(_RFM9xBase):
     """RFM98W minimal driver — 433/470 MHz LF band, max SF=12.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz (410–525 MHz).
         reset_pin: Optional GPIO pin for hardware reset.
         dio0_pin: Optional GPIO pin for DIO0 interrupt (Full only).
@@ -466,24 +571,24 @@ class RFM98Minimal(_RFM9xBase):
     _LF_BAND    = True
 
 
-class RFM95Full(RFM95Minimal):
+class RFM95Full(_RFM9xFullMixin, RFM95Minimal):
     """RFM95W full driver — adds hardware reset and DIO0 interrupt support.
 
     Args:
-        transport: Configured SPI transport pointing at the device.
+        connection: Configured SPI connection pointing at the device.
         frequency_hz: Carrier frequency in Hz (862–1020 MHz).
         reset_pin: Optional GPIO pin for hardware reset.
         dio0_pin: Optional GPIO pin for DIO0 interrupt (passed through to receive()).
     """
 
 
-class RFM96Full(RFM96Minimal):
+class RFM96Full(_RFM9xFullMixin, RFM96Minimal):
     """RFM96W full driver — adds hardware reset and DIO0 interrupt support."""
 
 
-class RFM97Full(RFM97Minimal):
+class RFM97Full(_RFM9xFullMixin, RFM97Minimal):
     """RFM97W full driver — adds hardware reset and DIO0 interrupt support."""
 
 
-class RFM98Full(RFM98Minimal):
+class RFM98Full(_RFM9xFullMixin, RFM98Minimal):
     """RFM98W full driver — adds hardware reset and DIO0 interrupt support."""

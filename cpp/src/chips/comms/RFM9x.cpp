@@ -1,4 +1,5 @@
 #include "RFM9x.h"
+#include <ctime>
 
 #ifdef __linux__
 #include <cstdio>
@@ -269,15 +270,25 @@ void _RFM9xBase::_delay_ms(unsigned long ms) {
 }
 
 // ============================================================
-// Full-stage hardware reset (stub by default; pin-aware variants live in
+// Full-stage hardware reset (POR wait fallback; pin-driven reset wired in
 // platform-specific extensions; see the Arduino/Zephyr examples).
+//
+// The register sequence is identical to the constructor and identical
+// across all four variants (it already consults _lf_band / _band_flag()
+// for the LF/HF difference), so it is implemented once here on
+// _RFM9xBase and each variant's Full::reset() just forwards to it.
 // ============================================================
 
-void RFM95Full::reset() {
+void _RFM9xBase::_reset_registers() {
     _delay_ms(5);   // POR wait fallback; pin-driven reset is wired in examples
     _write_reg(REG_OP_MODE, 0x00); _delay_ms(1);
     _write_reg(REG_OP_MODE, MODE_LONG_RANGE | MODE_SLEEP); _delay_ms(1);
-    _write_reg(REG_LNA, 0x23);
+    if (_lf_band) {
+        uint8_t lna = _read_reg(REG_LNA);
+        _write_reg(REG_LNA, lna & 0x3F);          // disable HF LNA boost for LF
+    } else {
+        _write_reg(REG_LNA, 0x23);                // HF: LnaGain=max, LnaBoostHf=11
+    }
     _write_reg(REG_MODEM_CONFIG_3, _read_reg(REG_MODEM_CONFIG_3) | 0x04);
     _write_reg(REG_FIFO_TX_BASE, 0x80);
     _write_reg(REG_FIFO_RX_BASE, 0x00);
@@ -289,6 +300,7 @@ void RFM95Full::reset() {
     standby();
 }
 
-void RFM96Full::reset() { RFM95Full::reset(); }
-void RFM97Full::reset() { RFM95Full::reset(); }
-void RFM98Full::reset() { RFM95Full::reset(); }
+void RFM95Full::reset() { _reset_registers(); }
+void RFM96Full::reset() { _reset_registers(); }
+void RFM97Full::reset() { _reset_registers(); }
+void RFM98Full::reset() { _reset_registers(); }

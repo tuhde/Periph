@@ -64,6 +64,7 @@ Each chip exposes two classes:
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
+| RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
 

@@ -32,11 +32,6 @@ class _RFM9xBase {
 public:
     _RFM9xBase(Connection& connection, uint32_t frequency_hz);
 
-    /** @brief Set the carrier frequency.
-     *  @param frequency_hz Carrier frequency in Hz; must lie in the variant's range.
-     */
-    void set_frequency(uint32_t frequency_hz);
-
     /** @brief Send a packet.
      *  @param data Pointer to payload bytes.
      *  @param len  Payload length; max 255 bytes.
@@ -50,6 +45,16 @@ public:
      *  @return true if a packet was received; false on timeout.
      */
     bool receive(uint8_t* buf, size_t& len, uint32_t timeout_ms = 2000);
+
+protected:
+    // Full-stage-only methods. Kept protected here so RFM9xMinimal variants
+    // (which inherit _RFM9xBase publicly) do not expose them; each RFM9xFull
+    // variant re-exposes them as public via `using` declarations.
+
+    /** @brief Set the carrier frequency.
+     *  @param frequency_hz Carrier frequency in Hz; must lie in the variant's range.
+     */
+    void set_frequency(uint32_t frequency_hz);
 
     /** @brief Enter STDBY mode (crystal on, RF/PLL off, FIFO accessible). */
     void standby();
@@ -97,7 +102,7 @@ public:
     /** @brief SNR of last received packet in dB (signed, ×0.25 raw). */
     float last_packet_snr();
 
-protected:
+    // Internal register-level helpers.
     static constexpr uint8_t REG_FIFO            = 0x00;
     static constexpr uint8_t REG_OP_MODE         = 0x01;
     static constexpr uint8_t REG_FRF_MSB         = 0x06;
@@ -160,6 +165,12 @@ protected:
     void _delay_ms(unsigned long ms);
     bool _read_payload(uint8_t* buf, size_t& len);
     uint8_t _band_flag() const { return _lf_band ? 0x08 : 0x00; }
+
+    /** @brief Shared body of Full::reset(), run once here and invoked by every
+     *  variant's reset() (POR wait fallback; pin-driven reset wired in examples).
+     *  Re-runs the same register sequence as the constructor.
+     */
+    void _reset_registers();
 
     // Variant-supplied constants (set per subclass).
     uint32_t _freq_min_hz;
@@ -227,6 +238,21 @@ public:
     RFM95Full(Connection& connection, uint32_t frequency_hz)
         : RFM95Minimal(connection, frequency_hz) {}
 
+    // Re-expose the Full-stage register-level API, kept protected on
+    // _RFM9xBase so *Minimal variants don't publicly expose it.
+    using _RFM9xBase::set_frequency;
+    using _RFM9xBase::standby;
+    using _RFM9xBase::sleep;
+    using _RFM9xBase::version;
+    using _RFM9xBase::configure;
+    using _RFM9xBase::set_tx_power;
+    using _RFM9xBase::receive_continuous;
+    using _RFM9xBase::read_packet;
+    using _RFM9xBase::stop_receive;
+    using _RFM9xBase::rssi;
+    using _RFM9xBase::last_packet_rssi;
+    using _RFM9xBase::last_packet_snr;
+
     /** @brief Hardware reset via NRESET pin (active low; >100 µs pulse, then 5 ms wait). */
     void reset();
 };
@@ -236,6 +262,20 @@ class RFM96Full : public RFM96Minimal {
 public:
     RFM96Full(Connection& connection, uint32_t frequency_hz)
         : RFM96Minimal(connection, frequency_hz) {}
+
+    using _RFM9xBase::set_frequency;
+    using _RFM9xBase::standby;
+    using _RFM9xBase::sleep;
+    using _RFM9xBase::version;
+    using _RFM9xBase::configure;
+    using _RFM9xBase::set_tx_power;
+    using _RFM9xBase::receive_continuous;
+    using _RFM9xBase::read_packet;
+    using _RFM9xBase::stop_receive;
+    using _RFM9xBase::rssi;
+    using _RFM9xBase::last_packet_rssi;
+    using _RFM9xBase::last_packet_snr;
+
     void reset();
 };
 
@@ -244,6 +284,20 @@ class RFM97Full : public RFM97Minimal {
 public:
     RFM97Full(Connection& connection, uint32_t frequency_hz)
         : RFM97Minimal(connection, frequency_hz) {}
+
+    using _RFM9xBase::set_frequency;
+    using _RFM9xBase::standby;
+    using _RFM9xBase::sleep;
+    using _RFM9xBase::version;
+    using _RFM9xBase::configure;
+    using _RFM9xBase::set_tx_power;
+    using _RFM9xBase::receive_continuous;
+    using _RFM9xBase::read_packet;
+    using _RFM9xBase::stop_receive;
+    using _RFM9xBase::rssi;
+    using _RFM9xBase::last_packet_rssi;
+    using _RFM9xBase::last_packet_snr;
+
     void reset();
 };
 
@@ -252,5 +306,19 @@ class RFM98Full : public RFM98Minimal {
 public:
     RFM98Full(Connection& connection, uint32_t frequency_hz)
         : RFM98Minimal(connection, frequency_hz) {}
+
+    using _RFM9xBase::set_frequency;
+    using _RFM9xBase::standby;
+    using _RFM9xBase::sleep;
+    using _RFM9xBase::version;
+    using _RFM9xBase::configure;
+    using _RFM9xBase::set_tx_power;
+    using _RFM9xBase::receive_continuous;
+    using _RFM9xBase::read_packet;
+    using _RFM9xBase::stop_receive;
+    using _RFM9xBase::rssi;
+    using _RFM9xBase::last_packet_rssi;
+    using _RFM9xBase::last_packet_snr;
+
     void reset();
 };

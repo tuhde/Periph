@@ -1,0 +1,74 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "rfm9x_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init RFM95W (LoRa)", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "CS pin", "type": "label" },
+        { "name": "_cs_pin", "type": "number" },
+        { "name": "frequency (Hz)", "type": "label" },
+        { "name": "_frequency_hz", "type": "number" }
+      ]
+    },
+    {
+      "name": "rfm9x_send",
+      "type": "execute",
+      "params": [
+        { "name": "RFM95W send packet", "type": "label" },
+        { "name": "_data", "type": "variable" }
+      ]
+    },
+    {
+      "name": "rfm9x_receive",
+      "type": "value",
+      "params": [
+        { "name": "RFM95W receive packet (hex, empty if none), timeout (ms)", "type": "label" },
+        { "name": "_timeout_ms", "type": "number" }
+      ]
+    },
+    {
+      "name": "rfm9x_configure",
+      "type": "execute",
+      "params": [
+        { "name": "RFM95W configure LoRa: spreading factor", "type": "label" },
+        { "name": "_sf", "type": "number" },
+        { "name": "bandwidth (kHz)", "type": "label" },
+        { "name": "_bandwidth_khz", "type": "number" },
+        { "name": "coding rate denominator", "type": "label" },
+        { "name": "_coding_rate", "type": "number" },
+        { "name": "CRC enabled?", "type": "label" },
+        { "name": "_crc", "type": "variable" }
+      ]
+    },
+    {
+      "name": "rfm9x_set_tx_power",
+      "type": "execute",
+      "params": [
+        { "name": "RFM95W set TX power (dBm)", "type": "label" },
+        { "name": "_power_dbm", "type": "number" },
+        { "name": "use PA_BOOST?", "type": "label" },
+        { "name": "_use_pa_boost", "type": "variable" }
+      ]
+    },
+    {
+      "name": "rfm9x_last_packet_rssi",
+      "type": "value",
+      "params": [{ "name": "RFM95W last packet RSSI (dBm)", "type": "label" }]
+    },
+    {
+      "name": "rfm9x_last_packet_snr",
+      "type": "value",
+      "params": [{ "name": "RFM95W last packet SNR (dB)", "type": "label" }]
+    },
+    {
+      "name": "rfm9x_sleep",
+      "type": "execute",
+      "params": [{ "name": "RFM95W sleep", "type": "label" }]
+    }
+  ]
+}

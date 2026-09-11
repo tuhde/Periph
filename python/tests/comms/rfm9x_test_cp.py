@@ -2,7 +2,7 @@ import time
 import busio
 import board
 import digitalio
-from periph.transport.spi_circuitpython import SPITransport
+from periph.connection.spi_circuitpython import SPIConnection
 from periph.chips.comms.rfm9x import RFM95Full
 
 passed = 0
@@ -30,8 +30,8 @@ def check_true(label, condition):
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
 cs = digitalio.DigitalInOut(board.D5)
 cs.switch_to_output(value=True)
-transport = SPITransport(spi, cs)
-radio = RFM95Full(transport, 868_000_000)
+connection = SPIConnection(spi, cs)
+radio = RFM95Full(connection, 868_000_000)
 
 check_eq('version', radio.version(), 0x12)
 

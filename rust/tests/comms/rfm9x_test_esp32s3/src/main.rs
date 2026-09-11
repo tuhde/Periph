@@ -29,23 +29,34 @@ fn main() -> ! {
 
     let mut radio = Rfm95Full::new(device, 868_000_000).expect("init RFM95");
 
-    let ver = radio.inner.inner.version().unwrap_or(0xFF);
+    let ver = radio.version().unwrap_or(0xFF);
     if ver == 0x12 { println!("PASS version == 0x12"); passed += 1; }
     else           { println!("FAIL version"); failed += 1; }
 
-    radio.inner.inner.configure(7, 125.0, 5).expect("configure");
+    radio.configure(7, 125.0, 5, true).expect("configure");
     println!("PASS configure accepted"); passed += 1;
 
-    radio.inner.inner.standby().expect("standby");
+    radio.standby().expect("standby");
     println!("PASS standby accepted"); passed += 1;
 
-    radio.inner.inner.send(b"test123").expect("send");
+    radio.reset().expect("reset");
+    println!("PASS reset accepted"); passed += 1;
+
+    radio.send(b"test123").expect("send");
     println!("PASS send accepted"); passed += 1;
 
-    radio.inner.inner.sleep().expect("sleep");
+    let _ = radio.receive(200, false).expect("receive");
+    println!("PASS receive accepted"); passed += 1;
+
+    radio.receive_continuous().expect("rx_cont");
+    let _ = radio.read_packet().expect("read_packet");
+    radio.stop_receive().expect("stop_receive");
+    println!("PASS continuous rx accepted"); passed += 1;
+
+    radio.sleep().expect("sleep");
     println!("PASS sleep accepted"); passed += 1;
 
-    radio.inner.inner.standby().expect("wake");
+    radio.standby().expect("wake");
     println!("PASS wake accepted"); passed += 1;
 
     println!("===DONE: {} passed, {} failed===", passed, failed);

@@ -17,7 +17,7 @@ try {
     // --- Configure for short-range link test ---
     // SF7 / 125 kHz / 4/5 keeps airtime low so the round-trip fits in a 1 s window;
     // +17 dBm on PA_BOOST gives enough link margin for desk-top loop-back.
-    radio.configure(7, 125.0f, 5)                                              // configure LoRa modem, (sf=7, bandwidthKhz=125.0, codingRate=5) → void
+    radio.configure(7, 125.0f, 5, true)                                        // configure LoRa modem, (sf=7, bandwidthKhz=125.0, codingRate=5, crc=true) → void
     radio.setTxPower(17, true)                                                 // set TX power, (powerDbm=17, usePaBoost=true) → void
 
     int loss = 0

@@ -35,25 +35,41 @@ fn main() {
 
     let mut radio = Rfm95Full::new(device, 868_000_000).expect("init RFM95");
 
-    let ver = radio.inner.inner.version().unwrap_or(0xFF);
+    let ver = radio.version().unwrap_or(0xFF);
     check_true!(ver == 0x12, "version == 0x12 (SX1276)", passed, failed);
 
-    radio.inner.inner.configure(7, 125.0, 5).expect("configure");
+    radio.configure(7, 125.0, 5, true).expect("configure");
     check_true!(true, "configure accepted", passed, failed);
 
-    radio.inner.inner.set_frequency(868_000_000).expect("frequency");
+    radio.set_frequency(868_000_000).expect("frequency");
     check_true!(true, "frequency_in_range", passed, failed);
 
-    radio.inner.inner.standby().expect("standby");
+    radio.standby().expect("standby");
     check_true!(true, "standby accepted", passed, failed);
 
-    radio.inner.inner.send(b"test123").expect("send");
+    radio.reset().expect("reset");
+    check_true!(true, "reset accepted", passed, failed);
+
+    radio.send(b"test123").expect("send");
     check_true!(true, "send accepted", passed, failed);
 
-    radio.inner.inner.sleep().expect("sleep");
+    let _ = radio.receive(200, false).expect("receive");
+    check_true!(true, "receive accepted", passed, failed);
+
+    radio.receive_continuous().expect("rx_cont");
+    let _ = radio.read_packet().expect("read_packet");
+    radio.stop_receive().expect("stop_receive");
+    check_true!(true, "continuous rx accepted", passed, failed);
+
+    let _ = radio.rssi();
+    let _ = radio.last_packet_rssi();
+    let _ = radio.last_packet_snr();
+    check_true!(true, "rssi/snr accepted", passed, failed);
+
+    radio.sleep().expect("sleep");
     check_true!(true, "sleep accepted", passed, failed);
 
-    radio.inner.inner.standby().expect("wake");
+    radio.standby().expect("wake");
     check_true!(true, "wake accepted", passed, failed);
 
     println!("===DONE: {} passed, {} failed===", passed, failed);

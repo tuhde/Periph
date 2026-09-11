@@ -24,23 +24,30 @@ fn main() {
 
     let mut radio = Rfm95Full::new(device, 868_000_000).expect("init RFM95");    // Create RFM95W full driver, (spi, frequency_hz=868e6) → Result
 
-    let ver = radio.inner.inner.version().unwrap_or(0xFF);                       // Read silicon version, () → Result<u8>
+    let ver = radio.version().unwrap_or(0xFF);                                  // Read silicon version, () → Result<u8>
                                                                                   // expect 0x12 (SX1276)
     println!("version: 0x{:02X}", ver);
 
-    radio.inner.inner.configure(7, 125.0, 5).expect("configure");                  // Configure LoRa modem, (sf=6–12, bandwidth_khz=7.8–500, coding_rate=5–8, crc=true) → Result<()>
+    radio.configure(7, 125.0, 5, true).expect("configure");                     // Configure LoRa modem, (sf=6–12, bandwidth_khz=7.8–500, coding_rate=5–8, crc=true) → Result<()>
                                                                                   // sets SF=7, BW=125 kHz, CR 4/5
-    radio.inner.inner.set_tx_power(17, true).expect("tx_power");                   // Set TX power, (power_dbm=2–20, use_pa_boost=true) → Result<()>
-    radio.inner.inner.set_frequency(868_000_000).expect("freq");                  // Change carrier frequency, (frequency_hz=862e6–1020e6) → Result<()>
-    radio.inner.inner.standby().expect("standby");                                // Enter STDBY mode, () → Result<()>
+    radio.set_tx_power(17, true).expect("tx_power");                            // Set TX power, (power_dbm=2–20, use_pa_boost=true) → Result<()>
+    radio.set_frequency(868_000_000).expect("freq");                            // Change carrier frequency, (frequency_hz=862e6–1020e6) → Result<()>
+    radio.standby().expect("standby");                                          // Enter STDBY mode, () → Result<()>
+    radio.reset().expect("reset");                                              // Re-run init sequence (software reset), () → Result<()>
 
-    radio.inner.inner.send(b"hello world").expect("send");                        // Send packet, (data=&[u8] ≤255 B) → Result<()>
-    let _ = radio.inner.inner.receive(2000).expect("receive");                    // Receive single packet, (timeout_ms=2000) → Result<Option<[u8;256]>>
+    radio.send(b"hello world").expect("send");                                  // Send packet, (data=&[u8] ≤255 B) → Result<()>
+    let _ = radio.receive(2000, false).expect("receive");                       // Receive single packet, (timeout_ms=2000, use_interrupt=false) → Result<Option<[u8;256]>>
 
-    radio.inner.inner.receive_continuous().expect("rx_cont");                     // Enter continuous RX, () → Result<()>
-    radio.inner.inner.stop_receive().expect("stop");                              // Return to STDBY from RX_CONT, () → Result<()>
+    radio.receive_continuous().expect("rx_cont");                               // Enter continuous RX, () → Result<()>
+    let _ = radio.read_packet().expect("read_packet");                         // Read one packet in continuous RX, () → Result<Option<[u8;256]>>
+    let rssi = radio.rssi().unwrap_or(0.0);                                     // Current channel RSSI, () → Result<f32> dBm
+    let _ = rssi;
+    radio.stop_receive().expect("stop");                                        // Return to STDBY from RX_CONT, () → Result<()>
 
-    radio.inner.inner.sleep().expect("sleep");                                    // Enter SLEEP mode, () → Result<()>
+    let _ = radio.last_packet_rssi();                                           // Last packet RSSI, () → Result<f32> dBm
+    let _ = radio.last_packet_snr();                                            // Last packet SNR, () → Result<f32> dB
+
+    radio.sleep().expect("sleep");                                              // Enter SLEEP mode, () → Result<()>
     std::thread::sleep(std::time::Duration::from_millis(250));
-    radio.inner.inner.standby().expect("wake");
+    radio.standby().expect("wake");                                             // Enter STDBY mode, () → Result<()>
 }

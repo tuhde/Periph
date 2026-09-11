@@ -32,7 +32,7 @@ public class Rfm9xTest {
 
             checkEq("version", radio.version(), 0x12);
 
-            radio.configure(7, 125.0f, 5);
+            radio.configure(7, 125.0f, 5, true);
             checkTrue("configure accepted", true);
 
             radio.setTxPower(17, true);

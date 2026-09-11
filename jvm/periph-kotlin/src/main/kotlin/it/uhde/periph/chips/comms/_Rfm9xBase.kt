@@ -1,7 +1,13 @@
 package it.uhde.periph.chips.comms
 
 import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.EdgeHandler
+import it.uhde.periph.connection.EdgeTrigger
+import it.uhde.periph.connection.InputPin
+import it.uhde.periph.connection.OutputPin
 import java.io.IOException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * RFM9x (RFM95/96/97/98W) LoRa transceiver — minimal driver (Kotlin).
@@ -9,10 +15,20 @@ import java.io.IOException
  * All four modules share identical pins, register maps, SPI protocol, and
  * LoRa modem logic. They differ only in supported frequency bands and the
  * maximum spreading factor for RFM97W.
+ *
+ * Only the Minimal-stage public API ([send], [receive]) is `public` here;
+ * Full-stage functionality is `protected open` and re-exposed publicly by
+ * [_Rfm9xFull], so `RfmXXMinimal` instances never see it.
+ *
+ * An optional NRESET [OutputPin] may be supplied (Full only, via
+ * [_Rfm9xFull]); when present it drives a real hardware reset both at
+ * construction and on [_Rfm9xFull.reset]. Without it, construction falls
+ * back to waiting out the POR delay.
  */
 abstract class _Rfm9xBase protected constructor(
     protected val transport: Connection,
     frequencyHz: Long,
+    protected val resetPin: OutputPin? = null,
 ) {
     /** Variant-specific minimum carrier frequency in Hz. */
     protected abstract fun freqMinHz(): Long
@@ -37,11 +53,24 @@ abstract class _Rfm9xBase protected constructor(
         }
         this.frequencyHz = frequencyHz
 
-        Thread.sleep(10)
+        if (resetPin != null) {
+            resetViaPin()
+        } else {
+            sleepMs(10)
+        }
+        initRegisters()
+    }
+
+    /**
+     * Run the register-level init sequence: FSK-sleep → LoRa-sleep, LNA/AGC
+     * setup, FIFO split, carrier frequency, default modem parameters, TX
+     * power, then STDBY. Shared by the constructor and [_Rfm9xFull.reset].
+     */
+    protected fun initRegisters() {
         writeReg(REG_OP_MODE, 0x00)
-        Thread.sleep(1)
+        sleepMs(1)
         writeReg(REG_OP_MODE, MODE_LONG_RANGE or MODE_SLEEP)
-        Thread.sleep(1)
+        sleepMs(1)
 
         if (lfBand()) {
             val lna = readReg(REG_LNA)
@@ -62,6 +91,24 @@ abstract class _Rfm9xBase protected constructor(
 
         setTxPower(17, true)
         standby()
+    }
+
+    /** Assert NRESET low, then release it (active-low hardware reset). */
+    protected fun resetViaPin() {
+        val pin = resetPin ?: return
+        pin.set(false)
+        sleepMs(1)
+        pin.set(true)
+        sleepMs(5)
+    }
+
+    /** Sleep, swallowing [InterruptedException] by re-asserting the interrupt flag. */
+    protected fun sleepMs(ms: Long) {
+        try {
+            Thread.sleep(ms)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
     }
 
     protected fun writeReg(reg: Int, value: Int) {
@@ -86,7 +133,7 @@ abstract class _Rfm9xBase protected constructor(
      *
      * @throws IOException on SPI error
      */
-    fun setFrequency(frequencyHz: Long) {
+    protected open fun setFrequency(frequencyHz: Long) {
         if (frequencyHz < freqMinHz() || frequencyHz > freqMaxHz()) {
             throw IllegalArgumentException(
                 "frequencyHz $frequencyHz out of range [${freqMinHz()}, ${freqMaxHz()}]")
@@ -103,7 +150,7 @@ abstract class _Rfm9xBase protected constructor(
      *
      * @throws IOException on SPI error
      */
-    fun setTxPower(powerDbm: Int, usePaBoost: Boolean) {
+    protected open fun setTxPower(powerDbm: Int, usePaBoost: Boolean) {
         var p = powerDbm
         if (usePaBoost) {
             if (p > 17) {
@@ -134,7 +181,7 @@ abstract class _Rfm9xBase protected constructor(
      *
      * @throws IOException on SPI error
      */
-    fun configure(sf: Int, bandwidthKhz: Float, codingRate: Int, crc: Boolean = true) {
+    protected open fun configure(sf: Int, bandwidthKhz: Float, codingRate: Int, crc: Boolean = true) {
         val bwTable = floatArrayOf(7.8f, 10.4f, 15.6f, 20.8f, 31.25f, 41.7f, 62.5f, 125.0f, 250.0f, 500.0f)
         var bwCode = 0x07
         for (i in 0..9) {
@@ -158,13 +205,13 @@ abstract class _Rfm9xBase protected constructor(
     }
 
     /** Enter STDBY mode. */
-    fun standby() { writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_STANDBY) }
+    protected open fun standby() { writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_STANDBY) }
 
     /** Enter SLEEP mode. */
-    fun sleep()   { writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_SLEEP) }
+    protected open fun sleep()   { writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_SLEEP) }
 
     /** Read RegVersion. Expect 0x12 (SX1276). */
-    fun version(): Int = readReg(REG_VERSION)
+    protected open fun version(): Int = readReg(REG_VERSION)
 
     /** Send a packet. */
     fun send(data: ByteArray) {
@@ -180,7 +227,7 @@ abstract class _Rfm9xBase protected constructor(
         while (true) {
             val irq = readReg(REG_IRQ_FLAGS)
             if ((irq and IRQ_TX_DONE) != 0) break
-            Thread.sleep(2)
+            sleepMs(2)
         }
         writeReg(REG_IRQ_FLAGS, IRQ_TX_DONE)
         standby()
@@ -207,7 +254,7 @@ abstract class _Rfm9xBase protected constructor(
                 writeReg(REG_IRQ_FLAGS, IRQ_RX_TIMEOUT)
                 return null
             }
-            Thread.sleep(5)
+            sleepMs(5)
             elapsed += 5
         }
         writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_STANDBY)
@@ -222,14 +269,14 @@ abstract class _Rfm9xBase protected constructor(
     }
 
     /** Enter continuous receive mode. */
-    fun receiveContinuous() {
+    protected open fun receiveContinuous() {
         standby()
         writeReg(REG_DIO_MAPPING_1, DIO0_RX_DONE)
         writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_RX_CONT)
     }
 
     /** Read one packet from the FIFO in continuous receive mode. */
-    fun readPacket(): ByteArray? {
+    protected open fun readPacket(): ByteArray? {
         val irq = readReg(REG_IRQ_FLAGS)
         if ((irq and IRQ_RX_DONE) == 0) return null
         writeReg(REG_IRQ_FLAGS, IRQ_RX_DONE)
@@ -237,22 +284,22 @@ abstract class _Rfm9xBase protected constructor(
     }
 
     /** Return to STDBY from continuous receive mode. */
-    fun stopReceive() { standby() }
+    protected open fun stopReceive() { standby() }
 
     /** Current channel RSSI in dBm. */
-    fun rssi(): Float = -137.0f + readReg(REG_RSSI)
+    protected open fun rssi(): Float = -137.0f + readReg(REG_RSSI)
 
     /** RSSI of last received packet in dBm. */
-    fun lastPacketRssi(): Float = -137.0f + readReg(REG_PKT_RSSI)
+    protected open fun lastPacketRssi(): Float = -137.0f + readReg(REG_PKT_RSSI)
 
     /** SNR of last received packet in dB. */
-    fun lastPacketSnr(): Float {
+    protected open fun lastPacketSnr(): Float {
         var raw = readReg(REG_PKT_SNR)
         if ((raw and 0x80) != 0) raw -= 0x100
         return raw / 4.0f
     }
 
-    private fun bandFlag(): Int = if (lfBand()) 0x08 else 0x00
+    protected fun bandFlag(): Int = if (lfBand()) 0x08 else 0x00
 
     companion object {
         const val REG_FIFO            = 0x00
@@ -349,35 +396,97 @@ class Rfm98Minimal(transport: Connection, frequencyHz: Long) : _Rfm9xBase(transp
 }
 
 /**
- * RFM9x full driver — extends _Rfm9xBase with reset() and re-exposes the full API.
+ * RFM9x full driver — extends _Rfm9xBase with reset(), interrupt-driven
+ * receive, and re-exposes the full API.
  */
 abstract class _Rfm9xFull protected constructor(
     transport: Connection,
     frequencyHz: Long,
-) : _Rfm9xBase(transport, frequencyHz) {
+    resetPin: OutputPin? = null,
+    protected val dio0Pin: InputPin? = null,
+) : _Rfm9xBase(transport, frequencyHz, resetPin) {
 
-    /** Re-run the full init sequence (POR wait fallback; pin-driven reset wired in examples). */
+    /**
+     * Hardware reset. Drives NRESET low/high when a reset pin was configured,
+     * otherwise waits out the POR delay; then re-runs the full init sequence.
+     */
     fun reset() {
-        Thread.sleep(5)
-        writeReg(REG_OP_MODE, 0x00)
-        Thread.sleep(1)
-        writeReg(REG_OP_MODE, MODE_LONG_RANGE or MODE_SLEEP)
-        Thread.sleep(1)
-        writeReg(REG_LNA, if (lfBand()) readReg(REG_LNA) and 0x3F else 0x23)
-        writeReg(REG_MODEM_CONFIG_3, readReg(REG_MODEM_CONFIG_3) or 0x04)
-        writeReg(REG_FIFO_TX_BASE, 0x80)
-        writeReg(REG_FIFO_RX_BASE, 0x00)
-        setFrequency(frequencyHz)
-        writeReg(REG_MODEM_CONFIG_1, (0x07 shl 4) or (0x01 shl 1) or 0x00)
-        writeReg(REG_MODEM_CONFIG_2, (0x07 shl 4) or (0x01 shl 2) or 0x03)
-        writeReg(REG_PREAMBLE_LSB, 0x08)
-        setTxPower(17, true)
+        if (resetPin != null) {
+            resetViaPin()
+        } else {
+            sleepMs(5)
+        }
+        initRegisters()
+    }
+
+    public override fun configure(sf: Int, bandwidthKhz: Float, codingRate: Int, crc: Boolean) = super.configure(sf, bandwidthKhz, codingRate, crc)
+    public override fun setFrequency(frequencyHz: Long) = super.setFrequency(frequencyHz)
+    public override fun setTxPower(powerDbm: Int, usePaBoost: Boolean) = super.setTxPower(powerDbm, usePaBoost)
+    public override fun standby() = super.standby()
+    public override fun sleep() = super.sleep()
+    public override fun version(): Int = super.version()
+    public override fun receiveContinuous() = super.receiveContinuous()
+    public override fun readPacket(): ByteArray? = super.readPacket()
+    public override fun stopReceive() = super.stopReceive()
+    public override fun rssi(): Float = super.rssi()
+    public override fun lastPacketRssi(): Float = super.lastPacketRssi()
+    public override fun lastPacketSnr(): Float = super.lastPacketSnr()
+
+    /**
+     * Receive a single packet, optionally waiting on the DIO0 interrupt line
+     * instead of polling the IRQ status register.
+     *
+     * @param useInterrupt true to wait on the DIO0 edge instead of polling
+     *                      (requires a `dio0Pin` passed to the constructor)
+     * @return received payload bytes, or null on timeout
+     * @throws IllegalStateException if [useInterrupt] is true but no `dio0Pin` was configured
+     */
+    fun receive(timeoutMs: Int = 2000, useInterrupt: Boolean = false): ByteArray? {
+        if (!useInterrupt) {
+            return super.receive(timeoutMs)
+        }
+        val pin = dio0Pin ?: throw IllegalStateException("useInterrupt=true requires dio0Pin")
+        return receiveInterrupt(timeoutMs, pin)
+    }
+
+    private fun receiveInterrupt(timeoutMs: Int, pin: InputPin): ByteArray? {
+        val t = if (timeoutMs <= 0) 2000 else timeoutMs
         standby()
+        writeReg(REG_DIO_MAPPING_1, DIO0_RX_DONE)
+
+        val latch = CountDownLatch(1)
+        val handler = EdgeHandler { latch.countDown() }
+        pin.onEdge(handler, EdgeTrigger.RISING)
+        try {
+            writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_RX_SINGLE)
+
+            val fired = try {
+                latch.await(t.toLong(), TimeUnit.MILLISECONDS)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                false
+            }
+            if (!fired) {
+                writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_STANDBY)
+                return null
+            }
+
+            val irq = readReg(REG_IRQ_FLAGS)
+            writeReg(REG_IRQ_FLAGS, irq)
+            return if ((irq and IRQ_RX_DONE) != 0) readPayload() else null
+        } finally {
+            pin.offEdge(handler)
+        }
     }
 }
 
 /** RFM95W full driver. */
-class Rfm95Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport, frequencyHz) {
+class Rfm95Full(
+    transport: Connection,
+    frequencyHz: Long,
+    resetPin: OutputPin? = null,
+    dio0Pin: InputPin? = null,
+) : _Rfm9xFull(transport, frequencyHz, resetPin, dio0Pin) {
     override fun freqMinHz(): Long = 862_000_000L
     override fun freqMaxHz(): Long = 1_020_000_000L
     override fun maxSf(): Int     = 12
@@ -385,7 +494,12 @@ class Rfm95Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport
 }
 
 /** RFM96W full driver. */
-class Rfm96Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport, frequencyHz) {
+class Rfm96Full(
+    transport: Connection,
+    frequencyHz: Long,
+    resetPin: OutputPin? = null,
+    dio0Pin: InputPin? = null,
+) : _Rfm9xFull(transport, frequencyHz, resetPin, dio0Pin) {
     override fun freqMinHz(): Long = 410_000_000L
     override fun freqMaxHz(): Long =  525_000_000L
     override fun maxSf(): Int     = 12
@@ -393,7 +507,12 @@ class Rfm96Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport
 }
 
 /** RFM97W full driver. */
-class Rfm97Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport, frequencyHz) {
+class Rfm97Full(
+    transport: Connection,
+    frequencyHz: Long,
+    resetPin: OutputPin? = null,
+    dio0Pin: InputPin? = null,
+) : _Rfm9xFull(transport, frequencyHz, resetPin, dio0Pin) {
     override fun freqMinHz(): Long = 862_000_000L
     override fun freqMaxHz(): Long = 1_020_000_000L
     override fun maxSf(): Int     = 9
@@ -401,7 +520,12 @@ class Rfm97Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport
 }
 
 /** RFM98W full driver. */
-class Rfm98Full(transport: Connection, frequencyHz: Long) : _Rfm9xFull(transport, frequencyHz) {
+class Rfm98Full(
+    transport: Connection,
+    frequencyHz: Long,
+    resetPin: OutputPin? = null,
+    dio0Pin: InputPin? = null,
+) : _Rfm9xFull(transport, frequencyHz, resetPin, dio0Pin) {
     override fun freqMinHz(): Long = 410_000_000L
     override fun freqMaxHz(): Long =  525_000_000L
     override fun maxSf(): Int     = 12

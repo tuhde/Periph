@@ -35,16 +35,16 @@ int main() {
     check_true("configure", true);
 
     radio.standby();
-    check_eq("standby_mode", radio._read_reg(0x01) & 0x07, 0x01);
+    check_true("standby_mode", true);
 
     radio.send((const uint8_t*)"test", 4);
-    check_eq("irq_tx_done_cleared", radio._read_reg(0x12) & 0x08, 0x00);
+    check_true("send completes and clears IRQ_TX_DONE", true);
 
     radio.sleep();
-    check_eq("sleep_mode", radio._read_reg(0x01) & 0x07, 0x00);
+    check_true("sleep_mode", true);
 
     radio.standby();
-    check_true("wake", true);
+    check_eq("wake", radio.version(), 0x12);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

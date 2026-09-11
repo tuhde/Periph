@@ -1,6 +1,6 @@
 import time
 from machine import SPI, Pin
-from periph.transport.spi_micropython import SPITransport
+from periph.connection.spi_micropython import SPIConnection
 from periph.chips.comms.rfm9x import RFM95Full
 
 passed = 0
@@ -27,8 +27,8 @@ def check_true(label, condition):
 
 spi = SPI(1, baudrate=5_000_000, polarity=0, phase=0)
 cs = Pin(5, Pin.OUT)
-transport = SPITransport(spi, cs)
-radio = RFM95Full(transport, 868_000_000)
+connection = SPIConnection(spi, cs)
+radio = RFM95Full(connection, 868_000_000)
 
 check_eq('version', radio.version(), 0x12)
 

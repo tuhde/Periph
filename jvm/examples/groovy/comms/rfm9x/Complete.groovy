@@ -14,7 +14,7 @@ try {
     int ver = radio.version()                                                  // read silicon version, () → int
     println "version: 0x${Integer.toHexString(ver)}"                           // expect 0x12 (SX1276)
 
-    radio.configure(7, 125.0f, 5)                                              // configure LoRa modem, (sf=6–12, bandwidthKhz=7.8–500, codingRate=5–8, crc=true) → void
+    radio.configure(7, 125.0f, 5, true)                                        // configure LoRa modem, (sf=6–12, bandwidthKhz=7.8–500, codingRate=5–8, crc=true) → void
                                                                                 // sets SF=7, BW=125 kHz, CR 4/5
     radio.setTxPower(17, true)                                                 // set TX power, (powerDbm=2–20, usePaBoost=true) → void
                                                                                 // PA_BOOST pin, +17 dBm

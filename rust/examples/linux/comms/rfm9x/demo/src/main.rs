@@ -37,24 +37,24 @@ fn main() {
     // --- Configure for short-range link test ---
     // SF7 / 125 kHz / 4/5 keeps airtime low so the round-trip fits in a 1 s window;
     // +17 dBm on PA_BOOST gives enough link margin for desk-top loop-back.
-    radio.inner.inner.configure(7, 125.0, 5).expect("configure");                  // Configure LoRa modem, (sf=7, bandwidth_khz=125.0, coding_rate=5) → Result<()>
-    radio.inner.inner.set_tx_power(17, true).expect("tx_power");                   // Set TX power, (power_dbm=17, use_pa_boost=true) → Result<()>
+    radio.configure(7, 125.0, 5, true).expect("configure");                        // Configure LoRa modem, (sf=7, bandwidth_khz=125.0, coding_rate=5, crc=true) → Result<()>
+    radio.set_tx_power(17, true).expect("tx_power");                               // Set TX power, (power_dbm=17, use_pa_boost=true) → Result<()>
 
     let mut loss = 0u32;
     let total = 10;
     for n in 0..total {
         let tx = (n as u32).to_be_bytes();
         let t0 = std::time::SystemTime::now();
-        radio.inner.inner.send(&tx).expect("send");                                // Send packet, (data=&[u8] ≤255 B) → Result<()>
+        radio.send(&tx).expect("send");                                            // Send packet, (data=&[u8] ≤255 B) → Result<()>
 
-        let rx = radio.inner.inner.receive(1000).expect("receive");                // Receive single packet, (timeout_ms=1000) → Result<Option<[u8;256]>>
+        let rx = radio.receive(1000, false).expect("receive");                     // Receive single packet, (timeout_ms=1000, use_interrupt=false) → Result<Option<[u8;256]>>
         let t1 = std::time::SystemTime::now();
 
         let rtt = t1.duration_since(t0).map(|d| d.as_millis()).unwrap_or(0);
         if let Some(buf) = rx.as_ref() {
             if &buf[..4] == tx {
-                let rssi = radio.inner.inner.last_packet_rssi().unwrap_or(0.0);   // Last packet RSSI, () → Result<f32> dBm
-                let snr  = radio.inner.inner.last_packet_snr().unwrap_or(0.0);    // Last packet SNR, () → Result<f32> dB
+                let rssi = radio.last_packet_rssi().unwrap_or(0.0);                // Last packet RSSI, () → Result<f32> dBm
+                let snr  = radio.last_packet_snr().unwrap_or(0.0);                 // Last packet SNR, () → Result<f32> dB
                 println!("[{}] echo rtt={} ms  rssi={:.1}  snr={:.1}", n, rtt, rssi, snr);
             } else {
                 loss += 1;
