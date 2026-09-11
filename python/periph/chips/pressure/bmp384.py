@@ -116,14 +116,14 @@ class BMP384Minimal:
         # PAR_P9 = NVM_PAR_P9 / 2^48
         # PAR_P10 = NVM_PAR_P10 / 2^48
         # PAR_P11 = NVM_PAR_P11 / 2^65
-        self._par_t1 = self._par_t1 / (1 << -8)
+        self._par_t1 = self._par_t1 * 256.0
         self._par_t2 = self._par_t2 / (1 << 30)
         self._par_t3 = self._par_t3 / (1 << 48)
         self._par_p1 = (self._par_p1 - (1 << 14)) / (1 << 20)
         self._par_p2 = (self._par_p2 - (1 << 14)) / (1 << 29)
         self._par_p3 = self._par_p3 / (1 << 32)
         self._par_p4 = self._par_p4 / (1 << 37)
-        self._par_p5 = self._par_p5 / (1 << -3)
+        self._par_p5 = self._par_p5 * 8.0
         self._par_p6 = self._par_p6 / (1 << 6)
         self._par_p7 = self._par_p7 / (1 << 8)
         self._par_p8 = self._par_p8 / (1 << 15)

@@ -152,7 +152,7 @@ type BMP384Minimal struct {
 
 	mode    uint8
 	OsrP    uint8
-	osrT    uint8
+	OsrT    uint8
 	Iir     uint8
 	Odr     uint8
 	tLin    float64
@@ -170,7 +170,7 @@ func NewBMP384Minimal(t connection.Connection) (*BMP384Minimal, error) {
 		connection: t,
 		mode:       bmp384ModeNormal,
 		OsrP:       4,    // ×16
-		osrT:       1,    // ×2
+		OsrT:       1,    // ×2
 		Iir:        2,    // coefficient 3
 		Odr:        0x03, // 25 Hz
 		cal:        cal,
@@ -190,7 +190,7 @@ func (d *BMP384Minimal) readReg(reg uint8, n int) ([]byte, error) {
 }
 
 func (d *BMP384Minimal) applyConfig() error {
-	osrReg := (d.osrT << 3) | (d.OsrP << 0)
+	osrReg := (d.OsrT << 3) | (d.OsrP << 0)
 	configReg := d.Iir << 1
 	pwrReg := (d.mode << 4) | bmp384PwrTempEn | bmp384PwrPressEn
 	if err := d.writeReg(bmp384RegOSR, osrReg); err != nil {
@@ -291,7 +291,7 @@ const (
 //   - odrSel  — output data rate selector (0x00..0x11)
 func (d *BMP384Full) Configure(osrP, osrT, iirFilt, odrSel uint8) error {
 	d.OsrP = osrP
-	d.osrT = osrT
+	d.OsrT = osrT
 	d.Iir  = iirFilt
 	d.Odr  = odrSel
 	if err := d.writeReg(bmp384RegOSR, (osrT<<3)|(osrP<<0)); err != nil {
@@ -458,7 +458,7 @@ func (d *BMP384Full) ReadForced() (float32, float32, error) {
 	if err := d.SetMode(BMP384ModeForced); err != nil {
 		return 0, 0, err
 	}
-	tConvMs := bmp384ComputeTConvMs(d.OsrP, d.osrT)
+	tConvMs := bmp384ComputeTConvMs(d.OsrP, d.OsrT)
 	time.Sleep(time.Duration(tConvMs) * time.Millisecond)
 	p, t, err := d.Read()
 	d.mode = prevMode

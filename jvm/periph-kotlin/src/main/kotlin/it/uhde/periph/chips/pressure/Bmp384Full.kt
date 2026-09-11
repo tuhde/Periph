@@ -1,5 +1,6 @@
 package it.uhde.periph.chips.pressure
 
+import it.uhde.periph.connection.Connection
 import java.io.IOException
 
 /**
@@ -37,7 +38,7 @@ class Bmp384Full @JvmOverloads constructor(
 
     /** Read both pressure and temperature in a single burst. */
     fun read(): DoubleArray {
-        if (mode == MODE_FORCED) triggerForced()
+        if (powerMode == MODE_FORCED) triggerForced()
         val burst = readBurst()
         val t = compensateTemperature(burst[1])
         val p = compensatePressure(burst[0]) / 100.0
@@ -46,7 +47,7 @@ class Bmp384Full @JvmOverloads constructor(
 
     /** Trigger a forced measurement, wait T_conv, then return both values. */
     fun readForced(): DoubleArray {
-        val prevMode = this.mode
+        val prevMode = this.powerMode
         try {
             setMode(MODE_FORCED)
             triggerForced()
@@ -57,14 +58,14 @@ class Bmp384Full @JvmOverloads constructor(
             val p = compensatePressure(burst[0]) / 100.0
             return doubleArrayOf(p, t)
         } finally {
-            this.mode = prevMode
+            this.powerMode = prevMode
             applyPwr()
         }
     }
 
     /** Set the power mode. */
     fun setMode(mode: Int) {
-        this.mode = mode
+        this.powerMode = mode
         applyPwr()
     }
 
@@ -153,7 +154,7 @@ class Bmp384Full @JvmOverloads constructor(
     }
 
     private fun applyPwr() {
-        writeReg(REG_PWR_CTRL, (mode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
+        writeReg(REG_PWR_CTRL, (powerMode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
     }
 
     private fun compensatePressureWithTLin(uncompPress: Int, tLin: Double): Double {

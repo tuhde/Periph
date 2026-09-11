@@ -1,5 +1,6 @@
 package it.uhde.periph.chips.pressure
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Connection
 
 /**

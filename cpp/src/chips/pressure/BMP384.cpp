@@ -55,20 +55,20 @@ void BMP384Minimal::_read_calibration() {
     int8_t   nvm_p10 = _s8(buf[19]);
     int8_t   nvm_p11 = _s8(buf[20]);
 
-    _par_t1  = (double)nvm_t1  / (double)(1 << -8);   // × 256
+    _par_t1  = (double)nvm_t1  * 256.0;   // ÷ 2^-8
     _par_t2  = (double)nvm_t2  / (double)(1ull << 30);
     _par_t3  = (double)nvm_t3  / (double)(1ull << 48);
     _par_p1  = ((double)nvm_p1 - (double)(1 << 14)) / (double)(1ull << 20);
     _par_p2  = ((double)nvm_p2 - (double)(1 << 14)) / (double)(1ull << 29);
     _par_p3  = (double)nvm_p3  / (double)(1ull << 32);
     _par_p4  = (double)nvm_p4  / (double)(1ull << 37);
-    _par_p5  = (double)nvm_p5  / (double)(1 << -3);   // × 8
+    _par_p5  = (double)nvm_p5  * 8.0;     // ÷ 2^-3
     _par_p6  = (double)nvm_p6  / (double)(1 << 6);
     _par_p7  = (double)nvm_p7  / (double)(1 << 8);
     _par_p8  = (double)nvm_p8  / (double)(1 << 15);
     _par_p9  = (double)nvm_p9  / (double)(1ull << 48);
     _par_p10 = (double)nvm_p10 / (double)(1ull << 48);
-    _par_p11 = (double)nvm_p11 / (double)(1ull << 65);
+    _par_p11 = (double)nvm_p11 / std::pow(2.0, 65);
 }
 
 void BMP384Minimal::_apply_config() {

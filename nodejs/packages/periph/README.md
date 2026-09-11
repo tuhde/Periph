@@ -40,6 +40,7 @@ Each chip exposes two classes:
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
 | BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
+| BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |

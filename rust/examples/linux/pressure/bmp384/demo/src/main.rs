@@ -31,7 +31,7 @@ fn main() {
         if now >= next {
             let t = bmp.temperature().expect("temperature");      // Read temperature, () → f32 °C
             let p = bmp.pressure().expect("pressure");            // Read pressure, () → f32 hPa
-            let altitude = 44330.0 * (1.0 - libm::powf(p / SEA_LEVEL_HPA, 1.0 / 5.255));
+            let altitude = 44330.0 * (1.0 - (p / SEA_LEVEL_HPA).powf(1.0 / 5.255));
             let elapsed = now.duration_since(start).as_secs_f32();
             println!("{:.1}s  {:.2} hPa  {:.1} C  {:.1} m", elapsed, p, t, altitude);
             rows += 1;

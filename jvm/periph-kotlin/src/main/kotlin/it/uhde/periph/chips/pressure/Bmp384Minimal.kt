@@ -49,7 +49,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
     /** Output data rate selector (0x00–0x11). */
     protected var odr: Int = 0x03
     /** Power-mode bits in PWR_CTRL. */
-    protected var mode: Int = MODE_NORMAL
+    protected var powerMode: Int = MODE_NORMAL
 
     protected var parT1: Double = 0.0
     protected var parT2: Double = 0.0
@@ -119,7 +119,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
     protected fun applyConfig() {
         val osrReg = (osrT shl 3) or (osrP shl 0)
         val configReg = (iir shl 1)
-        val pwrReg = (mode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN
+        val pwrReg = (powerMode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN
         writeReg(REG_OSR,      osrReg)
         writeReg(REG_CONFIG,   configReg)
         writeReg(REG_ODR,      odr)
@@ -175,7 +175,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
 
     /** Read the temperature. */
     fun temperature(): Double {
-        if (mode == MODE_FORCED) {
+        if (powerMode == MODE_FORCED) {
             writeReg(REG_PWR_CTRL, (MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
             Thread.sleep(40)
         }
@@ -185,7 +185,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
 
     /** Read the pressure. */
     fun pressure(): Double {
-        if (mode == MODE_FORCED) {
+        if (powerMode == MODE_FORCED) {
             writeReg(REG_PWR_CTRL, (MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
             Thread.sleep(40)
         }
