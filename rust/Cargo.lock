@@ -618,6 +618,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "hx710a_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "hx711_complete"
 version = "0.1.0"
 dependencies = [
