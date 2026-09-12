@@ -1,0 +1,87 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hx710a_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init HX710A", "type": "label" },
+        { "name": "DOUT pin", "type": "label" },
+        { "name": "_dout", "type": "number" },
+        { "name": "PD_SCK pin", "type": "label" },
+        { "name": "_pd_sck", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710a_is_ready",
+      "type": "value",
+      "params": [{ "name": "HX710A ready?", "type": "label" }]
+    },
+    {
+      "name": "hx710a_read_raw",
+      "type": "value",
+      "params": [{ "name": "HX710A raw ADC value", "type": "label" }]
+    },
+    {
+      "name": "hx710a_set_rate",
+      "type": "execute",
+      "params": [
+        { "name": "HX710A set rate (10/40 SPS)", "type": "label" },
+        { "name": "_rate", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710a_read_average",
+      "type": "value",
+      "params": [
+        { "name": "HX710A average of", "type": "label" },
+        { "name": "_times", "type": "number" },
+        { "name": "readings", "type": "label" }
+      ]
+    },
+    {
+      "name": "hx710a_tare",
+      "type": "execute",
+      "params": [{ "name": "HX710A tare (zero the scale)", "type": "label" }]
+    },
+    {
+      "name": "hx710a_get_offset",
+      "type": "value",
+      "params": [{ "name": "HX710A tare offset", "type": "label" }]
+    },
+    {
+      "name": "hx710a_set_scale",
+      "type": "execute",
+      "params": [
+        { "name": "HX710A set scale factor", "type": "label" },
+        { "name": "_factor", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710a_get_scale",
+      "type": "value",
+      "params": [{ "name": "HX710A scale factor", "type": "label" }]
+    },
+    {
+      "name": "hx710a_read_weight",
+      "type": "value",
+      "params": [{ "name": "HX710A weight", "type": "label" }]
+    },
+    {
+      "name": "hx710a_read_temperature_raw",
+      "type": "value",
+      "params": [{ "name": "HX710A raw temperature code", "type": "label" }]
+    },
+    {
+      "name": "hx710a_power_down",
+      "type": "execute",
+      "params": [{ "name": "HX710A power down", "type": "label" }]
+    },
+    {
+      "name": "hx710a_power_up",
+      "type": "execute",
+      "params": [{ "name": "HX710A power up", "type": "label" }]
+    }
+  ]
+}
