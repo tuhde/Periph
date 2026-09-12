@@ -1,0 +1,92 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-hx710a', {
+        category:     'Peripheral',
+        color:        '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            gpioChip:    { value: '0',   required: true, validate: RED.validators.number() },
+            doutPin:     { value: '5',   required: true, validate: RED.validators.number() },
+            pdSckPin:    { value: '6',   required: true, validate: RED.validators.number() },
+            rate:        { value: '10' },
+            scaleFactor: { value: '1.0' },
+            tareOffset:  { value: '0' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-weight-hanging',
+        label:   function() { return this.name || 'HX710A'; },
+        paletteLabel: 'HX710A'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-hx710a">
+    <div class="form-row">
+        <label for="node-input-gpioChip"><i class="fa fa-microchip"></i> GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;gpiochip index (e.g. 0 for /dev/gpiochip0)
+    </div>
+    <div class="form-row">
+        <label for="node-input-doutPin"><i class="fa fa-microchip"></i> DOUT line</label>
+        <input type="number" id="node-input-doutPin" min="0" style="width:80px"> &nbsp;gpiod line offset (BCM on Raspberry Pi)
+    </div>
+    <div class="form-row">
+        <label for="node-input-pdSckPin"><i class="fa fa-microchip"></i> PD_SCK line</label>
+        <input type="number" id="node-input-pdSckPin" min="0" style="width:80px"> &nbsp;gpiod line offset (BCM on Raspberry Pi)
+    </div>
+    <div class="form-row">
+        <label for="node-input-rate"><i class="fa fa-tachometer-alt"></i> Rate</label>
+        <select id="node-input-rate" style="width:200px">
+            <option value="10">10 SPS (default)</option>
+            <option value="40">40 SPS</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-scaleFactor"><i class="fa fa-balance-scale"></i> Scale factor</label>
+        <input type="text" id="node-input-scaleFactor" style="width:120px"> &nbsp;counts per unit weight
+    </div>
+    <div class="form-row">
+        <label for="node-input-tareOffset"><i class="fa fa-crosshairs"></i> Tare offset</label>
+        <input type="text" id="node-input-tareOffset" style="width:120px"> &nbsp;or send <code>msg.payload = "tare"</code>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HX710A">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-hx710a">
+    <p>Reads weight from an HX710A 24-bit ADC connected to a load cell via two GPIO pins.
+    Also exposes the chip's on-chip temperature sensor as a raw ADC code.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any message triggers a weight reading. If <code>payload</code> is the string
+        <code>"tare"</code>, the node captures the current average (10 readings) as the
+        zero offset and produces no output message. If <code>payload</code> is the string
+        <code>"temperature"</code>, the node triggers a temperature-channel reading instead.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.raw <span class="property-type">number</span></dt>
+        <dd>Signed 24-bit differential-input ADC value (-8 388 608 to +8 388 607).</dd>
+        <dt>payload.weight <span class="property-type">number</span></dt>
+        <dd>Calibrated weight: <code>(raw - tareOffset) / scaleFactor</code>.
+        Returns <code>0.0</code> when scale factor is 1.0 and offset is 0.</dd>
+        <dt>payload.raw_temperature <span class="property-type">number</span></dt>
+        <dd>Only present when triggered by <code>payload = "temperature"</code>. Raw,
+        uncalibrated on-chip temperature sensor code (~20.4 LSB/°C, not a °C value).</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p><b>GPIO chip</b> is the gpiochip index (check with <code>gpiodetect</code>); <b>DOUT line</b> and
+    <b>PD_SCK line</b> are gpiod line offsets on that chip (check with <code>gpioinfo</code> — matches
+    the BCM GPIO number directly on Raspberry Pi's <code>pinctrl-bcm2711</code>).</p>
+    <p><b>Rate</b> selects the differential-input output rate: 10 or 40 samples per second.
+    The HX710A has a single, fixed-gain (128) differential input — unlike the HX711, there
+    is no channel or gain selection.</p>
+    <p><b>Scale factor</b> is the number of ADC counts per unit weight. Calibrate by placing a
+    known weight on the scale: <code>factor = (readAverage() - tareOffset) / knownWeight</code>.</p>
+    <p><b>Tare offset</b> sets the initial zero point. You can also zero the scale at any time
+    by injecting a message with <code>payload = "tare"</code>.</p>
+</script>
