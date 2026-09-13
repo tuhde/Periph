@@ -109,12 +109,14 @@ For chips with I²C or SMBus transport, add the chip's default I²C address to `
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
 
-Chip drivers accept a single `Connection` object and must only call `connection.read()` / `connection.write()`. `Connection` is not a wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now `I2CConnection`, etc.); chip drivers import and construct the concrete `*Connection` class directly. See `specs/feature_connection_design.md` for the full design (§4 covers the rename; §4.1 has the exact old→new mapping per language).
+Chip drivers accept a single `Connection` object. `Connection` is not a wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now `I2CConnection`, etc.); chip drivers import and construct the concrete `*Connection` class directly. See `specs/feature_connection_design.md` for the full design (§4 covers the rename; §4.1 has the exact old→new mapping per language).
+
+**Register-based chips accept `RegisterConnection`, not the bare `Connection`.** `I2CConnection`, `SMBusConnection`, and `SPIConnection` all implement `RegisterConnection`, which adds register-addressed access on top of `Connection`'s raw bytes; `SPIConnection` additionally takes the chip's register-addressing convention (read bit, optional multi-byte bit) at construction, so chip drivers never branch on bus type themselves. See `specs/feature_register_access_design.md` for the full design — required reading before implementing any new register-based chip. Chips with no register concept (HX711, NeoPixel, SiPo, DHTxx, UART-based GNSS, MFRC522's FIFO protocol) accept plain `Connection` and keep using `read(n)` / `write(data)` / `write_read(data, n)`.
 
 ```python
 # Python
-connection.read(reg: int, length: int) -> bytes   # write reg address, read length bytes
-connection.write(reg: int, data: bytes | int)     # write reg address + data
+connection.read(reg: int, length: int) -> bytes   # register-addressed, any bus
+connection.write(reg: int, data: bytes | int)      # register-addressed, any bus
 ```
 
 ```cpp
@@ -130,18 +132,30 @@ await connection.write(reg, data)    // data: Buffer | number
 ```
 
 ```rust
-// Rust — Connection<BUS>; chip driver stores conn: Connection<I2C>
-self.conn.read(self.addr, REG_ADDR, &mut buf)?;
-self.conn.write(self.addr, REG_ADDR, &data)?;
+// Rust — no wrapper required; free functions generic over embedded-hal traits
+register::read_register(&mut self.i2c, self.addr, REG_ADDR, &mut buf)?;
+register::write_register(&mut self.i2c, self.addr, REG_ADDR, &data)?;
+// SPI equivalents: register::spi_read_register / spi_write_register, given a
+// SpiRegisterConvention (see specs/feature_register_access_design.md §6.4)
 ```
 
-All register reads follow this pattern:
+```go
+// Go — conn is a connection.RegisterConnection; identical on Linux and TinyGo
+raw, err := conn.ReadReg(regAddr, 2)
+if err != nil {
+    return 0, err
+}
+```
+
+All register reads follow this pattern, using the shared `to_signed(value, bits)` helper
+(per-language location in `specs/feature_register_access_design.md` §5) instead of inline
+two's-complement math:
 
 ```python
 # Python
 raw   = self._conn.read(REG_ADDR, 2)
 value = (raw[0] << 8) | raw[1]                # big-endian, unsigned
-value = struct.unpack('>h', raw)[0]            # big-endian, signed
+value = to_signed(value, 16)                   # signed
 ```
 
 ```js
@@ -154,14 +168,14 @@ const value = raw.readInt16BE(0);              // signed
 ```rust
 // Rust
 let mut buf = [0u8; 2];
-self.conn.read(self.addr, REG_ADDR, &mut buf)?;
+register::read_register(&mut self.i2c, self.addr, REG_ADDR, &mut buf)?;
 let value = ((buf[0] as u16) << 8) | buf[1] as u16;   // unsigned
 let value = value as i16;                              // signed
 ```
 
 ```go
-// Go — conn is a connection.Connection; identical on Linux and TinyGo
-raw, err := conn.Read(regAddr, 2)
+// Go
+raw, err := conn.ReadReg(regAddr, 2)
 if err != nil {
     return 0, err
 }
