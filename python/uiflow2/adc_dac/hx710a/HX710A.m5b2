@@ -1,0 +1,287 @@
+{
+  "category": "HX710A",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HX710A_LANGUAGES = {\n  \"CUSTOM_HX710A_INIT\": {\n    \"en\": \"%1 init dout %2 pd_sck %3\"\n  },\n  \"CUSTOM_HX710A_IS_READY\": {\n    \"en\": \"%1 ready?\"\n  },\n  \"CUSTOM_HX710A_READ_RAW\": {\n    \"en\": \"%1 raw ADC value\"\n  },\n  \"CUSTOM_HX710A_SET_RATE\": {\n    \"en\": \"%1 set rate rate %2\"\n  },\n  \"CUSTOM_HX710A_READ_AVERAGE\": {\n    \"en\": \"%1 average of %2 readings\"\n  },\n  \"CUSTOM_HX710A_TARE\": {\n    \"en\": \"%1 tare (zero the scale)\"\n  },\n  \"CUSTOM_HX710A_GET_OFFSET\": {\n    \"en\": \"%1 tare offset\"\n  },\n  \"CUSTOM_HX710A_SET_SCALE\": {\n    \"en\": \"%1 set scale factor factor %2\"\n  },\n  \"CUSTOM_HX710A_GET_SCALE\": {\n    \"en\": \"%1 scale factor\"\n  },\n  \"CUSTOM_HX710A_READ_WEIGHT\": {\n    \"en\": \"%1 weight\"\n  },\n  \"CUSTOM_HX710A_READ_TEMPERATURE_RAW\": {\n    \"en\": \"%1 raw temperature code\"\n  },\n  \"CUSTOM_HX710A_POWER_DOWN\": {\n    \"en\": \"%1 power down\"\n  },\n  \"CUSTOM_HX710A_POWER_UP\": {\n    \"en\": \"%1 power up\"\n  }\n};\n\nconst initType = 'custom_hx710a_init';\nBlockly.BlockRegExpList['custom_hx710a'] = {\n  regexp: new RegExp(/^custom_hx710a_/),\n  code: \"from HX710A import HX710A\",\n  initBlockType: initType,\n  categoryId: 'custom_hx710a',\n}\nBlockly.utils.registerLanguages(CUSTOM_HX710A_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HX710A_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HX710A = 'HX710A'\n\nBlockly.utils.getcustom_hx710aOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hx710a_0', 'hx710a_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hx710a_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hx710aOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hx710a_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'dout'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pd_sck'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var dout = Blockly.Python.valueToCode(block, 'dout', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pd_sck = Blockly.Python.valueToCode(block, 'pd_sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HX710A(${dout}, ${pd_sck})\\n`\n}\n\nBlockly.Blocks[\"custom_hx710a_is_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_IS_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_is_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_set_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_SET_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_set_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate = Blockly.Python.valueToCode(block, 'rate', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_rate(${rate})\\n`\n}\n\nBlockly.Blocks[\"custom_hx710a_read_average\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_READ_AVERAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'times'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_read_average\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var times = Blockly.Python.valueToCode(block, 'times', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_average(${times})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_tare\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_TARE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_tare\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.tare()\\n`\n}\n\nBlockly.Blocks[\"custom_hx710a_get_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_GET_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_get_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_offset()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_set_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_SET_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'factor'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_set_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var factor = Blockly.Python.valueToCode(block, 'factor', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_scale(${factor})\\n`\n}\n\nBlockly.Blocks[\"custom_hx710a_get_scale\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_GET_SCALE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_get_scale\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_scale()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_read_weight\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_READ_WEIGHT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_read_weight\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_weight()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_read_temperature_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_READ_TEMPERATURE_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_read_temperature_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hx710a_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_hx710a_power_up\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HX710A_POWER_UP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hx710aOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hx710a_power_up\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.power_up()\\n`\n}\n",
+    "toolbox": "\n<category name=\"HX710A\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hx710a\"><title text=\"HX710A\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hx710a_init\">\n  <value name=\"dout\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pd_sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx710a_is_ready\"/><block type=\"custom_hx710a_read_raw\"/><block type=\"custom_hx710a_set_rate\">\n  <value name=\"rate\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx710a_read_average\">\n  <value name=\"times\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx710a_tare\"/><block type=\"custom_hx710a_get_offset\"/><block type=\"custom_hx710a_set_scale\">\n  <value name=\"factor\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hx710a_get_scale\"/><block type=\"custom_hx710a_read_weight\"/><block type=\"custom_hx710a_read_temperature_raw\"/><block type=\"custom_hx710a_power_down\"/><block type=\"custom_hx710a_power_up\"/>\n</category>\n",
+    "toolboxitemid": "custom_hx710a",
+    "block_type": [
+      "custom_hx710a___init__",
+      "custom_hx710a_is_ready",
+      "custom_hx710a_read_raw",
+      "custom_hx710a_set_rate",
+      "custom_hx710a_read_average",
+      "custom_hx710a_tare",
+      "custom_hx710a_get_offset",
+      "custom_hx710a_set_scale",
+      "custom_hx710a_get_scale",
+      "custom_hx710a_read_weight",
+      "custom_hx710a_read_temperature_raw",
+      "custom_hx710a_power_down",
+      "custom_hx710a_power_up"
+    ]
+  },
+  "data": {
+    "name": "HX710A",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HX710A",
+      "time": "2026-09-12",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.hx711_auto import HX711Connection\nfrom periph.chips.adc_dac.hx710a import HX710AFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init dout %2 pd_sck %3"
+        },
+        "params": [
+          {
+            "name": "dout",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "pd_sck",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = HX711Connection(dout, pd_sck)\n        self._driver = HX710AFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_ready",
+        "note": {},
+        "label": {
+          "en": "%1 ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_ready()",
+        "ast_return": {
+          "code": "self._driver.is_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw ADC value"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_rate",
+        "note": {},
+        "label": {
+          "en": "%1 set rate rate %2"
+        },
+        "params": [
+          {
+            "name": "rate",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "min": "10",
+            "max": "40"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_rate(rate)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_average",
+        "note": {},
+        "label": {
+          "en": "%1 average of %2 readings"
+        },
+        "params": [
+          {
+            "name": "times",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_average(times)",
+        "ast_return": {
+          "code": "self._driver.read_average(times)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "tare",
+        "note": {},
+        "label": {
+          "en": "%1 tare (zero the scale)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.tare()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_offset",
+        "note": {},
+        "label": {
+          "en": "%1 tare offset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_offset()",
+        "ast_return": {
+          "code": "self._driver.get_offset()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_scale",
+        "note": {},
+        "label": {
+          "en": "%1 set scale factor factor %2"
+        },
+        "params": [
+          {
+            "name": "factor",
+            "type": "float",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_scale(factor)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_scale",
+        "note": {},
+        "label": {
+          "en": "%1 scale factor"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_scale()",
+        "ast_return": {
+          "code": "self._driver.get_scale()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_weight",
+        "note": {},
+        "label": {
+          "en": "%1 weight"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_weight()",
+        "ast_return": {
+          "code": "self._driver.read_weight()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature_raw",
+        "note": {},
+        "label": {
+          "en": "%1 raw temperature code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_raw()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_down",
+        "note": {},
+        "label": {
+          "en": "%1 power down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "power_up",
+        "note": {},
+        "label": {
+          "en": "%1 power up"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.power_up()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hx710a"
+  },
+  "pyCode": "\"\"\"\nfile     HX710A\ntime     2026-09-12\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.hx711_auto import HX711Connection\nfrom periph.chips.adc_dac.hx710a import HX710AFull\n\n\nclass HX710A:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, dout: int = 0, pd_sck: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init dout %2 pd_sck %3'\n        params:\n            dout:\n                name: dout\n                type: int\n                default: '0'\n                field: number\n            pd_sck:\n                name: pd_sck\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        connection = HX711Connection(dout, pd_sck)\n        self._driver = HX710AFull(connection)\n\n    def is_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 ready?'\n        \"\"\"\n        return self._driver.is_ready()\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw ADC value'\n        \"\"\"\n        return self._driver.read_raw()\n\n    def set_rate(self, rate: int = 10):\n        \"\"\"\n        label:\n            en: '%1 set rate rate %2'\n        params:\n            rate:\n                name: rate\n                type: int\n                default: '10'\n                field: number\n                min: '10'\n                max: '40'\n        \"\"\"\n        self._driver.set_rate(rate)\n\n    def read_average(self, times: int = 10) -> int:\n        \"\"\"\n        label:\n            en: '%1 average of %2 readings'\n        params:\n            times:\n                name: times\n                type: int\n                default: '10'\n                field: number\n        \"\"\"\n        return self._driver.read_average(times)\n\n    def tare(self):\n        \"\"\"\n        label:\n            en: '%1 tare (zero the scale)'\n        \"\"\"\n        self._driver.tare()\n\n    def get_offset(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 tare offset'\n        \"\"\"\n        return self._driver.get_offset()\n\n    def set_scale(self, factor: float):\n        \"\"\"\n        label:\n            en: '%1 set scale factor factor %2'\n        params:\n            factor:\n                name: factor\n                type: float\n                field: number\n        \"\"\"\n        self._driver.set_scale(factor)\n\n    def get_scale(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 scale factor'\n        \"\"\"\n        return self._driver.get_scale()\n\n    def read_weight(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 weight'\n        \"\"\"\n        return self._driver.read_weight()\n\n    def read_temperature_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 raw temperature code'\n        \"\"\"\n        return self._driver.read_temperature_raw()\n\n    def power_down(self):\n        \"\"\"\n        label:\n            en: '%1 power down'\n        \"\"\"\n        self._driver.power_down()\n\n    def power_up(self):\n        \"\"\"\n        label:\n            en: '%1 power up'\n        \"\"\"\n        self._driver.power_up()\n",
+  "version": "alpha2"
+}
