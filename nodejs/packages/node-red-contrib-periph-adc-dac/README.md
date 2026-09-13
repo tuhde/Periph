@@ -16,6 +16,7 @@ npm install node-red-contrib-periph-adc-dac
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `periph-hx710a` | input | Reads weight from an HX710A 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's on-chip temperature sensor as a raw ADC code. |
 | `periph-hx711` | input | Reads weight from an HX711 24-bit ADC connected to a load cell via two GPIO pins. |
 | `mcp4725-device` | config | I²C bus and address for a MCP4725 |
 | `periph-mcp4725` | output | Sets the output voltage of an MCP4725 12-bit DAC over I²C. |
