@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "mpr121": "nodes/mpr121/mpr121.js"
+    }
   },
   "dependencies": {
     "periph": "*"
