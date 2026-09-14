@@ -1,0 +1,129 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mpr121_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MPR121", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_touched",
+      "type": "value",
+      "params": [{ "name": "MPR121 touched bitmask", "type": "label" }]
+    },
+    {
+      "name": "mpr121_is_touched",
+      "type": "value",
+      "params": [
+        { "name": "MPR121 is_touched", "type": "label" },
+        { "name": "electrode", "type": "label" },
+        { "name": "_electrode", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_filtered",
+      "type": "value",
+      "params": [
+        { "name": "MPR121 filtered (electrode)", "type": "label" },
+        { "name": "electrode", "type": "label" },
+        { "name": "_electrode", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_baseline",
+      "type": "value",
+      "params": [
+        { "name": "MPR121 baseline (electrode)", "type": "label" },
+        { "name": "electrode", "type": "label" },
+        { "name": "_electrode", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_configure_thresholds",
+      "type": "execute",
+      "params": [
+        { "name": "Configure thresholds", "type": "label" },
+        { "name": "electrode", "type": "label" },
+        { "name": "_electrode", "type": "number" },
+        { "name": "touch", "type": "label" },
+        { "name": "_touch", "type": "number" },
+        { "name": "release", "type": "label" },
+        { "name": "_release", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_configure_all_thresholds",
+      "type": "execute",
+      "params": [
+        { "name": "Configure all thresholds", "type": "label" },
+        { "name": "touch", "type": "label" },
+        { "name": "_touch", "type": "number" },
+        { "name": "release", "type": "label" },
+        { "name": "_release", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_configure_sampling",
+      "type": "execute",
+      "params": [
+        { "name": "Configure sampling", "type": "label" },
+        { "name": "cdc", "type": "label" },
+        { "name": "_cdc", "type": "number" },
+        { "name": "cdt", "type": "label" },
+        { "name": "_cdt", "type": "number" },
+        { "name": "ffi", "type": "label" },
+        { "name": "_ffi", "type": "number" },
+        { "name": "sfi", "type": "label" },
+        { "name": "_sfi", "type": "number" },
+        { "name": "esi", "type": "label" },
+        { "name": "_esi", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_configure_debounce",
+      "type": "execute",
+      "params": [
+        { "name": "Configure debounce", "type": "label" },
+        { "name": "touch", "type": "label" },
+        { "name": "_touch", "type": "number" },
+        { "name": "release", "type": "label" },
+        { "name": "_release", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_stop",
+      "type": "execute",
+      "params": [{ "name": "Stop Mode", "type": "label" }]
+    },
+    {
+      "name": "mpr121_start",
+      "type": "execute",
+      "params": [
+        { "name": "Run Mode", "type": "label" },
+        { "name": "n_electrodes", "type": "label" },
+        { "name": "_n_electrodes", "type": "number" },
+        { "name": "cl", "type": "label" },
+        { "name": "_cl", "type": "number" },
+        { "name": "eleprox_en", "type": "label" },
+        { "name": "_eleprox_en", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpr121_reset",
+      "type": "execute",
+      "params": [{ "name": "Soft reset", "type": "label" }]
+    },
+    {
+      "name": "mpr121_clear_overcurrent",
+      "type": "execute",
+      "params": [{ "name": "Clear overcurrent", "type": "label" }]
+    }
+  ]
+}
