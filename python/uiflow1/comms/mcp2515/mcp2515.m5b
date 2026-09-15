@@ -1,0 +1,1 @@
+{"category": "Periph", "color": "#C084FC", "blocks": ["__Periph_mcp2515Init", "__Periph_mcp2515Send", "__Periph_mcp2515Recv", "__Periph_mcp2515SetMode", "__Periph_mcp2515SetFilter", "__Periph_mcp2515SetMask", "__Periph_mcp2515SetOneShot", "__Periph_mcp2515ReadErrors", "__Periph_mcp2515Reset"], "jscode": "// Stub .m5b — regenerate by running python/uiflow1/generate.sh\n"}

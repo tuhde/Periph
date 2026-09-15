@@ -1,0 +1,23 @@
+{
+  "category": "MCP2515",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "// Stub .m5b2 — re-export by importing MCP2515.py into the UiFlow 2 Block Designer",
+    "toolbox": "<category name=\"MCP2515\" colour=\"#C084FC\"><block type=\"custom_mcp2515_init\"/><block type=\"custom_mcp2515_send\"/><block type=\"custom_mcp2515_recv\"/><block type=\"custom_mcp2515_set_mode\"/><block type=\"custom_mcp2515_set_filter\"/><block type=\"custom_mcp2515_set_mask\"/><block type=\"custom_mcp2515_set_one_shot\"/><block type=\"custom_mcp2515_read_errors\"/><block type=\"custom_mcp2515_reset\"/></category>",
+    "toolboxitemid": "custom_mcp2515",
+    "block_type": [
+      "custom_mcp2515___init__",
+      "custom_mcp2515_send",
+      "custom_mcp2515_recv",
+      "custom_mcp2515_set_mode",
+      "custom_mcp2515_set_filter",
+      "custom_mcp2515_set_mask",
+      "custom_mcp2515_set_one_shot",
+      "custom_mcp2515_read_errors",
+      "custom_mcp2515_reset"
+    ]
+  },
+  "data": {},
+  "pyCode": "# Stub .m5b2 — re-export by importing MCP2515.py into the UiFlow 2 Block Designer (see python/uiflow2/UIFLOW2_BLOCKS.md § 5).\n",
+  "version": "alpha2"
+}
