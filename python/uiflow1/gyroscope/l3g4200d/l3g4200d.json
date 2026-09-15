@@ -1,0 +1,47 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "l3g4200d_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init L3G4200D", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "l3g4200d_read_angular_rate",
+      "type": "value",
+      "params": [{ "name": "L3G4200D angular rate (x, y, z rad/s)", "type": "label" }]
+    },
+    {
+      "name": "l3g4200d_read_temperature",
+      "type": "value",
+      "params": [{ "name": "L3G4200D temperature (counts)", "type": "label" }]
+    },
+    {
+      "name": "l3g4200d_who_am_i",
+      "type": "value",
+      "params": [{ "name": "L3G4200D WHO_AM_I", "type": "label" }]
+    },
+    {
+      "name": "l3g4200d_data_ready",
+      "type": "value",
+      "params": [{ "name": "L3G4200D data ready", "type": "label" }]
+    },
+    {
+      "name": "l3g4200d_status",
+      "type": "value",
+      "params": [{ "name": "L3G4200D STATUS_REG", "type": "label" }]
+    },
+    {
+      "name": "l3g4200d_fifo_samples",
+      "type": "value",
+      "params": [{ "name": "L3G4200D FIFO samples", "type": "label" }]
+    }
+  ]
+}
