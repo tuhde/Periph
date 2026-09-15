@@ -1,0 +1,396 @@
+{
+  "category": "Mpr121",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MPR121_LANGUAGES = {\n  \"CUSTOM_MPR121_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_MPR121_TOUCHED\": {\n    \"en\": \"%1 touched bitmask (12-bit)\"\n  },\n  \"CUSTOM_MPR121_IS_TOUCHED\": {\n    \"en\": \"%1 is_touched electrode %2\"\n  },\n  \"CUSTOM_MPR121_FILTERED\": {\n    \"en\": \"%1 filtered electrode %2\"\n  },\n  \"CUSTOM_MPR121_BASELINE\": {\n    \"en\": \"%1 baseline electrode %2\"\n  },\n  \"CUSTOM_MPR121_CONFIGURE_THRESHOLDS\": {\n    \"en\": \"%1 configure thresholds electrode %2 touch %3 release %4\"\n  },\n  \"CUSTOM_MPR121_CONFIGURE_ALL_THRESHOLDS\": {\n    \"en\": \"%1 configure all thresholds touch %2 release %3\"\n  },\n  \"CUSTOM_MPR121_CONFIGURE_SAMPLING\": {\n    \"en\": \"%1 configure sampling cdc %2 cdt %3 ffi %4 sfi %5 esi %6\"\n  },\n  \"CUSTOM_MPR121_CONFIGURE_DEBOUNCE\": {\n    \"en\": \"%1 configure debounce touch %2 release %3\"\n  },\n  \"CUSTOM_MPR121_STOP\": {\n    \"en\": \"%1 stop (enter Stop Mode)\"\n  },\n  \"CUSTOM_MPR121_START\": {\n    \"en\": \"%1 start n_electrodes %2 cl %3 eleprox_en %4\"\n  },\n  \"CUSTOM_MPR121_RESET\": {\n    \"en\": \"%1 soft reset\"\n  },\n  \"CUSTOM_MPR121_CLEAR_OVERCURRENT\": {\n    \"en\": \"%1 clear overcurrent\"\n  }\n};\n\nconst initType = 'custom_mpr121_init';\nBlockly.BlockRegExpList['custom_mpr121'] = {\n  regexp: new RegExp(/^custom_mpr121_/),\n  code: \"from Mpr121 import Mpr121\",\n  initBlockType: initType,\n  categoryId: 'custom_mpr121',\n}\nBlockly.utils.registerLanguages(CUSTOM_MPR121_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MPR121_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MPR121 = 'Mpr121'\n\nBlockly.utils.getcustom_mpr121Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mpr121_0', 'mpr121_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mpr121_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_INIT,\n      'args0': [\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mpr121_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Mpr121(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_touched\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_TOUCHED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_touched\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.touched()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpr121_is_touched\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_IS_TOUCHED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'electrode'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_is_touched\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var electrode = Blockly.Python.valueToCode(block, 'electrode', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.is_touched(${electrode})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpr121_filtered\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_FILTERED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'electrode'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_filtered\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var electrode = Blockly.Python.valueToCode(block, 'electrode', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.filtered(${electrode})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpr121_baseline\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_BASELINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'electrode'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_baseline\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var electrode = Blockly.Python.valueToCode(block, 'electrode', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.baseline(${electrode})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mpr121_configure_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_CONFIGURE_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'electrode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'touch'\n        },\n        {\n          'type': 'input_value',\n          'name': 'release'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_configure_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var electrode = Blockly.Python.valueToCode(block, 'electrode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var touch = Blockly.Python.valueToCode(block, 'touch', Blockly.Python.ORDER_FUNCTION_CALL);\n  var release = Blockly.Python.valueToCode(block, 'release', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_thresholds(${electrode}, ${touch}, ${release})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_configure_all_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_CONFIGURE_ALL_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'touch'\n        },\n        {\n          'type': 'input_value',\n          'name': 'release'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_configure_all_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var touch = Blockly.Python.valueToCode(block, 'touch', Blockly.Python.ORDER_FUNCTION_CALL);\n  var release = Blockly.Python.valueToCode(block, 'release', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_all_thresholds(${touch}, ${release})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_configure_sampling\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_CONFIGURE_SAMPLING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'cdc'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cdt'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ffi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sfi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'esi'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_configure_sampling\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var cdc = Blockly.Python.valueToCode(block, 'cdc', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cdt = Blockly.Python.valueToCode(block, 'cdt', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ffi = Blockly.Python.valueToCode(block, 'ffi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var sfi = Blockly.Python.valueToCode(block, 'sfi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var esi = Blockly.Python.valueToCode(block, 'esi', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_sampling(${cdc}, ${cdt}, ${ffi}, ${sfi}, ${esi})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_configure_debounce\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_CONFIGURE_DEBOUNCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'touch'\n        },\n        {\n          'type': 'input_value',\n          'name': 'release'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_configure_debounce\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var touch = Blockly.Python.valueToCode(block, 'touch', Blockly.Python.ORDER_FUNCTION_CALL);\n  var release = Blockly.Python.valueToCode(block, 'release', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_debounce(${touch}, ${release})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_stop\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_STOP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_stop\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.stop()\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_start\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_START,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'n_electrodes'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cl'\n        },\n        {\n          'type': 'input_value',\n          'name': 'eleprox_en'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_start\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var n_electrodes = Blockly.Python.valueToCode(block, 'n_electrodes', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cl = Blockly.Python.valueToCode(block, 'cl', Blockly.Python.ORDER_FUNCTION_CALL);\n  var eleprox_en = Blockly.Python.valueToCode(block, 'eleprox_en', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start(${n_electrodes}, ${cl}, ${eleprox_en})\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.reset()\\n`\n}\n\nBlockly.Blocks[\"custom_mpr121_clear_overcurrent\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MPR121_CLEAR_OVERCURRENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mpr121Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mpr121_clear_overcurrent\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.clear_overcurrent()\\n`\n}\n",
+    "toolbox": "\n<category name=\"Mpr121\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mpr121\"><title text=\"Mpr121\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mpr121_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">90</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_touched\"/><block type=\"custom_mpr121_is_touched\">\n  <value name=\"electrode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_filtered\">\n  <value name=\"electrode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_baseline\">\n  <value name=\"electrode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_configure_thresholds\">\n  <value name=\"electrode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"touch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n  <value name=\"release\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">6</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_configure_all_thresholds\">\n  <value name=\"touch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n  <value name=\"release\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">6</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_configure_sampling\">\n  <value name=\"cdc\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"cdt\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"ffi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"sfi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"esi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_configure_debounce\">\n  <value name=\"touch\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"release\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_stop\"/><block type=\"custom_mpr121_start\">\n  <value name=\"n_electrodes\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">12</field>\n    </shadow>\n  </value>\n  <value name=\"cl\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n  <value name=\"eleprox_en\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mpr121_reset\"/><block type=\"custom_mpr121_clear_overcurrent\"/>\n</category>\n",
+    "toolboxitemid": "custom_mpr121",
+    "block_type": [
+      "custom_mpr121___init__",
+      "custom_mpr121_touched",
+      "custom_mpr121_is_touched",
+      "custom_mpr121_filtered",
+      "custom_mpr121_baseline",
+      "custom_mpr121_configure_thresholds",
+      "custom_mpr121_configure_all_thresholds",
+      "custom_mpr121_configure_sampling",
+      "custom_mpr121_configure_debounce",
+      "custom_mpr121_stop",
+      "custom_mpr121_start",
+      "custom_mpr121_reset",
+      "custom_mpr121_clear_overcurrent"
+    ]
+  },
+  "data": {
+    "name": "Mpr121",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Mpr121",
+      "time": "2026-09-14",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.other.mpr121 import Mpr121Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "90",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = Mpr121Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "touched",
+        "note": {},
+        "label": {
+          "en": "%1 touched bitmask (12-bit)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.touched()",
+        "ast_return": {
+          "code": "self._driver.touched()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_touched",
+        "note": {},
+        "label": {
+          "en": "%1 is_touched electrode %2"
+        },
+        "params": [
+          {
+            "name": "electrode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.is_touched(electrode)",
+        "ast_return": {
+          "code": "self._driver.is_touched(electrode)",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "filtered",
+        "note": {},
+        "label": {
+          "en": "%1 filtered electrode %2"
+        },
+        "params": [
+          {
+            "name": "electrode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.filtered(electrode)",
+        "ast_return": {
+          "code": "self._driver.filtered(electrode)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "baseline",
+        "note": {},
+        "label": {
+          "en": "%1 baseline electrode %2"
+        },
+        "params": [
+          {
+            "name": "electrode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.baseline(electrode)",
+        "ast_return": {
+          "code": "self._driver.baseline(electrode)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 configure thresholds electrode %2 touch %3 release %4"
+        },
+        "params": [
+          {
+            "name": "electrode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "touch",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "release",
+            "type": "int",
+            "default": "6",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_thresholds(electrode, touch=touch, release=release)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_all_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 configure all thresholds touch %2 release %3"
+        },
+        "params": [
+          {
+            "name": "touch",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "release",
+            "type": "int",
+            "default": "6",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_all_thresholds(touch=touch, release=release)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_sampling",
+        "note": {},
+        "label": {
+          "en": "%1 configure sampling cdc %2 cdt %3 ffi %4 sfi %5 esi %6"
+        },
+        "params": [
+          {
+            "name": "cdc",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cdt",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "ffi",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "sfi",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "esi",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_sampling(cdc=cdc, cdt=cdt, ffi=ffi, sfi=sfi, esi=esi)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_debounce",
+        "note": {},
+        "label": {
+          "en": "%1 configure debounce touch %2 release %3"
+        },
+        "params": [
+          {
+            "name": "touch",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "release",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_debounce(touch=touch, release=release)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop",
+        "note": {},
+        "label": {
+          "en": "%1 stop (enter Stop Mode)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start",
+        "note": {},
+        "label": {
+          "en": "%1 start n_electrodes %2 cl %3 eleprox_en %4"
+        },
+        "params": [
+          {
+            "name": "n_electrodes",
+            "type": "int",
+            "default": "12",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cl",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "eleprox_en",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start(n_electrodes=n_electrodes, cl=cl, eleprox_en=eleprox_en)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_overcurrent",
+        "note": {},
+        "label": {
+          "en": "%1 clear overcurrent"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_overcurrent()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mpr121"
+  },
+  "pyCode": "\"\"\"\nfile     Mpr121\ntime     2026-09-14\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.other.mpr121 import Mpr121Full\n\n\nclass Mpr121:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 90):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '90'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = Mpr121Full(connection)\n\n    def touched(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 touched bitmask (12-bit)'\n        \"\"\"\n        return self._driver.touched()\n\n    def is_touched(self, electrode: int = 0) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is_touched electrode %2'\n        params:\n            electrode:\n                name: electrode\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.is_touched(electrode)\n\n    def filtered(self, electrode: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 filtered electrode %2'\n        params:\n            electrode:\n                name: electrode\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.filtered(electrode)\n\n    def baseline(self, electrode: int = 0) -> int:\n        \"\"\"\n        label:\n            en: '%1 baseline electrode %2'\n        params:\n            electrode:\n                name: electrode\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.baseline(electrode)\n\n    def configure_thresholds(self, electrode: int = 0, touch: int = 12, release: int = 6):\n        \"\"\"\n        label:\n            en: '%1 configure thresholds electrode %2 touch %3 release %4'\n        params:\n            electrode:\n                name: electrode\n                type: int\n                default: '0'\n                field: number\n            touch:\n                name: touch\n                type: int\n                default: '12'\n                field: number\n            release:\n                name: release\n                type: int\n                default: '6'\n                field: number\n        \"\"\"\n        self._driver.configure_thresholds(electrode, touch=touch, release=release)\n\n    def configure_all_thresholds(self, touch: int = 12, release: int = 6):\n        \"\"\"\n        label:\n            en: '%1 configure all thresholds touch %2 release %3'\n        params:\n            touch:\n                name: touch\n                type: int\n                default: '12'\n                field: number\n            release:\n                name: release\n                type: int\n                default: '6'\n                field: number\n        \"\"\"\n        self._driver.configure_all_thresholds(touch=touch, release=release)\n\n    def configure_sampling(self, cdc: int = 16, cdt: int = 1, ffi: int = 0, sfi: int = 0, esi: int = 4):\n        \"\"\"\n        label:\n            en: '%1 configure sampling cdc %2 cdt %3 ffi %4 sfi %5 esi %6'\n        params:\n            cdc:\n                name: cdc\n                type: int\n                default: '16'\n                field: number\n            cdt:\n                name: cdt\n                type: int\n                default: '1'\n                field: number\n            ffi:\n                name: ffi\n                type: int\n                default: '0'\n                field: number\n            sfi:\n                name: sfi\n                type: int\n                default: '0'\n                field: number\n            esi:\n                name: esi\n                type: int\n                default: '4'\n                field: number\n        \"\"\"\n        self._driver.configure_sampling(cdc=cdc, cdt=cdt, ffi=ffi, sfi=sfi, esi=esi)\n\n    def configure_debounce(self, touch: int = 1, release: int = 1):\n        \"\"\"\n        label:\n            en: '%1 configure debounce touch %2 release %3'\n        params:\n            touch:\n                name: touch\n                type: int\n                default: '1'\n                field: number\n            release:\n                name: release\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.configure_debounce(touch=touch, release=release)\n\n    def stop(self):\n        \"\"\"\n        label:\n            en: '%1 stop (enter Stop Mode)'\n        \"\"\"\n        self._driver.stop()\n\n    def start(self, n_electrodes: int = 12, cl: int = 2, eleprox_en: int = 0):\n        \"\"\"\n        label:\n            en: '%1 start n_electrodes %2 cl %3 eleprox_en %4'\n        params:\n            n_electrodes:\n                name: n_electrodes\n                type: int\n                default: '12'\n                field: number\n            cl:\n                name: cl\n                type: int\n                default: '2'\n                field: number\n            eleprox_en:\n                name: eleprox_en\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.start(n_electrodes=n_electrodes, cl=cl, eleprox_en=eleprox_en)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.reset()\n\n    def clear_overcurrent(self):\n        \"\"\"\n        label:\n            en: '%1 clear overcurrent'\n        \"\"\"\n        self._driver.clear_overcurrent()\n",
+  "version": "alpha2"
+}
