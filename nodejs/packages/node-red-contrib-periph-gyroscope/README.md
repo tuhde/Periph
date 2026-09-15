@@ -14,7 +14,14 @@ npm install node-red-contrib-periph-gyroscope
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+### `periph-l3g4200d`
+
+Reads angular rate on the X, Y, and Z axes from an ST L3G4200D MEMS
+gyroscope. Configure the device in a companion `l3g4200d-device` config
+node — I²C bus number, I²C address (0x68 or 0x69), ODR (100/200/400/800 Hz),
+LPF2 bandwidth code, and full-scale range (±250 / ±500 / ±2000 dps).
+
+Output `msg.payload` is `{ x, y, z }` in rad/s.
 
 ## Links
 

@@ -1,0 +1,115 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('l3g4200d-device', {
+        category: 'config',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            addr:      { value: '0x68', required: true },
+            odr:       { value: '0', required: true, validate: RED.validators.number() },
+            bandwidth: { value: '0', required: true, validate: RED.validators.number() },
+            fullScale: { value: '250' }
+        },
+        label: function() {
+            return this.name || ('L3G4200D @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="l3g4200d-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="L3G4200D">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x68" selected>0x68 (SA0=GND)</option>
+            <option value="0x69">0x69 (SA0=VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output Data Rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0" selected>100 Hz</option>
+            <option value="1">200 Hz</option>
+            <option value="2">400 Hz</option>
+            <option value="3">800 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bandwidth">LPF2 bandwidth</label>
+        <select id="node-config-input-bandwidth" style="width:180px">
+            <option value="0" selected>0 (12.5 Hz @ 100 Hz ODR)</option>
+            <option value="1">1</option>
+            <option value="2">2 (50 Hz @ 200 Hz ODR)</option>
+            <option value="3">3 (110 Hz @ 800 Hz ODR)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-fullScale">Full scale</label>
+        <select id="node-config-input-fullScale" style="width:180px">
+            <option value="250" selected>±250 dps</option>
+            <option value="500">±500 dps</option>
+            <option value="2000">±2000 dps</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-l3g4200d', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'l3g4200d-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-compass',
+        label:   function() { return this.name || 'L3G4200D'; },
+        paletteLabel: 'L3G4200D'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-l3g4200d">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="L3G4200D">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-l3g4200d">
+    <p>Reads angular rate on the X, Y, and Z axes from an L3G4200D MEMS gyroscope.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>l3g4200d-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X-axis angular rate in rad/s.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y-axis angular rate in rad/s.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z-axis angular rate in rad/s.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x68</code> or <code>0x69</code>),
+    output data rate (100/200/400/800 Hz), LPF2 bandwidth code, and full-scale
+    (±250 / ±500 / ±2000 dps) in the device config node.</p>
+</script>
