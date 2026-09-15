@@ -13,6 +13,7 @@
   ],
   "node-red": {
     "nodes": {
+      "mcp2515": "nodes/mcp2515/mcp2515.js",
       "rda5807m": "nodes/rda5807m/rda5807m.js",
       "rfm9x": "nodes/rfm9x/rfm9x.js"
     }

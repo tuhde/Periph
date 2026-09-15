@@ -1,0 +1,94 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp2515', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '0', required: true, validate: RED.validators.number() },
+            device:       { value: '0', required: true, validate: RED.validators.number() },
+            bitrate:      { value: '125' },
+            mode:         { value: 'both' },
+            pollInterval: { value: '10', validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'font-awesome/fa-exchange',
+        label: function() { return this.name || 'MCP2515'; },
+        paletteLabel: 'MCP2515'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp2515">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP2515">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.DEVICE)
+    </div>
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bitrate">CAN bitrate (kbit/s)</label>
+        <select id="node-input-bitrate" style="width:120px">
+            <option value="125">125</option>
+            <option value="250">250</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode">Mode</label>
+        <select id="node-input-mode" style="width:140px">
+            <option value="send">send only</option>
+            <option value="receive">receive only</option>
+            <option value="both">send and receive</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-pollInterval">RX poll interval (ms)</label>
+        <input type="number" id="node-input-pollInterval" min="1" style="width:80px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp2515">
+    <p>Sends and receives CAN 2.0B frames with the Microchip MCP2515 stand-alone CAN controller over SPI. Supports standard (11-bit) and extended (29-bit) identifiers and 0–8 byte payloads.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd><code>send</code>, <code>recv</code>, or <code>set_mode</code>.</dd>
+        <dt>payload.id <span class="property-type">number</span></dt>
+        <dd>For <code>send</code>: 11-bit (standard) or 29-bit (extended) CAN identifier.</dd>
+        <dt>payload.data <span class="property-type">array</span></dt>
+        <dd>For <code>send</code>: payload bytes as an array of integers 0&ndash;255 (max 8).</dd>
+        <dt>payload.extended <span class="property-type">boolean</span></dt>
+        <dd>For <code>send</code>: set to <code>true</code> for a 29-bit extended ID frame.</dd>
+        <dt>payload.timeout <span class="property-type">number</span></dt>
+        <dd>For <code>recv</code>: receive timeout in ms (default 0 = non-blocking poll).</dd>
+        <dt>payload.mode <span class="property-type">string</span></dt>
+        <dd>For <code>set_mode</code>: <code>normal</code>, <code>loopback</code>, <code>listen_only</code>, <code>sleep</code>, or <code>config</code>.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.id <span class="property-type">number</span></dt>
+        <dd>Received frame identifier.</dd>
+        <dt>payload.data <span class="property-type">array</span></dt>
+        <dd>Received frame payload bytes (0&ndash;8).</dd>
+        <dt>payload.extended <span class="property-type">boolean</span></dt>
+        <dd>True if the received frame has a 29-bit extended identifier.</dd>
+        <dt>payload.rtr <span class="property-type">boolean</span></dt>
+        <dd>True if the received frame is a remote transmission request.</dd>
+        <dt>payload.sent <span class="property-type">boolean</span></dt>
+        <dd>True after a successful send; <code>payload.bytes</code> reports the byte count.</dd>
+        <dt>payload.mode <span class="property-type">string</span></dt>
+        <dd>Current operating mode reported after <code>set_mode</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus and CS line (Linux <code>/dev/spidevBUS.DEVICE</code>), the CAN bitrate (125, 250, 500, or 1000 kbit/s, with 8 MHz oscillator), the operating mode (send only, receive only, or both), and the RX poll interval in milliseconds (default 10 ms). Reception is polled; in <code>both</code> or <code>receive</code> mode, a <code>setInterval</code> fires every <code>pollInterval</code> ms and emits a message for each frame received.</p>
+</script>

@@ -1,0 +1,55 @@
+[
+    {
+        "id": "tab-mcp2515-demo",
+        "type": "tab",
+        "label": "MCP2515 CAN Bus Demo",
+        "info": "Two-node CAN bus demo using MCP2515 over SPI. Sends heartbeat frames with standard ID 0x123 and polls for received frames. Useful for verifying SPI wiring and bus configuration in Node-RED without writing test firmware."
+    },
+    {
+        "id": "inj-send",
+        "type": "inject",
+        "z": "tab-mcp2515-demo",
+        "name": "send heartbeat every 2 s",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "{\"command\":\"send\",\"id\":291,\"data\":[1,2,3,4],\"extended\":false}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 120,
+        "wires": [["mcp2515-node"]]
+    },
+    {
+        "id": "mcp2515-node",
+        "type": "periph-mcp2515",
+        "z": "tab-mcp2515-demo",
+        "name": "MCP2515 @ 125 kbit/s",
+        "bus": "0",
+        "device": "0",
+        "bitrate": "125",
+        "mode": "both",
+        "pollInterval": "10",
+        "x": 400,
+        "y": 120,
+        "wires": [["dbg-rx"]]
+    },
+    {
+        "id": "dbg-rx",
+        "type": "debug",
+        "z": "tab-mcp2515-demo",
+        "name": "received frames",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 640,
+        "y": 120,
+        "wires": []
+    }
+]
