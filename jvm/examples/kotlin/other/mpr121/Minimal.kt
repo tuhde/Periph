@@ -1,0 +1,21 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-kotlin:1.1.0
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.other.Mpr121Minimal
+
+fun main() {
+    I2CConnection(1, 0x5A).use { connection ->                         // Open I2C connection, (bus=1, address=0x5A) → I2CConnection
+        val mpr = Mpr121Minimal(connection)                              // Create MPR121 driver, (connection) → Mpr121Minimal
+                                                                       // resets, applies default thresholds (T=12, R=6), enters Run Mode on all 12 electrodes
+        repeat(10) {
+            val t = mpr.touched()                                         // Read 12-bit touch bitmask, () → Int bitmask
+                                                                       // bit n=1 means ELEn is currently touched
+            println("touched=0x%03X".format(t))
+            Thread.sleep(1000)
+        }
+    }
+}

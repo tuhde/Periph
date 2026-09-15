@@ -12,6 +12,7 @@ pub mod led;
 pub mod light;
 pub mod magnetometer;
 pub mod memory;
+pub mod other;
 pub mod power;
 pub mod pressure;
 pub mod rfid;

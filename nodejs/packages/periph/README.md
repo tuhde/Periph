@@ -56,6 +56,7 @@ Each chip exposes two classes:
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
+| MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
