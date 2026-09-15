@@ -1,0 +1,88 @@
+[
+    {
+        "id": "tab_rfm9x_demo",
+        "type": "tab",
+        "label": "RFM9x LoRa Demo",
+        "info": "LoRa ping-pong flow: one Inject node fires every 5 seconds and sends a UTF-8 string through a periph-rfm9x node (TX). A second periph-rfm9x node is wired as a receiver; its output feeds a Debug node that displays the payload, RSSI, and SNR.\n\nBoth nodes are configured identically at 868 MHz, SF7, 125 kHz bandwidth, 4/5 coding rate. The full demonstration requires two RFM9x boards wired back-to-back; this flow shows both nodes configured and the receive path working once a peer transmits."
+    },
+    {
+        "id": "inject_tx",
+        "type": "inject",
+        "z": "tab_rfm9x_demo",
+        "name": "Send every 5 s",
+        "repeat": "5",
+        "payload": "{\"command\":\"send\",\"data\":\"ping\"}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 100,
+        "wires": [["rfm9x_tx"]]
+    },
+    {
+        "id": "rfm9x_tx",
+        "type": "periph-rfm9x",
+        "z": "tab_rfm9x_demo",
+        "name": "RFM95 TX",
+        "bus": "0",
+        "device": "0",
+        "variant": "RFM95W",
+        "frequency": "868000000",
+        "sf": "7",
+        "bandwidth": "125",
+        "cr": "5",
+        "crc": true,
+        "power": "17",
+        "x": 320,
+        "y": 100,
+        "wires": [["debug_tx"]]
+    },
+    {
+        "id": "debug_tx",
+        "type": "debug",
+        "z": "tab_rfm9x_demo",
+        "name": "TX status",
+        "active": true,
+        "x": 540,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "inject_rx",
+        "type": "inject",
+        "z": "tab_rfm9x_demo",
+        "name": "Receive every 5 s",
+        "repeat": "5",
+        "payload": "{\"command\":\"receive\",\"timeout\":1500}",
+        "payloadType": "json",
+        "x": 120,
+        "y": 220,
+        "wires": [["rfm9x_rx"]]
+    },
+    {
+        "id": "rfm9x_rx",
+        "type": "periph-rfm9x",
+        "z": "tab_rfm9x_demo",
+        "name": "RFM95 RX",
+        "bus": "0",
+        "device": "1",
+        "variant": "RFM95W",
+        "frequency": "868000000",
+        "sf": "7",
+        "bandwidth": "125",
+        "cr": "5",
+        "crc": true,
+        "power": "17",
+        "x": 320,
+        "y": 220,
+        "wires": [["debug_rx"]]
+    },
+    {
+        "id": "debug_rx",
+        "type": "debug",
+        "z": "tab_rfm9x_demo",
+        "name": "RX packet",
+        "active": true,
+        "x": 540,
+        "y": 220,
+        "wires": []
+    }
+]

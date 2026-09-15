@@ -1,0 +1,1 @@
+_periph_lps28dfw.set_threshold(${_threshold_hpa}, high=bool(${_high}), low=bool(${_low}))

@@ -176,7 +176,10 @@ Package: `node-red-contrib-periph-<category>`
      annotation pair the decoder emits to mark it, e.g. "conversion_start" /
      "conversion_done" - specs/<category>/<chip>_timing.conf's check names
      must match these annotation names exactly (see
-     specs/testing_framework.md, "Conformance Implementation"). -->
+     specs/testing_framework.md, "Conformance Implementation"). Put these
+     markers in a `timing` annotation row (never `conformance` or a
+     bespoke per-check row name) and shape their put() strings per
+     specs/sigrok_annotations.md's Variable-Length Annotation Convention. -->
 
 ## Implementation Checklist
 

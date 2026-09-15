@@ -1,0 +1,130 @@
+[
+    {
+        "id": "lps22df-device-1",
+        "type": "lps22df-device",
+        "name": "LPS22DF @ i2c-1",
+        "bus": "1",
+        "addr": "0x5C",
+        "odr": "3",
+        "avg": "0",
+        "enLpfp": "false",
+        "lfpfCfg": "0",
+        "bdu": "true"
+    },
+    {
+        "id": "lps22df-read-1",
+        "type": "periph-lps22df",
+        "name": "LPS22DF Altimeter",
+        "device": "lps22df-device-1",
+        "seaLevelPa": "101325",
+        "wires": [["debug-1", "chart-pres-1", "chart-temp-1", "chart-alt-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["lps22df-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "chart-pres-1",
+        "type": "ui_chart",
+        "name": "Pressure",
+        "group": "lps22df-group-1",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "label": "Pressure (Pa)",
+        "chartType": "line",
+        "x": 480,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "chart-temp-1",
+        "type": "ui_chart",
+        "name": "Temperature",
+        "group": "lps22df-group-1",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "label": "Temperature (°C)",
+        "chartType": "line",
+        "x": 480,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "chart-alt-1",
+        "type": "ui_chart",
+        "name": "Altitude",
+        "group": "lps22df-group-1",
+        "order": 3,
+        "width": 6,
+        "height": 4,
+        "label": "Altitude (m)",
+        "chartType": "line",
+        "x": 480,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "inject-zero-1",
+        "type": "inject",
+        "name": "Set sea-level reference",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["zero-function-1"]]
+    },
+    {
+        "id": "zero-function-1",
+        "type": "function",
+        "name": "Zero altimeter at current pressure",
+        "func": "var device = RED.nodes.getNode('lps22df-device-1');\nif (device && device.driver) {\n    device.driver.pressure().then(function(p) {\n        node.status({text: 'sea-level ref set to ' + p.toFixed(0) + ' Pa'});\n    });\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "lps22df-group-1",
+        "type": "ui_group",
+        "name": "LPS22DF Weather Station",
+        "tab": "lps22df-tab-1",
+        "order": 1,
+        "disp": true,
+        "width": 12
+    },
+    {
+        "id": "lps22df-tab-1",
+        "type": "ui_tab",
+        "name": "LPS22DF Demo",
+        "icon": "dashboard",
+        "order": 1,
+        "info": "This flow demonstrates the LPS22DF absolute pressure sensor in a continuous-monitoring scenario.\n\n**Default mode**: 10 Hz ODR, 4-sample averaging, BDU on, low-pass filter off. An inject node fires every 5 seconds, reading pressure (Pa), temperature (°C), and computed altitude (m). Charts show ambient drift over time.\n\n**Zero altimeter**: click the \"Set sea-level reference\" button to read the current pressure and use it as the local sea-level baseline. This re-zeros the altimeter at the current location — useful when starting from a known elevation, or when weather-driven pressure changes have accumulated over hours.\n\nThe LPS22DF offers 24-bit pressure resolution (4096 LSB/hPa) and an internal temperature channel for thermal compensation. The driver defaults are conservative; for noise-sensitive applications, enable the low-pass filter (LFPF) and increase the averaging depth in the device config node."
+    }
+]

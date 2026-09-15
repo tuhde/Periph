@@ -302,6 +302,70 @@ dependencies = [
 ]
 
 [[package]]
+name = "bmp384_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp384_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp384_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp384_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp581_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp581_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp581_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bmp581_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "byteorder"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -554,6 +618,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "hx710a_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710a_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "hx711_complete"
 version = "0.1.0"
 dependencies = [
@@ -769,6 +873,102 @@ dependencies = [
  "serialport",
  "spidev",
  "sysfs_gpio",
+]
+
+[[package]]
+name = "lps22df_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps22df_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps22df_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps22df_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps28dfw_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps28dfw_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps28dfw_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps28dfw_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps33hw_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps33hw_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps33hw_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lps33hw_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
 ]
 
 [[package]]
@@ -1356,6 +1556,50 @@ version = "0.1.0"
 dependencies = [
  "linux-embedded-hal",
  "periph",
+]
+
+[[package]]
+name = "rfm9x_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "rfm9x_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "rfm9x_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "rfm9x_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
 ]
 
 [[package]]

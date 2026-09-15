@@ -1,0 +1,1 @@
+_periph_lps28dfw.configure(odr=${_odr}, avg=${_avg}, fs_mode=${_fs_mode}, lpf_en=True, lpf_cfg=0)

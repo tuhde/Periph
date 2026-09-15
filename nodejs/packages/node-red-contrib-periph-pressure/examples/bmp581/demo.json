@@ -1,0 +1,129 @@
+[
+    {
+        "id": "bmp581-device-1",
+        "type": "bmp581-device",
+        "name": "BMP581 @ i2c-1",
+        "bus": "1",
+        "addr": "0x46",
+        "odr": "28",
+        "osrP": "0",
+        "osrT": "0",
+        "pressEn": "true"
+    },
+    {
+        "id": "bmp581-read-1",
+        "type": "periph-bmp581",
+        "name": "BMP581 Pressure/Temperature/Altitude",
+        "device": "bmp581-device-1",
+        "seaLevelPa": "101325",
+        "wires": [["debug-1", "chart-pres-1", "chart-temp-1", "chart-alt-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every second",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["bmp581-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "chart-pres-1",
+        "type": "ui_chart",
+        "name": "Pressure",
+        "group": "bmp581-group-1",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "label": "Pressure (Pa)",
+        "chartType": "line",
+        "x": 480,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "chart-temp-1",
+        "type": "ui_chart",
+        "name": "Temperature",
+        "group": "bmp581-group-1",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "label": "Temperature (°C)",
+        "chartType": "line",
+        "x": 480,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "chart-alt-1",
+        "type": "ui_chart",
+        "name": "Altitude",
+        "group": "bmp581-group-1",
+        "order": 3,
+        "width": 6,
+        "height": 4,
+        "label": "Altitude (m)",
+        "chartType": "line",
+        "x": 480,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "inject-set-sea-level-1",
+        "type": "inject",
+        "name": "Set as sea level",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["set-sea-level-function-1"]]
+    },
+    {
+        "id": "set-sea-level-function-1",
+        "type": "function",
+        "name": "Set sea level from current pressure",
+        "func": "var last = global.get('bmp581_last_pa');\nif (last !== undefined) {\n    var device = RED.nodes.getNode('bmp581-device-1');\n    if (device && device.driver) {\n        device.driver._seaLevelPa = last;\n        node.status({text: 'Sea level set to ' + last.toFixed(0) + ' Pa'});\n    }\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "bmp581-group-1",
+        "type": "ui_group",
+        "name": "BMP581 Pressure/Temperature/Altitude",
+        "tab": "bmp581-tab-1",
+        "order": 1,
+        "disp": true,
+        "width": 12
+    },
+    {
+        "id": "bmp581-tab-1",
+        "type": "ui_tab",
+        "name": "BMP581 Demo",
+        "icon": "dashboard",
+        "order": 1,
+        "info": "This flow demonstrates the BMP581 barometric pressure sensor.\n\n**Continuous monitoring**: an inject node fires every second, reading pressure (Pa), temperature (°C), and altitude (m). The 60-second rolling window on each chart shows ambient drift.\n\n**Set as sea level**: click this button to capture the current pressure reading into the global context and use it as the sea-level reference for altitude. Press once at your location to zero the altimeter. The sensor's 1/64 Pa pressure resolution corresponds to ~8.3 cm altitude resolution at sea level."
+    }
+]

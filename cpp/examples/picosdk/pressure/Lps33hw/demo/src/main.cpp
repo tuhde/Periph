@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <math.h>
+#include <hardware/gpio.h>
+#include "pico/stdlib.h"
+#include "I2CConnectionPicoSDK.h"
+#include "Lps33hw.h"
+
+int main(void) {
+    // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
+    i2c_init(i2c0, 100 * 1000);
+    gpio_set_function(4, GPIO_FUNC_I2C);
+    gpio_set_function(5, GPIO_FUNC_I2C);
+    gpio_pull_up(4);
+    gpio_pull_up(5);
+    I2CConnectionPicoSDK connection(i2c0, 0x5C);
+    LPS33HWFull lps(connection);
+
+    static int passed = 0, failed = 0;
+
+    stdio_init_all();
+    sleep_ms(2000);
+
+    // --- Initialization and configuration for altimeter preset ---
+    // ODR=10 Hz gives ~10 Hz pressure output; BDU=1 latches the output
+    // registers so a coherent 24-bit pressure can be read without tearing;
+    // EN_LPFP=1 with LPFP_BW_ODR_20 (LPFP_CFG=1) gives an additional
+    // ODR/20 low-pass filter that suppresses the kind of cabin-air
+    // pressure bursts that would otherwise read as bogus altitude steps.
+    lps.configure(LPS33HWFull::ODR_10_HZ, true, true, LPS33HWFull::LPFP_BW_ODR_20, false, false);  // Configure chip, (odr=10Hz, bdu=true, en_lpfp=true, lpfp_cfg=ODR/20, lc_en=false, sim=false) → None
+    lps.reset_lpf();                                      // Flush transitory LPF state after enabling EN_LPFP, () → None
+
+    // --- Main loop: poll P_DA rather than fixed delay ---
+    // The chip updates pressure asynchronously at 10 Hz; spinning on the
+    // STATUS register's P_DA bit lets us sample fresh data immediately
+    // rather than racing the ODR clock with sleep_ms().
+    const float sea_level_Pa = 101325.0f;
+    uint32_t last_print = 0;
+    uint32_t last_autozero = 0;
+    uint32_t t0 = to_ms_since_boot(get_absolute_time());
+
+    while (to_ms_since_boot(get_absolute_time()) - t0 < 60000) {
+        float p_Pa = lps.pressure();                      // Read pressure, () → float Pa
+                                                        // waits for STATUS.P_DA before reading PRESS_XL..PRESS_H
+        float t_C = lps.temperature();                    // Read temperature, () → float °C
+        uint32_t now = to_ms_since_boot(get_absolute_time());
+
+        if (now - last_print >= 1000) {
+            last_print = now;
+            // --- Altitude via the barometric formula ---
+            // The 44330 × (1 − (p/p0)^(1/5.255)) approximation is valid up
+            // to ~11000 m and troposphere temperatures; for higher
+            // altitudes use the full hypsometric equation.
+            float altitude_m = 44330.0f * (1.0f - powf(p_Pa / sea_level_Pa, 1.0f / 5.255f));  // Barometric altitude, () → float m
+            printf("alt=%.2f m, T=%.2f C\n", altitude_m, t_C);
+        }
+
+        // --- AUTOZERO removes atmospheric drift every 10 s ---
+        // Weather fronts shift sea-level pressure by ~1 hPa/hour, which
+        // would otherwise show up as bogus altitude drift in a relative
+        // (uncalibrated) altimeter; re-zeroing REF_P every 10 s cancels
+        // that slow DC bias without throwing away the 10 Hz rate.
+        if (now - last_autozero >= 10000) {
+            last_autozero = now;
+            lps.set_autozero();                           // Set AUTOZERO, () → None
+                                                        // current pressure is stored in REF_P
+            printf("Reference updated.\n");
+        }
+    }
+
+    printf("===DONE: ");
+    printf("%d", passed);
+    printf(" passed, ");
+    printf("%d", failed);
+    printf(" failed===\n");
+    while (true) {
+    sleep_ms(1000);
+        sleep_ms(10);
+    }
+
+    return 0;
+}

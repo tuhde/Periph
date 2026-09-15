@@ -1,0 +1,1 @@
+_periph_lps28dfw.read_temperature()

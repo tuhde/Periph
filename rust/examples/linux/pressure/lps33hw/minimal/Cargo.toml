@@ -1,0 +1,12 @@
+[package]
+name = "lps33hw_minimal"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "lps33hw_minimal"
+path = "src/main.rs"
+
+[dependencies]
+periph = { workspace = true, features = ["std"] }
+linux-embedded-hal = { workspace = true }

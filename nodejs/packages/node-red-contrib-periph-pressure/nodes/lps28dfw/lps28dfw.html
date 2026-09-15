@@ -1,0 +1,145 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lps28dfw-device', {
+        category: 'config',
+        defaults: {
+            name:   { value: '' },
+            bus:    { value: '1', required: true, validate: RED.validators.number() },
+            addr:   { value: '0x5C', required: true },
+            odr:    { value: '4', required: true, validate: RED.validators.number() },
+            avg:    { value: '2', required: true, validate: RED.validators.number() },
+            fsMode: { value: '0', required: true, validate: RED.validators.number() },
+            lpfEn:  { value: 'true' },
+            lpfCfg: { value: '0', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('LPS28DFW @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lps28dfw-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LPS28DFW">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x5C">0x5C (SA0=GND)</option>
+            <option value="0x5D">0x5D (SA0=VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-fsMode">Full-scale mode</label>
+        <select id="node-config-input-fsMode" style="width:180px">
+            <option value="0" selected>Mode 1 (0–1260 hPa)</option>
+            <option value="1">Mode 2 (0–4060 hPa)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-avg">Averaging</label>
+        <select id="node-config-input-avg" style="width:180px">
+            <option value="0">4 samples</option>
+            <option value="1">8 samples</option>
+            <option value="2" selected>16 samples</option>
+            <option value="3">32 samples</option>
+            <option value="4">64 samples</option>
+            <option value="5">128 samples</option>
+            <option value="7">512 samples</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output data rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0">Power-down / one-shot</option>
+            <option value="1">1 Hz</option>
+            <option value="2">4 Hz</option>
+            <option value="3">10 Hz</option>
+            <option value="4" selected>25 Hz</option>
+            <option value="5">50 Hz</option>
+            <option value="6">75 Hz</option>
+            <option value="7">100 Hz</option>
+            <option value="8">200 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lpfEn">IIR low-pass filter</label>
+        <select id="node-config-input-lpfEn" style="width:120px">
+            <option value="true" selected>enabled</option>
+            <option value="false">disabled</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-lpfCfg">IIR filter bandwidth</label>
+        <select id="node-config-input-lpfCfg" style="width:180px">
+            <option value="0" selected>ODR/4</option>
+            <option value="1">ODR/9</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lps28dfw', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            device:       { value: '', type: 'lps28dfw-device', required: true },
+            seaLevelHpa:  { value: '1013.25' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'LPS28DFW'; },
+        paletteLabel: 'LPS28DFW'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lps28dfw">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LPS28DFW">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelHpa">Sea-level pressure (hPa)</label>
+        <input type="number" id="node-input-seaLevelHpa" min="800" max="1100" step="0.01" style="width:100px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lps28dfw">
+    <p>Reads pressure, temperature, and altitude from an LPS28DFW dual full-scale digital barometer.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>lps28dfw-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in hPa.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x5C</code> or <code>0x5D</code>),
+    full-scale mode (Mode 1: 0–1260 hPa or Mode 2: 0–4060 hPa), averaging depth,
+    output data rate, IIR low-pass filter state and bandwidth in the device
+    config node. The sea-level reference pressure defaults to <code>1013.25</code> hPa
+    and can be adjusted in the read node config panel.</p>
+</script>

@@ -111,12 +111,14 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | BME280 | Environmental (T/P/H) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BME680 | Environmental (T/P/H/gas) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | BMP280 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| BMP384 | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |

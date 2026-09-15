@@ -49,12 +49,18 @@ Each chip exposes two classes:
 | BME680 | Environmental sensor | `chips/environmental/BME680.h` |
 | BMP180 | Pressure sensor | `chips/pressure/BMP180.h` |
 | BMP280 | Pressure sensor | `chips/pressure/BMP280.h` |
+| BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
+| BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
+| HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
+| LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
+| LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
+| Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
@@ -66,6 +72,7 @@ Each chip exposes two classes:
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
+| RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
 

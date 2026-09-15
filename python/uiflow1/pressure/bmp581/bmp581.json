@@ -1,0 +1,35 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "bmp581_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init BMP581", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "bmp581_read_pressure",
+      "type": "value",
+      "params": [{ "name": "BMP581 pressure (Pa)", "type": "label" }]
+    },
+    {
+      "name": "bmp581_read_temperature",
+      "type": "value",
+      "params": [{ "name": "BMP581 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "bmp581_read_altitude",
+      "type": "value",
+      "params": [
+        { "name": "BMP581 altitude (m), sea-level pressure (Pa)", "type": "label" },
+        { "name": "_sea_level_pa", "type": "number" }
+      ]
+    }
+  ]
+}

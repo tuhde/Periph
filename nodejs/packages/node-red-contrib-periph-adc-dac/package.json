@@ -12,6 +12,7 @@
   ],
   "node-red": {
     "nodes": {
+      "hx710a": "nodes/hx710a/hx710a.js",
       "hx711": "nodes/hx711/hx711.js",
       "mcp4725": "nodes/mcp4725/mcp4725.js",
       "mcp4728": "nodes/mcp4728/mcp4728.js",

@@ -1305,10 +1305,16 @@ from .pd import Decoder
 
 ### Annotation conventions
 
-- Provide at least two strings per `put()` call: a long form and a short form. sigrok shows the shortest one that fits.
+See `specs/sigrok_annotations.md` for the full row taxonomy and variable-length rules. Summary:
+
+- Four annotation-row tiers, always in this order, using these exact row ids: `data` (register/protocol content — may split into natural sub-rows like `bits`/`bytes`/`frames` where the protocol has substructure), `status` (discrete state/flag content split out of `data`, only where a chip has state worth its own timeline), `timing` (every conformance/HIL start/end or single-span marker — never call this row `conformance` or `power`), `warnings` (malformed transactions — every decoder has one, even if rarely triggered).
+- Data/status annotations: at least 3 `put()` strings (long, medium, short 2–8 char abbreviation).
+- Warning annotations: at least 2 `put()` strings (full message, short tag/code) — never just one.
+- Timing-marker annotations: exactly 3 strings, `['<check_name>: <description>', '<check_name>', '<short glyph>']` — tier 0 must contain the literal `<check_name>` token verbatim, because `sigrok-cli`'s non-interactive decode (used by `conformance/_sigrok_conformance.py`) always reads tier 0, never a shorter tier. Never `put()` the same string twice as a substitute for real tiers.
 - Use `0x%02X` for single-byte values, `0x%04X` for 16-bit values.
 - Emit a `WARNING` annotation for unexpected read/write lengths, unknown addresses, or protocol violations — never raise exceptions.
 - All numeric values in annotations use SI units (µV, mV, V, µA, mA, A, etc.).
+- Register `srd.OUTPUT_PYTHON` alongside `srd.OUTPUT_ANN` and emit `(kind, value)` tuples mirroring the `data`/`status` annotations, so downstream scripts and stacked decoders don't have to scrape annotation text.
 
 ### `START REPEAT` handling
 

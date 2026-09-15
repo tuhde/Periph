@@ -1,0 +1,150 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('bmp384-device', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bus:  { value: '1', required: true, validate: RED.validators.number() },
+            addr: { value: '0x76', required: true },
+            osrP: { value: '4', required: true, validate: RED.validators.number() },
+            osrT: { value: '1', required: true, validate: RED.validators.number() },
+            iir:  { value: '2', required: true, validate: RED.validators.number() },
+            odr:  { value: '3', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('BMP384 @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="bmp384-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="BMP384">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x76">0x76 (SDO=GND)</option>
+            <option value="0x77">0x77 (SDO=VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrT">Temperature oversampling</label>
+        <select id="node-config-input-osrT" style="width:180px">
+            <option value="0">×1</option>
+            <option value="1" selected>×2</option>
+            <option value="2">×4</option>
+            <option value="3">×8</option>
+            <option value="4">×16</option>
+            <option value="5">×32</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osrP">Pressure oversampling</label>
+        <select id="node-config-input-osrP" style="width:180px">
+            <option value="0">×1</option>
+            <option value="1">×2</option>
+            <option value="2">×4</option>
+            <option value="3">×8</option>
+            <option value="4" selected>×16</option>
+            <option value="5">×32</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-iir">IIR filter coefficient</label>
+        <select id="node-config-input-iir" style="width:180px">
+            <option value="0">Off</option>
+            <option value="1">1</option>
+            <option value="2" selected>3</option>
+            <option value="3">7</option>
+            <option value="4">15</option>
+            <option value="5">31</option>
+            <option value="6">63</option>
+            <option value="7">127</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output data rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0">200 Hz</option>
+            <option value="1">100 Hz</option>
+            <option value="2">50 Hz</option>
+            <option value="3" selected>25 Hz</option>
+            <option value="4">12.5 Hz</option>
+            <option value="5">6.25 Hz</option>
+            <option value="6">3.1 Hz</option>
+            <option value="7">1.5 Hz</option>
+            <option value="8">0.78 Hz</option>
+            <option value="9">0.39 Hz</option>
+            <option value="10">0.2 Hz</option>
+            <option value="11">0.1 Hz</option>
+            <option value="12">0.05 Hz</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-bmp384', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            device:       { value: '', type: 'bmp384-device', required: true },
+            seaLevelHpa:  { value: '1013.25' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-tachometer',
+        label:   function() { return this.name || 'BMP384'; },
+        paletteLabel: 'BMP384'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-bmp384">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="BMP384">
+    </div>
+    <div class="form-row">
+        <label for="node-input-seaLevelHpa">Sea-level pressure (hPa)</label>
+        <input type="number" id="node-input-seaLevelHpa" min="800" max="1100" step="0.01" style="width:100px">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-bmp384">
+    <p>Reads temperature, pressure, and altitude from a BMP384 barometric pressure sensor.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>bmp384-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Temperature in degrees Celsius.</dd>
+        <dt>payload.pressure <span class="property-type">number</span></dt>
+        <dd>Pressure in hectopascals (hPa).</dd>
+        <dt>payload.altitude <span class="property-type">number</span></dt>
+        <dd>Altitude in metres computed from the configured sea-level pressure.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x76</code> or <code>0x77</code>),
+    temperature and pressure oversampling, IIR filter coefficient, and output
+    data rate in the device config node. The sea-level reference pressure
+    defaults to <code>1013.25</code> hPa and can be adjusted in the read node
+    config panel.</p>
+</script>
