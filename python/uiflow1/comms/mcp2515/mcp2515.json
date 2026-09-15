@@ -1,0 +1,81 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mcp2515_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MCP2515 (SPI bus, CS pin)", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "_cs_pin", "type": "number" },
+        { "name": "bitrate (kbit/s)", "type": "label" },
+        { "name": "_bitrate_kbps", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp2515_send",
+      "type": "execute",
+      "params": [
+        { "name": "MCP2515 send (id hex, data hex, extended 1/0)", "type": "label" },
+        { "name": "_id", "type": "variable" },
+        { "name": "_data", "type": "variable" },
+        { "name": "_extended", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mcp2515_recv",
+      "type": "value",
+      "params": [
+        { "name": "MCP2515 receive (hex string 'id,extended,data' or empty), timeout (ms)", "type": "label" },
+        { "name": "_timeout_ms", "type": "number" }
+      ]
+    },
+    {
+      "name": "mcp2515_set_mode",
+      "type": "execute",
+      "params": [
+        { "name": "MCP2515 set mode (normal/loopback/listen_only/sleep/config)", "type": "label" },
+        { "name": "_mode", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mcp2515_set_filter",
+      "type": "execute",
+      "params": [
+        { "name": "MCP2515 set filter (0-5, id, extended 1/0)", "type": "label" },
+        { "name": "_filter_num", "type": "number" },
+        { "name": "_id", "type": "variable" },
+        { "name": "_extended", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mcp2515_set_mask",
+      "type": "execute",
+      "params": [
+        { "name": "MCP2515 set mask (0/1, mask, extended 1/0)", "type": "label" },
+        { "name": "_mask_num", "type": "number" },
+        { "name": "_mask", "type": "variable" },
+        { "name": "_extended", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mcp2515_set_one_shot",
+      "type": "execute",
+      "params": [
+        { "name": "MCP2515 set one-shot mode (1/0)", "type": "label" },
+        { "name": "_enable", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mcp2515_read_errors",
+      "type": "value",
+      "params": [{ "name": "MCP2515 read errors (TEC, REC, EFLG)", "type": "label" }]
+    },
+    {
+      "name": "mcp2515_reset",
+      "type": "execute",
+      "params": [{ "name": "MCP2515 reset", "type": "label" }]
+    }
+  ]
+}
