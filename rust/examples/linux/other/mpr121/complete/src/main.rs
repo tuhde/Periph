@@ -1,5 +1,5 @@
 use linux_embedded_hal::{Delay, I2cdev};
-use periph::chips::other::Mpr121Full;
+use periph::chips::other::{Mpr121Full, SOURCE_OOR};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -35,8 +35,8 @@ fn main() {
         let pt = chip.proximity_touched().expect("prox");                           // Read proximity touched, () → Result<bool, _>
         println!("t=0x{:03X} f0={} b0={} oor=0x{:04X} pt={}", t, f0, b0, oor, pt);
     }
-    chip.enable_interrupt(Mpr121Full::SOURCE_OOR).expect("enable int");             // Enable interrupt source, (source=SOURCE_OOR) → Result<(), _>
-    chip.disable_interrupt(Mpr121Full::SOURCE_OOR).expect("disable int");           // Disable interrupt source, (source=SOURCE_OOR) → Result<(), _>
+    chip.enable_interrupt(SOURCE_OOR).expect("enable int");             // Enable interrupt source, (source=SOURCE_OOR) → Result<(), _>
+    chip.disable_interrupt(SOURCE_OOR).expect("disable int");           // Disable interrupt source, (source=SOURCE_OOR) → Result<(), _>
     chip.clear_overcurrent().expect("clear ovrc");                                  // Clear OVCF, () → Result<(), _>
     chip.reset(&mut delay).expect("reset");                                         // Soft reset, (delay) → Result<(), _>
 }

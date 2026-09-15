@@ -1,5 +1,5 @@
 use linux_embedded_hal::{Delay, I2cdev};
-use periph::chips::other::Mpr121Full;
+use periph::chips::other::{Mpr121Full, SOURCE_OOR};
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -41,8 +41,8 @@ fn main() {
     chip.configure_autoconfig(3300, 0, false, true, true).expect("autoconfig");
     check("configuration methods accepted", true);
 
-    chip.enable_interrupt(Mpr121Full::SOURCE_OOR).expect("enable int");
-    chip.disable_interrupt(Mpr121Full::SOURCE_OOR).expect("disable int");
+    chip.enable_interrupt(SOURCE_OOR).expect("enable int");
+    chip.disable_interrupt(SOURCE_OOR).expect("disable int");
     chip.clear_overcurrent().expect("clear ovrc");
     check("interrupt API accepted", true);
 

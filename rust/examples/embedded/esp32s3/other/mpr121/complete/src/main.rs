@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::other::Mpr121Full;
+use periph::chips::other::{Mpr121Full, SOURCE_OOR};
 
 esp_app_desc!();
 
@@ -39,8 +39,8 @@ fn main() -> ! {
         let pt = chip.proximity_touched().unwrap();                                    // Read proximity touched, () → Result<bool, _>
         println!("t=0x{:03X} f0={} b0={} oor=0x{:04X} pt={}", t, f0, b0, oor, pt);
     }
-    chip.enable_interrupt(Mpr121Full::SOURCE_OOR).unwrap();                           // Enable interrupt source, (source=SOURCE_OOR) → Result<(), _>
-    chip.disable_interrupt(Mpr121Full::SOURCE_OOR).unwrap();                          // Disable interrupt source, (source=SOURCE_OOR) → Result<(), _>
+    chip.enable_interrupt(SOURCE_OOR).unwrap();                           // Enable interrupt source, (source=SOURCE_OOR) → Result<(), _>
+    chip.disable_interrupt(SOURCE_OOR).unwrap();                          // Disable interrupt source, (source=SOURCE_OOR) → Result<(), _>
     chip.clear_overcurrent().unwrap();                                                // Clear OVCF, () → Result<(), _>
     chip.reset(&mut delay).unwrap();                                                  // Soft reset, (delay) → Result<(), _>
     loop { delay.delay_ms(1000); }

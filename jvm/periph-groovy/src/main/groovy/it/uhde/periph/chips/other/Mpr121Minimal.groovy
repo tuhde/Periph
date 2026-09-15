@@ -106,12 +106,12 @@ class Mpr121Minimal {
     }
 
     protected int readReg(int reg) {
-        byte[] buf = connection.writeRead([(reg & 0xFF) as byte], 1)
+        byte[] buf = connection.writeRead([(reg & 0xFF) as byte] as byte[], 1)
         return buf[0] & 0xFF
     }
 
     protected int readReg16(int reg) {
-        byte[] buf = connection.writeRead([(reg & 0xFF) as byte], 2)
+        byte[] buf = connection.writeRead([(reg & 0xFF) as byte] as byte[], 2)
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x03) << 8)
     }
 }

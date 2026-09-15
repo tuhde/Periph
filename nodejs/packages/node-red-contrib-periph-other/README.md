@@ -14,7 +14,10 @@ npm install node-red-contrib-periph-other
 
 ## Nodes
 
-- `mpr121` — Freescale MPR121 proximity capacitive touch sensor controller. Reads the 12-bit electrode touch bitmask over I²C.
+| Node | Kind | Description |
+|------|------|-------------|
+| `mpr121-device` | config | I²C bus and address for a MPR121 |
+| `mpr121` | input | Reads the 12-electrode touch bitmask from an MPR121 capacitive touch sensor over I²C. |
 
 ## Links
 

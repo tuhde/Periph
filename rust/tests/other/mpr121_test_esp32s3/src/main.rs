@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::delay::Delay;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::other::Mpr121Full;
+use periph::chips::other::{Mpr121Full, SOURCE_OOR};
 
 esp_app_desc!();
 
@@ -46,8 +46,8 @@ fn main() -> ! {
     chip.configure_autoconfig(3300, 0, false, true, true).unwrap();
     println!("PASS configuration methods accepted");
 
-    chip.enable_interrupt(Mpr121Full::SOURCE_OOR).unwrap();
-    chip.disable_interrupt(Mpr121Full::SOURCE_OOR).unwrap();
+    chip.enable_interrupt(SOURCE_OOR).unwrap();
+    chip.disable_interrupt(SOURCE_OOR).unwrap();
     chip.clear_overcurrent().unwrap();
     println!("PASS interrupt API accepted");
 

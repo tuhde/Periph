@@ -44,6 +44,13 @@ const USL_3V3: u8 = 0xC9;
 const TL_3V3: u8 = 0xB4;
 const LSL_3V3: u8 = 0x82;
 
+/// AUTOCONFIG1 interrupt source: out-of-range electrode.
+pub const SOURCE_OOR: u8 = 0x04;
+/// AUTOCONFIG1 interrupt source: auto-reconfiguration failure.
+pub const SOURCE_ARF: u8 = 0x02;
+/// AUTOCONFIG1 interrupt source: auto-configuration failure.
+pub const SOURCE_ACF: u8 = 0x01;
+
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
     i2c.write(addr, &[reg, value])
 }
@@ -60,13 +67,13 @@ fn read_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Er
     Ok((buf[0] as u16) | (((buf[1] & 0x03) as u16) << 8))
 }
 
-fn read_touched(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
+fn read_touched<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8, 0];
     i2c.write_read(addr, &[REG_ELE0_7_TOUCH], &mut buf)?;
     Ok((buf[0] as u16) | (((buf[1] & 0x0F) as u16) << 8))
 }
 
-fn read_oor(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
+fn read_oor<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8, 0];
     i2c.write_read(addr, &[REG_ELE0_7_OOR], &mut buf)?;
     Ok((buf[0] as u16) | (((buf[1] & 0x1F) as u16) << 8))
@@ -84,7 +91,7 @@ pub struct Mpr121Minimal<I2C> {
     pub(crate) addr: u8,
 }
 
-impl<I2C: I2C> Mpr121Minimal<I2C> {
+impl<I2C: I2c> Mpr121Minimal<I2C> {
     /// Create a new `Mpr121Minimal` and run the default initialization sequence.
     ///
     /// # Arguments
@@ -140,11 +147,7 @@ pub struct Mpr121Full<I2C> {
     inner: Mpr121Minimal<I2C>,
 }
 
-impl<I2C: I2C> Mpr121Full<I2C> {
-    pub const SOURCE_OOR: u8 = 0x04;
-    pub const SOURCE_ARF: u8 = 0x02;
-    pub const SOURCE_ACF: u8 = 0x01;
-
+impl<I2C: I2c> Mpr121Full<I2C> {
     /// Create a new `Mpr121Full` and run the default initialization sequence.
     ///
     /// Same arguments as [`Mpr121Minimal::new`].
@@ -337,7 +340,7 @@ impl<I2C: I2C> Mpr121Full<I2C> {
 }
 
 // Forward Minimal methods to Full via the inner driver.
-impl<I2C: I2C> Mpr121Full<I2C> {
+impl<I2C: I2c> Mpr121Full<I2C> {
     /// Read the 12-bit touch bitmask. Delegates to inner.
     pub fn touched(&mut self) -> Result<u16, I2C::Error> { self.inner.touched() }
     /// Check whether a single electrode is touched. Delegates to inner.
@@ -348,7 +351,8 @@ impl<I2C: I2C> Mpr121Full<I2C> {
 #[cfg(feature = "std")]
 mod tests {
     use super::*;
-    use embedded_hal_mock::eh1_mock::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
 
     const ADDR: u8 = 0x5A;
 
@@ -394,10 +398,10 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_ELE0_7_TOUCH], vec![0x5A, 0x05]),
         ];
         let i2c = I2cMock::new(&transactions);
-        let mut delay = Delay;
+        let mut delay = NoopDelay::new();
         let mut chip = Mpr121Minimal::new(i2c, ADDR, &mut delay).expect("init");
         assert_eq!(chip.touched().unwrap(), 0x5A | ((0x05 & 0x0F) << 8));
-        chip.inner.i2c.done();
+        chip.i2c.done();
     }
 
     #[test]
@@ -445,7 +449,7 @@ mod tests {
             I2cTransaction::write(ADDR, vec![0x1E, 0xC0]),
         ];
         let i2c = I2cMock::new(&transactions);
-        let mut delay = Delay;
+        let mut delay = NoopDelay::new();
         let mut chip = Mpr121Full::new(i2c, ADDR, &mut delay).expect("init");
         assert_eq!(chip.filtered(0).unwrap(), 0x280);
         assert_eq!(chip.baseline(0).unwrap(), 0x200);
@@ -497,12 +501,11 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_DEBOUNCE, 0x53]),
         ];
         let i2c = I2cMock::new(&transactions);
-        let mut delay = Delay;
+        let mut delay = NoopDelay::new();
         let mut chip = Mpr121Full::new(i2c, ADDR, &mut delay).expect("init");
         chip.configure_sampling(10, 2, 1, 2, 5).unwrap();
         chip.configure_debounce(3, 5).unwrap();
         chip.inner.i2c.done();
     }
 
-    use linux_embedded_hal::Delay;
 }
