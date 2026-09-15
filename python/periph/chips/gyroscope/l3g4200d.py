@@ -93,8 +93,10 @@ class L3G4200DMinimal:
     def _read_reg(self, reg, n):
         if self._bus_type == 'spi':
             sub_addr = reg | 0xC0  # READ=1, MS=1 (auto-increment)
+        elif n > 1:
+            sub_addr = reg | 0x80  # MSB set = I²C multi-byte auto-increment
         else:
-            sub_addr = reg | 0x80  # MSB set = auto-increment on I²C
+            sub_addr = reg
         return self._connection.write_read(bytes([sub_addr & 0xFF]), n)
 
     def _sensitivity(self):
@@ -248,7 +250,10 @@ class L3G4200DFull(L3G4200DMinimal):
         Returns:
             int: Signed 8-bit temperature count.
         """
-        return self._read_reg(_REG_OUT_TEMP, 1)[0]
+        raw = self._read_reg(_REG_OUT_TEMP, 1)[0]
+        if raw & 0x80:
+            raw -= 0x100
+        return raw
 
     def power_down(self):
         """Enter power-down mode (PD=0 in CTRL_REG1)."""
