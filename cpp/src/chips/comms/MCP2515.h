@@ -41,6 +41,15 @@ class _MCP2515Base {
 public:
     _MCP2515Base(Connection& connection, uint16_t bitrate_kbps = 125, uint8_t osc_mhz = 8);
 
+    // CANSTAT.OPMOD[2:0] values — public because set_mode()/get_mode() take
+    // and return these.
+    static constexpr uint8_t CANSTAT_OPMOD_NORMAL      = 0x00;
+    static constexpr uint8_t CANSTAT_OPMOD_SLEEP       = 0x20;
+    static constexpr uint8_t CANSTAT_OPMOD_LOOPBACK    = 0x40;
+    static constexpr uint8_t CANSTAT_OPMOD_LISTEN_ONLY = 0x60;
+    static constexpr uint8_t CANSTAT_OPMOD_CONFIG      = 0x80;
+    static constexpr uint8_t CANSTAT_OPMOD_MASK        = 0xE0;
+
 protected:
     /** @brief Send a CAN frame on the next free TX buffer.
      *  @param id          11-bit (standard) or 29-bit (extended) identifier.
@@ -138,14 +147,6 @@ protected:
     static constexpr uint8_t REG_RXM0SIDH = 0x20;
     static constexpr uint8_t REG_RXM1SIDH = 0x24;
 
-    // CANSTAT.OPMOD[2:0] values
-    static constexpr uint8_t CANSTAT_OPMOD_NORMAL      = 0x00;
-    static constexpr uint8_t CANSTAT_OPMOD_SLEEP       = 0x20;
-    static constexpr uint8_t CANSTAT_OPMOD_LOOPBACK    = 0x40;
-    static constexpr uint8_t CANSTAT_OPMOD_LISTEN_ONLY = 0x60;
-    static constexpr uint8_t CANSTAT_OPMOD_CONFIG      = 0x80;
-    static constexpr uint8_t CANSTAT_OPMOD_MASK        = 0xE0;
-
     static constexpr uint8_t RXB0CTRL_RXM_MASK = 0x60;
     static constexpr uint8_t RXB0CTRL_RXM_ANY  = 0x60;
     static constexpr uint8_t RXB0CTRL_BUKT     = 0x04;
@@ -168,7 +169,7 @@ protected:
                          uint8_t& cnf1, uint8_t& cnf2, uint8_t& cnf3);
 
     void _write_reg(uint8_t reg, uint8_t value);
-    uint8_t _read_reg(uint8_t reg);
+    uint8_t _read_reg(uint8_t reg) const;
     void _modify_reg(uint8_t reg, uint8_t mask, uint8_t value);
     uint8_t _read_status();
     void _rts(uint8_t mask);

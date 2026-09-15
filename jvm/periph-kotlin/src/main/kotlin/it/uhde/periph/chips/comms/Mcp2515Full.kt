@@ -75,7 +75,7 @@ open class Mcp2515Full @JvmOverloads constructor(
      * @param buf      TX buffer index, 0..2.
      * @return the TX buffer used.
      */
-    open fun sendBuffered(id: Int, data: ByteArray, extended: Boolean = false, buf: Int = 0): Int {
+    public override fun sendBuffered(id: Int, data: ByteArray?, extended: Boolean, buf: Int): Int {
         return super.sendBuffered(id, data, extended, buf)
     }
 

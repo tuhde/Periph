@@ -119,12 +119,13 @@ open class Mcp2515Minimal @JvmOverloads constructor(
             0x00, 0x01
         )
 
-        private const val RESET_DELAY_MS = 5
-        private const val MODE_POLL_MS = 1
+        protected const val RESET_DELAY_MS = 5
+        protected const val MODE_POLL_MS = 1
         private const val MODE_TIMEOUT_MS = 50
         private const val TX_POLL_MS = 1
         private const val TX_TIMEOUT_MS = 100
 
+        @JvmStatic
         protected fun sleepMs(ms: Int) {
             try {
                 Thread.sleep(ms.toLong())
@@ -274,7 +275,7 @@ open class Mcp2515Minimal @JvmOverloads constructor(
      * @return the TX buffer index used.
      * @throws IOException on SPI error, invalid buffer index, or TX timeout.
      */
-    protected fun sendBuffered(id: Int, data: ByteArray?, extended: Boolean, buf: Int): Int {
+    protected open fun sendBuffered(id: Int, data: ByteArray?, extended: Boolean, buf: Int): Int {
         require(buf in 0..2) { "TX buffer index must be 0..2 (got $buf)" }
         val len = data?.let { minOf(it.size, 8) } ?: 0
 

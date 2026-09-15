@@ -145,7 +145,7 @@ class Mcp2515Spec extends Specification {
     def "init writes reset and CNF registers"() {
         given:
         McpMock connection = freshConnection()
-        Mcp2515Minimal(connection, 125, 8)
+        new Mcp2515Minimal(connection, 125, 8)
         byte[] firstWrite = connection.writes()[0]
 
         expect:
@@ -165,7 +165,7 @@ class Mcp2515Spec extends Specification {
             int[] bitrates = [125, 250, 500, 1000] as int[]
             for (int b = 0; b < 4; b++) {
                 McpMock connection = freshConnection()
-                Mcp2515Minimal(connection, bitrates[b], osc)
+                new Mcp2515Minimal(connection, bitrates[b], osc)
 
                 assert findWriteByte(connection, INSTR_WRITE, Mcp2515Minimal.REG_CNF1) == cnf1[b]
                 assert findWriteByte(connection, INSTR_WRITE, Mcp2515Minimal.REG_CNF2) == cnf2[b]
@@ -179,13 +179,13 @@ class Mcp2515Spec extends Specification {
 
     def "init rejects bad parameters"() {
         when:
-        Mcp2515Minimal(freshConnection(), 100, 8)
+        new Mcp2515Minimal(freshConnection(), 100, 8)
 
         then:
         thrown(IllegalArgumentException)
 
         when:
-        Mcp2515Minimal(freshConnection(), 125, 20)
+        new Mcp2515Minimal(freshConnection(), 125, 20)
 
         then:
         thrown(IllegalArgumentException)
@@ -198,7 +198,7 @@ class Mcp2515Spec extends Specification {
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, [(byte) 0x00] as byte[])
 
         when:
-        Mcp2515Minimal(connection, 125, 8)
+        new Mcp2515Minimal(connection, 125, 8)
 
         then:
         thrown(IOException)
@@ -207,7 +207,7 @@ class Mcp2515Spec extends Specification {
     def "init writes accept-all masks and RXB mode"() {
         given:
         McpMock connection = freshConnection()
-        Mcp2515Minimal(connection, 125, 8)
+        new Mcp2515Minimal(connection, 125, 8)
 
         expect:
         for (int reg = 0x20; reg <= 0x27; reg++) {
@@ -382,7 +382,9 @@ class Mcp2515Spec extends Specification {
         can.setMode("loopback")
 
         then:
-        byte[] canctrlWrite = findWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL)
+        // Construction already issued a CANCTRL write (REQOP=normal) during
+        // Init, so we need the *last* write, not the first.
+        byte[] canctrlWrite = findLastWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL)
         (canctrlWrite[2] & 0xFF) == 0x40
     }
 

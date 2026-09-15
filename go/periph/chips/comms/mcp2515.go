@@ -98,23 +98,23 @@ const (
 // combinations, keyed by (bitrateKbps<<8)|oscMhz.
 //
 // Values are BTLMODE=1, SAM=0, SJW=1 TQ, taken from §Bit Timing of the spec.
-var cnfTable = map[uint16][3]uint8{
+var cnfTable = map[uint32][3]uint8{
 	// 125 kbit/s @ 8 MHz: PropSeg=3, PS1=8, PS2=4 (TQ=500 ns)
-	(uint16(125) << 8) | 8: {0x01, 0xBA, 0x03},
+	(uint32(125) << 8) | 8: {0x01, 0xBA, 0x03},
 	// 250 kbit/s @ 8 MHz: PropSeg=3, PS1=8, PS2=4 (TQ=250 ns)
-	(uint16(250) << 8) | 8: {0x00, 0xBA, 0x03},
+	(uint32(250) << 8) | 8: {0x00, 0xBA, 0x03},
 	// 500 kbit/s @ 8 MHz: PropSeg=2, PS1=3, PS2=2 (TQ=250 ns)
-	(uint16(500) << 8) | 8: {0x00, 0x91, 0x01},
+	(uint32(500) << 8) | 8: {0x00, 0x91, 0x01},
 	// 1 Mbit/s @ 8 MHz: PropSeg=1, PS1=1, PS2=1 (TQ=250 ns)
-	(uint16(1000) << 8) | 8: {0x00, 0x80, 0x00},
+	(uint32(1000) << 8) | 8: {0x00, 0x80, 0x00},
 	// 125 kbit/s @ 16 MHz: PropSeg=3, PS1=8, PS2=4 (TQ=500 ns)
-	(uint16(125) << 8) | 16: {0x03, 0xBA, 0x03},
+	(uint32(125) << 8) | 16: {0x03, 0xBA, 0x03},
 	// 250 kbit/s @ 16 MHz: PropSeg=3, PS1=8, PS2=4 (TQ=250 ns)
-	(uint16(250) << 8) | 16: {0x01, 0xBA, 0x03},
+	(uint32(250) << 8) | 16: {0x01, 0xBA, 0x03},
 	// 500 kbit/s @ 16 MHz: PropSeg=3, PS1=8, PS2=4 (TQ=125 ns)
-	(uint16(500) << 8) | 16: {0x00, 0xBA, 0x03},
+	(uint32(500) << 8) | 16: {0x00, 0xBA, 0x03},
 	// 1 Mbit/s @ 16 MHz: PropSeg=2, PS1=3, PS2=2 (TQ=125 ns)
-	(uint16(1000) << 8) | 16: {0x00, 0x91, 0x01},
+	(uint32(1000) << 8) | 16: {0x00, 0x91, 0x01},
 }
 
 // CanFrame is a single CAN 2.0B data or remote frame.
@@ -174,7 +174,7 @@ func NewMCP2515Minimal(conn connection.Connection, bitrateKbps uint16, oscMhz ui
 //
 // bitrateKbps must be one of 125, 250, 500, 1000. oscMhz must be 8 or 16.
 func (c *MCP2515Minimal) Init(bitrateKbps uint16, oscMhz uint8) error {
-	cnf, ok := cnfTable[(bitrateKbps<<8)|uint16(oscMhz)]
+	cnf, ok := cnfTable[(uint32(bitrateKbps)<<8)|uint32(oscMhz)]
 	if !ok {
 		return fmt.Errorf("mcp2515: unsupported (bitrate_kbps=%d, osc_mhz=%d): expected bitrate in {125,250,500,1000} and osc_mhz in {8,16}", bitrateKbps, oscMhz)
 	}
@@ -442,7 +442,6 @@ func (c *MCP2515Minimal) send(id uint32, data []byte, extended, rtr bool, bufInd
 	}
 
 	ctrlBase := txbCtrlBases[bufIndex]
-	sidhBase := ctrlBase + 0x01
 
 	// LOAD TX BUFFER: command byte = instrLoadTxBuf | offset; offset 0 → SIDH
 	// at the chosen buffer's SIDH base. We always load starting at SIDH.

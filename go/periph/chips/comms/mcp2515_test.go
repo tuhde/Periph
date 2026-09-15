@@ -6,7 +6,7 @@ import (
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// mockConnection is an in-memory fake connection.Connection for unit tests —
+// mcp2515MockConnection is an in-memory fake connection.Connection for unit tests —
 // no hardware, no bus.
 //
 // Supports the access patterns the MCP2515 driver uses:
@@ -22,38 +22,38 @@ import (
 //
 // Every Write call (register writes, plain command writes, and full
 // multi-byte transfers alike) is appended to writes for assertions.
-type mockConnection struct {
+type mcp2515MockConnection struct {
 	registers       map[byte]byte
 	writes          [][]byte
 	readQueue       [][]byte
 	registerReadSeq map[byte][]byte
 }
 
-func newMockConnection() *mockConnection {
-	return &mockConnection{
+func newMcp2515MockConnection() *mcp2515MockConnection {
+	return &mcp2515MockConnection{
 		registers:       map[byte]byte{},
 		registerReadSeq: map[byte][]byte{},
 	}
 }
 
-func (m *mockConnection) setRegister(reg byte, values ...byte) {
+func (m *mcp2515MockConnection) setRegister(reg byte, values ...byte) {
 	for i, v := range values {
 		m.registers[reg+byte(i)] = v
 	}
 }
 
-func (m *mockConnection) queueRead(data []byte) {
+func (m *mcp2515MockConnection) queueRead(data []byte) {
 	m.readQueue = append(m.readQueue, data)
 }
 
 // queueRegisterRead enqueues a sequence of byte values to be returned one
 // per read of reg. Useful when a register is polled and must transition
 // (e.g. CANSTAT going from Config to Normal during waitOpMode).
-func (m *mockConnection) queueRegisterRead(reg byte, values ...byte) {
+func (m *mcp2515MockConnection) queueRegisterRead(reg byte, values ...byte) {
 	m.registerReadSeq[reg] = append(m.registerReadSeq[reg], values...)
 }
 
-func (m *mockConnection) Write(data []byte) error {
+func (m *mcp2515MockConnection) Write(data []byte) error {
 	cp := append([]byte(nil), data...)
 	m.writes = append(m.writes, cp)
 	// Update the registers map so post-write assertions see the new state.
@@ -66,12 +66,21 @@ func (m *mockConnection) Write(data []byte) error {
 		case instrBitModify:
 			cur := m.registers[data[1]]
 			m.registers[data[1]] = (cur &^ data[2]) | (data[3] & data[2])
+			// A REQOP bit modify on CANCTRL is how setMode() requests a
+			// mode change; mirror it into CANSTAT's OPMOD bits so getMode
+			// reflects it immediately, matching real hardware without
+			// requiring every mode-changing test to pre-queue a CANSTAT
+			// read.
+			if data[1] == regCANCTRL && data[2]&0xE0 != 0 {
+				cs := m.registers[regCANSTAT]
+				m.registers[regCANSTAT] = (cs &^ 0xE0) | (data[3] & data[2] & 0xE0)
+			}
 		}
 	}
 	return nil
 }
 
-func (m *mockConnection) Read(n int) ([]byte, error) {
+func (m *mcp2515MockConnection) Read(n int) ([]byte, error) {
 	if len(m.readQueue) > 0 {
 		front := m.readQueue[0]
 		m.readQueue = m.readQueue[1:]
@@ -82,7 +91,7 @@ func (m *mockConnection) Read(n int) ([]byte, error) {
 	return make([]byte, n), nil
 }
 
-func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
+func (m *mcp2515MockConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	cp := append([]byte(nil), data...)
 	m.writes = append(m.writes, cp)
 	out := make([]byte, n)
@@ -110,12 +119,12 @@ func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	return out, nil
 }
 
-func (m *mockConnection) Close() error                    { return nil }
-func (m *mockConnection) Enable()                         {}
-func (m *mockConnection) Disable()                        {}
-func (m *mockConnection) IsEnabled() bool                 { return true }
-func (m *mockConnection) IntPin() connection.InputPin      { return nil }
-func (m *mockConnection) EnPin() connection.OutputPin      { return nil }
+func (m *mcp2515MockConnection) Close() error                    { return nil }
+func (m *mcp2515MockConnection) Enable()                         {}
+func (m *mcp2515MockConnection) Disable()                        {}
+func (m *mcp2515MockConnection) IsEnabled() bool                 { return true }
+func (m *mcp2515MockConnection) IntPin() connection.InputPin      { return nil }
+func (m *mcp2515MockConnection) EnPin() connection.OutputPin      { return nil }
 
 // lastWriteWithInstruction returns the last write whose first byte equals
 // the given SPI instruction.
@@ -138,7 +147,7 @@ func lastWriteWithInstruction(writes [][]byte, instr uint8) []byte {
 // target values so the first poll of each waitOpMode succeeds
 // immediately. Steady-state reads fall through to registers, which
 // holds Normal.
-func initModeForTest(conn *mockConnection) {
+func initModeForTest(conn *mcp2515MockConnection) {
 	// First waitOpMode (looking for Config) reads Config from the queue.
 	// Second waitOpMode (looking for Normal) reads Normal from the queue.
 	conn.queueRegisterRead(regCANSTAT, OPMODConfig, OPMODNormal)
@@ -147,7 +156,7 @@ func initModeForTest(conn *mockConnection) {
 }
 
 func TestMCP2515NewRejectsBadBitrate(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	if _, err := NewMCP2515Minimal(conn, 100, 8); err == nil {
 		t.Errorf("expected error for unsupported bitrate 100 kbit/s")
@@ -158,7 +167,7 @@ func TestMCP2515NewRejectsBadBitrate(t *testing.T) {
 }
 
 func TestMCP2515NewIssuesResetAndConfigures(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 
 	if _, err := NewMCP2515Minimal(conn, 125, 8); err != nil {
@@ -241,7 +250,7 @@ func TestMCP2515PackUnpackExtended(t *testing.T) {
 }
 
 func TestMCP2515SendIssuesLoadAndRTS(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	// TXREQ clears (bit 3 in TXB0CTRL = 0).
 	conn.registers[regTXB0CTRL] = 0x03 // TXP=11, TXREQ=0
@@ -273,8 +282,15 @@ func TestMCP2515SendIssuesLoadAndRTS(t *testing.T) {
 			load[6], load[7], load[8], load[9])
 	}
 
-	// Then the RTS instruction with bit 0 set (TXB0).
-	rts := lastWriteWithInstruction(conn.writes, instrRTS)
+	// Then the RTS instruction with bit 0 set (TXB0). RTS encodes the
+	// buffer mask in its low 3 bits (instrRTS | mask), so match on the
+	// fixed top 5 bits rather than an exact byte.
+	var rts []byte
+	for _, w := range conn.writes {
+		if len(w) >= 1 && w[0]&0xF8 == instrRTS {
+			rts = w
+		}
+	}
 	if rts == nil {
 		t.Fatalf("expected RTS instruction in writes")
 	}
@@ -284,7 +300,7 @@ func TestMCP2515SendIssuesLoadAndRTS(t *testing.T) {
 }
 
 func TestMCP2515SendExtendedSetsEXIDE(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	conn.registers[regTXB0CTRL] = 0x03
 	chip, err := NewMCP2515Minimal(conn, 125, 8)
@@ -306,7 +322,7 @@ func TestMCP2515SendExtendedSetsEXIDE(t *testing.T) {
 }
 
 func TestMCP2515SendRejectsTooLong(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	chip, err := NewMCP2515Minimal(conn, 125, 8)
 	if err != nil {
@@ -318,7 +334,7 @@ func TestMCP2515SendRejectsTooLong(t *testing.T) {
 }
 
 func TestMCP2515SendRejectsBadID(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	chip, err := NewMCP2515Minimal(conn, 125, 8)
 	if err != nil {
@@ -333,7 +349,7 @@ func TestMCP2515SendRejectsBadID(t *testing.T) {
 }
 
 func TestMCP2515RecvParsesFrame(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	chip, err := NewMCP2515Minimal(conn, 125, 8)
 	if err != nil {
@@ -366,7 +382,7 @@ func TestMCP2515RecvParsesFrame(t *testing.T) {
 }
 
 func TestMCP2515RecvNoFrameReturnsNil(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	chip, err := NewMCP2515Minimal(conn, 125, 8)
 	if err != nil {
@@ -388,7 +404,7 @@ func TestMCP2515RecvNoFrameReturnsNil(t *testing.T) {
 }
 
 func TestMCP2515SetFilterWritesAtBase(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {
@@ -410,7 +426,7 @@ func TestMCP2515SetFilterWritesAtBase(t *testing.T) {
 }
 
 func TestMCP2515SetMaskWritesAtRXM0(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {
@@ -429,7 +445,7 @@ func TestMCP2515SetMaskWritesAtRXM0(t *testing.T) {
 }
 
 func TestMCP2515SetRxModeIssuesBitModify(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {
@@ -452,7 +468,7 @@ func TestMCP2515SetRxModeIssuesBitModify(t *testing.T) {
 }
 
 func TestMCP2515SetOneShotTogglesOSM(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {
@@ -478,7 +494,7 @@ func TestMCP2515SetOneShotTogglesOSM(t *testing.T) {
 }
 
 func TestMCP2515ClearOverflowWritesEFLG(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {
@@ -507,7 +523,7 @@ func TestMCP2515ClearOverflowWritesEFLG(t *testing.T) {
 }
 
 func TestMCP2515ReadErrors(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	conn.registers[regTEC] = 0x05
 	conn.registers[regREC] = 0x03
@@ -526,7 +542,7 @@ func TestMCP2515ReadErrors(t *testing.T) {
 }
 
 func TestMCP2515GetMode(t *testing.T) {
-	conn := newMockConnection()
+	conn := newMcp2515MockConnection()
 	initModeForTest(conn)
 	full, err := NewMCP2515Full(conn, 125, 8)
 	if err != nil {

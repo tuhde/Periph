@@ -40,11 +40,11 @@ void _MCP2515Base::_delay_ms(unsigned long ms) {
 }
 
 void _MCP2515Base::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { INSTR_WRITE, reg, value };
+    uint8_t buf[3] = { INSTR_WRITE, reg, value };
     _connection.write(buf, 3);
 }
 
-uint8_t _MCP2515Base::_read_reg(uint8_t reg) {
+uint8_t _MCP2515Base::_read_reg(uint8_t reg) const {
     uint8_t cmd[2] = { INSTR_READ, reg };
     uint8_t val = 0;
     _connection.write_read(cmd, 2, &val, 1);
@@ -344,6 +344,10 @@ void MCP2515Full::set_mask(uint8_t mask_num, uint32_t mask, bool extended) {
     } else {
         _set_mask(mask_num, mask, extended);
     }
+}
+
+void MCP2515Full::set_rx_mode(uint8_t buf, uint8_t mode) {
+    _set_rx_mode(buf, mode);
 }
 
 void MCP2515Full::set_mode(uint8_t mode) {

@@ -110,8 +110,8 @@ class Mcp2515Minimal {
         0x00, 0x01,
     ] as int[]
 
-    private static final int RESET_DELAY_MS = 5
-    private static final int MODE_POLL_MS = 1
+    protected static final int RESET_DELAY_MS = 5
+    protected static final int MODE_POLL_MS = 1
     private static final int MODE_TIMEOUT_MS = 50
     private static final int TX_POLL_MS = 1
     private static final int TX_TIMEOUT_MS = 100

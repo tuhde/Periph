@@ -92,7 +92,7 @@ class Mcp2515Test {
     private fun freshConnection(): McpMock {
         val connection = McpMock()
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT,
-            byteArrayOf(0x80))  // init verification: OPMOD=Config
+            byteArrayOf(0x80.toByte()))  // init verification: OPMOD=Config
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT,
             byteArrayOf(0x00))  // waitMode poll: OPMOD=Normal
         return connection
@@ -255,7 +255,7 @@ class Mcp2515Test {
         connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, byteArrayOf(0x00))
 
         val id = 0x1FFFFFFF
-        can.send(id, byteArrayOf(0xAA), true)
+        can.send(id, byteArrayOf(0xAA.toByte()), true)
 
         val loadWrite = findFirstWrite(connection, INSTR_LOAD_TX_BUF)
         assertEquals(0xFF, loadWrite!![1].toInt() and 0xFF)
@@ -367,7 +367,9 @@ class Mcp2515Test {
 
         can.setMode("loopback")
 
-        val canctrlWrite = findWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL)
+        // Construction already issued a CANCTRL write (REQOP=normal) during
+        // Init, so we need the *last* write, not the first.
+        val canctrlWrite = findLastWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL)
         assertEquals(0x40, canctrlWrite!![2].toInt() and 0xFF)
     }
 
@@ -377,7 +379,7 @@ class Mcp2515Test {
         val can = Mcp2515Full(connection, 125, 8)
 
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, byteArrayOf(0x00))  // current = normal
-        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, byteArrayOf(0x80))  // config
+        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, byteArrayOf(0x80.toByte()))  // config
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, byteArrayOf(0x00))  // back to normal
 
         can.setFilter(0, 0x123, false)
@@ -409,7 +411,7 @@ class Mcp2515Test {
 
         connection.queueWriteRead(Mcp2515Full.REG_TEC, byteArrayOf(0x42))
         connection.queueWriteRead(Mcp2515Full.REG_REC, byteArrayOf(0x10))
-        connection.queueWriteRead(Mcp2515Full.REG_EFLG, byteArrayOf(0x80))
+        connection.queueWriteRead(Mcp2515Full.REG_EFLG, byteArrayOf(0x80.toByte()))
 
         val errs = can.readErrors()
         assertEquals(0x42, errs.tec)

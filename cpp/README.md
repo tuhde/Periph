@@ -62,6 +62,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
+| MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |

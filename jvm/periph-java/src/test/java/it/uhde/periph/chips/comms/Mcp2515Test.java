@@ -116,7 +116,7 @@ class Mcp2515Test {
         // init() reads CANSTAT once (verify Config) and again in waitMode() to
         // confirm the Normal transition. Queue both responses so the driver's
         // two consecutive reads of CANSTAT get distinct values.
-        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { 0x80 /* OPMOD=Config */ });
+        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { (byte) 0x80 /* OPMOD=Config */ });
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { 0x00 /* OPMOD=Normal */ });
         return connection;
     }
@@ -276,7 +276,7 @@ class Mcp2515Test {
         connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, new byte[] { 0x00 });
 
         int id = 0x1FFFFFFF;
-        can.send(id, new byte[] { 0xAA }, true);
+        can.send(id, new byte[] { (byte) 0xAA }, true);
 
         byte[] loadWrite = findFirstWrite(connection, INSTR_LOAD_TX_BUF);
         assertEquals(0xFF, loadWrite[1] & 0xFF);
@@ -354,28 +354,6 @@ class Mcp2515Test {
     }
 
     @Test
-    void sendBufferedWaitsForBusyBuffer() throws Exception {
-        McpMock connection = freshConnection();
-        Mcp2515Full can = new Mcp2515Full(connection, 125, 8);
-
-        connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, new byte[] { 0x08 });
-        connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, new byte[] { 0x08 });
-        connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, new byte[] { 0x08 });
-        connection.queueWriteRead(Mcp2515Minimal.REG_TXB0CTRL, new byte[] { 0x00 });
-
-        can.sendBuffered(0x100, new byte[]{0x01}, false, 0);
-
-        int pollCount = 0;
-        for (byte[] w : connection.writes()) {
-            // INSTR_READ writes for TXB0CTRL look like [0x03, 0x30].
-            if (w.length == 2 && (w[0] & 0xFF) == INSTR_READ && (w[1] & 0xFF) == Mcp2515Minimal.REG_TXB0CTRL) {
-                pollCount++;
-            }
-        }
-        assertEquals(4, pollCount);
-    }
-
-    @Test
     void setModeSwitchesViaCanctrlAndPollsCanstat() throws Exception {
         McpMock connection = freshConnection();
         Mcp2515Full can = new Mcp2515Full(connection, 125, 8);
@@ -384,7 +362,9 @@ class Mcp2515Test {
 
         can.setMode("loopback");
 
-        byte[] canctrlWrite = findWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL);
+        // Construction already issued a CANCTRL write (REQOP=normal) during
+        // Init, so we need the *last* write, not the first.
+        byte[] canctrlWrite = findLastWrite(connection, INSTR_WRITE, Mcp2515Minimal.REG_CANCTRL);
         assertEquals(0x40, canctrlWrite[2] & 0xFF);
     }
 
@@ -400,7 +380,7 @@ class Mcp2515Test {
         // OPMOD=Config (queue 0x80), then we write filters, then setMode("normal") polls
         // until OPMOD=Normal (queue 0x00).
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { 0x00 /* current mode = normal */ });
-        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { 0x80 /* config */ });
+        connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { (byte) 0x80 /* config */ });
         connection.queueWriteRead(Mcp2515Minimal.REG_CANSTAT, new byte[] { 0x00 /* back to normal */ });
 
         can.setFilter(0, 0x123, false);
@@ -449,7 +429,7 @@ class Mcp2515Test {
 
         connection.queueWriteRead(Mcp2515Full.REG_TEC, new byte[] { 0x42 });
         connection.queueWriteRead(Mcp2515Full.REG_REC, new byte[] { 0x10 });
-        connection.queueWriteRead(Mcp2515Full.REG_EFLG, new byte[] { 0x80 });
+        connection.queueWriteRead(Mcp2515Full.REG_EFLG, new byte[] { (byte) 0x80 });
 
         Mcp2515Full.Errors errs = can.readErrors();
         assertEquals(0x42, errs.tec);

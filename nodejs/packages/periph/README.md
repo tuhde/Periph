@@ -53,6 +53,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
+| MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
