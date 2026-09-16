@@ -56,7 +56,8 @@ pub const REG_CRC: u16             = 0x37F;
 pub const REG_AWGAIN: u16          = 0x282;
 pub const REG_AWATTOS: u16         = 0x289;
 
-pub const REG_120_UNLOCK: u8       = 0xFE;
+pub const REG_120_UNLOCK_ADDR: u16 = 0x0FE;
+pub const REG_120_UNLOCK: u8       = 0xAD;
 pub const REG_120_VALUE: u16       = 0x30;
 
 const ADC_FS_VOLTS: f32   = 0.5 / core::f32::consts::SQRT_2;
@@ -114,7 +115,7 @@ impl<I2C: I2c> Connection<I2C> {
     }
 }
 
-impl<I2C: I2c, D: DelayNs> Ade7953Minimal<I2C> {
+impl<I2C: I2c> Ade7953Minimal<I2C> {
     /// Construct and initialise the ADE7953.
     ///
     /// # Arguments
@@ -123,7 +124,7 @@ impl<I2C: I2c, D: DelayNs> Ade7953Minimal<I2C> {
     /// * `voltage_gain` — Real volts at the mains per volt at VP–VN.
     /// * `current_gain` — Real amperes per volt at IAP–IAN.
     /// * `delay` — Delay provider for the 100 ms power-up wait.
-    pub fn new(
+    pub fn new<D: DelayNs>(
         i2c: I2C,
         addr: u8,
         voltage_gain: f32,
@@ -132,8 +133,7 @@ impl<I2C: I2c, D: DelayNs> Ade7953Minimal<I2C> {
     ) -> Result<Self, I2C::Error> {
         let mut conn = Connection::new(i2c);
         delay.delay_ms(110);
-        // 0xFE = REG_INTERNAL_RES alias for the 8-bit register; we send 8-bit write.
-        conn.write(addr, REG_INTERNAL_RES as u16, &[REG_120_UNLOCK])?;
+        conn.write(addr, REG_120_UNLOCK_ADDR, &[REG_120_UNLOCK])?;
         let payload = [(REG_120_VALUE >> 8) as u8, REG_120_VALUE as u8];
         conn.write(addr, REG_INTERNAL_RES, &payload)?;
         Ok(Self {
@@ -280,7 +280,7 @@ impl<I2C: I2c, D: DelayNs> Ade7953Minimal<I2C> {
         let cfg = self.read_u16(REG_CONFIG)? | (1 << 7);
         self.write_u16(REG_CONFIG, cfg)?;
         delay.delay_ms(110);
-        self.write_u8(REG_INTERNAL_RES as u16, REG_120_UNLOCK)?;
+        self.write_u8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK)?;
         self.write_u16(REG_INTERNAL_RES, REG_120_VALUE)?;
         self.pga_a = 1;
         self.pga_b = 1;

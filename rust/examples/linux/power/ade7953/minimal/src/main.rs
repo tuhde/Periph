@@ -1,15 +1,6 @@
-use linux_embedded_hal::I2cdev;
+use linux_embedded_hal::{Delay, I2cdev};
 use periph::chips::power::Ade7953Minimal;
-use embedded_hal::delay::DelayNs;
 use std::time::Duration;
-
-struct Delay;
-
-impl DelayNs for Delay {
-    fn delay_ms(&mut self, ms: u32) {
-        std::thread::sleep(Duration::from_millis(ms as u64));
-    }
-}
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);

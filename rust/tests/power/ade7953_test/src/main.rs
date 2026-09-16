@@ -1,15 +1,5 @@
-use linux_embedded_hal::I2cdev;
+use linux_embedded_hal::{Delay, I2cdev};
 use periph::chips::power::Ade7953Minimal;
-use embedded_hal::delay::DelayNs;
-use std::time::Duration;
-
-struct Delay;
-
-impl DelayNs for Delay {
-    fn delay_ms(&mut self, ms: u32) {
-        std::thread::sleep(Duration::from_millis(ms as u64));
-    }
-}
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
