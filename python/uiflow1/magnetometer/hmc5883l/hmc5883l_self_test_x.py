@@ -1,0 +1,1 @@
+_periph_hmc5883l.self_test(bool(${_positive}))[0]

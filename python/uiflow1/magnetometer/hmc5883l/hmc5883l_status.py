@@ -1,0 +1,1 @@
+_periph_hmc5883l.status()

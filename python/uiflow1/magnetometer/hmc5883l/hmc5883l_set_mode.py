@@ -1,0 +1,1 @@
+_periph_hmc5883l.set_mode(('continuous', 'single', 'idle')[${_mode}])
