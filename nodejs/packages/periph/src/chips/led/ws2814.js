@@ -2,31 +2,31 @@
 
 const { NeoPixelRGBWMinimal, NeoPixelRGBWFull } = require('./_NeoPixelRGBWBase');
 
-const RESET_BYTES = 24;
+const RESET_BYTES = 90;
 
 /**
- * SK6812RGBW addressable RGBW LED strip — minimal interface.
+ * WS2814 addressable RGBW LED strip — minimal interface.
  *
- * Drives a chain of n SK6812RGBW pixels over a NeoPixel connection.
- * Maintains an internal GRBW buffer; fill() writes every pixel and
- * transmits immediately. Each pixel has four channels: red, green,
- * blue, and white (dedicated white LED element).
+ * Drives a chain of n WS2814 pixels over a NeoPixel connection.
+ * Maintains an internal RGBW buffer (identity wire order — no reorder
+ * needed); fill() writes every pixel and transmits immediately. Each
+ * pixel has four channels: red, green, blue, and white.
  *
  * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
-class SK6812RGBWMinimal extends NeoPixelRGBWMinimal {
+class WS2814Minimal extends NeoPixelRGBWMinimal {
     /**
      * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
     constructor(connection, n) {
-        super(connection, n, [1, 0, 2, 3], RESET_BYTES);
+        super(connection, n, [0, 1, 2, 3], RESET_BYTES);
     }
 }
 
 /**
- * SK6812RGBW full interface — per-pixel control, brightness, rotation, HSV fill.
+ * WS2814 full interface — per-pixel control, brightness, rotation, HSV fill.
  *
  * Adds individual pixel addressing, explicit show(), global brightness
  * scaling, buffer rotation, and HSV fill. Call set_pixel() / set_pixels()
@@ -36,14 +36,14 @@ class SK6812RGBWMinimal extends NeoPixelRGBWMinimal {
  * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
  * @param {number} n         - Number of pixels in the strip.
  */
-class SK6812RGBWFull extends NeoPixelRGBWFull {
+class WS2814Full extends NeoPixelRGBWFull {
     /**
      * @param {import('../../connection/neopixel').NeoPixelConnection} connection - Configured NeoPixel connection.
      * @param {number} n         - Number of pixels in the strip.
      */
     constructor(connection, n) {
-        super(connection, n, [1, 0, 2, 3], RESET_BYTES);
+        super(connection, n, [0, 1, 2, 3], RESET_BYTES);
     }
 }
 
-module.exports = { SK6812RGBWMinimal, SK6812RGBWFull };
+module.exports = { WS2814Minimal, WS2814Full };
