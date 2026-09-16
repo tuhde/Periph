@@ -1,0 +1,87 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hx710b_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init HX710B", "type": "label" },
+        { "name": "DOUT pin", "type": "label" },
+        { "name": "_dout", "type": "number" },
+        { "name": "PD_SCK pin", "type": "label" },
+        { "name": "_pd_sck", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710b_is_ready",
+      "type": "value",
+      "params": [{ "name": "HX710B ready?", "type": "label" }]
+    },
+    {
+      "name": "hx710b_read_raw",
+      "type": "value",
+      "params": [{ "name": "HX710B raw ADC value", "type": "label" }]
+    },
+    {
+      "name": "hx710b_set_rate",
+      "type": "execute",
+      "params": [
+        { "name": "HX710B set rate (10/40 SPS)", "type": "label" },
+        { "name": "_rate", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710b_read_average",
+      "type": "value",
+      "params": [
+        { "name": "HX710B average of", "type": "label" },
+        { "name": "_times", "type": "number" },
+        { "name": "readings", "type": "label" }
+      ]
+    },
+    {
+      "name": "hx710b_tare",
+      "type": "execute",
+      "params": [{ "name": "HX710B tare (zero the scale)", "type": "label" }]
+    },
+    {
+      "name": "hx710b_get_offset",
+      "type": "value",
+      "params": [{ "name": "HX710B tare offset", "type": "label" }]
+    },
+    {
+      "name": "hx710b_set_scale",
+      "type": "execute",
+      "params": [
+        { "name": "HX710B set scale factor", "type": "label" },
+        { "name": "_factor", "type": "number" }
+      ]
+    },
+    {
+      "name": "hx710b_get_scale",
+      "type": "value",
+      "params": [{ "name": "HX710B scale factor", "type": "label" }]
+    },
+    {
+      "name": "hx710b_read_weight",
+      "type": "value",
+      "params": [{ "name": "HX710B weight", "type": "label" }]
+    },
+    {
+      "name": "hx710b_read_supply_diff_raw",
+      "type": "value",
+      "params": [{ "name": "HX710B raw supply-difference code", "type": "label" }]
+    },
+    {
+      "name": "hx710b_power_down",
+      "type": "execute",
+      "params": [{ "name": "HX710B power down", "type": "label" }]
+    },
+    {
+      "name": "hx710b_power_up",
+      "type": "execute",
+      "params": [{ "name": "HX710B power up", "type": "label" }]
+    }
+  ]
+}
