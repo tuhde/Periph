@@ -1,7 +1,8 @@
-//! SK6812RGBW addressable RGBW LED strip driver.
+//! WS2814 addressable RGBW LED strip driver (Super Lighting LED).
 //!
-//! Thin wrapper over [`NeoPixelRgbwMinimal`]/[`NeoPixelRgbwFull`] fixing GRBW
-//! wire order and this chip's 24-byte (~80 µs) extended reset.
+//! Thin wrapper over [`NeoPixelRgbwMinimal`]/[`NeoPixelRgbwFull`] fixing
+//! identity RGBW wire order (no reorder) and this chip's 90-byte (~300 µs)
+//! extended reset (≥280 µs required).
 //!
 //! # Pixel limit
 //! See [`super::neopixel_rgbw_base::MAX_PIXELS`].
@@ -9,16 +10,16 @@
 use embedded_hal::spi::SpiBus;
 use super::neopixel_rgbw_base::{NeoPixelRgbwMinimal, NeoPixelRgbwFull};
 
-const CHANNEL_ORDER: [usize; 4] = [1, 0, 2, 3]; // GRBW: wire[0]=G, wire[1]=R, wire[2]=B, wire[3]=W
-const RESET_BYTES: usize = 24;                   // ~80us extended reset
+const CHANNEL_ORDER: [usize; 4] = [0, 1, 2, 3]; // RGBW: identity, no reorder
+const RESET_BYTES: usize = 90;                   // ~300us extended reset (>=280us required)
 
-/// SK6812RGBW minimal driver — fill the entire strip with one colour.
-pub struct Sk6812RgbwMinimal<SPI> {
+/// WS2814 minimal driver — fill the entire strip with one colour.
+pub struct Ws2814Minimal<SPI> {
     inner: NeoPixelRgbwMinimal<SPI>,
 }
 
-impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
-    /// Create a new `Sk6812RgbwMinimal`.
+impl<SPI: SpiBus> Ws2814Minimal<SPI> {
+    /// Create a new `Ws2814Minimal`.
     ///
     /// # Arguments
     /// * `spi` — SPI bus configured at 2.4 MHz, mode 0, MSB-first.
@@ -29,7 +30,8 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
 
     /// Fill every pixel with one colour and send to the strip immediately.
     ///
-    /// Stores G, R, B, W in the internal buffer (GRBW wire order) then calls
+    /// Stores R, G, B, W in the internal buffer (identity wire order — no
+    /// reorder) then calls
     /// [`NeoPixelConnection::write_ext`](crate::connection::neopixel::NeoPixelConnection::write_ext).
     /// `w=0` for RGB-only usage.
     pub fn fill(&mut self, r: u8, g: u8, b: u8, w: u8) -> Result<(), SPI::Error> {
@@ -44,19 +46,19 @@ impl<SPI: SpiBus> Sk6812RgbwMinimal<SPI> {
     }
 }
 
-/// SK6812RGBW full driver — extends [`Sk6812RgbwMinimal`] with per-pixel control.
+/// WS2814 full driver — extends [`Ws2814Minimal`] with per-pixel control.
 ///
-/// Adds individual pixel addressing, explicit [`show`](Sk6812RgbwFull::show),
+/// Adds individual pixel addressing, explicit [`show`](Ws2814Full::show),
 /// global brightness scaling, buffer rotation, and HSV fill.
-/// Call [`set_pixel`](Sk6812RgbwFull::set_pixel) to update the buffer,
-/// then [`show`](Sk6812RgbwFull::show) to transmit; or use
-/// [`fill`](Sk6812RgbwFull::fill) for an immediate all-same-colour update.
-pub struct Sk6812RgbwFull<SPI> {
+/// Call [`set_pixel`](Ws2814Full::set_pixel) to update the buffer,
+/// then [`show`](Ws2814Full::show) to transmit; or use
+/// [`fill`](Ws2814Full::fill) for an immediate all-same-colour update.
+pub struct Ws2814Full<SPI> {
     inner: NeoPixelRgbwFull<SPI>,
 }
 
-impl<SPI: SpiBus> Sk6812RgbwFull<SPI> {
-    /// Create a new `Sk6812RgbwFull`.
+impl<SPI: SpiBus> Ws2814Full<SPI> {
+    /// Create a new `Ws2814Full`.
     ///
     /// # Arguments
     /// * `spi` — SPI bus configured at 2.4 MHz, mode 0, MSB-first.
@@ -121,11 +123,11 @@ mod tests {
     use super::*;
     use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
 
-    // Same reasoning as ws2812b.rs's test module: mirrors
+    // Same reasoning as sk6812rgbw.rs's test module: mirrors
     // NeoPixelConnection's private encode() (0 -> 0b100 triplet, 1 -> 0b110
     // triplet, MSB-first) to compute the exact SPI bytes the mock should
-    // expect, parametrized by reset_bytes since this chip requests 24
-    // (~80us) instead of WS2812B's default 16 (~53us) - see
+    // expect, parametrized by reset_bytes since WS2814 requests 90
+    // (~300us) instead of SK6812RGBW's 24 (~80us) - see
     // rust/periph/src/connection/neopixel.rs's write_ext().
     fn encode(data: &[u8], reset_bytes: usize) -> Vec<u8> {
         let mut out = Vec::with_capacity(data.len() * 3 + reset_bytes);
@@ -145,19 +147,19 @@ mod tests {
     const N: usize = 3;
 
     #[test]
-    fn fill_transmits_grbw_order() {
-        let expected = encode(&[0x22, 0x11, 0x33, 0x44].repeat(N), 24);
+    fn fill_transmits_rgbw_identity_order() {
+        let expected = encode(&[0x11, 0x22, 0x33, 0x44].repeat(N), 90);
         let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.fill(0x11, 0x22, 0x33, 0x44).unwrap();
         sensor.inner.inner.conn.spi.done();
     }
 
     #[test]
     fn fill_white_defaults_zero() {
-        let expected = encode(&[0x20, 0x10, 0x30, 0x00].repeat(N), 24);
+        let expected = encode(&[0x10, 0x20, 0x30, 0x00].repeat(N), 90);
         let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.fill(0x10, 0x20, 0x30, 0).unwrap();
         sensor.inner.inner.conn.spi.done();
     }
@@ -165,16 +167,16 @@ mod tests {
     #[test]
     fn set_pixel_then_show_and_index_clamp() {
         let mut buf = vec![0u8; N * 4];
-        buf[4] = 0xBB; buf[5] = 0xAA; buf[6] = 0xCC; buf[7] = 0xDD; // pixel 1, GRBW
+        buf[4] = 0xAA; buf[5] = 0xBB; buf[6] = 0xCC; buf[7] = 0xDD; // pixel 1, RGBW identity
         let mut buf2 = buf.clone();
-        buf2[(N - 1) * 4] = 0x06; buf2[(N - 1) * 4 + 1] = 0x05;
+        buf2[(N - 1) * 4] = 0x05; buf2[(N - 1) * 4 + 1] = 0x06;
         buf2[(N - 1) * 4 + 2] = 0x07; buf2[(N - 1) * 4 + 3] = 0x08; // clamped index 99 -> N-1
 
         let spi = SpiMock::new(&[
-            SpiTransaction::write_vec(encode(&buf, 24)),
-            SpiTransaction::write_vec(encode(&buf2, 24)),
+            SpiTransaction::write_vec(encode(&buf, 90)),
+            SpiTransaction::write_vec(encode(&buf2, 90)),
         ]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.set_pixel(1, 0xAA, 0xBB, 0xCC, 0xDD);
         sensor.show().unwrap();
         sensor.set_pixel(99, 0x05, 0x06, 0x07, 0x08);
@@ -187,13 +189,13 @@ mod tests {
         let stored: [u8; 4] = [200, 100, 50, 40]; // r, g, b, w for pixel 0
         let bri: u16 = 128;
         let mut expected_buf = vec![0u8; N * 4];
-        expected_buf[0] = (stored[1] as u16 * bri / 255) as u8; // g
-        expected_buf[1] = (stored[0] as u16 * bri / 255) as u8; // r
+        expected_buf[0] = (stored[0] as u16 * bri / 255) as u8; // r
+        expected_buf[1] = (stored[1] as u16 * bri / 255) as u8; // g
         expected_buf[2] = (stored[2] as u16 * bri / 255) as u8; // b
         expected_buf[3] = (stored[3] as u16 * bri / 255) as u8; // w
 
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected_buf, 24))]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected_buf, 90))]);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.set_brightness(128);
         sensor.set_pixel(0, stored[0], stored[1], stored[2], stored[3]);
         sensor.show().unwrap();
@@ -204,10 +206,10 @@ mod tests {
     fn rotate_shifts_left_by_whole_pixels() {
         // Pixels (r-only): [1,0,0,0], [2,0,0,0], [3,0,0,0]. After rotate(1):
         // [2,0,0,0], [3,0,0,0], [1,0,0,0].
-        let expected: Vec<u8> = vec![0, 2, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0];
+        let expected: Vec<u8> = vec![2, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0];
 
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected, 24))]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(encode(&expected, 90))]);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.set_pixel(0, 1, 0, 0, 0);
         sensor.set_pixel(1, 2, 0, 0, 0);
         sensor.set_pixel(2, 3, 0, 0, 0);
@@ -219,9 +221,9 @@ mod tests {
     #[test]
     fn fill_hsv_red() {
         // Pure red: h=0, s=1, v=1 -> RGB (255, 0, 0), white=0.
-        let expected = encode(&[0x00, 0xFF, 0x00, 0x00].repeat(N), 24); // GRBW
+        let expected = encode(&[0xFF, 0x00, 0x00, 0x00].repeat(N), 90); // RGBW identity
         let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
-        let mut sensor = Sk6812RgbwFull::new(spi, N);
+        let mut sensor = Ws2814Full::new(spi, N);
         sensor.fill_hsv(0.0, 1.0, 1.0).unwrap();
         sensor.inner.inner.conn.spi.done();
     }
