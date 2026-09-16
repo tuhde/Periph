@@ -129,9 +129,10 @@ _REG_BIRMSOS         = 0x292
 _REG_BWATTOS         = 0x295
 _REG_BVAROS          = 0x296
 _REG_BVAOS           = 0x297
-_REG_LAST_RWDATA_32  = 0x2FF
+_REG_LAST_RWDATA_32  = 0x3FF
+_REG_120_UNLOCK_ADDR = 0x0FE
 
-# Power-on defaults
+# Required Power-Up Register Setting
 _REG_120_UNLOCK      = 0xAD
 _REG_120_VALUE       = 0x30
 
@@ -215,6 +216,13 @@ def _s32_lsb_first(data, offset=0):
     return _twos(_u32_lsb_first(data, offset), 32)
 
 
+def _delay_ms(ms):
+    if hasattr(time, 'sleep_ms'):
+        time.sleep_ms(ms)
+    else:
+        time.sleep(ms / 1000.0)
+
+
 class ADE7953Minimal:
     """ADE7953 single-phase metering IC — minimal interface.
 
@@ -248,8 +256,8 @@ class ADE7953Minimal:
     def _init_chip(self):
         # Wait for the 100 ms power-up hold-off, then issue the mandatory
         # power-up register setting.
-        time.sleep_ms(110)
-        self._write_u8(_REG_INTERNAL_RES, _REG_120_UNLOCK)
+        _delay_ms(110)
+        self._write_u8(_REG_120_UNLOCK_ADDR, _REG_120_UNLOCK)
         self._write_u16(_REG_INTERNAL_RES, _REG_120_VALUE)
 
     def _addr_for_read(self, addr, n):
@@ -274,7 +282,7 @@ class ADE7953Minimal:
         if self._bus_type == _BUS_UART:
             # ≥ 0.1 ms gap between header and data read
             self._connection.write(self._addr_for_read(addr, n))
-            time.sleep_ms(1)
+            _delay_ms(1)
             raw = self._connection.read(n)
             return bytes(reversed(raw))
         raw = self._connection.write_read(self._addr_for_read(addr, n), n)
@@ -350,7 +358,7 @@ class ADE7953Minimal:
         Returns:
             float: Voltage in volts.
         """
-        raw = self._read_u32(_REG_VRMS)
+        raw = self._read_u24(_REG_VRMS)
         return raw * self._voltage_scale()
 
     def current(self):
@@ -359,7 +367,7 @@ class ADE7953Minimal:
         Returns:
             float: Current in amperes.
         """
-        raw = self._read_u32(_REG_IRMSA)
+        raw = self._read_u24(_REG_IRMSA)
         return raw * self._current_scale(self._current_gain_a)
 
     def active_power(self):
@@ -498,7 +506,7 @@ class ADE7953Full(ADE7953Minimal):
         Returns:
             float: Current in amperes.
         """
-        raw = self._read_u32(_REG_IRMSB)
+        raw = self._read_u24(_REG_IRMSB)
         return raw * self._current_scale(self._current_gain_b)
 
     def active_power_b(self):
@@ -917,32 +925,32 @@ class ADE7953Full(ADE7953Minimal):
 
     def peak_voltage(self):
         """Read peak voltage (does not reset)."""
-        raw = self._read_u32(_REG_VPEAK)
+        raw = self._read_u24(_REG_VPEAK)
         return raw * self._voltage_scale()
 
     def peak_current_a(self):
         """Read peak Current Channel A (does not reset)."""
-        raw = self._read_u32(_REG_IAPEAK)
+        raw = self._read_u24(_REG_IAPEAK)
         return raw * self._current_scale(self._current_gain_a)
 
     def peak_current_b(self):
         """Read peak Current Channel B (does not reset)."""
-        raw = self._read_u32(_REG_IBPEAK)
+        raw = self._read_u24(_REG_IBPEAK)
         return raw * self._current_scale(self._current_gain_b)
 
     def read_reset_peak_voltage(self):
         """Read-and-reset peak voltage."""
-        raw = self._read_u32(_REG_RSTVPEAK)
+        raw = self._read_u24(_REG_RSTVPEAK)
         return raw * self._voltage_scale()
 
     def read_reset_peak_current_a(self):
         """Read-and-reset peak Current Channel A."""
-        raw = self._read_u32(_REG_RSTIAPEAK)
+        raw = self._read_u24(_REG_RSTIAPEAK)
         return raw * self._current_scale(self._current_gain_a)
 
     def read_reset_peak_current_b(self):
         """Read-and-reset peak Current Channel B."""
-        raw = self._read_u32(_REG_RSTIBPEAK)
+        raw = self._read_u24(_REG_RSTIBPEAK)
         return raw * self._current_scale(self._current_gain_b)
 
     def configure_overvoltage(self, threshold):
@@ -1091,26 +1099,26 @@ class ADE7953Full(ADE7953Minimal):
     def enable_interrupt(self, source):
         """Enable one interrupt source."""
         if self._is_b_source(source):
-            reg = self._read_u32(_REG_IRQENB)
+            reg = self._read_u24(_REG_IRQENB)
             reg |= source
-            self._write_u32(_REG_IRQENB, reg)
+            self._write_u24(_REG_IRQENB, reg)
         else:
-            reg = self._read_u32(_REG_IRQENA)
+            reg = self._read_u24(_REG_IRQENA)
             reg |= source
-            self._write_u32(_REG_IRQENA, reg)
+            self._write_u24(_REG_IRQENA, reg)
 
     def disable_interrupt(self, source):
         """Disable one interrupt source (Reset cannot be disabled)."""
         if source == _RESET:
             return
         if self._is_b_source(source):
-            reg = self._read_u32(_REG_IRQENB)
+            reg = self._read_u24(_REG_IRQENB)
             reg &= ~source
-            self._write_u32(_REG_IRQENB, reg)
+            self._write_u24(_REG_IRQENB, reg)
         else:
-            reg = self._read_u32(_REG_IRQENA)
+            reg = self._read_u24(_REG_IRQENA)
             reg &= ~source
-            self._write_u32(_REG_IRQENA, reg)
+            self._write_u24(_REG_IRQENA, reg)
 
     def interrupt_status(self, group='a'):
         """Read the interrupt status register (does not clear).
@@ -1119,8 +1127,8 @@ class ADE7953Full(ADE7953Minimal):
             group: ``'a'`` (default) or ``'b'``.
         """
         if group == 'b':
-            return self._read_u32(_REG_IRQSTATB)
-        return self._read_u32(_REG_IRQSTATA)
+            return self._read_u24(_REG_IRQSTATB)
+        return self._read_u24(_REG_IRQSTATA)
 
     def clear_interrupts(self, group='a'):
         """Read-and-clear the interrupt status register.
@@ -1129,8 +1137,8 @@ class ADE7953Full(ADE7953Minimal):
             int: The pre-clear status value.
         """
         if group == 'b':
-            return self._read_u32(_REG_RSTIRQSTATB)
-        return self._read_u32(_REG_RSTIRQSTATA)
+            return self._read_u24(_REG_RSTIRQSTATB)
+        return self._read_u24(_REG_RSTIRQSTATA)
 
     # --- Communication, reset, miscellaneous ------------------------------
 
@@ -1178,10 +1186,10 @@ class ADE7953Full(ADE7953Minimal):
         cfg = self._read_u16(_REG_CONFIG)
         cfg |= (1 << 7)
         self._write_u16(_REG_CONFIG, cfg)
-        time.sleep_ms(110)
+        _delay_ms(110)
         # Reset clears every other register; re-apply the mandatory
         # power-up sequence.
-        self._write_u8(_REG_INTERNAL_RES, _REG_120_UNLOCK)
+        self._write_u8(_REG_120_UNLOCK_ADDR, _REG_120_UNLOCK)
         self._write_u16(_REG_INTERNAL_RES, _REG_120_VALUE)
         self._pga_a = 1
         self._pga_b = 1

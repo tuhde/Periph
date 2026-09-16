@@ -63,9 +63,9 @@ def main():
     ade.set_pga('v', 1)                                             # Write PGA voltage channel, (channel, gain) → None
     ade.set_phase_calibration('a', 0.0)                             # Write phase calibration A, (channel, delay_s) → None
                                                                      # negative delay_s advances; range ±383 × 1.117 µs
-    ade.set_gain_calibration(ADE7953Full.AWGAIN, 0x400000)          # Write active-power gain A, (register, value) → None
+    ade.set_gain_calibration(0x282, 0x400000)          # Write active-power gain A, (register, value) → None
                                                                      # 0x400000 = unity; valid range 0x200000..0x600000
-    ade.set_offset_calibration(ADE7953Full.AWATTOS, 0)             # Write active-power offset A, (register, value) → None
+    ade.set_offset_calibration(0x289, 0)             # Write active-power offset A, (register, value) → None
                                                                      # signed 24-bit offset
     print('checksum:', hex(ade.checksum()))                         # Read CRC/checksum, () → int
     ade.enable_checksum(True)                                       # Enable CRC/checksum, (enabled) → None

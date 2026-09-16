@@ -73,15 +73,15 @@ check_eq('configure_no_load last byte middle', last_write[-2], 0x76)
 check_eq('configure_no_load last byte LSB',    last_write[-1], 0x54)
 
 # --- interrupt enable/disable round-trip ---
-# IRQENA defaults to 0x100000 (Reset bit set, everything else zero).
-# Preload the default so the OR-with-ZXV produces 0x108000.
-connection.set_register(0x22C, 0x00, 0x10, 0x00, 0x00)
+# IRQENA is a 24-bit register. It defaults to 0x100000 (Reset bit set,
+# everything else zero). Preload the default so the OR-with-ZXV produces
+# 0x108000.
+connection.set_register(0x22C, 0x10, 0x00, 0x00)
 ade.enable_interrupt(ADE7953Source.ZXV)
 ena_write = connection.writes[-1]
-# The IRQENA register write payload is sent MSB-first:
-# 0x00108000 -> [0x00, 0x10, 0x80, 0x00]
-check_eq('enable ZXV: ENB byte3 MSB', ena_write[-4], 0x00)
-check_eq('enable ZXV: ENB byte2',     ena_write[-3], 0x10)
+# The IRQENA register write payload is sent MSB-first, 24-bit:
+# 0x108000 -> [0x10, 0x80, 0x00]
+check_eq('enable ZXV: ENB byte2 MSB', ena_write[-3], 0x10)
 check_eq('enable ZXV: ENB byte1',     ena_write[-2], 0x80)
 check_eq('enable ZXV: ENB byte0 LSB', ena_write[-1], 0x00)
 
