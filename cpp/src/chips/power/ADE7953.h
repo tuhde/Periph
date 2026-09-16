@@ -99,7 +99,8 @@ protected:
     static constexpr uint16_t REG_AWGAIN          = 0x282;
     static constexpr uint16_t REG_AWATTOS         = 0x289;
 
-    static constexpr uint8_t  REG_120_UNLOCK      = 0xFE;
+    static constexpr uint16_t REG_120_UNLOCK_ADDR = 0x0FE;
+    static constexpr uint8_t  REG_120_UNLOCK      = 0xAD;
     static constexpr uint16_t REG_120_VALUE        = 0x30;
 
     static constexpr float    ADC_FS_VOLTS = 0.5f / 1.41421356237f;     // 0.353553

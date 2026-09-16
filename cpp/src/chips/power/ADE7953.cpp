@@ -41,7 +41,7 @@ void ADE7953Minimal::_delayMs(uint32_t ms) {
 
 void ADE7953Minimal::_initChip() {
     _delayMs(110);
-    _writeU8(REG_INTERNAL_RES, REG_120_UNLOCK);
+    _writeU8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
     _writeU16(REG_INTERNAL_RES, REG_120_VALUE);
 }
 
@@ -400,7 +400,7 @@ void ADE7953Full::reset() {
     cfg |= (1u << 7);
     _writeU16(REG_CONFIG, cfg);
     _delayMs(110);
-    _writeU8(REG_INTERNAL_RES, REG_120_UNLOCK);
+    _writeU8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
     _writeU16(REG_INTERNAL_RES, REG_120_VALUE);
     _pga_a = 1;
     _pga_b = 1;

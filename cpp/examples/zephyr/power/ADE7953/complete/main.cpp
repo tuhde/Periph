@@ -38,9 +38,9 @@ int main(void) {
     ade.setPga('a', 1);                                              // Write PGA Channel A, (channel, gain) → none
                                                                       // gain 1, 2, 4, 8, 16 (+22 valid only for Channel A)
     ade.setPhaseCalibration('a', 0.0f);                              // Write phase calibration A, (channel, delay_s) → none
-    ade.setGainCalibration(ADE7953Minimal::REG_AWGAIN, 0x400000);    // Write active-power gain A, (reg, value) → none
+    ade.setGainCalibration(0x282, 0x400000);    // Write active-power gain A, (reg, value) → none
                                                                       // 0x400000 = unity; valid range 0x200000..0x600000
-    ade.setOffsetCalibration(ADE7953Minimal::REG_AWATTOS, 0);       // Write active-power offset A, (reg, value) → none
+    ade.setOffsetCalibration(0x289, 0);       // Write active-power offset A, (reg, value) → none
                                                                       // signed 24-bit offset
     printk("checksum: 0x%08X\n", (unsigned)ade.checksum());         // Read CRC/checksum, () → u32
     ade.enableChecksum(true);                                        // Enable CRC/checksum, (enabled) → none
