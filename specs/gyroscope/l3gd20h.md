@@ -127,11 +127,11 @@ Each chip is implemented in two stages. The Full class extends Minimal — it in
 
 ### Minimal
 
-Goal: expose 3-axis angular rate with sensible defaults. No configuration required beyond the transport.
+Goal: expose 3-axis angular rate with sensible defaults. No configuration required beyond the connection.
 
 | Operation  | Parameters      | Returns               | Notes |
 |------------|-----------------|-----------------------|-------|
-| `init`     | transport       | —                     | WHO_AM_I check; power on, all axes enabled, BDU=1; 250 ms startup wait |
+| `init`     | connection      | —                     | WHO_AM_I check; power on, all axes enabled, BDU=1; 250 ms startup wait |
 | `gyro`     | —               | `(float, float, float)` | Angular rate (x, y, z) in rad/s |
 
 **Sensible defaults baked into Minimal:**
@@ -228,6 +228,8 @@ Use the Full class: call `configure(odr=1, bw=0, full_scale=1)` (190 Hz, ±500 d
 - **ODR 760 Hz:** new data available every ~1.3 ms
 - **BDU=1:** guarantees consistent high/low byte pairing; must read both bytes before next update is latched
 
+**Conformance-checked constraint:** power-on to stable data (250 ms), via the `poweron_start` / `poweron_ready` annotation pair — see Sigrok Decoder below.
+
 ## Implementation Notes
 
 - **WHO_AM_I dual value:** L3GD20 returns `0xD4`; L3GD20H returns `0xD7`. Accept both as valid; raise a descriptive error for any other value.
@@ -240,7 +242,9 @@ Use the Full class: call `configure(odr=1, bw=0, full_scale=1)` (190 Hz, ±500 d
 
 ## Sigrok Decoder
 
-The `l3gd20h` decoder matches I²C addresses `0x6A` and `0x6B` (or any SPI CS channel). It annotates each register write with the register name and decoded field values (e.g., "CTRL_REG1: ODR=190Hz BW=50Hz PD=normal Zen=1 Yen=1 Xen=1"), and each burst read of OUT_X/Y/Z as computed angular rates in rad/s for all three axes. Temperature reads from OUT_TEMP are annotated as signed integers. STATUS_REG reads annotate the ZYXDA and ZYXOR flags. FIFO reads annotate the sample count and each sample's computed rate values.
+Decoder id `l3gd20h`, input `['i2c', 'spi']`. Matches I²C addresses `0x6A` and `0x6B`; matches SPI by protocol type. It annotates each register write with the register name and decoded field values (e.g., "CTRL_REG1: ODR=190Hz BW=50Hz PD=normal Zen=1 Yen=1 Xen=1"), and each burst read of OUT_X/Y/Z as computed angular rates in rad/s for all three axes. Temperature reads from OUT_TEMP are annotated as signed integers. STATUS_REG reads annotate the ZYXDA and ZYXOR flags. FIFO reads annotate the sample count and each sample's computed rate values.
+
+For the power-on conformance check: the CTRL_REG1 write that transitions PD 0→1 (power-down → normal mode) is annotated `poweron_start`; the first subsequent register read of any kind is annotated `poweron_ready`. The gap between them must be ≥250 ms (see `specs/gyroscope/l3gd20h_timing.conf`).
 
 ## Implementation Checklist
 
@@ -254,19 +258,41 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/gyroscope/l3gd20h_test.py` (MicroPython)
 - [ ] Tests `python/tests/gyroscope/l3gd20h_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/gyroscope/l3gd20h_test_linux.py` (Linux)
+- [ ] Unit test `python/tests/gyroscope/l3gd20h_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh`
+
+### UIFlow 1
+- [ ] Manifest `python/uiflow1/gyroscope/l3gd20h/l3gd20h.json` — `Periph` category, `#C084FC` color
+- [ ] Blocks `python/uiflow1/gyroscope/l3gd20h/l3gd20h_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [ ] Generated `python/uiflow1/gyroscope/l3gd20h/l3gd20h.m5b` — run `python/uiflow1/generate.sh`, commit the output
+
+### UIFlow 2
+- [ ] Wrapper class `python/uiflow2/gyroscope/l3gd20h/L3gd20h.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [ ] Exported `python/uiflow2/gyroscope/l3gd20h/L3gd20h.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
 - [ ] Driver `cpp/src/chips/gyroscope/L3gd20h.h` — Doxygen `/** @brief */` on every class and public method
 - [ ] Driver `cpp/src/chips/gyroscope/L3gd20h.cpp`
-- [ ] Examples `cpp/examples/L3gd20h_Minimal/L3gd20h_Minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/L3gd20h_Complete/L3gd20h_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/L3gd20h_Demo/L3gd20h_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/L3gd20h_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/L3gd20h_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/L3gd20h_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/arduino/gyroscope/L3gd20h/minimal/minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/arduino/gyroscope/L3gd20h/complete/complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/arduino/gyroscope/L3gd20h/demo/demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/linux/gyroscope/L3gd20h/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/linux/gyroscope/L3gd20h/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/linux/gyroscope/L3gd20h/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/zephyr/gyroscope/L3gd20h/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/zephyr/gyroscope/L3gd20h/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/zephyr/gyroscope/L3gd20h/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/espidf/gyroscope/L3gd20h/minimal/main/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/espidf/gyroscope/L3gd20h/complete/main/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/espidf/gyroscope/L3gd20h/demo/main/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/minimal/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/complete/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/picosdk/gyroscope/L3gd20h/demo/src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test/l3gd20h_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_linux/l3gd20h_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_zephyr/src/main.cpp` (Zephyr)
+- [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_espidf/main/main.cpp` (ESP-IDF)
+- [ ] Tests `cpp/tests/gyroscope/l3gd20h_test_picosdk/src/main.cpp` (Pico SDK)
+- [ ] Unit test `cpp/tests/gyroscope/l3gd20h_test_unit/l3gd20h_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh`
 
 ### Node.js
 - [ ] Driver `nodejs/packages/periph/src/chips/gyroscope/l3gd20h.js` — JSDoc on every class and exported method
@@ -274,6 +300,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `nodejs/packages/periph/examples/gyroscope/l3gd20h/complete.js` — Tier-1 + Tier-2
 - [ ] Examples `nodejs/packages/periph/examples/gyroscope/l3gd20h/demo.js` — Tier-1 + Tier-3
 - [ ] Tests `nodejs/tests/gyroscope/l3gd20h_test.js`
+- [ ] Unit test `nodejs/tests/gyroscope/l3gd20h_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh`
 
 ### Node-RED
 - [ ] Node runtime `nodejs/packages/node-red-contrib-periph-gyroscope/nodes/l3gd20h/l3gd20h.js`
@@ -282,11 +309,24 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Rust
 - [ ] Driver `rust/periph/src/chips/gyroscope/l3gd20h.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/l3gd20h_minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/l3gd20h_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/l3gd20h_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Examples `rust/examples/linux/gyroscope/l3gd20h/minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/linux/gyroscope/l3gd20h/complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/linux/gyroscope/l3gd20h/demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/gyroscope/l3gd20h_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/gyroscope/l3gd20h_test_esp32s3/src/main.rs` (ESP32-S3)
+- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/gyroscope/l3gd20h.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh`
+
+### Go
+- [ ] Driver `go/periph/chips/gyroscope/l3gd20h.go` — Go doc comment on every exported type and method
+- [ ] Examples `go/examples/linux/gyroscope/l3gd20h/minimal/minimal.go` — Tier-1 signature comment on every call
+- [ ] Examples `go/examples/linux/gyroscope/l3gd20h/complete/complete.go` — Tier-1 + Tier-2
+- [ ] Examples `go/examples/linux/gyroscope/l3gd20h/demo/demo.go` — Tier-1 + Tier-3
+- [ ] Examples `go/examples/tinygo/gyroscope/l3gd20h/minimal/minimal.go` — Tier-1 (TinyGo)
+- [ ] Examples `go/examples/tinygo/gyroscope/l3gd20h/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [ ] Examples `go/examples/tinygo/gyroscope/l3gd20h/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [ ] Tests `go/tests/gyroscope/l3gd20h_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [ ] Tests `go/tests/gyroscope/l3gd20h_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [ ] Unit test `go/periph/chips/gyroscope/l3gd20h_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh`
 
 ### JVM
 - [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/gyroscope/L3gd20hMinimal.java`
@@ -305,7 +345,14 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `jvm/examples/groovy/gyroscope/l3gd20h/Complete.groovy` — Tier-1 + Tier-2
 - [ ] Examples `jvm/examples/groovy/gyroscope/l3gd20h/Demo.groovy` — Tier-1 + Tier-3
 - [ ] Tests `jvm/tests/gyroscope/l3gd20h/L3gd20hTest.java`
+- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/gyroscope/L3gd20hTest.java` (JUnit)
+- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/gyroscope/L3gd20hTest.kt` (Kotest/JUnit5)
+- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/gyroscope/L3gd20hSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh`
 
 ### Sigrok
-- [ ] Decoder `sigrok/l3gd20h/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/l3gd20h/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/l3gd20h/__init__.py` — module docstring describing connection input, addresses, and what is annotated
+- [ ] Decoder `sigrok/l3gd20h/pd.py` — for the Timing Constraint above with a conformance check, emits the `poweron_start` / `poweron_ready` annotation pair; annotates all named registers / fields; produces `OUTPUT_ANN` only
+
+### Conformance
+- [ ] Checker `conformance/gyroscope/l3gd20h_conformance.py` — one check: power-on to stable data ≥250 ms, from the `poweron_start` / `poweron_ready` annotation pair; see `specs/testing_framework.md`, "Conformance Implementation"
+- [ ] Timing config `specs/gyroscope/l3gd20h_timing.conf` — machine-readable mirror of this spec's Timing Constraints section
