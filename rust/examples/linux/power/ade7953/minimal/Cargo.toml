@@ -1,0 +1,9 @@
+[package]
+name = "ade7953_minimal"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+linux-embedded-hal = "0.4"
+periph = { path = "../../../../periph" }
+embedded-hal = "1"
