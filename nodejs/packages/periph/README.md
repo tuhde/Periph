@@ -45,6 +45,7 @@ Each chip exposes two classes:
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
+| HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
