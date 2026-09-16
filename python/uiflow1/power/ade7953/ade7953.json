@@ -1,0 +1,72 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ade7953_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init ADE7953", "type": "label" },
+        { "name": "voltage_gain", "type": "label" },
+        { "name": "_voltage_gain", "type": "number" },
+        { "name": "current_gain", "type": "label" },
+        { "name": "_current_gain", "type": "number" }
+      ]
+    },
+    {
+      "name": "ade7953_voltage",
+      "type": "value",
+      "params": [{ "name": "ADE7953 voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_current",
+      "type": "value",
+      "params": [{ "name": "ADE7953 current Channel A (A)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_current_b",
+      "type": "value",
+      "params": [{ "name": "ADE7953 current Channel B (A)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_active_power",
+      "type": "value",
+      "params": [{ "name": "ADE7953 active power (W)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_active_energy",
+      "type": "value",
+      "params": [{ "name": "ADE7953 active energy (Wh)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_reactive_power",
+      "type": "value",
+      "params": [{ "name": "ADE7953 reactive power (VAR)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_apparent_power",
+      "type": "value",
+      "params": [{ "name": "ADE7953 apparent power (VA)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_power_factor",
+      "type": "value",
+      "params": [{ "name": "ADE7953 power factor", "type": "label" }]
+    },
+    {
+      "name": "ade7953_line_frequency",
+      "type": "value",
+      "params": [{ "name": "ADE7953 line frequency (Hz)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_line_period",
+      "type": "value",
+      "params": [{ "name": "ADE7953 line period (s)", "type": "label" }]
+    },
+    {
+      "name": "ade7953_waveform_sample",
+      "type": "value",
+      "params": [{ "name": "ADE7953 waveform sample (dict)", "type": "label" }]
+    }
+  ]
+}

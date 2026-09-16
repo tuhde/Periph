@@ -1,0 +1,1 @@
+_periph_ade7953.line_period()
