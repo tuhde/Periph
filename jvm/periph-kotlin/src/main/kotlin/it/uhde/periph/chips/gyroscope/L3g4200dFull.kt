@@ -37,7 +37,7 @@ open class L3g4200dFull @JvmOverloads constructor(
         if (fullScale != FS_250_DPS && fullScale != FS_500_DPS && fullScale != FS_2000_DPS) return
         this.odr = odr and 0x3
         this.bw = bandwidth and 0x3
-        this.fullScale = fullScale
+        this.fullScaleDps = fullScale
         val ctrl1 = CTRL_REG1_DEFAULT or ((this.odr and 0x3) shl 6) or ((this.bw and 0x3) shl 4)
         writeReg(REG_CTRL_REG1, ctrl1)
         val fsBits = when (fullScale) {
@@ -51,7 +51,7 @@ open class L3g4200dFull @JvmOverloads constructor(
     /** Update the full-scale range. */
     fun setFullScale(fullScale: Int) {
         if (fullScale != FS_250_DPS && fullScale != FS_500_DPS && fullScale != FS_2000_DPS) return
-        this.fullScale = fullScale
+        this.fullScaleDps = fullScale
         val fsBits = when (fullScale) {
             FS_250_DPS -> 0
             FS_500_DPS -> 1
@@ -135,7 +135,7 @@ open class L3g4200dFull @JvmOverloads constructor(
     fun readFifo(maxSamples: Int = 32): List<Triple<Float, Float, Float>> {
         val n = minOf(maxSamples, fifoSamples())
         if (n == 0) return emptyList()
-        val sens = sensitivity(fullScale)
+        val sens = sensitivity(fullScaleDps)
         val k = (Math.PI / 180.0).toFloat()
         val buf = readReg(REG_OUT_X_L, n * 6)
         val out = ArrayList<Triple<Float, Float, Float>>(n)
@@ -195,7 +195,7 @@ open class L3g4200dFull @JvmOverloads constructor(
      * Set the interrupt threshold for one axis.
      */
     fun setThreshold(axis: Char, thresholdDps: Float) {
-        val raw = (thresholdDps / sensitivity(fullScale)).toInt() and 0x7FFF
+        val raw = (thresholdDps / sensitivity(fullScaleDps)).toInt() and 0x7FFF
         val (hiReg, loReg) = when (axis) {
             'x' -> REG_INT1_THS_XH to REG_INT1_THS_XL
             'y' -> REG_INT1_THS_YH to REG_INT1_THS_YL

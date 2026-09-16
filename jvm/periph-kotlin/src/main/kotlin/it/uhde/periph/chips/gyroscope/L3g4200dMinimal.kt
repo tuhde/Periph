@@ -22,7 +22,7 @@ open class L3g4200dMinimal @JvmOverloads constructor(
     protected val connection: Connection,
     protected val spi: Boolean = false,
 ) {
-    protected var fullScale: Int = 250
+    protected var fullScaleDps: Int = 250
 
     init {
         val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
@@ -52,7 +52,7 @@ open class L3g4200dMinimal @JvmOverloads constructor(
         } else {
             connection.writeRead(byteArrayOf((REG_OUT_X_L or 0x80).toByte()), 6)
         }
-        val sens = sensitivity(fullScale)
+        val sens = sensitivity(fullScaleDps)
         val k = (Math.PI / 180.0).toFloat()
         val x = int16Le(raw, 0) * sens * k
         val y = int16Le(raw, 2) * sens * k

@@ -1,5 +1,7 @@
 package it.uhde.periph.chips.gyroscope;
 
+import it.uhde.periph.connection.Connection;
+
 import java.io.IOException;
 
 /**

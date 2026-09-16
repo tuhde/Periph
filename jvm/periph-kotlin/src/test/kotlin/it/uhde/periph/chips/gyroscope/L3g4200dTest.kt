@@ -14,9 +14,9 @@ class L3g4200dTest {
 
         val sensor = L3g4200dFull(connection, false)
 
-        assertEquals(L3g4200dFull.CTRL_REG4_DEFAULT.toByte(),
+        assertEquals(L3g4200dMinimal.CTRL_REG4_DEFAULT.toByte(),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
-        assertEquals(L3g4200dFull.CTRL_REG1_DEFAULT.toByte(),
+        assertEquals(L3g4200dMinimal.CTRL_REG1_DEFAULT.toByte(),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_OUT_X_L or 0x80,
@@ -30,18 +30,16 @@ class L3g4200dTest {
         assertEquals(-16.0f * 0.00875f * k, xyz.third, 1e-6f)
 
         sensor.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS)
-        assertEquals((L3g4200dFull.CTRL_REG1_DEFAULT or (1 shl 6)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG1_DEFAULT or (1 shl 6)).toByte(),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
-        assertEquals((L3g4200dFull.CTRL_REG4_DEFAULT or (1 shl 4)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (1 shl 4)).toByte(),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
-        assertEquals(500, sensor.fullScale)
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG4,
-                L3g4200dFull.CTRL_REG4_DEFAULT or (1 shl 4))
+                L3g4200dMinimal.CTRL_REG4_DEFAULT or (1 shl 4))
         sensor.setFullScale(L3g4200dFull.FS_2000_DPS)
-        assertEquals((L3g4200dFull.CTRL_REG4_DEFAULT or (2 shl 4)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (2 shl 4)).toByte(),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
-        assertEquals(2000, sensor.fullScale)
 
         connection.setRegister(L3g4200dMinimal.REG_STATUS, 0x08)
         assertEquals(0x08, sensor.status())

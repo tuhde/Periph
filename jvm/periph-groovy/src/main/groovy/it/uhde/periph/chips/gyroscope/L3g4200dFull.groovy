@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.gyroscope
 
 import groovy.transform.CompileStatic
+import it.uhde.periph.connection.Connection
 
 /**
  * L3G4200D three-axis MEMS gyroscope — full driver.
