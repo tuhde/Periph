@@ -71,10 +71,26 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                       uint8_t* buf, size_t buf_len) override {
         _writes.emplace_back(data, data + data_len);
-        uint8_t reg = data[0];
-        for (size_t i = 0; i < buf_len; i++) {
-            auto it = _registers.find(static_cast<uint8_t>(reg + i));
-            buf[i] = it != _registers.end() ? it->second : 0;
+        // ADE7953 (and similar chips with a 16-bit register address space)
+        // writes a 2-byte register pointer as the leading phase; the
+        // standard 8-bit-register chips (INA226, BMP280, etc.) write a
+        // single byte. Treat a 2-byte leading address as a big-endian
+        // 16-bit register address when the chip is using one — the mock
+        // uses an 8-bit index in either case but picks the right byte to
+        // recover the full register.
+        uint16_t reg;
+        if (data_len >= 2 && (data[0] != 0 || data[1] >= 0x80)) {
+            reg = (uint16_t(data[0]) << 8) | uint16_t(data[1]);
+            for (size_t i = 0; i < buf_len; i++) {
+                auto it = _registers.find(uint8_t(reg + i));
+                buf[i] = it != _registers.end() ? it->second : 0;
+            }
+        } else {
+            uint8_t r8 = data[0];
+            for (size_t i = 0; i < buf_len; i++) {
+                auto it = _registers.find(static_cast<uint8_t>(r8 + i));
+                buf[i] = it != _registers.end() ? it->second : 0;
+            }
         }
     }
 
