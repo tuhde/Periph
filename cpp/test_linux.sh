@@ -67,6 +67,19 @@ CHIP_SRC=$(find "$SRC_DIR/chips/$CATEGORY" -maxdepth 1 -iname "${CHIP}.cpp" | he
 # levels compile a standalone .cpp translation unit and do require CHIP_SRC,
 # so they check for it themselves (see run_hil/run_conformance).
 
+# CHIP_BASE_SRCS: a thin chip driver (e.g. WS2812B, SK6812RGBW, WS2814) may
+# extend a shared private base class (e.g. NeoPixelRGBBase) implemented in
+# its own translation unit — pull those in too by scanning the chip's own
+# header for #include "*Base.h" and mapping to the sibling *Base.cpp.
+CHIP_HDR=$(find "$SRC_DIR/chips/$CATEGORY" -maxdepth 1 -iname "${CHIP}.h" | head -1)
+CHIP_BASE_SRCS=()
+if [ -n "$CHIP_HDR" ]; then
+    while IFS= read -r base_hdr; do
+        base_cpp="$SRC_DIR/chips/$CATEGORY/${base_hdr%.h}.cpp"
+        [ -f "$base_cpp" ] && CHIP_BASE_SRCS+=("$base_cpp")
+    done < <(grep -oP '#include "\K[A-Za-z0-9_]+Base\.h(?=")' "$CHIP_HDR" 2>/dev/null)
+fi
+
 # --- helpers -----------------------------------------------------------------
 
 # find_tool NAME: print the first match of NAME on PATH, else /usr/sbin/NAME
@@ -170,6 +183,7 @@ run_unit() {
     echo "=== [unit] Compiling $TARGET for Linux GCC ==="
     local extra_srcs=()
     [ -n "$CHIP_SRC" ] && extra_srcs+=("$CHIP_SRC")
+    extra_srcs+=("${CHIP_BASE_SRCS[@]}")
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
         -I"$SRC_DIR/chips/$CATEGORY" \
@@ -205,7 +219,7 @@ run_hil() {
         -I"$SRC_DIR/chips/$CATEGORY" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \
-        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" \
+        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" "${CHIP_BASE_SRCS[@]}" \
         -o "$bin"
     echo "Compile OK"
 
@@ -243,7 +257,7 @@ run_conformance() {
         -I"$SRC_DIR/chips/$CATEGORY" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \
-        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" \
+        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" "${CHIP_BASE_SRCS[@]}" \
         -o "$bin"
     echo "Compile OK"
 
