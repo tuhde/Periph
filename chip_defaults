@@ -2,6 +2,7 @@
 # Format: <chip_name>  <hex_address>
 # Scripts use this when I2C_ADDR is not set in testconfig.
 
+bmp085   0x77
 bmp180   0x77
 bmp280   0x76
 bmp384   0x76
