@@ -3,9 +3,9 @@ package it.uhde.periph.chips.led
 import it.uhde.periph.connection.Connection
 
 /**
- * SK6812RGBW full interface — extends the shared [NeoPixelRGBWFull] Java
- * base with GRBW wire order and this chip's 24-byte (~80 µs) extended
- * reset.
+ * WS2814 full interface — extends the shared [NeoPixelRGBWFull] Java base
+ * with identity RGBW wire order (no reorder) and this chip's 90-byte
+ * (~300 µs) extended reset.
  *
  * Adds individual pixel addressing, explicit `show`, global brightness
  * scaling (0–255), pixel buffer rotation, and HSV fill. Call `setPixel`
@@ -16,11 +16,11 @@ import it.uhde.periph.connection.Connection
  * @param connection configured NeoPixel connection
  * @param n number of pixels in the strip (≥1)
  */
-class SK6812RGBWFull(connection: Connection, n: Int) :
+class WS2814Full(connection: Connection, n: Int) :
     NeoPixelRGBWFull(connection, n, CHANNEL_ORDER, RESET_BYTES) {
 
     companion object {
-        private val CHANNEL_ORDER = intArrayOf(1, 0, 2, 3) // GRBW: wire[0]=G, wire[1]=R, wire[2]=B, wire[3]=W
-        private const val RESET_BYTES = 24                  // ~80us extended reset
+        private val CHANNEL_ORDER = intArrayOf(0, 1, 2, 3) // RGBW: identity, no reorder
+        private const val RESET_BYTES = 90                  // ~300us extended reset (>=280us required)
     }
 }

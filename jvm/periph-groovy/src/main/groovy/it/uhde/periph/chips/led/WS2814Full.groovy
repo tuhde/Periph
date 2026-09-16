@@ -4,9 +4,9 @@ import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Connection
 
 /**
- * SK6812RGBW full interface — extends the shared {@link NeoPixelRGBWFull}
- * Java base with GRBW wire order and this chip's 24-byte (~80 µs) extended
- * reset.
+ * WS2814 full interface — extends the shared {@link NeoPixelRGBWFull} Java
+ * base with identity RGBW wire order (no reorder) and this chip's 90-byte
+ * (~300 µs) extended reset.
  *
  * <p>Adds individual pixel addressing, explicit {@link #show()}, global brightness
  * scaling (0–255), pixel buffer rotation, and HSV fill. Call {@link #setPixel}
@@ -15,10 +15,10 @@ import it.uhde.periph.connection.Connection
  * all-same-colour updates (fills and transmits immediately).
  */
 @CompileStatic
-class SK6812RGBWFull extends NeoPixelRGBWFull {
+class WS2814Full extends NeoPixelRGBWFull {
 
-    private static final int[] CHANNEL_ORDER = [1, 0, 2, 3] as int[] // GRBW: wire[0]=G, wire[1]=R, wire[2]=B, wire[3]=W
-    private static final int RESET_BYTES = 24                        // ~80us extended reset
+    private static final int[] CHANNEL_ORDER = [0, 1, 2, 3] as int[] // RGBW: identity, no reorder
+    private static final int RESET_BYTES = 90                        // ~300us extended reset (>=280us required)
 
     /**
      * Construct the full driver.
@@ -26,7 +26,7 @@ class SK6812RGBWFull extends NeoPixelRGBWFull {
      * @param connection configured NeoPixel connection
      * @param n number of pixels in the strip (≥1)
      */
-    SK6812RGBWFull(Connection connection, int n) {
+    WS2814Full(Connection connection, int n) {
         super(connection, n, CHANNEL_ORDER, RESET_BYTES)
     }
 }
