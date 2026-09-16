@@ -1,0 +1,50 @@
+[
+    {
+        "id": "tab-ade7953-1",
+        "type": "ui_tab",
+        "name": "ADE7953 Demo",
+        "icon": "bolt",
+        "order": 1,
+        "info": "This flow demonstrates the ADE7953 single-phase multifunction metering IC.\n\n**Continuous single-phase metering**: an inject node fires once per second into the periph-ade7953 node, which emits voltage, current, active power, and cumulative active energy for Current Channel A. A function node formats the four values as one line; a debug node prints them to the sidebar — the user sees a live single-phase energy-monitoring feed, with active energy visibly climbing over the session.\n\nThe chip is wired to the host over I²C at the chip's fixed 7-bit address 0x38; the calibration constants (voltage_gain = 251.0 V/V, current_gain = 30.0 A/V) are placeholders — replace them with the actual values for the external voltage divider and current sensor on your PCB."
+    },
+    {
+        "id": "ade7953-device-1",
+        "type": "periph-ade7953",
+        "name": "ADE7953 @ i2c-1",
+        "bus": "1",
+        "addr": "0x38",
+        "voltageGain": "251.0",
+        "currentGain": "30.0",
+        "wires": [["debug-ade7953-1", "format-ade7953-1"]]
+    },
+    {
+        "id": "format-ade7953-1",
+        "type": "function",
+        "name": "Format readings",
+        "func": "const p = msg.payload;\nmsg.payload = 'V=' + p.voltage.toFixed(2) + 'V  I=' + p.current.toFixed(3) + 'A  P=' + p.active_power.toFixed(2) + 'W  E=' + p.active_energy.toFixed(4) + 'Wh';\nreturn msg;"
+    },
+    {
+        "id": "debug-ade7953-1",
+        "type": "debug",
+        "name": "Raw measurements",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg"
+    },
+    {
+        "id": "inject-ade7953-1",
+        "type": "inject",
+        "name": "Every 1 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "wires": [["ade7953-device-1"]]
+    }
+]

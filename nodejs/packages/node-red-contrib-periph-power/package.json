@@ -15,7 +15,8 @@
     "nodes": {
       "ina226": "nodes/ina226/ina226.js",
       "ina219": "nodes/ina219/ina219.js",
-      "ina3221": "nodes/ina3221/ina3221.js"
+      "ina3221": "nodes/ina3221/ina3221.js",
+      "ade7953": "nodes/ade7953/ade7953.js"
     }
   },
   "dependencies": {

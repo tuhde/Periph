@@ -1,0 +1,52 @@
+<script type="text/html" data-help-name="periph-ade7953">
+    <p>Reads bus voltage, load current, active power, and accumulated active
+       energy from an ADE7953 single-phase multifunction metering IC.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement on Current Channel A.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Bus voltage in V.</dd>
+        <dt>payload.current <span class="property-type">number</span></dt>
+        <dd>Current Channel A RMS current in A.</dd>
+        <dt>payload.active_power <span class="property-type">number</span></dt>
+        <dd>Active power in W (signed; negative = power flowing back to source).</dd>
+        <dt>payload.active_energy <span class="property-type">number</span></dt>
+        <dd>Active energy in Wh accumulated since the previous call (RSTREAD=1).</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip's fixed 7-bit address
+       (default <code>0x38</code>), then the calibration constants for your
+       external front end. <code>voltage_gain</code> is real volts at the
+       mains per volt at VP–VN (inverse of the external voltage divider
+       ratio); <code>current_gain</code> is real amperes per volt at IAP–IAN
+       (transconductance of the CT + burden, shunt or Rogowski front end).
+       Both must be supplied at construction — there is no universal default
+       because they depend on the external sensor network.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ade7953', {
+        category: 'Periph',
+        color: '#C084FC',
+        defaults: {
+            name: { value: '' },
+            bus: { value: '1', validate: RED.validators.number() },
+            addr: { value: '0x38', validate: RED.validators.regex(/^0x[0-9a-fA-F]{1,2}$/) },
+            voltageGain: { value: '251.0', validate: RED.validators.number() },
+            currentGain: { value: '30.0', validate: RED.validators.number() },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'light.png',
+        label: function() {
+            return this.name || 'ADE7953';
+        },
+        labelStyle: function() {
+            return this.name ? 'node_label_italic' : '';
+        }
+    });
+</script>

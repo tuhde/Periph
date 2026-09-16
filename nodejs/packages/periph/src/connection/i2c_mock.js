@@ -15,12 +15,22 @@
  * Every `write()` call (register writes and plain command writes alike) is
  * appended to `writes` for assertions, and 2+ byte writes are also applied
  * to `registers` so a later `writeRead` sees them.
+ *
+ * The register address is assumed to be a single byte (the first byte sent)
+ * unless `setAddressWidth` is called with a wider value — needed by chips
+ * such as the ADE7953 that address registers with 2 bytes.
  */
 class I2CConnectionMock {
     constructor() {
         this.registers = new Map();
         this.writes = [];
         this._readQueue = [];
+        this._addressWidth = 1;
+    }
+
+    /** Set the register address width in bytes (default 1). */
+    setAddressWidth(addressWidth) {
+        this._addressWidth = addressWidth;
     }
 
     /** Preload consecutive register bytes starting at `reg`. */
@@ -35,13 +45,21 @@ class I2CConnectionMock {
         this._readQueue.push(Buffer.from(data));
     }
 
+    _readAddress(buf) {
+        let reg = 0;
+        for (let i = 0; i < this._addressWidth; i++) {
+            reg = (reg << 8) | buf[i];
+        }
+        return reg;
+    }
+
     async write(data) {
         const buf = Buffer.from(data);
         this.writes.push(buf);
-        if (buf.length >= 2) {
-            const reg = buf[0];
-            for (let i = 1; i < buf.length; i++) {
-                this.registers.set(reg + i - 1, buf[i]);
+        if (buf.length > this._addressWidth) {
+            const reg = this._readAddress(buf);
+            for (let i = this._addressWidth; i < buf.length; i++) {
+                this.registers.set(reg + i - this._addressWidth, buf[i]);
             }
         }
     }
@@ -59,7 +77,7 @@ class I2CConnectionMock {
     async writeRead(data, n) {
         const buf = Buffer.from(data);
         this.writes.push(buf);
-        const reg = buf[0];
+        const reg = this._readAddress(buf);
         const out = Buffer.alloc(n);
         for (let i = 0; i < n; i++) {
             out[i] = this.registers.get(reg + i) || 0;
