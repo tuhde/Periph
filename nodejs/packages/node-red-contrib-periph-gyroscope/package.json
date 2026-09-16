@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "l3g4200d": "nodes/l3g4200d/l3g4200d.js"
+    }
   },
   "dependencies": {
     "periph": "*"

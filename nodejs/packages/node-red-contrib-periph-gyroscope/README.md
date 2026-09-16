@@ -14,7 +14,10 @@ npm install node-red-contrib-periph-gyroscope
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `l3g4200d-device` | config | Bus configuration for a L3G4200D |
+| `periph-l3g4200d` | input | Reads angular rate on the X, Y, and Z axes from an L3G4200D MEMS gyroscope. |
 
 ## Links
 
