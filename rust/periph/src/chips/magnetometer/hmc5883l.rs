@@ -105,6 +105,22 @@ impl<I2C: I2c> Hmc5883lMinimal<I2C> {
     }
 }
 
+/// Error type for [`Hmc5883lFull`] configuration methods: wraps the underlying
+/// bus error plus out-of-range argument validation.
+#[derive(Debug)]
+pub enum Hmc5883lError<E> {
+    /// The underlying I²C bus returned an error.
+    Bus(E),
+    /// An argument was outside its valid range.
+    InvalidArgument,
+}
+
+impl<E> From<E> for Hmc5883lError<E> {
+    fn from(e: E) -> Self {
+        Hmc5883lError::Bus(e)
+    }
+}
+
 /// HMC5883L full driver — extends [`Hmc5883lMinimal`] with complete chip functionality.
 ///
 /// Adds configuration, single-shot mode, self-test, identification, and status access.
@@ -132,13 +148,13 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
     /// * `odr` — Data output rate in Hz (continuous mode). Valid: 0.75, 1.5, 3, 7.5, 15, 30, 75.
     /// * `averaging` — Samples averaged per output. Valid: 1, 2, 4, 8.
     /// * `gain` — Gain index 0–7.
-    pub fn configure(&mut self, odr: f32, averaging: u8, gain: u8) -> Result<(), I2C::Error> {
+    pub fn configure(&mut self, odr: f32, averaging: u8, gain: u8) -> Result<(), Hmc5883lError<I2C::Error>> {
         let ma = match averaging {
             1 => 0b00,
             2 => 0b01,
             4 => 0b10,
             8 => 0b11,
-            _ => return Err(I2C::Error::kind(embedded_hal::i2c::ErrorKind::Other)),
+            _ => return Err(Hmc5883lError::InvalidArgument),
         };
 
         let do_bits = if (odr - 0.75).abs() < 0.01 { 0b000 }
@@ -148,10 +164,10 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
         else if (odr - 15.0).abs() < 0.01 { 0b100 }
         else if (odr - 30.0).abs() < 0.01 { 0b101 }
         else if (odr - 75.0).abs() < 0.01 { 0b110 }
-        else { return Err(I2C::Error::kind(embedded_hal::i2c::ErrorKind::Other)) };
+        else { return Err(Hmc5883lError::InvalidArgument) };
 
         if gain > 7 {
-            return Err(I2C::Error::kind(embedded_hal::i2c::ErrorKind::Other));
+            return Err(Hmc5883lError::InvalidArgument);
         }
 
         let config_a = (ma << 5) | (do_bits << 2);
@@ -169,9 +185,9 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
     ///
     /// # Arguments
     /// * `gain` — Gain index 0–7.
-    pub fn set_gain(&mut self, gain: u8) -> Result<(), I2C::Error> {
+    pub fn set_gain(&mut self, gain: u8) -> Result<(), Hmc5883lError<I2C::Error>> {
         if gain > 7 {
-            return Err(I2C::Error::kind(embedded_hal::i2c::ErrorKind::Other));
+            return Err(Hmc5883lError::InvalidArgument);
         }
         self.inner.write_reg8(REG_CONFIG_B, gain << 5)?;
         self.inner.gain = gain;
@@ -183,11 +199,12 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
     ///
     /// # Arguments
     /// * `mode` — `0` = continuous, `1` = single, `2` = idle.
-    pub fn set_mode(&mut self, mode: u8) -> Result<(), I2C::Error> {
+    pub fn set_mode(&mut self, mode: u8) -> Result<(), Hmc5883lError<I2C::Error>> {
         if mode > 2 {
-            return Err(I2C::Error::kind(embedded_hal::i2c::ErrorKind::Other));
+            return Err(Hmc5883lError::InvalidArgument);
         }
-        self.inner.write_reg8(REG_MODE, mode)
+        self.inner.write_reg8(REG_MODE, mode)?;
+        Ok(())
     }
 
     /// Check if new measurement data is ready.

@@ -1,0 +1,404 @@
+{
+  "category": "HMC5883L",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HMC5883L_LANGUAGES = {\n  \"CUSTOM_HMC5883L_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_HMC5883L_FIELD_X\": {\n    \"en\": \"%1 magnetic field X (T)\"\n  },\n  \"CUSTOM_HMC5883L_FIELD_Y\": {\n    \"en\": \"%1 magnetic field Y (T)\"\n  },\n  \"CUSTOM_HMC5883L_FIELD_Z\": {\n    \"en\": \"%1 magnetic field Z (T)\"\n  },\n  \"CUSTOM_HMC5883L_CONFIGURE\": {\n    \"en\": \"%1 configure ODR %2 averaging %3 gain %4\"\n  },\n  \"CUSTOM_HMC5883L_SET_GAIN\": {\n    \"en\": \"%1 set gain %2\"\n  },\n  \"CUSTOM_HMC5883L_SET_MODE\": {\n    \"en\": \"%1 set mode %2\"\n  },\n  \"CUSTOM_HMC5883L_DATA_READY\": {\n    \"en\": \"%1 data ready?\"\n  },\n  \"CUSTOM_HMC5883L_STATUS\": {\n    \"en\": \"%1 status register (raw)\"\n  },\n  \"CUSTOM_HMC5883L_SINGLE_MEASUREMENT_X\": {\n    \"en\": \"%1 single measurement X (T)\"\n  },\n  \"CUSTOM_HMC5883L_SINGLE_MEASUREMENT_Y\": {\n    \"en\": \"%1 single measurement Y (T)\"\n  },\n  \"CUSTOM_HMC5883L_SINGLE_MEASUREMENT_Z\": {\n    \"en\": \"%1 single measurement Z (T)\"\n  },\n  \"CUSTOM_HMC5883L_IDENTIFY_ID_A\": {\n    \"en\": \"%1 identification byte A\"\n  },\n  \"CUSTOM_HMC5883L_IDENTIFY_ID_B\": {\n    \"en\": \"%1 identification byte B\"\n  },\n  \"CUSTOM_HMC5883L_IDENTIFY_ID_C\": {\n    \"en\": \"%1 identification byte C\"\n  },\n  \"CUSTOM_HMC5883L_SELF_TEST_X\": {\n    \"en\": \"%1 self-test X (T) positive bias %2\"\n  },\n  \"CUSTOM_HMC5883L_SELF_TEST_Y\": {\n    \"en\": \"%1 self-test Y (T) positive bias %2\"\n  },\n  \"CUSTOM_HMC5883L_SELF_TEST_Z\": {\n    \"en\": \"%1 self-test Z (T) positive bias %2\"\n  }\n};\n\nconst initType = 'custom_hmc5883l_init';\nBlockly.BlockRegExpList['custom_hmc5883l'] = {\n  regexp: new RegExp(/^custom_hmc5883l_/),\n  code: \"from HMC5883L import HMC5883L\",\n  initBlockType: initType,\n  categoryId: 'custom_hmc5883l',\n}\nBlockly.utils.registerLanguages(CUSTOM_HMC5883L_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HMC5883L_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HMC5883L = 'HMC5883L'\n\nBlockly.utils.getcustom_hmc5883lOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hmc5883l_0', 'hmc5883l_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hmc5883l_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hmc5883lOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hmc5883l_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HMC5883L(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_hmc5883l_field_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_FIELD_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_field_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.field_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_field_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_FIELD_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_field_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.field_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_field_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_FIELD_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_field_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.field_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_configure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_CONFIGURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'odr'\n        },\n        {\n          'type': 'input_value',\n          'name': 'averaging'\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_configure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var odr = Blockly.Python.valueToCode(block, 'odr', Blockly.Python.ORDER_FUNCTION_CALL);\n  var averaging = Blockly.Python.valueToCode(block, 'averaging', Blockly.Python.ORDER_FUNCTION_CALL);\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure(${odr}, ${averaging}, ${gain})\\n`\n}\n\nBlockly.Blocks[\"custom_hmc5883l_set_gain\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SET_GAIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_set_gain\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain(${gain})\\n`\n}\n\nBlockly.Blocks[\"custom_hmc5883l_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_hmc5883l_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_single_measurement_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SINGLE_MEASUREMENT_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_single_measurement_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.single_measurement_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_single_measurement_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SINGLE_MEASUREMENT_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_single_measurement_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.single_measurement_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_single_measurement_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SINGLE_MEASUREMENT_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_single_measurement_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.single_measurement_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_identify_id_a\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_IDENTIFY_ID_A,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_identify_id_a\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.identify_id_a()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_identify_id_b\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_IDENTIFY_ID_B,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_identify_id_b\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.identify_id_b()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_identify_id_c\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_IDENTIFY_ID_C,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_identify_id_c\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.identify_id_c()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_self_test_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SELF_TEST_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'positive'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_self_test_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var positive = Blockly.Python.valueToCode(block, 'positive', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.self_test_x(${positive})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_self_test_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SELF_TEST_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'positive'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_self_test_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var positive = Blockly.Python.valueToCode(block, 'positive', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.self_test_y(${positive})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hmc5883l_self_test_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HMC5883L_SELF_TEST_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hmc5883lOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'positive'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hmc5883l_self_test_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var positive = Blockly.Python.valueToCode(block, 'positive', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.self_test_z(${positive})`, Blockly.Python.ORDER_NONE]\n}\n\n",
+    "toolbox": "\n<category name=\"HMC5883L\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hmc5883l\"><title text=\"HMC5883L\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hmc5883l_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_field_x\"/><block type=\"custom_hmc5883l_field_y\"/><block type=\"custom_hmc5883l_field_z\"/><block type=\"custom_hmc5883l_configure\">\n  <value name=\"odr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">15</field>\n    </shadow>\n  </value>\n  <value name=\"averaging\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">8</field>\n    </shadow>\n  </value>\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_set_gain\">\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_data_ready\"/><block type=\"custom_hmc5883l_status\"/><block type=\"custom_hmc5883l_single_measurement_x\"/><block type=\"custom_hmc5883l_single_measurement_y\"/><block type=\"custom_hmc5883l_single_measurement_z\"/><block type=\"custom_hmc5883l_identify_id_a\"/><block type=\"custom_hmc5883l_identify_id_b\"/><block type=\"custom_hmc5883l_identify_id_c\"/><block type=\"custom_hmc5883l_self_test_x\">\n  <value name=\"positive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_self_test_y\">\n  <value name=\"positive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hmc5883l_self_test_z\">\n  <value name=\"positive\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_hmc5883l",
+    "block_type": [
+      "custom_hmc5883l___init__",
+      "custom_hmc5883l_field_x",
+      "custom_hmc5883l_field_y",
+      "custom_hmc5883l_field_z",
+      "custom_hmc5883l_configure",
+      "custom_hmc5883l_set_gain",
+      "custom_hmc5883l_set_mode",
+      "custom_hmc5883l_data_ready",
+      "custom_hmc5883l_status",
+      "custom_hmc5883l_single_measurement_x",
+      "custom_hmc5883l_single_measurement_y",
+      "custom_hmc5883l_single_measurement_z",
+      "custom_hmc5883l_identify_id_a",
+      "custom_hmc5883l_identify_id_b",
+      "custom_hmc5883l_identify_id_c",
+      "custom_hmc5883l_self_test_x",
+      "custom_hmc5883l_self_test_y",
+      "custom_hmc5883l_self_test_z"
+    ]
+  },
+  "data": {
+    "name": "HMC5883L",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HMC5883L",
+      "time": "2026-09-16",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.magnetometer.hmc5883l import HMC5883LFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "30",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = HMC5883LFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "field_x",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field X (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.magnetic_field()[0]",
+        "ast_return": {
+          "code": "self._driver.magnetic_field()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "field_y",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field Y (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.magnetic_field()[1]",
+        "ast_return": {
+          "code": "self._driver.magnetic_field()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "field_z",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field Z (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.magnetic_field()[2]",
+        "ast_return": {
+          "code": "self._driver.magnetic_field()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure",
+        "note": {},
+        "label": {
+          "en": "%1 configure ODR %2 averaging %3 gain %4"
+        },
+        "params": [
+          {
+            "name": "odr",
+            "type": "float",
+            "default": "15",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "averaging",
+            "type": "int",
+            "default": "8",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure(odr, averaging, gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain",
+        "note": {},
+        "label": {
+          "en": "%1 set gain %2"
+        },
+        "params": [
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain(gain)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(('continuous', 'single', 'idle')[mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "status",
+        "note": {},
+        "label": {
+          "en": "%1 status register (raw)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.status()",
+        "ast_return": {
+          "code": "self._driver.status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "single_measurement_x",
+        "note": {},
+        "label": {
+          "en": "%1 single measurement X (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.single_measurement()[0]",
+        "ast_return": {
+          "code": "self._driver.single_measurement()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "single_measurement_y",
+        "note": {},
+        "label": {
+          "en": "%1 single measurement Y (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.single_measurement()[1]",
+        "ast_return": {
+          "code": "self._driver.single_measurement()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "single_measurement_z",
+        "note": {},
+        "label": {
+          "en": "%1 single measurement Z (T)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.single_measurement()[2]",
+        "ast_return": {
+          "code": "self._driver.single_measurement()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "identify_id_a",
+        "note": {},
+        "label": {
+          "en": "%1 identification byte A"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.identify()[0]",
+        "ast_return": {
+          "code": "self._driver.identify()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "identify_id_b",
+        "note": {},
+        "label": {
+          "en": "%1 identification byte B"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.identify()[1]",
+        "ast_return": {
+          "code": "self._driver.identify()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "identify_id_c",
+        "note": {},
+        "label": {
+          "en": "%1 identification byte C"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.identify()[2]",
+        "ast_return": {
+          "code": "self._driver.identify()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_x",
+        "note": {},
+        "label": {
+          "en": "%1 self-test X (T) positive bias %2"
+        },
+        "params": [
+          {
+            "name": "positive",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.self_test(bool(positive))[0]",
+        "ast_return": {
+          "code": "self._driver.self_test(bool(positive))[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_y",
+        "note": {},
+        "label": {
+          "en": "%1 self-test Y (T) positive bias %2"
+        },
+        "params": [
+          {
+            "name": "positive",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.self_test(bool(positive))[1]",
+        "ast_return": {
+          "code": "self._driver.self_test(bool(positive))[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_test_z",
+        "note": {},
+        "label": {
+          "en": "%1 self-test Z (T) positive bias %2"
+        },
+        "params": [
+          {
+            "name": "positive",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.self_test(bool(positive))[2]",
+        "ast_return": {
+          "code": "self._driver.self_test(bool(positive))[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hmc5883l"
+  },
+  "pyCode": "\"\"\"\nfile     HMC5883L\ntime     2026-09-16\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.magnetometer.hmc5883l import HMC5883LFull\n\n\nclass HMC5883L:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 30):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '30'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = HMC5883LFull(connection)\n\n    def field_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field X (T)'\n        \"\"\"\n        return self._driver.magnetic_field()[0]\n\n    def field_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field Y (T)'\n        \"\"\"\n        return self._driver.magnetic_field()[1]\n\n    def field_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field Z (T)'\n        \"\"\"\n        return self._driver.magnetic_field()[2]\n\n    def configure(self, odr: float = 15, averaging: int = 8, gain: int = 1):\n        \"\"\"\n        label:\n            en: '%1 configure ODR %2 averaging %3 gain %4'\n        params:\n            odr:\n                name: odr\n                type: float\n                default: '15'\n                field: number\n            averaging:\n                name: averaging\n                type: int\n                default: '8'\n                field: number\n            gain:\n                name: gain\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.configure(odr, averaging, gain)\n\n    def set_gain(self, gain: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set gain %2'\n        params:\n            gain:\n                name: gain\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_gain(gain)\n\n    def set_mode(self, mode: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set mode %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_mode(('continuous', 'single', 'idle')[mode])\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 status register (raw)'\n        \"\"\"\n        return self._driver.status()\n\n    def single_measurement_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 single measurement X (T)'\n        \"\"\"\n        return self._driver.single_measurement()[0]\n\n    def single_measurement_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 single measurement Y (T)'\n        \"\"\"\n        return self._driver.single_measurement()[1]\n\n    def single_measurement_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 single measurement Z (T)'\n        \"\"\"\n        return self._driver.single_measurement()[2]\n\n    def identify_id_a(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 identification byte A'\n        \"\"\"\n        return self._driver.identify()[0]\n\n    def identify_id_b(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 identification byte B'\n        \"\"\"\n        return self._driver.identify()[1]\n\n    def identify_id_c(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 identification byte C'\n        \"\"\"\n        return self._driver.identify()[2]\n\n    def self_test_x(self, positive: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '%1 self-test X (T) positive bias %2'\n        params:\n            positive:\n                name: positive\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.self_test(bool(positive))[0]\n\n    def self_test_y(self, positive: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '%1 self-test Y (T) positive bias %2'\n        params:\n            positive:\n                name: positive\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.self_test(bool(positive))[1]\n\n    def self_test_z(self, positive: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '%1 self-test Z (T) positive bias %2'\n        params:\n            positive:\n                name: positive\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        return self._driver.self_test(bool(positive))[2]\n",
+  "version": "alpha2"
+}

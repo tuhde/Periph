@@ -44,8 +44,10 @@ open class Hmc5883lMinimal(
         )
     }
 
-    var gain = 1
-    var gainLsbPerGauss = GAIN_LSB_PER_GAUSS[1]
+    @JvmField
+    protected var gain = 1
+    @JvmField
+    protected var gainLsbPerGauss = GAIN_LSB_PER_GAUSS[1]
 
     init {
         initMinimal()

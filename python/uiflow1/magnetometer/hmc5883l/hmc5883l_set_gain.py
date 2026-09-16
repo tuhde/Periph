@@ -1,0 +1,1 @@
+_periph_hmc5883l.set_gain(${_gain})

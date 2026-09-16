@@ -37,13 +37,13 @@ class Hmc5883lFull extends Hmc5883lMinimal {
             default: throw new IllegalArgumentException("averaging must be 1, 2, 4, or 8")
         }
 
-        if (Math.abs(odr - 0.75) < 0.01)       doBits = 0b000
-        else if (Math.abs(odr - 1.5) < 0.01)   doBits = 0b001
-        else if (Math.abs(odr - 3.0) < 0.01)   doBits = 0b010
-        else if (Math.abs(odr - 7.5) < 0.01)   doBits = 0b011
-        else if (Math.abs(odr - 15.0) < 0.01)  doBits = 0b100
-        else if (Math.abs(odr - 30.0) < 0.01)  doBits = 0b101
-        else if (Math.abs(odr - 75.0) < 0.01)  doBits = 0b110
+        if (Math.abs(odr - 0.75d) < 0.01d)       doBits = 0b000
+        else if (Math.abs(odr - 1.5d) < 0.01d)   doBits = 0b001
+        else if (Math.abs(odr - 3.0d) < 0.01d)   doBits = 0b010
+        else if (Math.abs(odr - 7.5d) < 0.01d)   doBits = 0b011
+        else if (Math.abs(odr - 15.0d) < 0.01d)  doBits = 0b100
+        else if (Math.abs(odr - 30.0d) < 0.01d)  doBits = 0b101
+        else if (Math.abs(odr - 75.0d) < 0.01d)  doBits = 0b110
         else throw new IllegalArgumentException("odr must be 0.75, 1.5, 3, 7.5, 15, 30, or 75")
 
         if (gain < 0 || gain > 7) {
