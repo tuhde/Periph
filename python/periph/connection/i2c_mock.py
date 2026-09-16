@@ -44,7 +44,13 @@ class I2CConnectionMock:
 
     def write_read(self, data, n):
         self.writes.append(bytes(data))
-        reg = data[0]
+        # Treat the leading two bytes as a big-endian 16-bit register
+        # address when they are both present; fall back to a single-byte
+        # 8-bit address otherwise.
+        if len(data) >= 2 and (data[0] != 0 or data[1] >= 0x80):
+            reg = (data[0] << 8) | data[1]
+        else:
+            reg = data[0]
         return bytes(self.registers.get(reg + i, 0) for i in range(n))
 
     def close(self):
