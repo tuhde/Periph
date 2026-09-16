@@ -15,6 +15,7 @@ const { ADE7953Full } = require('../../packages/periph/src/chips/power/ade7953')
     }
 
     const connection = new I2CConnectionMock();
+    connection.setAddressWidth(2);   // ADE7953 registers are 16-bit addressed
     const ade = new ADE7953Full(connection, 100.0, 10.0);
 
     // --- voltage ---
@@ -36,7 +37,8 @@ const { ADE7953Full } = require('../../packages/periph/src/chips/power/ade7953')
     let foundSwrst = false;
     for (let i = writesBefore + 1; i < writesAfter; i++) {
         const w = connection.writes[i];
-        if (w.length >= 4 && w[2] === 0x01 && (w[3] & 0x80) !== 0) {
+        // CONFIG is 0x102; the write carries [addrMSB, addrLSB, byte_HI, byte_LO].
+        if (w.length >= 4 && w[0] === 0x01 && w[1] === 0x02 && (w[3] & 0x80) !== 0) {
             foundSwrst = true;
             break;
         }

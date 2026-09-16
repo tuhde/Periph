@@ -31,6 +31,7 @@ Each chip exposes two classes:
 | Chip | Category | Require path |
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |

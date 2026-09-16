@@ -39,7 +39,8 @@ const REG_CRC             = 0x37F;
 const REG_AWGAIN          = 0x282;
 const REG_AWATTOS         = 0x289;
 
-const REG_120_UNLOCK      = 0xFE;
+const REG_120_UNLOCK_ADDR = 0x0FE;
+const REG_120_UNLOCK      = 0xAD;
 const REG_120_VALUE       = 0x30;
 
 const ADC_FS_VOLTS  = 0.5 / Math.sqrt(2);        // 0.353553
@@ -114,7 +115,7 @@ class ADE7953Minimal {
 
     async _initChip() {
         await _delay(110);
-        await this._writeU8(REG_INTERNAL_RES, REG_120_UNLOCK);
+        await this._writeU8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
         await this._writeU16(REG_INTERNAL_RES, REG_120_VALUE);
     }
 
@@ -403,7 +404,7 @@ class ADE7953Full extends ADE7953Minimal {
         cfg |= (1 << 7);
         await this._writeU16(REG_CONFIG, cfg);
         await _delay(110);
-        await this._writeU8(REG_INTERNAL_RES, REG_120_UNLOCK);
+        await this._writeU8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
         await this._writeU16(REG_INTERNAL_RES, REG_120_VALUE);
         this._pgaA = 1;
         this._pgaB = 1;
