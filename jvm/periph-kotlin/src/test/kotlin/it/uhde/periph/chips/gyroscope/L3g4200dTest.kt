@@ -14,9 +14,9 @@ class L3g4200dTest {
 
         val sensor = L3g4200dFull(connection, false)
 
-        assertEquals(L3g4200dMinimal.CTRL_REG4_DEFAULT.toByte(),
+        assertEquals(L3g4200dMinimal.CTRL_REG4_DEFAULT,
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
-        assertEquals(L3g4200dMinimal.CTRL_REG1_DEFAULT.toByte(),
+        assertEquals(L3g4200dMinimal.CTRL_REG1_DEFAULT,
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_OUT_X_L or 0x80,
@@ -30,15 +30,15 @@ class L3g4200dTest {
         assertEquals(-16.0f * 0.00875f * k, xyz.third, 1e-6f)
 
         sensor.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS)
-        assertEquals((L3g4200dMinimal.CTRL_REG1_DEFAULT or (1 shl 6)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG1_DEFAULT or (1 shl 6)),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
-        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (1 shl 4)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (1 shl 4)),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG4,
                 L3g4200dMinimal.CTRL_REG4_DEFAULT or (1 shl 4))
         sensor.setFullScale(L3g4200dFull.FS_2000_DPS)
-        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (2 shl 4)).toByte(),
+        assertEquals((L3g4200dMinimal.CTRL_REG4_DEFAULT or (2 shl 4)),
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_STATUS, 0x08)
@@ -49,42 +49,42 @@ class L3g4200dTest {
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG1, 0x4F)
         sensor.powerDown()
-        assertEquals(0x47.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
+        assertEquals(0x47, connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
         sensor.wakeUp()
-        assertEquals(0x4F.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
+        assertEquals(0x4F, connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
         sensor.sleep()
-        assertEquals(0x08.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
+        assertEquals(0x08, connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG1, 0x08)
         sensor.enableAxes(false, true, false)
-        assertEquals(0x0A.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
+        assertEquals(0x0A, connection.registers()[L3g4200dMinimal.REG_CTRL_REG1]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG5, 0x00)
         sensor.enableFifo(L3g4200dFull.FIFO_STREAM, 10)
-        assertEquals(0x40.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
-        assertEquals(((2 shl 5) or 10).toByte(), connection.registers()[L3g4200dMinimal.REG_FIFO_CTRL]!!)
+        assertEquals(0x40, connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
+        assertEquals(((2 shl 5) or 10), connection.registers()[L3g4200dMinimal.REG_FIFO_CTRL]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_FIFO_SRC, 0x1A)
         assertEquals(26, sensor.fifoSamples())
 
         sensor.enableHighpass(2, 5)
-        assertEquals(((2 shl 4) or 5).toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG2]!!)
-        assertEquals((0x40 or 0x10).toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
+        assertEquals(((2 shl 4) or 5), connection.registers()[L3g4200dMinimal.REG_CTRL_REG2]!!)
+        assertEquals((0x40 or 0x10), connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
         sensor.disableHighpass()
-        assertEquals(0x40.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
+        assertEquals(0x40, connection.registers()[L3g4200dMinimal.REG_CTRL_REG5]!!)
 
         sensor.setInterrupt(xHigh = true, yHigh = true, zHigh = true, latch = true)
-        assertEquals(0x6A.toByte(), connection.registers()[L3g4200dMinimal.REG_INT1_CFG]!!)
+        assertEquals(0x6A, connection.registers()[L3g4200dMinimal.REG_INT1_CFG]!!)
 
         sensor.setThreshold('x', 87.5f)
-        assertEquals(0x04.toByte(), connection.registers()[L3g4200dMinimal.REG_INT1_THS_XH]!!)
-        assertEquals(0xE2.toByte(), connection.registers()[L3g4200dMinimal.REG_INT1_THS_XL]!!)
+        assertEquals(0x04, connection.registers()[L3g4200dMinimal.REG_INT1_THS_XH]!!)
+        assertEquals(0xE2, connection.registers()[L3g4200dMinimal.REG_INT1_THS_XL]!!)
 
         sensor.setDuration(4, wait = true)
-        assertEquals(0x84.toByte(), connection.registers()[L3g4200dMinimal.REG_INT1_DURATION]!!)
+        assertEquals(0x84, connection.registers()[L3g4200dMinimal.REG_INT1_DURATION]!!)
 
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG3, 0x00)
         sensor.setDataReadyPin(true)
-        assertEquals(0x08.toByte(), connection.registers()[L3g4200dMinimal.REG_CTRL_REG3]!!)
+        assertEquals(0x08, connection.registers()[L3g4200dMinimal.REG_CTRL_REG3]!!)
     }
 }

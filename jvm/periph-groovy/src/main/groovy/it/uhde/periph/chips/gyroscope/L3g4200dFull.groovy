@@ -39,14 +39,15 @@ class L3g4200dFull extends L3g4200dMinimal {
             connection.write([(byte) ((reg | 0xC0) & 0xFF)] as byte[])
             return connection.read(n)
         }
-        return connection.writeRead([(byte) (reg | 0x80)] as byte[], n)
+        int addr = n > 1 ? (reg | 0x80) : reg
+        return connection.writeRead([(byte) addr] as byte[], n)
     }
 
     void configure(int odr, int bandwidth, int fullScale) throws Exception {
         if (fullScale != FS_250_DPS && fullScale != FS_500_DPS && fullScale != FS_2000_DPS) return
         this.odr = odr & 0x3
         this.bw = bandwidth & 0x3
-        this.fullScale = fullScale
+        this.fullScaleDps = fullScale
         int ctrl1 = CTRL_REG1_DEFAULT | ((this.odr & 0x3) << 6) | ((this.bw & 0x3) << 4)
         writeReg(REG_CTRL_REG1, ctrl1)
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2)
@@ -55,7 +56,7 @@ class L3g4200dFull extends L3g4200dMinimal {
 
     void setFullScale(int fullScale) throws Exception {
         if (fullScale != FS_250_DPS && fullScale != FS_500_DPS && fullScale != FS_2000_DPS) return
-        this.fullScale = fullScale
+        this.fullScaleDps = fullScale
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2)
         int ctrl4 = readReg(REG_CTRL_REG4, 1)[0] & 0xFF
         ctrl4 = (ctrl4 & 0xCF) | ((fsBits & 0x3) << 4)
@@ -124,7 +125,7 @@ class L3g4200dFull extends L3g4200dMinimal {
     List<float[]> readFifo() throws Exception {
         int n = fifoSamples()
         if (n == 0) return new ArrayList<float[]>()
-        float sens = sensitivity(fullScale)
+        float sens = sensitivity(fullScaleDps)
         float k = (float) (Math.PI / 180.0)
         byte[] buf = readReg(REG_OUT_X_L, n * 6)
         List<float[]> out = new ArrayList<float[]>(n)
@@ -172,7 +173,9 @@ class L3g4200dFull extends L3g4200dMinimal {
     }
 
     void setThreshold(char axis, float thresholdDps) throws Exception {
-        int raw = ((int) (thresholdDps / sensitivity(fullScale))) & 0x7FFF
+        // Groovy's `/` widens to double; round-trip through float so the
+        // truncation below matches the other languages' native float division.
+        int raw = ((int) (float) (thresholdDps / sensitivity(fullScaleDps))) & 0x7FFF
         int hiReg, loReg
         switch (axis) {
             case 'x': hiReg = REG_INT1_THS_XH; loReg = REG_INT1_THS_XL; break

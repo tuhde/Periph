@@ -22,7 +22,8 @@ open class L3g4200dFull @JvmOverloads constructor(
             connection.write(byteArrayOf(((reg or 0xC0) and 0xFF).toByte()))
             return connection.read(n)
         }
-        return connection.writeRead(byteArrayOf((reg or 0x80).toByte()), n)
+        val addr = if (n > 1) reg or 0x80 else reg
+        return connection.writeRead(byteArrayOf(addr.toByte()), n)
     }
 
     /**
