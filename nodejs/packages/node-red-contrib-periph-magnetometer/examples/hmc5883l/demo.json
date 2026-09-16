@@ -1,0 +1,74 @@
+[
+    {
+        "id": "tab-hmc5883l-demo",
+        "type": "tab",
+        "label": "HMC5883L 3-Axis Magnetometer",
+        "disabled": false,
+        "info": "Electronic compass demo: reads magnetic field from HMC5883L every 200 ms, computes heading from X/Y axes using atan2(y, x), and displays as a gauge (0–360°). A debug node shows raw X/Y/Z values in µT. Vertical mount detection: if |Z| > 30 µT, a warning appears indicating tilt compensation is needed. The HMC5883L has a fixed I²C address of 0x1E. Configure averaging=8, ODR=15 Hz, gain=±1.3 Ga for Earth field measurements."
+    },
+    {
+        "id": "cfg-hmc5883l",
+        "type": "hmc5883l-device",
+        "name": "HMC5883L",
+        "bus": "1",
+        "address": "1E"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 200 ms",
+        "repeat": "0.2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-hmc5883l-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-hmc5883l"]]
+    },
+    {
+        "id": "read-hmc5883l",
+        "type": "periph-hmc5883l",
+        "name": "HMC5883L",
+        "device": "cfg-hmc5883l",
+        "z": "tab-hmc5883l-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["calc-heading"]]
+    },
+    {
+        "id": "calc-heading",
+        "type": "function",
+        "name": "heading & tilt check",
+        "func": "const { x, y, z } = msg.payload;\nlet heading = null;\nif (x !== null && y !== null) {\n    heading = Math.atan2(y, x) * 180 / Math.PI;\n    if (heading < 0) heading += 360;\n}\nconst tiltWarn = z !== null && Math.abs(z) > 30e-6;\nmsg.payload = {\n    heading: heading !== null ? heading.toFixed(1) : 'N/A',\n    x_uT: x !== null ? (x * 1e6).toFixed(1) : 'overflow',\n    y_uT: y !== null ? (y * 1e6).toFixed(1) : 'overflow',\n    z_uT: z !== null ? (z * 1e6).toFixed(1) : 'overflow',\n    tilt_warning: tiltWarn\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-hmc5883l-demo",
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-readings"]]
+    },
+    {
+        "id": "dbg-readings",
+        "type": "debug",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.heading",
+        "statusType": "auto",
+        "z": "tab-hmc5883l-demo",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    }
+]

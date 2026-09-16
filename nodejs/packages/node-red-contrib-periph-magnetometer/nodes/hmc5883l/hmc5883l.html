@@ -1,0 +1,77 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('hmc5883l-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '1E', required: true }
+        },
+        label: function() {
+            return this.name || ('HMC5883L @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hmc5883l-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HMC5883L">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="1E" style="width:80px"> &nbsp;fixed: 1E (0x1E)
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-hmc5883l', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'hmc5883l-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-magnet',
+        label:   function() { return this.name || 'HMC5883L'; },
+        paletteLabel: 'HMC5883L'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-hmc5883l">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HMC5883L">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-hmc5883l">
+    <p>Reads the magnetic field on three axes from an HMC5883L 3-axis magnetometer over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an
+    <b>hmc5883l-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number|null</span></dt>
+        <dd>X-axis magnetic field strength in Tesla. Null if ADC overflow (raw = -4096).</dd>
+        <dt>payload.y <span class="property-type">number|null</span></dt>
+        <dd>Y-axis magnetic field strength in Tesla. Null if ADC overflow (raw = -4096).</dd>
+        <dt>payload.z <span class="property-type">number|null</span></dt>
+        <dd>Z-axis magnetic field strength in Tesla. Null if ADC overflow (raw = -4096).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number. The HMC5883L has a fixed 7-bit address of <code>0x1E</code>
+    (no address pin).</p>
+</script>
