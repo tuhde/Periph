@@ -91,7 +91,7 @@ class Ade7953Full @JvmOverloads constructor(
         val cfg = readReg16(REG_CONFIG) or (1 shl 7)
         writeReg16(REG_CONFIG, cfg)
         Thread.sleep(110)
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK)
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK)
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE)
         pgaA = 1
         pgaB = 1

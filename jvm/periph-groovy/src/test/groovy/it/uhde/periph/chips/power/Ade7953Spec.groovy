@@ -8,6 +8,7 @@ class Ade7953Spec extends Specification {
     def "full API smoke test"() {
         given:
         def connection = new MockConnection()
+        connection.setAddressWidth(2)
         connection.setRegister(0x21C, 0x89, 0xD1, 0x47)
         def chip = new Ade7953Full(connection, 100.0, 10.0)
 

@@ -1,5 +1,7 @@
 package it.uhde.periph.chips.power;
 
+import it.uhde.periph.connection.Connection;
+
 import java.io.IOException;
 
 /**
@@ -122,7 +124,7 @@ public class Ade7953Full extends Ade7953Minimal {
         int cfg = readReg16(REG_CONFIG) | (1 << 7);
         writeReg16(REG_CONFIG, cfg);
         sleep(110);
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK);
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE);
         pgaA = 1;
         pgaB = 1;

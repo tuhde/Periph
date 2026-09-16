@@ -49,7 +49,8 @@ public class Ade7953Minimal {
     protected static final int REG_OVLVL           = 0x224;
     protected static final int REG_OILVL           = 0x225;
 
-    protected static final int REG_120_UNLOCK      = 0xFE;
+    protected static final int REG_120_UNLOCK_ADDR = 0x0FE;
+    protected static final int REG_120_UNLOCK      = 0xAD;
     protected static final int REG_120_VALUE       = 0x30;
 
     protected static final double ADC_FS_VOLTS     = 0.5 / Math.sqrt(2.0);
@@ -85,11 +86,11 @@ public class Ade7953Minimal {
 
     private void initChip() throws IOException {
         sleep(110);
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK);
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK);
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE);
     }
 
-    private static void sleep(long ms) {
+    protected static void sleep(long ms) {
         try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
@@ -140,15 +141,15 @@ public class Ade7953Minimal {
         return (ADC_FS_VOLTS * voltageGain) / (ADC_FS_CODE * pgaV);
     }
 
-    private double currentScale(double gain) {
+    protected double currentScale(double gain) {
         return (ADC_FS_VOLTS * gain) / ADC_FS_CODE;
     }
 
-    private double powerScale(double gain) {
+    protected double powerScale(double gain) {
         return ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain) / POWER_FS_CODE;
     }
 
-    private double energyScale(double gain) {
+    protected double energyScale(double gain) {
         return ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain * T_SAMPLE) / 3600.0;
     }
 

@@ -1,15 +1,16 @@
 package it.uhde.periph.chips.power
 
 import it.uhde.periph.connection.MockConnection
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class Ade7953Test {
 
     @Test
     fun fullApi() {
         val connection = MockConnection()
+        connection.setAddressWidth(2)
         connection.setRegister(0x21C, 0x89, 0xD1, 0x47)
         val chip = Ade7953Full(connection, 100.0, 10.0)
         assertEquals(35.35533905932738, chip.voltage(), 1e-3)

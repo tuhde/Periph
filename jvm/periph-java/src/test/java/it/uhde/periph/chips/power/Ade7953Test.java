@@ -7,8 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class Ade7953Test {
 
     @Test
-    void fullApi() {
+    void fullApi() throws Exception {
         var connection = new MockConnection();
+        connection.setAddressWidth(2);                     // ADE7953 registers are 16-bit addressed
         connection.setRegister(0x21C, 0x89, 0xD1, 0x47);   // VRMS = 9032007
         var chip = new Ade7953Full(connection, 100.0, 10.0);
         // --- voltage ---
@@ -25,7 +26,7 @@ class Ade7953Test {
         boolean foundSwrst = false;
         for (int i = writesBefore + 1; i < connection.writes().size(); i++) {
             var w = connection.writes().get(i);
-            if (w.size() >= 4 && (w.get(3) & 0x80) != 0) {
+            if (w.length >= 4 && (w[3] & 0x80) != 0) {
                 foundSwrst = true;
                 break;
             }

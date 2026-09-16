@@ -51,10 +51,11 @@ open class Ade7953Minimal @JvmOverloads constructor(
         const val REG_OVLVL         = 0x224
         const val REG_OILVL         = 0x225
 
-        const val REG_120_UNLOCK    = 0xFE
+        const val REG_120_UNLOCK_ADDR = 0x0FE
+        const val REG_120_UNLOCK    = 0xAD
         const val REG_120_VALUE     = 0x30
 
-        const val ADC_FS_VOLTS      = 0.5 / sqrt(2.0)
+        val ADC_FS_VOLTS            = 0.5 / sqrt(2.0)
         const val ADC_FS_CODE       = 9032007
         const val POWER_FS_CODE     = 4862401
         const val T_SAMPLE          = 1.0 / 206900.0
@@ -68,7 +69,7 @@ open class Ade7953Minimal @JvmOverloads constructor(
 
     private fun initChip() {
         Thread.sleep(110)
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK)
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK)
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE)
     }
 
@@ -116,9 +117,9 @@ open class Ade7953Minimal @JvmOverloads constructor(
     }
 
     private fun voltageScale(): Double = (ADC_FS_VOLTS * voltageGain) / (ADC_FS_CODE * pgaV)
-    private fun currentScale(gain: Double): Double = (ADC_FS_VOLTS * gain) / ADC_FS_CODE
-    private fun powerScale(gain: Double): Double = ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain) / POWER_FS_CODE
-    private fun energyScale(gain: Double): Double = ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain * T_SAMPLE) / 3600.0
+    protected fun currentScale(gain: Double): Double = (ADC_FS_VOLTS * gain) / ADC_FS_CODE
+    protected fun powerScale(gain: Double): Double = ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain) / POWER_FS_CODE
+    protected fun energyScale(gain: Double): Double = ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain * T_SAMPLE) / 3600.0
 
     /** Read the RMS voltage on the voltage channel.
      *  @return Voltage in volts. */

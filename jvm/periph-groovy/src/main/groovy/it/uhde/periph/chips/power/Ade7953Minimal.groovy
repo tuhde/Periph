@@ -1,6 +1,6 @@
-@CompileStatic
 package it.uhde.periph.chips.power
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Connection
 
 /**
@@ -13,6 +13,7 @@ import it.uhde.periph.connection.Connection
  *
  * Fixed I²C address: 0x38.
  */
+@CompileStatic
 class Ade7953Minimal implements Closeable {
     // 8-bit registers
     protected static final int REG_DISNOLOAD     = 0x001
@@ -34,7 +35,8 @@ class Ade7953Minimal implements Closeable {
     protected static final int REG_OVLVL         = 0x224
     protected static final int REG_OILVL         = 0x225
 
-    protected static final int REG_120_UNLOCK    = 0xFE
+    protected static final int REG_120_UNLOCK_ADDR = 0x0FE
+    protected static final int REG_120_UNLOCK    = 0xAD
     protected static final int REG_120_VALUE     = 0x30
 
     protected static final double ADC_FS_VOLTS   = 0.5d / Math.sqrt(2.0d)
@@ -61,7 +63,7 @@ class Ade7953Minimal implements Closeable {
     }
 
     Ade7953Minimal(Connection connection, double voltageGain) {
-        this(connection, voltageGain, currentGain)
+        this(connection, voltageGain, 30.0d)
     }
 
     Ade7953Minimal(Connection connection) {
@@ -70,7 +72,7 @@ class Ade7953Minimal implements Closeable {
 
     private void initChip() {
         Thread.sleep(110)
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK)
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK)
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE)
     }
 
@@ -124,15 +126,15 @@ class Ade7953Minimal implements Closeable {
         return (ADC_FS_VOLTS * voltageGain) / (ADC_FS_CODE * pgaV)
     }
 
-    private double currentScale(double gain) {
+    protected double currentScale(double gain) {
         return (ADC_FS_VOLTS * gain) / ADC_FS_CODE
     }
 
-    private double powerScale(double gain) {
+    protected double powerScale(double gain) {
         return ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain) / POWER_FS_CODE
     }
 
-    private double energyScale(double gain) {
+    protected double energyScale(double gain) {
         return ((ADC_FS_VOLTS * ADC_FS_VOLTS) * voltageGain * gain * T_SAMPLE) / 3600.0d
     }
 

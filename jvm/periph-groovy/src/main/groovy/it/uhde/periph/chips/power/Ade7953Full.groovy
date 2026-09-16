@@ -1,5 +1,7 @@
-@CompileStatic
 package it.uhde.periph.chips.power
+
+import groovy.transform.CompileStatic
+import it.uhde.periph.connection.Connection
 
 /**
  * ADE7953 full interface — extends {@link Ade7953Minimal} with Channel B,
@@ -8,6 +10,7 @@ package it.uhde.periph.chips.power
  * zero-crossing, REVP, alternate outputs, CF pulses, interrupts,
  * checksum, write protection, reset and last-operation diagnostics.
  */
+@CompileStatic
 class Ade7953Full extends Ade7953Minimal {
 
     Ade7953Full(Connection connection, double voltageGain, double currentGain) {
@@ -128,7 +131,7 @@ class Ade7953Full extends Ade7953Minimal {
         int cfg = readReg16(REG_CONFIG) | (1 << 7)
         writeReg16(REG_CONFIG, cfg)
         Thread.sleep(110)
-        writeReg8(REG_INTERNAL_RES, REG_120_UNLOCK)
+        writeReg8(REG_120_UNLOCK_ADDR, REG_120_UNLOCK)
         writeReg16(REG_INTERNAL_RES, REG_120_VALUE)
         pgaA = 1
         pgaB = 1
