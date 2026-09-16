@@ -59,7 +59,17 @@ class I2CConnectionMock {
     async writeRead(data, n) {
         const buf = Buffer.from(data);
         this.writes.push(buf);
-        const reg = buf[0];
+        // ADE7953 (and similar chips with a 16-bit register address space)
+        // writes a 2-byte register pointer as the leading phase; the
+        // standard 8-bit-register chips (INA226, BMP280, etc.) write a
+        // single byte. Treat a 2-byte leading address as a big-endian
+        // 16-bit register address when the chip is using one.
+        let reg;
+        if (buf.length >= 2 && (buf[0] !== 0 || buf[1] >= 0x80)) {
+            reg = (buf[0] << 8) | buf[1];
+        } else {
+            reg = buf[0];
+        }
         const out = Buffer.alloc(n);
         for (let i = 0; i < n; i++) {
             out[i] = this.registers.get(reg + i) || 0;
