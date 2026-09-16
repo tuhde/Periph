@@ -153,7 +153,7 @@ The SK6812RGBW requires a ≥80 µs reset pulse, compared to ≥50 µs for the W
 
 Two-layer stack: `logic → neopixel (reset_us=80) → sk6812rgbw`.
 
-The `neopixel` transport decoder handles all NZR timing (shared with WS2812B). For SK6812RGBW, set its `reset_us` option to `80` (the chip requires ≥80 µs vs WS2812B's ≥50 µs).
+The `neopixel` connection decoder handles all NZR timing (shared with WS2812B). For SK6812RGBW, set its `reset_us` option to `80` (the chip requires ≥80 µs vs WS2812B's ≥50 µs).
 
 The `sk6812rgbw` chip decoder (id `sk6812rgbw`, input `['neopixel']`) groups bytes into 32-bit GRBW pixels and annotates each pixel with its index, R/G/B/W values (reordered from GRBW to RGBW for readability), and a `#RRGGBBWW` hex colour string. Emits a warning on incomplete pixels at reset.
 
@@ -169,19 +169,41 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests `python/tests/led/sk6812rgbw_test.py` (MicroPython)
 - [x] Tests `python/tests/led/sk6812rgbw_test_cp.py` (CircuitPython)
 - [x] Tests `python/tests/led/sk6812rgbw_test_linux.py` (Linux)
+- [x] Unit test `python/tests/led/sk6812rgbw_test_unit.py` — write-only, reuse `I2CConnectionMock` for its `.writes` list, run via `test_linux.sh`
+
+### UIFlow 1
+- [x] Manifest `python/uiflow1/led/sk6812rgbw/sk6812rgbw.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/led/sk6812rgbw/sk6812rgbw_*.py`
+- [x] Generated `python/uiflow1/led/sk6812rgbw/sk6812rgbw.m5b`
+
+### UIFlow 2
+- [x] Wrapper class `python/uiflow2/led/sk6812rgbw/SK6812RGBW.py`
+- [x] Exported `python/uiflow2/led/sk6812rgbw/SK6812RGBW.m5b2`
 
 ### C++
 - [x] Driver `cpp/src/chips/led/SK6812RGBW.h` — Doxygen `/** @brief */` on every class and public method
 - [x] Driver `cpp/src/chips/led/SK6812RGBW.cpp`
-- [x] Examples `cpp/examples/SK6812RGBW_Minimal/SK6812RGBW_Minimal.ino` — Tier-1
-- [x] Examples `cpp/examples/SK6812RGBW_Complete/SK6812RGBW_Complete.ino` — Tier-1 + Tier-2
-- [x] Examples `cpp/examples/SK6812RGBW_Demo/SK6812RGBW_Demo.ino` — Tier-1 + Tier-3
-- [x] Examples `cpp/examples/SK6812RGBW_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [x] Examples `cpp/examples/SK6812RGBW_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [x] Examples `cpp/examples/SK6812RGBW_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/arduino/led/SK6812RGBW/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/led/SK6812RGBW/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/led/SK6812RGBW/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/linux/led/SK6812RGBW/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/led/SK6812RGBW/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/led/SK6812RGBW/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/led/SK6812RGBW/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/led/SK6812RGBW/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/led/SK6812RGBW/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/led/SK6812RGBW/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/led/SK6812RGBW/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/led/SK6812RGBW/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/demo/src/main.cpp` — Tier-1 + Tier-3
 - [x] Tests `cpp/tests/led/sk6812rgbw_test/sk6812rgbw_test.ino` (Arduino)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_linux/sk6812rgbw_test_linux.cpp` (Linux GCC)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/led/sk6812rgbw_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/led/sk6812rgbw_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Unit test `cpp/tests/led/sk6812rgbw_test_unit/sk6812rgbw_test_unit.cpp` — write-only, reuse `I2CConnectionMock`, run via `test_linux.sh`
 
 ### Node.js
 - [x] Driver `nodejs/packages/periph/src/chips/led/sk6812rgbw.js` — JSDoc on every class and exported method
@@ -189,6 +211,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/complete.js` — Tier-1 + Tier-2
 - [x] Examples `nodejs/packages/periph/examples/led/sk6812rgbw/demo.js` — Tier-1 + Tier-3
 - [x] Tests `nodejs/tests/led/sk6812rgbw_test.js`
+- [x] Unit test `nodejs/tests/led/sk6812rgbw_test_unit.js` — write-only, reuse `i2c_mock`, run via `test_linux.sh`
 
 ### Node-RED
 - [x] Node runtime `nodejs/packages/node-red-contrib-periph-led/nodes/sk6812rgbw/sk6812rgbw.js`
@@ -197,21 +220,24 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Rust
 - [x] Driver `rust/periph/src/chips/led/sk6812rgbw.rs` — `//!` module doc + `///` on every `pub` item
-- [x] Examples `rust/examples/sk6812rgbw_minimal/src/main.rs` — Tier-1
-- [x] Examples `rust/examples/sk6812rgbw_complete/src/main.rs` — Tier-1 + Tier-2
-- [x] Examples `rust/examples/sk6812rgbw_demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Examples `rust/examples/linux/led/sk6812rgbw/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/led/sk6812rgbw/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/led/sk6812rgbw/demo/src/main.rs` — Tier-1 + Tier-3
 - [x] Tests `rust/tests/led/sk6812rgbw_test/src/main.rs` (Linux)
 - [x] Tests `rust/tests/led/sk6812rgbw_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/led/sk6812rgbw.rs` — `embedded-hal-mock` at the SPI level, reproducing `NeoPixelConnection`'s NZR encoding, run via `cargo test -p periph --features std`
 
 ### Go
 - [x] Driver `go/periph/chips/led/sk6812rgbw.go` — Go doc comment on every exported type and method
-- [x] Examples `go/examples/led/sk6812rgbw/minimal/main.go` — Tier-1 signature comment on every call
-- [x] Examples `go/examples/led/sk6812rgbw/complete/main.go` — Tier-1 + Tier-2
-- [x] Examples `go/examples/led/sk6812rgbw/demo/main.go` — Tier-1 + Tier-3
-- [x] Examples `go/examples/led/sk6812rgbw/minimal_tinygo/main.go` — Tier-1
-- [x] Examples `go/examples/led/sk6812rgbw/complete_tinygo/main.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/led/sk6812rgbw/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/led/sk6812rgbw/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/led/sk6812rgbw/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/led/sk6812rgbw/minimal/minimal.go` — Tier-1
+- [x] Examples `go/examples/tinygo/led/sk6812rgbw/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/tinygo/led/sk6812rgbw/demo/demo.go` — Tier-1 + Tier-3
 - [x] Tests `go/tests/led/sk6812rgbw_test/main.go` (Linux)
 - [x] Tests `go/tests/led/sk6812rgbw_test_tinygo/main.go` (TinyGo / Pico W)
+- [x] Unit test `go/periph/chips/led/sk6812rgbw_test.go` — inline `mockConnection` implementing `Connection`, run via `go test ./periph/chips/...`
 
 ### JVM
 - [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/led/SK6812RGBWMinimal.java` — Javadoc on every class and public method
@@ -230,10 +256,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Complete.groovy` — Tier-1 + Tier-2
 - [x] Examples `jvm/examples/groovy/led/sk6812rgbw/Demo.groovy` — Tier-1 + Tier-3
 - [x] Tests `jvm/tests/led/sk6812rgbw/SK6812RGBWTest.java`
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/led/SK6812RGBWTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/led/SK6812RGBWTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/led/SK6812RGBWSpec.groovy` (Spock) — all three reuse `MockConnection`, run via `mvn test` per module
 
 ### Sigrok
 - [x] Decoder `sigrok/sk6812rgbw/__init__.py`
 - [x] Decoder `sigrok/sk6812rgbw/pd.py` — neopixel input (set reset_us=80 on that layer); groups 4 bytes → GRBW pixel; R/G/B/W + #RRGGBBWW annotation
+
+### Conformance
+- [x] Checker `conformance/led/sk6812rgbw_conformance.py` — reset pulse ≥80 µs, read from the `neopixel` decoder's `reset` annotation span
+- [x] Timing config `specs/led/sk6812rgbw_timing.conf`
 
 ### Base class refactor (added with WS2814 issue #89)
 - [ ] Refactor `python/periph/chips/led/sk6812rgbw.py` to extend `_NeoPixelRGBWMinimal` / `_NeoPixelRGBWFull`
@@ -241,3 +274,6 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Refactor `nodejs/packages/periph/src/chips/led/sk6812rgbw.js` to extend `NeoPixelRGBWBase`
 - [ ] Refactor `rust/periph/src/chips/led/sk6812rgbw.rs` to wrap `NeoPixelRGBWBase<T>`
 - [ ] Refactor JVM SK6812RGBW drivers (Java/Kotlin/Groovy) to extend `NeoPixelRGBWMinimal` / `NeoPixelRGBWFull`
+- [ ] Refactor `go/periph/chips/led/sk6812rgbw.go` to embed `NeoPixelRGBWBase` (see `specs/led/ws2814.md`'s "Go base (struct embedding)")
+
+**Note:** this refactor must preserve SK6812RGBW's existing unit tests, its conformance checker, and its UIFlow 1/2 blocks — none of those are being re-authored, only the driver's internal class structure.
