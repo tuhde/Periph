@@ -32,7 +32,7 @@ func (m *mockConn) Read(n int) ([]byte, error) {
 	out := make([]byte, end-m.readIdx)
 	copy(out, m.readSeq[m.readIdx:end])
 	m.readIdx = end
-	return out
+	return out, nil
 }
 
 func (m *mockConn) WriteRead(data []byte, n int) ([]byte, error) {
@@ -51,8 +51,11 @@ func (m *mockConn) EnPin() connection.OutputPin        { return nil }
 
 var _ connection.Connection = (*mockConn)(nil)
 
+// queueRegRead queues the raw register payload returned by the next
+// WriteRead call. mockConn.WriteRead ignores the address bytes it is passed
+// and just pops the next n bytes off the shared FIFO, so the address is
+// only a parameter for readability at call sites — it is not encoded here.
 func queueRegRead(conn *mockConn, reg uint16, payload []byte) {
-	conn.readSeq = append(conn.readSeq, byte(reg>>8), byte(reg&0xFF))
 	conn.readSeq = append(conn.readSeq, payload...)
 }
 

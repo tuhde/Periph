@@ -20,8 +20,9 @@ const (
 	ade7953RegOILVL         uint16 = 0x225
 	ade7953RegVersion       uint16 = 0x702
 
-	ade7953Reg120Unlock byte = 0xFE
-	ade7953Reg120Value  uint16 = 0x30
+	ade7953Reg120UnlockAddr uint16 = 0x0FE
+	ade7953Reg120Unlock     byte   = 0xAD
+	ade7953Reg120Value      uint16 = 0x30
 )
 
 // ADC scaling constants.
@@ -62,7 +63,7 @@ func NewADE7953Minimal(conn connection.Connection, voltageGain, currentGain floa
 
 func (d *ADE7953Minimal) initChip() error {
 	time.Sleep(110 * time.Millisecond)
-	if err := d.writeReg8(ade7953RegInternalRes, ade7953Reg120Unlock); err != nil {
+	if err := d.writeReg8(ade7953Reg120UnlockAddr, ade7953Reg120Unlock); err != nil {
 		return err
 	}
 	return d.writeReg16(ade7953RegInternalRes, ade7953Reg120Value)
@@ -272,7 +273,7 @@ func (d *ADE7953Minimal) Reset() error {
 		return err
 	}
 	time.Sleep(110 * time.Millisecond)
-	if err := d.writeReg8(ade7953RegInternalRes, ade7953Reg120Unlock); err != nil {
+	if err := d.writeReg8(ade7953Reg120UnlockAddr, ade7953Reg120Unlock); err != nil {
 		return err
 	}
 	if err := d.writeReg16(ade7953RegInternalRes, ade7953Reg120Value); err != nil {
