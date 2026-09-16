@@ -42,8 +42,10 @@ public class L3g4200dFull extends L3g4200dMinimal {
         if (spi) {
             connection.write(new byte[] { (byte) ((reg | 0xC0) & 0xFF) });
             return connection.read(n);
-        } else {
+        } else if (n > 1) {
             return connection.writeRead(new byte[] { (byte) (reg | 0x80) }, n);
+        } else {
+            return connection.writeRead(new byte[] { (byte) reg }, n);
         }
     }
 

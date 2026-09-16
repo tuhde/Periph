@@ -34,7 +34,7 @@ class L3g4200dSpec extends Specification {
         then:
         connection.registers().get(L3g4200dMinimal.REG_CTRL_REG1) == (L3g4200dFull.CTRL_REG1_DEFAULT | (1 << 6))
         connection.registers().get(L3g4200dMinimal.REG_CTRL_REG4) == (L3g4200dFull.CTRL_REG4_DEFAULT | (1 << 4))
-        sensor.fullScale == 500
+        sensor.fullScaleDps == 500
 
         when:
         connection.setRegister(L3g4200dMinimal.REG_CTRL_REG4,
@@ -43,7 +43,7 @@ class L3g4200dSpec extends Specification {
 
         then:
         connection.registers().get(L3g4200dMinimal.REG_CTRL_REG4) == (L3g4200dFull.CTRL_REG4_DEFAULT | (2 << 4))
-        sensor.fullScale == 2000
+        sensor.fullScaleDps == 2000
 
         when:
         connection.setRegister(L3g4200dMinimal.REG_STATUS, 0x08)

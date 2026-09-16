@@ -48,7 +48,7 @@ class L3g4200dMinimal {
 
     protected final Connection connection
     protected final boolean spi
-    protected int fullScale = 250
+    protected int fullScaleDps = 250
 
     L3g4200dMinimal(Connection connection, boolean spi) throws Exception {
         this.connection = connection
@@ -90,7 +90,7 @@ class L3g4200dMinimal {
         } else {
             raw = connection.writeRead([(byte) (REG_OUT_X_L | 0x80)] as byte[], 6)
         }
-        float sens = sensitivity(fullScale)
+        float sens = sensitivity(fullScaleDps)
         float k = (float) (Math.PI / 180.0)
         float x = int16Le(raw, 0) * sens * k
         float y = int16Le(raw, 2) * sens * k
