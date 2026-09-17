@@ -31,6 +31,7 @@ Each chip exposes two classes:
 | Chip | Category | Require path |
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
@@ -44,18 +45,23 @@ Each chip exposes two classes:
 | BMP581 | Pressure sensor | `periph/src/chips/pressure/bmp581` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
+| HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
+| HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
+| L3G4200D | Gyroscope | `periph/src/chips/gyroscope/l3g4200d` |
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
+| MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
+| MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |

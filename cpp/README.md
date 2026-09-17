@@ -40,6 +40,7 @@ Each chip exposes two classes:
 | Chip | Category | Header |
 |------|----------|--------|
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
+| ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
@@ -53,18 +54,23 @@ Each chip exposes two classes:
 | BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
+| HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
+| HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
+| L3G4200D | Gyroscope | `chips/gyroscope/L3G4200D.h` |
 | LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
+| MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
+| Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |

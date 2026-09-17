@@ -10,3 +10,9 @@ pub use rfm9x::{
     Rfm95Minimal, Rfm95Full, Rfm96Minimal, Rfm96Full,
     Rfm97Minimal, Rfm97Full, Rfm98Minimal, Rfm98Full,
 };
+
+pub mod mcp2515;
+pub use mcp2515::{
+    CanFrame, MCP2515Minimal, MCP2515Full,
+    OPMOD_NORMAL, OPMOD_SLEEP, OPMOD_LOOPBACK, OPMOD_LISTEN_ONLY, OPMOD_CONFIG,
+};

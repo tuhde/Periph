@@ -1,0 +1,50 @@
+{
+  "category": "ADE7953",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "PLACEHOLDER_JSCODE",
+    "toolbox": "\n<category name=\"ADE7953\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ade7953\">\n<title text=\"ADE7953\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ade7953___init__\"/>\n<block type=\"custom_ade7953_voltage\"/>\n<block type=\"custom_ade7953_current\"/>\n<block type=\"custom_ade7953_current_b\"/>\n<block type=\"custom_ade7953_active_power\"/>\n<block type=\"custom_ade7953_active_energy\"/>\n<block type=\"custom_ade7953_reactive_power\"/>\n<block type=\"custom_ade7953_apparent_power\"/>\n<block type=\"custom_ade7953_power_factor\"/>\n<block type=\"custom_ade7953_line_frequency\"/>\n<block type=\"custom_ade7953_line_period\"/>\n<block type=\"custom_ade7953_waveform_sample\"/>\n</category>\n",
+    "toolboxitemid": "custom_ade7953",
+    "block_type": [
+      "custom_ade7953___init__",
+      "custom_ade7953_voltage",
+      "custom_ade7953_current",
+      "custom_ade7953_current_b",
+      "custom_ade7953_active_power",
+      "custom_ade7953_active_energy",
+      "custom_ade7953_reactive_power",
+      "custom_ade7953_apparent_power",
+      "custom_ade7953_power_factor",
+      "custom_ade7953_line_frequency",
+      "custom_ade7953_line_period",
+      "custom_ade7953_waveform_sample"
+    ]
+  },
+  "data": {
+    "name": "ADE7953",
+    "note": {
+      "en": "Single-phase multifunction metering IC"
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADE7953",
+      "time": "2026-09-16",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "",
+    "members": [],
+    "python_file_name": "ade7953"
+  },
+  "pyCode": "\"\"\"\nfile     ADE7953\ntime     2026-09-16\nauthor   \nemail   \nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.power.ade7953 import ADE7953Full\n\nclass ADE7953:\n    \"\"\"\n    note:\n        en: 'Single-phase multifunction metering IC'\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, voltage_gain: float = 251.0, current_gain: float = 30.0):\n        \"\"\"\n        label:\n            en: '%1 init ADE7953 voltage_gain %2 current_gain %3'\n        params:\n            voltage_gain:\n                name: voltage_gain\n                type: float\n                default: '251.0'\n                field: number\n            current_gain:\n                name: current_gain\n                type: float\n                default: '30.0'\n                field: number\n        \"\"\"\n        self._driver = ADE7953Full(I2CConnection(0x38), voltage_gain, current_gain, 'i2c')\n\n    def voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read voltage (V)'\n        \"\"\"\n        return self._driver.voltage()\n\n    def current(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read current Channel A (A)'\n        \"\"\"\n        return self._driver.current()\n\n    def current_b(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read current Channel B (A)'\n        \"\"\"\n        return self._driver.current_b()\n\n    def active_power(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read active power (W)'\n        \"\"\"\n        return self._driver.active_power()\n\n    def active_energy(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read active energy (Wh)'\n        \"\"\"\n        return self._driver.active_energy()\n\n    def reactive_power(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read reactive power (VAR)'\n        \"\"\"\n        return self._driver.reactive_power()\n\n    def apparent_power(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read apparent power (VA)'\n        \"\"\"\n        return self._driver.apparent_power()\n\n    def power_factor(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read power factor'\n        \"\"\"\n        return self._driver.power_factor()\n\n    def line_frequency(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read line frequency (Hz)'\n        \"\"\"\n        return self._driver.line_frequency()\n\n    def line_period(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read line period (s)'\n        \"\"\"\n        return self._driver.line_period()\n\n    def waveform_sample(self) -> dict:\n        \"\"\"\n        label:\n            en: '%1 read waveform sample (dict)'\n        \"\"\"\n        return self._driver.waveform_sample()\n",
+  "version": "alpha2"
+}

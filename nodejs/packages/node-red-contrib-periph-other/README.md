@@ -14,7 +14,10 @@ npm install node-red-contrib-periph-other
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `mpr121-device` | config | I²C bus and address for a MPR121 |
+| `mpr121` | input | Reads the 12-electrode touch bitmask from an MPR121 capacitive touch sensor over I²C. |
 
 ## Links
 

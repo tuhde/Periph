@@ -1,0 +1,1 @@
+_periph_hmc5883l.configure(${_odr}, ${_averaging}, ${_gain})

@@ -1,0 +1,104 @@
+[
+    {
+        "id": "tab-l3g4200d-1",
+        "type": "ui_tab",
+        "name": "L3G4200D Demo",
+        "icon": "compass",
+        "order": 1,
+        "info": "This flow demonstrates the L3G4200D three-axis MEMS gyroscope.\n\n**Continuous monitoring**: an inject node fires every 100 ms, reading the X, Y, and Z angular rate in rad/s from the chip. Three UI charts visualise rotation on each axis in real time over a 60-second rolling window.\n\nThe chip is configured for 200 Hz ODR and ±500 dps full scale in the device config node. Use this flow to confirm the chip is responding to physical rotation and that the axes are oriented correctly for your mount."
+    },
+    {
+        "id": "l3g4200d-group-1",
+        "type": "ui_group",
+        "name": "L3G4200D Angular Rate",
+        "tab": "tab-l3g4200d-1",
+        "order": 1,
+        "disp": true,
+        "width": 12
+    },
+    {
+        "id": "l3g4200d-device-1",
+        "type": "l3g4200d-device",
+        "name": "L3G4200D @ i2c-1",
+        "bus": "1",
+        "addr": "0x68",
+        "odr": "1",
+        "bandwidth": "0",
+        "fullScale": "500"
+    },
+    {
+        "id": "l3g4200d-read-1",
+        "type": "periph-l3g4200d",
+        "name": "L3G4200D Angular Rate",
+        "device": "l3g4200d-device-1",
+        "wires": [["debug-l3g4200d-1", "chart-x-1", "chart-y-1", "chart-z-1"]]
+    },
+    {
+        "id": "inject-l3g4200d-1",
+        "type": "inject",
+        "name": "Every 100 ms",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.1",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["l3g4200d-read-1"]]
+    },
+    {
+        "id": "debug-l3g4200d-1",
+        "type": "debug",
+        "name": "Raw payload",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "chart-x-1",
+        "type": "ui_chart",
+        "name": "X axis",
+        "group": "l3g4200d-group-1",
+        "order": 1,
+        "width": 6,
+        "height": 4,
+        "label": "X (rad/s)",
+        "chartType": "line",
+        "x": 480,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "chart-y-1",
+        "type": "ui_chart",
+        "name": "Y axis",
+        "group": "l3g4200d-group-1",
+        "order": 2,
+        "width": 6,
+        "height": 4,
+        "label": "Y (rad/s)",
+        "chartType": "line",
+        "x": 480,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "chart-z-1",
+        "type": "ui_chart",
+        "name": "Z axis",
+        "group": "l3g4200d-group-1",
+        "order": 3,
+        "width": 12,
+        "height": 4,
+        "label": "Z (rad/s)",
+        "chartType": "line",
+        "x": 480,
+        "y": 380,
+        "wires": []
+    }
+]

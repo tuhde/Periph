@@ -18,6 +18,8 @@ npm install node-red-contrib-periph-magnetometer
 |------|------|-------------|
 | `as5600-device` | config | I²C bus and address for an AS5600 |
 | `periph-as5600` | input | Reads the absolute angle, raw count, and magnet detection status from an AS5600 contactless rotary position sensor over I²C. |
+| `hmc5883l-device` | config | I²C bus and address for a HMC5883L |
+| `periph-hmc5883l` | input | Reads the magnetic field on three axes from an HMC5883L 3-axis magnetometer over I²C. |
 
 ## Links
 

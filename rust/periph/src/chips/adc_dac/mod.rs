@@ -1,5 +1,7 @@
 pub mod hx710a;
 pub use hx710a::{Hx710aMinimal, Hx710aFull};
+pub mod hx710b;
+pub use hx710b::{Hx710bMinimal, Hx710bFull};
 pub mod hx711;
 pub use hx711::{Hx711Minimal, Hx711Full};
 pub mod mcp4725;

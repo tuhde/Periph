@@ -1,0 +1,73 @@
+[
+    {
+        "id": "tab-mpr121-demo",
+        "type": "tab",
+        "label": "MPR121 Capacitive Touch",
+        "disabled": false,
+        "info": "Polls an MPR121 capacitive touch controller every 100 ms and converts the 12-bit touched bitmask into a human-readable string like 'ELE0 ELE3 ELE7 touched'. A Debug node displays the string. When no electrodes are touched, the function outputs 'none'. Touching multiple electrodes simultaneously is supported (multi-touch bitmask reads). This demonstrates polling-based multi-electrode touch detection on the MPR121."
+    },
+    {
+        "id": "cfg-mpr121",
+        "type": "mpr121-device",
+        "name": "MPR121",
+        "bus": "1",
+        "address": "5A"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-mpr121-demo",
+        "x": 120,
+        "y": 160,
+        "wires": [["read-mpr121"]]
+    },
+    {
+        "id": "read-mpr121",
+        "type": "mpr121",
+        "name": "MPR121",
+        "device": "cfg-mpr121",
+        "z": "tab-mpr121-demo",
+        "x": 300,
+        "y": 160,
+        "wires": [["fmt-touched"]]
+    },
+    {
+        "id": "fmt-touched",
+        "type": "function",
+        "name": "format touched",
+        "func": "const electrodes = msg.payload.electrodes;\nconst names = electrodes\n    .map((on, i) => on ? 'ELE' + i : null)\n    .filter(s => s);\nmsg.payload = names.length ? names.join(' ') + ' touched' : 'none';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 160,
+        "wires": [["dbg-touched"]]
+    },
+    {
+        "id": "dbg-touched",
+        "type": "debug",
+        "name": "touched",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-mpr121-demo",
+        "x": 660,
+        "y": 160,
+        "wires": []
+    }
+]
