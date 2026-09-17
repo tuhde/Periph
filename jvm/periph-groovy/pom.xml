@@ -18,10 +18,6 @@
             <artifactId>periph-connection</artifactId>
         </dependency>
         <dependency>
-            <groupId>it.uhde</groupId>
-            <artifactId>periph-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>${groovy.version}</version>
