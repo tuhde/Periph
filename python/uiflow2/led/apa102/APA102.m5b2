@@ -1,0 +1,35 @@
+{
+  "category": "APA102",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "",
+    "toolbox": "",
+    "toolboxitemid": "",
+    "block_type": []
+  },
+  "data": {
+    "name": "APA102",
+    "note": { "en": "" },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "APA102",
+      "time": "2026-09-16",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "",
+    "members": [],
+    "python_file_name": "APA102.py"
+  },
+  "pyCode": "",
+  "version": "alpha2"
+}
