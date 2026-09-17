@@ -20,6 +20,8 @@ npm install node-red-contrib-periph-led
 | `periph-sk6812rgbw` | output | Controls an SK6812RGBW addressable RGBW LED strip over SPI (NeoPixel protocol). |
 | `ws2812b-device` | config | SPI bus and device index for a WS2812B |
 | `periph-ws2812b` | output | Controls a WS2812B addressable RGB LED strip over SPI (NeoPixel protocol). |
+| `ws2814-device` | config | SPI bus and device index for a WS2814 |
+| `periph-ws2814` | output | Controls a WS2814 addressable RGBW LED strip over SPI (NeoPixel protocol). |
 
 ## Links
 

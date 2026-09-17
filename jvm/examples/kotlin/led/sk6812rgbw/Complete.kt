@@ -38,8 +38,8 @@ fun main() {
                                                                            // sends brightness-scaled GRBW bytes
         Thread.sleep(500)
 
-        strip.setPixels(listOf(intArrayOf(255,0,0,0), intArrayOf(0,255,0,0),
-                               intArrayOf(0,0,255,0), intArrayOf(0,0,0,255)))  // set first 4 pixels (buffer only), (colors List<IntArray>) → Unit
+        strip.setPixels(arrayOf(intArrayOf(255,0,0,0), intArrayOf(0,255,0,0),
+                               intArrayOf(0,0,255,0), intArrayOf(0,0,0,255)))  // set first 4 pixels (buffer only), (colors Array<IntArray>) → Unit
                                                                            // 3-element arrays are accepted (w defaults to 0)
         strip.show()                                                       // transmit buffer to strip, () → Unit
         Thread.sleep(500)

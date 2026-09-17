@@ -34,7 +34,7 @@ fun main() {
                                                                      // sends brightness-scaled GRB bytes; remaining pixels are black
         Thread.sleep(500)
 
-        strip.setPixels(listOf(intArrayOf(255,0,0), intArrayOf(0,255,0), intArrayOf(0,0,255), intArrayOf(255,128,0))) // set first 4 pixels (buffer only), (colors: List<IntArray[r,g,b]>) → Unit
+        strip.setPixels(arrayOf(intArrayOf(255,0,0), intArrayOf(0,255,0), intArrayOf(0,0,255), intArrayOf(255,128,0))) // set first 4 pixels (buffer only), (colors: Array<IntArray[r,g,b]>) → Unit
                                                                      // extra entries beyond strip length are silently ignored
         strip.show()                                                  // transmit buffer to strip, () → Unit
         Thread.sleep(500)

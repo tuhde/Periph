@@ -1,29 +1,20 @@
 //! WS2812B addressable RGB LED strip driver (Worldsemi).
 //!
-//! Drives a chain of WS2812B pixels over a [`NeoPixelConnection`].
-//! Maintains an internal GRB buffer; [`Ws2812bMinimal::fill`] writes every
-//! pixel and transmits immediately.
+//! Thin wrapper over [`NeoPixelRgbMinimal`]/[`NeoPixelRgbFull`] fixing GRB
+//! wire order and WS2812B's default 16-byte (~53 µs) reset.
 //!
 //! # Pixel limit
-//! The internal buffer holds up to `MAX_PIXELS` (256) pixels (768 GRB bytes).
-//! Pixel indices beyond this limit are clamped silently.
+//! See [`super::neopixel_rgb_base::MAX_PIXELS`].
 
 use embedded_hal::spi::SpiBus;
-use crate::connection::neopixel::NeoPixelConnection;
+use super::neopixel_rgb_base::{NeoPixelRgbMinimal, NeoPixelRgbFull};
 
-/// Maximum supported pixel count for the internal GRB buffer.
-pub const MAX_PIXELS: usize = 256;
-const MAX_BUF: usize = MAX_PIXELS * 3;
+const CHANNEL_ORDER: [usize; 3] = [1, 0, 2]; // GRB: wire[0]=G, wire[1]=R, wire[2]=B
+const RESET_BYTES: usize = 16;               // ~53us, WS2812B's default minimum
 
 /// WS2812B minimal driver — fill the entire strip with one colour.
-///
-/// Wraps a [`NeoPixelConnection`] and manages an internal GRB pixel buffer.
-/// [`fill`](Ws2812bMinimal::fill) updates every pixel and transmits immediately;
-/// [`off`](Ws2812bMinimal::off) is shorthand for `fill(0, 0, 0)`.
 pub struct Ws2812bMinimal<SPI> {
-    conn: NeoPixelConnection<SPI>,
-    n: usize,
-    buf: heapless::Vec<u8, MAX_BUF>,
+    inner: NeoPixelRgbMinimal<SPI>,
 }
 
 impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
@@ -31,36 +22,24 @@ impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
     ///
     /// # Arguments
     /// * `spi` — SPI bus configured at 2.4 MHz, mode 0, MSB-first.
-    /// * `n`   — Number of pixels in the strip (clamped to [`MAX_PIXELS`]).
+    /// * `n`   — Number of pixels in the strip (clamped to `MAX_PIXELS`).
     pub fn new(spi: SPI, n: usize) -> Self {
-        let n = n.min(MAX_PIXELS);
-        let mut buf = heapless::Vec::new();
-        buf.resize_default(n * 3).ok();
-        Self {
-            conn: NeoPixelConnection::new(spi),
-            n,
-            buf,
-        }
+        Self { inner: NeoPixelRgbMinimal::new(spi, n, CHANNEL_ORDER, RESET_BYTES) }
     }
 
     /// Fill every pixel with one colour and send to the strip immediately.
     ///
     /// Each channel is clamped to [0, 255]. Stores G, R, B in the internal
-    /// buffer (GRB wire order) then calls [`NeoPixelConnection::write`].
+    /// buffer (GRB wire order) then transmits.
     pub fn fill(&mut self, r: u8, g: u8, b: u8) -> Result<(), SPI::Error> {
-        for i in 0..self.n {
-            self.buf[i * 3]     = g;
-            self.buf[i * 3 + 1] = r;
-            self.buf[i * 3 + 2] = b;
-        }
-        self.conn.write(&self.buf[..self.n * 3])
+        self.inner.fill(r, g, b)
     }
 
     /// Turn off all pixels (fill with black and send).
     ///
     /// Equivalent to `fill(0, 0, 0)`.
     pub fn off(&mut self) -> Result<(), SPI::Error> {
-        self.fill(0, 0, 0)
+        self.inner.off()
     }
 }
 
@@ -69,11 +48,10 @@ impl<SPI: SpiBus> Ws2812bMinimal<SPI> {
 /// Adds individual pixel addressing, explicit [`show`](Ws2812bFull::show),
 /// global brightness scaling, buffer rotation, and HSV fill.
 /// Call [`set_pixel`](Ws2812bFull::set_pixel) to update the buffer,
-/// then [`show`](Ws2812bFull::show) to transmit; or use the inherited
-/// [`fill`](Ws2812bMinimal::fill) for an immediate all-same-colour update.
+/// then [`show`](Ws2812bFull::show) to transmit; or use
+/// [`fill`](Ws2812bFull::fill) for an immediate all-same-colour update.
 pub struct Ws2812bFull<SPI> {
-    inner: Ws2812bMinimal<SPI>,
-    brightness: u8,
+    inner: NeoPixelRgbFull<SPI>,
 }
 
 impl<SPI: SpiBus> Ws2812bFull<SPI> {
@@ -81,12 +59,9 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
     ///
     /// # Arguments
     /// * `spi` — SPI bus configured at 2.4 MHz, mode 0, MSB-first.
-    /// * `n`   — Number of pixels in the strip (clamped to [`MAX_PIXELS`]).
+    /// * `n`   — Number of pixels in the strip (clamped to `MAX_PIXELS`).
     pub fn new(spi: SPI, n: usize) -> Self {
-        Self {
-            inner: Ws2812bMinimal::new(spi, n),
-            brightness: 255,
-        }
+        Self { inner: NeoPixelRgbFull::new(spi, n, CHANNEL_ORDER, RESET_BYTES) }
     }
 
     /// Fill every pixel with one colour and send to the strip immediately.
@@ -103,69 +78,42 @@ impl<SPI: SpiBus> Ws2812bFull<SPI> {
     ///
     /// Index is clamped to [0, n-1]. Call [`show`](Self::show) to transmit.
     pub fn set_pixel(&mut self, index: usize, r: u8, g: u8, b: u8) {
-        let index = index.min(self.inner.n.saturating_sub(1));
-        self.inner.buf[index * 3]     = g;
-        self.inner.buf[index * 3 + 1] = r;
-        self.inner.buf[index * 3 + 2] = b;
+        self.inner.set_pixel(index, r, g, b)
     }
 
     /// Transmit the current buffer to the strip, applying brightness scaling.
     ///
     /// Each channel is scaled: `sent = stored * brightness / 255`.
     pub fn show(&mut self) -> Result<(), SPI::Error> {
-        let bri = self.brightness;
-        let n3 = self.inner.n * 3;
-        if bri == 255 {
-            return self.inner.conn.write(&self.inner.buf[..n3]);
-        }
-        let mut scaled: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
-        scaled.resize_default(n3).ok();
-        for i in 0..n3 {
-            scaled[i] = (self.inner.buf[i] as u16 * bri as u16 / 255) as u8;
-        }
-        self.inner.conn.write(&scaled[..n3])
+        self.inner.show()
     }
 
     /// Get the global brightness scalar (0–255).
     pub fn get_brightness(&self) -> u8 {
-        self.brightness
+        self.inner.get_brightness()
     }
 
     /// Set the global brightness scalar (0–255).
     ///
     /// Applied non-destructively at [`show`](Self::show) time.
     pub fn set_brightness(&mut self, value: u8) {
-        self.brightness = value;
+        self.inner.set_brightness(value)
     }
 
     /// Shift the pixel buffer left by `steps` positions (wraps around).
     ///
     /// Does not transmit — call [`show`](Self::show) afterwards.
     pub fn rotate(&mut self, steps: usize) {
-        let n = self.inner.n;
-        if n == 0 { return; }
-        let steps = steps % n;
-        if steps == 0 { return; }
-        let bytes = steps * 3;
-        let n3 = n * 3;
-        let mut tmp: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
-        tmp.extend_from_slice(&self.inner.buf[..bytes]).ok();
-        self.inner.buf.copy_within(bytes..n3, 0);
-        for (i, &v) in tmp.iter().enumerate() {
-            self.inner.buf[n3 - bytes + i] = v;
-        }
+        self.inner.rotate(steps)
     }
 
     /// Fill every pixel with one HSV colour and send to the strip immediately.
     ///
     /// Converts HSV (all inputs 0.0–1.0) to RGB then calls [`fill`](Self::fill).
     pub fn fill_hsv(&mut self, h: f32, s: f32, v: f32) -> Result<(), SPI::Error> {
-        let (r, g, b) = hsv_to_rgb(h, s, v);
-        self.fill(r, g, b)
+        self.inner.fill_hsv(h, s, v)
     }
 }
-
-use super::color::hsv_to_rgb;
 
 #[cfg(test)]
 mod tests {
@@ -205,7 +153,7 @@ mod tests {
         let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
         let mut sensor = Ws2812bFull::new(spi, N);
         sensor.fill(0x11, 0x22, 0x33).unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.inner.conn.spi.done();
     }
 
     #[test]
@@ -224,7 +172,7 @@ mod tests {
         sensor.show().unwrap();
         sensor.set_pixel(99, 0x01, 0x02, 0x03);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.inner.conn.spi.done();
     }
 
     #[test]
@@ -245,7 +193,7 @@ mod tests {
         sensor.set_pixel(0, stored[0], stored[1], stored[2]);
         sensor.show().unwrap();
         assert_eq!(sensor.get_brightness(), 128);
-        sensor.inner.conn.spi.done();
+        sensor.inner.inner.conn.spi.done();
     }
 
     #[test]
@@ -264,7 +212,7 @@ mod tests {
         sensor.set_pixel(3, 4, 0, 0);
         sensor.rotate(1);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.inner.conn.spi.done();
     }
 
     #[test]
@@ -274,6 +222,6 @@ mod tests {
         let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
         let mut sensor = Ws2812bFull::new(spi, N);
         sensor.fill_hsv(0.0, 1.0, 1.0).unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.inner.conn.spi.done();
     }
 }

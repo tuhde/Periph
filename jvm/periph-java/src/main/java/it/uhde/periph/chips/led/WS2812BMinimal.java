@@ -2,8 +2,6 @@ package it.uhde.periph.chips.led;
 
 import it.uhde.periph.connection.Connection;
 
-import java.io.IOException;
-
 /**
  * WS2812B addressable RGB LED strip — minimal interface.
  *
@@ -14,12 +12,10 @@ import java.io.IOException;
  * <p>Use {@link WS2812BFull} for per-pixel addressing, explicit frame control,
  * brightness scaling, and HSV fill.
  */
-public class WS2812BMinimal {
+public class WS2812BMinimal extends NeoPixelRGBMinimal {
 
-    protected final Connection connection;
-    protected final int n;
-    /** Internal pixel buffer in GRB wire order (G, R, B per pixel). */
-    protected final byte[] buf;
+    private static final int[] CHANNEL_ORDER = {1, 0, 2}; // GRB: wire[0]=G, wire[1]=R, wire[2]=B
+    private static final int RESET_BYTES = 16;             // ~53us, WS2812B's default minimum
 
     /**
      * Construct the driver.
@@ -28,40 +24,6 @@ public class WS2812BMinimal {
      * @param n         number of pixels in the strip (≥1)
      */
     public WS2812BMinimal(Connection connection, int n) {
-        this.connection = connection;
-        this.n = n;
-        this.buf = new byte[n * 3];
-    }
-
-    /**
-     * Fill every pixel with one colour and transmit immediately.
-     *
-     * <p>Each channel is clamped to [0, 255]. Stores values in GRB wire order
-     * (WS2812B expects G, R, B on the data line).
-     *
-     * @param r red channel (0–255)
-     * @param g green channel (0–255)
-     * @param b blue channel (0–255)
-     * @throws IOException on connection error
-     */
-    public void fill(int r, int g, int b) throws IOException {
-        r = Math.max(0, Math.min(255, r));
-        g = Math.max(0, Math.min(255, g));
-        b = Math.max(0, Math.min(255, b));
-        for (int i = 0; i < n; i++) {
-            buf[i * 3]     = (byte) g;
-            buf[i * 3 + 1] = (byte) r;
-            buf[i * 3 + 2] = (byte) b;
-        }
-        connection.write(buf);
-    }
-
-    /**
-     * Turn off all pixels (equivalent to {@code fill(0, 0, 0)}).
-     *
-     * @throws IOException on connection error
-     */
-    public void off() throws IOException {
-        fill(0, 0, 0);
+        super(connection, n, CHANNEL_ORDER, RESET_BYTES);
     }
 }

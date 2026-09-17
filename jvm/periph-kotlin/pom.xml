@@ -18,6 +18,10 @@
             <artifactId>periph-connection</artifactId>
         </dependency>
         <dependency>
+            <groupId>it.uhde</groupId>
+            <artifactId>periph-java</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
