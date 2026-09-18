@@ -85,7 +85,7 @@ class APA102Full(connection: Connection, n: Int) : APA102Minimal(connection, n) 
      * Each RGB channel value is scaled: `sent = stored × brightness / 255`.
      * The per-pixel hardware brightness byte is NOT scaled.
      */
-    override fun show() {
+    fun show() {
         val endBytes = maxOf(4, (n + 15) / 16)
         val pixelDataLen = n * 4
         val totalLen = 4 + pixelDataLen + endBytes
@@ -123,7 +123,7 @@ class APA102Full(connection: Connection, n: Int) : APA102Minimal(connection, n) 
      *
      * @param steps number of pixel positions to shift left (default 1)
      */
-    override fun rotate(steps: Int = 1) {
+    fun rotate(steps: Int = 1) {
         if (n == 0) return
         val s = ((steps % n) + n) % n
         if (s == 0) return
@@ -144,7 +144,7 @@ class APA102Full(connection: Connection, n: Int) : APA102Minimal(connection, n) 
      * @param s saturation (0.0–1.0)
      * @param v value / brightness (0.0–1.0)
      */
-    override fun fillHsv(h: Double, s: Double, v: Double) {
+    fun fillHsv(h: Double, s: Double, v: Double) {
         val (r, g, b) = hsvToRgb(h, s, v)
         fill(r, g, b)
     }

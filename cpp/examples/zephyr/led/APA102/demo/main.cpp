@@ -3,6 +3,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/spi.h>
 #include <zephyr/sys/printk.h>
+#include <math.h>
 #include "SPIConnectionZephyr.h"
 #include "APA102.h"
 

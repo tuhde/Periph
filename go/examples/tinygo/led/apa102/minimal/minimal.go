@@ -1,3 +1,5 @@
+//go:build tinygo
+
 // APA102 minimal example for TinyGo.
 // tinygo build -target=pico-w ./go/examples/tinygo/led/apa102/minimal/
 package main

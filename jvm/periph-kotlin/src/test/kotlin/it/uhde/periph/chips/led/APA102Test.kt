@@ -38,9 +38,10 @@ class APA102Test {
         d.setPixel(1, 4, 5, 6, 31)
         d.setPixel(100, 7, 8, 9, 31)
         d.show()
-        // Pixel 0: [0xFF, 0, 0, 0], Pixel 1: [0xFF, 6, 5, 4], Pixel 2: [0xFF, 9, 8, 7]
+        // Index -1 clamps to 0, so it writes pixel 0: [0xFF, 3, 2, 1].
+        // Pixel 1: [0xFF, 6, 5, 4]. Index 100 clamps to n-1=2: [0xFF, 9, 8, 7].
         assertArrayEquals(
-            byteArrayOf(0, 0, 0, 0, 0xFF.toByte(), 0, 0, 0, 0xFF.toByte(), 6, 5, 4, 0xFF.toByte(), 9, 8, 7, 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte()),
+            byteArrayOf(0, 0, 0, 0, 0xFF.toByte(), 3, 2, 1, 0xFF.toByte(), 6, 5, 4, 0xFF.toByte(), 9, 8, 7, 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte()),
             lastWrite(conn)
         )
     }
@@ -62,12 +63,15 @@ class APA102Test {
         d.brightness = 128
         assertEquals(128, d.brightness)
         d.show()
-        // Hardware brightness byte (0xFF) unchanged, RGB scaled
+        // Hardware brightness byte (0xFF) unchanged, RGB scaled.
+        // Full frame: start(4x0x00) + pixel[4] + end(4x0xFF).
         val want = byteArrayOf(
+            0, 0, 0, 0,
             0xFF.toByte(),
             (50 * 128 / 255).toByte(),
             (100 * 128 / 255).toByte(),
             (200 * 128 / 255).toByte(),
+            0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(),
         )
         assertArrayEquals(want, lastWrite(conn))
     }

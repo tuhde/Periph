@@ -2,6 +2,7 @@
 // 13-bit effective color depth demonstration using hardware brightness.
 // Uses SPIConnectionESPIDF for raw SPI Mode 0 (APA102 synchronous protocol).
 
+#include <math.h>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

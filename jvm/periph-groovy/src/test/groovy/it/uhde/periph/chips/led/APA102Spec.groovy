@@ -53,10 +53,11 @@ class APA102Spec extends Specification {
         d.show()
 
         then:
-        // Pixel 0: [0xFF, 0, 0, 0], Pixel 1: [0xFF, 6, 5, 4], Pixel 2: [0xFF, 9, 8, 7]
+        // Index -1 clamps to 0, so it writes pixel 0: [0xFF, 3, 2, 1].
+        // Pixel 1: [0xFF, 6, 5, 4]. Index 100 clamps to n-1=2: [0xFF, 9, 8, 7].
         lastWrite(connection) == [
             0, 0, 0, 0,
-            0xFF, 0, 0, 0,
+            0xFF, 3, 2, 1,
             0xFF, 6, 5, 4,
             0xFF, 9, 8, 7,
             0xFF, 0xFF, 0xFF, 0xFF

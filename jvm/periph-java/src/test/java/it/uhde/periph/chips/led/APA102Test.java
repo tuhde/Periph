@@ -42,9 +42,10 @@ class APA102Test {
         d.setPixel(1, 4, 5, 6, 31);
         d.setPixel(100, 7, 8, 9, 31);
         d.show();
-        // Pixel 0: [0xFF, 0, 0, 0], Pixel 1: [0xFF, 6, 5, 4], Pixel 2: [0xFF, 9, 8, 7]
+        // Index -1 clamps to 0, so it writes pixel 0: [0xFF, 3, 2, 1].
+        // Pixel 1: [0xFF, 6, 5, 4]. Index 100 clamps to n-1=2: [0xFF, 9, 8, 7].
         assertArrayEquals(
-            new byte[]{0, 0, 0, 0, (byte)0xFF, 0, 0, 0, (byte)0xFF, 6, 5, 4, (byte)0xFF, 9, 8, 7, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF},
+            new byte[]{0, 0, 0, 0, (byte)0xFF, 3, 2, 1, (byte)0xFF, 6, 5, 4, (byte)0xFF, 9, 8, 7, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF},
             lastWrite(conn)
         );
     }
@@ -66,12 +67,15 @@ class APA102Test {
         d.setBrightness(128);
         assertEquals(128, d.getBrightness());
         d.show();
-        // Hardware brightness byte (0xFF) unchanged, RGB scaled
+        // Hardware brightness byte (0xFF) unchanged, RGB scaled.
+        // Full frame: start(4x0x00) + pixel[4] + end(4x0xFF).
         byte[] want = {
+            0, 0, 0, 0,
             (byte) 0xFF,
             (byte) (50 * 128 / 255),
             (byte) (100 * 128 / 255),
             (byte) (200 * 128 / 255),
+            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         };
         assertArrayEquals(want, lastWrite(conn));
     }

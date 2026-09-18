@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdio>
 #include <unistd.h>
 #include "SPIConnectionLinux.h"

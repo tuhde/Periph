@@ -13,8 +13,7 @@
 //! The internal buffer holds up to `MAX_PIXELS` (256) pixels (1024 BGR+brightness bytes).
 //! Pixel indices beyond this limit are clamped silently.
 
-use embedded_hal::spi::SpiBus;
-use crate::connection::spi::SpiConnection;
+use embedded_hal::spi::SpiDevice;
 use super::color::hsv_to_rgb;
 
 /// Maximum supported pixel count for the internal BGR+brightness buffer.
@@ -23,16 +22,16 @@ const MAX_BUF: usize = MAX_PIXELS * 4;
 
 /// APA102 minimal driver — fill the entire strip with one colour.
 ///
-/// Wraps an [`SpiConnection`] and manages an internal BGR+brightness pixel buffer.
+/// Wraps an [`SpiDevice`] and manages an internal BGR+brightness pixel buffer.
 /// [`fill`](Apa102Minimal::fill) updates every pixel and transmits immediately;
 /// [`off`](Apa102Minimal::off) is shorthand for `fill(0, 0, 0)`.
 pub struct Apa102Minimal<SPI> {
-    conn: SpiConnection<SPI>,
+    spi: SPI,
     n: usize,
     buf: heapless::Vec<u8, MAX_BUF>,
 }
 
-impl<SPI: SpiBus> Apa102Minimal<SPI> {
+impl<SPI: SpiDevice> Apa102Minimal<SPI> {
     /// Create a new `Apa102Minimal`.
     ///
     /// # Arguments
@@ -49,11 +48,7 @@ impl<SPI: SpiBus> Apa102Minimal<SPI> {
             buf[i * 4 + 2] = 0;          // green
             buf[i * 4 + 3] = 0;          // red
         }
-        Self {
-            conn: SpiConnection::new(spi),
-            n,
-            buf,
-        }
+        Self { spi, n, buf }
     }
 
     /// Fill every pixel with one colour and send to the strip immediately.
@@ -86,10 +81,13 @@ impl<SPI: SpiBus> Apa102Minimal<SPI> {
     /// Send the full APA102 frame (start + pixel buffer + end).
     fn _send_frame(&mut self) -> Result<(), SPI::Error> {
         let end_bytes = ((self.n + 15) / 16).max(4);
-        let mut frame = heapless::Vec::new();
+        let mut frame: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
         frame.resize_default(4 + self.n * 4 + end_bytes).ok();
         // Start frame: 4 zero bytes
-        frame[0] = frame[1] = frame[2] = frame[3] = 0x00;
+        frame[0] = 0x00;
+        frame[1] = 0x00;
+        frame[2] = 0x00;
+        frame[3] = 0x00;
         // Pixel data
         for i in 0..self.n * 4 {
             frame[4 + i] = self.buf[i];
@@ -98,7 +96,7 @@ impl<SPI: SpiBus> Apa102Minimal<SPI> {
         for i in 0..end_bytes {
             frame[4 + self.n * 4 + i] = 0xFF;
         }
-        self.conn.write(&frame)
+        self.spi.write(&frame)
     }
 }
 
@@ -115,7 +113,7 @@ pub struct Apa102Full<SPI> {
     brightness: u8,
 }
 
-impl<SPI: SpiBus> Apa102Full<SPI> {
+impl<SPI: SpiDevice> Apa102Full<SPI> {
     /// Create a new `Apa102Full`.
     ///
     /// # Arguments
@@ -173,9 +171,12 @@ impl<SPI: SpiBus> Apa102Full<SPI> {
         let pixel_data_len = self.inner.n * 4;
         let total_len = 4 + pixel_data_len + end_bytes;
 
-        let mut frame = heapless::Vec::new();
+        let mut frame: heapless::Vec<u8, MAX_BUF> = heapless::Vec::new();
         frame.resize_default(total_len).ok();
-        frame[0] = frame[1] = frame[2] = frame[3] = 0x00;
+        frame[0] = 0x00;
+        frame[1] = 0x00;
+        frame[2] = 0x00;
+        frame[3] = 0x00;
 
         if bri == 255 {
             for i in 0..pixel_data_len {
@@ -185,10 +186,10 @@ impl<SPI: SpiBus> Apa102Full<SPI> {
             // Scale RGB channels, leave hardware brightness byte unchanged
             for i in 0..self.inner.n {
                 let base = i * 4;
-                frame[4 + base]     = self.inner.buf[base];                                              // hardware brightness
-                frame[4 + base + 1] = ((self.inner.buf[base + 1] as u16 * bri as u16 / 255) as u8);  // blue
-                frame[4 + base + 2] = ((self.inner.buf[base + 2] as u16 * bri as u16 / 255) as u8);  // green
-                frame[4 + base + 3] = ((self.inner.buf[base + 3] as u16 * bri as u16 / 255) as u8);  // red
+                frame[4 + base]     = self.inner.buf[base];                                        // hardware brightness
+                frame[4 + base + 1] = (self.inner.buf[base + 1] as u16 * bri as u16 / 255) as u8;  // blue
+                frame[4 + base + 2] = (self.inner.buf[base + 2] as u16 * bri as u16 / 255) as u8;  // green
+                frame[4 + base + 3] = (self.inner.buf[base + 3] as u16 * bri as u16 / 255) as u8;  // red
             }
         }
 
@@ -196,7 +197,7 @@ impl<SPI: SpiBus> Apa102Full<SPI> {
             frame[4 + pixel_data_len + i] = 0xFF;
         }
 
-        self.inner.conn.write(&frame)
+        self.inner.spi.write(&frame)
     }
 
     /// Set multiple pixels from an array of [r, g, b] or [r, g, b, pixel_brightness].
@@ -298,45 +299,61 @@ mod tests {
             pixels.extend_from_slice(&[0xFF, 0x33, 0x22, 0x11]);
         }
         let expected = expected_frame(N, &pixels, end_bytes);
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected)]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.fill(0x11, 0x22, 0x33).unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
     fn set_pixel_then_show_and_index_clamp() {
         let end_bytes = ((N + 15) / 16).max(4);
-        // pixel 1: [0xFF, 0xCC, 0xBB, 0xAA] (brightness=31, B=0xCC, G=0xBB, R=0xAA)
+        // pixel 1: [0xFF, 0xCC, 0xBB, 0xAA] (brightness=31, B=0xCC, G=0xBB, R=0xAA);
+        // every other pixel keeps the constructor's default brightness byte (0xFF)
         let mut pixels1 = vec![0u8; N * 4];
+        for i in 0..N { pixels1[i * 4] = 0xFF; }
         pixels1[4] = 0xFF; pixels1[5] = 0xCC; pixels1[6] = 0xBB; pixels1[7] = 0xAA;
         // clamped index 99 -> N-1: [0xFF, 0x03, 0x02, 0x01]
         let mut pixels2 = pixels1.clone();
         pixels2[(N - 1) * 4] = 0xFF; pixels2[(N - 1) * 4 + 1] = 0x03; pixels2[(N - 1) * 4 + 2] = 0x02; pixels2[(N - 1) * 4 + 3] = 0x01;
 
         let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
             SpiTransaction::write_vec(expected_frame(N, &pixels1, end_bytes)),
+            SpiTransaction::transaction_end(),
+            SpiTransaction::transaction_start(),
             SpiTransaction::write_vec(expected_frame(N, &pixels2, end_bytes)),
+            SpiTransaction::transaction_end(),
         ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_pixel(1, 0xAA, 0xBB, 0xCC, 31);
         sensor.show().unwrap();
         sensor.set_pixel(99, 0x01, 0x02, 0x03, 31);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
     fn set_pixel_with_custom_brightness() {
         let end_bytes = ((N + 15) / 16).max(4);
-        // pixel 0: brightness=16 -> 0xE0|16 = 0xF0, B=0x30, G=0x20, R=0x10
+        // pixel 0: brightness=16 -> 0xE0|16 = 0xF0, B=0x30, G=0x20, R=0x10;
+        // every other pixel keeps the constructor's default brightness byte (0xFF)
         let mut pixels = vec![0u8; N * 4];
+        for i in 0..N { pixels[i * 4] = 0xFF; }
         pixels[0] = 0xF0; pixels[1] = 0x30; pixels[2] = 0x20; pixels[3] = 0x10;
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_pixel(0, 0x10, 0x20, 0x30, 16);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
@@ -351,7 +368,11 @@ mod tests {
         pixels[4] = 0xFF; pixels[5] = 0x60; pixels[6] = 0x50; pixels[7] = 0x40;
         pixels[8] = 0xFF; pixels[9] = 0x90; pixels[10] = 0x80; pixels[11] = 0x70;
         pixels[12] = 0xFF; pixels[13] = 0xC0; pixels[14] = 0xB0; pixels[15] = 0xA0;
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_pixels(&[
             &[0x10, 0x20, 0x30],
@@ -360,7 +381,7 @@ mod tests {
             &[0xA0, 0xB0, 0xC0],
         ]);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
@@ -375,7 +396,11 @@ mod tests {
         pixels[4] = 0xF0; pixels[5] = 0x60; pixels[6] = 0x50; pixels[7] = 0x40;
         pixels[8] = 0xE8; pixels[9] = 0x90; pixels[10] = 0x80; pixels[11] = 0x70;
         pixels[12] = 0xE4; pixels[13] = 0xC0; pixels[14] = 0xB0; pixels[15] = 0xA0;
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_pixels(&[
             &[0x10, 0x20, 0x30, 31],
@@ -384,7 +409,7 @@ mod tests {
             &[0xA0, 0xB0, 0xC0, 4],
         ]);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
@@ -396,15 +421,22 @@ mod tests {
         let scaled_r = (200u16 * 128 / 255) as u8;
         let scaled_g = (100u16 * 128 / 255) as u8;
         let scaled_b = (50u16 * 128 / 255) as u8;
+        // every other pixel keeps its default hardware brightness byte (0xFF, unscaled);
+        // its RGB scales to 0 regardless since the stored channels are 0
         let mut pixels = vec![0u8; N * 4];
+        for i in 0..N { pixels[i * 4] = 0xFF; }
         pixels[0] = 0xFF; pixels[1] = scaled_b; pixels[2] = scaled_g; pixels[3] = scaled_r;
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_brightness(128);
         sensor.set_pixel(0, 200, 100, 50, 31);
         sensor.show().unwrap();
         assert_eq!(sensor.get_brightness(), 128);
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
@@ -418,7 +450,11 @@ mod tests {
         pixels[4] = 0xFF; pixels[7] = 3;
         pixels[8] = 0xFF; pixels[11] = 4;
         pixels[12] = 0xFF; pixels[15] = 1;
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.set_pixel(0, 1, 0, 0, 31);
         sensor.set_pixel(1, 2, 0, 0, 31);
@@ -426,7 +462,7 @@ mod tests {
         sensor.set_pixel(3, 4, 0, 0, 31);
         sensor.rotate(1);
         sensor.show().unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 
     #[test]
@@ -437,9 +473,13 @@ mod tests {
         for i in 0..N {
             pixels[i * 4] = 0xFF; pixels[i * 4 + 3] = 255;
         }
-        let spi = SpiMock::new(&[SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes))]);
+        let spi = SpiMock::new(&[
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(expected_frame(N, &pixels, end_bytes)),
+            SpiTransaction::transaction_end(),
+        ]);
         let mut sensor = Apa102Full::new(spi, N);
         sensor.fill_hsv(0.0, 1.0, 1.0).unwrap();
-        sensor.inner.conn.spi.done();
+        sensor.inner.spi.done();
     }
 }

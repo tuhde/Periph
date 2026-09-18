@@ -1,3 +1,5 @@
+//go:build tinygo
+
 // APA102 demo example for TinyGo — 13-bit effective color depth demonstration.
 // tinygo build -target=pico-w ./go/examples/tinygo/led/apa102/demo/
 package main

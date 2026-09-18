@@ -2,7 +2,17 @@
 //! Prints PASS/FAIL and exits with 0 on success.
 
 use linux_embedded_hal::SpidevBus;
-use periph::connection::spi::SpiConnection;
+use spidev::{Spidev, SpidevOptions, SpiModeFlags};
+use embedded_hal_bus::spi::ExclusiveDevice;
+
+struct NullCs;
+impl embedded_hal::digital::ErrorType for NullCs {
+    type Error = core::convert::Infallible;
+}
+impl embedded_hal::digital::OutputPin for NullCs {
+    fn set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
+    fn set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
+}
 use periph::chips::led::{Apa102Minimal, Apa102Full};
 use std::env;
 use std::process;
@@ -38,15 +48,15 @@ fn main() {
     let bus = env::var("SPI_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
     let device = env::var("SPI_DEVICE").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
 
-    let mut spidev = linux_embedded_hal::Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
+    let mut spidev = Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
     spidev.configure(
-        &linux_embedded_hal::SpidevOptions::new()
+        &SpidevOptions::new()
             .max_speed_hz(1_000_000)
-            .mode(spidev::SpiModeFlags::SPI_MODE_0)
+            .mode(SpiModeFlags::SPI_MODE_0)
             .build(),
     ).unwrap();
     let spi_bus = SpidevBus(spidev);
-    let spi = embedded_hal_bus::spi::ExclusiveDevice::new_no_delay(spi_bus, None).unwrap();
+    let spi = ExclusiveDevice::new_no_delay(spi_bus, NullCs).unwrap();
 
     // --- APA102Minimal ---
     {
@@ -66,15 +76,15 @@ fn main() {
     }
 
     // Need new SPI connection for Full
-    let mut spidev2 = linux_embedded_hal::Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
+    let mut spidev2 = Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
     spidev2.configure(
-        &linux_embedded_hal::SpidevOptions::new()
+        &SpidevOptions::new()
             .max_speed_hz(1_000_000)
-            .mode(spidev::SpiModeFlags::SPI_MODE_0)
+            .mode(SpiModeFlags::SPI_MODE_0)
             .build(),
     ).unwrap();
     let spi_bus2 = SpidevBus(spidev2);
-    let spi2 = embedded_hal_bus::spi::ExclusiveDevice::new_no_delay(spi_bus2, None).unwrap();
+    let spi2 = ExclusiveDevice::new_no_delay(spi_bus2, NullCs).unwrap();
 
     // --- APA102Full ---
     {

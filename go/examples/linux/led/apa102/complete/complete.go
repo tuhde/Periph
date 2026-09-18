@@ -15,7 +15,7 @@ func main() {
 	bus, _ := strconv.Atoi(os.Getenv("SPI_BUS"))
 	device, _ := strconv.Atoi(os.Getenv("SPI_DEVICE"))
 
-	conn, err := connection.NewSPIConnection(bus, device, nil, nil)
+	conn, err := connection.NewSPIConnection(bus, device, 1_000_000, nil, nil)
 	if err != nil {
 		panic(err)
 	}

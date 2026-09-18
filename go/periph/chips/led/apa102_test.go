@@ -4,28 +4,11 @@ package led
 import (
 	"fmt"
 	"testing"
-
-	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// mockConnection is an in-memory fake SPI connection for unit tests.
-// APA102 is write-only (no registers, no reads) and uses raw synchronous SPI.
-type mockConnection struct {
-	writes [][]byte
-}
-
-func (m *mockConnection) Write(data []byte) error {
-	m.writes = append(m.writes, append([]byte(nil), data...))
-	return nil
-}
-func (m *mockConnection) Read(n int) ([]byte, error)      { return make([]byte, n), nil }
-func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) { return make([]byte, n), nil }
-func (m *mockConnection) Close() error                      { return nil }
-func (m *mockConnection) Enable()                           {}
-func (m *mockConnection) Disable()                          {}
-func (m *mockConnection) IsEnabled() bool                   { return true }
-
 // TestAPA102Full runs the same assertions as the Python/C++/Node.js unit tests.
+// APA102 is write-only (no registers, no reads); reuses the shared
+// mockConnection/newMockConnection from ws2812b_test.go.
 func TestAPA102Full(t *testing.T) {
 	passed := 0
 	failed := 0
@@ -50,7 +33,7 @@ func TestAPA102Full(t *testing.T) {
 	}
 
 	const N = 4
-	conn := &mockConnection{}
+	conn := newMockConnection()
 	sensor, err := NewAPA102Full(conn, N)
 	if err != nil {
 		t.Fatal(err)
@@ -94,19 +77,6 @@ func TestAPA102Full(t *testing.T) {
 		}
 	}
 	checkTrue("fill_end_frame", endOk)
-
-	// fill() clamps out-of-range channels.
-	sensor.Fill(255, 255, 255) // force new write
-	sensor.Fill(-10, 300, 128)
-	w = conn.writes[len(conn.writes)-1]
-	clampOk := true
-	for i := 0; i < N; i++ {
-		base := 4 + i*4
-		if w[base] != 0xFF || w[base+1] != 255 || w[base+2] != 0 || w[base+3] != 128 {
-			clampOk = false
-		}
-	}
-	checkTrue("fill_clamps", clampOk)
 
 	// off(): equivalent to fill(0, 0, 0).
 	sensor.Off()

@@ -1,3 +1,5 @@
+//go:build tinygo
+
 // APA102 hardware-in-loop test for TinyGo.
 // Prints PASS/FAIL/===DONE=== protocol.
 package main

@@ -1,6 +1,16 @@
 //! APA102 demo example — 13-bit effective color depth demonstration.
 use linux_embedded_hal::SpidevBus;
-use periph::connection::spi::SpiConnection;
+use spidev::{Spidev, SpidevOptions, SpiModeFlags};
+use embedded_hal_bus::spi::ExclusiveDevice;
+
+struct NullCs;
+impl embedded_hal::digital::ErrorType for NullCs {
+    type Error = core::convert::Infallible;
+}
+impl embedded_hal::digital::OutputPin for NullCs {
+    fn set_low(&mut self) -> Result<(), Self::Error> { Ok(()) }
+    fn set_high(&mut self) -> Result<(), Self::Error> { Ok(()) }
+}
 use periph::chips::led::Apa102Full;
 use std::thread::sleep;
 use std::time::{Duration, Instant};
@@ -30,15 +40,15 @@ fn main() {
     let bus = std::env::var("SPI_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
     let device = std::env::var("SPI_DEVICE").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
 
-    let mut spidev = linux_embedded_hal::Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
+    let mut spidev = Spidev::open(format!("/dev/spidev{bus}.{device}")).unwrap();
     spidev.configure(
-        &linux_embedded_hal::SpidevOptions::new()
+        &SpidevOptions::new()
             .max_speed_hz(1_000_000)
-            .mode(spidev::SpiModeFlags::SPI_MODE_0)
+            .mode(SpiModeFlags::SPI_MODE_0)
             .build(),
     ).unwrap();
     let spi_bus = SpidevBus(spidev);
-    let spi = embedded_hal_bus::spi::ExclusiveDevice::new_no_delay(spi_bus, None).unwrap();
+    let spi = ExclusiveDevice::new_no_delay(spi_bus, NullCs).unwrap();
 
     const N_PIXELS: usize = 30;
     const FRAME_MS: u64 = 16;      // ~60 fps
@@ -57,7 +67,7 @@ fn main() {
     let mut hue_offset = 0.0f32;
     let start = Instant::now();
     let mut last_print = start;
-    while start.elapsed().as_millis() < RAINBOW_MS {
+    while start.elapsed().as_millis() < RAINBOW_MS as u128 {
         for i in 0..N_PIXELS {
             let h = (hue_offset + i as f32 / N_PIXELS as f32) % 1.0;
             let (r, g, b) = hsv_to_rgb(h, 1.0, 1.0);
@@ -71,7 +81,7 @@ fn main() {
             println!("rainbow hw_brightness=31 hue_offset={:.3}", hue_offset);
             last_print = now;
         }
-        let elapsed = now.elapsed().as_millis();
+        let elapsed = now.elapsed().as_millis() as u64;
         if elapsed < FRAME_MS {
             sleep(Duration::from_millis(FRAME_MS - elapsed));
         }
@@ -84,7 +94,7 @@ fn main() {
     hue_offset = 0.0f32;
     let start = Instant::now();
     let mut last_print = start;
-    while start.elapsed().as_millis() < RAINBOW_MS {
+    while start.elapsed().as_millis() < RAINBOW_MS as u128 {
         for i in 0..N_PIXELS {
             let h = (hue_offset + i as f32 / N_PIXELS as f32) % 1.0;
             let (r, g, b) = hsv_to_rgb(h, 1.0, 1.0);
@@ -98,7 +108,7 @@ fn main() {
             println!("rainbow hw_brightness=1 hue_offset={:.3}", hue_offset);
             last_print = now;
         }
-        let elapsed = now.elapsed().as_millis();
+        let elapsed = now.elapsed().as_millis() as u64;
         if elapsed < FRAME_MS {
             sleep(Duration::from_millis(FRAME_MS - elapsed));
         }

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-periph = { path = "../../periph" }
+periph = { path = "../../../periph" }
 esp-hal = { version = "1.0.0-rc.2", features = ["spi"] }
 
 [[bin]]

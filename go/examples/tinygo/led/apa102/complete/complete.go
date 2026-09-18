@@ -1,3 +1,5 @@
+//go:build tinygo
+
 // APA102 complete example for TinyGo — every API method demonstrated.
 // tinygo build -target=pico-w ./go/examples/tinygo/led/apa102/complete/
 package main

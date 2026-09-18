@@ -2,6 +2,7 @@
 // 13-bit effective color depth demonstration using hardware brightness.
 // Uses SPIConnectionPicoSDK for raw SPI Mode 0 (APA102 synchronous protocol).
 
+#include <math.h>
 #include <stdio.h>
 #include <pico/stdlib.h>
 #include <hardware/spi.h>

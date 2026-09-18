@@ -55,18 +55,10 @@ int main() {
     }
     check_true(end_ok, "fill_end_frame");
 
-    // fill() clamps out-of-range channels.
-    sensor.fill(-10, 300, 128);
-    const auto& w1 = connection.writes().back();
-    // Expected: [0xFF, 255, 0, 128] per pixel (B=255 clamped, G=0 clamped, R=128)
-    bool clamp_ok = true;
-    for (size_t i = 0; i < N; i++) {
-        size_t base = 4 + i * 4;
-        if (w1[base] != 0xFF || w1[base + 1] != 255 || w1[base + 2] != 0 || w1[base + 3] != 128) {
-            clamp_ok = false;
-        }
-    }
-    check_true(clamp_ok, "fill_clamps");
+    // No fill_clamps test here: fill() takes uint8_t directly (unlike Python/
+    // Node.js's wider int parameter), so out-of-range values aren't
+    // representable at the call site and there's no runtime clamp to test —
+    // matching the Rust and Go drivers, which have the same uint8 signature.
 
     // off(): equivalent to fill(0, 0, 0).
     sensor.off();

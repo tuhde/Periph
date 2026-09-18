@@ -86,7 +86,8 @@ class APA102Minimal {
      * Send the full APA102 frame (start + pixel buffer + end).
      */
     protected void sendFrame() {
-        int endBytes = Math.max(4, (n + 15) / 16)
+        int minEndBytes = (n + 15).intdiv(16)
+        int endBytes = minEndBytes < 4 ? 4 : minEndBytes
         byte[] frame = new byte[4 + n * 4 + endBytes]
         frame[0] = frame[1] = frame[2] = frame[3] = 0x00 // start frame
         System.arraycopy(buf, 0, frame, 4, n * 4)        // pixel data

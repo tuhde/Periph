@@ -62,7 +62,7 @@ check_true('fill_end_frame', connection.writes[-1][-end_bytes:] == end_frame)
 # fill() clamps out-of-range channels.
 sensor.fill(-10, 300, 128)
 pixel_data = connection.writes[-1][4:4 + N * 4]
-expected_clamped = bytes([0xFF, 255, 0, 128])  # [brightness|31, B=255(clamped), G=0(clamped), R=128]
+expected_clamped = bytes([0xFF, 128, 255, 0])  # [brightness|31, B=128(unchanged), G=255(clamped), R=0(clamped)]
 check_true('fill_clamps', pixel_data == expected_clamped * N)
 
 # off(): equivalent to fill(0, 0, 0).

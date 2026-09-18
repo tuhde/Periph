@@ -82,16 +82,16 @@ class APA102Full extends APA102Minimal {
     }
 
     /**
-     * Write multiple pixels from a 2D array into the buffer starting at pixel 0.
+     * Write multiple pixels from a list into the buffer starting at pixel 0.
      *
-     * <p>Each element is {@code {r, g, b}} or {@code {r, g, b, pixelBrightness}}.
+     * <p>Each element is {@code [r, g, b]} or {@code [r, g, b, pixelBrightness]}.
      * Missing brightness defaults to 31. Extra entries beyond the strip
      * length are ignored. Call {@link #show()} to transmit.
      *
-     * @param colors array of {@code {r, g, b}} or {@code {r, g, b, pixelBrightness}} arrays
+     * @param colors list of {@code [r, g, b]} or {@code [r, g, b, pixelBrightness]} int arrays
      */
-    void setPixels(int[][] colors) {
-        int count = Math.min(colors.length, n)
+    void setPixels(List<int[]> colors) {
+        int count = Math.min(colors.size(), n)
         for (int i = 0; i < count; i++) {
             int[] c = colors[i]
             int r = Math.max(0, Math.min(255, c[0]))
@@ -115,7 +115,8 @@ class APA102Full extends APA102Minimal {
      * The per-pixel hardware brightness byte is NOT scaled.
      */
     void show() {
-        int endBytes = Math.max(4, (n + 15) / 16)
+        int minEndBytes = (n + 15).intdiv(16)
+        int endBytes = minEndBytes < 4 ? 4 : minEndBytes
         int pixelDataLen = n * 4
         int totalLen = 4 + pixelDataLen + endBytes
 
@@ -177,6 +178,23 @@ class APA102Full extends APA102Minimal {
     }
 
     private static int[] hsvToRgb(double h, double s, double v) {
-        return NeoPixelColor.hsvToRgb(h, s, v)
+        if (s == 0.0) {
+            int c = (int) (v * 255)
+            return [c, c, c] as int[]
+        }
+        int i    = (int) (h * 6.0)
+        double f = h * 6.0 - i
+        int p    = (int) (v * (1.0 - s) * 255)
+        int q    = (int) (v * (1.0 - s * f) * 255)
+        int t    = (int) (v * (1.0 - s * (1.0 - f)) * 255)
+        int vv   = (int) (v * 255)
+        switch (i % 6) {
+            case 0:  return [vv, t, p] as int[]
+            case 1:  return [q, vv, p] as int[]
+            case 2:  return [p, vv, t] as int[]
+            case 3:  return [p, q, vv] as int[]
+            case 4:  return [t, p, vv] as int[]
+            default: return [vv, p, q] as int[]
+        }
     }
 }

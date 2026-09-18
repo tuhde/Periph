@@ -56,11 +56,11 @@ async function main() {
     // fill() clamps out-of-range channels.
     await sensor.fill(-10, 300, 128);
     w = connection.writes[connection.writes.length - 1];
-    // Expected: [0xFF, 255, 0, 128] per pixel (B=255 clamped, G=0 clamped, R=128)
+    // Expected: [0xFF, 128, 255, 0] per pixel (B=128 unchanged, G=255 clamped, R=0 clamped)
     let clampOk = true;
     for (let i = 0; i < N; i++) {
         const base = 4 + i * 4;
-        if (w[base] !== 0xFF || w[base + 1] !== 255 || w[base + 2] !== 0 || w[base + 3] !== 128) {
+        if (w[base] !== 0xFF || w[base + 1] !== 128 || w[base + 2] !== 255 || w[base + 3] !== 0) {
             clampOk = false;
         }
     }

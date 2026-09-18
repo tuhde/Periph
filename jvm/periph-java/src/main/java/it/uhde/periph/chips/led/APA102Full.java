@@ -123,7 +123,6 @@ public class APA102Full extends APA102Minimal {
      *
      * @throws IOException on connection error
      */
-    @Override
     public void show() throws IOException {
         int endBytes = Math.max(4, (n + 15) / 16);
         int pixelDataLen = n * 4;
@@ -159,7 +158,6 @@ public class APA102Full extends APA102Minimal {
      *
      * @param steps number of pixel positions to shift left
      */
-    @Override
     public void rotate(int steps) {
         if (n == 0) return;
         steps = ((steps % n) + n) % n;
@@ -183,7 +181,6 @@ public class APA102Full extends APA102Minimal {
      * @param v value / brightness (0.0–1.0)
      * @throws IOException on connection error
      */
-    @Override
     public void fillHsv(double h, double s, double v) throws IOException {
         int[] rgb = hsvToRgb(h, s, v);
         fill(rgb[0], rgb[1], rgb[2]);

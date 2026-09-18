@@ -57,7 +57,7 @@ class Decoder(srd.Decoder):
                      [ANN_END,
                       ['End frame (%d bytes)' % self.end_ff_count,
                        'End %dB' % self.end_ff_count,
-                       'E%d' % self.end_ff_count]]])
+                       'E%d' % self.end_ff_count]])
             self.put(self.ss_end, es, self.out_python, ['END', self.end_ff_count])
             self.ss_end = None
 

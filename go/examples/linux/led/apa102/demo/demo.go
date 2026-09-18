@@ -3,6 +3,7 @@
 package main
 
 import (
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -52,7 +53,7 @@ func main() {
 	bus, _ := strconv.Atoi(os.Getenv("SPI_BUS"))
 	device, _ := strconv.Atoi(os.Getenv("SPI_DEVICE"))
 
-	conn, err := connection.NewSPIConnection(bus, device, nil, nil)
+	conn, err := connection.NewSPIConnection(bus, device, 1_000_000, nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -79,13 +80,13 @@ func main() {
 	lastPrint := start
 	for time.Since(start).Milliseconds() < RAINBOW_MS {
 		for i := 0; i < N_PIXELS; i++ {
-			h := float32((float64(hueOffset) + float64(i)/float64(N_PIXELS))) % 1.0
+			h := float32(math.Mod(float64(hueOffset)+float64(i)/float64(N_PIXELS), 1.0))
 			r, g, b := hsvToRGB(h, 1.0, 1.0)
 			strip.SetPixel(i, r, g, b, 31)                       // Set pixel i to rainbow hue at hw brightness 31, (index=0–n-1, r=0–255, g=0–255, b=0–255, pixel_brightness=0–31) → ()
 		}
 		strip.Show()                                             // Transmit buffer to strip, () → error
 																 // applies software brightness scaling then calls connection.Write()
-		hueOffset = float32(float64(hueOffset) + 1.0/float64(N_PIXELS*2)) % 1.0
+		hueOffset = float32(math.Mod(float64(hueOffset)+1.0/float64(N_PIXELS*2), 1.0))
 		now := time.Now()
 		if now.Sub(lastPrint).Seconds() >= 1 {
 			println("rainbow hw_brightness=31 hue_offset=", hueOffset)
@@ -106,13 +107,13 @@ func main() {
 	lastPrint = start
 	for time.Since(start).Milliseconds() < RAINBOW_MS {
 		for i := 0; i < N_PIXELS; i++ {
-			h := float32((float64(hueOffset) + float64(i)/float64(N_PIXELS))) % 1.0
+			h := float32(math.Mod(float64(hueOffset)+float64(i)/float64(N_PIXELS), 1.0))
 			r, g, b := hsvToRGB(h, 1.0, 1.0)
 			strip.SetPixel(i, r, g, b, 1)                        // Set pixel i to rainbow hue at hw brightness 1, (index=0–n-1, r=0–255, g=0–255, b=0–255, pixel_brightness=0–31) → ()
 		}
 		strip.Show()                                             // Transmit buffer to strip, () → error
 																 // applies software brightness scaling then calls connection.Write()
-		hueOffset = float32(float64(hueOffset) + 1.0/float64(N_PIXELS*2)) % 1.0
+		hueOffset = float32(math.Mod(float64(hueOffset)+1.0/float64(N_PIXELS*2), 1.0))
 		now := time.Now()
 		if now.Sub(lastPrint).Seconds() >= 1 {
 			println("rainbow hw_brightness=1 hue_offset=", hueOffset)
