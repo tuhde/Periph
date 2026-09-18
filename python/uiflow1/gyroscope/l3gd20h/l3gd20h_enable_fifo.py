@@ -1,0 +1,1 @@
+_periph_l3gd20h.enable_fifo(enable=${_enable})

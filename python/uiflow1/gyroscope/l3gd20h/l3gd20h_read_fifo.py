@@ -1,0 +1,1 @@
+_periph_l3gd20h.read_fifo()

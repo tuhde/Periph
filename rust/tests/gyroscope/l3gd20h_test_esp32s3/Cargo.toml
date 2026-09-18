@@ -1,0 +1,10 @@
+[package]
+name = "l3gd20h_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+esp-hal = { version = "1.0.0-rc.3", features = ["esp32s3", "unstable"] }
+esp-backtrace = { version = "1.0.0-rc.3", features = ["print-debug", "esp-println", "panic-handler"] }
+esp-println = "1.0.0-rc.3"
+periph = { path = "../../../../periph", features = ["esp-hal"] }
