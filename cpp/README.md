@@ -43,6 +43,7 @@ Each chip exposes two classes:
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
+| APA102 | LED driver | `chips/led/APA102.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
