@@ -1,0 +1,8 @@
+[package]
+name = "l3gd20h_complete"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+linux-embedded-hal = "0.8"
+periph = { path = "../../../../periph" }
