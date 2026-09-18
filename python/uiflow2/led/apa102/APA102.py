@@ -1,6 +1,6 @@
 """
 file     APA102
-time     2026-09-16
+time     2026-09-18
 author
 email
 license  Apache License 2.0
@@ -133,7 +133,7 @@ class APA102:
     def brightness(self) -> int:
         """
         label:
-            en: '%1 brightness (0–255)'
+            en: '%1 brightness (0-255)'
         """
         return self._driver.brightness
 
@@ -150,17 +150,6 @@ class APA102:
                 max: '255'
         """
         self._driver.brightness = value
-
-    def set_pixels(self, colors):
-        """
-        label:
-            en: '%1 set pixels from list %2'
-        params:
-            colors:
-                name: colors
-                type: list
-        """
-        self._driver.set_pixels(colors)
 
     def rotate(self, steps: int = 1):
         """
@@ -200,3 +189,9 @@ class APA102:
                 max: '1.0'
         """
         self._driver.fill_hsv(h, s, v)
+
+    def _set_pixels(self, colors):
+        # No block: UiFlow 2's custom-block format has no verified mapping for a
+        # list-typed parameter (see UIFLOW2_BLOCKS.md §4/§7), so this stays hidden
+        # rather than guessing at one. set_pixel() covers the same ground per-pixel.
+        self._driver.set_pixels(colors)

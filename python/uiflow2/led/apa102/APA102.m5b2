@@ -2,14 +2,26 @@
   "category": "APA102",
   "color": "#C084FC",
   "uiflow2": {
-    "jscode": "",
-    "toolbox": "",
-    "toolboxitemid": "",
-    "block_type": []
+    "jscode": "const CUSTOM_APA102_LANGUAGES = {\n  \"CUSTOM_APA102_INIT\": {\n    \"en\": \"%1 init SPI bus %2 device %3 n %4\"\n  },\n  \"CUSTOM_APA102_FILL\": {\n    \"en\": \"%1 fill all pixels r %2 g %3 b %4\"\n  },\n  \"CUSTOM_APA102_SET_PIXEL\": {\n    \"en\": \"%1 set pixel index %2 r %3 g %4 b %5 brightness %6\"\n  },\n  \"CUSTOM_APA102_SHOW\": {\n    \"en\": \"%1 show (transmit buffer)\"\n  },\n  \"CUSTOM_APA102_OFF\": {\n    \"en\": \"%1 off (all pixels)\"\n  },\n  \"CUSTOM_APA102_BRIGHTNESS\": {\n    \"en\": \"%1 brightness (0-255)\"\n  },\n  \"CUSTOM_APA102_SET_BRIGHTNESS\": {\n    \"en\": \"%1 set brightness %2\"\n  },\n  \"CUSTOM_APA102_ROTATE\": {\n    \"en\": \"%1 rotate buffer steps %2\"\n  },\n  \"CUSTOM_APA102_FILL_HSV\": {\n    \"en\": \"%1 fill hsv h %2 s %3 v %4\"\n  }\n};\n\nconst initType = 'custom_apa102_init';\nBlockly.BlockRegExpList['custom_apa102'] = {\n  regexp: new RegExp(/^custom_apa102_/),\n  code: \"from APA102 import APA102\",\n  initBlockType: initType,\n  categoryId: 'custom_apa102',\n}\nBlockly.utils.registerLanguages(CUSTOM_APA102_LANGUAGES)\n\nBlockly.Msg.CUSTOM_APA102_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_APA102 = 'APA102'\n\nBlockly.utils.getcustom_apa102Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['apa102_0', 'apa102_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_apa102_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_apa102Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'apa102_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'device'\n        },\n        {\n          'type': 'input_value',\n          'name': 'n'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var device = Blockly.Python.valueToCode(block, 'device', Blockly.Python.ORDER_FUNCTION_CALL);\n  var n = Blockly.Python.valueToCode(block, 'n', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = APA102(${bus}, ${device}, ${n})\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'r'\n        },\n        {\n          'type': 'input_value',\n          'name': 'g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'b'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var r = Blockly.Python.valueToCode(block, 'r', Blockly.Python.ORDER_FUNCTION_CALL);\n  var g = Blockly.Python.valueToCode(block, 'g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var b = Blockly.Python.valueToCode(block, 'b', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${r}, ${g}, ${b})\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'index'\n        },\n        {\n          'type': 'input_value',\n          'name': 'r'\n        },\n        {\n          'type': 'input_value',\n          'name': 'g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'b'\n        },\n        {\n          'type': 'input_value',\n          'name': 'pixel_brightness'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var index = Blockly.Python.valueToCode(block, 'index', Blockly.Python.ORDER_FUNCTION_CALL);\n  var r = Blockly.Python.valueToCode(block, 'r', Blockly.Python.ORDER_FUNCTION_CALL);\n  var g = Blockly.Python.valueToCode(block, 'g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var b = Blockly.Python.valueToCode(block, 'b', Blockly.Python.ORDER_FUNCTION_CALL);\n  var pixel_brightness = Blockly.Python.valueToCode(block, 'pixel_brightness', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${index}, ${r}, ${g}, ${b}, ${pixel_brightness})\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_show\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_SHOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_show\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.show()\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return `${varname}.off()\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_brightness\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_BRIGHTNESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_brightness\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  return [`${varname}.brightness()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_apa102_set_brightness\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_SET_BRIGHTNESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_set_brightness\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_brightness(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_rotate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_ROTATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'steps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_rotate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var steps = Blockly.Python.valueToCode(block, 'steps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.rotate(${steps})\\n`\n}\n\nBlockly.Blocks[\"custom_apa102_fill_hsv\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_APA102_FILL_HSV,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_apa102Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'h'\n        },\n        {\n          'type': 'input_value',\n          'name': 's'\n        },\n        {\n          'type': 'input_value',\n          'name': 'v'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_apa102_fill_hsv\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var h = Blockly.Python.valueToCode(block, 'h', Blockly.Python.ORDER_FUNCTION_CALL);\n  var s = Blockly.Python.valueToCode(block, 's', Blockly.Python.ORDER_FUNCTION_CALL);\n  var v = Blockly.Python.valueToCode(block, 'v', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill_hsv(${h}, ${s}, ${v})\\n`\n}\n",
+    "toolbox": "\n<category name=\"APA102\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_apa102\"><title text=\"APA102\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_apa102_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"device\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"n\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apa102_fill\">\n  <value name=\"r\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apa102_set_pixel\">\n  <value name=\"index\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"r\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"b\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"pixel_brightness\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">31</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apa102_show\"/><block type=\"custom_apa102_off\"/><block type=\"custom_apa102_brightness\"/><block type=\"custom_apa102_set_brightness\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apa102_rotate\">\n  <value name=\"steps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_apa102_fill_hsv\">\n  <value name=\"h\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n  <value name=\"s\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n  <value name=\"v\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_apa102",
+    "block_type": [
+      "custom_apa102___init__",
+      "custom_apa102_fill",
+      "custom_apa102_set_pixel",
+      "custom_apa102_show",
+      "custom_apa102_off",
+      "custom_apa102_brightness",
+      "custom_apa102_set_brightness",
+      "custom_apa102_rotate",
+      "custom_apa102_fill_hsv"
+    ]
   },
   "data": {
     "name": "APA102",
-    "note": { "en": "" },
+    "note": {
+      "en": ""
+    },
     "details": {
       "color": "#C084FC",
       "link": "https://github.com/tuhde/Periph",
@@ -18,7 +30,7 @@
     },
     "header": {
       "file": "APA102",
-      "time": "2026-09-16",
+      "time": "2026-09-18",
       "author": "",
       "email": "",
       "license": "Apache License 2.0"
@@ -26,10 +38,283 @@
     "assignments": [],
     "example": "",
     "source_internal": "",
-    "source_external": "",
-    "members": [],
-    "python_file_name": "APA102.py"
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.led.apa102 import APA102Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SPI bus %2 device %3 n %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "device",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "n",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1024",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = APA102Full(SPIConnection(bus=bus, device=device, polarity=0, phase=0, baudrate=1000000), n)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill all pixels r %2 g %3 b %4"
+        },
+        "params": [
+          {
+            "name": "r",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "g",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "b",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(r, g, b)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel index %2 r %3 g %4 b %5 brightness %6"
+        },
+        "params": [
+          {
+            "name": "index",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "1023",
+            "min": "0"
+          },
+          {
+            "name": "r",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "g",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "b",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "pixel_brightness",
+            "type": "int",
+            "default": "31",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(index, r, g, b, pixel_brightness)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show",
+        "note": {},
+        "label": {
+          "en": "%1 show (transmit buffer)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.show()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "off",
+        "note": {},
+        "label": {
+          "en": "%1 off (all pixels)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.off()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "brightness",
+        "note": {},
+        "label": {
+          "en": "%1 brightness (0-255)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.brightness",
+        "ast_return": {
+          "code": "self._driver.brightness",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_brightness",
+        "note": {},
+        "label": {
+          "en": "%1 set brightness %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.brightness = value",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "rotate",
+        "note": {},
+        "label": {
+          "en": "%1 rotate buffer steps %2"
+        },
+        "params": [
+          {
+            "name": "steps",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.rotate(steps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill_hsv",
+        "note": {},
+        "label": {
+          "en": "%1 fill hsv h %2 s %3 v %4"
+        },
+        "params": [
+          {
+            "name": "h",
+            "type": "float",
+            "note": {},
+            "field": "number",
+            "max": "1.0",
+            "min": "0.0"
+          },
+          {
+            "name": "s",
+            "type": "float",
+            "note": {},
+            "field": "number",
+            "max": "1.0",
+            "min": "0.0"
+          },
+          {
+            "name": "v",
+            "type": "float",
+            "note": {},
+            "field": "number",
+            "max": "1.0",
+            "min": "0.0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill_hsv(h, s, v)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "apa102"
   },
-  "pyCode": "",
+  "pyCode": "\"\"\"\nfile     APA102\ntime     2026-09-18\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.led.apa102 import APA102Full\n\n\nclass APA102:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, device: int = 0, n: int = 1):\n        \"\"\"\n        label:\n            en: '%1 init SPI bus %2 device %3 n %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            device:\n                name: device\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            n:\n                name: n\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '1024'\n        \"\"\"\n        self._driver = APA102Full(SPIConnection(bus=bus, device=device, polarity=0, phase=0, baudrate=1000000), n)\n\n    def fill(self, r: int, g: int, b: int):\n        \"\"\"\n        label:\n            en: '%1 fill all pixels r %2 g %3 b %4'\n        params:\n            r:\n                name: r\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n            g:\n                name: g\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n            b:\n                name: b\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.fill(r, g, b)\n\n    def set_pixel(self, index: int, r: int, g: int, b: int, pixel_brightness: int = 31):\n        \"\"\"\n        label:\n            en: '%1 set pixel index %2 r %3 g %4 b %5 brightness %6'\n        params:\n            index:\n                name: index\n                type: int\n                field: number\n                min: '0'\n                max: '1023'\n            r:\n                name: r\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n            g:\n                name: g\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n            b:\n                name: b\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n            pixel_brightness:\n                name: pixel_brightness\n                type: int\n                default: '31'\n                field: number\n                min: '0'\n                max: '31'\n        \"\"\"\n        self._driver.set_pixel(index, r, g, b, pixel_brightness)\n\n    def show(self):\n        \"\"\"\n        label:\n            en: '%1 show (transmit buffer)'\n        \"\"\"\n        self._driver.show()\n\n    def off(self):\n        \"\"\"\n        label:\n            en: '%1 off (all pixels)'\n        \"\"\"\n        self._driver.off()\n\n    def brightness(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 brightness (0-255)'\n        \"\"\"\n        return self._driver.brightness\n\n    def set_brightness(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 set brightness %2'\n        params:\n            value:\n                name: value\n                type: int\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.brightness = value\n\n    def rotate(self, steps: int = 1):\n        \"\"\"\n        label:\n            en: '%1 rotate buffer steps %2'\n        params:\n            steps:\n                name: steps\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.rotate(steps)\n\n    def fill_hsv(self, h: float, s: float, v: float):\n        \"\"\"\n        label:\n            en: '%1 fill hsv h %2 s %3 v %4'\n        params:\n            h:\n                name: h\n                type: float\n                field: number\n                min: '0.0'\n                max: '1.0'\n            s:\n                name: s\n                type: float\n                field: number\n                min: '0.0'\n                max: '1.0'\n            v:\n                name: v\n                type: float\n                field: number\n                min: '0.0'\n                max: '1.0'\n        \"\"\"\n        self._driver.fill_hsv(h, s, v)\n\n    def _set_pixels(self, colors):\n        # No block: UiFlow 2's custom-block format has no verified mapping for a\n        # list-typed parameter (see UIFLOW2_BLOCKS.md \u00a74/\u00a77), so this stays hidden\n        # rather than guessing at one. set_pixel() covers the same ground per-pixel.\n        self._driver.set_pixels(colors)\n",
   "version": "alpha2"
 }

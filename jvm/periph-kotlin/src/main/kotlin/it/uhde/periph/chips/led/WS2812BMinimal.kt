@@ -12,40 +12,17 @@ import it.uhde.periph.connection.Connection
  * Use [WS2812BFull] for per-pixel addressing, explicit frame control,
  * brightness scaling, and HSV fill.
  *
+ * Extends the shared Java [NeoPixelRGBMinimal] base, fixing GRB wire order
+ * and WS2812B's default reset length.
+ *
  * @param connection configured NeoPixel connection
  * @param n number of pixels in the strip (≥1)
  */
-open class WS2812BMinimal(
-    protected val connection: Connection,
-    protected val n: Int
-) {
-    /** Internal pixel buffer in GRB wire order (G, R, B per pixel). */
-    protected val buf: ByteArray = ByteArray(n * 3)
+class WS2812BMinimal(connection: Connection, n: Int) :
+    NeoPixelRGBMinimal(connection, n, CHANNEL_ORDER, RESET_BYTES) {
 
-    /**
-     * Fill every pixel with one colour and transmit immediately.
-     *
-     * Each channel is clamped to [0, 255]. Stores values in GRB wire order
-     * (WS2812B expects G, R, B on the data line).
-     *
-     * @param r red channel (0–255)
-     * @param g green channel (0–255)
-     * @param b blue channel (0–255)
-     */
-    fun fill(r: Int, g: Int, b: Int) {
-        val rc = r.coerceIn(0, 255)
-        val gc = g.coerceIn(0, 255)
-        val bc = b.coerceIn(0, 255)
-        for (i in 0 until n) {
-            buf[i * 3]     = gc.toByte()
-            buf[i * 3 + 1] = rc.toByte()
-            buf[i * 3 + 2] = bc.toByte()
-        }
-        connection.write(buf)
+    companion object {
+        private val CHANNEL_ORDER = intArrayOf(1, 0, 2) // GRB: wire[0]=G, wire[1]=R, wire[2]=B
+        private const val RESET_BYTES = 16               // ~53us, WS2812B's default minimum
     }
-
-    /**
-     * Turn off all pixels (equivalent to [fill](0, 0, 0)).
-     */
-    fun off() = fill(0, 0, 0)
 }

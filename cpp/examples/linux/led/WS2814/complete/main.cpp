@@ -1,0 +1,20 @@
+#include <cstdio>
+#include <unistd.h>
+#include "NeoPixelConnectionLinux.h"
+#include "WS2814.h"
+
+int main() {
+    NeoPixelConnectionLinux connection(0, 0);
+    WS2814Full strip(connection, 8);                                    // Create WS2814 full driver, (connection, n=8 pixels)
+
+    strip.fill(255, 0, 0, 0);                                              // Fill all pixels red, (r, g, b, w) → void
+    usleep(500000);
+    strip.set_pixel(0, 255, 0, 0, 0);                                      // Set pixel 0 in buffer, (index, r, g, b, w) → void
+    strip.set_pixel(1, 0, 0, 0, 255);                                      // Set pixel 1 white channel, (index, r, g, b, w) → void
+    strip.show();                                                          // Transmit buffer to strip, () → void
+    usleep(500000);
+    strip.set_brightness(64);                                              // Set global brightness 0–255, (brightness) → void
+    strip.show();                                                          // Apply brightness and transmit, () → void
+    strip.off();                                                           // Turn off all pixels, () → void
+    return 0;
+}

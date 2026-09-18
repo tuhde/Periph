@@ -13,6 +13,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../)
 add_executable(ws2812b_demo_picosdk
     src/main.cpp
     ${CPP_DIR}/src/chips/led/WS2812B.cpp
+    ${CPP_DIR}/src/chips/led/NeoPixelRGBBase.cpp
 )
 
 target_include_directories(ws2812b_demo_picosdk PRIVATE

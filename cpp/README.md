@@ -73,6 +73,8 @@ Each chip exposes two classes:
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
+| NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
+| NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |
 | PCF8575 | IO expander | `chips/io_expander/PCF8575.h` |
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
@@ -81,6 +83,7 @@ Each chip exposes two classes:
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
+| WS2814 | LED driver | `chips/led/WS2814.h` |
 
 ## Examples
 

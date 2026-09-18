@@ -325,15 +325,26 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### C++
 - [ ] Driver `cpp/src/chips/io_expander/<Chip>.h` — Doxygen `/** @brief */` on every class and public method; includes `IOExpanderPin` nested class
 - [ ] Driver `cpp/src/chips/io_expander/<Chip>.cpp`
-- [ ] Examples `cpp/examples/<Chip>_Minimal/<Chip>_Minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/<Chip>_Complete/<Chip>_Complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/<Chip>_Demo/<Chip>_Demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/<Chip>_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/<Chip>_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/<Chip>_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/arduino/io_expander/<Chip>/minimal/minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/arduino/io_expander/<Chip>/complete/complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/arduino/io_expander/<Chip>/demo/demo.ino` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/linux/io_expander/<Chip>/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/linux/io_expander/<Chip>/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/linux/io_expander/<Chip>/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/zephyr/io_expander/<Chip>/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/zephyr/io_expander/<Chip>/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/zephyr/io_expander/<Chip>/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/espidf/io_expander/<Chip>/minimal/main/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/espidf/io_expander/<Chip>/complete/main/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/espidf/io_expander/<Chip>/demo/main/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/minimal/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/complete/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/picosdk/io_expander/<Chip>/demo/src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/io_expander/<chip>_test/<chip>_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_linux/<chip>_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/io_expander/<chip>_test_zephyr/src/main.cpp` (Zephyr)
+- [ ] Tests `cpp/tests/io_expander/<chip>_test_espidf/main/main.cpp` (ESP-IDF)
+- [ ] Tests `cpp/tests/io_expander/<chip>_test_picosdk/src/main.cpp` (Pico SDK)
 - [ ] Unit test `cpp/tests/io_expander/<chip>_test_unit/<chip>_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
@@ -352,9 +363,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Rust
 - [ ] Driver `rust/periph/src/chips/io_expander/<chip>.rs` — `//!` module doc + `///` on every `pub` item; includes `ExPin` type implementing `OutputPin` / `InputPin`
 - [ ] Re-export from `rust/periph/src/chips/io_expander/mod.rs`: `pub use <chip>::{<Chip>Minimal, <Chip>Full, ExPin};`
-- [ ] Examples `rust/examples/<chip>_minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/<chip>_complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/<chip>_demo/src/main.rs` — Tier-1 + Tier-3
+- [ ] Examples `rust/examples/linux/io_expander/<chip>/minimal/src/main.rs` — Tier-1
+- [ ] Examples `rust/examples/linux/io_expander/<chip>/complete/src/main.rs` — Tier-1 + Tier-2
+- [ ] Examples `rust/examples/linux/io_expander/<chip>/demo/src/main.rs` — Tier-1 + Tier-3
 - [ ] Tests `rust/tests/io_expander/<chip>_test/src/main.rs` (Linux)
 - [ ] Tests `rust/tests/io_expander/<chip>_test_esp32s3/src/main.rs` (ESP32-S3)
 - [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/io_expander/<chip>.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)

@@ -1,7 +1,11 @@
 mod color;
+mod neopixel_rgb_base;
+mod neopixel_rgbw_base;
 pub mod ws2812b;
 pub mod sk6812rgbw;
 pub mod apa102;
+pub mod ws2814;
 pub use ws2812b::{Ws2812bMinimal, Ws2812bFull};
 pub use sk6812rgbw::{Sk6812RgbwMinimal, Sk6812RgbwFull};
 pub use apa102::{Apa102Minimal, Apa102Full};
+pub use ws2814::{Ws2814Minimal, Ws2814Full};

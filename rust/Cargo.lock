@@ -727,6 +727,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "hx710b_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710b_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710b_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "hx710b_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "gpio-cdev",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "hx711_complete"
 version = "0.1.0"
 dependencies = [
@@ -2059,6 +2099,38 @@ dependencies = [
 
 [[package]]
 name = "ws2812b_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ws2814_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ws2814_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ws2814_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ws2814_test"
 version = "0.1.0"
 dependencies = [
  "linux-embedded-hal",

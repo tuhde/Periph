@@ -1,0 +1,63 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ws2814_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init WS2814", "type": "label" },
+        { "name": "MOSI pin", "type": "label" },
+        { "name": "_mosi", "type": "number" },
+        { "name": "SCK pin", "type": "label" },
+        { "name": "_sck", "type": "number" },
+        { "name": "MISO pin", "type": "label" },
+        { "name": "_miso", "type": "number" },
+        { "name": "pixel count", "type": "label" },
+        { "name": "_n", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2814_fill",
+      "type": "execute",
+      "params": [
+        { "name": "WS2814 fill all pixels", "type": "label" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" },
+        { "name": "W", "type": "label" },
+        { "name": "_w", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2814_set_pixel",
+      "type": "execute",
+      "params": [
+        { "name": "WS2814 set pixel", "type": "label" },
+        { "name": "index", "type": "label" },
+        { "name": "_index", "type": "number" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" },
+        { "name": "W", "type": "label" },
+        { "name": "_w", "type": "number" }
+      ]
+    },
+    {
+      "name": "ws2814_show",
+      "type": "execute",
+      "params": [{ "name": "WS2814 show (transmit buffer)", "type": "label" }]
+    },
+    {
+      "name": "ws2814_off",
+      "type": "execute",
+      "params": [{ "name": "WS2814 off (all pixels)", "type": "label" }]
+    }
+  ]
+}

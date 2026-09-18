@@ -32,6 +32,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>it.uhde</groupId>
+                <artifactId>periph-java</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
