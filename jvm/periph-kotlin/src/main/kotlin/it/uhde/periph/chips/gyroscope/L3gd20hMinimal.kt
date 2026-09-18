@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.gyroscope
 
 import it.uhde.periph.connection.Connection
+import java.io.IOException
 
 /**
  * L3GD20H (and L3GD20) three-axis MEMS gyroscope — minimal driver.
@@ -15,7 +16,6 @@ import it.uhde.periph.connection.Connection
  * @param connection I²C connection bound to the chip.
  * @param spi true for SPI bus, false for I²C.
  */
-@JvmOverloads
 open class L3gd20hMinimal @JvmOverloads constructor(
     protected val connection: Connection,
     spi: Boolean = false
@@ -52,7 +52,7 @@ open class L3gd20hMinimal @JvmOverloads constructor(
         const val CTRL_REG1_DEFAULT = 0x0F
         const val CTRL_REG4_DEFAULT = 0x80
 
-        private fun sensitivity(fullScale: Int): Float {
+        fun sensitivity(fullScale: Int): Float {
             return when (fullScale) {
                 250  -> 8.75e-3f
                 500  -> 17.5e-3f
@@ -61,7 +61,7 @@ open class L3gd20hMinimal @JvmOverloads constructor(
             }
         }
 
-        private fun int16Le(data: ByteArray, offset: Int): Short {
+        fun int16Le(data: ByteArray, offset: Int): Short {
             val v = (data[offset].toInt() and 0xFF) or ((data[offset + 1].toInt() and 0xFF) shl 8)
             return v.toShort()
         }

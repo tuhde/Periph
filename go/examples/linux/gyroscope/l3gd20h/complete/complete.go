@@ -18,7 +18,7 @@ func main() {
 		fmt.Sscanf(a, "%x", &addr)
 	}
 
-	conn, err := connection.NewI2CConnection(bus, addr, nil, nil)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -38,9 +38,6 @@ func main() {
 	gyro.EnableFIFO(true)                              // Enable FIFO
 
 	gyro.SetPowerMode(gyroscope.L3GD20HPowerNormal)    // Set power mode
-
-	who, _ := gyro.WHOAMI()
-	fmt.Printf("WHO_AM_I: 0x%02X\n", who)
 
 	temp, _ := gyro.Temperature()
 	fmt.Printf("Temperature: %d\n", temp)

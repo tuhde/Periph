@@ -1,3 +1,6 @@
+//go:build tinygo
+
+// L3GD20H hardware test — TinyGo / Raspberry Pi Pico W.
 package main
 
 import (
@@ -15,10 +18,7 @@ func main() {
 		SCL:       machine.I2C0_SCL_PIN,
 	})
 
-	conn, err := connection.NewI2CConnection(0, 0x6A, nil, nil)
-	if err != nil {
-		panic(err)
-	}
+	conn := connection.NewI2CConnection(machine.I2C0, 0x6A, nil, nil)
 	defer conn.Close()
 
 	gyro, err := gyroscope.NewL3GD20HMinimal(conn, false)

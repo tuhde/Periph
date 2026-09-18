@@ -107,8 +107,8 @@ const (
 	L3GD20HPowerPowerDown string = "power_down"
 )
 
-// sensitivity returns the dps/digit sensitivity for a given full-scale code.
-func sensitivity(fullScale uint8) float32 {
+// l3gd20hSensitivity returns the dps/digit sensitivity for a given full-scale code.
+func l3gd20hSensitivity(fullScale uint8) float32 {
 	fsMap := []uint16{250, 500, 2000}
 	fs := fsMap[fullScale]
 	switch fs {
@@ -123,8 +123,8 @@ func sensitivity(fullScale uint8) float32 {
 	}
 }
 
-// int16Le unpacks two bytes in little-endian order into a signed 16-bit integer.
-func int16Le(b []byte) int16 {
+// l3gd20hInt16Le unpacks two bytes in little-endian order into a signed 16-bit integer.
+func l3gd20hInt16Le(b []byte) int16 {
 	v := int16(uint16(b[0]) | uint16(b[1])<<8)
 	return v
 }
@@ -191,10 +191,10 @@ func (d *L3GD20HMinimal) AngularRate() (float32, float32, float32, error) {
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	sens := sensitivity(d.fullScale)
-	xDps := float32(int16Le(buf[0:2])) * sens
-	yDps := float32(int16Le(buf[2:4])) * sens
-	zDps := float32(int16Le(buf[4:6])) * sens
+	sens := l3gd20hSensitivity(d.fullScale)
+	xDps := float32(l3gd20hInt16Le(buf[0:2])) * sens
+	yDps := float32(l3gd20hInt16Le(buf[2:4])) * sens
+	zDps := float32(l3gd20hInt16Le(buf[4:6])) * sens
 	const kRad = float32(math.Pi / 180.0)
 	return xDps * kRad, yDps * kRad, zDps * kRad, nil
 }
@@ -245,7 +245,7 @@ func (d *L3GD20HFull) AngularRateRaw() (int16, int16, int16, error) {
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	return int16Le(buf[0:2]), int16Le(buf[2:4]), int16Le(buf[4:6]), nil
+	return l3gd20hInt16Le(buf[0:2]), l3gd20hInt16Le(buf[2:4]), l3gd20hInt16Le(buf[4:6]), nil
 }
 
 // Temperature reads the relative temperature count.
@@ -362,7 +362,7 @@ func (d *L3GD20HFull) ReadFIFO() ([][3]float32, error) {
 	if n == 0 {
 		return [][3]float32{}, nil
 	}
-	sens := sensitivity(d.fullScale)
+	sens := l3gd20hSensitivity(d.fullScale)
 	const kRad = float32(math.Pi / 180.0)
 	buf, err := d.readRegBytes(l3gd20hRegOutXL, int(n)*6)
 	if err != nil {
@@ -371,9 +371,9 @@ func (d *L3GD20HFull) ReadFIFO() ([][3]float32, error) {
 	out := make([][3]float32, n)
 	for i := uint8(0); i < n; i++ {
 		o := int(i) * 6
-		x := float32(int16Le(buf[o:o+2])) * sens * kRad
-		y := float32(int16Le(buf[o+2:o+4])) * sens * kRad
-		z := float32(int16Le(buf[o+4:o+6])) * sens * kRad
+		x := float32(l3gd20hInt16Le(buf[o:o+2])) * sens * kRad
+		y := float32(l3gd20hInt16Le(buf[o+2:o+4])) * sens * kRad
+		z := float32(l3gd20hInt16Le(buf[o+4:o+6])) * sens * kRad
 		out[i] = [3]float32{x, y, z}
 	}
 	return out, nil

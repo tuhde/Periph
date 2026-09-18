@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.gyroscope
 
 import it.uhde.periph.connection.Connection
+import groovy.transform.CompileStatic
 
 /**
  * L3GD20H (and L3GD20) three-axis MEMS gyroscope — minimal driver.
@@ -110,7 +111,7 @@ class L3gd20hMinimal {
             raw = connection.writeRead([(byte) (REG_OUT_X_L | 0x80)] as byte[], 6)
         }
         float sens = sensitivity(fullScale)
-        float k = Math.PI / 180.0f
+        float k = (float) (Math.PI / 180.0)
         return [
             int16Le(raw, 0) * sens * k,
             int16Le(raw, 2) * sens * k,

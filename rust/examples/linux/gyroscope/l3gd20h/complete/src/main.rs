@@ -1,6 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::connection::Connection;
-use periph::chips::gyroscope::{L3gd20hFull, ODR_190_HZ, FS_500_DPS, HPM_NORMAL, FIFO_FIFO, POWER_NORMAL};
+use periph::chips::gyroscope::{L3gd20hFull, ODR_190_HZ, L3GD20H_FS_500_DPS, HPM_NORMAL, L3GD20H_FIFO_FIFO, POWER_NORMAL};
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
@@ -10,21 +9,17 @@ fn main() {
         .unwrap_or(0x6A);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let conn = Connection::new(dev);
-    let mut gyro = L3gd20hFull::new(conn, addr, false).expect("init");
+    let mut gyro = L3gd20hFull::new(dev, addr, false).expect("init");
 
-    gyro.configure(ODR_190_HZ, 0, FS_500_DPS).expect("configure"); // Configure, (odr, bw, full_scale) -> Result
+    gyro.configure(ODR_190_HZ, 0, L3GD20H_FS_500_DPS).expect("configure"); // Configure, (odr, bw, full_scale) -> Result
 
     gyro.configure_hp_filter(HPM_NORMAL, 0).expect("configure_hp_filter"); // Configure HPF
     gyro.enable_hp_filter(true).expect("enable_hp_filter"); // Enable HPF
 
-    gyro.configure_fifo(FIFO_FIFO, 10).expect("configure_fifo"); // Configure FIFO
+    gyro.configure_fifo(L3GD20H_FIFO_FIFO, 10).expect("configure_fifo"); // Configure FIFO
     gyro.enable_fifo(true).expect("enable_fifo"); // Enable FIFO
 
     gyro.set_power_mode(POWER_NORMAL).expect("set_power_mode"); // Set power mode
-
-    let who = gyro.inner.read_reg_bytes(0x0F, &mut [0u8; 1]).is_ok();
-    println!("WHO_AM_I read successful: {}", who);
 
     let temp = gyro.temperature().expect("temperature"); // Read temperature, () -> Result<i8>
     println!("Temperature: {}", temp);

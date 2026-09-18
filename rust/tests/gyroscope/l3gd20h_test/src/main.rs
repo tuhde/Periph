@@ -1,5 +1,4 @@
 use linux_embedded_hal::I2cdev;
-use periph::connection::Connection;
 use periph::chips::gyroscope::L3gd20hMinimal;
 
 fn main() {
@@ -10,8 +9,7 @@ fn main() {
         .unwrap_or(0x6A);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let conn = Connection::new(dev);
-    let mut gyro = L3gd20hMinimal::new(conn, addr, false).expect("init");
+    let mut gyro = L3gd20hMinimal::new(dev, addr, false).expect("init");
 
     println!("=== L3GD20H Rust Linux Test ===");
 

@@ -18,7 +18,7 @@ func main() {
 		fmt.Sscanf(a, "%x", &addr)
 	}
 
-	conn, err := connection.NewI2CConnection(bus, addr, nil, nil)
+	conn, err := connection.NewI2CConnection(bus, uint8(addr), nil, nil)
 	if err != nil {
 		panic(err)
 	}

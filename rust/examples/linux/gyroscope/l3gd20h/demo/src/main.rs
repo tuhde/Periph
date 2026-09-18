@@ -1,6 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::connection::Connection;
-use periph::chips::gyroscope::{L3gd20hFull, ODR_190_HZ, FS_500_DPS};
+use periph::chips::gyroscope::{L3gd20hFull, ODR_190_HZ, L3GD20H_FS_500_DPS};
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
@@ -10,21 +9,20 @@ fn main() {
         .unwrap_or(0x6A);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let conn = Connection::new(dev);
-    let mut gyro = L3gd20hFull::new(conn, addr, false).expect("init");
+    let mut gyro = L3gd20hFull::new(dev, addr, false).expect("init");
 
     // --- Configure for shake detection at 190 Hz, ±500 dps ---
     // 190 Hz ODR provides good temporal resolution for shake detection;
     // ±500 dps full scale gives 17.5 mdps/digit sensitivity, suitable for
     // detecting moderate to strong motion without clipping.
-    gyro.configure(ODR_190_HZ, 0, FS_500_DPS).expect("configure");
+    gyro.configure(ODR_190_HZ, 0, L3GD20H_FS_500_DPS).expect("configure");
 
     println!("L3GD20H shake detector running. Shake the device...");
 
     loop {
         if gyro.data_ready().expect("data_ready") { // Check data ready, () -> Result<bool>
             let (x, y, z) = gyro.gyro().expect("gyro"); // Read angular rate, () -> Result<(f32, f32, f32)>
-            let magnitude = libm::sqrtf(x*x + y*y + z*z);
+            let magnitude = (x*x + y*y + z*z).sqrt();
             if magnitude > 1.0 {
                 println!("SHAKE DETECTED: mag={:.3} (x={:.3} y={:.3} z={:.3})", magnitude, x, y, z);
             } else {

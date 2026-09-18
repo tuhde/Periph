@@ -18,14 +18,14 @@ public class L3gd20hTest {
         int passed = 0, failed = 0;
 
         try (var conn = new I2CConnection(bus, addr)) {
-            L3gd20hMinimal gyro = new L3gd20hMinimal(conn);
+            L3gd20hMinimal gyro = new L3gd20hMinimal(conn, false);
             System.out.println("PASS Minimal init");
 
             float[] xyz = gyro.gyro();
             System.out.println("PASS gyro() returns float[3]");
             System.out.printf("  Initial reading: x=%.3f y=%.3f z=%.3f rad/s%n", xyz[0], xyz[1], xyz[2]);
 
-            L3gd20hFull gyroFull = new L3gd20hFull(conn);
+            L3gd20hFull gyroFull = new L3gd20hFull(conn, false);
             System.out.println("PASS Full init");
 
             gyroFull.configure(L3gd20hFull.ODR_190_HZ, 0, L3gd20hFull.FS_500_DPS);

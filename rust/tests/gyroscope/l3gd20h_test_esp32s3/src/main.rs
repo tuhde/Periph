@@ -6,7 +6,6 @@ use esp_hal::Delay;
 use esp_hal::main;
 use esp_println::println;
 use periph::chips::gyroscope::L3gd20hMinimal;
-use periph::connection::Connection;
 
 #[main]
 fn main() -> ! {
@@ -24,8 +23,7 @@ fn main() -> ! {
     .with_sda(io.pins.gpio4)
     .with_scl(io.pins.gpio5);
 
-    let conn = Connection::new(i2c);
-    let mut gyro = L3gd20hMinimal::new(conn, 0x6A, false).expect("init");
+    let mut gyro = L3gd20hMinimal::new(i2c, 0x6A, false).expect("init");
 
     println!("=== L3GD20H ESP32-S3 Test ===");
 

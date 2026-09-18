@@ -8,7 +8,6 @@ import it.uhde.periph.connection.Connection
  * Extends [L3gd20hMinimal] with configuration, FIFO,
  * high-pass filter, interrupts, axis-enable, and power-mode control.
  */
-@JvmOverloads
 class L3gd20hFull @JvmOverloads constructor(
     connection: Connection,
     spi: Boolean = false
@@ -67,7 +66,7 @@ class L3gd20hFull @JvmOverloads constructor(
         this.odr = odr
         this.bw = bw
         val fsMap = intArrayOf(250, 500, 2000)
-        fullScale = fsMap[fullScale]
+        this.fullScale = fsMap[fullScale]
         val ctrl1 = CTRL_REG1_DEFAULT or ((odr and 0x3) shl 6) or ((bw and 0x3) shl 4)
         writeReg(REG_CTRL_REG1, ctrl1)
         writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT or ((fullScale and 0x3) shl 4))

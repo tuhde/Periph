@@ -1,205 +1,223 @@
-#include <I2CConnectionMock.h>
-#include <L3gd20h.h>
-#include <cstdio>
-#include <cmath>
+#include <stdio.h>
+#include <math.h>
+#include "I2CConnectionMock.h"
+#include "L3gd20h.h"
 
-int passed = 0;
-int failed = 0;
+static int passed = 0, failed = 0;
 
-void check(const char* label, bool condition) {
-    if (condition) {
-        printf("PASS %s\n", label);
-        passed++;
-    } else {
-        printf("FAIL %s\n", label);
-        failed++;
-    }
+static void check_true(bool cond, const char *label) {
+    if (cond) { printf("PASS %s\n", label); passed++; }
+    else       { printf("FAIL %s\n", label); failed++; }
 }
+
+class L3gd20hTestAccess : public L3gd20hFull {
+public:
+    using L3gd20hFull::L3gd20hFull;
+    using L3gd20hFull::REG_WHO_AM_I;
+    using L3gd20hFull::REG_CTRL_REG1;
+    using L3gd20hFull::REG_CTRL_REG2;
+    using L3gd20hFull::REG_CTRL_REG4;
+    using L3gd20hFull::REG_CTRL_REG5;
+    using L3gd20hFull::REG_OUT_TEMP;
+    using L3gd20hFull::REG_STATUS;
+    using L3gd20hFull::REG_OUT_X_L;
+    using L3gd20hFull::REG_FIFO_CTRL;
+    using L3gd20hFull::REG_FIFO_SRC;
+};
 
 int main() {
     printf("=== L3GD20H Unit Tests ===\n");
 
-    I2CConnectionMock mock;
-    mock.set_reg(0x0F, {0xD7});  // WHO_AM_I = L3GD20H
-    mock.set_reg(0x20, {0x0F});  // CTRL_REG1 default
-    mock.set_reg(0x23, {0x80});  // CTRL_REG4 default
-
-    // Test 1: Minimal init with L3GD20H WHO_AM_I
+    // --- Test 1: Minimal init with L3GD20H WHO_AM_I ---
     {
-        L3gd20hMinimal gyro(mock);
-        check("Minimal init (L3GD20H WHO_AM_I=0xD7)", true);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hMinimal gyro(connection);
+        check_true(true, "Minimal init (L3GD20H WHO_AM_I=0xD7)");
     }
 
-    // Test 2: Minimal init with L3GD20 WHO_AM_I
+    // --- Test 2: Minimal init with L3GD20 WHO_AM_I ---
     {
-        I2CConnectionMock mock2;
-        mock2.set_reg(0x0F, {0xD4});
-        mock2.set_reg(0x20, {0x0F});
-        mock2.set_reg(0x23, {0x80});
-        L3gd20hMinimal gyro2(mock2);
-        check("Minimal init (L3GD20 WHO_AM_I=0xD4)", true);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD4});
+        L3gd20hMinimal gyro(connection);
+        check_true(true, "Minimal init (L3GD20 WHO_AM_I=0xD4)");
     }
 
-    // Test 3: Minimal init with invalid WHO_AM_I
+    // --- Test 3: Init writes CTRL_REG4/CTRL_REG1 defaults ---
     {
-        I2CConnectionMock mock3;
-        mock3.set_reg(0x0F, {0x00});
-        L3gd20hMinimal gyro3(mock3);
-        // Silent no-op on invalid WHO_AM_I; check via who_am_i() on Full
-        check("Minimal init invalid WHO_AM_I (silent)", true);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hMinimal gyro(connection);
+        bool sawCtrl4Default = false, sawCtrl1Default = false;
+        for (const auto& w : connection.writes()) {
+            if (w.size() == 2 && w[0] == L3gd20hTestAccess::REG_CTRL_REG4 && w[1] == 0x80) sawCtrl4Default = true;
+            if (w.size() == 2 && w[0] == L3gd20hTestAccess::REG_CTRL_REG1 && w[1] == 0x0F) sawCtrl1Default = true;
+        }
+        check_true(sawCtrl4Default, "init_writes_ctrl_reg4_default");
+        check_true(sawCtrl1Default, "init_writes_ctrl_reg1_default");
     }
 
-    // Test 4: gyro() returns valid floats
+    // --- Test 4: gyro() returns valid floats; X=+16, Y=0, Z=-16 ---
     {
-        I2CConnectionMock mock4;
-        mock4.set_reg(0x0F, {0xD7});
-        mock4.set_reg(0x20, {0x0F});
-        mock4.set_reg(0x23, {0x80});
-        // X=0x0100=256, Y=0x0200=512, Z=0x0300=768
-        mock4.set_reg(0x28, {0x00, 0x01, 0x00, 0x02, 0x00, 0x03});
-        L3gd20hMinimal gyro4(mock4);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        connection.setRegister(L3gd20hTestAccess::REG_OUT_X_L | 0x80,
+                                {0x10, 0x00,    // X=+16
+                                 0x00, 0x00,    // Y=0
+                                 0xF0, 0xFF});  // Z=-16
+        L3gd20hMinimal gyro(connection);
         float x, y, z;
-        gyro4.gyro(x, y, z);
-        check("gyro() returns valid floats", !std::isnan(x) && !std::isnan(y) && !std::isnan(z));
+        gyro.gyro(x, y, z);
+        float k = 3.141592653589793f / 180.0f;
+        float expected_x = 16.0f * 0.00875f * k;
+        float expected_z = -16.0f * 0.00875f * k;
+        check_true(fabsf(x - expected_x) < 1e-6f, "gyro_x");
+        check_true(fabsf(y - 0.0f) < 1e-6f, "gyro_y");
+        check_true(fabsf(z - expected_z) < 1e-6f, "gyro_z");
     }
 
-    // Test 5: Full init
+    // --- Test 5: Full init ---
     {
-        I2CConnectionMock mock5;
-        mock5.set_reg(0x0F, {0xD7});
-        mock5.set_reg(0x20, {0x0F});
-        mock5.set_reg(0x23, {0x80});
-        L3gd20hFull gyro5(mock5);
-        check("Full init", true);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        check_true(true, "Full init");
     }
 
-    // Test 6: configure() sets registers
+    // --- Test 6: configure() sets CTRL_REG1/CTRL_REG4 ---
     {
-        I2CConnectionMock mock6;
-        mock6.set_reg(0x0F, {0xD7});
-        mock6.set_reg(0x20, {0x0F});
-        mock6.set_reg(0x23, {0x80});
-        L3gd20hFull gyro6(mock6);
-        gyro6.configure(L3gd20hFull::ODR_190_HZ, 0, 1);  // 190 Hz, BW=0, ±500 dps
-        check("configure() sets CTRL_REG1", mock6.get_reg(0x20) == std::vector<uint8_t>{0x4F});
-        check("configure() sets CTRL_REG4", mock6.get_reg(0x23) == std::vector<uint8_t>{0x90});
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        sensor.configure(L3gd20hFull::ODR_190_HZ, 0, 1);  // 190 Hz, ±500 dps
+        bool sawCtrl1 = false, sawCtrl4 = false;
+        for (const auto& w : connection.writes()) {
+            if (w.size() == 2 && w[0] == L3gd20hTestAccess::REG_CTRL_REG1 && w[1] == 0x4F) sawCtrl1 = true;
+            if (w.size() == 2 && w[0] == L3gd20hTestAccess::REG_CTRL_REG4 && w[1] == 0x90) sawCtrl4 = true;
+        }
+        check_true(sawCtrl1, "configure_sets_ctrl_reg1");
+        check_true(sawCtrl4, "configure_sets_ctrl_reg4");
     }
 
-    // Test 7: gyro_raw() returns signed int16
+    // --- Test 7: gyro_raw() returns signed int16 ---
     {
-        I2CConnectionMock mock7;
-        mock7.set_reg(0x0F, {0xD7});
-        mock7.set_reg(0x20, {0x0F});
-        mock7.set_reg(0x23, {0x80});
-        mock7.set_reg(0x28, {0x00, 0x80, 0xFF, 0x7F, 0x00, 0x00});  // X=-32768, Y=32767, Z=0
-        L3gd20hFull gyro7(mock7);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        connection.setRegister(L3gd20hTestAccess::REG_OUT_X_L | 0x80,
+                                {0x00, 0x80,    // X=-32768
+                                 0xFF, 0x7F,    // Y=32767
+                                 0x00, 0x00});  // Z=0
+        L3gd20hTestAccess sensor(connection);
         int16_t x, y, z;
-        gyro7.gyro_raw(x, y, z);
-        check("gyro_raw() returns signed int16", x == -32768 && y == 32767 && z == 0);
+        sensor.gyro_raw(x, y, z);
+        check_true(x == -32768 && y == 32767 && z == 0, "gyro_raw_signed_int16");
     }
 
-    // Test 8: temperature() returns signed 8-bit
+    // --- Test 8: temperature() returns signed 8-bit ---
     {
-        I2CConnectionMock mock8;
-        mock8.set_reg(0x0F, {0xD7});
-        mock8.set_reg(0x20, {0x0F});
-        mock8.set_reg(0x23, {0x80});
-        mock8.set_reg(0x26, {0x80});  // -128
-        L3gd20hFull gyro8(mock8);
-        check("temperature() negative", gyro8.temperature() == -128);
-        mock8.set_reg(0x26, {0x7F});  // 127
-        check("temperature() positive", gyro8.temperature() == 127);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_OUT_TEMP, {0x80});
+        check_true(sensor.temperature() == -128, "temperature_negative");
+        connection.setRegister(L3gd20hTestAccess::REG_OUT_TEMP, {0x7F});
+        check_true(sensor.temperature() == 127, "temperature_positive");
     }
 
-    // Test 9: data_ready() returns ZYXDA bit
+    // --- Test 9: data_ready() returns ZYXDA bit ---
     {
-        I2CConnectionMock mock9;
-        mock9.set_reg(0x0F, {0xD7});
-        mock9.set_reg(0x20, {0x0F});
-        mock9.set_reg(0x23, {0x80});
-        mock9.set_reg(0x27, {0x08});  // ZYXDA=1
-        L3gd20hFull gyro9(mock9);
-        check("data_ready() true", gyro9.data_ready() == true);
-        mock9.set_reg(0x27, {0x00});  // ZYXDA=0
-        check("data_ready() false", gyro9.data_ready() == false);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_STATUS, {0x08});
+        check_true(sensor.data_ready() == true, "data_ready_true");
+        connection.setRegister(L3gd20hTestAccess::REG_STATUS, {0x00});
+        check_true(sensor.data_ready() == false, "data_ready_false");
     }
 
-    // Test 10: configure_hp_filter()
+    // --- Test 10: configure_hp_filter() ---
     {
-        I2CConnectionMock mock10;
-        mock10.set_reg(0x0F, {0xD7});
-        mock10.set_reg(0x20, {0x0F});
-        mock10.set_reg(0x23, {0x80});
-        L3gd20hFull gyro10(mock10);
-        gyro10.configure_hp_filter(1, 5);
-        check("configure_hp_filter() sets CTRL_REG2", mock10.get_reg(0x21) == std::vector<uint8_t>{0x15});
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        sensor.configure_hp_filter(1, 5);
+        bool sawCtrl2 = false;
+        for (const auto& w : connection.writes()) {
+            if (w.size() == 2 && w[0] == L3gd20hTestAccess::REG_CTRL_REG2 && w[1] == 0x15) sawCtrl2 = true;
+        }
+        check_true(sawCtrl2, "configure_hp_filter_sets_ctrl_reg2");
     }
 
-    // Test 11: enable_hp_filter()
+    // --- Test 11: enable_hp_filter() ---
     {
-        I2CConnectionMock mock11;
-        mock11.set_reg(0x0F, {0xD7});
-        mock11.set_reg(0x20, {0x0F});
-        mock11.set_reg(0x23, {0x80});
-        L3gd20hFull gyro11(mock11);
-        gyro11.enable_hp_filter(true);
-        check("enable_hp_filter(true) sets HPen", (mock11.get_reg(0x24)[0] & 0x10) == 0x10);
-        gyro11.enable_hp_filter(false);
-        check("enable_hp_filter(false) clears HPen", (mock11.get_reg(0x24)[0] & 0x10) == 0);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_CTRL_REG5, {0x00});
+        sensor.enable_hp_filter(true);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG5) & 0x10) == 0x10,
+                   "enable_hp_filter_true_sets_hpen");
+        sensor.enable_hp_filter(false);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG5) & 0x10) == 0,
+                   "enable_hp_filter_false_clears_hpen");
     }
 
-    // Test 12: configure_fifo()
+    // --- Test 12: configure_fifo() ---
     {
-        I2CConnectionMock mock12;
-        mock12.set_reg(0x0F, {0xD7});
-        mock12.set_reg(0x20, {0x0F});
-        mock12.set_reg(0x23, {0x80});
-        L3gd20hFull gyro12(mock12);
-        gyro12.configure_fifo(L3gd20hFull::FIFO_FIFO, 10);
-        check("configure_fifo() sets FIFO_EN", (mock12.get_reg(0x24)[0] & 0x40) == 0x40);
-        check("configure_fifo() sets FIFO_CTRL_REG", mock12.get_reg(0x2E) == std::vector<uint8_t>{0x2A});
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_CTRL_REG5, {0x00});
+        sensor.configure_fifo(L3gd20hFull::FIFO_FIFO, 10);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG5) & 0x40) == 0x40,
+                   "configure_fifo_sets_fifo_en");
+        check_true(connection.registers().at(L3gd20hTestAccess::REG_FIFO_CTRL) == 0x2A,
+                   "configure_fifo_sets_fifo_ctrl_reg");
     }
 
-    // Test 13: enable_fifo()
+    // --- Test 13: enable_fifo() ---
     {
-        I2CConnectionMock mock13;
-        mock13.set_reg(0x0F, {0xD7});
-        mock13.set_reg(0x20, {0x0F});
-        mock13.set_reg(0x23, {0x80});
-        L3gd20hFull gyro13(mock13);
-        gyro13.enable_fifo(true);
-        check("enable_fifo(true) sets FIFO_EN", (mock13.get_reg(0x24)[0] & 0x40) == 0x40);
-        gyro13.enable_fifo(false);
-        check("enable_fifo(false) clears FIFO_EN", (mock13.get_reg(0x24)[0] & 0x40) == 0);
-        check("enable_fifo(false) sets FIFO_CTRL_REG=0", mock13.get_reg(0x2E) == std::vector<uint8_t>{0x00});
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_CTRL_REG5, {0x00});
+        sensor.enable_fifo(true);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG5) & 0x40) == 0x40,
+                   "enable_fifo_true_sets_fifo_en");
+        sensor.enable_fifo(false);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG5) & 0x40) == 0,
+                   "enable_fifo_false_clears_fifo_en");
+        check_true(connection.registers().at(L3gd20hTestAccess::REG_FIFO_CTRL) == 0x00,
+                   "enable_fifo_false_clears_fifo_ctrl_reg");
     }
 
-    // Test 14: fifo_level()
+    // --- Test 14: fifo_level() ---
     {
-        I2CConnectionMock mock14;
-        mock14.set_reg(0x0F, {0xD7});
-        mock14.set_reg(0x20, {0x0F});
-        mock14.set_reg(0x23, {0x80});
-        mock14.set_reg(0x2F, {0x05});  // FSS=5
-        L3gd20hFull gyro14(mock14);
-        check("fifo_level() returns FSS", gyro14.fifo_level() == 5);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_FIFO_SRC, {0x05});
+        check_true(sensor.fifo_level() == 5, "fifo_level_returns_fss");
     }
 
-    // Test 15: set_power_mode()
+    // --- Test 15: set_power_mode() ---
     {
-        I2CConnectionMock mock15;
-        mock15.set_reg(0x0F, {0xD7});
-        mock15.set_reg(0x20, {0x0F});
-        mock15.set_reg(0x23, {0x80});
-        L3gd20hFull gyro15(mock15);
-        gyro15.set_power_mode(L3gd20hFull::POWER_NORMAL);
-        check("set_power_mode(NORMAL) enables all axes", (mock15.get_reg(0x20)[0] & 0x0F) == 0x0F);
-        gyro15.set_power_mode(L3gd20hFull::POWER_SLEEP);
-        check("set_power_mode(SLEEP) disables axes", (mock15.get_reg(0x20)[0] & 0x0F) == 0x08);
-        gyro15.set_power_mode(L3gd20hFull::POWER_POWERDOWN);
-        check("set_power_mode(POWERDOWN) clears PD", (mock15.get_reg(0x20)[0] & 0x08) == 0);
+        I2CConnectionMock connection;
+        connection.setRegister(L3gd20hTestAccess::REG_WHO_AM_I, {0xD7});
+        L3gd20hTestAccess sensor(connection);
+        connection.setRegister(L3gd20hTestAccess::REG_CTRL_REG1, {0x00});
+        sensor.set_power_mode(L3gd20hFull::POWER_NORMAL);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG1) & 0x0F) == 0x0F,
+                   "set_power_mode_normal_enables_all_axes");
+        sensor.set_power_mode(L3gd20hFull::POWER_SLEEP);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG1) & 0x0F) == 0x08,
+                   "set_power_mode_sleep_disables_axes");
+        sensor.set_power_mode(L3gd20hFull::POWER_POWERDOWN);
+        check_true((connection.registers().at(L3gd20hTestAccess::REG_CTRL_REG1) & 0x08) == 0,
+                   "set_power_mode_powerdown_clears_pd");
     }
 
-    printf("\n=== DONE: %d passed, %d failed ===\n", passed, failed);
+    printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }

@@ -7,82 +7,133 @@ class L3gd20hSpec extends Specification {
 
     def "full API"() {
         given:
-        def mock = new MockConnection()
-            .expectWriteRead([0x0F] as byte[], [0xD7] as byte[])  // WHO_AM_I
-            .expectWrite([0x23, 0x80] as byte[])  // CTRL_REG4
-            .expectWrite([0x20, 0x0F] as byte[])  // CTRL_REG1
-            .expectWriteRead([0xA8] as byte[], [0x10, 0x00, 0x00, 0x00, -16 & 0xFF, -16 >> 8] as byte[])  // gyro
-            .expectWrite([0x20, 0x4F] as byte[])  // configure CTRL_REG1
-            .expectWrite([0x23, 0x90] as byte[])  // configure CTRL_REG4
-            .expectWriteRead([0x23] as byte[], [0x90] as byte[])  // set_full_scale read
-            .expectWrite([0x23, 0xA0] as byte[])  // set_full_scale write
-            .expectWriteRead([0x27] as byte[], [0x08] as byte[])  // data_ready
-            .expectWriteRead([0x27] as byte[], [0x08] as byte[])  // status
-            .expectWriteRead([0x26] as byte[], [-128] as byte[])  // temperature
-            .expectWriteRead([0x20] as byte[], [0x4F] as byte[])  // power_down read
-            .expectWrite([0x20, 0x47] as byte[])  // power_down write
-            .expectWriteRead([0x20] as byte[], [0x47] as byte[])  // wake_up read
-            .expectWrite([0x20, 0x4F] as byte[])  // wake_up write
-            .expectWrite([0x20, 0x08] as byte[])  // sleep
-            .expectWriteRead([0x20] as byte[], [0x47] as byte[])  // enable_axes read
-            .expectWrite([0x20, 0x4A] as byte[])  // enable_axes write
-            .expectWriteRead([0x24] as byte[], [0x00] as byte[])  // enable_fifo read CTRL_REG5
-            .expectWrite([0x24, 0x40] as byte[])  // enable_fifo write FIFO_EN
-            .expectWrite([0x2E, 0x2A] as byte[])  // enable_fifo write FIFO_CTRL
-            .expectWriteRead([0x2F] as byte[], [0x1A] as byte[])  // fifo_samples
-            .expectWrite([0x21, 0x15] as byte[])  // enable_highpass CTRL_REG2
-            .expectWriteRead([0x24] as byte[], [0x40] as byte[])  // enable_highpass read CTRL_REG5
-            .expectWrite([0x24, 0x50] as byte[])  // enable_highpass write HPen
-            .expectWriteRead([0x24] as byte[], [0x50] as byte[])  // disable_highpass read
-            .expectWrite([0x24, 0x40] as byte[])  // disable_highpass write
-            .expectWrite([0x30, 0x6A] as byte[])  // set_interrupt INT1_CFG
-            .expectWriteRead([0x22] as byte[], [0x00] as byte[])  // set_interrupt read CTRL_REG3
-            .expectWrite([0x22, 0x80] as byte[])  // set_interrupt write I1_Int1
-            .expectWrite([0x32, 0x04] as byte[])  // set_threshold XH
-            .expectWrite([0x33, -30 & 0xFF] as byte[])  // set_threshold XL (0xE2)
-            .expectWrite([0x38, 0x84] as byte[])  // set_duration
-            .expectWriteRead([0x31] as byte[], [0x7F] as byte[])  // read_int_source
-            .expectWriteRead([0x22] as byte[], [0x80] as byte[])  // set_data_ready_pin read CTRL_REG3
-            .expectWrite([0x22, 0x88] as byte[])  // set_data_ready_pin write
+        def connection = new MockConnection()
+        connection.setRegister(L3gd20hMinimal.REG_WHO_AM_I, 0xD7)
 
-        def sensor = new L3gd20hFull(mock, false)
+        def sensor = new L3gd20hFull(connection, false)
 
         expect:
-        def k = Math.PI / 180.0f
-        def expectedX = 16.0f * 0.00875f * k
-        def expectedZ = -16.0f * 0.00875f * k
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG4) == L3gd20hFull.CTRL_REG4_DEFAULT
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG1) == L3gd20hFull.CTRL_REG1_DEFAULT
 
+        // raw X=+16, Y=0, Z=-16 (LE). I²C multi-byte sub-address has bit 7 set.
+        connection.setRegister(L3gd20hMinimal.REG_OUT_X_L | 0x80,
+                0x10, 0x00,    // X=+16
+                0x00, 0x00,    // Y=0
+                0xF0, 0xFF)    // Z=-16
+
+        def k = (float) (Math.PI / 180.0)
         def xyz = sensor.gyro()
-        (xyz[0] - expectedX).abs() < 1e-6f
-        xyz[1] == 0.0f
-        (xyz[2] - expectedZ).abs() < 1e-6f
+        Math.abs(xyz[0] - 16.0f * 0.00875f * k) < 1e-6f
+        Math.abs(xyz[1] - 0.0f) < 1e-6f
+        Math.abs(xyz[2] - (-16.0f) * 0.00875f * k) < 1e-6f
 
+        when:
         sensor.configure(L3gd20hFull.ODR_190_HZ, 0, L3gd20hFull.FS_500_DPS)
-        sensor.fullScale == 500
 
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG1) == (L3gd20hFull.CTRL_REG1_DEFAULT | (1 << 6))
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG4) == (L3gd20hFull.CTRL_REG4_DEFAULT | (1 << 4))
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_OUT_X_L | 0x80,
+                0x00, 0x80,    // X=-32768
+                0xFF, 0x7F,    // Y=32767
+                0x00, 0x00)    // Z=0
         def raw = sensor.gyroRaw()
+
+        then:
         raw[0] == -32768
         raw[1] == 32767
         raw[2] == 0
 
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_OUT_TEMP, 0x80)
+
+        then:
         sensor.temperature() == -128
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_STATUS, 0x08)
+
+        then:
         sensor.dataReady()
-        sensor.status() == 0x08
 
-        sensor.powerDown()
-        sensor.wakeUp()
-        sensor.sleep()
-        sensor.enableAxes(false, true, false)
-        sensor.enableFifo(L3gd20hFull.FIFO_FIFO, 10)
-        sensor.fifoSamples() == 26
-        sensor.configureHpFilter(L3gd20hFull.HPM_REFERENCE, 5)
+        when:
+        sensor.configureHpFilter(1, 5)
+
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG2) == 0x15
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_CTRL_REG5, 0x00)
+        sensor.enableHpFilter(true)
+
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG5) == 0x10
+
+        when:
         sensor.enableHpFilter(false)
-        sensor.setInterrupt(true, false, true, false, true, false, false, true)
-        sensor.setThreshold('x', 87.5f)
-        sensor.setDuration(4, true)
-        sensor.readIntSource() == 0x7F
-        sensor.setDataReadyPin(true)
 
-        mock.verify()
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG5) == 0x00
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_CTRL_REG5, 0x00)
+        sensor.configureFifo(L3gd20hFull.FIFO_FIFO, 10)
+
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG5) == 0x40
+        connection.registers().get(L3gd20hMinimal.REG_FIFO_CTRL) == ((1 << 5) | 10)
+
+        when:
+        sensor.enableFifo(true)
+
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG5) == 0x40
+
+        when:
+        sensor.enableFifo(false)
+
+        then:
+        connection.registers().get(L3gd20hMinimal.REG_CTRL_REG5) == 0x00
+        connection.registers().get(L3gd20hMinimal.REG_FIFO_CTRL) == 0x00
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_FIFO_SRC, 0x05)
+
+        then:
+        sensor.fifoLevel() == 5
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_OUT_X_L | 0x80,
+                0x10, 0x00, 0x20, 0x00, 0x30, 0x00,
+                0x40, 0x00, 0x50, 0x00, 0x60, 0x00,
+                0x70, 0x00, 0x80, 0x00, 0x90, 0x00,
+                0xA0, 0x00, 0xB0, 0x00, 0xC0, 0x00,
+                0xD0, 0x00, 0xE0, 0x00, 0xF0, 0x00)
+        def samples = sensor.readFifo()
+
+        then:
+        samples.size() == 5
+
+        when:
+        connection.setRegister(L3gd20hMinimal.REG_CTRL_REG1, 0x00)
+        sensor.setPowerMode(L3gd20hFull.POWER_NORMAL)
+
+        then:
+        (connection.registers().get(L3gd20hMinimal.REG_CTRL_REG1) & 0x0F) == 0x0F
+
+        when:
+        sensor.setPowerMode(L3gd20hFull.POWER_SLEEP)
+
+        then:
+        (connection.registers().get(L3gd20hMinimal.REG_CTRL_REG1) & 0x0F) == 0x08
+
+        when:
+        sensor.setPowerMode(L3gd20hFull.POWER_POWERDOWN)
+
+        then:
+        (connection.registers().get(L3gd20hMinimal.REG_CTRL_REG1) & 0x08) == 0x00
     }
 }

@@ -6,45 +6,47 @@ import (
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// mockConn implements connection.Connection for testing.
-type mockConn struct {
+// l3gd20hMockConn implements connection.Connection for testing.
+type l3gd20hMockConn struct {
 	regs map[uint8][]byte
 }
 
-func newMockConn() *mockConn {
-	return &mockConn{regs: make(map[uint8][]byte)}
+func newL3gd20hMockConn() *l3gd20hMockConn {
+	return &l3gd20hMockConn{regs: make(map[uint8][]byte)}
 }
 
-func (m *mockConn) setReg(reg uint8, data []byte) {
+func (m *l3gd20hMockConn) setReg(reg uint8, data []byte) {
 	m.regs[reg] = data
 }
 
-func (m *mockConn) Write(data []byte) error {
+func (m *l3gd20hMockConn) Write(data []byte) error {
 	return nil
 }
 
-func (m *mockConn) Read(n int) ([]byte, error) {
+func (m *l3gd20hMockConn) Read(n int) ([]byte, error) {
 	return make([]byte, n), nil
 }
 
-func (m *mockConn) WriteRead(data []byte, n int) ([]byte, error) {
+func (m *l3gd20hMockConn) WriteRead(data []byte, n int) ([]byte, error) {
 	if len(data) == 0 {
 		return make([]byte, n), nil
 	}
-	reg := data[0]
+	reg := data[0] & 0x3F // strip SPI/auto-increment control bits
 	if val, ok := m.regs[reg]; ok {
 		return val[:n], nil
 	}
 	return make([]byte, n), nil
 }
 
-func (m *mockConn) Close() error { return nil }
-func (m *mockConn) Enable()       {}
-func (m *mockConn) Disable()      {}
-func (m *mockConn) IsEnabled() bool { return true }
+func (m *l3gd20hMockConn) Close() error { return nil }
+func (m *l3gd20hMockConn) Enable()       {}
+func (m *l3gd20hMockConn) Disable()      {}
+func (m *l3gd20hMockConn) IsEnabled() bool { return true }
+func (m *l3gd20hMockConn) IntPin() connection.InputPin { return nil }
+func (m *l3gd20hMockConn) EnPin() connection.OutputPin { return nil }
 
 func TestL3GD20H(t *testing.T) {
-	mock := newMockConn()
+	mock := newL3gd20hMockConn()
 	mock.setReg(l3gd20hRegWHOAMI, []byte{0xD7})
 	mock.setReg(l3gd20hRegCtrlReg1, []byte{l3gd20hCtrlReg1Default})
 	mock.setReg(l3gd20hRegCtrlReg4, []byte{l3gd20hCtrlReg4Default})
