@@ -1,0 +1,115 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('l3gd20h-device', {
+        category: 'config',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            addr:       { value: '0x6A', required: true },
+            odr:        { value: '0', required: true, validate: RED.validators.number() },
+            bandwidth:  { value: '0', required: true, validate: RED.validators.number() },
+            fullScale:  { value: '0' }
+        },
+        label: function() {
+            return this.name || ('L3GD20H @ ' + this.addr + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="l3gd20h-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="L3GD20H">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-addr"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-addr" style="width:100px">
+            <option value="0x6A" selected>0x6A (SA0/SDO=GND)</option>
+            <option value="0x6B">0x6B (SA0/SDO=VCC)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-odr">Output Data Rate</label>
+        <select id="node-config-input-odr" style="width:180px">
+            <option value="0" selected>95 Hz</option>
+            <option value="1">190 Hz</option>
+            <option value="2">380 Hz</option>
+            <option value="3">760 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bandwidth">Bandwidth</label>
+        <select id="node-config-input-bandwidth" style="width:180px">
+            <option value="0" selected>0 (default)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-fullScale">Full scale</label>
+        <select id="node-config-input-fullScale" style="width:180px">
+            <option value="0" selected>±250 dps</option>
+            <option value="1">±500 dps</option>
+            <option value="2">±2000 dps</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger -> measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-l3gd20h', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'l3gd20h-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-compass',
+        label:   function() { return this.name || 'L3GD20H'; },
+        paletteLabel: 'L3GD20H'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-l3gd20h">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="L3GD20H">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-l3gd20h">
+    <p>Reads angular rate on the X, Y, and Z axes from an L3GD20H (or L3GD20) MEMS gyroscope.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>l3gd20h-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X-axis angular rate in rad/s.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y-axis angular rate in rad/s.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z-axis angular rate in rad/s.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, I²C address (<code>0x6A</code> or <code>0x6B</code>),
+    output data rate (95/190/380/760 Hz), bandwidth code (0-3), and full-scale
+    (±250 / ±500 / ±2000 dps) in the device config node.</p>
+</script>
