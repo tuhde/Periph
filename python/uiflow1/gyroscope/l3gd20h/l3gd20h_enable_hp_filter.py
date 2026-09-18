@@ -1,0 +1,1 @@
+_periph_l3gd20h.enable_hp_filter(enable=${_enable})

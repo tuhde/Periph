@@ -1,0 +1,1 @@
+_periph_l3gd20h.set_power_mode(['normal', 'sleep', 'power_down'][${_mode}])
