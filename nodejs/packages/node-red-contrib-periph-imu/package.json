@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "mpu6050": "nodes/mpu6050/mpu6050.js"
+      "mpu6050": "nodes/mpu6050/mpu6050.js",
+      "mpu9250": "nodes/mpu9250/mpu9250.js"
     }
   },
   "dependencies": {
