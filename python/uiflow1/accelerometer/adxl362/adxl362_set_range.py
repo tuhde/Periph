@@ -1,0 +1,1 @@
+_periph_adxl362.set_range(int(${_range_g}))
