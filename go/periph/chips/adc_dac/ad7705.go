@@ -4,6 +4,7 @@ package adcdac
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/tuhde/Periph/go/periph/connection"
 )
@@ -162,13 +163,16 @@ type AD7705Minimal struct {
 	gain     uint8
 	bipolar  bool
 	buffered bool
+	resetPin connection.OutputPin // nil if RESET is not wired
 }
 
 // NewAD7705Minimal creates and initialises the AD7705.
 //
 // vref is the reference voltage in V (REF IN(+) − REF IN(−)). mclkHz must be
-// one of MCLK1MHz, MCLK2MHz, MCLK2_4576MHz, MCLK4_9152MHz.
-func NewAD7705Minimal(conn connection.Connection, vref float64, mclkHz uint32) (*AD7705Minimal, error) {
+// one of MCLK1MHz, MCLK2MHz, MCLK2_4576MHz, MCLK4_9152MHz. resetPin may be
+// nil if RESET is not wired; when supplied, a hardware reset pulse is issued
+// before configuration.
+func NewAD7705Minimal(conn connection.Connection, vref float64, mclkHz uint32, resetPin connection.OutputPin) (*AD7705Minimal, error) {
 	c := &AD7705Minimal{
 		conn:     conn,
 		vref:     vref,
@@ -176,6 +180,7 @@ func NewAD7705Minimal(conn connection.Connection, vref float64, mclkHz uint32) (
 		gain:     1,
 		bipolar:  true,
 		buffered: false,
+		resetPin: resetPin,
 	}
 	if err := c.Init(); err != nil {
 		return nil, err
@@ -183,8 +188,23 @@ func NewAD7705Minimal(conn connection.Connection, vref float64, mclkHz uint32) (
 	return c, nil
 }
 
-// Init re-runs the initialisation sequence (Clock Register, self-calibrate Channel 1).
+// hardwareReset pulses RESET low for >=200 ns then high again.
+func (c *AD7705Minimal) hardwareReset() error {
+	if err := c.resetPin.Set(false); err != nil {
+		return err
+	}
+	time.Sleep(200 * time.Nanosecond)
+	return c.resetPin.Set(true)
+}
+
+// Init re-runs the initialisation sequence (optional hardware reset, Clock
+// Register, self-calibrate Channel 1).
 func (c *AD7705Minimal) Init() error {
+	if c.resetPin != nil {
+		if err := c.hardwareReset(); err != nil {
+			return err
+		}
+	}
 	defaultRate := fsRates1MHz[0]
 	if c.mclkHz >= MCLK2_4576MHz {
 		defaultRate = fsRates2_4MHz[0]
@@ -230,9 +250,10 @@ type AD7705Full struct {
 	AD7705Minimal
 }
 
-// NewAD7705Full creates and initialises the AD7705.
-func NewAD7705Full(conn connection.Connection, vref float64, mclkHz uint32) (*AD7705Full, error) {
-	min, err := NewAD7705Minimal(conn, vref, mclkHz)
+// NewAD7705Full creates and initialises the AD7705. resetPin may be nil if
+// RESET is not wired.
+func NewAD7705Full(conn connection.Connection, vref float64, mclkHz uint32, resetPin connection.OutputPin) (*AD7705Full, error) {
+	min, err := NewAD7705Minimal(conn, vref, mclkHz, resetPin)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +263,7 @@ func NewAD7705Full(conn connection.Connection, vref float64, mclkHz uint32) (*AD
 // Configure writes the Setup and Clock Registers for the given channel.
 // Does not calibrate — call SelfCalibrate() (or one of the system-calibration
 // methods) afterward.
-func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, buffered bool, outputRateHz uint16) error {
+func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, bufferedFlag bool, outputRateHz uint16) error {
 	ch := ch1
 	switch channel {
 	case 1:
@@ -279,7 +300,7 @@ func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, buff
 		bu = unipolar
 	}
 	var bufBit uint8 = unbuffered
-	if buffered {
+	if bufferedFlag {
 		bufBit = buffered
 	}
 	gainIdx := gainToIdx[gain]
@@ -290,7 +311,7 @@ func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, buff
 	if channel == 1 {
 		c.gain = gain
 		c.bipolar = bipolarFlag
-		c.buffered = buffered
+		c.buffered = bufferedFlag
 	}
 	return nil
 }
@@ -427,4 +448,14 @@ func (c *AD7705Full) Wakeup() error {
 		return err
 	}
 	return waitDRDY(c.conn)
+}
+
+// Reset pulses the hardware RESET line. Requires a resetPin to have been
+// supplied at construction. All registers return to power-on defaults —
+// re-run Configure and a calibration afterward.
+func (c *AD7705Full) Reset() error {
+	if c.resetPin == nil {
+		return fmt.Errorf("ad7705: reset requires resetPin to have been supplied at construction")
+	}
+	return c.hardwareReset()
 }

@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.20)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(ad7705_test_zephyr)
 
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../)
 
 target_sources(app PRIVATE
-    main.cpp
+    src/main.cpp
     ${CPP_DIR}/src/chips/adc_dac/AD7705.cpp
 )
 target_include_directories(app PRIVATE

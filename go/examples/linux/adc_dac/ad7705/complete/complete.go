@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/tuhde/Periph/go/periph/chips/adcdac"
+	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
@@ -28,7 +28,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz)             // Create AD7705 driver, (connection, vref=2.5 V, mclk_hz=2_457_600 Hz) → (*AD7705Full, error)
+	chip, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz, nil)             // Create AD7705 driver, (connection, vref=2.5 V, mclk_hz=2_457_600 Hz, reset_pin=nil) → (*AD7705Full, error)
 	if err != nil {
 		panic(err)
 	}

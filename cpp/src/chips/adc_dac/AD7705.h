@@ -136,6 +136,9 @@ public:
     AD7705Full(Connection& connection, float vref, uint32_t mclk_hz, OutputPin* reset_pin = nullptr)
         : AD7705Minimal(connection, vref, mclk_hz, reset_pin) {}
 
+    using AD7705Minimal::read_raw;
+    using AD7705Minimal::read_voltage;
+
     /** @brief Write the Setup and Clock Registers for the given channel.
      *
      *  Does not calibrate — call self_calibrate() (or one of the

@@ -1,7 +1,7 @@
 #include "AD7705.h"
 
 #ifdef __linux__
-#include <cstdio>
+#include <ctime>
 static void _delay_ns_linux(unsigned ns) {
     struct timespec ts = { 0, (long)(ns) };
     nanosleep(&ts, nullptr);
@@ -28,9 +28,14 @@ static void _delay_ns_pico(unsigned ns) {
 #include <zephyr/kernel.h>
 #define _delay_ns(ns) k_busy_wait(ns)
 #else
+// Covers PICO_SDK_VERSION_MAJOR and __ZEPHYR_SUPERVISOR__: neither is
+// visible in this translation unit unless a platform header has already
+// been included, so this fallback must compile with no libc dependency at
+// all (some minimal-libc embedded configs lack <chrono>/<ctime>) — a raw
+// nop busy-wait, matching the pattern in ADE7953.cpp.
 static void _delay_ns_host(unsigned ns) {
-    struct timespec ts = { 0, (long)(ns) };
-    nanosleep(&ts, nullptr);
+    volatile unsigned count = (ns / 10u) + 1u;
+    while (count--) { __asm__ volatile("nop"); }
 }
 #define _delay_ns(ns) _delay_ns_host(ns)
 #endif

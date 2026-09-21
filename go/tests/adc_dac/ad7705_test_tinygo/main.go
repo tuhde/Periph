@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"machine"
 
-	"github.com/tuhde/Periph/go/periph/chips/adcdac"
+	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
@@ -16,8 +16,8 @@ func main() {
 		Frequency: 1_000_000,
 		Mode:      3,
 		SCK:       machine.GP18,
-		MOSI:      machine.GP19,
-		MISO:      machine.GP16,
+		SDO:       machine.GP19,
+		SDI:       machine.GP16,
 	})
 	cs := machine.GP17
 	conn := connection.NewSPIConnection(machine.SPI0, cs, nil, nil)
@@ -33,9 +33,9 @@ func main() {
 		}
 	}
 
-	chip, err := adcdac.NewAD7705Minimal(conn, 2.5, adcdac.MCLK2_4576MHz)
+	chip, err := adcdac.NewAD7705Minimal(conn, 2.5, adcdac.MCLK2_4576MHz, nil)
 	if err != nil {
-		fmt.Fprintln(fmt, "new minimal:", err)
+		fmt.Println("new minimal:", err)
 		return
 	}
 
@@ -47,20 +47,20 @@ func main() {
 	check("readVoltage returns float", err == nil)
 	check("readVoltage in [-2.5, 2.5]", err == nil && v >= -2.5 && v <= 2.5)
 
-	chip2, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz)
+	chip2, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz, nil)
 	if err != nil {
-		fmt.Fprintln(fmt, "new full:", err)
+		fmt.Println("new full:", err)
 		return
 	}
 
 	raw1, err := chip2.ReadRawChannel(1)
 	check("readRawChannel(1) in [0, 65535]", err == nil && raw1 <= 65535)
-	v1, err := chip2.ReadVoltageChannel(1)
+	_, err = chip2.ReadVoltageChannel(1)
 	check("readVoltageChannel(1) returns float", err == nil)
 
 	raw2, err := chip2.ReadRawChannel(2)
 	check("readRawChannel(2) in [0, 65535]", err == nil && raw2 <= 65535)
-	v2, err := chip2.ReadVoltageChannel(2)
+	_, err = chip2.ReadVoltageChannel(2)
 	check("readVoltageChannel(2) returns float", err == nil)
 
 	err = chip2.Configure(1, adcdac.GAIN2, true, false, 60)

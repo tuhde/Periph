@@ -43,7 +43,7 @@ extern "C" void app_main(void) {
 
     uint32_t off2 = adc.get_offset_calibration(2);                                  // Read offset calibration, (channel=2) → uint32_t 24-bit
     uint32_t gain2 = adc.get_gain_calibration(2);                                   // Read gain calibration, (channel=2) → uint32_t 24-bit
-    printf("ch2 offset=%u gain=%u\n", off2, gain2);
+    printf("ch2 offset=%lu gain=%lu\n", (unsigned long)off2, (unsigned long)gain2);
 
     uint16_t raw1 = adc.read_raw(1);                                                // Read raw 16-bit code, (channel=1) → uint16_t
     float v1 = adc.read_voltage(1);                                                 // Read voltage, (channel=1) → float V

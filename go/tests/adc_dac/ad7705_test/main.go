@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/tuhde/Periph/go/periph/chips/adcdac"
+	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
@@ -42,7 +42,7 @@ func main() {
 		}
 	}
 
-	chip, err := adcdac.NewAD7705Minimal(conn, 2.5, adcdac.MCLK2_4576MHz)
+	chip, err := adcdac.NewAD7705Minimal(conn, 2.5, adcdac.MCLK2_4576MHz, nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -56,7 +56,7 @@ func main() {
 	check("readVoltage returns float", err == nil)
 	check("readVoltage in [-2.5, 2.5]", err == nil && v >= -2.5 && v <= 2.5)
 
-	chip2, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz)
+	chip2, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz, nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

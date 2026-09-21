@@ -160,19 +160,19 @@ class Ad7705Full extends Ad7705Minimal {
 
     /** Write a 24-bit Zero-Scale Calibration Register for the channel. */
     void setOffsetCalibration(int value, int channel) {
-        int ch = (channel == 1) ? CH1 else CH2
+        int ch = (channel == 1) ? CH1 : CH2
         writeRegChannel(REG_OFFSET, value & 0xFFFFFF, ch, 3)
     }
 
     /** Read the 24-bit Full-Scale Calibration Register for the channel. */
     int getGainCalibration(int channel) {
-        int ch = (channel == 1) ? CH1 else CH2
+        int ch = (channel == 1) ? CH1 : CH2
         return readRegChannel(REG_GAIN, ch, 3)
     }
 
     /** Write a 24-bit Full-Scale Calibration Register for the channel. */
     void setGainCalibration(int value, int channel) {
-        int ch = (channel == 1) ? CH1 else CH2
+        int ch = (channel == 1) ? CH1 : CH2
         writeRegChannel(REG_GAIN, value & 0xFFFFFF, ch, 3)
     }
 

@@ -19,7 +19,7 @@ int main(void) {
     sleep_ms(2000);
 
     spi_init(spi0, 5000000);
-    spi_set_format(spi0, 8, 1, 1, SPI_MSB_FIRST);
+    spi_set_format(spi0, 8, SPI_CPOL_1, SPI_CPHA_1, SPI_MSB_FIRST);
     gpio_set_function(MOSI_PIN, GPIO_FUNC_SPI);
     gpio_set_function(MISO_PIN, GPIO_FUNC_SPI);
     gpio_set_function(SCLK_PIN, GPIO_FUNC_SPI);

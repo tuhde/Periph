@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"machine"
 
-	"github.com/tuhde/Periph/go/periph/chips/adcdac"
+	"github.com/tuhde/Periph/go/periph/chips/adc_dac"
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
@@ -16,13 +16,13 @@ func main() {
 		Frequency: 5_000_000,
 		Mode:      3,
 		SCK:       machine.GP18,
-		MOSI:      machine.GP19,
-		MISO:      machine.GP16,
+		SDO:       machine.GP19,
+		SDI:       machine.GP16,
 	})
 	cs := machine.GP17
 	conn := connection.NewSPIConnection(machine.SPI0, cs, nil, nil)                  // Create SPI connection, (spi=SPI0, cs=GP17) → (*SPIConnection)
 
-	chip, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz)             // Create AD7705 driver, (connection, vref=2.5 V, mclk_hz=2_457_600 Hz) → (*AD7705Full, error)
+	chip, err := adcdac.NewAD7705Full(conn, 2.5, adcdac.MCLK2_4576MHz, nil)             // Create AD7705 driver, (connection, vref=2.5 V, mclk_hz=2_457_600 Hz, reset_pin=nil) → (*AD7705Full, error)
 	if err != nil {
 		fmt.Println("init:", err)
 		return

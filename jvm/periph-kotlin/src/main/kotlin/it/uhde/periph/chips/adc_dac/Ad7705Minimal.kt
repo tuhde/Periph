@@ -53,6 +53,7 @@ open class Ad7705Minimal(
         protected const val MODE_ZERO_SYS = 0x80
         protected const val MODE_FULL_SYS = 0xC0
 
+        @JvmStatic
         protected val GAIN_BITS = intArrayOf(0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38)
 
         protected const val BIPOLAR    = 0x00
@@ -64,9 +65,12 @@ open class Ad7705Minimal(
         protected const val STBY_SLEEP = 0x04
         protected const val DRDY_MASK  = 0x80
 
+        @JvmStatic
         protected val FS_RATES_1MHZ   = intArrayOf(20, 25, 100, 200)
+        @JvmStatic
         protected val FS_RATES_2_4MHZ = intArrayOf(50, 60, 250, 500)
 
+        @JvmStatic
         protected fun commByte(reg: Int, read: Boolean, channel: Int): Int =
             (reg or (if (read) RW_READ else RW_WRITE) or (channel and 0x03)) and 0xFF
     }
