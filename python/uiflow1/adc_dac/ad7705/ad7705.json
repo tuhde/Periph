@@ -1,0 +1,138 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ad7705_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init AD7705", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "CS pin", "type": "label" },
+        { "name": "_cs", "type": "number" },
+        { "name": "Vref (V)", "type": "label" },
+        { "name": "_vref", "type": "number" },
+        { "name": "MCLK (Hz)", "type": "label" },
+        { "name": "_mclk_hz", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_read_raw",
+      "type": "value",
+      "params": [
+        { "name": "AD7705 read raw code (Channel)", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_read_voltage",
+      "type": "value",
+      "params": [
+        { "name": "AD7705 read voltage V (Channel)", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_configure",
+      "type": "execute",
+      "params": [
+        { "name": "Configure AD7705 channel", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "gain", "type": "label" },
+        { "name": "_gain", "type": "number" },
+        { "name": "bipolar", "type": "label" },
+        { "name": "_bipolar", "type": "number" },
+        { "name": "buffered", "type": "label" },
+        { "name": "_buffered", "type": "number" },
+        { "name": "output_rate_hz", "type": "label" },
+        { "name": "_output_rate_hz", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_self_calibrate",
+      "type": "execute",
+      "params": [
+        { "name": "Self-calibrate AD7705 channel", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_system_calibrate_zero",
+      "type": "execute",
+      "params": [
+        { "name": "Zero-scale system-calibrate AD7705 channel", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_system_calibrate_full",
+      "type": "execute",
+      "params": [
+        { "name": "Full-scale system-calibrate AD7705 channel", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_get_offset_calibration",
+      "type": "value",
+      "params": [
+        { "name": "Get AD7705 offset cal (Channel)", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_set_offset_calibration",
+      "type": "execute",
+      "params": [
+        { "name": "Set AD7705 offset cal", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "value (24-bit)", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_get_gain_calibration",
+      "type": "value",
+      "params": [
+        { "name": "Get AD7705 gain cal (Channel)", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_set_gain_calibration",
+      "type": "execute",
+      "params": [
+        { "name": "Set AD7705 gain cal", "type": "label" },
+        { "name": "channel (1-2)", "type": "label" },
+        { "name": "_channel", "type": "number" },
+        { "name": "value (24-bit)", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "ad7705_standby",
+      "type": "execute",
+      "params": []
+    },
+    {
+      "name": "ad7705_wakeup",
+      "type": "execute",
+      "params": []
+    },
+    {
+      "name": "ad7705_reset",
+      "type": "execute",
+      "params": []
+    }
+  ]
+}

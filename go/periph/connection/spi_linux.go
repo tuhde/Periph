@@ -42,21 +42,23 @@ type SPIConnection struct {
 	mode uint8
 }
 
-// NewSPIConnection opens /dev/spidevBUS.DEVICE and configures it for
-// SPI mode 0, 8 bits per word, at maxSpeedHz. CS idles high; the
+// NewSPIConnection opens /dev/spidevBUS.DEVICE and configures it for the
+// given SPI mode (0–3), 8 bits per word, at maxSpeedHz. CS idles high; the
 // kernel asserts it around each transfer. intPin and enPin may be nil if
 // the device's INT/EN lines are not wired.
-func NewSPIConnection(busNum, deviceNum int, maxSpeedHz uint32, intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
+func NewSPIConnection(busNum, deviceNum int, mode uint8, maxSpeedHz uint32, intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
 	if maxSpeedHz == 0 {
 		maxSpeedHz = 1_000_000
+	}
+	if mode > 3 {
+		mode = 0
 	}
 	path := fmt.Sprintf("/dev/spidev%d.%d", busNum, deviceNum)
 	fd, err := unix.Open(path, unix.O_RDWR, 0)
 	if err != nil {
 		return nil, fmt.Errorf("open %s: %w", path, err)
 	}
-	// SPI mode 0 (CPOL=0, CPHA=0).
-	mode := uint8(0)
+	// SPI mode (0–3).
 	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, uintptr(fd), 0x40216b01, uintptr(unsafe.Pointer(&mode))); errno != 0 { // SPI_IOC_WR_MODE
 		_ = unix.Close(fd)
 		return nil, fmt.Errorf("ioctl(SPI_IOC_WR_MODE): %w", errno)
