@@ -65,6 +65,7 @@ Each chip exposes two classes:
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
+| MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
