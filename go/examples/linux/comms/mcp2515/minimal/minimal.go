@@ -35,7 +35,7 @@ func main() {
 		panic(err)
 	}
 
-	conn, err := connection.NewSPIConnection(bus, device, 10_000_000, nil, nil) // Create SPI connection, (bus=0, device=0, max_speed=10 MHz) → (*SPIConnection, error)
+	conn, err := connection.NewSPIConnection(bus, device, 0, 10_000_000, nil, nil) // Create SPI connection, (bus=0, device=0, mode=0, max_speed=10 MHz) → (*SPIConnection, error)
 	if err != nil {
 		panic(err)
 	}

@@ -17,7 +17,8 @@
       "hx711": "nodes/hx711/hx711.js",
       "mcp4725": "nodes/mcp4725/mcp4725.js",
       "mcp4728": "nodes/mcp4728/mcp4728.js",
-      "pcf8591": "nodes/pcf8591/pcf8591.js"
+      "pcf8591": "nodes/pcf8591/pcf8591.js",
+      "ad7705": "nodes/ad7705/ad7705.js"
     }
   },
   "dependencies": {

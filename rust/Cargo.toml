@@ -51,6 +51,7 @@ exclude = [
     "tests/other/mpr121_test_esp32s3",
     "tests/comms/rfm9x_test_esp32s3",
     "tests/comms/mcp2515_test_esp32s3",
+    "tests/adc_dac/ad7705_test_esp32s3",
 ]
 members = [
     "periph",
@@ -107,6 +108,7 @@ members = [
     "tests/other/mpr121_test",
     "tests/comms/rfm9x_test",
     "tests/comms/mcp2515_test",
+    "tests/adc_dac/ad7705_test",
 ]
 
 [workspace.dependencies]
