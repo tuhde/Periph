@@ -35,6 +35,7 @@ Each chip exposes two classes:
 | ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
+| APA102 | LED driver | `periph/src/chips/led/apa102` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
@@ -54,6 +55,7 @@ Each chip exposes two classes:
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
 | L3G4200D | Gyroscope | `periph/src/chips/gyroscope/l3g4200d` |
+| L3GD20H | Gyroscope | `periph/src/chips/gyroscope/l3gd20h` |
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
@@ -64,6 +66,7 @@ Each chip exposes two classes:
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
+| MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |

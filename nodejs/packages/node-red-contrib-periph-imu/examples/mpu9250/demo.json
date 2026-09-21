@@ -1,0 +1,71 @@
+[
+    {
+        "id": "inject-100ms",
+        "type": "inject",
+        "z": "mpu9250-demo",
+        "name": "100ms timer",
+        "props": [{"p": "payload"}],
+        "repeat": "100",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 160,
+        "wires": [["mpu9250-node"]]
+    },
+    {
+        "id": "mpu9250-node",
+        "type": "periph-mpu9250",
+        "z": "mpu9250-demo",
+        "name": "MPU9250",
+        "connection": "i2c-conn-1",
+        "addr": "0x68",
+        "gyroFs": "1",
+        "accelFs": "1",
+        "enableMag": true,
+        "x": 400,
+        "y": 160,
+        "wires": [["function-tilt"]]
+    },
+    {
+        "id": "function-tilt",
+        "type": "function",
+        "z": "mpu9250-demo",
+        "name": "Compute tilt & heading",
+        "func": "const { ax, ay, az, gx, gy, gz, mx, my, mz } = msg.payload;\nconst roll  = Math.atan2(ay, az) * 180 / Math.PI;\nconst pitch = Math.atan2(-ax, Math.sqrt(ay*ay + az*az)) * 180 / Math.PI;\nconst heading = Math.atan2(my, mx) * 180 / Math.PI;\nmsg.payload = { roll, pitch, heading, gyroMag: Math.sqrt(gx*gx + gy*gy + gz*gz) };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 160,
+        "wires": [["debug-out"]]
+    },
+    {
+        "id": "debug-out",
+        "type": "debug",
+        "z": "mpu9250-demo",
+        "name": "Tilt & heading",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "i2c-conn-1",
+        "type": "periph-i2c-connection",
+        "z": "",
+        "name": "I2C bus 1",
+        "bus": "1"
+    }
+]

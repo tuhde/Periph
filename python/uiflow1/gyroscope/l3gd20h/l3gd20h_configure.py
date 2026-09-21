@@ -1,0 +1,1 @@
+_periph_l3gd20h.configure(odr=${_odr}, bw=${_bw}, full_scale=${_full_scale})

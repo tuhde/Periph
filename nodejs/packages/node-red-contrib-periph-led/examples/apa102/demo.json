@@ -1,0 +1,124 @@
+[
+  {
+    "id": "apa102-demo-tab",
+    "type": "tab",
+    "label": "APA102 Demo",
+    "info": "Cycles through six colors on an APA102 LED strip using inject nodes. Each inject fires every 2 seconds with a different { r, g, b } payload. A second inject demonstrates hardware brightness by sending { r:255, g:255, b:255, pixel_brightness:4 } (soft white at 4/31 current) vs { r:255, g:255, b:255, pixel_brightness:31 } (full white). A third inject sends { command: 'off' } on demand. Demonstrates both the RGB fill path and the per-pixel hardware brightness field."
+  },
+  {
+    "id": "apa102-device-1",
+    "type": "apa102-device",
+    "name": "APA102 strip",
+    "spiBus": "0",
+    "spiDevice": "0",
+    "pixelCount": "30",
+    "brightness": "255"
+  },
+  {
+    "id": "inject-red",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Red",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":0,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-orange",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Orange",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":80,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-yellow",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Yellow",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":200,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-green",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Green",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":255,\"b\":0}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-blue",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Blue",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":0,\"g\":0,\"b\":255}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-violet",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Violet",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":148,\"g\":0,\"b\":211}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-white-bright-4",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "White (hw brightness 4/31)",
+    "props": [{ "p": "payload" }],
+    "repeat": "",
+    "payload": "{\"r\":255,\"g\":255,\"b\":255,\"pixel_brightness\":4}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-white-bright-31",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "White (hw brightness 31/31)",
+    "props": [{ "p": "payload" }],
+    "repeat": "",
+    "payload": "{\"r\":255,\"g\":255,\"b\":255,\"pixel_brightness\":31}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "inject-off",
+    "type": "inject",
+    "z": "apa102-demo-tab",
+    "name": "Off",
+    "props": [{ "p": "payload" }],
+    "repeat": "",
+    "payload": "{\"command\":\"off\"}",
+    "payloadType": "json",
+    "wires": [["apa102-node"]]
+  },
+  {
+    "id": "apa102-node",
+    "type": "periph-apa102",
+    "z": "apa102-demo-tab",
+    "name": "APA102",
+    "device": "apa102-device-1",
+    "wires": []
+  }
+]

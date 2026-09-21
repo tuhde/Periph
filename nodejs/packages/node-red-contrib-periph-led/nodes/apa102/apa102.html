@@ -1,0 +1,97 @@
+<script type="text/javascript">
+    RED.nodes.registerType('apa102-device', {
+        category: 'config',
+        defaults: {
+            name:         { value: '' },
+            spiBus:       { value: '0', required: true, validate: RED.validators.number() },
+            spiDevice:    { value: '0', required: true, validate: RED.validators.number() },
+            pixelCount:   { value: '30', required: true, validate: RED.validators.number() },
+            brightness:   { value: '255', validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('APA102 spi' + this.spiBus + '.' + this.spiDevice +
+                       ' ×' + this.pixelCount);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="apa102-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="APA102">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-spiBus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevBUS.x)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-spiDevice"><i class="fa fa-microchip"></i> SPI device</label>
+        <input type="number" id="node-config-input-spiDevice" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevx.DEVICE)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pixelCount"><i class="fa fa-lightbulb-o"></i> Pixel count</label>
+        <input type="number" id="node-config-input-pixelCount" min="1" style="width:80px"> &nbsp;number of LEDs in the strip
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-brightness"><i class="fa fa-sun-o"></i> Brightness</label>
+        <input type="number" id="node-config-input-brightness" min="0" max="255" style="width:80px"> &nbsp;0–255 (default 255)
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-apa102', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'apa102-device', required: true }
+        },
+        inputs:  1,
+        outputs: 0,
+        icon:    'font-awesome/fa-lightbulb-o',
+        label:   function() { return this.name || 'APA102'; },
+        paletteLabel: 'APA102'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-apa102">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="APA102">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-apa102">
+    <p>Controls an APA102 addressable RGB LED strip over SPI (synchronous two-wire protocol).</p>
+    <p>Any input message triggers a strip update. Configure SPI bus, device, pixel count,
+    and default brightness in the <b>apa102-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.r, payload.g, payload.b <span class="property-type">number</span></dt>
+        <dd>Fill entire strip with a solid RGB colour (0–255 each) at hardware brightness 31.</dd>
+        <dt>payload.r, payload.g, payload.b, payload.pixel_brightness <span class="property-type">number</span></dt>
+        <dd>Fill entire strip with RGB colour and per-pixel hardware brightness (0–31).</dd>
+        <dt>payload.color <span class="property-type">string</span></dt>
+        <dd>Fill entire strip with a hex colour string, e.g. <code>"#FF0000"</code>.</dd>
+        <dt>payload.pixel + payload.r/g/b + payload.pixel_brightness <span class="property-type">number</span></dt>
+        <dd>Set a single pixel by index with optional hardware brightness (0–31) and show.</dd>
+        <dt>payload.pixels <span class="property-type">array</span></dt>
+        <dd>Set all pixels from an array of <code>[r, g, b]</code> or <code>[r, g, b, brightness]</code> arrays and show.</dd>
+        <dt>payload.command <span class="property-type">string</span></dt>
+        <dd><code>"off"</code> — turn off the entire strip.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>The APA102 uses a synchronous SPI protocol (MOSI + SCK) at up to ~20 MHz. No bit-banging
+    or timing constraints — any SPI clock speed works. Each pixel has a 5-bit hardware
+    brightness field (0–31) that scales drive current independently of the 8-bit PWM
+    channels, giving 13-bit effective color depth per channel.</p>
+    <p>Wire order is BGR: the driver accepts RGB from the user and reorders internally.
+    The global <b>brightness</b> setting (0–255) in the config node applies a software
+    scale at each transmission — stored pixel values are never modified.</p>
+</script>

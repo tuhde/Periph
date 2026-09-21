@@ -1,0 +1,4 @@
+[toolchain]
+channel = "esp/2024.07.01"
+components = ["rust-std", "cargo"]
+targets = ["xtensa-esp32s3-none-elf"]

@@ -1,0 +1,20 @@
+[package]
+name = "apa102_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { path = "../../../periph" }
+esp-hal = { version = "1.0.0-rc.2", features = ["spi"] }
+
+[[bin]]
+name = "apa102_test_esp32s3"
+path = "src/main.rs"
+
+[profile.dev]
+panic = "abort"
+lto = true
+
+[profile.release]
+panic = "abort"
+lto = true

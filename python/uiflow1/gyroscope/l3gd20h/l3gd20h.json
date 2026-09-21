@@ -1,0 +1,107 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "l3gd20h_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init L3GD20H", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "l3gd20h_gyro",
+      "type": "value",
+      "params": [{ "name": "L3GD20H angular rate (x, y, z rad/s)", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_configure",
+      "type": "execute",
+      "params": [
+        { "name": "Configure L3GD20H", "type": "label" },
+        { "name": "ODR (0-3)", "type": "label" },
+        { "name": "_odr", "type": "number" },
+        { "name": "BW (0-3)", "type": "label" },
+        { "name": "_bw", "type": "number" },
+        { "name": "Full scale (0-2)", "type": "label" },
+        { "name": "_full_scale", "type": "number" }
+      ]
+    },
+    {
+      "name": "l3gd20h_gyro_raw",
+      "type": "value",
+      "params": [{ "name": "L3GD20H raw angular rate (x, y, z)", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_temperature",
+      "type": "value",
+      "params": [{ "name": "L3GD20H temperature (counts)", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_data_ready",
+      "type": "value",
+      "params": [{ "name": "L3GD20H data ready", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_configure_hp_filter",
+      "type": "execute",
+      "params": [
+        { "name": "Configure HPF", "type": "label" },
+        { "name": "Mode (0-3)", "type": "label" },
+        { "name": "_mode", "type": "number" },
+        { "name": "Cutoff (0-15)", "type": "label" },
+        { "name": "_cutoff", "type": "number" }
+      ]
+    },
+    {
+      "name": "l3gd20h_enable_hp_filter",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HPF", "type": "label" },
+        { "name": "_enable", "type": "number", "default": 1 }
+      ]
+    },
+    {
+      "name": "l3gd20h_configure_fifo",
+      "type": "execute",
+      "params": [
+        { "name": "Configure FIFO", "type": "label" },
+        { "name": "Mode (0/1/2/3/7)", "type": "label" },
+        { "name": "_mode", "type": "number" },
+        { "name": "Watermark (0-31)", "type": "label" },
+        { "name": "_watermark", "type": "number" }
+      ]
+    },
+    {
+      "name": "l3gd20h_enable_fifo",
+      "type": "execute",
+      "params": [
+        { "name": "Enable FIFO", "type": "label" },
+        { "name": "_enable", "type": "number", "default": 1 }
+      ]
+    },
+    {
+      "name": "l3gd20h_fifo_level",
+      "type": "value",
+      "params": [{ "name": "L3GD20H FIFO level", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_read_fifo",
+      "type": "value",
+      "params": [{ "name": "L3GD20H read FIFO samples", "type": "label" }]
+    },
+    {
+      "name": "l3gd20h_set_power_mode",
+      "type": "execute",
+      "params": [
+        { "name": "Set power mode", "type": "label" },
+        { "name": "Mode (0=normal,1=sleep,2=power_down)", "type": "label" },
+        { "name": "_mode", "type": "number", "default": 0 }
+      ]
+    }
+  ]
+}

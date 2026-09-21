@@ -18,6 +18,8 @@ npm install node-red-contrib-periph-gyroscope
 |------|------|-------------|
 | `l3g4200d-device` | config | Bus configuration for a L3G4200D |
 | `periph-l3g4200d` | input | Reads angular rate on the X, Y, and Z axes from an L3G4200D MEMS gyroscope. |
+| `l3gd20h-device` | config | Bus configuration for a L3GD20H |
+| `periph-l3gd20h` | input | Reads angular rate on the X, Y, and Z axes from an L3GD20H (or L3GD20) MEMS gyroscope. |
 
 ## Links
 
