@@ -1,4 +1,4 @@
-#[package]
+[package]
 name = "ad7706_test_esp32s3"
 version = "0.1.0"
 edition = "2021"

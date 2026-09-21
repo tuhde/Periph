@@ -41,6 +41,7 @@ Each chip exposes two classes:
 |------|----------|--------|
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
+| AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |

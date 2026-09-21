@@ -19,17 +19,6 @@ macro_rules! check_true {
     };
 }
 
-fn open(bus: u8, dev: u8) -> std::rc::Rc<embedded_hal_bus::spi::ExclusiveDevice<SpidevBus, NullCs>> {
-    let dev_path = format!("/dev/spidev{}.{}", bus, dev);
-    let mut spi = Spidev::open(dev_path).expect("open spi");
-    spi.configure(&SpidevOptions::new()
-        .max_speed_hz(1_000_000)
-        .mode(SpiModeFlags::SPI_MODE_3)
-        .build()).expect("configure spi");
-    let bus_obj = SpidevBus(spi);
-    std::rc::Rc::new(ExclusiveDevice::new_no_delay(bus_obj, NullCs).expect("spi device"))
-}
-
 fn main() {
     let bus: u8 = std::env::var("SPI_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
     let dev: u8 = std::env::var("SPI_DEVICE").ok().and_then(|v| v.parse().ok()).unwrap_or(0);
@@ -114,8 +103,6 @@ fn main() {
     chip.standby().expect("standby");
     chip.wakeup().expect("wakeup");
     check_true!(true, "standby_wakeup_accepted", passed, failed);
-
-    let _ = open(bus, dev); // silence unused-import warning on the helper above
 
     println!("===DONE: {} passed, {} failed===", passed, failed);
     std::process::exit(if failed == 0 { 0 } else { 1 });

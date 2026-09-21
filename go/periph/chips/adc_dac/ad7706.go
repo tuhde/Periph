@@ -9,69 +9,12 @@ import (
 	"github.com/tuhde/Periph/go/periph/connection"
 )
 
-// Master clock frequencies the AD7706 supports.
-const (
-	MCLK1MHz      uint32 = 1000000
-	MCLK2MHz      uint32 = 2000000
-	MCLK2_4576MHz uint32 = 2457600
-	MCLK4_9152MHz uint32 = 4915200
-)
-
-// PGA gain settings exposed by Configure().
-const (
-	GAIN1   uint8 = 0
-	GAIN2   uint8 = 1
-	GAIN4   uint8 = 2
-	GAIN8   uint8 = 3
-	GAIN16  uint8 = 4
-	GAIN32  uint8 = 5
-	GAIN64  uint8 = 6
-	GAIN128 uint8 = 7
-)
-
-const (
-	regCOMM   uint8 = 0x00
-	regSETUP  uint8 = 0x10
-	regCLOCK  uint8 = 0x20
-	regDATA   uint8 = 0x30
-	regOFFSET uint8 = 0x60
-	regGAIN   uint8 = 0x70
-)
-
-const (
-	rwWRITE uint8 = 0x00
-	rwREAD  uint8 = 0x08
-)
-
-const (
-	ch1 uint8 = 0x00
-	ch2 uint8 = 0x01
-	ch3 uint8 = 0x03
-)
-
-const (
-	modeNormal   uint8 = 0x00
-	modeSelfCal  uint8 = 0x40
-	modeZeroSys  uint8 = 0x80
-	modeFullSys  uint8 = 0xC0
-)
-
-var gainBits = [8]uint8{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38}
-var gainToIdx = map[uint8]uint8{1: 0, 2: 1, 4: 2, 8: 3, 16: 4, 32: 5, 64: 6, 128: 7}
-
-const (
-	bipolar    uint8 = 0x00
-	unipolar   uint8 = 0x04
-	unbuffered uint8 = 0x00
-	buffered   uint8 = 0x02
-	fsyncRun   uint8 = 0x00
-	stbyRun    uint8 = 0x00
-	stbySleep  uint8 = 0x04
-	drdyMask   uint8 = 0x80
-)
-
-var fsRates1MHz   = [4]uint16{20, 25, 100, 200}
-var fsRates2_4MHz = [4]uint16{50, 60, 250, 500}
+// AD7706 shares its master clock frequencies, PGA gain settings, register
+// map, and register-level helpers with the AD7705 (same package, ad7705.go)
+// — the two chips are protocol-identical except for channel count. Only the
+// third channel's select constant and its channel-validation helper are
+// AD7706-specific.
+const ch3 uint8 = 0x03
 
 func channelConst(channel uint8) (uint8, error) {
 	switch channel {
@@ -83,82 +26,6 @@ func channelConst(channel uint8) (uint8, error) {
 		return ch3, nil
 	}
 	return 0, fmt.Errorf("ad7706: channel must be 1, 2, or 3")
-}
-
-func commByte(reg uint8, read bool, channel uint8) uint8 {
-	b := reg
-	if read {
-		b |= rwREAD
-	} else {
-		b |= rwWRITE
-	}
-	b |= channel & 0x03
-	return b
-}
-
-func writeRegChannel(conn connection.Connection, reg uint8, value uint32, channel uint8, nBytes uint8) error {
-	buf := make([]byte, 1+nBytes)
-	buf[0] = commByte(reg, false, channel)
-	for i := int(nBytes) - 1; i >= 0; i-- {
-		buf[1+(int(nBytes)-1-i)] = uint8((value >> (8 * uint(i))) & 0xFF)
-	}
-	return conn.Write(buf)
-}
-
-func readRegChannel(conn connection.Connection, reg uint8, channel uint8, nBytes uint8) (uint32, error) {
-	comm := []byte{commByte(reg, true, channel)}
-	raw, err := conn.WriteRead(comm, int(nBytes))
-	if err != nil {
-		return 0, err
-	}
-	var value uint32
-	for i := uint8(0); i < nBytes; i++ {
-		value = (value << 8) | uint32(raw[i])
-	}
-	return value, nil
-}
-
-func waitDRDY(conn connection.Connection) error {
-	for {
-		comm := []byte{commByte(regCOMM, true, ch1)}
-		raw, err := conn.WriteRead(comm, 1)
-		if err != nil {
-			return err
-		}
-		if raw[0]&drdyMask == 0 {
-			return nil
-		}
-	}
-}
-
-func configureClock(conn connection.Connection, mclkHz uint32, outputRateHz uint16) error {
-	clkBit := uint8(0x00)
-	if mclkHz >= MCLK2_4576MHz {
-		clkBit = 0x04
-	}
-	clkDivBit := uint8(0x00)
-	if mclkHz == MCLK2MHz || mclkHz == MCLK4_9152MHz {
-		clkDivBit = 0x08
-	}
-	rates := fsRates1MHz
-	if mclkHz >= MCLK2_4576MHz {
-		rates = fsRates2_4MHz
-	}
-	var fsBits uint8
-	for i, r := range rates {
-		if r == outputRateHz {
-			fsBits = uint8(i)
-			break
-		}
-	}
-	return writeRegChannel(conn, regCLOCK, uint32(clkDivBit|clkBit|fsBits), ch1, 1)
-}
-
-func codeToVoltage(code uint16, gain uint8, bipolarFlag bool, vref float64) float64 {
-	if bipolarFlag {
-		return (float64(int32(code)-32768) / 32768.0) * (vref / float64(gain))
-	}
-	return (float64(code) / 65536.0) * (vref / float64(gain))
 }
 
 // AD7706Minimal is the AD7706 3-channel, 16-bit sigma-delta ADC — minimal

@@ -33,14 +33,14 @@ class Ad7706Full @JvmOverloads constructor(
 ) : Ad7706Minimal(connection, vref, mclkHz) {
 
     companion object {
-        @JvmStatic const val GAIN_1   = 0
-        @JvmStatic const val GAIN_2   = 1
-        @JvmStatic const val GAIN_4   = 2
-        @JvmStatic const val GAIN_8   = 3
-        @JvmStatic const val GAIN_16  = 4
-        @JvmStatic const val GAIN_32  = 5
-        @JvmStatic const val GAIN_64  = 6
-        @JvmStatic const val GAIN_128 = 7
+        const val GAIN_1   = 0
+        const val GAIN_2   = 1
+        const val GAIN_4   = 2
+        const val GAIN_8   = 3
+        const val GAIN_16  = 4
+        const val GAIN_32  = 5
+        const val GAIN_64  = 6
+        const val GAIN_128 = 7
     }
 
     /**
