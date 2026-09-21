@@ -3,6 +3,94 @@
 version = 4
 
 [[package]]
+name = "ad7705_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7705_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7705_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7705_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7706_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7706_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7706_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "ad7706_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
 name = "ade7953_complete"
 version = "0.1.0"
 dependencies = [
