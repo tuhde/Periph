@@ -1,0 +1,1 @@
+_periph_adxl362.temperature()

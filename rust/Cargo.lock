@@ -159,6 +159,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "adxl362_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "adxl362_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "adxl362_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "adxl362_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
 name = "aht21_complete"
 version = "0.1.0"
 dependencies = [
