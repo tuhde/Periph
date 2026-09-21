@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu9255Full;
+import it.uhde.periph.chips.imu.MPU9255Full;
 
 public class Complete {
 
@@ -16,7 +16,7 @@ public class Complete {
 
         try (var connection = new I2CConnection(bus, addr);
              var magConnection = new I2CConnection(bus, 0x0C)) {              // AK8963, same bus, reached via I²C bypass
-            var imu = new Mpu9255Full(connection, magConnection);              // Create MPU9255 driver, (connection, magConnection) → void
+            var imu = new MPU9255Full(connection, magConnection);              // Create MPU9255 driver, (connection, magConnection) → void
 
             double[] a = imu.accel();                                          // Read 3-axis acceleration, () → double[] m/s²
                                                     // converts raw accel register to m/s² (16384 LSB/g at ±2g)

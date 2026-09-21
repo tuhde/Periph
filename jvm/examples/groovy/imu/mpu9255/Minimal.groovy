@@ -5,14 +5,14 @@
 //DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu9255Minimal
+import it.uhde.periph.chips.imu.MPU9255Minimal
 
 def bus  = System.getenv().getOrDefault("I2C_BUS", "1") as int
 def addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "") as int
 
 def conn = new I2CConnection(bus, addr)
 try {
-    def imu = new Mpu9255Minimal(conn)                           // Create MPU9255 driver, (connection) → void
+    def imu = new MPU9255Minimal(conn)                           // Create MPU9255 driver, (connection) → void
 
     while (true) {
         def a = imu.accel()                                      // Read 3-axis acceleration, () → double[] m/s²

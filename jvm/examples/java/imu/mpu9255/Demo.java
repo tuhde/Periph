@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu9255Full;
+import it.uhde.periph.chips.imu.MPU9255Full;
 
 public class Demo {
 
@@ -21,7 +21,7 @@ public class Demo {
             // 64 mg threshold and 31.25 Hz wake-up rate balance sensitivity against spurious
             // wake-ups from vibration; once motion fires, the full 6-axis sensor suite
             // (gyro + mag at 100 Hz) is re-enabled to capture a 5-second tilt/heading burst.
-            var imu = new Mpu9255Full(connection, magConnection);          // Create MPU9255 driver, (connection, magConnection) → void
+            var imu = new MPU9255Full(connection, magConnection);          // Create MPU9255 driver, (connection, magConnection) → void
             imu.configureWakeOnMotion(64, 31.25f);                        // Configure wake-on-motion, (thresholdMg=64, odrHz=31.25) → void
 
             long lastHeartbeat = System.currentTimeMillis();

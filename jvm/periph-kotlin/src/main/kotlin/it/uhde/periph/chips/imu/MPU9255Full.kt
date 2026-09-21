@@ -4,7 +4,7 @@ import it.uhde.periph.connection.Connection
 import kotlin.math.abs
 
 /**
- * MPU-9255 full interface — extends Mpu9255Minimal with complete functionality.
+ * MPU-9255 full interface — extends MPU9255Minimal with complete functionality.
  *
  * Adds gyroscope and accelerometer full-scale configuration, DLPF settings,
  * sample rate control, temperature reading, magnetometer (AK8963) support,
@@ -24,10 +24,10 @@ import kotlin.math.abs
  * @param magConnection Configured I²C connection bound to the AK8963's address
  *                      (0x0C), on the same bus as [connection].
  */
-class Mpu9255Full @JvmOverloads constructor(
+class MPU9255Full @JvmOverloads constructor(
     connection: Connection,
     private val magConnection: Connection
-) : Mpu9255Minimal(connection) {
+) : MPU9255Minimal(connection) {
 
     companion object {
         private const val AK8963_REG_WIA      = 0x00

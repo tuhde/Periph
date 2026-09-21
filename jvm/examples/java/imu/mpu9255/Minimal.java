@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu9255Minimal;
+import it.uhde.periph.chips.imu.MPU9255Minimal;
 
 public class Minimal {
 
@@ -15,7 +15,7 @@ public class Minimal {
                 System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", ""), 16);
 
         try (var connection = new I2CConnection(bus, addr)) {
-            var imu = new Mpu9255Minimal(connection);                           // Create MPU9255 driver, (connection) → void
+            var imu = new MPU9255Minimal(connection);                           // Create MPU9255 driver, (connection) → void
 
             while (true) {
                 double[] a = imu.accel();                                      // Read 3-axis acceleration, () → double[] m/s²

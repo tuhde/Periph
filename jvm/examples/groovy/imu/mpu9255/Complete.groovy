@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu9255Full
+import it.uhde.periph.chips.imu.MPU9255Full
 
 def bus  = System.getenv().getOrDefault("I2C_BUS", "1") as int
 def addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "") as int
@@ -13,7 +13,7 @@ def addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]
 def conn = new I2CConnection(bus, addr)
 def magConn = new I2CConnection(bus, 0x0C)  // AK8963, same bus, reached via I²C bypass
 try {
-    def imu = new Mpu9255Full(conn, magConn)                    // Create MPU9255 driver, (connection, magConnection) → void
+    def imu = new MPU9255Full(conn, magConn)                    // Create MPU9255 driver, (connection, magConnection) → void
 
     def a = imu.accel()                                          // Read 3-axis acceleration, () → double[] m/s²
                                                         // converts raw accel register to m/s² (16384 LSB/g at ±2g)

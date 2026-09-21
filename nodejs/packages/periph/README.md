@@ -66,6 +66,7 @@ Each chip exposes two classes:
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
+| MPU9255 | IMU | `periph/src/chips/imu/mpu9255` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |

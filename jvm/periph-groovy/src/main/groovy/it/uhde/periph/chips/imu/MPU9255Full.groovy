@@ -5,7 +5,7 @@ import it.uhde.periph.connection.Connection
 import groovy.transform.CompileStatic
 
 /**
- * MPU-9255 full interface — extends Mpu9255Minimal with complete functionality.
+ * MPU-9255 full interface — extends MPU9255Minimal with complete functionality.
  *
  * Adds gyroscope and accelerometer full-scale configuration, DLPF settings,
  * sample rate control, temperature reading, magnetometer (AK8963) support,
@@ -23,7 +23,7 @@ import groovy.transform.CompileStatic
  * pass both in.
  */
 @CompileStatic
-class Mpu9255Full extends Mpu9255Minimal {
+class MPU9255Full extends MPU9255Minimal {
 
     private static final int AK8963_REG_WIA      = 0x00
     private static final int AK8963_REG_ST1      = 0x02
@@ -56,7 +56,7 @@ class Mpu9255Full extends Mpu9255Minimal {
      * @param magConnection Configured I²C connection bound to the AK8963's address
      *                      (0x0C), on the same bus as {@code connection}.
      */
-    Mpu9255Full(Connection connection, Connection magConnection) throws IOException {
+    MPU9255Full(Connection connection, Connection magConnection) throws IOException {
         super(connection)
         this.magConnection = magConnection
     }
@@ -293,7 +293,7 @@ class Mpu9255Full extends Mpu9255Minimal {
      * @param odrHz       Wake-up output data rate in Hz (0.24–500 Hz).
      */
     void configureWakeOnMotion(int thresholdMg = 64, float odrHz = 31.25f) throws IOException {
-        int thresholdLsb = (thresholdMg + 2) / 4
+        int thresholdLsb = (thresholdMg + 2).intdiv(4)
         if (thresholdLsb < 1) thresholdLsb = 1
         if (thresholdLsb > 255) thresholdLsb = 255
 

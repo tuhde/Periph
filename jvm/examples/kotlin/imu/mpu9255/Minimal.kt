@@ -5,14 +5,14 @@
 //DEPS it.uhde:periph-kotlin:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu9255Minimal
+import it.uhde.periph.chips.imu.MPU9255Minimal
 
 fun main() {
     val bus  = System.getenv().getOrDefault("I2C_BUS", "1").toInt()
     val addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "").toInt(16)
 
     I2CConnection(bus, addr).use { connection ->
-        val imu = Mpu9255Minimal(connection)                           // Create MPU9255 driver, (connection) → void
+        val imu = MPU9255Minimal(connection)                           // Create MPU9255 driver, (connection) → void
 
         while (true) {
             val a = imu.accel()                                       // Read 3-axis acceleration, () → DoubleArray m/s²

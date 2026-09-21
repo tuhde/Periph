@@ -36,24 +36,9 @@ const (
 	whoAmI9255Value = 0x73
 )
 
-// AK8963 magnetometer registers (address 0x0C).
-const (
-	ak8963WIA   = 0x00
-	ak8963ST1   = 0x02
-	ak8963HXL   = 0x03
-	ak8963ST2   = 0x09
-	ak8963CNTL1 = 0x0A
-	ak8963CNTL2 = 0x0B
-	ak8963ASAX  = 0x10
-	ak8963ASAY  = 0x11
-	ak8963ASAZ  = 0x12
-
-	ak8963IDExpected = 0x48
-
-	ak8963ModePowerDown = 0x00
-	ak8963ModeFuseROM   = 0x0F
-	ak8963Cont100Hz16b   = 0x16
-)
+// AK8963 magnetometer registers (address 0x0C) — identical hardware to
+// MPU-9250's embedded AK8963, so reuse the constants already declared in
+// mpu9250.go (same package) rather than redeclaring them here.
 
 const (
 	mpu9255ResetDelay        = 100 * time.Millisecond
@@ -479,9 +464,9 @@ func (d *MPU9255Full) ConfigureWakeOnMotion(thresholdMg uint16, odrHz float32) e
 		thresholdLsb = 255
 	}
 	bestSel := 0
-	bestDiff := math.Abs(odrHz - lposcTable[0])
+	bestDiff := math.Abs(float64(odrHz - lposcTable[0]))
 	for sel := 1; sel < len(lposcTable); sel++ {
-		diff := math.Abs(odrHz - lposcTable[sel])
+		diff := math.Abs(float64(odrHz - lposcTable[sel]))
 		if diff < bestDiff {
 			bestDiff = diff
 			bestSel = sel

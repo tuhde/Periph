@@ -5,9 +5,9 @@
 //DEPS it.uhde:periph-java:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection;
-import it.uhde.periph.chips.imu.Mpu9255Full;
+import it.uhde.periph.chips.imu.MPU9255Full;
 
-public class Mpu9255Test {
+public class MPU9255Test {
 
     static int passed = 0;
     static int failed = 0;
@@ -24,7 +24,7 @@ public class Mpu9255Test {
 
         try (var connection = new I2CConnection(bus, addr);
              var magConnection = new I2CConnection(bus, 0x0C)) {  // AK8963, same bus, reached via I²C bypass
-            var imu = new Mpu9255Full(connection, magConnection);
+            var imu = new MPU9255Full(connection, magConnection);
 
             double[] a = imu.accel();
             checkTrue("accel_x finite", a[0] > -200.0 && a[0] < 200.0);

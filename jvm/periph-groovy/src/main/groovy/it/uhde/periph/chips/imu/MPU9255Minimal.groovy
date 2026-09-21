@@ -27,7 +27,7 @@ import groovy.transform.CompileStatic
  * - All six axes enabled
  */
 @CompileStatic
-class Mpu9255Minimal {
+class MPU9255Minimal {
 
     protected static final int REG_SMPLRT_DIV    = 0x19
     protected static final int REG_CONFIG        = 0x1A
@@ -61,7 +61,7 @@ class Mpu9255Minimal {
     protected int accelFs = 0
     protected int gyroFs = 0
 
-    Mpu9255Minimal(Connection connection) {
+    MPU9255Minimal(Connection connection) {
         this.connection = connection
         writeReg(REG_PWR_MGMT_1, 0x80)
         Thread.sleep(100)

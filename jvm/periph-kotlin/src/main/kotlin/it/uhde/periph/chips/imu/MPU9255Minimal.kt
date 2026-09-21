@@ -24,7 +24,7 @@ import it.uhde.periph.connection.Connection
  * - Clock: auto PLL (CLKSEL=1)
  * - All six axes enabled
  */
-open class Mpu9255Minimal @JvmOverloads constructor(
+open class MPU9255Minimal @JvmOverloads constructor(
     protected val connection: Connection
 ) {
     companion object {

@@ -5,7 +5,7 @@
 //DEPS it.uhde:periph-kotlin:1.0-SNAPSHOT
 
 import it.uhde.periph.connection.I2CConnection
-import it.uhde.periph.chips.imu.Mpu9255Full
+import it.uhde.periph.chips.imu.MPU9255Full
 
 fun main() {
     val bus  = System.getenv().getOrDefault("I2C_BUS", "1").toInt()
@@ -13,7 +13,7 @@ fun main() {
 
     I2CConnection(bus, addr).use { connection ->
     I2CConnection(bus, 0x0C).use { magConnection ->                  // AK8963, same bus, reached via I²C bypass
-        val imu = Mpu9255Full(connection, magConnection)              // Create MPU9255 driver, (connection, magConnection) → void
+        val imu = MPU9255Full(connection, magConnection)              // Create MPU9255 driver, (connection, magConnection) → void
 
         val a = imu.accel()                                          // Read 3-axis acceleration, () → DoubleArray m/s²
                                                         // converts raw accel register to m/s² (16384 LSB/g at ±2g)
