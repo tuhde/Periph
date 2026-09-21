@@ -53,8 +53,8 @@ func main() {
 	chip.SetWakeupMode(true)                                                    // Enter wake-up mode, (enabled=true) → error
 
 	// --- Poll AWAKE for 60 s and count asleep↔awake transitions ---
-	fmt.Println("Watching for motion. Pick up or tap the board to wake; "
-		+ "let it settle to sleep.")
+	fmt.Println("Watching for motion. Pick up or tap the board to wake; " +
+		"let it settle to sleep.")
 	start := time.Now()
 	lastAwake := (*bool)(nil)
 	transitions := 0
@@ -71,10 +71,10 @@ func main() {
 	}
 
 	fmt.Printf("Total transitions observed: %d\n", transitions)               // Print final count, () → None
-	fmt.Println("Note: during 'asleep' periods the ADXL362 draws ~270 nA — "
-		+ "roughly two orders of magnitude below the ~1.8 µA of the "
-		+ "continuous 100 Hz measurement mode used by the Minimal "
-		+ "read() example.")
+	fmt.Println("Note: during 'asleep' periods the ADXL362 draws ~270 nA — " +
+		"roughly two orders of magnitude below the ~1.8 µA of the " +
+		"continuous 100 Hz measurement mode used by the Minimal " +
+		"read() example.")
 }
 
 func stateLabel(awake bool) string {

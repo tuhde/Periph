@@ -125,14 +125,21 @@ FIFO_CONTROL_MODE_NAMES = {
 FIFO_AXIS_NAMES = {0: 'X', 1: 'Y', 2: 'Z', 3: 'TEMP'}
 
 # Annotation row ids.
-ANN_INSTR     = 0   # SPI command byte
-ANN_REG_WRITE = 1
-ANN_REG_READ  = 2
-ANN_FIFO      = 3
-ANN_STATUS    = 4
-ANN_FIELD     = 5   # generic register-field annotation
-ANN_DATA      = 6   # data-derived (g, °C, FIFO entry axis/value)
-ANN_WARN      = 7
+ANN_INSTR      = 0   # SPI command byte
+ANN_REG_WRITE  = 1
+ANN_REG_READ   = 2
+ANN_FIFO       = 3
+ANN_STATUS     = 4
+ANN_FIELD      = 5   # generic register-field annotation
+ANN_DATA       = 6   # data-derived (g, °C, FIFO entry axis/value)
+ANN_WARN       = 7
+ANN_DATA_START = 8   # data-register read start (data-ready-clear-latency check)
+ANN_DATA_DONE  = 9   # data-register read done (data-ready-clear-latency check)
+
+# Register addresses a "data-register read" (per the Data-Ready Clear
+# Latency timing constraint) may start at: XDATA/YDATA/ZDATA (8-bit) and
+# XDATA_L..TEMP_H (12-bit pairs + temperature).
+DATA_READ_ADDRS = frozenset(range(0x08, 0x0B)) | frozenset(range(0x0E, 0x16))
 
 
 def _sign_extend_12(v):
@@ -171,10 +178,13 @@ class Decoder(srd.Decoder):
         ('field',      'Register field'),
         ('data',       'Decoded data value'),
         ('warning',    'Warning'),
+        ('read_start', 'Data-register read start'),
+        ('read_done',  'Data-register read done'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_INSTR, ANN_REG_WRITE, ANN_REG_READ, ANN_FIFO,
                                   ANN_STATUS, ANN_FIELD, ANN_DATA)),
+        ('read',     'Read',     (ANN_DATA_START, ANN_DATA_DONE)),
         ('warnings', 'Warnings', (ANN_WARN,)),
     )
 
@@ -218,14 +228,16 @@ class Decoder(srd.Decoder):
                 elif pdata == CMD_READ_REG:
                     self.state = 'GET_REG_PTR'
                 elif pdata == CMD_READ_FIFO:
-                    self._emit_fifo_read()
-                    self.state = 'IDLE'
+                    self.state = 'GET_FIFO_DATA'
                 else:
                     self.put(ss, es, ANN_INSTR, ['UNKNOWN 0x%02X' % pdata, '?0x%02X' % pdata, '?'])
                     self.state = 'IDLE'
             elif self.state == 'GET_REG_PTR':
                 self.addr = pdata & 0x3F
-                self.state = 'GET_DATA_WRITE'
+                # A register read shifts its real data back on MISO
+                # ('DATA READ' events) while MOSI carries dummy bytes; a
+                # register write shifts its data out on MOSI ('DATA WRITE').
+                self.state = 'GET_DATA_READ' if self.cmd == CMD_READ_REG else 'GET_DATA_WRITE'
             elif self.state == 'GET_DATA_WRITE':
                 self.databuf.append(pdata)
                 # Continue collecting data until STOP.
@@ -234,11 +246,11 @@ class Decoder(srd.Decoder):
             if self.state == 'GET_REG_PTR':
                 # No-op: register byte was already consumed.
                 pass
-            elif self.state == 'GET_DATA_READ':
+            elif self.state in ('GET_DATA_READ', 'GET_FIFO_DATA'):
                 self.databuf.append(pdata)
 
         elif ptype == 'STOP':
-            if self.state in ('GET_REG_PTR', 'GET_DATA_WRITE', 'GET_DATA_READ'):
+            if self.state in ('GET_REG_PTR', 'GET_DATA_WRITE', 'GET_DATA_READ', 'GET_FIFO_DATA'):
                 self._finish_transaction()
             elif self.state == 'GET_ADDR':
                 # Single-byte transaction: no data phase.
@@ -248,14 +260,17 @@ class Decoder(srd.Decoder):
     def _finish_transaction(self):
         ss = self.ss_block
         es = self.es
-        if ss is None or self.cmd is None or self.addr is None:
+        if ss is None or self.cmd is None:
             return
         cmd = self.cmd
-        addr = self.addr
-        if cmd == CMD_WRITE_REG:
-            self._emit_reg_write(addr, ss, es)
-        elif cmd == CMD_READ_REG:
-            self._emit_reg_read(addr, ss, es)
+        if cmd == CMD_READ_FIFO:
+            self._emit_fifo_read(ss, es)
+        elif self.addr is not None:
+            addr = self.addr
+            if cmd == CMD_WRITE_REG:
+                self._emit_reg_write(addr, ss, es)
+            elif cmd == CMD_READ_REG:
+                self._emit_reg_read(addr, ss, es)
         self.cmd = None
         self.addr = None
 
@@ -293,18 +308,46 @@ class Decoder(srd.Decoder):
             self._emit_fifo_control(value, ss, es)
 
     def _emit_reg_read(self, addr, ss, es):
-        regname = REGS.get(addr, '0x%02X' % addr)
         data = self.databuf
         self.put(ss, es, ANN_INSTR, ['READ 0x%02X' % addr, 'R', 'R'])
         if not data:
+            regname = REGS.get(addr, '0x%02X' % addr)
             self.put(ss, es, ANN_REG_READ,
                      ['%s →' % regname, regname, regname])
             return
-        value = data[0]
-        self.put(ss, es, ANN_REG_READ,
-                 ['%s → 0x%02X' % (regname, value),
-                  '%s → 0x%02X' % (regname, value),
-                  '%s→%02X' % (regname, value)])
+
+        if len(data) == 1:
+            regname = REGS.get(addr, '0x%02X' % addr)
+            value = data[0]
+            self.put(ss, es, ANN_REG_READ,
+                     ['%s → 0x%02X' % (regname, value),
+                      '%s → 0x%02X' % (regname, value),
+                      '%s→%02X' % (regname, value)])
+            self._emit_reg_read_side_effect(addr, value, ss, es)
+        else:
+            # Burst read with register-address auto-increment: name the
+            # first/last register touched and every byte's raw value.
+            start_name = REGS.get(addr, '0x%02X' % addr)
+            end_name = REGS.get(addr + len(data) - 1, '0x%02X' % (addr + len(data) - 1))
+            hexbytes = ' '.join('%02X' % b for b in data)
+            self.put(ss, es, ANN_REG_READ,
+                     ['%s..%s → %s' % (start_name, end_name, hexbytes),
+                      '%s..%s' % (start_name, end_name),
+                      '%s..%s' % (start_name, end_name)])
+            for i, value in enumerate(data):
+                self._emit_reg_read_side_effect(addr + i, value, ss, es)
+
+        if addr in DATA_READ_ADDRS:
+            # Per the Data-Ready Clear Latency timing constraint: brackets
+            # a data-register read for the conformance check that measures
+            # the delay until STATUS.DATA_READY clears afterward.
+            self.put(ss, ss, ANN_DATA_START, ['Data read start', 'Read start', 'ST'])
+            self.put(es, es, ANN_DATA_DONE, ['Data read done', 'Read done', 'DN'])
+            self._emit_axis_or_temp_values(addr, data, ss, es)
+
+    def _emit_reg_read_side_effect(self, addr, value, ss, es):
+        """Per-register-address annotations for a single byte read at addr
+        (whether from a single-byte transaction or one byte of a burst)."""
         if addr == 0x0B:
             self._emit_status(value, ss, es)
         elif addr == 0x2C:
@@ -315,24 +358,49 @@ class Decoder(srd.Decoder):
         elif addr == 0x27:
             self._emit_act_inact_ctl(value, ss, es)
         elif addr in (0x2A, 0x2B):
+            regname = REGS.get(addr, '0x%02X' % addr)
             self._emit_intmap(regname, value, ss, es)
         elif addr == 0x28:
             self._emit_fifo_control(value, ss, es)
-        elif addr in (0x0E, 0x0F):
-            # XDATA_L/H (or half of the 12-bit acceleration read)
-            self._emit_xdata_pair(regname, value, ss, es)
-        elif addr == 0x08:
-            # XDATA-only 8-bit read (X axis)
-            sens = _sensitivity_for_range_bits(self.range_bits) * 16
-            g = _sign_extend_12(value << 4) * sens
-            self.put(ss, es, ANN_DATA,
-                     ['XDATA → %+.3f g' % g,
-                      'X = %+.3f g' % g,
-                      '%+.3f' % g])
 
-    def _emit_xdata_pair(self, regname, value, ss, es):
-        """Called for XDATA_L/H, YDATA_L/H, ZDATA_L/H — combined per axis."""
-        pass  # full reconstruction happens when both L and H have been seen
+    def _emit_axis_or_temp_values(self, addr, data, ss, es):
+        """Compute and annotate g/°C values for a data-register read
+        starting at addr: XDATA/YDATA/ZDATA (0x08-0x0A, 8-bit, one byte per
+        axis) or the XDATA_L..TEMP_H 12-bit L/H pairs (0x0E-0x15)."""
+        if 0x08 <= addr <= 0x0A:
+            sens = _sensitivity_for_range_bits(self.range_bits) * 16
+            axis_names = ('X', 'Y', 'Z')
+            for i, byte in enumerate(data):
+                axis_idx = (addr - 0x08) + i
+                if axis_idx > 2:
+                    break
+                g = _sign_extend_12(byte << 4) * sens
+                name = axis_names[axis_idx]
+                self.put(ss, es, ANN_DATA,
+                         ['%sDATA → %+.3f g' % (name, g),
+                          '%s = %+.3f g' % (name, g),
+                          '%+.3f' % g])
+        elif 0x0E <= addr <= 0x15:
+            sens = _sensitivity_for_range_bits(self.range_bits)
+            pair_names = ('X', 'Y', 'Z', 'TEMP')
+            pair_idx = (addr - 0x0E) // 2
+            i = 1 if (addr - 0x0E) % 2 else 0  # burst starting on an H register: skip its lone byte
+            while i + 1 < len(data) and pair_idx < 4:
+                lo, hi = data[i], data[i + 1]
+                raw12 = _sign_extend_12(((hi & 0x0F) << 8) | lo)
+                name = pair_names[pair_idx]
+                if name == 'TEMP':
+                    t = 25.0 + (raw12 - 350) * 0.065
+                    self.put(ss, es, ANN_DATA,
+                             ['TEMP → %.2f °C' % t, 'T = %.2f °C' % t, '%.2f' % t])
+                else:
+                    g = raw12 * sens
+                    self.put(ss, es, ANN_DATA,
+                             ['%sDATA → %+.3f g' % (name, g),
+                              '%s = %+.3f g' % (name, g),
+                              '%+.3f' % g])
+                i += 2
+                pair_idx += 1
 
     def _emit_status(self, value, ss, es):
         names = [n for bit, n in STATUS_BITS if value & bit]
@@ -404,9 +472,7 @@ class Decoder(srd.Decoder):
         med = mode_name
         self.put(ss, es, ANN_FIELD, [long, med, 'FC'])
 
-    def _emit_fifo_read(self):
-        ss = self.ss_block
-        es = self.es
+    def _emit_fifo_read(self, ss, es):
         self.put(ss, es, ANN_INSTR, ['READ FIFO', 'FIFO', 'F'])
         n_bytes = len(self.databuf) // 2
         sens = _sensitivity_for_range_bits(self.range_bits)

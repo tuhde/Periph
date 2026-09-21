@@ -33,6 +33,7 @@ Each chip exposes two classes:
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
 | ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
+| ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
 | APA102 | LED driver | `periph/src/chips/led/apa102` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |

@@ -47,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	devad, devmst, partid, revid, err := chip.DeviceID() // Read device IDs, () → (devid_ad, devid_mst, partid, revid, error)
+	devad, devmst, partid, _, err := chip.DeviceID() // Read device IDs, () → (devid_ad, devid_mst, partid, revid, error)
 	check("device_id_devid_ad", err == nil && devad == 0xAD)
 	check("device_id_devid_mst", err == nil && devmst == 0x1D)
 	check("device_id_partid", err == nil && partid == 0xF2)

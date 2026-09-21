@@ -562,7 +562,7 @@ func (f *ADXL362Full) ReadFifo() ([]FifoEntry, error) {
 		axis := (raw16 >> 14) & 0x03
 		raw12 := signExtend12(raw16 & 0x0FFF)
 		var val float32
-		if axis == ADXL362AxisTemp {
+		if uint8(axis) == ADXL362AxisTemp {
 			val = 25.0 + (float32(raw12)-350)*0.065
 		} else {
 			val = float32(raw12) * sens

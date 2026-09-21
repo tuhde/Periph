@@ -120,7 +120,7 @@ class Adxl362Full @JvmOverloads constructor(connection: Connection) : Adxl362Min
         val sy = if ((raw[1].toInt() and 0x80) != 0) ((raw[1].toInt() and 0xFF) - 256) else (raw[1].toInt() and 0xFF)
         val sz = if ((raw[2].toInt() and 0x80) != 0) ((raw[2].toInt() and 0xFF) - 256) else (raw[2].toInt() and 0xFF)
         val sens = sensitivity() * 16.0f
-        return doubleArrayOf(sx * sens, sy * sens, sz * sens)
+        return doubleArrayOf((sx * sens).toDouble(), (sy * sens).toDouble(), (sz * sens).toDouble())
     }
 
     /** Read the on-chip temperature sensor (typical bias/sensitivity). */

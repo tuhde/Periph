@@ -398,7 +398,7 @@ impl<SPI: SpiDevice> Adxl362Full<SPI> {
     pub fn read_8bit(&mut self) -> Result<(f32, f32, f32), SPI::Error> {
         let mut raw = [0u8; 3];
         read_burst(&mut self.inner.spi, REG_XDATA, &mut raw)?;
-        let s8 = |v: u8| -> i8 { if v & 0x80 != 0 { (v - 256) as i8 } else { v as i8 } };
+        let s8 = |v: u8| -> i8 { v as i8 };
         let sens = self.inner.sensitivity() * 16.0;
         Ok((s8(raw[0]) as f32 * sens, s8(raw[1]) as f32 * sens, s8(raw[2]) as f32 * sens))
     }

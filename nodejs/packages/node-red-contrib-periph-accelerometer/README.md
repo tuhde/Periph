@@ -18,6 +18,8 @@ npm install node-red-contrib-periph-accelerometer
 |------|------|-------------|
 | `adxl345-device` | config | I²C bus and address for an ADXL345 |
 | `adxl345` | input | Reads 3-axis acceleration from an ADXL345 3-axis accelerometer over I²C. |
+| `adxl362-device` | config | Bus configuration for an ADXL362 |
+| `adxl362` | input | Reads 3-axis acceleration from an ADXL362 3-axis ultralow-power accelerometer over SPI. |
 
 ## Links
 

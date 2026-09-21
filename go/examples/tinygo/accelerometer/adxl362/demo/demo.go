@@ -49,8 +49,8 @@ func main() {
 	chip.SetWakeupMode(true)                                                    // Enter wake-up mode, (enabled=true) → error
 
 	// --- Poll AWAKE indefinitely and count asleep↔awake transitions ---
-	println("Watching for motion. Pick up or tap the board to wake; "
-		+ "let it settle to sleep.")
+	println("Watching for motion. Pick up or tap the board to wake; " +
+		"let it settle to sleep.")
 	start := time.Now()
 	lastAwake := false
 	haveLast := false

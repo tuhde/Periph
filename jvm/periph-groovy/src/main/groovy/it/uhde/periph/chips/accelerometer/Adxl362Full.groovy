@@ -185,7 +185,7 @@ class Adxl362Full extends Adxl362Minimal {
     }
 
     void setActivityThreshold(float thresholdG, boolean referenced = false) {
-        int raw = Math.round(thresholdG / sensitivity())
+        int raw = (int) Math.round(thresholdG / sensitivity())
         if (raw < 0) raw = 0
         if (raw > 0x3FF) raw = 0x3FF
         writeReg(REG_THRESH_ACT_L, raw & 0xFF)
@@ -199,7 +199,7 @@ class Adxl362Full extends Adxl362Minimal {
     }
 
     void setInactivityThreshold(float thresholdG, boolean referenced = false) {
-        int raw = Math.round(thresholdG / sensitivity())
+        int raw = (int) Math.round(thresholdG / sensitivity())
         if (raw < 0) raw = 0
         if (raw > 0x3FF) raw = 0x3FF
         writeReg(REG_THRESH_INACT_L, raw & 0xFF)

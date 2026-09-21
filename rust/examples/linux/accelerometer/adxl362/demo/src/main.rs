@@ -44,8 +44,7 @@ fn main() {
     chip.set_wakeup_mode(true).expect("set_wakeup_mode(true)");                   // Enter wake-up mode, (enabled=true) → Result<()>
 
     // --- Poll AWAKE for 60 s and count asleep<->awake transitions ---
-    println!("Watching for motion. Pick up or tap the board to wake; "
-             + "let it settle to sleep.");
+    println!("Watching for motion. Pick up or tap the board to wake; let it settle to sleep.");
     let start = std::time::Instant::now();
     let mut last_awake: Option<bool> = None;
     let mut transitions = 0;
@@ -62,8 +61,7 @@ fn main() {
     }
 
     println!("Total transitions observed: {}", transitions);                    // Print final count, () → None
-    println!("Note: during 'asleep' periods the ADXL362 draws ~270 nA — "
-             + "roughly two orders of magnitude below the ~1.8 µA of the "
-             + "continuous 100 Hz measurement mode used by the Minimal "
-             + "read() example.");
+    println!("Note: during 'asleep' periods the ADXL362 draws ~270 nA — roughly two orders of \
+              magnitude below the ~1.8 µA of the continuous 100 Hz measurement mode used by the \
+              Minimal read() example.");
 }

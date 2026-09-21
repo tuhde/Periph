@@ -42,6 +42,7 @@ Each chip exposes two classes:
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
+| ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |

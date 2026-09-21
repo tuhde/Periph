@@ -143,11 +143,13 @@ open class Adxl362Minimal @JvmOverloads constructor(
         const val STATUS_AWAKE     = 0x40
         const val STATUS_DATA_READY = 0x01
 
+        @JvmStatic
         protected fun signExtend12(v: Int): Int {
             val x = v and 0x0FFF
             return if ((x and 0x0800) != 0) (x or 0xF000).toShort().toInt() else x
         }
 
+        @JvmStatic
         protected fun sleepMs(ms: Int) {
             try { Thread.sleep(ms.toLong()) }
             catch (e: InterruptedException) { Thread.currentThread().interrupt() }

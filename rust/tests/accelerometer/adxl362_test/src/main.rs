@@ -1,7 +1,7 @@
 use embedded_hal_bus::spi::ExclusiveDevice;
 use linux_embedded_hal::SpidevBus;
 use periph::chips::accelerometer::{
-    Adxl362Full, FIFO_STREAM, LINKLOOP_LOOP, NOISE_LOW, SOURCE_AWAKE, SOURCE_DATA_READY,
+    Adxl362Full, ADXL362_FIFO_STREAM, LINKLOOP_LOOP, NOISE_LOW, SOURCE_AWAKE, SOURCE_DATA_READY,
 };
 use spidev::{SpiModeFlags, Spidev, SpidevOptions};
 
@@ -65,7 +65,7 @@ fn main() {
     let _n = chip.fifo_entries().expect("fifo_entries");                 // Read FIFO entry count, () → Result<u16>
     check_true!(true, "status_awake_dr_fifo", passed, failed);
 
-    chip.configure_fifo(FIFO_STREAM, false, 128).expect("configure_fifo");  // Configure FIFO, (mode=STREAM, store_temp=false, watermark=128) → Result<()>
+    chip.configure_fifo(ADXL362_FIFO_STREAM, false, 128).expect("configure_fifo");  // Configure FIFO, (mode=STREAM, store_temp=false, watermark=128) → Result<()>
     chip.set_activity_threshold(0.5, true).expect("set_activity_threshold(0.5, true)");  // Set activity threshold, (threshold_g=0.5, referenced=true) → Result<()>
     chip.set_activity_time(5).expect("set_activity_time(5)");            // Set activity time, (samples=5) → Result<()>
     chip.set_inactivity_threshold(0.2, true).expect("set_inactivity_threshold(0.2, true)");  // Set inactivity threshold, (threshold_g=0.2, referenced=true) → Result<()>
