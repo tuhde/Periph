@@ -1,0 +1,1 @@
+_periph_mpu9255.gyro()[2]
