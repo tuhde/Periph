@@ -20,3 +20,8 @@ pub use ad7705::{
     MCLK_1MHZ, MCLK_2MHZ, MCLK_2_4576MHZ, MCLK_4_9152MHZ,
     GAIN_1, GAIN_2, GAIN_4, GAIN_8, GAIN_16, GAIN_32, GAIN_64, GAIN_128,
 };
+// AD7706 shares its master clock frequencies and PGA gain settings with the
+// AD7705 (same register-level protocol) — reuse the already-exported
+// constants above rather than re-exporting AD7706's identical copies.
+pub mod ad7706;
+pub use ad7706::{AD7706Minimal, AD7706Full};
