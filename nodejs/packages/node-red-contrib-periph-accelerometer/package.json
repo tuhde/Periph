@@ -12,7 +12,8 @@
     ],
     "node-red": {
         "nodes": {
-            "adxl345": "nodes/adxl345/adxl345.js"
+            "adxl345": "nodes/adxl345/adxl345.js",
+            "adxl362": "nodes/adxl362/adxl362.js"
         }
     },
     "dependencies": {
