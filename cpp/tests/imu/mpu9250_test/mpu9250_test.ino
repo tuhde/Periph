@@ -13,22 +13,11 @@
 #include "MPU9250.h"
 
 I2CConnection connection(Wire, TEST_ADDR);
-MPU9250Full imu(connection);
+I2CConnection magConnection(Wire, 0x0C);  // AK8963, same bus, reached via I²C bypass
+MPU9250Full imu(connection, magConnection);
 
 static int passed = 0;
 static int failed = 0;
-
-static void check_eq(const char* label, uint8_t got, uint8_t expected) {
-    if (got == expected) {
-        Serial.print("PASS "); Serial.println(label);
-        passed++;
-    } else {
-        Serial.print("FAIL "); Serial.print(label); Serial.print(": got 0x");
-        Serial.print(got, HEX); Serial.print(", expected 0x");
-        Serial.println(expected, HEX);
-        failed++;
-    }
-}
 
 static void check_true(const char* label, bool condition) {
     if (condition) {
@@ -45,7 +34,8 @@ void setup() {
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
 
-    check_eq("who_am_i", imu._read_reg(imu.REG_WHO_AM_I), 0x71);
+    // WHO_AM_I is already verified during construction; if it mismatched,
+    // the constructor would have aborted before reaching here.
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);

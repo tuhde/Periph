@@ -143,13 +143,23 @@ class MPU9250Minimal {
  * Adds gyroscope and accelerometer full-scale configuration, DLPF settings,
  * sample rate control, temperature reading, magnetometer (AK8963) support,
  * raw data access, data-ready polling, sleep/standby control, and FIFO management.
+ *
+ * The AK8963 magnetometer sits behind the MPU-9250's I²C bypass (BYPASS_EN)
+ * as its own device at address 0x0C, so it needs its own connection bound
+ * to that address on the same bus — it cannot be reached through the
+ * connection already bound to the MPU-9250's own address. Construct that
+ * second connection the same way as the primary one (e.g. on Linux,
+ * `new I2CConnection(1, 0x0C)` alongside `new I2CConnection(1, 0x68)`) and
+ * pass both in.
  */
 class MPU9250Full extends MPU9250Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
+     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection pointing at the MPU-9250.
+     * @param {import('../../connection/connection').Connection} magConnection - Configured I²C connection bound to the AK8963's address (0x0C), on the same bus as connection.
      */
-    constructor(connection) {
+    constructor(connection, magConnection) {
         super(connection);
+        this._magConn = magConnection;
         this._magEnabled = false;
         this._magBits = 16;
         this._magScaleX = 1.0;
@@ -158,15 +168,15 @@ class MPU9250Full extends MPU9250Minimal {
     }
 
     async _ak8963Write(reg, value) {
-        await this._conn.write(Buffer.from([_AK8963_ADDR << 1, reg, value]));
+        await this._magConn.write(Buffer.from([reg, value]));
     }
 
     async _ak8963Read(reg) {
-        return (await this._conn.writeRead(Buffer.from([(_AK8963_ADDR << 1) | 1, reg]), 1))[0];
+        return (await this._magConn.writeRead(Buffer.from([reg]), 1))[0];
     }
 
     async _ak8963ReadBurst(reg, len) {
-        return this._conn.writeRead(Buffer.from([(_AK8963_ADDR << 1) | 1, reg]), len);
+        return this._magConn.writeRead(Buffer.from([reg]), len);
     }
 
     /**
@@ -276,7 +286,6 @@ class MPU9250Full extends MPU9250Minimal {
         const my = buf.readInt16LE(2);
         const mz = buf.readInt16LE(4);
         // ST2 at buf[6] must be read to unlock next measurement
-        (void)buf[6];
 
         const sens = (this._magBits === 16) ? _MAG_SENSITIVITY_16BIT : _MAG_SENSITIVITY_14BIT;
         return [mx * sens * this._magScaleX,
@@ -311,7 +320,8 @@ class MPU9250Full extends MPU9250Minimal {
         if (!this._magEnabled) {
             throw new Error('Magnetometer not enabled. Call enableMag() first.');
         }
-        const buf = await this._ak8963ReadBurst(_AK8963_REG_HXL, 6);
+        // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
+        const buf = await this._ak8963ReadBurst(_AK8963_REG_HXL, 7);
         return [buf.readInt16LE(0), buf.readInt16LE(2), buf.readInt16LE(4)];
     }
 

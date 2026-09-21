@@ -31,7 +31,8 @@ def check_true(label, condition):
 
 i2c = I2C(cfg.I2C_ID, sda=Pin(cfg.SDA), scl=Pin(cfg.SCL), freq=cfg.FREQ)
 connection = I2CConnection(i2c, cfg.ADDR)
-imu = MPU9250Full(connection)
+mag_connection = I2CConnection(i2c, 0x0C)  # AK8963, same bus, reached via I²C bypass
+imu = MPU9250Full(connection, mag_connection)
 
 check_eq('who_am_i', imu._read_reg(imu._REG_WHO_AM_I), 0x71)
 

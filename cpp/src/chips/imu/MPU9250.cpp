@@ -81,8 +81,8 @@ void MPU9250Minimal::gyro(float& x, float& y, float& z) {
     z = gz / sens * 3.141592653589793f / 180.0f;
 }
 
-MPU9250Full::MPU9250Full(Connection& connection)
-    : MPU9250Minimal(connection) {}
+MPU9250Full::MPU9250Full(Connection& connection, Connection& magConnection)
+    : MPU9250Minimal(connection), _mag_connection(magConnection) {}
 
 void MPU9250Full::configure_gyro(uint8_t full_scale) {
     _gyro_fs = full_scale & 0x03;
@@ -109,20 +109,18 @@ float MPU9250Full::temperature() {
 }
 
 void MPU9250Full::_ak8963_write(uint8_t reg, uint8_t value) {
-    uint8_t buf[3] = { AK8963_ADDR << 1, reg, value };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { reg, value };
+    _mag_connection.write(buf, 2);
 }
 
 uint8_t MPU9250Full::_ak8963_read(uint8_t reg) {
-    uint8_t write_buf[2] = { (AK8963_ADDR << 1) | 1, reg };
     uint8_t val;
-    _connection.write_read(write_buf, 2, &val, 1);
+    _mag_connection.write_read(&reg, 1, &val, 1);
     return val;
 }
 
 void MPU9250Full::_ak8963_read_burst(uint8_t reg, uint8_t* buf, uint8_t len) {
-    uint8_t write_buf[2] = { (AK8963_ADDR << 1) | 1, reg };
-    _connection.write_read(write_buf, 2, buf, len);
+    _mag_connection.write_read(&reg, 1, buf, len);
 }
 
 void MPU9250Full::enable_mag(uint8_t bits, uint8_t mode) {
@@ -197,8 +195,9 @@ void MPU9250Full::mag_raw(int16_t& x, int16_t& y, int16_t& z) {
         x = y = z = 0;
         return;
     }
-    uint8_t buf[6];
-    _ak8963_read_burst(AK8963_REG_HXL, buf, 6);
+    // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
+    uint8_t buf[7];
+    _ak8963_read_burst(AK8963_REG_HXL, buf, 7);
     x = static_cast<int16_t>((static_cast<uint16_t>(buf[1]) << 8) | buf[0]);
     y = static_cast<int16_t>((static_cast<uint16_t>(buf[3]) << 8) | buf[2]);
     z = static_cast<int16_t>((static_cast<uint16_t>(buf[5]) << 8) | buf[4]);

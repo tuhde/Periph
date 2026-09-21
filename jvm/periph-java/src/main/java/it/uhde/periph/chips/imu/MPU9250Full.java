@@ -12,10 +12,16 @@ import java.io.IOException;
  * raw data access, data-ready polling, sleep/standby control, and FIFO management.
  *
  * <p>Default I²C address: 0x68 (AD0=GND), 0x69 (AD0=VCC).
+ *
+ * <p>The AK8963 magnetometer sits behind the MPU-9250's I²C bypass (BYPASS_EN)
+ * as its own device at address 0x0C, so it needs its own connection bound to
+ * that address on the same bus — it cannot be reached through the connection
+ * already bound to the MPU-9250's own address. Construct that second
+ * connection the same way as the primary one (e.g. {@code new
+ * I2CConnection(1, 0x0C)} alongside {@code new I2CConnection(1, 0x68)}) and
+ * pass both in.
  */
 public class MPU9250Full extends MPU9250Minimal {
-
-    private static final int AK8963_ADDR = 0x0C;
 
     private static final int AK8963_REG_WIA      = 0x00;
     private static final int AK8963_REG_ST1      = 0x02;
@@ -31,14 +37,21 @@ public class MPU9250Full extends MPU9250Minimal {
     private static final double MAG_SENSITIVITY_14BIT = 0.6;
     private static final double MAG_SENSITIVITY_16BIT = 0.15;
 
+    private final Connection magConnection;
     private boolean magEnabled = false;
     private int magBits = 16;
     private double magScaleX = 1.0;
     private double magScaleY = 1.0;
     private double magScaleZ = 1.0;
 
-    public MPU9250Full(Connection connection) throws IOException {
+    /**
+     * @param connection Configured I²C or SPI connection pointing at the MPU-9250.
+     * @param magConnection Configured I²C connection bound to the AK8963's address
+     *                      (0x0C), on the same bus as {@code connection}.
+     */
+    public MPU9250Full(Connection connection, Connection magConnection) throws IOException {
         super(connection);
+        this.magConnection = magConnection;
     }
 
     /**
@@ -201,7 +214,8 @@ public class MPU9250Full extends MPU9250Minimal {
         if (!magEnabled) {
             throw new IllegalStateException("Magnetometer not enabled. Call enableMag() first.");
         }
-        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 6);
+        // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
+        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 7);
         return new int[]{
             (short) ((buf[1] & 0xFF) << 8 | (buf[0] & 0xFF)),
             (short) ((buf[3] & 0xFF) << 8 | (buf[2] & 0xFF)),
@@ -284,15 +298,15 @@ public class MPU9250Full extends MPU9250Minimal {
     }
 
     private void ak8963Write(int reg, int val) throws IOException {
-        connection.write(new byte[]{(byte) (AK8963_ADDR << 1), (byte) reg, (byte) val});
+        magConnection.write(new byte[]{(byte) reg, (byte) val});
     }
 
     private int ak8963Read(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) ((AK8963_ADDR << 1) | 1), (byte) reg}, 1);
+        byte[] b = magConnection.writeRead(new byte[]{(byte) reg}, 1);
         return b[0] & 0xFF;
     }
 
     private byte[] ak8963ReadBurst(int reg, int len) throws IOException {
-        return connection.writeRead(new byte[]{(byte) ((AK8963_ADDR << 1) | 1), (byte) reg}, len);
+        return magConnection.writeRead(new byte[]{(byte) reg}, len);
     }
 }

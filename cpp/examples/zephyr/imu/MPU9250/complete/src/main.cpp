@@ -15,7 +15,8 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MPU9250_I2C_NODE);
     I2CConnectionZephyr connection(dev, MPU9250_ADDR);
-    MPU9250Full imu(connection);
+    I2CConnectionZephyr magConnection(dev, 0x0C);  // AK8963, same bus, reached via I²C bypass
+    MPU9250Full imu(connection, magConnection);
 
     printk("MPU9250 complete example started\n");
 

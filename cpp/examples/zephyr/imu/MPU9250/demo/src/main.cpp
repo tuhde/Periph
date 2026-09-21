@@ -16,11 +16,13 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MPU9250_I2C_NODE);
     I2CConnectionZephyr connection(dev, MPU9250_ADDR);
+    I2CConnectionZephyr magConnection(dev, 0x0C);      // AK8963, same bus, reached via I²C bypass
 
-    // --- Configure for noise-sensitive power rail monitoring ---
-    // 128-sample averaging suppresses switching noise on a noisy 5 V rail;
-    // continuous mode avoids re-triggering overhead between measurements.
-    MPU9250Full imu(connection);                      // Create MPU9250 driver, (connection) → void
+    // --- Configure for tilt and heading estimation ---
+    // ±4g / ±500dps trade sensitivity for headroom against sharper motion than
+    // the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
+    // keeps a fresh heading available on every poll.
+    MPU9250Full imu(connection, magConnection);       // Create MPU9250 driver, (connection, magConnection) → void
     imu.configure_accel(1);                           // Configure accel range, (full_scale=0) → void
     imu.configure_gyro(1);                            // Configure gyro range, (full_scale=0) → void
     imu.enable_mag(16, 6);                            // Initialize magnetometer, (bits=16, mode=6) → void

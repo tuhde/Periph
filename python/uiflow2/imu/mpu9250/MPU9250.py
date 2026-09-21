@@ -39,7 +39,8 @@ class MPU9250:
                 field: number
         """
         connection = I2CConnection(address, bus=bus)
-        self._driver = MPU9250Full(connection)
+        mag_connection = I2CConnection(0x0C, bus=bus)  # AK8963, same bus, reached via I²C bypass
+        self._driver = MPU9250Full(connection, mag_connection)
 
     def accel_x(self) -> float:
         """

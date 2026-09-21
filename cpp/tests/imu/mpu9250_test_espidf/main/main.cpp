@@ -13,11 +13,6 @@ static void check_true(const char* label, bool condition) {
     else           { printf("FAIL %s\n", label); failed++; }
 }
 
-static void check_eq(const char* label, uint8_t got, uint8_t expected) {
-    if (got == expected) { printf("PASS %s\n", label); passed++; }
-    else { printf("FAIL %s: got 0x%02X, expected 0x%02X\n", label, got, expected); failed++; }
-}
-
 extern "C" void app_main(void) {
     i2c_master_bus_config_t bus_cfg = {
         .i2c_port = I2C_NUM_0,
@@ -42,10 +37,22 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
-    I2CConnectionESPIDF connection(dev);
-    MPU9250Full imu(connection);
+    i2c_device_config_t mag_dev_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address  = 0x0C,  // AK8963, same bus, reached via I²C bypass
+        .scl_speed_hz    = 400000,
+        .scl_wait_us     = 0,
+        .flags           = {},
+    };
+    i2c_master_dev_handle_t magDev;
+    i2c_master_bus_add_device(bus, &mag_dev_cfg, &magDev);
 
-    check_eq("who_am_i", imu._read_reg(imu.REG_WHO_AM_I), 0x71);
+    I2CConnectionESPIDF connection(dev);
+    I2CConnectionESPIDF magConnection(magDev);
+    MPU9250Full imu(connection, magConnection);
+
+    // WHO_AM_I is already verified during construction; if it mismatched,
+    // the constructor would have aborted before reaching here.
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);

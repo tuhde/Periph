@@ -115,8 +115,18 @@ class MPU9250Full(MPU9250Minimal):
     sample rate control, temperature reading, magnetometer (AK8963) support,
     raw data access, data-ready polling, sleep/standby control, and FIFO management.
 
+    The AK8963 magnetometer sits behind the MPU-9250's I²C bypass (BYPASS_EN)
+    as its own device at address 0x0C, so it needs its own connection bound
+    to that address on the same bus — it cannot be reached through the
+    connection already bound to the MPU-9250's own address. Construct that
+    second connection the same way as the primary one (e.g. on Linux,
+    ``I2CConnection(1, 0x0C)`` alongside ``I2CConnection(1, 0x68)``) and pass
+    both in.
+
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: Configured I²C or SPI connection pointing at the MPU-9250.
+        mag_connection: Configured I²C connection bound to the AK8963's
+            address (0x0C), on the same bus as ``connection``.
     """
 
     _AK8963_ADDR = 0x0C
@@ -142,8 +152,9 @@ class MPU9250Full(MPU9250Minimal):
     _CONFIG_DLPF = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
     _ACCEL_CONFIG2_DLPF = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6}
 
-    def __init__(self, connection):
+    def __init__(self, connection, mag_connection):
         super().__init__(connection)
+        self._mag_connection = mag_connection
         self._mag_enabled = False
         self._mag_bits = 16
         self._mag_scale_x = 1.0
@@ -152,13 +163,13 @@ class MPU9250Full(MPU9250Minimal):
         self._is_spi = False
 
     def _ak8963_write(self, reg, value):
-        self._connection.write(bytes([self._AK8963_ADDR << 1, reg, value]))
+        self._mag_connection.write(bytes([reg, value]))
 
     def _ak8963_read(self, reg):
-        return self._connection.write_read(bytes([(self._AK8963_ADDR << 1) | 1, reg]), 1)[0]
+        return self._mag_connection.write_read(bytes([reg]), 1)[0]
 
     def _ak8963_read_burst(self, reg, n):
-        return self._connection.write_read(bytes([(self._AK8963_ADDR << 1) | 1, reg]), n)
+        return self._mag_connection.write_read(bytes([reg]), n)
 
     def configure_gyro(self, full_scale=0):
         """Set gyroscope full-scale range.

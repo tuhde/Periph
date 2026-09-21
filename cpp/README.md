@@ -72,6 +72,7 @@ Each chip exposes two classes:
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
+| MPU9250 | IMU | `chips/imu/MPU9250.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |

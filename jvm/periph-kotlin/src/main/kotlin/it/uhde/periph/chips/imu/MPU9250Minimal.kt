@@ -79,9 +79,9 @@ open class MPU9250Minimal @JvmOverloads constructor(
      */
     fun accel(): DoubleArray {
         val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
-        val ax = ((buf[0].toInt() and 0xFF) shl 8) or (buf[1].toInt() and 0xFF)
-        val ay = ((buf[2].toInt() and 0xFF) shl 8) or (buf[3].toInt() and 0xFF)
-        val az = ((buf[4].toInt() and 0xFF) shl 8) or (buf[5].toInt() and 0xFF)
+        val ax = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
+        val ay = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
+        val az = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
         val sens = ACCEL_SENSITIVITY[accelFs]
         return doubleArrayOf(ax.toDouble() / sens * 9.80665, ay.toDouble() / sens * 9.80665, az.toDouble() / sens * 9.80665)
     }
@@ -93,17 +93,17 @@ open class MPU9250Minimal @JvmOverloads constructor(
      */
     fun gyro(): DoubleArray {
         val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
-        val gx = ((buf[0].toInt() and 0xFF) shl 8) or (buf[1].toInt() and 0xFF)
-        val gy = ((buf[2].toInt() and 0xFF) shl 8) or (buf[3].toInt() and 0xFF)
-        val gz = ((buf[4].toInt() and 0xFF) shl 8) or (buf[5].toInt() and 0xFF)
+        val gx = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
+        val gy = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
+        val gz = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
         val sens = GYRO_SENSITIVITY[gyroFs]
         return doubleArrayOf(gx.toDouble() / sens * Math.PI / 180.0,
                              gy.toDouble() / sens * Math.PI / 180.0,
                              gz.toDouble() / sens * Math.PI / 180.0)
     }
 
-    protected fun writeReg(reg: Int, val: Int) {
-        connection.write(byteArrayOf(reg.toByte(), val.toByte()))
+    protected fun writeReg(reg: Int, value: Int) {
+        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
     }
 
     protected fun readReg(reg: Int): Int {
@@ -113,6 +113,6 @@ open class MPU9250Minimal @JvmOverloads constructor(
 
     protected fun readReg16Signed(reg: Int): Int {
         val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
-        return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
+        return ((b[0].toInt() and 0xFF) shl 8 or (b[1].toInt() and 0xFF)).toShort().toInt()
     }
 }

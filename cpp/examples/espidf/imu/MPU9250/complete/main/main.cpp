@@ -29,8 +29,19 @@ extern "C" void app_main(void) {
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
+    i2c_device_config_t mag_dev_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address  = 0x0C,  // AK8963, same bus, reached via I²C bypass
+        .scl_speed_hz    = 400000,
+        .scl_wait_us     = 0,
+        .flags           = {},
+    };
+    i2c_master_dev_handle_t magDev;
+    i2c_master_bus_add_device(bus, &mag_dev_cfg, &magDev);
+
     I2CConnectionESPIDF connection(dev);
-    MPU9250Full imu(connection);
+    I2CConnectionESPIDF magConnection(magDev);
+    MPU9250Full imu(connection, magConnection);
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);                            // Read 3-axis acceleration, (float&, float&, float&) → void m/s²

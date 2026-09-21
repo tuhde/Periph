@@ -31,12 +31,11 @@ function checkTrue(label, condition) {
 
 async function main() {
     const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-    const imu = new MPU9250Full(connection);
+    const magConnection = new I2CConnection(I2C_BUS, 0x0C);  // AK8963, same bus, reached via I²C bypass
+    const imu = new MPU9250Full(connection, magConnection);
 
-    // Note: _readReg is not exposed on Full, we need to access it via the connection
-    // But the driver doesn't expose _readReg publicly. Let's use whoAmI via connection.
-    // Actually we need to check WHO_AM_I. Let's read it through the connection directly.
-    // The driver doesn't expose WHO_AM_I read, so we'll just test the functional methods.
+    // WHO_AM_I is checked internally during construction; not re-checked
+    // here since it isn't exposed publicly.
 
     const [ax, ay, az] = await imu.accel();
     checkTrue('accel_x finite', ax > -200.0 && ax < 200.0);

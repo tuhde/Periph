@@ -7,7 +7,8 @@ const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1', 10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR || '0x68', 16);
 
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-const imu = new MPU9250Full(connection);                             // Create MPU9250 driver, (connection) → void
+const magConnection = new I2CConnection(I2C_BUS, 0x0C);              // AK8963, same bus, reached via I²C bypass
+const imu = new MPU9250Full(connection, magConnection);              // Create MPU9250 driver, (connection, magConnection) → void
 
 async function main() {
     const [ax, ay, az] = await imu.accel();                          // Read 3-axis acceleration, () → [number, number, number] m/s²

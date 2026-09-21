@@ -3,7 +3,8 @@
 #include "MPU9250.h"
 
 I2CConnection connection(Wire, 0x68);
-MPU9250Full imu(connection);
+I2CConnection magConnection(Wire, 0x0C);  // AK8963, same bus, reached via I²C bypass
+MPU9250Full imu(connection, magConnection);
 
 void setup() {
     Serial.begin(115200);

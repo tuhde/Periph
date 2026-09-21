@@ -33,7 +33,8 @@ def check_true(label, condition):
 
 
 connection = I2CConnection(I2C_BUS, I2C_ADDR)
-imu = MPU9250Full(connection)
+mag_connection = I2CConnection(I2C_BUS, 0x0C)  # AK8963, same bus, reached via I²C bypass
+imu = MPU9250Full(connection, mag_connection)
 
 check_eq('who_am_i', imu._read_reg(imu._REG_WHO_AM_I), 0x71)
 
@@ -81,6 +82,7 @@ check_true('read_fifo matches count', len(data) == count)
 
 imu.reset_fifo()
 
+mag_connection.close()
 connection.close()
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

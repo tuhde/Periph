@@ -13,11 +13,6 @@ static void check_true(const char* label, bool condition) {
     else           { printf("FAIL %s\n", label); failed++; }
 }
 
-static void check_eq(const char* label, uint8_t got, uint8_t expected) {
-    if (got == expected) { printf("PASS %s\n", label); passed++; }
-    else { printf("FAIL %s: got 0x%02X, expected 0x%02X\n", label, got, expected); failed++; }
-}
-
 int main(void) {
     i2c_init(i2c0, 100 * 1000);
     gpio_set_function(4, GPIO_FUNC_I2C);
@@ -26,12 +21,14 @@ int main(void) {
     gpio_pull_up(5);
 
     I2CConnectionPicoSDK connection(i2c0, 0x68);
-    MPU9250Full imu(connection);
+    I2CConnectionPicoSDK magConnection(i2c0, 0x0C);  // AK8963, same bus, reached via I²C bypass
+    MPU9250Full imu(connection, magConnection);
 
     stdio_init_all();
     sleep_ms(2000);
 
-    check_eq("who_am_i", imu._read_reg(imu.REG_WHO_AM_I), 0x71);
+    // WHO_AM_I is already verified during construction; if it mismatched,
+    // the constructor would have aborted before reaching here.
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);

@@ -83,11 +83,20 @@ protected:
  * sample rate control, temperature reading, magnetometer (AK8963) support,
  * raw data access, data-ready polling, sleep/standby control, and FIFO management.
  *
- * @param connection   Configured I²C or SPI connection pointing at the device.
+ * The AK8963 magnetometer sits behind the MPU-9250's I²C bypass (BYPASS_EN)
+ * as its own device at address 0x0C, so it needs its own connection bound
+ * to that address on the same bus — it cannot be reached through the
+ * connection already bound to the MPU-9250's own address. Construct that
+ * second connection the same way as the primary one (e.g. on Linux,
+ * I2CConnection(1, 0x0C) alongside I2CConnection(1, 0x68)) and pass both in.
+ *
+ * @param connection      Configured I²C or SPI connection pointing at the MPU-9250.
+ * @param magConnection   Configured I²C connection bound to the AK8963's address (0x0C),
+ *                        on the same bus as connection.
  */
 class MPU9250Full : public MPU9250Minimal {
 public:
-    MPU9250Full(Connection& connection);
+    MPU9250Full(Connection& connection, Connection& magConnection);
 
     /** @brief Set gyroscope full-scale range.
      *  @param full_scale  Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
@@ -203,6 +212,7 @@ protected:
     static constexpr float MAG_SENSITIVITY_14BIT = 0.6f;
     static constexpr float MAG_SENSITIVITY_16BIT = 0.15f;
 
+    Connection& _mag_connection;
     bool   _mag_enabled   = false;
     uint8_t _mag_bits      = 16;
     float  _mag_scale_x    = 1.0f;

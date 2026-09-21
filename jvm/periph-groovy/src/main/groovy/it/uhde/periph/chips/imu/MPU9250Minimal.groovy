@@ -86,7 +86,7 @@ class MPU9250Minimal {
         int ay = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int az = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
         double sens = ACCEL_SENSITIVITY[accelFs]
-        return [ax / sens * 9.80665, ay / sens * 9.80665, az / sens * 9.80665]
+        return [ax / sens * 9.80665, ay / sens * 9.80665, az / sens * 9.80665] as double[]
     }
 
     /**
@@ -102,7 +102,7 @@ class MPU9250Minimal {
         double sens = GYRO_SENSITIVITY[gyroFs]
         return [gx / sens * Math.PI / 180.0,
                 gy / sens * Math.PI / 180.0,
-                gz / sens * Math.PI / 180.0]
+                gz / sens * Math.PI / 180.0] as double[]
     }
 
     protected void writeReg(int reg, int val) throws IOException {

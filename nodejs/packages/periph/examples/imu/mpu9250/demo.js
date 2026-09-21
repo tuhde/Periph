@@ -7,18 +7,20 @@ const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1', 10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR || '0x68', 16);
 
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-
-// --- Configure for noise-sensitive power rail monitoring ---
-// 128-sample averaging suppresses switching noise on a noisy 5 V rail;
-// continuous mode avoids re-triggering overhead between measurements.
-const imu = new MPU9250Full(connection);                             // Create MPU9250 driver, (connection) → void
-await imu.configureAccel(1);                                        // Configure accel range, (fullScale=0) → void
-await imu.configureGyro(1);                                         // Configure gyro range, (fullScale=0) → void
-await imu.enableMag(16, 6);                                         // Initialize magnetometer, (bits=16, mode=6) → void
-
-console.log('roll     pitch    heading  |accel|  |gyro|');
+const magConnection = new I2CConnection(I2C_BUS, 0x0C);              // AK8963, same bus, reached via I²C bypass
 
 async function main() {
+    // --- Configure for tilt and heading estimation ---
+    // ±4g / ±500dps trade sensitivity for headroom against sharper motion than
+    // the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
+    // keeps a fresh heading available on every poll.
+    const imu = new MPU9250Full(connection, magConnection);          // Create MPU9250 driver, (connection, magConnection) → void
+    await imu.configureAccel(1);                                    // Configure accel range, (fullScale=0) → void
+    await imu.configureGyro(1);                                     // Configure gyro range, (fullScale=0) → void
+    await imu.enableMag(16, 6);                                     // Initialize magnetometer, (bits=16, mode=6) → void
+
+    console.log('roll     pitch    heading  |accel|  |gyro|');
+
     while (true) {
         // gate reads on dataReady so each sample reflects a fresh conversion
         while (!await imu.dataReady()) {                            // Check data ready flag, () → boolean

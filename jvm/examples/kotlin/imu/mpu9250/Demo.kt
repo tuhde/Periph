@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
-//DEPS it.uhde:periph-kotlin:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.imu.MPU9250Full
@@ -12,11 +12,13 @@ fun main() {
     val addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "").toInt(16)
 
     I2CConnection(bus, addr).use { connection ->
+    I2CConnection(bus, 0x0C).use { magConnection ->               // AK8963, same bus, reached via I²C bypass
 
-        // --- Configure for noise-sensitive power rail monitoring ---
-        // 128-sample averaging suppresses switching noise on a noisy 5 V rail;
-        // continuous mode avoids re-triggering overhead between measurements.
-        val imu = MPU9250Full(connection)                         // Create MPU9250 driver, (connection) → void
+        // --- Configure for tilt and heading estimation ---
+        // ±4g / ±500dps trade sensitivity for headroom against sharper motion than
+        // the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
+        // keeps a fresh heading available on every poll.
+        val imu = MPU9250Full(connection, magConnection)          // Create MPU9250 driver, (connection, magConnection) → void
         imu.configureAccel(1)                                    // Configure accel range, (fullScale=0) → void
         imu.configureGyro(1)                                     // Configure gyro range, (fullScale=0) → void
         imu.enableMag(16, 6)                                     // Initialize magnetometer, (bits=16, mode=6) → void
@@ -48,5 +50,6 @@ fun main() {
             println("%.1f      %.1f      %.1f      %.3f    %.3f".format(roll, pitch, heading, accelMag, gyroMag))
             Thread.sleep(100)
         }
+    }
     }
 }

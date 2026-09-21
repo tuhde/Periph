@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
-//DEPS it.uhde:periph-java:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-java:1.1.0
 
 import it.uhde.periph.connection.I2CConnection;
 import it.uhde.periph.chips.imu.MPU9250Full;
@@ -17,18 +17,14 @@ public class MPU9250Test {
         else           { System.out.println("FAIL " + label); failed++; }
     }
 
-    static void checkEq(String label, int got, int expected) {
-        if (got == expected) { System.out.println("PASS " + label); passed++; }
-        else { System.out.println("FAIL " + label + ": got " + got + ", expected " + expected); failed++; }
-    }
-
     public static void main(String[] args) throws Exception {
         int bus  = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS", "1"));
         int addr = Integer.parseInt(
                 System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", ""), 16);
 
-        try (var connection = new I2CConnection(bus, addr)) {
-            var imu = new MPU9250Full(connection);
+        try (var connection = new I2CConnection(bus, addr);
+             var magConnection = new I2CConnection(bus, 0x0C)) {  // AK8963, same bus, reached via I²C bypass
+            var imu = new MPU9250Full(connection, magConnection);
 
             double[] a = imu.accel();
             checkTrue("accel_x finite", a[0] > -200.0 && a[0] < 200.0);

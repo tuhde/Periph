@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
-//DEPS it.uhde:periph-kotlin:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-kotlin:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.imu.MPU9250Full
@@ -12,7 +12,8 @@ fun main() {
     val addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "").toInt(16)
 
     I2CConnection(bus, addr).use { connection ->
-        val imu = MPU9250Full(connection)                             // Create MPU9250 driver, (connection) → void
+    I2CConnection(bus, 0x0C).use { magConnection ->                  // AK8963, same bus, reached via I²C bypass
+        val imu = MPU9250Full(connection, magConnection)              // Create MPU9250 driver, (connection, magConnection) → void
 
         val a = imu.accel()                                          // Read 3-axis acceleration, () → DoubleArray m/s²
                                                         // converts raw accel register to m/s² (16384 LSB/g at ±2g)
@@ -63,5 +64,6 @@ fun main() {
                                                         // reads all available bytes from FIFO_R_W register
         imu.resetFifo()                                              // Reset FIFO buffer, () → void
                                                         // sets FIFO_RST bit in USER_CTRL to clear the buffer
+    }
     }
 }

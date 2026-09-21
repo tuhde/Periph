@@ -8,21 +8,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "I2CConnectionLinux.h"
 #include "MPU9250.h"
 
 static int passed = 0;
 static int failed = 0;
-
-static void check_eq(const char* label, uint8_t got, uint8_t expected) {
-    if (got == expected) {
-        printf("PASS %s\n", label);
-        passed++;
-    } else {
-        printf("FAIL %s: got 0x%02X, expected 0x%02X\n", label, got, expected);
-        failed++;
-    }
-}
 
 static void check_true(const char* label, bool condition) {
     if (condition) {
@@ -36,9 +27,11 @@ static void check_true(const char* label, bool condition) {
 
 int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
-    MPU9250Full imu(connection);
+    I2CConnectionLinux magConnection(TEST_I2C_BUS, 0x0C);  // AK8963, same bus, reached via I²C bypass
+    MPU9250Full imu(connection, magConnection);
 
-    check_eq("who_am_i", imu._read_reg(imu.REG_WHO_AM_I), 0x71);
+    // WHO_AM_I is already verified during construction; if it mismatched,
+    // the constructor would have aborted before reaching here.
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);

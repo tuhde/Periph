@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.0-SNAPSHOT
-//DEPS it.uhde:periph-groovy:1.0-SNAPSHOT
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-groovy:1.1.0
 
 import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.imu.MPU9250Full
@@ -11,8 +11,9 @@ def bus  = System.getenv().getOrDefault("I2C_BUS", "1") as int
 def addr = System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", "") as int
 
 def conn = new I2CConnection(bus, addr)
+def magConn = new I2CConnection(bus, 0x0C)  // AK8963, same bus, reached via I²C bypass
 try {
-    def imu = new MPU9250Full(conn)                             // Create MPU9250 driver, (connection) → void
+    def imu = new MPU9250Full(conn, magConn)                    // Create MPU9250 driver, (connection, magConnection) → void
 
     def a = imu.accel()                                          // Read 3-axis acceleration, () → double[] m/s²
                                                         // converts raw accel register to m/s² (16384 LSB/g at ±2g)
@@ -65,4 +66,5 @@ try {
                                                         // sets FIFO_RST bit in USER_CTRL to clear the buffer
 } finally {
     conn.close()
+    magConn.close()
 }

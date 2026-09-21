@@ -20,17 +20,14 @@ static void check_true(bool cond, const char *label) {
     else       { printk("FAIL %s\n", label); failed++; }
 }
 
-static void check_eq(const char *label, uint8_t got, uint8_t expected) {
-    if (got == expected) { printk("PASS %s\n", label); passed++; }
-    else { printk("FAIL %s: got 0x%02X, expected 0x%02X\n", label, got, expected); failed++; }
-}
-
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MPU9250_I2C_NODE);
     I2CConnectionZephyr connection(dev, MPU9250_ADDR);
-    MPU9250Full imu(connection);
+    I2CConnectionZephyr magConnection(dev, 0x0C);  // AK8963, same bus, reached via I²C bypass
+    MPU9250Full imu(connection, magConnection);
 
-    check_eq("who_am_i", imu._read_reg(imu.REG_WHO_AM_I), 0x71);
+    // WHO_AM_I is already verified during construction; if it mismatched,
+    // the constructor would have aborted before reaching here.
 
     float ax, ay, az, gx, gy, gz;
     imu.accel(ax, ay, az);

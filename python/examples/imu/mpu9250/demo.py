@@ -4,11 +4,13 @@ import math
 import time
 
 connection = I2CConnection(0x68)
+mag_connection = I2CConnection(0x0C)  # AK8963 lives at 0x0C on the same bus, reached via I²C bypass
 
-# --- Configure for noise-sensitive power rail monitoring ---
-# 128-sample averaging suppresses switching noise on a noisy 5 V rail;
-# continuous mode avoids re-triggering overhead between measurements.
-imu = MPU9250Full(connection)                             # Create MPU9250 driver, (connection) → None
+# --- Configure for tilt and heading estimation ---
+# ±4g / ±500dps trade sensitivity for headroom against sharper motion than
+# the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
+# keeps a fresh heading available on every poll.
+imu = MPU9250Full(connection, mag_connection)              # Create MPU9250 driver, (connection, mag_connection) → None
 imu.configure_accel(full_scale=1)                        # Configure accel range, (full_scale=0) → None
 imu.configure_gyro(full_scale=1)                         # Configure gyro range, (full_scale=0) → None
 imu.enable_mag(bits=16, mode=6)                          # Initialize magnetometer, (bits=16, mode=6) → None

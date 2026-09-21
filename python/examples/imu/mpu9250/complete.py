@@ -3,7 +3,8 @@ from periph.chips.imu.mpu9250 import MPU9250Full
 import time
 
 connection = I2CConnection(0x68)
-imu = MPU9250Full(connection)                             # Create MPU9250 driver, (connection) → None
+mag_connection = I2CConnection(0x0C)                       # AK8963 lives at 0x0C on the same bus, reached via I²C bypass
+imu = MPU9250Full(connection, mag_connection)              # Create MPU9250 driver, (connection, mag_connection) → None
 
 ax, ay, az = imu.accel()                                  # Read 3-axis acceleration, () → (float, float, float) m/s²
                                                           # converts raw accel register to m/s² (16384 LSB/g at ±2g)

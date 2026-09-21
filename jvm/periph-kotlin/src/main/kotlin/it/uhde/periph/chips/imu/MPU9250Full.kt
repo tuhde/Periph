@@ -10,14 +10,24 @@ import it.uhde.periph.connection.Connection
  * raw data access, data-ready polling, sleep/standby control, and FIFO management.
  *
  * Default I²C address: 0x68 (AD0=GND), 0x69 (AD0=VCC).
+ *
+ * The AK8963 magnetometer sits behind the MPU-9250's I²C bypass (BYPASS_EN)
+ * as its own device at address 0x0C, so it needs its own connection bound to
+ * that address on the same bus — it cannot be reached through the connection
+ * already bound to the MPU-9250's own address. Construct that second
+ * connection the same way as the primary one (e.g. `I2CConnection(1, 0x0C)`
+ * alongside `I2CConnection(1, 0x68)`) and pass both in.
+ *
+ * @param connection Configured I²C or SPI connection pointing at the MPU-9250.
+ * @param magConnection Configured I²C connection bound to the AK8963's address
+ *                      (0x0C), on the same bus as [connection].
  */
 class MPU9250Full @JvmOverloads constructor(
-    connection: Connection
+    connection: Connection,
+    private val magConnection: Connection
 ) : MPU9250Minimal(connection) {
 
     companion object {
-        private const val AK8963_ADDR = 0x0C
-
         private const val AK8963_REG_WIA      = 0x00
         private const val AK8963_REG_ST1      = 0x02
         private const val AK8963_REG_HXL      = 0x03
@@ -139,9 +149,9 @@ class MPU9250Full @JvmOverloads constructor(
             throw IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
         val buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
-        val mx = ((buf[1].toInt() and 0xFF) shl 8) or (buf[0].toInt() and 0xFF)
-        val my = ((buf[3].toInt() and 0xFF) shl 8) or (buf[2].toInt() and 0xFF)
-        val mz = ((buf[5].toInt() and 0xFF) shl 8) or (buf[4].toInt() and 0xFF)
+        val mx = ((buf[1].toInt() and 0xFF) shl 8 or (buf[0].toInt() and 0xFF)).toShort().toInt()
+        val my = ((buf[3].toInt() and 0xFF) shl 8 or (buf[2].toInt() and 0xFF)).toShort().toInt()
+        val mz = ((buf[5].toInt() and 0xFF) shl 8 or (buf[4].toInt() and 0xFF)).toShort().toInt()
         // ST2 at buf[6] must be read to unlock next measurement
 
         val sens = if (magBits == 16) MAG_SENSITIVITY_16BIT else MAG_SENSITIVITY_14BIT
@@ -158,9 +168,9 @@ class MPU9250Full @JvmOverloads constructor(
     fun accelRaw(): IntArray {
         val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
         return intArrayOf(
-            ((buf[0].toInt() and 0xFF) shl 8) or (buf[1].toInt() and 0xFF),
-            ((buf[2].toInt() and 0xFF) shl 8) or (buf[3].toInt() and 0xFF),
-            ((buf[4].toInt() and 0xFF) shl 8) or (buf[5].toInt() and 0xFF)
+            ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
         )
     }
 
@@ -172,9 +182,9 @@ class MPU9250Full @JvmOverloads constructor(
     fun gyroRaw(): IntArray {
         val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
         return intArrayOf(
-            ((buf[0].toInt() and 0xFF) shl 8) or (buf[1].toInt() and 0xFF),
-            ((buf[2].toInt() and 0xFF) shl 8) or (buf[3].toInt() and 0xFF),
-            ((buf[4].toInt() and 0xFF) shl 8) or (buf[5].toInt() and 0xFF)
+            ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
         )
     }
 
@@ -188,11 +198,12 @@ class MPU9250Full @JvmOverloads constructor(
         if (!magEnabled) {
             throw IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
-        val buf = ak8963ReadBurst(AK8963_REG_HXL, 6)
+        // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
+        val buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
         return intArrayOf(
-            ((buf[1].toInt() and 0xFF) shl 8) or (buf[0].toInt() and 0xFF),
-            ((buf[3].toInt() and 0xFF) shl 8) or (buf[2].toInt() and 0xFF),
-            ((buf[5].toInt() and 0xFF) shl 8) or (buf[4].toInt() and 0xFF)
+            ((buf[1].toInt() and 0xFF) shl 8 or (buf[0].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[3].toInt() and 0xFF) shl 8 or (buf[2].toInt() and 0xFF)).toShort().toInt(),
+            ((buf[5].toInt() and 0xFF) shl 8 or (buf[4].toInt() and 0xFF)).toShort().toInt()
         )
     }
 
@@ -211,13 +222,13 @@ class MPU9250Full @JvmOverloads constructor(
      * @param sleep true to enter sleep mode, false to wake.
      */
     fun setSleep(sleep: Boolean = true) {
-        var val = readReg(REG_PWR_MGMT_1)
+        var value = readReg(REG_PWR_MGMT_1)
         if (sleep) {
-            val = val or 0x40
+            value = value or 0x40
         } else {
-            val = val and 0xFFBF
+            value = value and 0xFFBF
         }
-        writeReg(REG_PWR_MGMT_1, val)
+        writeReg(REG_PWR_MGMT_1, value)
     }
 
     /**
@@ -263,16 +274,16 @@ class MPU9250Full @JvmOverloads constructor(
         writeReg(REG_USER_CTRL, userCtrl or 0x04)
     }
 
-    private fun ak8963Write(reg: Int, val: Int) {
-        connection.write(byteArrayOf((AK8963_ADDR shl 1).toByte(), reg.toByte(), val.toByte()))
+    private fun ak8963Write(reg: Int, value: Int) {
+        magConnection.write(byteArrayOf(reg.toByte(), value.toByte()))
     }
 
     private fun ak8963Read(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(((AK8963_ADDR shl 1) or 1).toByte(), reg.toByte()), 1)
+        val b = magConnection.writeRead(byteArrayOf(reg.toByte()), 1)
         return b[0].toInt() and 0xFF
     }
 
     private fun ak8963ReadBurst(reg: Int, len: Int): ByteArray {
-        return connection.writeRead(byteArrayOf(((AK8963_ADDR shl 1) or 1).toByte(), reg.toByte()), len)
+        return magConnection.writeRead(byteArrayOf(reg.toByte()), len)
     }
 }
