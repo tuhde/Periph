@@ -81,7 +81,7 @@ pom.write_text(re.sub(r'<version>[^<]+</version>', f'<version>{version}</version
 print('  jvm/pom.xml')
 
 # JVM: child modules each hardcode the parent version in their own <parent> block
-jvm_modules = ['periph-transport', 'periph-java', 'periph-kotlin', 'periph-groovy']
+jvm_modules = ['periph-connection', 'periph-java', 'periph-kotlin', 'periph-groovy']
 for module in jvm_modules:
     sed(f'jvm/{module}/pom.xml',
         r'(?s)(<parent>.*?<version>)[^<]+(</version>.*?</parent>)',
@@ -91,7 +91,7 @@ print(f'  jvm/*/pom.xml  ({len(jvm_modules)} child modules)')
 # JVM: JBang example/test scripts pin //DEPS it.uhde:periph-<module>:<version>
 jbang_files = sorted((root / 'jvm/examples').rglob('*')) + sorted((root / 'jvm/tests').rglob('*'))
 jbang_pattern = re.compile(
-    r'(//DEPS it\.uhde:periph-(?:transport|java|kotlin|groovy):)' + re.escape(old_jvm_version))
+    r'(//DEPS it\.uhde:periph-(?:connection|java|kotlin|groovy):)' + re.escape(old_jvm_version))
 jbang_touched = 0
 for f in jbang_files:
     if not f.is_file():
@@ -132,7 +132,7 @@ git add \
     cpp/library.properties \
     rust/periph/Cargo.toml \
     jvm/pom.xml \
-    jvm/periph-transport/pom.xml \
+    jvm/periph-connection/pom.xml \
     jvm/periph-java/pom.xml \
     jvm/periph-kotlin/pom.xml \
     jvm/periph-groovy/pom.xml \
