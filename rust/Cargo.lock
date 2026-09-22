@@ -696,6 +696,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "ds3231_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ds3231_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ds3231_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ds3231_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "eeprom_24aa02uid_complete"
 version = "0.1.0"
 dependencies = [

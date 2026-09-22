@@ -1,0 +1,193 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ds3231_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init DS3231", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_set_datetime",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 set date/time", "type": "label" },
+        { "name": "year", "type": "label" },
+        { "name": "_year", "type": "number" },
+        { "name": "month", "type": "label" },
+        { "name": "_month", "type": "number" },
+        { "name": "day", "type": "label" },
+        { "name": "_day", "type": "number" },
+        { "name": "weekday (1=Mon..7=Sun)", "type": "label" },
+        { "name": "_weekday", "type": "number" },
+        { "name": "hour", "type": "label" },
+        { "name": "_hour", "type": "number" },
+        { "name": "minute", "type": "label" },
+        { "name": "_minute", "type": "number" },
+        { "name": "second", "type": "label" },
+        { "name": "_second", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_get_year",
+      "type": "value",
+      "params": [{ "name": "DS3231 year", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_month",
+      "type": "value",
+      "params": [{ "name": "DS3231 month", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_day",
+      "type": "value",
+      "params": [{ "name": "DS3231 day", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_weekday",
+      "type": "value",
+      "params": [{ "name": "DS3231 weekday (1=Mon..7=Sun)", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_hour",
+      "type": "value",
+      "params": [{ "name": "DS3231 hour", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_minute",
+      "type": "value",
+      "params": [{ "name": "DS3231 minute", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_second",
+      "type": "value",
+      "params": [{ "name": "DS3231 second", "type": "label" }]
+    },
+    {
+      "name": "ds3231_read_temperature",
+      "type": "value",
+      "params": [{ "name": "DS3231 temperature (C)", "type": "label" }]
+    },
+    {
+      "name": "ds3231_force_temperature_conversion",
+      "type": "execute",
+      "params": [{ "name": "DS3231 force temperature conversion", "type": "label" }]
+    },
+    {
+      "name": "ds3231_set_alarm1",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 set Alarm 1", "type": "label" },
+        { "name": "second", "type": "label" },
+        { "name": "_second", "type": "number" },
+        { "name": "minute", "type": "label" },
+        { "name": "_minute", "type": "number" },
+        { "name": "hour", "type": "label" },
+        { "name": "_hour", "type": "number" },
+        { "name": "match mode (0-5)", "type": "label" },
+        { "name": "_match_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_set_alarm2",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 set Alarm 2", "type": "label" },
+        { "name": "minute", "type": "label" },
+        { "name": "_minute", "type": "number" },
+        { "name": "hour", "type": "label" },
+        { "name": "_hour", "type": "number" },
+        { "name": "match mode (0-4)", "type": "label" },
+        { "name": "_match_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_enable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 enable alarm interrupt, source (1=Alarm1, 2=Alarm2, 3=both)", "type": "label" },
+        { "name": "_source", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_disable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 disable alarm interrupt, source (1=Alarm1, 2=Alarm2, 3=both)", "type": "label" },
+        { "name": "_source", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_poll_interrupt",
+      "type": "value",
+      "params": [{ "name": "DS3231 poll & clear alarm flags", "type": "label" }]
+    },
+    {
+      "name": "ds3231_enable_square_wave",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 enable square wave, rate (Hz)", "type": "label" },
+        { "name": "_rate_hz", "type": "number" },
+        { "name": "battery backed (0/1)", "type": "label" },
+        { "name": "_battery_backed", "type": "number" }
+      ]
+    },
+    {
+      "name": "ds3231_disable_square_wave",
+      "type": "execute",
+      "params": [{ "name": "DS3231 disable square wave", "type": "label" }]
+    },
+    {
+      "name": "ds3231_enable_32khz_output",
+      "type": "execute",
+      "params": [{ "name": "DS3231 enable 32kHz output", "type": "label" }]
+    },
+    {
+      "name": "ds3231_disable_32khz_output",
+      "type": "execute",
+      "params": [{ "name": "DS3231 disable 32kHz output", "type": "label" }]
+    },
+    {
+      "name": "ds3231_is_32khz_enabled",
+      "type": "value",
+      "params": [{ "name": "DS3231 32kHz output enabled?", "type": "label" }]
+    },
+    {
+      "name": "ds3231_oscillator_stopped",
+      "type": "value",
+      "params": [{ "name": "DS3231 oscillator stop flag set?", "type": "label" }]
+    },
+    {
+      "name": "ds3231_clear_oscillator_stopped",
+      "type": "execute",
+      "params": [{ "name": "DS3231 clear oscillator stop flag", "type": "label" }]
+    },
+    {
+      "name": "ds3231_enable_battery_oscillator",
+      "type": "execute",
+      "params": [{ "name": "DS3231 keep oscillator running on battery", "type": "label" }]
+    },
+    {
+      "name": "ds3231_disable_battery_oscillator",
+      "type": "execute",
+      "params": [{ "name": "DS3231 stop oscillator on battery", "type": "label" }]
+    },
+    {
+      "name": "ds3231_get_aging_offset",
+      "type": "value",
+      "params": [{ "name": "DS3231 aging offset (raw trim code)", "type": "label" }]
+    },
+    {
+      "name": "ds3231_set_aging_offset",
+      "type": "execute",
+      "params": [
+        { "name": "DS3231 set aging offset (raw trim code)", "type": "label" },
+        { "name": "_offset", "type": "number" }
+      ]
+    }
+  ]
+}

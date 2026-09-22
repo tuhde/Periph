@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "ds3231": "nodes/ds3231/ds3231.js"
+    }
   },
   "dependencies": {
     "periph": "*"
