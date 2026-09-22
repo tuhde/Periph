@@ -1,3 +1,4 @@
+use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::{CdevPin, SpidevBus};
 use spidev::{SpiModeFlags, Spidev, SpidevOptions};
 use periph::chips::io_expander::Tpic6b595Minimal;
@@ -17,9 +18,13 @@ fn main() {
         .mode(SpiModeFlags::SPI_MODE_0)
         .build()).expect("configure spidev");
 
-    let rck = CdevPin::open("/dev/gpiochip0", rck_line, false).expect("open rck line");
+    let mut chip0 = Chip::new("/dev/gpiochip0").expect("open gpio chip");
+    let rck = CdevPin::new(
+        chip0.get_line(rck_line).expect("get rck line")
+            .request(LineRequestFlags::OUTPUT, 0, "tpic6b595_minimal").expect("request rck line"),
+    ).expect("rck pin");
 
-    let chip = Tpic6b595Minimal::new(SpidevBus(spi_dev), rck, None, None, 1)        // Create TPIC6B595 driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
+    let chip = Tpic6b595Minimal::new(SpidevBus(spi_dev), rck, None::<CdevPin>, None::<CdevPin>, 1)        // Create TPIC6B595 driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
         .expect("init TPIC6B595");
     let mut p0 = chip.pin(0);                                          // Get pin proxy, (n=0) → ExPin
     let mut p7 = chip.pin(7);                                          // Get pin proxy, (n=7) → ExPin

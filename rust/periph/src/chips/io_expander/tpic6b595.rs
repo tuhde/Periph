@@ -23,17 +23,19 @@
 //! [`ExPin`] objects may coexist, but simultaneous access from different ISR
 //! contexts is not safe. Use only from a single execution context.
 
-use core::cell::Cell;
+use core::cell::{Cell, RefCell};
 use embedded_hal::digital::{ErrorKind, ErrorType, OutputPin, StatefulOutputPin};
 use embedded_hal::spi::SpiBus;
 
 use crate::connection::sipo::{SiPoConnection, SiPoError};
 
-/// Wraps a SiPo error so it satisfies `embedded_hal::digital::Error`.
-#[derive(Debug)]
-pub struct PinError<E>(pub E);
-
-impl<E: embedded_hal::spi::Error> embedded_hal::digital::Error for PinError<E> {
+impl<SE, RE, CE, GE> embedded_hal::digital::Error for SiPoError<SE, RE, CE, GE>
+where
+    SE: core::fmt::Debug,
+    RE: core::fmt::Debug,
+    CE: core::fmt::Debug,
+    GE: core::fmt::Debug,
+{
     fn kind(&self) -> ErrorKind { ErrorKind::Other }
 }
 
@@ -43,7 +45,7 @@ pub const MAX_DEVICES: usize = 8;
 /// TPIC6B595 minimal driver — exposes 8 × `num_devices` output pins as
 /// [`ExPin`] GPIO proxies.
 pub struct Tpic6b595Minimal<SPI, RCK, SRCLR, G> {
-    sipo:       SiPoConnection<SPI, RCK, SRCLR, G>,
+    sipo:       RefCell<SiPoConnection<SPI, RCK, SRCLR, G>>,
     num_devices: u8,
     shadow:     [Cell<u8>; MAX_DEVICES],
 }
@@ -80,14 +82,13 @@ where
         num_devices: u8,
     ) -> Result<Self, SiPoError<SPI::Error, RCK::Error, SRCLR::Error, G::Error>> {
         let n = if (num_devices as usize) > MAX_DEVICES { MAX_DEVICES as u8 } else { num_devices };
-        let mut shadow = [Cell::new(0u8); MAX_DEVICES];
-        for cell in shadow.iter_mut() { cell.set(0); }
+        let shadow = [const { Cell::new(0u8) }; MAX_DEVICES];
 
-        let sipo = SiPoConnection::new(spi, rck, srclr, g)?;
+        let mut sipo = SiPoConnection::new(spi, rck, srclr, g)?;
         // Best-effort clear of the shift register; missing SRCLR is fine.
         let _ = sipo.clear();
 
-        let chip = Self { sipo, num_devices: n, shadow };
+        let chip = Self { sipo: RefCell::new(sipo), num_devices: n, shadow };
         chip.flush().ok();
         Ok(chip)
     }
@@ -97,7 +98,7 @@ where
         for i in 0..(self.num_devices as usize) {
             wire[i] = self.shadow[self.num_devices as usize - 1 - i].get();
         }
-        self.sipo.write(&wire[..self.num_devices as usize])
+        self.sipo.borrow_mut().write(&wire[..self.num_devices as usize])
     }
 
     fn set_pin(&self, n: u8, high: bool) -> Result<(), SiPoError<SPI::Error, RCK::Error, SRCLR::Error, G::Error>> {
@@ -242,12 +243,12 @@ where
     /// The storage register (and therefore the DRAIN outputs) keeps its
     /// last-latched value until the next RCK pulse.
     pub fn clear(&mut self) -> Result<(), SiPoError<SPI::Error, RCK::Error, SRCLR::Error, G::Error>> {
-        self.inner.sipo.clear()
+        self.inner.sipo.borrow_mut().clear()
     }
 
     /// Drive G LOW (`enabled = true`) or HIGH (`enabled = false`).
     pub fn set_output_enable(&mut self, enabled: bool) -> Result<(), SiPoError<SPI::Error, RCK::Error, SRCLR::Error, G::Error>> {
-        self.inner.sipo.set_output_enable(enabled)
+        self.inner.sipo.borrow_mut().set_output_enable(enabled)
     }
 
     /// Write every cascaded device's byte in one call.

@@ -48,8 +48,7 @@ func main() {
 	if mode == "sw" {
 		conn, err = connection.NewSIPOSoftwareSPI(serIn, srck, rc, sr, g, nil) // Create SiPo connection, (serIn=19, srck=26, rck=5, srclr=6, g=13, enPin=nil) → (*SIPOConnection, error)
 	} else {
-		_ = device
-		panic("hardware SPI mode not yet wired in this example — use SIPO_MODE=sw")
+		conn, err = connection.NewSIPOHardwareSPI(bus, device, 1_000_000, rc, sr, g, nil) // Create SiPo connection, (bus=0, device=0, maxSpeedHz=1000000, rck=5, srclr=6, g=13, enPin=nil) → (*SIPOConnection, error)
 	}
 	if err != nil {
 		panic(err)

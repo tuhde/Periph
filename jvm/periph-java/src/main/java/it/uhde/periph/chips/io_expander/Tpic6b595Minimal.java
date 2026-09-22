@@ -1,6 +1,5 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.connection.OutputPin;
 import it.uhde.periph.connection.SiPoConnection;
 
 import java.io.IOException;
@@ -57,7 +56,7 @@ public class Tpic6b595Minimal {
         this(connection, 1);
     }
 
-    private void flush() throws IOException {
+    protected void flush() throws IOException {
         byte[] wire = new byte[numDevices];
         for (int i = 0; i < numDevices; i++) {
             wire[i] = (byte) (shadow[numDevices - 1 - i] & 0xFF);
@@ -97,7 +96,7 @@ public class Tpic6b595Minimal {
     }
 
     /** GPIO proxy for a single TPIC6B595 pin — output-only. */
-    public static class Pin implements OutputPin {
+    public static class Pin {
         protected final Tpic6b595Minimal chip;
         protected final int n;
 
@@ -106,8 +105,7 @@ public class Tpic6b595Minimal {
             this.n = n;
         }
 
-        @Override
-        public void set(boolean high) throws IOException {
+        private void set(boolean high) throws IOException {
             int port = n / 8;
             int bit = n % 8;
             if (high) chip.shadow[port] |=   1 << bit;
@@ -137,8 +135,5 @@ public class Tpic6b595Minimal {
             int bit = n % 8;
             return ((chip.shadow[port] >> bit) & 1) == 1;
         }
-
-        @Override
-        public void close() { /* no-op for virtual pins */ }
     }
 }

@@ -28,7 +28,7 @@ fn main() -> ! {
         .with_mosi(peripherals.GPIO23);
     let rck = Output::new(peripherals.GPIO17, Level::Low, OutputConfig::default());
 
-    let chip = Tpic6b595Minimal::new(spi, rck, None, None, 1).expect("init TPIC6B595");   // Create TPIC6B595 driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
+    let chip = Tpic6b595Minimal::new(spi, rck, None::<Output<'_>>, None::<Output<'_>>, 1).expect("init TPIC6B595");   // Create TPIC6B595 driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
 
     let mut p0 = chip.pin(0);                                                                  // Get pin proxy, (n=0) → ExPin
     let mut p7 = chip.pin(7);                                                                  // Get pin proxy, (n=7) → ExPin

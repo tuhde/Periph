@@ -11,6 +11,7 @@
 // set_output_enable(false) to demonstrate glitch-free global blanking. The
 // shadow register is untouched across the blank, so the chase pattern resumes
 // exactly where it left off.
+use gpio_cdev::{Chip, LineRequestFlags};
 use linux_embedded_hal::{CdevPin, SpidevBus};
 use spidev::{SpiModeFlags, Spidev, SpidevOptions};
 use periph::chips::io_expander::Tpic6b595Full;
@@ -31,9 +32,19 @@ fn main() {
     spi.configure(&SpidevOptions::new().max_speed_hz(1_000_000).mode(SpiModeFlags::SPI_MODE_0).build())
         .expect("configure spidev");
 
-    let rck   = CdevPin::open("/dev/gpiochip0", rck_line,   false).expect("open rck line");
-    let srclr = CdevPin::open("/dev/gpiochip0", srclr_line, true ).expect("open srclr line");
-    let g     = CdevPin::open("/dev/gpiochip0", g_line,     false).expect("open g line");
+    let mut gpio_chip = Chip::new("/dev/gpiochip0").expect("open gpio chip");
+    let rck = CdevPin::new(
+        gpio_chip.get_line(rck_line).expect("get rck line")
+            .request(LineRequestFlags::OUTPUT, 0, "tpic6b595_demo").expect("request rck line"),
+    ).expect("rck pin");
+    let srclr = CdevPin::new(
+        gpio_chip.get_line(srclr_line).expect("get srclr line")
+            .request(LineRequestFlags::OUTPUT, 1, "tpic6b595_demo").expect("request srclr line"),
+    ).expect("srclr pin");
+    let g = CdevPin::new(
+        gpio_chip.get_line(g_line).expect("get g line")
+            .request(LineRequestFlags::OUTPUT, 0, "tpic6b595_demo").expect("request g line"),
+    ).expect("g pin");
 
     let mut chip = Tpic6b595Full::new(SpidevBus(spi), rck, Some(srclr), Some(g), NUM_DEVICES) // Create TPIC6B595 full driver, (spi, rck, srclr, g, num_devices=2) → Result
         .expect("init TPIC6B595 full");

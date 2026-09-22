@@ -21,19 +21,12 @@ fn main() -> ! {
     let spi_cfg = SpiConfig::default()
         .with_frequency(Rate::from_mhz(1))
         .with_mode(SpiMode::Mode0);
-    let spi = Spi::new(peripherals.SPI2, spi_cfg)
-        .unwrap()
-        .with_sck(peripherals.GPIO18)
-        .with_mosi(peripherals.GPIO23);
-    let rck   = Output::new(peripherals.GPIO17, Level::Low, OutputConfig::default());
-    let srclr = Output::new(peripherals.GPIO16, Level::High, OutputConfig::default());
-    let g     = Output::new(peripherals.GPIO15, Level::Low, OutputConfig::default());
 
     // --- Tpic6b595Minimal ---
     let spi_min = Spi::new(peripherals.SPI2, spi_cfg).unwrap().with_sck(peripherals.GPIO18).with_mosi(peripherals.GPIO23);
     let rck_min = Output::new(peripherals.GPIO17, Level::Low, OutputConfig::default());
 
-    let chip1 = Tpic6b595Minimal::new(spi_min, rck_min, None, None, 1).expect("init TPIC6B595 minimal");   // Create TPIC6B595 minimal driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
+    let chip1 = Tpic6b595Minimal::new(spi_min, rck_min, None::<Output<'_>>, None::<Output<'_>>, 1).expect("init TPIC6B595 minimal");   // Create TPIC6B595 minimal driver, (spi, rck, srclr=None, g=None, num_devices=1) → Result
 
     let mut p0 = chip1.pin(0);                                          // Get pin proxy, (n=0) → ExPin
     p0.set_high().expect("set_high");                                   // Set DMOS output ON, () → Result<(), E>
@@ -56,7 +49,14 @@ fn main() -> ! {
                                                                           // sets DRAIN{1,3,5,7} ON, DRAIN{0,2,4,6} OFF
 
     // --- Tpic6b595Full ---
-    let mut chip2 = Tpic6b595Full::new(spi, rck, Some(srclr), Some(g), 2).expect("init TPIC6B595 full"); // Create TPIC6B595 full driver, (spi, rck, srclr, g, num_devices=2) → Result
+    // A second, independently wired cascade on SPI3 — SPI2/GPIO17 above are
+    // already owned by chip1's Minimal driver instance.
+    let spi_full = Spi::new(peripherals.SPI3, spi_cfg).unwrap().with_sck(peripherals.GPIO12).with_mosi(peripherals.GPIO13);
+    let rck   = Output::new(peripherals.GPIO14, Level::Low, OutputConfig::default());
+    let srclr = Output::new(peripherals.GPIO27, Level::High, OutputConfig::default());
+    let g     = Output::new(peripherals.GPIO26, Level::Low, OutputConfig::default());
+
+    let mut chip2 = Tpic6b595Full::new(spi_full, rck, Some(srclr), Some(g), 2).expect("init TPIC6B595 full"); // Create TPIC6B595 full driver, (spi, rck, srclr, g, num_devices=2) → Result
                                                                           // two cascaded devices — 16 outputs total (DRAIN0..DRAIN15)
 
     chip2.write_all(&[0x01, 0x80]).expect("write_all");                 // Write all device bytes, (values=[0x01, 0x80]) → Result<(), E>

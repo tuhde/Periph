@@ -80,6 +80,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
 | WS2814 | LED driver | `periph/src/chips/led/ws2814` |
 

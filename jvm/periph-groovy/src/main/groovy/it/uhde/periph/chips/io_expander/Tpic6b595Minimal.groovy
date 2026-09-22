@@ -1,7 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.OutputPin
 import it.uhde.periph.connection.SiPoConnection
 
 @CompileStatic
@@ -30,7 +29,7 @@ class Tpic6b595Minimal {
         flush()
     }
 
-    private void flush() {
+    protected void flush() {
         byte[] wire = new byte[numDevices]
         for (int i = 0; i < numDevices; i++) {
             wire[i] = (byte) (shadow[numDevices - 1 - i] & 0xFF)
@@ -64,7 +63,7 @@ class Tpic6b595Minimal {
     }
 
     @CompileStatic
-    static class Pin implements OutputPin {
+    static class Pin {
         protected final Tpic6b595Minimal chip
         protected final int n
 
@@ -73,8 +72,7 @@ class Tpic6b595Minimal {
             this.n = n
         }
 
-        @Override
-        void set(boolean high) {
+        private void set(boolean high) {
             int port = n >> 3
             int bit = n % 8
             if (high) chip.shadow[port] |=   (1 << bit)
@@ -96,8 +94,5 @@ class Tpic6b595Minimal {
             int bit = n % 8
             return ((chip.shadow[port] >> bit) & 1) == 1
         }
-
-        @Override
-        void close() { /* no-op for virtual pins */ }
     }
 }

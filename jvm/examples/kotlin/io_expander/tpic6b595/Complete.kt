@@ -23,7 +23,6 @@ fun main() {
 
         val state = p0.read()                                          // read shadow bit, () → Boolean
                                                                        // returns the shadow bit (no bus read — SiPo is write-only)
-        p0.set(true)                                                   // OutputPin set, (high=true) → Unit
 
         chip1.fill(true)                                               // set every output ON, (value=true) → Unit
                                                                        // fills every shadow byte with 0xFF and retransmits — fast "all on" path

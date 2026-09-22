@@ -1,6 +1,5 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.connection.OutputPin
 import it.uhde.periph.connection.SiPoConnection
 
 /**
@@ -87,9 +86,8 @@ open class Tpic6b595Minimal @JvmOverloads constructor(
     }
 
     /** GPIO proxy for a single TPIC6B595 pin — output-only. */
-    open class Pin(val chip: Tpic6b595Minimal, val n: Int) : OutputPin {
-        @Throws(java.io.IOException::class)
-        override fun set(high: Boolean) = chip.setPin(n, high)
+    open class Pin(val chip: Tpic6b595Minimal, val n: Int) {
+        private fun set(high: Boolean) = chip.setPin(n, high)
 
         /** Set the DMOS output ON (sink current through the external load). */
         fun setHigh() = set(true)
@@ -113,8 +111,5 @@ open class Tpic6b595Minimal @JvmOverloads constructor(
             val bit = n % 8
             return ((chip.shadow[port] shr bit) and 1) == 1
         }
-
-        @Throws(java.io.IOException::class)
-        override fun close() { /* no-op for virtual pins */ }
     }
 }
