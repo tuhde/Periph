@@ -1,0 +1,54 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.1.0
+//DEPS it.uhde:periph-kotlin:1.1.0
+
+import it.uhde.periph.connection.SiPoConnection
+import it.uhde.periph.chips.io_expander.Tpic6b595Minimal
+import it.uhde.periph.chips.io_expander.Tpic6b595Full
+
+fun main() {
+    SiPoConnection.hardware(0, 0, 17, 16, 15).use { connection ->     // open SiPo connection, (bus, device, rckLine, srclrLine, gLine) → SiPoConnection
+        // --- Tpic6b595Minimal ---
+        val chip1 = Tpic6b595Minimal(connection)                      // construct minimal driver, (connection, numDevices=1) → Tpic6b595Minimal
+                                                                       // initialises every output to OFF (shadow zeroed, latched once)
+
+        val p0 = chip1.pin(0)                                          // get pin proxy, (n=0) → Pin
+        p0.setHigh()                                                   // set DRAIN0 ON, () → Unit
+                                                                       // sets shadow[0] bit 0, reverses the cascade, shifts out and pulses RCK
+        p0.setLow()                                                    // set DRAIN0 OFF, () → Unit
+                                                                       // clears shadow[0] bit 0, retransmits and latches
+        p0.toggle()                                                    // invert shadow bit, () → Unit
+
+        val state = p0.read()                                          // read shadow bit, () → Boolean
+                                                                       // returns the shadow bit (no bus read — SiPo is write-only)
+
+        chip1.fill(true)                                               // set every output ON, (value=true) → Unit
+                                                                       // fills every shadow byte with 0xFF and retransmits — fast "all on" path
+        chip1.fill(false)                                              // set every output OFF, (value=false) → Unit
+                                                                       // fills every shadow byte with 0x00 and retransmits — fast "all off" path
+        chip1.off()                                                    // turn every output off, () → Unit
+                                                                       // shorthand for fill(false); the safe initial state
+
+        chip1.writePort(0, 0xA5)                                       // write port 0, (port=0, mask=0xA5) → Unit
+                                                                       // sets DRAIN{1,3,5,7} ON, DRAIN{0,2,4,6} OFF
+    }
+
+    // --- Tpic6b595Full (two cascaded devices) ---
+    SiPoConnection.hardware(0, 0, 17, 16, 15).use { connection2 ->
+        val chip2 = Tpic6b595Full(connection2, 2)                       // construct full driver, (connection, numDevices=2) → Tpic6b595Full
+                                                                       // two cascaded devices — 16 outputs total (DRAIN0..DRAIN15)
+
+        val bytes = intArrayOf(0x01, 0x80)
+        chip2.writeAll(bytes)                                          // write all device bytes, (values=[0x01, 0x80]) → Unit
+                                                                       // updates both shadow bytes and performs one transmit + latch
+
+        chip2.clear()                                                  // pulse SRCLR, () → Unit
+                                                                       // clears the shift register only; outputs unaffected until next RCK pulse
+        chip2.setOutputEnable(false)                                   // force every output off via G, (enabled=false) → Unit
+                                                                       // drives G HIGH, blanking outputs without disturbing the shadow register
+        chip2.setOutputEnable(true)                                    // re-enable outputs, (enabled=true) → Unit
+                                                                       // drives G LOW; outputs resume from the previously-latched state
+    }
+}
