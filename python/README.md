@@ -59,6 +59,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
+| DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HX710A | ADC/DAC | 24-bit ADC |
