@@ -9,8 +9,9 @@
 #      jvm/pom.xml (+ each child module's <parent> version), JVM JBang
 #      //DEPS lines under jvm/examples and jvm/tests, all package.json
 #      files (+ regenerated package-lock.json), and INSTALL.md
-#   2. Commits the changes on main
-#   3. Creates tag v<version> and pushes branch + tag to all remotes
+#   2. Regenerates STATS.md (scripts/generate_stats.py)
+#   3. Commits the changes on main
+#   4. Creates tag v<version> and pushes branch + tag to all remotes
 #
 # What the triggered CI then does:
 #   Python wheel/sdist, Arduino zip, npm publish, cargo publish,
@@ -124,6 +125,11 @@ PYEOF
 echo "  nodejs/package-lock.json"
 (cd "$ROOT/nodejs" && npm install --package-lock-only --workspaces --no-audit --no-fund >/dev/null)
 
+# ── Regenerate stats ──────────────────────────────────────────────────────────
+echo ""
+echo "=== regenerating STATS.md ==="
+python3 "$ROOT/scripts/generate_stats.py"
+
 # ── Commit ────────────────────────────────────────────────────────────────────
 echo ""
 echo "=== committing ==="
@@ -140,6 +146,7 @@ git add \
     jvm/tests \
     nodejs/package-lock.json \
     INSTALL.md \
+    STATS.md \
     -- 'nodejs/packages/*/package.json'
 git commit -m "chore: release ${TAG}"
 echo "  $(git rev-parse --short HEAD)  chore: release ${TAG}"
