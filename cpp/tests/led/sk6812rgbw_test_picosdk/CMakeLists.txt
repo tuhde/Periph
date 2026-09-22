@@ -13,6 +13,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 add_executable(sk6812rgbw_test_picosdk
     src/main.cpp
     ${CPP_DIR}/src/chips/led/SK6812RGBW.cpp
+    ${CPP_DIR}/src/chips/led/NeoPixelRGBWBase.cpp
 )
 
 target_include_directories(sk6812rgbw_test_picosdk PRIVATE

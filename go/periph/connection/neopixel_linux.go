@@ -23,7 +23,7 @@ type NeoPixelConnection struct {
 // the strips ignore). enPin may be nil if the strip's EN line is not
 // wired; there is no INT line for a write-only strip.
 func NewNeoPixelConnection(busNum, deviceNum int, enPin OutputPin) (*NeoPixelConnection, error) {
-	spi, err := NewSPIConnection(busNum, deviceNum, 2_400_000, nil, nil)
+	spi, err := NewSPIConnection(busNum, deviceNum, 0, 2_400_000, nil, nil)
 	if err != nil {
 		return nil, err
 	}

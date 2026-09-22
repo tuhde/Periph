@@ -1,0 +1,57 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mpu9250_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MPU9250", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mpu9250_accel_x",
+      "type": "value",
+      "params": [{ "name": "MPU9250 acceleration X (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_accel_y",
+      "type": "value",
+      "params": [{ "name": "MPU9250 acceleration Y (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_accel_z",
+      "type": "value",
+      "params": [{ "name": "MPU9250 acceleration Z (m/s²)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_gyro_x",
+      "type": "value",
+      "params": [{ "name": "MPU9250 angular rate X (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_gyro_y",
+      "type": "value",
+      "params": [{ "name": "MPU9250 angular rate Y (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_gyro_z",
+      "type": "value",
+      "params": [{ "name": "MPU9250 angular rate Z (rad/s)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_temperature",
+      "type": "value",
+      "params": [{ "name": "MPU9250 die temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "mpu9250_data_ready",
+      "type": "value",
+      "params": [{ "name": "MPU9250 new data ready?", "type": "label" }]
+    }
+  ]
+}

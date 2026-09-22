@@ -31,8 +31,13 @@ Each chip exposes two classes:
 | Chip | Category | Require path |
 |------|----------|-------------|
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
+| AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
+| ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
+| ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
+| APA102 | LED driver | `periph/src/chips/led/apa102` |
 | APDS-9930 | Light sensor | `periph/src/chips/light/apds-9930` |
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
@@ -44,12 +49,15 @@ Each chip exposes two classes:
 | BMP581 | Pressure sensor | `periph/src/chips/pressure/bmp581` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
+| HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
+| HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
 | L3G4200D | Gyroscope | `periph/src/chips/gyroscope/l3g4200d` |
+| L3GD20H | Gyroscope | `periph/src/chips/gyroscope/l3gd20h` |
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
@@ -60,7 +68,11 @@ Each chip exposes two classes:
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
+| MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
+| MPU9255 | IMU | `periph/src/chips/imu/mpu9255` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
+| NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
+| NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
@@ -68,7 +80,9 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
+| WS2814 | LED driver | `periph/src/chips/led/ws2814` |
 
 ## Links
 

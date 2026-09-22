@@ -1,0 +1,44 @@
+{
+  "category": "Tpic6b595",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "// exported from UiFlow 2 Block Designer — see python/uiflow2/io_expander/tpic6b595/Tpic6b595.py\n",
+    "toolbox": "<category name=\"Tpic6b595\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tpic6b595\"></category>\n",
+    "toolboxitemid": "custom_tpic6b595",
+    "block_type": [
+      "custom_tpic6b595___init__",
+      "custom_tpic6b595_write_pin",
+      "custom_tpic6b595_write_port",
+      "custom_tpic6b595_fill",
+      "custom_tpic6b595_off",
+      "custom_tpic6b595_clear",
+      "custom_tpic6b595_set_output_enable",
+      "custom_tpic6b595_write_all"
+    ]
+  },
+  "data": {
+    "name": "Tpic6b595",
+    "note": {},
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "Tpic6b595",
+      "time": "2026-09-21",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "",
+    "members": [],
+    "python_file_name": "Tpic6b595"
+  },
+  "pyCode": "\"\"\"\nfile     Tpic6b595\ntime     2026-09-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.sipo_micropython import SiPoConnection\nfrom periph.chips.io_expander.tpic6b595 import Tpic6b595Full\n\n\nclass Tpic6b595:\n    def __init__(self, bus=0, device=0, rck=17, srclr=-1, g=-1, num_devices=1):\n        pass\n\n    def write_pin(self, pin, value):\n        pass\n\n    def write_port(self, port, mask):\n        pass\n\n    def fill(self, value):\n        pass\n\n    def off(self):\n        pass\n\n    def clear(self):\n        pass\n\n    def set_output_enable(self, enabled):\n        pass\n\n    def write_all(self, d0, d1):\n        pass\n",
+  "version": "alpha2"
+}

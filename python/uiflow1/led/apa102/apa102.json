@@ -1,0 +1,99 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "apa102_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init APA102", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "SPI device", "type": "label" },
+        { "name": "_device", "type": "number" },
+        { "name": "pixel count", "type": "label" },
+        { "name": "_n", "type": "number" }
+      ]
+    },
+    {
+      "name": "apa102_fill",
+      "type": "execute",
+      "params": [
+        { "name": "APA102 fill all pixels", "type": "label" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" }
+      ]
+    },
+    {
+      "name": "apa102_set_pixel",
+      "type": "execute",
+      "params": [
+        { "name": "APA102 set pixel", "type": "label" },
+        { "name": "index", "type": "label" },
+        { "name": "_index", "type": "number" },
+        { "name": "R", "type": "label" },
+        { "name": "_r", "type": "number" },
+        { "name": "G", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "B", "type": "label" },
+        { "name": "_b", "type": "number" },
+        { "name": "hardware brightness", "type": "label" },
+        { "name": "_brightness", "type": "number" }
+      ]
+    },
+    {
+      "name": "apa102_show",
+      "type": "execute",
+      "params": [{ "name": "APA102 show (transmit buffer)", "type": "label" }]
+    },
+    {
+      "name": "apa102_off",
+      "type": "execute",
+      "params": [{ "name": "APA102 off (all pixels)", "type": "label" }]
+    },
+    {
+      "name": "apa102_brightness",
+      "type": "value",
+      "params": [
+        { "name": "APA102 brightness", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "apa102_set_brightness",
+      "type": "execute",
+      "params": [
+        { "name": "APA102 set brightness", "type": "label" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    
+    {
+      "name": "apa102_rotate",
+      "type": "execute",
+      "params": [
+        { "name": "APA102 rotate buffer", "type": "label" },
+        { "name": "steps", "type": "label" },
+        { "name": "_steps", "type": "number" }
+      ]
+    },
+    {
+      "name": "apa102_fill_hsv",
+      "type": "execute",
+      "params": [
+        { "name": "APA102 fill HSV", "type": "label" },
+        { "name": "H (0–1)", "type": "label" },
+        { "name": "_h", "type": "number" },
+        { "name": "S (0–1)", "type": "label" },
+        { "name": "_s", "type": "number" },
+        { "name": "V (0–1)", "type": "label" },
+        { "name": "_v", "type": "number" }
+      ]
+    }
+  ]
+}

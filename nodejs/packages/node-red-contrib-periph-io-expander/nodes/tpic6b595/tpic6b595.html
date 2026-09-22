@@ -1,0 +1,100 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-tpic6b595', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            rckPin:     { value: '17', required: true, validate: RED.validators.number() },
+            srclrPin:   { value: '16', required: false, validate: RED.validators.number() },
+            gPin:       { value: '15', required: false, validate: RED.validators.number() },
+            serInPin:   { value: '', required: false, validate: RED.validators.number() },
+            srckPin:    { value: '', required: false, validate: RED.validators.number() },
+            numDevices: { value: '1', required: true, validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || ('TPIC6B595 × ' + (this.numDevices || 1)); },
+        paletteLabel: 'TPIC6B595'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-tpic6b595">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="TPIC6B595">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rckPin"><i class="fa fa-microchip"></i> RCK pin</label>
+        <input type="number" id="node-input-rckPin" min="0" style="width:80px">
+        &nbsp;(register clock GPIO line)
+    </div>
+    <div class="form-row">
+        <label for="node-input-srclrPin">SRCLR pin</label>
+        <input type="number" id="node-input-srclrPin" min="-1" style="width:80px">
+        &nbsp;(shift-register clear; -1 to disable)
+    </div>
+    <div class="form-row">
+        <label for="node-input-gPin">G pin</label>
+        <input type="number" id="node-input-gPin" min="-1" style="width:80px">
+        &nbsp;(output enable; -1 to disable)
+    </div>
+    <div class="form-row">
+        <label for="node-input-serInPin">SER IN pin (software SPI)</label>
+        <input type="number" id="node-input-serInPin" min="0" style="width:80px">
+        &nbsp;(leave blank for hardware SPI)
+    </div>
+    <div class="form-row">
+        <label for="node-input-srckPin">SRCK pin (software SPI)</label>
+        <input type="number" id="node-input-srckPin" min="0" style="width:80px">
+        &nbsp;(leave blank for hardware SPI)
+    </div>
+    <div class="form-row">
+        <label for="node-input-numDevices">Cascaded devices</label>
+        <input type="number" id="node-input-numDevices" min="1" max="8" style="width:60px">
+        &nbsp;(1–8; pin index range = numDevices × 8)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-tpic6b595">
+    <p>Drives a Texas Instruments TPIC6B595 8-bit power SIPO shift register (or
+    multiple cascaded devices) through a SiPo (serial-in/parallel-out)
+    connection. SER IN / SRCK may be either an SPI bus (hardware mode) or two
+    plain GPIO lines (software / bit-bang mode); RCK is always a plain GPIO.
+    Optional SRCLR and G lines add shift-register-clear and global output
+    enable (PWM-style dimming).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (global index across all cascaded devices).
+            1 = ON (DMOS conducting, sinks current); 0 = OFF (high-impedance).<br>
+            <code>{ port: N, value: 0x.. }</code> — write all 8 outputs of cascaded device N (0 = nearest the controller).<br>
+            <code>{ command: "off" }</code> — turn every output off (<code>fill(false)</code>).<br>
+            <code>{ outputEnable: true|false }</code> — global blank / un-blank via G (Full only).<br>
+            <code>{ values: [d0, d1, ...] }</code> — write every cascaded device's byte in one call (Full only).
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>The driver has no bus read-back; TPIC6B595 is write-only and
+            every payload acts on the chip without producing a reply.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the RCK GPIO line (required) plus optional SRCLR / G / SER IN /
+    SRCK pins. <code>numDevices</code> is the number of cascaded TPIC6B595s
+    on the wire (default 1); the global pin index runs from 0 to
+    <code>numDevices * 8 - 1</code>. Leave SER IN and SRCK blank to use the
+    kernel <code>/dev/spidevB.D</code> device instead.</p>
+
+    <h3>Notes</h3>
+    <p>The TPIC6B595 only sinks current — its outputs can never source.
+    Wire loads accordingly: an LED's anode goes to the supply (with a series
+    resistor) and its cathode to a DRAIN pin (writing 1 turns the LED on).
+    Cascaded writes always retransmit the entire chain reversed — the byte
+    for device 0 (nearest the controller) is sent last.</p>
+</script>

@@ -1,0 +1,110 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('adxl362-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '0', required: true, validate: RED.validators.number() },
+            device:   { value: '0', required: true, validate: RED.validators.number() },
+            range:    { value: '2', required: true },
+            dataRate: { value: '100', required: true },
+            noiseMode:{ value: '0' },
+            halfBw:   { value: 'true' }
+        },
+        label: function() {
+            return this.name || ('ADXL362 (bus ' + this.bus + ', dev ' + this.device + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="adxl362-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="ADXL362">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidev&lt;bus&gt;.&lt;device&gt;)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-device">Device</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:150px">
+            <option value="2">±2 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-dataRate">Data rate (Hz)</label>
+        <input type="number" id="node-config-input-dataRate" min="12.5" max="400" step="0.5" style="width:100px"> &nbsp;12.5–400
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-noiseMode">Noise mode</label>
+        <select id="node-config-input-noiseMode" style="width:150px">
+            <option value="0">Normal</option>
+            <option value="1">Low</option>
+            <option value="2">Ultralow</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-halfBw">Antialiasing (ODR/4)</label>
+        <input type="checkbox" id="node-config-input-halfBw" style="width:auto"> &nbsp;enable HALF_BW
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('adxl362', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'adxl362-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'ADXL362'; },
+        paletteLabel: 'ADXL362'
+    });
+</script>
+
+<script type="text/html" data-template-name="adxl362">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADXL362">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="adxl362">
+    <p>Reads 3-axis acceleration from an ADXL362 3-axis ultralow-power accelerometer over SPI.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>adxl362-device</b> config node.</p>
+
+    <h3>Output</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>On-chip temperature in °C (typical, uncalibrated).</dd>
+        <dt>payload.awake <span class="property-type">boolean</span></dt>
+        <dd>STATUS.AWAKE — true when the chip is awake per activity/inactivity state.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus number and CS device (Linux <code>/dev/spidev&lt;bus&gt;.&lt;device&gt;</code>),
+    the measurement range (±2/±4/±8 g), the output data rate (12.5–400 Hz),
+    the noise mode (normal / low / ultralow), and the antialiasing
+    bandwidth (ODR/4 vs ODR/2) in the device config node.</p>
+</script>

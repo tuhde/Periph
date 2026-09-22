@@ -1,0 +1,10 @@
+[package]
+name = "mpu9255_test_esp32s3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+periph = { workspace = true }
+esp-hal = { version = "0.22", features = ["i2c"] }
+esp-backtrace = { version = "0.11", features = ["panic-handler", "defmt", "print"] }
+esp-println = "0.13"

@@ -1,0 +1,82 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tpic6b595_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init TPIC6B595", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "SPI device", "type": "label" },
+        { "name": "_device", "type": "number" },
+        { "name": "RCK pin", "type": "label" },
+        { "name": "_rck", "type": "number" },
+        { "name": "SRCLR pin (-1=none)", "type": "label" },
+        { "name": "_srclr", "type": "number" },
+        { "name": "G pin (-1=none)", "type": "label" },
+        { "name": "_g", "type": "number" },
+        { "name": "num_devices", "type": "label" },
+        { "name": "_num_devices", "type": "number" }
+      ]
+    },
+    {
+      "name": "tpic6b595_write_pin",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 write pin value (0/1)", "type": "label" },
+        { "name": "_pin", "type": "number" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "tpic6b595_write_port",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 write device byte (port) (0x00-0xFF)", "type": "label" },
+        { "name": "_port", "type": "number" },
+        { "name": "_mask", "type": "number" }
+      ]
+    },
+    {
+      "name": "tpic6b595_fill",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 fill all outputs (0/1)", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "tpic6b595_off",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 turn every output off", "type": "label" }
+      ]
+    },
+    {
+      "name": "tpic6b595_clear",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 pulse SRCLR", "type": "label" }
+      ]
+    },
+    {
+      "name": "tpic6b595_set_output_enable",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 set output enable (0/1) via G", "type": "label" },
+        { "name": "_enabled", "type": "number" }
+      ]
+    },
+    {
+      "name": "tpic6b595_write_all",
+      "type": "execute",
+      "params": [
+        { "name": "TPIC6B595 write all device bytes [d0 d1 ...]", "type": "label" },
+        { "name": "_d0", "type": "number" },
+        { "name": "_d1", "type": "number" }
+      ]
+    }
+  ]
+}

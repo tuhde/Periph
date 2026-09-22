@@ -7,6 +7,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 target_sources(app PRIVATE
     src/main.cpp
     ${CPP_DIR}/src/chips/led/WS2812B.cpp
+    ${CPP_DIR}/src/chips/led/NeoPixelRGBBase.cpp
 )
 
 target_include_directories(app PRIVATE

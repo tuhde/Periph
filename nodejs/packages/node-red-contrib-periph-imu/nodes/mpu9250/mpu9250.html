@@ -1,0 +1,63 @@
+<script type="text/html" data-template-name="periph-mpu9250">
+    <div class="form-row">
+        <label for="node-input-connection"><i class="fa fa-link"></i> I2C Connection</label>
+        <input type="text" id="node-input-connection" placeholder="Select I2C connection node">
+    </div>
+    <div class="form-row">
+        <label for="node-input-addr"><i class="fa fa-tag"></i> I2C Address</label>
+        <select id="node-input-addr">
+            <option value="0x68">0x68 (AD0 = GND)</option>
+            <option value="0x69">0x69 (AD0 = VCC)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gyroFs"><i class="fa fa-cog"></i> Gyro Full-Scale</label>
+        <select id="node-input-gyroFs">
+            <option value="0">±250 dps</option>
+            <option value="1">±500 dps</option>
+            <option value="2">±1000 dps</option>
+            <option value="3">±2000 dps</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-accelFs"><i class="fa fa-cog"></i> Accel Full-Scale</label>
+        <select id="node-input-accelFs">
+            <option value="0">±2 g</option>
+            <option value="1">±4 g</option>
+            <option value="2">±8 g</option>
+            <option value="3">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-enableMag"><i class="fa fa-magnet"></i> Enable Magnetometer</label>
+        <input type="checkbox" id="node-input-enableMag">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mpu9250">
+    <p>Reads bus voltage, load current, and power from an MPU-9250 9-axis MotionTracking device.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.ax <span class="property-type">number</span></dt>
+        <dd>X acceleration in m/s².</dd>
+        <dt>payload.ay <span class="property-type">number</span></dt>
+        <dd>Y acceleration in m/s².</dd>
+        <dt>payload.az <span class="property-type">number</span></dt>
+        <dd>Z acceleration in m/s².</dd>
+        <dt>payload.gx <span class="property-type">number</span></dt>
+        <dd>X angular rate in rad/s.</dd>
+        <dt>payload.gy <span class="property-type">number</span></dt>
+        <dd>Y angular rate in rad/s.</dd>
+        <dt>payload.gz <span class="property-type">number</span></dt>
+        <dd>Z angular rate in rad/s.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>Select the I²C connection node, the chip's 7-bit address (default <code>0x68</code>),
+    the gyroscope full-scale range (±250/±500/±1000/±2000 dps), the accelerometer full-scale range (±2/±4/±8/±16 g),
+    and whether to enable the magnetometer.</p>
+</script>

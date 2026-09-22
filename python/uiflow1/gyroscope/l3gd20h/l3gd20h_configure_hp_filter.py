@@ -1,0 +1,1 @@
+_periph_l3gd20h.configure_hp_filter(mode=${_mode}, cutoff=${_cutoff})

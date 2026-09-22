@@ -1,0 +1,124 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hmc5883l_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init HMC5883L", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_field_x",
+      "type": "value",
+      "params": [{ "name": "HMC5883L magnetic field X (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_field_y",
+      "type": "value",
+      "params": [{ "name": "HMC5883L magnetic field Y (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_field_z",
+      "type": "value",
+      "params": [{ "name": "HMC5883L magnetic field Z (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_configure",
+      "type": "execute",
+      "params": [
+        { "name": "HMC5883L configure ODR (Hz)", "type": "label" },
+        { "name": "_odr", "type": "number" },
+        { "name": "averaging (1/2/4/8)", "type": "label" },
+        { "name": "_averaging", "type": "number" },
+        { "name": "gain (0-7)", "type": "label" },
+        { "name": "_gain", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_set_gain",
+      "type": "execute",
+      "params": [
+        { "name": "HMC5883L set gain (0-7)", "type": "label" },
+        { "name": "_gain", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_set_mode",
+      "type": "execute",
+      "params": [
+        { "name": "HMC5883L set mode (0=continuous, 1=single, 2=idle)", "type": "label" },
+        { "name": "_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_data_ready",
+      "type": "value",
+      "params": [{ "name": "HMC5883L data ready?", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_status",
+      "type": "value",
+      "params": [{ "name": "HMC5883L status register (raw)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_single_measurement_x",
+      "type": "value",
+      "params": [{ "name": "HMC5883L single measurement X (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_single_measurement_y",
+      "type": "value",
+      "params": [{ "name": "HMC5883L single measurement Y (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_single_measurement_z",
+      "type": "value",
+      "params": [{ "name": "HMC5883L single measurement Z (T)", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_identify_id_a",
+      "type": "value",
+      "params": [{ "name": "HMC5883L identification byte A", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_identify_id_b",
+      "type": "value",
+      "params": [{ "name": "HMC5883L identification byte B", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_identify_id_c",
+      "type": "value",
+      "params": [{ "name": "HMC5883L identification byte C", "type": "label" }]
+    },
+    {
+      "name": "hmc5883l_self_test_x",
+      "type": "value",
+      "params": [
+        { "name": "HMC5883L self-test X (T), positive bias (1/0)", "type": "label" },
+        { "name": "_positive", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_self_test_y",
+      "type": "value",
+      "params": [
+        { "name": "HMC5883L self-test Y (T), positive bias (1/0)", "type": "label" },
+        { "name": "_positive", "type": "number" }
+      ]
+    },
+    {
+      "name": "hmc5883l_self_test_z",
+      "type": "value",
+      "params": [
+        { "name": "HMC5883L self-test Z (T), positive bias (1/0)", "type": "label" },
+        { "name": "_positive", "type": "number" }
+      ]
+    }
+  ]
+}

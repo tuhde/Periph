@@ -1,0 +1,69 @@
+[
+  {
+    "id": "ws2814-demo-tab",
+    "type": "tab",
+    "label": "WS2814 Demo",
+    "info": "An Inject node fires every 2 seconds alternating between warm-white ({ r:255, g:200, b:150, w:255 }), cool-white ({ r:200, g:210, b:255, w:255 }), and off ({ command:\"off\" }). A second Inject node sends an RGB rainbow fill via { pixels:[[r,g,b,0], ...] } covering 30 pixels to showcase that the white channel defaults to zero when unused. The flow demonstrates the dedicated white element and 12 V/24 V strip compatibility."
+  },
+  {
+    "id": "ws2814-device-1",
+    "type": "ws2814-device",
+    "name": "WS2814 strip",
+    "spiBus": "0",
+    "spiDevice": "0",
+    "pixelCount": "30",
+    "brightness": "255"
+  },
+  {
+    "id": "inject-warm",
+    "type": "inject",
+    "z": "ws2814-demo-tab",
+    "name": "Warm white (RGB+W)",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":255,\"g\":200,\"b\":150,\"w\":255}",
+    "payloadType": "json",
+    "wires": [["ws2814-node"]]
+  },
+  {
+    "id": "inject-cool",
+    "type": "inject",
+    "z": "ws2814-demo-tab",
+    "name": "Cool white (RGB+W)",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"r\":200,\"g\":210,\"b\":255,\"w\":255}",
+    "payloadType": "json",
+    "wires": [["ws2814-node"]]
+  },
+  {
+    "id": "inject-off",
+    "type": "inject",
+    "z": "ws2814-demo-tab",
+    "name": "Off",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"command\":\"off\"}",
+    "payloadType": "json",
+    "wires": [["ws2814-node"]]
+  },
+  {
+    "id": "inject-rainbow",
+    "type": "inject",
+    "z": "ws2814-demo-tab",
+    "name": "RGB rainbow (30 px, w=0)",
+    "props": [{ "p": "payload" }],
+    "repeat": "2",
+    "payload": "{\"pixels\":[[255,0,0,0],[255,51,0,0],[255,102,0,0],[255,153,0,0],[255,204,0,0],[255,255,0,0],[204,255,0,0],[153,255,0,0],[102,255,0,0],[51,255,0,0],[0,255,0,0],[0,255,51,0],[0,255,102,0],[0,255,153,0],[0,255,204,0],[0,255,255,0],[0,204,255,0],[0,153,255,0],[0,102,255,0],[0,51,255,0],[0,0,255,0],[51,0,255,0],[102,0,255,0],[153,0,255,0],[204,0,255,0],[255,0,255,0],[255,0,204,0],[255,0,153,0],[255,0,102,0],[255,0,51,0]]}",
+    "payloadType": "json",
+    "wires": [["ws2814-node"]]
+  },
+  {
+    "id": "ws2814-node",
+    "type": "periph-ws2814",
+    "z": "ws2814-demo-tab",
+    "name": "WS2814",
+    "device": "ws2814-device-1",
+    "wires": []
+  }
+]

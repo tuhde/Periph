@@ -29,11 +29,11 @@ fun main() {
         var lastPrint  = System.currentTimeMillis()
 
         while (System.currentTimeMillis() < rainbowEnd) {
-            val colors = List(PIXELS) { p ->
+            val colors = Array(PIXELS) { p ->
                 val hue = (hueOffset + p.toDouble() / PIXELS) % 1.0
                 hsvToRgb(hue, 1.0, 1.0)
             }
-            strip.setPixels(colors)                                   // load rainbow frame into buffer, (colors: List<IntArray[r,g,b]>) → Unit
+            strip.setPixels(colors)                                   // load rainbow frame into buffer, (colors: Array<IntArray[r,g,b]>) → Unit
             strip.show()                                              // transmit frame to strip, () → Unit
 
             hueOffset = (hueOffset + 1.0 / 300) % 1.0
@@ -65,11 +65,11 @@ fun main() {
         val resumeEnd = System.currentTimeMillis() + RAINBOW_S * 1000L
 
         while (System.currentTimeMillis() < resumeEnd) {
-            val colors = List(PIXELS) { p ->
+            val colors = Array(PIXELS) { p ->
                 val hue = (hueOffset + p.toDouble() / PIXELS) % 1.0
                 hsvToRgb(hue, 1.0, 1.0)
             }
-            strip.setPixels(colors)                                   // load rainbow frame into buffer, (colors: List<IntArray[r,g,b]>) → Unit
+            strip.setPixels(colors)                                   // load rainbow frame into buffer, (colors: Array<IntArray[r,g,b]>) → Unit
             strip.show()                                              // transmit frame to strip, () → Unit
             hueOffset = (hueOffset + 1.0 / 300) % 1.0
             Thread.sleep(FRAME_MS)

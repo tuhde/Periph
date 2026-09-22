@@ -1,0 +1,10 @@
+# sigrok/tests/mpu9255/
+
+This directory is reserved for a captured sigrok session file (`.sr`)
+used to manually verify the `mpu9255` sigrok protocol decoder. PulseView
+opens the `.sr` file and confirms the annotations match the register
+values shown in the capture.
+
+No session file is committed yet. The conformance checker
+(`conformance/imu/mpu9255_conformance.py`) is the automated path that
+verifies the timing constraint defined in `specs/imu/mpu9255_timing.conf`.
