@@ -1,0 +1,442 @@
+{
+  "category": "AD7706",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const {\n  \"CUSTOM_AD7706_INIT\": {\n    \"en\": \"%1 init SPI bus %2 CS pin %3 Vref (V) %4 MCLK (Hz) %5\"\n  },\n  \"CUSTOM_AD7706_CONFIGURE\": {\n    \"en\": \"%1 configure channel %2 gain %3 bipolar %4 buffered %5 output_rate_hz %6\"\n  },\n  \"CUSTOM_AD7706_READ_RAW\": {\n    \"en\": \"%1 read raw (channel %2)\"\n  },\n  \"CUSTOM_AD7706_READ_VOLTAGE\": {\n    \"en\": \"%1 read voltage V (channel %2)\"\n  },\n  \"CUSTOM_AD7706_SELF_CALIBRATE\": {\n    \"en\": \"%1 self_calibrate channel %2\"\n  },\n  \"CUSTOM_AD7706_SYSTEM_CALIBRATE_ZERO\": {\n    \"en\": \"%1 system calibrate zero channel %2\"\n  },\n  \"CUSTOM_AD7706_SYSTEM_CALIBRATE_FULL\": {\n    \"en\": \"%1 system calibrate full channel %2\"\n  },\n  \"CUSTOM_AD7706_GET_OFFSET_CALIBRATION\": {\n    \"en\": \"%1 get offset cal (channel %2)\"\n  },\n  \"CUSTOM_AD7706_SET_OFFSET_CALIBRATION\": {\n    \"en\": \"%1 set offset cal channel %2 value %3\"\n  },\n  \"CUSTOM_AD7706_GET_GAIN_CALIBRATION\": {\n    \"en\": \"%1 get gain cal (channel %2)\"\n  },\n  \"CUSTOM_AD7706_SET_GAIN_CALIBRATION\": {\n    \"en\": \"%1 set gain cal channel %2 value %3\"\n  },\n  \"CUSTOM_AD7706_STANDBY\": {\n    \"en\": \"%1 standby\"\n  },\n  \"CUSTOM_AD7706_WAKEUP\": {\n    \"en\": \"%1 wakeup\"\n  },\n  \"CUSTOM_AD7706_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_ad7706_init';\nBlockly.BlockRegExpList['custom_ad7706'] = {\n  regexp: new RegExp(/^custom_ad7706_/),\n  code: \"from AD7706 import AD7706\",\n  initBlockType: initType,\n  categoryId: 'custom_ad7706',\n}\nBlockly.utils.registerLanguages(AD7706_LANGUAGES)\n\nBlockly.Msg.CUSTOM_AD7706_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_AD7706 = 'AD7706'\n\nBlockly.utils.getcustom_ad7706Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ad7706_0', 'ad7706_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ad7706_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_INIT,\n      'args0': [{\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ad7706Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ad7706_0'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'vref'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'mclk_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vref = Blockly.Python.valueToCode(block, 'vref', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mclk_hz = Blockly.Python.valueToCode(block, 'mclk_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = AD7706(bus, cs_pin, vref, mclk_hz)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_configure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_CONFIGURE,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'gain'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'bipolar'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'buffered'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'output_rate_hz'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_configure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  var gain = Blockly.Python.valueToCode(block, 'gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bipolar = Blockly.Python.valueToCode(block, 'bipolar', Blockly.Python.ORDER_FUNCTION_CALL);\n  var buffered = Blockly.Python.valueToCode(block, 'buffered', Blockly.Python.ORDER_FUNCTION_CALL);\n  var output_rate_hz = Blockly.Python.valueToCode(block, 'output_rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure(channel, gain, bipolar, buffered, output_rate_hz)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_READ_RAW,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_raw(channel), Blockly.Python.ORDER_NONE]\n}\n\n\nBlockly.Blocks[\"custom_ad7706_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_READ_VOLTAGE,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.read_voltage(channel), Blockly.Python.ORDER_NONE]\n}\n\n\nBlockly.Blocks[\"custom_ad7706_self_calibrate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_SELF_CALIBRATE,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_self_calibrate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.self_calibrate(channel)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_system_calibrate_zero\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_SYSTEM_CALIBRATE_ZERO,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_system_calibrate_zero\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.system_calibrate_zero(channel)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_system_calibrate_full\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_SYSTEM_CALIBRATE_FULL,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_system_calibrate_full\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.system_calibrate_full(channel)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_get_offset_calibration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_GET_OFFSET_CALIBRATION,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_get_offset_calibration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.get_offset_calibration(channel), Blockly.Python.ORDER_NONE]\n}\n\n\nBlockly.Blocks[\"custom_ad7706_set_offset_calibration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_SET_OFFSET_CALIBRATION,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_set_offset_calibration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_offset_calibration(value, channel)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_get_gain_calibration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_GET_GAIN_CALIBRATION,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_get_gain_calibration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return [`${varname}.get_gain_calibration(channel), Blockly.Python.ORDER_NONE]\n}\n\n\nBlockly.Blocks[\"custom_ad7706_set_gain_calibration\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_SET_GAIN_CALIBRATION,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },,\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },,\n        {\n          'type': 'input_value',\n          'name': 'channel'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_set_gain_calibration\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  var channel = Blockly.Python.valueToCode(block, 'channel', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_gain_calibration(value, channel)\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_standby\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_STANDBY,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_standby\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.standby()\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_wakeup\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_WAKEUP,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_wakeup\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wakeup()\\n`\n}\n\n\nBlockly.Blocks[\"custom_ad7706_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_AD7706_RESET,\n      'args0': [{\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ad7706Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\n\nBlockly.Python[\"custom_ad7706_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"AD7706\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ad7706\"><title text=\"AD7706\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ad7706_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n  <value name=\"vref\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2.5</field>\n    </shadow>\n  </value>\n  <value name=\"mclk_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2457600</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_configure\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"bipolar\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"buffered\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"output_rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">50</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_read_raw\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_read_voltage\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_self_calibrate\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_system_calibrate_zero\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_system_calibrate_full\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_get_offset_calibration\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_set_offset_calibration\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_get_gain_calibration\">\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_set_gain_calibration\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"channel\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n<block type=\"custom_ad7706_standby\">\n</block>\n<block type=\"custom_ad7706_wakeup\">\n</block>\n<block type=\"custom_ad7706_reset\">\n</block>\n</category>\n",
+    "toolboxitemid": "custom_ad7706",
+    "block_type": [
+      "custom_ad7706___init__",
+      "custom_ad7706_configure",
+      "custom_ad7706_read_raw",
+      "custom_ad7706_read_voltage",
+      "custom_ad7706_self_calibrate",
+      "custom_ad7706_system_calibrate_zero",
+      "custom_ad7706_system_calibrate_full",
+      "custom_ad7706_get_offset_calibration",
+      "custom_ad7706_set_offset_calibration",
+      "custom_ad7706_get_gain_calibration",
+      "custom_ad7706_set_gain_calibration",
+      "custom_ad7706_standby",
+      "custom_ad7706_wakeup",
+      "custom_ad7706_reset"
+    ]
+  },
+  "data": {
+    "name": "AD7706",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "AD7705",
+      "time": "2026-09-21",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.adc_dac.ad7706 import AD7706Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SPI bus %2 CS pin %3 Vref (V) %4 MCLK (Hz) %5"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "vref",
+            "type": "float",
+            "default": "2.5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mclk_hz",
+            "type": "int",
+            "default": "2457600",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=1, phase=1)\n        self._driver = AD7705Full(connection, vref, mclk_hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure",
+        "note": {},
+        "label": {
+          "en": "%1 configure channel %2 gain %3 bipolar %4 buffered %5 output_rate_hz %6"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          },
+          {
+            "name": "gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "dropdown",
+            "options": {
+              "1": "1",
+              "2": "2",
+              "4": "4",
+              "8": "8",
+              "16": "16",
+              "32": "32",
+              "64": "64",
+              "128": "128"
+            }
+          },
+          {
+            "name": "bipolar",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "dropdown",
+            "options": {
+              "True": "1",
+              "False": "0"
+            }
+          },
+          {
+            "name": "buffered",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "dropdown",
+            "options": {
+              "True": "1",
+              "False": "0"
+            }
+          },
+          {
+            "name": "output_rate_hz",
+            "type": "int",
+            "default": "50",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure(channel=channel, gain=gain, bipolar=bool(bipolar), buffered=bool(buffered), output_rate_hz=output_rate_hz)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read raw (channel %2)"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_raw(channel=channel)",
+        "ast_return": {
+          "code": "self._driver.read_raw(channel=channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 read voltage V (channel %2)"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_voltage(channel=channel)",
+        "ast_return": {
+          "code": "self._driver.read_voltage(channel=channel)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "self_calibrate",
+        "note": {},
+        "label": {
+          "en": "%1 self_calibrate channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.self_calibrate(channel=channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "system_calibrate_zero",
+        "note": {},
+        "label": {
+          "en": "%1 system calibrate zero channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.system_calibrate_zero(channel=channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "system_calibrate_full",
+        "note": {},
+        "label": {
+          "en": "%1 system calibrate full channel %2"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.system_calibrate_full(channel=channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_offset_calibration",
+        "note": {},
+        "label": {
+          "en": "%1 get offset cal (channel %2)"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_offset_calibration(channel=channel)",
+        "ast_return": {
+          "code": "self._driver.get_offset_calibration(channel=channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_offset_calibration",
+        "note": {},
+        "label": {
+          "en": "%1 set offset cal channel %2 value %3"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_offset_calibration(value, channel=channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_gain_calibration",
+        "note": {},
+        "label": {
+          "en": "%1 get gain cal (channel %2)"
+        },
+        "params": [
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.get_gain_calibration(channel=channel)",
+        "ast_return": {
+          "code": "self._driver.get_gain_calibration(channel=channel)",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_gain_calibration",
+        "note": {},
+        "label": {
+          "en": "%1 set gain cal channel %2 value %3"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "channel",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_gain_calibration(value, channel=channel)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "standby",
+        "note": {},
+        "label": {
+          "en": "%1 standby"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.standby()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wakeup",
+        "note": {},
+        "label": {
+          "en": "%1 wakeup"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wakeup()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ad7706"
+  },
+  "pyCode": "\"\"\nfile     AD7705\ntime     2026-09-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.adc_dac.ad7705 import AD7705Full\n\n\nclass AD7705:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, cs_pin: int = 5, vref: float = 2.5, mclk_hz: int = 2457600):\n        \"\"\"\n        label:\n            en: '%1 init SPI bus %2 CS pin %3 Vref (V) %4 MCLK (Hz) %5'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n                min: '0'\n                max: '255'\n            vref:\n                name: vref\n                type: float\n                default: '2.5'\n                field: number\n            mclk_hz:\n                name: mclk_hz\n                type: int\n                default: '2457600'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=1, phase=1)\n        self._driver = AD7705Full(connection, vref, mclk_hz)\n\n    def configure(self, channel: int = 1, gain: int = 1, bipolar: int = 1, buffered: int = 0, output_rate_hz: int = 50):\n        \"\"\"\n        label:\n            en: '%1 configure channel %2 gain %3 bipolar %4 buffered %5 output_rate_hz %6'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n            gain:\n                name: gain\n                type: int\n                default: '1'\n                field: dropdown\n                options:\n                    '1': '1'\n                    '2': '2'\n                    '4': '4'\n                    '8': '8'\n                    '16': '16'\n                    '32': '32'\n                    '64': '64'\n                    '128': '128'\n            bipolar:\n                name: bipolar\n                type: int\n                default: '1'\n                field: dropdown\n                options:\n                    'True': '1'\n                    'False': '0'\n            buffered:\n                name: buffered\n                type: int\n                default: '0'\n                field: dropdown\n                options:\n                    'True': '1'\n                    'False': '0'\n            output_rate_hz:\n                name: output_rate_hz\n                type: int\n                default: '50'\n                field: number\n        \"\"\"\n        self._driver.configure(channel=channel, gain=gain, bipolar=bool(bipolar), buffered=bool(buffered), output_rate_hz=output_rate_hz)\n\n    def read_raw(self, channel: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 read raw (channel %2)'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        return self._driver.read_raw(channel=channel)\n\n    def read_voltage(self, channel: int = 1) -> float:\n        \"\"\"\n        label:\n            en: '%1 read voltage V (channel %2)'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        return self._driver.read_voltage(channel=channel)\n\n    def self_calibrate(self, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 self_calibrate channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.self_calibrate(channel=channel)\n\n    def system_calibrate_zero(self, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 system calibrate zero channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.system_calibrate_zero(channel=channel)\n\n    def system_calibrate_full(self, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 system calibrate full channel %2'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.system_calibrate_full(channel=channel)\n\n    def get_offset_calibration(self, channel: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 get offset cal (channel %2)'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        return self._driver.get_offset_calibration(channel=channel)\n\n    def set_offset_calibration(self, value: int, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set offset cal channel %2 value %3'\n        params:\n            value:\n                name: value\n                type: int\n                field: number\n                min: '0'\n                max: '16777215'\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.set_offset_calibration(value, channel=channel)\n\n    def get_gain_calibration(self, channel: int = 1) -> int:\n        \"\"\"\n        label:\n            en: '%1 get gain cal (channel %2)'\n        params:\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        return self._driver.get_gain_calibration(channel=channel)\n\n    def set_gain_calibration(self, value: int, channel: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set gain cal channel %2 value %3'\n        params:\n            value:\n                name: value\n                type: int\n                field: number\n                min: '0'\n                max: '16777215'\n            channel:\n                name: channel\n                type: int\n                default: '1'\n                field: number\n                min: '1'\n                max: '2'\n        \"\"\"\n        self._driver.set_gain_calibration(value, channel=channel)\n\n    def standby(self):\n        \"\"\"\n        label:\n            en: '%1 standby'\n        \"\"\"\n        self._driver.standby()\n\n    def wakeup(self):\n        \"\"\"\n        label:\n            en: '%1 wakeup'\n        \"\"\"\n        self._driver.wakeup()\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

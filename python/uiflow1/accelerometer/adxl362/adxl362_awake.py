@@ -1,0 +1,1 @@
+int(_periph_adxl362.awake())

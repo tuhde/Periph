@@ -1,0 +1,93 @@
+<script type="text/javascript">
+    RED.nodes.registerType('ad7705-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '0', required: true, validate: RED.validators.number() },
+            device:  { value: '0', required: true, validate: RED.validators.number() },
+            vref:    { value: '2.5', required: true },
+            mclkHz:  { value: '2457600', required: true }
+        },
+        label: function() {
+            return this.name || ('AD7705 @ SPI ' + this.bus + '.' + this.device + ' (Vref=' + this.vref + 'V)');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ad7705-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AD7705">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-vref">V_REF (V)</label>
+        <input type="number" id="node-config-input-vref" step="0.01" value="2.5" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mclkHz">Master clock (Hz)</label>
+        <select id="node-config-input-mclkHz" style="width:160px">
+            <option value="1000000">1 MHz</option>
+            <option value="2000000">2 MHz</option>
+            <option value="2457600">2.4576 MHz</option>
+            <option value="4915200">4.9152 MHz</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ad7705', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ad7705-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-wave-square',
+        label:   function() { return this.name || 'AD7705'; },
+        paletteLabel: 'AD7705'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ad7705">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AD7705">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ad7705">
+    <p>Reads voltage from a 2-channel, 16-bit sigma-delta AD7705 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a dual-channel read. If the device config has Channel 2 disabled, the output omits <code>channel2</code>. The literal string <code>"calibrate"</code> triggers a self-calibration of both configured channels.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel1 <span class="property-type">number</span></dt>
+        <dd>Channel 1 input voltage in V.</dd>
+        <dt>payload.channel2 <span class="property-type">number</span></dt>
+        <dd>Channel 2 input voltage in V (omitted if Channel 2 is disabled).</dd>
+        <dt>payload.calibrated <span class="property-type">boolean</span></dt>
+        <dd>True after a <code>"calibrate"</code> command.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus and CS line (Linux <code>/dev/spidevBUS.DEVICE</code>), the reference voltage V_REF in V (default 2.5), and the master clock frequency wired to MCLK IN (1/2/2.4576/4.9152 MHz). SPI Mode 3 (CPOL=1 CPHA=1) is used; the maximum clock is 5 MHz.</p>
+</script>

@@ -1,0 +1,53 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "adxl362_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init ADXL362 (SPI bus, CS pin)", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "_cs_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "adxl362_x",
+      "type": "value",
+      "params": [{ "name": "ADXL362 acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "adxl362_y",
+      "type": "value",
+      "params": [{ "name": "ADXL362 acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "adxl362_z",
+      "type": "value",
+      "params": [{ "name": "ADXL362 acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "adxl362_temperature",
+      "type": "value",
+      "params": [{ "name": "ADXL362 temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "adxl362_awake",
+      "type": "value",
+      "params": [{ "name": "ADXL362 awake (1/0)", "type": "label" }]
+    },
+    {
+      "name": "adxl362_set_range",
+      "type": "execute",
+      "params": [
+        { "name": "ADXL362 set range (g) — 2, 4, or 8", "type": "label" },
+        { "name": "_range_g", "type": "variable" }
+      ]
+    },
+    {
+      "name": "adxl362_soft_reset",
+      "type": "execute",
+      "params": [{ "name": "ADXL362 soft reset", "type": "label" }]
+    }
+  ]
+}

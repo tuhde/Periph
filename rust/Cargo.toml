@@ -42,7 +42,9 @@ exclude = [
     "tests/light/apds9960_test_esp32s3",
     "tests/imu/mpu6050_test_esp32s3",
     "tests/imu/mpu9250_test_esp32s3",
+    "tests/imu/mpu9255_test_esp32s3",
     "tests/accelerometer/adxl345_test_esp32s3",
+    "tests/accelerometer/adxl362_test_esp32s3",
     "tests/environmental/bme680_test_esp32s3",
     "tests/display/pcf8576_test_esp32s3",
     "tests/comms/rda5807m_test_esp32s3",
@@ -52,10 +54,13 @@ exclude = [
     "tests/other/mpr121_test_esp32s3",
     "tests/comms/rfm9x_test_esp32s3",
     "tests/comms/mcp2515_test_esp32s3",
+    "tests/adc_dac/ad7705_test_esp32s3",
+    "tests/adc_dac/ad7706_test_esp32s3",
 ]
 members = [
     "periph",
     "tests/accelerometer/adxl345_test",
+    "tests/accelerometer/adxl362_test",
     "tests/connection/uart_test",
     "examples/linux/*/*/*",
     "tests/power/ina226_test",
@@ -97,6 +102,7 @@ members = [
     "tests/light/apds9960_test",
     "tests/imu/mpu6050_test",
     "tests/imu/mpu9250_test",
+    "tests/imu/mpu9255_test",
     "tests/environmental/bme680_test",
     "tests/environmental/bme280_test",
     "tests/display/pcf8576_test",
@@ -109,6 +115,8 @@ members = [
     "tests/other/mpr121_test",
     "tests/comms/rfm9x_test",
     "tests/comms/mcp2515_test",
+    "tests/adc_dac/ad7705_test",
+    "tests/adc_dac/ad7706_test",
 ]
 
 [workspace.dependencies]

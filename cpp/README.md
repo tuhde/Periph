@@ -40,8 +40,11 @@ Each chip exposes two classes:
 | Chip | Category | Header |
 |------|----------|--------|
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
+| AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
+| AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
+| ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
 | APA102 | LED driver | `chips/led/APA102.h` |
 | Apds9930 | Light sensor | `chips/light/Apds9930.h` |
@@ -75,6 +78,7 @@ Each chip exposes two classes:
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |
+| MPU9255 | IMU | `chips/imu/MPU9255.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |

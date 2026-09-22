@@ -44,7 +44,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	conn, err := connection.NewSPIConnection(bus, device, 10_000_000, nil, nil)
+	conn, err := connection.NewSPIConnection(bus, device, 0, 10_000_000, nil, nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "connection:", err)
 		os.Exit(2)
