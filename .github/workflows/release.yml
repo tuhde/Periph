@@ -42,6 +42,17 @@ jobs:
         run: |
           pip install --quiet build
           python -m build python/
+
+      # Uploaded before the rename below so this artifact keeps the
+      # PyPI-conventional filenames (periph-X.Y.Z.tar.gz / .whl) that
+      # python-publish hands to PyPI unchanged.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-pypi-dist
+          path: python/dist/
+
+      - name: Rename sdist for the GitHub release asset listing
+        run: |
           VERSION="${{ needs.meta.outputs.version }}"
           mv python/dist/periph-${VERSION}.tar.gz \
              python/dist/periph-python-${VERSION}.tar.gz
@@ -50,6 +61,28 @@ jobs:
         with:
           name: python-dist
           path: python/dist/
+
+  # -----------------------------------------------------------------------
+  # Python — publish wheel + sdist to PyPI via trusted publishing (OIDC,
+  # no stored token). Requires a one-time "pending publisher" registered
+  # at https://pypi.org/manage/account/publishing/ for this repo, workflow
+  # filename, and the "pypi" environment below.
+  # -----------------------------------------------------------------------
+  python-publish:
+    needs: python-build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-pypi-dist
+          path: dist/
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
 
   # -----------------------------------------------------------------------
   # Arduino — zip cpp/ per Library Manager spec, attach to GitHub release
@@ -305,7 +338,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [meta, python-build, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [meta, python-build, python-publish, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write
