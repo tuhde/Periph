@@ -125,6 +125,10 @@ jobs:
   nodejs-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -132,6 +136,11 @@ jobs:
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing (OIDC) needs npm >=11.5.1; don't rely on
+      # whatever version happens to ship with the Node.js release above.
+      - name: Ensure npm supports trusted publishing
+        run: npm install -g npm@latest
 
       - name: Stamp version
         run: |
