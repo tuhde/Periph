@@ -291,19 +291,24 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
     }
 
     /// Read all available FIFO samples and return as rad/s tuples.
-    pub fn read_fifo(&mut self) -> Result<Vec<(f32, f32, f32)>, I2C::Error> {
+    ///
+    /// The FIFO holds at most 32 samples (FSS is a 5-bit field), so the
+    /// result is a fixed-capacity `heapless::Vec` rather than a heap-backed
+    /// one -- this crate is `no_std` by default.
+    pub fn read_fifo(&mut self) -> Result<heapless::Vec<(f32, f32, f32), 32>, I2C::Error> {
         let n = self.fifo_level()? as usize;
-        if n == 0 { return Ok(Vec::new()); }
+        if n == 0 { return Ok(heapless::Vec::new()); }
         let sens = sensitivity(self.inner.full_scale);
-        let mut buf = vec![0u8; n * 6];
-        self.read_reg(REG_OUT_X_L, &mut buf)?;
-        let mut out = Vec::with_capacity(n);
+        let mut buf = [0u8; 31 * 6];
+        let buf = &mut buf[..n * 6];
+        self.read_reg(REG_OUT_X_L, buf)?;
+        let mut out = heapless::Vec::new();
         for i in 0..n {
             let o = i * 6;
             let x = int16_le(&buf[o..o + 2]) as f32 * sens * DPS_TO_RAD;
             let y = int16_le(&buf[o + 2..o + 4]) as f32 * sens * DPS_TO_RAD;
             let z = int16_le(&buf[o + 4..o + 6]) as f32 * sens * DPS_TO_RAD;
-            out.push((x, y, z));
+            let _ = out.push((x, y, z));
         }
         Ok(out)
     }

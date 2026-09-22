@@ -343,7 +343,7 @@ impl<I2C: I2c> Lps33hwFull<I2C> {
     /// * `offset_hpa` — Pressure offset in hectopascals.
     ///   1 RPDS LSB = 1/16 hPa.
     pub fn set_pressure_offset(&mut self, offset_hpa: f32) -> Result<(), I2C::Error> {
-        let mut raw = (offset_hpa * 16.0).round() as i32;
+        let mut raw = libm::roundf(offset_hpa * 16.0) as i32;
         if raw < 0 {
             raw += 0x10000;
         }
@@ -409,7 +409,7 @@ impl<I2C: I2c> Lps33hwFull<I2C> {
     /// * `latch` — Latch the interrupt request until INT_SOURCE is read.
     pub fn configure_pressure_interrupt(&mut self, high_en: bool, low_en: bool,
                                         threshold_hpa: f32, latch: bool) -> Result<(), I2C::Error> {
-        let raw_ths = ((threshold_hpa * 16.0).round() as i32 & 0xFFFF) as u16;
+        let raw_ths = (libm::roundf(threshold_hpa * 16.0) as i32 & 0xFFFF) as u16;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_THS_P_L, (raw_ths & 0xFF) as u8)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_THS_P_H, ((raw_ths >> 8) & 0xFF) as u8)?;
 

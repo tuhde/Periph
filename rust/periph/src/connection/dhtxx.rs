@@ -53,11 +53,13 @@ const BIT_THRESHOLD_US: u32 = 40;
 /// lifecycle (release and re-request with a different direction flag) and is
 /// therefore expensive — this is the timing bottleneck on Linux, see
 /// `specs/transport_dhtxx.md` for details.
+#[cfg(feature = "std")]
 pub struct DHTxxConnectionLinux<P> {
     pin: P,
     enabled: bool,
 }
 
+#[cfg(feature = "std")]
 impl<P> DHTxxConnectionLinux<P>
 where
     P: embedded_hal::digital::OutputPin + InputPin,

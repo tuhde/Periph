@@ -102,18 +102,18 @@ fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<Calibration, I2
     Ok(Calibration {
         par_t1:  nvm_t1  as f64 * 256.0,                       // ÷ 2^-8
         par_t2:  nvm_t2  as f64 / f64::from(1u32 << 30),
-        par_t3:  nvm_t3        / 2f64.powi(48),
+        par_t3:  nvm_t3        / ((1u128 << 48) as f64),
         par_p1:  (nvm_p1 - f64::from(1u32 << 14)) / f64::from(1u32 << 20),
         par_p2:  (nvm_p2 - f64::from(1u32 << 14)) / f64::from(1u32 << 29),
-        par_p3:  nvm_p3        / 2f64.powi(32),
-        par_p4:  nvm_p4        / 2f64.powi(37),
+        par_p3:  nvm_p3        / ((1u128 << 32) as f64),
+        par_p4:  nvm_p4        / ((1u128 << 37) as f64),
         par_p5:  nvm_p5  as f64 * 8.0,                         // ÷ 2^-3
         par_p6:  nvm_p6  as f64 / f64::from(1u32 << 6),
         par_p7:  nvm_p7        / f64::from(1u32 << 8),
         par_p8:  nvm_p8        / f64::from(1u32 << 15),
-        par_p9:  nvm_p9        / 2f64.powi(48),
-        par_p10: nvm_p10       / 2f64.powi(48),
-        par_p11: nvm_p11       / 2f64.powi(65),
+        par_p9:  nvm_p9        / ((1u128 << 48) as f64),
+        par_p10: nvm_p10       / ((1u128 << 48) as f64),
+        par_p11: nvm_p11       / ((1u128 << 65) as f64),
     })
 }
 
@@ -355,8 +355,13 @@ impl<I2C: I2c> Bmp384Full<I2C> {
         if length == 0 {
             return Ok(0);
         }
-        let mut buf = vec![0u8; length as usize];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, 0x14, &mut buf)?;
+        // FIFO_LENGTH is a 9-bit field (FIFO_LENGTH_1 only uses bit 0), so
+        // the FIFO holds at most 512 bytes -- a fixed buffer avoids a heap
+        // allocation, which this `no_std`-by-default crate can't rely on.
+        let mut buf = [0u8; 512];
+        let length = (length as usize).min(buf.len());
+        let buf = &mut buf[..length];
+        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, 0x14, buf)?;
 
         let mut n = 0usize;
         let mut i = 0usize;

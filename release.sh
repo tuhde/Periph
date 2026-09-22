@@ -163,7 +163,11 @@ echo ""
 echo "=== updating arduino branch ==="
 ARDUINO_TAG="arduino-v${VERSION}"
 
-git worktree add /tmp/periph-arduino arduino
+# Fetch and pin the local 'arduino' branch to github's tip explicitly --
+# with both 'github' and 'codeberg' remotes carrying a branch of this exact
+# name, plain `git worktree add ... arduino` is an ambiguous ref and fails.
+git fetch github arduino
+git worktree add /tmp/periph-arduino -B arduino github/arduino
 AW=/tmp/periph-arduino
 
 # Clear existing content (keep .git)
@@ -184,6 +188,11 @@ done
 
 # library.properties with stamped version
 sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
+
+# README, regenerated from library.properties + chip headers (matches what
+# the CI arduino-branch job produces, so both stay byte-identical)
+node cpp/scripts/generate-readme.js
+cp cpp/README.md "$AW/README.md"
 
 cd "$AW"
 git add -A

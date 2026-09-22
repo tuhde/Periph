@@ -280,7 +280,7 @@ fn calc_heater_resistance(target_temp: i16, ambient_temp: f32, cal: &Calibration
     // `((amb_temp_c * par_G3) // 10) << 8` - truncating ambient_temp to i32
     // *before* the multiply (the previous implementation) silently discards
     // its fractional part and drifts from every other language's driver.
-    let var1 = (((ambient_temp * par_g3 as f32) / 10.0).floor() as i32) << 8;
+    let var1 = (libm::floorf((ambient_temp * par_g3 as f32) / 10.0) as i32) << 8;
     let var2 = (par_g1 + 784) * ((((par_g2 + 154009) * target_temp as i32 * 5 / 100) + 3276800) / 10);
     let var3 = var1 + (var2 >> 1);
     let var4 = var3 / (rhr + 4);

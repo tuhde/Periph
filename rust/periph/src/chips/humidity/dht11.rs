@@ -16,7 +16,9 @@
 //! let (temperature, humidity) = sensor.read()?;
 //! ```
 
-use crate::connection::dhtxx::{DHTxxError, DHTxxConnectionEsp32s3, DHTxxConnectionLinux};
+#[cfg(feature = "std")]
+use crate::connection::dhtxx::DHTxxConnectionLinux;
+use crate::connection::dhtxx::{DHTxxError, DHTxxConnectionEsp32s3};
 
 /// Error type for DHT11 operations.
 #[derive(Debug)]
@@ -54,10 +56,12 @@ fn decode_frame(frame: &[u8; FRAME_LEN]) -> Result<(f32, f32), Dht11Error<embedd
 // ============================================================================
 
 /// DHT11 minimal interface (Linux host).
+#[cfg(feature = "std")]
 pub struct Dht11Minimal<P> {
     conn: DHTxxConnectionLinux<P>,
 }
 
+#[cfg(feature = "std")]
 impl<P> Dht11Minimal<P>
 where
     P: embedded_hal::digital::OutputPin + embedded_hal::digital::InputPin,
@@ -78,11 +82,13 @@ where
 }
 
 /// DHT11 full interface (Linux host).
+#[cfg(feature = "std")]
 pub struct Dht11Full<P> {
     conn: DHTxxConnectionLinux<P>,
     max_retries: u8,
 }
 
+#[cfg(feature = "std")]
 impl<P> Dht11Full<P>
 where
     P: embedded_hal::digital::OutputPin + embedded_hal::digital::InputPin,
