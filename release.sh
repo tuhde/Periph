@@ -199,13 +199,17 @@ git add -A
 if ! git diff --staged --quiet; then
   git commit -m "chore: release ${ARDUINO_TAG}"
 fi
-git tag "$ARDUINO_TAG"
+# -f: idempotent under a retry -- if a prior run already got this far
+# (e.g. a later publish step failed and blocked the release), the tag
+# already exists pointing at the same commit and a plain `git tag` would
+# error out.
+git tag -f "$ARDUINO_TAG"
 cd "$ROOT"
 
 git worktree remove /tmp/periph-arduino
 
 git push all arduino
-git push all "$ARDUINO_TAG"
+git push all "$ARDUINO_TAG" --force
 echo "  ${ARDUINO_TAG} pushed"
 
 echo ""

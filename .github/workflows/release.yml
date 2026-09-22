@@ -261,9 +261,14 @@ jobs:
           if ! git diff --staged --quiet; then
             git commit -m "chore: release ${TAG}"
           fi
-          git tag "$TAG"
+          # -f: idempotent under a retry -- if a prior run already synced
+          # this exact content (e.g. rust-publish/nodejs-publish failed and
+          # blocked the release, arduino-branch already succeeded), the tag
+          # already exists pointing at the same commit and a plain `git tag`
+          # would fail the job.
+          git tag -f "$TAG"
           git push origin arduino
-          git push origin "$TAG"
+          git push origin "$TAG" --force
 
   # -----------------------------------------------------------------------
   # INSTALL.md — stamp version and commit back to main
