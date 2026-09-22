@@ -29,7 +29,7 @@ int main(void) {
     if (oss == 0) { printf("PASS default_oss\n"); passed++; }
     else { printf("FAIL default_oss\n"); failed++; }
 
-    bmp.set_oversampling(BMP085Full.OSS_STANDARD);    // Set OSS, (oss 0–3) → None
+    bmp.set_oversampling(BMP085Full::OSS_STANDARD);    // Set OSS, (oss 0–3) → None
     if (bmp.oversampling() == 1) { printf("PASS set_oss\n"); passed++; }
     else { printf("FAIL set_oss\n"); failed++; }
 

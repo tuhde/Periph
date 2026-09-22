@@ -14,7 +14,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP085_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP085_ADDR);
-    BMP085Full bmp(connection, BMP085Full.OSS_ULP);   // Create BMP085 driver, (connection, oss=0 ULP)
+    BMP085Full bmp(connection, BMP085Full::OSS_ULP);   // Create BMP085 driver, (connection, oss=0 ULP)
 
     float t0 = bmp.temperature();                      // Read temperature, () → float C
     float p0 = bmp.pressure();                       // Read pressure, () → float Pa

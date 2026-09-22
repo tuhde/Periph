@@ -44,13 +44,8 @@ const (
 // Bmp085Addr is the fixed 7-bit I²C address of the chip.
 const Bmp085Addr uint8 = 0x77
 
-// Oversampling mode constants.
-const (
-	OssUlp           uint8 = 0
-	OssStandard      uint8 = 1
-	OssHighRes       uint8 = 2
-	OssUltraHighRes  uint8 = 3
-)
+// Oversampling mode constants are shared with BMP180 (OssUlp, OssStandard,
+// OssHighRes, OssUltraHighRes in bmp180.go) — same encoding, same chip family.
 
 // Bmp085Minimal is the digital barometric pressure and temperature sensor
 // driver — minimal interface.
@@ -323,12 +318,4 @@ func (d *Bmp085Full) Reset() error {
 	}
 	time.Sleep(10 * time.Millisecond)
 	return d.readCalibration()
-}
-
-// pow is a small integer/float power helper. TinyGo does not expose math.Pow
-// on every board, and we use the formula only with a constant exponent in
-// practice — but the call sites pass literal exponents, so this works as
-// a thin wrapper.
-func pow(x, y float64) float64 {
-	return powImpl(x, y)
 }

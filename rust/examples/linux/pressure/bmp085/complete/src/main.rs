@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Bmp085Full, OSS_STANDARD};
+use periph::chips::pressure::{Bmp085Full, BMP085_OSS_STANDARD};
 
 fn main() {
     let i2c_bus: u8 = std::env::var("I2C_BUS").ok().and_then(|v| v.parse().ok()).unwrap_or(1);
@@ -10,7 +10,7 @@ fn main() {
     println!("chip_id=0x{:02x}", cid);                                  // returns 0x55 for BMP085
     let oss = bmp.oversampling();                                      // Read OSS, () → u8 0–3
     println!("oss={}", oss);
-    bmp.set_oversampling(OSS_STANDARD);                                // Set OSS, (oss 0–3) → ()
+    bmp.set_oversampling(BMP085_OSS_STANDARD);                         // Set OSS, (oss 0–3) → ()
                                                                       // changes conversion time vs resolution trade-off
     let t = bmp.temperature().expect("read temperature");             // Read temperature, () → f32 C
     let p = bmp.pressure().expect("read pressure");                   // Read pressure, () → f32 Pa

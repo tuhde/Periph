@@ -30,7 +30,7 @@ void setup() {
     uint8_t oss = bmp.oversampling();                // Read OSS, () → int 0–3
     check_true(oss == 0, "default_oss");
 
-    bmp.set_oversampling(BMP085Full.OSS_STANDARD);    // Set OSS, (oss 0–3) → None
+    bmp.set_oversampling(BMP085Full::OSS_STANDARD);    // Set OSS, (oss 0–3) → None
                                                       // changes conversion time vs resolution trade-off
     check_true(bmp.oversampling() == 1, "set_oss");
 

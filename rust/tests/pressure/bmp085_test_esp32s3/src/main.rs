@@ -5,7 +5,7 @@ use esp_backtrace as _;
 use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
-use periph::chips::pressure::{Bmp085Full, OSS_ULP};
+use periph::chips::pressure::{Bmp085Full, BMP085_OSS_ULP};
 
 esp_app_desc!();
 
@@ -35,7 +35,7 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut chip = match Bmp085Full::new(i2c, TEST_ADDR, OSS_ULP) {
+    let mut chip = match Bmp085Full::new(i2c, TEST_ADDR, BMP085_OSS_ULP) {
         Ok(c) => c,
         Err(_) => {
             println!("FAIL init: could not reach BMP085 at 0x{:02X}", TEST_ADDR);

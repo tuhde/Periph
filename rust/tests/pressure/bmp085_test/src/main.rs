@@ -1,5 +1,5 @@
 use linux_embedded_hal::I2cdev;
-use periph::chips::pressure::{Bmp085Minimal, Bmp085Full, OSS_ULP, OSS_HIGH_RES};
+use periph::chips::pressure::{Bmp085Minimal, Bmp085Full, BMP085_OSS_ULP, BMP085_OSS_HIGH_RES};
 
 macro_rules! check_true {
     ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
@@ -30,10 +30,10 @@ fn main() {
     drop(bmp);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp_full = Bmp085Full::new(dev, addr, OSS_ULP).expect("init BMP085 Full");
-    check_true!(bmp_full.oversampling() == OSS_ULP, "default_oss", passed, failed);
-    bmp_full.set_oversampling(OSS_HIGH_RES);
-    check_true!(bmp_full.oversampling() == OSS_HIGH_RES, "set_oss", passed, failed);
+    let mut bmp_full = Bmp085Full::new(dev, addr, BMP085_OSS_ULP).expect("init BMP085 Full");
+    check_true!(bmp_full.oversampling() == BMP085_OSS_ULP, "default_oss", passed, failed);
+    bmp_full.set_oversampling(BMP085_OSS_HIGH_RES);
+    check_true!(bmp_full.oversampling() == BMP085_OSS_HIGH_RES, "set_oss", passed, failed);
 
     let alt = bmp_full.altitude(101325.0).unwrap_or(-1.0);
     check_true!(alt >= -500.0 && alt <= 9000.0, "altitude_range", passed, failed);

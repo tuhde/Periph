@@ -17,7 +17,7 @@ void setup() {
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
     I2CConnection connection(Wire, 0x77);
-    BMP085Full bmp(connection, BMP085Full.OSS_ULP);  // Create BMP085 driver, (connection, oss=0 ULP)
+    BMP085Full bmp(connection, BMP085Full::OSS_ULP);  // Create BMP085 driver, (connection, oss=0 ULP)
 
     float t0 = bmp.temperature();                     // Read temperature, () → float C
     float p0 = bmp.pressure();                       // Read pressure, () → float Pa
