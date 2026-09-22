@@ -58,6 +58,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
 | BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
+| DS3231 | RTC | `chips/rtc/DS3231.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |

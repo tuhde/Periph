@@ -14,7 +14,9 @@ npm install node-red-contrib-periph-rtc
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `periph-ds3231` | input | Reads and sets the calendar clock of a DS3231 extremely accurate I²C RTC, and reports its on-chip temperature reading. Fixed address 0x68 . |
 
 ## Links
 
