@@ -38,6 +38,9 @@ jobs:
           sed -i 's/^version = ".*"/version = "${{ needs.meta.outputs.version }}"/' \
             python/pyproject.toml
 
+      - name: Generate package README
+        run: node python/scripts/generate-readme.js
+
       - name: Build
         run: |
           pip install --quiet build

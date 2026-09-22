@@ -9,8 +9,9 @@
 #      jvm/pom.xml (+ each child module's <parent> version), JVM JBang
 #      //DEPS lines under jvm/examples and jvm/tests, all package.json
 #      files (+ regenerated package-lock.json), and INSTALL.md
-#   2. Regenerates rust/periph/README.md (rust/scripts/generate-readme.js)
-#      and STATS.md (scripts/generate_stats.py)
+#   2. Regenerates python/README.md (python/scripts/generate-readme.js),
+#      rust/periph/README.md (rust/scripts/generate-readme.js), and
+#      STATS.md (scripts/generate_stats.py)
 #   3. Commits the changes on main
 #   4. Creates tag v<version> and pushes branch + tag to all remotes
 #
@@ -126,6 +127,12 @@ PYEOF
 echo "  nodejs/package-lock.json"
 (cd "$ROOT/nodejs" && npm install --package-lock-only --workspaces --no-audit --no-fund >/dev/null)
 
+# Python: regenerate the package README (the file PyPI renders as the
+# project description) from the stamped pyproject.toml + the chip drivers
+# actually shipped, so it never drifts stale like it did before this existed.
+echo "  python/README.md"
+node "$ROOT/python/scripts/generate-readme.js"
+
 # Rust: regenerate the crate README (the file crates.io renders as the
 # package page) from the stamped Cargo.toml + the chip drivers actually
 # shipped, so it never drifts stale like it did before this existed.
@@ -142,6 +149,7 @@ echo ""
 echo "=== committing ==="
 git add \
     python/pyproject.toml \
+    python/README.md \
     cpp/library.properties \
     rust/periph/Cargo.toml \
     rust/periph/README.md \
