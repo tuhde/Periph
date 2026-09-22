@@ -43,6 +43,7 @@ Each chip exposes two classes:
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
+| BMP085 | Pressure sensor | `periph/src/chips/pressure/bmp085` |
 | BMP180 | Pressure sensor | `periph/src/chips/pressure/bmp180` |
 | BMP280 | Pressure sensor | `periph/src/chips/pressure/bmp280` |
 | BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |

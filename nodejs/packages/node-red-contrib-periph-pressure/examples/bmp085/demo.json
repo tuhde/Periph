@@ -1,0 +1,66 @@
+[
+    {
+        "id": "bmp085-device-1",
+        "type": "bmp085-device",
+        "name": "BMP085 @ i2c-1",
+        "bus": "1",
+        "oss": "0"
+    },
+    {
+        "id": "bmp085-read-1",
+        "type": "periph-bmp085",
+        "name": "BMP085",
+        "device": "bmp085-device-1",
+        "seaLevelPa": "101325",
+        "wires": [["debug-1"]]
+    },
+    {
+        "id": "inject-timer-1",
+        "type": "inject",
+        "name": "Every 5 seconds",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["bmp085-read-1"]]
+    },
+    {
+        "id": "debug-1",
+        "type": "debug",
+        "name": "Debug output",
+        "active": true,
+        "tosideuit": false,
+        "console": "false",
+        "tostatus": "false",
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 480,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "calibrate-here",
+        "type": "inject",
+        "name": "Calibrate to here",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0",
+        "crontab": "",
+        "onceDelay": "0.1",
+        "wires": [["calibrate-function-1"]]
+    },
+    {
+        "id": "calibrate-function-1",
+        "type": "function",
+        "name": "Recompute sea-level",
+        "func": "const pa = flow.get('bmp085-sea-level') || 101325;\nconst alt = msg.payload.altitude;\nconst newPa = msg.payload.pressure / Math.pow(1 - alt / 44330, 5.255);\nflow.set('bmp085-sea-level', newPa);\nnode.status({text: 'sea-level=' + newPa.toFixed(1) + ' Pa'});\nreturn msg;",
+        "outputs": "1",
+        "noerr": "0",
+        "x": 480,
+        "y": 320,
+        "wires": [["bmp085-read-1"]]
+    }
+]

@@ -52,6 +52,7 @@ Each chip exposes two classes:
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |
 | BME680 | Environmental sensor | `chips/environmental/BME680.h` |
+| BMP085 | Pressure sensor | `chips/pressure/BMP085.h` |
 | BMP180 | Pressure sensor | `chips/pressure/BMP180.h` |
 | BMP280 | Pressure sensor | `chips/pressure/BMP280.h` |
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
