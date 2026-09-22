@@ -1,0 +1,1 @@
+_periph_ds3231.clear_oscillator_stopped()

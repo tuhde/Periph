@@ -17,3 +17,4 @@ pub mod other;
 pub mod power;
 pub mod pressure;
 pub mod rfid;
+pub mod rtc;

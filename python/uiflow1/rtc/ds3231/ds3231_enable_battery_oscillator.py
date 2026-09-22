@@ -1,0 +1,1 @@
+_periph_ds3231.enable_battery_oscillator()

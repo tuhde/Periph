@@ -10,5 +10,6 @@ module it.uhde.periph {
     exports it.uhde.periph.chips.power;
     exports it.uhde.periph.chips.pressure;
     exports it.uhde.periph.chips.rfid;
+    exports it.uhde.periph.chips.rtc;
     requires it.uhde.periph.connection;
 }

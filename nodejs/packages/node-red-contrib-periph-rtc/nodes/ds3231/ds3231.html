@@ -1,0 +1,144 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ds3231', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+
+            alarm1Enabled:     { value: false },
+            alarm1MatchMode:   { value: '15' },   // DS3231Full.ALARM1_EVERY_SECOND
+            alarm1Second:      { value: '0' },
+            alarm1Minute:      { value: '0' },
+            alarm1Hour:        { value: '0' },
+            alarm1DayOrDate:   { value: '1' },
+            alarm1IsDayOfWeek: { value: false },
+
+            alarm2Enabled:     { value: false },
+            alarm2MatchMode:   { value: '7' },    // DS3231Full.ALARM2_EVERY_MINUTE
+            alarm2Minute:      { value: '0' },
+            alarm2Hour:        { value: '0' },
+            alarm2DayOrDate:   { value: '1' },
+            alarm2IsDayOfWeek: { value: false },
+
+            squareWaveEnabled:       { value: false },
+            squareWaveRate:          { value: '8192' },
+            squareWaveBatteryBacked: { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-clock-o',
+        label:   function() { return this.name || 'DS3231'; },
+        paletteLabel: 'DS3231',
+        oneditprepare: function() {
+            const node = this;
+            function refresh() {
+                const alarmsOn = $('#node-input-alarm1Enabled').is(':checked') || $('#node-input-alarm2Enabled').is(':checked');
+                $('#node-input-squareWaveEnabled').prop('disabled', alarmsOn);
+                if (alarmsOn) $('#node-input-squareWaveEnabled').prop('checked', false);
+                const sqwOn = $('#node-input-squareWaveEnabled').is(':checked');
+                $('#node-input-alarm1Enabled, #node-input-alarm2Enabled').prop('disabled', sqwOn);
+            }
+            $('#node-input-alarm1Enabled, #node-input-alarm2Enabled, #node-input-squareWaveEnabled').on('change', refresh);
+            refresh();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ds3231">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DS3231">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N; address is fixed at 0x68)
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-alarm1Enabled"><i class="fa fa-bell"></i> Alarm 1</label>
+        <input type="checkbox" id="node-input-alarm1Enabled" style="width:auto">
+        <select id="node-input-alarm1MatchMode" style="width:260px">
+            <option value="15">Once per second</option>
+            <option value="14">Seconds match</option>
+            <option value="12">Minutes, seconds match</option>
+            <option value="8">Hours, minutes, seconds match</option>
+            <option value="0">Date/day, hours, minutes, seconds match</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        Sec <input type="number" id="node-input-alarm1Second" min="0" max="59" style="width:50px">
+        Min <input type="number" id="node-input-alarm1Minute" min="0" max="59" style="width:50px">
+        Hour <input type="number" id="node-input-alarm1Hour" min="0" max="23" style="width:50px">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        Day/Date <input type="number" id="node-input-alarm1DayOrDate" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-input-alarm1IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-alarm2Enabled"><i class="fa fa-bell-o"></i> Alarm 2</label>
+        <input type="checkbox" id="node-input-alarm2Enabled" style="width:auto">
+        <select id="node-input-alarm2MatchMode" style="width:260px">
+            <option value="7">Once per minute</option>
+            <option value="6">Minutes match</option>
+            <option value="4">Hours, minutes match</option>
+            <option value="0">Date/day, hours, minutes match</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        Min <input type="number" id="node-input-alarm2Minute" min="0" max="59" style="width:50px">
+        Hour <input type="number" id="node-input-alarm2Hour" min="0" max="23" style="width:50px">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        Day/Date <input type="number" id="node-input-alarm2DayOrDate" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-input-alarm2IsDayOfWeek" style="width:auto"> is day-of-week (else day-of-month)
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-squareWaveEnabled"><i class="fa fa-square-o"></i> Square wave</label>
+        <input type="checkbox" id="node-input-squareWaveEnabled" style="width:auto">
+        <select id="node-input-squareWaveRate" style="width:120px">
+            <option value="1">1 Hz</option>
+            <option value="1024">1.024 kHz</option>
+            <option value="4096">4.096 kHz</option>
+            <option value="8192">8.192 kHz</option>
+        </select>
+        <input type="checkbox" id="node-input-squareWaveBatteryBacked" style="width:auto"> battery-backed
+    </div>
+    <div class="form-row">
+        <em>Alarms and the square wave share the INT/SQW pin — enabling one disables the other in this panel.</em>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ds3231">
+    <p>Reads and sets the calendar clock of a DS3231 extremely accurate I²C RTC, and reports its on-chip temperature reading. Fixed address <code>0x68</code>.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a read of the clock and temperature.</dd>
+        <dt>payload.datetime <span class="property-type">object</span> (optional)</dt>
+        <dd>If set (<code>{year, month, day, weekday, hour, minute, second}</code>), sets the clock instead of reading it.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.year / month / day / weekday / hour / minute / second <span class="property-type">number</span></dt>
+        <dd>Current calendar clock. <code>weekday</code> is ISO 8601 (1=Monday..7=Sunday).</dd>
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>On-chip temperature reading, °C.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately, independent of the polling trigger above, when an enabled alarm fires: <code>"alarm1"</code> or <code>"alarm2"</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (address is fixed). Optionally enable Alarm 1 and/or Alarm 2 with a match-mode and target time/date — enabling either arms the interrupt-driven <code>source</code> output above. Optionally enable the square-wave output instead (mutually exclusive with the alarms, since both share the INT/SQW pin's INTCN bit).</p>
+</script>

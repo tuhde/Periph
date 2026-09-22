@@ -1,0 +1,1 @@
+_periph_ds3231.force_temperature_conversion()
