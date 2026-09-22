@@ -203,6 +203,9 @@ jobs:
           sed -i 's/^version = ".*"/version = "${{ needs.meta.outputs.version }}"/' \
             rust/periph/Cargo.toml
 
+      - name: Generate crate README
+        run: node rust/scripts/generate-readme.js
+
       # Exchanges this job's OIDC identity for a short-lived crates.io
       # token via trusted publishing -- no CARGO_REGISTRY_TOKEN secret
       # needed once the crate's trusted publisher is configured.

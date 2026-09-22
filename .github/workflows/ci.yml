@@ -257,6 +257,9 @@ jobs:
       - name: Compile workspace
         run: cargo build --manifest-path rust/Cargo.toml
 
+      - name: Check rust/periph/README.md is up to date
+        run: node rust/scripts/generate-readme.js --check
+
   # -----------------------------------------------------------------------
   # Go — build + vet all packages (no hardware required)
   # -----------------------------------------------------------------------
