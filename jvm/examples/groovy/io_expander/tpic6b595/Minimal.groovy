@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.1.0
-//DEPS it.uhde:periph-groovy:1.1.0
+//DEPS it.uhde:periph-connection:1.2.0
+//DEPS it.uhde:periph-groovy:1.2.0
 
 import it.uhde.periph.connection.SiPoConnection
 import it.uhde.periph.chips.io_expander.Tpic6b595Minimal
