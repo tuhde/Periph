@@ -77,6 +77,7 @@ Each chip exposes two classes:
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
+| MCP9808 | Temperature sensor | `chips/temperature/MCP9808.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
