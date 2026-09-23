@@ -13,15 +13,23 @@ int main() {
 
     BME680Full bme(connection);                                             // Create BME680 driver, (connection)
 
-    // --- IAQ index monitor ---
-    // Reads all four channels at 1 Hz. Gas resistance rises with cleaner air.
-    // Print a simple "good/moderate/poor" classification using raw resistance.
-    bme.configure(2, 5, 1, 4, 320, 150);                                  // Configure oversampling+filter+heater, (...) → void
+    // --- Air quality monitor ---
+    // One forced measurement per second. Gas resistance rises with cleaner
+    // air; readings with an unstable heater are skipped, and a simple
+    // good/moderate/poor label is printed from the raw resistance.
+    bme.configure(BME680Full::OSRS_X2, BME680Full::OSRS_X16, BME680Full::OSRS_X1,
+                  BME680Full::MODE_FORCED, BME680Full::FILTER_3);          // Configure in one write, (osrs_t, osrs_p, osrs_h, mode, filter) → void
+    bme.set_heater(320, 150);                                              // Set heater profile 0, (temp_c °C, duration_ms ms) → void
     while (true) {
-        float t, h, p, gas;
-        bme.read(t, h, p, gas);                                            // Trigger forced-mode measurement, (temp_c, humidity_pct, pressure_pa, gas_ohm) → void
-        const char* aq = gas > 50000 ? "good" : gas > 10000 ? "moderate" : "poor";
-        printf("%.2f C  %.2f %%  %.1f Pa  %.0f Ω  [%s]\n", t, h, p, gas, aq);
+        float t, p, h, g;
+        bme.read_all(t, p, h, g);                                          // One forced measurement of every channel, (t °C, p hPa, h %RH, g Ω) → void
+        if (!bme.heater_stable()) {                                        // Heater reached target?, () → bool
+            printf("heater not stable yet\n");
+        } else {
+            const char* aq = g > 50000.0f ? "good" : g > 10000.0f ? "moderate" : "poor";
+            printf("%.2f C  %.2f %%RH  %.2f hPa  %.0f Ohm  [%s]\n",
+                   (double)t, (double)h, (double)p, (double)g, aq);
+        }
         usleep(1000000);
     }
     return 0;

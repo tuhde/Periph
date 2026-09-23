@@ -11,16 +11,17 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x40;
     I2CConnectionLinux connection(bus, addr);
 
-    INA219Full ina(connection);                                             // Create INA219 driver, (connection)
+    INA219Full ina(connection, 0.1f, 2.0f);                                 // Create INA219 driver, (connection, r_shunt=0.1 Ω, max_current=2.0 A)
 
     // --- USB charger monitor ---
-    // Logs bus voltage, current, and power every second.
-    // Alert printed when current exceeds 0.5 A.
-    ina.calibrate(0.1f, 2.0f);                                            // Set shunt+max-current for calibration, (r_shunt Ω, max_A) → void
+    // Logs bus voltage, current, and power every second; the 0.1 Ω shunt
+    // and 2 A ceiling set the calibration. Flags currents above 0.5 A.
     while (true) {
-        float v = ina.voltage(), i = ina.current(), p = ina.power();      // Read bus voltage/current/power, () → float
+        float v = ina.voltage();                                           // Bus voltage, () → float V
+        float i = ina.current();                                           // Current, () → float A
+        float p = ina.power();                                             // Power, () → float W
         printf("%.3f V  %.4f A  %.4f W%s\n",
-               v, i, p, i > 0.5f ? "  [HIGH CURRENT]" : "");
+               (double)v, (double)i, (double)p, i > 0.5f ? "  [HIGH CURRENT]" : "");
         usleep(1000000);
     }
     return 0;

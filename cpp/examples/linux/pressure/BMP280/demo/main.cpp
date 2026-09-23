@@ -14,13 +14,16 @@ int main() {
     BMP280Full bmp(connection);                                             // Create BMP280 driver, (connection)
 
     // --- Altitude tracker ---
-    // Uses the hypsometric formula with a local sea-level reference.
-    const float P0 = 101325.0f;
-    bmp.configure(5, 5, 3, 4);                                            // Configure oversampling+filter, (osrs_t=×16, osrs_p=×16, normal, filter=16) → void
+    // Ultra-high-resolution oversampling with the strongest IIR filter keeps
+    // the altitude estimate steady; update the sea-level reference to the
+    // local forecast for absolute accuracy.
+    const float P0_HPA = 1013.25f;
+    bmp.configure(BMP280Full::OSRS_X2, BMP280Full::OSRS_X16, BMP280Full::MODE_NORMAL,
+                  BMP280Full::FILTER_16, BMP280Full::T_SB_62_5_MS);        // Configure in one write, (osrs_t, osrs_p, mode, filter, t_sb) → void
     while (true) {
-        float p = bmp.pressure();                                          // Read pressure, () → float Pa
-        float alt = 44330.0f * (1.0f - __builtin_powf(p / P0, 0.1903f));
-        printf("%.2f Pa  %.1f m\n", p, alt);
+        float p = bmp.pressure();                                          // Read pressure, () → float hPa
+        float alt = bmp.altitude(P0_HPA);                                  // Altitude from pressure, (sea_level_hpa hPa) → float m
+        printf("%.2f hPa  %.1f m\n", (double)p, (double)alt);
         usleep(1000000);
     }
     return 0;

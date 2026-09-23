@@ -11,18 +11,19 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x77;
     I2CConnectionLinux connection(bus, addr);
 
-    BMP180Full bmp(connection);                                             // Create BMP180 driver, (connection)
+    BMP180Full bmp(connection, BMP180Full::OSS_ULTRA_HIGH_RES);             // Create BMP180 driver, (connection, oss=3)
 
     // --- Weather station with trend detection ---
-    // Logs pressure every 60 s and notes rising/falling trend.
-    float prev = bmp.pressure(3);                                          // Read pressure (high-res), (oss=3) → float Pa
-    printf("%.2f Pa  (baseline)\n", prev);
+    // Ultra-high-resolution oversampling (0.03 hPa RMS noise); logs pressure
+    // every 60 s and labels a change of more than 0.5 hPa as a trend.
+    float prev = bmp.pressure();                                           // Read pressure, () → float hPa
+    printf("%.2f hPa  (baseline)\n", (double)prev);
     while (true) {
         usleep(60000000);
-        float curr = bmp.pressure(3);                                      // Read pressure, (oss=3) → float Pa
+        float curr = bmp.pressure();                                       // Read pressure, () → float hPa
         float delta = curr - prev;
-        const char* trend = delta > 50 ? "RISING" : delta < -50 ? "FALLING" : "STEADY";
-        printf("%.2f Pa  %s  (Δ%.2f)\n", curr, trend, delta);
+        const char* trend = delta > 0.5f ? "RISING" : delta < -0.5f ? "FALLING" : "STEADY";
+        printf("%.2f hPa  %s  (delta %.2f hPa)\n", (double)curr, trend, (double)delta);
         prev = curr;
     }
     return 0;

@@ -12,11 +12,14 @@ int main() {
     I2CConnectionLinux connection(bus, addr);
 
     BME680Minimal bme(connection);                                          // Create BME680 driver, (connection)
+                                                                           // forced mode, heater 320 °C for 150 ms
 
     while (true) {
-        float t, h, p, gas;
-        bme.read(t, h, p, gas);                                            // Trigger forced-mode measurement, (temp_c, humidity_pct, pressure_pa, gas_ohm) → void
-        printf("%.2f C  %.2f %%RH  %.2f Pa  %.0f Ω\n", t, h, p, gas);
+        float t = bme.temperature();                                       // Read temperature, () → float °C
+        float h = bme.humidity();                                          // Read relative humidity, () → float %RH
+        float p = bme.pressure();                                          // Read pressure, () → float hPa
+        float gas = bme.gas_resistance();                                  // Read gas resistance, () → float Ω (NaN if invalid)
+        printf("%.2f C  %.2f %%RH  %.2f hPa  %.0f Ohm\n", (double)t, (double)h, (double)p, (double)gas);
         usleep(1000000);
     }
     return 0;

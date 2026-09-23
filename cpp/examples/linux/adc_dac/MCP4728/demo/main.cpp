@@ -22,10 +22,10 @@ int main() {
             uint16_t tri  = step < 32 ? step * 128 : (63 - step) * 128;
             uint16_t saw  = (uint16_t)(step * 64);
             uint16_t sq   = step < 32 ? 4095 : 0;
-            dac.set_voltage(0, sine);                                      // Set channel 0 (sine), (ch=0, value) → void
-            dac.set_voltage(1, tri);                                       // Set channel 1 (triangle), (ch=1, value) → void
-            dac.set_voltage(2, saw);                                       // Set channel 2 (sawtooth), (ch=2, value) → void
-            dac.set_voltage(3, sq);                                        // Set channel 3 (square), (ch=3, value) → void
+            dac.set_raw(0, sine);                                          // Set channel 0 raw code (sine), (channel, code 0–4095) → void
+            dac.set_raw(1, tri);                                           // Set channel 1 raw code (triangle), (channel, code 0–4095) → void
+            dac.set_raw(2, saw);                                           // Set channel 2 raw code (sawtooth), (channel, code 0–4095) → void
+            dac.set_raw(3, sq);                                            // Set channel 3 raw code (square), (channel, code 0–4095) → void
             usleep(1000);
         }
     }

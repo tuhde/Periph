@@ -1,5 +1,6 @@
 #include <I2CConnectionLinux.h>
 #include <L3gd20h.h>
+#include <cmath>
 #include <iostream>
 
 int main() {

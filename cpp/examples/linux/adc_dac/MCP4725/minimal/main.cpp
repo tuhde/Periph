@@ -15,7 +15,7 @@ int main() {
 
     while (true) {
         for (uint16_t v = 0; v <= 4095; v += 256) {
-            dac.set_voltage(v);                                            // Set DAC output, (value 0–4095) → void
+            dac.set_raw(v);                                                // Set raw DAC code, (code 0–4095) → void
             printf("dac=%u\n", v);
             usleep(100000);
         }

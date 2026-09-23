@@ -11,17 +11,19 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x20;
     I2CConnectionLinux connection(bus, addr);
 
-    MCP23017Full mcp(connection);                                           // Create MCP23017 driver, (connection)
+    MCP23017Full mcp(connection);                                           // Create MCP23017 driver, (connection, addr=0x20)
 
-    // --- LED chaser on port B, button on port A pin 0 ---
-    // Cycles a single LED across port B outputs; stops while button is held.
-    mcp.set_direction(0, 0xFF);                                            // Set port A as inputs, (port=0, mask) → void
-    mcp.set_pullup(0, 0xFF);                                               // Enable pull-ups port A, (port=0, mask) → void
-    mcp.set_direction(1, 0x00);                                            // Set port B as outputs, (port=1, mask) → void
+    // --- LED chaser on port B, button on GPA0 ---
+    // Cycles a single LED across the port B outputs and pauses while the
+    // active-low button (internal pull-up) is held.
+    auto button = mcp.pin(0);
+    button.mode(INPUT_PULLUP);                                             // Set pin direction, (m INPUT/OUTPUT/INPUT_PULLUP) → void
+    for (uint8_t n = 8; n < 16; n++)
+        mcp.pin(n).mode(OUTPUT);
     uint8_t pos = 0;
     while (true) {
-        if (!mcp.read_pin(0, 0)) { usleep(10000); continue; }             // Read button (active-low), (port=0, pin=0) → bool
-        mcp.write_port(1, (uint8_t)(1 << pos));                           // Write LED pattern, (port=1, value) → void
+        if (button.read() == LOW) { usleep(10000); continue; }            // Read pin level, () → uint8_t HIGH/LOW
+        mcp.write_port(1, (uint8_t)(1 << pos));                            // Write LED pattern, (port 0/1, mask) → void
         pos = (pos + 1) & 7;
         usleep(100000);
     }

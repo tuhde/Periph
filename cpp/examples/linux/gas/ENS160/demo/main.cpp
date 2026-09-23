@@ -14,15 +14,16 @@ int main() {
     ENS160Full ens(connection);                                             // Create ENS160 driver, (connection)
 
     // --- Office air quality display ---
-    // Logs eCO2 and TVOC at 10 s intervals with AQI colour band.
-    ens.set_temp_rh_comp(22.0f, 45.0f);                                    // Set T/H compensation, (temp_c, humidity_pct) → void
+    // Logs AQI, TVOC and eCO2 every 10 s with the UBA AQI label. A fixed
+    // 22 °C / 45 %RH compensation stands in for a companion T/H sensor.
+    ens.set_compensation(22.0f, 45.0f);                                    // Set T/H compensation, (temp_celsius °C, rh_percent %RH) → void
     const char* aqi_label[] = {"", "Excellent", "Good", "Moderate", "Poor", "Unhealthy"};
     while (true) {
-        uint16_t eco2 = ens.eco2();                                        // Read eCO2, () → uint16_t ppm
-        uint16_t tvoc = ens.tvoc();                                        // Read TVOC, () → uint16_t ppb
-        uint8_t  aqi  = ens.aqi();                                         // Read AQI (UBA 1–5), () → uint8_t
-        printf("eCO2=%4u ppm  TVOC=%4u ppb  AQI=%u %s\n",
-               eco2, tvoc, aqi, aqi <= 5 ? aqi_label[aqi] : "?");
+        uint8_t aqi;
+        float tvoc, eco2;
+        if (ens.read_air_quality(aqi, tvoc, eco2))                         // Read AQI/TVOC/eCO2, (aqi 1–5, tvoc_ppb ppb, eco2_ppm ppm) → bool
+            printf("AQI=%u %s  TVOC=%4.0f ppb  eCO2=%4.0f ppm\n",
+                   aqi, aqi <= 5 ? aqi_label[aqi] : "?", (double)tvoc, (double)eco2);
         usleep(10000000);
     }
     return 0;

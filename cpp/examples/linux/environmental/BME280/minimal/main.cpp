@@ -14,9 +14,10 @@ int main() {
     BME280Minimal bme(connection);                                          // Create BME280 driver, (connection)
 
     while (true) {
-        float t, h, p;
-        bme.read(t, h, p);                                                 // Read T/H/P with compensation, (temp_c, humidity_pct, pressure_pa) → void
-        printf("%.2f C  %.2f %%RH  %.2f Pa\n", t, h, p);
+        float t = bme.temperature();                                       // Read temperature, () → float °C
+        float h = bme.humidity();                                          // Read relative humidity, () → float %RH
+        float p = bme.pressure();                                          // Read pressure, () → float hPa
+        printf("%.2f C  %.2f %%RH  %.2f hPa\n", (double)t, (double)h, (double)p);
         usleep(1000000);
     }
     return 0;

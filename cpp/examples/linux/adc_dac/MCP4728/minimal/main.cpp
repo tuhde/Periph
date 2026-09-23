@@ -15,7 +15,7 @@ int main() {
 
     // Set all four channels to mid-scale
     for (int ch = 0; ch < 4; ch++)
-        dac.set_voltage(ch, 2048);                                         // Set channel output, (ch=0–3, value 0–4095) → void
+        dac.set_raw(ch, 2048);                                             // Set raw channel code, (channel 0–3, code 0–4095) → void
     printf("set all channels to 2048\n");
     return 0;
 }

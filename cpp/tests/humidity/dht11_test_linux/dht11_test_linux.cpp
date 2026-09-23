@@ -1,6 +1,11 @@
-#include <stdio.h>
-#include <math.h>
-#include "DHTxxConnection.h"
+// DHT11 hardware test — Linux (libgpiod v2).
+// Wiring: DATA on GPIO_LINE of GPIO_CHIP (defaults /dev/gpiochip0, line 4)
+// with a 4.7 kΩ pull-up to 3V3. Decoding is covered by dht11_test_unit.
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <unistd.h>
+#include "DHTxxConnectionLinux.h"
 #include "DHT11.h"
 
 static int passed = 0, failed = 0;
@@ -10,53 +15,29 @@ static void check_true(bool cond, const char *label) {
     else       { printf("FAIL %s\n", label); failed++; }
 }
 
-// Mock connection that injects a fixed frame for unit testing.
-class MockConnection : public DHTxxConnection {
-public:
-    MockConnection(const uint8_t* frame) : DHTxxConnection(4), _frame(frame) {}
-    bool read(uint8_t* out) {
-        for (uint8_t i = 0; i < 5; i++) out[i] = _frame[i];
-        return true;
-    }
-private:
-    const uint8_t* _frame;
-};
-
 int main() {
-    // Test 1: Decode datasheet example
-    const uint8_t frame1[5] = { 0x35, 0x00, 0x18, 0x04, 0x51 };
-    MockConnection t1(frame1);
-    DHT11Minimal dht_min(t1);
-    float temperature, humidity;
-    bool ok = dht_min.read(temperature, humidity);
-    check_true(ok && fabs(temperature - 24.4f) < 0.001f && fabs(humidity - 53.0f) < 0.001f, "decode_datasheet_example");
+    const char* chip_path = getenv("GPIO_CHIP") ? getenv("GPIO_CHIP") : "/dev/gpiochip0";
+    unsigned line_num = getenv("GPIO_LINE") ? (unsigned)atoi(getenv("GPIO_LINE")) : 4;
+    DHTxxConnectionLinux connection(chip_path, line_num);
 
-    // Test 2: Negative temperature
-    const uint8_t frame2[5] = { 0x20, 0x00, 0x0A, 0x81, 0xAB };
-    MockConnection t2(frame2);
-    DHT11Minimal dht_min2(t2);
-    ok = dht_min2.read(temperature, humidity);
-    check_true(ok && fabs(temperature - (-10.1f)) < 0.001f && fabs(humidity - 32.0f) < 0.001f, "decode_negative_temperature");
+    // The sensor needs ~1 s after power-up and >= 1 s between reads.
+    usleep(1500000);
+    DHT11Minimal<DHTxxConnectionLinux> dht_min(connection);
+    float temperature = NAN, humidity = NAN;
+    bool ok = false;
+    for (int attempt = 0; attempt < 3 && !ok; ++attempt) {
+        ok = dht_min.read(temperature, humidity);
+        if (!ok) usleep(2000000);
+    }
+    check_true(ok, "read_ok");
+    check_true(ok && temperature >= 0.0f && temperature <= 50.0f, "temperature_in_range");
+    check_true(ok && humidity >= 20.0f && humidity <= 90.0f, "humidity_in_range");
 
-    // Test 3: Checksum error
-    const uint8_t bad_frame[5] = { 0x35, 0x00, 0x18, 0x04, 0x00 };
-    MockConnection t3(bad_frame);
-    DHT11Minimal dht_min3(t3);
-    ok = dht_min3.read(temperature, humidity);
-    check_true(!ok && !dht_min3.valid(), "checksum_error_invalidates");
-
-    // Test 4: DHT11Full
-    MockConnection t4(frame1);
-    DHT11Full dht_full(t4, 3);
-    check_true(fabs(dht_full.read_temperature() - 24.4f) < 0.001f, "read_temperature");
-    check_true(fabs(dht_full.read_humidity() - 53.0f) < 0.001f, "read_humidity");
-
-    // Test 5: read_raw
-    MockConnection t5(frame1);
-    DHT11Full dht_full2(t5, 3);
+    usleep(2000000);
+    DHT11Full<DHTxxConnectionLinux> dht_full(connection, 3);
     uint8_t raw[5];
-    ok = dht_full2.read_raw(raw);
-    check_true(ok && raw[0] == 0x35 && raw[4] == 0x51, "read_raw");
+    ok = dht_full.read_raw(raw);
+    check_true(ok && (uint8_t)(raw[0] + raw[1] + raw[2] + raw[3]) == raw[4], "read_raw_checksum");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

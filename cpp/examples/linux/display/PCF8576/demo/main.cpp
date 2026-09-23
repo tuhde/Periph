@@ -14,14 +14,17 @@ int main() {
     PCF8576Full pcf(connection);                                            // Create PCF8576 driver, (connection)
 
     // --- Countdown timer from 9999 to 0 ---
-    // Demonstrates digit cycling with 100 ms update rate.
-    pcf.set_display(true);                                                 // Enable display, (on=true) → void
-    char buf[5];
+    // Demonstrates digit cycling with a 100 ms update rate: each number is
+    // split into four digits and written through the 7-segment lookup table.
+    pcf.enable();                                                          // Turn the display on, () → void
     for (int n = 9999; n >= 0; n--) {
-        snprintf(buf, sizeof(buf), "%04d", n);
-        pcf.write_digits(buf);                                             // Write digit string, (str) → void
+        int value = n;
+        for (int pos = 3; pos >= 0; pos--) {
+            pcf.set_digit_7seg(pos, PCF8576Full::SEVEN_SEG[value % 10]);   // Write one 7-segment digit, (position, segments) → void
+            value /= 10;
+        }
         usleep(100000);
     }
-    pcf.clear();                                                           // Clear display, () → void
+    pcf.clear();                                                           // Clear display RAM, () → void
     return 0;
 }
