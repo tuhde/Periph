@@ -83,6 +83,7 @@ Each chip exposes two classes:
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
+| PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver |
