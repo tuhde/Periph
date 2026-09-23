@@ -1,0 +1,54 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.2.0
+//DEPS it.uhde:periph-groovy:1.2.0
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.motor.DRV8830Full
+
+import java.util.function.Consumer
+
+def bus = System.getenv("I2C_BUS") ? Integer.parseInt(System.getenv("I2C_BUS")) : 1
+
+def connection = new I2CConnection(bus, DRV8830Full.DEFAULT_ADDRESS)       // open I²C bus, device address, (bus, address=0x60) → I2CConnection
+try {
+    def motor = new DRV8830Full(connection)                                // construct driver and confirm presence, (connection) → DRV8830Full
+                                                                           // one CONTROL read; the chip has no identity register
+
+    motor.drive(2.5d)                                                      // Drive at regulated voltage, (voltage V, + = forward) → void
+                                                                           // maps 2.5 V to the nearest VSET code and sets IN1=1, IN2=0
+    Thread.sleep(1000)
+    def out = motor.readOutput()                                           // Read back CONTROL, () → Output(voltage V, direction)
+                                                                           // decodes VSET to volts and IN1/IN2 to a Direction
+    println(String.format("commanded %.2f V %s", out.voltage, out.direction))
+
+    motor.drive(-1.5d)                                                     // Drive at regulated voltage, (voltage V, - = reverse) → void
+                                                                           // a negative voltage sets IN1=0, IN2=1
+    Thread.sleep(1000)
+
+    motor.setOutput(37, true, false)                                       // Write raw CONTROL fields, (vset 6–63, in1, in2) → void
+                                                                           // VSET 37 is ~2.97 V forward; codes 0–5 throw IllegalArgumentException
+    Thread.sleep(1000)
+
+    motor.brake()                                                          // Short-brake, () → void
+                                                                           // IN1=IN2=1 drives both outputs high
+    Thread.sleep(500)
+    motor.stop()                                                           // Coast to standby, () → void
+                                                                           // IN1=IN2=0 leaves both outputs high-impedance
+
+    def fault = motor.readFault()                                          // Read fault status, () → Fault(fault, ocp, uvlo, ots, ilimit)
+                                                                           // does not clear — latched OCP/ILIMIT keep the bridge off
+    println(fault)
+    motor.clearFault()                                                     // Clear fault bits, () → void
+                                                                           // writes CLEAR=1; re-enables a latched-off bridge
+
+    motor.onInterrupt({ f -> println("fault interrupt $f") } as Consumer)   // Subscribe to FAULTn, (callback) → void
+                                                                           // falls back to a 5 ms polling thread when no intPin is wired
+    def status = motor.pollInterrupt()                                     // Poll fault status, () → Fault
+                                                                           // same as readFault(); never clears implicitly
+    motor.offInterrupt()                                                   // Unsubscribe, () → void
+    println("poll $status")
+} finally {
+    connection.close()
+}
