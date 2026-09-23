@@ -20,3 +20,4 @@ pub mod pressure;
 pub mod rfid;
 pub mod rtc;
 pub mod temperature;
+pub mod tof;
