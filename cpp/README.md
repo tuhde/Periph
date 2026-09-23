@@ -94,6 +94,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
+| TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |
 | WS2814 | LED driver | `chips/led/WS2814.h` |
 
