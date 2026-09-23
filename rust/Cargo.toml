@@ -63,6 +63,7 @@ exclude = [
     "tests/rtc/pcf8523_test_esp32s3",
     "tests/motor/drv8830_test_esp32s3",
     "tests/temperature/mcp9808_test_esp32s3",
+    "tests/temperature/tmp117_test_esp32s3",
 ]
 members = [
     "periph",
@@ -70,6 +71,7 @@ members = [
     "tests/rtc/pcf8523_test",
     "tests/motor/drv8830_test",
     "tests/temperature/mcp9808_test",
+    "tests/temperature/tmp117_test",
     "tests/accelerometer/adxl345_test",
     "tests/accelerometer/adxl362_test",
     "tests/connection/uart_test",

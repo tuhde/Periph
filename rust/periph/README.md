@@ -95,6 +95,7 @@ Each chip exposes two structs:
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
+| TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |
 | WS2814 | LED driver | Addressable RGBW LED strip driver (Super Lighting LED). |
