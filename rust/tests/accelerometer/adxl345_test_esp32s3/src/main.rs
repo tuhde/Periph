@@ -26,13 +26,12 @@ const ADDR: u8 = 0x53;
 
 #[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
-    let sda = peripherals.GPIO1;
-    let scl = peripherals.GPIO2;
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let i2c = I2c::new(peripherals.I2C0, Config::default())
-        .with_sda(sda)
-        .with_scl(scl);
+    let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
 
     let mut delay = Delay::new();
     let mut chip = Adxl345Minimal::new(i2c, ADDR, false).expect("init ADXL345");
@@ -46,9 +45,10 @@ fn main() -> ! {
     check_true!(mag >= 0.5 && mag <= 1.5, "magnitude_near_1g", passed, failed);
 
     drop(chip);
-    let i2c = I2c::new(peripherals.I2C0, Config::default())
-        .with_sda(sda)
-        .with_scl(scl);
+    let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
     let mut chip_full = periph::chips::accelerometer::Adxl345Full::new(i2c, ADDR, false).expect("init ADXL345 Full");
     chip_full.set_range(4).expect("set_range");
     let (x, y, z) = chip_full.read().expect("read");

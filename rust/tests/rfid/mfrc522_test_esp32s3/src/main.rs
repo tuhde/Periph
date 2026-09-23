@@ -35,7 +35,7 @@ fn main() -> ! {
         .with_miso(peripherals.GPIO4)
         .with_sck(peripherals.GPIO5);
 
-    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High);
+    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High, esp_hal::gpio::OutputConfig::default());
     let device = ExclusiveDevice::new_no_delay(spi_bus, cs).unwrap();
 
     let mut passed = 0i32;

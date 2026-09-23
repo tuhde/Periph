@@ -27,7 +27,7 @@ fn main() -> ! {
     let t = bmp.temperature().expect("read temperature");      // Read temperature, () → f32 °C
     let p = bmp.pressure().expect("read pressure");            // Read pressure, () → f32 Pa
     println!("{:.2} C, {:.1} Pa", t, p);
-    delay.delay_ms(1000);
+    delay.delay_millis(1000);
 
     loop {}
 }

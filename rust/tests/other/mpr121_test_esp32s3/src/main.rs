@@ -54,5 +54,5 @@ fn main() -> ! {
     chip.reset(&mut delay).unwrap();
     println!("PASS reset completed");
     println!("===DONE===");
-    loop { delay.delay_ms(1000); }
+    loop { delay.delay_millis(1000); }
 }

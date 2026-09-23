@@ -33,9 +33,9 @@ fn main() -> ! {
         .with_sck(peripherals.GPIO5);
 
     // RCK on GPIO6, SRCLR on GPIO7, G on GPIO8.
-    let rck = Output::new(peripherals.GPIO6, Level::Low);
-    let srclr = Output::new(peripherals.GPIO7, Level::High);
-    let g = Output::new(peripherals.GPIO8, Level::Low);
+    let rck = Output::new(peripherals.GPIO6, Level::Low, esp_hal::gpio::OutputConfig::default());
+    let srclr = Output::new(peripherals.GPIO7, Level::High, esp_hal::gpio::OutputConfig::default());
+    let g = Output::new(peripherals.GPIO8, Level::Low, esp_hal::gpio::OutputConfig::default());
 
     let mut connection = SiPoConnection::new(spi_bus, rck, Some(srclr), Some(g)).unwrap();
 

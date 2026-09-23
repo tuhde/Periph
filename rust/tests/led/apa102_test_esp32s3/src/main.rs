@@ -1,113 +1,118 @@
 //! APA102 hardware-in-loop test for ESP32-S3.
-//! Prints PASS/FAIL and exits with 0 on success.
-
+//! Prints PASS/FAIL per check and a final ===DONE=== line.
 #![no_std]
 #![no_main]
 
+use core::convert::Infallible;
+
+use embedded_hal::digital::{ErrorType, OutputPin};
+use embedded_hal_bus::spi::ExclusiveDevice;
 use esp_backtrace as _;
-use esp_hal::{clock::ClockControl, peripherals::Peripherals, spi::master::Spi, spi::SpiMode, timer::TimerGroup};
-use periph::connection::spi::SpiConnection;
-use periph::chips::led::{Apa102Minimal, Apa102Full};
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
+use esp_hal::main;
+use esp_hal::spi::master::{Config, Spi};
+use esp_hal::spi::Mode;
+use esp_hal::time::Rate;
+use esp_println::println;
+use periph::chips::led::{Apa102Full, Apa102Minimal};
 
-#[entry]
+esp_app_desc!();
+
+/// APA102 has no chip-select line; the driver still wants an `SpiDevice`,
+/// so wrap the bus with a no-op CS.
+struct NoCs;
+
+impl ErrorType for NoCs {
+    type Error = Infallible;
+}
+
+impl OutputPin for NoCs {
+    fn set_low(&mut self) -> Result<(), Infallible> { Ok(()) }
+    fn set_high(&mut self) -> Result<(), Infallible> { Ok(()) }
+}
+
+macro_rules! check_true {
+    ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
+        if $cond { println!("PASS {}", $label); $passed += 1; }
+        else      { println!("FAIL {}", $label); $failed += 1; }
+    };
+}
+
+/// APA102 is clocked SPI: SCK (GPIO36) -> CI, MOSI (GPIO35) -> DI, 1 MHz mode 0.
+fn spi_config() -> Config {
+    Config::default()
+        .with_frequency(Rate::from_mhz(1))
+        .with_mode(Mode::_0)
+}
+
+#[main]
 fn main() -> ! {
-    let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
-    let timg0 = TimerGroup::new(peripherals.TIMG0, &clocks);
-    let _wdt = timg0.wdt;
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
+    let delay = Delay::new();
 
-    // SPI2 on default pins: MOSI=GPIO23, SCK=GPIO18
-    let mut spi = Spi::new(peripherals.SPI2, 1_000_000u32.Hz(), SpiMode::Mode0, &clocks).unwrap();
-    let mut delay = timg0.delay;
+    let mut passed = 0i32;
+    let mut failed = 0i32;
 
-    // --- APA102Minimal ---
-    {
-        let mut strip = Apa102Minimal::new(spi, 8);
+    // --- Apa102Minimal ---
+    let spi = Spi::new(peripherals.SPI2.reborrow(), spi_config())
+        .unwrap()
+        .with_sck(peripherals.GPIO36.reborrow())
+        .with_mosi(peripherals.GPIO35.reborrow());
+    let spi = ExclusiveDevice::new_no_delay(spi, NoCs).unwrap();
+    let mut strip = Apa102Minimal::new(spi, 8);
+    check_true!(strip.fill(255, 0, 0).is_ok(), "fill_red_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.fill(0, 255, 0).is_ok(), "fill_green_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.fill(0, 0, 255).is_ok(), "fill_blue_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.off().is_ok(), "off_accepted", passed, failed);
+    drop(strip);
 
-        strip.fill(255, 0, 0).unwrap();
-        esp_println::println!("PASS fill(255,0,0) accepted");
-        delay.delay_millis(100);
+    // --- Apa102Full ---
+    let spi = Spi::new(peripherals.SPI2.reborrow(), spi_config())
+        .unwrap()
+        .with_sck(peripherals.GPIO36.reborrow())
+        .with_mosi(peripherals.GPIO35.reborrow());
+    let spi = ExclusiveDevice::new_no_delay(spi, NoCs).unwrap();
+    let mut strip = Apa102Full::new(spi, 8);
+    check_true!(strip.get_brightness() == 255, "default_brightness_255", passed, failed);
 
-        strip.fill(0, 255, 0).unwrap();
-        esp_println::println!("PASS fill(0,255,0) accepted");
-        delay.delay_millis(100);
+    strip.set_pixel(0, 255, 0, 0, 31);
+    check_true!(strip.show().is_ok(), "set_pixel_show_accepted", passed, failed);
+    delay.delay_millis(100);
 
-        strip.fill(0, 0, 255).unwrap();
-        esp_println::println!("PASS fill(0,0,255) accepted");
-        delay.delay_millis(100);
+    strip.set_pixels(&[&[255, 0, 0], &[0, 255, 0], &[0, 0, 255]]);
+    check_true!(strip.show().is_ok(), "set_pixels_show_accepted", passed, failed);
+    delay.delay_millis(100);
 
-        strip.off().unwrap();
-        esp_println::println!("PASS off() accepted");
-        delay.delay_millis(100);
-    }
+    // Per-pixel hardware brightness (fourth element, 0-31).
+    strip.set_pixels(&[
+        &[255, 0, 0, 31], &[255, 0, 0, 16], &[255, 0, 0, 8], &[255, 0, 0, 4],
+        &[0, 255, 0, 31], &[0, 255, 0, 16], &[0, 255, 0, 8], &[0, 255, 0, 4],
+    ]);
+    check_true!(strip.show().is_ok(), "set_pixels_hw_brightness_show_accepted", passed, failed);
+    delay.delay_millis(100);
 
-    // Re-init SPI for Full
-    let peripherals = Peripherals::steal();
-    let mut spi = Spi::new(peripherals.SPI2, 1_000_000u32.Hz(), SpiMode::Mode0, &clocks).unwrap();
+    strip.set_brightness(128);
+    check_true!(strip.get_brightness() == 128, "brightness_setter", passed, failed);
+    check_true!(strip.show().is_ok(), "show_brightness128_accepted", passed, failed);
+    delay.delay_millis(100);
 
-    // --- APA102Full ---
-    {
-        let mut strip = Apa102Full::new(spi, 8);
+    strip.set_brightness(255);
+    strip.rotate(1);
+    check_true!(strip.show().is_ok(), "rotate_show_accepted", passed, failed);
+    delay.delay_millis(100);
 
-        if strip.get_brightness() == 255 {
-            esp_println::println!("PASS default brightness is 255");
-        } else {
-            esp_println::println!("FAIL default brightness is 255");
-        }
+    check_true!(strip.fill_hsv(0.0, 1.0, 1.0).is_ok(), "fill_hsv_red_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.fill_hsv(0.333, 1.0, 1.0).is_ok(), "fill_hsv_green_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.fill_hsv(0.667, 1.0, 1.0).is_ok(), "fill_hsv_blue_accepted", passed, failed);
+    delay.delay_millis(100);
+    check_true!(strip.off().is_ok(), "full_off_accepted", passed, failed);
 
-        strip.set_pixel(0, 255, 0, 0, 31);
-        strip.show().unwrap();
-        esp_println::println!("PASS set_pixel + show accepted");
-        delay.delay_millis(100);
-
-        strip.set_pixels(&[&[255, 0, 0], &[0, 255, 0], &[0, 0, 255]]);
-        strip.show().unwrap();
-        esp_println::println!("PASS set_pixels + show accepted");
-        delay.delay_millis(100);
-
-        // set_pixels with per-pixel hardware brightness
-        strip.set_pixels(&[
-            &[255, 0, 0, 31], &[255, 0, 0, 16], &[255, 0, 0, 8], &[255, 0, 0, 4],
-            &[0, 255, 0, 31], &[0, 255, 0, 16], &[0, 255, 0, 8], &[0, 255, 0, 4],
-        ]);
-        strip.show().unwrap();
-        esp_println::println!("PASS set_pixels with hardware brightness + show accepted");
-        delay.delay_millis(100);
-
-        strip.set_brightness(128);
-        if strip.get_brightness() == 128 {
-            esp_println::println!("PASS brightness setter");
-        } else {
-            esp_println::println!("FAIL brightness setter");
-        }
-        strip.show().unwrap();
-        esp_println::println!("PASS show() with brightness=128 accepted");
-        delay.delay_millis(100);
-
-        strip.set_brightness(255);
-
-        strip.rotate(1);
-        strip.show().unwrap();
-        esp_println::println!("PASS rotate + show accepted");
-        delay.delay_millis(100);
-
-        strip.fill_hsv(0.0, 1.0, 1.0).unwrap();
-        esp_println::println!("PASS fill_hsv(0.0) accepted");
-        delay.delay_millis(100);
-
-        strip.fill_hsv(0.333, 1.0, 1.0).unwrap();
-        esp_println::println!("PASS fill_hsv(0.333) accepted");
-        delay.delay_millis(100);
-
-        strip.fill_hsv(0.667, 1.0, 1.0).unwrap();
-        esp_println::println!("PASS fill_hsv(0.667) accepted");
-        delay.delay_millis(100);
-
-        strip.off().unwrap();
-        esp_println::println!("PASS off() on Full accepted");
-    }
-
-    esp_println::println!("===DONE: 1 passed, 0 failed===");
+    println!("===DONE: {} passed, {} failed===", passed, failed);
     loop {}
 }

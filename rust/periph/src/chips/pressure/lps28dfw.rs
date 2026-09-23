@@ -67,6 +67,16 @@ pub const AVG_128: u8 = 0x05;
 /// Averaging: 512 samples.
 pub const AVG_512: u8 = 0x07;
 
+/// Pressure sensitivity in LSB/hPa for the given FS_MODE.
+///
+/// Computed with a shift rather than a two-way select: LLVM lowers any
+/// select between these two constants to a constant-pool float table, which
+/// the Xtensa backend cannot compile on ESP32-S3
+/// (`Cannot select: XtensaISD::PCREL_WRAPPER`).
+fn sensitivity_lsb_per_hpa(fs_mode: u8) -> f32 {
+    (4096u32 >> (fs_mode & 1)) as f32
+}
+
 /// Full-scale mode 1 (0–1260 hPa, 4096 LSB/hPa).
 pub const FS_MODE_1: u8 = 0;
 /// Full-scale mode 2 (0–4060 hPa, 2048 LSB/hPa).
@@ -156,7 +166,7 @@ impl<I2C: I2c> Lps28dfwMinimal<I2C> {
     /// Read absolute pressure in hPa.
     pub fn read_pressure(&mut self) -> Result<f32, I2C::Error> {
         let raw = self.read_pressure_raw()?;
-        let sens = if self.fs_mode == 0 { 4096.0_f32 } else { 2048.0_f32 };
+        let sens = sensitivity_lsb_per_hpa(self.fs_mode);
         Ok(raw as f32 / sens)
     }
 
@@ -198,7 +208,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         let p = ((buf[2] as i32) << 16) | ((buf[1] as i32) << 8) | (buf[0] as i32);
         let p = if p & 0x800000 != 0 { p | -0x1000000 } else { p };
         let t = i16::from_be_bytes([buf[3], buf[4]]);
-        let sens = if self.inner.fs_mode == 0 { 4096.0_f32 } else { 2048.0_f32 };
+        let sens = sensitivity_lsb_per_hpa(self.inner.fs_mode);
         Ok((p as f32 / sens, t as f32 / 100.0))
     }
 
@@ -225,7 +235,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
 
     /// Program the one-point calibration offset (RPDS).
     pub fn set_offset(&mut self, offset_hpa: f32) -> Result<(), I2C::Error> {
-        let sens = if self.inner.fs_mode == 0 { 4096.0_f32 } else { 2048.0_f32 };
+        let sens = sensitivity_lsb_per_hpa(self.inner.fs_mode);
         let mut raw = (offset_hpa * sens) as i32;
         if raw < 0 { raw += 0x10000; }
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_RPDS_L, (raw & 0xFF) as u8)?;
@@ -257,7 +267,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         if n == 0 { return Ok(()); }
         let mut raw = [0u8; 384];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_DATA_PRESS_XL, &mut raw[..(n as usize) * 3])?;
-        let sens = if self.inner.fs_mode == 0 { 4096.0_f32 } else { 2048.0_f32 };
+        let sens = sensitivity_lsb_per_hpa(self.inner.fs_mode);
         for i in 0..n as usize {
             let b = i * 3;
             let v = ((raw[b + 2] as i32) << 16) | ((raw[b + 1] as i32) << 8) | (raw[b] as i32);

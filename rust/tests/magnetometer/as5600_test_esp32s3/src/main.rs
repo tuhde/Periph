@@ -28,7 +28,7 @@ macro_rules! check_true {
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let i2c = I2c::new(peripherals.I2C0, Config::default())
+    let mut i2c = I2c::new(peripherals.I2C0, Config::default())
         .unwrap()
         .with_sda(peripherals.GPIO1)
         .with_scl(peripherals.GPIO2);

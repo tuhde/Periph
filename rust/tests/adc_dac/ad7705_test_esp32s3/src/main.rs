@@ -14,14 +14,14 @@ esp_app_desc!();
 
 #[esp_hal::main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let spi_bus = Spi::new(peripherals.SPI2, Config::default())
+    let spi_bus = Spi::new(peripherals.SPI2.reborrow(), Config::default())
         .unwrap()
-        .with_mosi(peripherals.GPIO3)
-        .with_miso(peripherals.GPIO4)
-        .with_sck(peripherals.GPIO5);
-    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High);
+        .with_mosi(peripherals.GPIO3.reborrow())
+        .with_miso(peripherals.GPIO4.reborrow())
+        .with_sck(peripherals.GPIO5.reborrow());
+    let cs = Output::new(peripherals.GPIO6.reborrow(), esp_hal::gpio::Level::High, esp_hal::gpio::OutputConfig::default());
     let device = ExclusiveDevice::new_no_delay(spi_bus, cs).unwrap();
 
     let mut passed = 0u32;
@@ -36,12 +36,14 @@ fn main() -> ! {
     if v >= -2.5 && v <= 2.5 { println!("PASS read_voltage_in_range"); passed += 1; }
     else                     { println!("FAIL read_voltage_in_range"); failed += 1; }
 
-    let spi_bus = Spi::new(peripherals.SPI2, Config::default())
+    drop(chip_min);
+
+    let spi_bus = Spi::new(peripherals.SPI2.reborrow(), Config::default())
         .unwrap()
-        .with_mosi(peripherals.GPIO3)
-        .with_miso(peripherals.GPIO4)
-        .with_sck(peripherals.GPIO5);
-    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High);
+        .with_mosi(peripherals.GPIO3.reborrow())
+        .with_miso(peripherals.GPIO4.reborrow())
+        .with_sck(peripherals.GPIO5.reborrow());
+    let cs = Output::new(peripherals.GPIO6.reborrow(), esp_hal::gpio::Level::High, esp_hal::gpio::OutputConfig::default());
     let device = ExclusiveDevice::new_no_delay(spi_bus, cs).unwrap();
     let mut chip = AD7705Full::new(device, 2.5, MCLK_2_4576MHZ).expect("init AD7705 Full");
 

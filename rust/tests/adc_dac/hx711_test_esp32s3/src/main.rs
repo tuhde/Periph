@@ -24,7 +24,7 @@ macro_rules! check_true {
 
 #[esp_hal::main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
 
     let mut passed = 0i32;
     let mut failed = 0i32;
@@ -32,8 +32,8 @@ fn main() -> ! {
     // --- Hx711Minimal ---
     {
         // DOUT on GPIO5 (input), PD_SCK on GPIO6 (output)
-        let dout   = Input::new(peripherals.GPIO5, Pull::None);
-        let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
+        let dout   = Input::new(peripherals.GPIO5.reborrow(), esp_hal::gpio::InputConfig::default().with_pull(Pull::None));
+        let pd_sck = Output::new(peripherals.GPIO6.reborrow(), esp_hal::gpio::Level::Low, esp_hal::gpio::OutputConfig::default());
 
         let connection = HX711Connection::new(dout, pd_sck);
         let mut minimal = Hx711Minimal::new(connection).expect("init Hx711Minimal");
@@ -55,8 +55,8 @@ fn main() -> ! {
     // --- Hx711Full ---
     {
         // DOUT on GPIO5 (input), PD_SCK on GPIO6 (output)
-        let dout   = Input::new(peripherals.GPIO5, Pull::None);
-        let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
+        let dout   = Input::new(peripherals.GPIO5.reborrow(), esp_hal::gpio::InputConfig::default().with_pull(Pull::None));
+        let pd_sck = Output::new(peripherals.GPIO6.reborrow(), esp_hal::gpio::Level::Low, esp_hal::gpio::OutputConfig::default());
 
         let connection = HX711Connection::new(dout, pd_sck);
         let mut full = Hx711Full::new(connection).expect("init Hx711Full");

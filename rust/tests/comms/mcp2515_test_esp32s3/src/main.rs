@@ -23,7 +23,7 @@ fn main() -> ! {
         .with_mosi(peripherals.GPIO3)
         .with_miso(peripherals.GPIO4)
         .with_sck(peripherals.GPIO5);
-    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High);
+    let cs = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::High, esp_hal::gpio::OutputConfig::default());
     let device = ExclusiveDevice::new_no_delay(spi_bus, cs).unwrap();
 
     let mut passed = 0u32;
@@ -84,6 +84,6 @@ fn main() -> ! {
     println!("===DONE: {} passed, {} failed===", passed, failed);
 
     let mut delay = Delay::new();
-    delay.delay_ms(250);
+    delay.delay_millis(250);
     loop {}
 }

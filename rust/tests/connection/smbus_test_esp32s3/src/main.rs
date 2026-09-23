@@ -26,17 +26,17 @@ macro_rules! check_true {
 
 #[esp_hal::main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
 
     let mut passed = 0i32;
     let mut failed = 0i32;
 
     // --- address validation ---
 
-    let i2c = EspI2c::new(peripherals.I2C0, Config::default())
+    let i2c = EspI2c::new(peripherals.I2C0.reborrow(), Config::default())
         .unwrap()
-        .with_sda(peripherals.GPIO1)
-        .with_scl(peripherals.GPIO2);
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
 
     let result = SmBusConnection::new(i2c, 0x07, false);
     check_true!(
@@ -46,12 +46,13 @@ fn main() -> ! {
         failed
     );
 
-    // I2C was consumed; re-initialise for remaining tests.
-    // (esp-hal I2C is re-initialised from peripherals after construction failure)
-    let i2c = EspI2c::new(peripherals.I2C0, Config::default())
+    // The rejected connection still owns the reborrowed bus; release it
+    // before re-initialising for the remaining tests.
+    drop(result);
+    let i2c = EspI2c::new(peripherals.I2C0.reborrow(), Config::default())
         .unwrap()
-        .with_sda(peripherals.GPIO1)
-        .with_scl(peripherals.GPIO2);
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
 
     // --- basic I/O without PEC ---
 
@@ -76,10 +77,12 @@ fn main() -> ! {
 
     // --- write with PEC enabled ---
 
-    let i2c = EspI2c::new(peripherals.I2C0, Config::default())
+    drop(connection);
+
+    let i2c = EspI2c::new(peripherals.I2C0.reborrow(), Config::default())
         .unwrap()
-        .with_sda(peripherals.GPIO1)
-        .with_scl(peripherals.GPIO2);
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
 
     let mut connection_pec = SmBusConnection::new(i2c, TEST_ADDR, true).unwrap();
     check_true!(

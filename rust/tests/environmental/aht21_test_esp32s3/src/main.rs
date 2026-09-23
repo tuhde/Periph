@@ -65,7 +65,7 @@ fn main() -> ! {
     check_true!(hc >= 0.0 && hc <= 100.0, "crc_humidity_range", passed, failed);
 
     chip.soft_reset(&mut delay).ok();
-    delay.delay_ms(50);
+    delay.delay_millis(50);
     check_true!(chip.is_calibrated().unwrap_or(false), "calibrated_after_reset", passed, failed);
 
     let (t2, h2) = chip.read(&mut delay).unwrap_or((-999.0, -999.0));

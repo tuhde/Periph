@@ -26,8 +26,8 @@ fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     // DOUT on GPIO5 (input), PD_SCK on GPIO6 (output)
-    let dout   = Input::new(peripherals.GPIO5, Pull::None);
-    let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low);
+    let dout   = Input::new(peripherals.GPIO5, esp_hal::gpio::InputConfig::default().with_pull(Pull::None));
+    let pd_sck = Output::new(peripherals.GPIO6, esp_hal::gpio::Level::Low, esp_hal::gpio::OutputConfig::default());
 
     let mut connection = HX711Connection::new(dout, pd_sck);
 
