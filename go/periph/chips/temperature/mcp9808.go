@@ -1,5 +1,5 @@
 // Package temperature contains drivers for standalone temperature sensor
-// chips (MCP9808, etc.).
+// chips (MCP9808, TMP117, etc.).
 package temperature
 
 import (

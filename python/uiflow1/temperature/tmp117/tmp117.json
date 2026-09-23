@@ -1,0 +1,312 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "tmp117_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init TMP117",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x48-0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_configure",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 configure, mode (\"continuous\"/\"shutdown\"/\"one_shot\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        },
+        {
+          "name": "averaging (0/8/32/64)",
+          "type": "label"
+        },
+        {
+          "name": "_averaging",
+          "type": "number"
+        },
+        {
+          "name": "cycle (s)",
+          "type": "label"
+        },
+        {
+          "name": "_cycle_seconds",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_get_config",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 config (mode, averaging, cycle s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 is shut down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_trigger_one_shot",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 trigger one-shot conversion",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_is_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_get_high_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 high limit (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_set_high_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 set high limit",
+          "type": "label"
+        },
+        {
+          "name": "THIGH_LIMIT (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_get_low_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 low limit (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_set_low_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 set low limit",
+          "type": "label"
+        },
+        {
+          "name": "TLOW_LIMIT (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_get_temperature_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 temperature offset (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_set_temperature_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 set temperature offset",
+          "type": "label"
+        },
+        {
+          "name": "offset (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 soft reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_unlock_eeprom",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 unlock EEPROM",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_lock_eeprom",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 lock EEPROM",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_is_eeprom_busy",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 EEPROM busy",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_read_eeprom_scratch",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 EEPROM scratch, slot (1/2/3)",
+          "type": "label"
+        },
+        {
+          "name": "_slot",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_write_eeprom_scratch",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 write EEPROM scratch, slot (2)",
+          "type": "label"
+        },
+        {
+          "name": "_slot",
+          "type": "number"
+        },
+        {
+          "name": "value (0-65535)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_configure_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "TMP117 configure alert, mode (\"alert\"/\"therm\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        },
+        {
+          "name": "polarity (\"active_low\"/\"active_high\")",
+          "type": "label"
+        },
+        {
+          "name": "_polarity",
+          "type": "variable"
+        },
+        {
+          "name": "pin function (\"alert\"/\"data_ready\")",
+          "type": "label"
+        },
+        {
+          "name": "_pin_function",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "tmp117_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "TMP117 alert status (1=high 2=low)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
