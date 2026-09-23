@@ -1,0 +1,100 @@
+[
+    {
+        "id": "tab-tmp117-demo",
+        "type": "tab",
+        "label": "TMP117 Server Room Cooling Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 5 seconds, triggering the periph-tmp117 node to read the temperature and its alert flags, which a Function node formats into a log line. The node is configured in Therm mode with THIGH at 30 °C — a server-room \"too hot\" threshold — and TLOW at 27 °C. When the room heats past THIGH the node emits a separate {source: \"high\"} message and the Function node switches the cooling fan on through the second output. In Therm mode the HIGH_Alert flag latches until the room cools below TLOW, so the periodic reading's high_alert field keeps the fan running and switches it off again automatically once the room is back below 27 °C. Replace the \"Cooling fan\" Debug node with a GPIO or relay node to drive a real fan. To try it without a server room, set THIGH just above room temperature and warm the sensor with a fingertip."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read temperature (5s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-tmp117-demo",
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "tmp117-node"
+            ]
+        ]
+    },
+    {
+        "id": "tmp117-node",
+        "type": "periph-tmp117",
+        "name": "Server room TMP117",
+        "bus": "1",
+        "address": "0x48",
+        "averaging": "8",
+        "cycleSeconds": "1",
+        "alertEnabled": true,
+        "highLimit": "30",
+        "lowLimit": "27",
+        "alertMode": "therm",
+        "polarity": "active_low",
+        "z": "tab-tmp117-demo",
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "fn-fan"
+            ]
+        ]
+    },
+    {
+        "id": "fn-fan",
+        "type": "function",
+        "name": "format reading / drive fan",
+        "func": "const p = msg.payload;\nif (p && p.source === 'high') {\n    // Therm-mode HIGH_Alert tripped: room above THIGH, start cooling.\n    return [{ payload: 'ALERT: server room above 30 °C' }, { payload: true }];\n}\nif (p && p.temperature_c !== undefined) {\n    // HIGH_Alert stays latched in Therm mode until the room drops below\n    // TLOW, so it doubles as the fan state and switches the fan off again.\n    msg.payload = `${p.temperature_c.toFixed(3)} °C` + (p.high_alert ? ' (cooling)' : '');\n    return [msg, { payload: p.high_alert }];\n}\nreturn null;",
+        "outputs": 2,
+        "noerr": 0,
+        "z": "tab-tmp117-demo",
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "dbg-log"
+            ],
+            [
+                "dbg-fan"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-log",
+        "type": "debug",
+        "name": "Temperature log",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-tmp117-demo",
+        "x": 900,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "dbg-fan",
+        "type": "debug",
+        "name": "Cooling fan",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-tmp117-demo",
+        "x": 890,
+        "y": 140,
+        "wires": []
+    }
+]

@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "mcp9808": "nodes/mcp9808/mcp9808.js"
+      "mcp9808": "nodes/mcp9808/mcp9808.js",
+      "tmp117": "nodes/tmp117/tmp117.js"
     }
   },
   "dependencies": {
