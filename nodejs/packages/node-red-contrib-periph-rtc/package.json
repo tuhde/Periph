@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "ds3231": "nodes/ds3231/ds3231.js"
+      "ds3231": "nodes/ds3231/ds3231.js",
+      "pcf8523": "nodes/pcf8523/pcf8523.js"
     }
   },
   "dependencies": {

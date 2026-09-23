@@ -1,0 +1,130 @@
+[
+    {
+        "id": "tab-pcf8523-demo",
+        "type": "tab",
+        "label": "PCF8523 Logger Heartbeat Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 10 seconds, triggering the periph-pcf8523 node to read the current date/time and the battery status flags. A one-shot Inject node (firing shortly after deploy) sends msg.payload.datetime built from the host's Date.now(), synchronizing the RTC to the host clock. The node is configured with Timer B enabled as a 10-minute countdown heartbeat (source clock 1/60 Hz, value 10); each time it fires, the node emits a separate {source: \"timer_b\"} message, which a Function node turns into a \"still alive\" log line — showing INT2's dedicated Timer B path alongside the polled read in one flow."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read clock + battery (10s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-pcf8523-demo",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "pcf8523-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sync",
+        "type": "inject",
+        "name": "Sync RTC to host clock",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-pcf8523-demo",
+        "x": 170,
+        "y": 220,
+        "wires": [
+            [
+                "fn-build-datetime"
+            ]
+        ]
+    },
+    {
+        "id": "fn-build-datetime",
+        "type": "function",
+        "name": "build datetime from host clock",
+        "func": "const now = new Date(msg.payload);\nmsg.payload = {\n    datetime: {\n        year: now.getFullYear(),\n        month: now.getMonth() + 1,\n        day: now.getDate(),\n        weekday: now.getDay(), // JS and PCF8523 both use Sunday=0\n        hour: now.getHours(),\n        minute: now.getMinutes(),\n        second: now.getSeconds()\n    }\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-pcf8523-demo",
+        "x": 440,
+        "y": 220,
+        "wires": [
+            [
+                "pcf8523-node"
+            ]
+        ]
+    },
+    {
+        "id": "pcf8523-node",
+        "type": "periph-pcf8523",
+        "name": "PCF8523",
+        "bus": "1",
+        "batteryMode": "standard",
+        "lowDetection": true,
+        "alarmEnabled": false,
+        "alarmMinuteEnabled": true,
+        "alarmMinute": "0",
+        "alarmHourEnabled": false,
+        "alarmHour": "0",
+        "alarmDayEnabled": false,
+        "alarmDay": "1",
+        "alarmWeekdayEnabled": false,
+        "alarmWeekday": "0",
+        "timerAEnabled": false,
+        "timerAMode": "countdown",
+        "timerAClock": "1hz",
+        "timerAValue": "10",
+        "timerBEnabled": true,
+        "timerBClock": "1_60hz",
+        "timerBValue": "10",
+        "z": "tab-pcf8523-demo",
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "fn-format"
+            ]
+        ]
+    },
+    {
+        "id": "fn-format",
+        "type": "function",
+        "name": "format log line",
+        "func": "const p = msg.payload;\nif (p && p.source === 'timer_b') {\n    msg.payload = 'still alive (Timer B heartbeat)';\n} else if (p && p.source) {\n    msg.payload = `interrupt: ${p.source}`;\n} else if (p && p.year !== undefined) {\n    const pad = (n) => String(n).padStart(2, '0');\n    msg.payload = `${p.year}-${pad(p.month)}-${pad(p.day)} ${pad(p.hour)}:${pad(p.minute)}:${pad(p.second)}` +\n        `  battery_low=${p.battery_low} switched_over=${p.battery_switched_over}`;\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-pcf8523-demo",
+        "x": 640,
+        "y": 100,
+        "wires": [
+            [
+                "dbg-log"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-log",
+        "type": "debug",
+        "name": "log line",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-pcf8523-demo",
+        "x": 830,
+        "y": 100,
+        "wires": []
+    }
+]

@@ -1,0 +1,134 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8523', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            batteryMode:  { value: 'standard' },
+            lowDetection: { value: true },
+
+            alarmEnabled:        { value: false },
+            alarmMinuteEnabled:  { value: true },
+            alarmMinute:         { value: '0' },
+            alarmHourEnabled:    { value: false },
+            alarmHour:           { value: '0' },
+            alarmDayEnabled:     { value: false },
+            alarmDay:            { value: '1' },
+            alarmWeekdayEnabled: { value: false },
+            alarmWeekday:        { value: '0' },
+
+            timerAEnabled: { value: false },
+            timerAMode:    { value: 'countdown' },
+            timerAClock:   { value: '1hz' },
+            timerAValue:   { value: '10' },
+
+            timerBEnabled: { value: false },
+            timerBClock:   { value: '1hz' },
+            timerBValue:   { value: '10' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-clock-o',
+        label:   function() { return this.name || 'PCF8523'; },
+        paletteLabel: 'PCF8523'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8523">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8523">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N; address is fixed at 0x68)
+    </div>
+    <div class="form-row">
+        <label for="node-input-batteryMode"><i class="fa fa-battery-half"></i> Battery backup</label>
+        <select id="node-input-batteryMode" style="width:200px">
+            <option value="standard">Standard switch-over</option>
+            <option value="direct">Direct switch-over</option>
+            <option value="disabled">Disabled (VDD only)</option>
+        </select>
+        <input type="checkbox" id="node-input-lowDetection" style="width:auto"> low detection
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-alarmEnabled"><i class="fa fa-bell"></i> Alarm</label>
+        <input type="checkbox" id="node-input-alarmEnabled" style="width:auto"> enabled (fires when every ticked field matches)
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-alarmMinuteEnabled" style="width:auto"> Min <input type="number" id="node-input-alarmMinute" min="0" max="59" style="width:50px">
+        <input type="checkbox" id="node-input-alarmHourEnabled" style="width:auto"> Hour <input type="number" id="node-input-alarmHour" min="0" max="23" style="width:50px">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-alarmDayEnabled" style="width:auto"> Day <input type="number" id="node-input-alarmDay" min="1" max="31" style="width:50px">
+        <input type="checkbox" id="node-input-alarmWeekdayEnabled" style="width:auto"> Weekday (0=Sun) <input type="number" id="node-input-alarmWeekday" min="0" max="6" style="width:50px">
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-timerAEnabled"><i class="fa fa-hourglass-half"></i> Timer A</label>
+        <input type="checkbox" id="node-input-timerAEnabled" style="width:auto">
+        <select id="node-input-timerAMode" style="width:120px">
+            <option value="countdown">Countdown</option>
+            <option value="watchdog">Watchdog</option>
+        </select>
+        <input type="number" id="node-input-timerAValue" min="0" max="255" style="width:60px"> ×
+        <select id="node-input-timerAClock" style="width:110px">
+            <option value="4096hz">1/4096 s</option>
+            <option value="64hz">1/64 s</option>
+            <option value="1hz">1 s</option>
+            <option value="1_60hz">1 min</option>
+            <option value="1_3600hz">1 h</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-timerBEnabled"><i class="fa fa-hourglass-o"></i> Timer B</label>
+        <input type="checkbox" id="node-input-timerBEnabled" style="width:auto">
+        <input type="number" id="node-input-timerBValue" min="0" max="255" style="width:60px"> ×
+        <select id="node-input-timerBClock" style="width:110px">
+            <option value="4096hz">1/4096 s</option>
+            <option value="64hz">1/64 s</option>
+            <option value="1hz">1 s</option>
+            <option value="1_60hz">1 min</option>
+            <option value="1_3600hz">1 h</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <em>Enabling the alarm or a timer disables CLKOUT, since INT1 and CLKOUT share one pin. Timer B also drives INT2.</em>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8523">
+    <p>Reads and sets the calendar clock of a PCF8523 low-power I²C RTC, and reports its battery backup status. Fixed address <code>0x68</code>.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a read of the clock and battery flags.</dd>
+        <dt>payload.datetime <span class="property-type">object</span> (optional)</dt>
+        <dd>If set (<code>{year, month, day, weekday, hour, minute, second}</code>, <code>weekday</code> 0=Sunday..6=Saturday), sets the clock instead of reading it.</dd>
+        <dt>payload.alarm <span class="property-type">object</span> (optional)</dt>
+        <dd>If set (<code>{minute, hour, day, weekday}</code>, any field omitted to ignore it), reprograms the alarm instead of reading.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.year / month / day / weekday / hour / minute / second <span class="property-type">number</span></dt>
+        <dd>Current calendar clock. <code>weekday</code> is 0=Sunday..6=Saturday.</dd>
+        <dt>payload.battery_low <span class="property-type">boolean</span></dt>
+        <dd>Backup battery below the detection threshold.</dd>
+        <dt>payload.battery_switched_over <span class="property-type">boolean</span></dt>
+        <dd>A switch-over to the backup battery occurred.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately, independent of the polling trigger above, when a configured alarm or timer fires: <code>"alarm"</code>, <code>"timer_a"</code> or <code>"timer_b"</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number (address is fixed) and the battery backup mode (standard, direct, or disabled for boards without a backup cell) with optional low-battery detection. Optionally enable the alarm with any combination of minute/hour/day/weekday fields, Timer A (countdown or watchdog) and/or Timer B with a source clock and countdown value — each enabled one arms the interrupt-driven <code>source</code> output above.</p>
+</script>

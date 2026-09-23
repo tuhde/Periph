@@ -1866,6 +1866,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "pcf8523_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8523_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8523_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "pcf8523_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "pcf8574_complete"
 version = "0.1.0"
 dependencies = [

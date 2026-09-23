@@ -1,0 +1,1 @@
+_periph_pcf8523.clear_battery_switchover()

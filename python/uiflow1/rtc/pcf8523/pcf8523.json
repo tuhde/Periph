@@ -1,0 +1,500 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pcf8523_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PCF8523",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_set_datetime",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 set date/time",
+          "type": "label"
+        },
+        {
+          "name": "year",
+          "type": "label"
+        },
+        {
+          "name": "_year",
+          "type": "number"
+        },
+        {
+          "name": "month",
+          "type": "label"
+        },
+        {
+          "name": "_month",
+          "type": "number"
+        },
+        {
+          "name": "day",
+          "type": "label"
+        },
+        {
+          "name": "_day",
+          "type": "number"
+        },
+        {
+          "name": "weekday (0=Sun..6=Sat)",
+          "type": "label"
+        },
+        {
+          "name": "_weekday",
+          "type": "number"
+        },
+        {
+          "name": "hour",
+          "type": "label"
+        },
+        {
+          "name": "_hour",
+          "type": "number"
+        },
+        {
+          "name": "minute",
+          "type": "label"
+        },
+        {
+          "name": "_minute",
+          "type": "number"
+        },
+        {
+          "name": "second",
+          "type": "label"
+        },
+        {
+          "name": "_second",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_year",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 year",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_month",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 month",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_day",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 day",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_weekday",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 weekday (0=Sun..6=Sat)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_hour",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 hour",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_minute",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 minute",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_second",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 second",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_set_alarm",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 set alarm (-1 = ignore field)",
+          "type": "label"
+        },
+        {
+          "name": "minute",
+          "type": "label"
+        },
+        {
+          "name": "_minute",
+          "type": "number"
+        },
+        {
+          "name": "hour",
+          "type": "label"
+        },
+        {
+          "name": "_hour",
+          "type": "number"
+        },
+        {
+          "name": "day",
+          "type": "label"
+        },
+        {
+          "name": "_day",
+          "type": "number"
+        },
+        {
+          "name": "weekday (0=Sun..6=Sat)",
+          "type": "label"
+        },
+        {
+          "name": "_weekday",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_alarm_minute",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 alarm minute (-1 = ignored)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_alarm_hour",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 alarm hour (-1 = ignored)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_alarm_day",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 alarm day (-1 = ignored)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_alarm_weekday",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 alarm weekday (-1 = ignored)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_configure_timer_a",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 start Timer A, mode (\"countdown\"/\"watchdog\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        },
+        {
+          "name": "value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        },
+        {
+          "name": "source clock (\"4096hz\"/\"64hz\"/\"1hz\"/\"1_60hz\"/\"1_3600hz\")",
+          "type": "label"
+        },
+        {
+          "name": "_source_clock",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_disable_timer_a",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 stop Timer A",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_read_timer_a",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 Timer A counter",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_configure_timer_b",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 start Timer B, value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        },
+        {
+          "name": "source clock (\"4096hz\"/\"64hz\"/\"1hz\"/\"1_60hz\"/\"1_3600hz\")",
+          "type": "label"
+        },
+        {
+          "name": "_source_clock",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_disable_timer_b",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 stop Timer B",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_read_timer_b",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 Timer B counter",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_set_clock_output",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 CLKOUT frequency (Hz: 32768, 16384, 8192, 4096, 1024, 32, 1)",
+          "type": "label"
+        },
+        {
+          "name": "_frequency_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_disable_clock_output",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 disable CLKOUT",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_get_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 offset (LSB)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_set_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 set offset (-64..63 LSB)",
+          "type": "label"
+        },
+        {
+          "name": "_offset",
+          "type": "number"
+        },
+        {
+          "name": "mode (\"every_two_hours\"/\"every_minute\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_configure_battery_backup",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 battery backup, mode (\"standard\"/\"direct\"/\"disabled\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        },
+        {
+          "name": "low detection (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_low_detection",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_is_battery_switched_over",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 battery switch-over occurred?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_clear_battery_switchover",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 clear battery switch-over flag",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_is_battery_low",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 battery low?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_oscillator_stopped",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 oscillator stop flag set?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_software_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 software reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 enable interrupt, source (1=second, 2=Timer A, 4=Timer B, 8=alarm, 16=battery switch, 32=battery low)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8523 disable interrupt, source (1=second, 2=Timer A, 4=Timer B, 8=alarm, 16=battery switch, 32=battery low)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8523_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8523 poll & clear interrupt flags",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
