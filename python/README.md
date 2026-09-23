@@ -95,6 +95,7 @@ Each chip exposes two classes:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
+| VL53L0X | Time-of-flight | Time-of-Flight ranging sensor |
 | WS2812B | LED driver | Addressable RGB LED strip |
 | WS2814 | LED driver | Addressable RGBW LED strip |
 

@@ -1,0 +1,402 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "vl53l0x_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init VL53L0X",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x29)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_distance",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X distance (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_range_valid",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X last range valid",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X start continuous",
+          "type": "label"
+        },
+        {
+          "name": "period (ms, 0=back-to-back)",
+          "type": "label"
+        },
+        {
+          "name": "_period_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X continuous distance (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_read_measurement",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X measurement (distance_mm, range_status, signal/ambient MCPS, SPADs)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_range_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X range status (11=valid)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_timing_budget",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set timing budget",
+          "type": "label"
+        },
+        {
+          "name": "budget (µs, >=20000)",
+          "type": "label"
+        },
+        {
+          "name": "_budget_us",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_timing_budget",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X timing budget (µs)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_signal_rate_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set signal rate limit",
+          "type": "label"
+        },
+        {
+          "name": "limit (MCPS)",
+          "type": "label"
+        },
+        {
+          "name": "_limit_mcps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_signal_rate_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X signal rate limit (MCPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_vcsel_pulse_period",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set VCSEL period, type (\"pre_range\"/\"final_range\")",
+          "type": "label"
+        },
+        {
+          "name": "_period_type",
+          "type": "variable"
+        },
+        {
+          "name": "PCLKs (pre 12-18, final 8-14)",
+          "type": "label"
+        },
+        {
+          "name": "_pclks",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_vcsel_pulse_period",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X VCSEL period (PCLKs), type (\"pre_range\"/\"final_range\")",
+          "type": "label"
+        },
+        {
+          "name": "_period_type",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_profile",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set profile (\"default\"/\"long_range\"/\"high_speed\"/\"high_accuracy\")",
+          "type": "label"
+        },
+        {
+          "name": "_profile",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set offset",
+          "type": "label"
+        },
+        {
+          "name": "offset (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_offset_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X offset (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_crosstalk_compensation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set crosstalk compensation",
+          "type": "label"
+        },
+        {
+          "name": "rate (MCPS, 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "_rate_mcps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_recalibrate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X recalibrate",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_address",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set I2C address",
+          "type": "label"
+        },
+        {
+          "name": "address (0x08-0x77)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_set_interrupt_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X set thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_low_mm",
+          "type": "number"
+        },
+        {
+          "name": "high (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_high_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_interrupt_thresholds",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X thresholds (low mm, high mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_model_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X model ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_revision_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X revision ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L0X interrupt status (1=low 2=high 3=window 4=sample)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X enable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l0x_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L0X disable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1-4)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}
