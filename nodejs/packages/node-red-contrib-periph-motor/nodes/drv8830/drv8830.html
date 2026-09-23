@@ -1,0 +1,72 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-drv8830', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '0x60', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-cog',
+        label:   function() { return this.name || 'DRV8830'; },
+        paletteLabel: 'DRV8830'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-drv8830">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DRV8830">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-at"></i> I²C address</label>
+        <select id="node-input-address" style="width:120px">
+            <option value="0x60">0x60</option>
+            <option value="0x61">0x61</option>
+            <option value="0x62">0x62</option>
+            <option value="0x63">0x63</option>
+            <option value="0x64">0x64</option>
+            <option value="0x65">0x65</option>
+            <option value="0x66">0x66</option>
+            <option value="0x67">0x67</option>
+            <option value="0x68">0x68</option>
+        </select>
+        &nbsp;(set by the A0/A1 straps)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-drv8830">
+    <p>Drives a brushed DC motor through a DRV8830 low-voltage H-bridge over I²C, and reports its fault status. The chip regulates the commanded <em>voltage</em> across the motor, so speed stays constant as the supply sags.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Signed target voltage in V: positive = forward, negative = reverse, <code>0</code> = coast. Usable range 0.48–5.06 V; smaller magnitudes coast, larger ones are clamped.</dd>
+        <dt>payload.brake <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> short-brakes the motor.</dd>
+        <dt>payload.stop <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> puts the bridge in standby (coast).</dd>
+        <dt>payload.clear_fault <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> clears the fault register, re-enabling a bridge latched off by an overcurrent or current-limit fault.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads the fault register and emits it (the fault is not cleared).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.fault <span class="property-type">boolean</span></dt>
+        <dd>Any fault condition exists.</dd>
+        <dt>payload.ocp / uvlo / ots / ilimit <span class="property-type">boolean</span></dt>
+        <dd>Fault source: overcurrent, undervoltage lockout, overtemperature, extended current limit.</dd>
+    </dl>
+    <p>Command messages (<code>voltage</code>, <code>brake</code>, <code>stop</code>, <code>clear_fault</code>) produce no output.</p>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number and pick the device address (0x60–0x68) matching the board's A0/A1 strapping — it is fixed in hardware and cannot be probed. The motor is put in coast when the node is closed.</p>
+</script>

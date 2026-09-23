@@ -1,0 +1,114 @@
+[
+    {
+        "id": "tab-drv8830-demo",
+        "type": "tab",
+        "label": "DRV8830 Motor Ramp Demo",
+        "disabled": false,
+        "info": "A battery-powered motor controller. An Inject node ticks once per second into a Function node that ramps msg.payload.voltage from 0 to 3.0 V in 0.5 V steps, holds 3.0 V for 5 s, then reverses to -3.0 V — the DRV8830 regulates that average voltage across the motor, so speed stays constant while the battery sags. A second, independent Inject node polls every 2 s (any message) so the periph-drv8830 node emits its fault status; a Function node checks msg.payload.fault and, if set, sends {stop: true} followed by {clear_fault: true} back into the driver to recover, while a Debug node shows every status reading."
+    },
+    {
+        "id": "inj-ramp",
+        "type": "inject",
+        "name": "Ramp tick (1 s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-drv8830-demo",
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "fn-ramp"
+            ]
+        ]
+    },
+    {
+        "id": "fn-ramp",
+        "type": "function",
+        "name": "ramp voltage",
+        "func": "// 0 -> 3.0 V in 0.5 V steps (1 s each), hold 5 s, then reverse at -3.0 V.\nconst seq = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, -3.0];\nlet i = context.get('step') || 0;\nif (i >= seq.length) return null;\ncontext.set('step', i + 1);\nmsg.payload = { voltage: seq[i] };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-drv8830-demo",
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "drv8830-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-poll",
+        "type": "inject",
+        "name": "Poll faults (2 s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "2",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-drv8830-demo",
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "drv8830-node"
+            ]
+        ]
+    },
+    {
+        "id": "drv8830-node",
+        "type": "periph-drv8830",
+        "name": "DRV8830",
+        "bus": "1",
+        "address": "0x60",
+        "z": "tab-drv8830-demo",
+        "x": 540,
+        "y": 140,
+        "wires": [
+            [
+                "fn-guard"
+            ]
+        ]
+    },
+    {
+        "id": "fn-guard",
+        "type": "function",
+        "name": "stop + clear on fault",
+        "func": "// Recover from a fault: stop the motor first, then clear the latched fault.\nif (msg.payload && msg.payload.fault) {\n    const names = ['ocp', 'uvlo', 'ots', 'ilimit'].filter((k) => msg.payload[k]);\n    node.warn('DRV8830 fault: ' + names.join(', '));\n    return [[{ payload: { stop: true } }, { payload: { clear_fault: true } }], msg];\n}\nreturn [null, msg];",
+        "outputs": 2,
+        "noerr": 0,
+        "z": "tab-drv8830-demo",
+        "x": 740,
+        "y": 140,
+        "wires": [
+            [
+                "drv8830-node"
+            ],
+            [
+                "dbg-status"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-status",
+        "type": "debug",
+        "name": "fault status",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-drv8830-demo",
+        "x": 950,
+        "y": 160,
+        "wires": []
+    }
+]
