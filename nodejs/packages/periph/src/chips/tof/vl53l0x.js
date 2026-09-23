@@ -152,6 +152,10 @@ class VL53L0XMinimal {
         this._stopVariable = 0;
         this._rangeStatus = 0;
         this._timingBudgetUs = 0;
+        // Serializes multi-register sequences against the Full class's
+        // interrupt polling timer (page-select windows, calibration and
+        // data-ready polls must not interleave with a status read/clear).
+        this._queue = Promise.resolve();
         this._ready = this._init();
         // The rejection is re-raised by every public method; mark it handled
         // here so it never surfaces as an unhandled rejection on its own.
@@ -166,6 +170,12 @@ class VL53L0XMinimal {
      */
     async init() {
         await this._ready;
+    }
+
+    _locked(fn) {
+        const run = this._queue.then(fn);
+        this._queue = run.catch(() => {});
+        return run;
     }
 
     async _wr(reg, value) {
@@ -385,10 +395,12 @@ class VL53L0XMinimal {
      */
     async distance() {
         await this._ready;
-        await this._stopVariablePreamble();
-        await this._wr(_REG_SYSRANGE_START, 0x01);
-        await this._wait(_REG_SYSRANGE_START, 0x01, false, 'ranging start');
-        return this._waitAndRead();
+        return this._locked(async () => {
+            await this._stopVariablePreamble();
+            await this._wr(_REG_SYSRANGE_START, 0x01);
+            await this._wait(_REG_SYSRANGE_START, 0x01, false, 'ranging start');
+            return this._waitAndRead();
+        });
     }
 
     /**
@@ -427,14 +439,16 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async startContinuous(periodMs = 0) {
         await this._ready;
-        await this._stopVariablePreamble();
-        if (periodMs > 0) {
-            const osc = await this._rd16(_REG_OSC_CALIBRATE_VAL);
-            await this._wr32(_REG_SYSTEM_INTERMEASUREMENT, osc !== 0 ? periodMs * osc : periodMs);
-            await this._wr(_REG_SYSRANGE_START, 0x04);
-        } else {
-            await this._wr(_REG_SYSRANGE_START, 0x02);
-        }
+        return this._locked(async () => {
+            await this._stopVariablePreamble();
+            if (periodMs > 0) {
+                const osc = await this._rd16(_REG_OSC_CALIBRATE_VAL);
+                await this._wr32(_REG_SYSTEM_INTERMEASUREMENT, osc !== 0 ? periodMs * osc : periodMs);
+                await this._wr(_REG_SYSRANGE_START, 0x04);
+            } else {
+                await this._wr(_REG_SYSRANGE_START, 0x02);
+            }
+        });
     }
 
     /**
@@ -443,12 +457,14 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async stopContinuous() {
         await this._ready;
-        await this._wr(_REG_SYSRANGE_START, 0x01);
-        await this._wr(_REG_PAGE_SELECT, 0x01);
-        await this._wr(_REG_SYSRANGE_START, 0x00);
-        await this._wr(_REG_STOP_VARIABLE, 0x00);
-        await this._wr(_REG_SYSRANGE_START, 0x01);
-        await this._wr(_REG_PAGE_SELECT, 0x00);
+        return this._locked(async () => {
+            await this._wr(_REG_SYSRANGE_START, 0x01);
+            await this._wr(_REG_PAGE_SELECT, 0x01);
+            await this._wr(_REG_SYSRANGE_START, 0x00);
+            await this._wr(_REG_STOP_VARIABLE, 0x00);
+            await this._wr(_REG_SYSRANGE_START, 0x01);
+            await this._wr(_REG_PAGE_SELECT, 0x00);
+        });
     }
 
     /**
@@ -458,7 +474,9 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async readContinuous() {
         await this._ready;
-        return this._waitAndRead();
+        return this._locked(async () => {
+            return this._waitAndRead();
+        });
     }
 
     /**
@@ -478,14 +496,16 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async readMeasurement() {
         await this._ready;
-        const data = await this._readResult();
-        return {
-            distanceMm: data.readUInt16BE(10),
-            rangeStatus: this._rangeStatus,
-            signalRateMcps: data.readUInt16BE(6) / 128,
-            ambientRateMcps: data.readUInt16BE(8) / 128,
-            effectiveSpadCount: data.readUInt16BE(2) / 256,
-        };
+        return this._locked(async () => {
+            const data = await this._readResult();
+            return {
+                distanceMm: data.readUInt16BE(10),
+                rangeStatus: this._rangeStatus,
+                signalRateMcps: data.readUInt16BE(6) / 128,
+                ambientRateMcps: data.readUInt16BE(8) / 128,
+                effectiveSpadCount: data.readUInt16BE(2) / 256,
+            };
+        });
     }
 
     /**
@@ -505,7 +525,9 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async setTimingBudget(budgetUs) {
         await this._ready;
-        await this._setTimingBudget(budgetUs);
+        return this._locked(async () => {
+            await this._setTimingBudget(budgetUs);
+        });
     }
 
     /**
@@ -514,7 +536,9 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async timingBudget() {
         await this._ready;
-        return this._getTimingBudget();
+        return this._locked(async () => {
+            return this._getTimingBudget();
+        });
     }
 
     /**
@@ -550,6 +574,10 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async setVcselPulsePeriod(periodType, pclks) {
         await this._ready;
+        return this._locked(() => this._setVcselPulsePeriod(periodType, pclks));
+    }
+
+    async _setVcselPulsePeriod(periodType, pclks) {
         if (periodType === 'pre_range') {
             if (!(pclks in _PRE_PHASE_HIGH)) throw new RangeError('pre-range VCSEL period must be 12, 14, 16 or 18');
         } else if (periodType === 'final_range') {
@@ -620,9 +648,11 @@ class VL53L0XFull extends VL53L0XMinimal {
         }
         const [limit, pre, fin, budget] = _PROFILES[profile];
         await this.setSignalRateLimit(limit);
-        await this.setVcselPulsePeriod('pre_range', pre);
-        await this.setVcselPulsePeriod('final_range', fin);
-        await this._setTimingBudget(budget);
+        await this._locked(async () => {
+            await this._setVcselPulsePeriod('pre_range', pre);
+            await this._setVcselPulsePeriod('final_range', fin);
+            await this._setTimingBudget(budget);
+        });
     }
 
     /**
@@ -672,7 +702,9 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async recalibrate() {
         await this._ready;
-        await this._refCalibration();
+        return this._locked(async () => {
+            await this._refCalibration();
+        });
     }
 
     /**
@@ -769,9 +801,11 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async pollInterrupt() {
         await this._ready;
-        const status = (await this._rd(_REG_RESULT_INTERRUPT_STATUS)) & 0x07;
-        if (status) await this._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
-        return status;
+        return this._locked(async () => {
+            const status = (await this._rd(_REG_RESULT_INTERRUPT_STATUS)) & 0x07;
+            if (status) await this._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
+            return status;
+        });
     }
 
     /**

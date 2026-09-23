@@ -146,6 +146,14 @@ _PROFILES = {
 }
 
 
+class _NoLock:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
 def _ticks_ms():
     if hasattr(time, 'ticks_ms'):
         return time.ticks_ms()
@@ -218,6 +226,10 @@ class VL53L0XMinimal:
         self._stop_variable = 0
         self._range_status = 0
         self._timing_budget_us = 0
+        # Serializes multi-register sequences against the Full class's
+        # interrupt polling thread (page-select windows, calibration and
+        # data-ready polls must not interleave with a status read/clear).
+        self._lock = _threading.RLock() if _LINUX else _NoLock()
         self._init()
 
     # --- Register access --------------------------------------------------
@@ -431,10 +443,11 @@ class VL53L0XMinimal:
         Raises:
             OSError: If the measurement does not start or complete within 500 ms.
         """
-        self._stop_variable_preamble()
-        self._wr(_REG_SYSRANGE_START, 0x01)
-        self._wait(_REG_SYSRANGE_START, 0x01, False, 'ranging start')
-        return self._wait_and_read()
+        with self._lock:
+            self._stop_variable_preamble()
+            self._wr(_REG_SYSRANGE_START, 0x01)
+            self._wait(_REG_SYSRANGE_START, 0x01, False, 'ranging start')
+            return self._wait_and_read()
 
     def range_valid(self):
         """Report whether the most recent measurement was valid.
@@ -477,24 +490,26 @@ class VL53L0XFull(VL53L0XMinimal):
                 this inter-measurement period in ms (should be >= the timing
                 budget).
         """
-        self._stop_variable_preamble()
-        if period_ms > 0:
-            osc = self._rd16(_REG_OSC_CALIBRATE_VAL)
-            if osc != 0:
-                period_ms *= osc
-            self._wr32(_REG_SYSTEM_INTERMEASUREMENT, period_ms)
-            self._wr(_REG_SYSRANGE_START, 0x04)
-        else:
-            self._wr(_REG_SYSRANGE_START, 0x02)
+        with self._lock:
+            self._stop_variable_preamble()
+            if period_ms > 0:
+                osc = self._rd16(_REG_OSC_CALIBRATE_VAL)
+                if osc != 0:
+                    period_ms *= osc
+                self._wr32(_REG_SYSTEM_INTERMEASUREMENT, period_ms)
+                self._wr(_REG_SYSRANGE_START, 0x04)
+            else:
+                self._wr(_REG_SYSRANGE_START, 0x02)
 
     def stop_continuous(self):
         """Stop continuous ranging. Does not wait for a running measurement."""
-        self._wr(_REG_SYSRANGE_START, 0x01)
-        self._wr(_REG_PAGE_SELECT, 0x01)
-        self._wr(_REG_SYSRANGE_START, 0x00)
-        self._wr(_REG_STOP_VARIABLE, 0x00)
-        self._wr(_REG_SYSRANGE_START, 0x01)
-        self._wr(_REG_PAGE_SELECT, 0x00)
+        with self._lock:
+            self._wr(_REG_SYSRANGE_START, 0x01)
+            self._wr(_REG_PAGE_SELECT, 0x01)
+            self._wr(_REG_SYSRANGE_START, 0x00)
+            self._wr(_REG_STOP_VARIABLE, 0x00)
+            self._wr(_REG_SYSRANGE_START, 0x01)
+            self._wr(_REG_PAGE_SELECT, 0x00)
 
     def read_continuous(self):
         """Wait for the next continuous-mode result and read it.
@@ -505,7 +520,8 @@ class VL53L0XFull(VL53L0XMinimal):
         Raises:
             OSError: If no result arrives within 500 ms.
         """
-        return self._wait_and_read()
+        with self._lock:
+            return self._wait_and_read()
 
     def data_ready(self):
         """Report whether a measurement is pending (non-blocking).
@@ -522,14 +538,15 @@ class VL53L0XFull(VL53L0XMinimal):
             dict: distance_mm (int), range_status (int), signal_rate_mcps
             (float), ambient_rate_mcps (float), effective_spad_count (float).
         """
-        data = self._read_result()
-        return {
-            'distance_mm': (data[10] << 8) | data[11],
-            'range_status': self._range_status,
-            'signal_rate_mcps': ((data[6] << 8) | data[7]) / 128,
-            'ambient_rate_mcps': ((data[8] << 8) | data[9]) / 128,
-            'effective_spad_count': ((data[2] << 8) | data[3]) / 256,
-        }
+        with self._lock:
+            data = self._read_result()
+            return {
+                'distance_mm': (data[10] << 8) | data[11],
+                'range_status': self._range_status,
+                'signal_rate_mcps': ((data[6] << 8) | data[7]) / 128,
+                'ambient_rate_mcps': ((data[8] << 8) | data[9]) / 128,
+                'effective_spad_count': ((data[2] << 8) | data[3]) / 256,
+            }
 
     def range_status(self):
         """Device range status of the most recent measurement.
@@ -550,7 +567,8 @@ class VL53L0XFull(VL53L0XMinimal):
         Raises:
             ValueError: If below 20000 µs or below the enabled steps' overhead.
         """
-        self._set_timing_budget(budget_us)
+        with self._lock:
+            self._set_timing_budget(budget_us)
 
     def timing_budget(self):
         """Compute the timing budget from the current registers.
@@ -558,7 +576,8 @@ class VL53L0XFull(VL53L0XMinimal):
         Returns:
             int: Budget in µs.
         """
-        return self._get_timing_budget()
+        with self._lock:
+            return self._get_timing_budget()
 
     def set_signal_rate_limit(self, limit_mcps):
         """Set the final-range return signal-rate limit.
@@ -595,46 +614,47 @@ class VL53L0XFull(VL53L0XMinimal):
             ValueError: If period_type or pclks is invalid.
             OSError: If the phase calibration times out.
         """
-        if period_type == PRE_RANGE:
-            if pclks not in _PRE_PHASE_HIGH:
-                raise ValueError('pre-range VCSEL period must be 12, 14, 16 or 18')
-        elif period_type == FINAL_RANGE:
-            if pclks not in _FINAL_PHASE:
-                raise ValueError('final-range VCSEL period must be 8, 10, 12 or 14')
-        else:
-            raise ValueError("period_type must be 'pre_range' or 'final_range'")
+        with self._lock:
+            if period_type == PRE_RANGE:
+                if pclks not in _PRE_PHASE_HIGH:
+                    raise ValueError('pre-range VCSEL period must be 12, 14, 16 or 18')
+            elif period_type == FINAL_RANGE:
+                if pclks not in _FINAL_PHASE:
+                    raise ValueError('final-range VCSEL period must be 8, 10, 12 or 14')
+            else:
+                raise ValueError("period_type must be 'pre_range' or 'final_range'")
 
-        enables = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
-        _, msrc_us, pre_mclks, pre_us, _, final_us = self._step_timeouts(enables)
-        vcsel = _encode_vcsel(pclks)
+            enables = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
+            _, msrc_us, pre_mclks, pre_us, _, final_us = self._step_timeouts(enables)
+            vcsel = _encode_vcsel(pclks)
 
-        if period_type == PRE_RANGE:
-            self._wr(_REG_PRE_VALID_PHASE_HIGH, _PRE_PHASE_HIGH[pclks])
-            self._wr(_REG_PRE_VALID_PHASE_LOW, 0x08)
-            self._wr(_REG_PRE_RANGE_VCSEL_PERIOD, vcsel)
-            self._wr16(_REG_PRE_RANGE_TIMEOUT, _encode_timeout(_us_to_mclks(pre_us, pclks)))
-            m = _us_to_mclks(msrc_us, pclks)
-            self._wr(_REG_MSRC_CONFIG_TIMEOUT, 255 if m > 256 else m - 1)
-        else:
-            high, low, width, phasecal, lim = _FINAL_PHASE[pclks]
-            self._wr(_REG_FINAL_VALID_PHASE_HIGH, high)
-            self._wr(_REG_FINAL_VALID_PHASE_LOW, low)
-            self._wr(_REG_GLOBAL_CONFIG_VCSEL_WIDTH, width)
-            self._wr(_REG_PHASECAL_CONFIG_TIMEOUT, phasecal)
-            self._wr(_REG_PAGE_SELECT, 0x01)
-            self._wr(_REG_PHASECAL_CONFIG_TIMEOUT, lim)
-            self._wr(_REG_PAGE_SELECT, 0x00)
-            self._wr(_REG_FINAL_RANGE_VCSEL_PERIOD, vcsel)
-            f = _us_to_mclks(final_us, pclks)
-            if enables & _SEQ_PRE_RANGE:
-                f += pre_mclks
-            self._wr16(_REG_FINAL_RANGE_TIMEOUT, _encode_timeout(f))
+            if period_type == PRE_RANGE:
+                self._wr(_REG_PRE_VALID_PHASE_HIGH, _PRE_PHASE_HIGH[pclks])
+                self._wr(_REG_PRE_VALID_PHASE_LOW, 0x08)
+                self._wr(_REG_PRE_RANGE_VCSEL_PERIOD, vcsel)
+                self._wr16(_REG_PRE_RANGE_TIMEOUT, _encode_timeout(_us_to_mclks(pre_us, pclks)))
+                m = _us_to_mclks(msrc_us, pclks)
+                self._wr(_REG_MSRC_CONFIG_TIMEOUT, 255 if m > 256 else m - 1)
+            else:
+                high, low, width, phasecal, lim = _FINAL_PHASE[pclks]
+                self._wr(_REG_FINAL_VALID_PHASE_HIGH, high)
+                self._wr(_REG_FINAL_VALID_PHASE_LOW, low)
+                self._wr(_REG_GLOBAL_CONFIG_VCSEL_WIDTH, width)
+                self._wr(_REG_PHASECAL_CONFIG_TIMEOUT, phasecal)
+                self._wr(_REG_PAGE_SELECT, 0x01)
+                self._wr(_REG_PHASECAL_CONFIG_TIMEOUT, lim)
+                self._wr(_REG_PAGE_SELECT, 0x00)
+                self._wr(_REG_FINAL_RANGE_VCSEL_PERIOD, vcsel)
+                f = _us_to_mclks(final_us, pclks)
+                if enables & _SEQ_PRE_RANGE:
+                    f += pre_mclks
+                self._wr16(_REG_FINAL_RANGE_TIMEOUT, _encode_timeout(f))
 
-        self._set_timing_budget(self._timing_budget_us)
-        seq = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
-        self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x02)
-        self._single_ref_calibration(0x00)
-        self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, seq)
+            self._set_timing_budget(self._timing_budget_us)
+            seq = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
+            self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x02)
+            self._single_ref_calibration(0x00)
+            self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, seq)
 
     def vcsel_pulse_period(self, period_type):
         """Read a VCSEL pulse period.
@@ -671,15 +691,16 @@ class VL53L0XFull(VL53L0XMinimal):
         Raises:
             ValueError: If profile is unknown.
         """
-        if profile not in _PROFILES:
-            raise ValueError("profile must be 'default', 'long_range', 'high_speed' or 'high_accuracy'")
-        limit, pre, final, budget = _PROFILES[profile]
-        self.set_signal_rate_limit(limit)
-        self.set_vcsel_pulse_period(PRE_RANGE, pre)
-        self.set_vcsel_pulse_period(FINAL_RANGE, final)
-        self._set_timing_budget(budget)
+        with self._lock:
+            if profile not in _PROFILES:
+                raise ValueError("profile must be 'default', 'long_range', 'high_speed' or 'high_accuracy'")
+            limit, pre, final, budget = _PROFILES[profile]
+            self.set_signal_rate_limit(limit)
+            self.set_vcsel_pulse_period(PRE_RANGE, pre)
+            self.set_vcsel_pulse_period(FINAL_RANGE, final)
+            self._set_timing_budget(budget)
 
-    # --- Offset and crosstalk ---------------------------------------------
+        # --- Offset and crosstalk ---------------------------------------------
 
     def set_offset(self, offset_mm):
         """Override the part-to-part range offset (volatile).
@@ -730,14 +751,15 @@ class VL53L0XFull(VL53L0XMinimal):
         Raises:
             OSError: If a calibration times out.
         """
-        seq = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
-        self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x01)
-        self._single_ref_calibration(0x40)
-        self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x02)
-        self._single_ref_calibration(0x00)
-        self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, seq)
+        with self._lock:
+            seq = self._rd(_REG_SYSTEM_SEQUENCE_CONFIG)
+            self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x01)
+            self._single_ref_calibration(0x40)
+            self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, 0x02)
+            self._single_ref_calibration(0x00)
+            self._wr(_REG_SYSTEM_SEQUENCE_CONFIG, seq)
 
-    # --- Address, thresholds, identification ------------------------------
+        # --- Address, thresholds, identification ------------------------------
 
     def set_address(self, address):
         """Change the chip's I2C address (volatile).
@@ -829,10 +851,11 @@ class VL53L0XFull(VL53L0XMinimal):
         Returns:
             int: The SOURCE_* value that fired, or 0 if nothing is pending.
         """
-        status = self._rd(_REG_RESULT_INTERRUPT_STATUS) & 0x07
-        if status:
-            self._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
-        return status
+        with self._lock:
+            status = self._rd(_REG_RESULT_INTERRUPT_STATUS) & 0x07
+            if status:
+                self._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
+            return status
 
     def on_interrupt(self, callback, int_pin=None):
         """Subscribe to GPIO1 interrupt events.
