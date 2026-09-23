@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-vl53l0x', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '1', required: true, validate: RED.validators.number() },
+            address:   { value: '0x29' },
+            profile:   { value: 'default' },
+            mode:      { value: 'single' },
+            periodMs:  { value: '100', validate: RED.validators.number() },
+
+            threshold: { value: 'none' },
+            lowMm:     { value: '100', validate: RED.validators.number() },
+            highMm:    { value: '800', validate: RED.validators.number() },
+            gpioLine:  { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-h',
+        label:   function() { return this.name || 'VL53L0X'; },
+        paletteLabel: 'VL53L0X'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-vl53l0x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="VL53L0X">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <input type="text" id="node-input-address" style="width:80px"> &nbsp;(power-on default 0x29)
+    </div>
+    <div class="form-row">
+        <label for="node-input-profile"><i class="fa fa-sliders"></i> Profile</label>
+        <select id="node-input-profile" style="width:240px">
+            <option value="default">Default (33 ms, 1.2 m)</option>
+            <option value="long_range">Long range (33 ms, 2 m, dark only)</option>
+            <option value="high_speed">High speed (20 ms)</option>
+            <option value="high_accuracy">High accuracy (200 ms)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-repeat"></i> Mode</label>
+        <select id="node-input-mode" style="width:240px">
+            <option value="single">Single shot on each input</option>
+            <option value="continuous">Continuous (latest result on input)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-periodMs">&nbsp; Period ms</label>
+        <input type="text" id="node-input-periodMs" style="width:80px"> &nbsp;(continuous only; 0 = back-to-back)
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-threshold"><i class="fa fa-bell"></i> Threshold</label>
+        <select id="node-input-threshold" style="width:240px">
+            <option value="none">None</option>
+            <option value="level_low">Below low</option>
+            <option value="level_high">Above high</option>
+            <option value="out_of_window">Outside low…high window</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-lowMm">&nbsp; Low mm</label>
+        <input type="text" id="node-input-lowMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-highMm">&nbsp; High mm</label>
+        <input type="text" id="node-input-highMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioLine">&nbsp; GPIO1 line</label>
+        <input type="text" id="node-input-gpioLine" style="width:80px" placeholder="e.g. 17"> &nbsp;(gpiochip0 offset; empty = poll over I²C)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-vl53l0x">
+    <p>Measures distance with a VL53L0X time-of-flight laser-ranging sensor over I²C (up to ~2 m), and optionally reports distance-threshold events.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a reading: a single-shot measurement (about one timing budget long) in single-shot mode, or the latest result in continuous mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.distance_mm <span class="property-type">number</span></dt>
+        <dd>Distance in mm. With no target in range this is typically 8190 or 8191 — check <code>valid</code>.</dd>
+        <dt>payload.valid <span class="property-type">boolean</span></dt>
+        <dd>True when the device range status is 11 (range complete).</dd>
+        <dt>payload.range_status <span class="property-type">number</span></dt>
+        <dd>Device range status 0–15 (11 = valid, 4 = no target).</dd>
+        <dt>payload.signal_rate_mcps <span class="property-type">number</span></dt>
+        <dd>Return signal rate in MCPS (mega counts per second).</dd>
+        <dt>payload.ambient_rate_mcps <span class="property-type">number</span></dt>
+        <dd>Ambient (background IR) rate in MCPS.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately when a threshold is configured and fires: <code>"level_low"</code>, <code>"level_high"</code> or <code>"out_of_window"</code>, together with <code>payload.distance_mm</code> of the triggering measurement.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and address (0x29 after power-up; the address is only changed from code). Choose a ranging profile: <i>default</i> (33 ms, ~1.2 m), <i>long range</i> (~2 m, dark conditions only — in sunlight it increases invalid readings), <i>high speed</i> (20 ms) or <i>high accuracy</i> (200 ms). In single-shot mode each input takes one measurement. In continuous mode the node starts ranging on deploy (period in ms, 0 = back-to-back; use a period ≥ the profile's timing budget), each input returns the latest result, and ranging stops when the node is closed.</p>
+    <p>Threshold events need continuous mode — the sensor evaluates the thresholds per measurement. Set the low/high distances (2 mm resolution) and optionally the GPIO line (gpiod offset on gpiochip0) wired to the sensor's GPIO1 pin; without it the node polls the interrupt status over I²C. While a threshold is active, the sensor only flags a result when the condition is met, so use continuous mode's input reading for the latest distance.</p>
+</script>

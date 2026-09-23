@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "vl53l0x": "nodes/vl53l0x/vl53l0x.js"
+    }
   },
   "dependencies": {
     "periph": "*"

@@ -14,7 +14,9 @@ npm install node-red-contrib-periph-tof
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `periph-vl53l0x` | input | Measures distance with a VL53L0X time-of-flight laser-ranging sensor over I²C (up to ~2 m), and optionally reports distance-threshold events. |
 
 ## Links
 
