@@ -30,7 +30,7 @@ MPU9250Minimal::MPU9250Minimal(Connection& connection)
     }
     _write_reg(REG_GYRO_CONFIG, 0x00);
     _write_reg(REG_ACCEL_CONFIG, 0x00);
-    _write_reg(REG_ACCEL_CONFIG2, 0x00);
+    _write_reg(REG_ACCEL_CONFIG2, 0x03);
     _write_reg(REG_CONFIG, 0x03);
     _write_reg(REG_SMPLRT_DIV, 0x04);
     DELAY_MS(35);

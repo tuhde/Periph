@@ -55,7 +55,7 @@ class LPS33HW:
         """
         return self._driver.temperature()
 
-    def one_shot(self) -> None:
+    def one_shot(self):
         """
         label:
             en: '%1 trigger one-shot'

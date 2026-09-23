@@ -80,8 +80,7 @@ fn main() -> ! {
     p0.set_high().ok();
     check_eq!(chip.shadow[0].get() & 0x01, 1, "set_high_shadow", passed, failed);
 
-    let v = p0.is_high().unwrap_or(2);
-    check_true!(v == 0 || v == 1, "is_high_range", passed, failed);
+    check_true!(p0.is_high().is_ok(), "is_high_ok", passed, failed);
 
     let v2 = p0.is_set_high().unwrap_or(false);
     check_true!(v2, "is_set_high_from_shadow", passed, failed);

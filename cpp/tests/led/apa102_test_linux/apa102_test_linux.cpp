@@ -93,8 +93,6 @@ int main() {
         check_true("off() on Full accepted", true);
     }
 
-    connection.close();
-
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;
 }

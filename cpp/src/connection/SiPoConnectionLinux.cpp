@@ -1,6 +1,5 @@
 #ifdef __linux__
 #include "SiPoConnectionLinux.h"
-#include <gpiod.h>
 #include <linux/spi/spidev.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -10,14 +9,30 @@
 #include <stdexcept>
 #include <string>
 
+std::unique_ptr<GpiodLineLinux> SiPoConnectionLinux::_output(const char* chip_path, int offset,
+                                                             bool initial_high, const char* consumer) {
+    if (offset < 0) return nullptr;
+    auto line = std::make_unique<GpiodLineLinux>(chip_path, (unsigned int)offset,
+                                                 GpiodLineLinux::Mode::Output, initial_high, consumer);
+    if (!line->valid())
+        throw std::runtime_error(std::string("Failed to request GPIO line ") + std::to_string(offset) +
+                                 " on " + chip_path);
+    return line;
+}
+
 SiPoConnectionLinux::SiPoConnectionLinux(int bus_num, int device_num,
-                                         struct gpiod_line* rck,
-                                         struct gpiod_line* srclr,
-                                         struct gpiod_line* g,
+                                         const char* chip_path, unsigned int rck,
+                                         int srclr, int g,
                                          uint32_t max_speed_hz)
-    : _fd(-1), _speed_hz(max_speed_hz),
-      _ser_in(nullptr), _srck(nullptr), _rck(rck), _srclr(srclr), _g(g)
+    : _fd(-1), _speed_hz(max_speed_hz)
 {
+    // Request the GPIO lines first: a failed request throws, and nothing
+    // has to be cleaned up yet. RCK idles LOW, SRCLR HIGH (not clearing),
+    // G LOW (outputs enabled).
+    _rck   = _output(chip_path, (int)rck, false, "sipo-rck");
+    _srclr = _output(chip_path, srclr, true, "sipo-srclr");
+    _g     = _output(chip_path, g, false, "sipo-g");
+
     char path[32];
     snprintf(path, sizeof(path), "/dev/spidev%d.%d", bus_num, device_num);
     _fd = open(path, O_RDWR);
@@ -32,23 +47,17 @@ SiPoConnectionLinux::SiPoConnectionLinux(int bus_num, int device_num,
         ::close(_fd);
         throw std::runtime_error(std::string("SPI_IOC_WR_MAX_SPEED_HZ on ") + path + ": " + strerror(errno));
     }
-
-    gpiod_line_set_value(_rck, 0);
-    if (_srclr) gpiod_line_set_value(_srclr, 1);
-    if (_g)     gpiod_line_set_value(_g, 0);
 }
 
-SiPoConnectionLinux::SiPoConnectionLinux(struct gpiod_line* ser_in, struct gpiod_line* srck,
-                                         struct gpiod_line* rck,
-                                         struct gpiod_line* srclr,
-                                         struct gpiod_line* g)
-    : _fd(-1), _speed_hz(0),
-      _ser_in(ser_in), _srck(srck), _rck(rck), _srclr(srclr), _g(g)
+SiPoConnectionLinux::SiPoConnectionLinux(const char* chip_path, unsigned int ser_in, unsigned int srck,
+                                         unsigned int rck, int srclr, int g)
+    : _fd(-1), _speed_hz(0)
 {
-    gpiod_line_set_value(_srck, 0);
-    gpiod_line_set_value(_rck, 0);
-    if (_srclr) gpiod_line_set_value(_srclr, 1);
-    if (_g)     gpiod_line_set_value(_g, 0);
+    _ser_in = _output(chip_path, (int)ser_in, false, "sipo-ser");
+    _srck   = _output(chip_path, (int)srck, false, "sipo-srck");
+    _rck    = _output(chip_path, (int)rck, false, "sipo-rck");
+    _srclr  = _output(chip_path, srclr, true, "sipo-srclr");
+    _g      = _output(chip_path, g, false, "sipo-g");
 }
 
 SiPoConnectionLinux::~SiPoConnectionLinux() {
@@ -56,7 +65,7 @@ SiPoConnectionLinux::~SiPoConnectionLinux() {
 }
 
 void SiPoConnectionLinux::write(const uint8_t* data, size_t len) {
-    if (!_enabled) return;
+    if (!_enabled || !_rck) return;  // disabled, or closed
     if (_fd >= 0) {
         struct spi_ioc_transfer tr = {};
         tr.tx_buf        = reinterpret_cast<uintptr_t>(data);
@@ -68,9 +77,9 @@ void SiPoConnectionLinux::write(const uint8_t* data, size_t len) {
     } else {
         for (size_t i = 0; i < len; i++) {
             for (int bit = 7; bit >= 0; bit--) {
-                gpiod_line_set_value(_ser_in, (data[i] >> bit) & 1);
-                gpiod_line_set_value(_srck, 1);
-                gpiod_line_set_value(_srck, 0);
+                _ser_in->set((data[i] >> bit) & 1);
+                _srck->set(true);
+                _srck->set(false);
             }
         }
     }
@@ -78,29 +87,29 @@ void SiPoConnectionLinux::write(const uint8_t* data, size_t len) {
 }
 
 void SiPoConnectionLinux::_latch() {
-    gpiod_line_set_value(_rck, 1);
-    gpiod_line_set_value(_rck, 0);
+    _rck->set(true);
+    _rck->set(false);
 }
 
 void SiPoConnectionLinux::clear() {
     if (!_srclr)
         throw std::runtime_error("SRCLR not configured");
-    gpiod_line_set_value(_srclr, 0);
-    gpiod_line_set_value(_srclr, 1);
+    _srclr->set(false);
+    _srclr->set(true);
 }
 
 void SiPoConnectionLinux::set_output_enable(bool enabled) {
     if (!_g)
         throw std::runtime_error("G not configured");
-    gpiod_line_set_value(_g, enabled ? 0 : 1);
+    _g->set(!enabled);
 }
 
 void SiPoConnectionLinux::close() {
     if (_fd >= 0) { ::close(_fd); _fd = -1; }
-    if (_ser_in) { gpiod_line_release(_ser_in); _ser_in = nullptr; }
-    if (_srck)   { gpiod_line_release(_srck);   _srck   = nullptr; }
-    if (_rck)    { gpiod_line_release(_rck);    _rck    = nullptr; }
-    if (_srclr)  { gpiod_line_release(_srclr);  _srclr  = nullptr; }
-    if (_g)      { gpiod_line_release(_g);      _g      = nullptr; }
+    _ser_in.reset();
+    _srck.reset();
+    _rck.reset();
+    _srclr.reset();
+    _g.reset();
 }
 #endif // __linux__

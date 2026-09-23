@@ -17,9 +17,9 @@ int main() {
     while (true) {
         if (gps.update()) {                                                // Read + parse one NMEA sentence, () → bool
             printf("lat=%.6f lon=%.6f alt=%.1f spd=%.2f fix=%d sats=%d\n",
-                   gps.latitude(), gps.longitude(),                        // Read latitude/longitude, () → double °
+                   gps.latitude(), gps.longitude(),                        // Read latitude/longitude, () → float °
                    gps.altitude(), gps.speed(),                            // Read altitude, () → float m ; speed() → float m/s
-                   gps.fix_type(), gps.satellites());                      // Read fix type 0-3, () → int ; satellites() → int
+                   gps.fix(), gps.satellites());                           // Read GGA fix quality, () → int 0–2 ; satellites() → int
         }
     }
     return 0;

@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/LPS22DF.h"
+#include "I2CConnection.h"
+#include "LPS22DF.h"
 
 void setup() {
     Serial.begin(115200);

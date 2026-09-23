@@ -17,7 +17,7 @@ int main() {
     // Sweeps 0→4095 in 16 steps, each held for ~62 µs → ~1 kHz period.
     while (true) {
         for (uint16_t v = 0; v <= 4095; v += 256) {
-            dac.set_voltage(v);                                            // Set DAC output (fast write), (value 0–4095) → void
+            dac.set_raw(v);                                                // Set raw DAC code (fast write), (code 0–4095) → void
             usleep(62);
         }
     }

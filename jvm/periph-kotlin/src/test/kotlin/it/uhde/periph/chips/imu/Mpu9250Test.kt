@@ -46,7 +46,7 @@ class Mpu9250Test {
             byteArrayOf(MPU9250Minimal.REG_WHO_AM_I.toByte()),
             byteArrayOf(MPU9250Minimal.REG_GYRO_CONFIG.toByte(), 0x00.toByte()),
             byteArrayOf(MPU9250Minimal.REG_ACCEL_CONFIG.toByte(), 0x00.toByte()),
-            byteArrayOf(MPU9250Minimal.REG_ACCEL_CONFIG2.toByte(), 0x00.toByte()),
+            byteArrayOf(MPU9250Minimal.REG_ACCEL_CONFIG2.toByte(), 0x03.toByte()),
             byteArrayOf(MPU9250Minimal.REG_CONFIG.toByte(), 0x03.toByte()),
             byteArrayOf(MPU9250Minimal.REG_SMPLRT_DIV.toByte(), 0x04.toByte()),
         )

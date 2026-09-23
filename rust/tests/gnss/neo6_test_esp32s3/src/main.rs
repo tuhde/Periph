@@ -32,8 +32,7 @@ fn main() -> ! {
     let uart = Uart::new(peripherals.UART1, Config::default().with_baudrate(9600))
         .unwrap()
         .with_tx(peripherals.GPIO17)
-        .with_rx(peripherals.GPIO18)
-        .into_blocking();
+        .with_rx(peripherals.GPIO18);
 
     let mut passed = 0i32;
     let mut failed = 0i32;

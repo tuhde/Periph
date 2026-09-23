@@ -34,7 +34,7 @@ func TestMPU9255Init(t *testing.T) {
 		{reg9255WhoAmI},
 		{reg9255GyroConfig, 0x00},
 		{reg9255AccelConfig, 0x00},
-		{reg9255AccelConfig2, 0x00},
+		{reg9255AccelConfig2, 0x03},
 		{reg9255Config, 0x03},
 		{reg9255SmplrtDiv, 0x04},
 	}
@@ -358,7 +358,7 @@ func TestMPU9255ConfigureWakeOnMotion(t *testing.T) {
 	}
 	writes := conn.writes
 	n := len(writes)
-	// 8 writes: PWR_MGMT_1=0x01, PWR_MGMT_2=0x07, ACCEL_CONFIG2=0x09,
+	// 8 writes: PWR_MGMT_1=0x01, PWR_MGMT_2=0x07, ACCEL_CONFIG2=0x01,
 	// INT_ENABLE=0x40, MOT_DETECT_CTRL=0xC0, WOM_THR=16, LP_ACCEL_ODR=0x07,
 	// PWR_MGMT_1=0x21.
 	if string(writes[n-8]) != string([]byte{reg9255PwrMgmt1, 0x01}) {
@@ -367,8 +367,8 @@ func TestMPU9255ConfigureWakeOnMotion(t *testing.T) {
 	if string(writes[n-7]) != string([]byte{reg9255PwrMgmt2, 0x07}) {
 		t.Errorf("wom pwr_mgmt_2 gyro_off = % X, want % X", writes[n-7], []byte{reg9255PwrMgmt2, 0x07})
 	}
-	if string(writes[n-6]) != string([]byte{reg9255AccelConfig2, 0x09}) {
-		t.Errorf("wom accel_config2 = % X, want % X", writes[n-6], []byte{reg9255AccelConfig2, 0x09})
+	if string(writes[n-6]) != string([]byte{reg9255AccelConfig2, 0x01}) {
+		t.Errorf("wom accel_config2 = % X, want % X", writes[n-6], []byte{reg9255AccelConfig2, 0x01})
 	}
 	if string(writes[n-5]) != string([]byte{reg9255IntEnable, 0x40}) {
 		t.Errorf("wom int_enable = % X, want % X", writes[n-5], []byte{reg9255IntEnable, 0x40})

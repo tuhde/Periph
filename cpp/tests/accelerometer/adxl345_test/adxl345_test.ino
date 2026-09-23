@@ -11,8 +11,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/accelerometer/ADXL345.h"
+#include "I2CConnection.h"
+#include "ADXL345.h"
 
 static int passed = 0, failed = 0;
 

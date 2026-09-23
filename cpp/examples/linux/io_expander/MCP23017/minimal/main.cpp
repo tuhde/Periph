@@ -11,13 +11,16 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x20;
     I2CConnectionLinux connection(bus, addr);
 
-    MCP23017Minimal mcp(connection);                                        // Create MCP23017 driver, (connection)
+    MCP23017Minimal mcp(connection);                                        // Create MCP23017 driver, (connection, addr=0x20)
+                                                                           // all 16 pins start as inputs
 
-    mcp.set_direction(0x00, 0xFF);                                         // Set pin direction, (port=0/1, mask 0=out 1=in) → void
+    for (uint8_t n = 8; n < 16; n++)
+        mcp.pin(n).mode(OUTPUT);                                           // Set pin direction, (m INPUT/OUTPUT) → void
+                                                                           // pins 8–15 = port B
     while (true) {
-        uint8_t val = mcp.read_port(0);                                    // Read port A, (port=0) → uint8_t
+        uint8_t val = mcp.read_port(0);                                    // Read port A, (port 0/1) → uint8_t bitmask
         printf("GPIOA=0x%02X\n", val);
-        mcp.write_port(1, 0xAA);                                           // Write port B, (port=1, value) → void
+        mcp.write_port(1, 0xAA);                                           // Write port B, (port 0/1, mask) → void
         usleep(500000);
     }
     return 0;

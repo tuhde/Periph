@@ -11,12 +11,10 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x50;
     I2CConnectionLinux connection(bus, addr);
 
-    Uid24AA02UIDAMinimal mem(connection);                                   // Create 24AA02UID driver, (connection)
+    EEPROM24AA02UIDMinimal mem(connection);                                 // Create 24AA02UID driver, (connection)
 
-    uint8_t uid[8];
-    mem.read_uid(uid);                                                     // Read factory-programmed 128-bit UID, (out[8]) → void
-    printf("UID:");
-    for (int i = 0; i < 8; i++) printf(" %02X", uid[i]);
-    printf("\n");
+    uint8_t uid[4];
+    mem.read_uid(uid);                                                     // Read factory 32-bit serial number, (buf[4]) → void
+    printf("UID: %02X%02X%02X%02X\n", uid[0], uid[1], uid[2], uid[3]);
     return 0;
 }

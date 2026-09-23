@@ -12,11 +12,12 @@ int main() {
     I2CConnectionLinux connection(bus, addr);
 
     PCF8575Minimal pcf(connection);                                         // Create PCF8575 driver, (connection)
+                                                                           // quasi-bidirectional: all pins start high (inputs)
 
     while (true) {
-        uint16_t val = pcf.read();                                         // Read all 16 pins, () → uint16_t
-        printf("port=0x%04X\n", val);
-        pcf.write(0xAAAA);                                                 // Write all 16 pins, (value) → void
+        printf("port0=0x%02X port1=0x%02X\n", pcf.read_port(0), pcf.read_port(1));  // Read port, (port) → uint8_t bitmask
+        pcf.write_port(0, 0xAA);                                               // Write port, (port 0/1, mask) → void
+        pcf.write_port(1, 0x55);
         usleep(500000);
     }
     return 0;

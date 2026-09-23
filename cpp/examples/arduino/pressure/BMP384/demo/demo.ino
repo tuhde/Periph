@@ -8,8 +8,8 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/BMP384.h"
+#include "I2CConnection.h"
+#include "BMP384.h"
 
 void setup() {
     Serial.begin(115200);

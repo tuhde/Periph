@@ -12,10 +12,12 @@ int main() {
     I2CConnectionLinux connection(bus, addr);
 
     PCF8576Minimal pcf(connection);                                         // Create PCF8576 driver, (connection)
+                                                                           // 1:4 multiplex, 1/3 bias, display enabled
 
-    pcf.set_display(true);                                                 // Enable display, (on=true) → void
-    pcf.write_digits("1234");                                              // Write digit string, (str) → void
+    const uint8_t digits[4] = {1, 2, 3, 4};
+    for (uint8_t pos = 0; pos < 4; pos++)
+        pcf.set_digit_7seg(pos, PCF8576Minimal::SEVEN_SEG[digits[pos]]);   // Write one 7-segment digit, (position, segments) → void
     usleep(2000000);
-    pcf.clear();                                                           // Clear display, () → void
+    pcf.clear();                                                           // Clear display RAM, () → void
     return 0;
 }

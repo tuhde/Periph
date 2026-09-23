@@ -386,7 +386,8 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_FIFO_CTRL, 0x00]),
             // fifo_level(): read FIFO_SRC = 0x05 (5 samples)
             I2cTransaction::write_read(ADDR, vec![REG_FIFO_SRC], vec![0x05]),
-            // read_fifo: read 30 bytes from OUT_X_L
+            // read_fifo: re-reads FIFO_SRC for the sample count, then bursts 5 × 6 bytes from OUT_X_L
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_SRC], vec![0x05]),
             I2cTransaction::write_read(ADDR, vec![REG_OUT_X_L | 0x80],
                                         vec![0x10, 0x00,   // sample 0: X=+16
                                              0x20, 0x00,   // sample 0: Y=+32
@@ -396,7 +397,13 @@ mod tests {
                                              0x60, 0x00,   // sample 1: Z=+96
                                              0x70, 0x00,   // sample 2: X=+112
                                              0x80, 0x00,   // sample 2: Y=+128
-                                             0x90, 0x00]), // sample 2: Z=+144
+                                             0x90, 0x00,   // sample 2: Z=+144
+                                             0xA0, 0x00,   // sample 3: X=+160
+                                             0xB0, 0x00,   // sample 3: Y=+176
+                                             0xC0, 0x00,   // sample 3: Z=+192
+                                             0xD0, 0x00,   // sample 4: X=+208
+                                             0xE0, 0x00,   // sample 4: Y=+224
+                                             0xF0, 0x00]), // sample 4: Z=+240
             // set_power_mode("normal"): read CTRL_REG1, write with all axes on
             I2cTransaction::write_read(ADDR, vec![REG_CTRL_REG1], vec![0x4F]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x4F]),

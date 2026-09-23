@@ -666,11 +666,12 @@ mod tests {
     use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
 
     // The mock distinguishes:
-    //   spi.write(&buf)        -> matches SpiTransaction::write_vec(vec![...])
+    //   spi.write(&buf)        -> matches [transaction_start, write_vec, transaction_end]
+    //                             (SpiDevice::write is a one-operation transaction)
     //   spi.transaction(&[..]) -> matches [transaction_start, write_vec|read_vec|..., transaction_end]
     //
     // MCP2515 helpers that use spi.write (RESET, _write_reg, _modify_reg, _rts,
-    // LOAD TX BUFFER) lower to a single write_vec entry. MCP2515 helpers that
+    // LOAD TX BUFFER) lower to a [start, write, end] triple. MCP2515 helpers that
     // use spi.transaction with Op::Write + Op::Read (_read_reg, _read_status,
     // READ RX BUFFER) lower to a triple: [start, write, read, end].
 
@@ -684,7 +685,11 @@ mod tests {
     }
 
     fn w_only(bytes: Vec<u8>) -> Vec<SpiTransaction<u8>> {
-        vec![SpiTransaction::write_vec(bytes)]
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(bytes),
+            SpiTransaction::transaction_end(),
+        ]
     }
 
     // Init sequence that `new()` issues: RESET + wait(CANSTAT=CONFIG) +
@@ -745,10 +750,10 @@ mod tests {
         let mut v = init_seq();
         v.extend(wr(vec![INSTR_READ_STATUS], vec![0x00]));
         // id=0x1ABCDEF0 extended, len=0:
-        //   sidh = 0xD5, sidl = 0x6B (EXIDE bit 3 set), eid8=0xDE, eid0=0xF0, dlc=0x00
+        //   sidh = 0xD5, sidl = 0xE8 (SID[2:0]=111, EXIDE bit 3 set), eid8=0xDE, eid0=0xF0, dlc=0x00
         v.extend(w_only(vec![
             INSTR_LOAD_TX_BUF | 0,
-            0xD5, 0x6B, 0xDE, 0xF0, 0x00,
+            0xD5, 0xE8, 0xDE, 0xF0, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ]));
         v.extend(w_only(vec![INSTR_RTS | 0x01]));
@@ -778,10 +783,10 @@ mod tests {
         // _read_status -> RX0IF set (status bit 0)
         v.extend(wr(vec![INSTR_READ_STATUS], vec![0x01]));
         // READ RX BUFFER RXB0 (offset 0): id=0x42 std, dlc=3, data=[0x11,0x22,0x33]
-        //   sidh=0x08, sidl=0x20, eid8=0, eid0=0, dlc=0x03
+        //   sidh=0x08, sidl=0x40, eid8=0, eid0=0, dlc=0x03
         v.extend(wr(
             vec![INSTR_READ_RX_BUF | 0],
-            vec![0x08, 0x20, 0x00, 0x00, 0x03, 0x11, 0x22, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00],
+            vec![0x08, 0x40, 0x00, 0x00, 0x03, 0x11, 0x22, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00],
         ));
         let spi = SpiMock::new(&v);
         let mut chip = MCP2515Minimal::new(spi, 125, 8).expect("init");
@@ -897,23 +902,23 @@ mod tests {
 
     #[test]
     fn pack_unpack_id_roundtrip_standard() {
-        let (sidh, sidl, eid8, eid0) = MCP2515Minimal::<SpiMock>::_pack_id(0x123, false);
+        let (sidh, sidl, eid8, eid0) = MCP2515Minimal::<SpiMock<u8>>::_pack_id(0x123, false);
         assert_eq!(sidh, 0x24);
         assert_eq!(sidl, 0x60);
         assert_eq!(eid8, 0);
         assert_eq!(eid0, 0);
-        let id = MCP2515Minimal::<SpiMock>::_unpack_id(sidh, sidl, eid8, eid0, false);
+        let id = MCP2515Minimal::<SpiMock<u8>>::_unpack_id(sidh, sidl, eid8, eid0, false);
         assert_eq!(id, 0x123);
     }
 
     #[test]
     fn pack_unpack_id_roundtrip_extended() {
-        let (sidh, sidl, eid8, eid0) = MCP2515Minimal::<SpiMock>::_pack_id(0x1ABCDEF0, true);
+        let (sidh, sidl, eid8, eid0) = MCP2515Minimal::<SpiMock<u8>>::_pack_id(0x1ABCDEF0, true);
         assert_eq!(sidh, 0xD5);
-        assert_eq!(sidl, 0x6B);
+        assert_eq!(sidl, 0xE8); // SID[2:0]=111 <<5 | EXIDE | EID[17:16]=00
         assert_eq!(eid8, 0xDE);
         assert_eq!(eid0, 0xF0);
-        let id = MCP2515Minimal::<SpiMock>::_unpack_id(sidh, sidl, eid8, eid0, true);
+        let id = MCP2515Minimal::<SpiMock<u8>>::_unpack_id(sidh, sidl, eid8, eid0, true);
         assert_eq!(id, 0x1ABCDEF0);
     }
 }

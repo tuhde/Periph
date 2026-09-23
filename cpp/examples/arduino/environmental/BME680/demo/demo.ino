@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/environmental/BME680.h"
+#include "I2CConnection.h"
+#include "BME680.h"
 
 void setup() {
     Serial.begin(115200);

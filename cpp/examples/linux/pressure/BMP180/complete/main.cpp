@@ -11,15 +11,22 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x77;
     I2CConnectionLinux connection(bus, addr);
 
-    BMP180Full bmp(connection);                                             // Create BMP180 driver, (connection)
+    BMP180Full bmp(connection, BMP180Full::OSS_ULP);                        // Create BMP180 driver, (connection, oss=0)
 
-    uint8_t id = bmp.chip_id();                                            // Read chip ID, () → uint8_t  (0x55)
+    uint8_t id = bmp.chip_id();                                            // Read chip ID, () → uint8_t
+                                                                           // 0x55 for BMP180
     printf("chip_id=0x%02X\n", id);
     float t = bmp.temperature();                                           // Read temperature, () → float °C
-    float p = bmp.pressure();                                              // Read pressure (OSS=0), () → float Pa
-    float p3 = bmp.pressure(3);                                            // Read pressure (OSS=3 high-res), (oss=0–3) → float Pa
-    float alt = bmp.altitude();                                            // Read altitude from pressure, () → float m
-    printf("t=%.2f p=%.2f p3=%.2f alt=%.1f\n", t, p, p3, alt);
-    bmp.soft_reset();                                                      // Trigger soft reset, () → void
+    float p = bmp.pressure();                                              // Read pressure at the current OSS, () → float hPa
+    printf("t=%.2f C p=%.2f hPa oss=%u\n", (double)t, (double)p, bmp.oversampling());  // Current OSS, () → uint8_t 0–3
+
+    bmp.set_oversampling(BMP180Full::OSS_ULTRA_HIGH_RES);                  // Set oversampling, (oss 0–3) → void
+                                                                           // 8 samples per reading, ~25.5 ms conversion
+    float p3 = bmp.pressure();
+    float alt = bmp.altitude(1013.25f);                                    // Altitude from pressure, (sea_level_hpa=1013.25 hPa) → float m
+    float slp = bmp.sea_level_pressure(100.0f);                            // Reduce to sea level, (altitude_m m) → float hPa
+    printf("p(oss3)=%.2f hPa alt=%.1f m slp=%.2f hPa\n", (double)p3, (double)alt, (double)slp);
+
+    bmp.reset();                                                           // Soft reset, () → void
     return 0;
 }

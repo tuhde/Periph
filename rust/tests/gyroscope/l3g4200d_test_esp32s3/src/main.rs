@@ -61,5 +61,5 @@ fn main() -> ! {
     gyro_full.enable_fifo(FIFO_STREAM, 10).unwrap();
     check_true!(true, "enable_fifo_no_throw");
 
-    loop { delay.delay_ms(1000); }
+    loop { delay.delay_millis(1000); }
 }

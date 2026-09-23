@@ -16,28 +16,8 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <gpiod.h>
 #include "SiPoConnectionLinux.h"
 #include "TPIC6B595.h"
-
-static gpiod_line* get_output_line(const char* chip_path, unsigned int offset,
-                                   const char* consumer, int default_value) {
-    gpiod_chip* chip = ::gpiod_chip_open(chip_path);
-    if (!chip) {
-        std::perror("gpiod_chip_open");
-        std::exit(2);
-    }
-    gpiod_line* line = ::gpiod_line_get(chip, offset);
-    if (!line) {
-        std::perror("gpiod_line_get");
-        std::exit(2);
-    }
-    if (::gpiod_line_request_output(line, consumer, default_value) < 0) {
-        std::perror("gpiod_line_request_output");
-        std::exit(2);
-    }
-    return line;
-}
 
 int passed = 0;
 int failed = 0;
@@ -53,16 +33,11 @@ static void check_eq(const char* label, uint8_t got, uint8_t expected) {
 }
 
 int main() {
-    const char* chip = getenv("GPIO_CHIP");
-    if (!chip) chip = "/dev/gpiochip0";
+    const char* chip_path = getenv("GPIO_CHIP");
+    if (!chip_path) chip_path = "/dev/gpiochip0";
 
-    gpiod_line* ser_in_line = get_output_line(chip, TEST_SER_IN, "tpic6b595_test_si", 0);
-    gpiod_line* srck_line   = get_output_line(chip, TEST_SRCK,   "tpic6b595_test_ck", 0);
-    gpiod_line* rck_line    = get_output_line(chip, TEST_RCK,    "tpic6b595_test_rc", 0);
-    gpiod_line* srclr_line  = get_output_line(chip, TEST_SRCLR,  "tpic6b595_test_clr", 1);
-    gpiod_line* g_line      = get_output_line(chip, TEST_G,      "tpic6b595_test_g",   0);
 
-    SiPoConnectionLinux connection(ser_in_line, srck_line, rck_line, srclr_line, g_line);
+    SiPoConnectionLinux connection(chip_path, TEST_SER_IN, TEST_SRCK, TEST_RCK, TEST_SRCLR, TEST_G);
     TPIC6B595Full<SiPoConnectionLinux> chip(connection, 1);
 
     check_eq("init_shadow_0", chip._shadow[0], 0x00);

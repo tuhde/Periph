@@ -1,6 +1,6 @@
 #include <cstdio>
+#include <unistd.h>
 #include <cstdlib>
-#include <gpiod.h>
 #include "HX711ConnectionLinux.h"
 
 #ifndef TEST_GPIO_CHIP
@@ -22,16 +22,7 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    struct gpiod_chip* chip = gpiod_chip_open(TEST_GPIO_CHIP);
-    if (!chip) { perror("gpiod_chip_open"); return 1; }
-
-    struct gpiod_line* dout   = gpiod_chip_get_line(chip, TEST_DOUT_LINE);
-    struct gpiod_line* pd_sck = gpiod_chip_get_line(chip, TEST_PD_SCK_LINE);
-
-    gpiod_line_request_input(dout,   "hx711_test");
-    gpiod_line_request_output(pd_sck, "hx711_test", 0);
-
-    HX711ConnectionLinux connection(dout, pd_sck);
+    HX711ConnectionLinux connection(TEST_GPIO_CHIP, TEST_DOUT_LINE, TEST_PD_SCK_LINE);
 
     check_true("is_ready returns bool", true);
 
@@ -47,7 +38,6 @@ int main() {
     connection.close();
     check_true("close accepted", true);
 
-    gpiod_chip_close(chip);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

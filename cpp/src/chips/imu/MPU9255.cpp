@@ -30,7 +30,7 @@ MPU9255Minimal::MPU9255Minimal(Connection& connection)
     }
     _write_reg(REG_GYRO_CONFIG, 0x00);
     _write_reg(REG_ACCEL_CONFIG, 0x00);
-    _write_reg(REG_ACCEL_CONFIG2, 0x00);
+    _write_reg(REG_ACCEL_CONFIG2, 0x03);
     _write_reg(REG_CONFIG, 0x03);
     _write_reg(REG_SMPLRT_DIV, 0x04);
     DELAY_MS(35);
@@ -264,7 +264,7 @@ void MPU9255Full::configure_wake_on_motion(uint16_t threshold_mg, float odr_hz) 
 
     _write_reg(REG_PWR_MGMT_1, 0x01);
     _write_reg(REG_PWR_MGMT_2, 0x07);
-    _write_reg(REG_ACCEL_CONFIG2, 0x09);
+    _write_reg(REG_ACCEL_CONFIG2, 0x01);
     _write_reg(REG_INT_ENABLE, 0x40);
     _write_reg(REG_MOT_DETECT_CTRL, 0xC0);
     _write_reg(REG_WOM_THR, static_cast<uint8_t>(threshold_lsb));

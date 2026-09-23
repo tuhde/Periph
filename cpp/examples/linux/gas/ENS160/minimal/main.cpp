@@ -12,11 +12,13 @@ int main() {
     I2CConnectionLinux connection(bus, addr);
 
     ENS160Minimal ens(connection);                                          // Create ENS160 driver, (connection)
+                                                                           // enters STANDARD operating mode
 
     while (true) {
-        uint16_t eco2 = ens.eco2();                                        // Read eCO2, () → uint16_t ppm
-        uint16_t tvoc = ens.tvoc();                                        // Read TVOC, () → uint16_t ppb
-        printf("eCO2=%u ppm  TVOC=%u ppb\n", eco2, tvoc);
+        uint8_t aqi;
+        float tvoc, eco2;
+        if (ens.read_air_quality(aqi, tvoc, eco2))                         // Read AQI/TVOC/eCO2, (aqi 1–5, tvoc_ppb ppb, eco2_ppm ppm) → bool
+            printf("AQI=%u  TVOC=%.0f ppb  eCO2=%.0f ppm\n", aqi, (double)tvoc, (double)eco2);
         usleep(1000000);
     }
     return 0;

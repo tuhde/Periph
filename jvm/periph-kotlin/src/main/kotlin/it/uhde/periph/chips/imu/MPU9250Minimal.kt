@@ -16,7 +16,7 @@ import it.uhde.periph.connection.Connection
  * - Gyroscope full-scale: ±250 dps (GYRO_FS_SEL=0)
  * - Accelerometer full-scale: ±2 g (ACCEL_FS_SEL=0)
  * - Gyroscope DLPF: 41 Hz bandwidth (CONFIG DLPF_CFG=3)
- * - Accelerometer DLPF: 42 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
+ * - Accelerometer DLPF: 44.8 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
  * - Sample rate: 200 Hz (SMPLRT_DIV=4)
  * - Clock: auto PLL (CLKSEL=1)
  * - All six axes enabled
@@ -66,7 +66,7 @@ open class MPU9250Minimal @JvmOverloads constructor(
         }
         writeReg(REG_GYRO_CONFIG, 0x00)
         writeReg(REG_ACCEL_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG2, 0x00)
+        writeReg(REG_ACCEL_CONFIG2, 0x03)
         writeReg(REG_CONFIG, 0x03)
         writeReg(REG_SMPLRT_DIV, 0x04)
         Thread.sleep(35)

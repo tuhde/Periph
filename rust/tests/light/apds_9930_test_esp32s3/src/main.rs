@@ -20,7 +20,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO9);
     let mut chip = Apds9930Full::new(i2c, 0x39, &mut delay).unwrap();                 // Construct APDS-9930 Full, (i2c, addr=0x39, delay) → Result<Apds9930Full, _>
 
-    delay.delay_ms(110);
+    delay.delay_millis(110);
 
     println!("PASS chip_id is 0x39");
     let _ = chip.chip_id().unwrap();
@@ -49,5 +49,5 @@ fn main() -> ! {
     println!("PASS config methods accepted");
 
     println!("===DONE: smoke test complete===");
-    loop { delay.delay_ms(1000); }
+    loop { delay.delay_millis(1000); }
 }

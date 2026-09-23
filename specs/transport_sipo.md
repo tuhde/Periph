@@ -175,13 +175,13 @@ Files: `cpp/src/connection/SiPoConnection.h`, `cpp/src/connection/SiPoConnection
 
 ### Linux GCC
 
-Same two-mode structure as Linux Python:
-- **Hardware:** `/dev/spidevB.D` via the kernel spidev driver at 1 MHz, mode 0.
-- **Software:** two `gpiod_line*`s (`ser_in`, `srck`), bit-banged in `write()`.
+Same two-mode structure as Linux Python, on libgpiod v2. Every GPIO is a line offset on one GPIO chip (`chip_path`, e.g. `/dev/gpiochip0`), requested through the shared `GpiodLineLinux` helper; `-1` disables the optional SRCLR/G lines, the same convention the ESP-IDF and Pico SDK connections use:
+- **Hardware:** `SiPoConnectionLinux(int bus_num, int device_num, const char* chip_path, unsigned rck, int srclr = -1, int g = -1, uint32_t max_speed_hz = 1000000)` — `/dev/spidevB.D` via the kernel spidev driver at 1 MHz, mode 0. The GPIO lines are requested before the spidev device is opened, so a failed request cannot leak the fd.
+- **Software:** `SiPoConnectionLinux(const char* chip_path, unsigned ser_in, unsigned srck, unsigned rck, int srclr = -1, int g = -1)` — `ser_in`/`srck` bit-banged in `write()`.
 
-RCK/SRCLR/G use `gpiod_line_set_value()` in both modes. Release the spidev fd (or bit-bang lines) and any configured RCK/SRCLR/G lines in the destructor / `close()`.
+RCK starts LOW, SRCLR HIGH, G LOW. Release the spidev fd and every requested line in the destructor / `close()`.
 
-Files: `cpp/src/connection/SiPoConnectionLinux.h`, `cpp/src/connection/SiPoConnectionLinux.cpp`
+Files: `cpp/src/connection/SiPoConnectionLinux.h`, `cpp/src/connection/SiPoConnectionLinux.cpp` (link with `cpp/src/connection/GpiodLineLinux.cpp` and `-lgpiod`)
 
 ### Zephyr RTOS
 

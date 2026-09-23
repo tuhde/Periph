@@ -13,13 +13,12 @@ int main() {
 
     PCF8575Full pcf(connection);                                            // Create PCF8575 driver, (connection)
 
-    // --- Knight-rider chaser across all 16 outputs ---
-    int pos = 0, dir = 1;
-    while (true) {
-        pcf.write((uint16_t)(1 << pos));                                   // Write all 16 pins, (value) → void
-        pos += dir;
-        if (pos == 15 || pos == 0) dir = -dir;
-        usleep(60000);
+    // --- 4-LED bargraph chaser on P4–P7 ---
+    // Lights one LED at a time across the upper nibble of port 0; the
+    // lower nibble stays high so those pins keep working as inputs.
+    for (int i = 0; ; i = (i + 1) & 3) {
+        pcf.write_port(0, (uint8_t)(0x0F | (0x10 << i)));                 // Write port, (port, mask) → void
+        usleep(200000);
     }
     return 0;
 }

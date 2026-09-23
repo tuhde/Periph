@@ -47,7 +47,7 @@ expected_init_writes = [
     bytes([MPU9250Full._REG_WHO_AM_I]),
     bytes([MPU9250Full._REG_GYRO_CONFIG, 0x00]),
     bytes([MPU9250Full._REG_ACCEL_CONFIG, 0x00]),
-    bytes([MPU9250Full._REG_ACCEL_CONFIG2, 0x00]),
+    bytes([MPU9250Full._REG_ACCEL_CONFIG2, 0x03]),
     bytes([MPU9250Full._REG_CONFIG, 0x03]),
     bytes([MPU9250Full._REG_SMPLRT_DIV, 0x04]),
 ]

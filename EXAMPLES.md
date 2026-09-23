@@ -154,8 +154,12 @@ Link the connection source that matches the chip:
 | I²C (most chips) | `I2CConnectionLinux.cpp` | — |
 | SPI (`MFRC522`) | `SPIConnectionLinux.cpp` | — |
 | NeoPixel (`WS2812B`, `SK6812RGBW`) | `NeoPixelConnectionLinux.cpp` | — |
-| GPIO bit-bang (`HX711`, `DHT11`) | `HX711ConnectionLinux.cpp` / `DHTxxConnectionLinux.cpp` | `-lgpiod` |
+| GPIO bit-bang (`HX711`, `HX710A`, `HX710B`) | `HX711ConnectionLinux.cpp` + `GpiodLineLinux.cpp` | `-lgpiod` (libgpiod v2) |
+| GPIO bit-bang (`DHT11`) | `DHTxxConnectionLinux.cpp` | `-lgpiod` (libgpiod v2) |
+| Shift register (`TPIC6B595`) | `SiPoConnectionLinux.cpp` + `GpiodLineLinux.cpp` | `-lgpiod` (libgpiod v2) |
 | UART (`NEO6`) | `UARTConnectionLinux.cpp` | — |
+
+GPIO lines are addressed as a chip path plus line offset (the numbers `gpioinfo` prints), e.g. `HX711ConnectionLinux connection("/dev/gpiochip0", 5, 6);`. `InputPinLinux`/`OutputPinLinux` (INT/EN lines) take the same `(chip_path, offset)` pair and also need `GpiodLineLinux.cpp`.
 
 The test suite (`cpp/tests/`) provides the same chip coverage with pass/fail assertions; run them via `cpp/test_linux.sh` — see [TESTING.md](TESTING.md).
 

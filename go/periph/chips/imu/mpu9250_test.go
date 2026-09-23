@@ -43,7 +43,7 @@ func TestMPU9250Init(t *testing.T) {
 		{reg9250WhoAmI},
 		{reg9250GyroConfig, 0x00},
 		{reg9250AccelConfig, 0x00},
-		{reg9250AccelConfig2, 0x00},
+		{reg9250AccelConfig2, 0x03},
 		{reg9250Config, 0x03},
 		{reg9250SmplrtDiv, 0x04},
 	}

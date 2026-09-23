@@ -536,7 +536,8 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_ODR,      0x03]),
             I2cTransaction::write(ADDR, vec![REG_PWR_CTRL, 0x33]),
         ];
-        let i2c = I2cMock::new(&transactions);
-        let _sensor = Bmp384Full::new(i2c, ADDR, true).expect("init");
+        let mut i2c = I2cMock::new(&transactions);
+        let _sensor = Bmp384Full::new(i2c.clone(), ADDR, true).expect("init");
+        i2c.done();
     }
 }

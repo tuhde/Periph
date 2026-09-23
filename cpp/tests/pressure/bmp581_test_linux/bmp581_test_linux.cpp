@@ -22,10 +22,14 @@ int main() {
 
     check_true(bmp.chip_id() == 0x50, "chip_id");
     bmp.configure(0x1C, BMP581Full::OSR_1X, BMP581Full::OSR_1X, true);
-    check_true(bmp._odr == 0x1C && bmp._osr_p == 0 && bmp._osr_t == 0, "configure_state");
+    uint8_t osr_p_eff = 0xFF, osr_t_eff = 0xFF;
+    bmp.effective_osr(osr_p_eff, osr_t_eff);
+    check_true(osr_p_eff == BMP581Full::OSR_1X && osr_t_eff == BMP581Full::OSR_1X, "configure_effective_osr");
+    check_true(bmp.odr_is_valid(), "configure_odr_valid");
 
-    bmp.set_mode(BMP581Full.MODE_NORMAL);
-    check_true(bmp._pwr_mode == BMP581Full.MODE_NORMAL, "set_mode");
+    bmp.set_mode(BMP581Full::MODE_NORMAL);
+    float p = bmp.pressure();
+    check_true(p >= 30000.0f && p <= 125000.0f, "set_mode_normal_pressure_range");
 
     bmp.set_iir_filter(BMP581Full::IIR_COEFF_3, BMP581Full::IIR_BYPASS);
     bmp.enable_drdy_interrupt(true);

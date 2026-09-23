@@ -636,17 +636,18 @@ Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF**
 | `NeoPixelConnectionESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
 | `NeoPixelConnectionPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
 | `HX711Connection.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
-| `HX711ConnectionLinux.h/.cpp` | Linux GCC | `gpiod_line_get_value`/`_set_value` bit-bang |
+| `HX711ConnectionLinux.h/.cpp` | Linux GCC | bit-bang via `GpiodLineLinux` (libgpiod v2), `(chip_path, dout_line, pd_sck_line)` |
 | `HX711ConnectionZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
 | `HX711ConnectionESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
 | `HX711ConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
 | `SiPoConnection.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
-| `SiPoConnectionLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang `gpiod` lines |
+| `SiPoConnectionLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang lines via `GpiodLineLinux` (libgpiod v2); `-1` disables SRCLR/G |
 | `SiPoConnectionZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
 | `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
 | `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
 | `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
+| `GpiodLineLinux.h/.cpp` | Linux GCC | one libgpiod v2 line request (chip path + offset); shared by `InputPinLinux`, `OutputPinLinux`, `HX711ConnectionLinux`, `SiPoConnectionLinux` |
 | `DHTxxConnectionZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
 | `DHTxxConnectionESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
 | `DHTxxConnectionPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |

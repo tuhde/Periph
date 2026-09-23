@@ -4,6 +4,7 @@
 
 #ifdef ARDUINO
 #include <Arduino.h>
+#define delay_ms(ms) delay(ms)
 #elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 static inline void delay_ms(unsigned long ms) { k_sleep(K_MSEC(ms)); }

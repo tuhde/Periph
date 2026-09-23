@@ -1,30 +1,27 @@
+//! MPU9250 hardware-in-loop test for ESP32-S3.
+//! Wiring: GPIO1 -> SDA, GPIO2 -> SCL; AD0 low (address 0x68).
 #![no_std]
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::{
-    clock::ClockControl,
-    delay::Delay,
-    gpio::IO,
-    i2c::I2C,
-    peripherals::Peripherals,
-    prelude::*,
-    system::SystemControl,
-};
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
+use esp_hal::i2c::master::{Config, I2c};
+use esp_hal::main;
+use esp_hal::time::Rate;
 use periph::chips::imu::Mpu9250Full;
 
-#[entry]
+esp_app_desc!();
+
+#[main]
 fn main() -> ! {
-    let peripherals = Peripherals::take();
-    let system = SystemControl::new(peripherals.SYSTEM);
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
-    let sda = io.pins.gpio1;
-    let scl = io.pins.gpio2;
-
-    let i2c = I2C::new(peripherals.I2C0, sda, scl, 400.kHz(), &clocks, None);
-    let mut delay = Delay::new(&clocks);
+    let i2c = I2c::new(peripherals.I2C0, Config::default().with_frequency(Rate::from_khz(400)))
+        .unwrap()
+        .with_sda(peripherals.GPIO1)
+        .with_scl(peripherals.GPIO2);
+    let mut delay = Delay::new();
     let mut imu = Mpu9250Full::new(i2c, 0x68, &mut delay).expect("init");
 
     esp_println::println!("MPU9250 test started");

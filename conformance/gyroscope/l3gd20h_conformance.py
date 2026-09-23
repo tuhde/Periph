@@ -7,7 +7,7 @@ Checks (see specs/gyroscope/l3gd20h.md, Timing Constraints):
   - poweron_ready: from CTRL_REG1 write with PD=1 (poweron_start) to the
     first register read of any kind (poweron_ready), <= 300 ms.
 
-Keys off sigrok/gyroscope/l3gd20h/pd.py's named annotations (added
+Keys off sigrok/l3gd20h/pd.py's named annotations (added
 alongside the decoder's generic reg-write/data-read annotations).
 
 Usage (invoked by each language's platform script's run_conformance(), not

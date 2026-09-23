@@ -10,8 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/BMP180.h"
+#include "I2CConnection.h"
+#include "BMP180.h"
 
 static int passed = 0, failed = 0;
 
@@ -27,31 +27,24 @@ void setup() {
     I2CConnection connection(Wire, TEST_ADDR);
     BMP180Minimal bmp(connection);
 
-    bmp._oss = 0;
-    bmp._b5 = 0;
-    bmp._ac1 = 408;
-    bmp._ac2 = -72;
-    bmp._ac3 = -14383;
-    bmp._ac4 = 32741;
-    bmp._ac5 = 32757;
-    bmp._ac6 = 23153;
-    bmp._b1 = 6190;
-    bmp._b2 = 4;
-    bmp._mc = -8711;
-    bmp._md = 2868;
+    float t = bmp.temperature();
+    check_true(t >= -40.0f && t <= 85.0f, "temperature_range");
 
-    int32_t b5 = bmp._compensate_temp(27898);
-    check_true(abs(b5) > 0, "temp_compensation_b5");
+    float p = bmp.pressure();
+    check_true(p >= 300.0f && p <= 1100.0f, "pressure_range");
 
-    BMP180Full bmp_full(connection, 0);
-    check_true(bmp_full.oversampling() == 0, "default_oss");
-    bmp_full.set_oversampling(2);
-    check_true(bmp_full.oversampling() == 2, "set_oss");
+    BMP180Full bmp_full(connection, BMP180Full::OSS_ULP);
+    check_true(bmp_full.oversampling() == BMP180Full::OSS_ULP, "default_oss");
+    bmp_full.set_oversampling(BMP180Full::OSS_HIGH_RES);
+    check_true(bmp_full.oversampling() == BMP180Full::OSS_HIGH_RES, "set_oss");
 
     float alt = bmp_full.altitude();
-    check_true(alt >= 0.0f, "altitude");
+    check_true(alt >= -500.0f && alt <= 9000.0f, "altitude_range");
+
     float slp = bmp_full.sea_level_pressure(0.0f);
     check_true(slp >= 900.0f && slp <= 1100.0f, "sea_level_pressure");
+
+    check_true(bmp_full.chip_id() == 0x55, "chip_id");
 
     Serial.print("===DONE: ");
     Serial.print(passed);

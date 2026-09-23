@@ -13,8 +13,8 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include "../../src/connection/SPIConnection.h"
-#include "../../src/chips/rfid/MFRC522.h"
+#include "SPIConnection.h"
+#include "MFRC522.h"
 
 static int passed = 0, failed = 0;
 

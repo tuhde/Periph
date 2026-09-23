@@ -6,7 +6,7 @@ use esp_bootloader_esp_idf::esp_app_desc;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_println::println;
 use periph::chips::display::{
-    Pcf8576Full, BACKPLANES_4, BIAS_1_3, BANK_0, BLINK_2_HZ, BLINK_OFF,
+    Pcf8576Full, BACKPLANES_4, BIAS_1_3, BANK_0, BLINK_2_HZ, BLINK_OFF, SEVEN_SEG,
 };
 
 esp_app_desc!();
@@ -52,7 +52,7 @@ fn main() -> ! {
     let digits = [1u8, 2, 3, 4];
     let mut write_ok = true;
     for (i, d) in digits.iter().enumerate() {
-        if chip.set_digit_7seg(i as u8, Pcf8576Full::SEVEN_SEG[*d as usize]).is_err() {
+        if chip.set_digit_7seg(i as u8, SEVEN_SEG[*d as usize]).is_err() {
             write_ok = false;
             break;
         }

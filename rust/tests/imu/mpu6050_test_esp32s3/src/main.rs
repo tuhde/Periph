@@ -31,6 +31,7 @@ fn main() -> ! {
     let scl = peripherals.GPIO2;
 
     let i2c = I2c::new(peripherals.I2C0, Config::default())
+        .unwrap()
         .with_sda(sda)
         .with_scl(scl);
 

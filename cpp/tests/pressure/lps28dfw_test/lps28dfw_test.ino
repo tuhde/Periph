@@ -10,8 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/LPS28DFW.h"
+#include "I2CConnection.h"
+#include "LPS28DFW.h"
 
 static int passed = 0, failed = 0;
 

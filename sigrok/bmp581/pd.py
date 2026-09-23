@@ -303,7 +303,7 @@ class Decoder(srd.Decoder):
                      [ANN_REG_READ,
                       ['osr_eff 0x%02X: odr_valid=%d osr_p=%s osr_t=%s'
                        % (buf[0], odr_valid, OSR_NAMES[osr_p], OSR_NAMES[osr_t]),
-                       'osr_eff 0x%02X' % buf[0]])
+                       'osr_eff 0x%02X' % buf[0]]])
             return
 
         if reg == 0x17 and len(buf) == 1:

@@ -496,8 +496,8 @@ mod tests {
             // read_temperature(): 25.25 C -> MSB=0x19, LSB bits7:6=01 (0.25).
             I2cTransaction::write_read(ADDR, vec![REG_TEMP_MSB], vec![0x19, 0x40]),
         ];
-        let i2c = I2cMock::new(&transactions);
-        let mut rtc = Ds3231Minimal::new(i2c, ADDR).expect("init");
+        let mut i2c = I2cMock::new(&transactions);
+        let mut rtc = Ds3231Minimal::new(i2c.clone(), ADDR).expect("init");
 
         rtc.set_datetime(DateTime { year: 2026, month: 9, day: 22, weekday: 2, hour: 14, minute: 30, second: 0 })
             .expect("set_datetime");
@@ -507,6 +507,7 @@ mod tests {
 
         let temp = rtc.read_temperature().expect("read_temperature");
         assert!((temp - 25.25).abs() < 1e-6);
+        i2c.done();
     }
 
     #[test]
@@ -529,8 +530,8 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_CONTROL_STATUS], vec![0x09]),
             I2cTransaction::write(ADDR, vec![REG_CONTROL_STATUS, 0x08]),
         ];
-        let i2c = I2cMock::new(&transactions);
-        let mut rtc = Ds3231Full::new(i2c, ADDR).expect("init");
+        let mut i2c = I2cMock::new(&transactions);
+        let mut rtc = Ds3231Full::new(i2c.clone(), ADDR).expect("init");
 
         rtc.set_alarm1(0, 0, 0, 0, Alarm1Match::EverySecond).expect("set_alarm1");
         let (_, _, _, _, mode) = rtc.get_alarm1().expect("get_alarm1");
@@ -545,5 +546,6 @@ mod tests {
 
         let status = rtc.poll_interrupt().expect("poll_interrupt");
         assert_eq!(status & SOURCE_ALARM1, SOURCE_ALARM1);
+        i2c.done();
     }
 }

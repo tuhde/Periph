@@ -14,16 +14,31 @@ int main() {
     INA3221Full ina(connection);                                            // Create INA3221 driver, (connection)
 
     printf("mfr=0x%04X die=0x%04X\n",
-           ina.manufacturer_id(), ina.die_id());                           // Read manufacturer/die ID, () → uint16_t
+           ina.manufacturer_id(), ina.die_id());                           // Manufacturer/die ID, () → uint16_t (0x5449 / 0x3220)
     for (int ch = 1; ch <= 3; ch++)
-        printf("ch%d V=%.4f I=%.4f\n",
-               ch, ina.voltage(ch), ina.current(ch));
-    ina.configure(7, 4, 4, 7);                                            // Configure averages+times+mode, (avg, vbus_ct, vsh_ct, mode) → void
-    ina.set_channel_enable(1, true);                                       // Enable/disable channel, (ch=1-3, enable) → void
-    ina.set_channel_enable(2, false);
-    ina.set_channel_enable(3, true);
-    ina.set_warning_alert(1, 1.5f);                                        // Set per-channel warning threshold, (ch, amperes) → void
-    printf("flags=0x%04X\n", ina.mask_enable());                          // Read MASK/ENABLE register, () → uint16_t
-    ina.reset();                                                           // Trigger software reset, () → void
+        printf("ch%d V=%.4f V shunt=%.6f V I=%.4f A P=%.4f W\n", ch,
+               (double)ina.voltage(ch), (double)ina.shunt_voltage(ch),     // Bus/shunt voltage, (channel 1–3) → float V
+               (double)ina.current(ch), (double)ina.power(ch));            // Current, (channel) → float A ; power, (channel) → float W
+
+    ina.configure(7, 4, 4, INA3221Full::MODE_SHUNT_BUS_CONT);              // Configure ADC, (avg 0–7, vbus_ct 0–7, vsh_ct 0–7, mode) → void
+                                                                           // 1024-sample averaging, 1.1 ms conversion times
+    ina.enable_channel(2, false);                                          // Enable/disable a channel, (channel 1–3, enabled) → void
+    printf("ch2 enabled=%d ready=%d\n", ina.channel_enabled(2),           // Channel enabled?, (channel) → bool
+           ina.conversion_ready());                                        // Conversion-ready flag, () → bool
+    ina.enable_channel(2, true);
+
+    ina.set_critical_alert(1, 0.080f);                                     // Critical alert on shunt voltage, (channel, limit_v V, latch=false) → void
+                                                                           // compared per conversion
+    ina.set_warning_alert(1, 0.050f);                                      // Warning alert on averaged shunt voltage, (channel, limit_v V, latch=false) → void
+    const uint8_t sum_channels[2] = {1, 2};
+    ina.set_summation_channels(sum_channels, 2, 0.100f);                   // Sum shunt voltages, (channels, n, limit_v V) → void
+    printf("sum=%.6f V\n", (double)ina.summation_value());               // Summed shunt voltage, () → float V
+    ina.set_power_valid_limits(5.25f, 4.75f);                              // Power-valid window, (upper_v V, lower_v V) → void
+    printf("power_valid=%d flags=0x%04X\n", ina.power_valid(),            // All bus voltages in window?, () → bool
+           ina.alert_flags());                                             // MASK/ENABLE flags, () → uint16_t (CF1…CVRF)
+
+    ina.shutdown();                                                        // Power down, () → void
+    ina.wake();                                                            // Restore previous mode, () → void
+    ina.reset();                                                           // Software reset, () → void
     return 0;
 }

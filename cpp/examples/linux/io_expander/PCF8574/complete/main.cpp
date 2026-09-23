@@ -4,6 +4,14 @@
 #include "I2CConnectionLinux.h"
 #include "PCF8574.h"
 
+static void on_change(uint8_t changed) {
+    printf("inputs changed: 0x%X\n", (unsigned)changed);
+}
+
+static void on_pin(PCF8574Full::IOExpanderPin*) {
+    printf("pin changed\n");
+}
+
 int main() {
     const char* bus_env  = getenv("I2C_BUS");
     const char* addr_env = getenv("I2C_ADDR");
@@ -13,10 +21,29 @@ int main() {
 
     PCF8574Full pcf(connection);                                            // Create PCF8574 driver, (connection)
 
-    printf("port=0x%02X\n", pcf.read());                                  // Read all 8 pins, () → uint8_t
-    pcf.write(0xFF);                                                       // Write all 8 pins, (value) → void
-    pcf.write_pin(3, false);                                               // Drive single pin low, (pin=0–7, value) → void
-    printf("pin3=%d\n", pcf.read_pin(3));                                 // Read single pin, (pin=0–7) → bool
-    pcf.toggle(0x0F);                                                      // Toggle masked pins, (mask) → void
+    printf("port=0x%02X\n", pcf.read_port(0));                             // Read port, (port) → uint8_t bitmask
+                                                                           // a pin reads its external level only while its latch is high
+    pcf.write_port(0, 0xAA);                                               // Write port, (port 0, mask) → void
+
+    auto out = pcf.pin(7);                                              // Pin proxy, (n 0–7) → IOExpanderPin
+    out.mode(OUTPUT);                                                      // Set pin mode, (m INPUT/OUTPUT) → void
+                                                                           // INPUT just writes the latch high (weak pull-up)
+    out.high();                                                            // Drive pin high, () → void
+    out.low();                                                             // Drive pin low, () → void
+    out.toggle();                                                          // Invert pin, () → void
+    out.write(LOW);                                                        // Set pin level, (v HIGH/LOW) → void
+    auto in = pcf.pin(0);
+    in.mode(INPUT);
+    printf("P0=%u P7=%u\n", in.read(), out.read());                   // Read pin level, () → uint8_t HIGH/LOW
+
+    pcf.onInterrupt(on_change);                                            // Subscribe to INT, (callback) → void
+                                                                           // INT pulses low on any input change; needs an InputPin on the connection
+    uint8_t changed = pcf.pollInterrupt();  // Read port and diff against last state, () → uint8_t bitmask
+                                                                           // bit set per pin that changed since the previous poll
+    printf("changed=0x%X\n", (unsigned)changed);
+    pcf.offInterrupt();                                                    // Unsubscribe, () → void
+
+    in.watch(on_pin);  // Per-pin change callback, (handler, trigger=kChange) → void
+    in.unwatch();                                                          // Remove the per-pin callback, () → void
     return 0;
 }

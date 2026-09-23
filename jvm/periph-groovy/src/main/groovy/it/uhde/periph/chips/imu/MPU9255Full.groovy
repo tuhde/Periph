@@ -84,8 +84,8 @@ class MPU9255Full extends MPU9255Minimal {
     /**
      * Set digital low-pass filter bandwidth.
      *
-     * @param gyroDlpf   Gyro filter setting 0–6 (0=256 Hz, 1=188 Hz, 2=98 Hz, 3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz).
-     * @param accelDlpf  Accel filter setting 0–6 (0=460 Hz, 1=184 Hz, 2=92 Hz, 3=42 Hz, 5=20 Hz, 6=10 Hz). Note: 4 is not valid for accel.
+     * @param gyroDlpf   Gyro filter setting 0–7 (0=250 Hz, 1=184 Hz, 2=92 Hz, 3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz, 7=3600 Hz).
+     * @param accelDlpf  Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
      */
     void configureDlpf(int gyroDlpf = 3, int accelDlpf = 3) throws IOException {
         writeReg(REG_CONFIG, gyroDlpf & 0x07)
@@ -309,7 +309,7 @@ class MPU9255Full extends MPU9255Minimal {
 
         writeReg(REG_PWR_MGMT_1, 0x01)
         writeReg(REG_PWR_MGMT_2, 0x07)
-        writeReg(REG_ACCEL_CONFIG2, 0x09)
+        writeReg(REG_ACCEL_CONFIG2, 0x01)
         writeReg(REG_INT_ENABLE, 0x40)
         writeReg(REG_MOT_DETECT_CTRL, 0xC0)
         writeReg(REG_WOM_THR, thresholdLsb & 0xFF)

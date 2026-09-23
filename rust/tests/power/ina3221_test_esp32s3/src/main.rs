@@ -50,22 +50,26 @@ fn main() -> ! {
         failed
     );
 
-    for ch in 1..=3 {
+    // no_std: no format!, so per-channel labels come from a static table.
+    const LABELS: [[&str; 4]; 3] = [
+        ["ch1_voltage_non_negative", "ch1_shunt_voltage_finite", "ch1_current_finite", "ch1_power_non_negative"],
+        ["ch2_voltage_non_negative", "ch2_shunt_voltage_finite", "ch2_current_finite", "ch2_power_non_negative"],
+        ["ch3_voltage_non_negative", "ch3_shunt_voltage_finite", "ch3_current_finite", "ch3_power_non_negative"],
+    ];
+    for ch in 1..=3u8 {
+        let labels = LABELS[(ch - 1) as usize];
+
         let v_ok = chip.voltage(ch).map(|v| v >= 0.0).unwrap_or(false);
-        let label = format!("ch{}_voltage_non_negative", ch);
-        check_true!(v_ok, &label, passed, failed);
+        check_true!(v_ok, labels[0], passed, failed);
 
         let sv_ok = chip.shunt_voltage(ch).map(|v| v.abs() < 1.0).unwrap_or(false);
-        let label = format!("ch{}_shunt_voltage_finite", ch);
-        check_true!(sv_ok, &label, passed, failed);
+        check_true!(sv_ok, labels[1], passed, failed);
 
         let i_ok = chip.current(ch).map(|v| v.abs() < 100.0).unwrap_or(false);
-        let label = format!("ch{}_current_finite", ch);
-        check_true!(i_ok, &label, passed, failed);
+        check_true!(i_ok, labels[2], passed, failed);
 
         let p_ok = chip.power(ch).map(|p| p >= 0.0).unwrap_or(false);
-        let label = format!("ch{}_power_non_negative", ch);
-        check_true!(p_ok, &label, passed, failed);
+        check_true!(p_ok, labels[3], passed, failed);
     }
 
     check_true!(chip.conversion_ready().is_ok(), "conversion_ready_ok", passed, failed);

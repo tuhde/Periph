@@ -12,7 +12,7 @@ int main() {
 
     while (true) {
         if (gps.update()) {                                                // Read + parse one NMEA sentence, () → bool
-            printf("lat=%.6f lon=%.6f\n", gps.latitude(), gps.longitude()); // Read latitude, () → double °  ; longitude() → double °
+            printf("lat=%.6f lon=%.6f\n", gps.latitude(), gps.longitude()); // Read latitude, () → float ° ; longitude() → float °
         }
     }
     return 0;

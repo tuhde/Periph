@@ -1,66 +1,63 @@
-use esp_hal::spi::master::Spi;
-use esp_hal::spi::SpiMode;
+#![no_std]
+#![no_main]
+
+use esp_backtrace as _;
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::main;
+use esp_hal::spi::master::{Config, Spi};
+use esp_hal::spi::Mode;
+use esp_hal::time::Rate;
+use esp_println::println;
 use periph::chips::led::{Sk6812RgbwMinimal, Sk6812RgbwFull};
 
-#[entry]
-fn main() {
-    let pins = esp_hal::gpio::Io::new();
+esp_app_desc!();
+
+macro_rules! check_true {
+    ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
+        if $cond { println!("PASS {}", $label); $passed += 1; }
+        else      { println!("FAIL {}", $label); $failed += 1; }
+    };
+}
+
+/// NeoPixel timing: SPI at 2.4 MHz, mode 0; MOSI (GPIO35) drives DIN.
+fn spi_config() -> Config {
+    Config::default()
+        .with_frequency(Rate::from_khz(2400))
+        .with_mode(Mode::_0)
+}
+
+#[main]
+fn main() -> ! {
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
+
+    let mut passed = 0i32;
+    let mut failed = 0i32;
 
     // --- Sk6812RgbwMinimal smoke test ---
-    let spi = Spi::new(
-        esp_hal::peripherals::SPI2,
-        esp_hal::spi::master::Config::default()
-            .with_frequency(2_400_000)
-            .with_mode(SpiMode::Mode0),
-    )
-    .with_sck(pins.pin(36))
-    .with_mosi(pins.pin(35))
-    .with_miso(pins.pin(37));
-
+    let spi = Spi::new(peripherals.SPI2.reborrow(), spi_config())
+        .unwrap()
+        .with_sck(peripherals.GPIO36.reborrow())
+        .with_mosi(peripherals.GPIO35.reborrow());
     let mut strip = Sk6812RgbwMinimal::new(spi, 8);
-    let ok = strip.fill(255, 0, 0, 0).is_ok();
-    if ok { esp_println::println!("PASS fill_red_accepted"); }
-    else  { esp_println::println!("FAIL fill_red_accepted"); }
-
-    let ok = strip.fill(0, 0, 0, 255).is_ok();
-    if ok { esp_println::println!("PASS fill_white_accepted"); }
-    else  { esp_println::println!("FAIL fill_white_accepted"); }
-
-    let ok = strip.off().is_ok();
-    if ok { esp_println::println!("PASS off_accepted"); }
-    else  { esp_println::println!("FAIL off_accepted"); }
+    check_true!(strip.fill(255, 0, 0, 0).is_ok(), "fill_red_accepted", passed, failed);
+    check_true!(strip.fill(0, 0, 0, 255).is_ok(), "fill_white_accepted", passed, failed);
+    check_true!(strip.off().is_ok(), "off_accepted", passed, failed);
+    drop(strip);
 
     // --- Sk6812RgbwFull smoke test ---
-    let spi2 = Spi::new(
-        esp_hal::peripherals::SPI3,
-        esp_hal::spi::master::Config::default()
-            .with_frequency(2_400_000)
-            .with_mode(SpiMode::Mode0),
-    )
-    .with_sck(pins.pin(36))
-    .with_mosi(pins.pin(35))
-    .with_miso(pins.pin(37));
-
-    let mut full = Sk6812RgbwFull::new(spi2, 8);
+    let spi = Spi::new(peripherals.SPI2.reborrow(), spi_config())
+        .unwrap()
+        .with_sck(peripherals.GPIO36.reborrow())
+        .with_mosi(peripherals.GPIO35.reborrow());
+    let mut full = Sk6812RgbwFull::new(spi, 8);
     full.set_pixel(0, 255, 0, 0, 0);
-    let ok = full.show().is_ok();
-    if ok { esp_println::println!("PASS set_pixel_show_accepted"); }
-    else  { esp_println::println!("FAIL set_pixel_show_accepted"); }
-
+    check_true!(full.show().is_ok(), "set_pixel_show_accepted", passed, failed);
     full.set_pixel(1, 0, 0, 0, 255);
-    let ok = full.show().is_ok();
-    if ok { esp_println::println!("PASS set_pixel_w_show_accepted"); }
-    else  { esp_println::println!("FAIL set_pixel_w_show_accepted"); }
-
+    check_true!(full.show().is_ok(), "set_pixel_w_show_accepted", passed, failed);
     full.set_brightness(128);
-    let ok = full.show().is_ok();
-    if ok { esp_println::println!("PASS show_brightness128_accepted"); }
-    else  { esp_println::println!("FAIL show_brightness128_accepted"); }
+    check_true!(full.show().is_ok(), "show_brightness128_accepted", passed, failed);
+    check_true!(full.fill_hsv(0.0, 1.0, 1.0).is_ok(), "fill_hsv_accepted", passed, failed);
 
-    let ok = full.fill_hsv(0.0, 1.0, 1.0).is_ok();
-    if ok { esp_println::println!("PASS fill_hsv_accepted"); }
-    else  { esp_println::println!("FAIL fill_hsv_accepted"); }
-
-    esp_println::println!("===DONE===");
+    println!("===DONE: {} passed, {} failed===", passed, failed);
     loop {}
 }

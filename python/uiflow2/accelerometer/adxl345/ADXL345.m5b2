@@ -1,5 +1,118 @@
 {
   "category": "ADXL345",
   "color": "#C084FC",
-  "_note": "Placeholder — replace by hand with the JSON exported from the UiFlow 2 Block Designer after pasting ADXL345.py into the IDE (see python/uiflow2/UIFLOW2_BLOCKS.md)."
+  "uiflow2": {
+    "jscode": "const CUSTOM_ADXL345_LANGUAGES = {\n  \"CUSTOM_ADXL345_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_ADXL345_X\": {\n    \"en\": \"%1 acceleration X (g)\"\n  },\n  \"CUSTOM_ADXL345_Y\": {\n    \"en\": \"%1 acceleration Y (g)\"\n  },\n  \"CUSTOM_ADXL345_Z\": {\n    \"en\": \"%1 acceleration Z (g)\"\n  }\n};\n\nconst initType = 'custom_adxl345_init';\nBlockly.BlockRegExpList['custom_adxl345'] = {\n  regexp: new RegExp(/^custom_adxl345_/),\n  code: \"from ADXL345 import ADXL345\",\n  initBlockType: initType,\n  categoryId: 'custom_adxl345',\n}\nBlockly.utils.registerLanguages(CUSTOM_ADXL345_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ADXL345_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ADXL345 = 'ADXL345'\n\nBlockly.utils.getcustom_adxl345Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['adxl345_0', 'adxl345_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_adxl345_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL345_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_adxl345Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'adxl345_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl345_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ADXL345(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_adxl345_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL345_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl345Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl345_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl345_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL345_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl345Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl345_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl345_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL345_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl345Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl345_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.z()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"ADXL345\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_adxl345\">\n<title text=\"ADXL345\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_adxl345_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">83</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_adxl345_x\"/><block type=\"custom_adxl345_y\"/><block type=\"custom_adxl345_z\"/>\n</category>\n",
+    "toolboxitemid": "custom_adxl345",
+    "block_type": [
+      "custom_adxl345___init__",
+      "custom_adxl345_x",
+      "custom_adxl345_y",
+      "custom_adxl345_z"
+    ]
+  },
+  "data": {
+    "name": "ADXL345",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADXL345",
+      "time": "2026-09-09",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.adxl345 import ADXL345Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "83",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ADXL345Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[0]",
+        "ast_return": {
+          "code": "self._driver.read()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[1]",
+        "ast_return": {
+          "code": "self._driver.read()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[2]",
+        "ast_return": {
+          "code": "self._driver.read()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "adxl345"
+  },
+  "pyCode": "\"\"\"\nfile     ADXL345\ntime     2026-09-09\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.adxl345 import ADXL345Full\n\n\nclass ADXL345:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 83):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '83'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ADXL345Full(connection)\n\n    def x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (g)'\n        \"\"\"\n        return self._driver.read()[0]\n\n    def y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (g)'\n        \"\"\"\n        return self._driver.read()[1]\n\n    def z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (g)'\n        \"\"\"\n        return self._driver.read()[2]",
+  "version": "alpha2"
 }

@@ -12,11 +12,12 @@ int main() {
     I2CConnectionLinux connection(bus, addr);
 
     APDS9960Minimal apds(connection);                                       // Create APDS9960 driver, (connection)
+                                                                           // ALS enabled, ATIME 0xB6 (~200 ms), gain 4×
 
     while (true) {
-        uint16_t r, g, b, c;
-        apds.read_color(r, g, b, c);                                       // Read RGBC channels, (r, g, b, clear) → void
-        printf("r=%u g=%u b=%u c=%u\n", r, g, b, c);
+        uint16_t c, r, g, b;
+        apds.color(c, r, g, b);                                            // Read all four channels, (clear, red, green, blue) → void
+        printf("c=%u r=%u g=%u b=%u\n", c, r, g, b);
         usleep(500000);
     }
     return 0;
