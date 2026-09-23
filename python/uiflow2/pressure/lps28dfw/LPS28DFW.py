@@ -55,7 +55,7 @@ class LPS28DFW:
         """
         return self._driver.read_pressure()
 
-    def configure(self, odr: int, avg: int, fs_mode: int) -> None:
+    def configure(self, odr: int, avg: int, fs_mode: int):
         """
         label:
             en: '%1 configure ODR %2 AVG %3 FS mode %4'
@@ -78,7 +78,7 @@ class LPS28DFW:
         """
         self._driver.configure(odr=odr, avg=avg, fs_mode=fs_mode, lpf_en=True, lpf_cfg=0)
 
-    def set_threshold(self, threshold_hpa: float, high: bool, low: bool) -> None:
+    def set_threshold(self, threshold_hpa: float, high: int, low: int):
         """
         label:
             en: '%1 threshold %2 hPa high %3 low %4'
@@ -89,15 +89,13 @@ class LPS28DFW:
                 field: number
             high:
                 name: high
-                type: bool
-                default: 'true'
-                field: dropdown
-                data: ['true', 'false']
+                type: int
+                default: '1'
+                field: number
             low:
                 name: low
-                type: bool
-                default: 'true'
-                field: dropdown
-                data: ['true', 'false']
+                type: int
+                default: '1'
+                field: number
         """
-        self._driver.set_threshold(threshold_hpa, high=high, low=low)
+        self._driver.set_threshold(threshold_hpa, high=bool(high), low=bool(low))

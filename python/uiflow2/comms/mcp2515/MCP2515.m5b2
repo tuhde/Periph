@@ -2,8 +2,8 @@
   "category": "MCP2515",
   "color": "#C084FC",
   "uiflow2": {
-    "jscode": "// Stub .m5b2 — re-export by importing MCP2515.py into the UiFlow 2 Block Designer",
-    "toolbox": "<category name=\"MCP2515\" colour=\"#C084FC\"><block type=\"custom_mcp2515_init\"/><block type=\"custom_mcp2515_send\"/><block type=\"custom_mcp2515_recv\"/><block type=\"custom_mcp2515_set_mode\"/><block type=\"custom_mcp2515_set_filter\"/><block type=\"custom_mcp2515_set_mask\"/><block type=\"custom_mcp2515_set_one_shot\"/><block type=\"custom_mcp2515_read_errors\"/><block type=\"custom_mcp2515_reset\"/></category>",
+    "jscode": "const CUSTOM_MCP2515_LANGUAGES = {\n  \"CUSTOM_MCP2515_INIT\": {\n    \"en\": \"%1 init SPI bus %2 CS pin %3 bitrate (kbit/s) %4\"\n  },\n  \"CUSTOM_MCP2515_SEND\": {\n    \"en\": \"%1 send CAN id %2 data (hex) %3 extended (1) / standard (0) %4\"\n  },\n  \"CUSTOM_MCP2515_RECV\": {\n    \"en\": \"%1 receive CAN frame (hex: id,extended,data or empty), timeout (ms) %2\"\n  },\n  \"CUSTOM_MCP2515_SET_MODE\": {\n    \"en\": \"%1 set mode %2\"\n  },\n  \"CUSTOM_MCP2515_SET_FILTER\": {\n    \"en\": \"%1 set filter %2 id %3 extended (1/0) %4\"\n  },\n  \"CUSTOM_MCP2515_SET_MASK\": {\n    \"en\": \"%1 set mask %2 mask %3 extended (1/0) %4\"\n  },\n  \"CUSTOM_MCP2515_SET_ONE_SHOT\": {\n    \"en\": \"%1 set one-shot mode (1/0) %2\"\n  },\n  \"CUSTOM_MCP2515_READ_ERRORS\": {\n    \"en\": \"%1 read errors (TEC, REC, EFLG hex)\"\n  },\n  \"CUSTOM_MCP2515_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_mcp2515_init';\nBlockly.BlockRegExpList['custom_mcp2515'] = {\n  regexp: new RegExp(/^custom_mcp2515_/),\n  code: \"from MCP2515 import MCP2515\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp2515',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP2515_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP2515_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP2515 = 'MCP2515'\n\nBlockly.utils.getcustom_mcp2515Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp2515_0', 'mcp2515_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp2515_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp2515Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp2515_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bitrate_kbps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bitrate_kbps = Blockly.Python.valueToCode(block, 'bitrate_kbps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP2515(${bus}, ${cs_pin}, ${bitrate_kbps})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_send\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_SEND,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'id'\n        },\n        {\n          'type': 'input_value',\n          'name': 'data'\n        },\n        {\n          'type': 'input_value',\n          'name': 'extended'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_send\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var id = Blockly.Python.valueToCode(block, 'id', Blockly.Python.ORDER_FUNCTION_CALL);\n  var data = Blockly.Python.valueToCode(block, 'data', Blockly.Python.ORDER_FUNCTION_CALL);\n  var extended = Blockly.Python.valueToCode(block, 'extended', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.send(${id}, ${data}, ${extended})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_recv\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_RECV,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'timeout_ms'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_recv\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var timeout_ms = Blockly.Python.valueToCode(block, 'timeout_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.recv(${timeout_ms})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp2515_set_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_SET_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_set_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_set_filter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_SET_FILTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'filter_num'\n        },\n        {\n          'type': 'input_value',\n          'name': 'id'\n        },\n        {\n          'type': 'input_value',\n          'name': 'extended'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_set_filter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var filter_num = Blockly.Python.valueToCode(block, 'filter_num', Blockly.Python.ORDER_FUNCTION_CALL);\n  var id = Blockly.Python.valueToCode(block, 'id', Blockly.Python.ORDER_FUNCTION_CALL);\n  var extended = Blockly.Python.valueToCode(block, 'extended', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_filter(${filter_num}, ${id}, ${extended})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_set_mask\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_SET_MASK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask_num'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n        {\n          'type': 'input_value',\n          'name': 'extended'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_set_mask\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask_num = Blockly.Python.valueToCode(block, 'mask_num', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  var extended = Blockly.Python.valueToCode(block, 'extended', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_mask(${mask_num}, ${mask}, ${extended})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_set_one_shot\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_SET_ONE_SHOT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_set_one_shot\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_one_shot(${enable})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp2515_read_errors\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_READ_ERRORS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_read_errors\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_errors()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp2515_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP2515_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp2515Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp2515_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"MCP2515\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp2515\">\n<title text=\"MCP2515\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp2515_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n  <value name=\"bitrate_kbps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">125</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_send\">\n  <value name=\"id\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"data\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n  <value name=\"extended\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_recv\">\n  <value name=\"timeout_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_set_mode\">\n  <value name=\"mode\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\">normal</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_set_filter\">\n  <value name=\"filter_num\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"id\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"extended\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_set_mask\">\n  <value name=\"mask_num\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"extended\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_set_one_shot\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp2515_read_errors\"/><block type=\"custom_mcp2515_reset\"/>\n</category>\n",
     "toolboxitemid": "custom_mcp2515",
     "block_type": [
       "custom_mcp2515___init__",
@@ -17,7 +17,277 @@
       "custom_mcp2515_reset"
     ]
   },
-  "data": {},
-  "pyCode": "# Stub .m5b2 — re-export by importing MCP2515.py into the UiFlow 2 Block Designer (see python/uiflow2/UIFLOW2_BLOCKS.md § 5).\n",
+  "data": {
+    "name": "MCP2515",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP2515",
+      "time": "2026-09-15",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.comms.mcp2515 import MCP2515Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SPI bus %2 CS pin %3 bitrate (kbit/s) %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "bitrate_kbps",
+            "type": "int",
+            "default": "125",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = MCP2515Full(connection, bitrate_kbps=bitrate_kbps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "send",
+        "note": {},
+        "label": {
+          "en": "%1 send CAN id %2 data (hex) %3 extended (1) / standard (0) %4"
+        },
+        "params": [
+          {
+            "name": "id",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "data",
+            "type": "str",
+            "note": {}
+          },
+          {
+            "name": "extended",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.send(id, bytes.fromhex(data) if data else b'', extended=bool(extended))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "recv",
+        "note": {},
+        "label": {
+          "en": "%1 receive CAN frame (hex: id,extended,data or empty), timeout (ms) %2"
+        },
+        "params": [
+          {
+            "name": "timeout_ms",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        frame = self._driver.recv(timeout_ms=timeout_ms)\n        if frame is None:\n            return ''\n        return '%X,%d,%s' % (frame.id, 1 if frame.extended else 0, frame.data.hex())",
+        "ast_return": {
+          "code": "'%X,%d,%s' % (frame.id, 1 if frame.extended else 0, frame.data.hex())",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set mode %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "str",
+            "default": "normal",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mode(mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_filter",
+        "note": {},
+        "label": {
+          "en": "%1 set filter %2 id %3 extended (1/0) %4"
+        },
+        "params": [
+          {
+            "name": "filter_num",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "0"
+          },
+          {
+            "name": "id",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "extended",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_filter(filter_num, id, extended=bool(extended))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_mask",
+        "note": {},
+        "label": {
+          "en": "%1 set mask %2 mask %3 extended (1/0) %4"
+        },
+        "params": [
+          {
+            "name": "mask_num",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "extended",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_mask(mask_num, mask, extended=bool(extended))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_one_shot",
+        "note": {},
+        "label": {
+          "en": "%1 set one-shot mode (1/0) %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_one_shot(bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_errors",
+        "note": {},
+        "label": {
+          "en": "%1 read errors (TEC, REC, EFLG hex)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        e = self._driver.read_errors()\n        return '%d,%d,%02X' % (e['tec'], e['rec'], e['eflg'])",
+        "ast_return": {
+          "code": "'%d,%d,%02X' % (e['tec'], e['rec'], e['eflg'])",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp2515"
+  },
+  "pyCode": "\"\"\"\nfile     MCP2515\ntime     2026-09-15\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.comms.mcp2515 import MCP2515Full\n\n\nclass MCP2515:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 1, cs_pin: int = 5, bitrate_kbps: int = 125):\n        \"\"\"\n        label:\n            en: '%1 init SPI bus %2 CS pin %3 bitrate (kbit/s) %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '1'\n                field: number\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n            bitrate_kbps:\n                name: bitrate_kbps\n                type: int\n                default: '125'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = MCP2515Full(connection, bitrate_kbps=bitrate_kbps)\n\n    def send(self, id: int, data: str = '', extended: int = 0):\n        \"\"\"\n        label:\n            en: '%1 send CAN id %2 data (hex) %3 extended (1) / standard (0) %4'\n        params:\n            id:\n                name: id\n                type: int\n                field: number\n            data:\n                name: data\n                type: str\n            extended:\n                name: extended\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.send(id, bytes.fromhex(data) if data else b'', extended=bool(extended))\n\n    def recv(self, timeout_ms: int = 100) -> str:\n        \"\"\"\n        label:\n            en: '%1 receive CAN frame (hex: id,extended,data or empty), timeout (ms) %2'\n        params:\n            timeout_ms:\n                name: timeout_ms\n                type: int\n                default: '100'\n                field: number\n        \"\"\"\n        frame = self._driver.recv(timeout_ms=timeout_ms)\n        if frame is None:\n            return ''\n        return '%X,%d,%s' % (frame.id, 1 if frame.extended else 0, frame.data.hex())\n\n    def set_mode(self, mode: str = 'normal'):\n        \"\"\"\n        label:\n            en: '%1 set mode %2'\n        params:\n            mode:\n                name: mode\n                type: str\n                default: 'normal'\n        \"\"\"\n        self._driver.set_mode(mode)\n\n    def set_filter(self, filter_num: int = 0, id: int = 0, extended: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set filter %2 id %3 extended (1/0) %4'\n        params:\n            filter_num:\n                name: filter_num\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '5'\n            id:\n                name: id\n                type: int\n                field: number\n            extended:\n                name: extended\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_filter(filter_num, id, extended=bool(extended))\n\n    def set_mask(self, mask_num: int = 0, mask: int = 0, extended: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set mask %2 mask %3 extended (1/0) %4'\n        params:\n            mask_num:\n                name: mask_num\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            mask:\n                name: mask\n                type: int\n                field: number\n            extended:\n                name: extended\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_mask(mask_num, mask, extended=bool(extended))\n\n    def set_one_shot(self, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set one-shot mode (1/0) %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_one_shot(bool(enable))\n\n    def read_errors(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 read errors (TEC, REC, EFLG hex)'\n        \"\"\"\n        e = self._driver.read_errors()\n        return '%d,%d,%02X' % (e['tec'], e['rec'], e['eflg'])\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
   "version": "alpha2"
 }

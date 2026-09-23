@@ -2,37 +2,361 @@
   "category": "L3gd20h",
   "color": "#C084FC",
   "uiflow2": {
-    "jscode": "// Placeholder - must be built in UiFlow 2 Block Designer",
-    "toolbox": "<category name=\"L3GD20H\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_l3gd20h\"><title text=\"L3GD20H\" docsLink=\"https://github.com/tuhde/Periph\"></title><block type=\"custom_l3gd20h_init\"><value name=\"bus\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value><value name=\"address\"><shadow type=\"math_number\"><field name=\"NUM\">106</field></shadow></value></block><block type=\"custom_l3gd20h_gyro\"/></category>",
+    "jscode": "const CUSTOM_L3GD20H_LANGUAGES = {\n  \"CUSTOM_L3GD20H_INIT\": {\n    \"en\": \"%1 init I2C bus %2 address %3\"\n  },\n  \"CUSTOM_L3GD20H_GYRO\": {\n    \"en\": \"%1 read angular rate (rad/s)\"\n  },\n  \"CUSTOM_L3GD20H_CONFIGURE\": {\n    \"en\": \"%1 configure ODR %2 BW %3 full_scale %4\"\n  },\n  \"CUSTOM_L3GD20H_GYRO_RAW\": {\n    \"en\": \"%1 read raw angular rate\"\n  },\n  \"CUSTOM_L3GD20H_TEMPERATURE\": {\n    \"en\": \"%1 read temperature (counts)\"\n  },\n  \"CUSTOM_L3GD20H_DATA_READY\": {\n    \"en\": \"%1 data ready\"\n  },\n  \"CUSTOM_L3GD20H_CONFIGURE_HP_FILTER\": {\n    \"en\": \"%1 configure HPF mode %2 cutoff %3\"\n  },\n  \"CUSTOM_L3GD20H_ENABLE_HP_FILTER\": {\n    \"en\": \"%1 enable HPF %2\"\n  },\n  \"CUSTOM_L3GD20H_CONFIGURE_FIFO\": {\n    \"en\": \"%1 configure FIFO mode %2 watermark %3\"\n  },\n  \"CUSTOM_L3GD20H_ENABLE_FIFO\": {\n    \"en\": \"%1 enable FIFO %2\"\n  },\n  \"CUSTOM_L3GD20H_FIFO_LEVEL\": {\n    \"en\": \"%1 FIFO level\"\n  },\n  \"CUSTOM_L3GD20H_READ_FIFO\": {\n    \"en\": \"%1 read FIFO\"\n  },\n  \"CUSTOM_L3GD20H_SET_POWER_MODE\": {\n    \"en\": \"%1 set power mode %2\"\n  }\n};\n\nconst initType = 'custom_l3gd20h_init';\nBlockly.BlockRegExpList['custom_l3gd20h'] = {\n  regexp: new RegExp(/^custom_l3gd20h_/),\n  code: \"from L3gd20h import L3gd20h\",\n  initBlockType: initType,\n  categoryId: 'custom_l3gd20h',\n}\nBlockly.utils.registerLanguages(CUSTOM_L3GD20H_LANGUAGES)\n\nBlockly.Msg.CUSTOM_L3GD20H_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_L3GD20H = 'L3gd20h'\n\nBlockly.utils.getcustom_l3gd20hOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['l3gd20h_0', 'l3gd20h_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_l3gd20h_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_l3gd20hOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'l3gd20h_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = L3gd20h(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_gyro\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_GYRO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_gyro\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_configure\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_CONFIGURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'odr'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bw'\n        },\n        {\n          'type': 'input_value',\n          'name': 'full_scale'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_configure\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var odr = Blockly.Python.valueToCode(block, 'odr', Blockly.Python.ORDER_FUNCTION_CALL);\n  var bw = Blockly.Python.valueToCode(block, 'bw', Blockly.Python.ORDER_FUNCTION_CALL);\n  var full_scale = Blockly.Python.valueToCode(block, 'full_scale', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure(${odr}, ${bw}, ${full_scale})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_gyro_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_GYRO_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_gyro_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_configure_hp_filter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_CONFIGURE_HP_FILTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cutoff'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_configure_hp_filter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cutoff = Blockly.Python.valueToCode(block, 'cutoff', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_hp_filter(${mode}, ${cutoff})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_enable_hp_filter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_ENABLE_HP_FILTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_enable_hp_filter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_hp_filter(${enable})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_configure_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_CONFIGURE_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'watermark'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_configure_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var watermark = Blockly.Python.valueToCode(block, 'watermark', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_fifo(${mode}, ${watermark})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_enable_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_ENABLE_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_enable_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_fifo(${enable})\\n`\n}\n\nBlockly.Blocks[\"custom_l3gd20h_fifo_level\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_FIFO_LEVEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_fifo_level\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_level()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_read_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_READ_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_read_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_fifo()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_l3gd20h_set_power_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_L3GD20H_SET_POWER_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_l3gd20hOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_l3gd20h_set_power_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_power_mode(${mode})\\n`\n}\n",
+    "toolbox": "\n<category name=\"L3gd20h\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_l3gd20h\">\n<title text=\"L3gd20h\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_l3gd20h_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">106</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_gyro\"/><block type=\"custom_l3gd20h_configure\">\n  <value name=\"odr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"bw\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"full_scale\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_gyro_raw\"/><block type=\"custom_l3gd20h_temperature\"/><block type=\"custom_l3gd20h_data_ready\"/><block type=\"custom_l3gd20h_configure_hp_filter\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cutoff\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_enable_hp_filter\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_configure_fifo\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"watermark\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_enable_fifo\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_l3gd20h_fifo_level\"/><block type=\"custom_l3gd20h_read_fifo\"/><block type=\"custom_l3gd20h_set_power_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
     "toolboxitemid": "custom_l3gd20h",
-    "block_type": ["custom_l3gd20h___init__", "custom_l3gd20h_gyro", "custom_l3gd20h_configure", "custom_l3gd20h_gyro_raw", "custom_l3gd20h_temperature", "custom_l3gd20h_data_ready", "custom_l3gd20h_configure_hp_filter", "custom_l3gd20h_enable_hp_filter", "custom_l3gd20h_configure_fifo", "custom_l3gd20h_enable_fifo", "custom_l3gd20h_fifo_level", "custom_l3gd20h_read_fifo", "custom_l3gd20h_set_power_mode"]
+    "block_type": [
+      "custom_l3gd20h___init__",
+      "custom_l3gd20h_gyro",
+      "custom_l3gd20h_configure",
+      "custom_l3gd20h_gyro_raw",
+      "custom_l3gd20h_temperature",
+      "custom_l3gd20h_data_ready",
+      "custom_l3gd20h_configure_hp_filter",
+      "custom_l3gd20h_enable_hp_filter",
+      "custom_l3gd20h_configure_fifo",
+      "custom_l3gd20h_enable_fifo",
+      "custom_l3gd20h_fifo_level",
+      "custom_l3gd20h_read_fifo",
+      "custom_l3gd20h_set_power_mode"
+    ]
   },
   "data": {
     "name": "L3gd20h",
-    "note": {"en": ""},
-    "details": {"color": "#C084FC", "link": "https://github.com/tuhde/Periph", "image": "", "category": "Custom"},
-    "example": "",
-    "header": {"file": "L3gd20h", "time": "2026-09-17", "author": "", "email": "", "license": "Apache License 2.0"},
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "L3gd20h",
+      "time": "2026-09-17",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
     "assignments": [],
+    "example": "",
     "source_internal": "",
-    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3gd20h import L3GD20HFull\n",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3gd20h import L3GD20HFull",
     "members": [
-      {"name": "__init__", "note": {}, "label": {"en": "%1 init I2C bus %2 address %3"}, "params": [{"name": "bus", "type": "int", "default": "1", "field": "number", "min": "0", "max": "7"}, {"name": "address", "type": "int", "default": "106", "field": "number", "min": "0", "max": "127"}], "return": "", "source": "        self._driver = L3GD20HFull(I2CConnection(address, bus=bus))", "ast_return": null, "doc_return": null},
-      {"name": "gyro", "note": {}, "label": {"en": "%1 read angular rate (rad/s)"}, "params": [], "return": "tuple", "source": "        return self._driver.gyro()", "ast_return": {"code": "self._driver.gyro()", "id": "tuple"}, "doc_return": {"type": "tuple"}},
-      {"name": "configure", "note": {}, "label": {"en": "%1 configure ODR %2 BW %3 full_scale %4"}, "params": [{"name": "odr", "type": "int", "default": "0", "field": "number", "min": "0", "max": "3"}, {"name": "bw", "type": "int", "default": "0", "field": "number", "min": "0", "max": "3"}, {"name": "full_scale", "type": "int", "default": "0", "field": "number", "min": "0", "max": "2"}], "return": "None", "source": "        self._driver.configure(odr=odr, bw=bw, full_scale=full_scale)", "ast_return": {"code": "self._driver.configure(odr=odr, bw=bw, full_scale=full_scale)", "id": "None"}, "doc_return": {"type": "None"}},
-      {"name": "gyro_raw", "note": {}, "label": {"en": "%1 read raw angular rate"}, "params": [], "return": "tuple", "source": "        return self._driver.gyro_raw()", "ast_return": {"code": "self._driver.gyro_raw()", "id": "tuple"}, "doc_return": {"type": "tuple"}},
-      {"name": "temperature", "note": {}, "label": {"en": "%1 read temperature (counts)"}, "params": [], "return": "int", "source": "        return self._driver.temperature()", "ast_return": {"code": "self._driver.temperature()", "id": "int"}, "doc_return": {"type": "int"}},
-      {"name": "data_ready", "note": {}, "label": {"en": "%1 data ready"}, "params": [], "return": "bool", "source": "        return self._driver.data_ready()", "ast_return": {"code": "self._driver.data_ready()", "id": "bool"}, "doc_return": {"type": "bool"}},
-      {"name": "configure_hp_filter", "note": {}, "label": {"en": "%1 configure HPF mode %2 cutoff %3"}, "params": [{"name": "mode", "type": "int", "default": "0", "field": "number", "min": "0", "max": "3"}, {"name": "cutoff", "type": "int", "default": "0", "field": "number", "min": "0", "max": "15"}], "return": "None", "source": "        self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)", "ast_return": {"code": "self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)", "id": "None"}, "doc_return": {"type": "None"}},
-      {"name": "enable_hp_filter", "note": {}, "label": {"en": "%1 enable HPF %2"}, "params": [{"name": "enable", "type": "int", "default": "1", "field": "number", "min": "0", "max": "1"}], "return": "None", "source": "        self._driver.enable_hp_filter(enable=bool(enable))", "ast_return": {"code": "self._driver.enable_hp_filter(enable=bool(enable))", "id": "None"}, "doc_return": {"type": "None"}},
-      {"name": "configure_fifo", "note": {}, "label": {"en": "%1 configure FIFO mode %2 watermark %3"}, "params": [{"name": "mode", "type": "int", "default": "1", "field": "number", "min": "0", "max": "7"}, {"name": "watermark", "type": "int", "default": "10", "field": "number", "min": "0", "max": "31"}], "return": "None", "source": "        self._driver.configure_fifo(mode=mode, watermark=watermark)", "ast_return": {"code": "self._driver.configure_fifo(mode=mode, watermark=watermark)", "id": "None"}, "doc_return": {"type": "None"}},
-      {"name": "enable_fifo", "note": {}, "label": {"en": "%1 enable FIFO %2"}, "params": [{"name": "enable", "type": "int", "default": "1", "field": "number", "min": "0", "max": "1"}], "return": "None", "source": "        self._driver.enable_fifo(enable=bool(enable))", "ast_return": {"code": "self._driver.enable_fifo(enable=bool(enable))", "id": "None"}, "doc_return": {"type": "None"}},
-      {"name": "fifo_level", "note": {}, "label": {"en": "%1 FIFO level"}, "params": [], "return": "int", "source": "        return self._driver.fifo_level()", "ast_return": {"code": "self._driver.fifo_level()", "id": "int"}, "doc_return": {"type": "int"}},
-      {"name": "read_fifo", "note": {}, "label": {"en": "%1 read FIFO"}, "params": [], "return": "list", "source": "        return self._driver.read_fifo()", "ast_return": {"code": "self._driver.read_fifo()", "id": "list"}, "doc_return": {"type": "list"}},
-      {"name": "set_power_mode", "note": {}, "label": {"en": "%1 set power mode %2"}, "params": [{"name": "mode", "type": "int", "default": "0", "field": "number", "min": "0", "max": "2"}], "return": "None", "source": "        modes = ['normal', 'sleep', 'power_down']\n        self._driver.set_power_mode(modes[mode])", "ast_return": {"code": "self._driver.set_power_mode(modes[mode])", "id": "None"}, "doc_return": {"type": "None"}}
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init I2C bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "106",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = L3GD20HFull(I2CConnection(address, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro",
+        "note": {},
+        "label": {
+          "en": "%1 read angular rate (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()",
+        "ast_return": {
+          "code": "self._driver.gyro()",
+          "id": "tuple"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure",
+        "note": {},
+        "label": {
+          "en": "%1 configure ODR %2 BW %3 full_scale %4"
+        },
+        "params": [
+          {
+            "name": "odr",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "bw",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "full_scale",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure(odr=odr, bw=bw, full_scale=full_scale)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read raw angular rate"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro_raw()",
+        "ast_return": {
+          "code": "self._driver.gyro_raw()",
+          "id": "tuple"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 read temperature (counts)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_hp_filter",
+        "note": {},
+        "label": {
+          "en": "%1 configure HPF mode %2 cutoff %3"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "cutoff",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_hp_filter",
+        "note": {},
+        "label": {
+          "en": "%1 enable HPF %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_hp_filter(enable=bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 configure FIFO mode %2 watermark %3"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "watermark",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_fifo(mode=mode, watermark=watermark)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 enable FIFO %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_fifo(enable=bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_level",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO level"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_level()",
+        "ast_return": {
+          "code": "self._driver.fifo_level()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 read FIFO"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_fifo()",
+        "ast_return": {
+          "code": "self._driver.read_fifo()",
+          "id": "list"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_power_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set power mode %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "2",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        modes = ['normal', 'sleep', 'power_down']\n        self._driver.set_power_mode(modes[mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
     ],
-    "python_file_name": "L3gd20h.py"
+    "python_file_name": "l3gd20h"
   },
-  "pyCode": "\"\"\"\nfile     L3gd20h\ntime     2026-09-17\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3gd20h import L3GD20HFull\n\n\nclass L3gd20h:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 1, address: int = 106):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '7'\n            address:\n                name: address\n                type: int\n                default: '106'\n                field: number\n                min: '0'\n                max: '127'\n        \"\"\"\n        self._driver = L3GD20HFull(I2CConnection(address, bus=bus))\n\n    def gyro(self) -> tuple:\n        \"\"\"\n        label:\n            en: '%1 read angular rate (rad/s)'\n        \"\"\"\n        return self._driver.gyro()\n\n    def configure(self, odr: int = 0, bw: int = 0, full_scale: int = 0) -> None:\n        \"\"\"\n        label:\n            en: '%1 configure ODR %2 BW %3 full_scale %4'\n        params:\n            odr:\n                name: odr\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            bw:\n                name: bw\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            full_scale:\n                name: full_scale\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        self._driver.configure(odr=odr, bw=bw, full_scale=full_scale)\n\n    def gyro_raw(self) -> tuple:\n        \"\"\"\n        label:\n            en: '%1 read raw angular rate'\n        \"\"\"\n        return self._driver.gyro_raw()\n\n    def temperature(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read temperature (counts)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def configure_hp_filter(self, mode: int = 0, cutoff: int = 0) -> None:\n        \"\"\"\n        label:\n            en: '%1 configure HPF mode %2 cutoff %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            cutoff:\n                name: cutoff\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '15'\n        \"\"\"\n        self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)\n\n    def enable_hp_filter(self, enable: int = 1) -> None:\n        \"\"\"\n        label:\n            en: '%1 enable HPF %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_hp_filter(enable=bool(enable))\n\n    def configure_fifo(self, mode: int = 1, watermark: int = 10) -> None:\n        \"\"\"\n        label:\n            en: '%1 configure FIFO mode %2 watermark %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '7'\n            watermark:\n                name: watermark\n                type: int\n                default: '10'\n                field: number\n                min: '0'\n                max: '31'\n        \"\"\"\n        self._driver.configure_fifo(mode=mode, watermark=watermark)\n\n    def enable_fifo(self, enable: int = 1) -> None:\n        \"\"\"\n        label:\n            en: '%1 enable FIFO %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_fifo(enable=bool(enable))\n\n    def fifo_level(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO level'\n        \"\"\"\n        return self._driver.fifo_level()\n\n    def read_fifo(self) -> list:\n        \"\"\"\n        label:\n            en: '%1 read FIFO'\n        \"\"\"\n        return self._driver.read_fifo()\n\n    def set_power_mode(self, mode: int = 0) -> None:\n        \"\"\"\n        label:\n            en: '%1 set power mode %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        modes = ['normal', 'sleep', 'power_down']\n        self._driver.set_power_mode(modes[mode])\n",
+  "pyCode": "\"\"\"\nfile     L3gd20h\ntime     2026-09-17\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.gyroscope.l3gd20h import L3GD20HFull\n\n\nclass L3gd20h:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 1, address: int = 106):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '7'\n            address:\n                name: address\n                type: int\n                default: '106'\n                field: number\n                min: '0'\n                max: '127'\n        \"\"\"\n        self._driver = L3GD20HFull(I2CConnection(address, bus=bus))\n\n    def gyro(self) -> tuple:\n        \"\"\"\n        label:\n            en: '%1 read angular rate (rad/s)'\n        \"\"\"\n        return self._driver.gyro()\n\n    def configure(self, odr: int = 0, bw: int = 0, full_scale: int = 0):\n        \"\"\"\n        label:\n            en: '%1 configure ODR %2 BW %3 full_scale %4'\n        params:\n            odr:\n                name: odr\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            bw:\n                name: bw\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            full_scale:\n                name: full_scale\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        self._driver.configure(odr=odr, bw=bw, full_scale=full_scale)\n\n    def gyro_raw(self) -> tuple:\n        \"\"\"\n        label:\n            en: '%1 read raw angular rate'\n        \"\"\"\n        return self._driver.gyro_raw()\n\n    def temperature(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read temperature (counts)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def configure_hp_filter(self, mode: int = 0, cutoff: int = 0):\n        \"\"\"\n        label:\n            en: '%1 configure HPF mode %2 cutoff %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            cutoff:\n                name: cutoff\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '15'\n        \"\"\"\n        self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)\n\n    def enable_hp_filter(self, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable HPF %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_hp_filter(enable=bool(enable))\n\n    def configure_fifo(self, mode: int = 1, watermark: int = 10):\n        \"\"\"\n        label:\n            en: '%1 configure FIFO mode %2 watermark %3'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '7'\n            watermark:\n                name: watermark\n                type: int\n                default: '10'\n                field: number\n                min: '0'\n                max: '31'\n        \"\"\"\n        self._driver.configure_fifo(mode=mode, watermark=watermark)\n\n    def enable_fifo(self, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 enable FIFO %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.enable_fifo(enable=bool(enable))\n\n    def fifo_level(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO level'\n        \"\"\"\n        return self._driver.fifo_level()\n\n    def read_fifo(self) -> list:\n        \"\"\"\n        label:\n            en: '%1 read FIFO'\n        \"\"\"\n        return self._driver.read_fifo()\n\n    def set_power_mode(self, mode: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set power mode %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '2'\n        \"\"\"\n        modes = ['normal', 'sleep', 'power_down']\n        self._driver.set_power_mode(modes[mode])",
   "version": "alpha2"
 }

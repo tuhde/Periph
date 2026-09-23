@@ -2,8 +2,8 @@
   "category": "Tpic6b595",
   "color": "#C084FC",
   "uiflow2": {
-    "jscode": "// exported from UiFlow 2 Block Designer — see python/uiflow2/io_expander/tpic6b595/Tpic6b595.py\n",
-    "toolbox": "<category name=\"Tpic6b595\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tpic6b595\"></category>\n",
+    "jscode": "const CUSTOM_TPIC6B595_LANGUAGES = {\n  \"CUSTOM_TPIC6B595_INIT\": {\n    \"en\": \"%1 init bus %2 device %3 rck %4 srclr %5 g %6 num_devices %7\"\n  },\n  \"CUSTOM_TPIC6B595_WRITE_PIN\": {\n    \"en\": \"%1 write pin value (0/1) pin %2 value %3\"\n  },\n  \"CUSTOM_TPIC6B595_WRITE_PORT\": {\n    \"en\": \"%1 write device byte (port) %2 mask (0x00-0xFF) %3\"\n  },\n  \"CUSTOM_TPIC6B595_FILL\": {\n    \"en\": \"%1 fill all outputs (0/1) value %2\"\n  },\n  \"CUSTOM_TPIC6B595_OFF\": {\n    \"en\": \"%1 turn every output off\"\n  },\n  \"CUSTOM_TPIC6B595_CLEAR\": {\n    \"en\": \"%1 pulse SRCLR (shift-register clear)\"\n  },\n  \"CUSTOM_TPIC6B595_SET_OUTPUT_ENABLE\": {\n    \"en\": \"%1 set output enable (0/1) via G enabled %2\"\n  },\n  \"CUSTOM_TPIC6B595_WRITE_ALL\": {\n    \"en\": \"%1 write all device bytes [d0 %2 d1 %3]\"\n  }\n};\n\nconst initType = 'custom_tpic6b595_init';\nBlockly.BlockRegExpList['custom_tpic6b595'] = {\n  regexp: new RegExp(/^custom_tpic6b595_/),\n  code: \"from Tpic6b595 import Tpic6b595\",\n  initBlockType: initType,\n  categoryId: 'custom_tpic6b595',\n}\nBlockly.utils.registerLanguages(CUSTOM_TPIC6B595_LANGUAGES)\n\nBlockly.Msg.CUSTOM_TPIC6B595_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_TPIC6B595 = 'Tpic6b595'\n\nBlockly.utils.getcustom_tpic6b595Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['tpic6b595_0', 'tpic6b595_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_tpic6b595_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_tpic6b595Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'tpic6b595_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'device'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rck'\n        },\n        {\n          'type': 'input_value',\n          'name': 'srclr'\n        },\n        {\n          'type': 'input_value',\n          'name': 'g'\n        },\n        {\n          'type': 'input_value',\n          'name': 'num_devices'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var device = Blockly.Python.valueToCode(block, 'device', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rck = Blockly.Python.valueToCode(block, 'rck', Blockly.Python.ORDER_FUNCTION_CALL);\n  var srclr = Blockly.Python.valueToCode(block, 'srclr', Blockly.Python.ORDER_FUNCTION_CALL);\n  var g = Blockly.Python.valueToCode(block, 'g', Blockly.Python.ORDER_FUNCTION_CALL);\n  var num_devices = Blockly.Python.valueToCode(block, 'num_devices', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = Tpic6b595(${bus}, ${device}, ${rck}, ${srclr}, ${g}, ${num_devices})\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_write_pin\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_WRITE_PIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_write_pin\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pin = Blockly.Python.valueToCode(block, 'pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_pin(${pin}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_write_port\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_WRITE_PORT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'port'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_write_port\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var port = Blockly.Python.valueToCode(block, 'port', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_port(${port}, ${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_off\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_OFF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_off\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.off()\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_set_output_enable\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_SET_OUTPUT_ENABLE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enabled'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_set_output_enable\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enabled = Blockly.Python.valueToCode(block, 'enabled', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_output_enable(${enabled})\\n`\n}\n\nBlockly.Blocks[\"custom_tpic6b595_write_all\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_TPIC6B595_WRITE_ALL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_tpic6b595Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'd0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'd1'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_tpic6b595_write_all\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var d0 = Blockly.Python.valueToCode(block, 'd0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var d1 = Blockly.Python.valueToCode(block, 'd1', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_all(${d0}, ${d1})\\n`\n}\n",
+    "toolbox": "\n<category name=\"Tpic6b595\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_tpic6b595\">\n<title text=\"Tpic6b595\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_tpic6b595_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"device\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"rck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">17</field>\n    </shadow>\n  </value>\n  <value name=\"srclr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">-1</field>\n    </shadow>\n  </value>\n  <value name=\"num_devices\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tpic6b595_write_pin\">\n  <value name=\"pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tpic6b595_write_port\">\n  <value name=\"port\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tpic6b595_fill\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tpic6b595_off\"/><block type=\"custom_tpic6b595_clear\"/><block type=\"custom_tpic6b595_set_output_enable\">\n  <value name=\"enabled\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_tpic6b595_write_all\">\n  <value name=\"d0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"d1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
     "toolboxitemid": "custom_tpic6b595",
     "block_type": [
       "custom_tpic6b595___init__",
@@ -18,7 +18,9 @@
   },
   "data": {
     "name": "Tpic6b595",
-    "note": {},
+    "note": {
+      "en": ""
+    },
     "details": {
       "color": "#C084FC",
       "link": "https://github.com/tuhde/Periph",
@@ -35,10 +37,227 @@
     "assignments": [],
     "example": "",
     "source_internal": "",
-    "source_external": "",
-    "members": [],
-    "python_file_name": "Tpic6b595"
+    "source_external": "from machine import SPI, Pin\nfrom periph.connection.sipo_micropython import SiPoConnection\nfrom periph.chips.io_expander.tpic6b595 import Tpic6b595Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 device %3 rck %4 srclr %5 g %6 num_devices %7"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "device",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rck",
+            "type": "int",
+            "default": "17",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "srclr",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "g",
+            "type": "int",
+            "default": "-1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "num_devices",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        _spi = SPI(bus, baudrate=1000000, polarity=0, phase=0,\n                   sck=Pin(rck + 1), mosi=Pin(rck + 2))\n        _rck_pin = Pin(rck, Pin.OUT)\n        _srclr_pin = Pin(srclr, Pin.OUT) if srclr >= 0 else None\n        _g_pin = Pin(g, Pin.OUT) if g >= 0 else None\n        _connection = SiPoConnection(_spi, _rck_pin, srclr=_srclr_pin, g=_g_pin)\n        self._driver = Tpic6b595Full(_connection, num_devices=num_devices)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_pin",
+        "note": {},
+        "label": {
+          "en": "%1 write pin value (0/1) pin %2 value %3"
+        },
+        "params": [
+          {
+            "name": "pin",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.pin(pin).value(bool(value))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_port",
+        "note": {},
+        "label": {
+          "en": "%1 write device byte (port) %2 mask (0x00-0xFF) %3"
+        },
+        "params": [
+          {
+            "name": "port",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mask",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_port(port, mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill all outputs (0/1) value %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(bool(value))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "off",
+        "note": {},
+        "label": {
+          "en": "%1 turn every output off"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.off()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 pulse SRCLR (shift-register clear)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_output_enable",
+        "note": {},
+        "label": {
+          "en": "%1 set output enable (0/1) via G enabled %2"
+        },
+        "params": [
+          {
+            "name": "enabled",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_output_enable(bool(enabled))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_all",
+        "note": {},
+        "label": {
+          "en": "%1 write all device bytes [d0 %2 d1 %3]"
+        },
+        "params": [
+          {
+            "name": "d0",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "d1",
+            "type": "int",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_all([d0, d1])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "tpic6b595"
   },
-  "pyCode": "\"\"\"\nfile     Tpic6b595\ntime     2026-09-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.sipo_micropython import SiPoConnection\nfrom periph.chips.io_expander.tpic6b595 import Tpic6b595Full\n\n\nclass Tpic6b595:\n    def __init__(self, bus=0, device=0, rck=17, srclr=-1, g=-1, num_devices=1):\n        pass\n\n    def write_pin(self, pin, value):\n        pass\n\n    def write_port(self, port, mask):\n        pass\n\n    def fill(self, value):\n        pass\n\n    def off(self):\n        pass\n\n    def clear(self):\n        pass\n\n    def set_output_enable(self, enabled):\n        pass\n\n    def write_all(self, d0, d1):\n        pass\n",
+  "pyCode": "\"\"\"\nfile     Tpic6b595\ntime     2026-09-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.sipo_micropython import SiPoConnection\nfrom periph.chips.io_expander.tpic6b595 import Tpic6b595Full\n\n\nclass Tpic6b595:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, device: int = 0, rck: int = 17,\n                 srclr: int = -1, g: int = -1, num_devices: int = 1):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 device %3 rck %4 srclr %5 g %6 num_devices %7'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            device:\n                name: device\n                type: int\n                default: '0'\n                field: number\n            rck:\n                name: rck\n                type: int\n                default: '17'\n                field: number\n            srclr:\n                name: srclr\n                type: int\n                default: '-1'\n                field: number\n            g:\n                name: g\n                type: int\n                default: '-1'\n                field: number\n            num_devices:\n                name: num_devices\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        _spi = SPI(bus, baudrate=1000000, polarity=0, phase=0,\n                   sck=Pin(rck + 1), mosi=Pin(rck + 2))\n        _rck_pin = Pin(rck, Pin.OUT)\n        _srclr_pin = Pin(srclr, Pin.OUT) if srclr >= 0 else None\n        _g_pin = Pin(g, Pin.OUT) if g >= 0 else None\n        _connection = SiPoConnection(_spi, _rck_pin, srclr=_srclr_pin, g=_g_pin)\n        self._driver = Tpic6b595Full(_connection, num_devices=num_devices)\n\n    def write_pin(self, pin: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write pin value (0/1) pin %2 value %3'\n        params:\n            pin:\n                name: pin\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.pin(pin).value(bool(value))\n\n    def write_port(self, port: int, mask: int):\n        \"\"\"\n        label:\n            en: '%1 write device byte (port) %2 mask (0x00-0xFF) %3'\n        params:\n            port:\n                name: port\n                type: int\n                field: number\n            mask:\n                name: mask\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_port(port, mask)\n\n    def fill(self, value: int):\n        \"\"\"\n        label:\n            en: '%1 fill all outputs (0/1) value %2'\n        params:\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.fill(bool(value))\n\n    def off(self):\n        \"\"\"\n        label:\n            en: '%1 turn every output off'\n        \"\"\"\n        self._driver.off()\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 pulse SRCLR (shift-register clear)'\n        \"\"\"\n        self._driver.clear()\n\n    def set_output_enable(self, enabled: int):\n        \"\"\"\n        label:\n            en: '%1 set output enable (0/1) via G enabled %2'\n        params:\n            enabled:\n                name: enabled\n                type: int\n                field: number\n        \"\"\"\n        self._driver.set_output_enable(bool(enabled))\n\n    def write_all(self, d0: int, d1: int):\n        \"\"\"\n        label:\n            en: '%1 write all device bytes [d0 %2 d1 %3]'\n        params:\n            d0:\n                name: d0\n                type: int\n                field: number\n            d1:\n                name: d1\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_all([d0, d1])\n",
   "version": "alpha2"
 }

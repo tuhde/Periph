@@ -71,32 +71,17 @@ class AD7706:
                 name: gain
                 type: int
                 default: '1'
-                field: dropdown
-                options:
-                    '1': '1'
-                    '2': '2'
-                    '4': '4'
-                    '8': '8'
-                    '16': '16'
-                    '32': '32'
-                    '64': '64'
-                    '128': '128'
+                field: number
             bipolar:
                 name: bipolar
                 type: int
                 default: '1'
-                field: dropdown
-                options:
-                    'True': '1'
-                    'False': '0'
+                field: number
             buffered:
                 name: buffered
                 type: int
                 default: '0'
-                field: dropdown
-                options:
-                    'True': '1'
-                    'False': '0'
+                field: number
             output_rate_hz:
                 name: output_rate_hz
                 type: int

@@ -51,7 +51,7 @@ class L3gd20h:
         """
         return self._driver.gyro()
 
-    def configure(self, odr: int = 0, bw: int = 0, full_scale: int = 0) -> None:
+    def configure(self, odr: int = 0, bw: int = 0, full_scale: int = 0):
         """
         label:
             en: '%1 configure ODR %2 BW %3 full_scale %4'
@@ -101,7 +101,7 @@ class L3gd20h:
         """
         return self._driver.data_ready()
 
-    def configure_hp_filter(self, mode: int = 0, cutoff: int = 0) -> None:
+    def configure_hp_filter(self, mode: int = 0, cutoff: int = 0):
         """
         label:
             en: '%1 configure HPF mode %2 cutoff %3'
@@ -123,7 +123,7 @@ class L3gd20h:
         """
         self._driver.configure_hp_filter(mode=mode, cutoff=cutoff)
 
-    def enable_hp_filter(self, enable: int = 1) -> None:
+    def enable_hp_filter(self, enable: int = 1):
         """
         label:
             en: '%1 enable HPF %2'
@@ -138,7 +138,7 @@ class L3gd20h:
         """
         self._driver.enable_hp_filter(enable=bool(enable))
 
-    def configure_fifo(self, mode: int = 1, watermark: int = 10) -> None:
+    def configure_fifo(self, mode: int = 1, watermark: int = 10):
         """
         label:
             en: '%1 configure FIFO mode %2 watermark %3'
@@ -160,7 +160,7 @@ class L3gd20h:
         """
         self._driver.configure_fifo(mode=mode, watermark=watermark)
 
-    def enable_fifo(self, enable: int = 1) -> None:
+    def enable_fifo(self, enable: int = 1):
         """
         label:
             en: '%1 enable FIFO %2'
@@ -189,7 +189,7 @@ class L3gd20h:
         """
         return self._driver.read_fifo()
 
-    def set_power_mode(self, mode: int = 0) -> None:
+    def set_power_mode(self, mode: int = 0):
         """
         label:
             en: '%1 set power mode %2'

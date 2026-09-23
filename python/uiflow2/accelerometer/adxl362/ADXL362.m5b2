@@ -1,5 +1,190 @@
 {
   "category": "ADXL362",
   "color": "#C084FC",
-  "_note": "Placeholder — replace by hand with the JSON exported from the UiFlow 2 Block Designer after pasting ADXL362.py into the IDE (see python/uiflow2/UIFLOW2_BLOCKS.md)."
+  "uiflow2": {
+    "jscode": "const CUSTOM_ADXL362_LANGUAGES = {\n  \"CUSTOM_ADXL362_INIT\": {\n    \"en\": \"%1 init bus %2 CS pin %3\"\n  },\n  \"CUSTOM_ADXL362_X\": {\n    \"en\": \"%1 acceleration X (g)\"\n  },\n  \"CUSTOM_ADXL362_Y\": {\n    \"en\": \"%1 acceleration Y (g)\"\n  },\n  \"CUSTOM_ADXL362_Z\": {\n    \"en\": \"%1 acceleration Z (g)\"\n  },\n  \"CUSTOM_ADXL362_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_ADXL362_AWAKE\": {\n    \"en\": \"%1 awake (1/0)\"\n  },\n  \"CUSTOM_ADXL362_SET_RANGE\": {\n    \"en\": \"%1 set range %2 g\"\n  },\n  \"CUSTOM_ADXL362_SOFT_RESET\": {\n    \"en\": \"%1 soft reset\"\n  }\n};\n\nconst initType = 'custom_adxl362_init';\nBlockly.BlockRegExpList['custom_adxl362'] = {\n  regexp: new RegExp(/^custom_adxl362_/),\n  code: \"from ADXL362 import ADXL362\",\n  initBlockType: initType,\n  categoryId: 'custom_adxl362',\n}\nBlockly.utils.registerLanguages(CUSTOM_ADXL362_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ADXL362_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ADXL362 = 'ADXL362'\n\nBlockly.utils.getcustom_adxl362Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['adxl362_0', 'adxl362_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_adxl362_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_adxl362Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'adxl362_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ADXL362(${bus}, ${cs_pin})\\n`\n}\n\nBlockly.Blocks[\"custom_adxl362_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl362_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl362_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl362_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl362_awake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_AWAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_awake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.awake()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_adxl362_set_range\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_SET_RANGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'range_g'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_set_range\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var range_g = Blockly.Python.valueToCode(block, 'range_g', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_range(${range_g})\\n`\n}\n\nBlockly.Blocks[\"custom_adxl362_soft_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ADXL362_SOFT_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_adxl362Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_adxl362_soft_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.soft_reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"ADXL362\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_adxl362\">\n<title text=\"ADXL362\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_adxl362_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_adxl362_x\"/><block type=\"custom_adxl362_y\"/><block type=\"custom_adxl362_z\"/><block type=\"custom_adxl362_temperature\"/><block type=\"custom_adxl362_awake\"/><block type=\"custom_adxl362_set_range\">\n  <value name=\"range_g\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_adxl362_soft_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_adxl362",
+    "block_type": [
+      "custom_adxl362___init__",
+      "custom_adxl362_x",
+      "custom_adxl362_y",
+      "custom_adxl362_z",
+      "custom_adxl362_temperature",
+      "custom_adxl362_awake",
+      "custom_adxl362_set_range",
+      "custom_adxl362_soft_reset"
+    ]
+  },
+  "data": {
+    "name": "ADXL362",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ADXL362",
+      "time": "2026-09-21",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.accelerometer.adxl362 import ADXL362Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 CS pin %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = ADXL362Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[0]",
+        "ast_return": {
+          "code": "self._driver.read()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[1]",
+        "ast_return": {
+          "code": "self._driver.read()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read()[2]",
+        "ast_return": {
+          "code": "self._driver.read()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "awake",
+        "note": {},
+        "label": {
+          "en": "%1 awake (1/0)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return int(self._driver.awake())",
+        "ast_return": {
+          "code": "int(self._driver.awake())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_range",
+        "note": {},
+        "label": {
+          "en": "%1 set range %2 g"
+        },
+        "params": [
+          {
+            "name": "range_g",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_range(int(range_g))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "soft_reset",
+        "note": {},
+        "label": {
+          "en": "%1 soft reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.soft_reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "adxl362"
+  },
+  "pyCode": "\"\"\"\nfile     ADXL362\ntime     2026-09-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.accelerometer.adxl362 import ADXL362Full\n\n\nclass ADXL362:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, cs_pin: int = 5):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 CS pin %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = ADXL362Full(connection)\n\n    def x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (g)'\n        \"\"\"\n        return self._driver.read()[0]\n\n    def y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (g)'\n        \"\"\"\n        return self._driver.read()[1]\n\n    def z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (g)'\n        \"\"\"\n        return self._driver.read()[2]\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def awake(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 awake (1/0)'\n        \"\"\"\n        return int(self._driver.awake())\n\n    def set_range(self, range_g: int = 2):\n        \"\"\"\n        label:\n            en: '%1 set range %2 g'\n        params:\n            range_g:\n                name: range_g\n                type: int\n                default: '2'\n                field: number\n        \"\"\"\n        self._driver.set_range(int(range_g))\n\n    def soft_reset(self):\n        \"\"\"\n        label:\n            en: '%1 soft reset'\n        \"\"\"\n        self._driver.soft_reset()",
+  "version": "alpha2"
 }
