@@ -138,9 +138,9 @@ Files: `cpp/src/connection/HX711Connection.h`, `cpp/src/connection/HX711Connecti
 
 ### Linux GCC
 
-Use `gpiod_line_get_value()` and `gpiod_line_set_value()`. Insert a 1 ms `usleep` between DOUT polls. **Do not insert explicit delays between clock edges**: Linux scheduler granularity makes `usleep(1)` sleep 50–100 µs in practice, which exceeds the 50 µs T3 maximum and triggers power-down. The `gpiod` syscall overhead (~1–5 µs) is sufficient. Release lines in destructor / `close()`.
+libgpiod v2. Constructor: `HX711ConnectionLinux(const char* chip_path, unsigned dout_line, unsigned pd_sck_line)` — a GPIO chip path such as `/dev/gpiochip0` plus the two line offsets shown by `gpioinfo`, the same addressing `DHTxxConnectionLinux` uses. Each line is requested through the shared `GpiodLineLinux` helper (DOUT as input, PD_SCK as output driven LOW), and read/written with `gpiod_line_request_get_value()` / `gpiod_line_request_set_value()`. Insert a 1 ms `usleep` between DOUT polls. **Do not insert explicit delays between clock edges**: Linux scheduler granularity makes `usleep(1)` sleep 50–100 µs in practice, which exceeds the 50 µs T3 maximum and triggers power-down. The `gpiod` syscall overhead (~1–5 µs) is sufficient. Release lines in destructor / `close()`.
 
-Files: `cpp/src/connection/HX711ConnectionLinux.h`, `cpp/src/connection/HX711ConnectionLinux.cpp`
+Files: `cpp/src/connection/HX711ConnectionLinux.h`, `cpp/src/connection/HX711ConnectionLinux.cpp` (link with `cpp/src/connection/GpiodLineLinux.cpp` and `-lgpiod`)
 
 ### Zephyr RTOS
 

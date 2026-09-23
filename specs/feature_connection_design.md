@@ -812,7 +812,7 @@ public:
 | Class | File | Platform | Mechanism |
 |-------|------|----------|-----------|
 | `InputPinArduino` | `InputPinArduino.h` | Arduino | `attachInterrupt(digitalPinToInterrupt(…))` |
-| `InputPinLinux` | `InputPinLinux.h` | Linux GCC | `poll()` thread on sysfs |
+| `InputPinLinux` | `InputPinLinux.h` | Linux GCC | polling thread on a libgpiod v2 line (`chip_path`, `offset`) |
 | `InputPinZephyr` | `InputPinZephyr.h` | Zephyr | `gpio_add_callback()` |
 | `InputPinESPIDF` | `InputPinESPIDF.h` | ESP-IDF | `gpio_install_isr_service()` + `gpio_isr_handler_add()` |
 | `InputPinPicoSDK` | `InputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_set_irq_enabled_with_callback()` |
@@ -933,7 +933,7 @@ public:
 | Class | File | Platform | Mechanism |
 |-------|------|----------|-----------|
 | `OutputPinArduino` | `OutputPinArduino.h` | Arduino | `digitalWrite(pin, HIGH/LOW)` |
-| `OutputPinLinux` | `OutputPinLinux.h` | Linux GCC | sysfs GPIO |
+| `OutputPinLinux` | `OutputPinLinux.h` | Linux GCC | libgpiod v2 line request (`chip_path`, `offset`) |
 | `OutputPinZephyr` | `OutputPinZephyr.h` | Zephyr | `gpio_pin_set()` |
 | `OutputPinESPIDF` | `OutputPinESPIDF.h` | ESP-IDF | `gpio_set_level()` |
 | `OutputPinPicoSDK` | `OutputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_put()` |
@@ -1471,13 +1471,14 @@ see §4.1 for the rename pattern and blast radius.
 | `cpp/src/connection/Connection.h` | C++ | `Connection` base class (renamed/expanded from `Transport`, was `transport/Transport.h`) |
 | `cpp/src/connection/InputPin.h` | C++ | `InputPin` base class |
 | `cpp/src/connection/InputPinArduino.h` | C++ | `attachInterrupt` implementation |
-| `cpp/src/connection/InputPinLinux.h` | C++ | `poll()` thread implementation |
+| `cpp/src/connection/InputPinLinux.h` | C++ | polling-thread implementation on libgpiod v2 |
 | `cpp/src/connection/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
 | `cpp/src/connection/InputPinESPIDF.h` | C++ | `gpio_install_isr_service` / `gpio_isr_handler_add` implementation |
 | `cpp/src/connection/InputPinPicoSDK.h` | C++ | `gpio_set_irq_enabled_with_callback` implementation |
 | `cpp/src/connection/OutputPin.h` | C++ | `OutputPin` base class |
 | `cpp/src/connection/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
-| `cpp/src/connection/OutputPinLinux.h` | C++ | sysfs GPIO implementation |
+| `cpp/src/connection/OutputPinLinux.h` | C++ | libgpiod v2 implementation |
+| `cpp/src/connection/GpiodLineLinux.h` | C++ | shared libgpiod v2 single-line request used by the Linux GPIO connections |
 | `cpp/src/connection/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
 | `cpp/src/connection/OutputPinESPIDF.h` | C++ | `gpio_set_level` implementation |
 | `cpp/src/connection/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |

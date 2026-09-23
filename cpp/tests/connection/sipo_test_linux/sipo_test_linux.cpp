@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstdlib>
-#include <gpiod.h>
 #include "SiPoConnectionLinux.h"
 
 #ifndef TEST_GPIO_CHIP
@@ -31,22 +30,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    struct gpiod_chip* chip = gpiod_chip_open(TEST_GPIO_CHIP);
-    if (!chip) { perror("gpiod_chip_open"); return 2; }
-
-    struct gpiod_line* ser_in = gpiod_chip_get_line(chip, TEST_SER_IN_LINE);
-    struct gpiod_line* srck   = gpiod_chip_get_line(chip, TEST_SRCK_LINE);
-    struct gpiod_line* rck    = gpiod_chip_get_line(chip, TEST_RCK_LINE);
-    struct gpiod_line* srclr  = gpiod_chip_get_line(chip, TEST_SRCLR_LINE);
-    struct gpiod_line* g      = gpiod_chip_get_line(chip, TEST_G_LINE);
-
-    gpiod_line_request_output(ser_in, "sipo_test", 0);
-    gpiod_line_request_output(srck,   "sipo_test", 0);
-    gpiod_line_request_output(rck,    "sipo_test", 0);
-    gpiod_line_request_output(srclr,  "sipo_test", 1);
-    gpiod_line_request_output(g,      "sipo_test", 0);
-
-    SiPoConnectionLinux connection(ser_in, srck, rck, srclr, g);
+    SiPoConnectionLinux connection(TEST_GPIO_CHIP, TEST_SER_IN_LINE, TEST_SRCK_LINE, TEST_RCK_LINE,
+                                   TEST_SRCLR_LINE, TEST_G_LINE);
 
     uint8_t data1[] = { 0xA5 };
     connection.write(data1, sizeof(data1));
@@ -75,7 +60,6 @@ int main() {
     connection.close();
     check_true("close accepted", true);
 
-    gpiod_chip_close(chip);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

@@ -2,16 +2,17 @@
 #ifdef __linux__
 #include <stdint.h>
 #include <stddef.h>
-
-struct gpiod_line;
+#include <memory>
+#include "GpiodLineLinux.h"
 
 /** @brief SiPo (serial-in/parallel-out shift register) connection for Linux GCC.
  *
  * Drives cascadable SIPO shift registers (TPIC6B595, SN74HC595, etc.) whose
  * SER IN/SRCK pins are electrically an SPI MOSI/SCK pair. Two constructors
  * are provided: one opens a hardware /dev/spidevBUS.DEVICE, the other
- * bit-bangs SER IN/SRCK as two libgpiod lines. Either way, RCK — and, if
- * configured, SRCLR/G — are always plain libgpiod lines.
+ * bit-bangs SER IN/SRCK as two libgpiod v2 lines. Either way, RCK — and, if
+ * configured, SRCLR/G — are always plain GPIO lines, given as offsets on
+ * one GPIO chip; -1 disables the optional SRCLR/G lines.
  *
  * Write-only: there is no read() or write_read(). This is a custom protocol
  * with no generic byte read/write, so it does not extend the shared
@@ -19,30 +20,29 @@ struct gpiod_line;
  *
  * @param bus_num      SPI bus number (opens /dev/spidevBUS.DEVICE).
  * @param device_num   Chip-select line on the bus.
- * @param rck          libgpiod line requested as output, for RCK.
- * @param srclr        libgpiod line requested as output, for SRCLR; nullptr (default) disables it.
- * @param g            libgpiod line requested as output, for G; nullptr (default) disables it.
+ * @param chip_path    GPIO chip device for RCK/SRCLR/G, e.g. "/dev/gpiochip0".
+ * @param rck          Line offset for RCK.
+ * @param srclr        Line offset for SRCLR; -1 (default) disables it.
+ * @param g            Line offset for G; -1 (default) disables it.
  * @param max_speed_hz Clock frequency in Hz; default 1 000 000.
  */
 class SiPoConnectionLinux {
 public:
     SiPoConnectionLinux(int bus_num, int device_num,
-                        struct gpiod_line* rck,
-                        struct gpiod_line* srclr = nullptr,
-                        struct gpiod_line* g = nullptr,
+                        const char* chip_path, unsigned int rck,
+                        int srclr = -1, int g = -1,
                         uint32_t max_speed_hz = 1000000);
 
-    /** @brief Bit-bang constructor: SER IN/SRCK are libgpiod lines instead of a spidev device.
-     *  @param ser_in libgpiod line requested as output, for SER IN.
-     *  @param srck   libgpiod line requested as output, for SRCK.
-     *  @param rck    libgpiod line requested as output, for RCK.
-     *  @param srclr  libgpiod line requested as output, for SRCLR; nullptr (default) disables it.
-     *  @param g      libgpiod line requested as output, for G; nullptr (default) disables it.
+    /** @brief Bit-bang constructor: SER IN/SRCK are GPIO lines instead of a spidev device.
+     *  @param chip_path GPIO chip device for every line, e.g. "/dev/gpiochip0".
+     *  @param ser_in    Line offset for SER IN.
+     *  @param srck      Line offset for SRCK.
+     *  @param rck       Line offset for RCK.
+     *  @param srclr     Line offset for SRCLR; -1 (default) disables it.
+     *  @param g         Line offset for G; -1 (default) disables it.
      */
-    SiPoConnectionLinux(struct gpiod_line* ser_in, struct gpiod_line* srck,
-                        struct gpiod_line* rck,
-                        struct gpiod_line* srclr = nullptr,
-                        struct gpiod_line* g = nullptr);
+    SiPoConnectionLinux(const char* chip_path, unsigned int ser_in, unsigned int srck,
+                        unsigned int rck, int srclr = -1, int g = -1);
 
     ~SiPoConnectionLinux();
 
@@ -89,11 +89,14 @@ public:
 private:
     int      _fd;
     uint32_t _speed_hz;
-    struct gpiod_line* _ser_in;
-    struct gpiod_line* _srck;
-    struct gpiod_line* _rck;
-    struct gpiod_line* _srclr;
-    struct gpiod_line* _g;
+    std::unique_ptr<GpiodLineLinux> _ser_in;
+    std::unique_ptr<GpiodLineLinux> _srck;
+    std::unique_ptr<GpiodLineLinux> _rck;
+    std::unique_ptr<GpiodLineLinux> _srclr;
+    std::unique_ptr<GpiodLineLinux> _g;
+
+    static std::unique_ptr<GpiodLineLinux> _output(const char* chip_path, int offset,
+                                                   bool initial_high, const char* consumer);
     bool _enabled = true;
 
     void _latch();

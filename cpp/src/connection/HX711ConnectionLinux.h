@@ -1,10 +1,9 @@
 #pragma once
 #ifdef __linux__
 #include <stdint.h>
+#include "GpiodLineLinux.h"
 
-struct gpiod_line;
-
-/** @brief HX711 GPIO bit-bang connection for Linux (wraps libgpiod lines).
+/** @brief HX711 GPIO bit-bang connection for Linux (libgpiod v2).
  *
  * Implements the 2-wire bit-bang protocol used exclusively by the HX711
  * 24-bit ADC. DOUT is sampled on each falling edge of PD_SCK; the pulse
@@ -17,12 +16,13 @@ struct gpiod_line;
  * extend the shared Connection base — it carries its own enabled flag
  * directly, gating read_raw().
  *
- * @param dout   libgpiod line requested as input.
- * @param pd_sck libgpiod line requested as output.
+ * @param chip_path   GPIO chip device, e.g. "/dev/gpiochip0".
+ * @param dout_line   Line offset wired to DOUT (requested as input).
+ * @param pd_sck_line Line offset wired to PD_SCK (requested as output, low).
  */
 class HX711ConnectionLinux {
 public:
-    HX711ConnectionLinux(struct gpiod_line* dout, struct gpiod_line* pd_sck);
+    HX711ConnectionLinux(const char* chip_path, unsigned int dout_line, unsigned int pd_sck_line);
     ~HX711ConnectionLinux();
 
     /** @brief Resume conversions. */
@@ -68,8 +68,8 @@ public:
     void close();
 
 private:
-    struct gpiod_line* _dout;
-    struct gpiod_line* _sck;
+    GpiodLineLinux _dout;
+    GpiodLineLinux _sck;
     bool _enabled = true;
 };
 #endif
