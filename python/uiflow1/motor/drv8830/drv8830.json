@@ -1,0 +1,94 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "drv8830_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init DRV8830", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address (0x60-0x68)", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "drv8830_drive",
+      "type": "execute",
+      "params": [
+        { "name": "DRV8830 drive", "type": "label" },
+        { "name": "voltage (V, - = reverse)", "type": "label" },
+        { "name": "_voltage", "type": "number" }
+      ]
+    },
+    {
+      "name": "drv8830_brake",
+      "type": "execute",
+      "params": [{ "name": "DRV8830 brake", "type": "label" }]
+    },
+    {
+      "name": "drv8830_stop",
+      "type": "execute",
+      "params": [{ "name": "DRV8830 stop (coast)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_set_output",
+      "type": "execute",
+      "params": [
+        { "name": "DRV8830 set output", "type": "label" },
+        { "name": "VSET (6-63)", "type": "label" },
+        { "name": "_vset", "type": "number" },
+        { "name": "IN1 (0/1)", "type": "label" },
+        { "name": "_in1", "type": "number" },
+        { "name": "IN2 (0/1)", "type": "label" },
+        { "name": "_in2", "type": "number" }
+      ]
+    },
+    {
+      "name": "drv8830_get_output_voltage",
+      "type": "value",
+      "params": [{ "name": "DRV8830 commanded voltage (V)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_output_direction",
+      "type": "value",
+      "params": [{ "name": "DRV8830 direction", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_fault",
+      "type": "value",
+      "params": [{ "name": "DRV8830 fault", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_ocp",
+      "type": "value",
+      "params": [{ "name": "DRV8830 overcurrent (OCP)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_uvlo",
+      "type": "value",
+      "params": [{ "name": "DRV8830 undervoltage (UVLO)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_ots",
+      "type": "value",
+      "params": [{ "name": "DRV8830 overtemperature (OTS)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_get_ilimit",
+      "type": "value",
+      "params": [{ "name": "DRV8830 current limit (ILIMIT)", "type": "label" }]
+    },
+    {
+      "name": "drv8830_clear_fault",
+      "type": "execute",
+      "params": [{ "name": "DRV8830 clear fault", "type": "label" }]
+    },
+    {
+      "name": "drv8830_poll_interrupt",
+      "type": "value",
+      "params": [{ "name": "DRV8830 poll fault", "type": "label" }]
+    }
+  ]
+}
