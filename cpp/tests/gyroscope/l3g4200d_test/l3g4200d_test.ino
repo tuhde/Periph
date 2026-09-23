@@ -10,8 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/gyroscope/L3G4200D.h"
+#include "I2CConnection.h"
+#include "L3G4200D.h"
 
 static int passed = 0, failed = 0;
 

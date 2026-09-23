@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/LPS22DF.h"
+#include "I2CConnection.h"
+#include "LPS22DF.h"
 
 void setup() {
     Serial.begin(115200);
@@ -57,7 +57,7 @@ void setup() {
     Serial.print(" Pa, alt="); Serial.print(alt, 1);
     Serial.print(" m, ref="); Serial.print(ref, 0);
     Serial.print(" Pa, fifo="); Serial.print(n_read);
-    Serial.print("/", (int)count);
+    Serial.print("/"); Serial.print((int)count);
     Serial.print(", src=0x"); Serial.println(src, HEX);
     Serial.println("===DONE: 0 passed, 0 failed===");
 }

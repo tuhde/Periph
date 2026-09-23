@@ -10,8 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/environmental/BME280.h"
+#include "I2CConnection.h"
+#include "BME280.h"
 
 static int passed = 0, failed = 0;
 

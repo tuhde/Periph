@@ -3,8 +3,8 @@
 #endif
 
 #include <Arduino.h>
-#include "../../src/connection/DHTxxConnection.h"
-#include "../../src/chips/humidity/DHT11.h"
+#include "DHTxxConnection.h"
+#include "DHT11.h"
 
 static int passed = 0, failed = 0;
 

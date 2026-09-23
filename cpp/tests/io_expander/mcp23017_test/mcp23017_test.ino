@@ -10,8 +10,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/io_expander/MCP23017.h"
+#include "I2CConnection.h"
+#include "MCP23017.h"
 
 static int passed = 0, failed = 0;
 
@@ -45,7 +45,7 @@ void setup() {
     p7.mode(OUTPUT);
     p7.low();
     check_eq("pin7_off", mcp._shadow[0] & 0x80, 0x00);
-    p7.on();
+    p7.high();
     check_eq("pin7_on", mcp._shadow[0] & 0x80, 0x80);
 
     // Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n]

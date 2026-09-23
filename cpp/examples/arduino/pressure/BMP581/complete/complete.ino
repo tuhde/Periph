@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../../src/connection/I2CConnection.h"
-#include "../../../src/chips/pressure/BMP581.h"
+#include "I2CConnection.h"
+#include "BMP581.h"
 
 static int passed = 0, failed = 0;
 
@@ -34,7 +34,7 @@ void setup() {
     bmp.set_iir_filter(BMP581Full::IIR_COEFF_3, BMP581Full::IIR_BYPASS);  // Set IIR filter, (coeff_p 0–7, coeff_t 0–7) → None
                                                         // suppresses short-term pressure disturbances on the data registers
     bmp.configure_fifo(BMP581Full::FIFO_BOTH, BMP581Full::FIFO_STREAM, 8);  // Configure FIFO, (frame_sel 0–3, mode 0/1, threshold 0–31) → None
-                                                        # store 8-frame batches of pressure+temperature samples
+                                                        // store 8-frame batches of pressure+temperature samples
     uint8_t n = bmp.fifo_count();                        // Read FIFO frame count, () → int
                                                         // returns number of frames currently buffered
     bmp.enable_drdy_interrupt(true);                     // Enable data-ready interrupt, (enable bool) → None

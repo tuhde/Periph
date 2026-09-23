@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "../../src/connection/I2CConnection.h"
-#include "../../src/chips/pressure/BMP180.h"
+#include "I2CConnection.h"
+#include "BMP180.h"
 
 static int passed = 0, failed = 0;
 
