@@ -7,6 +7,7 @@ module it.uhde.periph {
     exports it.uhde.periph.chips.io_expander;
     exports it.uhde.periph.chips.led;
     exports it.uhde.periph.chips.memory;
+    exports it.uhde.periph.chips.motor;
     exports it.uhde.periph.chips.power;
     exports it.uhde.periph.chips.pressure;
     exports it.uhde.periph.chips.rfid;
