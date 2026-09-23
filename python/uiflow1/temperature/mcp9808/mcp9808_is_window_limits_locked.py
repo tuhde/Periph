@@ -1,0 +1,1 @@
+_periph_mcp9808.is_window_limits_locked()

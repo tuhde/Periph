@@ -11,7 +11,9 @@
     "peripheral"
   ],
   "node-red": {
-    "nodes": {}
+    "nodes": {
+      "mcp9808": "nodes/mcp9808/mcp9808.js"
+    }
   },
   "dependencies": {
     "periph": "*"

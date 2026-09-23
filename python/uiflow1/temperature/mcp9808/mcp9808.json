@@ -1,0 +1,332 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mcp9808_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MCP9808",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x18-0x1F)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_read_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_set_resolution",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 set resolution",
+          "type": "label"
+        },
+        {
+          "name": "step (°C: 0.5/0.25/0.125/0.0625)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_get_resolution",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 resolution (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 shutdown",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_wake",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 wake",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 is shut down",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_set_upper_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 set upper limit",
+          "type": "label"
+        },
+        {
+          "name": "TUPPER (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_get_upper_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 upper limit (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_set_lower_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 set lower limit",
+          "type": "label"
+        },
+        {
+          "name": "TLOWER (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_get_lower_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 lower limit (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_set_critical_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 set critical limit",
+          "type": "label"
+        },
+        {
+          "name": "TCRIT (°C)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_get_critical_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 critical limit (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_set_hysteresis",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 set hysteresis",
+          "type": "label"
+        },
+        {
+          "name": "°C (0/1.5/3.0/6.0)",
+          "type": "label"
+        },
+        {
+          "name": "_celsius",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_get_hysteresis",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 hysteresis (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_lock_critical_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 lock critical limit (until power cycle)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_lock_window_limits",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 lock window limits (until power cycle)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_is_critical_limit_locked",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 critical limit locked",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_is_window_limits_locked",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 window limits locked",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_configure_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 configure alert, mode (\"all\"/\"critical_only\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        },
+        {
+          "name": "output (\"comparator\"/\"interrupt\")",
+          "type": "label"
+        },
+        {
+          "name": "_output",
+          "type": "variable"
+        },
+        {
+          "name": "polarity (\"active_low\"/\"active_high\")",
+          "type": "label"
+        },
+        {
+          "name": "_polarity",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_enable_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 enable alert",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_disable_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 disable alert",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_is_alert_asserted",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 alert asserted",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_clear_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP9808 clear interrupt",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp9808_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP9808 boundary status (1=lower 2=upper 4=critical)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

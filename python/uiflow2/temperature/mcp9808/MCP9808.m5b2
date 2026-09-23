@@ -1,0 +1,524 @@
+{
+  "category": "MCP9808",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MCP9808_LANGUAGES = {\n  \"CUSTOM_MCP9808_INIT\": {\n    \"en\": \"%1 init bus %2 address (24-31) %3\"\n  },\n  \"CUSTOM_MCP9808_READ_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C)\"\n  },\n  \"CUSTOM_MCP9808_SET_RESOLUTION\": {\n    \"en\": \"%1 set resolution (°C: 0.5/0.25/0.125/0.0625) %2\"\n  },\n  \"CUSTOM_MCP9808_GET_RESOLUTION\": {\n    \"en\": \"%1 resolution (°C)\"\n  },\n  \"CUSTOM_MCP9808_SHUTDOWN\": {\n    \"en\": \"%1 shutdown\"\n  },\n  \"CUSTOM_MCP9808_WAKE\": {\n    \"en\": \"%1 wake\"\n  },\n  \"CUSTOM_MCP9808_IS_SHUTDOWN\": {\n    \"en\": \"%1 is shut down?\"\n  },\n  \"CUSTOM_MCP9808_SET_UPPER_LIMIT\": {\n    \"en\": \"%1 set upper limit (°C) %2\"\n  },\n  \"CUSTOM_MCP9808_GET_UPPER_LIMIT\": {\n    \"en\": \"%1 upper limit (°C)\"\n  },\n  \"CUSTOM_MCP9808_SET_LOWER_LIMIT\": {\n    \"en\": \"%1 set lower limit (°C) %2\"\n  },\n  \"CUSTOM_MCP9808_GET_LOWER_LIMIT\": {\n    \"en\": \"%1 lower limit (°C)\"\n  },\n  \"CUSTOM_MCP9808_SET_CRITICAL_LIMIT\": {\n    \"en\": \"%1 set critical limit (°C) %2\"\n  },\n  \"CUSTOM_MCP9808_GET_CRITICAL_LIMIT\": {\n    \"en\": \"%1 critical limit (°C)\"\n  },\n  \"CUSTOM_MCP9808_SET_HYSTERESIS\": {\n    \"en\": \"%1 set hysteresis (°C: 0/1.5/3.0/6.0) %2\"\n  },\n  \"CUSTOM_MCP9808_GET_HYSTERESIS\": {\n    \"en\": \"%1 hysteresis (°C)\"\n  },\n  \"CUSTOM_MCP9808_LOCK_CRITICAL_LIMIT\": {\n    \"en\": \"%1 lock critical limit (until power cycle)\"\n  },\n  \"CUSTOM_MCP9808_LOCK_WINDOW_LIMITS\": {\n    \"en\": \"%1 lock window limits (until power cycle)\"\n  },\n  \"CUSTOM_MCP9808_IS_CRITICAL_LIMIT_LOCKED\": {\n    \"en\": \"%1 critical limit locked?\"\n  },\n  \"CUSTOM_MCP9808_IS_WINDOW_LIMITS_LOCKED\": {\n    \"en\": \"%1 window limits locked?\"\n  },\n  \"CUSTOM_MCP9808_CONFIGURE_ALERT\": {\n    \"en\": \"%1 configure alert mode (0=all 1=critical only) %2 output (0=comparator 1=interrupt) %3 polarity (0=active low 1=active high) %4\"\n  },\n  \"CUSTOM_MCP9808_ENABLE_ALERT\": {\n    \"en\": \"%1 enable alert\"\n  },\n  \"CUSTOM_MCP9808_DISABLE_ALERT\": {\n    \"en\": \"%1 disable alert\"\n  },\n  \"CUSTOM_MCP9808_IS_ALERT_ASSERTED\": {\n    \"en\": \"%1 alert asserted?\"\n  },\n  \"CUSTOM_MCP9808_CLEAR_INTERRUPT\": {\n    \"en\": \"%1 clear interrupt\"\n  },\n  \"CUSTOM_MCP9808_POLL_INTERRUPT\": {\n    \"en\": \"%1 boundary status (1=lower 2=upper 4=critical)\"\n  }\n};\n\nconst initType = 'custom_mcp9808_init';\nBlockly.BlockRegExpList['custom_mcp9808'] = {\n  regexp: new RegExp(/^custom_mcp9808_/),\n  code: \"from MCP9808 import MCP9808\",\n  initBlockType: initType,\n  categoryId: 'custom_mcp9808',\n}\nBlockly.utils.registerLanguages(CUSTOM_MCP9808_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MCP9808_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MCP9808 = 'MCP9808'\n\nBlockly.utils.getcustom_mcp9808Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mcp9808_0', 'mcp9808_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mcp9808_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mcp9808Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mcp9808_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MCP9808(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_READ_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_set_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_set_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_resolution(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_get_resolution\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_GET_RESOLUTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_get_resolution\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_resolution()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.shutdown()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_is_shutdown\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_IS_SHUTDOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_is_shutdown\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_shutdown()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_set_upper_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SET_UPPER_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_set_upper_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_upper_limit(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_get_upper_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_GET_UPPER_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_get_upper_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_upper_limit()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_set_lower_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SET_LOWER_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_set_lower_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_lower_limit(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_get_lower_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_GET_LOWER_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_get_lower_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_lower_limit()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_set_critical_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SET_CRITICAL_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_set_critical_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_critical_limit(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_get_critical_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_GET_CRITICAL_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_get_critical_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_critical_limit()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_set_hysteresis\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_SET_HYSTERESIS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'celsius'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_set_hysteresis\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var celsius = Blockly.Python.valueToCode(block, 'celsius', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_hysteresis(${celsius})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_get_hysteresis\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_GET_HYSTERESIS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_get_hysteresis\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_hysteresis()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_lock_critical_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_LOCK_CRITICAL_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_lock_critical_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.lock_critical_limit()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_lock_window_limits\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_LOCK_WINDOW_LIMITS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_lock_window_limits\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.lock_window_limits()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_is_critical_limit_locked\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_IS_CRITICAL_LIMIT_LOCKED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_is_critical_limit_locked\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_critical_limit_locked()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_is_window_limits_locked\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_IS_WINDOW_LIMITS_LOCKED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_is_window_limits_locked\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_window_limits_locked()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_configure_alert\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_CONFIGURE_ALERT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n        {\n          'type': 'input_value',\n          'name': 'output'\n        },\n        {\n          'type': 'input_value',\n          'name': 'polarity'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_configure_alert\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  var output = Blockly.Python.valueToCode(block, 'output', Blockly.Python.ORDER_FUNCTION_CALL);\n  var polarity = Blockly.Python.valueToCode(block, 'polarity', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_alert(${mode}, ${output}, ${polarity})\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_enable_alert\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_ENABLE_ALERT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_enable_alert\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_alert()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_disable_alert\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_DISABLE_ALERT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_disable_alert\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_alert()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_is_alert_asserted\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_IS_ALERT_ASSERTED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_is_alert_asserted\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.is_alert_asserted()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mcp9808_clear_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_CLEAR_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_clear_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_interrupt()\\n`\n}\n\nBlockly.Blocks[\"custom_mcp9808_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MCP9808_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mcp9808Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mcp9808_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"MCP9808\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mcp9808\">\n<title text=\"MCP9808\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mcp9808_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">24</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_read_temperature\"/><block type=\"custom_mcp9808_set_resolution\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0625</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_get_resolution\"/><block type=\"custom_mcp9808_shutdown\"/><block type=\"custom_mcp9808_wake\"/><block type=\"custom_mcp9808_is_shutdown\"/><block type=\"custom_mcp9808_set_upper_limit\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">30.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_get_upper_limit\"/><block type=\"custom_mcp9808_set_lower_limit\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_get_lower_limit\"/><block type=\"custom_mcp9808_set_critical_limit\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">45.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_get_critical_limit\"/><block type=\"custom_mcp9808_set_hysteresis\">\n  <value name=\"celsius\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_get_hysteresis\"/><block type=\"custom_mcp9808_lock_critical_limit\"/><block type=\"custom_mcp9808_lock_window_limits\"/><block type=\"custom_mcp9808_is_critical_limit_locked\"/><block type=\"custom_mcp9808_is_window_limits_locked\"/><block type=\"custom_mcp9808_configure_alert\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"output\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"polarity\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mcp9808_enable_alert\"/><block type=\"custom_mcp9808_disable_alert\"/><block type=\"custom_mcp9808_is_alert_asserted\"/><block type=\"custom_mcp9808_clear_interrupt\"/><block type=\"custom_mcp9808_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_mcp9808",
+    "block_type": [
+      "custom_mcp9808___init__",
+      "custom_mcp9808_read_temperature",
+      "custom_mcp9808_set_resolution",
+      "custom_mcp9808_get_resolution",
+      "custom_mcp9808_shutdown",
+      "custom_mcp9808_wake",
+      "custom_mcp9808_is_shutdown",
+      "custom_mcp9808_set_upper_limit",
+      "custom_mcp9808_get_upper_limit",
+      "custom_mcp9808_set_lower_limit",
+      "custom_mcp9808_get_lower_limit",
+      "custom_mcp9808_set_critical_limit",
+      "custom_mcp9808_get_critical_limit",
+      "custom_mcp9808_set_hysteresis",
+      "custom_mcp9808_get_hysteresis",
+      "custom_mcp9808_lock_critical_limit",
+      "custom_mcp9808_lock_window_limits",
+      "custom_mcp9808_is_critical_limit_locked",
+      "custom_mcp9808_is_window_limits_locked",
+      "custom_mcp9808_configure_alert",
+      "custom_mcp9808_enable_alert",
+      "custom_mcp9808_disable_alert",
+      "custom_mcp9808_is_alert_asserted",
+      "custom_mcp9808_clear_interrupt",
+      "custom_mcp9808_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "MCP9808",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MCP9808",
+      "time": "2026-09-23",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.temperature.mcp9808 import MCP9808Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (24-31) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "24",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "24"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP9808Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 set resolution (°C: 0.5/0.25/0.125/0.0625) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "0.0625",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_resolution(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_resolution",
+        "note": {},
+        "label": {
+          "en": "%1 resolution (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_resolution()",
+        "ast_return": {
+          "code": "self._driver.get_resolution()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 shutdown"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.shutdown()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_shutdown",
+        "note": {},
+        "label": {
+          "en": "%1 is shut down?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_shutdown()",
+        "ast_return": {
+          "code": "self._driver.is_shutdown()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_upper_limit",
+        "note": {},
+        "label": {
+          "en": "%1 set upper limit (°C) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "30.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_upper_limit(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_upper_limit",
+        "note": {},
+        "label": {
+          "en": "%1 upper limit (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_upper_limit()",
+        "ast_return": {
+          "code": "self._driver.get_upper_limit()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_lower_limit",
+        "note": {},
+        "label": {
+          "en": "%1 set lower limit (°C) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "10.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_lower_limit(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_lower_limit",
+        "note": {},
+        "label": {
+          "en": "%1 lower limit (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_lower_limit()",
+        "ast_return": {
+          "code": "self._driver.get_lower_limit()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_critical_limit",
+        "note": {},
+        "label": {
+          "en": "%1 set critical limit (°C) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "45.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_critical_limit(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_critical_limit",
+        "note": {},
+        "label": {
+          "en": "%1 critical limit (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_critical_limit()",
+        "ast_return": {
+          "code": "self._driver.get_critical_limit()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_hysteresis",
+        "note": {},
+        "label": {
+          "en": "%1 set hysteresis (°C: 0/1.5/3.0/6.0) %2"
+        },
+        "params": [
+          {
+            "name": "celsius",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_hysteresis(celsius)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_hysteresis",
+        "note": {},
+        "label": {
+          "en": "%1 hysteresis (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_hysteresis()",
+        "ast_return": {
+          "code": "self._driver.get_hysteresis()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lock_critical_limit",
+        "note": {},
+        "label": {
+          "en": "%1 lock critical limit (until power cycle)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.lock_critical_limit()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "lock_window_limits",
+        "note": {},
+        "label": {
+          "en": "%1 lock window limits (until power cycle)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.lock_window_limits()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_critical_limit_locked",
+        "note": {},
+        "label": {
+          "en": "%1 critical limit locked?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_critical_limit_locked()",
+        "ast_return": {
+          "code": "self._driver.is_critical_limit_locked()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_window_limits_locked",
+        "note": {},
+        "label": {
+          "en": "%1 window limits locked?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_window_limits_locked()",
+        "ast_return": {
+          "code": "self._driver.is_window_limits_locked()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_alert",
+        "note": {},
+        "label": {
+          "en": "%1 configure alert mode (0=all 1=critical only) %2 output (0=comparator 1=interrupt) %3 polarity (0=active low 1=active high) %4"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "output",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "polarity",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_alert(('all', 'critical_only')[mode],\n                                     ('comparator', 'interrupt')[output],\n                                     ('active_low', 'active_high')[polarity])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_alert",
+        "note": {},
+        "label": {
+          "en": "%1 enable alert"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_alert()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_alert",
+        "note": {},
+        "label": {
+          "en": "%1 disable alert"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_alert()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "is_alert_asserted",
+        "note": {},
+        "label": {
+          "en": "%1 alert asserted?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.is_alert_asserted()",
+        "ast_return": {
+          "code": "self._driver.is_alert_asserted()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 clear interrupt"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_interrupt()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 boundary status (1=lower 2=upper 4=critical)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mcp9808"
+  },
+  "pyCode": "\"\"\"\nfile     MCP9808\ntime     2026-09-23\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.temperature.mcp9808 import MCP9808Full\n\n\nclass MCP9808:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 24):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (24-31) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '24'\n                field: number\n                min: '24'\n                max: '31'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = MCP9808Full(connection)\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def set_resolution(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set resolution (°C: 0.5/0.25/0.125/0.0625) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '0.0625'\n                field: number\n        \"\"\"\n        self._driver.set_resolution(celsius)\n\n    def get_resolution(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 resolution (°C)'\n        \"\"\"\n        return self._driver.get_resolution()\n\n    def shutdown(self):\n        \"\"\"\n        label:\n            en: '%1 shutdown'\n        \"\"\"\n        self._driver.shutdown()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n\n    def is_shutdown(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 is shut down?'\n        \"\"\"\n        return self._driver.is_shutdown()\n\n    def set_upper_limit(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set upper limit (°C) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '30.0'\n                field: number\n        \"\"\"\n        self._driver.set_upper_limit(celsius)\n\n    def get_upper_limit(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 upper limit (°C)'\n        \"\"\"\n        return self._driver.get_upper_limit()\n\n    def set_lower_limit(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set lower limit (°C) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '10.0'\n                field: number\n        \"\"\"\n        self._driver.set_lower_limit(celsius)\n\n    def get_lower_limit(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 lower limit (°C)'\n        \"\"\"\n        return self._driver.get_lower_limit()\n\n    def set_critical_limit(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set critical limit (°C) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '45.0'\n                field: number\n        \"\"\"\n        self._driver.set_critical_limit(celsius)\n\n    def get_critical_limit(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 critical limit (°C)'\n        \"\"\"\n        return self._driver.get_critical_limit()\n\n    def set_hysteresis(self, celsius: float):\n        \"\"\"\n        label:\n            en: '%1 set hysteresis (°C: 0/1.5/3.0/6.0) %2'\n        params:\n            celsius:\n                name: celsius\n                type: float\n                default: '0.0'\n                field: number\n        \"\"\"\n        self._driver.set_hysteresis(celsius)\n\n    def get_hysteresis(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 hysteresis (°C)'\n        \"\"\"\n        return self._driver.get_hysteresis()\n\n    def lock_critical_limit(self):\n        \"\"\"\n        label:\n            en: '%1 lock critical limit (until power cycle)'\n        \"\"\"\n        self._driver.lock_critical_limit()\n\n    def lock_window_limits(self):\n        \"\"\"\n        label:\n            en: '%1 lock window limits (until power cycle)'\n        \"\"\"\n        self._driver.lock_window_limits()\n\n    def is_critical_limit_locked(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 critical limit locked?'\n        \"\"\"\n        return self._driver.is_critical_limit_locked()\n\n    def is_window_limits_locked(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 window limits locked?'\n        \"\"\"\n        return self._driver.is_window_limits_locked()\n\n    def configure_alert(self, mode: int, output: int, polarity: int):\n        \"\"\"\n        label:\n            en: '%1 configure alert mode (0=all 1=critical only) %2 output (0=comparator 1=interrupt) %3 polarity (0=active low 1=active high) %4'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            output:\n                name: output\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            polarity:\n                name: polarity\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.configure_alert(('all', 'critical_only')[mode],\n                                     ('comparator', 'interrupt')[output],\n                                     ('active_low', 'active_high')[polarity])\n\n    def enable_alert(self):\n        \"\"\"\n        label:\n            en: '%1 enable alert'\n        \"\"\"\n        self._driver.enable_alert()\n\n    def disable_alert(self):\n        \"\"\"\n        label:\n            en: '%1 disable alert'\n        \"\"\"\n        self._driver.disable_alert()\n\n    def is_alert_asserted(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 alert asserted?'\n        \"\"\"\n        return self._driver.is_alert_asserted()\n\n    def clear_interrupt(self):\n        \"\"\"\n        label:\n            en: '%1 clear interrupt'\n        \"\"\"\n        self._driver.clear_interrupt()\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 boundary status (1=lower 2=upper 4=critical)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}

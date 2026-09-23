@@ -14,7 +14,9 @@ npm install node-red-contrib-periph-temperature
 
 ## Nodes
 
-> **Coming soon.** Nodes will be added as chips in this category are implemented.
+| Node | Kind | Description |
+|------|------|-------------|
+| `periph-mcp9808` | input | Reads the ambient temperature from an MCP9808 ±0.5 °C digital temperature sensor over I²C, and optionally reports its TUPPER/TLOWER/TCRIT boundary alerts. |
 
 ## Links
 

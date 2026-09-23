@@ -78,6 +78,7 @@ Each chip exposes two classes:
 | MCP2515 | Comms | Send/recv with default configuration. |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC |
+| MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor |
 | MFRC522 | RFID/NFC | 13.56 MHz RFID/NFC reader |
 | MPR121 | Other | Capacitive touch controller |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope) |
