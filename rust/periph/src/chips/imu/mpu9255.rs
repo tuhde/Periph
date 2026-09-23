@@ -501,6 +501,7 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_ACCEL_XOUT_H],
                 [s16(8192), s16(0), s16(0)].concat()),
             I2cTransaction::write(ADDR, vec![REG_CONFIG, 5]),
+            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG2, 5]),
             I2cTransaction::write(ADDR, vec![REG_SMPLRT_DIV, 9]),
             I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_H], s16(340).to_vec()),
             I2cTransaction::write_read(ADDR, vec![REG_ACCEL_XOUT_H],
@@ -513,7 +514,6 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x41]),
             I2cTransaction::write_read(ADDR, vec![REG_PWR_MGMT_1], vec![0x41]),
             I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x01]),
-            I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_2, 0x21]),
             I2cTransaction::write_read(ADDR, vec![REG_FIFO_COUNTH], vec![0x03, 0x45]),
             I2cTransaction::write_read(ADDR, vec![REG_FIFO_COUNTH], vec![0x00, 0x02]),
             I2cTransaction::write_read(ADDR, vec![REG_FIFO_R_W], vec![0xAA, 0xBB]),
@@ -565,7 +565,7 @@ mod tests {
         sensor.configure_sample_rate(9).unwrap();
 
         let temp = sensor.temperature().unwrap();
-        assert!((temp - 37.53).abs() < 1e-2);
+        assert!((temp - (340.0 / 333.87 + 21.0)).abs() < 1e-3);
 
         assert_eq!(sensor.accel_raw().unwrap(), (100, -200, 300));
         assert_eq!(sensor.gyro_raw().unwrap(), (-50, 60, -70));

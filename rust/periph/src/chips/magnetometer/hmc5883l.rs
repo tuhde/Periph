@@ -300,9 +300,9 @@ mod tests {
             // X=0x0100 (256), Z=0x0200 (512), Y=0x0300 (768)
             I2cTransaction::write_read(ADDR, vec![REG_DATA_X_MSB], vec![0x01, 0x00, 0x02, 0x00, 0x03, 0x00]),
         );
-        let i2c = I2cMock::new(&transactions);
+        let mut i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Hmc5883lMinimal::new(i2c, ADDR).expect("init");
+        let mut sensor = Hmc5883lMinimal::new(i2c.clone(), ADDR).expect("init");
         let (x, y, z) = sensor.magnetic_field().expect("read");
 
         // gain=1 (1090 LSb/Ga), 1 Ga = 1e-4 T
@@ -328,9 +328,9 @@ mod tests {
         transactions.push(
             I2cTransaction::write_read(ADDR, vec![REG_ID_C], vec![0x33]),
         );
-        let i2c = I2cMock::new(&transactions);
+        let mut i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Hmc5883lFull::new(i2c, ADDR).expect("init");
+        let mut sensor = Hmc5883lFull::new(i2c.clone(), ADDR).expect("init");
         let (a, b, c) = sensor.identify().expect("identify");
         assert_eq!(a, 0x48);
         assert_eq!(b, 0x34);
@@ -343,14 +343,14 @@ mod tests {
     fn full_configure() {
         let mut transactions = init_transactions();
         transactions.push(
-            I2cTransaction::write(ADDR, vec![REG_CONFIG_A, 0b11111000]), // MA=11(8), DO=100(15Hz)
+            I2cTransaction::write(ADDR, vec![REG_CONFIG_A, 0x70]), // MA[6:5]=11 (8), DO[4:2]=100 (15 Hz), MS=00
         );
         transactions.push(
             I2cTransaction::write(ADDR, vec![REG_CONFIG_B, 0x20]), // GN=1
         );
-        let i2c = I2cMock::new(&transactions);
+        let mut i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Hmc5883lFull::new(i2c, ADDR).expect("init");
+        let mut sensor = Hmc5883lFull::new(i2c.clone(), ADDR).expect("init");
         sensor.configure(15.0, 8, 1).expect("configure");
 
         i2c.done();
@@ -375,9 +375,9 @@ mod tests {
         transactions.push(
             I2cTransaction::write(ADDR, vec![REG_CONFIG_A, 0x70]), // restore normal
         );
-        let i2c = I2cMock::new(&transactions);
+        let mut i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Hmc5883lFull::new(i2c, ADDR).expect("init");
+        let mut sensor = Hmc5883lFull::new(i2c.clone(), ADDR).expect("init");
         let (x, y, z) = sensor.self_test(true).expect("self_test");
 
         assert!((x.unwrap() - 256.0 / 1090.0 * 1e-4).abs() < 1e-9);
