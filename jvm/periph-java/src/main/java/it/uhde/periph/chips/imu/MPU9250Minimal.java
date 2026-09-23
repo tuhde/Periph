@@ -19,7 +19,7 @@ import java.io.IOException;
  *   <li>Gyroscope full-scale: ±250 dps (GYRO_FS_SEL=0)</li>
  *   <li>Accelerometer full-scale: ±2 g (ACCEL_FS_SEL=0)</li>
  *   <li>Gyroscope DLPF: 41 Hz bandwidth (CONFIG DLPF_CFG=3)</li>
- *   <li>Accelerometer DLPF: 42 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)</li>
+ *   <li>Accelerometer DLPF: 44.8 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)</li>
  *   <li>Sample rate: 200 Hz (SMPLRT_DIV=4)</li>
  *   <li>Clock: auto PLL (CLKSEL=1)</li>
  *   <li>All six axes enabled</li>
@@ -70,7 +70,7 @@ public class MPU9250Minimal {
         }
         writeReg(REG_GYRO_CONFIG, 0x00);
         writeReg(REG_ACCEL_CONFIG, 0x00);
-        writeReg(REG_ACCEL_CONFIG2, 0x00);
+        writeReg(REG_ACCEL_CONFIG2, 0x03);
         writeReg(REG_CONFIG, 0x03);
         writeReg(REG_SMPLRT_DIV, 0x04);
         try { Thread.sleep(35); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }

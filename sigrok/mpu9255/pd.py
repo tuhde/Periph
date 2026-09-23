@@ -51,7 +51,11 @@ ANN_WARNING = 2
 
 GYRO_FS_SEL = {0: '±250 dps', 1: '±500 dps', 2: '±1000 dps', 3: '±2000 dps'}
 ACCEL_FS_SEL = {0: '±2g', 1: '±4g', 2: '±8g', 3: '±16g'}
-CONFIG_DLPF = {0: '260/256 Hz', 1: '184/188 Hz', 2: '94/98 Hz', 3: '41/42 Hz', 4: '20/20 Hz', 5: '10/10 Hz', 6: '5/5 Hz'}
+# Gyro DLPF bandwidth for CONFIG.DLPF_CFG (GYRO_CONFIG.FCHOICE_B = 00).
+CONFIG_DLPF = {0: '250 Hz', 1: '184 Hz', 2: '92 Hz', 3: '41 Hz', 4: '20 Hz', 5: '10 Hz', 6: '5 Hz', 7: '3600 Hz'}
+# Accel DLPF bandwidth for ACCEL_CONFIG2.A_DLPFCFG (ACCEL_FCHOICE_B = 0);
+# ACCEL_FCHOICE_B = 1 bypasses the filter (1.13 kHz).
+ACCEL_DLPF = {0: '218.1 Hz', 1: '218.1 Hz', 2: '99 Hz', 3: '44.8 Hz', 4: '21.2 Hz', 5: '10.2 Hz', 6: '5.05 Hz', 7: '420 Hz'}
 AK8963_MODE = {0: 'power-down', 1: 'single', 2: '8 Hz', 6: '100 Hz', 0xF: 'fuse ROM'}
 LPOSC_TABLE = (0.24, 0.49, 0.98, 1.95, 3.91, 7.81, 15.63, 31.25,
                62.5, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0)
@@ -240,7 +244,9 @@ class Decoder(srd.Decoder):
         elif name == 'CONFIG':
             return f'{name}: DLPF_CFG={val & 0x07} ({CONFIG_DLPF.get(val & 0x07, "?")})'
         elif name == 'ACCEL_CONFIG2':
-            return f'{name}: A_DLPFCFG={val & 0x07}'
+            if val & 0x08:
+                return f'{name}: ACCEL_FCHOICE_B=1 (DLPF bypassed, 1.13 kHz)'
+            return f'{name}: A_DLPFCFG={val & 0x07} ({ACCEL_DLPF.get(val & 0x07, "?")})'
         elif name == 'PWR_MGMT_1':
             bits = []
             if val & 0x80: bits.append('RESET')

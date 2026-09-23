@@ -64,7 +64,7 @@ const (
 //   - Gyroscope full-scale: ±250 dps (GYRO_FS_SEL=0)
 //   - Accelerometer full-scale: ±2 g (ACCEL_FS_SEL=0)
 //   - Gyro DLPF: 41 Hz bandwidth (DLPF_CFG=3)
-//   - Accel DLPF: 42 Hz bandwidth (A_DLPFCFG=3)
+//   - Accel DLPF: 44.8 Hz bandwidth (A_DLPFCFG=3)
 //   - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //   - Clock: auto PLL (CLKSEL=1)
 type MPU9250Minimal struct {
@@ -100,7 +100,7 @@ func NewMPU9250Minimal(t connection.Connection) (*MPU9250Minimal, error) {
 	if err := d.writeReg(reg9250AccelConfig, 0x00); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9250AccelConfig2, 0x00); err != nil {
+	if err := d.writeReg(reg9250AccelConfig2, 0x03); err != nil {
 		return nil, err
 	}
 	if err := d.writeReg(reg9250Config, 0x03); err != nil {

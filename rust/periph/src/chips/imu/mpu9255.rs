@@ -8,7 +8,7 @@
 //! - Gyroscope full-scale: ±250 dps (GYRO_FS_SEL=0)
 //! - Accelerometer full-scale: ±2 g (ACCEL_FS_SEL=0)
 //! - Gyroscope DLPF: 41 Hz bandwidth (CONFIG DLPF_CFG=3)
-//! - Accelerometer DLPF: 42 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
+//! - Accelerometer DLPF: 44.8 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
 //! - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //! - Clock: auto PLL (CLKSEL=1)
 //! - All six axes enabled
@@ -92,7 +92,7 @@ impl<I2C: I2c> Mpu9255Minimal<I2C> {
         }
         write_reg(&mut i2c, addr, REG_GYRO_CONFIG, 0x00)?;
         write_reg(&mut i2c, addr, REG_ACCEL_CONFIG, 0x00)?;
-        write_reg(&mut i2c, addr, REG_ACCEL_CONFIG2, 0x00)?;
+        write_reg(&mut i2c, addr, REG_ACCEL_CONFIG2, 0x03)?;
         write_reg(&mut i2c, addr, REG_CONFIG, 0x03)?;
         write_reg(&mut i2c, addr, REG_SMPLRT_DIV, 0x04)?;
         delay.delay_ms(35);
@@ -192,8 +192,8 @@ impl<I2C: I2c> Mpu9255Full<I2C> {
     /// Set digital low-pass filter bandwidth.
     ///
     /// # Arguments
-    /// * `gyro_dlpf`   — Gyro filter setting 0–6 (0=256 Hz, 1=188 Hz, 2=98 Hz, 3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz).
-    /// * `accel_dlpf`  — Accel filter setting 0–6 (0=460 Hz, 1=184 Hz, 2=92 Hz, 3=42 Hz, 5=20 Hz, 6=10 Hz). Note: 4 is not valid for accel.
+    /// * `gyro_dlpf`   — Gyro filter setting 0–7 (0=250 Hz, 1=184 Hz, 2=92 Hz, 3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz, 7=3600 Hz).
+    /// * `accel_dlpf`  — Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
     pub fn configure_dlpf(&mut self, gyro_dlpf: u8, accel_dlpf: u8) -> Result<(), I2C::Error> {
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, gyro_dlpf & 0x07)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_CONFIG2, accel_dlpf & 0x07)
@@ -417,7 +417,7 @@ impl<I2C: I2c> Mpu9255Full<I2C> {
 
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_1, 0x01)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_2, 0x07)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_CONFIG2, 0x09)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_CONFIG2, 0x01)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_ENABLE, 0x40)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_MOT_DETECT_CTRL, 0xC0)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_WOM_THR, threshold_lsb as u8)?;
@@ -484,7 +484,7 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![WHO_AM_I_VALUE]),
             I2cTransaction::write(ADDR, vec![REG_GYRO_CONFIG, 0x00]),
             I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG, 0x00]),
-            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG2, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG2, 0x03]),
             I2cTransaction::write(ADDR, vec![REG_CONFIG, 0x03]),
             I2cTransaction::write(ADDR, vec![REG_SMPLRT_DIV, 0x04]),
         ];
@@ -526,7 +526,7 @@ mod tests {
             // configure_wake_on_motion(64 mg, 31.25 Hz) -> 8 writes
             I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_1, 0x01]),
             I2cTransaction::write(ADDR, vec![REG_PWR_MGMT_2, 0x07]),
-            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG2, 0x09]),
+            I2cTransaction::write(ADDR, vec![REG_ACCEL_CONFIG2, 0x01]),
             I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, 0x40]),
             I2cTransaction::write(ADDR, vec![REG_MOT_DETECT_CTRL, 0xC0]),
             I2cTransaction::write(ADDR, vec![REG_WOM_THR, 16]),

@@ -48,7 +48,7 @@ class Mpu9250Spec extends Specification {
         writes[2] == [MPU9250Minimal.REG_WHO_AM_I] as byte[]
         writes[3] == [MPU9250Minimal.REG_GYRO_CONFIG, 0x00] as byte[]
         writes[4] == [MPU9250Minimal.REG_ACCEL_CONFIG, 0x00] as byte[]
-        writes[5] == [MPU9250Minimal.REG_ACCEL_CONFIG2, 0x00] as byte[]
+        writes[5] == [MPU9250Minimal.REG_ACCEL_CONFIG2, 0x03] as byte[]
         writes[6] == [MPU9250Minimal.REG_CONFIG, 0x03] as byte[]
         writes[7] == [MPU9250Minimal.REG_SMPLRT_DIV, 0x04] as byte[]
     }

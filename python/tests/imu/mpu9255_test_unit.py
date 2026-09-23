@@ -46,7 +46,7 @@ expected_init_writes = [
     bytes([MPU9255Full._REG_WHO_AM_I]),
     bytes([MPU9255Full._REG_GYRO_CONFIG, 0x00]),
     bytes([MPU9255Full._REG_ACCEL_CONFIG, 0x00]),
-    bytes([MPU9255Full._REG_ACCEL_CONFIG2, 0x00]),
+    bytes([MPU9255Full._REG_ACCEL_CONFIG2, 0x03]),
     bytes([MPU9255Full._REG_CONFIG, 0x03]),
     bytes([MPU9255Full._REG_SMPLRT_DIV, 0x04]),
 ]
@@ -170,14 +170,14 @@ mag_connection.set_register(MPU9255Full._AK8963_REG_HXL,
 check_true('mag_raw', sensor.mag_raw() == (111, -222, 333))
 
 # configure_wake_on_motion(): PWR_MGMT_1=0x01 (clear SLEEP/CYCLE), PWR_MGMT_2=0x07
-# (gyro off), ACCEL_CONFIG2=0x09 (184 Hz), INT_ENABLE=0x40 (WOM_EN),
+# (gyro off), ACCEL_CONFIG2=0x01 (FCHOICE_B=0, A_DLPFCFG=1), INT_ENABLE=0x40 (WOM_EN),
 # MOT_DETECT_CTRL=0xC0 (hardware intel on), WOM_THR=64 mg / 4 mg = 16 LSB,
 # LP_ACCEL_ODR=0x07 (31.25 Hz), then PWR_MGMT_1=0x21 (CYCLE=1).
 sensor.configure_wake_on_motion(threshold_mg=64, odr_hz=31.25)
 expected_wom_writes = [
     bytes([MPU9255Full._REG_PWR_MGMT_1, 0x01]),
     bytes([MPU9255Full._REG_PWR_MGMT_2, 0x07]),
-    bytes([MPU9255Full._REG_ACCEL_CONFIG2, 0x09]),
+    bytes([MPU9255Full._REG_ACCEL_CONFIG2, 0x01]),
     bytes([MPU9255Full._REG_INT_ENABLE, 0x40]),
     bytes([MPU9255Full._REG_MOT_DETECT_CTRL, 0xC0]),
     bytes([MPU9255Full._REG_WOM_THR, 16]),

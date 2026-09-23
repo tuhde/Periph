@@ -71,7 +71,7 @@ func main() {
 	if err := chip.ConfigureDLPF(3, 3); err != nil { // Set gyro+accel DLPF, (gyro_dlpf=0–6, accel_dlpf=0–6) → error
 		panic(err)
 	}
-	// 0=260/256 Hz, 1=184/188 Hz, 2=92/98 Hz, 3=41/42 Hz, 4=20/20, 5=10/10, 6=5/5
+	// 0=250/218.1 Hz, 1=184/218.1 Hz, 2=92/99 Hz, 3=41/44.8 Hz, 4=20/21.2, 5=10/10.2, 6=5/5.05 (gyro/accel)
 
 	if err := chip.ConfigureSampleRate(4); err != nil { // Set sample rate divider, (divider=0–255) → error
 		panic(err)

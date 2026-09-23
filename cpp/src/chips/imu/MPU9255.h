@@ -14,7 +14,7 @@
  * - Gyroscope full-scale: ±250 dps (GYRO_FS_SEL=0)
  * - Accelerometer full-scale: ±2 g (ACCEL_FS_SEL=0)
  * - Gyroscope DLPF: 41 Hz bandwidth (CONFIG DLPF_CFG=3)
- * - Accelerometer DLPF: 42 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
+ * - Accelerometer DLPF: 44.8 Hz bandwidth (ACCEL_CONFIG2 A_DLPFCFG=3)
  * - Sample rate: 200 Hz (SMPLRT_DIV=4)
  * - Clock: auto PLL (CLKSEL=1)
  * - All six axes enabled
@@ -112,10 +112,8 @@ public:
     void configure_accel(uint8_t full_scale = 0);
 
     /** @brief Set digital low-pass filter bandwidth.
-     *  @param gyro_dlpf   Gyro filter setting 0–6 (0=256 Hz, 1=188 Hz, 2=98 Hz,
-     *                      3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz).
-     *  @param accel_dlpf  Accel filter setting 0–6 (0=460 Hz, 1=184 Hz, 2=92 Hz,
-     *                      3=42 Hz, 5=20 Hz, 6=10 Hz). Note: 4 is not valid for accel.
+     *  @param gyro_dlpf   Gyro filter setting 0–7 (0=250 Hz, 1=184 Hz, 2=92 Hz, 3=41 Hz, 4=20 Hz, 5=10 Hz, 6=5 Hz, 7=3600 Hz).
+     *  @param accel_dlpf  Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
      */
     void configure_dlpf(uint8_t gyro_dlpf = 3, uint8_t accel_dlpf = 3);
 

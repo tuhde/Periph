@@ -52,7 +52,7 @@ class Mpu9250Test {
                 {(byte) MPU9250Minimal.REG_WHO_AM_I},
                 {(byte) MPU9250Minimal.REG_GYRO_CONFIG, (byte) 0x00},
                 {(byte) MPU9250Minimal.REG_ACCEL_CONFIG, (byte) 0x00},
-                {(byte) MPU9250Minimal.REG_ACCEL_CONFIG2, (byte) 0x00},
+                {(byte) MPU9250Minimal.REG_ACCEL_CONFIG2, (byte) 0x03},
                 {(byte) MPU9250Minimal.REG_CONFIG, (byte) 0x03},
                 {(byte) MPU9250Minimal.REG_SMPLRT_DIV, (byte) 0x04},
         };

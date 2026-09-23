@@ -76,7 +76,7 @@ async function main() {
         Buffer.from([_REG_WHO_AM_I]),
         Buffer.from([_REG_GYRO_CONFIG, 0x00]),
         Buffer.from([_REG_ACCEL_CONFIG, 0x00]),
-        Buffer.from([_REG_ACCEL_CONFIG2, 0x00]),
+        Buffer.from([_REG_ACCEL_CONFIG2, 0x03]),
         Buffer.from([_REG_CONFIG, 0x03]),
         Buffer.from([_REG_SMPLRT_DIV, 0x04]),
     ];
@@ -206,7 +206,7 @@ async function main() {
     checkTrue('mag_raw', magRaw[0] === 111 && magRaw[1] === -222 && magRaw[2] === 333);
 
     // configureWakeOnMotion(): PWR_MGMT_1=0x01 (clear SLEEP/CYCLE), PWR_MGMT_2=0x07
-    // (gyro off), ACCEL_CONFIG2=0x09 (184 Hz), INT_ENABLE=0x40 (WOM_EN),
+    // (gyro off), ACCEL_CONFIG2=0x01 (FCHOICE_B=0, A_DLPFCFG=1), INT_ENABLE=0x40 (WOM_EN),
     // MOT_DETECT_CTRL=0xC0 (hardware intel on), WOM_THR=64 mg / 4 mg = 16 LSB,
     // LP_ACCEL_ODR=0x07 (31.25 Hz), then PWR_MGMT_1=0x21 (CYCLE=1).
     await sensor.configureWakeOnMotion(64, 31.25);
@@ -214,7 +214,7 @@ async function main() {
     const womN = womWrites.length;
     checkTrue('wom_pwr_mgmt_1_wake',  womWrites[womN - 8].equals(Buffer.from([_REG_PWR_MGMT_1, 0x01])));
     checkTrue('wom_pwr_mgmt_2_gyro_off', womWrites[womN - 7].equals(Buffer.from([_REG_PWR_MGMT_2, 0x07])));
-    checkTrue('wom_accel_config2',    womWrites[womN - 6].equals(Buffer.from([_REG_ACCEL_CONFIG2, 0x09])));
+    checkTrue('wom_accel_config2',    womWrites[womN - 6].equals(Buffer.from([_REG_ACCEL_CONFIG2, 0x01])));
     checkTrue('wom_int_enable_wom',   womWrites[womN - 5].equals(Buffer.from([_REG_INT_ENABLE, 0x40])));
     checkTrue('wom_mot_detect_ctrl',  womWrites[womN - 4].equals(Buffer.from([_REG_MOT_DETECT_CTRL, 0xC0])));
     checkTrue('wom_wom_thr',          womWrites[womN - 3].equals(Buffer.from([_REG_WOM_THR, 16])));

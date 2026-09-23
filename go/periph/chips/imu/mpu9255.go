@@ -86,7 +86,7 @@ func NewMPU9255Minimal(t connection.Connection) (*MPU9255Minimal, error) {
 	if err := d.writeReg(reg9255AccelConfig, 0x00); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9255AccelConfig2, 0x00); err != nil {
+	if err := d.writeReg(reg9255AccelConfig2, 0x03); err != nil {
 		return nil, err
 	}
 	if err := d.writeReg(reg9255Config, 0x03); err != nil {
@@ -479,7 +479,7 @@ func (d *MPU9255Full) ConfigureWakeOnMotion(thresholdMg uint16, odrHz float32) e
 	if err := d.writeReg(reg9255PwrMgmt2, 0x07); err != nil {
 		return err
 	}
-	if err := d.writeReg(reg9255AccelConfig2, 0x09); err != nil {
+	if err := d.writeReg(reg9255AccelConfig2, 0x01); err != nil {
 		return err
 	}
 	if err := d.writeReg(reg9255IntEnable, 0x40); err != nil {

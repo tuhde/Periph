@@ -79,7 +79,7 @@ int main() {
     check_true(eq(writes[2], {MPU9255TestAccess::REG_WHO_AM_I}), "init_who_am_i_read");
     check_true(eq(writes[3], {MPU9255TestAccess::REG_GYRO_CONFIG, 0x00}), "init_write_gyro_config");
     check_true(eq(writes[4], {MPU9255TestAccess::REG_ACCEL_CONFIG, 0x00}), "init_write_accel_config");
-    check_true(eq(writes[5], {MPU9255TestAccess::REG_ACCEL_CONFIG2, 0x00}), "init_write_accel_config2");
+    check_true(eq(writes[5], {MPU9255TestAccess::REG_ACCEL_CONFIG2, 0x03}), "init_write_accel_config2");
     check_true(eq(writes[6], {MPU9255TestAccess::REG_CONFIG, 0x03}), "init_write_config");
     check_true(eq(writes[7], {MPU9255TestAccess::REG_SMPLRT_DIV, 0x04}), "init_write_smplrt_div");
 
@@ -251,7 +251,7 @@ int main() {
     check_true(mrx == 111 && mry == -222 && mrz == 333, "mag_raw");
 
     // configure_wake_on_motion(): PWR_MGMT_1=0x01, PWR_MGMT_2=0x07 (gyro off),
-    // ACCEL_CONFIG2=0x09, INT_ENABLE=0x40 (WOM_EN), MOT_DETECT_CTRL=0xC0,
+    // ACCEL_CONFIG2=0x01, INT_ENABLE=0x40 (WOM_EN), MOT_DETECT_CTRL=0xC0,
     // WOM_THR = round(64 / 4) = 16, LP_ACCEL_ODR = 0x07 (31.25 Hz, exact match),
     // then PWR_MGMT_1=0x21 (CYCLE=1).
     sensor.configure_wake_on_motion(64, 31.25f);
@@ -259,7 +259,7 @@ int main() {
     size_t wom_n = wom_writes.size();
     check_true(eq(wom_writes[wom_n - 8], {MPU9255TestAccess::REG_PWR_MGMT_1, 0x01}), "wom_pwr_mgmt_1_wake");
     check_true(eq(wom_writes[wom_n - 7], {MPU9255TestAccess::REG_PWR_MGMT_2, 0x07}), "wom_pwr_mgmt_2_gyro_off");
-    check_true(eq(wom_writes[wom_n - 6], {MPU9255TestAccess::REG_ACCEL_CONFIG2, 0x09}), "wom_accel_config2");
+    check_true(eq(wom_writes[wom_n - 6], {MPU9255TestAccess::REG_ACCEL_CONFIG2, 0x01}), "wom_accel_config2");
     check_true(eq(wom_writes[wom_n - 5], {MPU9255TestAccess::REG_INT_ENABLE, 0x40}), "wom_int_enable_wom");
     check_true(eq(wom_writes[wom_n - 4], {MPU9255TestAccess::REG_MOT_DETECT_CTRL, 0xC0}), "wom_mot_detect_ctrl");
     check_true(eq(wom_writes[wom_n - 3], {MPU9255TestAccess::REG_WOM_THR, 16}), "wom_wom_thr");

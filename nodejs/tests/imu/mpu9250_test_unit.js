@@ -72,7 +72,7 @@ async function main() {
         Buffer.from([_REG_WHO_AM_I]),
         Buffer.from([_REG_GYRO_CONFIG, 0x00]),
         Buffer.from([_REG_ACCEL_CONFIG, 0x00]),
-        Buffer.from([_REG_ACCEL_CONFIG2, 0x00]),
+        Buffer.from([_REG_ACCEL_CONFIG2, 0x03]),
         Buffer.from([_REG_CONFIG, 0x03]),
         Buffer.from([_REG_SMPLRT_DIV, 0x04]),
     ];

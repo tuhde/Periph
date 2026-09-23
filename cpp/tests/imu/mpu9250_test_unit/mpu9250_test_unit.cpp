@@ -75,7 +75,7 @@ int main() {
     check_true(eq(writes[2], {MPU9250TestAccess::REG_WHO_AM_I}), "init_who_am_i_read");
     check_true(eq(writes[3], {MPU9250TestAccess::REG_GYRO_CONFIG, 0x00}), "init_write_gyro_config");
     check_true(eq(writes[4], {MPU9250TestAccess::REG_ACCEL_CONFIG, 0x00}), "init_write_accel_config");
-    check_true(eq(writes[5], {MPU9250TestAccess::REG_ACCEL_CONFIG2, 0x00}), "init_write_accel_config2");
+    check_true(eq(writes[5], {MPU9250TestAccess::REG_ACCEL_CONFIG2, 0x03}), "init_write_accel_config2");
     check_true(eq(writes[6], {MPU9250TestAccess::REG_CONFIG, 0x03}), "init_write_config");
     check_true(eq(writes[7], {MPU9250TestAccess::REG_SMPLRT_DIV, 0x04}), "init_write_smplrt_div");
 
