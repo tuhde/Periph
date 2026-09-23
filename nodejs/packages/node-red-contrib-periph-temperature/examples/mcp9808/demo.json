@@ -1,0 +1,86 @@
+[
+    {
+        "id": "tab-mcp9808-demo",
+        "type": "tab",
+        "label": "MCP9808 Freezer Monitor Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 5 seconds, triggering the periph-mcp9808 node to read the temperature and Alert status, which a Function node formats into a log line. The node is configured with TCRIT at -5 °C — the \"too warm, door left open\" threshold for a freezer — with the Alert source set to TCRIT only and the Alert in latched interrupt mode. When the freezer warms past TCRIT the node emits a separate {source: \"critical\"} message; the Function node turns it into an alarm notification on the Debug sidebar and sends {clear_interrupt: true} back into the node to re-arm the latched Alert. To try it without a freezer, raise TCRIT just above room temperature and warm the sensor with a fingertip."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read temperature (5s)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-mcp9808-demo",
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "mcp9808-node"
+            ]
+        ]
+    },
+    {
+        "id": "mcp9808-node",
+        "type": "periph-mcp9808",
+        "name": "Freezer MCP9808",
+        "bus": "1",
+        "address": "0x18",
+        "resolution": "0.25",
+        "alertEnabled": true,
+        "upperLimit": "-15",
+        "lowerLimit": "-25",
+        "criticalLimit": "-5",
+        "hysteresis": "3",
+        "alertMode": "critical_only",
+        "alertOutput": "interrupt",
+        "z": "tab-mcp9808-demo",
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "fn-alarm"
+            ]
+        ]
+    },
+    {
+        "id": "fn-alarm",
+        "type": "function",
+        "name": "format reading / raise alarm",
+        "func": "const p = msg.payload;\nif (p && p.source === 'critical') {\n    // Alarm, then re-arm the latched interrupt-mode Alert.\n    return [{ payload: 'ALARM: freezer above -5 °C - door left open?' },\n            { payload: { clear_interrupt: true } }];\n}\nif (p && p.temperature_c !== undefined) {\n    msg.payload = `${p.temperature_c.toFixed(2)} °C` + (p.alert_asserted ? ' (alert asserted)' : '');\n    return [msg, null];\n}\nreturn null;",
+        "outputs": 2,
+        "noerr": 0,
+        "z": "tab-mcp9808-demo",
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "debug-log"
+            ],
+            [
+                "mcp9808-node"
+            ]
+        ]
+    },
+    {
+        "id": "debug-log",
+        "type": "debug",
+        "name": "Freezer log",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mcp9808-demo",
+        "x": 890,
+        "y": 100,
+        "wires": []
+    }
+]

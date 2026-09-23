@@ -1,0 +1,126 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp9808', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:          { value: '' },
+            bus:           { value: '1', required: true, validate: RED.validators.number() },
+            address:       { value: '0x18' },
+            resolution:    { value: '0.0625' },
+
+            alertEnabled:  { value: false },
+            upperLimit:    { value: '30', validate: RED.validators.number() },
+            lowerLimit:    { value: '10', validate: RED.validators.number() },
+            criticalLimit: { value: '45', validate: RED.validators.number() },
+            hysteresis:    { value: '0' },
+            alertMode:     { value: 'all' },
+            alertOutput:   { value: 'comparator' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-thermometer-half',
+        label:   function() { return this.name || 'MCP9808'; },
+        paletteLabel: 'MCP9808'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp9808">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP9808">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <select id="node-input-address" style="width:120px">
+            <option value="0x18">0x18</option>
+            <option value="0x19">0x19</option>
+            <option value="0x1A">0x1A</option>
+            <option value="0x1B">0x1B</option>
+            <option value="0x1C">0x1C</option>
+            <option value="0x1D">0x1D</option>
+            <option value="0x1E">0x1E</option>
+            <option value="0x1F">0x1F</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-resolution"><i class="fa fa-sliders"></i> Resolution</label>
+        <select id="node-input-resolution" style="width:200px">
+            <option value="0.5">0.5 °C (30 ms)</option>
+            <option value="0.25">0.25 °C (65 ms)</option>
+            <option value="0.125">0.125 °C (130 ms)</option>
+            <option value="0.0625">0.0625 °C (250 ms)</option>
+        </select>
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-alertEnabled"><i class="fa fa-bell"></i> Alert</label>
+        <input type="checkbox" id="node-input-alertEnabled" style="width:auto"> enabled (emits a <code>source</code> message when a boundary trips)
+    </div>
+    <div class="form-row">
+        <label for="node-input-upperLimit">&nbsp; TUPPER °C</label>
+        <input type="text" id="node-input-upperLimit" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-lowerLimit">&nbsp; TLOWER °C</label>
+        <input type="text" id="node-input-lowerLimit" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-criticalLimit">&nbsp; TCRIT °C</label>
+        <input type="text" id="node-input-criticalLimit" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-hysteresis">&nbsp; Hysteresis</label>
+        <select id="node-input-hysteresis" style="width:120px">
+            <option value="0">0 °C</option>
+            <option value="1.5">1.5 °C</option>
+            <option value="3">3.0 °C</option>
+            <option value="6">6.0 °C</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-alertMode">&nbsp; Source</label>
+        <select id="node-input-alertMode" style="width:200px">
+            <option value="all">TUPPER / TLOWER / TCRIT</option>
+            <option value="critical_only">TCRIT only</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-alertOutput">&nbsp; Mode</label>
+        <select id="node-input-alertOutput" style="width:200px">
+            <option value="comparator">Comparator</option>
+            <option value="interrupt">Interrupt (latched)</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp9808">
+    <p>Reads the ambient temperature from an MCP9808 ±0.5 °C digital temperature sensor over I²C, and optionally reports its TUPPER/TLOWER/TCRIT boundary alerts.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a temperature and Alert-status read.</dd>
+        <dt>payload.shutdown <span class="property-type">boolean</span> (optional)</dt>
+        <dd><code>true</code> puts the sensor in low-power Shutdown mode, <code>false</code> resumes continuous conversion. No output is sent.</dd>
+        <dt>payload.clear_interrupt <span class="property-type">boolean</span> (optional)</dt>
+        <dd><code>true</code> clears a latched interrupt-mode Alert so it can fire again. No output is sent.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.temperature_c <span class="property-type">number</span></dt>
+        <dd>Ambient temperature in °C.</dd>
+        <dt>payload.alert_asserted <span class="property-type">boolean</span></dt>
+        <dd>Whether the Alert output is currently asserted.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately, independent of the polling trigger above, when the Alert is enabled and a boundary trips: <code>"lower"</code> (below TLOWER), <code>"upper"</code> (above TUPPER) or <code>"critical"</code> (at or above TCRIT). Several messages may follow one event when more than one boundary is crossed.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the address selected by the board's A0/A1/A2 straps (<code>0x18</code>–<code>0x1F</code>), and the measurement resolution — finer steps take longer to convert. Optionally enable the Alert: set the three boundaries (rounded to 0.25 °C), the hysteresis applied when cooling back past a boundary, which boundaries drive it, and whether it behaves as a comparator or a latched interrupt (re-arm the latter with <code>payload.clear_interrupt</code>).</p>
+</script>
