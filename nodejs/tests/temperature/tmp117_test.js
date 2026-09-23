@@ -48,10 +48,22 @@ async function main() {
     checkTrue('offset roundtrip', (await full.getTemperatureOffset()) === 0.5);
     await full.setTemperatureOffset(0.0);
 
-    // The EEPROM is never unlocked here, so no power-on default changes.
     checkTrue('eeprom not busy', !(await full.isEepromBusy()));
+    const eeprom2 = await full.readEepromScratch(2);
     await full.writeEepromScratch(2, 0xA55A);
     checkTrue('eeprom2 volatile roundtrip', (await full.readEepromScratch(2)) === 0xA55A);
+
+    // One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+    // timing): rewrite EEPROM2's original value while unlocked, so the stored
+    // power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+    await full.unlockEeprom();
+    await full.writeEepromScratch(2, eeprom2);
+    const t0 = Date.now();
+    while ((await full.isEepromBusy()) && Date.now() - t0 < 50) await sleep(1);
+    const waited = Date.now() - t0;
+    await full.lockEeprom();
+    checkTrue('eeprom write ready', waited < 50);
+    checkTrue('eeprom2 restored', (await full.readEepromScratch(2)) === eeprom2);
 
     // High limit below ambient forces HIGH_Alert on the next conversion; in
     // Alert mode the flag latches until CONFIGURATION is read.

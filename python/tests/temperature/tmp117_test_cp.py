@@ -2,8 +2,8 @@
 
 Checks the identity, a plausible reading, conversion-config/limit/offset
 round-trips, Shutdown and one-shot conversion, the volatile EEPROM2 scratch
-register, the HIGH_Alert flag, and soft reset. Never unlocks the EEPROM, so
-no power-on default is changed.
+register, one EEPROM program cycle (EEPROM2 rewritten with its own value),
+the HIGH_Alert flag, and soft reset. No power-on default is changed.
 """
 
 import time
@@ -59,8 +59,22 @@ check_true('offset_roundtrip', full.get_temperature_offset() == 0.5)
 full.set_temperature_offset(0.0)
 
 check_true('eeprom_not_busy', not full.is_eeprom_busy())
+eeprom2 = full.read_eeprom_scratch(2)
 full.write_eeprom_scratch(2, 0xA55A)
 check_true('eeprom2_volatile_roundtrip', full.read_eeprom_scratch(2) == 0xA55A)
+
+# One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+# timing): rewrite EEPROM2's original value while unlocked, so the stored
+# power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+full.unlock_eeprom()
+full.write_eeprom_scratch(2, eeprom2)
+waited_ms = 0
+while full.is_eeprom_busy() and waited_ms < 50:
+    time.sleep(0.001)
+    waited_ms += 1
+full.lock_eeprom()
+check_true('eeprom_write_ready', waited_ms < 50)
+check_true('eeprom2_restored', full.read_eeprom_scratch(2) == eeprom2)
 
 # High limit below ambient forces HIGH_Alert on the next conversion; in
 # Alert mode the flag latches until CONFIGURATION is read.

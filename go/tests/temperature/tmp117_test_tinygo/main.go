@@ -71,12 +71,31 @@ func main() {
 	check("offset_roundtrip", err == nil && v == 0.5)
 	check("clear_offset", full.SetTemperatureOffset(0.0) == nil)
 
-	// The EEPROM is never unlocked here, so no power-on default changes.
 	busy, err := full.IsEepromBusy()
 	check("eeprom_not_busy", err == nil && !busy)
+	orig, err := full.ReadEepromScratch(2)
+	check("read_eeprom2", err == nil)
 	check("write_eeprom2", full.WriteEepromScratch(2, 0xA55A) == nil)
 	e2, err := full.ReadEepromScratch(2)
 	check("eeprom2_volatile_roundtrip", err == nil && e2 == 0xA55A)
+
+	// One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+	// timing): rewrite EEPROM2's original value while unlocked, so the stored
+	// power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+	check("unlock_eeprom", full.UnlockEeprom() == nil)
+	check("rewrite_eeprom2", full.WriteEepromScratch(2, orig) == nil)
+	waited := 0
+	for waited < 50 {
+		if b, err := full.IsEepromBusy(); err != nil || !b {
+			break
+		}
+		time.Sleep(time.Millisecond)
+		waited++
+	}
+	check("lock_eeprom", full.LockEeprom() == nil)
+	check("eeprom_write_ready", waited < 50)
+	e2, err = full.ReadEepromScratch(2)
+	check("eeprom2_restored", err == nil && e2 == orig)
 
 	// High limit below ambient forces HIGH_Alert on the next conversion; in
 	// Alert mode the flag latches until CONFIGURATION is read.

@@ -52,11 +52,26 @@ int main(void) {
     check_true(full.getTemperatureOffset() == 0.5f, "offset_roundtrip");
     full.setTemperatureOffset(0.0f);                        // Set calibration offset, (celsius °C) → void
 
-    // The EEPROM is never unlocked here, so no power-on default changes.
     check_true(!full.isEepromBusy(), "eeprom_not_busy");
+    uint16_t eeprom2 = 0;
+    full.readEepromScratch(2, eeprom2);                     // Read EEPROM scratch, (slot 1|2|3, value&) → bool
     full.writeEepromScratch(2, 0xA55A);                     // Write EEPROM scratch, (slot 2, value 16-bit) → bool
     uint16_t scratch = 0;
     check_true(full.readEepromScratch(2, scratch) && scratch == 0xA55A, "eeprom2_volatile_roundtrip");
+
+    // One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+    // timing): rewrite EEPROM2's original value while unlocked, so the stored
+    // power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+    full.unlockEeprom();                                    // Unlock EEPROM, () → void
+    full.writeEepromScratch(2, eeprom2);                    // Write EEPROM scratch, (slot 2, value 16-bit) → bool
+    int waitedMs = 0;
+    while (full.isEepromBusy() && waitedMs < 50) {          // Check EEPROM busy, () → bool
+        sleep_ms(1);
+        waitedMs += 1;
+    }
+    full.lockEeprom();                                      // Lock EEPROM, () → void
+    check_true(waitedMs < 50, "eeprom_write_ready");
+    check_true(full.readEepromScratch(2, scratch) && scratch == eeprom2, "eeprom2_restored");
 
     // High limit below ambient forces HIGH_Alert on the next conversion; in
     // Alert mode the flag latches until CONFIGURATION is read.

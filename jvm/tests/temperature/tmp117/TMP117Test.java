@@ -49,10 +49,22 @@ public class TMP117Test {
             checkTrue(s.getTemperatureOffset() == 0.5, "offset_roundtrip");
             s.setTemperatureOffset(0.0);
 
-            // The EEPROM is never unlocked here, so no power-on default changes.
             checkTrue(!s.isEepromBusy(), "eeprom_not_busy");
+            int eeprom2 = s.readEepromScratch(2);
             s.writeEepromScratch(2, 0xA55A);
             checkTrue(s.readEepromScratch(2) == 0xA55A, "eeprom2_volatile_roundtrip");
+
+            // One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+            // timing): rewrite EEPROM2's original value while unlocked, so the stored
+            // power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+            s.unlockEeprom();
+            s.writeEepromScratch(2, eeprom2);
+            long t0 = System.currentTimeMillis();
+            while (s.isEepromBusy() && System.currentTimeMillis() - t0 < 50) Thread.sleep(1);
+            long waited = System.currentTimeMillis() - t0;
+            s.lockEeprom();
+            checkTrue(waited < 50, "eeprom_write_ready");
+            checkTrue(s.readEepromScratch(2) == eeprom2, "eeprom2_restored");
 
             // High limit below ambient forces HIGH_Alert on the next conversion; in
             // Alert mode the flag latches until CONFIGURATION is read.

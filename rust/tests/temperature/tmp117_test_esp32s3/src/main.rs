@@ -66,10 +66,24 @@ fn main() -> ! {
     check_true!(full.get_temperature_offset().expect("get_temperature_offset") == 0.5, "offset_roundtrip", passed, failed);
     full.set_temperature_offset(0.0).expect("set_temperature_offset");
 
-    // The EEPROM is never unlocked here, so no power-on default changes.
     check_true!(!full.is_eeprom_busy().expect("is_eeprom_busy"), "eeprom_not_busy", passed, failed);
+    let eeprom2 = full.read_eeprom_scratch(2).expect("read_eeprom_scratch");
     full.write_eeprom_scratch(2, 0xA55A).expect("write_eeprom_scratch");
     check_true!(full.read_eeprom_scratch(2).expect("read_eeprom_scratch") == 0xA55A, "eeprom2_volatile_roundtrip", passed, failed);
+
+    // One real EEPROM program cycle (the conformance-checked eeprom_write_ready
+    // timing): rewrite EEPROM2's original value while unlocked, so the stored
+    // power-on value is unchanged. Costs one EEPROM2 endurance cycle per run.
+    full.unlock_eeprom().expect("unlock_eeprom");
+    full.write_eeprom_scratch(2, eeprom2).expect("write_eeprom_scratch");
+    let mut waited_ms = 0;
+    while full.is_eeprom_busy().expect("is_eeprom_busy") && waited_ms < 50 {
+        delay.delay_millis(1);
+        waited_ms += 1;
+    }
+    full.lock_eeprom().expect("lock_eeprom");
+    check_true!(waited_ms < 50, "eeprom_write_ready", passed, failed);
+    check_true!(full.read_eeprom_scratch(2).expect("read_eeprom_scratch") == eeprom2, "eeprom2_restored", passed, failed);
 
     // High limit below ambient forces HIGH_Alert on the next conversion; in
     // Alert mode the flag latches until CONFIGURATION is read.
