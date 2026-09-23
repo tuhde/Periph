@@ -85,6 +85,7 @@ Each chip exposes two structs:
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
+| PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver (NXP). |

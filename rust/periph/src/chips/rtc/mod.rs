@@ -3,3 +3,12 @@ pub use ds3231::{
     Ds3231Minimal, Ds3231Full, DateTime, Alarm1Match, Alarm2Match,
     SOURCE_ALARM1, SOURCE_ALARM2,
 };
+pub mod pcf8523;
+pub use pcf8523::{
+    Pcf8523Minimal, Pcf8523Full, DateTime as Pcf8523DateTime, Alarm as Pcf8523Alarm,
+    TimerAMode, SourceClock, OffsetMode, BatteryMode,
+    SOURCE_SECOND as PCF8523_SOURCE_SECOND, SOURCE_TIMER_A as PCF8523_SOURCE_TIMER_A,
+    SOURCE_TIMER_B as PCF8523_SOURCE_TIMER_B, SOURCE_ALARM as PCF8523_SOURCE_ALARM,
+    SOURCE_BATTERY_SWITCH as PCF8523_SOURCE_BATTERY_SWITCH,
+    SOURCE_BATTERY_LOW as PCF8523_SOURCE_BATTERY_LOW,
+};
