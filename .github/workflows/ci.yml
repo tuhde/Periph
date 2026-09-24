@@ -43,6 +43,9 @@ jobs:
       - name: Check cpp/README.md is up to date
         run: node cpp/scripts/generate-readme.js --check
 
+      - name: Check cpp/keywords.txt is up to date
+        run: node cpp/scripts/generate-keywords.js --check
+
   # -----------------------------------------------------------------------
   # Linux GCC — compile-only (no hardware required)
   # -----------------------------------------------------------------------

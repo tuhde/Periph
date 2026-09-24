@@ -307,6 +307,10 @@ jobs:
           node cpp/scripts/generate-readme.js
           cp cpp/README.md "$AW/README.md"
 
+          # Arduino IDE syntax highlighting, regenerated from the headers
+          node cpp/scripts/generate-keywords.js
+          cp cpp/keywords.txt "$AW/keywords.txt"
+
       - name: Commit and tag arduino branch
         run: |
           VERSION="${{ needs.meta.outputs.version }}"
