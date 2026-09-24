@@ -8,8 +8,7 @@
 //   NEO6Full gps(connection, NEO6BusType::Spi);
 
 #include <Arduino.h>
-#include "UARTConnection.h"
-#include "NEO6.h"
+#include <Periph.h>
 
 // --- Portable GPS logger ---
 // The module self-configures at factory defaults (9600 baud NMEA, 1 Hz); no

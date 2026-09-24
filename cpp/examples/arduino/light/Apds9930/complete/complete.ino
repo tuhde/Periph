@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "Apds9930.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x39);                                  // Create I2C connection, (Wire, addr=0x39) → I2CConnection
 APDS9930Full apds(connection);                                          // Create APDS-9930 Full, (connection) → APDS9930Full

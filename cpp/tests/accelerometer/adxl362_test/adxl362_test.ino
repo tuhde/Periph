@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "ADXL362.h"
+#include <Periph.h>
 
 #ifndef TEST_CS_PIN
 #define TEST_CS_PIN SS

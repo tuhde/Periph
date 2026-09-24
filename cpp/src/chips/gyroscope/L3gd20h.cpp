@@ -1,6 +1,6 @@
 #include "L3gd20h.h"
-#include <cmath>
-#include <cstring>
+#include <math.h>
+#include <string.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>

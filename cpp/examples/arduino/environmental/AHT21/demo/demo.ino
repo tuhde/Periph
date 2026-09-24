@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "AHT21.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x38);
 AHT21Full aht(connection);                                              // Create AHT21 driver, (connection, addr=0x38) → void

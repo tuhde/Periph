@@ -1,7 +1,6 @@
 #include <stdarg.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "VL53L0X.h"
+#include <Periph.h>
 
 static void logPrintf(const char* fmt, ...) {
     char buf[128];

@@ -1,5 +1,9 @@
 #include "PCF8576.h"
 
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr uint8_t PCF8576Minimal::SEVEN_SEG[10];
+
 PCF8576Minimal::PCF8576Minimal(Connection& connection)
     : _connection(connection), _backplanes(4) {
     _do_clear();

@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "INA226.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x40);
 INA226Minimal ina(connection);

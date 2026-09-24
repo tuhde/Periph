@@ -1,5 +1,11 @@
 #include "HMC5883L.h"
-#include <cmath>
+
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr float HMC5883LMinimal::GAIN_LSB_PER_GAUSS[8];
+constexpr uint8_t HMC5883LMinimal::REG_DATA_X_MSB;
+
+#include <math.h>
 
 HMC5883LMinimal::HMC5883LMinimal(Connection& connection)
     : _connection(connection), _gain(1), _gain_lsb_per_gauss(GAIN_LSB_PER_GAUSS[1]) {
@@ -52,7 +58,7 @@ bool HMC5883LMinimal::magnetic_field(float& x, float& y, float& z) {
     x = _raw_to_tesla(raw_x);
     y = _raw_to_tesla(raw_y);
     z = _raw_to_tesla(raw_z);
-    return !std::isnan(x) && !std::isnan(y) && !std::isnan(z);
+    return !isnan(x) && !isnan(y) && !isnan(z);
 }
 
 // HMC5883LFull

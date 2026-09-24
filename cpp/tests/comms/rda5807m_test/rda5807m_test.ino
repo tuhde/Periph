@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "RDA5807M.h"
+#include <Periph.h>
 
 #ifndef TEST_SDA
 #define TEST_SDA 8

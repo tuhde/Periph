@@ -1,5 +1,4 @@
-#include "HX711Connection.h"
-#include "HX710B.h"
+#include <Periph.h>
 
 // Battery-powered load cell demo: tare at startup, then print weight
 // continuously, watching the DVDD−AVDD supply-difference reading for

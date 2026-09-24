@@ -1,4 +1,9 @@
 #include "ADXL362.h"
+
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr float ADXL362Minimal::SENSITIVITY_G_PER_LSB[3];
+
 #include <stdlib.h>
 
 #ifdef ARDUINO

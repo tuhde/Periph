@@ -10,13 +10,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "PCF8576.h"
+#include <Periph.h>
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, TEST_ADDR);
 
     // --- 4-digit countdown from 9999 to 0000 on a 1:4 multiplex 7-segment LCD ---

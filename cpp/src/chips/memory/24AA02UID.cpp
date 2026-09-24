@@ -2,20 +2,20 @@
 
 #ifdef __linux__
 #include <unistd.h>
-static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
+static void periph_delay_ms(unsigned ms) { usleep(ms * 1000); }
 #elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
+static void periph_delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
-static void _delay_ms(unsigned ms) { sleep_ms(ms); }
+static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }
 #else
 #include <Arduino.h>
-static void _delay_ms(unsigned ms) { delay(ms); }
+static void periph_delay_ms(unsigned ms) { delay(ms); }
 #endif
 
 // --- Minimal ---
@@ -45,7 +45,7 @@ void EEPROM24AA02UIDMinimal::_ack_poll() {
     // The C++ Connection interface does not propagate ACK/NACK status
     // back to the caller. Wait the worst-case write-cycle time so the
     // next operation starts after the chip has finished.
-    _delay_ms(WRITE_CYCLE_MS);
+    periph_delay_ms(WRITE_CYCLE_MS);
 }
 
 // --- Full ---

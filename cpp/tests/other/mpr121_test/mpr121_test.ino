@@ -2,8 +2,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "Mpr121.h"
-#include "I2CConnection.h"
+#include <Periph.h>
 
 static int passed = 0;
 static int failed = 0;

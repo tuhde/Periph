@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "APA102.h"
+#include <Periph.h>
 
 static int passed = 0;
 static int failed = 0;

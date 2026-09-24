@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include <I2CConnection.h>
-#include <L3gd20h.h>
+#include <Periph.h>
 #include <math.h>
 
 I2CConnection conn(Wire, 0x6A);

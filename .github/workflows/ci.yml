@@ -23,22 +23,48 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.arduino15
-          key: arduino15-esp32-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: arduino15-esp32-
+          key: arduino15-esp32-avr-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: arduino15-esp32-avr-
 
       - name: Install arduino-cli
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Install ESP32 core
+      - name: Install ESP32 and AVR cores
         run: |
           arduino-cli config init --overwrite
           arduino-cli config add board_manager.additional_urls \
             https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-cli core update-index
-          arduino-cli core install esp32:esp32
+          arduino-cli core install esp32:esp32 arduino:avr
+
+      - name: Check cpp/src/Periph.h is up to date
+        run: node cpp/scripts/generate-periph-header.js --check
 
       - name: Compile test sketches
         run: cpp/test_arduino.sh --compile-only power/ina226
+
+      # Every example against cpp/ as one library, the layout the Library
+      # Manager ships. AVR builds as C++11 without the C++ standard library
+      # headers, so it catches what ESP32 lets through.
+      - name: Compile all examples (ESP32-S3)
+        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3
+
+      - name: Compile all examples (AVR Mega 2560)
+        run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
+
+      - name: Stage Library Manager layout
+        run: |
+          mkdir -p "$RUNNER_TEMP/Periph"
+          cpp/scripts/stage-arduino-library.sh "$RUNNER_TEMP/Periph"
+
+      # Switch library-manager to "update" once Periph is in the Library
+      # Manager index ("submit" then fails because the name is taken).
+      - name: Arduino Lint
+        uses: arduino/arduino-lint-action@v2
+        with:
+          path: ${{ runner.temp }}/Periph
+          library-manager: submit
+          compliance: strict
 
       - name: Check cpp/README.md is up to date
         run: node cpp/scripts/generate-readme.js --check

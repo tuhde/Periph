@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "APA102.h"
+#include <Periph.h>
 
 static const size_t N_PIXELS          = 30;
 static const unsigned long FRAME_MS   = 16;   // ~60 fps

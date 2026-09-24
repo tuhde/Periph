@@ -1,6 +1,6 @@
 #include "BMP180.h"
 #include <stdlib.h>
-#include <cmath>
+#include <math.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>

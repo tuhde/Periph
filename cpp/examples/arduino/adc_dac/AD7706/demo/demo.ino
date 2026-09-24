@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "AD7706.h"
+#include <Periph.h>
 
 #define FILTER_DP_THRESHOLD 0.001f
 

@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "Mpr121.h"
+#include <Periph.h>
 
 // 12-button musical keyboard: ELE0..ELE11 -> C4..B4
 static const char* NOTES[12] = {

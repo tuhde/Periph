@@ -7,8 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "VL53L0X.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 

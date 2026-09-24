@@ -105,14 +105,15 @@ function buildReadme(props, rows) {
     let body = `# ${name}\n\n`;
     body += `${sentence}\n\n`;
     body += `${paragraph}\n\n`;
+    body += `> This library is generated from [${url.replace(/^https:\/\/github\.com\//, '')}](${url}) on every release. `;
+    body += `Please open issues and pull requests there.\n\n`;
     body += `## Install\n\n`;
     body += `Arduino IDE: **Sketch → Include Library → Manage Libraries…**, search for \`${name}\`.\n\n`;
     body += `Or manually: clone/download this repository into your \`libraries/${name}\` folder.\n\n`;
     body += `## Usage\n\n`;
     body += `\`\`\`cpp\n`;
     body += `#include <Wire.h>\n`;
-    body += `#include "I2CConnection.h"\n`;
-    body += `#include "INA219.h"\n\n`;
+    body += `#include <Periph.h>\n\n`;
     body += `I2CConnection connection(Wire, 0x40);\n`;
     body += `INA219Minimal ina(connection);\n\n`;
     body += `void setup() {\n    Wire.begin();\n}\n\n`;

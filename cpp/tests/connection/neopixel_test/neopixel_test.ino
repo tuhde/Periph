@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelConnection.h"
+#include <Periph.h>
 
 #ifndef TEST_SPI_CS
 #define TEST_SPI_CS 10

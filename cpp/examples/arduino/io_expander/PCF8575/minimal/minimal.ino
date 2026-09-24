@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "PCF8575.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x20);                            // Create I2C connection, (wire, addr=0x20)
 PCF8575Minimal chip(connection);                                 // Create PCF8575 driver, (connection, addr=0x20)

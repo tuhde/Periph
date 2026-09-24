@@ -1,7 +1,7 @@
 #include "BMP384.h"
 #include <stdlib.h>
-#include <cstring>
-#include <cmath>
+#include <string.h>
+#include <math.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>
@@ -68,7 +68,7 @@ void BMP384Minimal::_read_calibration() {
     _par_p8  = (double)nvm_p8  / (double)(1 << 15);
     _par_p9  = (double)nvm_p9  / (double)(1ull << 48);
     _par_p10 = (double)nvm_p10 / (double)(1ull << 48);
-    _par_p11 = (double)nvm_p11 / std::pow(2.0, 65);
+    _par_p11 = (double)nvm_p11 / pow(2.0, 65);
 }
 
 void BMP384Minimal::_apply_config() {

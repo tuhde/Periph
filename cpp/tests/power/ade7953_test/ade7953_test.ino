@@ -10,8 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "ADE7953.h"
+#include <Periph.h>
 
 static const float VOLTAGE_GAIN = 251.0f;
 static const float CURRENT_GAIN = 30.0f;

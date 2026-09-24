@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelConnection.h"
-#include "WS2812B.h"
+#include <Periph.h>
 
 static const size_t N_PIXELS          = 30;
 static const unsigned long FRAME_MS   = 33;   // ~30 fps

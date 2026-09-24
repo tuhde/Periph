@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "INA3221.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x40);
 INA3221Full ina(connection);                           // Create INA3221 driver, (connection, r_shunt=0.1 Ω)

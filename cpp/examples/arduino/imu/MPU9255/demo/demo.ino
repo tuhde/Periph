@@ -1,21 +1,22 @@
 #include <Wire.h>
 #include <math.h>
-#include "I2CConnection.h"
-#include "MPU9255.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x68);
 I2CConnection magConnection(Wire, 0x0C);              // AK8963, same bus, reached via I²C bypass
 
-// --- Configure for motion-triggered wake logger ---
-// 64 mg threshold and 31.25 Hz wake-up rate balance sensitivity against spurious
-// wake-ups from vibration; once motion fires, the full 6-axis sensor suite
-// (gyro + mag at 100 Hz) is re-enabled to capture a 5-second tilt/heading burst.
 MPU9255Full imu(connection, magConnection);           // Create MPU9255 driver, (connection, magConnection) → void
-imu.configure_wake_on_motion(64, 31.25f);             // Configure wake-on-motion, (threshold_mg=64, odr_hz=31.25) → void
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+
+    // --- Configure for motion-triggered wake logger ---
+    // 64 mg threshold and 31.25 Hz wake-up rate balance sensitivity against spurious
+    // wake-ups from vibration; once motion fires, the full 6-axis sensor suite
+    // (gyro + mag at 100 Hz) is re-enabled to capture a 5-second tilt/heading burst.
+    imu.configure_wake_on_motion(64, 31.25f);             // Configure wake-on-motion, (threshold_mg=64, odr_hz=31.25) → void
+
     Serial.println("waiting for motion...");
 }
 

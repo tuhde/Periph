@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "SMBusConnection.h"
+#include <Periph.h>
 
 #ifndef TEST_SDA
 #define TEST_SDA 8

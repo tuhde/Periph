@@ -3,8 +3,7 @@
 #endif
 
 #include <Arduino.h>
-#include "DHTxxConnection.h"
-#include "DHT11.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 

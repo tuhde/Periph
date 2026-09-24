@@ -14,6 +14,7 @@ static inline void delay_ms(unsigned long ms) { sleep_ms(ms); }
 #include <unistd.h>
 static inline void delay_ms(unsigned long ms) { usleep(ms * 1000UL); }
 #else
+#include <Arduino.h>
 static inline void delay_ms(unsigned long ms) { delay(ms); }
 #endif
 

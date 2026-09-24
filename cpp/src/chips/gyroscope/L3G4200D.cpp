@@ -1,5 +1,5 @@
 #include "L3G4200D.h"
-#include <cmath>
+#include <math.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>

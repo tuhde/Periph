@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MPU9255.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x68);
 I2CConnection magConnection(Wire, 0x0C);  // AK8963, same bus, reached via I²C bypass

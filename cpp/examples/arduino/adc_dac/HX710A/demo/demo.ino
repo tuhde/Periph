@@ -1,5 +1,4 @@
-#include "HX711Connection.h"
-#include "HX710A.h"
+#include <Periph.h>
 
 // Temperature-monitored load cell demo: tare at startup, then print weight
 // continuously, sampling the on-chip temperature sensor periodically.

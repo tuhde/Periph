@@ -3,7 +3,7 @@
 #ifdef __linux__
 #include <time.h>
 #include <unistd.h>
-static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
+static void periph_delay_ms(unsigned ms) { usleep(ms * 1000); }
 static uint32_t _millis() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -11,20 +11,20 @@ static uint32_t _millis() {
 }
 #elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
+static void periph_delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 static uint32_t _millis() { return (uint32_t)k_uptime_get(); }
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
+static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
 static uint32_t _millis() { return (uint32_t)(xTaskGetTickCount() * portTICK_PERIOD_MS); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
-static void _delay_ms(unsigned ms) { sleep_ms(ms); }
+static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }
 static uint32_t _millis() { return to_ms_since_boot(get_absolute_time()); }
 #else
 #include <Arduino.h>
-static void _delay_ms(unsigned ms) { delay(ms); }
+static void periph_delay_ms(unsigned ms) { delay(ms); }
 static uint32_t _millis() { return millis(); }
 #endif
 
@@ -94,7 +94,7 @@ uint32_t VL53Base::_rd32(uint16_t reg) {
 
 void VL53Base::_bootWait() {
     if (_connection.enPin()) _connection.enable();
-    _delay_ms(BOOT_MS);
+    periph_delay_ms(BOOT_MS);
 }
 
 bool VL53Base::_setAddressReg(uint16_t reg, uint8_t address) {

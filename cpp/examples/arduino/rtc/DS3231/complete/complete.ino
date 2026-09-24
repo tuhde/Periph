@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "DS3231.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, DS3231Minimal::I2C_ADDRESS);
 DS3231Full rtc(connection);                              // Create DS3231 Full driver, (connection)

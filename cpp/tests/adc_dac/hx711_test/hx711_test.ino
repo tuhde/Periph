@@ -1,5 +1,4 @@
-#include "HX711Connection.h"
-#include "HX711.h"
+#include <Periph.h>
 
 #ifndef TEST_DOUT_PIN
 #define TEST_DOUT_PIN   5

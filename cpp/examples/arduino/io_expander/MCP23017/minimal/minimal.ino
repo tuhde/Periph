@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MCP23017.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x20);
 MCP23017Minimal mcp(connection);

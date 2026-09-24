@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MPU9255.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x68);
 MPU9255Minimal imu(connection);

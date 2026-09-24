@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "HMC5883L.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x1E);
 HMC5883LFull hmc5883l(connection);

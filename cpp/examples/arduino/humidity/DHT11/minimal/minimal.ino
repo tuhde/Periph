@@ -3,11 +3,10 @@
 #endif
 
 #include <Arduino.h>
-#include "DHTxxConnection.h"
-#include "DHT11.h"
+#include <Periph.h>
 
 DHTxxConnection connection(DHT11_DATA_PIN);
-DHT11Minimal dht(connection);                    // Create DHT11 driver, (connection)
+DHT11Minimal<DHTxxConnection> dht(connection);                    // Create DHT11 driver, (connection)
 
 void setup() {
     Serial.begin(115200);

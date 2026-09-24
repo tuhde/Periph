@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "APDS9960.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x39);
 APDS9960Full apds(connection);                              // Create APDS9960 driver, (connection) → APDS9960Full

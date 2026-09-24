@@ -210,6 +210,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/arduino/<category>/<Chip>/minimal/minimal.ino` — Tier-1
 - [ ] Examples `cpp/examples/arduino/<category>/<Chip>/complete/complete.ino` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/arduino/<category>/<Chip>/demo/demo.ino` — Tier-1 + Tier-3
+- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
 - [ ] Examples `cpp/examples/linux/<category>/<Chip>/minimal/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/linux/<category>/<Chip>/complete/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/linux/<category>/<Chip>/demo/main.cpp` — Tier-1 + Tier-3

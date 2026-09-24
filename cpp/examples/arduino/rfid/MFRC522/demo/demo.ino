@@ -13,8 +13,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "MFRC522.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 
@@ -33,7 +32,11 @@ static void print_uid(const uint8_t* uid, size_t len) {
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     SPI.begin(TEST_SCK, TEST_MISO, TEST_MOSI, TEST_CS);
+#else
+    SPI.begin();                                     // other cores: board's default SCK/MISO/MOSI
+#endif
     SPIConnection connection(SPI, TEST_CS, SPISettings(1000000, MSBFIRST, SPI_MODE0));
     MFRC522Full mfrc(connection);
 

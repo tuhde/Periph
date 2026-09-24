@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "INA219.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x40);
 INA219Full ina(connection);

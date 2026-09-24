@@ -11,8 +11,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
-#include "I2CConnection.h"
-#include "ADXL345.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 

@@ -1,4 +1,4 @@
-#include "SiPoConnection.h"
+#include <Periph.h>
 
 #ifndef TEST_SER_IN_PIN
 #define TEST_SER_IN_PIN 8

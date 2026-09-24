@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include <I2CConnection.h>
-#include <L3gd20h.h>
+#include <Periph.h>
 
 I2CConnection conn(Wire, 0x6A);
 L3gd20hFull gyro(conn);
@@ -19,9 +18,6 @@ void setup() {
   gyro.enable_fifo(true);                            // Enable FIFO, (enable=true) -> None
 
   gyro.set_power_mode(L3gd20hFull::POWER_NORMAL);    // Set power mode, (mode='normal'/'sleep'/'power_down') -> None
-
-  uint8_t who = gyro.who_am_i();                     // Read WHO_AM_I, () -> uint8_t
-  Serial.print("WHO_AM_I: 0x"); Serial.println(who, HEX);
 
   int8_t temp = gyro.temperature();                  // Read temperature, () -> int8_t
   Serial.print("Temperature: "); Serial.println(temp);

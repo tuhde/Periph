@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MCP4725.h"
+#include <Periph.h>
 #include <math.h>
 
 I2CConnection connection(Wire, 0x60);

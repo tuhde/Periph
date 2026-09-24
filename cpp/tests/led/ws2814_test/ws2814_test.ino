@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelConnection.h"
-#include "WS2814.h"
+#include <Periph.h>
 
 static int passed = 0;
 static int failed = 0;
