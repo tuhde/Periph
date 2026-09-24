@@ -21,24 +21,15 @@ Args:
         int_pin receives GPIO1 (active low, open drain).
 """
 
-try:
-    import threading as _threading
-    _LINUX = True
-except ImportError:
-    _LINUX = False
+from ._vl53_base import (
+    _VL53Base, I2C_ADDRESS, SOURCE_LEVEL_LOW,
+    SOURCE_LEVEL_HIGH, SOURCE_OUT_OF_WINDOW, SOURCE_NEW_SAMPLE_READY)
 
-import time
-
-
-I2C_ADDRESS = 0x29
 
 MODEL_ID = 0xEE
 
-# Interrupt sources — SYSTEM_INTERRUPT_CONFIG_GPIO values (mutually exclusive).
-SOURCE_LEVEL_LOW        = 0x01
-SOURCE_LEVEL_HIGH       = 0x02
-SOURCE_OUT_OF_WINDOW    = 0x03
-SOURCE_NEW_SAMPLE_READY = 0x04
+# Interrupt sources (SOURCE_*, re-exported from the family base) equal the
+# SYSTEM_INTERRUPT_CONFIG_GPIO values 1-4 (mutually exclusive).
 
 # VCSEL period types for set_vcsel_pulse_period / vcsel_pulse_period.
 PRE_RANGE   = 'pre_range'
@@ -99,8 +90,6 @@ _SEQ_PRE_RANGE   = 0x40
 _SEQ_FINAL_RANGE = 0x80
 _SEQ_OPERATING   = 0xE8
 
-_TIMEOUT_MS = 500
-_BOOT_S = 0.0012
 _MIN_TIMING_BUDGET_US = 20000
 
 # Timing-budget overheads, µs.
@@ -146,28 +135,6 @@ _PROFILES = {
 }
 
 
-class _NoLock:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        return False
-
-
-def _ticks_ms():
-    if hasattr(time, 'ticks_ms'):
-        return time.ticks_ms()
-    if hasattr(time, 'monotonic'):
-        return int(time.monotonic() * 1000)
-    return int(time.time() * 1000)
-
-
-def _elapsed_ms(start):
-    if hasattr(time, 'ticks_diff'):
-        return time.ticks_diff(time.ticks_ms(), start)
-    return _ticks_ms() - start
-
-
 def _decode_vcsel(reg):
     return (reg + 1) << 1
 
@@ -204,7 +171,7 @@ def _encode_timeout(mclks):
     return (ms << 8) | (ls & 0xFF)
 
 
-class VL53L0XMinimal:
+class VL53L0XMinimal(_VL53Base):
     """VL53L0X Time-of-Flight ranging sensor — minimal interface.
 
     Runs the full initialization sequence at construction (boot wait, model
@@ -222,50 +189,27 @@ class VL53L0XMinimal:
     """
 
     def __init__(self, connection):
-        self._connection = connection
+        super().__init__(connection, 1, 'VL53L0X')
         self._stop_variable = 0
         self._range_status = 0
         self._timing_budget_us = 0
-        # Serializes multi-register sequences against the Full class's
-        # interrupt polling thread (page-select windows, calibration and
-        # data-ready polls must not interleave with a status read/clear).
-        self._lock = _threading.RLock() if _LINUX else _NoLock()
         self._init()
 
-    # --- Register access --------------------------------------------------
+    # --- Register access (8-bit index, via the family base) ---------------
 
     def _wr(self, reg, value):
-        self._connection.write(bytes([reg, value & 0xFF]))
+        self._wr8(reg, value)
 
     def _rd(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
-
-    def _wr16(self, reg, value):
-        self._connection.write(bytes([reg, (value >> 8) & 0xFF, value & 0xFF]))
-
-    def _rd16(self, reg):
-        data = self._connection.write_read(bytes([reg]), 2)
-        return (data[0] << 8) | data[1]
-
-    def _wr32(self, reg, value):
-        self._connection.write(bytes([reg, (value >> 24) & 0xFF, (value >> 16) & 0xFF,
-                                      (value >> 8) & 0xFF, value & 0xFF]))
+        return self._rd8(reg)
 
     def _wait(self, reg, mask, until_set, what):
-        start = _ticks_ms()
-        while True:
-            value = self._rd(reg)
-            if bool(value & mask) == until_set:
-                return value
-            if _elapsed_ms(start) > _TIMEOUT_MS:
-                raise OSError('VL53L0X timeout waiting for {}'.format(what))
+        self._wait_until(lambda: bool(self._rd(reg) & mask) == until_set, what)
 
     # --- Initialization ---------------------------------------------------
 
     def _init(self):
-        if getattr(self._connection, 'en_pin', None):
-            self._connection.enable()
-        time.sleep(_BOOT_S)
+        self._boot_wait()
 
         model = self._rd(_REG_MODEL_ID)
         if model != MODEL_ID:
@@ -293,7 +237,7 @@ class VL53L0XMinimal:
         spad_count, spad_is_aperture = self._spad_info()
 
         # Reference SPADs.
-        ref_map = bytearray(self._connection.write_read(bytes([_REG_SPAD_ENABLES_REF_0]), 6))
+        ref_map = bytearray(self._rd_block(_REG_SPAD_ENABLES_REF_0, 6))
         self._wr(_REG_PAGE_SELECT, 0x01)
         self._wr(_REG_DYNAMIC_SPAD_START_OFFSET, 0x00)
         self._wr(_REG_DYNAMIC_SPAD_NUM_REQ, 0x2C)
@@ -306,7 +250,7 @@ class VL53L0XMinimal:
                 ref_map[i // 8] &= ~(1 << (i % 8)) & 0xFF
             elif (ref_map[i // 8] >> (i % 8)) & 0x01:
                 enabled += 1
-        self._connection.write(bytes([_REG_SPAD_ENABLES_REF_0]) + bytes(ref_map))
+        self._wr_block(_REG_SPAD_ENABLES_REF_0, ref_map)
 
         # Default tuning settings.
         for i in range(0, len(_TUNING), 2):
@@ -420,7 +364,7 @@ class VL53L0XMinimal:
         self._wr(_REG_POWER_FORCE, 0x00)
 
     def _read_result(self):
-        data = self._connection.write_read(bytes([_REG_RESULT_RANGE_STATUS]), 12)
+        data = self._rd_block(_REG_RESULT_RANGE_STATUS, 12)
         self._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
         self._range_status = (data[0] & 0x78) >> 3
         return data
@@ -457,6 +401,13 @@ class VL53L0XMinimal:
         """
         return self._range_status == RANGE_STATUS_VALID
 
+    def _poll_interrupt_status(self):
+        with self._lock:
+            status = self._rd(_REG_RESULT_INTERRUPT_STATUS) & 0x07
+            if status:
+                self._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
+            return status
+
 
 class VL53L0XFull(VL53L0XMinimal):
     """VL53L0X full interface — extends Minimal with continuous and timed
@@ -472,13 +423,6 @@ class VL53L0XFull(VL53L0XMinimal):
         ValueError: If IDENTIFICATION_MODEL_ID is not 0xEE.
         OSError: If a poll loop times out (500 ms).
     """
-
-    def __init__(self, connection):
-        super().__init__(connection)
-        self._callback = None
-        self._int_pin_used = None
-        self._poll_stop = False
-        self._poll_thread = None
 
     # --- Continuous ranging -----------------------------------------------
 
@@ -774,9 +718,7 @@ class VL53L0XFull(VL53L0XMinimal):
         Raises:
             ValueError: If out of range.
         """
-        if address < 0x08 or address > 0x77:
-            raise ValueError('address must be 0x08 to 0x77')
-        self._wr(_REG_I2C_SLAVE_DEVICE_ADDRESS, address & 0x7F)
+        self._set_address_reg(_REG_I2C_SLAVE_DEVICE_ADDRESS, address)
 
     def set_interrupt_thresholds(self, low_mm, high_mm):
         """Set the distance thresholds used by the threshold interrupt sources.
@@ -851,11 +793,7 @@ class VL53L0XFull(VL53L0XMinimal):
         Returns:
             int: The SOURCE_* value that fired, or 0 if nothing is pending.
         """
-        with self._lock:
-            status = self._rd(_REG_RESULT_INTERRUPT_STATUS) & 0x07
-            if status:
-                self._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
-            return status
+        return self._poll_interrupt_status()
 
     def on_interrupt(self, callback, int_pin=None):
         """Subscribe to GPIO1 interrupt events.
@@ -871,34 +809,8 @@ class VL53L0XFull(VL53L0XMinimal):
             callback: Callable(status: int) — the SOURCE_* value that fired.
             int_pin: Optional InputPin for this call, overriding connection.int_pin.
         """
-        self._callback = callback
-        pin = int_pin if int_pin is not None else getattr(self._connection, 'int_pin', None)
-        self._int_pin_used = pin
-        if pin is not None:
-            from periph.connection.input_pin import InputPin
-            pin.on_edge(self._int_handler, InputPin.FALLING)
-        elif _LINUX:
-            self._poll_stop = False
-            self._poll_thread = _threading.Thread(target=self._poll_loop, daemon=True)
-            self._poll_thread.start()
+        self._subscribe(callback, int_pin)
 
     def off_interrupt(self):
         """Unsubscribe and stop delivery."""
-        if self._int_pin_used is not None:
-            self._int_pin_used.off_edge(self._int_handler)
-            self._int_pin_used = None
-        elif _LINUX:
-            self._poll_stop = True
-        self._callback = None
-
-    def _int_handler(self):
-        status = self.poll_interrupt()
-        if status and self._callback:
-            self._callback(status)
-
-    def _poll_loop(self):
-        while not self._poll_stop:
-            status = self.poll_interrupt()
-            if status and self._callback:
-                self._callback(status)
-            time.sleep(0.005)
+        self._unsubscribe()
