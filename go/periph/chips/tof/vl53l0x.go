@@ -4,7 +4,6 @@ package tof
 import (
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/tuhde/Periph/go/periph/connection"
@@ -104,7 +103,7 @@ var vl53l0xFinalPhase = map[uint8][5]uint8{
 }
 
 // VL53L0XI2CAddress is the power-on 7-bit I²C address.
-const VL53L0XI2CAddress uint8 = 0x29
+const VL53L0XI2CAddress uint8 = vl53I2CAddress
 
 // VL53L0XModelID is the IDENTIFICATION_MODEL_ID value checked at
 // construction.
@@ -117,10 +116,10 @@ const VL53L0XRangeStatusValid uint8 = 11
 // Interrupt sources — SYSTEM_INTERRUPT_CONFIG_GPIO values (mutually
 // exclusive).
 const (
-	VL53L0XSourceLevelLow       uint8 = 0x01 // range < low threshold
-	VL53L0XSourceLevelHigh      uint8 = 0x02 // range > high threshold
-	VL53L0XSourceOutOfWindow    uint8 = 0x03 // range < low or > high threshold
-	VL53L0XSourceNewSampleReady uint8 = 0x04 // new measurement available (driver default)
+	VL53L0XSourceLevelLow       = vl53SourceLevelLow       // range < low threshold
+	VL53L0XSourceLevelHigh      = vl53SourceLevelHigh      // range > high threshold
+	VL53L0XSourceOutOfWindow    = vl53SourceOutOfWindow    // range < low or > high threshold
+	VL53L0XSourceNewSampleReady = vl53SourceNewSampleReady // new measurement available (driver default)
 )
 
 // VL53L0XVcselPeriodType selects a VCSEL pulse period.
@@ -216,12 +215,10 @@ type vl53l0xStepTimeouts struct {
 // real driver on a Connection at the new address. The new address is
 // volatile — it reverts to 0x29 on power-up or an XSHUT low pulse.
 type VL53L0XMinimal struct {
-	conn connection.Connection
+	// Register access, polling, boot wait, the bus mutex, interrupt
+	// delivery and re-addressing come from the shared VL53 family base.
+	vl53Base
 
-	// bus serializes multi-register sequences against the Full driver's
-	// interrupt goroutine (page-select windows, calibration and data-ready
-	// polls must not interleave with a status read/clear).
-	bus            sync.Mutex
 	stopVariable   uint8
 	rangeStatus    uint8
 	timingBudgetUs uint32
@@ -234,7 +231,7 @@ type VL53L0XMinimal struct {
 // SPADs, default tuning, GPIO1 = new sample ready (active low), ~33 ms timing
 // budget, VHV + phase reference calibration. Leaves the chip idle.
 func NewVL53L0XMinimal(conn connection.Connection) (*VL53L0XMinimal, error) {
-	d := &VL53L0XMinimal{conn: conn}
+	d := &VL53L0XMinimal{vl53Base: newVL53Base(conn, 1, ErrVL53L0XTimeout)}
 	if err := d.init(); err != nil {
 		return nil, err
 	}
@@ -242,31 +239,23 @@ func NewVL53L0XMinimal(conn connection.Connection) (*VL53L0XMinimal, error) {
 }
 
 func (d *VL53L0XMinimal) wr(reg, value uint8) error {
-	return d.conn.Write([]byte{reg, value})
+	return d.write8(uint16(reg), value)
 }
 
 func (d *VL53L0XMinimal) rd(reg uint8) (uint8, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 1)
-	if err != nil {
-		return 0, err
-	}
-	return b[0], nil
+	return d.read8(uint16(reg))
 }
 
 func (d *VL53L0XMinimal) wr16(reg uint8, value uint16) error {
-	return d.conn.Write([]byte{reg, byte(value >> 8), byte(value)})
+	return d.write16(uint16(reg), value)
 }
 
 func (d *VL53L0XMinimal) rd16(reg uint8) (uint16, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 2)
-	if err != nil {
-		return 0, err
-	}
-	return uint16(b[0])<<8 | uint16(b[1]), nil
+	return d.read16(uint16(reg))
 }
 
 func (d *VL53L0XMinimal) wr32(reg uint8, value uint32) error {
-	return d.conn.Write([]byte{reg, byte(value >> 24), byte(value >> 16), byte(value >> 8), byte(value)})
+	return d.write32(uint16(reg), value)
 }
 
 // writes applies (reg, value) pairs in order, stopping at the first error.
@@ -280,26 +269,14 @@ func (d *VL53L0XMinimal) writes(pairs ...uint8) error {
 }
 
 func (d *VL53L0XMinimal) wait(reg, mask uint8, untilSet bool) error {
-	start := time.Now()
-	for {
+	return d.waitUntil(func() (bool, error) {
 		v, err := d.rd(reg)
-		if err != nil {
-			return err
-		}
-		if (v&mask != 0) == untilSet {
-			return nil
-		}
-		if time.Since(start) > vl53l0xTimeout {
-			return ErrVL53L0XTimeout
-		}
-	}
+		return err == nil && (v&mask != 0) == untilSet, err
+	})
 }
 
 func (d *VL53L0XMinimal) init() error {
-	if d.conn.EnPin() != nil {
-		d.conn.Enable()
-	}
-	time.Sleep(1200 * time.Microsecond)
+	d.bootWait()
 
 	model, err := d.rd(vl53l0xRegModelID)
 	if err != nil {
@@ -349,7 +326,7 @@ func (d *VL53L0XMinimal) init() error {
 	}
 
 	// Reference SPADs.
-	refMap, err := d.conn.WriteRead([]byte{vl53l0xRegSpadEnablesRef0}, 6)
+	refMap, err := d.readBlock(uint16(vl53l0xRegSpadEnablesRef0), 6)
 	if err != nil {
 		return err
 	}
@@ -373,7 +350,7 @@ func (d *VL53L0XMinimal) init() error {
 			enabled++
 		}
 	}
-	if err := d.conn.Write(buf); err != nil {
+	if err := d.writeBlock(uint16(vl53l0xRegSpadEnablesRef0), buf[1:]...); err != nil {
 		return err
 	}
 
@@ -577,7 +554,7 @@ func (d *VL53L0XMinimal) stopVariablePreamble() error {
 }
 
 func (d *VL53L0XMinimal) readResult() error {
-	b, err := d.conn.WriteRead([]byte{vl53l0xRegResultRangeStatus}, 12)
+	b, err := d.readBlock(uint16(vl53l0xRegResultRangeStatus), 12)
 	if err != nil {
 		return err
 	}
@@ -636,11 +613,6 @@ func (d *VL53L0XMinimal) RangeValid() bool {
 // thresholds, identification, and the Level-2 interrupt API.
 type VL53L0XFull struct {
 	*VL53L0XMinimal
-
-	mu          sync.Mutex
-	callback    func(uint8)
-	unsubscribe func()
-	pollPin     *connection.PollingInputPin
 }
 
 // NewVL53L0XFull creates a VL53L0XFull; same initialization as
@@ -924,10 +896,7 @@ func (d *VL53L0XFull) Recalibrate() error {
 // answers on the new address immediately; this driver instance becomes
 // unusable — construct a new Connection at the new address and a new driver.
 func (d *VL53L0XFull) SetAddress(address uint8) error {
-	if address < 0x08 || address > 0x77 {
-		return ErrVL53L0XInvalidArgument
-	}
-	return d.wr(vl53l0xRegI2CSlaveDeviceAddress, address&0x7F)
+	return d.setAddressReg(uint16(vl53l0xRegI2CSlaveDeviceAddress), address, ErrVL53L0XInvalidArgument)
 }
 
 // SetInterruptThresholds sets the distance thresholds in mm used by the
@@ -1007,61 +976,10 @@ func (d *VL53L0XFull) PollInterrupt() (uint8, error) {
 // calls back whenever a status is pending. The polling fallback consumes
 // results, so don't mix it with ReadContinuous.
 func (d *VL53L0XFull) OnInterrupt(callback func(status uint8)) error {
-	d.mu.Lock()
-	if d.unsubscribe != nil {
-		d.unsubscribe()
-		d.unsubscribe = nil
-	}
-	if d.pollPin != nil {
-		_ = d.pollPin.Close()
-		d.pollPin = nil
-	}
-	d.callback = callback
-	d.mu.Unlock()
-
-	pin := d.conn.IntPin()
-	if pin == nil {
-		poll := connection.NewDefaultPollingInputPin()
-		d.mu.Lock()
-		d.pollPin = poll
-		d.mu.Unlock()
-		pin = poll
-	}
-	unsub := pin.OnEdge(connection.Falling, func() { d.handleEdge() })
-	d.mu.Lock()
-	d.unsubscribe = unsub
-	d.mu.Unlock()
-	return nil
+	return d.subscribe(callback, d.PollInterrupt)
 }
 
 // OffInterrupt unsubscribes and stops delivery.
 func (d *VL53L0XFull) OffInterrupt() error {
-	d.mu.Lock()
-	unsub := d.unsubscribe
-	d.unsubscribe = nil
-	d.callback = nil
-	poll := d.pollPin
-	d.pollPin = nil
-	d.mu.Unlock()
-
-	if unsub != nil {
-		unsub()
-	}
-	if poll != nil {
-		return poll.Close()
-	}
-	return nil
-}
-
-func (d *VL53L0XFull) handleEdge() {
-	status, err := d.PollInterrupt()
-	if err != nil || status == 0 {
-		return
-	}
-	d.mu.Lock()
-	cb := d.callback
-	d.mu.Unlock()
-	if cb != nil {
-		cb(status)
-	}
+	return d.unsubscribeAll()
 }

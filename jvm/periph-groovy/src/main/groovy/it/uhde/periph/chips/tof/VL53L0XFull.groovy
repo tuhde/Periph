@@ -3,8 +3,6 @@ package it.uhde.periph.chips.tof
 import groovy.transform.CompileStatic
 
 import it.uhde.periph.connection.Connection
-import it.uhde.periph.connection.EdgeHandler
-import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
 
 import java.io.IOException
@@ -23,13 +21,13 @@ import java.util.function.IntConsumer
 class VL53L0XFull extends VL53L0XMinimal {
 
     /** Interrupt source: range &lt; low threshold. */
-    public static final int SOURCE_LEVEL_LOW = 0x01
+    public static final int SOURCE_LEVEL_LOW = VL53Base.SOURCE_LEVEL_LOW
     /** Interrupt source: range &gt; high threshold. */
-    public static final int SOURCE_LEVEL_HIGH = 0x02
+    public static final int SOURCE_LEVEL_HIGH = VL53Base.SOURCE_LEVEL_HIGH
     /** Interrupt source: range &lt; low threshold or &gt; high threshold. */
-    public static final int SOURCE_OUT_OF_WINDOW = 0x03
+    public static final int SOURCE_OUT_OF_WINDOW = VL53Base.SOURCE_OUT_OF_WINDOW
     /** Interrupt source: a new measurement is available (driver default). */
-    public static final int SOURCE_NEW_SAMPLE_READY = 0x04
+    public static final int SOURCE_NEW_SAMPLE_READY = VL53Base.SOURCE_NEW_SAMPLE_READY
 
     /** VCSEL period type for {@link #setVcselPulsePeriod(VcselPeriodType, int)}. */
     public enum VcselPeriodType {
@@ -91,11 +89,6 @@ class VL53L0XFull extends VL53L0XMinimal {
         }
     }
 
-    private volatile IntConsumer callback
-    private InputPin intPin
-    private volatile boolean polling = false
-    private Thread pollThread
-    private final EdgeHandler edgeHandler = { -> handleEdge() } as EdgeHandler
 
     /**
      * Construct the driver; same initialization as {@link VL53L0XMinimal#VL53L0XMinimal(Connection)}.
@@ -385,10 +378,7 @@ class VL53L0XFull extends VL53L0XMinimal {
      * @throws IllegalArgumentException if out of range
      */
     public synchronized void setAddress(int address) throws IOException {
-        if (address < 0x08 || address > 0x77) {
-            throw new IllegalArgumentException("address must be 0x08 to 0x77")
-        }
-        wr(REG_I2C_SLAVE_DEVICE_ADDRESS, address & 0x7F)
+        setAddressReg(REG_I2C_SLAVE_DEVICE_ADDRESS, address)
     }
 
     /**
@@ -470,9 +460,7 @@ class VL53L0XFull extends VL53L0XMinimal {
      * @throws IOException on bus error
      */
     public synchronized int pollInterrupt() throws IOException {
-        int status = rd(REG_RESULT_INTERRUPT_STATUS) & 0x07
-        if (status != 0) wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
-        return status
+        return pollInterruptStatus()
     }
 
     /**
@@ -496,58 +484,11 @@ class VL53L0XFull extends VL53L0XMinimal {
      * @throws IOException on bus error
      */
     public void onInterrupt(IntConsumer callback, InputPin intPin) throws IOException {
-        offInterrupt()
-        this.callback = callback
-        if (intPin != null) {
-            this.intPin = intPin
-            intPin.onEdge(edgeHandler, EdgeTrigger.FALLING)
-        } else {
-            startPolling()
-        }
+        subscribe(callback, intPin)
     }
 
     /** Unsubscribe and stop delivery. */
     public void offInterrupt() {
-        callback = null
-        if (intPin != null) {
-            intPin.offEdge(edgeHandler)
-            intPin = null
-        }
-        stopPolling()
-    }
-
-    private void startPolling() {
-        polling = true
-        pollThread = new Thread({
-            while (polling) {
-                handleEdge()
-                try {
-                    Thread.sleep(5)
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt()
-                    return
-                }
-            }
-        }, "vl53l0x-poll")
-        pollThread.setDaemon(true)
-        pollThread.start()
-    }
-
-    private void stopPolling() {
-        polling = false
-        if (pollThread != null) {
-            pollThread.interrupt()
-            pollThread = null
-        }
-    }
-
-    private void handleEdge() {
-        try {
-            int status = pollInterrupt()
-            IntConsumer cb = callback
-            if (status != 0 && cb != null) cb.accept(status)
-        } catch (IOException ignored) {
-            // bus error; wait for the next edge rather than propagating
-        }
+        unsubscribe()
     }
 }

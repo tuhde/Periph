@@ -549,125 +549,125 @@ decoder (different index width and register map).
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### VL53 family base (shared with VL53L0X — see `specs/tof/_vl53_base.md`)
-- [ ] Python `python/periph/chips/tof/_vl53_base.py` — `_VL53Base`
-- [ ] C++ `cpp/src/chips/tof/VL53Base.h` / `VL53Base.cpp` — `VL53Base` (add to `cpp/CMakeLists.txt` / Arduino library build as needed)
-- [ ] Node.js `nodejs/packages/periph/src/chips/tof/_vl53_base.js` — `VL53Base`
-- [ ] Rust `rust/periph/src/chips/tof/vl53_base.rs` — `pub(crate) Vl53Bus<I2C>`
-- [ ] Go `go/periph/chips/tof/vl53_base.go` — unexported `vl53Base`
-- [ ] Java `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53Base.java` — used by Java **and Kotlin**
-- [ ] Groovy `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53Base.groovy`
-- [ ] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base`
-- [ ] Refactor `cpp/src/chips/tof/VL53L0X.h/.cpp` onto `VL53Base`
-- [ ] Refactor `nodejs/packages/periph/src/chips/tof/vl53l0x.js` onto `VL53Base`
-- [ ] Refactor `rust/periph/src/chips/tof/vl53l0x.rs` onto `Vl53Bus`
-- [ ] Refactor `go/periph/chips/tof/vl53l0x.go` to embed `vl53Base`
-- [ ] Refactor JVM VL53L0X drivers: Java + Kotlin onto Java `VL53Base`, Groovy onto Groovy `VL53Base`
-- [ ] All existing VL53L0X unit tests pass **unmodified** in every language (behavior-preserving refactor; byte-identical I²C traffic)
+- [x] Python `python/periph/chips/tof/_vl53_base.py` — `_VL53Base`
+- [x] C++ `cpp/src/chips/tof/VL53Base.h` / `VL53Base.cpp` — `VL53Base` (add to `cpp/CMakeLists.txt` / Arduino library build as needed)
+- [x] Node.js `nodejs/packages/periph/src/chips/tof/_vl53_base.js` — `VL53Base`
+- [x] Rust `rust/periph/src/chips/tof/vl53_base.rs` — `pub(crate) Vl53Bus<I2C>`
+- [x] Go `go/periph/chips/tof/vl53_base.go` — unexported `vl53Base`
+- [x] Java `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53Base.java` — used by Java **and Kotlin**
+- [x] Groovy `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53Base.groovy`
+- [x] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base`
+- [x] Refactor `cpp/src/chips/tof/VL53L0X.h/.cpp` onto `VL53Base`
+- [x] Refactor `nodejs/packages/periph/src/chips/tof/vl53l0x.js` onto `VL53Base`
+- [x] Refactor `rust/periph/src/chips/tof/vl53l0x.rs` onto `Vl53Bus`
+- [x] Refactor `go/periph/chips/tof/vl53l0x.go` to embed `vl53Base`
+- [x] Refactor JVM VL53L0X drivers: Java + Kotlin onto Java `VL53Base`, Groovy onto Groovy `VL53Base`
+- [x] All existing VL53L0X unit tests pass **unmodified** in every language (behavior-preserving refactor; byte-identical I²C traffic)
 
 ### Python
-- [ ] Driver `python/periph/chips/tof/vl53l1x.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/tof/vl53l1x/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/tof/vl53l1x/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/tof/vl53l1x/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/tof/vl53l1x_test.py` (MicroPython)
-- [ ] Tests `python/tests/tof/vl53l1x_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/tof/vl53l1x_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/tof/vl53l1x_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`). The mock must model 16-bit register indices
+- [x] Driver `python/periph/chips/tof/vl53l1x.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/tof/vl53l1x/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/tof/vl53l1x/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/tof/vl53l1x/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/tof/vl53l1x_test.py` (MicroPython)
+- [x] Tests `python/tests/tof/vl53l1x_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/tof/vl53l1x_test_linux.py` (Linux)
+- [x] Unit test `python/tests/tof/vl53l1x_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`). The mock must model 16-bit register indices
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/tof/vl53l1x/vl53l1x.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/tof/vl53l1x/vl53l1x_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/tof/vl53l1x/vl53l1x.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/tof/vl53l1x/vl53l1x.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/tof/vl53l1x/vl53l1x_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/tof/vl53l1x/vl53l1x.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/tof/vl53l1x/VL53L1X.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/tof/vl53l1x/VL53L1X.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/tof/vl53l1x/VL53L1X.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Exported `python/uiflow2/tof/vl53l1x/VL53L1X.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/tof/VL53L1X.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/tof/VL53L1X.cpp`
-- [ ] Examples `cpp/examples/arduino/tof/VL53L1X/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/tof/VL53L1X/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/tof/VL53L1X/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/linux/tof/VL53L1X/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/tof/VL53L1X/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/tof/VL53L1X/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/tof/VL53L1X/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/tof/VL53L1X/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/tof/VL53L1X/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/tof/VL53L1X/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/tof/VL53L1X/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/tof/VL53L1X/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/tof/VL53L1X/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/tof/VL53L1X/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/tof/VL53L1X/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/tof/vl53l1x_test/vl53l1x_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/tof/vl53l1x_test_linux/vl53l1x_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/tof/vl53l1x_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/tof/vl53l1x_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/tof/vl53l1x_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Unit test `cpp/tests/tof/vl53l1x_test_unit/vl53l1x_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/tof/VL53L1X.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/tof/VL53L1X.cpp`
+- [x] Examples `cpp/examples/arduino/tof/VL53L1X/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/tof/VL53L1X/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/tof/VL53L1X/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/linux/tof/VL53L1X/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/tof/VL53L1X/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/tof/VL53L1X/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/tof/VL53L1X/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/tof/VL53L1X/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/tof/VL53L1X/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/tof/VL53L1X/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/tof/VL53L1X/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/tof/VL53L1X/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/tof/VL53L1X/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/tof/VL53L1X/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/tof/VL53L1X/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/tof/vl53l1x_test/vl53l1x_test.ino` (Arduino)
+- [x] Tests `cpp/tests/tof/vl53l1x_test_linux/vl53l1x_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/tof/vl53l1x_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/tof/vl53l1x_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/tof/vl53l1x_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Unit test `cpp/tests/tof/vl53l1x_test_unit/vl53l1x_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/tof/vl53l1x.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/tof/vl53l1x/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/tof/vl53l1x/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/tof/vl53l1x/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/tof/vl53l1x_test.js`
-- [ ] Unit test `nodejs/tests/tof/vl53l1x_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/tof/vl53l1x.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/tof/vl53l1x/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/tof/vl53l1x/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/tof/vl53l1x/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/tof/vl53l1x_test.js`
+- [x] Unit test `nodejs/tests/tof/vl53l1x_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-tof/nodes/vl53l1x/vl53l1x.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-tof/nodes/vl53l1x/vl53l1x.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-tof/examples/vl53l1x/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-tof/nodes/vl53l1x/vl53l1x.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-tof/nodes/vl53l1x/vl53l1x.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-tof/examples/vl53l1x/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/tof/vl53l1x.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/tof/vl53l1x/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/tof/vl53l1x/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/tof/vl53l1x/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/tof/vl53l1x_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/tof/vl53l1x_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/tof/vl53l1x.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`). Check for `const` name collisions with `vl53l0x.rs` in the same `tof` module
+- [x] Driver `rust/periph/src/chips/tof/vl53l1x.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/tof/vl53l1x/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/tof/vl53l1x/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/tof/vl53l1x/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/tof/vl53l1x_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/tof/vl53l1x_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/tof/vl53l1x.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`). Check for `const` name collisions with `vl53l0x.rs` in the same `tof` module
 
 ### Go
-- [ ] Driver `go/periph/chips/tof/vl53l1x.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/tof/vl53l1x/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/tof/vl53l1x/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/tof/vl53l1x/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/tof/vl53l1x/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/tof/vl53l1x/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/tof/vl53l1x/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/tof/vl53l1x_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/tof/vl53l1x_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/tof/vl53l1x_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/tof/vl53l1x.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/tof/vl53l1x/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/tof/vl53l1x/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/tof/vl53l1x/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/tof/vl53l1x/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/tof/vl53l1x/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/tof/vl53l1x/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/tof/vl53l1x_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/tof/vl53l1x_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/tof/vl53l1x_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53L1XMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53L1XFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/tof/VL53L1XMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/tof/VL53L1XFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53L1XMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53L1XFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/tof/vl53l1x/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/tof/vl53l1x/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/tof/vl53l1x/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/tof/vl53l1x/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/tof/vl53l1x/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/tof/vl53l1x/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/tof/vl53l1x/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/tof/vl53l1x/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/tof/vl53l1x/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/tof/vl53l1x/VL53L1XTest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/tof/VL53L1XTest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/tof/VL53L1XTest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/tof/VL53L1XSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53L1XMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/tof/VL53L1XFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/tof/VL53L1XMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/tof/VL53L1XFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53L1XMinimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/tof/VL53L1XFull.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/tof/vl53l1x/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/tof/vl53l1x/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/tof/vl53l1x/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/tof/vl53l1x/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/tof/vl53l1x/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/tof/vl53l1x/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/tof/vl53l1x/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/tof/vl53l1x/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/tof/vl53l1x/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/tof/vl53l1x/VL53L1XTest.java` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/tof/VL53L1XTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/tof/VL53L1XTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/tof/VL53L1XSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/vl53l1x/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/vl53l1x/pd.py` — for the Timing Constraint above with a conformance check, emits the named `single_ranging_start`/`single_ranging_done` annotation pair
+- [x] Decoder `sigrok/vl53l1x/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/vl53l1x/pd.py` — for the Timing Constraint above with a conformance check, emits the named `single_ranging_start`/`single_ranging_done` annotation pair
 
 ### Conformance
-- [ ] Checker `conformance/tof/vl53l1x_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/tof/vl53l1x_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
-- [ ] Decoder `sigrok/vl53l1x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [x] Checker `conformance/tof/vl53l1x_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
+- [x] Timing config `specs/tof/vl53l1x_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
+- [x] Decoder `sigrok/vl53l1x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only

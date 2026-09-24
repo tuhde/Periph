@@ -1,36 +1,7 @@
 #include "VL53L0X.h"
 #include <stdlib.h>
 
-#ifdef __linux__
-#include <time.h>
-#include <unistd.h>
-static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
-static uint32_t _millis() {
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return (uint32_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
-}
-#elif defined(__ZEPHYR__)
-#include <zephyr/kernel.h>
-static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
-static uint32_t _millis() { return (uint32_t)k_uptime_get(); }
-#elif defined(ESP_PLATFORM)
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
-static uint32_t _millis() { return (uint32_t)(xTaskGetTickCount() * portTICK_PERIOD_MS); }
-#elif __has_include(<pico/time.h>)
-#include <pico/time.h>
-static void _delay_ms(unsigned ms) { sleep_ms(ms); }
-static uint32_t _millis() { return to_ms_since_boot(get_absolute_time()); }
-#else
-#include <Arduino.h>
-static void _delay_ms(unsigned ms) { delay(ms); }
-static uint32_t _millis() { return millis(); }
-#endif
-
 namespace {
-const uint32_t TIMEOUT_MS = 500;
 const uint32_t MIN_TIMING_BUDGET_US = 20000;
 
 // Timing-budget overheads, µs.
@@ -69,7 +40,7 @@ int32_t roundf_to_int(float x) { return x >= 0.0f ? (int32_t)(x + 0.5f) : -(int3
 
 // VL53L0XMinimal
 
-VL53L0XMinimal::VL53L0XMinimal(Connection& connection) : _connection(connection) {
+VL53L0XMinimal::VL53L0XMinimal(Connection& connection) : VL53Base(connection, 1) {
     if (!_init()) {
         // Wrong chip / wrong address / wiring problem, or an init poll timed
         // out. abort() rather than throwing: exceptions are disabled per
@@ -78,40 +49,8 @@ VL53L0XMinimal::VL53L0XMinimal(Connection& connection) : _connection(connection)
     }
 }
 
-void VL53L0XMinimal::_wr(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
-}
-
-uint8_t VL53L0XMinimal::_rd(uint8_t reg) {
-    uint8_t value = 0;
-    _connection.write_read(&reg, 1, &value, 1);
-    return value;
-}
-
-void VL53L0XMinimal::_wr16(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
-}
-
-uint16_t VL53L0XMinimal::_rd16(uint8_t reg) {
-    uint8_t buf[2] = { 0, 0 };
-    _connection.write_read(&reg, 1, buf, 2);
-    return (uint16_t)((buf[0] << 8) | buf[1]);
-}
-
-void VL53L0XMinimal::_wr32(uint8_t reg, uint32_t value) {
-    uint8_t buf[5] = { reg, (uint8_t)(value >> 24), (uint8_t)(value >> 16), (uint8_t)(value >> 8),
-                       (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 5);
-}
-
 bool VL53L0XMinimal::_wait(uint8_t reg, uint8_t mask, bool untilSet) {
-    uint32_t start = _millis();
-    while (true) {
-        if (((_rd(reg) & mask) != 0) == untilSet) return true;
-        if ((uint32_t)(_millis() - start) > TIMEOUT_MS) return false;
-    }
+    return _waitUntil([&]() { return ((_rd(reg) & mask) != 0) == untilSet; });
 }
 
 uint32_t VL53L0XMinimal::_mclksToUs(uint32_t mclks, uint16_t pclks) {
@@ -139,8 +78,7 @@ uint16_t VL53L0XMinimal::_encodeTimeout(uint32_t mclks) {
 }
 
 bool VL53L0XMinimal::_init() {
-    if (_connection.enPin()) _connection.enable();
-    _delay_ms(2);
+    _bootWait();
 
     if (_rd(REG_MODEL_ID) != MODEL_ID) return false;
 
@@ -167,10 +105,8 @@ bool VL53L0XMinimal::_init() {
     if (!_spadInfo(spadCount, spadIsAperture)) return false;
 
     // Reference SPADs.
-    uint8_t refMap[7];
-    refMap[0] = REG_SPAD_ENABLES_REF_0;
-    uint8_t reg = REG_SPAD_ENABLES_REF_0;
-    _connection.write_read(&reg, 1, refMap + 1, 6);
+    uint8_t refMap[6];
+    _rdBlock(REG_SPAD_ENABLES_REF_0, refMap, 6);
     _wr(REG_PAGE_SELECT, 0x01);
     _wr(REG_DYNAMIC_SPAD_START_OFFSET, 0x00);
     _wr(REG_DYNAMIC_SPAD_NUM_REQ, 0x2C);
@@ -179,14 +115,14 @@ bool VL53L0XMinimal::_init() {
     uint8_t first = spadIsAperture ? 12 : 0;
     uint8_t enabled = 0;
     for (uint8_t i = 0; i < 48; i++) {
-        uint8_t& byte = refMap[1 + i / 8];
+        uint8_t& byte = refMap[i / 8];
         if (i < first || enabled == spadCount) {
             byte &= (uint8_t)~(1 << (i % 8));
         } else if ((byte >> (i % 8)) & 0x01) {
             enabled++;
         }
     }
-    _connection.write(refMap, 7);
+    _wrBlock(REG_SPAD_ENABLES_REF_0, refMap, 6);
 
     // Default tuning settings.
     for (size_t i = 0; i < sizeof(TUNING); i += 2) _wr(TUNING[i], TUNING[i + 1]);
@@ -307,8 +243,7 @@ void VL53L0XMinimal::_stopVariablePreamble() {
 }
 
 void VL53L0XMinimal::_readResult() {
-    uint8_t reg = REG_RESULT_RANGE_STATUS;
-    _connection.write_read(&reg, 1, _result, 12);
+    _rdBlock(REG_RESULT_RANGE_STATUS, _result, 12);
     _wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
     _rangeStatus = (_result[0] & 0x78) >> 3;
 }
@@ -328,9 +263,13 @@ uint16_t VL53L0XMinimal::distance() {
 
 bool VL53L0XMinimal::rangeValid() { return _rangeStatus == RANGE_STATUS_VALID; }
 
-// VL53L0XFull
+uint8_t VL53L0XMinimal::_pollInterruptStatus() {
+    uint8_t status = _rd(REG_RESULT_INTERRUPT_STATUS) & 0x07;
+    if (status) _wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
+    return status;
+}
 
-VL53L0XFull* VL53L0XFull::_activeInstance = nullptr;
+// VL53L0XFull
 
 VL53L0XFull::VL53L0XFull(Connection& connection) : VL53L0XMinimal(connection) {}
 
@@ -476,11 +415,7 @@ bool VL53L0XFull::setCrosstalkCompensation(float rateMcps) {
 
 bool VL53L0XFull::recalibrate() { return _refCalibration(); }
 
-bool VL53L0XFull::setAddress(uint8_t address) {
-    if (address < 0x08 || address > 0x77) return false;
-    _wr(REG_I2C_SLAVE_DEVICE_ADDRESS, address & 0x7F);
-    return true;
-}
+bool VL53L0XFull::setAddress(uint8_t address) { return _setAddressReg(REG_I2C_SLAVE_DEVICE_ADDRESS, address); }
 
 bool VL53L0XFull::setInterruptThresholds(uint16_t lowMm, uint16_t highMm) {
     if (highMm < lowMm || highMm > 8190) return false;
@@ -508,34 +443,8 @@ void VL53L0XFull::disableInterrupt(uint8_t source) {
     if ((_rd(REG_SYSTEM_INTERRUPT_CONFIG) & 0x07) == source) _wr(REG_SYSTEM_INTERRUPT_CONFIG, 0x00);
 }
 
-uint8_t VL53L0XFull::pollInterrupt() {
-    uint8_t status = _rd(REG_RESULT_INTERRUPT_STATUS) & 0x07;
-    if (status) _wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
-    return status;
-}
+uint8_t VL53L0XFull::pollInterrupt() { return _pollInterruptStatus(); }
 
-void VL53L0XFull::onInterrupt(void (*callback)(uint8_t status), InputPin* intPin) {
-    _callback = callback;
-    InputPin* pin = intPin ? intPin : _connection.intPin();
-    _intPinUsed = pin;
-    if (!pin) return;
-    _activeInstance = this;
-    pin->onEdge(&VL53L0XFull::_edgeTrampoline, InputPin::kFalling);
-}
+void VL53L0XFull::onInterrupt(void (*callback)(uint8_t status), InputPin* intPin) { _subscribe(callback, intPin); }
 
-void VL53L0XFull::offInterrupt() {
-    if (_intPinUsed) {
-        _intPinUsed->offEdge(&VL53L0XFull::_edgeTrampoline);
-        _intPinUsed = nullptr;
-    }
-    _callback = nullptr;
-}
-
-void VL53L0XFull::_edgeTrampoline() {
-    if (_activeInstance) _activeInstance->_handleEdge();
-}
-
-void VL53L0XFull::_handleEdge() {
-    uint8_t status = pollInterrupt();
-    if (status && _callback) _callback(status);
-}
+void VL53L0XFull::offInterrupt() { _unsubscribe(); }

@@ -12,7 +12,8 @@
   ],
   "node-red": {
     "nodes": {
-      "vl53l0x": "nodes/vl53l0x/vl53l0x.js"
+      "vl53l0x": "nodes/vl53l0x/vl53l0x.js",
+      "vl53l1x": "nodes/vl53l1x/vl53l1x.js"
     }
   },
   "dependencies": {

@@ -26,9 +26,12 @@ import java.io.IOException
  * {@code 0x29}, call {@code setAddress(new)}, and build the real driver on a connection at the
  * new address. The new address is volatile — it reverts to {@code 0x29} on power-up or an XSHUT
  * low pulse.
+ *
+ * <p>Register access, polling, boot wait, interrupt delivery and re-addressing come from the
+ * shared {@link VL53Base} ({@code specs/tof/_vl53_base.md}).
  */
 @CompileStatic
-class VL53L0XMinimal {
+class VL53L0XMinimal extends VL53Base {
 
     /** Power-on 7-bit I²C address. */
     public static final int DEFAULT_ADDRESS = 0x29
@@ -85,7 +88,6 @@ class VL53L0XMinimal {
     protected static final int SEQ_FINAL_RANGE = 0x80
     protected static final int SEQ_OPERATING   = 0xE8
 
-    private static final long TIMEOUT_MS = 500
     private static final int MIN_TIMING_BUDGET_US = 20000
 
     // Timing-budget overheads, µs.
@@ -127,7 +129,6 @@ class VL53L0XMinimal {
         }
     }
 
-    protected final Connection connection
     protected int stopVariable
     protected int rangeStatus
     protected int timingBudgetUs
@@ -142,40 +143,32 @@ class VL53L0XMinimal {
      * @throws IOException on bus error, a model ID other than 0xEE, or an init poll timeout
      */
     VL53L0XMinimal(Connection connection) throws IOException {
-        this.connection = connection
+        super(connection, 1, "VL53L0X")
         init()
     }
 
     protected void wr(int reg, int value) throws IOException {
-        connection.write([(byte) reg, (byte) value] as byte[])
+        write8(reg, value)
     }
 
     protected int rd(int reg) throws IOException {
-        return connection.writeRead([(byte) reg] as byte[], 1)[0] & 0xFF
+        return read8(reg)
     }
 
     protected void wr16(int reg, int value) throws IOException {
-        connection.write([(byte) reg, (byte) (value >> 8), (byte) value] as byte[])
+        write16(reg, value)
     }
 
     protected int rd16(int reg) throws IOException {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
-        return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
+        return read16(reg)
     }
 
     protected void wr32(int reg, long value) throws IOException {
-        connection.write([(byte) reg, (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8),
-                (byte) value] as byte[])
+        write32(reg, value)
     }
 
     protected void await(int reg, int mask, boolean untilSet, String what) throws IOException {
-        long start = System.nanoTime()
-        while (true) {
-            if (((rd(reg) & mask) != 0) == untilSet) return
-            if ((System.nanoTime() - start).intdiv(1_000_000) > TIMEOUT_MS) {
-                throw new IOException("VL53L0X timeout waiting for " + what)
-            }
-        }
+        waitUntil({ -> ((rd(reg) & mask) != 0) == untilSet }, what)
     }
 
     protected static int decodeVcsel(int reg) {
@@ -215,12 +208,7 @@ class VL53L0XMinimal {
     }
 
     private void init() throws IOException {
-        if (connection.enPin() != null) connection.enable()
-        try {
-            Thread.sleep(2)
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt()
-        }
+        bootWait()
 
         int model = rd(REG_MODEL_ID)
         if (model != MODEL_ID) {
@@ -251,7 +239,7 @@ class VL53L0XMinimal {
         boolean spadIsAperture = (spad & 0x80) != 0
 
         // Reference SPADs.
-        byte[] refMap = connection.writeRead([(byte) REG_SPAD_ENABLES_REF_0] as byte[], 6)
+        byte[] refMap = readBlock(REG_SPAD_ENABLES_REF_0, 6)
         wr(REG_PAGE_SELECT, 0x01)
         wr(REG_DYNAMIC_SPAD_START_OFFSET, 0x00)
         wr(REG_DYNAMIC_SPAD_NUM_REQ, 0x2C)
@@ -259,18 +247,16 @@ class VL53L0XMinimal {
         wr(REG_REF_EN_START_SELECT, 0xB4)
         int first = spadIsAperture ? 12 : 0
         int enabled = 0
-        byte[] out = new byte[7]
-        out[0] = (byte) REG_SPAD_ENABLES_REF_0
-        System.arraycopy(refMap, 0, out, 1, 6)
+        byte[] out = refMap.clone()
         for (int i = 0; i < 48; i++) {
             int bit = 1 << (i % 8)
             if (i < first || enabled == spadCount) {
-                out[1 + i.intdiv(8)] = (byte) (out[1 + i.intdiv(8)] & ~bit)
-            } else if ((out[1 + i.intdiv(8)] & bit) != 0) {
+                out[i.intdiv(8)] = (byte) (out[i.intdiv(8)] & ~bit)
+            } else if ((out[i.intdiv(8)] & bit) != 0) {
                 enabled++
             }
         }
-        connection.write(out)
+        writeBlock(REG_SPAD_ENABLES_REF_0, out)
 
         // Default tuning settings.
         for (int i = 0; i < TUNING.length; i += 2) wr(TUNING[i], TUNING[i + 1])
@@ -404,7 +390,7 @@ class VL53L0XMinimal {
     }
 
     protected void readResult() throws IOException {
-        byte[] b = connection.writeRead([(byte) REG_RESULT_RANGE_STATUS] as byte[], 12)
+        byte[] b = readBlock(REG_RESULT_RANGE_STATUS, 12)
         wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
         System.arraycopy(b, 0, result, 0, 12)
         rangeStatus = (result[0] & 0x78) >> 3
@@ -443,5 +429,12 @@ class VL53L0XMinimal {
      */
     public boolean rangeValid() {
         return rangeStatus == RANGE_STATUS_VALID
+    }
+
+    @Override
+    protected synchronized int pollInterruptStatus() throws IOException {
+        int status = rd(REG_RESULT_INTERRUPT_STATUS) & 0x07
+        if (status != 0) wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
+        return status
     }
 }

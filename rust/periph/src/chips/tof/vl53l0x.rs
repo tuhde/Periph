@@ -29,6 +29,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use super::vl53_base::{self, Vl53Bus};
+
 const REG_SYSRANGE_START: u8 = 0x00;
 const REG_SYSTEM_SEQUENCE_CONFIG: u8 = 0x01;
 const REG_SYSTEM_INTERMEASUREMENT: u8 = 0x04;
@@ -76,7 +78,6 @@ const SEQ_FINAL_RANGE: u8 = 0x80;
 const SEQ_OPERATING: u8 = 0xE8;
 
 /// Poll loops: 500 attempts with a 1 ms delay between them (~500 ms).
-const POLL_ATTEMPTS: u32 = 500;
 const MIN_TIMING_BUDGET_US: u32 = 20000;
 
 // Timing-budget overheads, µs.
@@ -103,20 +104,20 @@ const TUNING: [u8; 160] = [
 ];
 
 /// Default 7-bit I²C address.
-pub const VL53L0X_I2C_ADDRESS: u8 = 0x29;
+pub const VL53L0X_I2C_ADDRESS: u8 = vl53_base::I2C_ADDRESS;
 /// Expected `IDENTIFICATION_MODEL_ID`.
 pub const VL53L0X_MODEL_ID: u8 = 0xEE;
 /// Device range status meaning "range complete — valid".
 pub const VL53L0X_RANGE_STATUS_VALID: u8 = 11;
 
 /// Interrupt source: range < low threshold.
-pub const VL53L0X_SOURCE_LEVEL_LOW: u8 = 0x01;
+pub const VL53L0X_SOURCE_LEVEL_LOW: u8 = vl53_base::SOURCE_LEVEL_LOW;
 /// Interrupt source: range > high threshold.
-pub const VL53L0X_SOURCE_LEVEL_HIGH: u8 = 0x02;
+pub const VL53L0X_SOURCE_LEVEL_HIGH: u8 = vl53_base::SOURCE_LEVEL_HIGH;
 /// Interrupt source: range < low threshold or > high threshold.
-pub const VL53L0X_SOURCE_OUT_OF_WINDOW: u8 = 0x03;
+pub const VL53L0X_SOURCE_OUT_OF_WINDOW: u8 = vl53_base::SOURCE_OUT_OF_WINDOW;
 /// Interrupt source: a new measurement is available (driver default).
-pub const VL53L0X_SOURCE_NEW_SAMPLE_READY: u8 = 0x04;
+pub const VL53L0X_SOURCE_NEW_SAMPLE_READY: u8 = vl53_base::SOURCE_NEW_SAMPLE_READY;
 
 /// VCSEL period type for [`Vl53l0xFull::set_vcsel_pulse_period`].
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -228,9 +229,7 @@ struct StepTimeouts {
 
 /// VL53L0X — minimal interface: single-shot distance in mm.
 pub struct Vl53l0xMinimal<I2C, D> {
-    i2c: I2C,
-    delay: D,
-    addr: u8,
+    bus: Vl53Bus<I2C, D>,
     stop_variable: u8,
     range_status: u8,
     timing_budget_us: u32,
@@ -246,9 +245,7 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
     /// `addr` is `0x29` after power-up.
     pub fn new(i2c: I2C, addr: u8, delay: D) -> Result<Self, Vl53l0xError<I2C::Error>> {
         let mut chip = Self {
-            i2c,
-            delay,
-            addr,
+            bus: Vl53Bus::new(i2c, addr, delay, 1),
             stop_variable: 0,
             range_status: 0,
             timing_budget_us: 0,
@@ -259,42 +256,35 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
     }
 
     fn wr(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, value])
+        self.bus.wr8(reg as u16, value)
     }
 
     fn rd(&mut self, reg: u8) -> Result<u8, I2C::Error> {
-        let mut buf = [0u8; 1];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
-        Ok(buf[0])
+        self.bus.rd8(reg as u16)
     }
 
     fn wr16(&mut self, reg: u8, value: u16) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, (value >> 8) as u8, value as u8])
+        self.bus.wr16(reg as u16, value)
     }
 
     fn rd16(&mut self, reg: u8) -> Result<u16, I2C::Error> {
-        let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
-        Ok(((buf[0] as u16) << 8) | buf[1] as u16)
+        self.bus.rd16(reg as u16)
     }
 
     fn wr32(&mut self, reg: u8, value: u32) -> Result<(), I2C::Error> {
-        let b = value.to_be_bytes();
-        self.i2c.write(self.addr, &[reg, b[0], b[1], b[2], b[3]])
+        self.bus.wr32(reg as u16, value)
     }
 
     fn wait(&mut self, reg: u8, mask: u8, until_set: bool) -> Result<(), Vl53l0xError<I2C::Error>> {
-        for _ in 0..POLL_ATTEMPTS {
-            if ((self.rd(reg)? & mask) != 0) == until_set {
-                return Ok(());
-            }
-            self.delay.delay_ms(1);
+        if self.bus.wait_until(|bus| Ok(((bus.rd8(reg as u16)? & mask) != 0) == until_set))? {
+            Ok(())
+        } else {
+            Err(Vl53l0xError::Timeout)
         }
-        Err(Vl53l0xError::Timeout)
     }
 
     fn init(&mut self) -> Result<(), Vl53l0xError<I2C::Error>> {
-        self.delay.delay_us(1200);
+        self.bus.boot_wait();
 
         if self.rd(REG_MODEL_ID)? != VL53L0X_MODEL_ID {
             return Err(Vl53l0xError::NotFound);
@@ -323,9 +313,8 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
         let (spad_count, spad_is_aperture) = self.spad_info()?;
 
         // Reference SPADs.
-        let mut ref_map = [0u8; 7];
-        ref_map[0] = REG_SPAD_ENABLES_REF_0;
-        self.i2c.write_read(self.addr, &[REG_SPAD_ENABLES_REF_0], &mut ref_map[1..])?;
+        let mut ref_map = [0u8; 6];
+        self.bus.rd_block(REG_SPAD_ENABLES_REF_0 as u16, &mut ref_map)?;
         self.wr(REG_PAGE_SELECT, 0x01)?;
         self.wr(REG_DYNAMIC_SPAD_START_OFFSET, 0x00)?;
         self.wr(REG_DYNAMIC_SPAD_NUM_REQ, 0x2C)?;
@@ -334,7 +323,7 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
         let first = if spad_is_aperture { 12 } else { 0 };
         let mut enabled = 0u8;
         for i in 0..48usize {
-            let byte = &mut ref_map[1 + i / 8];
+            let byte = &mut ref_map[i / 8];
             let bit = 1u8 << (i % 8);
             if i < first || enabled == spad_count {
                 *byte &= !bit;
@@ -342,7 +331,7 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
                 enabled += 1;
             }
         }
-        self.i2c.write(self.addr, &ref_map)?;
+        self.bus.wr_block(REG_SPAD_ENABLES_REF_0 as u16, &ref_map)?;
 
         // Default tuning settings.
         for pair in TUNING.chunks(2) {
@@ -481,7 +470,7 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
 
     fn read_result(&mut self) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 12];
-        self.i2c.write_read(self.addr, &[REG_RESULT_RANGE_STATUS], &mut buf)?;
+        self.bus.rd_block(REG_RESULT_RANGE_STATUS as u16, &mut buf)?;
         self.wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)?;
         self.result = buf;
         self.range_status = (buf[0] & 0x78) >> 3;
@@ -518,7 +507,7 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xMinimal<I2C, D> {
 
     /// Consume the driver and return the underlying I²C bus and delay.
     pub fn release(self) -> (I2C, D) {
-        (self.i2c, self.delay)
+        self.bus.release()
     }
 }
 
@@ -770,11 +759,11 @@ impl<I2C: I2c, D: DelayNs> Vl53l0xFull<I2C, D> {
     /// answers on the new address immediately; [`Self::release`] the bus and
     /// construct a new driver at the new address.
     pub fn set_address(&mut self, address: u8) -> Result<(), Vl53l0xError<I2C::Error>> {
-        if !(0x08..=0x77).contains(&address) {
-            return Err(Vl53l0xError::InvalidArgument);
+        if self.inner.bus.set_address_reg(REG_I2C_SLAVE_DEVICE_ADDRESS as u16, address)? {
+            Ok(())
+        } else {
+            Err(Vl53l0xError::InvalidArgument)
         }
-        self.inner.wr(REG_I2C_SLAVE_DEVICE_ADDRESS, address & 0x7F)?;
-        Ok(())
     }
 
     /// Set the distance thresholds in mm used by the threshold interrupt

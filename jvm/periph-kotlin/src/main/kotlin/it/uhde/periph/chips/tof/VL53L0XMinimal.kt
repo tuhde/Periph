@@ -27,10 +27,13 @@ import java.io.IOException
  * the real driver on a connection at the new address. The new address is
  * volatile — it reverts to 0x29 on power-up or an XSHUT low pulse.
  *
+ * Register access, polling, boot wait, interrupt delivery and re-addressing
+ * come from the shared Java [VL53Base] (`specs/tof/_vl53_base.md`).
+ *
  * @param connection configured I²C connection bound to the device (0x29)
  * @throws IOException on bus error, a model ID other than 0xEE, or an init poll timeout
  */
-open class VL53L0XMinimal(protected val connection: Connection) {
+open class VL53L0XMinimal(connection: Connection) : VL53Base(connection, 1, "VL53L0X") {
 
     companion object {
         /** Power-on I²C address. */
@@ -88,7 +91,6 @@ open class VL53L0XMinimal(protected val connection: Connection) {
         const val SEQ_FINAL_RANGE = 0x80
         const val SEQ_OPERATING = 0xE8
 
-        private const val TIMEOUT_MS = 500L
         private const val MIN_TIMING_BUDGET_US = 20000
 
         // Timing-budget overheads, µs.
@@ -146,44 +148,23 @@ open class VL53L0XMinimal(protected val connection: Connection) {
         initSequence()
     }
 
-    protected fun wr(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
-    }
+    protected fun wr(reg: Int, value: Int) = write8(reg, value)
 
-    protected fun rd(reg: Int): Int = connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+    protected fun rd(reg: Int): Int = read8(reg)
 
-    protected fun wr16(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), (value shr 8).toByte(), value.toByte()))
-    }
+    protected fun wr16(reg: Int, value: Int) = write16(reg, value)
 
     /** Read a 16-bit big-endian register as an unsigned value (masked, no sign extension). */
-    protected fun rd16(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
-        return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
-    }
+    protected fun rd16(reg: Int): Int = read16(reg)
 
-    protected fun wr32(reg: Int, value: Long) {
-        connection.write(byteArrayOf(reg.toByte(), (value shr 24).toByte(), (value shr 16).toByte(),
-            (value shr 8).toByte(), value.toByte()))
-    }
+    protected fun wr32(reg: Int, value: Long) = write32(reg, value)
 
     protected fun await(reg: Int, mask: Int, untilSet: Boolean, what: String) {
-        val start = System.nanoTime()
-        while (true) {
-            if (((rd(reg) and mask) != 0) == untilSet) return
-            if ((System.nanoTime() - start) / 1_000_000 > TIMEOUT_MS) {
-                throw IOException("VL53L0X timeout waiting for $what")
-            }
-        }
+        waitUntil({ ((rd(reg) and mask) != 0) == untilSet }, what)
     }
 
     private fun initSequence() {
-        if (connection.enPin() != null) connection.enable()
-        try {
-            Thread.sleep(2)
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-        }
+        bootWait()
 
         val model = rd(REG_MODEL_ID)
         if (model != MODEL_ID) {
@@ -213,7 +194,7 @@ open class VL53L0XMinimal(protected val connection: Connection) {
         val spadIsAperture = (spad and 0x80) != 0
 
         // Reference SPADs.
-        val refMap = connection.writeRead(byteArrayOf(REG_SPAD_ENABLES_REF_0.toByte()), 6)
+        val refMap = readBlock(REG_SPAD_ENABLES_REF_0, 6)
         wr(REG_PAGE_SELECT, 0x01)
         wr(REG_DYNAMIC_SPAD_START_OFFSET, 0x00)
         wr(REG_DYNAMIC_SPAD_NUM_REQ, 0x2C)
@@ -221,19 +202,17 @@ open class VL53L0XMinimal(protected val connection: Connection) {
         wr(REG_REF_EN_START_SELECT, 0xB4)
         val first = if (spadIsAperture) 12 else 0
         var enabled = 0
-        val out = ByteArray(7)
-        out[0] = REG_SPAD_ENABLES_REF_0.toByte()
-        refMap.copyInto(out, 1, 0, 6)
+        val out = refMap.copyOf()
         for (i in 0 until 48) {
             val bit = 1 shl (i % 8)
-            val cur = out[1 + i / 8].toInt() and 0xFF
+            val cur = out[i / 8].toInt() and 0xFF
             if (i < first || enabled == spadCount) {
-                out[1 + i / 8] = (cur and bit.inv()).toByte()
+                out[i / 8] = (cur and bit.inv()).toByte()
             } else if ((cur and bit) != 0) {
                 enabled++
             }
         }
-        connection.write(out)
+        writeBlock(REG_SPAD_ENABLES_REF_0, out)
 
         // Default tuning settings.
         for (i in TUNING.indices step 2) wr(TUNING[i], TUNING[i + 1])
@@ -353,7 +332,7 @@ open class VL53L0XMinimal(protected val connection: Connection) {
     }
 
     protected fun readResult() {
-        val b = connection.writeRead(byteArrayOf(REG_RESULT_RANGE_STATUS.toByte()), 12)
+        val b = readBlock(REG_RESULT_RANGE_STATUS, 12)
         wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
         b.copyInto(result, 0, 0, 12)
         rangeStatus = (result[0].toInt() and 0x78) shr 3
@@ -392,4 +371,12 @@ open class VL53L0XMinimal(protected val connection: Connection) {
      * @return `true` iff the device range status was 11 (range complete)
      */
     fun rangeValid(): Boolean = rangeStatus == RANGE_STATUS_VALID
+
+    @Synchronized
+    @Throws(IOException::class)
+    override fun pollInterruptStatus(): Int {
+        val status = rd(REG_RESULT_INTERRUPT_STATUS) and 0x07
+        if (status != 0) wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
+        return status
+    }
 }

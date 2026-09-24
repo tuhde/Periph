@@ -1,5 +1,7 @@
 'use strict';
 
+const { VL53Base } = require('./_vl53_base');
+
 const _REG_SYSRANGE_START            = 0x00;
 const _REG_SYSTEM_SEQUENCE_CONFIG    = 0x01;
 const _REG_SYSTEM_INTERMEASUREMENT   = 0x04;
@@ -48,7 +50,6 @@ const _SEQ_OPERATING   = 0xE8;
 
 const _MODEL_ID = 0xEE;
 const _RANGE_STATUS_VALID = 11;
-const _TIMEOUT_MS = 500;
 const _MIN_TIMING_BUDGET_US = 20000;
 
 // Timing-budget overheads, µs.
@@ -92,8 +93,6 @@ const _PROFILES = {
     high_speed:    [0.25, 14, 10, 20000],
     high_accuracy: [0.25, 14, 10, 200000],
 };
-
-const _sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const _decodeVcsel = (reg) => (reg + 1) << 1;
 const _encodeVcsel = (pclks) => (pclks >> 1) - 1;
@@ -142,20 +141,19 @@ function _encodeTimeout(mclks) {
  * its XSHUT, construct a driver on 0x29, call `setAddress(new)`, and build
  * the real driver on a connection at the new address. The new address is
  * volatile — it reverts to 0x29 on power-up or an XSHUT low pulse.
+ *
+ * Register access, polling, boot wait, interrupt delivery and re-addressing
+ * come from the shared VL53Base (specs/tof/_vl53_base.md).
  */
-class VL53L0XMinimal {
+class VL53L0XMinimal extends VL53Base {
     /**
      * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x29).
      */
     constructor(connection) {
-        this._conn = connection;
+        super(connection, 1, 'VL53L0X');
         this._stopVariable = 0;
         this._rangeStatus = 0;
         this._timingBudgetUs = 0;
-        // Serializes multi-register sequences against the Full class's
-        // interrupt polling timer (page-select windows, calibration and
-        // data-ready polls must not interleave with a status read/clear).
-        this._queue = Promise.resolve();
         this._ready = this._init();
         // The rejection is re-raised by every public method; mark it handled
         // here so it never surfaces as an unhandled rejection on its own.
@@ -172,46 +170,20 @@ class VL53L0XMinimal {
         await this._ready;
     }
 
-    _locked(fn) {
-        const run = this._queue.then(fn);
-        this._queue = run.catch(() => {});
-        return run;
-    }
-
     async _wr(reg, value) {
-        await this._conn.write(Buffer.from([reg, value & 0xFF]));
+        await this._wr8(reg, value);
     }
 
     async _rd(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
-    }
-
-    async _wr16(reg, value) {
-        await this._conn.write(Buffer.from([reg, (value >> 8) & 0xFF, value & 0xFF]));
-    }
-
-    async _rd16(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readUInt16BE(0);
-    }
-
-    async _wr32(reg, value) {
-        const buf = Buffer.alloc(5);
-        buf[0] = reg;
-        buf.writeUInt32BE(value >>> 0, 1);
-        await this._conn.write(buf);
+        return this._rd8(reg);
     }
 
     async _wait(reg, mask, untilSet, what) {
-        const start = Date.now();
-        for (;;) {
-            if ((((await this._rd(reg)) & mask) !== 0) === untilSet) return;
-            if (Date.now() - start > _TIMEOUT_MS) throw new Error(`VL53L0X timeout waiting for ${what}`);
-        }
+        await this._waitUntil(async () => (((await this._rd(reg)) & mask) !== 0) === untilSet, what);
     }
 
     async _init() {
-        if (this._conn.enPin) await this._conn.enable();
-        await _sleep(2);
+        await this._bootWait();
 
         const model = await this._rd(_REG_MODEL_ID);
         if (model !== _MODEL_ID) {
@@ -240,7 +212,7 @@ class VL53L0XMinimal {
         const { count, isAperture } = await this._spadInfo();
 
         // Reference SPADs.
-        const refMap = Buffer.from(await this._conn.writeRead(Buffer.from([_REG_SPAD_ENABLES_REF_0]), 6));
+        const refMap = await this._rdBlock(_REG_SPAD_ENABLES_REF_0, 6);
         await this._wr(_REG_PAGE_SELECT, 0x01);
         await this._wr(_REG_DYNAMIC_SPAD_START_OFFSET, 0x00);
         await this._wr(_REG_DYNAMIC_SPAD_NUM_REQ, 0x2C);
@@ -257,7 +229,7 @@ class VL53L0XMinimal {
                 enabled++;
             }
         }
-        await this._conn.write(Buffer.concat([Buffer.from([_REG_SPAD_ENABLES_REF_0]), refMap]));
+        await this._wrBlock(_REG_SPAD_ENABLES_REF_0, refMap);
 
         // Default tuning settings.
         for (let i = 0; i < _TUNING.length; i += 2) await this._wr(_TUNING[i], _TUNING[i + 1]);
@@ -373,7 +345,7 @@ class VL53L0XMinimal {
     }
 
     async _readResult() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_RESULT_RANGE_STATUS]), 12);
+        const data = await this._rdBlock(_REG_RESULT_RANGE_STATUS, 12);
         await this._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
         this._rangeStatus = (data[0] & 0x78) >> 3;
         return data;
@@ -411,6 +383,14 @@ class VL53L0XMinimal {
         await this._ready;
         return this._rangeStatus === _RANGE_STATUS_VALID;
     }
+
+    async _pollInterruptStatus() {
+        return this._locked(async () => {
+            const status = (await this._rd(_REG_RESULT_INTERRUPT_STATUS)) & 0x07;
+            if (status) await this._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
+            return status;
+        });
+    }
 }
 
 /**
@@ -424,13 +404,6 @@ class VL53L0XFull extends VL53L0XMinimal {
     /**
      * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x29).
      */
-    constructor(connection) {
-        super(connection);
-        this._callback = null;
-        this._edgeHandler = null;
-        this._pollTimer = null;
-    }
-
     /**
      * Start continuous ranging.
      * @param {number} [periodMs=0] - 0 for back-to-back mode; otherwise timed
@@ -717,8 +690,7 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async setAddress(address) {
         await this._ready;
-        if (!(address >= 0x08 && address <= 0x77)) throw new RangeError('address must be 0x08 to 0x77');
-        await this._wr(_REG_I2C_SLAVE_DEVICE_ADDRESS, address & 0x7F);
+        await this._setAddressReg(_REG_I2C_SLAVE_DEVICE_ADDRESS, address);
     }
 
     /**
@@ -801,11 +773,7 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async pollInterrupt() {
         await this._ready;
-        return this._locked(async () => {
-            const status = (await this._rd(_REG_RESULT_INTERRUPT_STATUS)) & 0x07;
-            if (status) await this._wr(_REG_SYSTEM_INTERRUPT_CLEAR, 0x01);
-            return status;
-        });
+        return this._pollInterruptStatus();
     }
 
     /**
@@ -819,26 +787,7 @@ class VL53L0XFull extends VL53L0XMinimal {
      */
     async onInterrupt(callback) {
         await this._ready;
-        this._callback = callback;
-        if (this._conn.intPin) {
-            this._edgeHandler = async () => {
-                const status = await this.pollInterrupt();
-                if (status && this._callback) this._callback(status);
-            };
-            await this._conn.intPin.onEdge(this._edgeHandler, 'falling');
-        } else {
-            let busy = false;
-            this._pollTimer = setInterval(async () => {
-                if (busy) return;
-                busy = true;
-                try {
-                    const status = await this.pollInterrupt();
-                    if (status && this._callback) this._callback(status);
-                } finally {
-                    busy = false;
-                }
-            }, 5);
-        }
+        await this._subscribe(callback);
     }
 
     /**
@@ -846,30 +795,22 @@ class VL53L0XFull extends VL53L0XMinimal {
      * @returns {Promise<void>}
      */
     async offInterrupt() {
-        if (this._conn.intPin && this._edgeHandler) {
-            await this._conn.intPin.offEdge(this._edgeHandler);
-            this._edgeHandler = null;
-        }
-        if (this._pollTimer) {
-            clearInterval(this._pollTimer);
-            this._pollTimer = null;
-        }
-        this._callback = null;
+        await this._unsubscribe();
     }
 }
 
-/** Default 7-bit I²C address. */
-VL53L0XMinimal.I2C_ADDRESS = 0x29;
+/** Default 7-bit I²C address (family base value). */
+VL53L0XMinimal.I2C_ADDRESS = VL53Base.I2C_ADDRESS;
 /** Device range status meaning "range complete — valid". */
 VL53L0XMinimal.RANGE_STATUS_VALID = _RANGE_STATUS_VALID;
 
 /** Range < low threshold. */
-VL53L0XFull.SOURCE_LEVEL_LOW = 0x01;
+VL53L0XFull.SOURCE_LEVEL_LOW = VL53Base.SOURCE_LEVEL_LOW;
 /** Range > high threshold. */
-VL53L0XFull.SOURCE_LEVEL_HIGH = 0x02;
+VL53L0XFull.SOURCE_LEVEL_HIGH = VL53Base.SOURCE_LEVEL_HIGH;
 /** Range < low threshold or > high threshold. */
-VL53L0XFull.SOURCE_OUT_OF_WINDOW = 0x03;
+VL53L0XFull.SOURCE_OUT_OF_WINDOW = VL53Base.SOURCE_OUT_OF_WINDOW;
 /** A new measurement is available (driver default). */
-VL53L0XFull.SOURCE_NEW_SAMPLE_READY = 0x04;
+VL53L0XFull.SOURCE_NEW_SAMPLE_READY = VL53Base.SOURCE_NEW_SAMPLE_READY;
 
 module.exports = { VL53L0XMinimal, VL53L0XFull };

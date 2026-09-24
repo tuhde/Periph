@@ -65,6 +65,7 @@ exclude = [
     "tests/temperature/mcp9808_test_esp32s3",
     "tests/temperature/tmp117_test_esp32s3",
     "tests/tof/vl53l0x_test_esp32s3",
+    "tests/tof/vl53l1x_test_esp32s3",
 ]
 members = [
     "periph",
@@ -74,6 +75,7 @@ members = [
     "tests/temperature/mcp9808_test",
     "tests/temperature/tmp117_test",
     "tests/tof/vl53l0x_test",
+    "tests/tof/vl53l1x_test",
     "tests/accelerometer/adxl345_test",
     "tests/accelerometer/adxl362_test",
     "tests/connection/uart_test",

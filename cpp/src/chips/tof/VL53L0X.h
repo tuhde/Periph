@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "../../connection/Connection.h"
+#include "VL53Base.h"
 
 /** @brief VL53L0X Time-of-Flight laser-ranging sensor — minimal interface.
  *
@@ -26,12 +27,14 @@
  *  the real driver on a Connection at the new address. The new address is
  *  volatile — it reverts to 0x29 on power-up or an XSHUT low pulse.
  *
+ *  Register access, polling, boot wait, interrupt delivery and
+ *  re-addressing come from the shared VL53Base (specs/tof/_vl53_base.md);
+ *  I2C_ADDRESS and the SOURCE_* constants are inherited from it.
+ *
  *  @param connection Configured I²C connection pointing at the device.
  */
-class VL53L0XMinimal {
+class VL53L0XMinimal : public VL53Base {
 public:
-    /** @brief Default 7-bit I²C address. */
-    static constexpr uint8_t I2C_ADDRESS = 0x29;
     /** @brief Expected IDENTIFICATION_MODEL_ID. */
     static constexpr uint8_t MODEL_ID = 0xEE;
     /** @brief Device range status meaning "range complete — valid". */
@@ -112,18 +115,15 @@ protected:
         uint32_t finalUs;
     };
 
-    Connection& _connection;
     uint8_t _stopVariable = 0;
     uint8_t _rangeStatus = 0;
     uint32_t _timingBudgetUs = 0;
     uint8_t _result[12] = {};
 
-    void _wr(uint8_t reg, uint8_t value);
-    uint8_t _rd(uint8_t reg);
-    void _wr16(uint8_t reg, uint16_t value);
-    uint16_t _rd16(uint8_t reg);
-    void _wr32(uint8_t reg, uint32_t value);
+    void _wr(uint8_t reg, uint8_t value) { _wr8(reg, value); }
+    uint8_t _rd(uint8_t reg) { return _rd8(reg); }
     bool _wait(uint8_t reg, uint8_t mask, bool untilSet);
+    uint8_t _pollInterruptStatus() override;
 
     bool _init();
     bool _spadInfo(uint8_t& count, bool& isAperture);
@@ -156,15 +156,6 @@ protected:
  */
 class VL53L0XFull : public VL53L0XMinimal {
 public:
-    /** @brief Range < low threshold. */
-    static constexpr uint8_t SOURCE_LEVEL_LOW        = 0x01;
-    /** @brief Range > high threshold. */
-    static constexpr uint8_t SOURCE_LEVEL_HIGH       = 0x02;
-    /** @brief Range < low threshold or > high threshold. */
-    static constexpr uint8_t SOURCE_OUT_OF_WINDOW    = 0x03;
-    /** @brief A new measurement is available (driver default). */
-    static constexpr uint8_t SOURCE_NEW_SAMPLE_READY = 0x04;
-
     /** @brief VCSEL period type for setVcselPulsePeriod() / vcselPulsePeriod(). */
     enum class VcselPeriodType : uint8_t {
         PreRange,    ///< Pre-range: 12, 14, 16 or 18 PCLKs
@@ -308,7 +299,7 @@ public:
      *  With a threshold source active, dataReady()/readContinuous() only see
      *  a pending status when the threshold condition is met.
      *
-     *  @param source One of the SOURCE_* constants.
+     *  @param source One of the SOURCE_* constants (SOURCE_IN_WINDOW is not supported).
      *  @return false (no write) if source is not 1–4. */
     bool enableInterrupt(uint8_t source);
 
@@ -331,12 +322,4 @@ public:
 
     /** @brief Unsubscribe and stop delivery. */
     void offInterrupt();
-
-protected:
-    void (*_callback)(uint8_t status) = nullptr;
-    InputPin* _intPinUsed = nullptr;
-
-    static VL53L0XFull* _activeInstance;
-    static void _edgeTrampoline();
-    void _handleEdge();
 };

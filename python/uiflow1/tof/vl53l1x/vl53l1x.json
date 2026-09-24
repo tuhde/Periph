@@ -1,0 +1,562 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "vl53l1x_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init VL53L1X",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x29)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_distance",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X distance (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_range_valid",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X last range valid",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X start continuous",
+          "type": "label"
+        },
+        {
+          "name": "period (ms, 0=as fast as budget)",
+          "type": "label"
+        },
+        {
+          "name": "_period_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X continuous distance (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X data ready",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_read_measurement",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X measurement (distance_mm, range_status, signal/ambient MCPS, SPADs)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_range_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X range status (0=valid)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_timing_budget",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set timing budget",
+          "type": "label"
+        },
+        {
+          "name": "budget (µs: 15000 short only, 20000, 33000, 50000, 100000, 200000, 500000)",
+          "type": "label"
+        },
+        {
+          "name": "_budget_us",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_timing_budget",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X timing budget (µs)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_distance_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set distance mode (\"short\"/\"long\")",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "variable"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_distance_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X distance mode",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_inter_measurement",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set inter-measurement period",
+          "type": "label"
+        },
+        {
+          "name": "period (ms)",
+          "type": "label"
+        },
+        {
+          "name": "_period_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_inter_measurement",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X inter-measurement period (ms)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_signal_rate_limit",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set signal rate limit",
+          "type": "label"
+        },
+        {
+          "name": "limit (MCPS)",
+          "type": "label"
+        },
+        {
+          "name": "_limit_mcps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_signal_rate_limit",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X signal rate limit (MCPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_sigma_threshold",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set sigma threshold",
+          "type": "label"
+        },
+        {
+          "name": "sigma (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_sigma_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_sigma_threshold",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X sigma threshold (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_roi",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set ROI",
+          "type": "label"
+        },
+        {
+          "name": "width (4-16 SPADs)",
+          "type": "label"
+        },
+        {
+          "name": "_width",
+          "type": "number"
+        },
+        {
+          "name": "height (4-16 SPADs)",
+          "type": "label"
+        },
+        {
+          "name": "_height",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_roi",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X ROI (width, height)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_roi_center",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set ROI centre",
+          "type": "label"
+        },
+        {
+          "name": "SPAD (0-255, 199=centre)",
+          "type": "label"
+        },
+        {
+          "name": "_spad",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_roi_center",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X ROI centre SPAD",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_optical_center",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X optical centre SPAD",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set offset",
+          "type": "label"
+        },
+        {
+          "name": "offset (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_offset_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X offset (mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_crosstalk_compensation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set crosstalk compensation",
+          "type": "label"
+        },
+        {
+          "name": "rate (MCPS, 0=off)",
+          "type": "label"
+        },
+        {
+          "name": "_rate_mcps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_crosstalk_compensation",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X crosstalk compensation (MCPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_calibrate_offset",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X calibrate offset (mm)",
+          "type": "label"
+        },
+        {
+          "name": "target (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_target_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_calibrate_crosstalk",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X calibrate crosstalk (MCPS)",
+          "type": "label"
+        },
+        {
+          "name": "target (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_target_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_recalibrate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X temperature update",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_address",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set I2C address",
+          "type": "label"
+        },
+        {
+          "name": "address (0x08-0x77)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_set_interrupt_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X set thresholds",
+          "type": "label"
+        },
+        {
+          "name": "low (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_low_mm",
+          "type": "number"
+        },
+        {
+          "name": "high (mm)",
+          "type": "label"
+        },
+        {
+          "name": "_high_mm",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_interrupt_thresholds",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X thresholds (low mm, high mm)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_model_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X model ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_module_type",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X module type",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_revision_id",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X revision ID",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "VL53L1X interrupt status (1=low 2=high 3=out 4=sample 5=in)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X enable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1-5)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "vl53l1x_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "VL53L1X disable interrupt",
+          "type": "label"
+        },
+        {
+          "name": "source (1-5)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

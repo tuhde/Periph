@@ -1,0 +1,874 @@
+{
+  "category": "VL53L1X",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_VL53L1X_LANGUAGES = {\n  \"CUSTOM_VL53L1X_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_VL53L1X_DISTANCE\": {\n    \"en\": \"%1 distance (mm)\"\n  },\n  \"CUSTOM_VL53L1X_RANGE_VALID\": {\n    \"en\": \"%1 last range valid?\"\n  },\n  \"CUSTOM_VL53L1X_START_CONTINUOUS\": {\n    \"en\": \"%1 start continuous, period (ms, 0=as fast as budget) %2\"\n  },\n  \"CUSTOM_VL53L1X_STOP_CONTINUOUS\": {\n    \"en\": \"%1 stop continuous\"\n  },\n  \"CUSTOM_VL53L1X_READ_CONTINUOUS\": {\n    \"en\": \"%1 continuous distance (mm)\"\n  },\n  \"CUSTOM_VL53L1X_DATA_READY\": {\n    \"en\": \"%1 data ready?\"\n  },\n  \"CUSTOM_VL53L1X_READ_MEASUREMENT\": {\n    \"en\": \"%1 measurement [distance mm, status, signal MCPS, ambient MCPS, SPADs]\"\n  },\n  \"CUSTOM_VL53L1X_RANGE_STATUS\": {\n    \"en\": \"%1 range status (0=valid)\"\n  },\n  \"CUSTOM_VL53L1X_SET_TIMING_BUDGET\": {\n    \"en\": \"%1 set timing budget (µs: 15000 short only, 20000, 33000, 50000, 100000, 200000, 500000) %2\"\n  },\n  \"CUSTOM_VL53L1X_TIMING_BUDGET\": {\n    \"en\": \"%1 timing budget (µs)\"\n  },\n  \"CUSTOM_VL53L1X_SET_DISTANCE_MODE\": {\n    \"en\": \"%1 set distance mode (0=short 1=long) %2\"\n  },\n  \"CUSTOM_VL53L1X_DISTANCE_MODE\": {\n    \"en\": \"%1 distance mode (0=short 1=long)\"\n  },\n  \"CUSTOM_VL53L1X_SET_INTER_MEASUREMENT\": {\n    \"en\": \"%1 set inter-measurement period (ms) %2\"\n  },\n  \"CUSTOM_VL53L1X_INTER_MEASUREMENT\": {\n    \"en\": \"%1 inter-measurement period (ms)\"\n  },\n  \"CUSTOM_VL53L1X_SET_SIGNAL_RATE_LIMIT\": {\n    \"en\": \"%1 set signal rate limit (MCPS) %2\"\n  },\n  \"CUSTOM_VL53L1X_SIGNAL_RATE_LIMIT\": {\n    \"en\": \"%1 signal rate limit (MCPS)\"\n  },\n  \"CUSTOM_VL53L1X_SET_SIGMA_THRESHOLD\": {\n    \"en\": \"%1 set sigma threshold (mm) %2\"\n  },\n  \"CUSTOM_VL53L1X_SIGMA_THRESHOLD\": {\n    \"en\": \"%1 sigma threshold (mm)\"\n  },\n  \"CUSTOM_VL53L1X_SET_ROI\": {\n    \"en\": \"%1 set ROI width (SPADs) %2 height (SPADs) %3\"\n  },\n  \"CUSTOM_VL53L1X_ROI\": {\n    \"en\": \"%1 ROI [width, height]\"\n  },\n  \"CUSTOM_VL53L1X_SET_ROI_CENTER\": {\n    \"en\": \"%1 set ROI centre SPAD (199=centre) %2\"\n  },\n  \"CUSTOM_VL53L1X_ROI_CENTER\": {\n    \"en\": \"%1 ROI centre SPAD\"\n  },\n  \"CUSTOM_VL53L1X_OPTICAL_CENTER\": {\n    \"en\": \"%1 optical centre SPAD\"\n  },\n  \"CUSTOM_VL53L1X_SET_OFFSET\": {\n    \"en\": \"%1 set offset (mm) %2\"\n  },\n  \"CUSTOM_VL53L1X_OFFSET\": {\n    \"en\": \"%1 offset (mm)\"\n  },\n  \"CUSTOM_VL53L1X_SET_CROSSTALK_COMPENSATION\": {\n    \"en\": \"%1 set crosstalk compensation (MCPS, 0=off) %2\"\n  },\n  \"CUSTOM_VL53L1X_CROSSTALK_COMPENSATION\": {\n    \"en\": \"%1 crosstalk compensation (MCPS)\"\n  },\n  \"CUSTOM_VL53L1X_CALIBRATE_OFFSET\": {\n    \"en\": \"%1 calibrate offset, target (mm) %2\"\n  },\n  \"CUSTOM_VL53L1X_CALIBRATE_CROSSTALK\": {\n    \"en\": \"%1 calibrate crosstalk, target (mm) %2\"\n  },\n  \"CUSTOM_VL53L1X_RECALIBRATE\": {\n    \"en\": \"%1 temperature update\"\n  },\n  \"CUSTOM_VL53L1X_SET_ADDRESS\": {\n    \"en\": \"%1 set I2C address %2\"\n  },\n  \"CUSTOM_VL53L1X_SET_INTERRUPT_THRESHOLDS\": {\n    \"en\": \"%1 set thresholds low (mm) %2 high (mm) %3\"\n  },\n  \"CUSTOM_VL53L1X_INTERRUPT_THRESHOLDS\": {\n    \"en\": \"%1 thresholds [low mm, high mm]\"\n  },\n  \"CUSTOM_VL53L1X_MODEL_ID\": {\n    \"en\": \"%1 model ID\"\n  },\n  \"CUSTOM_VL53L1X_MODULE_TYPE\": {\n    \"en\": \"%1 module type\"\n  },\n  \"CUSTOM_VL53L1X_REVISION_ID\": {\n    \"en\": \"%1 revision ID\"\n  },\n  \"CUSTOM_VL53L1X_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status (1=low 2=high 3=out 4=sample 5=in)\"\n  },\n  \"CUSTOM_VL53L1X_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2\"\n  },\n  \"CUSTOM_VL53L1X_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2\"\n  }\n};\n\nconst initType = 'custom_vl53l1x_init';\nBlockly.BlockRegExpList['custom_vl53l1x'] = {\n  regexp: new RegExp(/^custom_vl53l1x_/),\n  code: \"from VL53L1X import VL53L1X\",\n  initBlockType: initType,\n  categoryId: 'custom_vl53l1x',\n}\nBlockly.utils.registerLanguages(CUSTOM_VL53L1X_LANGUAGES)\n\nBlockly.Msg.CUSTOM_VL53L1X_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_VL53L1X = 'VL53L1X'\n\nBlockly.utils.getcustom_vl53l1xOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['vl53l1x_0', 'vl53l1x_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_vl53l1x_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_vl53l1xOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'vl53l1x_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = VL53L1X(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_distance\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_DISTANCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_distance\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.distance()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_range_valid\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_RANGE_VALID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_range_valid\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range_valid()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_start_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_START_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'period_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_start_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var period_ms = Blockly.Python.valueToCode(block, 'period_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_continuous(${period_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_stop_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_STOP_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_stop_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.stop_continuous()\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_read_continuous\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_READ_CONTINUOUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_read_continuous\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_continuous()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_read_measurement\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_READ_MEASUREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_read_measurement\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_measurement()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_range_status\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_RANGE_STATUS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_range_status\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.range_status()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_timing_budget\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_TIMING_BUDGET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'budget_us'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_timing_budget\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var budget_us = Blockly.Python.valueToCode(block, 'budget_us', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_timing_budget(${budget_us})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_timing_budget\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_TIMING_BUDGET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_timing_budget\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.timing_budget()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_distance_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_DISTANCE_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_distance_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mode = Blockly.Python.valueToCode(block, 'mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_distance_mode(${mode})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_distance_mode\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_DISTANCE_MODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_distance_mode\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.distance_mode()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_inter_measurement\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_INTER_MEASUREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'period_ms'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_inter_measurement\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var period_ms = Blockly.Python.valueToCode(block, 'period_ms', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_inter_measurement(${period_ms})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_inter_measurement\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_INTER_MEASUREMENT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_inter_measurement\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.inter_measurement()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_signal_rate_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_SIGNAL_RATE_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'limit_mcps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_signal_rate_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var limit_mcps = Blockly.Python.valueToCode(block, 'limit_mcps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_signal_rate_limit(${limit_mcps})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_signal_rate_limit\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SIGNAL_RATE_LIMIT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_signal_rate_limit\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.signal_rate_limit()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_sigma_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_SIGMA_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'sigma_mm'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_sigma_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sigma_mm = Blockly.Python.valueToCode(block, 'sigma_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sigma_threshold(${sigma_mm})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_sigma_threshold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SIGMA_THRESHOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_sigma_threshold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.sigma_threshold()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_roi\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_ROI,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'width'\n        },\n        {\n          'type': 'input_value',\n          'name': 'height'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_roi\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var width = Blockly.Python.valueToCode(block, 'width', Blockly.Python.ORDER_FUNCTION_CALL);\n  var height = Blockly.Python.valueToCode(block, 'height', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_roi(${width}, ${height})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_roi\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_ROI,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_roi\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.roi()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_roi_center\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_ROI_CENTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'spad'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_roi_center\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var spad = Blockly.Python.valueToCode(block, 'spad', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_roi_center(${spad})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_roi_center\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_ROI_CENTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_roi_center\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.roi_center()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_optical_center\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_OPTICAL_CENTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_optical_center\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.optical_center()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset_mm'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var offset_mm = Blockly.Python.valueToCode(block, 'offset_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_offset(${offset_mm})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.offset()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_crosstalk_compensation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_CROSSTALK_COMPENSATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate_mcps'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_crosstalk_compensation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate_mcps = Blockly.Python.valueToCode(block, 'rate_mcps', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_crosstalk_compensation(${rate_mcps})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_crosstalk_compensation\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_CROSSTALK_COMPENSATION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_crosstalk_compensation\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.crosstalk_compensation()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_calibrate_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_CALIBRATE_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'target_mm'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_calibrate_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target_mm = Blockly.Python.valueToCode(block, 'target_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.calibrate_offset(${target_mm})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_calibrate_crosstalk\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_CALIBRATE_CROSSTALK,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'target_mm'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_calibrate_crosstalk\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var target_mm = Blockly.Python.valueToCode(block, 'target_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.calibrate_crosstalk(${target_mm})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_recalibrate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_RECALIBRATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_recalibrate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.recalibrate()\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_address\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_ADDRESS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_address\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_address(${address})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_set_interrupt_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_SET_INTERRUPT_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'low_mm'\n        },\n        {\n          'type': 'input_value',\n          'name': 'high_mm'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_set_interrupt_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var low_mm = Blockly.Python.valueToCode(block, 'low_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n  var high_mm = Blockly.Python.valueToCode(block, 'high_mm', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_interrupt_thresholds(${low_mm}, ${high_mm})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_interrupt_thresholds\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_INTERRUPT_THRESHOLDS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_interrupt_thresholds\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.interrupt_thresholds()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_model_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_MODEL_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_model_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.model_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_module_type\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_MODULE_TYPE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_module_type\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.module_type()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_revision_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_REVISION_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_revision_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.revision_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_vl53l1x_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_vl53l1x_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_VL53L1X_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_vl53l1xOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_vl53l1x_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n",
+    "toolbox": "\n<category name=\"VL53L1X\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_vl53l1x\">\n<title text=\"VL53L1X\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_vl53l1x_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">41</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_distance\"/><block type=\"custom_vl53l1x_range_valid\"/><block type=\"custom_vl53l1x_start_continuous\">\n  <value name=\"period_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_stop_continuous\"/><block type=\"custom_vl53l1x_read_continuous\"/><block type=\"custom_vl53l1x_data_ready\"/><block type=\"custom_vl53l1x_read_measurement\"/><block type=\"custom_vl53l1x_range_status\"/><block type=\"custom_vl53l1x_set_timing_budget\">\n  <value name=\"budget_us\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100000</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_timing_budget\"/><block type=\"custom_vl53l1x_set_distance_mode\">\n  <value name=\"mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_distance_mode\"/><block type=\"custom_vl53l1x_set_inter_measurement\">\n  <value name=\"period_ms\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_inter_measurement\"/><block type=\"custom_vl53l1x_set_signal_rate_limit\">\n  <value name=\"limit_mcps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_signal_rate_limit\"/><block type=\"custom_vl53l1x_set_sigma_threshold\">\n  <value name=\"sigma_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">90</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_sigma_threshold\"/><block type=\"custom_vl53l1x_set_roi\">\n  <value name=\"width\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n  <value name=\"height\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">16</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_roi\"/><block type=\"custom_vl53l1x_set_roi_center\">\n  <value name=\"spad\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">199</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_roi_center\"/><block type=\"custom_vl53l1x_optical_center\"/><block type=\"custom_vl53l1x_set_offset\">\n  <value name=\"offset_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_offset\"/><block type=\"custom_vl53l1x_set_crosstalk_compensation\">\n  <value name=\"rate_mcps\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_crosstalk_compensation\"/><block type=\"custom_vl53l1x_calibrate_offset\">\n  <value name=\"target_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">140</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_calibrate_crosstalk\">\n  <value name=\"target_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">600</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_recalibrate\"/><block type=\"custom_vl53l1x_set_address\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">48</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_set_interrupt_thresholds\">\n  <value name=\"low_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">100</field>\n    </shadow>\n  </value>\n  <value name=\"high_mm\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">800</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_interrupt_thresholds\"/><block type=\"custom_vl53l1x_model_id\"/><block type=\"custom_vl53l1x_module_type\"/><block type=\"custom_vl53l1x_revision_id\"/><block type=\"custom_vl53l1x_poll_interrupt\"/><block type=\"custom_vl53l1x_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_vl53l1x_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_vl53l1x",
+    "block_type": [
+      "custom_vl53l1x___init__",
+      "custom_vl53l1x_distance",
+      "custom_vl53l1x_range_valid",
+      "custom_vl53l1x_start_continuous",
+      "custom_vl53l1x_stop_continuous",
+      "custom_vl53l1x_read_continuous",
+      "custom_vl53l1x_data_ready",
+      "custom_vl53l1x_read_measurement",
+      "custom_vl53l1x_range_status",
+      "custom_vl53l1x_set_timing_budget",
+      "custom_vl53l1x_timing_budget",
+      "custom_vl53l1x_set_distance_mode",
+      "custom_vl53l1x_distance_mode",
+      "custom_vl53l1x_set_inter_measurement",
+      "custom_vl53l1x_inter_measurement",
+      "custom_vl53l1x_set_signal_rate_limit",
+      "custom_vl53l1x_signal_rate_limit",
+      "custom_vl53l1x_set_sigma_threshold",
+      "custom_vl53l1x_sigma_threshold",
+      "custom_vl53l1x_set_roi",
+      "custom_vl53l1x_roi",
+      "custom_vl53l1x_set_roi_center",
+      "custom_vl53l1x_roi_center",
+      "custom_vl53l1x_optical_center",
+      "custom_vl53l1x_set_offset",
+      "custom_vl53l1x_offset",
+      "custom_vl53l1x_set_crosstalk_compensation",
+      "custom_vl53l1x_crosstalk_compensation",
+      "custom_vl53l1x_calibrate_offset",
+      "custom_vl53l1x_calibrate_crosstalk",
+      "custom_vl53l1x_recalibrate",
+      "custom_vl53l1x_set_address",
+      "custom_vl53l1x_set_interrupt_thresholds",
+      "custom_vl53l1x_interrupt_thresholds",
+      "custom_vl53l1x_model_id",
+      "custom_vl53l1x_module_type",
+      "custom_vl53l1x_revision_id",
+      "custom_vl53l1x_poll_interrupt",
+      "custom_vl53l1x_enable_interrupt",
+      "custom_vl53l1x_disable_interrupt"
+    ]
+  },
+  "data": {
+    "name": "VL53L1X",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "VL53L1X",
+      "time": "2026-09-24",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.tof.vl53l1x import VL53L1XFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "41",
+            "note": {},
+            "field": "number",
+            "max": "119",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = VL53L1XFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "distance",
+        "note": {},
+        "label": {
+          "en": "%1 distance (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.distance()",
+        "ast_return": {
+          "code": "self._driver.distance()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range_valid",
+        "note": {},
+        "label": {
+          "en": "%1 last range valid?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.range_valid()",
+        "ast_return": {
+          "code": "self._driver.range_valid()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 start continuous, period (ms, 0=as fast as budget) %2"
+        },
+        "params": [
+          {
+            "name": "period_ms",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "60000",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_continuous(period_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "stop_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 stop continuous"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.stop_continuous()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_continuous",
+        "note": {},
+        "label": {
+          "en": "%1 continuous distance (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_continuous()",
+        "ast_return": {
+          "code": "self._driver.read_continuous()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_measurement",
+        "note": {},
+        "label": {
+          "en": "%1 measurement [distance mm, status, signal MCPS, ambient MCPS, SPADs]"
+        },
+        "params": [],
+        "return": "",
+        "source": "        m = self._driver.read_measurement()\n        return [m['distance_mm'], m['range_status'], m['signal_rate_mcps'], m['ambient_rate_mcps'], m['effective_spad_count']]",
+        "ast_return": {
+          "code": "[m['distance_mm'], m['range_status'], m['signal_rate_mcps'], m['ambient_rate_mcps'], m['effective_spad_count']]",
+          "id": "list"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "range_status",
+        "note": {},
+        "label": {
+          "en": "%1 range status (0=valid)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.range_status()",
+        "ast_return": {
+          "code": "self._driver.range_status()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_timing_budget",
+        "note": {},
+        "label": {
+          "en": "%1 set timing budget (µs: 15000 short only, 20000, 33000, 50000, 100000, 200000, 500000) %2"
+        },
+        "params": [
+          {
+            "name": "budget_us",
+            "type": "int",
+            "default": "100000",
+            "note": {},
+            "field": "number",
+            "max": "500000",
+            "min": "15000"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_timing_budget(budget_us)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "timing_budget",
+        "note": {},
+        "label": {
+          "en": "%1 timing budget (µs)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.timing_budget()",
+        "ast_return": {
+          "code": "self._driver.timing_budget()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_distance_mode",
+        "note": {},
+        "label": {
+          "en": "%1 set distance mode (0=short 1=long) %2"
+        },
+        "params": [
+          {
+            "name": "mode",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_distance_mode(('short', 'long')[mode])",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "distance_mode",
+        "note": {},
+        "label": {
+          "en": "%1 distance mode (0=short 1=long)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return ('short', 'long').index(self._driver.distance_mode())",
+        "ast_return": {
+          "code": "('short', 'long').index(self._driver.distance_mode())",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_inter_measurement",
+        "note": {},
+        "label": {
+          "en": "%1 set inter-measurement period (ms) %2"
+        },
+        "params": [
+          {
+            "name": "period_ms",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "max": "60000",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_inter_measurement(period_ms)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "inter_measurement",
+        "note": {},
+        "label": {
+          "en": "%1 inter-measurement period (ms)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.inter_measurement()",
+        "ast_return": {
+          "code": "self._driver.inter_measurement()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_signal_rate_limit",
+        "note": {},
+        "label": {
+          "en": "%1 set signal rate limit (MCPS) %2"
+        },
+        "params": [
+          {
+            "name": "limit_mcps",
+            "type": "float",
+            "default": "1.0",
+            "note": {},
+            "field": "number",
+            "max": "511",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_signal_rate_limit(limit_mcps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "signal_rate_limit",
+        "note": {},
+        "label": {
+          "en": "%1 signal rate limit (MCPS)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.signal_rate_limit()",
+        "ast_return": {
+          "code": "self._driver.signal_rate_limit()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sigma_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 set sigma threshold (mm) %2"
+        },
+        "params": [
+          {
+            "name": "sigma_mm",
+            "type": "int",
+            "default": "90",
+            "note": {},
+            "field": "number",
+            "max": "16383",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sigma_threshold(sigma_mm)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sigma_threshold",
+        "note": {},
+        "label": {
+          "en": "%1 sigma threshold (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.sigma_threshold()",
+        "ast_return": {
+          "code": "self._driver.sigma_threshold()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_roi",
+        "note": {},
+        "label": {
+          "en": "%1 set ROI width (SPADs) %2 height (SPADs) %3"
+        },
+        "params": [
+          {
+            "name": "width",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "16",
+            "min": "4"
+          },
+          {
+            "name": "height",
+            "type": "int",
+            "default": "16",
+            "note": {},
+            "field": "number",
+            "max": "16",
+            "min": "4"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_roi(width, height)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "roi",
+        "note": {},
+        "label": {
+          "en": "%1 ROI [width, height]"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return list(self._driver.roi())",
+        "ast_return": {
+          "code": "list(self._driver.roi())",
+          "id": "list"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_roi_center",
+        "note": {},
+        "label": {
+          "en": "%1 set ROI centre SPAD (199=centre) %2"
+        },
+        "params": [
+          {
+            "name": "spad",
+            "type": "int",
+            "default": "199",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_roi_center(spad)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "roi_center",
+        "note": {},
+        "label": {
+          "en": "%1 ROI centre SPAD"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.roi_center()",
+        "ast_return": {
+          "code": "self._driver.roi_center()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "optical_center",
+        "note": {},
+        "label": {
+          "en": "%1 optical centre SPAD"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.optical_center()",
+        "ast_return": {
+          "code": "self._driver.optical_center()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_offset",
+        "note": {},
+        "label": {
+          "en": "%1 set offset (mm) %2"
+        },
+        "params": [
+          {
+            "name": "offset_mm",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number",
+            "max": "1023",
+            "min": "-1024"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_offset(offset_mm)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "offset",
+        "note": {},
+        "label": {
+          "en": "%1 offset (mm)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.offset()",
+        "ast_return": {
+          "code": "self._driver.offset()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_crosstalk_compensation",
+        "note": {},
+        "label": {
+          "en": "%1 set crosstalk compensation (MCPS, 0=off) %2"
+        },
+        "params": [
+          {
+            "name": "rate_mcps",
+            "type": "float",
+            "default": "0.0",
+            "note": {},
+            "field": "number",
+            "max": "0.127",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_crosstalk_compensation(rate_mcps)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "crosstalk_compensation",
+        "note": {},
+        "label": {
+          "en": "%1 crosstalk compensation (MCPS)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.crosstalk_compensation()",
+        "ast_return": {
+          "code": "self._driver.crosstalk_compensation()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibrate_offset",
+        "note": {},
+        "label": {
+          "en": "%1 calibrate offset, target (mm) %2"
+        },
+        "params": [
+          {
+            "name": "target_mm",
+            "type": "int",
+            "default": "140",
+            "note": {},
+            "field": "number",
+            "max": "4000",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.calibrate_offset(target_mm)",
+        "ast_return": {
+          "code": "self._driver.calibrate_offset(target_mm)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "calibrate_crosstalk",
+        "note": {},
+        "label": {
+          "en": "%1 calibrate crosstalk, target (mm) %2"
+        },
+        "params": [
+          {
+            "name": "target_mm",
+            "type": "int",
+            "default": "600",
+            "note": {},
+            "field": "number",
+            "max": "4000",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.calibrate_crosstalk(target_mm)",
+        "ast_return": {
+          "code": "self._driver.calibrate_crosstalk(target_mm)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "recalibrate",
+        "note": {},
+        "label": {
+          "en": "%1 temperature update"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.recalibrate()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_address",
+        "note": {},
+        "label": {
+          "en": "%1 set I2C address %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "48",
+            "note": {},
+            "field": "number",
+            "max": "119",
+            "min": "8"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_address(address)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_interrupt_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 set thresholds low (mm) %2 high (mm) %3"
+        },
+        "params": [
+          {
+            "name": "low_mm",
+            "type": "int",
+            "default": "100",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          },
+          {
+            "name": "high_mm",
+            "type": "int",
+            "default": "800",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_interrupt_thresholds(low_mm, high_mm)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "interrupt_thresholds",
+        "note": {},
+        "label": {
+          "en": "%1 thresholds [low mm, high mm]"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return list(self._driver.interrupt_thresholds())",
+        "ast_return": {
+          "code": "list(self._driver.interrupt_thresholds())",
+          "id": "list"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "model_id",
+        "note": {},
+        "label": {
+          "en": "%1 model ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.model_id()",
+        "ast_return": {
+          "code": "self._driver.model_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "module_type",
+        "note": {},
+        "label": {
+          "en": "%1 module type"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.module_type()",
+        "ast_return": {
+          "code": "self._driver.module_type()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "revision_id",
+        "note": {},
+        "label": {
+          "en": "%1 revision ID"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.revision_id()",
+        "ast_return": {
+          "code": "self._driver.revision_id()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status (1=low 2=high 3=out 4=sample 5=in)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "1"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "vl53l1x"
+  },
+  "pyCode": "\"\"\"\nfile     VL53L1X\ntime     2026-09-24\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.tof.vl53l1x import VL53L1XFull\n\n\nclass VL53L1X:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 41):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '41'\n                field: number\n                min: '8'\n                max: '119'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = VL53L1XFull(connection)\n\n    def distance(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 distance (mm)'\n        \"\"\"\n        return self._driver.distance()\n\n    def range_valid(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 last range valid?'\n        \"\"\"\n        return self._driver.range_valid()\n\n    def start_continuous(self, period_ms: int):\n        \"\"\"\n        label:\n            en: '%1 start continuous, period (ms, 0=as fast as budget) %2'\n        params:\n            period_ms:\n                name: period_ms\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '60000'\n        \"\"\"\n        self._driver.start_continuous(period_ms)\n\n    def stop_continuous(self):\n        \"\"\"\n        label:\n            en: '%1 stop continuous'\n        \"\"\"\n        self._driver.stop_continuous()\n\n    def read_continuous(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 continuous distance (mm)'\n        \"\"\"\n        return self._driver.read_continuous()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def read_measurement(self) -> list:\n        \"\"\"\n        label:\n            en: '%1 measurement [distance mm, status, signal MCPS, ambient MCPS, SPADs]'\n        \"\"\"\n        m = self._driver.read_measurement()\n        return [m['distance_mm'], m['range_status'], m['signal_rate_mcps'], m['ambient_rate_mcps'], m['effective_spad_count']]\n\n    def range_status(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 range status (0=valid)'\n        \"\"\"\n        return self._driver.range_status()\n\n    def set_timing_budget(self, budget_us: int):\n        \"\"\"\n        label:\n            en: '%1 set timing budget (µs: 15000 short only, 20000, 33000, 50000, 100000, 200000, 500000) %2'\n        params:\n            budget_us:\n                name: budget_us\n                type: int\n                default: '100000'\n                field: number\n                min: '15000'\n                max: '500000'\n        \"\"\"\n        self._driver.set_timing_budget(budget_us)\n\n    def timing_budget(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 timing budget (µs)'\n        \"\"\"\n        return self._driver.timing_budget()\n\n    def set_distance_mode(self, mode: int):\n        \"\"\"\n        label:\n            en: '%1 set distance mode (0=short 1=long) %2'\n        params:\n            mode:\n                name: mode\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_distance_mode(('short', 'long')[mode])\n\n    def distance_mode(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 distance mode (0=short 1=long)'\n        \"\"\"\n        return ('short', 'long').index(self._driver.distance_mode())\n\n    def set_inter_measurement(self, period_ms: int):\n        \"\"\"\n        label:\n            en: '%1 set inter-measurement period (ms) %2'\n        params:\n            period_ms:\n                name: period_ms\n                type: int\n                default: '100'\n                field: number\n                min: '1'\n                max: '60000'\n        \"\"\"\n        self._driver.set_inter_measurement(period_ms)\n\n    def inter_measurement(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 inter-measurement period (ms)'\n        \"\"\"\n        return self._driver.inter_measurement()\n\n    def set_signal_rate_limit(self, limit_mcps: float):\n        \"\"\"\n        label:\n            en: '%1 set signal rate limit (MCPS) %2'\n        params:\n            limit_mcps:\n                name: limit_mcps\n                type: float\n                default: '1.0'\n                field: number\n                min: '0'\n                max: '511'\n        \"\"\"\n        self._driver.set_signal_rate_limit(limit_mcps)\n\n    def signal_rate_limit(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 signal rate limit (MCPS)'\n        \"\"\"\n        return self._driver.signal_rate_limit()\n\n    def set_sigma_threshold(self, sigma_mm: int):\n        \"\"\"\n        label:\n            en: '%1 set sigma threshold (mm) %2'\n        params:\n            sigma_mm:\n                name: sigma_mm\n                type: int\n                default: '90'\n                field: number\n                min: '0'\n                max: '16383'\n        \"\"\"\n        self._driver.set_sigma_threshold(sigma_mm)\n\n    def sigma_threshold(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 sigma threshold (mm)'\n        \"\"\"\n        return self._driver.sigma_threshold()\n\n    def set_roi(self, width: int, height: int):\n        \"\"\"\n        label:\n            en: '%1 set ROI width (SPADs) %2 height (SPADs) %3'\n        params:\n            width:\n                name: width\n                type: int\n                default: '16'\n                field: number\n                min: '4'\n                max: '16'\n            height:\n                name: height\n                type: int\n                default: '16'\n                field: number\n                min: '4'\n                max: '16'\n        \"\"\"\n        self._driver.set_roi(width, height)\n\n    def roi(self) -> list:\n        \"\"\"\n        label:\n            en: '%1 ROI [width, height]'\n        \"\"\"\n        return list(self._driver.roi())\n\n    def set_roi_center(self, spad: int):\n        \"\"\"\n        label:\n            en: '%1 set ROI centre SPAD (199=centre) %2'\n        params:\n            spad:\n                name: spad\n                type: int\n                default: '199'\n                field: number\n                min: '0'\n                max: '255'\n        \"\"\"\n        self._driver.set_roi_center(spad)\n\n    def roi_center(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 ROI centre SPAD'\n        \"\"\"\n        return self._driver.roi_center()\n\n    def optical_center(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 optical centre SPAD'\n        \"\"\"\n        return self._driver.optical_center()\n\n    def set_offset(self, offset_mm: float):\n        \"\"\"\n        label:\n            en: '%1 set offset (mm) %2'\n        params:\n            offset_mm:\n                name: offset_mm\n                type: float\n                default: '0.0'\n                field: number\n                min: '-1024'\n                max: '1023'\n        \"\"\"\n        self._driver.set_offset(offset_mm)\n\n    def offset(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 offset (mm)'\n        \"\"\"\n        return self._driver.offset()\n\n    def set_crosstalk_compensation(self, rate_mcps: float):\n        \"\"\"\n        label:\n            en: '%1 set crosstalk compensation (MCPS, 0=off) %2'\n        params:\n            rate_mcps:\n                name: rate_mcps\n                type: float\n                default: '0.0'\n                field: number\n                min: '0'\n                max: '0.127'\n        \"\"\"\n        self._driver.set_crosstalk_compensation(rate_mcps)\n\n    def crosstalk_compensation(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 crosstalk compensation (MCPS)'\n        \"\"\"\n        return self._driver.crosstalk_compensation()\n\n    def calibrate_offset(self, target_mm: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 calibrate offset, target (mm) %2'\n        params:\n            target_mm:\n                name: target_mm\n                type: int\n                default: '140'\n                field: number\n                min: '1'\n                max: '4000'\n        \"\"\"\n        return self._driver.calibrate_offset(target_mm)\n\n    def calibrate_crosstalk(self, target_mm: int) -> float:\n        \"\"\"\n        label:\n            en: '%1 calibrate crosstalk, target (mm) %2'\n        params:\n            target_mm:\n                name: target_mm\n                type: int\n                default: '600'\n                field: number\n                min: '1'\n                max: '4000'\n        \"\"\"\n        return self._driver.calibrate_crosstalk(target_mm)\n\n    def recalibrate(self):\n        \"\"\"\n        label:\n            en: '%1 temperature update'\n        \"\"\"\n        self._driver.recalibrate()\n\n    def set_address(self, address: int):\n        \"\"\"\n        label:\n            en: '%1 set I2C address %2'\n        params:\n            address:\n                name: address\n                type: int\n                default: '48'\n                field: number\n                min: '8'\n                max: '119'\n        \"\"\"\n        self._driver.set_address(address)\n\n    def set_interrupt_thresholds(self, low_mm: int, high_mm: int):\n        \"\"\"\n        label:\n            en: '%1 set thresholds low (mm) %2 high (mm) %3'\n        params:\n            low_mm:\n                name: low_mm\n                type: int\n                default: '100'\n                field: number\n                min: '0'\n                max: '65535'\n            high_mm:\n                name: high_mm\n                type: int\n                default: '800'\n                field: number\n                min: '0'\n                max: '65535'\n        \"\"\"\n        self._driver.set_interrupt_thresholds(low_mm, high_mm)\n\n    def interrupt_thresholds(self) -> list:\n        \"\"\"\n        label:\n            en: '%1 thresholds [low mm, high mm]'\n        \"\"\"\n        return list(self._driver.interrupt_thresholds())\n\n    def model_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 model ID'\n        \"\"\"\n        return self._driver.model_id()\n\n    def module_type(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 module type'\n        \"\"\"\n        return self._driver.module_type()\n\n    def revision_id(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 revision ID'\n        \"\"\"\n        return self._driver.revision_id()\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status (1=low 2=high 3=out 4=sample 5=in)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def enable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '4'\n                field: number\n                min: '1'\n                max: '5'\n        \"\"\"\n        self._driver.enable_interrupt(source)\n\n    def disable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source (1=low 2=high 3=out 4=sample 5=in) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '4'\n                field: number\n                min: '1'\n                max: '5'\n        \"\"\"\n        self._driver.disable_interrupt(source)\n",
+  "version": "alpha2"
+}
