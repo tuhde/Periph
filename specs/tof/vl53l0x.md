@@ -703,12 +703,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Decoder `sigrok/vl53l0x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
 
 ### Base class refactor (added with VL53L1X issue #175)
-- [ ] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base` (`python/periph/chips/tof/_vl53_base.py`)
-- [ ] Refactor `cpp/src/chips/tof/VL53L0X.h/.cpp` onto `VL53Base`
-- [ ] Refactor `nodejs/packages/periph/src/chips/tof/vl53l0x.js` onto `VL53Base`
-- [ ] Refactor `rust/periph/src/chips/tof/vl53l0x.rs` onto `Vl53Bus<I2C>`
-- [ ] Refactor `go/periph/chips/tof/vl53l0x.go` to embed `vl53Base`
-- [ ] Refactor JVM VL53L0X drivers: Java + Kotlin onto the Java `VL53Base`, Groovy onto its own `VL53Base.groovy`
+- [x] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base` (`python/periph/chips/tof/_vl53_base.py`)
+- [x] Refactor `cpp/src/chips/tof/VL53L0X.h/.cpp` onto `VL53Base`
+- [x] Refactor `nodejs/packages/periph/src/chips/tof/vl53l0x.js` onto `VL53Base`
+- [x] Refactor `rust/periph/src/chips/tof/vl53l0x.rs` onto `Vl53Bus<I2C>`
+- [x] Refactor `go/periph/chips/tof/vl53l0x.go` to embed `vl53Base`
+- [x] Refactor JVM VL53L0X drivers: Java + Kotlin onto the Java `VL53Base`, Groovy onto its own `VL53Base.groovy`
 
 **Note:** this refactor must be behavior-preserving (see `specs/tof/_vl53_base.md`, "VL53L0X
 refactor rules"): no public API change, byte-identical I²C traffic, and the existing unit
