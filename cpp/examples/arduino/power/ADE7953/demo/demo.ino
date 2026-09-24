@@ -10,8 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "ADE7953.h"
+#include <Periph.h>
 
 static const float VOLTAGE_GAIN = 251.0f;
 static const float CURRENT_GAIN = 30.0f;
@@ -19,7 +18,12 @@ static const float CURRENT_GAIN = 30.0f;
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection conn(Wire, TEST_ADDR);
     ADE7953Full ade(conn, VOLTAGE_GAIN, CURRENT_GAIN);                // Create ADE7953 driver, (connection, voltage_gain=V/V, current_gain=A/V, bus_type='i2c')
 
@@ -35,13 +39,16 @@ void setup() {
     // call. Callers wanting a running total accumulate the returned deltas
     // themselves (or disable read-with-reset and track the 24-bit
     // register's own rollovers instead).
-    Serial.printf("%-10s %-10s %-10s %-12s\n", "V", "A", "W", "Wh/s");
+    Serial.println("V\tA\tW\tWh");
     while (true) {
         float v = ade.voltage();                                      // Read bus voltage, () → V
         float i = ade.current();                                      // Read load current, () → A
         float p = ade.activePower();                                  // Read active power, () → W
         float e = ade.activeEnergy();                                 // Read active energy, () → Wh
-        Serial.printf("%-10.2f %-10.3f %-10.2f %-12.5f\n", v, i, p, e);
+        Serial.print(v, 2); Serial.print('\t');
+        Serial.print(i, 3); Serial.print('\t');
+        Serial.print(p, 2); Serial.print('\t');
+        Serial.println(e, 5);
         delay(1000);
     }
 }

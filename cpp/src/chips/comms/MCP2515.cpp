@@ -3,8 +3,8 @@
 uint8_t _MCP2515Base::_rx_data_buf[8];
 
 #ifdef __linux__
-#include <cstdio>
-#include <ctime>
+#include <stdio.h>
+#include <time.h>
 static unsigned long _now_ms_linux() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);

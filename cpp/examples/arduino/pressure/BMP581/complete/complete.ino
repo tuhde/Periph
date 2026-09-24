@@ -7,8 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "BMP581.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 
@@ -20,7 +19,12 @@ static void check_true(bool cond, const char *label) {
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, 0x46);
     BMP581Full bmp(connection);                           // Create BMP581 driver, (connection, spi=false)
     uint8_t cid = bmp.chip_id();                         // Read chip ID, () → int

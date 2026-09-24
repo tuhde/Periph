@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "RDA5807M.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x10);
 RDA5807MFull fm(connection, 87.5f, 10);

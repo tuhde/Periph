@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "PCF8591.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x48);
 PCF8591Minimal adc(connection);

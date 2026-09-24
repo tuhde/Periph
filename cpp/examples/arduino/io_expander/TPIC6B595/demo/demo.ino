@@ -12,8 +12,7 @@
 // shadow register is untouched across the blank, so the chase pattern resumes
 // exactly where it left off.
 #include <SPI.h>
-#include "SiPoConnection.h"
-#include "TPIC6B595.h"
+#include <Periph.h>
 
 static constexpr uint8_t NUM_DEVICES = 2;
 static constexpr uint8_t NUM_OUTPUTS = NUM_DEVICES * 8;

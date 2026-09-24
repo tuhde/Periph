@@ -194,7 +194,7 @@ public:
      *  @return Whatever the underlying connection's @c clear() returns —
      *          typically 0 on success, a negative error code / @c false
      *          if SRCLR was not wired. */
-    auto clear() { return this->_connection.clear(); }
+    auto clear() -> decltype(this->_connection.clear()) { return this->_connection.clear(); }
 
     /** @brief Drive G LOW (@p enabled=true) or HIGH (@p enabled=false).
      *
@@ -205,7 +205,7 @@ public:
      *
      *  @return Whatever the underlying connection's @c set_output_enable()
      *          returns. */
-    auto set_output_enable(bool enabled) { return this->_connection.set_output_enable(enabled); }
+    auto set_output_enable(bool enabled) -> decltype(this->_connection.set_output_enable(enabled)) { return this->_connection.set_output_enable(enabled); }
 
     /** @brief Write every cascaded device's byte in one call.
      *

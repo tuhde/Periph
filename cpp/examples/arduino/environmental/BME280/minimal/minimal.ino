@@ -7,13 +7,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "BME280.h"
+#include <Periph.h>
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, 0x76);
     BME280Minimal bme(connection);                       // Create BME280 driver, (connection, spi=false)
 

@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelConnection.h"
-#include "WS2814.h"
+#include <Periph.h>
 
 NeoPixelConnection connection(SPI);               // Create NeoPixel connection, (spi=SPIClass&)
 WS2814Full strip(connection, 8);            // Create WS2814 full driver, (connection, n=8 pixels)

@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <math.h>
-#include "I2CConnection.h"
-#include "MPU6050.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x68);
 MPU6050Full imu(connection);

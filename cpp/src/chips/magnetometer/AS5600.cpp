@@ -1,5 +1,5 @@
 #include "AS5600.h"
-#include <cstdlib>
+#include <stdlib.h>
 
 AS5600Minimal::AS5600Minimal(Connection& connection)
     : _connection(connection) {

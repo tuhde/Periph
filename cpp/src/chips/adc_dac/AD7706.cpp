@@ -1,7 +1,13 @@
 #include "AD7706.h"
 
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr uint8_t _AD7706Base::_GAIN_BITS[8];
+constexpr uint16_t _AD7706Base::_FS_RATES_1MHZ[4];
+constexpr uint16_t _AD7706Base::_FS_RATES_2_4MHZ[4];
+
 #ifdef __linux__
-#include <ctime>
+#include <time.h>
 static void _delay_ns_linux(unsigned ns) {
     struct timespec ts = { 0, (long)(ns) };
     nanosleep(&ts, nullptr);

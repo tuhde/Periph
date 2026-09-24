@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <math.h>
-#include "I2CConnection.h"
-#include "ADXL345.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x53);
 ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)

@@ -1,8 +1,7 @@
 // Demo for the APDS-9930 — adaptive backlight + screen-lock scenario.
 
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "Apds9930.h"
+#include <Periph.h>
 
 #define DIM_LUX_THRESHOLD 10.0f
 #define PROX_SCREEN_OFF  400

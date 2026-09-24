@@ -1,23 +1,24 @@
 #include <Wire.h>
 #include <math.h>
-#include "I2CConnection.h"
-#include "MPU9250.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x68);
 I2CConnection magConnection(Wire, 0x0C);              // AK8963, same bus, reached via I²C bypass
 
-// --- Configure for tilt and heading estimation ---
-// ±4g / ±500dps trade sensitivity for headroom against sharper motion than
-// the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
-// keeps a fresh heading available on every poll.
 MPU9250Full imu(connection, magConnection);           // Create MPU9250 driver, (connection, magConnection) → void
-imu.configure_accel(1);                               // Configure accel range, (full_scale=0) → void
-imu.configure_gyro(1);                                // Configure gyro range, (full_scale=0) → void
-imu.enable_mag(16, 6);                                // Initialize magnetometer, (bits=16, mode=6) → void
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+
+    // --- Configure for tilt and heading estimation ---
+    // ±4g / ±500dps trade sensitivity for headroom against sharper motion than
+    // the ±2g / ±250dps defaults tolerate; 16-bit continuous magnetometer mode
+    // keeps a fresh heading available on every poll.
+    imu.configure_accel(1);                               // Configure accel range, (full_scale=0) → void
+    imu.configure_gyro(1);                                // Configure gyro range, (full_scale=0) → void
+    imu.enable_mag(16, 6);                                // Initialize magnetometer, (bits=16, mode=6) → void
+
     Serial.println("roll     pitch    heading  |accel|  |gyro|");
 }
 

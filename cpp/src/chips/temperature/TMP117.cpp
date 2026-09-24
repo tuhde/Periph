@@ -3,20 +3,20 @@
 
 #ifdef __linux__
 #include <unistd.h>
-static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
+static void periph_delay_ms(unsigned ms) { usleep(ms * 1000); }
 #elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
+static void periph_delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
+static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
-static void _delay_ms(unsigned ms) { sleep_ms(ms); }
+static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }
 #else
 #include <Arduino.h>
-static void _delay_ms(unsigned ms) { delay(ms); }
+static void periph_delay_ms(unsigned ms) { delay(ms); }
 #endif
 
 namespace {
@@ -128,7 +128,7 @@ void TMP117Full::setTemperatureOffset(float celsius) {
 
 void TMP117Full::reset() {
     _writeReg(REG_CONFIG, CFG_SOFT_RESET);
-    _delay_ms(2);
+    periph_delay_ms(2);
 }
 
 void TMP117Full::unlockEeprom() { _writeReg(REG_EEPROM_UL, EUN); }

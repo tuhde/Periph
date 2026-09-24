@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "PCF8574.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x20);                            // Create I2C connection, (wire, addr=0x20)
 PCF8574Minimal chip(connection);                                // Create PCF8574 driver, (connection, addr=0x20)

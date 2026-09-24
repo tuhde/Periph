@@ -1,5 +1,12 @@
 #include "INA3221.h"
 
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr uint8_t INA3221Minimal::SHUNT_REGS[3];
+constexpr uint8_t INA3221Minimal::BUS_REGS[3];
+constexpr uint8_t INA3221Full::CRIT_REGS[3];
+constexpr uint8_t INA3221Full::WARN_REGS[3];
+
 INA3221Minimal::INA3221Minimal(Connection& connection, float r_shunt)
     : _connection(connection) {
     _r_shunt[0] = r_shunt;

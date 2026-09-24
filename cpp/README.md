@@ -4,6 +4,8 @@ Peripheral chip drivers for Arduino (I2C/SPI).
 
 Drivers for sensors and actuators connected via I2C or SPI transports.
 
+> This library is generated from [tuhde/Periph](https://github.com/tuhde/Periph) on every release. Please open issues and pull requests there.
+
 ## Install
 
 Arduino IDE: **Sketch → Include Library → Manage Libraries…**, search for `Periph`.
@@ -14,8 +16,7 @@ Or manually: clone/download this repository into your `libraries/Periph` folder.
 
 ```cpp
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "INA219.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x40);
 INA219Minimal ina(connection);

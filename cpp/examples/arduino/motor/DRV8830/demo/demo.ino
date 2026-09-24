@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "DRV8830.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, DRV8830Minimal::I2C_ADDRESS);
 DRV8830Full motor(connection);                           // Create DRV8830 Full driver, (connection)

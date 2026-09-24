@@ -7,8 +7,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "BME680.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 
@@ -20,7 +19,12 @@ static void check_true(bool cond, const char *label) {
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, 0x76);
     BME680Full bme(connection);                           // Create BME680 driver, (connection)
     uint8_t cid = bme.chip_id();                       // Read chip ID, () → int

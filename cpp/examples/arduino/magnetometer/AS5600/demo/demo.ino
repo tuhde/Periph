@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "AS5600.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x36);
 AS5600Full as5600(connection);

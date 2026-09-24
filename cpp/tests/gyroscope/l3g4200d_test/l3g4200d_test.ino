@@ -10,8 +10,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "L3G4200D.h"
+#include <Periph.h>
 
 static int passed = 0, failed = 0;
 

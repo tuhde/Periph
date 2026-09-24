@@ -10,9 +10,7 @@
  * LED nibble (P0–P3) every 200 ms.
  */
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "InputPinArduino.h"
-#include "PCF8574.h"
+#include <Periph.h>
 
 InputPinArduino intPin(5);                                       // Create INT pin, (pin=5)
 I2CConnection connection(Wire, 0x20, &intPin);                   // Create I2C connection, (wire, addr=0x20, intPin)

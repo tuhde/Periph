@@ -45,7 +45,7 @@ from periph.connection.i2c_linux import I2CConnection         # /dev/i2c-N
 
 **C++**
 ```cpp
-#include "I2CConnection.h"         // Arduino Wire
+#include <Periph.h>                // Arduino Wire (I2CConnection) — umbrella header, all drivers
 #include "I2CConnectionLinux.h"    // Linux /dev/i2c-N via ioctl
 #include "I2CConnectionZephyr.h"   // Zephyr RTOS I2C subsystem
 #include "I2CConnectionESPIDF.h"   // ESP-IDF driver-ng i2c_master_dev_handle_t

@@ -8,8 +8,7 @@
 //   NEO6Minimal gps(connection, NEO6BusType::Spi);
 
 #include <Arduino.h>
-#include "UARTConnection.h"
-#include "NEO6.h"
+#include <Periph.h>
 
 UARTConnection connection(Serial1);
 NEO6Minimal gps(connection);                              // Create NEO-6 driver, (connection, bus_type=Uart)

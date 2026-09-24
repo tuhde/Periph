@@ -1,8 +1,8 @@
 #include "RFM9x.h"
-#include <ctime>
+#include <time.h>
 
 #ifdef __linux__
-#include <cstdio>
+#include <stdio.h>
 static unsigned long _now_ms_linux() {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -10,6 +10,7 @@ static unsigned long _now_ms_linux() {
 }
 #define _millis() _now_ms_linux()
 #elif defined(ARDUINO)
+#include <Arduino.h>
 #define _millis() millis()
 #elif defined(CONFIG_SPI) || defined(__ZEPHYR_SUPERVISOR__)
 #include <zephyr/kernel.h>

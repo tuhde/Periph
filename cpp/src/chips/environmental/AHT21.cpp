@@ -1,38 +1,46 @@
 #include "AHT21.h"
 
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr uint8_t AHT21Minimal::CMD_TRIGGER[3];
+constexpr uint8_t AHT21Minimal::CMD_CAL_INIT_1[3];
+constexpr uint8_t AHT21Minimal::CMD_CAL_INIT_2[3];
+constexpr uint8_t AHT21Minimal::CMD_CAL_INIT_3[3];
+constexpr uint8_t AHT21Minimal::CMD_SOFT_RESET;
+
 #ifdef __linux__
 #include <unistd.h>
-static void _delay_ms(unsigned ms) { usleep(ms * 1000); }
+static void periph_delay_ms(unsigned ms) { usleep(ms * 1000); }
 #elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-static void _delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
+static void periph_delay_ms(unsigned ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-static void _delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
-static void _delay_ms(unsigned ms) { sleep_ms(ms); }
+static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }
 #else
 #include <Arduino.h>
-static void _delay_ms(unsigned ms) { delay(ms); }
+static void periph_delay_ms(unsigned ms) { delay(ms); }
 #endif
 
 AHT21Minimal::AHT21Minimal(Connection& connection)
     : _connection(connection) {
-    _delay_ms(100);
+    periph_delay_ms(100);
     uint8_t status = _read_status();
     if ((status & 0x18) != 0x18) {
         _connection.write(&CMD_SOFT_RESET, 1);
-        _delay_ms(20);
+        periph_delay_ms(20);
         status = _read_status();
         if ((status & 0x18) != 0x18) {
             _connection.write(CMD_CAL_INIT_1, 3);
-            _delay_ms(10);
+            periph_delay_ms(10);
             _connection.write(CMD_CAL_INIT_2, 3);
-            _delay_ms(10);
+            periph_delay_ms(10);
             _connection.write(CMD_CAL_INIT_3, 3);
-            _delay_ms(10);
+            periph_delay_ms(10);
         }
     }
 }
@@ -68,7 +76,7 @@ float AHT21Minimal::humidity() {
 
 void AHT21Minimal::read(float& temperature_c, float& humidity_pct) {
     _connection.write(CMD_TRIGGER, 3);
-    _delay_ms(80);
+    periph_delay_ms(80);
     uint8_t buf[6];
     _read_raw(buf, 6);
     _decode(buf, temperature_c, humidity_pct);
@@ -81,7 +89,7 @@ AHT21Full::AHT21Full(Connection& connection)
 
 bool AHT21Full::read_with_crc(float& temperature_c, float& humidity_pct) {
     _connection.write(CMD_TRIGGER, 3);
-    _delay_ms(80);
+    periph_delay_ms(80);
     uint8_t buf[7];
     _read_raw(buf, 7);
     _decode(buf, temperature_c, humidity_pct);
@@ -90,7 +98,7 @@ bool AHT21Full::read_with_crc(float& temperature_c, float& humidity_pct) {
 
 void AHT21Full::soft_reset() {
     _connection.write(&CMD_SOFT_RESET, 1);
-    _delay_ms(20);
+    periph_delay_ms(20);
 }
 
 bool AHT21Full::is_calibrated() {

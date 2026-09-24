@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "APA102.h"
+#include <Periph.h>
 
 SPISettings apa102_settings(1000000, MSBFIRST, SPI_MODE0);  // 1 MHz, Mode 0, MSB first
 SPIConnection connection(SPI, 10, apa102_settings);         // Create SPI connection, (spi=SPIClass&, cs_pin=10, settings)

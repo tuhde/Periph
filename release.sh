@@ -16,8 +16,9 @@
 #   4. Creates tag v<version> and pushes branch + tag to all remotes
 #
 # What the triggered CI then does:
-#   Python wheel/sdist, Arduino zip, npm publish, cargo publish,
-#   JVM JARs, GitHub release creation
+#   Python wheel/sdist, Arduino zip, Arduino library push to
+#   tuhde/Periph-Arduino, npm publish, cargo publish, JVM JARs,
+#   GitHub release creation
 
 set -euo pipefail
 
@@ -174,59 +175,8 @@ git tag "$TAG"
 git push all main
 git push all "$TAG"
 
-# ── Update arduino branch ──────────────────────────────────────────────────────
-echo ""
-echo "=== updating arduino branch ==="
-ARDUINO_TAG="arduino-v${VERSION}"
-
-# Fetch and pin the local 'arduino' branch to github's tip explicitly --
-# with both 'github' and 'codeberg' remotes carrying a branch of this exact
-# name, plain `git worktree add ... arduino` is an ambiguous ref and fails.
-git fetch github arduino
-git worktree add /tmp/periph-arduino -B arduino github/arduino
-AW=/tmp/periph-arduino
-
-# Clear existing content (keep .git)
-find "$AW" -mindepth 1 -not -path "$AW/.git" -not -path "$AW/.git/*" -delete
-
-# Copy src/ and examples/ (Arduino only)
-# Reconstruct flat <Chip>_<Tier>/<Chip>_<Tier>.ino layout expected by Arduino IDE
-cp -r cpp/src "$AW/src"
-mkdir -p "$AW/examples"
-find cpp/examples/arduino -name "*.ino" | while read ino; do
-  chip=$(dirname "$ino" | xargs dirname | xargs basename)
-  tier=$(basename "$(dirname "$ino")")
-  tier_cap=$(echo "$tier" | sed 's/./\u&/')
-  sketch="${chip}_${tier_cap}"
-  mkdir -p "$AW/examples/$sketch"
-  cp "$ino" "$AW/examples/$sketch/$sketch.ino"
-done
-
-# library.properties with stamped version
-sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
-
-# README, regenerated from library.properties + chip headers (matches what
-# the CI arduino-branch job produces, so both stay byte-identical)
-node cpp/scripts/generate-readme.js
-cp cpp/README.md "$AW/README.md"
-
-cd "$AW"
-git add -A
-if ! git diff --staged --quiet; then
-  git commit -m "chore: release ${ARDUINO_TAG}"
-fi
-# -f: idempotent under a retry -- if a prior run already got this far
-# (e.g. a later publish step failed and blocked the release), the tag
-# already exists pointing at the same commit and a plain `git tag` would
-# error out.
-git tag -f "$ARDUINO_TAG"
-cd "$ROOT"
-
-git worktree remove /tmp/periph-arduino
-
-git push all arduino
-git push all "$ARDUINO_TAG" --force
-echo "  ${ARDUINO_TAG} pushed"
+# Arduino: the release workflow's arduino-publish job pushes the Library
+# Manager layout to tuhde/Periph-Arduino (deploy key lives in CI only).
 
 echo ""
 echo "=== done — GitHub Actions release workflow triggered by ${TAG} ==="

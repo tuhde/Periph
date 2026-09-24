@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "NeoPixelConnection.h"
-#include "SK6812RGBW.h"
+#include <Periph.h>
 
 NeoPixelConnection connection(SPI);               // Create NeoPixel connection, (spi=SPIClass&)
 SK6812RGBWMinimal strip(connection, 30);         // Create SK6812RGBW driver, (connection, n=30 pixels)

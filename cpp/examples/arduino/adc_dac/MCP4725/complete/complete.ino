@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MCP4725.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x60);
 MCP4725Full dac(connection);
@@ -20,7 +19,7 @@ void loop() {
     Serial.print(state.code);
     Serial.print(" ready=");
     Serial.println(state.eeprom_ready);
-    dac.set_power_down(MCP4725Full.PD_100K_GND);
+    dac.set_power_down(MCP4725Full::PD_100K_GND);
     dac.wake_up();
     dac.reset();
     dac.is_eeprom_ready();

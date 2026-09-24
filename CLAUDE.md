@@ -134,7 +134,7 @@ cpp/
           minimal/      # CMakeLists.txt, src/main.cpp
           complete/
           demo/
-  library.properties    # Arduino library metadata
+  library.properties    # Arduino library metadata; published to tuhde/Periph-Arduino on release (see ARDUINO_LM.md)
 nodejs/
   package.json          # npm workspaces root
   packages/

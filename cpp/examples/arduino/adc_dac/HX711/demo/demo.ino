@@ -1,5 +1,4 @@
-#include "HX711Connection.h"
-#include "HX711.h"
+#include <Periph.h>
 
 // Kitchen scale demo: tare at startup, then print weight continuously.
 // Replace SCALE_FACTOR with the value calibrated for your load cell and V_DD.

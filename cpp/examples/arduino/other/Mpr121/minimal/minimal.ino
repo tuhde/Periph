@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "Mpr121.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x5A);                                    // Create I2C connection, (Wire, addr=0x5A) → I2CConnection
 MPR121Minimal mpr(connection);                                          // Create MPR121 Minimal, (connection) → MPR121Minimal

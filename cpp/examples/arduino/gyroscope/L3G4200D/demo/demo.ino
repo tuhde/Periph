@@ -7,13 +7,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "L3G4200D.h"
+#include <Periph.h>
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, 0x68);
 
     // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---

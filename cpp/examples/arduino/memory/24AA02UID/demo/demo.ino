@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "24AA02UID.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, 0x50);
 EEPROM24AA02UIDFull eeprom(connection);                         // Create 24AA02UID driver, (connection, addr=0x50) → void

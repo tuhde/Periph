@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "UARTConnection.h"
+#include <Periph.h>
 
 // Assumes a loopback jumper bridging TX and RX pins on the UART port under test.
 #ifndef TEST_UART_BAUDRATE

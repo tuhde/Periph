@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include <I2CConnection.h>
-#include <L3gd20h.h>
+#include <Periph.h>
 
 I2CConnection conn(Wire, 0x6A);
 L3gd20hMinimal gyro(conn);

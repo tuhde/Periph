@@ -9,8 +9,7 @@
 #endif
 
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "MPU9250.h"
+#include <Periph.h>
 
 I2CConnection connection(Wire, TEST_ADDR);
 I2CConnection magConnection(Wire, 0x0C);  // AK8963, same bus, reached via I²C bypass

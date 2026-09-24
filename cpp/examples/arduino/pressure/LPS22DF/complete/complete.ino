@@ -7,13 +7,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "LPS22DF.h"
+#include <Periph.h>
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, 0x5C);
     LPS22DFFull lps(connection);                           // Create LPS22DF driver, (connection, spi=false)
 

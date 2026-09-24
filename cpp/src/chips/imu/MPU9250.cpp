@@ -1,4 +1,10 @@
 #include "MPU9250.h"
+
+// Out-of-class definitions for ODR-used static constexpr members; required
+// before C++17 (AVR Arduino builds as C++11), redundant but valid after.
+constexpr float MPU9250Minimal::ACCEL_SENSITIVITY[4];
+constexpr float MPU9250Minimal::GYRO_SENSITIVITY[4];
+
 #include <stdlib.h>
 
 #if defined(__linux__)

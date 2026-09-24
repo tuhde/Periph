@@ -1,6 +1,5 @@
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "DS3231.h"
+#include <Periph.h>
 
 // Backup-clock module for a data logger: reseeds the clock after a power
 // loss, then logs a "reading" on every once-per-minute and once-per-hour

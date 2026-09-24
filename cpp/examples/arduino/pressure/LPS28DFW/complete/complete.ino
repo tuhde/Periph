@@ -10,13 +10,17 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "I2CConnection.h"
-#include "LPS28DFW.h"
+#include <Periph.h>
 
 void setup() {
     Serial.begin(115200);
     delay(2000);
+#if defined(ARDUINO_ARCH_ESP32)
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
+#else
+    Wire.begin();                                    // other cores: board's default SDA/SCL
+    Wire.setClock(400000);
+#endif
     I2CConnection connection(Wire, TEST_ADDR);
     LPS28DFWFull lps(connection);                               // Create LPS28DFW driver, (connection)
     uint8_t cid = lps.chip_id();                                // Read chip ID, () → uint8_t

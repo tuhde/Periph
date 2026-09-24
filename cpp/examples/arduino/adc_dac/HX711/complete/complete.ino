@@ -1,5 +1,4 @@
-#include "HX711Connection.h"
-#include "HX711.h"
+#include <Periph.h>
 
 HX711Connection connection(5, 6);
 HX711Full<HX711Connection> chip(connection);

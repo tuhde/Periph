@@ -130,9 +130,10 @@ BUILD_PROPS=()
 
 # --- compile -------------------------------------------------------------
 echo "=== Compiling $TARGET for $FQBN ==="
+# cpp/ itself is the Arduino library (library.properties + src/Periph.h), so
+# sketches build against exactly the layout the Library Manager ships.
 arduino-cli compile --fqbn "$FQBN" \
-    --library "$SCRIPT_DIR/src/connection" \
-    --library "$SCRIPT_DIR/src/chips/$CATEGORY" \
+    --library "$SCRIPT_DIR" \
     "${BUILD_PROPS[@]}" "$SKETCH"
 echo "Compile OK"
 

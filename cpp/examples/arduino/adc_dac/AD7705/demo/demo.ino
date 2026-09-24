@@ -1,6 +1,5 @@
 #include <SPI.h>
-#include "SPIConnection.h"
-#include "AD7705.h"
+#include <Periph.h>
 
 #define TEMP_COEFF 0.05f
 #define TEMP_REFERENCE 1.25f

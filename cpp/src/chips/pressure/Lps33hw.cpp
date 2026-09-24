@@ -1,6 +1,6 @@
 #include "Lps33hw.h"
 #include <stdlib.h>
-#include <cmath>
+#include <math.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>

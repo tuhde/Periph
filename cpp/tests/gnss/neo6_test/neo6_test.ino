@@ -1,6 +1,5 @@
 #include <Arduino.h>
-#include "UARTConnection.h"
-#include "NEO6.h"
+#include <Periph.h>
 
 // Requires a NEO-6 module wired to UART with a clear sky view. Achieving an
 // actual fix needs an outdoor antenna and can take up to ~26 s (cold start);

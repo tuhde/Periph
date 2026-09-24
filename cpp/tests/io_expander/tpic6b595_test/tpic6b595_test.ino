@@ -15,8 +15,7 @@
 #endif
 
 #include <SPI.h>
-#include "SiPoConnection.h"
-#include "TPIC6B595.h"
+#include <Periph.h>
 
 SiPoConnection connection(SPI, TEST_RCK, TEST_SRCLR, TEST_G);          // Create SiPo connection, (spi, rck, srclr, g)
 TPIC6B595Full<SiPoConnection> chip(connection, 1);                     // Create TPIC6B595 full driver, (connection, num_devices=1)

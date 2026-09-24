@@ -6,8 +6,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "Apds9930.h"
-#include "I2CConnection.h"
+#include <Periph.h>
 
 static int passed = 0;
 static int failed = 0;

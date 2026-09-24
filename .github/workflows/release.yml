@@ -96,23 +96,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Stamp version
-        run: |
-          sed -i 's/^version=.*/version=${{ needs.meta.outputs.version }}/' \
-            cpp/library.properties
-
       - name: Package
         run: |
-          mkdir -p arduino-pkg/Periph/examples
-          cp -r cpp/src cpp/library.properties arduino-pkg/Periph/
-          find cpp/examples/arduino -name "*.ino" | while read ino; do
-            chip=$(dirname "$ino" | xargs dirname | xargs basename)
-            tier=$(basename "$(dirname "$ino")")
-            tier_cap=$(echo "$tier" | sed 's/./\u&/')
-            sketch="${chip}_${tier_cap}"
-            mkdir -p "arduino-pkg/Periph/examples/$sketch"
-            cp "$ino" "arduino-pkg/Periph/examples/$sketch/$sketch.ino"
-          done
+          mkdir -p arduino-pkg/Periph
+          cpp/scripts/stage-arduino-library.sh arduino-pkg/Periph "${{ needs.meta.outputs.version }}"
           cd arduino-pkg
           zip -r ../Periph-cpp-${{ needs.meta.outputs.version }}.zip Periph/
 
@@ -260,78 +247,53 @@ jobs:
           path: jvm-jars/
 
   # -----------------------------------------------------------------------
-  # Arduino branch — sync cpp/ into the arduino orphan branch, tag it
-  # The arduino branch has library.properties at root (required by LM).
-  # Tagged arduino-vX.Y.Z so the Arduino Library Manager can track it.
+  # Arduino — publish the Library Manager layout to tuhde/Periph-Arduino
+  # The Library Manager needs library.properties at a repository root and
+  # indexes every tag, so the library lives in its own repo: one commit and
+  # one plain vX.Y.Z tag per release. Pushed with a deploy key that has write
+  # access to that repo only (secret ARDUINO_REPO_DEPLOY_KEY).
   # -----------------------------------------------------------------------
-  arduino-branch:
+  arduino-publish:
     needs: meta
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/checkout@v6
         with:
+          repository: tuhde/Periph-Arduino
+          ssh-key: ${{ secrets.ARDUINO_REPO_DEPLOY_KEY }}
+          path: periph-arduino
           fetch-depth: 0
 
-      - name: Set up arduino branch
+      - name: Stage library
+        run: cpp/scripts/stage-arduino-library.sh periph-arduino "${{ needs.meta.outputs.version }}"
+
+      - name: Commit, tag and push
         run: |
-          git fetch origin arduino
-          git worktree add /tmp/arduino-worktree arduino
-
-      - name: Sync cpp/ into arduino branch
-        run: |
-          VERSION="${{ needs.meta.outputs.version }}"
-          AW=/tmp/arduino-worktree
-
-          # Clear existing content (keep .git)
-          find "$AW" -mindepth 1 -not -path "$AW/.git" -not -path "$AW/.git/*" -delete
-
-          # Copy src/ and examples/ (Arduino only)
-          # Reconstruct flat <Chip>_<Tier>/<Chip>_<Tier>.ino layout expected by Arduino IDE
-          cp -r cpp/src "$AW/src"
-          mkdir -p "$AW/examples"
-          find cpp/examples/arduino -name "*.ino" | while read ino; do
-            chip=$(dirname "$ino" | xargs dirname | xargs basename)
-            tier=$(basename "$(dirname "$ino")")
-            tier_cap=$(echo "$tier" | sed 's/./\u&/')
-            sketch="${chip}_${tier_cap}"
-            mkdir -p "$AW/examples/$sketch"
-            cp "$ino" "$AW/examples/$sketch/$sketch.ino"
-          done
-
-          # Stamp version in library.properties
-          sed "s/^version=.*/version=${VERSION}/" cpp/library.properties > "$AW/library.properties"
-
-          # README, regenerated from library.properties + chip headers
-          node cpp/scripts/generate-readme.js
-          cp cpp/README.md "$AW/README.md"
-
-          # Arduino IDE syntax highlighting, regenerated from the headers
-          node cpp/scripts/generate-keywords.js
-          cp cpp/keywords.txt "$AW/keywords.txt"
-
-      - name: Commit and tag arduino branch
-        run: |
-          VERSION="${{ needs.meta.outputs.version }}"
-          TAG="arduino-v${VERSION}"
-          AW=/tmp/arduino-worktree
-
-          cd "$AW"
+          TAG="v${{ needs.meta.outputs.version }}"
+          cd periph-arduino
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           if ! git diff --staged --quiet; then
-            git commit -m "chore: release ${TAG}"
+            git commit -m "Release ${TAG}" -m "Generated from tuhde/Periph@${GITHUB_SHA}."
           fi
-          # -f: idempotent under a retry -- if a prior run already synced
-          # this exact content (e.g. rust-publish/nodejs-publish failed and
-          # blocked the release, arduino-branch already succeeded), the tag
-          # already exists pointing at the same commit and a plain `git tag`
-          # would fail the job.
-          git tag -f "$TAG"
-          git push origin arduino
-          git push origin "$TAG" --force
+          # Idempotent under a retry: if a prior run already published this
+          # release (another job failed afterwards), the tag exists on the
+          # same commit and is left alone. A tag on a different commit means
+          # the version was already released with other content -- fail
+          # rather than move it, the Library Manager rejects reused versions.
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            if [ "$(git rev-parse "${TAG}^{commit}")" != "$(git rev-parse HEAD)" ]; then
+              echo "error: ${TAG} already exists in Periph-Arduino on a different commit" >&2
+              exit 1
+            fi
+          else
+            git tag "$TAG"
+          fi
+          git push origin HEAD:main
+          git push origin "$TAG"
 
   # -----------------------------------------------------------------------
   # INSTALL.md — stamp version and commit back to main
@@ -368,7 +330,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [meta, python-build, python-publish, arduino-build, arduino-branch, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [meta, python-build, python-publish, arduino-build, arduino-publish, nodejs-publish, rust-publish, jvm-build, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write

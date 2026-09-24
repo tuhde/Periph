@@ -1355,6 +1355,15 @@ The demo scenario is defined in the chip spec. The minimal and complete examples
 
 For C++ Arduino, the directory name must exactly match the `.ino` filename: `cpp/examples/arduino/<category>/<Chip>/minimal/minimal.ino`.
 
+C++ Arduino sketches (examples and `cpp/tests/**/*.ino`) include the library with `#include <Periph.h>` only — never individual `"I2CConnection.h"` / `"<Chip>.h"` headers, which don't resolve once the library is installed from the Library Manager. `cpp/src/Periph.h` is generated: run `node cpp/scripts/generate-periph-header.js` after adding or removing a header under `cpp/src/` (CI runs it with `--check`). The Arduino IDE compiles **every** `.cpp` in the library for every sketch, so each driver must build on every Arduino core, including AVR (C++11, no `<cmath>`/`<cstring>`/STL):
+- use the C headers (`<math.h>`, `<string.h>`, `<stdlib.h>`), not their `<c…>` wrappers
+- no C++14/17 features: no `auto` return type without a trailing `-> decltype(...)`, no class template argument deduction in examples (`DHT11Minimal<DHTxxConnection>`, not `DHT11Minimal`)
+- every `static constexpr` array member, and any scalar one whose address or reference is taken, needs an out-of-class definition in the `.cpp` (`constexpr uint8_t <Chip>Minimal::CMD[3];`)
+- the `#else` / `ARDUINO` platform branch includes `<Arduino.h>` itself when it calls `delay()`/`millis()`; name local delay helpers something other than `_delay_ms` (AVR's `<util/delay.h>` owns it)
+- examples use `Serial.print`, not `Serial.printf` (ESP32-only), and guard ESP32-only pin arguments: `#if defined(ARDUINO_ARCH_ESP32)` `Wire.begin(TEST_SDA, TEST_SCL, 400000);` `#else` `Wire.begin(); Wire.setClock(400000);` `#endif`
+
+Verify with `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3` and `--fqbn arduino:avr:mega` (CI runs both).
+
 For C++ Zephyr, each example is a standalone Zephyr app at `cpp/examples/zephyr/<category>/<Chip>/<tier>/` (see Zephyr examples above).
 
 For Rust, each example is its own crate at `rust/examples/<chip>_<tier>/` with a `Cargo.toml` and `src/main.rs`.
