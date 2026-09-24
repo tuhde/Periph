@@ -1,0 +1,126 @@
+[
+    {
+        "id": "tab-vl53l0x-demo",
+        "type": "tab",
+        "label": "VL53L0X Proximity Zones Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 200 ms into a periph-vl53l0x node in single-shot mode with the high_speed profile (20 ms timing budget). A Switch node routes on msg.payload.valid: valid readings go to a Function node that classifies the distance into near (< 150 mm), mid (150–600 mm) and far (> 600 mm) and forwards only changes of zone (RBE-style, the last zone is kept in the node context) to a Debug node; invalid readings (no target in range, typically 8190/8191 mm with range status 4) go to a second Debug node labelled \"no target\". This is presence/proximity zoning — for example a hand approaching a touchless soap or disinfectant dispenser: trigger the pump on the change to near. Replace the Debug node with a GPIO or relay node to drive real hardware."
+    },
+    {
+        "id": "inj-range",
+        "type": "inject",
+        "name": "Range (200 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-vl53l0x-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "vl53l0x-node"
+            ]
+        ]
+    },
+    {
+        "id": "vl53l0x-node",
+        "type": "periph-vl53l0x",
+        "name": "Dispenser VL53L0X",
+        "bus": "1",
+        "address": "0x29",
+        "profile": "high_speed",
+        "mode": "single",
+        "periodMs": "100",
+        "threshold": "none",
+        "lowMm": "100",
+        "highMm": "800",
+        "gpioLine": "",
+        "z": "tab-vl53l0x-demo",
+        "x": 370,
+        "y": 100,
+        "wires": [
+            [
+                "sw-valid"
+            ]
+        ]
+    },
+    {
+        "id": "sw-valid",
+        "type": "switch",
+        "name": "valid?",
+        "property": "payload.valid",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "z": "tab-vl53l0x-demo",
+        "x": 570,
+        "y": 100,
+        "wires": [
+            [
+                "fn-zone"
+            ],
+            [
+                "dbg-none"
+            ]
+        ]
+    },
+    {
+        "id": "fn-zone",
+        "type": "function",
+        "name": "zone change",
+        "func": "const d = msg.payload.distance_mm;\nconst zone = d < 150 ? 'near' : (d <= 600 ? 'mid' : 'far');\n// Forward only changes of zone (report-by-exception).\nif (context.get('zone') === zone) return null;\ncontext.set('zone', zone);\nmsg.payload = { zone, distance_mm: d };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-vl53l0x-demo",
+        "x": 760,
+        "y": 80,
+        "wires": [
+            [
+                "dbg-zone"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-zone",
+        "type": "debug",
+        "name": "Zone",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-vl53l0x-demo",
+        "x": 950,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "dbg-none",
+        "type": "debug",
+        "name": "no target",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-vl53l0x-demo",
+        "x": 770,
+        "y": 140,
+        "wires": []
+    }
+]

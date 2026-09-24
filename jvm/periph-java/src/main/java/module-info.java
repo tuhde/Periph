@@ -13,5 +13,6 @@ module it.uhde.periph {
     exports it.uhde.periph.chips.rfid;
     exports it.uhde.periph.chips.rtc;
     exports it.uhde.periph.chips.temperature;
+    exports it.uhde.periph.chips.tof;
     requires it.uhde.periph.connection;
 }
