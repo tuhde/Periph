@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-periph-temperature",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Node-RED nodes for temperature sensor chips",
   "keywords": [
     "node-red",

@@ -1,7 +1,7 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
 
 import it.uhde.periph.connection.SMBusConnection;
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "periph"
-version = "1.2.0"
+version = "1.2.1"
 description = "Peripheral chip drivers for MicroPython, CircuitPython, and Linux"
 readme = "README.md"
 license = {text = "MIT"}

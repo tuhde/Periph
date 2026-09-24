@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
-//DEPS it.uhde:periph-java:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
+//DEPS it.uhde:periph-java:1.2.1
 
 // Battery-powered toy motor controller: holds a regulated 3.0 V forward, then
 // 2.0 V reverse, printing the commanded output every second — the DRV8830

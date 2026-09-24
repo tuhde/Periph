@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
-//DEPS it.uhde:periph-kotlin:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
+//DEPS it.uhde:periph-kotlin:1.2.1
 
 // Exercises every method in the VL53L0X Full API, and finally moves the sensor
 // to another I²C address and back to 0x29.

@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
-//DEPS it.uhde:periph-kotlin:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
+//DEPS it.uhde:periph-kotlin:1.2.1
 
 // Long-range doorway people counter with a split ROI. The sensor hangs overhead in a doorway (up
 // to 2.5 m). Two narrow 8x16 ROIs (centre SPADs 167 and 231, the left/right half-array centres used

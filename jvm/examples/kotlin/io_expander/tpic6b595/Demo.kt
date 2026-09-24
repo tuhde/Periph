@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
-//DEPS it.uhde:periph-kotlin:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
+//DEPS it.uhde:periph-kotlin:1.2.1
 
 // TPIC6B595 demo — "knight rider" chase pattern across two cascaded devices.
 import it.uhde.periph.connection.SiPoConnection

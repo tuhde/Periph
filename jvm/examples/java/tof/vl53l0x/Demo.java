@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.2.0
-//DEPS it.uhde:periph-java:1.2.0
+//DEPS it.uhde:periph-connection:1.2.1
+//DEPS it.uhde:periph-java:1.2.1
 
 // Touchless presence gate with multi-rate ranging: a first measurement picks
 // the profile (long range in a dark room, default otherwise), then timed
