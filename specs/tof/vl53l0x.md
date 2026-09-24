@@ -4,6 +4,7 @@
 **Datasheet:** `datasheets/tof/vl53l0x.pdf` (DS11555 Rev 6, June 2024)
 **Category:** tof
 **Transports:** I²C
+**Base spec:** `specs/tof/_vl53_base.md` — shared register access, polling, boot, interrupt delivery, re-addressing and constants (shared with the VL53L1X; refactor added with issue #175)
 
 ## Overview
 
@@ -700,3 +701,16 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Checker `conformance/tof/vl53l0x_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
 - [x] Timing config `specs/tof/vl53l0x_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
 - [x] Decoder `sigrok/vl53l0x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+
+### Base class refactor (added with VL53L1X issue #175)
+- [ ] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base` (`python/periph/chips/tof/_vl53_base.py`)
+- [ ] Refactor `cpp/src/chips/tof/VL53L0X.h/.cpp` onto `VL53Base`
+- [ ] Refactor `nodejs/packages/periph/src/chips/tof/vl53l0x.js` onto `VL53Base`
+- [ ] Refactor `rust/periph/src/chips/tof/vl53l0x.rs` onto `Vl53Bus<I2C>`
+- [ ] Refactor `go/periph/chips/tof/vl53l0x.go` to embed `vl53Base`
+- [ ] Refactor JVM VL53L0X drivers: Java + Kotlin onto the Java `VL53Base`, Groovy onto its own `VL53Base.groovy`
+
+**Note:** this refactor must be behavior-preserving (see `specs/tof/_vl53_base.md`, "VL53L0X
+refactor rules"): no public API change, byte-identical I²C traffic, and the existing unit
+tests, conformance checker, sigrok decoder, UIFlow 1/2 blocks, Node-RED node and examples
+all stay untouched and passing.
