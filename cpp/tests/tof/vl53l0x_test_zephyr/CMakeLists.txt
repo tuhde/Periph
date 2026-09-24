@@ -7,6 +7,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 target_sources(app PRIVATE
     src/main.cpp
     ${CPP_DIR}/src/chips/tof/VL53L0X.cpp
+    ${CPP_DIR}/src/chips/tof/VL53Base.cpp
 )
 target_include_directories(app PRIVATE
     ${CPP_DIR}/src/connection

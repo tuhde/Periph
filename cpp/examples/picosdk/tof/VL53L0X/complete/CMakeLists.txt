@@ -13,6 +13,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../..)
 add_executable(vl53l0x_complete_picosdk
     src/main.cpp
     ${CPP_DIR}/src/chips/tof/VL53L0X.cpp
+    ${CPP_DIR}/src/chips/tof/VL53Base.cpp
 )
 
 target_include_directories(vl53l0x_complete_picosdk PRIVATE
