@@ -1,10 +1,9 @@
 package it.uhde.periph.chips.tof
 
 import it.uhde.periph.connection.Connection
-import it.uhde.periph.connection.EdgeHandler
-import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
 import java.io.IOException
+import java.util.function.IntConsumer
 import kotlin.math.roundToInt
 
 /**
@@ -24,13 +23,13 @@ class VL53L0XFull(connection: Connection) : VL53L0XMinimal(connection) {
 
     companion object {
         /** Interrupt source: range < low threshold. */
-        const val SOURCE_LEVEL_LOW = 0x01
+        const val SOURCE_LEVEL_LOW = VL53Base.SOURCE_LEVEL_LOW
         /** Interrupt source: range > high threshold. */
-        const val SOURCE_LEVEL_HIGH = 0x02
+        const val SOURCE_LEVEL_HIGH = VL53Base.SOURCE_LEVEL_HIGH
         /** Interrupt source: range < low threshold or > high threshold. */
-        const val SOURCE_OUT_OF_WINDOW = 0x03
+        const val SOURCE_OUT_OF_WINDOW = VL53Base.SOURCE_OUT_OF_WINDOW
         /** Interrupt source: a new measurement is available (driver default). */
-        const val SOURCE_NEW_SAMPLE_READY = 0x04
+        const val SOURCE_NEW_SAMPLE_READY = VL53Base.SOURCE_NEW_SAMPLE_READY
     }
 
     /** VCSEL period type for [setVcselPulsePeriod]. */
@@ -69,12 +68,6 @@ class VL53L0XFull(connection: Connection) : VL53L0XMinimal(connection) {
         val ambientRateMcps: Double,
         val effectiveSpadCount: Double,
     )
-
-    @Volatile private var callback: ((Int) -> Unit)? = null
-    private var intPin: InputPin? = null
-    @Volatile private var polling: Boolean = false
-    private var pollThread: Thread? = null
-    private val edgeHandler = EdgeHandler { handleEdge() }
 
     /**
      * Start continuous ranging.
@@ -327,8 +320,7 @@ class VL53L0XFull(connection: Connection) : VL53L0XMinimal(connection) {
      */
     @Synchronized
     fun setAddress(address: Int) {
-        require(address in 0x08..0x77) { "address must be 0x08 to 0x77" }
-        wr(REG_I2C_SLAVE_DEVICE_ADDRESS, address and 0x7F)
+        setAddressReg(REG_I2C_SLAVE_DEVICE_ADDRESS, address)
     }
 
     /**
@@ -402,11 +394,7 @@ class VL53L0XFull(connection: Connection) : VL53L0XMinimal(connection) {
      * @return the `SOURCE_*` value that fired, or 0 if nothing is pending
      */
     @Synchronized
-    fun pollInterrupt(): Int {
-        val status = rd(REG_RESULT_INTERRUPT_STATUS) and 0x07
-        if (status != 0) wr(REG_SYSTEM_INTERRUPT_CLEAR, 0x01)
-        return status
-    }
+    fun pollInterrupt(): Int = pollInterruptStatus()
 
     /**
      * Subscribe to GPIO1 events (falling edge, GPIO1 is active low). The
@@ -418,51 +406,11 @@ class VL53L0XFull(connection: Connection) : VL53L0XMinimal(connection) {
      *   `null` to force the 5 ms polling fallback
      */
     fun onInterrupt(callback: (Int) -> Unit, intPin: InputPin? = connection.intPin()) {
-        offInterrupt()
-        this.callback = callback
-        if (intPin != null) {
-            this.intPin = intPin
-            intPin.onEdge(edgeHandler, EdgeTrigger.FALLING)
-        } else {
-            startPolling()
-        }
+        subscribe(IntConsumer { callback(it) }, intPin)
     }
 
     /** Unsubscribe and stop delivery. */
     fun offInterrupt() {
-        callback = null
-        intPin?.offEdge(edgeHandler)
-        intPin = null
-        polling = false
-        pollThread?.interrupt()
-        pollThread = null
-    }
-
-    private fun startPolling() {
-        polling = true
-        pollThread = Thread({
-            while (polling) {
-                handleEdge()
-                try {
-                    Thread.sleep(5)
-                } catch (_: InterruptedException) {
-                    Thread.currentThread().interrupt()
-                    return@Thread
-                }
-            }
-        }, "vl53l0x-poll").apply {
-            isDaemon = true
-            start()
-        }
-    }
-
-    private fun handleEdge() {
-        try {
-            val status = pollInterrupt()
-            val cb = callback
-            if (status != 0 && cb != null) cb(status)
-        } catch (_: IOException) {
-            // bus error; wait for the next edge rather than propagating
-        }
+        unsubscribe()
     }
 }
