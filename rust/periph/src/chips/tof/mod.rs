@@ -1,3 +1,4 @@
+mod vl53_base;
 pub mod vl53l0x;
 pub use vl53l0x::{
     Vl53l0xMinimal, Vl53l0xFull, Vl53l0xError, Vl53l0xVcselPeriodType, Vl53l0xProfile, Vl53l0xMeasurement,
