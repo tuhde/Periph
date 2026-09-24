@@ -1,0 +1,131 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-vl53l1x', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            address:      { value: '0x29' },
+            distanceMode: { value: 'long' },
+            timingBudget: { value: '100' },
+            roiWidth:     { value: '16', validate: RED.validators.number() },
+            roiHeight:    { value: '16', validate: RED.validators.number() },
+            mode:         { value: 'single' },
+            periodMs:     { value: '100', validate: RED.validators.number() },
+
+            threshold:    { value: 'none' },
+            lowMm:        { value: '100', validate: RED.validators.number() },
+            highMm:       { value: '800', validate: RED.validators.number() },
+            gpioLine:     { value: '' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-h',
+        label:   function() { return this.name || 'VL53L1X'; },
+        paletteLabel: 'VL53L1X'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-vl53l1x">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="VL53L1X">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-map-marker"></i> I²C address</label>
+        <input type="text" id="node-input-address" style="width:80px"> &nbsp;(power-on default 0x29)
+    </div>
+    <div class="form-row">
+        <label for="node-input-distanceMode"><i class="fa fa-arrows-h"></i> Distance mode</label>
+        <select id="node-input-distanceMode" style="width:240px">
+            <option value="long">Long (up to 4 m, dark)</option>
+            <option value="short">Short (~1.3 m, sunlight-robust)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-timingBudget"><i class="fa fa-clock-o"></i> Timing budget</label>
+        <select id="node-input-timingBudget" style="width:240px">
+            <option value="15">15 ms (short mode only)</option>
+            <option value="20">20 ms</option>
+            <option value="33">33 ms</option>
+            <option value="50">50 ms</option>
+            <option value="100">100 ms</option>
+            <option value="200">200 ms</option>
+            <option value="500">500 ms</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-roiWidth"><i class="fa fa-crop"></i> ROI</label>
+        <input type="text" id="node-input-roiWidth" style="width:50px"> ×
+        <input type="text" id="node-input-roiHeight" style="width:50px"> &nbsp;SPADs (4–16 each)
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-repeat"></i> Mode</label>
+        <select id="node-input-mode" style="width:240px">
+            <option value="single">Single shot on each input</option>
+            <option value="continuous">Continuous (latest result on input)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-periodMs">&nbsp; Period ms</label>
+        <input type="text" id="node-input-periodMs" style="width:80px"> &nbsp;(continuous only; 0 = as fast as the budget)
+    </div>
+
+    <hr>
+    <div class="form-row">
+        <label for="node-input-threshold"><i class="fa fa-bell"></i> Threshold</label>
+        <select id="node-input-threshold" style="width:240px">
+            <option value="none">None</option>
+            <option value="level_low">Below low</option>
+            <option value="level_high">Above high</option>
+            <option value="out_of_window">Outside low…high window</option>
+            <option value="in_window">Inside low…high window</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-lowMm">&nbsp; Low mm</label>
+        <input type="text" id="node-input-lowMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-highMm">&nbsp; High mm</label>
+        <input type="text" id="node-input-highMm" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioLine">&nbsp; GPIO1 line</label>
+        <input type="text" id="node-input-gpioLine" style="width:80px" placeholder="e.g. 17"> &nbsp;(gpiochip0 offset; empty = poll over I²C)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-vl53l1x">
+    <p>Measures distance with a VL53L1X long-distance time-of-flight laser-ranging sensor over I²C (up to 4 m), and optionally reports distance-threshold events.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a reading: a single-shot measurement (about one timing budget long) in single-shot mode, or the latest result in continuous mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.distance_mm <span class="property-type">number</span></dt>
+        <dd>Distance in mm. Check <code>valid</code> — with no target the value is arbitrary.</dd>
+        <dt>payload.valid <span class="property-type">boolean</span></dt>
+        <dd>True when the range status is 0 (range valid).</dd>
+        <dt>payload.range_status <span class="property-type">number</span></dt>
+        <dd>Range status (0 = valid, 1 = sigma fail, 2 = signal fail, 4 = out of bounds, 7 = wrap-around, 255 = no update).</dd>
+        <dt>payload.signal_rate_mcps <span class="property-type">number</span></dt>
+        <dd>Return signal rate in MCPS (mega counts per second).</dd>
+        <dt>payload.ambient_rate_mcps <span class="property-type">number</span></dt>
+        <dd>Ambient (background IR) rate in MCPS.</dd>
+        <dt>payload.source <span class="property-type">string</span></dt>
+        <dd>Emitted separately when a threshold is configured and fires: <code>"level_low"</code>, <code>"level_high"</code>, <code>"out_of_window"</code> or <code>"in_window"</code>, together with <code>payload.distance_mm</code> of the triggering measurement.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and address (0x29 after power-up; the address is only changed from code). <i>Long</i> distance mode reaches up to 4 m in the dark but loses range under strong ambient light; <i>short</i> mode is limited to ~1.3 m but robust in sunlight. The timing budget (15 ms is short mode only) trades speed for range and repeatability. The region of interest (4×4 to 16×16 SPADs) narrows the field of view. In single-shot mode each input takes one measurement. In continuous mode the node starts ranging on deploy (period in ms, raised to at least the timing budget), each input returns the latest result, and ranging stops when the node is closed.</p>
+    <p>Threshold events need continuous mode — the sensor evaluates the thresholds per measurement. Set the low/high distances (1 mm resolution) and optionally the GPIO line (gpiod offset on gpiochip0) wired to the sensor's GPIO1 pin; without it the node polls the interrupt line state over I²C. While a threshold is active, the sensor only flags a result when the condition is met.</p>
+</script>

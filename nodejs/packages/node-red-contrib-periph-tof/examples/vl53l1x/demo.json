@@ -1,0 +1,149 @@
+[
+    {
+        "id": "tab-vl53l1x-demo",
+        "type": "tab",
+        "label": "VL53L1X Bin Level Demo",
+        "disabled": false,
+        "info": "An Inject node fires every 250 ms into a periph-vl53l1x node in single-shot mode (long distance mode, 50 ms timing budget), mounted at the top of a 2 m deep bin looking down. A Switch node routes on msg.payload.valid: valid readings go to a Function node that turns the distance into a fill level (fill_pct = 100 × (2000 − distance_mm) / 2000, clamped 0–100), then a filter (RBE) node in deadband mode passes only changes of at least 5 % to a Debug node labelled \"bin fill\"; invalid readings (no echo, e.g. range status 2 or 4) go to a second Debug node labelled \"no echo\". Long-range level monitoring like this is the use case the VL53L0X cannot cover beyond ~1.2 m. Adjust BIN_DEPTH_MM in the Function node to your container."
+    },
+    {
+        "id": "inj-range",
+        "type": "inject",
+        "name": "Range (250 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.25",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 1,
+        "z": "tab-vl53l1x-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "vl53l1x-node"
+            ]
+        ]
+    },
+    {
+        "id": "vl53l1x-node",
+        "type": "periph-vl53l1x",
+        "name": "Bin VL53L1X",
+        "bus": "1",
+        "address": "0x29",
+        "distanceMode": "long",
+        "timingBudget": "50",
+        "roiWidth": "16",
+        "roiHeight": "16",
+        "mode": "single",
+        "periodMs": "100",
+        "threshold": "none",
+        "lowMm": "100",
+        "highMm": "800",
+        "gpioLine": "",
+        "z": "tab-vl53l1x-demo",
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "sw-valid"
+            ]
+        ]
+    },
+    {
+        "id": "sw-valid",
+        "type": "switch",
+        "name": "valid?",
+        "property": "payload.valid",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "z": "tab-vl53l1x-demo",
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "fn-fill"
+            ],
+            [
+                "dbg-none"
+            ]
+        ]
+    },
+    {
+        "id": "fn-fill",
+        "type": "function",
+        "name": "fill level %",
+        "func": "const BIN_DEPTH_MM = 2000;\nconst d = msg.payload.distance_mm;\nconst fill = Math.min(100, Math.max(0, 100 * (BIN_DEPTH_MM - d) / BIN_DEPTH_MM));\nmsg.payload = { fill_pct: Math.round(fill), distance_mm: d };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-vl53l1x-demo",
+        "x": 740,
+        "y": 80,
+        "wires": [
+            [
+                "rbe-5pct"
+            ]
+        ]
+    },
+    {
+        "id": "rbe-5pct",
+        "type": "rbe",
+        "name": "changes ≥ 5 %",
+        "func": "deadbandEq",
+        "gap": "5",
+        "start": "",
+        "inout": "out",
+        "septopics": false,
+        "property": "payload.fill_pct",
+        "topi": "topic",
+        "z": "tab-vl53l1x-demo",
+        "x": 930,
+        "y": 80,
+        "wires": [
+            [
+                "dbg-fill"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-fill",
+        "type": "debug",
+        "name": "bin fill",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-vl53l1x-demo",
+        "x": 1110,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "dbg-none",
+        "type": "debug",
+        "name": "no echo",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-vl53l1x-demo",
+        "x": 750,
+        "y": 140,
+        "wires": []
+    }
+]
