@@ -38,7 +38,7 @@ static void _delay_ns_pico(unsigned ns) {
 // nop busy-wait, matching the pattern in AD7705.cpp.
 static void _delay_ns_host(unsigned ns) {
     volatile unsigned count = (ns / 10u) + 1u;
-    while (count--) { __asm__ volatile("nop"); }
+    while (count != 0) { count = count - 1; __asm__ volatile("nop"); }
 }
 #define _delay_ns(ns) _delay_ns_host(ns)
 #endif

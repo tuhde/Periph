@@ -10,22 +10,20 @@
 
 extern "C" void app_main(void) {
     // Default APA102 SPI pins: MOSI=GPIO23, SCK=GPIO18 (SPI2_HOST defaults)
-    spi_bus_config_t bus_cfg = {
-        .mosi_io_num = 23,
-        .miso_io_num = -1,
-        .sclk_io_num = 18,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = 0,
-    };
+    spi_bus_config_t bus_cfg = {};
+    bus_cfg.mosi_io_num = 23;
+    bus_cfg.miso_io_num = -1;
+    bus_cfg.sclk_io_num = 18;
+    bus_cfg.quadwp_io_num = -1;
+    bus_cfg.quadhd_io_num = -1;
+    bus_cfg.max_transfer_sz = 0;
     spi_bus_initialize(SPI2_HOST, &bus_cfg, SPI_DMA_CH_AUTO);
 
-    spi_device_interface_config_t dev_cfg = {
-        .mode = 0,
-        .clock_speed_hz = 1000000,  // 1 MHz for APA102
-        .spics_io_num = -1,         // No hardware CS needed
-        .queue_size = 1,
-    };
+    spi_device_interface_config_t dev_cfg = {};
+    dev_cfg.mode = 0;
+    dev_cfg.clock_speed_hz = 1000000;  // 1 MHz for APA102
+    dev_cfg.spics_io_num = -1;  // No hardware CS needed
+    dev_cfg.queue_size = 1;
     spi_device_handle_t spi_dev;
     spi_bus_add_device(SPI2_HOST, &dev_cfg, &spi_dev);
 

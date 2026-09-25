@@ -6,5 +6,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/comms
-    REQUIRES driver esp_driver_spi
+    REQUIRES esp_driver_spi esp_timer
 )

@@ -595,7 +595,7 @@ from periph.connection.i2c_linux import I2CConnection          # Linux
 
 ## C++ conventions
 
-Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.2; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own connection implementation.
+Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.3, CI builds with v6.1; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own connection implementation.
 
 ### Chip drivers
 
@@ -613,7 +613,7 @@ Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF**
 | `I2CConnection.h/.cpp` | Arduino | `Wire` (or any `TwoWire&`) |
 | `I2CConnectionLinux.h/.cpp` | Linux GCC | `/dev/i2c-N` via `linux/i2c-dev.h` |
 | `I2CConnectionZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
-| `I2CConnectionESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.2), header-only |
+| `I2CConnectionESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.3), header-only |
 | `I2CConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
 | `SMBusConnection.h/.cpp` | Arduino | PEC-capable variant of `I2CConnection` |
 | `SMBusConnectionLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CConnectionLinux` |
@@ -707,9 +707,11 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/<category>
-    REQUIRES driver
+    REQUIRES esp_driver_i2c
 )
 ```
+
+`REQUIRES` lists the per-peripheral driver component for each `driver/*.h` header the app uses, directly or through a `*ConnectionESPIDF.h`: `esp_driver_i2c` (`i2c_master.h`), `esp_driver_spi` (`spi_master.h`), `esp_driver_uart` (`uart.h`), `esp_driver_gpio` (`gpio.h`), `esp_driver_rmt` (`rmt_tx.h`). From ESP-IDF v6.0 on, the catch-all `driver` component no longer provides these headers.
 
 The top-level `CMakeLists.txt` uses the standard ESP-IDF `project.cmake` include:
 ```cmake
@@ -725,7 +727,7 @@ CONFIG_COMPILER_CXX_EXCEPTIONS=n
 CONFIG_COMPILER_CXX_RTTI=n
 ```
 
-The example configures its own bus at file scope — `i2c_master_bus_config_t` + `i2c_new_master_bus()` for I²C, `spi_bus_initialize()` for SPI, `uart_driver_install()` + `uart_param_config()` + `uart_set_pin()` for UART, `gpio_set_direction()` for HX711 GPIO bit-bang — before constructing the chip driver. Built with `idf.py build` and flashed with `idf.py -p <port> flash`.
+The example configures its own bus at file scope — `i2c_master_bus_config_t` + `i2c_new_master_bus()` for I²C, `spi_bus_initialize()` for SPI, `uart_driver_install()` + `uart_param_config()` + `uart_set_pin()` for UART, `gpio_set_direction()` for HX711 GPIO bit-bang — before constructing the chip driver. Config structs are zero-initialized and then assigned field by field (`i2c_master_bus_config_t bus_cfg = {}; bus_cfg.i2c_port = I2C_NUM_0; …`), never designated-initialized: ESP-IDF builds with `-Werror -Wmissing-field-initializers`, and new ESP-IDF releases add struct fields. Built with `idf.py build` and flashed with `idf.py -p <port> flash`.
 
 Default I²C pins are `GPIO21` (SDA) and `GPIO22` (SCL) on `I2C_NUM_0`; default SPI is `SPI2_HOST` at 2.4 MHz (NeoPixel); default UART is `UART_NUM_1` at 9600 baud (NEO-6 GPS); default HX711 GPIO is `GPIO19` (DOUT) and `GPIO18` (PD_SCK). Override by editing the file-scope bus-config block at the top of `main.cpp`.
 

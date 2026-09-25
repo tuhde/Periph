@@ -5,5 +5,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/humidity
-    REQUIRES driver esp_timer
+    REQUIRES esp_driver_gpio esp_timer
 )

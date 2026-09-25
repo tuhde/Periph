@@ -7,5 +7,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/led
-    REQUIRES driver
+    REQUIRES esp_driver_spi esp_driver_rmt
 )

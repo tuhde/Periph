@@ -69,19 +69,19 @@ void ADXL362Minimal::init() {
 }
 
 void ADXL362Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[3] = { CMD_WRITE_REG, reg & 0x3F, value };
+    uint8_t buf[3] = { CMD_WRITE_REG, static_cast<uint8_t>(reg & 0x3F), value };
     _connection.write(buf, 3);
 }
 
 uint8_t ADXL362Minimal::_read_reg(uint8_t reg) {
-    uint8_t cmd[2] = { CMD_READ_REG, reg & 0x3F };
+    uint8_t cmd[2] = { CMD_READ_REG, static_cast<uint8_t>(reg & 0x3F) };
     uint8_t val = 0;
     _connection.write_read(cmd, 2, &val, 1);
     return val;
 }
 
 void ADXL362Minimal::_read_burst(uint8_t reg, uint8_t* buf, uint8_t len) {
-    uint8_t cmd[2] = { CMD_READ_REG, reg & 0x3F };
+    uint8_t cmd[2] = { CMD_READ_REG, static_cast<uint8_t>(reg & 0x3F) };
     _connection.write_read(cmd, 2, buf, len);
 }
 
