@@ -51,7 +51,6 @@ extern "C" void app_main(void) {
     inst.angular_rate(x3, y3, z3);
     check_true(x3 >= -2000.0f && x3 <= 2000.0f, "set_full_scale_2000");
 
-    check_true(inst.status() <= 0xFF, "status_readable");
     check_true(inst.temperature() >= -50 && inst.temperature() <= 100, "temperature_range");
 
     inst.enable_fifo(2, 10);

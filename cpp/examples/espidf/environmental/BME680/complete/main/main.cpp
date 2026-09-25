@@ -33,7 +33,7 @@ extern "C" void app_main(void) {
     uint8_t cid;
     chip.chip_id();                                   // Read chip ID, () → uint8_t
     // returns 0x61 for BME680
-    chip.configure(1, 1, 1, BME680Full::MODE_FORCED, BME680Full::FILTER_OFF);  // Configure, (osrs_t 0-5, osrs_p 0-5, osrs_h 0-5, mode, filter 0-7) → void
+    chip.configure(1, 1, 1, BME680Full::MODE_FORCED, BME680Full::FILTER_0);    // Configure, (osrs_t 0-5, osrs_p 0-5, osrs_h 0-5, mode, filter 0-7) → void
     // writes ctrl_hum, ctrl_meas, config in correct order
     chip.set_oversampling(BME680Full::OSRS_X2, BME680Full::OSRS_X4, BME680Full::OSRS_X1);  // Set oversampling, (osrs_t 0-5, osrs_p 0-5, osrs_h 0-5) → void
     chip.set_filter(BME680Full::FILTER_3);            // Set IIR filter, (coeff 0-7) → void

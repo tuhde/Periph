@@ -5,7 +5,7 @@
 // ============================================================
 
 PCF8575Minimal::PCF8575Minimal(Connection& connection, uint8_t addr)
-    : _connection(connection), _addr(addr), _shadow{0xFF, 0xFF}
+    : _shadow{0xFF, 0xFF}, _connection(connection), _addr(addr)
 {
     _write_both();
 }

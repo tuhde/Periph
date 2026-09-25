@@ -51,7 +51,6 @@ extern "C" void app_main(void) {
     check_eq_u8(inst.chip_id(), 0xAB, "chip_id");
     uint16_t c, r, g, b;
     inst.color(c, r, g, b);
-    check_true(c <= 65535, "clear in range");
     inst.configure_als(0xB6, 1);
     uint8_t p = inst.proximity();
     (void)p;

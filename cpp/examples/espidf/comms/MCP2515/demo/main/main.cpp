@@ -56,7 +56,7 @@ extern "C" void app_main(void) {
         bool got = mcp2515.recv(frame, 100);                          // Poll for a received frame, (frame, timeout_ms=100) → bool
 
         if (got) {
-            printf("RX id=0x%X dlc=%u data=", frame.extended ? frame.id : (frame.id & 0x7FF),
+            printf("RX id=0x%X dlc=%u data=", (unsigned)(frame.extended ? frame.id : (frame.id & 0x7FF)),
                    frame.dlc);
             for (uint8_t i = 0; i < frame.dlc; i++) printf("%02X ", frame.data[i]);
             printf("[%s%s]\n", frame.extended ? "EXT" : "STD", frame.rtr ? "/RTR" : "");
