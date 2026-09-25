@@ -30,13 +30,12 @@ static void check_eq_u8(uint8_t val, uint8_t expected, const char *label) {
 
 
 extern "C" void app_main(void) {
-    uart_config_t uart_cfg = {
-        .baud_rate = 9600,
-        .data_bits = UART_DATA_8_BITS,
-        .parity    = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-    };
+    uart_config_t uart_cfg = {};
+    uart_cfg.baud_rate = 9600;
+    uart_cfg.data_bits = UART_DATA_8_BITS;
+    uart_cfg.parity = UART_PARITY_DISABLE;
+    uart_cfg.stop_bits = UART_STOP_BITS_1;
+    uart_cfg.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
     uart_driver_install(UART_NUM_1, 1024, 1024, 0, NULL, 0);
     uart_param_config(UART_NUM_1, &uart_cfg);
     uart_set_pin(UART_NUM_1, 17, 16, -1, -1);  // TX=17, RX=16

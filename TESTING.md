@@ -240,7 +240,7 @@ cpp/test_zephyr.sh --board esp32s3-sensor-devkit
 
 ### ESP-IDF (`cpp/test_espidf.sh`)
 
-**Prerequisites:** ESP-IDF ≥5.2 with `IDF_PATH` exported (or its `export.sh` sourced), `idf.py` on `PATH`, `pyserial` (`pip install pyserial`)
+**Prerequisites:** ESP-IDF ≥5.3 (CI builds with v6.1) with `IDF_PATH` exported (or its `export.sh` sourced), `idf.py` on `PATH`, `pyserial` (`pip install pyserial`)
 
 **Config:** `cpp/testconfig_espidf` (or `--board`)
 
@@ -262,7 +262,7 @@ Pins: each chip's test app hard-codes its default I²C pins (`GPIO21` SDA / `GPI
 
 **Note on the I²C frequency:** the generated tests configure `I2C_NUM_0` at 400 kHz (fast-mode, the rate every chip in this repo supports). Drop to 100 kHz by editing the per-test `scl_speed_hz` field if your device is standard-mode only.
 
-**ESP-IDF ≥6.0's `esp_driver_i2c` component:** `driver/i2c_master.h` moved out of the catch-all `driver` component into `esp_driver_i2c`. A test app's `main/CMakeLists.txt` needs both in `REQUIRES` (`REQUIRES driver esp_driver_i2c`) or the build fails with "esp_driver_i2c component(s) is not in the requirements list."
+**Per-peripheral driver components:** from ESP-IDF v6.0 on, `driver/i2c_master.h`, `spi_master.h`, `uart.h`, `gpio.h` and `rmt_tx.h` are only provided by their own components (`esp_driver_i2c`, `esp_driver_spi`, `esp_driver_uart`, `esp_driver_gpio`, `esp_driver_rmt`), not by the catch-all `driver` component. A test app's `main/CMakeLists.txt` must list each one it uses in `REQUIRES` (see the ESP-IDF test template below).
 
 ### Raspberry Pi Pico SDK (`cpp/test_picosdk.sh`)
 
@@ -708,7 +708,7 @@ CONFIG_COMPILER_CXX_RTTI=n
 
 `main/CMakeLists.txt`:
 ```cmake
-set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../..)
 
 idf_component_register(
     SRCS "main.cpp"
@@ -716,10 +716,10 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/<category>
-    REQUIRES driver esp_driver_i2c
+    REQUIRES esp_driver_i2c
 )
 ```
-`esp_driver_i2c` is required alongside `driver` on ESP-IDF ≥6.0 — `driver/i2c_master.h` moved into its own component.
+List the per-peripheral driver component for every `driver/*.h` header the app pulls in (directly or through a `*ConnectionESPIDF.h`): `esp_driver_i2c` for `i2c_master.h`, `esp_driver_spi` for `spi_master.h`, `esp_driver_uart` for `uart.h`, `esp_driver_gpio` for `gpio.h`, `esp_driver_rmt` for `rmt_tx.h`. From ESP-IDF v6.0 on, the catch-all `driver` component no longer provides these headers, so `REQUIRES driver` alone fails with "No such file or directory". The split components exist from v5.3 on.
 
 `main/main.cpp`:
 ```cpp
@@ -738,26 +738,20 @@ static void check_true(bool cond, const char *label) {
 }
 
 extern "C" void app_main(void) {
-    i2c_master_bus_config_t bus_cfg = {
-        .i2c_port = I2C_NUM_0,
-        .sda_io_num = static_cast<gpio_num_t>(21),
-        .scl_io_num = static_cast<gpio_num_t>(22),
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .glitch_ignore_cnt = 7,
-        .intr_priority = 0,
-        .trans_queue_depth = 0,
-        .flags = { .enable_internal_pullup = true, .allow_pd = false },
-    };
+    i2c_master_bus_config_t bus_cfg = {};
+    bus_cfg.i2c_port = I2C_NUM_0;
+    bus_cfg.sda_io_num = static_cast<gpio_num_t>(21);
+    bus_cfg.scl_io_num = static_cast<gpio_num_t>(22);
+    bus_cfg.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_cfg.glitch_ignore_cnt = 7;
+    bus_cfg.flags.enable_internal_pullup = true;
     i2c_master_bus_handle_t bus;
     i2c_new_master_bus(&bus_cfg, &bus);
 
-    i2c_device_config_t dev_cfg = {
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address  = 0x40,
-        .scl_speed_hz    = 400000,
-        .scl_wait_us     = 0,
-        .flags           = {},
-    };
+    i2c_device_config_t dev_cfg = {};
+    dev_cfg.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    dev_cfg.device_address = 0x40;
+    dev_cfg.scl_speed_hz = 400000;
     i2c_master_dev_handle_t dev;
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
@@ -768,7 +762,7 @@ extern "C" void app_main(void) {
 }
 ```
 
-Fill in every field of `i2c_master_bus_config_t`/`i2c_device_config_t` explicitly, even ones you're leaving at their default value — omitting any of them still zero-fills them at runtime, but `-Werror -Wmissing-field-initializers` (this repo's build flags) turns the warning into a hard build failure on ESP-IDF ≥6.0, which added several new fields.
+Zero-initialize ESP-IDF config structs (`= {}`) and then assign fields one by one; don't use designated initializers (`= { .i2c_port = …, }`). ESP-IDF builds with `-Werror -Wmissing-field-initializers`, and every release that adds a field to `i2c_master_bus_config_t`, `i2c_device_config_t`, `spi_bus_config_t`, `uart_config_t`, … would break a designated initializer that leaves it out. Zero-then-assign compiles unchanged across versions, and unset fields keep their zero defaults.
 
 The default `GPIO21` SDA / `GPIO22` SCL on `I2C_NUM_0` works on most ESP32 boards. To use a different pin pair or move to `I2C_NUM_1`, edit the bus-config block at the top of `main.cpp`.
 

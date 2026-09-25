@@ -35,7 +35,7 @@ void ADE7953Minimal::_delayMs(uint32_t ms) {
     // Busy-wait ~ms milliseconds; portable across bare-metal targets.
     // 1 ms at >=1 MHz clock with no optimisation: ~1000 iterations.
     volatile uint32_t count = ms * 1000u;
-    while (count--) { __asm__ volatile("nop"); }
+    while (count != 0) { count = count - 1; __asm__ volatile("nop"); }
 }
 
 
