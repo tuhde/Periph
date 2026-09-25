@@ -42,7 +42,7 @@ extern "C" void app_main(void) {
     chip.status();                                    // Read status register, () → uint8_t
     chip.temperature();                               // Read temperature, () → float °C
     chip.pressure();                                  // Read pressure, () → float hPa
-    chip.altitude();                                  // Compute altitude, (sea_level_hpa=1013.25) → float m
+    alt = chip.altitude();                            // Compute altitude, (sea_level_hpa=1013.25) → float m
     chip.sea_level_pressure(alt);                     // Compute sea-level pressure, (altitude_m) → float hPa
     chip.reset();                                     // Soft reset chip, () → void
     vTaskDelay(pdMS_TO_TICKS(1000));

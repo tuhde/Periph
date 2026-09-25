@@ -1,3 +1,4 @@
+#include <driver/i2c_master.h>
 #include <I2CConnectionESPIDF.h>
 #include <L3gd20h.h>
 #include <esp_log.h>
@@ -7,7 +8,24 @@
 static const char* TAG = "l3gd20h_complete";
 
 extern "C" void app_main(void) {
-    I2CConnectionESPIDF conn(I2C_NUM_0, 0x6A);
+    i2c_master_bus_config_t bus_cfg = {};
+    bus_cfg.i2c_port = I2C_NUM_0;
+    bus_cfg.sda_io_num = static_cast<gpio_num_t>(21);
+    bus_cfg.scl_io_num = static_cast<gpio_num_t>(22);
+    bus_cfg.clk_source = I2C_CLK_SRC_DEFAULT;
+    bus_cfg.glitch_ignore_cnt = 7;
+    bus_cfg.flags.enable_internal_pullup = true;
+    i2c_master_bus_handle_t bus;
+    i2c_new_master_bus(&bus_cfg, &bus);
+
+    i2c_device_config_t dev_cfg = {};
+    dev_cfg.dev_addr_length = I2C_ADDR_BIT_LEN_7;
+    dev_cfg.device_address = 0x6A;
+    dev_cfg.scl_speed_hz = 400000;
+    i2c_master_dev_handle_t dev;
+    i2c_master_bus_add_device(bus, &dev_cfg, &dev);
+
+    I2CConnectionESPIDF conn(dev);
     L3gd20hFull gyro(conn);
 
     gyro.configure(L3gd20hFull::ODR_190_HZ, 0, 1);  // Configure, (odr 0-3, bw 0-3, full_scale 0-2) -> None
@@ -19,9 +37,6 @@ extern "C" void app_main(void) {
     gyro.enable_fifo(true);                            // Enable FIFO, (enable=true) -> None
 
     gyro.set_power_mode(L3gd20hFull::POWER_NORMAL);    // Set power mode, (mode='normal'/'sleep'/'power_down') -> None
-
-    uint8_t who = gyro.who_am_i();                     // Read WHO_AM_I, () -> uint8_t
-    ESP_LOGI(TAG, "WHO_AM_I: 0x%02X", who);
 
     int8_t temp = gyro.temperature();                  // Read temperature, () -> int8_t
     ESP_LOGI(TAG, "Temperature: %d", temp);

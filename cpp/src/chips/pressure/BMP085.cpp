@@ -41,17 +41,17 @@ void BMP085Minimal::_read_calibration() {
     _mc  = (int16_t)((buf[18] << 8) | buf[19]);
     _md  = (int16_t)((buf[20] << 8) | buf[21]);
 
-    if (_ac1 == 0 || _ac1 == 0xFFFF ||
-        _ac2 == 0 || _ac2 == 0xFFFF ||
-        _ac3 == 0 || _ac3 == 0xFFFF ||
+    if (_ac1 == 0 || (uint16_t)_ac1 == 0xFFFF ||
+        _ac2 == 0 || (uint16_t)_ac2 == 0xFFFF ||
+        _ac3 == 0 || (uint16_t)_ac3 == 0xFFFF ||
         _ac4 == 0 || _ac4 == 0xFFFF ||
         _ac5 == 0 || _ac5 == 0xFFFF ||
         _ac6 == 0 || _ac6 == 0xFFFF ||
-        _b1  == 0 || _b1  == 0xFFFF ||
-        _b2  == 0 || _b2  == 0xFFFF ||
-        _mb  == 0 || _mb  == 0xFFFF ||
-        _mc  == 0 || _mc  == 0xFFFF ||
-        _md  == 0 || _md  == 0xFFFF) {
+        _b1  == 0 || (uint16_t)_b1 == 0xFFFF ||
+        _b2  == 0 || (uint16_t)_b2 == 0xFFFF ||
+        _mb  == 0 || (uint16_t)_mb == 0xFFFF ||
+        _mc  == 0 || (uint16_t)_mc == 0xFFFF ||
+        _md  == 0 || (uint16_t)_md == 0xFFFF) {
         abort();
     }
 }

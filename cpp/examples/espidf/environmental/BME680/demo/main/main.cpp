@@ -34,7 +34,7 @@ extern "C" void app_main(void) {
     // --- Log T/P/H/gas with the heater on ---
     // BME680 needs the gas-sensor heater enabled; once a gas conversion completes, gas_resistance() returns the resistance reading.
 
-    chip.configure(1, 1, 1, BME680Full::MODE_FORCED, BME680Full::FILTER_OFF);  // Configure, (osrs_t 0-5, osrs_p 0-5, osrs_h 0-5, mode, filter 0-7) → void
+    chip.configure(1, 1, 1, BME680Full::MODE_FORCED, BME680Full::FILTER_0);    // Configure, (osrs_t 0-5, osrs_p 0-5, osrs_h 0-5, mode, filter 0-7) → void
     chip.set_heater(320, 150);                        // Configure heater profile 0, (temp_c 200-400, duration_ms 1-4032) → void
     chip.read_all(t, p, h, g);                        // Read all values, (t, p, h, g) → void
     chip.temperature();                               // Read temperature, () → float °C

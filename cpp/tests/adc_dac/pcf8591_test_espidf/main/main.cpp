@@ -49,7 +49,7 @@ extern "C" void app_main(void) {
     I2CConnectionESPIDF connection(dev);
     PCF8591Full inst(connection);  // Create PCF8591 driver
     uint8_t raw = inst.read_channel(0);
-    check_true(raw <= 255, "raw in 0-255");
+    (void)raw;
     uint8_t buf[4];
     inst.read_all(buf);
     check_true(true, "pcf8591 read_all ok");

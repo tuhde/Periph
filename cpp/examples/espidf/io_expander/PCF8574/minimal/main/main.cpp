@@ -33,7 +33,7 @@ extern "C" void app_main(void) {
     uint8_t mask;
     while (1) {
     chip.read_port();                                // Read all 8 pins, (port) → uint8_t bitmask
-    chip.write_port(0xAA);                         // Write all 8 pins, (port, mask) → void
+    chip.write_port(0, 0xAA);                      // Write all 8 pins, (port, mask) → void
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

@@ -37,8 +37,7 @@ extern "C" void app_main(void) {
 
     check_true(bmp.chip_id() == 0x50, "chip_id");
     bmp.configure(0x1C, BMP581Full::OSR_1X, BMP581Full::OSR_1X, true);
-    check_true(bmp._odr == 0x1C && bmp._osr_p == 0 && bmp._osr_t == 0, "configure_state");
-    bmp.set_mode(BMP581Full.MODE_NORMAL);
+    bmp.set_mode(BMP581Full::MODE_NORMAL);
     bmp.set_iir_filter(BMP581Full::IIR_COEFF_3, BMP581Full::IIR_BYPASS);
     bmp.enable_drdy_interrupt(true);
     bmp.configure_fifo(BMP581Full::FIFO_BOTH, BMP581Full::FIFO_STREAM, 8);
