@@ -92,10 +92,9 @@ The registry check validates the repo's latest tag
 (`git describe --tags $(git rev-list --tags --max-count=1)`); every tag in
 `Periph-Arduino` is a library release, so that is always valid.
 
-After the PR is merged, the indexer picks up every new `vX.Y.Z` tag within
-about an hour. Then switch the `Arduino Lint` step in
-`.github/workflows/ci.yml` from `library-manager: submit` to `update`
-(`submit` fails once the name `Periph` is taken — by us).
+Registered via arduino/library-registry#9201 (2026-09-24). The indexer picks
+up every new `vX.Y.Z` tag within about an hour; the CI `Arduino Lint` step runs
+with `library-manager: update`.
 
 Requirements to keep in mind:
 

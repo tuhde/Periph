@@ -57,13 +57,13 @@ jobs:
           mkdir -p "$RUNNER_TEMP/Periph"
           cpp/scripts/stage-arduino-library.sh "$RUNNER_TEMP/Periph"
 
-      # Switch library-manager to "update" once Periph is in the Library
-      # Manager index ("submit" then fails because the name is taken).
+      # "update": Periph is registered (arduino/library-registry#9201), so
+      # the name must stay the same and each release needs a new version.
       - name: Arduino Lint
         uses: arduino/arduino-lint-action@v2
         with:
           path: ${{ runner.temp }}/Periph
-          library-manager: submit
+          library-manager: update
           compliance: strict
 
       - name: Check cpp/README.md is up to date
