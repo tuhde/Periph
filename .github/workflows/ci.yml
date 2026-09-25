@@ -208,6 +208,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Every app recompiles the same ~1,000 ESP-IDF sources; with ccache
+      # only the first app per shard pays for that. The image doesn't ship it.
+      - name: Install ccache
+        run: command -v ccache || { apt-get update && apt-get install -y --no-install-recommends ccache; }
+
       - name: Build all apps
         shell: bash
         run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/6
