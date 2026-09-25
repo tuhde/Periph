@@ -6,14 +6,21 @@
 #include <stdio.h>
 #include <math.h>
 
+#ifndef L3GD20H_I2C_NODE
+#define L3GD20H_I2C_NODE DT_NODELABEL(i2c0)
+#endif
+#ifndef L3GD20H_ADDR
+#define L3GD20H_ADDR 0x6A
+#endif
+
 int main(void) {
-    const struct device* i2c_dev = DEVICE_DT_GET(DT_ALIAS(l3gd20h_i2c));
+    const struct device* i2c_dev = DEVICE_DT_GET(L3GD20H_I2C_NODE);
     if (!device_is_ready(i2c_dev)) {
         printf("I2C device not ready\n");
         return 0;
     }
 
-    I2CConnectionZephyr conn(i2c_dev, 0x6A);
+    I2CConnectionZephyr conn(i2c_dev, L3GD20H_ADDR);
     L3gd20hFull gyro(conn);
 
     // --- Configure for shake detection at 190 Hz, ±500 dps ---

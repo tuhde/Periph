@@ -24,9 +24,6 @@ int main() {
 
     gyro.set_power_mode(L3gd20hFull::POWER_NORMAL);    // Set power mode, (mode='normal'/'sleep'/'power_down') -> None
 
-    uint8_t who = gyro.who_am_i();                     // Read WHO_AM_I, () -> uint8_t
-    printf("WHO_AM_I: 0x%02X\n", who);
-
     int8_t temp = gyro.temperature();                  // Read temperature, () -> int8_t
     printf("Temperature: %d\n", temp);
 

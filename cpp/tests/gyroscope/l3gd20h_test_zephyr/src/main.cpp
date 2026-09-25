@@ -1,30 +1,33 @@
+#include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
-#include <zephyr/drivers/i2c.h>
-#include <I2CConnectionZephyr.h>
-#include <L3gd20h.h>
-#include <stdio.h>
+#include <zephyr/devicetree.h>
+#include "I2CConnectionZephyr.h"
+#include "L3gd20h.h"
+
+#ifndef L3GD20H_I2C_NODE
+#define L3GD20H_I2C_NODE DT_NODELABEL(i2c0)
+#endif
+#ifndef L3GD20H_ADDR
+#define L3GD20H_ADDR 0x6A
+#endif
+
+static int passed = 0, failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printk("PASS %s\n", label); passed++; }
+    else       { printk("FAIL %s\n", label); failed++; }
+}
 
 int main(void) {
-    const struct device* i2c_dev = DEVICE_DT_GET(DT_ALIAS(l3gd20h_i2c));
-    if (!device_is_ready(i2c_dev)) {
-        printf("I2C device not ready\n");
-        return 0;
-    }
-
-    I2CConnectionZephyr conn(i2c_dev, 0x6A);
-    L3gd20hMinimal gyro(conn);
-
-    printf("=== L3GD20H Zephyr Test ===\n");
+    const struct device *dev = DEVICE_DT_GET(L3GD20H_I2C_NODE);
+    I2CConnectionZephyr connection(dev, L3GD20H_ADDR);
+    L3gd20hMinimal gyro(connection);
 
     float x, y, z;
     gyro.gyro(x, y, z);
-    if (isnan(x) || isnan(y) || isnan(z)) {
-        printf("FAIL gyro() returns NaN\n");
-    } else {
-        printf("PASS gyro() returns valid floats\n");
-    }
+    check_true(!isnan(x) && !isnan(y) && !isnan(z), "gyro() returns valid floats");
 
-    printf("=== DONE: 1 passed, 0 failed ===\n");
+    printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return 0;
 }
