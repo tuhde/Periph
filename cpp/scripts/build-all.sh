@@ -85,9 +85,13 @@ build_picosdk() {
     cmake --build "$out/b" -- -j"$(nproc)"
 }
 
+# Every app recompiles the same ~1,000 ESP-IDF sources. For ccache to share
+# them between apps it must ignore the per-project -fmacro-prefix-map and
+# hash the specs file ESP-IDF regenerates per build by content, not mtime.
 build_espidf() {
     local app="$1" out="$2" rc
     ( cd "$app" && IDF_TARGET="${ESPIDF_TARGET:-esp32}" IDF_CCACHE_ENABLE=1 \
+        CCACHE_IGNOREOPTIONS='-fmacro-prefix-map=*' CCACHE_COMPILERCHECK=content \
         idf.py -B "$out/b" -D SDKCONFIG="$out/b/sdkconfig" build )
     rc=$?
     rm -f "$app/dependencies.lock"
