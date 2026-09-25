@@ -25,30 +25,30 @@ int main(void) {
     MCP4725Full dac(connection);
 
     dac.set_voltage(0.5f);
-    check_true("set_voltage(0.5) accepted", true);
+    check_true(true, "set_voltage(0.5) accepted");
 
     dac.set_raw(2048);
-    check_true("set_raw(2048) accepted", true);
+    check_true(true, "set_raw(2048) accepted");
 
     dac.set_voltage_eeprom(0.5f);
-    check_true("set_voltage_eeprom(0.5) accepted", true);
+    check_true(true, "set_voltage_eeprom(0.5) accepted");
 
     dac.set_raw_eeprom(2048);
-    check_true("set_raw_eeprom(2048) accepted", true);
+    check_true(true, "set_raw_eeprom(2048) accepted");
 
     MCP4725Full::ReadResult state = dac.read();
-    check_true("read returns code", state.code <= 4095);
-    check_true("read returns eeprom_code", state.eeprom_code <= 4095);
-    check_true("read returns voltage_fraction", state.voltage_fraction >= 0.0f && state.voltage_fraction <= 1.0f);
+    check_true(state.code <= 4095, "read returns code");
+    check_true(state.eeprom_code <= 4095, "read returns eeprom_code");
+    check_true(state.voltage_fraction >= 0.0f && state.voltage_fraction <= 1.0f, "read returns voltage_fraction");
 
     dac.wake_up();
-    check_true("wake_up accepted", true);
+    check_true(true, "wake_up accepted");
 
     dac.reset();
-    check_true("reset accepted", true);
+    check_true(true, "reset accepted");
 
     bool ready = dac.is_eeprom_ready();
-    check_true("is_eeprom_ready returns bool", true);
+    check_true(true, "is_eeprom_ready returns bool");
 
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

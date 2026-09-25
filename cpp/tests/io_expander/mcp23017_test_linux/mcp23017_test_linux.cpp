@@ -11,11 +11,6 @@
 
 static int passed = 0, failed = 0;
 
-static void check_true(const char *label, bool cond) {
-    if (cond) { printf("PASS %s\n", label); passed++; }
-    else       { printf("FAIL %s\n", label); failed++; }
-}
-
 static void check_eq(const char* label, int got, int expected) {
     if (got == expected) { printf("PASS %s\n", label); passed++; }
     else { printf("FAIL %s: got %02X want %02X\n", label, got, expected); failed++; }
@@ -30,8 +25,7 @@ int main() {
     check_eq("init_shadow_a", mcp._shadow[0], 0x00);
     check_eq("init_shadow_b", mcp._shadow[1], 0x00);
 
-    uint8_t porta = mcp.read_port(0);
-    check_true("read_port_a_range", porta >= 0 && porta <= 255);
+    mcp.read_port(0);
 
     mcp.write_port(0, 0x55);
     check_eq("write_port_shadow_a", mcp._shadow[0], 0x55);
@@ -75,14 +69,12 @@ int main() {
     check_eq("pullup_a", full._pullup[0], 0x3F);
 
     full.set_default_value(0, 0x00);
-    full.onInterrupt(0, [](uint8_t status) {});
+    full.onInterrupt(0, [](uint8_t) {});
     full.offInterrupt(0);
 
-    uint8_t flags = full.pollInterrupt(0);
-    check_true("poll_interrupt_range", flags >= 0 && flags <= 255);
+    full.pollInterrupt(0);
 
-    uint8_t capture = full.read_capture(0);
-    check_true("read_capture_range", capture >= 0 && capture <= 255);
+    full.read_capture(0);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

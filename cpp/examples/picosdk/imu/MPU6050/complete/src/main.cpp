@@ -13,7 +13,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x68);
-    MPU6050Full mpu6050(connection);
+    MPU6050Full imu(connection);
 
     stdio_init_all();
 

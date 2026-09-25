@@ -5,6 +5,17 @@
 #include "I2CConnectionPicoSDK.h"
 #include "ENS160.h"
 
+static const char* aqi_label(uint8_t aqi) {
+    switch (aqi) {
+        case 1: return "Excellent";
+        case 2: return "Good";
+        case 3: return "Moderate";
+        case 4: return "Poor";
+        case 5: return "Unhealthy";
+        default: return "Unknown";
+    }
+}
+
 int main(void) {
     // I2C0 on GP4 (SDA) / GP5 (SCL) — pico-sdk default I2C pins
     i2c_init(i2c0, 100 * 1000);
@@ -14,14 +25,6 @@ int main(void) {
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x53);
     ENS160Full sensor(connection);
-
-    static int passed = 0, failed = 0;
-            case 1: return "Excellent";
-            case 2: return "Good";
-            case 3: return "Moderate";
-            case 4: return "Poor";
-            case 5: return "Unhealthy";
-            default: return "Unknown";
 
     stdio_init_all();
     sleep_ms(2000);
@@ -57,28 +60,14 @@ int main(void) {
         float tvoc_ppb, eco2_ppm;
         bool ok = sensor.read_air_quality(aqi, tvoc_ppb, eco2_ppm);  // Read air quality, () → bool
         if (ok) {
-            printf("%d", n);
-            printf("s: AQI=");
-            printf("%d", aqi);
-            printf(" (");
-            printf("%d", aqi_label(aqi));
-            printf(") TVOC=");
-            printf("%.0f", tvoc_ppb);
-            printf(" ppb eCO2=");
-            printf("%.0f", eco2_ppm);
-            printf(" ppm\n");
+            printf("%ds: AQI=%u (%s) TVOC=%.0f ppb eCO2=%.0f ppm\n",
+                   n, aqi, aqi_label(aqi), tvoc_ppb, eco2_ppm);
         }
         sleep_ms(1000);
     }
 
-    printf("===DONE: ");
-    printf("%d", passed);
-    printf(" passed, ");
-    printf("%d", failed);
-    printf(" failed===\n");
     while (true) {
-    sleep_ms(1000); 
-        sleep_ms(10);
+        sleep_ms(1000);
     }
 
     return 0;

@@ -1,0 +1,79 @@
+/*
+ * Devicetree overlay for building every Periph Zephyr app on the Raspberry Pi
+ * Pico 2 (rpi_pico2/rp2350a/m33). cpp/scripts/build-all.sh zephyr passes it
+ * with EXTRA_DTC_OVERLAY_FILE; CI uses it for the compile-only Zephyr job.
+ *
+ * The apps address buses by node label (i2c0, spi0, uart1, gpio0) and GPIO
+ * lines by alias or node label (hx711-dout, pcf8574_int, ...). The Pico 2
+ * matches those labels, and unlike the nRF52 boards its I2C0 and SPI0 are
+ * separate peripherals, so both can be enabled at once. This overlay enables
+ * what the board leaves off and gives every GPIO alias a pin.
+ *
+ * Board pins already in use: GP0/1 UART0 (console), GP4/5 I2C0, GP6/7 I2C1,
+ * GP16-19 SPI0, GP25 LED, GP26-29 ADC; this overlay adds GP8/9 UART1 and
+ * GP22 as the SPI0 chip select.
+ * Chips never share an app, so the HX711/HX710A/HX710B and interrupt
+ * aliases reuse the same pins.
+ */
+
+#include <zephyr/dt-bindings/gpio/gpio.h>
+#include <zephyr/dt-bindings/pinctrl/rpi-pico-rp2350a-pinctrl.h>
+
+&spi0 {
+	/* Software chip select; the apps read it as DT_PROP(spi0, cs_gpios). */
+	cs-gpios = <&gpio0 22 GPIO_ACTIVE_LOW>;
+	status = "okay";
+};
+
+&pinctrl {
+	uart1_default: uart1_default {
+		group1 {
+			pinmux = <UART1_TX_P8>;
+		};
+
+		group2 {
+			pinmux = <UART1_RX_P9>;
+			input-enable;
+		};
+	};
+};
+
+&uart1 {
+	current-speed = <9600>;
+	pinctrl-0 = <&uart1_default>;
+	pinctrl-names = "default";
+	status = "okay";
+};
+
+/ {
+	/* gpio-leds only because its binding takes plain `gpios` children. */
+	periph_pins {
+		compatible = "gpio-leds";
+
+		sipo_srclr: sipo_srclr { gpios = <&gpio0 12 GPIO_ACTIVE_HIGH>; };
+		sipo_rck: sipo_rck { gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>; };
+		sipo_g: sipo_g { gpios = <&gpio0 20 GPIO_ACTIVE_LOW>; };
+
+		hx711_dout: hx711_dout { gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; };
+		hx711_sck: hx711_sck { gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>; };
+		hx710a_dout: hx710a_dout { gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; };
+		hx710a_sck: hx710a_sck { gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>; };
+		hx710b_dout: hx710b_dout { gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>; };
+		hx710b_sck: hx710b_sck { gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>; };
+
+		pcf8574_int: pcf8574_int { gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; };
+		mcp23017_int: mcp23017_int { gpios = <&gpio0 21 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; };
+	};
+
+	aliases {
+		sipo-srclr = &sipo_srclr;
+		sipo-rck = &sipo_rck;
+		sipo-g = &sipo_g;
+		hx711-dout = &hx711_dout;
+		hx711-sck = &hx711_sck;
+		hx710a-dout = &hx710a_dout;
+		hx710a-sck = &hx710a_sck;
+		hx710b-dout = &hx710b_dout;
+		hx710b-sck = &hx710b_sck;
+	};
+};

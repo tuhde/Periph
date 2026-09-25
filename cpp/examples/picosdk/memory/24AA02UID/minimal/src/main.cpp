@@ -13,7 +13,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x50);
-    24AA02UIDMinimal eeprom(connection);
+    EEPROM24AA02UIDMinimal eeprom(connection);
 
     stdio_init_all();
     while (true) {

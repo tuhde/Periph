@@ -22,8 +22,8 @@ int main(void) {
     struct spi_config spi_cfg = {
         .frequency = 1000000,
         .operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER,
-        .cs = {},
         .slave = 0,
+        .cs = {},
     };
 
     SPIConnectionZephyr connection(spi_dev, spi_cfg);                    // Create SPI connection, (dev=spi_device*, config)

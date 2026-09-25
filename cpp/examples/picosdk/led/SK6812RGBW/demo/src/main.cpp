@@ -46,7 +46,7 @@ int main(void) {
             last_print = now;
         }
         unsigned long elapsed = to_ms_since_boot(get_absolute_time()) - now;
-        if (elapsed < FRAME_MS) delay(FRAME_MS - elapsed);
+        if (elapsed < FRAME_MS) sleep_ms(FRAME_MS - elapsed);
     }
 
     // --- Warm-white strobe: showcases the dedicated white element.
@@ -61,7 +61,7 @@ int main(void) {
         strip.set_brightness(state ? 255 : 0); // Toggle brightness on/off, (value=0–255) → void
         strip.show();                          // Transmit buffer to strip, () → void
         state = !state;
-        delay(WARM_HALF);
+        sleep_ms(WARM_HALF);
     }
 
     // --- Return to continuous rainbow ---

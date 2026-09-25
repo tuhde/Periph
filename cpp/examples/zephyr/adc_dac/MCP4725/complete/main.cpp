@@ -19,7 +19,7 @@ int main(void) {
         dac.set_raw_eeprom(2048);
         MCP4725Full::ReadResult state = dac.read();
         printk("code=%u ready=%d\n", state.code, state.eeprom_ready);
-        dac.set_power_down(MCP4725Full.PD_100K_GND);
+        dac.set_power_down(MCP4725Full::PD_100K_GND);
         dac.wake_up();
         dac.reset();
         dac.is_eeprom_ready();

@@ -28,8 +28,7 @@ int main() {
 
     check_eq("init_shadow", chip._shadow, 0xFF);
 
-    uint8_t port = chip.read_port();
-    check_true("read_port_range", port <= 0xFF);
+    chip.read_port();
 
     chip.write_port(0, 0xAA);
     check_eq("write_port_shadow", chip._shadow, 0xAA);
@@ -53,8 +52,7 @@ int main() {
     p4.mode(INPUT);
     check_eq("input_shadow_bit4", (chip._shadow >> 4) & 1, 0x01);
 
-    uint8_t changed = chip.pollInterrupt();
-    check_true("poll_interrupt_range", changed <= 0xFF);
+    chip.pollInterrupt();
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed ? 1 : 0;

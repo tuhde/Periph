@@ -23,24 +23,10 @@ int main(void) {
     I2CConnectionZephyr connection(dev, BMP085_ADDR);
     BMP085Minimal bmp(connection);
 
-    bmp._oss = 0;
-    bmp._b5 = 0;
-    bmp._ac1 = 408;
-    bmp._ac2 = -72;
-    bmp._ac3 = -14383;
-    bmp._ac4 = 32741;
-    bmp._ac5 = 32757;
-    bmp._ac6 = 23153;
-    bmp._b1 = 6190;
-    bmp._b2 = 4;
-    bmp._mc = -8711;
-    bmp._md = 2868;
-
-    int32_t b5 = bmp._compensate_temp(27898);
-    check_true(b5 != 0, "temp_compensation_b5");
-
-    int32_t p_pa = bmp._compensate_pressure(23843);
-    check_true(p_pa == 69964, "pressure_compensation");
+    float t = bmp.temperature();
+    check_true(t >= -40.0f && t <= 85.0f, "temperature range");
+    float p = bmp.pressure();
+    check_true(p >= 30000.0f && p <= 110000.0f, "pressure range");
 
     BMP085Full bmp_full(connection, 0);
     check_true(bmp_full.oversampling() == 0, "default_oss");

@@ -12,7 +12,7 @@ static unsigned long _now_ms_linux() {
 #elif defined(ARDUINO)
 #include <Arduino.h>
 #define _millis() millis()
-#elif defined(CONFIG_SPI) || defined(__ZEPHYR_SUPERVISOR__)
+#elif defined(CONFIG_SPI) || defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 static unsigned long _now_ms_zephyr() { return (unsigned long)k_uptime_get(); }
 #define _millis() _now_ms_zephyr()

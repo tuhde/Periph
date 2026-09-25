@@ -27,7 +27,7 @@ int main(void) {
     printf("%d", state.code);
     printf(" ready=");
     printf("%d\n", state.eeprom_ready);
-    dac.set_power_down(MCP4725Full.PD_100K_GND);
+    dac.set_power_down(MCP4725Full::PD_100K_GND);
     dac.wake_up();
     dac.reset();
     dac.is_eeprom_ready();

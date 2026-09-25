@@ -38,7 +38,7 @@ int main(void) {
     p7.mode(OUTPUT);
     p7.low();
     check_eq("pin7_off", mcp._shadow[0] & 0x80, 0x00);
-    p7.on();
+    p7.high();
     check_eq("pin7_on", mcp._shadow[0] & 0x80, 0x80);
 
     // Loopback: PA (outputs) → PB (inputs); PA[n]↔PB[7-n]

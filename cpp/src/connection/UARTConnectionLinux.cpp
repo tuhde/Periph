@@ -116,6 +116,7 @@ UARTConnectionLinux::~UARTConnectionLinux() {
 }
 
 void UARTConnectionLinux::_de_set(int value) {
+    (void)value;
 #ifdef HAVE_LIBGPIOD
     if (_gpiod_line)
         gpiod_line_set_value(static_cast<struct gpiod_line*>(_gpiod_line), value);

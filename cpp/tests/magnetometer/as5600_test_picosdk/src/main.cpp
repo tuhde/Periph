@@ -29,7 +29,8 @@ int main(void) {
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
-    check_true(as5600.read() >= 0.0f, "angle read ok");
+    float angle = as5600.angle();
+    check_true(angle >= 0.0f && angle < 360.0f, "angle in [0, 360)");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

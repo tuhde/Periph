@@ -49,7 +49,7 @@ int main() {
     float scale = chip.get_scale();
     check_true("get_scale returns 420.0", scale == 420.0f);
 
-    float weight = chip.read_weight(1);
+    chip.read_weight(1);
     check_true("read_weight returns float", true);
 
     int32_t temp_raw = chip.read_temperature_raw();

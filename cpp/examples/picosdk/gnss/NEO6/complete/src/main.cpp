@@ -11,7 +11,7 @@ int main(void) {
     gpio_set_function(0, GPIO_FUNC_UART);
     gpio_set_function(1, GPIO_FUNC_UART);
     UARTConnectionPicoSDK connection(uart0, 9600);
-    NEO6Full gps(connection, /*bus_type=*/0);
+    NEO6Full gps(connection);
 
     stdio_init_all();
 

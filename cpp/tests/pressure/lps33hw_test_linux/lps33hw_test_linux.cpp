@@ -32,7 +32,7 @@ int main() {
     lps_full.configure(LPS33HWFull::ODR_10_HZ, true, true, LPS33HWFull::LPFP_BW_ODR_20, false, false);  // Configure chip, (odr, bdu, en_lpfp, lpfp_cfg, lc_en, sim) → None
     check_true(true, "configure");
 
-    uint8_t st = lps_full.status();
+    lps_full.status();
     check_true(true, "status_read");
 
     float p2 = lps_full.pressure();
@@ -59,7 +59,7 @@ int main() {
     lps_full.disable_fifo();
     check_true(true, "fifo_roundtrip");
 
-    uint8_t fsts = lps_full.fifo_status();
+    lps_full.fifo_status();
     check_true(true, "fifo_status_read");
 
     lps_full.reset_lpf();

@@ -15,10 +15,10 @@ int main() {
         .frequency = 1000000,
         .operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA,
         .slave     = 0,
-        .cs        = NULL,
+        .cs        = {},
     };
 
-    const struct gpio_dt_spec rck = GPIO_DT_SPEC_GET(DT_NODELABEL(gpio0), gpios);
+    const struct gpio_dt_spec rck = GPIO_DT_SPEC_GET(DT_ALIAS(sipo_rck), gpios);
     SiPoConnectionZephyr connection(spi_dev, spi_cfg, rck);        // Create SiPo connection, (dev, config, rck, srclr={}, g={})
     TPIC6B595Full<SiPoConnectionZephyr> chip(connection, NUM_DEVICES); // Create TPIC6B595 full driver, (connection, num_devices=2)
                                                                        // two cascaded devices — 16 outputs total; outputs start OFF

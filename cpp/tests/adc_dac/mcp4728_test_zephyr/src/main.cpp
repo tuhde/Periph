@@ -25,49 +25,49 @@ int main(void) {
     MCP4728Full dac(connection);
 
     dac.set_voltage(0, 0.5f);
-    check_true("set_voltage(ch0, 0.5) accepted", true);
+    check_true(true, "set_voltage(ch0, 0.5) accepted");
 
     dac.set_raw(1, 2048);
-    check_true("set_raw(ch1, 2048) accepted", true);
+    check_true(true, "set_raw(ch1, 2048) accepted");
 
     float fractions[4] = {0.0f, 0.25f, 0.5f, 1.0f};
     dac.set_all(fractions);
-    check_true("set_all accepted", true);
+    check_true(true, "set_all accepted");
 
     dac.set_voltage_eeprom(0, 0.5f, MCP4728Full::VREF_EXTERNAL, MCP4728Full::GAIN_X1);
-    check_true("set_voltage_eeprom accepted", true);
+    check_true(true, "set_voltage_eeprom accepted");
 
     dac.set_raw_eeprom(1, 2048, MCP4728Full::VREF_EXTERNAL, MCP4728Full::GAIN_X1);
-    check_true("set_raw_eeprom accepted", true);
+    check_true(true, "set_raw_eeprom accepted");
 
     float fracs[4]    = {0.0f, 0.25f, 0.5f, 0.75f};
     uint8_t vrefs[4]  = {0, 0, 0, 0};
     uint8_t gains[4]  = {1, 1, 1, 1};
     dac.set_all_eeprom(fracs, vrefs, gains);
-    check_true("set_all_eeprom accepted", true);
+    check_true(true, "set_all_eeprom accepted");
 
     dac.set_vref(0, 0, 0, 0);
-    check_true("set_vref accepted", true);
+    check_true(true, "set_vref accepted");
 
     dac.set_gain(1, 1, 1, 1);
-    check_true("set_gain accepted", true);
+    check_true(true, "set_gain accepted");
 
     MCP4728Full::ReadResult state = dac.read();
-    check_true("read returns code in range", state.channel[0].code <= 4095);
-    check_true("read returns eeprom_code in range", state.channel[0].eeprom_code <= 4095);
-    check_true("read returns gain valid", state.channel[0].gain == 1 || state.channel[0].gain == 2);
+    check_true(state.channel[0].code <= 4095, "read returns code in range");
+    check_true(state.channel[0].eeprom_code <= 4095, "read returns eeprom_code in range");
+    check_true(state.channel[0].gain == 1 || state.channel[0].gain == 2, "read returns gain valid");
 
     dac.software_update();
-    check_true("software_update accepted", true);
+    check_true(true, "software_update accepted");
 
     dac.wake_up();
-    check_true("wake_up accepted", true);
+    check_true(true, "wake_up accepted");
 
     dac.reset();
-    check_true("reset accepted", true);
+    check_true(true, "reset accepted");
 
     bool ready = dac.is_eeprom_ready();
-    check_true("is_eeprom_ready returns bool", true);
+    check_true(true, "is_eeprom_ready returns bool");
 
     printk("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

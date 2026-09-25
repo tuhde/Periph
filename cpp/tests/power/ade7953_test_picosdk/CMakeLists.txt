@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
 
-project(ade7953_test_picosdk CXX)
+project(ade7953_test_picosdk C CXX ASM)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,11 +12,11 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(ade7953_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/../src/chips/power/ADE7953.cpp
+    ${CPP_DIR}/src/chips/power/ADE7953.cpp
 )
 target_include_directories(ade7953_test_picosdk PRIVATE
-    ${CPP_DIR}/../src/connection
-    ${CPP_DIR}/../src/chips/power
+    ${CPP_DIR}/src/connection
+    ${CPP_DIR}/src/chips/power
 )
 target_link_libraries(ade7953_test_picosdk PRIVATE
     pico_stdlib

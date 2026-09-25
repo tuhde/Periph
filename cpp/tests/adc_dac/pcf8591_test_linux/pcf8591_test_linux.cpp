@@ -23,22 +23,14 @@ int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
     PCF8591Full adc(connection);
 
-    uint8_t ch0 = adc.read_channel(0);
-    check_true("read_channel(0) in [0, 255]", ch0 <= 255);
+    adc.read_channel(0);
 
-    uint8_t ch3 = adc.read_channel(3);
-    check_true("read_channel(3) in [0, 255]", ch3 <= 255);
+    adc.read_channel(3);
 
-    uint8_t ch_oob = adc.read_channel(99);
-    check_true("read_channel(99) clamped to valid range", ch_oob <= 255);
+    adc.read_channel(99);
 
     uint8_t all_raw[PCF8591Minimal::NUM_CHANNELS];
     adc.read_all(all_raw);
-    bool all_in_range = true;
-    for (uint8_t i = 0; i < PCF8591Minimal::NUM_CHANNELS; i++) {
-        if (all_raw[i] > 255) { all_in_range = false; break; }
-    }
-    check_true("read_all values in [0, 255]", all_in_range);
 
     float v0 = adc.read_channel_voltage(0, 3.3f, 0.0f);
     check_true("read_channel_voltage in [0, 3.3]", v0 >= 0.0f && v0 <= 3.3f);
@@ -55,8 +47,7 @@ int main() {
     check_true("configure 4 single-ended accepted", true);
 
     adc.configure(PCF8591Full::MODE_3_DIFFERENTIAL, false, false);
-    int8_t diff = adc.read_differential(0);
-    check_true("read_differential in [-128, 127]", diff >= -128 && diff <= 127);
+    adc.read_differential(0);
 
     adc.configure(PCF8591Full::MODE_MIXED, false, false);
     check_true("configure mixed mode accepted", true);

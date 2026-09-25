@@ -2,8 +2,17 @@
 
 #include <stdio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
 #include "Apds9930.h"
 #include "I2CConnectionZephyr.h"
+
+#ifndef APDS9930_I2C_NODE
+#define APDS9930_I2C_NODE DT_NODELABEL(i2c0)
+#endif
+#ifndef APDS9930_ADDR
+#define APDS9930_ADDR 0x39
+#endif
 
 static int passed = 0;
 static int failed = 0;
@@ -14,7 +23,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CConnectionZephyr connection(0x39);
+    const struct device* i2c_dev = DEVICE_DT_GET(APDS9930_I2C_NODE);
+    I2CConnectionZephyr connection(i2c_dev, APDS9930_ADDR);
     APDS9930Full apds(connection);
 
     k_msleep(110);

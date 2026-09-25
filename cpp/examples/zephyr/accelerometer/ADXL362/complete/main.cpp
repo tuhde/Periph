@@ -8,7 +8,7 @@
 #define ADXL362_SPI_NODE DT_NODELABEL(spi0)
 #endif
 #ifndef ADXL362_CS_GPIOS
-#define ADXL362_CS_GPIOS DT_PROP(ADXL362_SPI_NODE, cs_gpios)
+#define ADXL362_CS_GPIOS GPIO_DT_SPEC_GET_BY_IDX(ADXL362_SPI_NODE, cs_gpios, 0)
 #endif
 
 int main(void) {

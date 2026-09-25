@@ -34,6 +34,7 @@ int main() {
             (uint8_t)(counter >> 8),  (uint8_t)(counter)
         };
         uint8_t buf = mcp2515.send(0x001, payload, 4);                       // Send a CAN frame, (id=0x001, data=4 B counter, len=4) → uint8_t buf_index
+        printf("TX counter=%u on buffer %u\n", (unsigned)counter, buf);
 
         CanFrame frame;
         bool got = mcp2515.recv(frame, 100);                                 // Poll for a received frame, (frame, timeout_ms=100) → bool

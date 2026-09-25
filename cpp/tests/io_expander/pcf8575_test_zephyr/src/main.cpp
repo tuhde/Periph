@@ -2,28 +2,12 @@
 #include <zephyr/sys/printk.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/i2c.h>
+#include "I2CConnectionZephyr.h"
 #include "PCF8575.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
 
 static const struct device* i2c_dev = DEVICE_DT_GET(I2C_NODE);
-
-class ZephyrI2CConnection {
-public:
-    ZephyrI2CConnection(const struct device* dev, uint8_t addr) : dev(dev), addr(addr) {}
-
-    void write(const uint8_t* data, size_t len) {
-        i2c_write(dev, data, len, addr);
-    }
-
-    void read(uint8_t* buf, size_t len) {
-        i2c_read(dev, buf, len, addr);
-    }
-
-private:
-    const struct device* dev;
-    uint8_t addr;
-};
 
 static int passed = 0;
 static int failed = 0;
@@ -44,7 +28,7 @@ int main() {
         return 1;
     }
 
-    ZephyrI2CConnection connection(i2c_dev, 0x20);
+    I2CConnectionZephyr connection(i2c_dev, 0x20);
     PCF8575Minimal chip(connection);
 
     check_eq("init_shadow_0", chip._shadow[0], 0xFF);

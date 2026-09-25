@@ -8,15 +8,8 @@
 #define MCP2515_SPI_NODE DT_NODELABEL(spi0)
 #endif
 #ifndef MCP2515_CS_GPIOS
-#define MCP2515_CS_GPIOS DT_PROP(MCP2515_SPI_NODE, cs_gpios)
+#define MCP2515_CS_GPIOS GPIO_DT_SPEC_GET_BY_IDX(MCP2515_SPI_NODE, cs_gpios, 0)
 #endif
-
-static int passed = 0, failed = 0;
-
-static void check_true(bool cond, const char *label) {
-    if (cond) { printk("PASS %s\n", label); passed++; }
-    else       { printk("FAIL %s\n", label); failed++; }
-}
 
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(MCP2515_SPI_NODE);
@@ -66,7 +59,5 @@ int main(void) {
     mcp2515.set_mode(_MCP2515Base::CANSTAT_OPMOD_NORMAL);                 // Switch operating mode, (mode=CANSTAT_OPMOD_NORMAL) → void
                                                                             // returns to active bus mode
 
-    check_true("setup", true);
-    printk("===DONE: %d passed, %d failed===\n", passed, failed);
-    return failed == 0 ? 0 : 1;
+    return 0;
 }

@@ -34,7 +34,6 @@ int main() {
     gyro_full.angular_rate(x2, y2, z2);
     check_true(x2 >= -500.0f && x2 <= 500.0f, "configure_then_read_x");
 
-    check_true(gyro_full.status() <= 0xFF, "status_readable");
     check_true(gyro_full.temperature() >= -50 && gyro_full.temperature() <= 100, "temperature_range");
 
     gyro_full.set_full_scale(2000);
