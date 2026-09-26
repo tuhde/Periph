@@ -9,9 +9,14 @@ try:
         """Create a NeoPixel connection for MicroPython.
 
         Args:
-            mosi:     MOSI pin number (data to strip).
-            sck:      SCK pin number (required for SoftSPI; ignored for hardware SPI).
-            miso:     MISO pin number (unused by NeoPixel; required by SoftSPI).
+            mosi:     MOSI pin (data to strip). Int pin number, or a board-specific
+                      string pin identifier (e.g. "P0").
+            sck:      SCK pin (required for SoftSPI; ignored for hardware SPI).
+                      Only optional when mosi is an int, in which case it
+                      defaults to mosi - 1.
+            miso:     MISO pin (unused by NeoPixel; required by SoftSPI).
+                      Only optional when mosi is an int, in which case it
+                      defaults to mosi + 1.
             baudrate: SPI clock frequency (default 2 400 000).
             spi_id:   Hardware SPI peripheral id. If given, uses machine.SPI(spi_id)
                       and mosi/sck/miso are ignored.
@@ -20,6 +25,11 @@ try:
         if spi_id is not None:
             spi = _machine.SPI(spi_id, baudrate=baudrate, polarity=0, phase=0)
         else:
+            if not isinstance(mosi, int) and (sck is None or miso is None):
+                raise ValueError(
+                    "sck and miso must be given explicitly when mosi is not an "
+                    "int pin number (this board identifies pins by name)"
+                )
             spi = _machine.SoftSPI(
                 baudrate=baudrate, polarity=0, phase=0,
                 sck=_machine.Pin(sck if sck is not None else mosi - 1),
