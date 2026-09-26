@@ -23,6 +23,14 @@
             <version>${groovy.version}</version>
         </dependency>
         <dependency>
+            <!-- Needed only so gmavenplus's groovydoc-jar goal (release profile) can
+                 load GroovyDocTool from the project classpath; not transitive to consumers. -->
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy-groovydoc</artifactId>
+            <version>${groovy.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
             <version>2.3-groovy-4.0</version>
@@ -31,11 +39,13 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>${project.basedir}/src/main/groovy</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/groovy</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>4.0.1</version>
+                <version>4.3.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -59,4 +69,43 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Groovy sources aren't Java, so the parent's javadoc-plugin execution can't
+             process them; replace it with GMavenPlus's Groovydoc-as-javadoc jar instead. -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.gmavenplus</groupId>
+                        <artifactId>gmavenplus-plugin</artifactId>
+                        <version>4.3.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>groovydoc-jar</goal>
+                                </goals>
+                                <configuration>
+                                    <classifier>javadoc</classifier>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
