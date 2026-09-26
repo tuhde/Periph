@@ -16,6 +16,13 @@ static unsigned long _now_ms_linux() {
 #include <zephyr/kernel.h>
 static unsigned long _now_ms_zephyr() { return (unsigned long)k_uptime_get(); }
 #define _millis() _now_ms_zephyr()
+#elif defined(ESP_PLATFORM)
+#include <esp_timer.h>
+#include <unistd.h>
+#define _millis() ((unsigned long)(esp_timer_get_time() / 1000ULL))
+#elif defined(PICO_SDK_VERSION_MAJOR) || defined(LIB_PICO_STDLIB)
+#include "pico/stdlib.h"
+#define _millis() ((unsigned long)to_ms_since_boot(get_absolute_time()))
 #else
 #include <chrono>
 static unsigned long _now_ms_host() {
@@ -260,8 +267,12 @@ void _RFM9xBase::_delay_ms(unsigned long ms) {
     ts.tv_sec  = (time_t)(ms / 1000);
     ts.tv_nsec = (long)((ms % 1000) * 1000000L);
     nanosleep(&ts, nullptr);
-#elif defined(CONFIG_SPI) || defined(__Zephyr__)
+#elif defined(CONFIG_SPI) || defined(__ZEPHYR__)
     k_msleep(ms);
+#elif defined(ESP_PLATFORM)
+    usleep((useconds_t)ms * 1000);
+#elif defined(PICO_SDK_VERSION_MAJOR) || defined(LIB_PICO_STDLIB)
+    sleep_ms(ms);
 #else
     struct timespec ts;
     ts.tv_sec  = (time_t)(ms / 1000);

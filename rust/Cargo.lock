@@ -1722,6 +1722,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpu9250_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mpu9250_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mpu9250_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "mpu9250_test"
 version = "0.1.0"
 dependencies = [
@@ -2098,7 +2122,7 @@ dependencies = [
 
 [[package]]
 name = "periph"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-mock",

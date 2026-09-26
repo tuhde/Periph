@@ -423,12 +423,21 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### C++
 - [x] Driver `cpp/src/chips/comms/RFM9x.h` — Doxygen `/** @brief */` on every class and public method
 - [x] Driver `cpp/src/chips/comms/RFM9x.cpp`
-- [x] Examples `cpp/examples/RFM9x_Minimal/RFM9x_Minimal.ino` — Tier-1
-- [x] Examples `cpp/examples/RFM9x_Complete/RFM9x_Complete.ino` — Tier-1 + Tier-2
-- [x] Examples `cpp/examples/RFM9x_Demo/RFM9x_Demo.ino` — Tier-1 + Tier-3
-- [x] Examples `cpp/examples/RFM9x_Minimal_Zephyr/src/main.cpp` — Tier-1
-- [x] Examples `cpp/examples/RFM9x_Complete_Zephyr/src/main.cpp` — Tier-1 + Tier-2
-- [x] Examples `cpp/examples/RFM9x_Demo_Zephyr/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/arduino/comms/RFM9x/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/comms/RFM9x/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/comms/RFM9x/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/comms/RFM9x/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/comms/RFM9x/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/comms/RFM9x/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/linux/comms/RFM9x/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/comms/RFM9x/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/comms/RFM9x/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/comms/RFM9x/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/comms/RFM9x/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/comms/RFM9x/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/comms/RFM9x/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/comms/RFM9x/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/comms/RFM9x/demo/src/main.cpp` — Tier-1 + Tier-3
 - [x] Tests `cpp/tests/comms/rfm9x_test/rfm9x_test.ino` (Arduino)
 - [x] Tests `cpp/tests/comms/rfm9x_test_linux/rfm9x_test_linux.cpp` (Linux GCC)
 - [x] Tests `cpp/tests/comms/rfm9x_test_zephyr/src/main.cpp` (Zephyr)
