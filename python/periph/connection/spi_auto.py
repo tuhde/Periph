@@ -54,7 +54,11 @@ except ImportError:
                                   int_pin=int_pin, en_pin=en_pin)
 
     except ImportError:
-        from .spi_linux import SPIConnection as _SPIConnection
+        try:
+            from .spi_linux import SPIConnection as _SPIConnection
+        except ImportError as exc:
+            from ._linux_deps import linux_pip_hint
+            linux_pip_hint(exc, 'spidev', 'spidev', 'SPI on Linux')
 
         def SPIConnection(bus=None, device=None, cs_pin=None, baudrate=1_000_000,
                           polarity=0, phase=0, int_pin=None, en_pin=None):

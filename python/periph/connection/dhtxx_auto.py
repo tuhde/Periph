@@ -36,8 +36,12 @@ except ImportError:
             return _DHTxxConnection(p, en_pin=en_pin)
 
     except ImportError:
-        import gpiod as _gpiod
-        from .dhtxx_linux import DHTxxConnection as _DHTxxConnection
+        try:
+            import gpiod as _gpiod
+            from .dhtxx_linux import DHTxxConnection as _DHTxxConnection
+        except ImportError as exc:
+            from ._linux_deps import linux_pip_hint
+            linux_pip_hint(exc, 'gpiod', 'gpiod', 'DHTxx on Linux')
 
         def DHTxxConnection(pin, chip_num=None, en_pin=None):
             """Create a DHTxx connection for Linux (gpiod v2).

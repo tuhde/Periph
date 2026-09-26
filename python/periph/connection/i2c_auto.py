@@ -37,7 +37,11 @@ except ImportError:
             return _I2CConnection(bus, addr, int_pin=int_pin, en_pin=en_pin)
 
     except ImportError:
-        from .i2c_linux import I2CConnection as _I2CConnection
+        try:
+            from .i2c_linux import I2CConnection as _I2CConnection
+        except ImportError as exc:
+            from ._linux_deps import linux_pip_hint
+            linux_pip_hint(exc, 'smbus2', 'smbus2', 'I2C on Linux')
 
         def I2CConnection(addr, bus=None, freq=None, int_pin=None, en_pin=None):
             """Create an I²C connection for Linux.
