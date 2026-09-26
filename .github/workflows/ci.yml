@@ -135,12 +135,12 @@ jobs:
   # split across parallel shards.
   # -----------------------------------------------------------------------
   pico-sdk:
-    name: Pico SDK compile (${{ matrix.shard }}/4)
+    name: Pico SDK compile (${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -153,7 +153,7 @@ jobs:
           echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
 
       - name: Build all apps
-        run: cpp/scripts/build-all.sh picosdk --shard ${{ matrix.shard }}/4
+        run: cpp/scripts/build-all.sh picosdk --shard ${{ matrix.shard }}/8
         env:
           PICO_BOARD: pico
 
@@ -239,13 +239,13 @@ jobs:
   # parallel shards. Espressif's official image has the toolchain.
   # -----------------------------------------------------------------------
   esp-idf:
-    name: ESP-IDF compile (${{ matrix.shard }}/6)
+    name: ESP-IDF compile (${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     container: espressif/idf:v6.1
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v6
 
@@ -256,7 +256,7 @@ jobs:
 
       - name: Build all apps
         shell: bash
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/6
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/8
         env:
           ESPIDF_TARGET: esp32
 
