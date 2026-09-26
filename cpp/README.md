@@ -103,7 +103,7 @@ Each chip exposes two classes:
 
 ## Examples
 
-Each chip ships three examples under `examples/`: `<Chip>_Minimal`, `<Chip>_Complete`, and `<Chip>_Demo`.
+Each chip ships three examples under `examples/<category>/`: `<Chip>_Minimal`, `<Chip>_Complete`, and `<Chip>_Demo` (in the Arduino IDE: File > Examples > Periph > <category>).
 
 ## Links
 

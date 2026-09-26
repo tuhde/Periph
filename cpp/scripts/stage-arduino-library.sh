@@ -10,8 +10,10 @@
 #   README.md            regenerated (generate-readme.js)
 #   keywords.txt         regenerated (generate-keywords.js)
 #   src/                 cpp/src/ (all chips + connections, src/Periph.h umbrella)
-#   examples/            cpp/examples/arduino/**/*.ino flattened to
-#                        <Chip>_<Tier>/<Chip>_<Tier>.ino, the layout the IDE expects
+#   examples/            cpp/examples/arduino/<category>/<Chip>/<tier>/<tier>.ino
+#                        restaged as <category>/<Chip>_<Tier>/<Chip>_<Tier>.ino
+#                        (sketch dir name must match the .ino; the category
+#                        level becomes a submenu under File > Examples > Periph)
 #
 # <dest-dir> must exist; its content (except .git) is replaced. Used by
 # release.sh, .github/workflows/release.yml and the CI arduino-lint step.
@@ -31,11 +33,13 @@ cp -r "$CPP_DIR/src" "$DEST/src"
 
 mkdir -p "$DEST/examples"
 find "$CPP_DIR/examples/arduino" -name "*.ino" | while read -r ino; do
-    chip="$(basename "$(dirname "$(dirname "$ino")")")"
+    chip_dir="$(dirname "$(dirname "$ino")")"
+    chip="$(basename "$chip_dir")"
+    category="$(basename "$(dirname "$chip_dir")")"
     tier="$(basename "$(dirname "$ino")")"
     sketch="${chip}_${tier^}"
-    mkdir -p "$DEST/examples/$sketch"
-    cp "$ino" "$DEST/examples/$sketch/$sketch.ino"
+    mkdir -p "$DEST/examples/$category/$sketch"
+    cp "$ino" "$DEST/examples/$category/$sketch/$sketch.ino"
 done
 
 if [ -n "$VERSION" ]; then

@@ -9,10 +9,18 @@ Peripheral chip drivers for MicroPython, CircuitPython, and Linux
 ## Install
 
 ```sh
-pip install periph
+pip install periph[linux]   # Linux host: also installs smbus2, spidev, gpiod, pyserial
 ```
 
-On MicroPython/CircuitPython, copy the `periph/` package onto the device's filesystem (or freeze it into the firmware) instead.
+On MicroPython, install with `mip`: the whole library, one category, or a single chip, each with the connection files it needs:
+
+```sh
+mpremote mip install github:tuhde/Periph/python/periph
+mpremote mip install github:tuhde/Periph/python/periph/chips/power
+mpremote mip install github:tuhde/Periph/python/periph/chips/power/ina226.json
+```
+
+Append `@vX.Y.Z` to pin a release. On CircuitPython, copy the `periph/` package onto the device's filesystem instead.
 
 ## Example
 

@@ -7,15 +7,23 @@ Version **1.2.1** · [Release notes](../../releases/tag/v1.2.1)
 
 ## Python
 
-```sh
-pip install periph==1.2.1
-```
-
-On Linux, install the SMBus connection dependency as well:
+Linux host (the `linux` extra pulls in smbus2, spidev, gpiod, pyserial):
 
 ```sh
-pip install smbus2
+pip install "periph[linux]==1.2.1"
 ```
+
+MicroPython, with `mpremote` from the host. Install the whole library, one
+category, or a single chip; each package brings the connection files it needs:
+
+```sh
+mpremote mip install github:tuhde/Periph/python/periph@v1.2.1
+mpremote mip install github:tuhde/Periph/python/periph/chips/power@v1.2.1
+mpremote mip install github:tuhde/Periph/python/periph/chips/power/ina226.json@v1.2.1
+```
+
+On a networked board, `import mip; mip.install("github:...", version="v1.2.1")`
+takes the same URLs. CircuitPython: copy the `periph/` package onto the board.
 
 ---
 

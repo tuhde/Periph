@@ -125,7 +125,7 @@ function buildReadme(props, rows) {
     body += `## Supported chips\n\n`;
     body += `${buildChipTable(rows)}\n\n`;
     body += `## Examples\n\n`;
-    body += `Each chip ships three examples under \`examples/\`: \`<Chip>_Minimal\`, \`<Chip>_Complete\`, and \`<Chip>_Demo\`.\n\n`;
+    body += `Each chip ships three examples under \`examples/<category>/\`: \`<Chip>_Minimal\`, \`<Chip>_Complete\`, and \`<Chip>_Demo\` (in the Arduino IDE: File > Examples > Periph > <category>).\n\n`;
     body += `## Links\n\n`;
     body += `- [GitHub](${url})\n`;
     return body;

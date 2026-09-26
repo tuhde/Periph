@@ -134,6 +134,11 @@ echo "  nodejs/package-lock.json"
 echo "  python/README.md"
 node "$ROOT/python/scripts/generate-readme.js"
 
+# Python: regenerate the mip package files (python/periph/**/package.json and
+# chips/<category>/<chip>.json) so their "version" follows pyproject.toml.
+echo "  python/periph/**/*.json (mip)"
+python3 "$ROOT/python/scripts/generate-mip-packages.py" >/dev/null
+
 # Rust: regenerate the crate README (the file crates.io renders as the
 # package page) from the stamped Cargo.toml + the chip drivers actually
 # shipped, so it never drifts stale like it did before this existed.
@@ -164,7 +169,7 @@ git add \
     nodejs/package-lock.json \
     INSTALL.md \
     STATS.md \
-    -- 'nodejs/packages/*/package.json'
+    -- 'nodejs/packages/*/package.json' 'python/periph/*.json'
 git commit -m "chore: release ${TAG}"
 echo "  $(git rev-parse --short HEAD)  chore: release ${TAG}"
 

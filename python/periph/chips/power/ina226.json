@@ -1,0 +1,51 @@
+{
+  "urls": [
+    [
+      "periph/__init__.py",
+      "github:tuhde/Periph/python/periph/__init__.py"
+    ],
+    [
+      "periph/chips/power/ina226.py",
+      "github:tuhde/Periph/python/periph/chips/power/ina226.py"
+    ],
+    [
+      "periph/connection/__init__.py",
+      "github:tuhde/Periph/python/periph/connection/__init__.py"
+    ],
+    [
+      "periph/connection/base.py",
+      "github:tuhde/Periph/python/periph/connection/base.py"
+    ],
+    [
+      "periph/connection/i2c_auto.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_auto.py"
+    ],
+    [
+      "periph/connection/i2c_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/i2c_micropython.py"
+    ],
+    [
+      "periph/connection/input_pin.py",
+      "github:tuhde/Periph/python/periph/connection/input_pin.py"
+    ],
+    [
+      "periph/connection/output_pin.py",
+      "github:tuhde/Periph/python/periph/connection/output_pin.py"
+    ],
+    [
+      "periph/connection/smbus_auto.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_auto.py"
+    ],
+    [
+      "periph/connection/smbus_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/smbus_micropython.py"
+    ]
+  ],
+  "deps": [
+    [
+      "abc",
+      "latest"
+    ]
+  ],
+  "version": "1.2.1"
+}

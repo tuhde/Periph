@@ -164,9 +164,15 @@ function buildReadme(pkg, rows) {
     body += `- **Two-tier API** — \`*Minimal\` for the primary use case, \`*Full\` for complete chip functionality\n\n`;
     body += `## Install\n\n`;
     body += `\`\`\`sh\n`;
-    body += `pip install periph\n`;
+    body += `pip install periph[linux]   # Linux host: also installs smbus2, spidev, gpiod, pyserial\n`;
     body += `\`\`\`\n\n`;
-    body += `On MicroPython/CircuitPython, copy the \`periph/\` package onto the device's filesystem (or freeze it into the firmware) instead.\n\n`;
+    body += `On MicroPython, install with \`mip\`: the whole library, one category, or a single chip, each with the connection files it needs:\n\n`;
+    body += `\`\`\`sh\n`;
+    body += `mpremote mip install github:tuhde/Periph/python/periph\n`;
+    body += `mpremote mip install github:tuhde/Periph/python/periph/chips/power\n`;
+    body += `mpremote mip install github:tuhde/Periph/python/periph/chips/power/ina226.json\n`;
+    body += `\`\`\`\n\n`;
+    body += `Append \`@vX.Y.Z\` to pin a release. On CircuitPython, copy the \`periph/\` package onto the device's filesystem instead.\n\n`;
     body += `## Example\n\n`;
     body += `\`\`\`python\n`;
     body += `from periph.connection.i2c_auto import I2CConnection\n`;
