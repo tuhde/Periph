@@ -11,11 +11,18 @@ env:
 
 jobs:
   # -----------------------------------------------------------------------
-  # Arduino — compile-only (no hardware required)
+  # Arduino — compile-only (no hardware required), split across parallel
+  # shards per core. The test sketches target the ESP32-S3 test rig, so
+  # they only build on that core; AVR builds as C++11 without the C++
+  # standard library headers, so it catches what ESP32 lets through.
   # -----------------------------------------------------------------------
-  arduino:
-    name: Arduino compile
+  arduino-esp32:
+    name: Arduino compile ESP32-S3 (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v6
 
@@ -23,32 +30,66 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.arduino15
-          key: arduino15-esp32-avr-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: arduino15-esp32-avr-
+          key: arduino15-esp32-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: arduino15-esp32-
 
       - name: Install arduino-cli
         uses: arduino/setup-arduino-cli@v2
 
-      - name: Install ESP32 and AVR cores
+      - name: Install ESP32 core
         run: |
           arduino-cli config init --overwrite
           arduino-cli config add board_manager.additional_urls \
             https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-cli core update-index
-          arduino-cli core install esp32:esp32 arduino:avr
+          arduino-cli core install esp32:esp32
+
+      # Every example (and, on this core, every test sketch) against cpp/
+      # as one library, the layout the Library Manager ships.
+      - name: Compile all examples and test sketches
+        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests --shard ${{ matrix.shard }}/4
+
+  arduino-avr:
+    name: Arduino compile AVR (${{ matrix.shard }}/2)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache Arduino board packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.arduino15
+          key: arduino15-avr-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: arduino15-avr-
+
+      - name: Install arduino-cli
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install AVR core
+        run: |
+          arduino-cli config init --overwrite
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+
+      - name: Compile all examples (Mega 2560)
+        run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega --shard ${{ matrix.shard }}/2
+
+  # -----------------------------------------------------------------------
+  # Arduino — generated-file and Library Manager checks (no board core or
+  # compile needed, so this stays a single fast job).
+  # -----------------------------------------------------------------------
+  arduino-checks:
+    name: Arduino checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
 
       - name: Check cpp/src/Periph.h is up to date
         run: node cpp/scripts/generate-periph-header.js --check
-
-      # Every example against cpp/ as one library, the layout the Library
-      # Manager ships. AVR builds as C++11 without the C++ standard library
-      # headers, so it catches what ESP32 lets through. The test sketches
-      # target the ESP32-S3 test rig, so they only build there.
-      - name: Compile all examples and test sketches (ESP32-S3)
-        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
-
-      - name: Compile all examples (AVR Mega 2560)
-        run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 
       - name: Stage Library Manager layout
         run: |
