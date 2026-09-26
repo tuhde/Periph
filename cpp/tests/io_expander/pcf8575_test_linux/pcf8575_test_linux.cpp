@@ -31,11 +31,6 @@ static void check_eq(const char* label, uint8_t got, uint8_t expected) {
     else { printf("FAIL %s: got 0x%02X, expected 0x%02X\n", label, got, expected); failed++; }
 }
 
-static void check_true(const char* label, bool condition) {
-    if (condition) { printf("PASS %s\n", label); passed++; }
-    else { printf("FAIL %s\n", label); failed++; }
-}
-
 int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
     PCF8575Minimal chip(connection);
@@ -43,10 +38,8 @@ int main() {
     check_eq("init_shadow_0", chip._shadow[0], 0xFF);
     check_eq("init_shadow_1", chip._shadow[1], 0xFF);
 
-    uint8_t port0 = chip.read_port(0);
-    uint8_t port1 = chip.read_port(1);
-    check_true("read_port_0_range", port0 <= 0xFF);
-    check_true("read_port_1_range", port1 <= 0xFF);
+    chip.read_port(0);
+    chip.read_port(1);
 
     chip.write_port(0, 0xAA);
     check_eq("write_port_0_shadow", chip._shadow[0], 0xAA);

@@ -22,23 +22,23 @@ int main() {
     SPIConnectionLinux connection(TEST_SPI_BUS, TEST_SPI_DEV, 3, 1000000);   // Mode 3 (CPOL=1 CPHA=1), 1 MHz
     AD7706Full adc(connection, 2.5f, AD7706Minimal::MCLK_2_4576MHZ);
 
-    uint16_t raw = adc.read_raw();                                   // Read raw 16-bit code, (channel=1) → uint16_t
+    adc.read_raw();                                   // Read raw 16-bit code, (channel=1) → uint16_t
     check_true("read_raw returns uint16_t", true);
 
     float v = adc.read_voltage();                                    // Read Channel 1 voltage, () → float V
     check_true("read_voltage in [-2.5, 2.5]", v >= -2.5f && v <= 2.5f);
 
-    uint16_t raw1 = adc.read_raw(1);                                 // Read raw 16-bit code, (channel=1) → uint16_t
+    adc.read_raw(1);                                 // Read raw 16-bit code, (channel=1) → uint16_t
     check_true("read_raw(1) returns uint16_t", true);
     float v1 = adc.read_voltage(1);                                  // Read voltage, (channel=1) → float V
     check_true("read_voltage(1) in [-2.5, 2.5]", v1 >= -2.5f && v1 <= 2.5f);
 
-    uint16_t raw2 = adc.read_raw(2);                                 // Read raw 16-bit code, (channel=2) → uint16_t
+    adc.read_raw(2);                                 // Read raw 16-bit code, (channel=2) → uint16_t
     check_true("read_raw(2) returns uint16_t", true);
     float v2 = adc.read_voltage(2);                                  // Read voltage, (channel=2) → float V
     check_true("read_voltage(2) in [-2.5, 2.5]", v2 >= -2.5f && v2 <= 2.5f);
 
-    uint16_t raw3 = adc.read_raw(3);                                 // Read raw 16-bit code, (channel=3) → uint16_t
+    adc.read_raw(3);                                 // Read raw 16-bit code, (channel=3) → uint16_t
     check_true("read_raw(3) returns uint16_t", true);
     float v3 = adc.read_voltage(3);                                  // Read voltage, (channel=3) → float V
     check_true("read_voltage(3) in [-2.5, 2.5]", v3 >= -2.5f && v3 <= 2.5f);

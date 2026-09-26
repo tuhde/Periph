@@ -15,14 +15,12 @@ int main(void) {
     I2CConnectionPicoSDK connection(i2c0, 0x76);
     BMP280Full bmp(connection, /*spi=*/false);
 
-    static int passed = 0, failed = 0;
-
     stdio_init_all();
     sleep_ms(2000);
 
     uint8_t cid = bmp.chip_id();                       // Read chip ID, () → int
                                                         // returns 0x58 for BMP280
-    check_true(cid == 0x58, "chip_id");
+    printf("chip_id=%d\n", (int)(cid));
 
     bmp.configure(BMP280Full::OSRS_X1, BMP280Full::OSRS_X1, BMP280Full::MODE_FORCED, BMP280Full::FILTER_OFF, BMP280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t 0–5, osrs_p 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → None
                                                         // writes ctrl_meas and config registers
@@ -51,11 +49,6 @@ int main(void) {
     printf("%.1f", slp);
     printf(" hPa\n");
 
-    printf("===DONE: ");
-    printf("%d", passed);
-    printf(" passed, ");
-    printf("%d", failed);
-    printf(" failed===\n");
     while (true) {
     sleep_ms(1000); 
         sleep_ms(10);

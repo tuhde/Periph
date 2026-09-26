@@ -8,7 +8,7 @@
 #define MCP2515_SPI_NODE DT_NODELABEL(spi0)
 #endif
 #ifndef MCP2515_CS_GPIOS
-#define MCP2515_CS_GPIOS DT_PROP(MCP2515_SPI_NODE, cs_gpios)
+#define MCP2515_CS_GPIOS GPIO_DT_SPEC_GET_BY_IDX(MCP2515_SPI_NODE, cs_gpios, 0)
 #endif
 
 int main(void) {

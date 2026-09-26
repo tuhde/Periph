@@ -39,11 +39,11 @@ int main() {
 
     lps_full.set_pressure_threshold(102000.0f);
     lps_full.configure_interrupt(false, false, true, false, true, false, false, false);
-    uint8_t src = lps_full.interrupt_source();
+    lps_full.interrupt_source();
     check_true(1, "interrupt_source_readable");
 
     float samples[16];
-    uint8_t n = lps_full.read_fifo(samples, 16);
+    lps_full.read_fifo(samples, 16);
     check_true(1, "read_fifo");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

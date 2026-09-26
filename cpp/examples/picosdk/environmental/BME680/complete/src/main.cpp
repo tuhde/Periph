@@ -15,14 +15,12 @@ int main(void) {
     I2CConnectionPicoSDK connection(i2c0, 0x77);
     BME680Full bme(connection);
 
-    static int passed = 0, failed = 0;
-
     stdio_init_all();
     sleep_ms(2000);
 
     uint8_t cid = bme.chip_id();                       // Read chip ID, () → int
                                                         // returns 0x61 for BME680
-    check_true(cid == 0x61, "chip_id");
+    printf("chip_id=%d\n", (int)(cid));
 
     bme.configure(BME680Full::OSRS_X1, BME680Full::OSRS_X1, BME680Full::OSRS_X1, BME680Full::MODE_SLEEP, BME680Full::FILTER_0);  // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1, filter 0–7) → void
                                                         // writes ctrl_hum, config, ctrl_meas in correct order
@@ -69,11 +67,6 @@ int main(void) {
     printf("%.0f", g);
     printf(" Ohm\n");
 
-    printf("===DONE: ");
-    printf("%d", passed);
-    printf(" passed, ");
-    printf("%d", failed);
-    printf(" failed===\n");
     while (true) {
     sleep_ms(1000); 
         sleep_ms(10);

@@ -24,7 +24,6 @@ int main() {
     // hardware current control = 13-bit effective depth per channel.
     strip.set_brightness(255);                                              // Set global software brightness, (value=0–255) → void
     float hue_offset = 0.0f;
-    unsigned long start = 0; // would use clock_gettime in real code
     unsigned long last_print = 0;
     for (unsigned long elapsed_total = 0; elapsed_total < RAINBOW_US; elapsed_total += FRAME_US) {
         for (size_t i = 0; i < N_PIXELS; i++) {
@@ -48,7 +47,6 @@ int main() {
     // Demonstrates hardware current control vs software brightness scaling.
     strip.set_brightness(255);                                              // Set global software brightness, (value=0–255) → void
     hue_offset = 0.0f;
-    start = 0;
     last_print = 0;
     for (unsigned long elapsed_total = 0; elapsed_total < RAINBOW_US; elapsed_total += FRAME_US) {
         for (size_t i = 0; i < N_PIXELS; i++) {

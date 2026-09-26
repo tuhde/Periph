@@ -34,17 +34,12 @@ int main() {
 
     uint16_t c, r, g, b;
     apds.color(c, r, g, b);
-    check_true("color_clear >= 0", c >= 0);
-    check_true("color_red >= 0", r >= 0);
-    check_true("color_green >= 0", g >= 0);
-    check_true("color_blue >= 0", b >= 0);
 
     check_true("is_als_valid", apds.is_als_valid());
 
     apds.enable_proximity(true);
     usleep(100000);
-    uint8_t p = apds.proximity();
-    check_true("proximity <= 255", p <= 255);
+    apds.proximity();
     check_true("is_proximity_valid", apds.is_proximity_valid());
 
     apds.configure_als(0xB6, 1);
@@ -70,14 +65,12 @@ int main() {
     apds.enable_gesture(true);
     apds.configure_gesture(1, 0, 0, 1, 1, 50, 20);
     check_true("gesture configured", true);
-    check_true("gesture_fifo_level >= 0", apds.gesture_fifo_level() >= 0);
     apds.clear_gesture_fifo();
     apds.enable_gesture_interrupt(false);
     apds.enable_gesture(false);
     check_true("gesture disabled", true);
 
-    uint8_t s = apds.status();
-    check_true("status readable", s >= 0);
+    apds.status();
 
     apds.enable_proximity(false);
 

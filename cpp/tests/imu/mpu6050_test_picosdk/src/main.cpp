@@ -29,7 +29,7 @@ int main(void) {
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
-    check_true(mpu6050.whoami() == 0x68, "whoami");
+    check_true(mpu6050.who_am_i() == 0x68, "whoami");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

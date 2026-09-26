@@ -23,6 +23,7 @@ int main(void) {
     while (true) {
 
     static int step = 0;
+    static uint32_t last_print = 0;
 
     uint8_t port_b = mcp.read_port(1);                      // Read GPB0–GPB6 buttons, (port=1) → uint8_t 0–127
     uint8_t btn_mask = (~port_b) & 0x7F;                     // Invert: active-low buttons → active-high mask

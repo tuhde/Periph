@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage:
-#   ./test_arduino_examples.sh [--fqbn FQBN] [filter]
+#   ./test_arduino_examples.sh [--fqbn FQBN] [--tests] [filter]
 #
 # Compiles every Arduino example (cpp/examples/arduino/**/*.ino) against cpp/
 # as a single library -- the same layout the Library Manager ships in
@@ -12,6 +12,10 @@
 # build path: arduino-cli wipes the build path whenever the sketch location
 # changes, so this is what lets it compile the library objects once per run
 # instead of once per example (minutes per example on ESP32).
+#
+# --tests: also compile every test sketch (cpp/tests/<category>/<chip>_test/*.ino).
+# They target the ESP32-S3 test rig (Wire.begin(sda, scl, freq) etc.), so only
+# pass this with an ESP32 FQBN.
 #
 # filter: optional substring of the example path (e.g. "temperature/" or "BME280").
 #
@@ -25,9 +29,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 FQBN="esp32:esp32:esp32s3"
 FILTER=""
+TESTS=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --fqbn) FQBN="${2:-}"; shift 2 ;;
+        --tests) TESTS=1; shift ;;
         *) FILTER="$1"; shift ;;
     esac
 done
@@ -41,9 +47,12 @@ OK=0
 FAILED=()
 while IFS= read -r ino; do
     case "$ino" in *"$FILTER"*) ;; *) continue ;; esac
-    chip="$(basename "$(dirname "$(dirname "$ino")")")"
-    tier="$(basename "$(dirname "$ino")")"
-    sketch="${chip}_${tier^}"
+    case "$ino" in
+        "$SCRIPT_DIR/tests/"*) sketch="$(basename "$ino" .ino)" ;;
+        *)  chip="$(basename "$(dirname "$(dirname "$ino")")")"
+            tier="$(basename "$(dirname "$ino")")"
+            sketch="${chip}_${tier^}" ;;
+    esac
     mkdir -p "$WORK/Example"
     cp "$ino" "$WORK/Example/Example.ino"
     if arduino-cli compile --fqbn "$FQBN" --library "$SCRIPT_DIR" \
@@ -54,7 +63,8 @@ while IFS= read -r ino; do
         echo "=== FAIL: $sketch ($ino) ==="
         grep -E 'error|undefined reference|overflow|too big' "$WORK/$sketch.log" | head -20 || tail -20 "$WORK/$sketch.log"
     fi
-done < <(find "$SCRIPT_DIR/examples/arduino" -name '*.ino' | sort)
+done < <({ find "$SCRIPT_DIR/examples/arduino" -name '*.ino'
+            [ "$TESTS" -eq 1 ] && find "$SCRIPT_DIR/tests" -path '*_test/*.ino'; } | sort)
 
 echo "=== $FQBN: $OK compiled, ${#FAILED[@]} failed ==="
 [ "${#FAILED[@]}" -eq 0 ] || { printf '  %s\n' "${FAILED[@]}"; exit 1; }

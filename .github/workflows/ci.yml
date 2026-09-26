@@ -40,14 +40,12 @@ jobs:
       - name: Check cpp/src/Periph.h is up to date
         run: node cpp/scripts/generate-periph-header.js --check
 
-      - name: Compile test sketches
-        run: cpp/test_arduino.sh --compile-only power/ina226
-
       # Every example against cpp/ as one library, the layout the Library
       # Manager ships. AVR builds as C++11 without the C++ standard library
-      # headers, so it catches what ESP32 lets through.
-      - name: Compile all examples (ESP32-S3)
-        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3
+      # headers, so it catches what ESP32 lets through. The test sketches
+      # target the ESP32-S3 test rig, so they only build there.
+      - name: Compile all examples and test sketches (ESP32-S3)
+        run: cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
 
       - name: Compile all examples (AVR Mega 2560)
         run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
@@ -73,62 +71,48 @@ jobs:
         run: node cpp/scripts/generate-keywords.js --check
 
   # -----------------------------------------------------------------------
-  # Linux GCC — compile-only (no hardware required)
+  # Linux GCC — every example, test program and unit test (unit tests are
+  # also run). Debian trixie for libgpiod v2; Ubuntu 24.04 still ships v1.
   # -----------------------------------------------------------------------
   linux-gcc:
     name: Linux GCC compile
     runs-on: ubuntu-latest
+    container: debian:trixie
     steps:
       - uses: actions/checkout@v6
 
-      - name: Compile test programs
-        run: cpp/test_linux.sh --compile-only power/ina226
+      - name: Install toolchain
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends g++ libgpiod-dev python3
+
+      - name: Build all apps, run unit tests
+        run: cpp/scripts/build-all.sh linux
 
   # -----------------------------------------------------------------------
-  # Raspberry Pi Pico SDK — compile-only (no hardware required).
-  # Builds one example per transport to catch the regressions the
-  # full retrofill would otherwise let through CI. The full chip
-  # coverage matrix lives in `cpp/test_picosdk.sh --compile-only`,
-  # which we run against every chip's test app below.
+  # Raspberry Pi Pico SDK — every example and test app, compile-only,
+  # split across parallel shards.
   # -----------------------------------------------------------------------
   pico-sdk:
-    name: Pico SDK compile
+    name: Pico SDK compile (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v6
-        with:
-          submodules: recursive
 
       - name: Install pico-sdk
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-arm-none-eabi gcc g++ python3
+          sudo apt-get install -y cmake gcc-arm-none-eabi gcc g++ python3 ccache
           git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git /opt/pico-sdk
           (cd /opt/pico-sdk && git submodule update --init --depth 1)
           echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
 
-      - name: Build I2C example
-        run: cpp/test_picosdk.sh --compile-only power/ina226
-        env:
-          PICO_BOARD: pico
-
-      - name: Build SPI example
-        run: cpp/test_picosdk.sh --compile-only pressure/bmp280
-        env:
-          PICO_BOARD: pico
-
-      - name: Build UART example
-        run: cpp/test_picosdk.sh --compile-only comms/rda5807m
-        env:
-          PICO_BOARD: pico
-
-      - name: Build NeoPixel example
-        run: cpp/test_picosdk.sh --compile-only led/ws2812b
-        env:
-          PICO_BOARD: pico
-
-      - name: Build HX711 example
-        run: cpp/test_picosdk.sh --compile-only adc_dac/hx711
+      - name: Build all apps
+        run: cpp/scripts/build-all.sh picosdk --shard ${{ matrix.shard }}/4
         env:
           PICO_BOARD: pico
 
@@ -210,56 +194,85 @@ jobs:
         working-directory: jvm
 
   # -----------------------------------------------------------------------
-  # ESP-IDF — compile-only (no hardware required).
-  # Builds one example per transport to catch the regressions the
-  # full retrofill would otherwise let through CI. The full chip
-  # coverage matrix lives in `cpp/test_espidf.sh --compile-only`,
-  # which we run against one chip per transport below.
+  # ESP-IDF — every example and test app, compile-only, split across
+  # parallel shards. Espressif's official image has the toolchain.
   # -----------------------------------------------------------------------
   esp-idf:
-    name: ESP-IDF compile
+    name: ESP-IDF compile (${{ matrix.shard }}/6)
     runs-on: ubuntu-latest
+    container: espressif/idf:v6.1
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v6
-        with:
-          submodules: recursive
 
-      - name: Install ESP-IDF
+      # Every app recompiles the same ~1,000 ESP-IDF sources; with ccache
+      # only the first app per shard pays for that. The image doesn't ship it.
+      - name: Install ccache
+        run: command -v ccache || { apt-get update && apt-get install -y --no-install-recommends ccache; }
+
+      - name: Build all apps
+        shell: bash
+        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/6
+        env:
+          ESPIDF_TARGET: esp32
+
+  # -----------------------------------------------------------------------
+  # Zephyr — every example and test app, compile-only, for the Raspberry Pi
+  # Pico 2 plus cpp/boards/zephyr/rpi_pico2_rp2350a_m33.overlay (its i2c0,
+  # spi0, uart1 and gpio0 match the node labels the apps use). Zephyr v4.4.2
+  # with only the modules that board needs, ARM toolchain only; both cached.
+  # -----------------------------------------------------------------------
+  zephyr:
+    name: Zephyr compile (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      ZEPHYR_VERSION: v4.4.2
+      ZEPHYR_BOARD: rpi_pico2/rp2350a/m33
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
-          mkdir -p /opt/esp
-          cd /opt/esp
-          git clone --depth 1 -b v6.1 https://github.com/espressif/esp-idf.git
-          (cd esp-idf && git submodule update --init --depth 1)
-          (cd esp-idf && ./install.sh)
-          echo "IDF_PATH=/opt/esp/esp-idf" >> $GITHUB_ENV
-          echo "/opt/esp/esp-idf/tools" >> $GITHUB_PATH
+          sudo apt-get install -y --no-install-recommends ninja-build device-tree-compiler ccache
+          pip install west
 
-      - name: Build I2C example
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only environmental/aht21
-        env:
-          ESPIDF_TARGET: esp32
+      - name: Cache Zephyr workspace and SDK
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/zephyrproject
+            ~/zephyr-sdk-*
+          key: zephyr-${{ env.ZEPHYR_VERSION }}-rpi-pico2
 
-      - name: Build SPI example
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only pressure/bmp280
-        env:
-          ESPIDF_TARGET: esp32
+      - name: Set up Zephyr
+        run: |
+          if [ ! -d ~/zephyrproject/.west ]; then
+            west init -m https://github.com/zephyrproject-rtos/zephyr --mr "$ZEPHYR_VERSION" ~/zephyrproject
+            cd ~/zephyrproject
+            west config manifest.project-filter -- '-.*,+cmsis_6,+hal_rpi_pico'
+            west update --narrow -o=--depth=1
+          fi
+          cd ~/zephyrproject
+          pip install -r zephyr/scripts/requirements-base.txt
+          west sdk install -t arm-zephyr-eabi
 
-      - name: Build UART example
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only gnss/neo6
-        env:
-          ESPIDF_TARGET: esp32
-
-      - name: Build NeoPixel example
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only led/ws2812b
-        env:
-          ESPIDF_TARGET: esp32
-
-      - name: Build HX711 example
-        run: . "$IDF_PATH/export.sh" > /dev/null && cpp/test_espidf.sh --compile-only adc_dac/hx711
-        env:
-          ESPIDF_TARGET: esp32
+      - name: Build all apps
+        run: |
+          cd ~/zephyrproject
+          source zephyr/zephyr-env.sh
+          "$GITHUB_WORKSPACE/cpp/scripts/build-all.sh" zephyr --shard ${{ matrix.shard }}/4
 
   # -----------------------------------------------------------------------
   # Rust — compile-only (no hardware required)

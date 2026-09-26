@@ -49,9 +49,7 @@ int main() {
 
     int16_t rax, ray, raz, rgx, rgy, rgz;
     imu.accel_raw(rax, ray, raz);
-    check_true("accel_raw_x range", rax >= -32768 && rax <= 32767);
     imu.gyro_raw(rgx, rgy, rgz);
-    check_true("gyro_raw_x range", rgx >= -32768 && rgx <= 32767);
 
     imu.configure_gyro(1);
     imu.configure_accel(1);

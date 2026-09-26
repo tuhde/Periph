@@ -113,6 +113,24 @@ Languages with more than one config file (cpp, rust, go) put this block in a sha
 
 ---
 
+## Compile every C++ app (CI)
+
+CI compiles every C++ example and test app on every platform; the per-platform scripts below build one chip at a time. To reproduce a CI failure locally, run the same command CI does:
+
+| Platform | Command | Covers |
+|---|---|---|
+| Linux GCC | `cpp/scripts/build-all.sh linux` | `cpp/examples/linux`, `*_test_linux`, `*_test_unit` (unit tests are also run). Needs `g++` and libgpiod v2. |
+| Pico SDK | `cpp/scripts/build-all.sh picosdk` | `cpp/examples/picosdk`, `*_test_picosdk`. Needs `PICO_SDK_PATH`. |
+| ESP-IDF | `cpp/scripts/build-all.sh espidf` | `cpp/examples/espidf`, `*_test_espidf`. Needs an active ESP-IDF environment. |
+| Zephyr | `cpp/scripts/build-all.sh zephyr` | `cpp/examples/zephyr`, `*_test_zephyr`, built for `rpi_pico2/rp2350a/m33` with `cpp/boards/zephyr/rpi_pico2_rp2350a_m33.overlay`. Run from a west workspace with `zephyr-env.sh` sourced. |
+| Arduino | `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests` and `--fqbn arduino:avr:mega` | All examples on both; test sketches (`--tests`) only on the ESP32-S3 rig board. |
+
+`build-all.sh` takes an optional path filter (`cpp/scripts/build-all.sh picosdk pressure/`) and `--shard I/N`, which CI uses to split the slow platforms across parallel jobs. Set `KEEP_LOGS=<dir>` to keep each app's build log. Builds happen in a temp directory; nothing is written into the tree.
+
+Linux apps have no build files: `cpp/scripts/linux-sources.py` follows an app's `#include`s and lists the connection and driver `.cpp` files it needs. `build-all.sh` and `test_linux.sh` both use it.
+
+---
+
 ## Platform reference
 
 ### Arduino (`cpp/test_arduino.sh`)
@@ -140,7 +158,7 @@ cpp/test_arduino.sh --board esp32s3-sensor-devkit --level hil
 
 ### Linux GCC (`cpp/test_linux.sh`)
 
-**Prerequisites:** `g++` (C++17), `linux/i2c-dev.h` (kernel headers)
+**Prerequisites:** `g++` (C++17), `linux/i2c-dev.h` (kernel headers), libgpiod v2 (`libgpiod-dev`)
 
 **Config:** `cpp/testconfig`/`testconfig_wiring` — `I2C_ADDR`, `LINUX_I2C_BUS`.
 

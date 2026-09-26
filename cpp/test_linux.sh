@@ -85,6 +85,16 @@ fi
 # find_tool NAME: print the first match of NAME on PATH, else /usr/sbin/NAME
 # if that exists (i2c-tools commonly lands there without being on PATH),
 # else nothing.
+# Hardware tests link whatever connection(s) and driver sources the test
+# includes (SPI, UART, GPIO, ...), not just the I2C connection.
+TEST_DIR="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux"
+APP_SRCS=()
+if [ -d "$TEST_DIR" ]; then
+    mapfile -t APP_SRCS < <(python3 "$SCRIPT_DIR/scripts/linux-sources.py" "$TEST_DIR")
+fi
+CHIP_INCLUDES=()
+for d in "$SRC_DIR"/chips/*/; do CHIP_INCLUDES+=(-I"$d"); done
+
 find_tool() {
     local name="$1"
     if command -v "$name" >/dev/null 2>&1; then
@@ -205,10 +215,6 @@ run_hil() {
         echo "ERROR: test source not found: $test_src" >&2
         exit 1
     fi
-    if [ -z "$CHIP_SRC" ]; then
-        echo "ERROR: no chip source found for $CATEGORY/$CHIP in $SRC_DIR/chips/$CATEGORY" >&2
-        exit 1
-    fi
     build_dir=$(mktemp -d)
     trap 'rm -rf "$build_dir"' EXIT
     bin="$build_dir/${CHIP}_test"
@@ -216,11 +222,11 @@ run_hil() {
     echo "=== [hil] Compiling $TARGET for Linux GCC ==="
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
-        -I"$SRC_DIR/chips/$CATEGORY" \
+        "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \
-        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" "${CHIP_BASE_SRCS[@]}" \
-        -o "$bin"
+        "${APP_SRCS[@]}" \
+        -o "$bin" -lgpiod -lpthread
     echo "Compile OK"
 
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
@@ -243,10 +249,6 @@ run_conformance() {
         echo "       (no conformance implementation yet for $CATEGORY/$CHIP)" >&2
         exit 1
     fi
-    if [ -z "$CHIP_SRC" ]; then
-        echo "ERROR: no chip source found for $CATEGORY/$CHIP in $SRC_DIR/chips/$CATEGORY" >&2
-        exit 1
-    fi
     build_dir=$(mktemp -d)
     trap 'rm -rf "$build_dir"' EXIT
     bin="$build_dir/${CHIP}_test"
@@ -254,11 +256,11 @@ run_conformance() {
     echo "=== [conformance] Compiling $TARGET for Linux GCC ==="
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
-        -I"$SRC_DIR/chips/$CATEGORY" \
+        "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \
-        "$test_src" "$CONNECTION_SRC" "$CHIP_SRC" "${CHIP_BASE_SRCS[@]}" \
-        -o "$bin"
+        "${APP_SRCS[@]}" \
+        -o "$bin" -lgpiod -lpthread
     echo "Compile OK"
 
     [ "$COMPILE_ONLY" -eq 1 ] && return 0

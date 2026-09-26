@@ -8,7 +8,7 @@
 #define MFRC522_SPI_NODE DT_NODELABEL(spi0)
 #endif
 #ifndef MFRC522_CS_GPIOS
-#define MFRC522_CS_GPIOS DT_PROP(MFRC522_SPI_NODE, cs_gpios)
+#define MFRC522_CS_GPIOS GPIO_DT_SPEC_GET_BY_IDX(MFRC522_SPI_NODE, cs_gpios, 0)
 #endif
 
 static int passed = 0, failed = 0;

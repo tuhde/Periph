@@ -34,9 +34,11 @@ int main() {
                                                                              // disables automatic retransmission on arbitration loss / error
 
     uint8_t tx_buf = mcp2515.send_buffered(0x456, (const uint8_t[]){0x01, 0x02}, 2, false, 1); // Send on a specific TX buffer, (id, data, len, extended, buf=1) → uint8_t buf_index
+    printf("TX buffer %u\n", tx_buf);
 
     CanFrame frame;
     bool got_frame = mcp2515.recv(frame, 100);                               // Poll for a received frame, (frame, timeout_ms=100) → bool
+    if (got_frame) printf("RX id=0x%X dlc=%u\n", (unsigned)frame.id, frame.dlc);
 
     uint8_t tec = 0, rec = 0, eflg = 0;
     mcp2515.read_errors(tec, rec, eflg);                                     // Read TEC, REC, EFLG, (out_tec, out_rec, out_eflg) → void

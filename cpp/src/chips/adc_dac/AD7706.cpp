@@ -30,9 +30,9 @@ static void _delay_ns_pico(unsigned ns) {
     busy_wait_us((ns + 999) / 1000);
 }
 #define _delay_ns(ns) _delay_ns_pico(ns)
-#elif defined(__ZEPHYR_SUPERVISOR__)
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-#define _delay_ns(ns) k_busy_wait(ns)
+#define _delay_ns(ns) k_busy_wait(((ns) + 999) / 1000)
 #else
 // Covers minimal-libc embedded configs that lack <chrono>/<ctime> — a raw
 // nop busy-wait, matching the pattern in AD7705.cpp.

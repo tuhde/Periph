@@ -13,7 +13,7 @@
 #define AD7705_SPI_NODE DT_NODELABEL(spi0)
 #endif
 #ifndef AD7705_CS_GPIOS
-#define AD7705_CS_GPIOS DT_PROP(AD7705_SPI_NODE, cs_gpios)
+#define AD7705_CS_GPIOS GPIO_DT_SPEC_GET_BY_IDX(AD7705_SPI_NODE, cs_gpios, 0)
 #endif
 
 static int passed = 0, failed = 0;

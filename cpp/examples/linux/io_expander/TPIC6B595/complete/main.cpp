@@ -30,6 +30,7 @@ int main() {
 
     uint8_t state = p0.read();                                                              // Read pin state, () → uint8_t
                                                                                             // returns the shadow bit (no bus read — SiPo is write-only)
+    printf("p0 state=%u\n", state);
     p0.write(HIGH);                                                                         // Write pin high, (v=HIGH) → void
                                                                                             // equivalent to high(); updates shadow, retransmits, latches
     p0.set(true);                                                                           // OutputPin set, (high=true) → void

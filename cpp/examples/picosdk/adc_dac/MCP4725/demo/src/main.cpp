@@ -35,7 +35,7 @@ int main(void) {
         printf(" approx_v=");
         printf("%.3f", approx_v);
         printf("V\n");
-        delay(DELAY_MS);
+        sleep_ms(DELAY_MS);
     }
     for (int n = 20; n >= 0; n--) {
         float fraction = n * STEP;
@@ -51,7 +51,7 @@ int main(void) {
         printf(" approx_v=");
         printf("%.3f", approx_v);
         printf("V\n");
-        delay(DELAY_MS);
+        sleep_ms(DELAY_MS);
     }
         sleep_ms(10);
     }

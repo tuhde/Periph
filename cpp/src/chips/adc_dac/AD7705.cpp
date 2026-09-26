@@ -30,11 +30,11 @@ static void _delay_ns_pico(unsigned ns) {
     busy_wait_us((ns + 999) / 1000);
 }
 #define _delay_ns(ns) _delay_ns_pico(ns)
-#elif defined(__ZEPHYR_SUPERVISOR__)
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
-#define _delay_ns(ns) k_busy_wait(ns)
+#define _delay_ns(ns) k_busy_wait(((ns) + 999) / 1000)
 #else
-// Covers PICO_SDK_VERSION_MAJOR and __ZEPHYR_SUPERVISOR__: neither is
+// Covers PICO_SDK_VERSION_MAJOR and __ZEPHYR__ when neither is
 // visible in this translation unit unless a platform header has already
 // been included, so this fallback must compile with no libc dependency at
 // all (some minimal-libc embedded configs lack <chrono>/<ctime>) — a raw

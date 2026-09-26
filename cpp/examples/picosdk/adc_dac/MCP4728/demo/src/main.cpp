@@ -53,7 +53,7 @@ int main(void) {
         printf(" approx_v=");
         printf("%.3f", code * 3.3f / 4096.0f);
         printf("V\n");
-        delay(DELAY_MS);
+        sleep_ms(DELAY_MS);
     }
 
     // Reset all channels to 0 V before next loop iteration

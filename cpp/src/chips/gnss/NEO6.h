@@ -102,7 +102,7 @@ protected:
     /** @brief Hook for NEO6Full to parse additional sentence types (RMC/VTG).
      *         No-op in NEO6Minimal.
      */
-    virtual void _handleExtra(const char* sentenceId, char** fields, int nFields) {}
+    virtual void _handleExtra(const char* /*sentenceId*/, char** /*fields*/, int /*nFields*/) {}
 
     /** @brief Split a NUL-terminated, comma-separated body into up to
      *         MAX_FIELDS fields in place (replaces commas with NUL).

@@ -60,12 +60,9 @@ int main() {
     check_true("raw_angle_degrees in range 0-360", rad >= 0.0f && rad < 360.0f);
 
     // --- Diagnostics ---
-    check_true("agc non-negative", as5600.agc() >= 0);
-    check_true("magnitude non-negative", as5600.magnitude() >= 0);
 
     // --- Status ---
-    uint8_t sb = as5600.status_byte();
-    check_true("status_byte valid", sb <= 255);
+    as5600.status_byte();
 
     // --- Position configuration (volatile) ---
     as5600.set_zero_position(100);

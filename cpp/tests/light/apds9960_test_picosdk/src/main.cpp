@@ -29,7 +29,7 @@ int main(void) {
 
     stdio_init_all();
     sleep_ms(2000);  // let USB CDC enumerate
-    check_true(apds.available() || true, "i2c probe ok");
+    check_true(apds.chip_id() == 0xAB, "chip_id");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed == 0 ? 0 : 1;

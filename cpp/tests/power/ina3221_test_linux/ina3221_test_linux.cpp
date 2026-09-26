@@ -63,8 +63,7 @@ int main() {
 
     ina.set_critical_alert(1, 0.1f);
     ina.set_warning_alert(2, 0.05f);
-    uint16_t flags = ina.alert_flags();
-    check_true("alert_flags readable", flags >= 0);
+    ina.alert_flags();
 
     ina.enable_channel(1, false);
     check_true("channel 1 disabled", !ina.channel_enabled(1));

@@ -65,7 +65,7 @@ int main() {
     dac.reset();
     check_true("reset accepted", true);
 
-    bool ready = dac.is_eeprom_ready();
+    dac.is_eeprom_ready();
     check_true("is_eeprom_ready returns bool", true);
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);

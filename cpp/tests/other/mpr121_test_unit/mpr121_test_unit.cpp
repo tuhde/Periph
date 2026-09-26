@@ -33,7 +33,7 @@ static void test_touched_decodes_bitmask() {
     mock.setRegister(0x00, {0x5A});
     mock.setRegister(0x01, {0x05});
     MPR121Minimal chip(mock);
-    check_true(chip.touched() == 0x5A, "touched returns 0x55A");
+    check_true(chip.touched() == 0x55A, "touched returns 0x55A");
 }
 
 static void test_is_touched_per_electrode() {

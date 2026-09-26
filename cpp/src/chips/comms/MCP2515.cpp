@@ -14,7 +14,7 @@ static unsigned long _now_ms_linux() {
 #elif defined(ARDUINO)
 #include <Arduino.h>
 #define _millis_impl() millis()
-#elif defined(__ZEPHYR_SUPERVISOR__)
+#elif defined(__ZEPHYR__)
 #include <zephyr/kernel.h>
 #define _millis_impl() ((unsigned long)k_uptime_get())
 #elif defined(ESP_PLATFORM)

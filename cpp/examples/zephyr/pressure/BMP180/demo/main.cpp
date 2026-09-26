@@ -14,7 +14,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP180_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP180_ADDR);
-    BMP180Full bmp(connection, BMP180Full.OSS_ULP);   // Create BMP180 driver, (connection, oss=0 ULP)
+    BMP180Full bmp(connection, BMP180Full::OSS_ULP);   // Create BMP180 driver, (connection, oss=0 ULP)
 
     float t0 = bmp.temperature();                      // Read temperature, () → float C
     float p0 = bmp.pressure();                       // Read pressure, () → float hPa

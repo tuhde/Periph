@@ -48,8 +48,8 @@ int main(void) {
         chip.write_port(0, 0xF0 | led_bits);                   // Write all 8 pins, (port, mask) → void
 
         printf("0x%X", (unsigned)"port=0x"); printf("%d", port);
-        printf("  btn=0b"); printf("%d", buttons, BIN);
-        printf("  led=0b"); printf("%d\n", led_bits, BIN);
+        printf("  btn=0x%02X", buttons);
+        printf("  led=0x%02X\n", led_bits);
     }
     sleep_ms(200);
         sleep_ms(10);

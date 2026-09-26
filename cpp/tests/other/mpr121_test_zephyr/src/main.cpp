@@ -2,8 +2,17 @@
 
 #include <stdio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
 #include "Mpr121.h"
 #include "I2CConnectionZephyr.h"
+
+#ifndef MPR121_I2C_NODE
+#define MPR121_I2C_NODE DT_NODELABEL(i2c0)
+#endif
+#ifndef MPR121_ADDR
+#define MPR121_ADDR 0x5A
+#endif
 
 static int passed = 0;
 static int failed = 0;
@@ -14,7 +23,8 @@ static void check_true(const char* label, bool condition) {
 }
 
 int main() {
-    I2CConnectionZephyr connection(0x5A);
+    const struct device* i2c_dev = DEVICE_DT_GET(MPR121_I2C_NODE);
+    I2CConnectionZephyr connection(i2c_dev, MPR121_ADDR);
     MPR121Full mpr(connection);
 
     uint16_t t = mpr.touched();
