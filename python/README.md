@@ -9,7 +9,7 @@ Peripheral chip drivers for MicroPython, CircuitPython, and Linux
 ## Install
 
 ```sh
-pip install periph
+pip install periph[linux]   # Linux host: also installs smbus2, spidev, gpiod, pyserial
 ```
 
 On MicroPython/CircuitPython, copy the `periph/` package onto the device's filesystem (or freeze it into the firmware) instead.

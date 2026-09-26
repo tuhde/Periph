@@ -164,7 +164,7 @@ function buildReadme(pkg, rows) {
     body += `- **Two-tier API** — \`*Minimal\` for the primary use case, \`*Full\` for complete chip functionality\n\n`;
     body += `## Install\n\n`;
     body += `\`\`\`sh\n`;
-    body += `pip install periph\n`;
+    body += `pip install periph[linux]   # Linux host: also installs smbus2, spidev, gpiod, pyserial\n`;
     body += `\`\`\`\n\n`;
     body += `On MicroPython/CircuitPython, copy the \`periph/\` package onto the device's filesystem (or freeze it into the firmware) instead.\n\n`;
     body += `## Example\n\n`;

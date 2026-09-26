@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,8 +7,69 @@ name = "periph"
 version = "1.2.1"
 description = "Peripheral chip drivers for MicroPython, CircuitPython, and Linux"
 readme = "README.md"
-license = {text = "MIT"}
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.8"
+authors = [{ name = "Till Uhde", email = "till@uhde.com" }]
+maintainers = [{ name = "Till Uhde", email = "till@uhde.com" }]
+keywords = [
+    "micropython",
+    "circuitpython",
+    "embedded",
+    "microcontroller",
+    "iot",
+    "driver",
+    "sensor",
+    "peripheral",
+    "hardware",
+    "i2c",
+    "spi",
+    "uart",
+    "gpio",
+    "neopixel",
+    "esp32",
+    "rp2040",
+    "raspberry-pi-pico",
+    "raspberry-pi",
+    "m5stack",
+    "uiflow",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Other OS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: MicroPython",
+    "Topic :: Home Automation",
+    "Topic :: Scientific/Engineering :: Instrument Drivers",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+]
+
+# MicroPython and CircuitPython need nothing extra (machine / busio are built
+# in). On a Linux host, `pip install periph[linux]` pulls the bus libraries
+# the *_linux connections import.
+[project.optional-dependencies]
+linux = [
+    "smbus2",
+    "spidev",
+    "gpiod>=2",
+    "pyserial",
+    "python-periphery",
+]
+
+[project.urls]
+Homepage = "https://github.com/tuhde/Periph"
+Documentation = "https://github.com/tuhde/Periph/wiki"
+Repository = "https://github.com/tuhde/Periph"
+Issues = "https://github.com/tuhde/Periph/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
