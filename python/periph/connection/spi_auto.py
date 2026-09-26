@@ -57,7 +57,7 @@ except ImportError:
         try:
             from .spi_linux import SPIConnection as _SPIConnection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'spidev', 'spidev', 'SPI on Linux')
 
         def SPIConnection(bus=None, device=None, cs_pin=None, baudrate=1_000_000,

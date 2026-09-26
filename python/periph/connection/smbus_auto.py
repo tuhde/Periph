@@ -52,7 +52,7 @@ except ImportError:
         try:
             from .smbus_linux import SMBusConnection as _SMBusConnection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'smbus2', 'smbus2', 'SMBus on Linux')
 
         def SMBusConnection(addr, bus=None, pec=False, freq=None, int_pin=None, en_pin=None):

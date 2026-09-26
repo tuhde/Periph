@@ -56,7 +56,7 @@ except ImportError:
         try:
             from .uart_linux import UARTConnection as _UARTConnection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'serial', 'pyserial', 'UART on Linux')
 
         def UARTConnection(port=None, baudrate=9600, int_pin=None, en_pin=None, **kwargs):

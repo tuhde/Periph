@@ -45,7 +45,7 @@ except ImportError:
             import gpiod as _gpiod
             from .hx711_linux import HX711Connection as _HX711Connection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'gpiod', 'gpiod', 'HX711 on Linux')
 
         def HX711Connection(dout, pd_sck, chip=None, en_pin=None):

@@ -59,7 +59,7 @@ except ImportError:
         try:
             from .neopixel_linux import NeoPixelConnection as _NeoPixelConnection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'spidev', 'spidev', 'NeoPixel on Linux')
 
         def NeoPixelConnection(mosi=None, sck=None, miso=None, baudrate=2_400_000, spi_id=None,

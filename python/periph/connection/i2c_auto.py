@@ -40,7 +40,7 @@ except ImportError:
         try:
             from .i2c_linux import I2CConnection as _I2CConnection
         except ImportError as exc:
-            from ._linux_deps import linux_pip_hint
+            from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'smbus2', 'smbus2', 'I2C on Linux')
 
         def I2CConnection(addr, bus=None, freq=None, int_pin=None, en_pin=None):
