@@ -141,6 +141,9 @@ jobs:
       - name: Check python/README.md is up to date
         run: node python/scripts/generate-readme.js --check
 
+      - name: Check mip package files are up to date
+        run: python3 python/scripts/generate-mip-packages.py --check
+
   # -----------------------------------------------------------------------
   # Node.js — install deps, check syntax, verify chip driver loads
   # -----------------------------------------------------------------------
