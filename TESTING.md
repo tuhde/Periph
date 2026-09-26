@@ -125,7 +125,7 @@ CI compiles every C++ example and test app on every platform; the per-platform s
 | Zephyr | `cpp/scripts/build-all.sh zephyr` | `cpp/examples/zephyr`, `*_test_zephyr`, built for `rpi_pico2/rp2350a/m33` with `cpp/boards/zephyr/rpi_pico2_rp2350a_m33.overlay`. Run from a west workspace with `zephyr-env.sh` sourced. |
 | Arduino | `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests` and `--fqbn arduino:avr:mega` | All examples on both; test sketches (`--tests`) only on the ESP32-S3 rig board. |
 
-`build-all.sh` takes an optional path filter (`cpp/scripts/build-all.sh picosdk pressure/`) and `--shard I/N`, which CI uses to split the slow platforms across parallel jobs. Set `KEEP_LOGS=<dir>` to keep each app's build log. Builds happen in a temp directory; nothing is written into the tree.
+`build-all.sh` and `test_arduino_examples.sh` both take an optional path filter (`cpp/scripts/build-all.sh picosdk pressure/`) and `--shard I/N`, which CI uses to split the slow platforms — including Arduino, sharded separately per core — across parallel jobs. Set `KEEP_LOGS=<dir>` to keep each app's build log (`build-all.sh` only). Builds happen in a temp directory; nothing is written into the tree.
 
 Linux apps have no build files: `cpp/scripts/linux-sources.py` follows an app's `#include`s and lists the connection and driver `.cpp` files it needs. `build-all.sh` and `test_linux.sh` both use it.
 

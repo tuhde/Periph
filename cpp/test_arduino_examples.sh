@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage:
-#   ./test_arduino_examples.sh [--fqbn FQBN] [--tests] [filter]
+#   ./test_arduino_examples.sh [--fqbn FQBN] [--tests] [--shard I/N] [filter]
 #
 # Compiles every Arduino example (cpp/examples/arduino/**/*.ino) against cpp/
 # as a single library -- the same layout the Library Manager ships in
@@ -17,12 +17,16 @@
 # They target the ESP32-S3 test rig (Wire.begin(sda, scl, freq) etc.), so only
 # pass this with an ESP32 FQBN.
 #
+# --shard I/N  compile only every N-th sketch starting at the I-th (1-based),
+#              so CI can split a slow core across parallel jobs.
+#
 # filter: optional substring of the example path (e.g. "temperature/" or "BME280").
 #
 # Examples:
 #   ./test_arduino_examples.sh                              # ESP32-S3
 #   ./test_arduino_examples.sh --fqbn arduino:avr:mega      # AVR, C++11
 #   ./test_arduino_examples.sh --fqbn arduino:avr:mega BME280
+#   ./test_arduino_examples.sh --shard 1/4                  # first of 4 shards
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -30,10 +34,13 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FQBN="esp32:esp32:esp32s3"
 FILTER=""
 TESTS=0
+SHARD_I=1
+SHARD_N=1
 while [ $# -gt 0 ]; do
     case "$1" in
         --fqbn) FQBN="${2:-}"; shift 2 ;;
         --tests) TESTS=1; shift ;;
+        --shard) SHARD_I="${2%/*}"; SHARD_N="${2#*/}"; shift 2 ;;
         *) FILTER="$1"; shift ;;
     esac
 done
@@ -45,8 +52,11 @@ mkdir -p "$BUILD_PATH"
 
 OK=0
 FAILED=()
+n=0
 while IFS= read -r ino; do
     case "$ino" in *"$FILTER"*) ;; *) continue ;; esac
+    n=$((n + 1))
+    [ $(( (n - 1) % SHARD_N + 1 )) -eq "$SHARD_I" ] || continue
     case "$ino" in
         "$SCRIPT_DIR/tests/"*) sketch="$(basename "$ino" .ino)" ;;
         *)  chip="$(basename "$(dirname "$(dirname "$ino")")")"
@@ -66,5 +76,5 @@ while IFS= read -r ino; do
 done < <({ find "$SCRIPT_DIR/examples/arduino" -name '*.ino'
             [ "$TESTS" -eq 1 ] && find "$SCRIPT_DIR/tests" -path '*_test/*.ino'; } | sort)
 
-echo "=== $FQBN: $OK compiled, ${#FAILED[@]} failed ==="
+echo "=== $FQBN (shard $SHARD_I/$SHARD_N): $OK compiled, ${#FAILED[@]} failed ==="
 [ "${#FAILED[@]}" -eq 0 ] || { printf '  %s\n' "${FAILED[@]}"; exit 1; }
