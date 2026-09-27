@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>periph-kotlin</artifactId>
+    <name>Periph Kotlin</name>
+    <description>Kotlin chip drivers for Periph, a multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I2C, or other transports.</description>
 
     <dependencies>
         <dependency>
@@ -54,4 +56,40 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Kotlin sources aren't Java, so the parent's javadoc-plugin execution can't
+             process them; replace it with Dokka's Javadoc-format output instead. -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>2.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
