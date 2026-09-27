@@ -108,6 +108,8 @@
                         <!-- Unset (local): falls back to useAgent's interactive gpg-agent
                              prompt. Set (CI): signs non-interactively off this env var. -->
                         <passphraseEnvName>GPG_PASSPHRASE</passphraseEnvName>
+                        <!-- Pin to the dedicated release key rather than gpg's default. -->
+                        <keyname>32C2B70F682C45B790BC4B68F3FE2DEF1A9EBFC9</keyname>
                     </configuration>
                 </plugin>
                 <plugin>
