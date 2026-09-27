@@ -247,6 +247,46 @@ jobs:
           path: jvm-jars/
 
   # -----------------------------------------------------------------------
+  # JVM — publish to Maven Central via the Central Publishing Portal.
+  # Signing and the token auth are handled by maven-gpg-plugin/
+  # central-publishing-maven-plugin (see jvm/pom.xml's release profile);
+  # setup-java writes settings.xml and imports the GPG key non-interactively.
+  # autoPublish is off, so this only stages the release -- it still needs a
+  # manual "Publish" click in the Central Portal UI.
+  # -----------------------------------------------------------------------
+  jvm-publish:
+    needs: meta
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
+
+      - name: Stamp version
+        run: |
+          mvn versions:set -DnewVersion=${{ needs.meta.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            --batch-mode --no-transfer-progress
+        working-directory: jvm
+
+      - name: Publish
+        run: mvn -Prelease clean deploy --batch-mode --no-transfer-progress -DskipTests
+        working-directory: jvm
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+  # -----------------------------------------------------------------------
   # Arduino — publish the Library Manager layout to tuhde/Periph-Arduino
   # The Library Manager needs library.properties at a repository root and
   # indexes every tag, so the library lives in its own repo: one commit and
@@ -330,7 +370,7 @@ jobs:
   # release is only created when all platforms have succeeded
   # -----------------------------------------------------------------------
   release:
-    needs: [meta, python-build, python-publish, arduino-build, arduino-publish, nodejs-publish, rust-publish, jvm-build, update-install-md]
+    needs: [meta, python-build, python-publish, arduino-build, arduino-publish, nodejs-publish, rust-publish, jvm-build, jvm-publish, update-install-md]
     runs-on: ubuntu-latest
     permissions:
       contents: write

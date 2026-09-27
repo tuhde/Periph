@@ -104,6 +104,16 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>3.2.8</version>
+                    <configuration>
+                        <!-- Unset (local): falls back to useAgent's interactive gpg-agent
+                             prompt. Set (CI): signs non-interactively off this env var. -->
+                        <passphraseEnvName>GPG_PASSPHRASE</passphraseEnvName>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.11.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -153,6 +163,18 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <!-- Central Portal deploy: no distributionManagement needed, this
+                             plugin overrides the deploy phase itself. Auto-publish is left
+                             off on purpose: each release is reviewed and published by hand
+                             in the Central Portal UI before it goes live. -->
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
