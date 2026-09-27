@@ -11,4 +11,6 @@
     </parent>
 
     <artifactId>periph-connection</artifactId>
+    <name>Periph Connection</name>
+    <description>Connection abstraction (I2C/SPI) and GPIO pins shared by Periph's Java, Kotlin, and Groovy chip drivers.</description>
 </project>

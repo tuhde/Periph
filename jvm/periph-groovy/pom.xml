@@ -11,6 +11,8 @@
     </parent>
 
     <artifactId>periph-groovy</artifactId>
+    <name>Periph Groovy</name>
+    <description>Groovy chip drivers for Periph, a multi-language library for peripheral chips (sensors, actuators, etc.) connected via SPI, I2C, or other transports.</description>
 
     <dependencies>
         <dependency>
