@@ -3,6 +3,7 @@ package magnetometer
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/tuhde/Periph/go/periph/connection"
 )
@@ -78,6 +79,7 @@ func (d *HMC5883LMinimal) initMinimal() error {
 	if err := d.writeReg8(hmc5883lRegMode, 0x00); err != nil { // continuous mode
 		return err
 	}
+	time.Sleep(6 * time.Millisecond) // first measurement available ~6 ms after mode write
 	return nil
 }
 
@@ -253,6 +255,7 @@ func (d *HMC5883LFull) SingleMeasurement() (x, y, z float64, err error) {
 	if err := d.writeReg8(hmc5883lRegMode, 0x01); err != nil {
 		return 0, 0, 0, err
 	}
+	time.Sleep(6 * time.Millisecond)
 	return d.MagneticField()
 }
 
@@ -291,6 +294,7 @@ func (d *HMC5883LFull) SelfTest(positive bool) (x, y, z float64, err error) {
 	if err := d.writeReg8(hmc5883lRegMode, 0x01); err != nil {
 		return 0, 0, 0, err
 	}
+	time.Sleep(6 * time.Millisecond)
 
 	x, y, z, err = d.MagneticField()
 

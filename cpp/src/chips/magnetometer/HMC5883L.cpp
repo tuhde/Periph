@@ -6,6 +6,25 @@ constexpr float HMC5883LMinimal::GAIN_LSB_PER_GAUSS[8];
 constexpr uint8_t HMC5883LMinimal::REG_DATA_X_MSB;
 
 #include <math.h>
+#include <string.h>
+
+#ifdef ARDUINO
+#include <Arduino.h>
+#define HMC5883L_DELAY_MS(ms) delay(ms)
+#elif defined(__ZEPHYR__)
+#include <zephyr/kernel.h>
+static inline void HMC5883L_DELAY_MS(unsigned long ms) { k_sleep(K_MSEC(ms)); }
+#elif defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+static inline void HMC5883L_DELAY_MS(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+static inline void HMC5883L_DELAY_MS(unsigned long ms) { sleep_ms(ms); }
+#else
+#include <unistd.h>
+static inline void HMC5883L_DELAY_MS(unsigned long ms) { usleep(ms * 1000UL); }
+#endif
 
 HMC5883LMinimal::HMC5883LMinimal(Connection& connection)
     : _connection(connection), _gain(1), _gain_lsb_per_gauss(GAIN_LSB_PER_GAUSS[1]) {
@@ -16,8 +35,7 @@ void HMC5883LMinimal::_init_minimal() {
     _write_reg8(REG_CONFIG_A, 0x70);
     _write_reg8(REG_CONFIG_B, 0x20);
     _write_reg8(REG_MODE, 0x00);
-    // 6 ms delay for first measurement - platform-specific delay needed
-    // For now, we assume the platform handles timing or user calls after delay
+    HMC5883L_DELAY_MS(6);  // first measurement available ~6 ms after mode write
 }
 
 uint8_t HMC5883LMinimal::_read_reg8(uint8_t reg) {
@@ -130,7 +148,7 @@ uint8_t HMC5883LFull::status() {
 
 bool HMC5883LFull::single_measurement(float& x, float& y, float& z) {
     _write_reg8(REG_MODE, 0x01);
-    // Platform-specific 6 ms delay needed here
+    HMC5883L_DELAY_MS(6);
     return magnetic_field(x, y, z);
 }
 
@@ -146,7 +164,7 @@ bool HMC5883LFull::self_test(bool positive, float& x, float& y, float& z) {
     _write_reg8(REG_CONFIG_A, config_a);
 
     _write_reg8(REG_MODE, 0x01);
-    // Platform-specific 6 ms delay needed here
+    HMC5883L_DELAY_MS(6);
     bool result = magnetic_field(x, y, z);
 
     config_a = (config_a & 0xFC) | 0b00;

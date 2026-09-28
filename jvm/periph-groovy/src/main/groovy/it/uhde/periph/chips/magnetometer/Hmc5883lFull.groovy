@@ -56,8 +56,8 @@ class Hmc5883lFull extends Hmc5883lMinimal {
         int configB = (gain << 5)
         writeReg8(REG_CONFIG_B, configB)
 
-        this.gain = gain
-        this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
+        this.@gain = gain
+        this.@gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
     }
 
     /**
@@ -70,8 +70,8 @@ class Hmc5883lFull extends Hmc5883lMinimal {
             throw new IllegalArgumentException("gain must be 0–7")
         }
         writeReg8(REG_CONFIG_B, gain << 5)
-        this.gain = gain
-        this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
+        this.@gain = gain
+        this.@gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
     }
 
     /**

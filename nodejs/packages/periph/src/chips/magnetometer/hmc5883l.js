@@ -9,6 +9,11 @@ const _REG_ID_A       = 0x0A;
 const _REG_ID_B       = 0x0B;
 const _REG_ID_C       = 0x0C;
 
+function _delay(ms) {
+    const start = Date.now();
+    while (Date.now() - start < ms) { /* spin */ }
+}
+
 const _GAIN_LSB_PER_GAUSS = {
     0: 1370,  // GN=0: ±0.88 Ga
     1: 1090,  // GN=1: ±1.3 Ga (default)
@@ -47,7 +52,7 @@ class HMC5883LMinimal {
         await this._writeReg8(_REG_CONFIG_A, 0x70);
         await this._writeReg8(_REG_CONFIG_B, 0x20);
         await this._writeReg8(_REG_MODE, 0x00);
-        // 6 ms delay for first measurement - caller should wait if needed
+        _delay(6); // first measurement available ~6 ms after mode write
     }
 
     async _readReg8(reg) {
@@ -121,8 +126,11 @@ class HMC5883LFull extends HMC5883LMinimal {
         const doMap = { 0.75: 0b000, 1.5: 0b001, 3: 0b010, 7.5: 0b011,
                         15: 0b100, 30: 0b101, 75: 0b110 };
 
-        if (!maMap[averaging]) throw new Error('averaging must be 1, 2, 4, or 8');
-        if (!doMap[odr]) throw new Error('odr must be 0.75, 1.5, 3, 7.5, 15, 30, or 75');
+        // NOTE: maMap[1]===0 and doMap[0.75]===0 are valid mapped values, so
+        // this must check key presence (`in`), not truthiness of the value --
+        // `!maMap[averaging]` would wrongly reject averaging=1 and odr=0.75.
+        if (!(averaging in maMap)) throw new Error('averaging must be 1, 2, 4, or 8');
+        if (!(odr in doMap)) throw new Error('odr must be 0.75, 1.5, 3, 7.5, 15, 30, or 75');
         if (gain < 0 || gain > 7) throw new Error('gain must be 0–7');
 
         const ma = maMap[averaging];
@@ -156,7 +164,9 @@ class HMC5883LFull extends HMC5883LMinimal {
      */
     async setMode(mode) {
         const modeMap = { continuous: 0b00, single: 0b01, idle: 0b10 };
-        if (!modeMap[mode]) throw new Error("mode must be 'continuous', 'single', or 'idle'");
+        // modeMap.continuous === 0, so this must check key presence, not
+        // truthiness -- `!modeMap[mode]` would wrongly reject 'continuous'.
+        if (!(mode in modeMap)) throw new Error("mode must be 'continuous', 'single', or 'idle'");
         await this._writeReg8(_REG_MODE, modeMap[mode]);
     }
 
@@ -184,7 +194,7 @@ class HMC5883LFull extends HMC5883LMinimal {
      */
     async singleMeasurement() {
         await this._writeReg8(_REG_MODE, 0x01);
-        // Caller should wait 6 ms before reading
+        _delay(6);
         return this.magneticField();
     }
 
@@ -211,7 +221,7 @@ class HMC5883LFull extends HMC5883LMinimal {
         await this._writeReg8(_REG_CONFIG_A, (configA & 0xFC) | ms);
 
         await this._writeReg8(_REG_MODE, 0x01);
-        // Caller should wait 6 ms
+        _delay(6);
         const result = await this.magneticField();
 
         await this._writeReg8(_REG_CONFIG_A, (configA & 0xFC) | 0b00);
