@@ -87,8 +87,12 @@ fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<(i32,i32,i32,i3
     let mc  = i16::from_be_bytes([buf[18], buf[19]]) as i32;
     let md  = i16::from_be_bytes([buf[20], buf[21]]) as i32;
 
+    // ac4/ac5/ac6 are UNSIGNED (`as i32` from u16, not sign-extended), so a
+    // raw 0xFFFF word reads back as 65535, never -1 -- checking `== -1` for
+    // those three (mirroring the signed fields' check) would never catch
+    // the all-ones sentinel on them.
     if ac1 == 0 || ac1 == -1 || ac2 == 0 || ac2 == -1 || ac3 == 0 || ac3 == -1
-        || ac4 == 0 || ac4 == -1 || ac5 == 0 || ac5 == -1 || ac6 == 0 || ac6 == -1
+        || ac4 == 0 || ac4 == 0xFFFF || ac5 == 0 || ac5 == 0xFFFF || ac6 == 0 || ac6 == 0xFFFF
         || b1 == 0 || b1 == -1 || b2 == 0 || b2 == -1
         || mb == 0 || mb == -1 || mc == 0 || mc == -1 || md == 0 || md == -1 {
         panic!("BMP085 calibration invalid");
@@ -383,5 +387,29 @@ mod tests {
         sensor.reset().unwrap();
 
         sensor.inner.i2c.done();
+    }
+
+    #[test]
+    #[should_panic(expected = "BMP085 calibration invalid")]
+    fn calibration_rejects_all_ffff() {
+        let transactions = vec![I2cTransaction::write_read(ADDR, vec![REG_CAL_START], vec![0xFFu8; 22])];
+        let i2c = I2cMock::new(&transactions);
+        let _ = Bmp085Full::new(i2c, ADDR, 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "BMP085 calibration invalid")]
+    fn calibration_rejects_unsigned_field_ffff_regression() {
+        // Regression: ac4/ac5/ac6 are read as unsigned (`u16 as i32`), so a
+        // raw 0xFFFF word becomes 65535, never -1 -- the buggy check
+        // compared them against -1 (mirroring the signed fields) and never
+        // caught this. Only AC5 is the sentinel here; every other word is
+        // a valid datasheet worked-example value.
+        let mut bytes = CAL_BYTES.to_vec();
+        bytes[8] = 0xFF; // AC5 MSB
+        bytes[9] = 0xFF; // AC5 LSB -> raw 0xFFFF -> unsigned 65535
+        let transactions = vec![I2cTransaction::write_read(ADDR, vec![REG_CAL_START], bytes)];
+        let i2c = I2cMock::new(&transactions);
+        let _ = Bmp085Full::new(i2c, ADDR, 0);
     }
 }

@@ -64,10 +64,16 @@ class BMP085Minimal {
         this._mc  = data.readInt16BE(18);
         this._md  = data.readInt16BE(20);
 
-        const coefficients = [this._ac1, this._ac2, this._ac3, this._ac4,
-            this._ac5, this._ac6, this._b1, this._b2, this._mb, this._mc, this._md];
-        if (coefficients.some(c => c === 0 || c === 0xFFFF)) {
-            throw new Error('BMP085 calibration data invalid');
+        // Sanity-check the RAW 16-bit words, not the signed-interpreted
+        // coefficients: 8 of the 11 are signed (readInt16BE, range
+        // -32768..32767), so a raw 0xFFFF word reads back as -1, which can
+        // never equal the literal 0xFFFF -- comparing the signed value
+        // would silently miss the "all-ones" sentinel on those 8 fields.
+        for (let i = 0; i < 22; i += 2) {
+            const raw16 = data.readUInt16BE(i);
+            if (raw16 === 0x0000 || raw16 === 0xFFFF) {
+                throw new Error('BMP085 calibration data invalid');
+            }
         }
     }
 

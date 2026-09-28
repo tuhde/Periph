@@ -52,9 +52,15 @@ class BMP085Minimal:
         mc  = struct.unpack('>h', data[18:20])[0]
         md  = struct.unpack('>h', data[20:22])[0]
 
-        coefficients = (ac1, ac2, ac3, ac4, ac5, ac6, b1, b2, mb, mc, md)
-        if any(c == 0 or c == 0xFFFF for c in coefficients):
-            raise ValueError('BMP085 calibration data invalid')
+        # Sanity-check the RAW 16-bit words, not the signed-interpreted
+        # coefficients: 8 of the 11 are signed int16 (range -32768..32767),
+        # so a raw 0xFFFF word unpacks to -1, which can never equal the
+        # literal 0xFFFF -- checking the signed value would silently miss
+        # the "all-1s" sentinel on those 8 fields.
+        for i in range(0, 22, 2):
+            raw16 = (data[i] << 8) | data[i + 1]
+            if raw16 == 0x0000 or raw16 == 0xFFFF:
+                raise ValueError('BMP085 calibration data invalid')
 
         self._ac1 = ac1
         self._ac2 = ac2
