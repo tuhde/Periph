@@ -90,6 +90,12 @@ class AD7706Minimal:
         self._gain = 1
         self._bipolar = True
         self._buffered = False
+        self._gain2 = 1
+        self._bipolar2 = True
+        self._buffered2 = False
+        self._gain3 = 1
+        self._bipolar3 = True
+        self._buffered3 = False
 
         if reset_pin is not None:
             self._hardware_reset()
@@ -290,6 +296,29 @@ class AD7706Full(AD7706Minimal):
             self._gain = gain
             self._bipolar = bipolar
             self._buffered = buffered
+        elif channel == 2:
+            self._gain2 = gain
+            self._bipolar2 = bipolar
+            self._buffered2 = buffered
+        else:
+            self._gain3 = gain
+            self._bipolar3 = bipolar
+            self._buffered3 = buffered
+
+    def _channel_state(self, channel):
+        """Return (gain, bipolar, buffered) for the given channel's last configure().
+
+        Args:
+            channel: 1, 2, or 3.
+
+        Returns:
+            tuple: (gain, bipolar, buffered) for that channel.
+        """
+        if channel == 1:
+            return self._gain, self._bipolar, self._buffered
+        if channel == 2:
+            return self._gain2, self._bipolar2, self._buffered2
+        return self._gain3, self._bipolar3, self._buffered3
 
     def _validate_channel(self, channel):
         """Validate and convert a channel number to its _CH* constant.
@@ -333,9 +362,9 @@ class AD7706Full(AD7706Minimal):
         Returns:
             float: Input voltage in V.
         """
-        ch = self._validate_channel(channel)
-        code = self._read_reg_channel(self._REG_DATA, ch, 2)
-        return self._code_to_voltage(code, self._gain, self._bipolar)
+        code = self.read_raw(channel)
+        gain, bipolar, _ = self._channel_state(channel)
+        return self._code_to_voltage(code, gain, bipolar)
 
     def read_raw_channel1(self):
         """Read the raw 16-bit Data Register code on Channel 1.
@@ -364,18 +393,20 @@ class AD7706Full(AD7706Minimal):
         self._wait_drdy()
         return self._read_reg_channel(self._REG_DATA, self._CH3, 2)
 
-    def _calibration_setup(self, mode):
+    def _calibration_setup(self, mode, channel):
         """Build a Setup Register byte with the given calibration mode bits.
 
         Args:
             mode: One of _MODE_*.
+            channel: 1, 2, or 3 -- whose configured gain/bipolar/buffered to use.
 
         Returns:
             int: Setup Register byte.
         """
-        return (mode | self._GAIN_TO_BITS[self._gain]
-                | (self._UNIPOLAR if not self._bipolar else self._BIPOLAR)
-                | (self._BUFFERED if self._buffered else self._UNBUFFERED)
+        gain, bipolar, buffered = self._channel_state(channel)
+        return (mode | self._GAIN_TO_BITS[gain]
+                | (self._UNIPOLAR if not bipolar else self._BIPOLAR)
+                | (self._BUFFERED if buffered else self._UNBUFFERED)
                 | self._FSYNC_RUN)
 
     def self_calibrate(self, channel=1):
@@ -388,7 +419,7 @@ class AD7706Full(AD7706Minimal):
             channel: 1, 2, or 3 (default 1).
         """
         ch = self._validate_channel(channel)
-        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_SELF_CAL), ch, 1)
+        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_SELF_CAL, channel), ch, 1)
         self._wait_drdy()
 
     def system_calibrate_zero(self, channel=1):
@@ -401,7 +432,7 @@ class AD7706Full(AD7706Minimal):
             channel: 1, 2, or 3 (default 1).
         """
         ch = self._validate_channel(channel)
-        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_ZERO_SYS), ch, 1)
+        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_ZERO_SYS, channel), ch, 1)
         self._wait_drdy()
 
     def system_calibrate_full(self, channel=1):
@@ -414,7 +445,7 @@ class AD7706Full(AD7706Minimal):
             channel: 1, 2, or 3 (default 1).
         """
         ch = self._validate_channel(channel)
-        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_FULL_SYS), ch, 1)
+        self._write_reg_channel(self._REG_SETUP, self._calibration_setup(self._MODE_FULL_SYS, channel), ch, 1)
         self._wait_drdy()
 
     def get_offset_calibration(self, channel=1):

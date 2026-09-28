@@ -93,12 +93,12 @@ async function readRegChannel(conn, reg, channel, nBytes) {
     return value;
 }
 
-async function configureClock(conn, mclkHz, outputRateHz) {
+async function configureClock(conn, mclkHz, outputRateHz, channel) {
     const clkBit   = (mclkHz >= MCLK_2_4576MHZ) ? 0x04 : 0x00;
     const clkDivBit = (mclkHz === MCLK_2MHZ || mclkHz === MCLK_4_9152MHZ) ? 0x08 : 0x00;
     const rates = (mclkHz >= MCLK_2_4576MHZ) ? FS_RATES_2_4MHZ : FS_RATES_1MHZ;
     const fsIdx = rates.indexOf(outputRateHz);
-    await writeRegChannel(conn, REG_CLOCK, clkDivBit | clkBit | fsIdx, CH1, 1);
+    await writeRegChannel(conn, REG_CLOCK, clkDivBit | clkBit | fsIdx, channel, 1);
 }
 
 function codeToVoltage(code, gain, bipolar, vref) {
@@ -133,6 +133,12 @@ class AD7706Minimal {
         this._gain = 1;
         this._bipolar = true;
         this._buffered = false;
+        this._gain2 = 1;
+        this._bipolar2 = true;
+        this._buffered2 = false;
+        this._gain3 = 1;
+        this._bipolar3 = true;
+        this._buffered3 = false;
 
         if (resetPin) {
             resetPin.set(false);
@@ -140,11 +146,13 @@ class AD7706Minimal {
         }
 
         const defaultRate = (mclkHz >= MCLK_2_4576MHZ) ? FS_RATES_2_4MHZ[0] : FS_RATES_1MHZ[0];
-        configureClock(connection, mclkHz, defaultRate);
+        configureClock(connection, mclkHz, defaultRate, CH1);
 
         const setup = MODE_SELF_CAL | GAIN_BITS[0] | BIPOLAR | UNBUFFERED | FSYNC_RUN;
         writeRegChannel(connection, REG_SETUP, setup, CH1, 1);
-        return waitDrdy(connection);
+        // JS constructors can't be async, so this fires unawaited -- same
+        // documented fire-and-forget convention as MFRC522Minimal/AD7705Minimal.
+        waitDrdy(connection);
     }
 
     /**
@@ -171,6 +179,16 @@ class AD7706Minimal {
  */
 class AD7706Full extends AD7706Minimal {
     /**
+     * @param {number} channel - 1, 2, or 3.
+     * @returns {{gain: number, bipolar: boolean, buffered: boolean}} The gain/bipolar/buffered state last set by configure() for that channel.
+     */
+    _channelState(channel) {
+        if (channel === 1) return { gain: this._gain, bipolar: this._bipolar, buffered: this._buffered };
+        if (channel === 2) return { gain: this._gain2, bipolar: this._bipolar2, buffered: this._buffered2 };
+        return { gain: this._gain3, bipolar: this._bipolar3, buffered: this._buffered3 };
+    }
+
+    /**
      * Write the Setup and Clock Registers for the given channel.
      * Does not calibrate — call selfCalibrate() (or one of the
      * system-calibration methods) afterward.
@@ -191,7 +209,7 @@ class AD7706Full extends AD7706Minimal {
             throw new Error(`outputRateHz must be one of ${rates.join(', ')} Hz`);
         }
 
-        await configureClock(this._conn, this._mclkHz, outputRateHz);
+        await configureClock(this._conn, this._mclkHz, outputRateHz, ch);
 
         const buBit = bipolar ? BIPOLAR : UNIPOLAR;
         const bufBit = buffered ? BUFFERED : UNBUFFERED;
@@ -202,6 +220,14 @@ class AD7706Full extends AD7706Minimal {
             this._gain = gain;
             this._bipolar = bipolar;
             this._buffered = buffered;
+        } else if (channel === 2) {
+            this._gain2 = gain;
+            this._bipolar2 = bipolar;
+            this._buffered2 = buffered;
+        } else {
+            this._gain3 = gain;
+            this._bipolar3 = bipolar;
+            this._buffered3 = buffered;
         }
     }
 
@@ -223,7 +249,8 @@ class AD7706Full extends AD7706Minimal {
      */
     async readVoltageChannel(channel) {
         const code = await this.readRawChannel(channel);
-        return codeToVoltage(code, this._gain, this._bipolar, this._vref);
+        const { gain, bipolar } = this._channelState(channel);
+        return codeToVoltage(code, gain, bipolar, this._vref);
     }
 
     /**
@@ -232,7 +259,8 @@ class AD7706Full extends AD7706Minimal {
      */
     async selfCalibrate(channel) {
         const ch = channelConst(channel);
-        const setup = calibrationSetup(MODE_SELF_CAL, this._gain, this._bipolar, this._buffered);
+        const { gain, bipolar, buffered } = this._channelState(channel);
+        const setup = calibrationSetup(MODE_SELF_CAL, gain, bipolar, buffered);
         await writeRegChannel(this._conn, REG_SETUP, setup, ch, 1);
         await waitDrdy(this._conn);
     }
@@ -243,7 +271,8 @@ class AD7706Full extends AD7706Minimal {
      */
     async systemCalibrateZero(channel) {
         const ch = channelConst(channel);
-        const setup = calibrationSetup(MODE_ZERO_SYS, this._gain, this._bipolar, this._buffered);
+        const { gain, bipolar, buffered } = this._channelState(channel);
+        const setup = calibrationSetup(MODE_ZERO_SYS, gain, bipolar, buffered);
         await writeRegChannel(this._conn, REG_SETUP, setup, ch, 1);
         await waitDrdy(this._conn);
     }
@@ -254,7 +283,8 @@ class AD7706Full extends AD7706Minimal {
      */
     async systemCalibrateFull(channel) {
         const ch = channelConst(channel);
-        const setup = calibrationSetup(MODE_FULL_SYS, this._gain, this._bipolar, this._buffered);
+        const { gain, bipolar, buffered } = this._channelState(channel);
+        const setup = calibrationSetup(MODE_FULL_SYS, gain, bipolar, buffered);
         await writeRegChannel(this._conn, REG_SETUP, setup, ch, 1);
         await waitDrdy(this._conn);
     }

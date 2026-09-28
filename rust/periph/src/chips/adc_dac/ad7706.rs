@@ -157,12 +157,13 @@ fn configure_clock<SPI: SpiDevice>(
     spi: &mut SPI,
     mclk_hz: u32,
     output_rate_hz: u16,
+    channel: u8,
 ) -> Result<(), SPI::Error> {
     let clk_bit = if mclk_hz >= MCLK_2_4576MHZ { 0x04 } else { 0x00 };
     let clkdiv_bit = if mclk_hz == MCLK_2MHZ || mclk_hz == MCLK_4_9152MHZ { 0x08 } else { 0x00 };
     let rates = if mclk_hz >= MCLK_2_4576MHZ { &FS_RATES_2_4MHZ } else { &FS_RATES_1MHZ };
     let fs_bits = rates.iter().position(|&r| r == output_rate_hz).unwrap_or(0);
-    write_reg_channel(spi, REG_CLOCK, (clkdiv_bit | clk_bit | fs_bits as u8) as u32, CH1, 1)
+    write_reg_channel(spi, REG_CLOCK, (clkdiv_bit | clk_bit | fs_bits as u8) as u32, channel, 1)
 }
 
 fn code_to_voltage(code: u16, gain: u8, bipolar: bool, vref: f32) -> f32 {
@@ -181,6 +182,12 @@ pub struct AD7706Minimal<SPI: SpiDevice> {
     gain: u8,
     bipolar: bool,
     buffered: bool,
+    gain2: u8,
+    bipolar2: bool,
+    buffered2: bool,
+    gain3: u8,
+    bipolar3: bool,
+    buffered3: bool,
 }
 
 impl<SPI: SpiDevice> AD7706Minimal<SPI> {
@@ -199,6 +206,12 @@ impl<SPI: SpiDevice> AD7706Minimal<SPI> {
             gain: 1,
             bipolar: true,
             buffered: false,
+            gain2: 1,
+            bipolar2: true,
+            buffered2: false,
+            gain3: 1,
+            bipolar3: true,
+            buffered3: false,
         };
         s.init()?;
         Ok(s)
@@ -211,7 +224,7 @@ impl<SPI: SpiDevice> AD7706Minimal<SPI> {
         } else {
             FS_RATES_1MHZ[0]
         };
-        configure_clock(&mut self.spi, self.mclk_hz, default_rate)?;
+        configure_clock(&mut self.spi, self.mclk_hz, default_rate, CH1)?;
         let setup = MODE_SELF_CAL | GAIN_BITS[0] | BIPOLAR | UNBUFFERED | FSYNC_RUN;
         write_reg_channel(&mut self.spi, REG_SETUP, setup as u32, CH1, 1)?;
         wait_drdy(&mut self.spi)?;
@@ -251,6 +264,15 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
     /// Block until DRDY, then return the input voltage on Channel 1 in V.
     pub fn read_voltage(&mut self) -> Result<f32, SPI::Error> { self.inner.read_voltage() }
 
+    /// Gain/bipolar/buffered last set by [`Self::configure`] for the given channel.
+    fn channel_state(&self, channel: u8) -> (u8, bool, bool) {
+        match channel {
+            2 => (self.inner.gain2, self.inner.bipolar2, self.inner.buffered2),
+            3 => (self.inner.gain3, self.inner.bipolar3, self.inner.buffered3),
+            _ => (self.inner.gain, self.inner.bipolar, self.inner.buffered),
+        }
+    }
+
     /// Write the Setup and Clock Registers for the given channel.
     ///
     /// Does not calibrate — call [`Self::self_calibrate`] (or one of the
@@ -264,19 +286,23 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
         if !rates.contains(&output_rate_hz) {
             return Ok(());
         }
-        configure_clock(&mut self.inner.spi, self.inner.mclk_hz, output_rate_hz)?;
-        let bu_bit = if bipolar { BIPOLAR } else { UNIPOLAR };
-        let buf_bit = if buffered { BUFFERED } else { UNBUFFERED };
-        let gain_idx = match GAIN_TO_IDX[gain as usize] {
+        // gain must be validated (and its panic-safe lookup done) before any
+        // register is written, so an invalid call is a true no-op rather
+        // than silently reprogramming the Clock Register and then bailing
+        // out before the Setup Register write.
+        let gain_idx = match GAIN_TO_IDX.get(gain as usize).copied().flatten() {
             Some(i) => i,
             None => return Ok(()),
         };
+        configure_clock(&mut self.inner.spi, self.inner.mclk_hz, output_rate_hz, ch)?;
+        let bu_bit = if bipolar { BIPOLAR } else { UNIPOLAR };
+        let buf_bit = if buffered { BUFFERED } else { UNBUFFERED };
         let setup = MODE_NORMAL | GAIN_BITS[gain_idx as usize] | bu_bit | buf_bit | FSYNC_RUN;
         write_reg_channel(&mut self.inner.spi, REG_SETUP, setup as u32, ch, 1)?;
-        if channel == 1 {
-            self.inner.gain = gain;
-            self.inner.bipolar = bipolar;
-            self.inner.buffered = buffered;
+        match channel {
+            2 => { self.inner.gain2 = gain; self.inner.bipolar2 = bipolar; self.inner.buffered2 = buffered; }
+            3 => { self.inner.gain3 = gain; self.inner.bipolar3 = bipolar; self.inner.buffered3 = buffered; }
+            _ => { self.inner.gain = gain; self.inner.bipolar = bipolar; self.inner.buffered = buffered; }
         }
         Ok(())
     }
@@ -294,7 +320,8 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
     /// Block until DRDY, then return the input voltage on the channel in V.
     pub fn read_voltage_channel(&mut self, channel: u8) -> Result<f32, SPI::Error> {
         let code = self.read_raw_channel(channel)?;
-        Ok(code_to_voltage(code, self.inner.gain, self.inner.bipolar, self.inner.vref))
+        let (gain, bipolar, _) = self.channel_state(channel);
+        Ok(code_to_voltage(code, gain, bipolar, self.inner.vref))
     }
 
     /// Run an internal self-calibration on the channel.
@@ -303,7 +330,8 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
             Some(c) => c,
             None => return Ok(()),
         };
-        let setup = MODE_SELF_CAL | GAIN_BITS[GAIN_TO_IDX[self.inner.gain as usize].unwrap_or(0) as usize] | (if self.inner.bipolar { BIPOLAR } else { UNIPOLAR }) | (if self.inner.buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
+        let (gain, bipolar, buffered) = self.channel_state(channel);
+        let setup = MODE_SELF_CAL | GAIN_BITS[GAIN_TO_IDX[gain as usize].unwrap_or(0) as usize] | (if bipolar { BIPOLAR } else { UNIPOLAR }) | (if buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
         write_reg_channel(&mut self.inner.spi, REG_SETUP, setup as u32, ch, 1)?;
         wait_drdy(&mut self.inner.spi)?;
         Ok(())
@@ -315,7 +343,8 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
             Some(c) => c,
             None => return Ok(()),
         };
-        let setup = MODE_ZERO_SYS | GAIN_BITS[GAIN_TO_IDX[self.inner.gain as usize].unwrap_or(0) as usize] | (if self.inner.bipolar { BIPOLAR } else { UNIPOLAR }) | (if self.inner.buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
+        let (gain, bipolar, buffered) = self.channel_state(channel);
+        let setup = MODE_ZERO_SYS | GAIN_BITS[GAIN_TO_IDX[gain as usize].unwrap_or(0) as usize] | (if bipolar { BIPOLAR } else { UNIPOLAR }) | (if buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
         write_reg_channel(&mut self.inner.spi, REG_SETUP, setup as u32, ch, 1)?;
         wait_drdy(&mut self.inner.spi)?;
         Ok(())
@@ -327,7 +356,8 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
             Some(c) => c,
             None => return Ok(()),
         };
-        let setup = MODE_FULL_SYS | GAIN_BITS[GAIN_TO_IDX[self.inner.gain as usize].unwrap_or(0) as usize] | (if self.inner.bipolar { BIPOLAR } else { UNIPOLAR }) | (if self.inner.buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
+        let (gain, bipolar, buffered) = self.channel_state(channel);
+        let setup = MODE_FULL_SYS | GAIN_BITS[GAIN_TO_IDX[gain as usize].unwrap_or(0) as usize] | (if bipolar { BIPOLAR } else { UNIPOLAR }) | (if buffered { BUFFERED } else { UNBUFFERED }) | FSYNC_RUN;
         write_reg_channel(&mut self.inner.spi, REG_SETUP, setup as u32, ch, 1)?;
         wait_drdy(&mut self.inner.spi)?;
         Ok(())
@@ -382,5 +412,134 @@ impl<SPI: SpiDevice> AD7706Full<SPI> {
         self.inner.spi.write(&comm)?;
         wait_drdy(&mut self.inner.spi)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    fn w(buf: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(buf.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn r(comm: u8, response: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![comm]),
+            SpiTransaction::read_vec(response.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn drdy_ready() -> Vec<SpiTransaction<u8>> {
+        r(0x08, &[0x00])
+    }
+
+    // Init sequence shared by every test below: mclk_hz=4_915_200 -> Clock
+    // reg = 0x0C, Setup reg = MODE_SELF_CAL|GAIN_1|BIPOLAR|UNBUFFERED = 0x40.
+    fn init_seq() -> Vec<SpiTransaction<u8>> {
+        let mut t = Vec::new();
+        t.extend(w(&[0x20, 0x0C]));
+        t.extend(w(&[0x10, 0x40]));
+        t.extend(drdy_ready());
+        t
+    }
+
+    #[test]
+    fn init_and_minimal_reads() {
+        let mut t = init_seq();
+        t.extend(drdy_ready());
+        t.extend(r(0x38, &[0xC0, 0x00]));
+        t.extend(drdy_ready());
+        t.extend(r(0x38, &[0xC0, 0x00]));
+
+        let mut sensor = AD7706Minimal::new(SpiMock::new(&t), 2.5, MCLK_4_9152MHZ).expect("init");
+        assert_eq!(sensor.read_raw().unwrap(), 0xC000);
+        assert!((sensor.read_voltage().unwrap() - 1.25).abs() < 1e-6);
+        sensor.spi.done();
+    }
+
+    #[test]
+    fn three_channels_independent_state() {
+        // Regression test for the same bug class as AD7705: configure() only
+        // updated the shared gain/bipolar/buffered fields for channel 1, and
+        // configure_clock() was hardcoded to always write Channel 1's Clock
+        // Register. AD7706 has three channels, so this also checks channel 3
+        // (comm select bits 11, not just channel 2's 01).
+        let mut t = init_seq();
+
+        // configure(2, gain=4, bipolar=false, buffered=true, 250 Hz):
+        t.extend(w(&[0x21, 0x0E]));
+        t.extend(w(&[0x11, 0x16]));
+        // configure(3, gain=8, bipolar=true, buffered=false, 500 Hz):
+        // Channel 3 select = CH1:CH0=11 -> ch3=0x03.
+        t.extend(w(&[0x23, 0x0F]));
+        t.extend(w(&[0x13, 0x18]));
+
+        // Data Register reads: CH2 comm=0x39, CH3 comm=0x3B.
+        t.extend(drdy_ready());
+        t.extend(r(0x39, &[0x80, 0x00]));
+        t.extend(drdy_ready());
+        t.extend(r(0x3B, &[0xE0, 0x00]));
+        t.extend(drdy_ready());
+        t.extend(r(0x38, &[0xC0, 0x00]));
+
+        let mut full = AD7706Full::new(SpiMock::new(&t), 2.5, MCLK_4_9152MHZ).expect("init");
+        full.configure(2, 4, false, true, 250).unwrap();
+        full.configure(3, 8, true, false, 500).unwrap();
+
+        // CH2: code=0x8000, gain=4, unipolar -> 0.3125 V
+        assert!((full.read_voltage_channel(2).unwrap() - 0.3125).abs() < 1e-6);
+        // CH3: code=0xE000, gain=8, bipolar -> 0.234375 V
+        assert!((full.read_voltage_channel(3).unwrap() - 0.234375).abs() < 1e-6);
+        // Channel 1 was never configured -> still the ctor default.
+        assert!((full.read_voltage_channel(1).unwrap() - 1.25).abs() < 1e-6);
+
+        // Invalid channel/gain is a silent no-op -- no transactions queued.
+        full.configure(4, 1, true, false, 50).unwrap();
+        full.configure(1, 3, true, false, 50).unwrap();
+
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn calibration_uses_configured_channel_state() {
+        let mut t = init_seq();
+        t.extend(w(&[0x23, 0x0F]));
+        t.extend(w(&[0x13, 0x18]));
+        // self_calibrate(3): setup = MODE_SELF_CAL|GAIN_8|BIPOLAR|UNBUFFERED = 0x58
+        t.extend(w(&[0x13, 0x58]));
+        t.extend(drdy_ready());
+
+        let mut full = AD7706Full::new(SpiMock::new(&t), 2.5, MCLK_4_9152MHZ).expect("init");
+        full.configure(3, 8, true, false, 500).unwrap();
+        full.self_calibrate(3).unwrap();
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn calibration_registers_and_power_control() {
+        let mut t = init_seq();
+        // Zero-Scale reg CH3 read comm = REG_OFFSET|RW_READ|CH3(0x03) = 0x6B.
+        t.extend(r(0x6B, &[0x12, 0x34, 0x56]));
+        t.extend(w(&[0x63, 0xAB, 0xCD, 0xEF]));
+        // standby(): comm(COMM,WRITE,CH1)|STBY_SLEEP = 0x04.
+        t.extend(w(&[0x04]));
+        // wakeup(): comm(COMM,WRITE,CH1)|STBY_RUN = 0x00, then wait_drdy.
+        t.extend(w(&[0x00]));
+        t.extend(drdy_ready());
+
+        let mut full = AD7706Full::new(SpiMock::new(&t), 2.5, MCLK_4_9152MHZ).expect("init");
+        assert_eq!(full.get_offset_calibration(3).unwrap(), 0x123456);
+        full.set_offset_calibration(0xABCDEF, 3).unwrap();
+        full.standby().unwrap();
+        full.wakeup().unwrap();
+        full.inner.spi.done();
     }
 }

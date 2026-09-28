@@ -39,6 +39,13 @@ class Ad7706Full extends Ad7706Minimal {
 
     private final Ad7706ResetPin resetPin
 
+    private int gain2 = 1
+    private boolean bipolar2 = true
+    private boolean buffered2 = false
+    private int gain3 = 1
+    private boolean bipolar3 = true
+    private boolean buffered3 = false
+
     /** Construct with an optional hardware reset pin. */
     Ad7706Full(Connection connection, float vref, int mclkHz, Ad7706ResetPin resetPin) {
         super(connection, vref, mclkHz)
@@ -56,6 +63,24 @@ class Ad7706Full extends Ad7706Minimal {
             case 2: return CH2
             case 3: return CH3
             default: throw new IllegalArgumentException("channel must be 1, 2, or 3")
+        }
+    }
+
+    private static class ChannelState {
+        final int gain
+        final boolean bipolar
+        final boolean buffered
+        ChannelState(int gain, boolean bipolar, boolean buffered) {
+            this.gain = gain; this.bipolar = bipolar; this.buffered = buffered
+        }
+    }
+
+    /** Gain/bipolar/buffered state last set by {@link #configure} for the given channel. */
+    private ChannelState channelState(int channel) {
+        switch (channel) {
+            case 2: return new ChannelState(gain2, bipolar2, buffered2)
+            case 3: return new ChannelState(gain3, bipolar3, buffered3)
+            default: return new ChannelState(gain, bipolar, buffered)
         }
     }
 
@@ -78,7 +103,7 @@ class Ad7706Full extends Ad7706Minimal {
             throw new IllegalArgumentException("outputRateHz must be one of ${rates}")
         }
 
-        configureClock(outputRateHz)
+        configureClock(outputRateHz, ch)
 
         int buBit = bipolar ? BIPOLAR : UNIPOLAR
         int bufBit = buffered ? BUFFERED : UNBUFFERED
@@ -97,10 +122,10 @@ class Ad7706Full extends Ad7706Minimal {
         int setup = MODE_NORMAL | GAIN_BITS[gainIdx] | buBit | bufBit | FSYNC_RUN
         writeRegChannel(REG_SETUP, setup, ch, 1)
 
-        if (channel == 1) {
-            this.gain = gain
-            this.bipolar = bipolar
-            this.buffered = buffered
+        switch (channel) {
+            case 2: this.gain2 = gain; this.bipolar2 = bipolar; this.buffered2 = buffered; break
+            case 3: this.gain3 = gain; this.bipolar3 = bipolar; this.buffered3 = buffered; break
+            default: this.gain = gain; this.bipolar = bipolar; this.buffered = buffered
         }
     }
 
@@ -114,7 +139,8 @@ class Ad7706Full extends Ad7706Minimal {
     /** Block until DRDY, then return the input voltage on the channel in V. */
     float readVoltage(int channel) {
         int code = readRaw(channel)
-        return codeToVoltage(code, gain, bipolar)
+        ChannelState state = channelState(channel)
+        return codeToVoltage(code, state.gain, state.bipolar)
     }
 
     /** Run an internal self-calibration on the channel. */
@@ -134,10 +160,11 @@ class Ad7706Full extends Ad7706Minimal {
 
     private void runCalibration(int channel, int mode) {
         int ch = channelConst(channel)
-        int buBit = bipolar ? BIPOLAR : UNIPOLAR
-        int bufBit = buffered ? BUFFERED : UNBUFFERED
+        ChannelState state = channelState(channel)
+        int buBit = state.bipolar ? BIPOLAR : UNIPOLAR
+        int bufBit = state.buffered ? BUFFERED : UNBUFFERED
         int gainIdx
-        switch (gain) {
+        switch (state.gain) {
             case 1:   gainIdx = 0; break
             case 2:   gainIdx = 1; break
             case 4:   gainIdx = 2; break

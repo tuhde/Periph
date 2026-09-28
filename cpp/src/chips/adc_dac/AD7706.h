@@ -53,8 +53,8 @@ protected:
     /** @brief Pulse the hardware RESET line low then high. */
     void _hardware_reset();
 
-    /** @brief Write Clock Register with CLKDIV/CLK from mclk_hz and FS bits from rate. */
-    void _configure_clock(uint16_t output_rate_hz);
+    /** @brief Write Clock Register with CLKDIV/CLK from mclk_hz and FS bits from rate, for the given channel. */
+    void _configure_clock(uint16_t output_rate_hz, uint8_t channel);
 
     /** @brief Write n_bytes to a register on the given channel. */
     void _write_reg_channel(uint8_t reg, uint32_t value, uint8_t channel, uint8_t n_bytes);
@@ -65,6 +65,12 @@ protected:
     /** @brief Convert a 16-bit code to volts using the given gain/bipolar. */
     float _code_to_voltage(uint16_t code, uint8_t gain, bool bipolar) const;
 
+    /** @brief Look up the gain/bipolar/buffered state last set by configure() for a channel. */
+    void _channel_state(uint8_t channel, uint8_t& gain, bool& bipolar, bool& buffered) const;
+
+    /** @brief Convert a PGA gain value (1..128) to its 3-bit register index. Returns 0xFF if invalid. */
+    static uint8_t _gain_to_index(uint8_t gain);
+
     Connection&  _connection;
     OutputPin*   _reset_pin;
     float        _vref;
@@ -72,6 +78,12 @@ protected:
     uint8_t      _gain;
     bool         _bipolar;
     bool         _buffered;
+    uint8_t      _gain2;
+    bool         _bipolar2;
+    bool         _buffered2;
+    uint8_t      _gain3;
+    bool         _bipolar3;
+    bool         _buffered3;
 
     static constexpr uint8_t _REG_COMM    = 0x00;
     static constexpr uint8_t _REG_SETUP   = 0x10;

@@ -92,7 +92,7 @@ open class Ad7706Minimal(
         }
 
         val defaultRate = if (mclkHz >= MCLK_2_4576MHZ) FS_RATES_2_4MHZ[0] else FS_RATES_1MHZ[0]
-        configureClock(defaultRate)
+        configureClock(defaultRate, CH1)
 
         val setup = MODE_SELF_CAL or GAIN_BITS[0] or BIPOLAR or UNBUFFERED or FSYNC_RUN
         writeRegChannel(REG_SETUP, setup, CH1, 1)
@@ -106,12 +106,12 @@ open class Ad7706Minimal(
         }
     }
 
-    protected fun configureClock(outputRateHz: Int) {
+    protected fun configureClock(outputRateHz: Int, channel: Int) {
         val clkBit = if (mclkHz >= MCLK_2_4576MHZ) 0x04 else 0x00
         val clkdivBit = if (mclkHz == MCLK_2MHZ || mclkHz == MCLK_4_9152MHZ) 0x08 else 0x00
         val rates = if (mclkHz >= MCLK_2_4576MHZ) FS_RATES_2_4MHZ else FS_RATES_1MHZ
         val fsBits = rates.indexOf(outputRateHz).coerceAtLeast(0)
-        writeRegChannel(REG_CLOCK, clkdivBit or clkBit or fsBits, CH1, 1)
+        writeRegChannel(REG_CLOCK, clkdivBit or clkBit or fsBits, channel, 1)
     }
 
     protected fun writeRegChannel(reg: Int, value: Int, channel: Int, nBytes: Int) {
