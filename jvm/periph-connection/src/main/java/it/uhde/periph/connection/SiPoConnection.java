@@ -22,7 +22,7 @@ import java.lang.invoke.*;
  *
  * <p>Requires {@code --enable-native-access=ALL-UNNAMED} (Java 21+).
  */
-public final class SiPoConnection extends AbstractConnection {
+public final class SiPoConnection extends AbstractConnection implements SiPo {
 
     private static final int O_RDWR = 2;
 

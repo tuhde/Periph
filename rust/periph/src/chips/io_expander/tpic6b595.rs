@@ -262,3 +262,191 @@ where
         self.inner.flush()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::digital::{Mock as PinMock, State as PinState, Transaction as PinTransaction};
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    fn flush_pulse() -> Vec<PinTransaction> {
+        vec![PinTransaction::set(PinState::High), PinTransaction::set(PinState::Low)]
+    }
+
+    fn clear_pulse() -> Vec<PinTransaction> {
+        vec![PinTransaction::set(PinState::Low), PinTransaction::set(PinState::High)]
+    }
+
+    // Builds a Tpic6b595Minimal with independently-assertable mock handles.
+    // rck always expects [Low] (SiPoConnection::new's idle) + [High, Low]
+    // per flush; srclr (if present) expects [High] (idle) + [Low, High] per
+    // clear(); g (if present) expects [Low] (idle) only, since nothing in
+    // construction calls set_output_enable.
+    fn build(
+        num_devices: u8,
+        has_srclr: bool,
+        has_g: bool,
+    ) -> (
+        Tpic6b595Minimal<SpiMock<u8>, PinMock, PinMock, PinMock>,
+        SpiMock<u8>,
+        PinMock,
+        Option<PinMock>,
+        Option<PinMock>,
+    ) {
+        let spi = SpiMock::new(&[SpiTransaction::write_vec(vec![0u8; num_devices as usize])]);
+
+        let mut rck_expect = vec![PinTransaction::set(PinState::Low)];
+        rck_expect.extend(flush_pulse());
+        let rck = PinMock::new(&rck_expect);
+
+        let (srclr, srclr_handle) = if has_srclr {
+            let mut e = vec![PinTransaction::set(PinState::High)];
+            e.extend(clear_pulse());
+            let m = PinMock::new(&e);
+            (Some(m.clone()), Some(m))
+        } else {
+            (None, None)
+        };
+
+        let (g, g_handle) = if has_g {
+            let e = vec![PinTransaction::set(PinState::Low)];
+            let m = PinMock::new(&e);
+            (Some(m.clone()), Some(m))
+        } else {
+            (None, None)
+        };
+
+        let spi_handle = spi.clone();
+        let rck_handle = rck.clone();
+        let chip = Tpic6b595Minimal::new(spi, rck, srclr, g, num_devices).unwrap();
+        (chip, spi_handle, rck_handle, srclr_handle, g_handle)
+    }
+
+    #[test]
+    fn construction_clears_and_flushes_all_zero() {
+        let (chip, mut spi, mut rck, srclr, g) = build(1, true, true);
+        assert_eq!(chip.shadow_byte(0), 0);
+        spi.done();
+        rck.done();
+        srclr.unwrap().done();
+        g.unwrap().done();
+    }
+
+    #[test]
+    fn construction_without_srclr_does_not_error() {
+        // Regression: SRCLR missing must not fail construction or touch
+        // any srclr pin -- `let _ = sipo.clear();` in `new()` discards the
+        // SrclrNotConfigured error.
+        let (chip, mut spi, mut rck, srclr, g) = build(1, false, true);
+        assert_eq!(chip.shadow_byte(0), 0);
+        assert!(srclr.is_none());
+        spi.done();
+        rck.done();
+        g.unwrap().done();
+    }
+
+    #[test]
+    fn pin_set_high_low_toggle_via_is_set_high() {
+        let (chip, mut spi, mut rck, mut srclr, mut g) = build(1, true, true);
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x08])]);
+        rck.update_expectations(&flush_pulse());
+        let mut pin3 = chip.pin(3);
+        pin3.set_high().unwrap();
+        assert_eq!(chip.shadow_byte(0), 0x08);
+        assert!(pin3.is_set_high().unwrap());
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x00])]);
+        rck.update_expectations(&flush_pulse());
+        pin3.set_low().unwrap();
+        assert!(pin3.is_set_low().unwrap());
+
+        spi.done();
+        rck.done();
+        srclr.take().unwrap().done();
+        g.take().unwrap().done();
+    }
+
+    #[test]
+    fn write_port_and_fill_and_off() {
+        let (chip, mut spi, mut rck, mut srclr, mut g) = build(1, true, true);
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x3C])]);
+        rck.update_expectations(&flush_pulse());
+        chip.write_port(0, 0x3C).unwrap();
+        assert_eq!(chip.shadow_byte(0), 0x3C);
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0xFF])]);
+        rck.update_expectations(&flush_pulse());
+        chip.fill(true).unwrap();
+        assert_eq!(chip.shadow_byte(0), 0xFF);
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x00])]);
+        rck.update_expectations(&flush_pulse());
+        chip.off().unwrap();
+        assert_eq!(chip.shadow_byte(0), 0x00);
+
+        spi.done();
+        rck.done();
+        srclr.take().unwrap().done();
+        g.take().unwrap().done();
+    }
+
+    #[test]
+    fn cascade_wire_order_reversed() {
+        let (chip, mut spi, mut rck, mut srclr, mut g) = build(3, true, true);
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x00, 0x00, 0xAA])]);
+        rck.update_expectations(&flush_pulse());
+        chip.write_port(0, 0xAA).unwrap();
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x00, 0xBB, 0xAA])]);
+        rck.update_expectations(&flush_pulse());
+        chip.write_port(1, 0xBB).unwrap();
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0xCC, 0xBB, 0xAA])]);
+        rck.update_expectations(&flush_pulse());
+        chip.write_port(2, 0xCC).unwrap();
+
+        spi.done();
+        rck.done();
+        srclr.take().unwrap().done();
+        g.take().unwrap().done();
+    }
+
+    #[test]
+    fn full_clear_and_set_output_enable_error_when_unconfigured() {
+        let (chip, mut spi, mut rck, srclr, g) = build(1, false, false);
+        let mut full = Tpic6b595Full { inner: chip };
+        assert!(matches!(full.clear(), Err(SiPoError::SrclrNotConfigured)));
+        assert!(matches!(full.set_output_enable(true), Err(SiPoError::GNotConfigured)));
+        assert!(srclr.is_none());
+        assert!(g.is_none());
+        spi.done();
+        rck.done();
+    }
+
+    #[test]
+    fn full_write_all_zero_extends_and_truncates() {
+        let (chip, mut spi, mut rck, mut srclr, mut g) = build(3, true, true);
+        let mut full = Tpic6b595Full { inner: chip };
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x00, 0x22, 0x11])]);
+        rck.update_expectations(&flush_pulse());
+        full.write_all(&[0x11, 0x22]).unwrap(); // shorter than num_devices -> zero-extend
+        assert_eq!(full.inner.shadow_byte(0), 0x11);
+        assert_eq!(full.inner.shadow_byte(1), 0x22);
+        assert_eq!(full.inner.shadow_byte(2), 0x00);
+
+        spi.update_expectations(&[SpiTransaction::write_vec(vec![0x66, 0x55, 0x44])]);
+        rck.update_expectations(&flush_pulse());
+        full.write_all(&[0x44, 0x55, 0x66, 0x77]).unwrap(); // longer -> truncate
+        assert_eq!(full.inner.shadow_byte(0), 0x44);
+        assert_eq!(full.inner.shadow_byte(1), 0x55);
+        assert_eq!(full.inner.shadow_byte(2), 0x66);
+
+        spi.done();
+        rck.done();
+        srclr.take().unwrap().done();
+        g.take().unwrap().done();
+    }
+}

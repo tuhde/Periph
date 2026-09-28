@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.connection.SiPoConnection
+import it.uhde.periph.connection.SiPo
 
 /**
  * TPIC6B595 full driver — extends [Tpic6b595Minimal] with hardware features.
@@ -11,7 +11,7 @@ import it.uhde.periph.connection.SiPoConnection
  * — every TPIC6B595 pin is a fixed, capability-less output.
  */
 class Tpic6b595Full @JvmOverloads constructor(
-    connection: SiPoConnection,
+    connection: SiPo,
     numDevices: Int = 1,
 ) : Tpic6b595Minimal(connection, numDevices) {
 

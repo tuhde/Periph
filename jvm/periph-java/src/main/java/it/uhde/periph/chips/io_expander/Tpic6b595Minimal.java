@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.connection.SiPoConnection;
+import it.uhde.periph.connection.SiPo;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ public class Tpic6b595Minimal {
     /** Maximum cascade depth supported by the driver's shadow buffer. */
     public static final int MAX_DEVICES = 8;
 
-    protected final SiPoConnection connection;
+    protected final SiPo connection;
     protected final int numDevices;
     protected final int[] shadow;
 
@@ -39,7 +39,7 @@ public class Tpic6b595Minimal {
      * @param connection Configured SiPo connection.
      * @param numDevices Number of cascaded TPIC6B595s on the wire; default 1.
      */
-    public Tpic6b595Minimal(SiPoConnection connection, int numDevices) throws IOException {
+    public Tpic6b595Minimal(SiPo connection, int numDevices) throws IOException {
         if (numDevices < 1 || numDevices > MAX_DEVICES) {
             throw new IllegalArgumentException(
                 "numDevices must be in [1, " + MAX_DEVICES + "], got " + numDevices);
@@ -52,7 +52,7 @@ public class Tpic6b595Minimal {
     }
 
     /** Convenience overload with {@code numDevices = 1}. */
-    public Tpic6b595Minimal(SiPoConnection connection) throws IOException {
+    public Tpic6b595Minimal(SiPo connection) throws IOException {
         this(connection, 1);
     }
 

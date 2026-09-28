@@ -1,16 +1,16 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.SiPoConnection
+import it.uhde.periph.connection.SiPo
 
 @CompileStatic
 class Tpic6b595Full extends Tpic6b595Minimal {
 
-    Tpic6b595Full(SiPoConnection connection) {
+    Tpic6b595Full(SiPo connection) {
         super(connection, 1)
     }
 
-    Tpic6b595Full(SiPoConnection connection, int numDevices) {
+    Tpic6b595Full(SiPo connection, int numDevices) {
         super(connection, numDevices)
     }
 

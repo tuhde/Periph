@@ -90,10 +90,13 @@ public:
     /** @brief Construct and initialise the TPIC6B595.
      *
      *  Zeroes every shadow byte, pulses SRCLR if the SiPo connection has it
-     *  wired (no-op otherwise — the constructor ignores the result of
-     *  @c clear() so missing SRCLR on the connection is not fatal), then
-     *  writes the all-zero reversed cascade so every output starts OFF
-     *  regardless of the chip's undefined power-on storage-register content.
+     *  wired (no-op otherwise — missing SRCLR on the connection is not
+     *  fatal, whether the connection reports that via a bool/int return
+     *  (Arduino/Zephyr/ESP-IDF/Pico SDK) or by throwing (Linux, whose
+     *  @c clear() is documented to throw @c std::runtime_error when SRCLR
+     *  was not configured)), then writes the all-zero reversed cascade so
+     *  every output starts OFF regardless of the chip's undefined power-on
+     *  storage-register content.
      *
      *  @param connection Configured SiPo connection.
      *  @param num_devices Number of cascaded TPIC6B595s on the wire; default 1.
@@ -102,7 +105,7 @@ public:
         : _connection(connection), _num_devices(num_devices)
     {
         for (uint8_t i = 0; i < num_devices; ++i) _shadow[i] = 0;
-        (void)_connection.clear();
+        try { _connection.clear(); } catch (...) {}
         _flush();
     }
 

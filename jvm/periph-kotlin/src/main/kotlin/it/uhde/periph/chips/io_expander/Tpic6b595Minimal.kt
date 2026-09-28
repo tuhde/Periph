@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.connection.SiPoConnection
+import it.uhde.periph.connection.SiPo
 
 /**
  * TPIC6B595 8-bit power SIPO shift register — minimal interface.
@@ -23,7 +23,7 @@ import it.uhde.periph.connection.SiPoConnection
  * it to clear the shift register before the all-zero latch.
  */
 open class Tpic6b595Minimal @JvmOverloads constructor(
-    protected val connection: SiPoConnection,
+    protected val connection: SiPo,
     val numDevices: Int = 1,
 ) {
     companion object {

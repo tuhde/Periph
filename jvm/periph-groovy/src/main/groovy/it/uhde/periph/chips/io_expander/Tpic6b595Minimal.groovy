@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.SiPoConnection
+import it.uhde.periph.connection.SiPo
 
 @CompileStatic
 class Tpic6b595Minimal {
@@ -9,15 +9,15 @@ class Tpic6b595Minimal {
     /** Maximum cascade depth supported by the driver's shadow buffer. */
     static final int MAX_DEVICES = 8
 
-    protected final SiPoConnection connection
+    protected final SiPo connection
     protected final int numDevices
     protected final int[] shadow
 
-    Tpic6b595Minimal(SiPoConnection connection) {
+    Tpic6b595Minimal(SiPo connection) {
         this(connection, 1)
     }
 
-    Tpic6b595Minimal(SiPoConnection connection, int numDevices) {
+    Tpic6b595Minimal(SiPo connection, int numDevices) {
         if (numDevices < 1 || numDevices > MAX_DEVICES) {
             throw new IllegalArgumentException(
                 "numDevices must be in [1, ${MAX_DEVICES}], got ${numDevices}")

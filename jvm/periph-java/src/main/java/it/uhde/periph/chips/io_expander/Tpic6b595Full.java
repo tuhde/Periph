@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.connection.SiPoConnection;
+import it.uhde.periph.connection.SiPo;
 
 import java.io.IOException;
 
@@ -21,12 +21,12 @@ public class Tpic6b595Full extends Tpic6b595Minimal {
      * @param connection Configured SiPo connection.
      * @param numDevices Number of cascaded TPIC6B595s on the wire; default 1.
      */
-    public Tpic6b595Full(SiPoConnection connection, int numDevices) throws IOException {
+    public Tpic6b595Full(SiPo connection, int numDevices) throws IOException {
         super(connection, numDevices);
     }
 
     /** Convenience overload with {@code numDevices = 1}. */
-    public Tpic6b595Full(SiPoConnection connection) throws IOException {
+    public Tpic6b595Full(SiPo connection) throws IOException {
         super(connection, 1);
     }
 
