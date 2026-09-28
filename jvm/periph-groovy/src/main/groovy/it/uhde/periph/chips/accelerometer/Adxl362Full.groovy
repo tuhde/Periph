@@ -187,9 +187,9 @@ class Adxl362Full extends Adxl362Minimal {
     void setActivityThreshold(float thresholdG, boolean referenced = false) {
         int raw = (int) Math.round(thresholdG / sensitivity())
         if (raw < 0) raw = 0
-        if (raw > 0x3FF) raw = 0x3FF
+        if (raw > 0x7FF) raw = 0x7FF
         writeReg(REG_THRESH_ACT_L, raw & 0xFF)
-        writeReg(REG_THRESH_ACT_H, (raw >> 8) & 0x03)
+        writeReg(REG_THRESH_ACT_H, (raw >> 8) & 0x07)
         int aic = readReg(REG_ACT_INACT_CTL)
         writeReg(REG_ACT_INACT_CTL, referenced ? (aic | 0x02) : (aic & ~0x02))
     }
@@ -201,9 +201,9 @@ class Adxl362Full extends Adxl362Minimal {
     void setInactivityThreshold(float thresholdG, boolean referenced = false) {
         int raw = (int) Math.round(thresholdG / sensitivity())
         if (raw < 0) raw = 0
-        if (raw > 0x3FF) raw = 0x3FF
+        if (raw > 0x7FF) raw = 0x7FF
         writeReg(REG_THRESH_INACT_L, raw & 0xFF)
-        writeReg(REG_THRESH_INACT_H, (raw >> 8) & 0x03)
+        writeReg(REG_THRESH_INACT_H, (raw >> 8) & 0x07)
         int aic = readReg(REG_ACT_INACT_CTL)
         writeReg(REG_ACT_INACT_CTL, referenced ? (aic | 0x08) : (aic & ~0x08))
     }

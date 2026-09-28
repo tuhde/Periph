@@ -579,13 +579,13 @@ func (f *ADXL362Full) SetActivityThreshold(thresholdG float32, referenced bool) 
 	if raw < 0 {
 		raw = 0
 	}
-	if raw > 0x3FF {
-		raw = 0x3FF
+	if raw > 0x7FF {
+		raw = 0x7FF
 	}
 	if err := f.writeReg(adxl362RegThreshActL, uint8(raw&0xFF)); err != nil {
 		return err
 	}
-	if err := f.writeReg(adxl362RegThreshActH, uint8((raw>>8)&0x03)); err != nil {
+	if err := f.writeReg(adxl362RegThreshActH, uint8((raw>>8)&0x07)); err != nil {
 		return err
 	}
 	aic, err := f.readReg(adxl362RegActInactCtl)
@@ -612,13 +612,13 @@ func (f *ADXL362Full) SetInactivityThreshold(thresholdG float32, referenced bool
 	if raw < 0 {
 		raw = 0
 	}
-	if raw > 0x3FF {
-		raw = 0x3FF
+	if raw > 0x7FF {
+		raw = 0x7FF
 	}
 	if err := f.writeReg(adxl362RegThreshInactL, uint8(raw&0xFF)); err != nil {
 		return err
 	}
-	if err := f.writeReg(adxl362RegThreshInactH, uint8((raw>>8)&0x03)); err != nil {
+	if err := f.writeReg(adxl362RegThreshInactH, uint8((raw>>8)&0x07)); err != nil {
 		return err
 	}
 	aic, err := f.readReg(adxl362RegActInactCtl)

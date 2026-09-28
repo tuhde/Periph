@@ -220,13 +220,13 @@ class ADXL362Minimal:
         return (lo | ((hi & 0x03) << 8))
 
     def _threshold_raw(self, threshold_g):
-        """Convert an acceleration threshold in *g* to a 10-bit raw value."""
+        """Convert an acceleration threshold in *g* to an 11-bit raw value."""
         sens = _sensitivity_for_range_bits(self._range_bits)
         raw = int(round(threshold_g / sens))
         if raw < 0:
             raw = 0
-        if raw > 0x3FF:
-            raw = 0x3FF
+        if raw > 0x7FF:
+            raw = 0x7FF
         return raw
 
     def _time_inact_raw(self, samples):
@@ -553,14 +553,14 @@ class ADXL362Full(ADXL362Minimal):
 
         Args:
             threshold_g: Acceleration magnitude that triggers activity
-                detection, in *g*. Clamped to 10-bit range relative to
+                detection, in *g*. Clamped to 11-bit range relative to
                 the current measurement range.
             referenced: True for referenced (relative-to-orientation-at-
                 engagement) detection; False for absolute.
         """
         raw = self._threshold_raw(threshold_g)
         self._write_reg(self._REG_THRESH_ACT_L, raw & 0xFF)
-        self._write_reg(self._REG_THRESH_ACT_H, (raw >> 8) & 0x03)
+        self._write_reg(self._REG_THRESH_ACT_H, (raw >> 8) & 0x07)
         aic = self._read_reg(self._REG_ACT_INACT_CTL)
         if referenced:
             aic |= self._AIC_ACT_REF
@@ -585,13 +585,13 @@ class ADXL362Full(ADXL362Minimal):
 
         Args:
             threshold_g: Acceleration magnitude below which inactivity
-                is asserted, in *g*. Clamped to 10-bit range.
+                is asserted, in *g*. Clamped to 11-bit range.
             referenced: True for referenced (relative-to-orientation-at-
                 engagement) detection; False for absolute.
         """
         raw = self._threshold_raw(threshold_g)
         self._write_reg(self._REG_THRESH_INACT_L, raw & 0xFF)
-        self._write_reg(self._REG_THRESH_INACT_H, (raw >> 8) & 0x03)
+        self._write_reg(self._REG_THRESH_INACT_H, (raw >> 8) & 0x07)
         aic = self._read_reg(self._REG_ACT_INACT_CTL)
         if referenced:
             aic |= self._AIC_INACT_REF

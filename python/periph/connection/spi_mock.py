@@ -78,16 +78,30 @@ class SPIConnectionMock:
         """Full-duplex write-then-read.
 
         The command phase (`len(data)` bytes) is recorded; the read
-        phase (`n` bytes) is filled from the register map keyed by the
-        first command byte. This mirrors how SPI chip drivers in this
-        repo use `write_read([cmd], n)` to read back a register or
-        status byte addressed by the SPI instruction byte.
+        phase (`n` bytes) is filled from the register map. Two command
+        framings are supported:
+
+        - **1-byte** (`write_read([addr_byte], n)`) — the single byte
+          itself is the register address (RFM9x, mpu9250, ...).
+        - **2-byte** (`write_read([opcode, addr_byte], n)`) — the second
+          byte is the register address, the first an opcode with no
+          address information of its own (MCP2515's `_read_reg`,
+          ADXL362's `_read_burst`/`_read_reg`).
+
+        Any other length falls back to the first byte (e.g. ADE7953's
+        4-byte SPI framing, which discards its own leading response
+        bytes rather than relying on this lookup).
         """
         data = bytes(data)
         self._writes.append(data)
         out = bytearray(n)
-        if data:
+        if len(data) == 2:
+            reg = data[1]
+        elif data:
             reg = data[0]
+        else:
+            reg = None
+        if reg is not None:
             for i in range(n):
                 out[i] = self._registers.get(reg + i, 0)
         return bytes(out)

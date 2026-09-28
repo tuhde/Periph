@@ -76,7 +76,12 @@ protected:
             for (size_t i = 0; i < buf_len; i++) buf[i] = 0;
             return;
         }
-        uint8_t reg = data[0];
+        // 1-byte command: the byte itself is the register address (RFM9x,
+        // MCP9808, ...). 2-byte command: the second byte is the address,
+        // the first an opcode with no address information of its own
+        // (MCP2515's/ADXL362's register reads). Anything else falls back
+        // to the first byte.
+        uint8_t reg = (data_len == 2) ? data[1] : data[0];
         for (size_t i = 0; i < buf_len; i++) {
             auto it = _registers.find(static_cast<uint8_t>(reg + i));
             buf[i] = it != _registers.end() ? it->second : 0;

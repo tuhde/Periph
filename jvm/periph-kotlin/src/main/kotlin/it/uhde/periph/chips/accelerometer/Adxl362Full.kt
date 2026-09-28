@@ -181,14 +181,14 @@ class Adxl362Full @JvmOverloads constructor(connection: Connection) : Adxl362Min
         return out
     }
 
-    /** Set the activity threshold in *g* (clamped to 10-bit range). */
+    /** Set the activity threshold in *g* (clamped to 11-bit range). */
     @Throws(IOException::class)
     fun setActivityThreshold(thresholdG: Double, referenced: Boolean = false) {
         var raw = Math.round(thresholdG / sensitivity().toDouble()).toInt()
         if (raw < 0) raw = 0
-        if (raw > 0x3FF) raw = 0x3FF
+        if (raw > 0x7FF) raw = 0x7FF
         writeReg(REG_THRESH_ACT_L, raw and 0xFF)
-        writeReg(REG_THRESH_ACT_H, (raw shr 8) and 0x03)
+        writeReg(REG_THRESH_ACT_H, (raw shr 8) and 0x07)
         val aic = readReg(REG_ACT_INACT_CTL)
         writeReg(REG_ACT_INACT_CTL, if (referenced) aic or 0x02 else aic and 0x02.inv())
     }
@@ -199,14 +199,14 @@ class Adxl362Full @JvmOverloads constructor(connection: Connection) : Adxl362Min
         writeReg(REG_TIME_ACT, samples and 0xFF)
     }
 
-    /** Set the inactivity threshold in *g* (clamped to 10-bit range). */
+    /** Set the inactivity threshold in *g* (clamped to 11-bit range). */
     @Throws(IOException::class)
     fun setInactivityThreshold(thresholdG: Double, referenced: Boolean = false) {
         var raw = Math.round(thresholdG / sensitivity().toDouble()).toInt()
         if (raw < 0) raw = 0
-        if (raw > 0x3FF) raw = 0x3FF
+        if (raw > 0x7FF) raw = 0x7FF
         writeReg(REG_THRESH_INACT_L, raw and 0xFF)
-        writeReg(REG_THRESH_INACT_H, (raw shr 8) and 0x03)
+        writeReg(REG_THRESH_INACT_H, (raw shr 8) and 0x07)
         val aic = readReg(REG_ACT_INACT_CTL)
         writeReg(REG_ACT_INACT_CTL, if (referenced) aic or 0x08 else aic and 0x08.inv())
     }

@@ -130,7 +130,7 @@ class ADXL362Minimal {
      *
      * @returns {Promise<void>}
      */
-    async init() {
+    async _init() {
         await _delayMs(5);  // power-up to standby turn-on time
         const ids = await this._readBurst(REG_DEVID_AD, 3);
         if (ids[0] !== DEVID_AD_VALUE) {
@@ -414,7 +414,7 @@ const _ADXL362FullMixin = (Base) => class extends Base {
     }
 
     /**
-     * Set the activity threshold in *g* (clamped to 10-bit range).
+     * Set the activity threshold in *g* (clamped to 11-bit range).
      * @param {number} thresholdG
      * @param {boolean} [referenced=false]
      * @returns {Promise<void>}
@@ -422,9 +422,9 @@ const _ADXL362FullMixin = (Base) => class extends Base {
     async setActivityThreshold(thresholdG, referenced = false) {
         let raw = Math.round(thresholdG / this._sensitivity());
         if (raw < 0) raw = 0;
-        if (raw > 0x3FF) raw = 0x3FF;
+        if (raw > 0x7FF) raw = 0x7FF;
         await this._writeReg(REG_THRESH_ACT_L, raw & 0xFF);
-        await this._writeReg(REG_THRESH_ACT_H, (raw >> 8) & 0x03);
+        await this._writeReg(REG_THRESH_ACT_H, (raw >> 8) & 0x07);
         const aic = await this._readReg(REG_ACT_INACT_CTL);
         await this._writeReg(REG_ACT_INACT_CTL, referenced ? (aic | 0x02) : (aic & ~0x02));
     }
@@ -440,7 +440,7 @@ const _ADXL362FullMixin = (Base) => class extends Base {
     }
 
     /**
-     * Set the inactivity threshold in *g* (clamped to 10-bit range).
+     * Set the inactivity threshold in *g* (clamped to 11-bit range).
      * @param {number} thresholdG
      * @param {boolean} [referenced=false]
      * @returns {Promise<void>}
@@ -448,9 +448,9 @@ const _ADXL362FullMixin = (Base) => class extends Base {
     async setInactivityThreshold(thresholdG, referenced = false) {
         let raw = Math.round(thresholdG / this._sensitivity());
         if (raw < 0) raw = 0;
-        if (raw > 0x3FF) raw = 0x3FF;
+        if (raw > 0x7FF) raw = 0x7FF;
         await this._writeReg(REG_THRESH_INACT_L, raw & 0xFF);
-        await this._writeReg(REG_THRESH_INACT_H, (raw >> 8) & 0x03);
+        await this._writeReg(REG_THRESH_INACT_H, (raw >> 8) & 0x07);
         const aic = await this._readReg(REG_ACT_INACT_CTL);
         await this._writeReg(REG_ACT_INACT_CTL, referenced ? (aic | 0x08) : (aic & ~0x08));
     }

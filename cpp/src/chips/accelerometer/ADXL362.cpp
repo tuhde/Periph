@@ -285,9 +285,9 @@ void ADXL362Full::set_activity_threshold(float threshold_g, bool referenced) {
     float sens = _sensitivity();
     int32_t raw = (int32_t)lroundf(threshold_g / sens);
     if (raw < 0) raw = 0;
-    if (raw > 0x3FF) raw = 0x3FF;
+    if (raw > 0x7FF) raw = 0x7FF;
     _write_reg(REG_THRESH_ACT_L, (uint8_t)(raw & 0xFF));
-    _write_reg(REG_THRESH_ACT_H, (uint8_t)((raw >> 8) & 0x03));
+    _write_reg(REG_THRESH_ACT_H, (uint8_t)((raw >> 8) & 0x07));
     uint8_t aic = _read_reg(REG_ACT_INACT_CTL);
     if (referenced) aic |= 0x02; else aic &= ~0x02;
     _write_reg(REG_ACT_INACT_CTL, aic);
@@ -301,9 +301,9 @@ void ADXL362Full::set_inactivity_threshold(float threshold_g, bool referenced) {
     float sens = _sensitivity();
     int32_t raw = (int32_t)lroundf(threshold_g / sens);
     if (raw < 0) raw = 0;
-    if (raw > 0x3FF) raw = 0x3FF;
+    if (raw > 0x7FF) raw = 0x7FF;
     _write_reg(REG_THRESH_INACT_L, (uint8_t)(raw & 0xFF));
-    _write_reg(REG_THRESH_INACT_H, (uint8_t)((raw >> 8) & 0x03));
+    _write_reg(REG_THRESH_INACT_H, (uint8_t)((raw >> 8) & 0x07));
     uint8_t aic = _read_reg(REG_ACT_INACT_CTL);
     if (referenced) aic |= 0x08; else aic &= ~0x08;
     _write_reg(REG_ACT_INACT_CTL, aic);

@@ -466,14 +466,14 @@ impl<SPI: SpiDevice> Adxl362Full<SPI> {
         Ok(out)
     }
 
-    /// Set the activity threshold in *g* (clamped to 10-bit range).
+    /// Set the activity threshold in *g* (clamped to 11-bit range).
     pub fn set_activity_threshold(&mut self, threshold_g: f32, referenced: bool) -> Result<(), SPI::Error> {
         let sens = self.inner.sensitivity();
         let mut raw = libm::roundf(threshold_g / sens) as i32;
         if raw < 0 { raw = 0; }
-        if raw > 0x3FF { raw = 0x3FF; }
+        if raw > 0x7FF { raw = 0x7FF; }
         write_reg(&mut self.inner.spi, REG_THRESH_ACT_L, raw as u8)?;
-        write_reg(&mut self.inner.spi, REG_THRESH_ACT_H, ((raw >> 8) & 0x03) as u8)?;
+        write_reg(&mut self.inner.spi, REG_THRESH_ACT_H, ((raw >> 8) & 0x07) as u8)?;
         let mut aic = read_reg(&mut self.inner.spi, REG_ACT_INACT_CTL)?;
         if referenced { aic |= 0x02; } else { aic &= !0x02; }
         write_reg(&mut self.inner.spi, REG_ACT_INACT_CTL, aic)
@@ -484,14 +484,14 @@ impl<SPI: SpiDevice> Adxl362Full<SPI> {
         write_reg(&mut self.inner.spi, REG_TIME_ACT, samples)
     }
 
-    /// Set the inactivity threshold in *g* (clamped to 10-bit range).
+    /// Set the inactivity threshold in *g* (clamped to 11-bit range).
     pub fn set_inactivity_threshold(&mut self, threshold_g: f32, referenced: bool) -> Result<(), SPI::Error> {
         let sens = self.inner.sensitivity();
         let mut raw = libm::roundf(threshold_g / sens) as i32;
         if raw < 0 { raw = 0; }
-        if raw > 0x3FF { raw = 0x3FF; }
+        if raw > 0x7FF { raw = 0x7FF; }
         write_reg(&mut self.inner.spi, REG_THRESH_INACT_L, raw as u8)?;
-        write_reg(&mut self.inner.spi, REG_THRESH_INACT_H, ((raw >> 8) & 0x03) as u8)?;
+        write_reg(&mut self.inner.spi, REG_THRESH_INACT_H, ((raw >> 8) & 0x07) as u8)?;
         let mut aic = read_reg(&mut self.inner.spi, REG_ACT_INACT_CTL)?;
         if referenced { aic |= 0x08; } else { aic &= !0x08; }
         write_reg(&mut self.inner.spi, REG_ACT_INACT_CTL, aic)
@@ -550,5 +550,161 @@ impl<SPI: SpiDevice> Adxl362Full<SPI> {
             delay_ms((4000.0 / self.inner.odr_hz + 1.0) as u32);
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    fn w(buf: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(buf.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn wr(cmd: &[u8], response: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(cmd.to_vec()),
+            SpiTransaction::read_vec(response.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn init_seq() -> Vec<SpiTransaction<u8>> {
+        let mut t = Vec::new();
+        t.extend(wr(&[0x0B, 0x00], &[0xAD, 0x1D, 0xF2]));
+        t.extend(w(&[0x0A, 0x2C, 0x13]));
+        t.extend(w(&[0x0A, 0x2D, 0x02]));
+        t
+    }
+
+    fn new_minimal() -> Adxl362Minimal<SpiMock<u8>> {
+        let spi = SpiMock::new(&init_seq());
+        Adxl362Minimal::new(spi).unwrap()
+    }
+
+    fn new_full() -> Adxl362Full<SpiMock<u8>> {
+        let spi = SpiMock::new(&init_seq());
+        Adxl362Full::new(spi).unwrap()
+    }
+
+    #[test]
+    fn construction_and_read() {
+        let mut chip = new_minimal();
+        chip.spi.update_expectations(&wr(&[0x0B, 0x0E], &[0x64, 0x00, 0xCE, 0x0F, 0xD0, 0x07]));
+        let (x, y, z) = chip.read().unwrap();
+        assert!((x - 0.1).abs() < 1e-6);
+        assert!((y - (-0.05)).abs() < 1e-6);
+        assert!((z - 2.0).abs() < 1e-6);
+        chip.spi.done();
+    }
+
+    #[test]
+    fn device_id_and_soft_reset() {
+        let mut full = new_full();
+        full.inner.spi.update_expectations(&wr(&[0x0B, 0x00], &[0xAD, 0x1D, 0xF2, 0x07]));
+        assert_eq!(full.device_id().unwrap(), (0xAD, 0x1D, 0xF2, 0x07));
+
+        full.inner.spi.update_expectations(&w(&[0x0A, 0x1F, 0x52]));
+        full.soft_reset().unwrap();
+        assert_eq!(full.inner.range_bits, 0x00);
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn set_range_and_read_8bit() {
+        let mut full = new_full();
+        let mut t = wr(&[0x0B, 0x2C], &[0x13]);
+        t.extend(w(&[0x0A, 0x2C, 0x93])); // RANGE=8g (0x80) | ODR bits from 0x13
+        full.inner.spi.update_expectations(&t);
+        full.set_range(8).unwrap();
+        assert_eq!(full.inner.range_bits, 0x80);
+
+        full.inner.spi.update_expectations(&wr(&[0x0B, 0x08], &[100, 206, 50]));
+        let (x, y, z) = full.read_8bit().unwrap();
+        let sens8 = 0.004255f32 * 16.0;
+        assert!((x - 100.0 * sens8).abs() < 1e-3);
+        assert!((y - (-50.0) * sens8).abs() < 1e-3);
+        assert!((z - 50.0 * sens8).abs() < 1e-3);
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn temperature_status_and_fifo_entries() {
+        let mut full = new_full();
+        full.inner.spi.update_expectations(&wr(&[0x0B, 0x14], &[0xAB, 0x01]));
+        assert!((full.temperature().unwrap() - 30.0).abs() < 0.01);
+
+        full.inner.spi.update_expectations(&wr(&[0x0B, 0x0B], &[0x41]));
+        assert_eq!(full.status().unwrap(), 0x41);
+
+        let mut t = wr(&[0x0B, 0x0C], &[0xFF]);
+        t.extend(wr(&[0x0B, 0x0D], &[0x01]));
+        full.inner.spi.update_expectations(&t);
+        assert_eq!(full.fifo_entries().unwrap(), 0x1FF);
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn configure_and_read_fifo() {
+        let mut full = new_full();
+        let mut t = w(&[0x0A, 0x28, 0x0E]); // mode=STREAM(2) | AH(bit8 of wm) | TEMP
+        t.extend(w(&[0x0A, 0x29, 0x2C]));
+        full.inner.spi.update_expectations(&t);
+        full.configure_fifo(FIFO_STREAM, true, 300).unwrap();
+
+        // 2 FIFO entries: x=100 raw (axis 0), temp raw=427 (axis 3)
+        let mut t2 = wr(&[0x0B, 0x0C], &[2]);
+        t2.extend(wr(&[0x0B, 0x0D], &[0]));
+        t2.extend(wr(&[0x0D], &[100, 0, 171, 193]));
+        full.inner.spi.update_expectations(&t2);
+        let entries = full.read_fifo().unwrap();
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].0, AXIS_X);
+        assert!((entries[0].1 - 100.0 * 0.001).abs() < 1e-6);
+        assert_eq!(entries[1].0, AXIS_TEMP);
+        assert!((entries[1].1 - 30.0).abs() < 0.01);
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn activity_threshold_11bit_regression() {
+        // Regression: THRESH_ACT_H/THRESH_INACT_H are documented as bits
+        // [10:8] (3 bits, 11-bit total threshold) -- must not clamp to
+        // 10-bit (0x3FF) or mask the H byte with 0x03.
+        let mut full = new_full();
+        // raw = round(1.5 / 0.001) = 1500 = 0x5DC -> L=0xDC, H bits[10:8]=0x05
+        let mut t = w(&[0x0A, 0x20, 0xDC]);
+        t.extend(w(&[0x0A, 0x21, 0x05]));
+        t.extend(wr(&[0x0B, 0x27], &[0x00]));
+        t.extend(w(&[0x0A, 0x27, 0x02]));
+        full.inner.spi.update_expectations(&t);
+        full.set_activity_threshold(1.5, true).unwrap();
+        full.inner.spi.done();
+    }
+
+    #[test]
+    fn link_loop_interrupt_and_self_test() {
+        let mut full = new_full();
+        let mut t = wr(&[0x0B, 0x27], &[0x05]);
+        t.extend(w(&[0x0A, 0x27, 0x35])); // LINKLOOP=LOOP(3)
+        full.inner.spi.update_expectations(&t);
+        full.set_link_loop_mode(LINKLOOP_LOOP).unwrap();
+
+        let mut t2 = wr(&[0x0B, 0x2A], &[0x00]);
+        t2.extend(w(&[0x0A, 0x2A, 0x40])); // SOURCE_AWAKE bit
+        full.inner.spi.update_expectations(&t2);
+        full.set_interrupt(1, SOURCE_AWAKE, true).unwrap();
+
+        let mut t3 = wr(&[0x0B, 0x2E], &[0x00]);
+        t3.extend(w(&[0x0A, 0x2E, 0x01]));
+        full.inner.spi.update_expectations(&t3);
+        full.self_test(true).unwrap();
+        full.inner.spi.done();
     }
 }

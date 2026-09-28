@@ -241,13 +241,13 @@ public:
      */
     uint16_t read_fifo(uint8_t* axis_out, float* value_out, uint16_t max_in);
 
-    /** @brief Set the activity threshold in *g* (clamped to 10-bit range). */
+    /** @brief Set the activity threshold in *g* (clamped to 11-bit range). */
     void set_activity_threshold(float threshold_g, bool referenced = false);
 
     /** @brief Set the activity-time filter (0–255 samples). */
     void set_activity_time(uint8_t samples);
 
-    /** @brief Set the inactivity threshold in *g* (clamped to 10-bit range). */
+    /** @brief Set the inactivity threshold in *g* (clamped to 11-bit range). */
     void set_inactivity_threshold(float threshold_g, bool referenced = false);
 
     /** @brief Set the inactivity-time filter (0–65535 samples). */
