@@ -34,6 +34,26 @@ public class Ad7705Full extends Ad7705Minimal {
 
     private final OutputPin resetPin;
 
+    private int gain2 = 1;
+    private boolean bipolar2 = true;
+    private boolean buffered2 = false;
+
+    private static final class ChannelState {
+        final int gain;
+        final boolean bipolar;
+        final boolean buffered;
+        ChannelState(int gain, boolean bipolar, boolean buffered) {
+            this.gain = gain; this.bipolar = bipolar; this.buffered = buffered;
+        }
+    }
+
+    /** Gain/bipolar/buffered state last set by {@link #configure} for the given channel. */
+    private ChannelState channelState(int channel) {
+        return channel == 1
+                ? new ChannelState(gain, bipolar, buffered)
+                : new ChannelState(gain2, bipolar2, buffered2);
+    }
+
     /**
      * Construct and initialise the AD7705.
      *
@@ -92,7 +112,7 @@ public class Ad7705Full extends Ad7705Minimal {
             throw new IllegalArgumentException("outputRateHz must be one of " + java.util.Arrays.toString(rates));
         }
 
-        configureClock(outputRateHz);
+        configureClock(outputRateHz, ch);
 
         int buBit = bipolar ? BIPOLAR : UNIPOLAR;
         int bufBit = buffered ? BUFFERED : UNBUFFERED;
@@ -115,6 +135,10 @@ public class Ad7705Full extends Ad7705Minimal {
             this.gain = gain;
             this.bipolar = bipolar;
             this.buffered = buffered;
+        } else {
+            this.gain2 = gain;
+            this.bipolar2 = bipolar;
+            this.buffered2 = buffered;
         }
     }
 
@@ -143,7 +167,8 @@ public class Ad7705Full extends Ad7705Minimal {
      */
     public float readVoltage(int channel) throws IOException {
         int code = readRaw(channel);
-        return codeToVoltage(code, gain, bipolar);
+        ChannelState state = channelState(channel);
+        return codeToVoltage(code, state.gain, state.bipolar);
     }
 
     /**
@@ -185,10 +210,11 @@ public class Ad7705Full extends Ad7705Minimal {
             throw new IllegalArgumentException("channel must be 1 or 2");
         }
         int ch = (channel == 1) ? CH1 : CH2;
-        int buBit = bipolar ? BIPOLAR : UNIPOLAR;
-        int bufBit = buffered ? BUFFERED : UNBUFFERED;
+        ChannelState state = channelState(channel);
+        int buBit = state.bipolar ? BIPOLAR : UNIPOLAR;
+        int bufBit = state.buffered ? BUFFERED : UNBUFFERED;
         int gainIdx;
-        switch (gain) {
+        switch (state.gain) {
             case 1:   gainIdx = 0; break;
             case 2:   gainIdx = 1; break;
             case 4:   gainIdx = 2; break;

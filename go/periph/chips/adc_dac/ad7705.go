@@ -49,10 +49,10 @@ const (
 )
 
 const (
-	modeNormal   uint8 = 0x00
-	modeSelfCal  uint8 = 0x40
-	modeZeroSys  uint8 = 0x80
-	modeFullSys  uint8 = 0xC0
+	modeNormal  uint8 = 0x00
+	modeSelfCal uint8 = 0x40
+	modeZeroSys uint8 = 0x80
+	modeFullSys uint8 = 0xC0
 )
 
 var gainBits = [8]uint8{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38}
@@ -69,7 +69,7 @@ const (
 	drdyMask   uint8 = 0x80
 )
 
-var fsRates1MHz   = [4]uint16{20, 25, 100, 200}
+var fsRates1MHz = [4]uint16{20, 25, 100, 200}
 var fsRates2_4MHz = [4]uint16{50, 60, 250, 500}
 
 func commByte(reg uint8, read bool, channel uint8) uint8 {
@@ -118,7 +118,7 @@ func waitDRDY(conn connection.Connection) error {
 	}
 }
 
-func configureClock(conn connection.Connection, mclkHz uint32, outputRateHz uint16) error {
+func configureClock(conn connection.Connection, mclkHz uint32, outputRateHz uint16, channel uint8) error {
 	clkBit := uint8(0x00)
 	if mclkHz >= MCLK2_4576MHz {
 		clkBit = 0x04
@@ -138,7 +138,7 @@ func configureClock(conn connection.Connection, mclkHz uint32, outputRateHz uint
 			break
 		}
 	}
-	return writeRegChannel(conn, regCLOCK, uint32(clkDivBit|clkBit|fsBits), ch1, 1)
+	return writeRegChannel(conn, regCLOCK, uint32(clkDivBit|clkBit|fsBits), channel, 1)
 }
 
 func codeToVoltage(code uint16, gain uint8, bipolarFlag bool, vref float64) float64 {
@@ -157,13 +157,16 @@ func codeToVoltage(code uint16, gain uint8, bipolarFlag bool, vref float64) floa
 // of the Communication Register, matching the datasheet's 3-wire microcontroller
 // interface technique (no dedicated DRDY GPIO required).
 type AD7705Minimal struct {
-	conn     connection.Connection
-	vref     float64
-	mclkHz   uint32
-	gain     uint8
-	bipolar  bool
-	buffered bool
-	resetPin connection.OutputPin // nil if RESET is not wired
+	conn      connection.Connection
+	vref      float64
+	mclkHz    uint32
+	gain      uint8
+	bipolar   bool
+	buffered  bool
+	gain2     uint8
+	bipolar2  bool
+	buffered2 bool
+	resetPin  connection.OutputPin // nil if RESET is not wired
 }
 
 // NewAD7705Minimal creates and initialises the AD7705.
@@ -173,14 +176,20 @@ type AD7705Minimal struct {
 // nil if RESET is not wired; when supplied, a hardware reset pulse is issued
 // before configuration.
 func NewAD7705Minimal(conn connection.Connection, vref float64, mclkHz uint32, resetPin connection.OutputPin) (*AD7705Minimal, error) {
+	if mclkHz != MCLK1MHz && mclkHz != MCLK2MHz && mclkHz != MCLK2_4576MHz && mclkHz != MCLK4_9152MHz {
+		return nil, fmt.Errorf("ad7705: mclkHz must be 1000000, 2000000, 2457600, or 4915200")
+	}
 	c := &AD7705Minimal{
-		conn:     conn,
-		vref:     vref,
-		mclkHz:   mclkHz,
-		gain:     1,
-		bipolar:  true,
-		buffered: false,
-		resetPin: resetPin,
+		conn:      conn,
+		vref:      vref,
+		mclkHz:    mclkHz,
+		gain:      1,
+		bipolar:   true,
+		buffered:  false,
+		gain2:     1,
+		bipolar2:  true,
+		buffered2: false,
+		resetPin:  resetPin,
 	}
 	if err := c.Init(); err != nil {
 		return nil, err
@@ -209,7 +218,7 @@ func (c *AD7705Minimal) Init() error {
 	if c.mclkHz >= MCLK2_4576MHz {
 		defaultRate = fsRates2_4MHz[0]
 	}
-	if err := configureClock(c.conn, c.mclkHz, defaultRate); err != nil {
+	if err := configureClock(c.conn, c.mclkHz, defaultRate, ch1); err != nil {
 		return err
 	}
 	setup := modeSelfCal | gainBits[0] | bipolar | unbuffered | fsyncRun
@@ -260,6 +269,15 @@ func NewAD7705Full(conn connection.Connection, vref float64, mclkHz uint32, rese
 	return &AD7705Full{AD7705Minimal: *min}, nil
 }
 
+// channelState returns the gain/bipolar/buffered state last set by
+// Configure() for the given channel.
+func (c *AD7705Full) channelState(channel uint8) (gain uint8, bipolarFlag bool, bufferedFlag bool) {
+	if channel == 1 {
+		return c.gain, c.bipolar, c.buffered
+	}
+	return c.gain2, c.bipolar2, c.buffered2
+}
+
 // Configure writes the Setup and Clock Registers for the given channel.
 // Does not calibrate — call SelfCalibrate() (or one of the system-calibration
 // methods) afterward.
@@ -291,7 +309,7 @@ func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, buff
 		return fmt.Errorf("ad7705: output_rate_hz must be one of %v Hz", rates)
 	}
 
-	if err := configureClock(c.conn, c.mclkHz, outputRateHz); err != nil {
+	if err := configureClock(c.conn, c.mclkHz, outputRateHz, ch); err != nil {
 		return err
 	}
 
@@ -312,6 +330,10 @@ func (c *AD7705Full) Configure(channel uint8, gain uint8, bipolarFlag bool, buff
 		c.gain = gain
 		c.bipolar = bipolarFlag
 		c.buffered = bufferedFlag
+	} else {
+		c.gain2 = gain
+		c.bipolar2 = bipolarFlag
+		c.buffered2 = bufferedFlag
 	}
 	return nil
 }
@@ -343,7 +365,8 @@ func (c *AD7705Full) ReadVoltageChannel(channel uint8) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return codeToVoltage(code, c.gain, c.bipolar, c.vref), nil
+	gain, bipolarFlag, _ := c.channelState(channel)
+	return codeToVoltage(code, gain, bipolarFlag, c.vref), nil
 }
 
 // SelfCalibrate runs an internal self-calibration on the channel.
@@ -375,15 +398,16 @@ func (c *AD7705Full) runCalibration(channel uint8, mode uint8) error {
 	default:
 		return fmt.Errorf("ad7705: channel must be 1 or 2")
 	}
+	gain, bipolarFlag, bufferedFlag := c.channelState(channel)
 	var bu uint8 = bipolar
-	if !c.bipolar {
+	if !bipolarFlag {
 		bu = unipolar
 	}
 	var bufBit uint8 = unbuffered
-	if c.buffered {
+	if bufferedFlag {
 		bufBit = buffered
 	}
-	gainIdx := gainToIdx[c.gain]
+	gainIdx := gainToIdx[gain]
 	setup := mode | gainBits[gainIdx] | bu | bufBit | fsyncRun
 	if err := writeRegChannel(c.conn, regSETUP, uint32(setup), ch, 1); err != nil {
 		return err

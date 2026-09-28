@@ -88,6 +88,9 @@ class AD7705Minimal:
         self._gain = 1
         self._bipolar = True
         self._buffered = False
+        self._gain2 = 1
+        self._bipolar2 = True
+        self._buffered2 = False
 
         if reset_pin is not None:
             self._hardware_reset()
@@ -286,6 +289,10 @@ class AD7705Full(AD7705Minimal):
             self._gain = gain
             self._bipolar = bipolar
             self._buffered = buffered
+        else:
+            self._gain2 = gain
+            self._bipolar2 = bipolar
+            self._buffered2 = buffered
 
     def _validate_channel(self, channel):
         """Validate and convert a channel number to its _CH* constant.
@@ -304,6 +311,19 @@ class AD7705Full(AD7705Minimal):
         if channel == 2:
             return self._CH2
         raise ValueError("channel must be 1 or 2")
+
+    def _channel_state(self, channel):
+        """Return (gain, bipolar, buffered) for the given channel's last configure().
+
+        Args:
+            channel: 1 or 2.
+
+        Returns:
+            tuple: (gain, bipolar, buffered) for that channel.
+        """
+        if channel == 1:
+            return self._gain, self._bipolar, self._buffered
+        return self._gain2, self._bipolar2, self._buffered2
 
     def read_raw(self, channel=1):
         """Block until DRDY, then read the raw 16-bit Data Register code for the channel.
@@ -327,15 +347,9 @@ class AD7705Full(AD7705Minimal):
         Returns:
             float: Input voltage in V.
         """
-        ch = self._validate_channel(channel)
-        if channel == 1:
-            code = self.read_raw_channel1()
-            gain = self._gain
-            bipolar = self._bipolar
-        else:
-            code = self.read_raw_channel2()
-            gain = self._gain
-            bipolar = self._bipolar
+        self._validate_channel(channel)
+        code = self.read_raw_channel1() if channel == 1 else self.read_raw_channel2()
+        gain, bipolar, _ = self._channel_state(channel)
         return self._code_to_voltage(code, gain, bipolar)
 
     def read_raw_channel1(self):
@@ -366,7 +380,8 @@ class AD7705Full(AD7705Minimal):
             channel: 1 or 2 (default 1).
         """
         ch = self._validate_channel(channel)
-        setup = self._MODE_SELF_CAL | self._GAIN_TO_BITS[self._gain] | (self._UNIPOLAR if not self._bipolar else self._BIPOLAR) | (self._BUFFERED if self._buffered else self._UNBUFFERED) | self._FSYNC_RUN
+        gain, bipolar, buffered = self._channel_state(channel)
+        setup = self._MODE_SELF_CAL | self._GAIN_TO_BITS[gain] | (self._UNIPOLAR if not bipolar else self._BIPOLAR) | (self._BUFFERED if buffered else self._UNBUFFERED) | self._FSYNC_RUN
         self._write_reg_channel(self._REG_SETUP, setup, ch, 1)
         self._wait_drdy()
 
@@ -380,7 +395,8 @@ class AD7705Full(AD7705Minimal):
             channel: 1 or 2 (default 1).
         """
         ch = self._validate_channel(channel)
-        setup = self._MODE_ZERO_SYS | self._GAIN_TO_BITS[self._gain] | (self._UNIPOLAR if not self._bipolar else self._BIPOLAR) | (self._BUFFERED if self._buffered else self._UNBUFFERED) | self._FSYNC_RUN
+        gain, bipolar, buffered = self._channel_state(channel)
+        setup = self._MODE_ZERO_SYS | self._GAIN_TO_BITS[gain] | (self._UNIPOLAR if not bipolar else self._BIPOLAR) | (self._BUFFERED if buffered else self._UNBUFFERED) | self._FSYNC_RUN
         self._write_reg_channel(self._REG_SETUP, setup, ch, 1)
         self._wait_drdy()
 
@@ -394,7 +410,8 @@ class AD7705Full(AD7705Minimal):
             channel: 1 or 2 (default 1).
         """
         ch = self._validate_channel(channel)
-        setup = self._MODE_FULL_SYS | self._GAIN_TO_BITS[self._gain] | (self._UNIPOLAR if not self._bipolar else self._BIPOLAR) | (self._BUFFERED if self._buffered else self._UNBUFFERED) | self._FSYNC_RUN
+        gain, bipolar, buffered = self._channel_state(channel)
+        setup = self._MODE_FULL_SYS | self._GAIN_TO_BITS[gain] | (self._UNIPOLAR if not bipolar else self._BIPOLAR) | (self._BUFFERED if buffered else self._UNBUFFERED) | self._FSYNC_RUN
         self._write_reg_channel(self._REG_SETUP, setup, ch, 1)
         self._wait_drdy()
 

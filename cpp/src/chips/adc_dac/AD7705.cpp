@@ -48,7 +48,8 @@ static void _delay_ns_host(unsigned ns) {
 
 _AD7705Base::_AD7705Base(Connection& connection, float vref, uint32_t mclk_hz, OutputPin* reset_pin)
     : _connection(connection), _reset_pin(reset_pin), _vref(vref), _mclk_hz(mclk_hz),
-      _gain(1), _bipolar(true), _buffered(false) {
+      _gain(1), _bipolar(true), _buffered(false),
+      _gain2(1), _bipolar2(true), _buffered2(false) {
     if (mclk_hz != MCLK_1MHZ && mclk_hz != MCLK_2MHZ && mclk_hz != MCLK_2_4576MHZ && mclk_hz != MCLK_4_9152MHZ) {
         return;
     }
@@ -57,7 +58,7 @@ _AD7705Base::_AD7705Base(Connection& connection, float vref, uint32_t mclk_hz, O
     }
 
     uint16_t default_rate = (mclk_hz >= MCLK_2_4576MHZ) ? _FS_RATES_2_4MHZ[0] : _FS_RATES_1MHZ[0];
-    _configure_clock(default_rate);
+    _configure_clock(default_rate, _CH1);
 
     uint8_t setup = _MODE_SELF_CAL | _GAIN_BITS[0] | _BIPOLAR | _UNBUFFERED | _FSYNC_RUN;
     _write_reg_channel(_REG_SETUP, setup, _CH1, 1);
@@ -85,7 +86,7 @@ void _AD7705Base::_hardware_reset() {
     _reset_pin->set(true);
 }
 
-void _AD7705Base::_configure_clock(uint16_t output_rate_hz) {
+void _AD7705Base::_configure_clock(uint16_t output_rate_hz, uint8_t channel) {
     uint8_t clk_bit = (_mclk_hz >= MCLK_2_4576MHZ) ? 0x04 : 0x00;
     uint8_t clkdiv_bit = (_mclk_hz == MCLK_2MHZ || _mclk_hz == MCLK_4_9152MHZ) ? 0x08 : 0x00;
     const uint16_t* rates = (_mclk_hz >= MCLK_2_4576MHZ) ? _FS_RATES_2_4MHZ : _FS_RATES_1MHZ;
@@ -93,7 +94,7 @@ void _AD7705Base::_configure_clock(uint16_t output_rate_hz) {
     for (uint8_t i = 0; i < 4; i++) {
         if (rates[i] == output_rate_hz) { fs_bits = i; break; }
     }
-    _write_reg_channel(_REG_CLOCK, clkdiv_bit | clk_bit | fs_bits, _CH1, 1);
+    _write_reg_channel(_REG_CLOCK, clkdiv_bit | clk_bit | fs_bits, channel, 1);
 }
 
 void _AD7705Base::_write_reg_channel(uint8_t reg, uint32_t value, uint8_t channel, uint8_t n_bytes) {
@@ -118,9 +119,36 @@ uint32_t _AD7705Base::_read_reg_channel(uint8_t reg, uint8_t channel, uint8_t n_
 
 float _AD7705Base::_code_to_voltage(uint16_t code, uint8_t gain, bool bipolar) const {
     if (bipolar) {
-        return (((float)(int32_t)((int16_t)code - 32768)) / 32768.0f) * (_vref / (float)gain);
+        // Subtract first (as a plain int, so the full 0..65535 range stays
+        // representable), then narrow -- casting to int16_t before
+        // subtracting would wrap any code > 32767 to a negative value first,
+        // silently corrupting the upper half of the input range.
+        int32_t signed_code = (int32_t)code - 32768;
+        return ((float)signed_code / 32768.0f) * (_vref / (float)gain);
     }
     return ((float)code / 65536.0f) * (_vref / (float)gain);
+}
+
+void _AD7705Base::_channel_state(uint8_t channel, uint8_t& gain, bool& bipolar, bool& buffered) const {
+    if (channel == 1) {
+        gain = _gain; bipolar = _bipolar; buffered = _buffered;
+    } else {
+        gain = _gain2; bipolar = _bipolar2; buffered = _buffered2;
+    }
+}
+
+uint8_t _AD7705Base::_gain_to_index(uint8_t gain) {
+    switch (gain) {
+        case 1:   return 0;
+        case 2:   return 1;
+        case 4:   return 2;
+        case 8:   return 3;
+        case 16:  return 4;
+        case 32:  return 5;
+        case 64:  return 6;
+        case 128: return 7;
+        default:  return 0xFF;
+    }
 }
 
 uint16_t AD7705Minimal::read_raw() {
@@ -145,22 +173,12 @@ void AD7705Full::configure(uint8_t channel, uint8_t gain, bool bipolar, bool buf
     }
     if (!rate_ok) return;
 
-    _configure_clock(output_rate_hz);
+    _configure_clock(output_rate_hz, ch);
 
     uint8_t bu_bit = bipolar ? _BIPOLAR : _UNIPOLAR;
     uint8_t buf_bit = buffered ? _BUFFERED : _UNBUFFERED;
-    uint8_t gain_idx = 0;
-    switch (gain) {
-        case 1:   gain_idx = 0; break;
-        case 2:   gain_idx = 1; break;
-        case 4:   gain_idx = 2; break;
-        case 8:   gain_idx = 3; break;
-        case 16:  gain_idx = 4; break;
-        case 32:  gain_idx = 5; break;
-        case 64:  gain_idx = 6; break;
-        case 128: gain_idx = 7; break;
-        default: return;
-    }
+    uint8_t gain_idx = _gain_to_index(gain);
+    if (gain_idx == 0xFF) return;
     uint8_t setup = _MODE_NORMAL | _GAIN_BITS[gain_idx] | bu_bit | buf_bit | _FSYNC_RUN;
     _write_reg_channel(_REG_SETUP, setup, ch, 1);
 
@@ -168,6 +186,10 @@ void AD7705Full::configure(uint8_t channel, uint8_t gain, bool bipolar, bool buf
         _gain = gain;
         _bipolar = bipolar;
         _buffered = buffered;
+    } else {
+        _gain2 = gain;
+        _bipolar2 = bipolar;
+        _buffered2 = buffered;
     }
 }
 
@@ -180,26 +202,20 @@ uint16_t AD7705Full::read_raw(uint8_t channel) {
 
 float AD7705Full::read_voltage(uint8_t channel) {
     uint16_t code = read_raw(channel);
-    return _code_to_voltage(code, _gain, _bipolar);
+    uint8_t gain; bool bipolar, buffered;
+    _channel_state(channel, gain, bipolar, buffered);
+    return _code_to_voltage(code, gain, bipolar);
 }
 
 void AD7705Full::self_calibrate(uint8_t channel) {
     if (channel != 1 && channel != 2) return;
     uint8_t ch = (channel == 1) ? _CH1 : _CH2;
-    uint8_t bu_bit = _bipolar ? _BIPOLAR : _UNIPOLAR;
-    uint8_t buf_bit = _buffered ? _BUFFERED : _UNBUFFERED;
-    uint8_t gain_idx = 0;
-    switch (_gain) {
-        case 1:   gain_idx = 0; break;
-        case 2:   gain_idx = 1; break;
-        case 4:   gain_idx = 2; break;
-        case 8:   gain_idx = 3; break;
-        case 16:  gain_idx = 4; break;
-        case 32:  gain_idx = 5; break;
-        case 64:  gain_idx = 6; break;
-        case 128: gain_idx = 7; break;
-        default: return;
-    }
+    uint8_t gain; bool bipolar, buffered;
+    _channel_state(channel, gain, bipolar, buffered);
+    uint8_t bu_bit = bipolar ? _BIPOLAR : _UNIPOLAR;
+    uint8_t buf_bit = buffered ? _BUFFERED : _UNBUFFERED;
+    uint8_t gain_idx = _gain_to_index(gain);
+    if (gain_idx == 0xFF) return;
     uint8_t setup = _MODE_SELF_CAL | _GAIN_BITS[gain_idx] | bu_bit | buf_bit | _FSYNC_RUN;
     _write_reg_channel(_REG_SETUP, setup, ch, 1);
     _wait_drdy();
@@ -208,20 +224,12 @@ void AD7705Full::self_calibrate(uint8_t channel) {
 void AD7705Full::system_calibrate_zero(uint8_t channel) {
     if (channel != 1 && channel != 2) return;
     uint8_t ch = (channel == 1) ? _CH1 : _CH2;
-    uint8_t bu_bit = _bipolar ? _BIPOLAR : _UNIPOLAR;
-    uint8_t buf_bit = _buffered ? _BUFFERED : _UNBUFFERED;
-    uint8_t gain_idx = 0;
-    switch (_gain) {
-        case 1:   gain_idx = 0; break;
-        case 2:   gain_idx = 1; break;
-        case 4:   gain_idx = 2; break;
-        case 8:   gain_idx = 3; break;
-        case 16:  gain_idx = 4; break;
-        case 32:  gain_idx = 5; break;
-        case 64:  gain_idx = 6; break;
-        case 128: gain_idx = 7; break;
-        default: return;
-    }
+    uint8_t gain; bool bipolar, buffered;
+    _channel_state(channel, gain, bipolar, buffered);
+    uint8_t bu_bit = bipolar ? _BIPOLAR : _UNIPOLAR;
+    uint8_t buf_bit = buffered ? _BUFFERED : _UNBUFFERED;
+    uint8_t gain_idx = _gain_to_index(gain);
+    if (gain_idx == 0xFF) return;
     uint8_t setup = _MODE_ZERO_SYS | _GAIN_BITS[gain_idx] | bu_bit | buf_bit | _FSYNC_RUN;
     _write_reg_channel(_REG_SETUP, setup, ch, 1);
     _wait_drdy();
@@ -230,19 +238,12 @@ void AD7705Full::system_calibrate_zero(uint8_t channel) {
 void AD7705Full::system_calibrate_full(uint8_t channel) {
     if (channel != 1 && channel != 2) return;
     uint8_t ch = (channel == 1) ? _CH1 : _CH2;
-    uint8_t bu_bit = _bipolar ? _BIPOLAR : _UNIPOLAR;
-    uint8_t buf_bit = _buffered ? _BUFFERED : _UNBUFFERED;
-    uint8_t gain_idx = 0;
-    switch (_gain) {
-        case 1:   gain_idx = 0; break;
-        case 4:   gain_idx = 2; break;
-        case 8:   gain_idx = 3; break;
-        case 16:  gain_idx = 4; break;
-        case 32:  gain_idx = 5; break;
-        case 64:  gain_idx = 6; break;
-        case 128: gain_idx = 7; break;
-        default: return;
-    }
+    uint8_t gain; bool bipolar, buffered;
+    _channel_state(channel, gain, bipolar, buffered);
+    uint8_t bu_bit = bipolar ? _BIPOLAR : _UNIPOLAR;
+    uint8_t buf_bit = buffered ? _BUFFERED : _UNBUFFERED;
+    uint8_t gain_idx = _gain_to_index(gain);
+    if (gain_idx == 0xFF) return;
     uint8_t setup = _MODE_FULL_SYS | _GAIN_BITS[gain_idx] | bu_bit | buf_bit | _FSYNC_RUN;
     _write_reg_channel(_REG_SETUP, setup, ch, 1);
     _wait_drdy();

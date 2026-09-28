@@ -77,7 +77,7 @@ class Ad7705Minimal {
         this.mclkHz = mclkHz
 
         int defaultRate = (mclkHz >= MCLK_2_4576MHZ) ? FS_RATES_2_4MHZ[0] : FS_RATES_1MHZ[0]
-        configureClock(defaultRate)
+        configureClock(defaultRate, CH1)
 
         int setup = MODE_SELF_CAL | GAIN_BITS[0] | BIPOLAR | UNBUFFERED | FSYNC_RUN
         writeRegChannel(REG_SETUP, setup, CH1, 1)
@@ -110,7 +110,7 @@ class Ad7705Minimal {
         }
     }
 
-    protected void configureClock(int outputRateHz) {
+    protected void configureClock(int outputRateHz, int channel) {
         int clkBit = (mclkHz >= MCLK_2_4576MHZ) ? 0x04 : 0x00
         int clkdivBit = (mclkHz == MCLK_2MHZ || mclkHz == MCLK_4_9152MHZ) ? 0x08 : 0x00
         int[] rates = (mclkHz >= MCLK_2_4576MHZ) ? FS_RATES_2_4MHZ : FS_RATES_1MHZ
@@ -118,7 +118,7 @@ class Ad7705Minimal {
         for (int i = 0; i < 4; i++) {
             if (rates[i] == outputRateHz) { fsBits = i; break }
         }
-        writeRegChannel(REG_CLOCK, clkdivBit | clkBit | fsBits, CH1, 1)
+        writeRegChannel(REG_CLOCK, clkdivBit | clkBit | fsBits, channel, 1)
     }
 
     protected void writeRegChannel(int reg, int value, int channel, int nBytes) {

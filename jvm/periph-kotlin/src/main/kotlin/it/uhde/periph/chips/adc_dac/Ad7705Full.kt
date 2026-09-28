@@ -42,6 +42,16 @@ class Ad7705Full @JvmOverloads constructor(
         const val GAIN_128 = 7
     }
 
+    private var gain2: Int = 1
+    private var bipolar2: Boolean = true
+    private var buffered2: Boolean = false
+
+    private data class ChannelState(val gain: Int, val bipolar: Boolean, val buffered: Boolean)
+
+    /** Gain/bipolar/buffered state last set by [configure] for the given channel. */
+    private fun channelState(channel: Int): ChannelState =
+        if (channel == 1) ChannelState(gain, bipolar, buffered) else ChannelState(gain2, bipolar2, buffered2)
+
     /**
      * Write the Setup and Clock Registers for the given channel.
      *
@@ -60,7 +70,7 @@ class Ad7705Full @JvmOverloads constructor(
         val rates = if (mclkHz >= MCLK_2_4576MHZ) FS_RATES_2_4MHZ else FS_RATES_1MHZ
         require(outputRateHz in rates) { "outputRateHz must be one of ${rates.contentToString()}" }
 
-        configureClock(outputRateHz)
+        configureClock(outputRateHz, ch)
 
         val buBit = if (bipolar) BIPOLAR else UNIPOLAR
         val bufBit = if (buffered) BUFFERED else UNBUFFERED
@@ -75,6 +85,10 @@ class Ad7705Full @JvmOverloads constructor(
             this.gain = gain
             this.bipolar = bipolar
             this.buffered = buffered
+        } else {
+            this.gain2 = gain
+            this.bipolar2 = bipolar
+            this.buffered2 = buffered
         }
     }
 
@@ -91,7 +105,8 @@ class Ad7705Full @JvmOverloads constructor(
     @Throws(IOException::class)
     fun readVoltage(channel: Int): Float {
         val code = readRaw(channel)
-        return codeToVoltage(code, gain, bipolar)
+        val state = channelState(channel)
+        return codeToVoltage(code, state.gain, state.bipolar)
     }
 
     /** Run an internal self-calibration on the channel. */
@@ -109,9 +124,10 @@ class Ad7705Full @JvmOverloads constructor(
     private fun runCalibration(channel: Int, mode: Int) {
         require(channel == 1 || channel == 2) { "channel must be 1 or 2" }
         val ch = if (channel == 1) CH1 else CH2
-        val buBit = if (bipolar) BIPOLAR else UNIPOLAR
-        val bufBit = if (buffered) BUFFERED else UNBUFFERED
-        val gainIdx = when (gain) {
+        val state = channelState(channel)
+        val buBit = if (state.bipolar) BIPOLAR else UNIPOLAR
+        val bufBit = if (state.buffered) BUFFERED else UNBUFFERED
+        val gainIdx = when (state.gain) {
             1 -> 0; 2 -> 1; 4 -> 2; 8 -> 3; 16 -> 4; 32 -> 5; 64 -> 6; 128 -> 7
             else -> throw IllegalStateException("gain out of range")
         }

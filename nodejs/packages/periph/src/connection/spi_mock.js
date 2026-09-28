@@ -95,6 +95,18 @@ class SPIConnectionMock {
         if ((cmd & 0xE0) === 0x40) {
             return false;
         }
+        // Generic fallback for chips (e.g. AD7705) whose single command byte
+        // *is* the register address directly, rather than MCP2515's
+        // opcode-plus-address framing -- mirrors the Python/C++ SPI mocks'
+        // behaviour: any 2+-byte write updates the register map starting at
+        // buf[0].
+        if (buf.length >= 2) {
+            const reg = buf[0];
+            for (let i = 1; i < buf.length; i++) {
+                this.registers.set(reg + i - 1, buf[i]);
+            }
+            return true;
+        }
         return false;
     }
 
@@ -135,6 +147,10 @@ class SPIConnectionMock {
             else             startReg = 0x71 + (offset & 0x03);
         } else if (cmd === 0xA0 || cmd === 0xB0) {
             startReg = 0;
+        } else {
+            // Generic fallback (see _applyWrite): the command byte itself
+            // is the register address for chips like AD7705.
+            startReg = cmd;
         }
         if (startReg !== null) {
             for (let i = 0; i < n; i++) {
