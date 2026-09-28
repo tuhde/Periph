@@ -30,7 +30,18 @@
  */
 class _RFM9xBase {
 public:
-    _RFM9xBase(Connection& connection, uint32_t frequency_hz);
+    /** @brief Construct with the variant's limits already known.
+     *
+     *  These must be constructor arguments, not fields the derived class
+     *  sets in its own constructor body: the base constructor runs the full
+     *  register-init sequence (which reads _lf_band via _band_flag(), and
+     *  the LF/HF LNA branch directly) before a derived class's body would
+     *  ever get to assign them, so setting them afterward left _lf_band
+     *  (and the other variant fields) read while still uninitialized --
+     *  real, observed undefined behavior, not just a theoretical risk.
+     */
+    _RFM9xBase(Connection& connection, uint32_t frequency_hz,
+               uint32_t freq_min_hz, uint32_t freq_max_hz, uint8_t max_sf, bool lf_band);
 
     /** @brief Send a packet.
      *  @param data Pointer to payload bytes.
@@ -183,48 +194,28 @@ protected:
 class RFM95Minimal : public _RFM9xBase {
 public:
     RFM95Minimal(Connection& connection, uint32_t frequency_hz)
-        : _RFM9xBase(connection, frequency_hz) {
-        _freq_min_hz = 862000000;
-        _freq_max_hz = 1020000000;
-        _max_sf      = 12;
-        _lf_band     = false;
-    }
+        : _RFM9xBase(connection, frequency_hz, 862000000, 1020000000, 12, false) {}
 };
 
 /** @brief RFM96W minimal driver — 433/470 MHz LF band, max SF=12. */
 class RFM96Minimal : public _RFM9xBase {
 public:
     RFM96Minimal(Connection& connection, uint32_t frequency_hz)
-        : _RFM9xBase(connection, frequency_hz) {
-        _freq_min_hz = 410000000;
-        _freq_max_hz = 525000000;
-        _max_sf      = 12;
-        _lf_band     = true;
-    }
+        : _RFM9xBase(connection, frequency_hz, 410000000, 525000000, 12, true) {}
 };
 
 /** @brief RFM97W minimal driver — 868/915 MHz HF band, max SF=9. */
 class RFM97Minimal : public _RFM9xBase {
 public:
     RFM97Minimal(Connection& connection, uint32_t frequency_hz)
-        : _RFM9xBase(connection, frequency_hz) {
-        _freq_min_hz = 862000000;
-        _freq_max_hz = 1020000000;
-        _max_sf      = 9;
-        _lf_band     = false;
-    }
+        : _RFM9xBase(connection, frequency_hz, 862000000, 1020000000, 9, false) {}
 };
 
 /** @brief RFM98W minimal driver — 433/470 MHz LF band, max SF=12. */
 class RFM98Minimal : public _RFM9xBase {
 public:
     RFM98Minimal(Connection& connection, uint32_t frequency_hz)
-        : _RFM9xBase(connection, frequency_hz) {
-        _freq_min_hz = 410000000;
-        _freq_max_hz = 525000000;
-        _max_sf      = 12;
-        _lf_band     = true;
-    }
+        : _RFM9xBase(connection, frequency_hz, 410000000, 525000000, 12, true) {}
 };
 
 /** @brief RFM95W full driver — extends RFM95Minimal.

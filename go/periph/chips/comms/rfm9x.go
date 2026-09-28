@@ -216,14 +216,17 @@ func (b *rfm9xBase) burstRead(reg uint8, n int) ([]byte, error) {
 }
 
 // bandFlag returns RegOpMode bit 3 (LowFrequencyModeOn) for this variant:
-// set for HF variants, clear for LF variants. This mirrors the reference
-// driver's register-level behavior exactly (see rfm9x.py's
-// `0x08 if not self._LF_BAND else 0x00`).
+// set for LF variants, clear for HF variants, matching the spec's own
+// register table (`0 = HF band, 1 = LF band`) and every other language
+// (cpp, nodejs, rust, jvm). rfm9x.py originally had this inverted
+// (`0x08 if not self._LF_BAND else 0x00`) and this Go port was deliberately
+// written to match that -- both are now fixed to the majority/spec
+// convention (issue found via unit testing, 2026-09-28).
 func (b *rfm9xBase) bandFlag() uint8 {
 	if b.lfBand {
-		return 0x00
+		return 0x08
 	}
-	return 0x08
+	return 0x00
 }
 
 // enterLoRaSleep runs the mode-change-to-LoRa sequence: FSK SLEEP first,
@@ -299,7 +302,7 @@ func (b *rfm9xBase) initRegisters() error {
 	if err := b.writeReg(rfm9xRegModemConfig1, (7<<4)|(1<<1)|0); err != nil {
 		return err
 	}
-	if err := b.writeReg(rfm9xRegModemConfig2, (7<<4)|(1<<2)); err != nil {
+	if err := b.writeReg(rfm9xRegModemConfig2, (7<<4)|(1<<2)|0x03); err != nil {
 		return err
 	}
 	if err := b.writeReg(rfm9xRegPreambleMsb, 0x00); err != nil {

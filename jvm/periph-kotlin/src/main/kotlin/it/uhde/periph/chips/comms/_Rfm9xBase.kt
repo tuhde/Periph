@@ -67,9 +67,16 @@ abstract class _Rfm9xBase protected constructor(
      * power, then STDBY. Shared by the constructor and [_Rfm9xFull.reset].
      */
     protected fun initRegisters() {
+        // Regression fix (found while writing unit tests): EXPECTED_VERSION
+        // was defined but never actually checked, unlike Python/Node.js/Go.
+        val version = readReg(REG_VERSION)
+        if (version != EXPECTED_VERSION) {
+            throw IOException("RFM9x version mismatch: expected 0x%02X, got 0x%02X".format(EXPECTED_VERSION, version))
+        }
+
         writeReg(REG_OP_MODE, 0x00)
         sleepMs(1)
-        writeReg(REG_OP_MODE, MODE_LONG_RANGE or MODE_SLEEP)
+        writeReg(REG_OP_MODE, MODE_LONG_RANGE or bandFlag() or MODE_SLEEP)
         sleepMs(1)
 
         if (lfBand()) {

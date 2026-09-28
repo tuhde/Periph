@@ -36,11 +36,13 @@ static unsigned long _now_ms_host() {
 // _RFM9xBase
 // ============================================================
 
-_RFM9xBase::_RFM9xBase(Connection& connection, uint32_t frequency_hz)
-    : _connection(connection), _frequency_hz(frequency_hz) {
+_RFM9xBase::_RFM9xBase(Connection& connection, uint32_t frequency_hz,
+                        uint32_t freq_min_hz, uint32_t freq_max_hz, uint8_t max_sf, bool lf_band)
+    : _connection(connection), _frequency_hz(frequency_hz),
+      _freq_min_hz(freq_min_hz), _freq_max_hz(freq_max_hz), _max_sf(max_sf), _lf_band(lf_band) {
     _write_reg(REG_OP_MODE, 0x00);                // FSK SLEEP (LongRangeMode writable only in SLEEP)
     _delay_ms(1);
-    uint8_t op = MODE_LONG_RANGE | MODE_SLEEP;
+    uint8_t op = MODE_LONG_RANGE | _band_flag() | MODE_SLEEP;
     _write_reg(REG_OP_MODE, op);                  // LoRa SLEEP
     _delay_ms(1);
 
@@ -85,9 +87,15 @@ uint8_t _RFM9xBase::_read_reg(uint8_t reg) {
 }
 
 void _RFM9xBase::_burst_write(uint8_t reg, const uint8_t* data, size_t len) {
-    uint8_t cmd = reg | 0x80;
-    _connection.write(&cmd, 1);
-    _connection.write(data, len);
+    // Address byte and payload must go out as one CS-held transaction (two
+    // separate write() calls each get their own CS pulse on real hardware --
+    // see SPIConnectionLinux::_write, one ioctl per call, CS toggles between
+    // them -- so the chip would see an address-only frame followed by an
+    // unaddressed data frame instead of one addressed burst write).
+    uint8_t buf[256];
+    buf[0] = reg | 0x80;
+    for (size_t i = 0; i < len && i < 255; i++) buf[1 + i] = data[i];
+    _connection.write(buf, 1 + (len < 255 ? len : 255));
 }
 
 void _RFM9xBase::_burst_read(uint8_t reg, uint8_t* buf, size_t len) {
@@ -294,7 +302,7 @@ void _RFM9xBase::_delay_ms(unsigned long ms) {
 void _RFM9xBase::_reset_registers() {
     _delay_ms(5);   // POR wait fallback; pin-driven reset is wired in examples
     _write_reg(REG_OP_MODE, 0x00); _delay_ms(1);
-    _write_reg(REG_OP_MODE, MODE_LONG_RANGE | MODE_SLEEP); _delay_ms(1);
+    _write_reg(REG_OP_MODE, MODE_LONG_RANGE | _band_flag() | MODE_SLEEP); _delay_ms(1);
     if (_lf_band) {
         uint8_t lna = _read_reg(REG_LNA);
         _write_reg(REG_LNA, lna & 0x3F);          // disable HF LNA boost for LF

@@ -44,10 +44,10 @@ fn main() -> ! {
         let tx = (n as u32).to_be_bytes();
         radio.send(&tx).expect("send");                                            // Send packet, (data=&[u8] ≤255 B) → Result<()>
 
-        let rx = radio.receive(1000, false).expect("receive");                     // Receive single packet, (timeout_ms=1000, use_interrupt=false) → Result<Option<[u8;256]>>
+        let rx = radio.receive(1000, false).expect("receive");                     // Receive single packet, (timeout_ms=1000, use_interrupt=false) → Result<Option<([u8;256], usize)>>
 
-        if let Some(buf) = rx.as_ref() {
-            if &buf[..4] == tx {
+        if let Some((buf, len)) = rx {
+            if len == 4 && buf[..4] == tx {
                 let rssi = radio.last_packet_rssi().unwrap_or(0.0);                // Last packet RSSI, () → Result<f32> dBm
                 let snr  = radio.last_packet_snr().unwrap_or(0.0);                 // Last packet SNR, () → Result<f32> dB
                 println!("[{}] echo  rssi={:.1}  snr={:.1}", n, rssi, snr);

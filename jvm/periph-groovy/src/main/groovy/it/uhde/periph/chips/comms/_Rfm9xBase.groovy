@@ -111,9 +111,17 @@ abstract class _Rfm9xBase {
      * power, then STDBY. Shared by the constructor and {@code _Rfm9xFull#reset()}.
      */
     protected void initRegisters() {
+        // Regression fix (found while writing unit tests): EXPECTED_VERSION
+        // was defined but never actually checked, unlike Python/Node.js/Go.
+        int version = readReg(REG_VERSION)
+        if (version != EXPECTED_VERSION) {
+            throw new IOException(String.format(
+                "RFM9x version mismatch: expected 0x%02X, got 0x%02X", EXPECTED_VERSION, version))
+        }
+
         writeReg(REG_OP_MODE, 0x00)
         sleepMs(1)
-        writeReg(REG_OP_MODE, MODE_LONG_RANGE | MODE_SLEEP)
+        writeReg(REG_OP_MODE, MODE_LONG_RANGE | bandFlag() | MODE_SLEEP)
         sleepMs(1)
 
         if (lfBand()) {

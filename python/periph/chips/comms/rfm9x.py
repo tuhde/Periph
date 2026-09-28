@@ -144,7 +144,7 @@ class _RFM9xBase:
         self._implicit_header = False
         self._crc_on = True
         self._write_reg(self._REG_MODEM_CONFIG_1, (self._bw_code << 4) | (self._cr_code << 1) | self._implicit_header)
-        self._write_reg(self._REG_MODEM_CONFIG_2, (self._sf << 4) | (0x01 if self._crc_on else 0x00) | 0x00)
+        self._write_reg(self._REG_MODEM_CONFIG_2, (self._sf << 4) | ((0x01 if self._crc_on else 0x00) << 2) | 0x03)
         self._write_reg(self._REG_PREAMBLE_MSB, 0x00)
         self._write_reg(self._REG_PREAMBLE_LSB, 0x08)
 
@@ -178,7 +178,7 @@ class _RFM9xBase:
     def _enter_lora_sleep(self):
         self._write_reg(self._REG_OP_MODE, 0x00)
         self._sleep_ms(0.001)
-        op = self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_SLEEP
+        op = self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_SLEEP
         self._write_reg(self._REG_OP_MODE, op)
         self._sleep_ms(0.001)
 
@@ -276,7 +276,7 @@ class _RFM9xBase:
         self._burst_write(self._REG_FIFO, data)
         self._write_reg(self._REG_PAYLOAD_LENGTH, len(data))
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_TX_DONE)
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_TX)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_TX)
 
         while True:
             irq = self._read_reg(self._REG_IRQ_FLAGS)
@@ -300,7 +300,7 @@ class _RFM9xBase:
     def _receive_polling(self, timeout_ms):
         self._standby()
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
 
         elapsed = 0
         step_ms = 5
@@ -314,13 +314,13 @@ class _RFM9xBase:
                 return None
             self._sleep_ms(step_ms / 1000.0)
             elapsed += step_ms
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_STANDBY)
         return None
 
     def _receive_interrupt(self, timeout_ms):
         self._standby()
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_RX_SINGLE)
 
         elapsed = 0
         step_ms = 5
@@ -333,7 +333,7 @@ class _RFM9xBase:
                 return None
             self._sleep_ms(step_ms / 1000.0)
             elapsed += step_ms
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_STANDBY)
         return None
 
     def _read_payload(self):
@@ -345,7 +345,7 @@ class _RFM9xBase:
     def _receive_continuous(self):
         self._standby()
         self._write_reg(self._REG_DIO_MAPPING_1, self._DIO0_RX_DONE)
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_RX_CONT)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_RX_CONT)
         self._continuous = True
 
     def _read_packet(self):
@@ -360,10 +360,10 @@ class _RFM9xBase:
         self._continuous = False
 
     def _standby(self):
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_STANDBY)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_STANDBY)
 
     def _sleep(self):
-        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if not self._LF_BAND else 0x00) | self._MODE_SLEEP)
+        self._write_reg(self._REG_OP_MODE, self._MODE_LONG_RANGE | (0x08 if self._LF_BAND else 0x00) | self._MODE_SLEEP)
 
     def _version(self):
         return self._read_reg(self._REG_VERSION)

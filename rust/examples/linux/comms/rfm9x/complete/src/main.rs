@@ -36,10 +36,10 @@ fn main() {
     radio.reset().expect("reset");                                              // Re-run init sequence (software reset), () → Result<()>
 
     radio.send(b"hello world").expect("send");                                  // Send packet, (data=&[u8] ≤255 B) → Result<()>
-    let _ = radio.receive(2000, false).expect("receive");                       // Receive single packet, (timeout_ms=2000, use_interrupt=false) → Result<Option<[u8;256]>>
+    let _ = radio.receive(2000, false).expect("receive");                       // Receive single packet, (timeout_ms=2000, use_interrupt=false) → Result<Option<([u8;256], usize)>>
 
     radio.receive_continuous().expect("rx_cont");                               // Enter continuous RX, () → Result<()>
-    let _ = radio.read_packet().expect("read_packet");                         // Read one packet in continuous RX, () → Result<Option<[u8;256]>>
+    let _ = radio.read_packet().expect("read_packet");                         // Read one packet in continuous RX, () → Result<Option<([u8;256], usize)>>
     let rssi = radio.rssi().unwrap_or(0.0);                                     // Current channel RSSI, () → Result<f32> dBm
     let _ = rssi;
     radio.stop_receive().expect("stop");                                        // Return to STDBY from RX_CONT, () → Result<()>

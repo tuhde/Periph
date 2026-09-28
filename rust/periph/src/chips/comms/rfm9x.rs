@@ -148,7 +148,7 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         delay_ms(10);
         write_reg(&mut self.spi, REG_OP_MODE, 0x00)?;
         delay_ms(1);
-        write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | MODE_SLEEP)?;
+        write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | band_flag(self.lf_band) | MODE_SLEEP)?;
         delay_ms(1);
 
         let lna = read_reg(&mut self.spi, REG_LNA)?;
@@ -272,7 +272,7 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
     }
 
     /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
-    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.standby()?;
         write_reg(&mut self.spi, REG_DIO_MAPPING_1, DIO0_RX_DONE)?;
         write_reg(&mut self.spi, REG_OP_MODE, MODE_LONG_RANGE | band_flag(self.lf_band) | MODE_RX_SINGLE)?;
@@ -295,11 +295,18 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
         Ok(None)
     }
 
-    fn read_payload(&mut self) -> Result<[u8; 256], SPI::Error> {
+    // Regression fix (found while writing unit tests): this used to return
+    // just `[u8; 256]` with no length, so every receive()/read_packet()
+    // caller across all five variants had no way to know how many of the
+    // 256 bytes were the real payload vs. zero-padding -- the FIFO read
+    // buffer is zero-initialized and only the first `n` bytes are ever
+    // written into it. Returning `(buf, n)` fixes this without needing
+    // `alloc` (this crate is `no_std`).
+    fn read_payload(&mut self) -> Result<([u8; 256], usize), SPI::Error> {
         let current = read_reg(&mut self.spi, REG_FIFO_RX_CURRENT)?;
         write_reg(&mut self.spi, REG_FIFO_ADDR_PTR, current)?;
         let n = read_reg(&mut self.spi, REG_RX_NB_BYTES)? as usize;
-        burst_read(&mut self.spi, REG_FIFO, n)
+        Ok((burst_read(&mut self.spi, REG_FIFO, n)?, n))
     }
 
     /// Enter continuous receive mode. Full-only.
@@ -312,7 +319,7 @@ impl<SPI: SpiDevice> _Rfm9xBase<SPI> {
 
     /// Read one packet from the FIFO while in continuous receive mode.
     /// Returns `None` if no packet is waiting. Full-only.
-    pub(crate) fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub(crate) fn read_packet(&mut self) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         let irq = read_reg(&mut self.spi, REG_IRQ_FLAGS)?;
         if irq & IRQ_RX_DONE == 0 {
             return Ok(None);
@@ -358,7 +365,7 @@ impl<SPI: SpiDevice> Rfm95Minimal<SPI> {
     }
 
     /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
-    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -384,7 +391,7 @@ impl<SPI: SpiDevice> Rfm96Minimal<SPI> {
     }
 
     /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
-    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -410,7 +417,7 @@ impl<SPI: SpiDevice> Rfm97Minimal<SPI> {
     }
 
     /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
-    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -436,7 +443,7 @@ impl<SPI: SpiDevice> Rfm98Minimal<SPI> {
     }
 
     /// Receive a single packet. Returns `Some(buf)` on success, `None` on timeout.
-    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -488,7 +495,7 @@ impl<SPI: SpiDevice> Rfm95Full<SPI> {
     /// Receive a single packet. `use_interrupt` is accepted for API parity
     /// with the spec, but this driver does not accept a DIO0 pin, so both
     /// modes currently poll `RegIrqFlags` over SPI.
-    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -499,7 +506,7 @@ impl<SPI: SpiDevice> Rfm95Full<SPI> {
 
     /// Read one packet from the FIFO in continuous receive mode. `None` if
     /// nothing is ready.
-    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn read_packet(&mut self) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.base().read_packet()
     }
 
@@ -580,7 +587,7 @@ impl<SPI: SpiDevice> Rfm96Full<SPI> {
     /// Receive a single packet. `use_interrupt` is accepted for API parity
     /// with the spec, but this driver does not accept a DIO0 pin, so both
     /// modes currently poll `RegIrqFlags` over SPI.
-    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -591,7 +598,7 @@ impl<SPI: SpiDevice> Rfm96Full<SPI> {
 
     /// Read one packet from the FIFO in continuous receive mode. `None` if
     /// nothing is ready.
-    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn read_packet(&mut self) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.base().read_packet()
     }
 
@@ -672,7 +679,7 @@ impl<SPI: SpiDevice> Rfm97Full<SPI> {
     /// Receive a single packet. `use_interrupt` is accepted for API parity
     /// with the spec, but this driver does not accept a DIO0 pin, so both
     /// modes currently poll `RegIrqFlags` over SPI.
-    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -683,7 +690,7 @@ impl<SPI: SpiDevice> Rfm97Full<SPI> {
 
     /// Read one packet from the FIFO in continuous receive mode. `None` if
     /// nothing is ready.
-    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn read_packet(&mut self) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.base().read_packet()
     }
 
@@ -764,7 +771,7 @@ impl<SPI: SpiDevice> Rfm98Full<SPI> {
     /// Receive a single packet. `use_interrupt` is accepted for API parity
     /// with the spec, but this driver does not accept a DIO0 pin, so both
     /// modes currently poll `RegIrqFlags` over SPI.
-    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn receive(&mut self, timeout_ms: u32, _use_interrupt: bool) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.receive(timeout_ms)
     }
 
@@ -775,7 +782,7 @@ impl<SPI: SpiDevice> Rfm98Full<SPI> {
 
     /// Read one packet from the FIFO in continuous receive mode. `None` if
     /// nothing is ready.
-    pub fn read_packet(&mut self) -> Result<Option<[u8; 256]>, SPI::Error> {
+    pub fn read_packet(&mut self) -> Result<Option<([u8; 256], usize)>, SPI::Error> {
         self.inner.base().read_packet()
     }
 
@@ -812,5 +819,206 @@ impl<SPI: SpiDevice> Rfm98Full<SPI> {
     /// Read `RegVersion`. Expect 0x12 (SX1276).
     pub fn version(&mut self) -> Result<u8, SPI::Error> {
         self.inner.base().version()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::spi::{Mock as SpiMock, Transaction as SpiTransaction};
+
+    fn w(buf: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(buf.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    fn r(comm: u8, response: &[u8]) -> Vec<SpiTransaction<u8>> {
+        vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![comm]),
+            SpiTransaction::read_vec(response.to_vec()),
+            SpiTransaction::transaction_end(),
+        ]
+    }
+
+    // Init sequence (HF variant, band_flag=0x00): FSK SLEEP, LoRa SLEEP,
+    // version read, HF LNA boost, AGC enable, FIFO bases, FRF (915 MHz),
+    // default modem config (SF7/CRC-on/symb timeout 0x03), preamble,
+    // default TX power (+17 dBm PA_BOOST), standby.
+    fn init_seq_common() -> Vec<SpiTransaction<u8>> {
+        let mut t = Vec::new();
+        t.extend(w(&[0x81, 0x00]));
+        t.extend(w(&[0x81, 0x80]));
+        t.extend(r(0x0C, &[0x00]));  // REG_LNA read (init() never reads REG_VERSION -- see EXPECTED_VERSION dead-code warning)
+        t.extend(w(&[0x8C, 0x23]));
+        t.extend(r(0x26, &[0x00]));
+        t.extend(w(&[0xA6, 0x04]));
+        t.extend(w(&[0x8E, 0x80]));
+        t.extend(w(&[0x8F, 0x00]));
+        t.extend(w(&[0x86, 0xE4])); t.extend(w(&[0x87, 0xC0])); t.extend(w(&[0x88, 0x00]));
+        t.extend(w(&[0x9D, 0x72]));
+        t.extend(w(&[0x9E, 0x77]));
+        t.extend(w(&[0xA1, 0x08]));
+        t.extend(w(&[0xCD, 0x84])); t.extend(w(&[0x8B, 0x2B])); t.extend(w(&[0x89, 0x8F]));
+        t.extend(w(&[0x81, 0x81]));
+        t
+    }
+
+    #[test]
+    fn init_and_send() {
+        let mut t = init_seq_common();
+        // send([0xDE, 0xAD, 0xBE]): standby, FIFO addr, burst write, payload
+        // length, DIO mapping, TX mode, IRQ poll (preloaded TX_DONE), IRQ
+        // clear, standby.
+        t.extend(w(&[0x81, 0x81]));
+        t.extend(w(&[0x8D, 0x80]));
+        t.extend(w(&[0x80, 0xDE, 0xAD, 0xBE]));
+        t.extend(w(&[0xA2, 0x03]));
+        t.extend(w(&[0xC0, 0x40]));
+        t.extend(w(&[0x81, 0x83]));  // TX mode: LONG_RANGE|0x00(HF)|TX(0x03)
+        t.extend(r(0x12, &[0x08]));  // IRQ_FLAGS: TX_DONE set
+        t.extend(w(&[0x92, 0x08]));
+        t.extend(w(&[0x81, 0x81]));
+
+        let spi = SpiMock::new(&t);
+        let mut sensor = Rfm95Minimal::new(spi, 915_000_000).expect("init");
+        sensor.send(&[0xDE, 0xAD, 0xBE]).expect("send");
+        sensor.base().spi.done();
+    }
+
+    #[test]
+    fn receive_returns_payload_and_length() {
+        // Regression test for a driver bug found while writing this test:
+        // receive()/read_packet() used to return `[u8; 256]` with no length,
+        // so callers could not tell the real payload apart from the
+        // zero-padding after it. Now returns `(buf, len)`.
+        let mut t = init_seq_common();
+        t.extend(w(&[0x81, 0x81]));
+        t.extend(w(&[0xC0, 0x00]));
+        t.extend(w(&[0x81, 0x86]));  // RX_SINGLE mode: LONG_RANGE|0x00(HF)|0x06
+        t.extend(r(0x12, &[0x40]));  // IRQ_FLAGS: RX_DONE set
+        t.extend(w(&[0x92, 0x40]));
+        t.extend(r(0x10, &[0x00]));
+        t.extend(w(&[0x8D, 0x00]));
+        t.extend(r(0x13, &[0x03]));
+        t.extend(vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![0x00]),
+            SpiTransaction::transfer(vec![0, 0, 0], vec![0xAA, 0xBB, 0xCC]),
+            SpiTransaction::transaction_end(),
+        ]);
+
+        let spi = SpiMock::new(&t);
+        let mut sensor = Rfm95Minimal::new(spi, 915_000_000).expect("init");
+        let (buf, len) = sensor.receive(100).expect("receive").expect("payload");
+        assert_eq!(len, 3);
+        assert_eq!(&buf[..len], &[0xAA, 0xBB, 0xCC]);
+        sensor.base().spi.done();
+    }
+
+    #[test]
+    fn configure_set_frequency_set_tx_power() {
+        let mut t = init_seq_common();
+        t.extend(w(&[0xB1, 0x03]));
+        t.extend(w(&[0xB7, 0x0A]));
+        t.extend(w(&[0x9D, 0x72]));
+        t.extend(w(&[0x9E, 0x97]));
+        t.extend(w(&[0x86, 0xD9])); t.extend(w(&[0x87, 0x00])); t.extend(w(&[0x88, 0x00]));
+        t.extend(w(&[0xCD, 0x87])); t.extend(w(&[0x8B, 0x3B])); t.extend(w(&[0x89, 0x8F]));
+        t.extend(w(&[0xCD, 0x84])); t.extend(w(&[0x8B, 0x2B])); t.extend(w(&[0x89, 0x7A]));
+
+        let spi = SpiMock::new(&t);
+        let mut full = Rfm95Full::new(spi, 915_000_000).expect("init");
+        full.configure(9, 125.0, 5, true).expect("configure");
+        full.set_frequency(868_000_000).expect("set_frequency");
+        full.set_tx_power(20, true).expect("set_tx_power high");
+        full.set_tx_power(10, false).expect("set_tx_power rfo");
+        full.inner.base().spi.done();
+    }
+
+    #[test]
+    fn telemetry_and_power_control() {
+        let mut t = init_seq_common();
+        t.extend(w(&[0x81, 0x81]));
+        t.extend(w(&[0x81, 0x80]));
+        t.extend(r(0x42, &[0x12]));
+        t.extend(r(0x1B, &[100]));
+        t.extend(r(0x1A, &[90]));
+        t.extend(r(0x19, &[20]));
+        t.extend(r(0x19, &[0xF4]));
+
+        let spi = SpiMock::new(&t);
+        let mut full = Rfm95Full::new(spi, 915_000_000).expect("init");
+        full.standby().unwrap();
+        full.sleep().unwrap();
+        assert_eq!(full.version().unwrap(), 0x12);
+        assert!((full.rssi().unwrap() - (-137.0 + 100.0)).abs() < 1e-6);
+        assert!((full.last_packet_rssi().unwrap() - (-137.0 + 90.0)).abs() < 1e-6);
+        assert!((full.last_packet_snr().unwrap() - 5.0).abs() < 1e-6);
+        assert!((full.last_packet_snr().unwrap() - (-3.0)).abs() < 1e-6);
+        full.inner.base().spi.done();
+    }
+
+    #[test]
+    fn receive_continuous_and_read_packet() {
+        let mut t = init_seq_common();
+        t.extend(w(&[0x81, 0x81]));
+        t.extend(w(&[0xC0, 0x00]));
+        t.extend(w(&[0x81, 0x85]));  // RX_CONT mode: LONG_RANGE|0x00(HF)|0x05
+        t.extend(r(0x12, &[0x40]));
+        t.extend(w(&[0x92, 0x40]));
+        t.extend(r(0x10, &[0x00]));
+        t.extend(w(&[0x8D, 0x00]));
+        t.extend(r(0x13, &[0x02]));
+        t.extend(vec![
+            SpiTransaction::transaction_start(),
+            SpiTransaction::write_vec(vec![0x00]),
+            SpiTransaction::transfer(vec![0, 0], vec![0x11, 0x22]),
+            SpiTransaction::transaction_end(),
+        ]);
+        t.extend(r(0x12, &[0x00]));
+        t.extend(w(&[0x81, 0x81]));
+
+        let spi = SpiMock::new(&t);
+        let mut full = Rfm95Full::new(spi, 915_000_000).expect("init");
+        full.receive_continuous().expect("receive_continuous");
+        let (buf, len) = full.read_packet().expect("read_packet").expect("payload");
+        assert_eq!(len, 2);
+        assert_eq!(&buf[..len], &[0x11, 0x22]);
+        assert!(full.read_packet().expect("read_packet none").is_none());
+        full.stop_receive().expect("stop_receive");
+        full.inner.base().spi.done();
+    }
+
+    #[test]
+    fn reset_reruns_init_sequence() {
+        let mut t = init_seq_common();
+        t.extend(init_seq_common());
+
+        let spi = SpiMock::new(&t);
+        let mut full = Rfm95Full::new(spi, 915_000_000).expect("init");
+        full.reset().expect("reset");
+        full.inner.base().spi.done();
+    }
+
+    #[test]
+    fn rfm97_clamps_sf_to_variant_max() {
+        // RFM97's max_sf is 9 (not 12 like the other three variants).
+        // configure() has no exceptions available (Result<(), SPI::Error>
+        // can't express a validation error) -- it clamps instead, same
+        // no-exceptions-style pattern as this file's C++/Node.js ports.
+        let mut t = init_seq_common();
+        t.extend(w(&[0xB1, 0x03]));
+        t.extend(w(&[0xB7, 0x0A]));
+        t.extend(w(&[0x9D, 0x72]));
+        t.extend(w(&[0x9E, 0x97]));  // sf clamped from 12 to 9 -> (9<<4)|(1<<2)|3=0x97
+
+        let spi = SpiMock::new(&t);
+        let mut rfm97 = Rfm97Full::new(spi, 915_000_000).expect("init");
+        rfm97.configure(12, 125.0, 5, true).expect("configure");
+        rfm97.inner.base().spi.done();
     }
 }
