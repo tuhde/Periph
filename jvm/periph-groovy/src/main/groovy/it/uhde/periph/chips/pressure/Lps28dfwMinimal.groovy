@@ -50,13 +50,13 @@ class Lps28dfwMinimal {
 
     Lps28dfwMinimal(Connection connection) {
         this.connection = connection
+        try { Thread.sleep(2) } catch (InterruptedException ignored) { Thread.currentThread().interrupt() }
         byte[] id = connection.writeRead([REG_WHO_AM_I] as byte[], 1)
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException("LPS28DFW WHO_AM_I mismatch: expected 0x" +
                     Integer.toHexString(CHIP_ID) + ", got 0x" +
                     Integer.toHexString(id[0] & 0xFF))
         }
-        try { Thread.sleep(2) } catch (InterruptedException ignored) { Thread.currentThread().interrupt() }
         int ctrl2 = (fsMode << 6) | (lpfCfg << 5) | (lpfEn << 4) | (bdu << 3)
         writeReg(REG_CTRL_REG2, ctrl2)
         int ctrl1 = (odr << 3) | (avg & 0x07)

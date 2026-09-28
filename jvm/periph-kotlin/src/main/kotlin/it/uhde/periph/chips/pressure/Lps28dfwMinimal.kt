@@ -50,13 +50,13 @@ open class Lps28dfwMinimal(protected val connection: Connection) {
     protected var bdu: Int = 1
 
     init {
+        try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
         if ((id[0].toInt() and 0xFF) != CHIP_ID) {
             throw IOException("LPS28DFW WHO_AM_I mismatch: expected 0x" +
                     Integer.toHexString(CHIP_ID) + ", got 0x" +
                     Integer.toHexString(id[0].toInt() and 0xFF))
         }
-        try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         val ctrl2 = (fsMode shl 6) or (lpfCfg shl 5) or (lpfEn shl 4) or (bdu shl 3)
         writeReg(REG_CTRL_REG2, ctrl2)
         val ctrl1 = (odr shl 3) or (avg and 0x07)
@@ -88,7 +88,7 @@ open class Lps28dfwMinimal(protected val connection: Connection) {
      */
     protected fun readTemperatureRaw(): Int {
         val b = connection.writeRead(byteArrayOf(REG_TEMP_OUT_L.toByte()), 2)
-        return (b[1].toInt() shl 8 or b[0].toInt()).toShort().toInt()
+        return ((b[1].toInt() and 0xFF) shl 8 or (b[0].toInt() and 0xFF)).toShort().toInt()
     }
 
     /** Read the absolute pressure in hPa. */

@@ -78,7 +78,7 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
         val b = connection.writeRead(byteArrayOf(REG_PRESS_OUT_XL.toByte()), 5)
         var p = ((b[2].toInt() and 0xFF) shl 16) or ((b[1].toInt() and 0xFF) shl 8) or (b[0].toInt() and 0xFF)
         if ((p and 0x800000) != 0) p = p or 0xFF000000.toInt()
-        val t = (b[4].toInt() shl 8 or b[3].toInt()).toShort().toInt()
+        val t = ((b[4].toInt() and 0xFF) shl 8 or (b[3].toInt() and 0xFF)).toShort().toInt()
         val sens = if (fsMode == 0) SENSITIVITY_MODE1 else SENSITIVITY_MODE2
         return doubleArrayOf(p / sens, t / 100.0)
     }
@@ -126,9 +126,9 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
      * Configure FIFO mode, watermark level, and stop-on-watermark.
      */
     fun fifoConfigure(mode: Int, wtm: Int, stopOnWtm: Boolean) {
-        if (mode == FIFO_BYPASS) {
-            writeReg(REG_FIFO_CTRL, 0x00)
-        }
+        // Always pass through Bypass first when switching FIFO modes (spec's
+        // "FIFO reset" procedure) -- not just when the target mode IS bypass.
+        writeReg(REG_FIFO_CTRL, 0x00)
         val trig = if (mode >= 4) 1 else 0
         val fMode = mode and 0x03
         val ctrl = (trig shl 2) or ((if (stopOnWtm) 1 else 0) shl 3) or fMode

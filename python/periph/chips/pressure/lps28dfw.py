@@ -47,10 +47,10 @@ class LPS28DFWMinimal:
         self._init()
 
     def _init(self):
+        time.sleep(self._BOOT_WAIT_MS / 1000.0)
         who = self._read_reg(self._REG_WHO_AM_I, 1)[0]
         if who != self._CHIP_ID:
             raise OSError('LPS28DFW WHO_AM_I mismatch: expected 0x{:02X}, got 0x{:02X}'.format(self._CHIP_ID, who))
-        time.sleep(self._BOOT_WAIT_MS / 1000.0)
         ctrl2 = (self._fs_mode << 6) | (self._lpf_cfg << 5) | (self._lpf_en << 4) | (self._bdu << 3)
         self._write_reg(self._REG_CTRL_REG2, ctrl2)
         ctrl1 = (self._odr << 3) | (self._avg & 0x07)
@@ -206,12 +206,17 @@ class LPS28DFWFull(LPS28DFWMinimal):
         self._write_reg(self._REG_CTRL_REG1, (0 << 3) | (self._avg & 0x07))
         ctrl2 = self._read_reg(self._REG_CTRL_REG2, 1)[0]
         self._write_reg(self._REG_CTRL_REG2, ctrl2 | 0x01)
-        deadline = time.ticks_ms() + 1000 if hasattr(time, 'ticks_ms') else None
+        # time.ticks_ms()/ticks_diff() are MicroPython-only; CPython (Linux)
+        # has neither, so fall back to time.time() -- without this, the
+        # timeout below silently never fires on Linux (deadline stayed None).
+        has_ticks = hasattr(time, 'ticks_ms')
+        start = time.ticks_ms() if has_ticks else time.time()
         while True:
             status = self._read_reg(self._REG_STATUS, 1)[0]
             if status & self.STATUS_P_DA:
                 break
-            if deadline is not None and time.ticks_diff(deadline, time.ticks_ms()) <= 0:
+            elapsed_ms = time.ticks_diff(time.ticks_ms(), start) if has_ticks else (time.time() - start) * 1000.0
+            if elapsed_ms >= 1000:
                 self._write_reg(self._REG_CTRL_REG1, (saved_odr << 3) | (self._avg & 0x07))
                 raise OSError('LPS28DFW one-shot timeout (STATUS=0x{:02X})'.format(status))
             time.sleep(0.005)
@@ -259,8 +264,9 @@ class LPS28DFWFull(LPS28DFWMinimal):
             wtm: Watermark level, 0–127 samples.
             stop_on_wtm: True to limit FIFO depth to the watermark.
         """
-        if mode == self.FIFO_BYPASS:
-            self._write_reg(0x14, 0x00)
+        # Always pass through Bypass first when switching FIFO modes (spec's
+        # "FIFO reset" procedure) -- not just when the target mode IS bypass.
+        self._write_reg(0x14, 0x00)
         trig = 1 if mode >= 4 else 0
         f_mode = mode & 0x03
         ctrl = (trig << 2) | (int(bool(stop_on_wtm)) << 3) | f_mode

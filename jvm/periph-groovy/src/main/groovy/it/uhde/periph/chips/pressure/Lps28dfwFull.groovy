@@ -122,9 +122,9 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** Configure FIFO mode, watermark level, and stop-on-watermark. */
     void fifoConfigure(int mode, int wtm, boolean stopOnWtm) {
-        if (mode == FIFO_BYPASS) {
-            writeReg(REG_FIFO_CTRL, 0x00)
-        }
+        // Always pass through Bypass first when switching FIFO modes (spec's
+        // "FIFO reset" procedure) -- not just when the target mode IS bypass.
+        writeReg(REG_FIFO_CTRL, 0x00)
         int trig = mode >= 4 ? 1 : 0
         int fMode = mode & 0x03
         int ctrl = (trig << 2) | ((stopOnWtm ? 1 : 0) << 3) | fMode

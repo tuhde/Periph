@@ -116,6 +116,7 @@ func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
 		lpfCfg:     0,
 		bdu:        1,
 	}
+	time.Sleep(lps28dfwBootWait)
 	id, err := d.readReg8(lps28dfwRegWhoAmI)
 	if err != nil {
 		return nil, err
@@ -123,7 +124,6 @@ func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
 	if id != lps28dfwChipID {
 		return nil, &lps28dfwChipIDError{expected: lps28dfwChipID, got: id}
 	}
-	time.Sleep(lps28dfwBootWait)
 	if err := d.writeReg(lps28dfwRegCtrlReg2, (d.fsMode<<6)|(d.lpfCfg<<5)|(d.lpfEn<<4)|(d.bdu<<3)); err != nil {
 		return nil, err
 	}
@@ -347,10 +347,10 @@ func (d *LPS28DFWFull) Softreset() error {
 
 // FIFOConfigure configures FIFO mode, watermark level, and stop-on-watermark.
 func (d *LPS28DFWFull) FIFOConfigure(mode, wtm uint8, stopOnWtm bool) error {
-	if mode == LPS28DFWFIFOBypass {
-		if err := d.writeReg(0x14, 0x00); err != nil {
-			return err
-		}
+	// Always pass through Bypass first when switching FIFO modes (spec's
+	// "FIFO reset" procedure) -- not just when the target mode IS bypass.
+	if err := d.writeReg(0x14, 0x00); err != nil {
+		return err
 	}
 	trig := uint8(0)
 	if mode >= 4 {

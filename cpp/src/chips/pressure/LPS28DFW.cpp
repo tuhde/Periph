@@ -1,5 +1,6 @@
 #include "LPS28DFW.h"
 #include <math.h>
+#include <stdlib.h>
 
 #ifdef ARDUINO
 #include <Arduino.h>
@@ -25,12 +26,12 @@ LPS28DFWMinimal::LPS28DFWMinimal(Connection& connection)
 }
 
 void LPS28DFWMinimal::_init() {
+    LPS28DFW_DELAY_MS(BOOT_WAIT_MS);
     uint8_t buf[1];
     _read_reg(REG_WHO_AM_I, buf, 1);
     if (buf[0] != CHIP_ID) {
-        return;
+        abort();
     }
-    LPS28DFW_DELAY_MS(BOOT_WAIT_MS);
     uint8_t ctrl2 = (_fs_mode << 6) | (_lpf_cfg << 5) | (_lpf_en << 4) | (_bdu << 3);
     _write_reg(REG_CTRL_REG2, ctrl2);
     uint8_t ctrl1 = (_odr << 3) | (_avg & 0x07);
@@ -141,9 +142,9 @@ void LPS28DFWFull::softreset() {
 }
 
 void LPS28DFWFull::fifo_configure(uint8_t mode, uint8_t wtm, uint8_t stop_on_wtm) {
-    if (mode == FIFO_BYPASS) {
-        _write_reg(0x14, 0x00);
-    }
+    // Always pass through Bypass first when switching FIFO modes (spec's
+    // "FIFO reset" procedure) -- not just when the target mode IS bypass.
+    _write_reg(0x14, 0x00);
     uint8_t trig = (mode >= 4) ? 1 : 0;
     uint8_t f_mode = mode & 0x03;
     uint8_t ctrl = (trig << 2) | ((stop_on_wtm ? 1 : 0) << 3) | f_mode;

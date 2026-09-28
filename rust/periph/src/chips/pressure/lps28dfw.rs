@@ -109,6 +109,13 @@ pub const STATUS_P_OR: u8 = 0x10;
 /// STATUS flag: temperature overrun.
 pub const STATUS_T_OR: u8 = 0x20;
 
+fn delay_ms(ms: u32) {
+    #[cfg(feature = "std")]
+    std::thread::sleep(std::time::Duration::from_millis(ms as u64));
+    #[cfg(not(feature = "std"))]
+    let _ = ms;
+}
+
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
     i2c.write(addr, &[reg, value])
 }
@@ -138,6 +145,12 @@ impl<I2C: I2c> Lps28dfwMinimal<I2C> {
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x5C or 0x5D).
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        delay_ms(BOOT_WAIT_MS);
+        let mut who = [0u8; 1];
+        read_reg_bytes(&mut i2c, addr, REG_WHO_AM_I, &mut who)?;
+        if who[0] != CHIP_ID {
+            panic!("LPS28DFW WHO_AM_I mismatch: expected 0x{:02X}, got 0x{:02X}", CHIP_ID, who[0]);
+        }
         let mut s = Self {
             i2c, addr,
             fs_mode: 0, odr: 0x04, avg: 0x02,
@@ -160,7 +173,7 @@ impl<I2C: I2c> Lps28dfwMinimal<I2C> {
     fn read_temperature_raw(&mut self) -> Result<i16, I2C::Error> {
         let mut buf = [0u8; 2];
         read_reg_bytes(&mut self.i2c, self.addr, REG_TEMP_OUT_L, &mut buf)?;
-        Ok(i16::from_be_bytes([buf[0], buf[1]]))
+        Ok(i16::from_le_bytes([buf[0], buf[1]]))
     }
 
     /// Read absolute pressure in hPa.
@@ -207,7 +220,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_PRESS_OUT_XL, &mut buf)?;
         let p = ((buf[2] as i32) << 16) | ((buf[1] as i32) << 8) | (buf[0] as i32);
         let p = if p & 0x800000 != 0 { p | -0x1000000 } else { p };
-        let t = i16::from_be_bytes([buf[3], buf[4]]);
+        let t = i16::from_le_bytes([buf[3], buf[4]]);
         let sens = sensitivity_lsb_per_hpa(self.inner.fs_mode);
         Ok((p as f32 / sens, t as f32 / 100.0))
     }
@@ -228,6 +241,12 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         let mut c2 = [0u8; 1];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2, &mut c2)?;
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2, c2[0] | 0x01)?;
+        for _ in 0..200 {
+            let mut status = [0u8; 1];
+            read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_STATUS, &mut status)?;
+            if status[0] & STATUS_P_DA != 0 { break; }
+            delay_ms(5);
+        }
         let result = self.read();
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1, (saved_odr << 3) | (self.inner.avg & 0x07))?;
         result
@@ -251,9 +270,9 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
 
     /// Configure FIFO mode, watermark level, and stop-on-watermark.
     pub fn fifo_configure(&mut self, mode: u8, wtm: u8, stop_on_wtm: bool) -> Result<(), I2C::Error> {
-        if mode == FIFO_BYPASS {
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL, 0x00)?;
-        }
+        // Always pass through Bypass first when switching FIFO modes (spec's
+        // "FIFO reset" procedure) -- not just when the target mode IS bypass.
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL, 0x00)?;
         let trig = if mode >= 4 { 1 } else { 0 };
         let f_mode = mode & 0x03;
         let ctrl = (trig << 2) | ((if stop_on_wtm { 1 } else { 0 }) << 3) | f_mode;
@@ -318,4 +337,170 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
 
     /// Read calibrated temperature (delegated from Minimal).
     pub fn read_temperature(&mut self) -> Result<f32, I2C::Error> { self.inner.read_temperature() }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x5C;
+
+    fn init_seq() -> Vec<I2cTransaction> {
+        vec![
+            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![0xB4]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x18]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x22]),
+        ]
+    }
+
+    #[test]
+    fn construction_verifies_who_am_i_and_writes_defaults() {
+        let i2c = I2cMock::new(&init_seq());
+        let mut chip = Lps28dfwMinimal::new(i2c, ADDR).unwrap();
+
+        let mut t = init_seq();
+        t.extend(vec![I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL], vec![0x00, 0x54, 0x3F])]);
+        chip.i2c.update_expectations(&t[3..]);
+        let p = chip.read_pressure().unwrap();
+        assert!((p - 1013.25).abs() < 0.001);
+        chip.i2c.done();
+    }
+
+    #[test]
+    #[should_panic(expected = "WHO_AM_I mismatch")]
+    fn construction_panics_on_bad_who_am_i() {
+        let transactions = vec![I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I], vec![0x00])];
+        let i2c = I2cMock::new(&transactions);
+        let _ = Lps28dfwMinimal::new(i2c, ADDR);
+    }
+
+    #[test]
+    fn read_temperature_byte_order_regression() {
+        // Regression: TEMP_OUT_L/H is little-endian (L then H); the buggy
+        // version used from_be_bytes and silently swapped the two bytes.
+        let mut t = init_seq();
+        t.push(I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_L], vec![0x2E, 0x09])); // 23.5 C
+        let i2c = I2cMock::new(&t);
+        let mut chip = Lps28dfwMinimal::new(i2c, ADDR).unwrap();
+        let temp = chip.read_temperature().unwrap();
+        assert!((temp - 23.5).abs() < 0.001, "got {temp}");
+        chip.i2c.done();
+    }
+
+    #[test]
+    fn read_temperature_negative() {
+        let mut t = init_seq();
+        t.push(I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_L], vec![0x18, 0xFC])); // -10.0 C
+        let i2c = I2cMock::new(&t);
+        let mut chip = Lps28dfwMinimal::new(i2c, ADDR).unwrap();
+        let temp = chip.read_temperature().unwrap();
+        assert!((temp - (-10.0)).abs() < 0.001, "got {temp}");
+        chip.i2c.done();
+    }
+
+    #[test]
+    fn full_configure_and_read_mode2() {
+        let i2c = I2cMock::new(&init_seq());
+        let mut full = Lps28dfwFull::new(i2c, ADDR).unwrap();
+
+        let cfg = vec![
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x78]), // FS=1,LFPF=1,LPF=1,BDU=1
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x2C]), // ODR=5,AVG=4
+        ];
+        full.inner.i2c.update_expectations(&cfg);
+        full.configure(LPS28DFW_ODR_50_HZ, AVG_64, 1, true, 1).unwrap();
+
+        let read_seq = vec![I2cTransaction::write_read(
+            ADDR, vec![REG_PRESS_OUT_XL], vec![0x00, 0x80, 0x3E, 0x21, 0x07],
+        )];
+        full.inner.i2c.update_expectations(&read_seq);
+        let (p, t) = full.read().unwrap();
+        assert!((p - 2000.0).abs() < 0.001);
+        assert!((t - 18.25).abs() < 0.001);
+        full.inner.i2c.done();
+    }
+
+    #[test]
+    fn read_oneshot_polls_p_da_and_restores_odr() {
+        let i2c = I2cMock::new(&init_seq());
+        let mut full = Lps28dfwFull::new(i2c, ADDR).unwrap();
+
+        let seq = vec![
+            I2cTransaction::write_read(ADDR, vec![REG_CTRL_REG1], vec![0x22]), // saved_odr=4
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x02]),            // ODR forced to 0
+            I2cTransaction::write_read(ADDR, vec![REG_CTRL_REG2], vec![0x18]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x19]),            // |ONESHOT
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x01]),    // P_DA set immediately
+            I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL], vec![0x00, 0x80, 0x3E, 0xD0, 0x07]),
+            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x22]),            // restored ODR=4
+        ];
+        full.inner.i2c.update_expectations(&seq);
+        let (p, t) = full.read_oneshot().unwrap();
+        assert!((p - 1000.0).abs() < 0.001);
+        assert!((t - 20.0).abs() < 0.001);
+        full.inner.i2c.done();
+    }
+
+    #[test]
+    fn fifo_configure_bypass_pass_through_regression() {
+        // Regression: switching directly to a non-bypass mode must still
+        // write FIFO_CTRL=0x00 (Bypass) first, per the spec's FIFO reset
+        // procedure -- the buggy version only did this when the target
+        // mode itself was Bypass.
+        let i2c = I2cMock::new(&init_seq());
+        let mut full = Lps28dfwFull::new(i2c, ADDR).unwrap();
+
+        let seq = vec![
+            I2cTransaction::write(ADDR, vec![REG_FIFO_CTRL, 0x00]), // bypass pass-through
+            I2cTransaction::write(ADDR, vec![REG_FIFO_CTRL, 0x0A]), // TRIG=0,STOP=1,F_MODE=10
+            I2cTransaction::write(ADDR, vec![REG_FIFO_WTM, 50]),
+        ];
+        full.inner.i2c.update_expectations(&seq);
+        full.fifo_configure(FIFO_CONTINUOUS, 50, true).unwrap();
+        full.inner.i2c.done();
+    }
+
+    #[test]
+    fn fifo_read_three_samples() {
+        let i2c = I2cMock::new(&init_seq());
+        let mut full = Lps28dfwFull::new(i2c, ADDR).unwrap();
+
+        let seq = vec![I2cTransaction::write_read(
+            ADDR,
+            vec![REG_FIFO_DATA_PRESS_XL],
+            vec![0x00, 0x80, 0x3E, 0x00, 0x20, 0x3F, 0x00, 0xC0, 0x3F],
+        )];
+        full.inner.i2c.update_expectations(&seq);
+        let mut buf = [0f32; 3];
+        full.fifo_read(3, &mut buf).unwrap();
+        assert!((buf[0] - 1000.0).abs() < 0.01);
+        assert!((buf[1] - 1010.0).abs() < 0.01);
+        assert!((buf[2] - 1020.0).abs() < 0.01);
+        full.inner.i2c.done();
+    }
+
+    #[test]
+    fn set_offset_and_set_threshold() {
+        let i2c = I2cMock::new(&init_seq());
+        let mut full = Lps28dfwFull::new(i2c, ADDR).unwrap();
+        full.inner.fs_mode = 1; // Mode 2
+
+        let offset_seq = vec![
+            I2cTransaction::write(ADDR, vec![REG_RPDS_L, 0x00]),
+            I2cTransaction::write(ADDR, vec![REG_RPDS_H, 0xFC]),
+        ];
+        full.inner.i2c.update_expectations(&offset_seq);
+        full.set_offset(-0.5).unwrap();
+
+        full.inner.fs_mode = 0; // Mode 1 for threshold
+        let thresh_seq = vec![
+            I2cTransaction::write(ADDR, vec![REG_THS_P_L, 0xC0]),
+            I2cTransaction::write(ADDR, vec![REG_THS_P_H, 0x3F]),
+            I2cTransaction::write_read(ADDR, vec![REG_INTERRUPT_CFG], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INTERRUPT_CFG, 0x03]),
+        ];
+        full.inner.i2c.update_expectations(&thresh_seq);
+        full.set_threshold(1020.0, true, true).unwrap();
+        full.inner.i2c.done();
+    }
 }

@@ -51,13 +51,13 @@ class LPS28DFWMinimal {
     }
 
     async _init() {
+        _delay(_BOOT_WAIT_MS);
         const who = await this._readReg(_REG_WHO_AM_I, 1);
         if (who[0] !== _CHIP_ID) {
             throw new Error('LPS28DFW WHO_AM_I mismatch: expected 0x' +
                 _CHIP_ID.toString(16).toUpperCase().padStart(2, '0') +
                 ', got 0x' + who[0].toString(16).toUpperCase().padStart(2, '0'));
         }
-        _delay(_BOOT_WAIT_MS);
         const ctrl2 = (this._fsMode << 6) | (this._lpfCfg << 5) | (this._lpfEn << 4) | (this._bdu << 3);
         await this._writeReg(_REG_CTRL_REG2, ctrl2);
         const ctrl1 = (this._odr << 3) | (this._avg & 0x07);
@@ -90,7 +90,7 @@ class LPS28DFWMinimal {
      */
     async readTemperature() {
         const raw = await this._readReg(_REG_TEMP_OUT_L, 2);
-        const v = raw.readInt16BE(0);
+        const v = raw.readInt16LE(0);
         return v / 100.0;
     }
 }
@@ -166,7 +166,7 @@ class LPS28DFWFull extends LPS28DFWMinimal {
         const raw = await this._readReg(_REG_PRESS_OUT_XL, 5);
         let p = (raw[2] << 16) | (raw[1] << 8) | raw[0];
         if (p & 0x800000) p |= 0xFF000000;
-        const t = raw.readInt16BE(3);
+        const t = raw.readInt16LE(3);
         const sens = this._fsMode === 0 ? _SENSITIVITY_LSB_PER_HPA_MODE1 : _SENSITIVITY_LSB_PER_HPA_MODE2;
         return { pressure: p / sens, temperature: t / 100.0 };
     }
@@ -231,9 +231,9 @@ class LPS28DFWFull extends LPS28DFWMinimal {
      * @returns {Promise<void>}
      */
     async fifoConfigure(mode, wtm, stopOnWtm) {
-        if (mode === LPS28DFWFull.FIFO_BYPASS) {
-            await this._writeReg(0x14, 0x00);
-        }
+        // Always pass through Bypass first when switching FIFO modes (spec's
+        // "FIFO reset" procedure) -- not just when the target mode IS bypass.
+        await this._writeReg(0x14, 0x00);
         const trig = mode >= 4 ? 1 : 0;
         const fMode = mode & 0x03;
         const ctrl = (trig << 2) | ((stopOnWtm ? 1 : 0) << 3) | fMode;
