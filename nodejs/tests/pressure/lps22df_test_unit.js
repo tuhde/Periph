@@ -60,7 +60,7 @@ async function main() {
     checkTrue('init_writes_ctrl_reg1_default', ctrlReg1Default);
 
     // pressure(): known hPa -> known Pa
-    connection.setRegister(_REG_STATUS, [0x01]);
+    connection.setRegister(_REG_STATUS, [0x01 | 0x02]); // P_DA|T_DA
     connection.setRegister(_REG_PRESS_OUT_XL, packPress(1013.25));
     const p = await sensor.pressure();
     checkTrue('pressure_known_value', Math.abs(p - 101325.0) < 0.01);
@@ -69,6 +69,16 @@ async function main() {
     connection.setRegister(_REG_TEMP_OUT_L, packTemp(23.5));
     const t = await sensor.temperature();
     checkTrue('temperature_known_value', Math.abs(t - 23.5) < 0.01);
+
+    // Regression: temperature() must poll STATUS.T_DA before reading TEMP_OUT,
+    // exactly like pressure() polls STATUS.P_DA -- it previously read
+    // TEMP_OUT_L/H unconditionally with no STATUS check at all.
+    connection.setRegister(_REG_TEMP_OUT_L, packTemp(23.5));
+    await sensor.temperature();
+    const twrites = connection.writes;
+    const tn = twrites.length;
+    checkTrue('temperature_polls_status_first',
+        twrites[tn - 2][0] === _REG_STATUS && twrites[tn - 1][0] === _REG_TEMP_OUT_L);
 
     // configure(odr=4, avg=2, enLpfp=true, lfpfCfg=1, bdu=true)
     // CTRL_REG1 = (4<<3)|2 = 0x22; CTRL_REG2 = 0x10|0x20|0x08 = 0x38

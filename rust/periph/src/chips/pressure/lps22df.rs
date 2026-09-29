@@ -86,6 +86,7 @@ pub const LPS22DF_FIFO_CONT_TO_FIFO: u8   = 5;
 
 /// Status flag: pressure data available.
 pub const LPS22DF_STATUS_P_DA: u8 = 0x01;
+pub const LPS22DF_STATUS_T_DA: u8 = 0x02;
 
 /// Interrupt source: boot in progress.
 pub const LPS22DF_INT_BOOT_ON: u8 = 0x80;
@@ -150,6 +151,15 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
         }
     }
 
+    fn wait_t_da(&mut self) -> Result<(), I2C::Error> {
+        loop {
+            let mut status = [0u8; 1];
+            read_reg_bytes(&mut self.i2c, self.addr, REG_STATUS, &mut status, self.spi)?;
+            if status[0] & LPS22DF_STATUS_T_DA != 0 { return Ok(()); }
+            delay_ms(1);
+        }
+    }
+
     /// Read absolute pressure.
     ///
     /// Polls STATUS.P_DA then burst-reads PRESS_OUT_XL..H. Sign-extends the
@@ -167,11 +177,12 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
 
     /// Read temperature.
     ///
-    /// Reads TEMP_OUT_L..H. Sign-extends the 16-bit two's complement value
-    /// and converts to °C (100 LSB/°C).
+    /// Polls STATUS.T_DA then reads TEMP_OUT_L..H. Sign-extends the 16-bit
+    /// two's complement value and converts to °C (100 LSB/°C).
     ///
     /// Returns temperature in degrees Celsius.
     pub fn temperature(&mut self) -> Result<f32, I2C::Error> {
+        self.wait_t_da()?;
         let mut raw = [0u8; 2];
         read_reg_bytes(&mut self.i2c, self.addr, REG_TEMP_OUT_L, &mut raw, self.spi)?;
         let value = i16::from_le_bytes([raw[0], raw[1]]);
@@ -395,8 +406,15 @@ mod tests {
             I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x01]),
             I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL],
                                        vec![0x00, 0x10, 0x00]),  // 4096 = 1.0 hPa -> 100 Pa
-            // temperature(): TEMP_OUT_L..H read.
+            // temperature(): STATUS read returns T_DA, then TEMP_OUT_L..H read.
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x02]),
             I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_L], vec![0xE8, 0x03]),  // 1000 raw = 10.0 °C
+            // Regression: temperature() must poll STATUS.T_DA before reading
+            // TEMP_OUT_L/H, exactly like pressure() polls STATUS.P_DA -- it
+            // previously read TEMP_OUT_L/H unconditionally with no STATUS
+            // check at all.
+            I2cTransaction::write_read(ADDR, vec![REG_STATUS], vec![0x02]),
+            I2cTransaction::write_read(ADDR, vec![REG_TEMP_OUT_L], vec![0xE8, 0x03]),
             // configure(4, 2, true, 1, true) -> CTRL_REG1=0x22, CTRL_REG2=0x38
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, 0x22]),
             I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x38]),
@@ -441,6 +459,10 @@ mod tests {
         // temperature(): 1000 raw -> 10.0 °C
         let t = sensor.temperature().unwrap();
         assert!((t - 10.0).abs() < 0.01, "temperature = {}", t);
+
+        // Regression: temperature() polls STATUS.T_DA first (see expectation queue above).
+        let t2 = sensor.temperature().unwrap();
+        assert!((t2 - 10.0).abs() < 0.01, "temperature (regression) = {}", t2);
 
         sensor.configure(4, 2, true, 1, true).unwrap();
 

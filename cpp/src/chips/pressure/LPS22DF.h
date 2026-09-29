@@ -66,6 +66,7 @@ protected:
     void     _write_reg(uint8_t reg, uint8_t value);
     void     _read_reg(uint8_t reg, uint8_t* buf, uint8_t len);
     void     _wait_p_da();
+    void     _wait_t_da();
 };
 
 /** @brief LPS22DF full interface — extends LPS22DFMinimal with configuration,

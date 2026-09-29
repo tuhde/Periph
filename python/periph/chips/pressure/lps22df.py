@@ -84,6 +84,10 @@ class LPS22DFMinimal:
         while not (self._read_reg(self._REG_STATUS, 1)[0] & self._STATUS_P_DA):
             time.sleep(0.001)
 
+    def _wait_t_da(self):
+        while not (self._read_reg(self._REG_STATUS, 1)[0] & self._STATUS_T_DA):
+            time.sleep(0.001)
+
     def pressure(self):
         """Read absolute pressure.
 
@@ -105,12 +109,14 @@ class LPS22DFMinimal:
     def temperature(self):
         """Read temperature.
 
-        Burst-reads TEMP_OUT_L..H (registers 0x2B..0x2C) and converts the
-        16-bit two's complement value to °C (100 LSB/°C).
+        Polls STATUS.T_DA then burst-reads TEMP_OUT_L..H (registers
+        0x2B..0x2C) and converts the 16-bit two's complement value to °C
+        (100 LSB/°C).
 
         Returns:
             float: Temperature in degrees Celsius.
         """
+        self._wait_t_da()
         raw = self._read_reg(self._REG_TEMP_OUT_L, 2)
         value = raw[0] | (raw[1] << 8)
         if value & 0x8000:

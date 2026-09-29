@@ -76,7 +76,7 @@ int main() {
     check_true(sawCtrl2Bdu, "init_writes_ctrl_reg2_bdu");
 
     // --- pressure(): known hPa -> known Pa ---
-    connection.setRegister(LPS22DFTestAccess::REG_STATUS, {0x01});
+    connection.setRegister(LPS22DFTestAccess::REG_STATUS, {0x01 | 0x02});  // P_DA|T_DA
     uint8_t p_raw[3];
     pack_press_raw(1013.25f, p_raw);
     connection.setRegister(LPS22DFTestAccess::REG_PRESS_OUT_XL, {p_raw[0], p_raw[1], p_raw[2]});
@@ -89,6 +89,19 @@ int main() {
     connection.setRegister(LPS22DFTestAccess::REG_TEMP_OUT_L, {t_raw[0], t_raw[1]});
     float t = sensor.temperature();
     check_true(fabsf(t - 23.5f) < 0.01f, "temperature_known_value");
+
+    // Regression: temperature() must poll STATUS.T_DA before reading TEMP_OUT,
+    // exactly like pressure() polls STATUS.P_DA -- it previously read
+    // TEMP_OUT_L/H unconditionally with no STATUS check at all.
+    connection.setRegister(LPS22DFTestAccess::REG_TEMP_OUT_L, {t_raw[0], t_raw[1]});
+    sensor.temperature();
+    {
+        const auto& w = connection.writes();
+        size_t n = w.size();
+        bool ok = n >= 2 && w[n - 2][0] == LPS22DFTestAccess::REG_STATUS &&
+                  w[n - 1][0] == LPS22DFTestAccess::REG_TEMP_OUT_L;
+        check_true(ok, "temperature_polls_status_first");
+    }
 
     // --- configure(odr=4, avg=2, en_lpfp=true, lfpf_cfg=1, bdu=true) ---
     // CTRL_REG1 = (4<<3)|2 = 0x22; CTRL_REG2 = 0x10|0x20|0x08 = 0x38

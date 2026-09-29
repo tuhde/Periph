@@ -75,6 +75,7 @@ check_true('pressure_known_value', abs(p - 101325.0) < 0.01)
 
 
 # --- temperature(): raw value -> °C ---
+connection.set_register(LPS22DFFull._REG_STATUS, 0x01 | 0x02)  # P_DA|T_DA
 connection.set_register(LPS22DFFull._REG_TEMP_OUT_L, *make_temp_raw(23.5))
 t = sensor.temperature()
 check_true('temperature_known_value', abs(t - 23.5) < 0.01)
@@ -88,9 +89,21 @@ check_true('pressure_negative', abs(p - (-5000.0)) < 0.01)
 
 
 # --- temperature() negative ---
+connection.set_register(LPS22DFFull._REG_STATUS, 0x01 | 0x02)  # P_DA|T_DA
 connection.set_register(LPS22DFFull._REG_TEMP_OUT_L, *make_temp_raw(-10.0))
 t = sensor.temperature()
 check_true('temperature_negative', abs(t - (-10.0)) < 0.01)
+
+
+# --- temperature() must poll STATUS.T_DA before reading TEMP_OUT, exactly
+# like pressure() polls STATUS.P_DA -- it previously read TEMP_OUT_L/H
+# unconditionally with no STATUS check at all. ---
+connection.set_register(LPS22DFFull._REG_STATUS, 0x01 | 0x02)  # P_DA|T_DA
+connection.set_register(LPS22DFFull._REG_TEMP_OUT_L, *make_temp_raw(23.5))
+sensor.temperature()
+check_true('temperature_polls_status_first',
+           connection.writes[-2][0] == LPS22DFFull._REG_STATUS and
+           connection.writes[-1][0] == LPS22DFFull._REG_TEMP_OUT_L)
 
 
 # --- Full.configure(odr=4, avg=2, en_lpfp=True, lfpf_cfg=1, bdu=True) ---

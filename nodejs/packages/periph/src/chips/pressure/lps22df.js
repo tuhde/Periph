@@ -77,6 +77,14 @@ class LPS22DFMinimal {
         }
     }
 
+    async _waitTDa() {
+        while (true) {
+            const status = await this._readReg(_REG_STATUS, 1);
+            if (status[0] & 0x02) return;
+            _delay(1);
+        }
+    }
+
     /**
      * Read absolute pressure.
      *
@@ -96,12 +104,13 @@ class LPS22DFMinimal {
     /**
      * Read temperature.
      *
-     * Reads TEMP_OUT_L..H. Sign-extends the 16-bit two's complement value
-     * and converts to °C (100 LSB/°C).
+     * Polls STATUS.T_DA then reads TEMP_OUT_L..H. Sign-extends the 16-bit
+     * two's complement value and converts to °C (100 LSB/°C).
      *
      * @returns {Promise<number>} Temperature in degrees Celsius.
      */
     async temperature() {
+        await this._waitTDa();
         const raw = await this._readReg(_REG_TEMP_OUT_L, 2);
         let value = raw[0] | (raw[1] << 8);
         if (value & 0x8000) value -= 0x10000;

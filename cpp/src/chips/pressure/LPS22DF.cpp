@@ -57,6 +57,15 @@ void LPS22DFMinimal::_wait_p_da() {
     }
 }
 
+void LPS22DFMinimal::_wait_t_da() {
+    while (true) {
+        uint8_t status = 0;
+        _read_reg(REG_STATUS, &status, 1);
+        if (status & 0x02) return;  // T_DA
+        delay_ms(1);
+    }
+}
+
 float LPS22DFMinimal::pressure() {
     _wait_p_da();
     uint8_t raw[3] = {0, 0, 0};
@@ -67,6 +76,7 @@ float LPS22DFMinimal::pressure() {
 }
 
 float LPS22DFMinimal::temperature() {
+    _wait_t_da();
     uint8_t raw[2] = {0, 0};
     _read_reg(REG_TEMP_OUT_L, raw, 2);
     int16_t value = (int16_t)((uint16_t)raw[0] | ((uint16_t)raw[1] << 8));
