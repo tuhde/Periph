@@ -60,13 +60,13 @@ class Adxl345Full extends Adxl345Minimal {
 
     /** Set the output data rate to the nearest supported value (6.25 Hz–3200 Hz). */
     void setDataRate(double rateHz) throws IOException {
-        int bestCode = RATE_CODES[0][0]
-        int bestRate = RATE_CODES[0][1]
+        int bestCode = (int) RATE_CODES[0][0]
+        double bestRate = RATE_CODES[0][1]
         double bestDiff = Math.abs(bestRate - rateHz)
         for (int i = 1; i < RATE_CODES.length; i++) {
             double diff = Math.abs(RATE_CODES[i][1] - rateHz)
             if (diff < bestDiff) {
-                bestCode = RATE_CODES[i][0]
+                bestCode = (int) RATE_CODES[i][0]
                 bestRate = RATE_CODES[i][1]
                 bestDiff = diff
             }

@@ -37,13 +37,13 @@ class Adxl345Full @JvmOverloads constructor(
     /** Set the output data rate to the nearest supported value (6.25 Hz–3200 Hz). */
     @Throws(IOException::class)
     fun setDataRate(rateHz: Double) {
-        var bestCode = RATE_CODES[0][0]
+        var bestCode = RATE_CODES[0][0].toInt()
         var bestRate = RATE_CODES[0][1]
         var bestDiff = Math.abs(bestRate - rateHz)
         for (i in 1 until RATE_CODES.size) {
             val diff = Math.abs(RATE_CODES[i][1] - rateHz)
             if (diff < bestDiff) {
-                bestCode = RATE_CODES[i][0]
+                bestCode = RATE_CODES[i][0].toInt()
                 bestRate = RATE_CODES[i][1]
                 bestDiff = diff
             }

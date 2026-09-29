@@ -64,9 +64,9 @@ public class Adxl345Minimal {
     protected static final double FULL_RES_SCALE_G_PER_LSB = 3.9e-3;
 
     /** BW_RATE codes (Rate bits 3:0) and their actual output data rates. */
-    protected static final int[][] RATE_CODES = {
+    protected static final double[][] RATE_CODES = {
         {0x0F, 3200}, {0x0E, 1600}, {0x0D, 800}, {0x0C, 400}, {0x0B, 200},
-        {0x0A,  100}, {0x09,   50}, {0x08,  25}, {0x07,  12}, {0x06,   6},
+        {0x0A,  100}, {0x09,   50}, {0x08,   25}, {0x07,  12.5}, {0x06, 6.25},
     };
 
     protected final Connection connection;

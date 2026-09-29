@@ -126,10 +126,10 @@ open class Adxl345Minimal @JvmOverloads constructor(
 
         // BW_RATE codes (Rate bits 3:0) and their actual output data rates.
         internal val RATE_CODES = arrayOf(
-            intArrayOf(0x0F, 3200), intArrayOf(0x0E, 1600), intArrayOf(0x0D, 800),
-            intArrayOf(0x0C,  400), intArrayOf(0x0B,  200), intArrayOf(0x0A, 100),
-            intArrayOf(0x09,   50), intArrayOf(0x08,   25), intArrayOf(0x07,  12),
-            intArrayOf(0x06,    6)
+            doubleArrayOf(0x0F.toDouble(), 3200.0), doubleArrayOf(0x0E.toDouble(), 1600.0), doubleArrayOf(0x0D.toDouble(), 800.0),
+            doubleArrayOf(0x0C.toDouble(),  400.0), doubleArrayOf(0x0B.toDouble(),  200.0), doubleArrayOf(0x0A.toDouble(), 100.0),
+            doubleArrayOf(0x09.toDouble(),   50.0), doubleArrayOf(0x08.toDouble(),   25.0), doubleArrayOf(0x07.toDouble(), 12.5),
+            doubleArrayOf(0x06.toDouble(), 6.25)
         )
 
         private fun cmdByte(reg: Int, read: Boolean, multi: Boolean): Int {

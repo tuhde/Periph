@@ -57,10 +57,10 @@ class Adxl345Minimal {
     protected static final int POWER_CTL_DEFAULT   = 0x08
     protected static final double FULL_RES_SCALE_G_PER_LSB = 3.9e-3
 
-    protected static final int[][] RATE_CODES = [
+    protected static final double[][] RATE_CODES = [
         [0x0F, 3200], [0x0E, 1600], [0x0D, 800], [0x0C, 400], [0x0B, 200],
-        [0x0A,  100], [0x09,   50], [0x08,  25], [0x07,  12], [0x06,   6],
-    ] as int[][]
+        [0x0A,  100], [0x09,   50], [0x08,   25], [0x07, 12.5], [0x06, 6.25],
+    ] as double[][]
 
     protected final Connection connection
     protected final int busType

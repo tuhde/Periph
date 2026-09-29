@@ -280,8 +280,8 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Configure single-tap detection and enable the SINGLE_TAP interrupt.
     pub fn set_tap_detection(&mut self, threshold_g: f32, duration_ms: f32, axes: u8, suppress: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_TAP, (threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DUR, (duration_ms / 0.625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_TAP, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DUR, libm::roundf(duration_ms / 0.625) as u8, self.inner.spi)?;
         let tap_axes = (axes & 0x07) | if suppress { 0x08 } else { 0x00 };
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_TAP_AXES, tap_axes, self.inner.spi)?;
         self.enable_interrupt(INT_SINGLE_TAP)
@@ -289,14 +289,14 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Configure double-tap latency and window; enable DOUBLE_TAP interrupt.
     pub fn set_double_tap(&mut self, latency_ms: f32, window_ms: f32) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_LATENT, (latency_ms / 1.25) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_WINDOW, (window_ms / 1.25) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_LATENT, libm::roundf(latency_ms / 1.25) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_WINDOW, libm::roundf(window_ms / 1.25) as u8, self.inner.spi)?;
         self.enable_interrupt(INT_DOUBLE_TAP)
     }
 
     /// Configure activity detection.
     pub fn set_activity(&mut self, threshold_g: f32, axes: u8, ac_coupled: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_ACT, (threshold_g / 0.0625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_ACT, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
         let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, self.inner.spi)?;
         aic &= !0xF0;
         if ac_coupled { aic |= 0x80; }
@@ -307,8 +307,8 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Configure inactivity detection.
     pub fn set_inactivity(&mut self, threshold_g: f32, time_sec: f32, axes: u8, ac_coupled: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_INACT, (threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_INACT, time_sec as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_INACT, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_INACT, libm::roundf(time_sec) as u8, self.inner.spi)?;
         let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, self.inner.spi)?;
         aic &= !0x0F;
         if ac_coupled { aic |= 0x08; }
@@ -319,8 +319,8 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Configure free-fall detection and enable the FREE_FALL interrupt.
     pub fn set_free_fall(&mut self, threshold_g: f32, time_ms: f32) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_FF, (threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_FF, (time_ms / 5.0) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_FF, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_FF, libm::roundf(time_ms / 5.0) as u8, self.inner.spi)?;
         self.enable_interrupt(INT_FREE_FALL)
     }
 
@@ -415,5 +415,184 @@ impl<I2C: I2c> Adxl345Full<I2C> {
         let mut df = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, self.inner.spi)?;
         if enabled { df |= 0x80; } else { df &= !0x80; }
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, df, self.inner.spi)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x53;
+
+    fn new_accel(extra: &[I2cTransaction]) -> Adxl345Full<I2cMock> {
+        let mut init = vec![
+            I2cTransaction::write(ADDR, vec![REG_DATA_FORMAT, DATA_FORMAT_DEFAULT]),
+            I2cTransaction::write(ADDR, vec![REG_BW_RATE, BW_RATE_DEFAULT]),
+            I2cTransaction::write(ADDR, vec![REG_POWER_CTL, POWER_CTL_DEFAULT]),
+            I2cTransaction::write_read(ADDR, vec![REG_DEVID], vec![DEVID_VALUE]),
+        ];
+        init.extend_from_slice(extra);
+        let i2c = I2cMock::new(&init);
+        Adxl345Full::new(i2c, ADDR, false).expect("new")
+    }
+
+    #[test]
+    fn construction_and_read() {
+        let mut accel = new_accel(&[
+            I2cTransaction::write_read(ADDR, vec![REG_DATAX0], vec![0x01, 0x00, 0x02, 0x00, 0x03, 0x00]),
+        ]);
+        let (x, y, z) = accel.read().unwrap();
+        assert!((x - 0.0039).abs() < 1e-6);
+        assert!((y - 0.0078).abs() < 1e-6);
+        assert!((z - 0.0117).abs() < 1e-6);
+        accel.inner.i2c.done();
+    }
+
+    #[test]
+    fn range_data_rate_low_power_offset() {
+        let mut accel = new_accel(&[
+            // set_range(4): read DATA_FORMAT=0x08, write 0x08|0x01
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_FORMAT], vec![0x08]),
+            I2cTransaction::write(ADDR, vec![REG_DATA_FORMAT, 0x09]),
+            // set_data_rate(100): unchanged at 0x0A
+            I2cTransaction::write_read(ADDR, vec![REG_BW_RATE], vec![0x0A]),
+            I2cTransaction::write(ADDR, vec![REG_BW_RATE, 0x0A]),
+            // set_low_power(true): bit 4 set
+            I2cTransaction::write_read(ADDR, vec![REG_BW_RATE], vec![0x0A]),
+            I2cTransaction::write(ADDR, vec![REG_BW_RATE, 0x1A]),
+            // set_offset(0.5, -0.5, 0.0): 32, -32 (0xE0), 0
+            I2cTransaction::write(ADDR, vec![REG_OFSX, 32]),
+            I2cTransaction::write(ADDR, vec![REG_OFSY, 0xE0]),
+            I2cTransaction::write(ADDR, vec![REG_OFSZ, 0]),
+        ]);
+        accel.set_range(4).unwrap();
+        accel.set_data_rate(100.0).unwrap();
+        accel.set_low_power(true).unwrap();
+        accel.set_offset(0.5, -0.5, 0.0).unwrap();
+        accel.inner.i2c.done();
+    }
+
+    // Regression: threshold/duration/time register encodings must round to
+    // the nearest LSB, not truncate toward zero -- `(x / scale) as u8`
+    // silently truncated (e.g. 0.3g / 0.0625 = 4.8 -> 4 instead of 5), unlike
+    // every other language's port (which all round).
+    #[test]
+    fn tap_and_free_fall_round_not_truncate() {
+        let mut accel = new_accel(&[
+            // set_tap_detection(0.3, 10.0, 0x07, false): round(4.8)=5, round(16.0)=16
+            I2cTransaction::write(ADDR, vec![REG_THRESH_TAP, 5]),
+            I2cTransaction::write(ADDR, vec![REG_DUR, 16]),
+            I2cTransaction::write(ADDR, vec![REG_TAP_AXES, 0x07]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_ENABLE], vec![0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_MAP], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, INT_SINGLE_TAP]),
+            I2cTransaction::write(ADDR, vec![REG_INT_MAP, 0x00]),
+            // set_free_fall(0.3, 100.0): round(4.8)=5, round(20.0)=20
+            I2cTransaction::write(ADDR, vec![REG_THRESH_FF, 5]),
+            I2cTransaction::write(ADDR, vec![REG_TIME_FF, 20]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_ENABLE], vec![INT_SINGLE_TAP]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_MAP], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, INT_SINGLE_TAP | INT_FREE_FALL]),
+            I2cTransaction::write(ADDR, vec![REG_INT_MAP, 0x00]),
+        ]);
+        accel.set_tap_detection(0.3, 10.0, 0x07, false).unwrap();
+        accel.set_free_fall(0.3, 100.0).unwrap();
+        accel.inner.i2c.done();
+    }
+
+    // Regression: set_inactivity's time_sec used `as u8` (truncate) instead
+    // of rounding -- 2.7 s truncated to 2 instead of rounding to 3.
+    #[test]
+    fn activity_and_inactivity_round_not_truncate() {
+        let mut accel = new_accel(&[
+            // set_activity(0.5, 0x70, true): round(8.0)=8
+            I2cTransaction::write(ADDR, vec![REG_THRESH_ACT, 8]),
+            I2cTransaction::write_read(ADDR, vec![REG_ACT_INACT_CTL], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_ACT_INACT_CTL, 0xF0]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_ENABLE], vec![0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_MAP], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, INT_ACTIVITY]),
+            I2cTransaction::write(ADDR, vec![REG_INT_MAP, 0x00]),
+            // set_inactivity(0.5, 2.7, 0x07, false): round(8.0)=8, round(2.7)=3
+            I2cTransaction::write(ADDR, vec![REG_THRESH_INACT, 8]),
+            I2cTransaction::write(ADDR, vec![REG_TIME_INACT, 3]),
+            I2cTransaction::write_read(ADDR, vec![REG_ACT_INACT_CTL], vec![0xF0]),
+            I2cTransaction::write(ADDR, vec![REG_ACT_INACT_CTL, 0xF7]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_ENABLE], vec![INT_ACTIVITY]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_MAP], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, INT_ACTIVITY | INT_INACTIVITY]),
+            I2cTransaction::write(ADDR, vec![REG_INT_MAP, 0x00]),
+        ]);
+        accel.set_activity(0.5, 0x70, true).unwrap();
+        accel.set_inactivity(0.5, 2.7, 0x07, false).unwrap();
+        accel.inner.i2c.done();
+    }
+
+    #[test]
+    fn interrupt_routing_pin2_and_read_source() {
+        let mut accel = new_accel(&[
+            // set_interrupt(WATERMARK, true, 2): routed via INT_MAP, not cleared
+            I2cTransaction::write_read(ADDR, vec![REG_INT_ENABLE], vec![0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_MAP], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_ENABLE, INT_WATERMARK]),
+            I2cTransaction::write(ADDR, vec![REG_INT_MAP, INT_WATERMARK]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_SOURCE], vec![0x44]),
+        ]);
+        accel.set_interrupt(INT_WATERMARK, true, 2).unwrap();
+        assert_eq!(accel.read_interrupt_source().unwrap(), 0x44);
+        accel.inner.i2c.done();
+    }
+
+    #[test]
+    fn fifo_mode_count_and_read() {
+        let mut accel = new_accel(&[
+            I2cTransaction::write(ADDR, vec![REG_FIFO_CTL, FIFO_STREAM | 16]),
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_STATUS], vec![3]),
+            I2cTransaction::write_read(ADDR, vec![REG_FIFO_STATUS], vec![2]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATAX0], vec![0x01, 0x00, 0x02, 0x00, 0x03, 0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATAX0], vec![0x01, 0x00, 0x02, 0x00, 0x03, 0x00]),
+        ]);
+        accel.set_fifo_mode(FIFO_STREAM, 16).unwrap();
+        assert_eq!(accel.fifo_count().unwrap(), 3);
+
+        let mut out = [(0.0f32, 0.0f32, 0.0f32); 4];
+        let n = accel.read_fifo(&mut out).unwrap();
+        assert_eq!(n, 2);
+        assert!((out[0].0 - 0.0039).abs() < 1e-6);
+        accel.inner.i2c.done();
+    }
+
+    #[test]
+    fn sleep_link_autosleep_self_test() {
+        let mut accel = new_accel(&[
+            // set_sleep(true, 8): pwr = (0x08 & !0x06) | 0x00 | 0x08 | 0x04 = 0x0C
+            I2cTransaction::write_read(ADDR, vec![REG_POWER_CTL], vec![0x08]),
+            I2cTransaction::write(ADDR, vec![REG_POWER_CTL, 0x0C]),
+            // set_sleep(false, _): clears Sleep bit
+            I2cTransaction::write_read(ADDR, vec![REG_POWER_CTL], vec![0x0C]),
+            I2cTransaction::write(ADDR, vec![REG_POWER_CTL, 0x08]),
+            // set_sleep(true, 3) with an invalid wakeup_hz: reads but does not write
+            I2cTransaction::write_read(ADDR, vec![REG_POWER_CTL], vec![0x08]),
+            // set_link_mode(true)
+            I2cTransaction::write_read(ADDR, vec![REG_POWER_CTL], vec![0x08]),
+            I2cTransaction::write(ADDR, vec![REG_POWER_CTL, 0x48]),
+            // set_auto_sleep(true)
+            I2cTransaction::write_read(ADDR, vec![REG_POWER_CTL], vec![0x48]),
+            I2cTransaction::write(ADDR, vec![REG_POWER_CTL, 0x68]),
+            // self_test(true) / self_test(false)
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_FORMAT], vec![0x08]),
+            I2cTransaction::write(ADDR, vec![REG_DATA_FORMAT, 0x88]),
+            I2cTransaction::write_read(ADDR, vec![REG_DATA_FORMAT], vec![0x88]),
+            I2cTransaction::write(ADDR, vec![REG_DATA_FORMAT, 0x08]),
+        ]);
+        accel.set_sleep(true, 8).unwrap();
+        accel.set_sleep(false, 8).unwrap();
+        accel.set_sleep(true, 3).unwrap(); // invalid wakeup_hz: no-op, still Ok
+        accel.set_link_mode(true).unwrap();
+        accel.set_auto_sleep(true).unwrap();
+        accel.self_test(true).unwrap();
+        accel.self_test(false).unwrap();
+        accel.inner.i2c.done();
     }
 }
