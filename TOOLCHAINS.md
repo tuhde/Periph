@@ -22,16 +22,17 @@ sudo apt-get install -y --no-install-recommends \
   python3 python3-venv python3-dev python3-pip
 ```
 
+`python3-venv` is only needed by tools that build their own private venv
+(`python/uiflow1/generate.sh`, ESP-IDF's `install.sh`) — you never activate one.
+
 Trixie ships Python 3.13 by default, matching CI's `setup-python` pin.
 Verify: `python3 --version`.
 
 Debian's PEP 668 "externally-managed-environment" blocks bare `pip install`
-outside a venv. Create one shared venv for every pip-based tool below:
-
-```sh
-python3 -m venv ~/.venvs/periph
-source ~/.venvs/periph/bin/activate   # run this in every shell you build from
-```
+outside a venv. This guide avoids venvs entirely: Python libraries come from
+`apt` (`python3-*` packages), and the few pip-only tools are installed with
+`pip install --user --break-system-packages` (lands in `~/.local`, never
+touches `/usr/lib/python3`). Make sure `~/.local/bin` is on your `PATH`.
 
 (`python/uiflow1/generate.sh` manages its own throwaway venv automatically —
 nothing to set up for that one.)
@@ -42,17 +43,25 @@ nothing to set up for that one.)
 
 Syntax-checking and the Linux target both just need the interpreter above.
 For the Linux host connection classes (`smbus2`, `spidev`, `gpiod`,
-`pyserial`, `python-periphery`):
+`pyserial`, `python-periphery`), install the apt packages and point Python at
+the checkout instead of pip-installing it:
 
 ```sh
-sudo apt-get install -y --no-install-recommends libgpiod-dev   # gpiod's C extension needs the headers to build
-pip install -e "python[linux]"
+sudo apt-get install -y --no-install-recommends \
+  python3-smbus2 python3-spidev python3-libgpiod python3-serial python3-periphery
+echo "export PYTHONPATH=\"$PWD/python:\$PYTHONPATH\"" >> ~/.bashrc   # run from the repo root
+export PYTHONPATH="$PWD/python:$PYTHONPATH"
 ```
+
+(`python3-libgpiod` provides the `gpiod` module; trixie ships libgpiod 2.x,
+matching the `gpiod>=2` requirement in `python/pyproject.toml`. Check with
+`python3 -c 'import gpiod; print(gpiod.__version__)'`.)
 
 MicroPython-side tooling (mip installs, on-device testing — see `TESTING.md`):
 
 ```sh
-pip install mpremote pyserial
+sudo apt-get install -y --no-install-recommends python3-serial
+pip install --user --break-system-packages mpremote   # check `apt-cache policy mpremote` first; prefer apt if present
 ```
 
 ---
@@ -133,13 +142,13 @@ sudo apt-get install -y --no-install-recommends \
   python3-dev python3-pip python3-setuptools python3-venv python3-wheel \
   xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
 
-pip install west   # inside the ~/.venvs/periph venv from step 0
+pip install --user --break-system-packages west
 
 west init -m https://github.com/zephyrproject-rtos/zephyr --mr v4.4.2 ~/zephyrproject
 cd ~/zephyrproject
 west config manifest.project-filter -- '-.*,+cmsis_6,+hal_rpi_pico'
 west update --narrow -o=--depth=1
-pip install -r zephyr/scripts/requirements-base.txt
+pip install --user --break-system-packages -r zephyr/scripts/requirements-base.txt
 west sdk install -t arm-zephyr-eabi   # downloads several GB; only the ARM SDK is needed here
 ```
 
