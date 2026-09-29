@@ -1,4 +1,4 @@
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
 def _crc8(data):
@@ -11,7 +11,7 @@ def _crc8(data):
     return crc
 
 
-class SMBusConnection(Connection):
+class SMBusConnection(RegisterConnection):
     """SMBus connection for MicroPython (wraps machine.I2C with address validation and PEC).
 
     Enforces the valid 7-bit SMBus address range (0x08–0x77) and, when pec=True,

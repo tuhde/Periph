@@ -1,7 +1,7 @@
 'use strict';
 
 const spi = require('spi-device');
-const { Connection } = require('./connection');
+const { RegisterConnection } = require('./register_connection');
 
 /**
  * SPI connection for Node.js (wraps spi-device).
@@ -9,13 +9,18 @@ const { Connection } = require('./connection');
  * Opens the spidev device synchronously at construction. CS is managed by
  * the kernel spidev driver. Call close() when done.
  */
-class SPIConnection extends Connection {
+class SPIConnection extends RegisterConnection {
     /**
      * @param {number} busNumber    - SPI bus number.
      * @param {number} deviceNumber - Chip-select line on the bus.
      * @param {object} [options]
      * @param {number} [options.mode=spi.MODE0]       - SPI mode (0–3).
      * @param {number} [options.maxSpeedHz=1_000_000] - Clock frequency in Hz.
+     * @param {number} [options.readBit=0x80]         - Bit ORed into the command byte
+     *   for a read; 0 if the chip has no such bit.
+     * @param {number|null} [options.multiByteBit=null] - Bit ORed in for multi-byte
+     *   (burst) transfers when length > 1; null if the chip has no such bit and
+     *   always auto-increments.
      * @param {import('./input_pin').InputPin|null} [options.intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
      */
@@ -25,6 +30,32 @@ class SPIConnection extends Connection {
             mode: options.mode ?? spi.MODE0,
             maxSpeedHz: options.maxSpeedHz ?? 1_000_000,
         });
+        this._readBit = options.readBit ?? 0x80;
+        this._multiByteBit = options.multiByteBit ?? null;
+    }
+
+    /**
+     * Read `length` bytes starting at register `reg`, building the SPI command byte.
+     * @param {number} reg    - Register address.
+     * @param {number} length - Number of bytes to read.
+     * @returns {Promise<Buffer>} Data received from the device.
+     */
+    async readReg(reg, length) {
+        let cmd = reg | this._readBit;
+        if (length > 1 && this._multiByteBit) cmd |= this._multiByteBit;
+        return this.writeRead(Buffer.from([cmd]), length);
+    }
+
+    /**
+     * Write `data` to register `reg`, building the SPI command byte.
+     * @param {number} reg - Register address.
+     * @param {Buffer|Uint8Array|number} data - Bytes to write, or a single int for a 1-byte register.
+     * @returns {Promise<void>}
+     */
+    async writeReg(reg, data) {
+        const payload = Buffer.isBuffer(data) ? data : Buffer.from(typeof data === 'number' ? [data] : data);
+        const cmd = reg | ((payload.length > 1 && this._multiByteBit) ? this._multiByteBit : 0);
+        return this.write(Buffer.concat([Buffer.from([cmd]), payload]));
     }
 
     /**

@@ -105,6 +105,16 @@ func (s *SMBusConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	return resp[:n], nil
 }
 
+// ReadReg reads length bytes starting at register reg.
+func (s *SMBusConnection) ReadReg(reg byte, length int) ([]byte, error) {
+	return s.WriteRead([]byte{reg}, length)
+}
+
+// WriteReg writes data to register reg.
+func (s *SMBusConnection) WriteReg(reg byte, data []byte) error {
+	return s.Write(append([]byte{reg}, data...))
+}
+
 // PEC byte prefixes per SMBus 3.2 §6.4.1.
 const (
 	pecPrefixWrite = 0x00 // (addr << 1) | 0

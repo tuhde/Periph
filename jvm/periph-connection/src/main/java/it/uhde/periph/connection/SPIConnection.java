@@ -23,7 +23,7 @@ import java.lang.invoke.*;
  * <p>Backed by raw {@code ioctl()}/{@code read()}/{@code write()} syscalls via
  * the Java 22+ Foreign Function & Memory API — no JNI, no native libraries.
  */
-public final class SPIConnection implements Connection {
+public final class SPIConnection implements RegisterConnection {
 
     private static final int O_RDWR = 2;
 
@@ -55,6 +55,8 @@ public final class SPIConnection implements Connection {
     private final int _fd;
     private final int _mode;
     private final int _speedHz;
+    private final int _readBit;
+    private final Integer _multiByteBit;
 
     /**
      * Open an SPI device.
@@ -63,20 +65,55 @@ public final class SPIConnection implements Connection {
      * @param deviceNum    Chip-select line on the bus (e.g. 0 for /dev/spidevx.0).
      * @param mode         SPI mode 0–3 (CPOL/CPHA); default 0.
      * @param maxSpeedHz   Clock frequency in Hz; default 1 000 000.
+     * @param readBit      Bit ORed into the command byte for a read; 0 if the
+     *                     chip has no such bit. Default 0x80.
+     * @param multiByteBit Bit ORed in for multi-byte (burst) transfers when
+     *                     length &gt; 1; {@code null} if the chip has no such
+     *                     bit and always auto-increments.
      * @throws IOException if the device cannot be opened or configured.
      */
-    public SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz) throws IOException {
+    public SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz,
+                          int readBit, Integer multiByteBit) throws IOException {
         if (mode < 0 || mode > 3) {
             throw new IOException("SPI mode must be 0..3 (got " + mode + ")");
         }
-        this._mode    = mode;
-        this._speedHz = maxSpeedHz;
-        this._fd      = openDevice(busNum, deviceNum, mode, maxSpeedHz);
+        this._mode         = mode;
+        this._speedHz       = maxSpeedHz;
+        this._readBit       = readBit;
+        this._multiByteBit  = multiByteBit;
+        this._fd            = openDevice(busNum, deviceNum, mode, maxSpeedHz);
+    }
+
+    /** Open with an explicit mode/clock, default register-addressing convention (readBit 0x80, no multi-byte bit). */
+    public SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz) throws IOException {
+        this(busNum, deviceNum, mode, maxSpeedHz, 0x80, null);
     }
 
     /** Open with default mode 0 and 1 MHz clock. */
     public SPIConnection(int busNum, int deviceNum) throws IOException {
         this(busNum, deviceNum, 0, 1_000_000);
+    }
+
+    /**
+     * Read {@code length} bytes starting at register {@code reg}, building the SPI command byte.
+     */
+    @Override
+    public byte[] read(int reg, int length) throws IOException {
+        int cmd = reg | _readBit;
+        if (length > 1 && _multiByteBit != null) cmd |= _multiByteBit;
+        return writeRead(new byte[]{(byte) cmd}, length);
+    }
+
+    /**
+     * Write {@code data} to register {@code reg}, building the SPI command byte.
+     */
+    @Override
+    public void write(int reg, byte[] data) throws IOException {
+        int cmd = reg | ((data.length > 1 && _multiByteBit != null) ? _multiByteBit : 0);
+        byte[] payload = new byte[data.length + 1];
+        payload[0] = (byte) cmd;
+        System.arraycopy(data, 0, payload, 1, data.length);
+        write(payload);
     }
 
     private static int openDevice(int busNum, int deviceNum, int mode, int maxSpeedHz) throws IOException {

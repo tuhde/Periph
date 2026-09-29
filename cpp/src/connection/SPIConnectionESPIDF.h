@@ -2,7 +2,7 @@
 #include <string.h>
 #include <driver/spi_master.h>
 #include <hal/spi_types.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SPI connection for ESP-IDF (`driver/spi_master.h`).
  *
@@ -24,16 +24,38 @@
  * The consuming project must link `driver` and provide a configured
  * `spi_device_handle_t` to construct the connection.
  *
- * @param dev    SPI device handle, already added to a bus via
- *               `spi_bus_add_device()` with CS configured in
- *               `spi_device_interface_config_t.spics_io_num`.
- * @param intPin Optional InputPin for INT-line delivery.
- * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param dev          SPI device handle, already added to a bus via
+ *                     `spi_bus_add_device()` with CS configured in
+ *                     `spi_device_interface_config_t.spics_io_num`.
+ * @param readBit      Bit ORed into the command byte for a read; 0 if the
+ *                     chip has no such bit. Default 0x80.
+ * @param multiByteBit Bit ORed in for multi-byte (burst) transfers when
+ *                     len > 1; 0 if the chip has no such bit and always
+ *                     auto-increments. Default 0.
+ * @param intPin       Optional InputPin for INT-line delivery.
+ * @param enPin        Optional OutputPin for hardware enable/power control.
  */
-class SPIConnectionESPIDF : public Connection {
+class SPIConnectionESPIDF : public RegisterConnection {
 public:
-    SPIConnectionESPIDF(spi_device_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev) {}
+    SPIConnectionESPIDF(spi_device_handle_t dev, uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
+                        InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
+        : RegisterConnection(intPin, enPin), _dev(dev), _readBit(readBit), _multiByteBit(multiByteBit) {}
+
+    /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */
+    void read(uint8_t reg, uint8_t* buf, size_t len) override {
+        uint8_t cmd = reg | _readBit;
+        if (len > 1 && _multiByteBit) cmd |= _multiByteBit;
+        write_read(&cmd, 1, buf, len);
+    }
+
+    /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
+    void write(uint8_t reg, const uint8_t* data, size_t len) override {
+        uint8_t cmd = reg | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
+        uint8_t payload[17];
+        payload[0] = cmd;
+        memcpy(payload + 1, data, len);
+        Connection::write(payload, len + 1);
+    }
 
 protected:
     /** @brief Send bytes to the device via `spi_device_polling_transmit`.
@@ -91,4 +113,6 @@ protected:
 
 private:
     spi_device_handle_t _dev;
+    uint8_t              _readBit;
+    uint8_t              _multiByteBit;   // 0 = chip has no such bit
 };

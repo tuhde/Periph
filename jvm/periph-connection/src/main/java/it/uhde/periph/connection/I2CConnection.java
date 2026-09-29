@@ -12,7 +12,7 @@ import java.lang.invoke.*;
  * {@code read}. {@link #writeRead} issues a stop-then-start between them; use a
  * platform-specific connection if the chip requires a true repeated-start.
  */
-public final class I2CConnection extends AbstractConnection {
+public final class I2CConnection extends AbstractConnection implements RegisterConnection {
 
     private static final int O_RDWR = 2;
     private static final long I2C_SLAVE = 0x0703L;

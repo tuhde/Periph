@@ -1,7 +1,7 @@
 #pragma once
 #include <hardware/spi.h>
 #include <hardware/gpio.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SPI connection for the Raspberry Pi Pico SDK (wraps `hardware_spi`).
  *
@@ -23,19 +23,42 @@
  * in the consuming CMake project. Link against `hardware_spi` and
  * `hardware_gpio`.
  *
- * @param spi    SPI controller pointer (`spi0` or `spi1`).
- * @param cs     GPIO pin number used for chip-select (active LOW).
- * @param intPin Optional InputPin for INT-line delivery.
- * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param spi          SPI controller pointer (`spi0` or `spi1`).
+ * @param cs           GPIO pin number used for chip-select (active LOW).
+ * @param readBit      Bit ORed into the command byte for a read; 0 if the
+ *                     chip has no such bit. Default 0x80.
+ * @param multiByteBit Bit ORed in for multi-byte (burst) transfers when
+ *                     len > 1; 0 if the chip has no such bit and always
+ *                     auto-increments. Default 0.
+ * @param intPin       Optional InputPin for INT-line delivery.
+ * @param enPin        Optional OutputPin for hardware enable/power control.
  */
-class SPIConnectionPicoSDK : public Connection {
+class SPIConnectionPicoSDK : public RegisterConnection {
 public:
-    SPIConnectionPicoSDK(spi_inst_t* spi, uint cs, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _spi(spi), _cs(cs)
+    SPIConnectionPicoSDK(spi_inst_t* spi, uint cs, uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
+        : RegisterConnection(intPin, enPin), _spi(spi), _cs(cs),
+          _readBit(readBit), _multiByteBit(multiByteBit)
     {
         gpio_init(_cs);
         gpio_set_dir(_cs, GPIO_OUT);
         gpio_put(_cs, 1);  // CS idles high
+    }
+
+    /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */
+    void read(uint8_t reg, uint8_t* buf, size_t len) override {
+        uint8_t cmd = reg | _readBit;
+        if (len > 1 && _multiByteBit) cmd |= _multiByteBit;
+        write_read(&cmd, 1, buf, len);
+    }
+
+    /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
+    void write(uint8_t reg, const uint8_t* data, size_t len) override {
+        uint8_t cmd = reg | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
+        uint8_t payload[17];
+        payload[0] = cmd;
+        memcpy(payload + 1, data, len);
+        Connection::write(payload, len + 1);
     }
 
 protected:
@@ -91,4 +114,6 @@ protected:
 private:
     spi_inst_t* _spi;
     uint        _cs;
+    uint8_t     _readBit;
+    uint8_t     _multiByteBit;   // 0 = chip has no such bit
 };

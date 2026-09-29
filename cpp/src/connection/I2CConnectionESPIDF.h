@@ -1,6 +1,6 @@
 #pragma once
 #include <driver/i2c_master.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for ESP-IDF (driver-ng `i2c_master.h`).
  *
@@ -29,10 +29,10 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class I2CConnectionESPIDF : public Connection {
+class I2CConnectionESPIDF : public RegisterConnection {
 public:
     I2CConnectionESPIDF(i2c_master_dev_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev) {}
+        : RegisterConnection(intPin, enPin), _dev(dev) {}
 
 protected:
     /** @brief Send bytes to the device via `i2c_master_transmit`.

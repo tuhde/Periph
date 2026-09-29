@@ -1,6 +1,6 @@
 #pragma once
 #include <zephyr/drivers/i2c.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for Zephyr RTOS (wraps the i2c driver API).
  *
@@ -12,11 +12,11 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class I2CConnectionZephyr : public Connection {
+class I2CConnectionZephyr : public RegisterConnection {
 public:
     I2CConnectionZephyr(const struct device *dev, uint8_t addr,
                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev), _addr(addr) {}
+        : RegisterConnection(intPin, enPin), _dev(dev), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device via i2c_write.

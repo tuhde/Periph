@@ -12,7 +12,7 @@
 #include <string>
 
 I2CConnectionLinux::I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin, OutputPin* enPin)
-    : Connection(intPin, enPin), _addr(addr) {
+    : RegisterConnection(intPin, enPin), _addr(addr) {
     char path[32];
     snprintf(path, sizeof(path), "/dev/i2c-%d", bus);
     _fd = open(path, O_RDWR);

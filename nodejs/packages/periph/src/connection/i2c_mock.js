@@ -85,6 +85,15 @@ class I2CConnectionMock {
         return out;
     }
 
+    async readReg(reg, length) {
+        return this.writeRead(Buffer.from([reg]), length);
+    }
+
+    async writeReg(reg, data) {
+        const payload = Buffer.isBuffer(data) ? data : Buffer.from(typeof data === 'number' ? [data] : data);
+        return this.write(Buffer.concat([Buffer.from([reg]), payload]));
+    }
+
     async close() {}
 }
 

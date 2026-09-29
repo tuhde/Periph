@@ -1,7 +1,7 @@
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class I2CConnection(Connection):
+class I2CConnection(RegisterConnection):
     """I²C connection for CircuitPython (wraps busio.I2C).
 
     Acquires and releases the bus lock around every operation.

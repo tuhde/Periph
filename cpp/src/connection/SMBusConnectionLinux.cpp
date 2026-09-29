@@ -13,7 +13,7 @@
 
 SMBusConnectionLinux::SMBusConnectionLinux(int bus, uint8_t addr, bool pec,
                                             InputPin* intPin, OutputPin* enPin)
-    : Connection(intPin, enPin), _addr(addr), _pec(pec) {
+    : RegisterConnection(intPin, enPin), _addr(addr), _pec(pec) {
     if (addr < 0x08 || addr > 0x77)
         throw std::runtime_error("SMBus address must be in range 0x08-0x77");
     char path[32];

@@ -113,10 +113,12 @@ Chip drivers accept a single `Connection` object. `Connection` is not a wrapper 
 
 **Register-based chips accept `RegisterConnection`, not the bare `Connection`.** `I2CConnection`, `SMBusConnection`, and `SPIConnection` all implement `RegisterConnection`, which adds register-addressed access on top of `Connection`'s raw bytes; `SPIConnection` additionally takes the chip's register-addressing convention (read bit, optional multi-byte bit) at construction, so chip drivers never branch on bus type themselves. See `specs/feature_register_access_design.md` for the full design — required reading before implementing any new register-based chip. Chips with no register concept (HX711, NeoPixel, SiPo, DHTxx, UART-based GNSS, MFRC522's FIFO protocol) accept plain `Connection` and keep using `read(n)` / `write(data)` / `write_read(data, n)`.
 
+Python and JS have no method overloading, and `I2CConnection`/`SMBusConnection` are shared concrete classes some existing chips already use for plain (non-register) `read(n)`/`write(data)` — e.g. PCF8575, PCF8574, MCP23017. Overloading `read`/`write` there by argument count would silently break those call sites, so the register API uses distinct names in those two languages (matching Go's existing `ReadReg`/`WriteReg`, same rationale). C++, Java, and Rust are unaffected (real overloading, or already-distinct free-function names).
+
 ```python
 # Python
-connection.read(reg: int, length: int) -> bytes   # register-addressed, any bus
-connection.write(reg: int, data: bytes | int)      # register-addressed, any bus
+connection.read_reg(reg: int, length: int) -> bytes   # register-addressed, any bus
+connection.write_reg(reg: int, data: bytes | int)      # register-addressed, any bus
 ```
 
 ```cpp
@@ -127,8 +129,8 @@ connection.write(uint8_t reg, const uint8_t* data, size_t len);
 
 ```js
 // Node.js — camelCase, Buffers, async
-await connection.read(reg, length)   // returns Buffer
-await connection.write(reg, data)    // data: Buffer | number
+await connection.readReg(reg, length)   // returns Buffer
+await connection.writeReg(reg, data)    // data: Buffer | number
 ```
 
 ```rust
@@ -153,14 +155,14 @@ two's-complement math:
 
 ```python
 # Python
-raw   = self._conn.read(REG_ADDR, 2)
+raw   = self._conn.read_reg(REG_ADDR, 2)
 value = (raw[0] << 8) | raw[1]                # big-endian, unsigned
 value = to_signed(value, 16)                   # signed
 ```
 
 ```js
 // Node.js
-const raw   = await this._conn.read(REG_ADDR, 2);
+const raw   = await this._conn.readReg(REG_ADDR, 2);
 const value = raw.readUInt16BE(0);             // unsigned
 const value = raw.readInt16BE(0);              // signed
 ```
@@ -785,7 +787,7 @@ The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL
 
 ## Node.js connection interface
 
-JS chip drivers use `connection.read(reg, length)` / `connection.write(reg, data)` in camelCase (see Connection interface section above).
+JS chip drivers use `connection.readReg(reg, length)` / `connection.writeReg(reg, data)` in camelCase (see Connection interface section above).
 
 ## Node.js driver structure
 
@@ -898,7 +900,7 @@ Target platform: **Linux host via i2c-dev / FFM** (all three languages use the s
 
 ### Connection interface
 
-Chip drivers receive a `Connection` and call its two methods. All fallible methods throw `IOException`.
+Register-based chip drivers receive a `RegisterConnection` (a `Connection` with two added default methods, implemented by `I2CConnection`, `SMBusConnection`, and `SPIConnection`) and call its `read`/`write` overloads — real method overloading, so these coexist with `Connection`'s own `read(int n)` / `write(byte[] data)` without collision. All fallible methods throw `IOException`. Chips with no register concept keep accepting plain `Connection`. See `specs/feature_register_access_design.md` for the full design.
 
 ```java
 // Java / Groovy
@@ -1140,6 +1142,8 @@ type Connection interface {
 ```
 
 Both the Linux and TinyGo implementation of a given connection export the **same type name** (e.g. `I2CConnection`), gated by a `//go:build` tag on the file — `linux && !tinygo` vs `tinygo`. Unlike every other language here, there is no separate import path or generic type parameter to pick the platform: the build itself resolves which `I2CConnection` gets compiled in. Chip drivers and examples import `"github.com/tuhde/Periph/go/periph/connection"` and reference `connection.Connection` only; only an example's `main()` ever names a concrete connection type.
+
+Register-based chips accept `connection.RegisterConnection` instead — `Connection` plus `ReadReg(reg byte, length int) ([]byte, error)` / `WriteReg(reg byte, data []byte) error`, implemented by `I2CConnection`, `SMBusConnection`, and `SPIConnection` on both Linux and TinyGo. `SPIConnection` builds its command byte from a register-addressing convention set at construction via `NewSPIConnectionWithConvention(..., readBit, multiByteBit byte, ...)`; the plain `NewSPIConnection(...)` constructor is unchanged and defaults to `readBit=0x80, multiByteBit=0`. See `specs/feature_register_access_design.md` for the full design.
 
 ### Connection implementations
 

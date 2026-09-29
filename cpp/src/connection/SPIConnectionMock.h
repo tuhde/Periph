@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <deque>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief In-memory fake SPI connection for unit tests — no hardware, no bus.
  *
@@ -22,7 +22,7 @@
  * 2+ byte writes also update the register map at the command-byte
  * address so a later write_read sees them.
  */
-class SPIConnectionMock : public Connection {
+class SPIConnectionMock : public RegisterConnection {
 public:
     SPIConnectionMock() = default;
 

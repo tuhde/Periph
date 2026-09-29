@@ -1,6 +1,6 @@
 from smbus2 import SMBus, i2c_msg
 
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
 def _crc8(data):
@@ -13,7 +13,7 @@ def _crc8(data):
     return crc
 
 
-class SMBusConnection(Connection):
+class SMBusConnection(RegisterConnection):
     """SMBus connection for Linux (wraps smbus2 with address validation and PEC).
 
     Accepts either a bus number (opens /dev/i2c-N itself) or an already-opened

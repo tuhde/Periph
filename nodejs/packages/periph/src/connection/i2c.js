@@ -1,7 +1,7 @@
 'use strict';
 
 const i2c = require('i2c-bus');
-const { Connection } = require('./connection');
+const { RegisterConnection } = require('./register_connection');
 
 /**
  * I²C connection for Node.js (wraps i2c-bus, uses /dev/i2c-N on Linux).
@@ -9,7 +9,7 @@ const { Connection } = require('./connection');
  * One instance represents one device on the bus; the bus is opened
  * synchronously at construction. Call close() to release the bus when done.
  */
-class I2CConnection extends Connection {
+class I2CConnection extends RegisterConnection {
     /**
      * @param {number} busNumber - I²C bus number (opens /dev/i2c-{busNumber}).
      * @param {number} addr      - 7-bit device address.

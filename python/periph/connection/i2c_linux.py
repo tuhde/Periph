@@ -1,9 +1,9 @@
 from smbus2 import SMBus, i2c_msg
 
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class I2CConnection(Connection):
+class I2CConnection(RegisterConnection):
     """I²C connection for Linux (wraps smbus2, uses /dev/i2c-N).
 
     Accepts either a bus number (opens the device file itself) or an

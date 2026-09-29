@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <deque>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief In-memory fake I2C connection for unit tests — no hardware, no bus.
  *
@@ -25,7 +25,7 @@
  *  unless setAddressWidth() is called with a wider value — needed by chips
  *  such as the ADE7953 that address registers with 2 bytes.
  */
-class I2CConnectionMock : public Connection {
+class I2CConnectionMock : public RegisterConnection {
 public:
     I2CConnectionMock() = default;
 

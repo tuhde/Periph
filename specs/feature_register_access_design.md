@@ -8,6 +8,17 @@ sign-extension helpers, spec template, AGENTS.md guidance
 **Origin:** GitHub issue #85 ("Transport Abstraction") — check whether often-used chip-level
 functions can be abstracted down into transports.
 
+**Implementation note (added during build-out):** §6.1 (Python) and §6.3 (Node.js) below
+show the register methods reusing the names `read`/`write`. That collides with `Connection`'s
+own `read(n)` / `write(data)` on the same concrete classes (`I2CConnection`, `SMBusConnection`)
+in these two languages, which have no method overloading — several already-shipped chips
+(PCF8575, PCF8574, MCP23017, AHT21, ADE7953, MCP4728, PCF8591, RDA5807M) call the plain
+1-arg form directly on those classes today. As actually implemented, Python uses
+`read_reg(reg, length)` / `write_reg(reg, data)` and Node.js uses `readReg(reg, length)` /
+`writeReg(reg, data)` instead — matching the rationale §10.3 already gives for Go's
+`ReadReg`/`WriteReg`. C++ (§6.2), JVM (§6.5), and Rust (§6.4) are unaffected — real
+overloading or already-distinct free-function names — and keep the method names shown below.
+
 ---
 
 ## 1. Problem Statement
@@ -229,16 +240,16 @@ from .base import Connection
 class RegisterConnection(Connection, ABC):
     """Connection with register-addressed read/write, for I2C/SMBus/SPI-style buses."""
 
-    def read(self, reg: int, length: int) -> bytes:
+    def read_reg(self, reg: int, length: int) -> bytes:
         return self.write_read(bytes([reg]), length)
 
-    def write(self, reg: int, data) -> None:
+    def write_reg(self, reg: int, data) -> None:
         payload = bytes([reg]) + (bytes([data]) if isinstance(data, int) else bytes(data))
-        self._write_gated(payload)
+        self.write(payload)
 ```
 
 `I2CConnection` and `SMBusConnection` change their base class to `RegisterConnection` and
-need no further change — the default `read`/`write` above is exactly their existing
+need no further change — the default `read_reg`/`write_reg` above is exactly their existing
 behavior. `SPIConnection` also extends `RegisterConnection` but overrides both methods:
 
 ```python
@@ -250,21 +261,20 @@ class SPIConnection(RegisterConnection):
         self._read_bit = read_bit
         self._multi_byte_bit = multi_byte_bit
 
-    def read(self, reg: int, length: int) -> bytes:
+    def read_reg(self, reg: int, length: int) -> bytes:
         cmd = reg | self._read_bit
         if length > 1 and self._multi_byte_bit:
             cmd |= self._multi_byte_bit
         return self.write_read(bytes([cmd]), length)
 
-    def write(self, reg: int, data) -> None:
+    def write_reg(self, reg: int, data) -> None:
         payload = bytes([data]) if isinstance(data, int) else bytes(data)
         cmd = reg | (self._multi_byte_bit if len(payload) > 1 and self._multi_byte_bit else 0)
-        self._write_gated(bytes([cmd]) + payload)
+        self.write(bytes([cmd]) + payload)
 ```
 
-(`_write_gated` is the existing gated-write path already on `Connection` — naming shown for
-clarity; the actual implementation reuses `Connection.write`'s existing gating rather than
-introducing a second gate.)
+(`write` above is `Connection.write`'s existing gated path — register writes reuse it
+directly rather than introducing a second gate.)
 
 ### 6.2 C++ (`cpp/src/connection/`)
 
@@ -319,12 +329,12 @@ private:
 const { Connection } = require('./connection');
 
 class RegisterConnection extends Connection {
-    async read(reg, length) {
+    async readReg(reg, length) {
         return this.writeRead(Buffer.from([reg]), length);
     }
-    async write(reg, data) {
+    async writeReg(reg, data) {
         const payload = Buffer.isBuffer(data) ? data : Buffer.from([data]);
-        return this._write(Buffer.concat([Buffer.from([reg]), payload]));
+        return this.write(Buffer.concat([Buffer.from([reg]), payload]));
     }
 }
 module.exports = { RegisterConnection };
@@ -388,15 +398,21 @@ avoid duplicating the same two lines twice.
 
 ### 6.5 JVM (`jvm/periph-connection/src/main/java/it/uhde/periph/connection/`)
 
-```java
-public abstract class RegisterConnection extends AbstractConnection {
-    protected RegisterConnection(InputPin intPin, OutputPin enPin) { super(intPin, enPin); }
+**As implemented:** `RegisterConnection` is an *interface* with default methods extending
+`Connection`, not an abstract class extending `AbstractConnection` as first drafted below.
+`SPIConnection` implements `Connection` directly (it does not extend `AbstractConnection` —
+it manages its own always-enabled gate state), so an abstract-class `RegisterConnection`
+could not apply to it without an unrelated refactor of `SPIConnection`'s hierarchy. The
+interface form applies uniformly to both `AbstractConnection`-based classes and
+`SPIConnection`:
 
-    public byte[] read(int reg, int length) {
+```java
+public interface RegisterConnection extends Connection {
+    default byte[] read(int reg, int length) throws IOException {
         return writeRead(new byte[]{(byte) reg}, length);
     }
 
-    public void write(int reg, byte[] data) {
+    default void write(int reg, byte[] data) throws IOException {
         byte[] payload = new byte[data.length + 1];
         payload[0] = (byte) reg;
         System.arraycopy(data, 0, payload, 1, data.length);
@@ -405,9 +421,10 @@ public abstract class RegisterConnection extends AbstractConnection {
 }
 ```
 
-`I2CConnection` / `SMBusConnection` extend `RegisterConnection` unchanged in behavior.
-`SPIConnection` extends it, overriding both with the command-byte convention (constructor
-gains `int readBit` / `Integer multiByteBit`, mirroring §6.1–6.3).
+`I2CConnection` / `SMBusConnection` (`extends AbstractConnection`) add `implements
+RegisterConnection`, unchanged in behavior. `SPIConnection` (`implements Connection`) adds
+`implements RegisterConnection` too, overriding both with the command-byte convention
+(constructor gains `int readBit` / `Integer multiByteBit`, mirroring §6.1–6.3).
 
 ### 6.6 Go (`go/periph/connection/`)
 
@@ -439,8 +456,15 @@ func (c *I2CConnection) WriteReg(reg byte, data []byte) error {
 ```
 
 `SPIConnection` (Linux and TinyGo) adds the same two methods, building the command byte
-from `ReadBit` / `MultiByteBit` fields set at construction (`0` meaning "chip has no such
+from `readBit` / `multiByteBit` fields set at construction (`0` meaning "chip has no such
 bit", since Go has no `Option<T>`).
+
+**As implemented:** since ~40 existing call sites across examples/tests already call
+`NewSPIConnection(...)` with its original fixed argument list, and Go has neither default
+arguments nor overloading, the register-addressing convention is exposed via a second
+constructor, `NewSPIConnectionWithConvention(..., readBit, multiByteBit byte, ...)`, rather
+than added params on `NewSPIConnection` itself. The plain `NewSPIConnection(...)` keeps its
+original signature and delegates to the new one with `readBit=0x80, multiByteBit=0`.
 
 Chip drivers for register-based chips accept `connection.RegisterConnection` instead of
 `connection.Connection`; chips with no register concept (HX711, DHTxx, NeoPixel, SiPo,
@@ -496,8 +520,9 @@ Add a line reminding the implementer of the shared layer:
 
 ```markdown
 Register-based chips accept `RegisterConnection`, not the bare `Connection`, and call
-`connection.read(reg, length)` / `connection.write(reg, data)` directly — no chip-local
-`_read_reg`/`_write_reg` or `bus_type` branch. See `specs/feature_register_access_design.md`.
+`connection.read(reg, length)` / `connection.write(reg, data)` directly (Python:
+`read_reg`/`write_reg`; Node.js: `readReg`/`writeReg` — see §6.1/§6.3 for why) — no
+chip-local `_read_reg`/`_write_reg` or `bus_type` branch. See `specs/feature_register_access_design.md`.
 ```
 
 ---
@@ -528,8 +553,8 @@ FIFO protocol) accept plain `Connection` and keep using `read(n)` / `write(data)
 
 ```python
 # Python
-data = connection.read(REG_ADDR, 2)     # register-addressed, any bus
-connection.write(REG_ADDR, bytes([value]))
+data = connection.read_reg(REG_ADDR, 2)     # register-addressed, any bus
+connection.write_reg(REG_ADDR, bytes([value]))
 ```
 
 *(equivalent snippets per language, mirroring the existing ones already in this section)*

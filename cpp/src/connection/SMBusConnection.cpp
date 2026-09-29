@@ -2,7 +2,7 @@
 
 SMBusConnection::SMBusConnection(TwoWire& bus, uint8_t addr, bool pec,
                                   InputPin* intPin, OutputPin* enPin)
-    : Connection(intPin, enPin), _bus(bus), _addr(addr), _pec(pec) {
+    : RegisterConnection(intPin, enPin), _bus(bus), _addr(addr), _pec(pec) {
     if (addr < 0x08 || addr > 0x77) _valid = false;
 }
 

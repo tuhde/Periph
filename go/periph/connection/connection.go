@@ -42,6 +42,24 @@ type Connection interface {
 	EnPin() OutputPin
 }
 
+// RegisterConnection is a Connection that additionally supports
+// register-addressed access (I2C, SMBus, SPI-style buses). Chip drivers for
+// register-based chips accept connection.RegisterConnection instead of
+// connection.Connection; chips with no register concept (HX711, DHTxx,
+// NeoPixel, SiPo, GNSS/UART) are unaffected and keep accepting plain
+// connection.Connection.
+//
+// Go has no method overloading and Connection.Read(n int) already exists
+// with an incompatible signature, so the register methods get distinct
+// names rather than reusing Read/Write.
+type RegisterConnection interface {
+	Connection
+	// ReadReg reads length bytes starting at register reg.
+	ReadReg(reg byte, length int) ([]byte, error)
+	// WriteReg writes data to register reg.
+	WriteReg(reg byte, data []byte) error
+}
+
 // connectionBase is embedded by every concrete Connection implementation to
 // share enable/disable/pin state without repeating it in each one.
 type connectionBase struct {

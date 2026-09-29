@@ -10,7 +10,7 @@ import java.util.Arrays;
  * true, appends a CRC-8 byte to writes and verifies it on reads. Built on {@link I2CConnection},
  * so {@link #writeRead} performs a stop-then-start rather than a true repeated start.
  */
-public final class SMBusConnection extends AbstractConnection {
+public final class SMBusConnection extends AbstractConnection implements RegisterConnection {
 
     private final I2CConnection i2c;
     private final int address;

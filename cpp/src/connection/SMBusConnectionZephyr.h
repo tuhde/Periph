@@ -1,7 +1,7 @@
 #pragma once
 #include <string.h>
 #include <zephyr/drivers/i2c.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SMBus connection for Zephyr RTOS (wraps the i2c driver API with address validation and PEC).
  *
@@ -18,11 +18,11 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class SMBusConnectionZephyr : public Connection {
+class SMBusConnectionZephyr : public RegisterConnection {
 public:
     SMBusConnectionZephyr(const struct device *dev, uint8_t addr, bool pec = false,
                           InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev), _addr(addr), _pec(pec) {
+        : RegisterConnection(intPin, enPin), _dev(dev), _addr(addr), _pec(pec) {
         if (addr < 0x08 || addr > 0x77) _valid = false;
     }
 

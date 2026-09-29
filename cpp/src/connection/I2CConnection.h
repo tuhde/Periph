@@ -1,6 +1,6 @@
 #pragma once
 #include <Wire.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for Arduino (wraps TwoWire / Wire).
  *
@@ -12,10 +12,10 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class I2CConnection : public Connection {
+class I2CConnection : public RegisterConnection {
 public:
     I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _bus(bus), _addr(addr) {}
+        : RegisterConnection(intPin, enPin), _bus(bus), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device.

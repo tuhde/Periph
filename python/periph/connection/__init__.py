@@ -1,4 +1,6 @@
 from .base import Connection
+from .register_connection import RegisterConnection
+from .register import to_signed
 from .input_pin import InputPin
 from .output_pin import OutputPin
 

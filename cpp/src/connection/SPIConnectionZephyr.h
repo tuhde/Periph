@@ -1,7 +1,7 @@
 #pragma once
 #include <zephyr/drivers/spi.h>
 #include <cstring>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SPI connection for Zephyr RTOS (wraps the spi driver API).
  *
@@ -9,16 +9,39 @@
  * The SPI device node and its cs-gpios property must be present in the
  * board's devicetree or an overlay.
  *
- * @param dev    SPI controller device pointer (e.g., DEVICE_DT_GET(DT_NODELABEL(spi0))).
- * @param config spi_config specifying clock, operation flags, and the CS GPIO spec.
- * @param intPin Optional InputPin for INT-line delivery.
- * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param dev          SPI controller device pointer (e.g., DEVICE_DT_GET(DT_NODELABEL(spi0))).
+ * @param config       spi_config specifying clock, operation flags, and the CS GPIO spec.
+ * @param readBit      Bit ORed into the command byte for a read; 0 if the
+ *                     chip has no such bit. Default 0x80.
+ * @param multiByteBit Bit ORed in for multi-byte (burst) transfers when
+ *                     len > 1; 0 if the chip has no such bit and always
+ *                     auto-increments. Default 0.
+ * @param intPin       Optional InputPin for INT-line delivery.
+ * @param enPin        Optional OutputPin for hardware enable/power control.
  */
-class SPIConnectionZephyr : public Connection {
+class SPIConnectionZephyr : public RegisterConnection {
 public:
     SPIConnectionZephyr(const struct device *dev, const struct spi_config &config,
+                        uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev), _config(config) {}
+        : RegisterConnection(intPin, enPin), _dev(dev), _config(config),
+          _readBit(readBit), _multiByteBit(multiByteBit) {}
+
+    /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */
+    void read(uint8_t reg, uint8_t* buf, size_t len) override {
+        uint8_t cmd = reg | _readBit;
+        if (len > 1 && _multiByteBit) cmd |= _multiByteBit;
+        write_read(&cmd, 1, buf, len);
+    }
+
+    /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
+    void write(uint8_t reg, const uint8_t* data, size_t len) override {
+        uint8_t cmd = reg | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
+        uint8_t payload[17];
+        payload[0] = cmd;
+        memcpy(payload + 1, data, len);
+        Connection::write(payload, len + 1);
+    }
 
 protected:
     /** @brief Send bytes via spi_write.
@@ -72,4 +95,6 @@ protected:
 private:
     const struct device *_dev;
     struct spi_config    _config;
+    uint8_t               _readBit;
+    uint8_t               _multiByteBit;   // 0 = chip has no such bit
 };

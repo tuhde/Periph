@@ -38,15 +38,31 @@ type spiIocTransfer struct {
 // separate CS pin.
 type SPIConnection struct {
 	connectionBase
-	fd   int
-	mode uint8
+	fd            int
+	mode          uint8
+	readBit       byte
+	multiByteBit  byte // 0 = chip has no such bit
 }
 
 // NewSPIConnection opens /dev/spidevBUS.DEVICE and configures it for the
 // given SPI mode (0–3), 8 bits per word, at maxSpeedHz. CS idles high; the
 // kernel asserts it around each transfer. intPin and enPin may be nil if
 // the device's INT/EN lines are not wired.
+//
+// Uses the default register-addressing convention (readBit 0x80, no
+// multi-byte bit). Use NewSPIConnectionWithConvention for chips needing a
+// different convention (e.g. ADXL345-style, with an explicit multi-byte bit).
 func NewSPIConnection(busNum, deviceNum int, mode uint8, maxSpeedHz uint32, intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
+	return NewSPIConnectionWithConvention(busNum, deviceNum, mode, maxSpeedHz, 0x80, 0, intPin, enPin)
+}
+
+// NewSPIConnectionWithConvention is like NewSPIConnection but additionally
+// takes the chip's register-addressing convention: readBit is ORed into the
+// command byte for a read (0 if the chip has no such bit), multiByteBit is
+// ORed in for multi-byte (burst) transfers when length > 1 (0 if the chip
+// has no such bit and always auto-increments).
+func NewSPIConnectionWithConvention(busNum, deviceNum int, mode uint8, maxSpeedHz uint32,
+	readBit, multiByteBit byte, intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
 	if maxSpeedHz == 0 {
 		maxSpeedHz = 1_000_000
 	}
@@ -78,6 +94,8 @@ func NewSPIConnection(busNum, deviceNum int, mode uint8, maxSpeedHz uint32, intP
 		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
 		fd:              fd,
 		mode:            mode,
+		readBit:         readBit,
+		multiByteBit:    multiByteBit,
 	}, nil
 }
 
@@ -164,4 +182,24 @@ func (t *SPIConnection) WriteRead(data []byte, n int) ([]byte, error) {
 		return nil, err
 	}
 	return rx[len(data):], nil
+}
+
+// ReadReg reads length bytes starting at register reg, building the SPI
+// command byte from the connection's configured convention.
+func (t *SPIConnection) ReadReg(reg byte, length int) ([]byte, error) {
+	cmd := reg | t.readBit
+	if length > 1 && t.multiByteBit != 0 {
+		cmd |= t.multiByteBit
+	}
+	return t.WriteRead([]byte{cmd}, length)
+}
+
+// WriteReg writes data to register reg, building the SPI command byte from
+// the connection's configured convention.
+func (t *SPIConnection) WriteReg(reg byte, data []byte) error {
+	cmd := reg
+	if len(data) > 1 && t.multiByteBit != 0 {
+		cmd |= t.multiByteBit
+	}
+	return t.Write(append([]byte{cmd}, data...))
 }

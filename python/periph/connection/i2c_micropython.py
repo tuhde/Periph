@@ -1,7 +1,7 @@
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class I2CConnection(Connection):
+class I2CConnection(RegisterConnection):
     """I²C connection for MicroPython (wraps machine.I2C / machine.SoftI2C).
 
     One instance represents one device on the bus; addr is fixed at construction.

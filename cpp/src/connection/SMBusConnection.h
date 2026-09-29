@@ -1,6 +1,6 @@
 #pragma once
 #include <Wire.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SMBus connection for Arduino (wraps TwoWire with address validation and PEC).
  *
@@ -14,7 +14,7 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class SMBusConnection : public Connection {
+class SMBusConnection : public RegisterConnection {
 public:
     SMBusConnection(TwoWire& bus, uint8_t addr, bool pec = false,
                     InputPin* intPin = nullptr, OutputPin* enPin = nullptr);

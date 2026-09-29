@@ -1,7 +1,7 @@
 'use strict';
 
 const i2c = require('i2c-bus');
-const { Connection } = require('./connection');
+const { RegisterConnection } = require('./register_connection');
 
 /**
  * Computes CRC-8 with polynomial 0x07 (x⁸ + x² + x + 1), initial value 0x00.
@@ -26,7 +26,7 @@ function crc8(data) {
  * appends a CRC-8 byte to writes and verifies it on reads. PEC is computed in
  * software using raw i2c transfers. Call close() to release the bus when done.
  */
-class SMBusConnection extends Connection {
+class SMBusConnection extends RegisterConnection {
     /**
      * @param {number}  busNumber    - I²C bus number (opens /dev/i2c-{busNumber}).
      * @param {number}  addr         - 7-bit device address (0x08–0x77).

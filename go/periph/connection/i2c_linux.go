@@ -156,3 +156,13 @@ func (t *I2CConnection) WriteRead(writeData []byte, n int) ([]byte, error) {
 func (t *I2CConnection) FileDescriptor() int {
 	return t.fd
 }
+
+// ReadReg reads length bytes starting at register reg.
+func (t *I2CConnection) ReadReg(reg byte, length int) ([]byte, error) {
+	return t.WriteRead([]byte{reg}, length)
+}
+
+// WriteReg writes data to register reg.
+func (t *I2CConnection) WriteReg(reg byte, data []byte) error {
+	return t.Write(append([]byte{reg}, data...))
+}

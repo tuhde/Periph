@@ -1,4 +1,4 @@
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
 def _crc8(data):
@@ -11,7 +11,7 @@ def _crc8(data):
     return crc
 
 
-class SMBusConnection(Connection):
+class SMBusConnection(RegisterConnection):
     """SMBus connection for CircuitPython (wraps busio.I2C with address validation and PEC).
 
     Acquires and releases the bus lock around every operation. Enforces the
