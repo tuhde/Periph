@@ -18,6 +18,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use super::register::{read_register, write_register};
+
 /// Software-enable wrapper around a generic I²C bus.
 ///
 /// While disabled, [`Connection::read`] zero-fills the destination buffer
@@ -54,24 +56,21 @@ where
     /// Write `reg` then read back `buf.len()` bytes (repeated start).
     ///
     /// Zero-fills `buf` without touching the bus if disabled.
-    pub(crate) fn read(&mut self, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), BUS::Error> {
+    pub fn read(&mut self, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), BUS::Error> {
         if !self.enabled {
             buf.fill(0);
             return Ok(());
         }
-        self.bus.write_read(addr, &[reg], buf)
+        read_register(&mut self.bus, addr, reg as u32, 1, buf)
     }
 
     /// Write `reg` followed by `data` in one transaction.
     ///
     /// No-op if disabled.
-    pub(crate) fn write(&mut self, addr: u8, reg: u8, data: &[u8]) -> Result<(), BUS::Error> {
+    pub fn write(&mut self, addr: u8, reg: u8, data: &[u8]) -> Result<(), BUS::Error> {
         if !self.enabled {
             return Ok(());
         }
-        let mut buf = [0u8; 17];
-        buf[0] = reg;
-        buf[1..=data.len()].copy_from_slice(data);
-        self.bus.write(addr, &buf[..=data.len()])
+        write_register(&mut self.bus, addr, reg as u32, 1, data)
     }
 }

@@ -1,6 +1,6 @@
 from smbus2 import SMBus, i2c_msg
 
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
 def _crc8(data):
@@ -13,7 +13,7 @@ def _crc8(data):
     return crc
 
 
-class SMBusConnection(Connection):
+class SMBusConnection(RegisterConnection):
     """SMBus connection for Linux (wraps smbus2 with address validation and PEC).
 
     Accepts either a bus number (opens /dev/i2c-N itself) or an already-opened
@@ -28,13 +28,14 @@ class SMBusConnection(Connection):
         pec: Enable Packet Error Code (CRC-8) checking (default False).
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        reg_bytes: Register address width in bytes, big-endian (default 1).
 
     Raises:
         ValueError: If addr is outside the valid SMBus range.
     """
 
-    def __init__(self, bus, addr, pec=False, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+    def __init__(self, bus, addr, pec=False, int_pin=None, en_pin=None, reg_bytes=1):
+        super().__init__(int_pin, en_pin, reg_bytes)
         if not (0x08 <= addr <= 0x77):
             raise ValueError("SMBus address must be in range 0x08-0x77")
         if isinstance(bus, int):

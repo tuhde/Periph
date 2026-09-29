@@ -1,21 +1,23 @@
 #pragma once
 #include <Wire.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for Arduino (wraps TwoWire / Wire).
  *
  * One instance represents one device; the 7-bit address is fixed at
  * construction time.
  *
- * @param bus    TwoWire instance to use (typically the global ::Wire).
- * @param addr   7-bit I²C device address.
- * @param intPin Optional InputPin for INT-line delivery.
- * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param bus       TwoWire instance to use (typically the global ::Wire).
+ * @param addr      7-bit I²C device address.
+ * @param intPin    Optional InputPin for INT-line delivery.
+ * @param enPin     Optional OutputPin for hardware enable/power control.
+ * @param regBytes  Register address width in bytes, big-endian (default 1).
  */
-class I2CConnection : public Connection {
+class I2CConnection : public RegisterConnection {
 public:
-    I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _bus(bus), _addr(addr) {}
+    I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                  uint8_t regBytes = 1)
+        : RegisterConnection(intPin, enPin, regBytes), _bus(bus), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device.

@@ -31,7 +31,7 @@ import java.util.Map;
  * address width are also applied to the register map so a later {@code writeRead}
  * sees them.
  */
-public class MockConnection implements Connection {
+public class MockConnection implements RegisterConnection {
 
     private final Map<Integer, Integer> registers = new HashMap<>();
     private final List<byte[]> writes = new ArrayList<>();
@@ -42,6 +42,9 @@ public class MockConnection implements Connection {
     public void setAddressWidth(int addressWidth) {
         this.addressWidth = addressWidth;
     }
+
+    @Override
+    public int regBytes() { return addressWidth; }
 
     /** Preload consecutive register bytes starting at {@code reg}. */
     public void setRegister(int reg, int... values) {

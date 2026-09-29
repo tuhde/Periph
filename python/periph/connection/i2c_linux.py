@@ -1,9 +1,9 @@
 from smbus2 import SMBus, i2c_msg
 
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class I2CConnection(Connection):
+class I2CConnection(RegisterConnection):
     """I²C connection for Linux (wraps smbus2, uses /dev/i2c-N).
 
     Accepts either a bus number (opens the device file itself) or an
@@ -15,10 +15,11 @@ class I2CConnection(Connection):
         addr: 7-bit device address.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        reg_bytes: Register address width in bytes, big-endian (default 1).
     """
 
-    def __init__(self, bus, addr, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+    def __init__(self, bus, addr, int_pin=None, en_pin=None, reg_bytes=1):
+        super().__init__(int_pin, en_pin, reg_bytes)
         if isinstance(bus, int):
             self._bus = SMBus(bus)
             self._owns_bus = True

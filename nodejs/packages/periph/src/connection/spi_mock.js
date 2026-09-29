@@ -171,6 +171,17 @@ class SPIConnectionMock {
         return out;
     }
 
+    /** @param {number} reg @param {number} length */
+    async readReg(reg, length) {
+        return this.writeRead(Buffer.from([reg]), length);
+    }
+
+    /** @param {number} reg @param {Buffer|Uint8Array|number} data */
+    async writeReg(reg, data) {
+        const payload = Buffer.isBuffer(data) ? data : Buffer.from(typeof data === 'number' ? [data] : data);
+        return this.write(Buffer.concat([Buffer.from([reg]), payload]));
+    }
+
     /** No-op. */
     async close() {}
 }

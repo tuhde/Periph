@@ -1,4 +1,5 @@
 pub mod connection;
+pub mod register;
 pub mod dhtxx;
 pub mod hx711;
 pub mod i2c;

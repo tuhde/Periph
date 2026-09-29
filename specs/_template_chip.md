@@ -20,6 +20,7 @@
 - **Max clock:** <e.g. 10 MHz>
 - **Bit order:** MSB first
 - **CS active:** low
+- **Register addressing:** read bit `0x??` (or "none"); multi-byte bit `0x??` (or "none — always auto-increments") — see `specs/feature_register_access_design.md` §4
 
 ## Pin Configuration
 
@@ -165,6 +166,11 @@ Package: `node-red-contrib-periph-<category>`
 ## Implementation Notes
 
 <!-- Quirks, errata, or non-obvious datasheet behavior. -->
+
+If this chip is register-addressed (I²C, SMBus, or SPI), accept `RegisterConnection` (not
+the bare `Connection`) and call `connection.read(reg, length)` / `connection.write(reg,
+data)` directly — no chip-local `_read_reg`/`_write_reg` and no `bus_type` branch. See
+`specs/feature_register_access_design.md`.
 
 ## Sigrok Decoder
 

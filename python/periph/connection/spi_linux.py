@@ -1,9 +1,9 @@
 import spidev
 
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class SPIConnection(Connection):
+class SPIConnection(RegisterConnection):
     """SPI connection for Linux (wraps spidev, uses /dev/spidevBUS.DEVICE).
 
     Call close() to release the device when done.
@@ -13,17 +13,50 @@ class SPIConnection(Connection):
         device_num: Chip-select line on the bus.
         mode: SPI mode 0–3 (CPOL/CPHA); default 0.
         max_speed_hz: Clock frequency in Hz; default 1 000 000.
+        read_bit: Bit ORed into the command byte for a read; 0 if the chip
+            has no such bit. Default 0x80.
+        multi_byte_bit: Bit ORed in for multi-byte (burst) transfers when
+            length > 1; None if the chip has no such bit and always
+            auto-increments. Default None.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
     """
 
     def __init__(self, bus_num, device_num, mode=0, max_speed_hz=1_000_000,
-                 int_pin=None, en_pin=None):
+                 read_bit=0x80, multi_byte_bit=None, int_pin=None, en_pin=None):
         super().__init__(int_pin, en_pin)
         self._spi = spidev.SpiDev()
         self._spi.open(bus_num, device_num)
         self._spi.mode = mode
         self._spi.max_speed_hz = max_speed_hz
+        self._read_bit = read_bit
+        self._multi_byte_bit = multi_byte_bit
+
+    def read_reg(self, reg: int, length: int) -> bytes:
+        """Read `length` bytes starting at register `reg`, building the SPI command byte.
+
+        Args:
+            reg: Register address.
+            length: Number of bytes to read.
+
+        Returns:
+            bytes: Data received from the device.
+        """
+        cmd = reg | self._read_bit
+        if length > 1 and self._multi_byte_bit:
+            cmd |= self._multi_byte_bit
+        return self.write_read(bytes([cmd]), length)
+
+    def write_reg(self, reg: int, data) -> None:
+        """Write `data` to register `reg`, building the SPI command byte.
+
+        Args:
+            reg: Register address.
+            data: Bytes to write, or a single int for a 1-byte register.
+        """
+        payload = bytes([data]) if isinstance(data, int) else bytes(data)
+        cmd = reg | (self._multi_byte_bit if len(payload) > 1 and self._multi_byte_bit else 0)
+        self.write(bytes([cmd]) + payload)
 
     def _write(self, data):
         """Send bytes to the device.

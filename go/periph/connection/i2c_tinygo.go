@@ -11,19 +11,30 @@ import "machine"
 // instance represents one device on the bus.
 type I2CConnection struct {
 	connectionBase
-	i2c  *machine.I2C
-	addr uint16
+	i2c      *machine.I2C
+	addr     uint16
+	regBytes uint8
 }
 
 // NewI2CConnection binds the given configured machine.I2C to the given
 // 7-bit device address. The caller is responsible for calling
 // machine.I2C.Configure(...) on i2c before passing it in. intPin and enPin
 // may be nil if the device's INT/EN lines are not wired.
+//
+// Uses a 1-byte register address. Use NewI2CConnectionWithWidth for chips
+// needing a wider address (e.g. ADE7953, VL53L1X).
 func NewI2CConnection(i2c *machine.I2C, addr uint8, intPin InputPin, enPin OutputPin) *I2CConnection {
+	return NewI2CConnectionWithWidth(i2c, addr, 1, intPin, enPin)
+}
+
+// NewI2CConnectionWithWidth is like NewI2CConnection but additionally takes
+// the register address width in bytes, big-endian (1-4).
+func NewI2CConnectionWithWidth(i2c *machine.I2C, addr uint8, regBytes uint8, intPin InputPin, enPin OutputPin) *I2CConnection {
 	return &I2CConnection{
 		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
 		i2c:             i2c,
 		addr:            uint16(addr),
+		regBytes:        regBytes,
 	}
 }
 
@@ -65,4 +76,14 @@ func (t *I2CConnection) WriteRead(writeData []byte, n int) ([]byte, error) {
 		return nil, err
 	}
 	return readBuf, nil
+}
+
+// ReadReg reads length bytes starting at register reg.
+func (t *I2CConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	return t.WriteRead(regAddrBytes(reg, t.regBytes), length)
+}
+
+// WriteReg writes data to register reg.
+func (t *I2CConnection) WriteReg(reg uint32, data []byte) error {
+	return t.Write(append(regAddrBytes(reg, t.regBytes), data...))
 }

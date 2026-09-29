@@ -2,7 +2,7 @@
 #ifdef __linux__
 #include <stdint.h>
 #include <stddef.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief SMBus connection for Linux (/dev/i2c-N with software PEC).
  *
@@ -15,10 +15,11 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class SMBusConnectionLinux : public Connection {
+class SMBusConnectionLinux : public RegisterConnection {
 public:
     SMBusConnectionLinux(int bus, uint8_t addr, bool pec = false,
-                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                         uint8_t regBytes = 1);
     ~SMBusConnectionLinux();
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */

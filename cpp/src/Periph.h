@@ -14,6 +14,8 @@
 #include "connection/NeoPixelConnection.h"
 #include "connection/OutputPin.h"
 #include "connection/OutputPinArduino.h"
+#include "connection/Register.h"
+#include "connection/RegisterConnection.h"
 #include "connection/SMBusConnection.h"
 #include "connection/SPIConnection.h"
 #include "connection/SiPoConnection.h"

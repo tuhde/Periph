@@ -1,7 +1,7 @@
 'use strict';
 
 const i2c = require('i2c-bus');
-const { Connection } = require('./connection');
+const { RegisterConnection } = require('./register_connection');
 
 /**
  * Computes CRC-8 with polynomial 0x07 (x⁸ + x² + x + 1), initial value 0x00.
@@ -26,17 +26,18 @@ function crc8(data) {
  * appends a CRC-8 byte to writes and verifies it on reads. PEC is computed in
  * software using raw i2c transfers. Call close() to release the bus when done.
  */
-class SMBusConnection extends Connection {
+class SMBusConnection extends RegisterConnection {
     /**
      * @param {number}  busNumber    - I²C bus number (opens /dev/i2c-{busNumber}).
      * @param {number}  addr         - 7-bit device address (0x08–0x77).
      * @param {boolean} [pec=false]  - Enable Packet Error Code (CRC-8) checking.
      * @param {import('./input_pin').InputPin|null} [intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     * @param {number} [regBytes=1] - Register address width in bytes, big-endian.
      * @throws {RangeError} If addr is outside the valid SMBus range.
      */
-    constructor(busNumber, addr, pec = false, intPin = null, enPin = null) {
-        super(intPin, enPin);
+    constructor(busNumber, addr, pec = false, intPin = null, enPin = null, regBytes = 1) {
+        super(intPin, enPin, regBytes);
         if (addr < 0x08 || addr > 0x77) {
             throw new RangeError('SMBus address must be in range 0x08-0x77');
         }

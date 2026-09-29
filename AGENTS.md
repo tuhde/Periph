@@ -109,12 +109,16 @@ For chips with I²C or SMBus transport, add the chip's default I²C address to `
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
 
-Chip drivers accept a single `Connection` object and must only call `connection.read()` / `connection.write()`. `Connection` is not a wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now `I2CConnection`, etc.); chip drivers import and construct the concrete `*Connection` class directly. See `specs/feature_connection_design.md` for the full design (§4 covers the rename; §4.1 has the exact old→new mapping per language).
+Chip drivers accept a single `Connection` object. `Connection` is not a wrapper — it's the renamed, expanded bus implementation itself (`I2CTransport` is now `I2CConnection`, etc.); chip drivers import and construct the concrete `*Connection` class directly. See `specs/feature_connection_design.md` for the full design (§4 covers the rename; §4.1 has the exact old→new mapping per language).
+
+**Register-based chips accept `RegisterConnection`, not the bare `Connection`.** `I2CConnection`, `SMBusConnection`, and `SPIConnection` all implement `RegisterConnection`, which adds register-addressed access on top of `Connection`'s raw bytes; `SPIConnection` additionally takes the chip's register-addressing convention (read bit, optional multi-byte bit) at construction, so chip drivers never branch on bus type themselves. `I2CConnection`/`SMBusConnection` also take an optional register address width (1–4 bytes, big-endian, default 1) at construction, for chips like ADE7953 and VL53L0X/VL53L1X that address registers with more than one byte — SPI stays single-byte (§11 of the spec explains why). See `specs/feature_register_access_design.md` for the full design — required reading before implementing any new register-based chip. Chips with no register concept (HX711, NeoPixel, SiPo, DHTxx, UART-based GNSS, MFRC522's FIFO protocol) accept plain `Connection` and keep using `read(n)` / `write(data)` / `write_read(data, n)`.
+
+Python and JS have no method overloading, and `I2CConnection`/`SMBusConnection` are shared concrete classes some existing chips already use for plain (non-register) `read(n)`/`write(data)` — e.g. PCF8575, PCF8574, MCP23017. Overloading `read`/`write` there by argument count would silently break those call sites, so the register API uses distinct names in those two languages (matching Go's existing `ReadReg`/`WriteReg`, same rationale). C++, Java, and Rust are unaffected (real overloading, or already-distinct free-function names).
 
 ```python
 # Python
-connection.read(reg: int, length: int) -> bytes   # write reg address, read length bytes
-connection.write(reg: int, data: bytes | int)     # write reg address + data
+connection.read_reg(reg: int, length: int) -> bytes   # register-addressed, any bus
+connection.write_reg(reg: int, data: bytes | int)      # register-addressed, any bus
 ```
 
 ```cpp
@@ -125,28 +129,40 @@ connection.write(uint8_t reg, const uint8_t* data, size_t len);
 
 ```js
 // Node.js — camelCase, Buffers, async
-await connection.read(reg, length)   // returns Buffer
-await connection.write(reg, data)    // data: Buffer | number
+await connection.readReg(reg, length)   // returns Buffer
+await connection.writeReg(reg, data)    // data: Buffer | number
 ```
 
 ```rust
-// Rust — Connection<BUS>; chip driver stores conn: Connection<I2C>
-self.conn.read(self.addr, REG_ADDR, &mut buf)?;
-self.conn.write(self.addr, REG_ADDR, &data)?;
+// Rust — no wrapper required; free functions generic over embedded-hal traits
+register::read_register(&mut self.i2c, self.addr, REG_ADDR, &mut buf)?;
+register::write_register(&mut self.i2c, self.addr, REG_ADDR, &data)?;
+// SPI equivalents: register::spi_read_register / spi_write_register, given a
+// SpiRegisterConvention (see specs/feature_register_access_design.md §6.4)
 ```
 
-All register reads follow this pattern:
+```go
+// Go — conn is a connection.RegisterConnection; identical on Linux and TinyGo
+raw, err := conn.ReadReg(regAddr, 2)
+if err != nil {
+    return 0, err
+}
+```
+
+All register reads follow this pattern, using the shared `to_signed(value, bits)` helper
+(per-language location in `specs/feature_register_access_design.md` §5) instead of inline
+two's-complement math:
 
 ```python
 # Python
-raw   = self._conn.read(REG_ADDR, 2)
+raw   = self._conn.read_reg(REG_ADDR, 2)
 value = (raw[0] << 8) | raw[1]                # big-endian, unsigned
-value = struct.unpack('>h', raw)[0]            # big-endian, signed
+value = to_signed(value, 16)                   # signed
 ```
 
 ```js
 // Node.js
-const raw   = await this._conn.read(REG_ADDR, 2);
+const raw   = await this._conn.readReg(REG_ADDR, 2);
 const value = raw.readUInt16BE(0);             // unsigned
 const value = raw.readInt16BE(0);              // signed
 ```
@@ -154,14 +170,14 @@ const value = raw.readInt16BE(0);              // signed
 ```rust
 // Rust
 let mut buf = [0u8; 2];
-self.conn.read(self.addr, REG_ADDR, &mut buf)?;
+register::read_register(&mut self.i2c, self.addr, REG_ADDR, &mut buf)?;
 let value = ((buf[0] as u16) << 8) | buf[1] as u16;   // unsigned
 let value = value as i16;                              // signed
 ```
 
 ```go
-// Go — conn is a connection.Connection; identical on Linux and TinyGo
-raw, err := conn.Read(regAddr, 2)
+// Go
+raw, err := conn.ReadReg(regAddr, 2)
 if err != nil {
     return 0, err
 }
@@ -771,7 +787,7 @@ The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL
 
 ## Node.js connection interface
 
-JS chip drivers use `connection.read(reg, length)` / `connection.write(reg, data)` in camelCase (see Connection interface section above).
+JS chip drivers use `connection.readReg(reg, length)` / `connection.writeReg(reg, data)` in camelCase (see Connection interface section above).
 
 ## Node.js driver structure
 
@@ -884,7 +900,7 @@ Target platform: **Linux host via i2c-dev / FFM** (all three languages use the s
 
 ### Connection interface
 
-Chip drivers receive a `Connection` and call its two methods. All fallible methods throw `IOException`.
+Register-based chip drivers receive a `RegisterConnection` (a `Connection` with two added default methods, implemented by `I2CConnection`, `SMBusConnection`, and `SPIConnection`) and call its `read`/`write` overloads — real method overloading, so these coexist with `Connection`'s own `read(int n)` / `write(byte[] data)` without collision. All fallible methods throw `IOException`. Chips with no register concept keep accepting plain `Connection`. See `specs/feature_register_access_design.md` for the full design.
 
 ```java
 // Java / Groovy
@@ -1126,6 +1142,8 @@ type Connection interface {
 ```
 
 Both the Linux and TinyGo implementation of a given connection export the **same type name** (e.g. `I2CConnection`), gated by a `//go:build` tag on the file — `linux && !tinygo` vs `tinygo`. Unlike every other language here, there is no separate import path or generic type parameter to pick the platform: the build itself resolves which `I2CConnection` gets compiled in. Chip drivers and examples import `"github.com/tuhde/Periph/go/periph/connection"` and reference `connection.Connection` only; only an example's `main()` ever names a concrete connection type.
+
+Register-based chips accept `connection.RegisterConnection` instead — `Connection` plus `ReadReg(reg uint32, length int) ([]byte, error)` / `WriteReg(reg uint32, data []byte) error`, implemented by `I2CConnection`, `SMBusConnection`, and `SPIConnection` on both Linux and TinyGo. `reg` is `uint32` rather than `byte` so a wide, multi-byte register address can flow through the shared interface; `SPIConnection` still truncates it to a single byte when building its command byte. `SPIConnection` builds that command byte from a register-addressing convention set at construction via `NewSPIConnectionWithConvention(..., readBit, multiByteBit byte, ...)`; the plain `NewSPIConnection(...)` constructor is unchanged and defaults to `readBit=0x80, multiByteBit=0`. `I2CConnection`/`SMBusConnection` similarly take an optional register address width via `NewI2CConnectionWithWidth`/`NewSMBusConnectionWithWidth` (1–4 bytes, big-endian, default 1). See `specs/feature_register_access_design.md` for the full design.
 
 ### Connection implementations
 

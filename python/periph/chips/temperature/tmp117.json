@@ -33,6 +33,14 @@
       "github:tuhde/Periph/python/periph/connection/output_pin.py"
     ],
     [
+      "periph/connection/register.py",
+      "github:tuhde/Periph/python/periph/connection/register.py"
+    ],
+    [
+      "periph/connection/register_connection.py",
+      "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
       "periph/connection/smbus_auto.py",
       "github:tuhde/Periph/python/periph/connection/smbus_auto.py"
     ],

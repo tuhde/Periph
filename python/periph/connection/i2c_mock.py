@@ -53,5 +53,12 @@ class I2CConnectionMock:
             reg = data[0]
         return bytes(self.registers.get(reg + i, 0) for i in range(n))
 
+    def read_reg(self, reg, length):
+        return self.write_read(bytes([reg]), length)
+
+    def write_reg(self, reg, data):
+        payload = bytes([reg]) + (bytes([data]) if isinstance(data, int) else bytes(data))
+        self.write(payload)
+
     def close(self):
         pass

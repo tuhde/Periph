@@ -1,22 +1,24 @@
 #pragma once
 #include <zephyr/drivers/i2c.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for Zephyr RTOS (wraps the i2c driver API).
  *
  * prj.conf must enable CONFIG_I2C=y, CONFIG_CPP=y, CONFIG_STD_CPP17=y.
  * The I²C device node must be enabled in the board's devicetree or an overlay.
  *
- * @param dev    I²C controller device pointer (e.g., DEVICE_DT_GET(DT_NODELABEL(i2c0))).
- * @param addr   7-bit device address.
- * @param intPin Optional InputPin for INT-line delivery.
- * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param dev       I²C controller device pointer (e.g., DEVICE_DT_GET(DT_NODELABEL(i2c0))).
+ * @param addr      7-bit device address.
+ * @param intPin    Optional InputPin for INT-line delivery.
+ * @param enPin     Optional OutputPin for hardware enable/power control.
+ * @param regBytes  Register address width in bytes, big-endian (default 1).
  */
-class I2CConnectionZephyr : public Connection {
+class I2CConnectionZephyr : public RegisterConnection {
 public:
     I2CConnectionZephyr(const struct device *dev, uint8_t addr,
-                        InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev), _addr(addr) {}
+                        InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                        uint8_t regBytes = 1)
+        : RegisterConnection(intPin, enPin, regBytes), _dev(dev), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device via i2c_write.

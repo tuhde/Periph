@@ -2,7 +2,7 @@
 #ifdef __linux__
 #include <stdint.h>
 #include <stddef.h>
-#include "Connection.h"
+#include "RegisterConnection.h"
 
 /** @brief I²C connection for Linux (opens /dev/i2c-N via ioctl).
  *
@@ -11,9 +11,10 @@
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
  */
-class I2CConnectionLinux : public Connection {
+class I2CConnectionLinux : public RegisterConnection {
 public:
-    I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+    I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                       uint8_t regBytes = 1);
     ~I2CConnectionLinux();
 
 protected:

@@ -106,5 +106,12 @@ class SPIConnectionMock:
                 out[i] = self._registers.get(reg + i, 0)
         return bytes(out)
 
+    def read_reg(self, reg, length):
+        return self.write_read(bytes([reg]), length)
+
+    def write_reg(self, reg, data):
+        payload = bytes([data]) if isinstance(data, int) else bytes(data)
+        self.write(bytes([reg]) + payload)
+
     def close(self):
         pass

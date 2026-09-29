@@ -1,7 +1,7 @@
-from .base import Connection
+from .register_connection import RegisterConnection
 
 
-class I2CConnection(Connection):
+class I2CConnection(RegisterConnection):
     """I²C connection for MicroPython (wraps machine.I2C / machine.SoftI2C).
 
     One instance represents one device on the bus; addr is fixed at construction.
@@ -11,10 +11,11 @@ class I2CConnection(Connection):
         addr: 7-bit device address.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        reg_bytes: Register address width in bytes, big-endian (default 1).
     """
 
-    def __init__(self, bus, addr, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+    def __init__(self, bus, addr, int_pin=None, en_pin=None, reg_bytes=1):
+        super().__init__(int_pin, en_pin, reg_bytes)
         self._bus = bus
         self._addr = addr
 

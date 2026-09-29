@@ -14,18 +14,28 @@ import "fmt"
 // connection rather than tracking its own — there is exactly one
 // software-gate and one pair of pins per physical device.
 type SMBusConnection struct {
-	c   Connection
-	pec bool
+	c        Connection
+	pec      bool
+	regBytes uint8
 }
 
 // NewSMBusConnection wraps the given Connection and returns an
 // SMBusConnection. Returns an error immediately if addr falls in the
 // reserved 0x00–0x07 / 0x78–0x7F range.
+//
+// Uses a 1-byte register address. Use NewSMBusConnectionWithWidth for chips
+// needing a wider address (e.g. ADE7953).
 func NewSMBusConnection(c Connection, addr uint8, pec bool) (*SMBusConnection, error) {
+	return NewSMBusConnectionWithWidth(c, addr, pec, 1)
+}
+
+// NewSMBusConnectionWithWidth is like NewSMBusConnection but additionally
+// takes the register address width in bytes, big-endian (1-4).
+func NewSMBusConnectionWithWidth(c Connection, addr uint8, pec bool, regBytes uint8) (*SMBusConnection, error) {
 	if err := validateSMBusAddr(addr); err != nil {
 		return nil, err
 	}
-	return &SMBusConnection{c: c, pec: pec}, nil
+	return &SMBusConnection{c: c, pec: pec, regBytes: regBytes}, nil
 }
 
 // Enable delegates to the wrapped Connection.
@@ -103,6 +113,16 @@ func (s *SMBusConnection) WriteRead(data []byte, n int) ([]byte, error) {
 		return nil, fmt.Errorf("smbus: PEC error (got 0x%02X, expected 0x%02X)", resp[n], expected)
 	}
 	return resp[:n], nil
+}
+
+// ReadReg reads length bytes starting at register reg.
+func (s *SMBusConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	return s.WriteRead(regAddrBytes(reg, s.regBytes), length)
+}
+
+// WriteReg writes data to register reg.
+func (s *SMBusConnection) WriteReg(reg uint32, data []byte) error {
+	return s.Write(append(regAddrBytes(reg, s.regBytes), data...))
 }
 
 // PEC byte prefixes per SMBus 3.2 §6.4.1.
