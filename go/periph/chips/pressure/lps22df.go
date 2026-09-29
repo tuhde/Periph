@@ -47,8 +47,11 @@ const (
 // LPS22DF expected chip ID.
 const lps22dfChipID uint8 = 0xB4
 
-// Status flag: pressure data available.
-const lps22dfStatusPDa uint8 = 0x01
+// Status flags.
+const (
+	lps22dfStatusPDa uint8 = 0x01 // pressure data available
+	lps22dfStatusTDa uint8 = 0x02 // temperature data available
+)
 
 // LPS22DF output data rates.
 const (
@@ -191,6 +194,19 @@ func (d *LPS22DFMinimal) waitPDa() error {
 	}
 }
 
+func (d *LPS22DFMinimal) waitTDa() error {
+	for {
+		v, err := d.readReg8(lps22dfRegStatus)
+		if err != nil {
+			return err
+		}
+		if v&lps22dfStatusTDa != 0 {
+			return nil
+		}
+		time.Sleep(time.Millisecond)
+	}
+}
+
 // Pressure polls STATUS.P_DA then burst-reads PRESS_OUT_XL..H, sign-extends
 // the 24-bit two's complement value and converts to pascals (4096 LSB/hPa).
 //
@@ -215,6 +231,9 @@ func (d *LPS22DFMinimal) Pressure() (float32, error) {
 //
 // Returns temperature in °C.
 func (d *LPS22DFMinimal) Temperature() (float32, error) {
+	if err := d.waitTDa(); err != nil {
+		return 0, err
+	}
 	raw, err := d.readRegBytes(lps22dfRegTempOutL, 2)
 	if err != nil {
 		return 0, err

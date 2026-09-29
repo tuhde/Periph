@@ -53,6 +53,8 @@ public class Lps22dfMinimal {
 
     /** Status flag: pressure data available. */
     protected static final int STATUS_P_DA = 0x01;
+    /** Status flag: temperature data available. */
+    protected static final int STATUS_T_DA = 0x02;
 
     protected final Connection connection;
     protected final int busType;
@@ -143,6 +145,15 @@ public class Lps22dfMinimal {
         }
     }
 
+    /** Poll STATUS until T_DA is set. */
+    protected void waitTDa() throws IOException {
+        while (true) {
+            byte[] status = readReg(REG_STATUS, 1);
+            if ((status[0] & STATUS_T_DA) != 0) return;
+            try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+    }
+
     /**
      * Read absolute pressure.
      *
@@ -163,13 +174,14 @@ public class Lps22dfMinimal {
     /**
      * Read temperature.
      *
-     * <p>Reads TEMP_OUT_L..H. Sign-extends the 16-bit two's complement value
-     * and converts to °C (100 LSB/°C).
+     * <p>Polls STATUS.T_DA then reads TEMP_OUT_L..H. Sign-extends the 16-bit
+     * two's complement value and converts to °C (100 LSB/°C).
      *
      * @return temperature in degrees Celsius
      * @throws IOException on I²C error
      */
     public double temperature() throws IOException {
+        waitTDa();
         byte[] raw = readReg(REG_TEMP_OUT_L, 2);
         short s = (short)(((raw[0] & 0xFF) << 0) | ((raw[1] & 0xFF) << 8));
         return s / 100.0;

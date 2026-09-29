@@ -55,6 +55,8 @@ open class Lps22dfMinimal(
 
         /** Status flag: pressure data available. */
         protected const val STATUS_P_DA = 0x01
+        /** Status flag: temperature data available. */
+        protected const val STATUS_T_DA = 0x02
     }
 
     init {
@@ -91,6 +93,15 @@ open class Lps22dfMinimal(
         }
     }
 
+    /** Poll STATUS until T_DA is set. */
+    protected fun waitTDa() {
+        while (true) {
+            val status = readReg(REG_STATUS, 1)
+            if ((status[0].toInt() and STATUS_T_DA) != 0) return
+            Thread.sleep(1)
+        }
+    }
+
     /**
      * Read absolute pressure.
      *
@@ -122,6 +133,7 @@ open class Lps22dfMinimal(
      */
     @Throws(IOException::class)
     fun temperature(): Double {
+        waitTDa()
         val raw = readReg(REG_TEMP_OUT_L, 2)
         val s = ((raw[0].toInt() and 0xFF) shl 0) or ((raw[1].toInt() and 0xFF) shl 8)
         return s.toShort().toDouble() / 100.0

@@ -47,6 +47,7 @@ class Lps22dfMinimal {
 
     protected static final int CHIP_ID     = 0xB4
     protected static final int STATUS_P_DA = 0x01
+    protected static final int STATUS_T_DA = 0x02
 
     protected final Connection connection
     protected final int addr
@@ -95,6 +96,14 @@ class Lps22dfMinimal {
         }
     }
 
+    protected void waitTDa() {
+        while (true) {
+            byte[] status = readReg(REG_STATUS, 1)
+            if ((status[0] & STATUS_T_DA) != 0) return
+            Thread.sleep(1)
+        }
+    }
+
     double pressure() {
         waitPDa()
         byte[] raw = readReg(REG_PRESS_OUT_XL, 3)
@@ -104,6 +113,7 @@ class Lps22dfMinimal {
     }
 
     double temperature() {
+        waitTDa()
         byte[] raw = readReg(REG_TEMP_OUT_L, 2)
         short s = (short)(((raw[0] & 0xFF) << 0) | ((raw[1] & 0xFF) << 8))
         return s / 100.0d
