@@ -60,8 +60,7 @@ matching the `gpiod>=2` requirement in `python/pyproject.toml`. Check with
 MicroPython-side tooling (mip installs, on-device testing — see `TESTING.md`):
 
 ```sh
-sudo apt-get install -y --no-install-recommends python3-serial
-pip install --user --break-system-packages mpremote   # check `apt-cache policy mpremote` first; prefer apt if present
+sudo apt-get install -y --no-install-recommends python3-serial micropython-mpremote
 ```
 
 ---
