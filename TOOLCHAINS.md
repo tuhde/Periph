@@ -78,7 +78,8 @@ cpp/scripts/build-all.sh linux
 ### 2b. Arduino (ESP32 + AVR cores)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh -s -- -b ~/.local/bin
+mkdir -p ~/.local/bin
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=~/.local/bin sh
 export PATH="$HOME/.local/bin:$PATH"   # add to ~/.bashrc
 
 arduino-cli config init --overwrite
