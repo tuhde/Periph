@@ -30,9 +30,8 @@ Verify: `python3 --version`.
 
 Debian's PEP 668 "externally-managed-environment" blocks bare `pip install`
 outside a venv. This guide avoids venvs entirely: Python libraries come from
-`apt` (`python3-*` packages), and the few pip-only tools are installed with
-`pip install --user --break-system-packages` (lands in `~/.local`, never
-touches `/usr/lib/python3`). Make sure `~/.local/bin` is on your `PATH`.
+`apt` (`python3-*` packages), and Zephyr's pip-only tooling (`west` and its
+requirements) lives in its own venv, see section 2e.
 
 (`python/uiflow1/generate.sh` manages its own throwaway venv automatically —
 nothing to set up for that one.)
@@ -141,13 +140,15 @@ sudo apt-get install -y --no-install-recommends \
   python3-dev python3-pip python3-setuptools python3-venv python3-wheel \
   xz-utils file make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1
 
-pip install --user --break-system-packages west
+python3 -m venv ~/.venvs/zephyr
+source ~/.venvs/zephyr/bin/activate   # run this in every shell you build Zephyr from
+pip install west
 
 west init -m https://github.com/zephyrproject-rtos/zephyr --mr v4.4.2 ~/zephyrproject
 cd ~/zephyrproject
 west config manifest.project-filter -- '-.*,+cmsis_6,+hal_rpi_pico'
 west update --narrow -o=--depth=1
-pip install --user --break-system-packages -r zephyr/scripts/requirements-base.txt
+pip install -r zephyr/scripts/requirements-base.txt
 west sdk install -t arm-zephyr-eabi   # downloads several GB; only the ARM SDK is needed here
 ```
 
