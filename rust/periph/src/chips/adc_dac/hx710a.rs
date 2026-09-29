@@ -204,3 +204,224 @@ where
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use core::convert::Infallible;
+    use embedded_hal::digital::ErrorType;
+    use std::cell::RefCell;
+    use std::collections::VecDeque;
+    use std::rc::Rc;
+
+    // See hx711.rs's test module for the full rationale behind these two
+    // hand-rolled fake pins (embedded_hal_mock's strict Transaction model
+    // doesn't fit HX711Connection::read_raw's is_high() spin-poll loop).
+
+    #[derive(Clone)]
+    struct FakeDout {
+        queue: Rc<RefCell<VecDeque<bool>>>,
+        ready: Rc<RefCell<bool>>,
+    }
+
+    impl ErrorType for FakeDout {
+        type Error = Infallible;
+    }
+
+    impl InputPin for FakeDout {
+        fn is_high(&mut self) -> Result<bool, Infallible> {
+            Ok(self.queue.borrow_mut().pop_front().unwrap_or(false))
+        }
+        fn is_low(&mut self) -> Result<bool, Infallible> {
+            Ok(*self.ready.borrow())
+        }
+    }
+
+    #[derive(Clone, Default)]
+    struct FakeSck {
+        highs: Rc<RefCell<u32>>,
+        lows: Rc<RefCell<u32>>,
+    }
+
+    impl ErrorType for FakeSck {
+        type Error = Infallible;
+    }
+
+    impl OutputPin for FakeSck {
+        fn set_low(&mut self) -> Result<(), Infallible> {
+            *self.lows.borrow_mut() += 1;
+            Ok(())
+        }
+        fn set_high(&mut self) -> Result<(), Infallible> {
+            *self.highs.borrow_mut() += 1;
+            Ok(())
+        }
+    }
+
+    /// Preload one read_raw() cycle's DOUT bit sequence on `queue`: a
+    /// `false` for the ready-poll, then 24 bits (MSB-first) encoding
+    /// `value` as a signed 24-bit two's-complement result.
+    fn push_read(queue: &Rc<RefCell<VecDeque<bool>>>, value: i32) {
+        let mut q = queue.borrow_mut();
+        q.push_back(false);
+        let raw = (value as u32) & 0x00FF_FFFF;
+        for i in (0..24).rev() {
+            q.push_back((raw >> i) & 1 == 1);
+        }
+    }
+
+    fn new_pins() -> (FakeDout, FakeSck) {
+        (
+            FakeDout { queue: Rc::new(RefCell::new(VecDeque::new())), ready: Rc::new(RefCell::new(true)) },
+            FakeSck::default(),
+        )
+    }
+
+    #[test]
+    fn minimal_init_discards_first_reading() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let before = *sck.highs.borrow();
+        let _sensor = Hx710aMinimal::new(conn).unwrap();
+        assert_eq!(*sck.highs.borrow() - before, 25, "init should discard one 25-pulse reading");
+    }
+
+    #[test]
+    fn minimal_read_raw_uses_10sps() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aMinimal::new(conn).unwrap();
+
+        push_read(&dout.queue, 12345);
+        let before = *sck.highs.borrow();
+        assert_eq!(sensor.read_raw().unwrap(), 12345);
+        assert_eq!(*sck.highs.borrow() - before, 25);
+    }
+
+    #[test]
+    fn full_read_raw_default_10sps() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        push_read(&dout.queue, 1000);
+        let before = *sck.highs.borrow();
+        assert_eq!(sensor.read_raw().unwrap(), 1000);
+        assert_eq!(*sck.highs.borrow() - before, 25);
+    }
+
+    #[test]
+    fn set_rate_switches_pulse_count() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        // set_rate(40): 27 pulses. Issues one dummy read to apply it.
+        push_read(&dout.queue, 0);
+        let before = *sck.highs.borrow();
+        sensor.set_rate(40).unwrap();
+        assert_eq!(*sck.highs.borrow() - before, 27, "set_rate(40) dummy read should use 27 pulses");
+        push_read(&dout.queue, 2000);
+        let before = *sck.highs.borrow();
+        assert_eq!(sensor.read_raw().unwrap(), 2000);
+        assert_eq!(*sck.highs.borrow() - before, 27);
+
+        // set_rate(10): back to 25 pulses.
+        push_read(&dout.queue, 0);
+        let before = *sck.highs.borrow();
+        sensor.set_rate(10).unwrap();
+        assert_eq!(*sck.highs.borrow() - before, 25, "set_rate(10) dummy read should use 25 pulses");
+    }
+
+    #[test]
+    fn set_rate_invalid_is_rejected() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        let before = *sck.highs.borrow();
+        let result = sensor.set_rate(99);
+        assert!(matches!(result, Err(HX711Error::InvalidPulseCount)));
+        assert_eq!(*sck.highs.borrow() - before, 0, "an invalid rate must not issue a dummy read");
+
+        push_read(&dout.queue, 4242);
+        let before = *sck.highs.borrow();
+        assert_eq!(sensor.read_raw().unwrap(), 4242);
+        assert_eq!(*sck.highs.borrow() - before, 25, "rate stays at its last valid setting (10 SPS / 25 pulses)");
+    }
+
+    #[test]
+    fn read_average_is_integer_division_mean() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        push_read(&dout.queue, 10);
+        push_read(&dout.queue, 20);
+        push_read(&dout.queue, 33);
+        assert_eq!(sensor.read_average(3).unwrap(), (10 + 20 + 33) / 3);
+    }
+
+    #[test]
+    fn tare_and_read_weight() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        push_read(&dout.queue, 100);
+        push_read(&dout.queue, 100);
+        sensor.tare(2).unwrap();
+        assert_eq!(sensor.get_offset(), 100);
+
+        sensor.set_scale(2.5);
+        assert_eq!(sensor.get_scale(), 2.5);
+
+        push_read(&dout.queue, 350);
+        assert_eq!(sensor.read_weight(1).unwrap(), (350.0 - 100.0) / 2.5);
+    }
+
+    // Regression: read_temperature_raw() must clock exactly 26 pulses (the
+    // temperature channel per the HX710A pulse-count table), not 25 or 27
+    // (which would silently read the differential input instead).
+    #[test]
+    fn read_temperature_raw_uses_26_pulses() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        push_read(&dout.queue, 777);
+        let before = *sck.highs.borrow();
+        assert_eq!(sensor.read_temperature_raw().unwrap(), 777);
+        assert_eq!(*sck.highs.borrow() - before, 26, "temperature reading should use exactly 26 pulses");
+    }
+
+    #[test]
+    fn power_down_and_power_up() {
+        let (dout, sck) = new_pins();
+        push_read(&dout.queue, 0);
+        let conn = HX711Connection::new(dout.clone(), sck.clone());
+        let mut sensor = Hx710aFull::new(conn).unwrap();
+
+        let before_high = *sck.highs.borrow();
+        sensor.power_down().unwrap();
+        assert_eq!(*sck.highs.borrow() - before_high, 1, "power_down should drive PD_SCK high once");
+
+        push_read(&dout.queue, 0); // discarded by power_up()
+        let before_high = *sck.highs.borrow();
+        sensor.power_up().unwrap();
+        assert_eq!(*sck.highs.borrow() - before_high, 25, "power_up's discard read should use 25 pulses");
+
+        push_read(&dout.queue, 4242);
+        let before_high = *sck.highs.borrow();
+        assert_eq!(sensor.read_raw().unwrap(), 4242);
+        assert_eq!(*sck.highs.borrow() - before_high, 25, "next read_raw() after power_up() should still use 25 pulses");
+    }
+}
