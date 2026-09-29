@@ -19,6 +19,11 @@ in these two languages, which have no method overloading — several already-shi
 `ReadReg`/`WriteReg`. C++ (§6.2), JVM (§6.5), and Rust (§6.4) are unaffected — real
 overloading or already-distinct free-function names — and keep the method names shown below.
 
+**Addendum (§11):** the design below assumes a single-byte register address everywhere.
+§11 extends the I2C/SMBus side to a configurable, big-endian address width of 1–4 bytes —
+needed by ADE7953 (16-bit) and VL53L0X/VL53L1X (1- or 16-bit, chip-dependent). SPI stays
+single-byte; see §11.4 for why.
+
 ---
 
 ## 1. Problem Statement
@@ -595,3 +600,230 @@ Add a line to the per-chip implementation checklist guidance: "Accepts `Register
    register address at all.
 6. **No mandatory backfill of existing chips.** Per the scope decided for GitHub issue #85,
    this design ships for new chips only; existing chips adopt it opportunistically (§7).
+
+---
+
+## 11. Addendum: Multi-Byte Register Addressing (I2C/SMBus)
+
+**Status:** Proposed — not yet implemented. Written up on request while auditing
+`RegisterConnection` migration candidates for #85; no issue filed yet.
+
+### 11.1 Motivation
+
+Every `read_reg`/`write_reg` (or equivalent) implementation in §6 sends exactly one address
+byte, and every language's signature encodes that as a fact, not a default: Go's `ReadReg(reg
+byte, length int)`, Rust's `read_register(..., reg: u8, ...)`, and C++'s `read(uint8_t reg,
+...)` cannot hold a value above 255 at all; Node.js's `Buffer.from([reg])` silently wraps a
+wider value to its low byte with no error. Two real chips already need more than one byte:
+
+- **ADE7953** (`python/periph/chips/power/ade7953.py`) builds a 2-byte big-endian address for
+  every I2C/SMBus access (`_addr_bytes`: `bytes(((addr >> 8) & 0xFF, addr & 0xFF))`) — its
+  register map spans addresses like `0x120` and `0x3FE`, genuinely above 255.
+- **VL53L0X/VL53L1X** (`python/periph/chips/tof/_vl53_base.py`) share a base class with an
+  explicit `index_bytes` (1 or 2) chosen per chip model, building the same big-endian shape
+  by hand.
+
+Both are already using exactly the shape this addendum formalizes — 1–4 big-endian address
+bytes, chosen once per connection instance — they just built it themselves because
+`RegisterConnection` couldn't.
+
+### 11.2 Scope: I2C/SMBus only, big-endian only
+
+**Big-endian only, no little-endian option.** I2C and SPI both shift bits MSB-first, and
+every multi-byte address in this codebase (ADE7953, VL53L0X/L1X) is already big-endian by
+hand — there's no chip, in this repo or otherwise, known to send an address little-endian.
+Register *data* is sometimes little-endian (e.g. some accelerometer sample registers), but
+that's a property of the bytes returned to the chip driver, handled by the driver itself
+after the read — it has no bearing on how the address prefix is built, so it doesn't need a
+parameter here.
+
+**I2C/SMBus only — not SPI.** `SPIConnection`'s command byte is `reg | read_bit |
+multi_byte_bit` (§4): a single address byte with spare high bits available to OR in a
+read/burst flag, because every SPI chip in this codebase keeps its register space to 7 bits
+and reserves bit 7 (and sometimes bit 6) for that flag. That trick doesn't scale — a 2-byte
+address has no spare bit left to OR a flag into. Real hardware with wide SPI addresses (e.g.
+SPI NOR flash: opcode byte `0x03`/`0x02` followed by a 3-byte address) uses a *different*
+convention instead — a separate opcode byte ahead of the address, not a flag folded into it.
+That's the same "opcode + address as distinct bytes" shape already excluded for ADXL362 and
+MCP2515 in the migration audit for #85, and it's a materially different design question (see
+§11.4) than the one this addendum answers. No chip in this repo needs wide SPI addressing
+today, so it's left out rather than guessed at.
+
+**No changes needed below the address-building layer.** `I2CConnection`/`SMBusConnection`'s
+`_write`/`_read`/`_write_read` hooks, in every language and platform variant, already accept
+an arbitrary-length leading byte sequence — none of them assume a 1-byte address. SMBus PEC
+(§ existing `_crc8` calls) is computed over whatever `data` was actually passed to `_write`/
+`_read`, at any length, with no hardcoded width — a 2-byte address already produces a correct
+PEC with zero changes. Only `RegisterConnection`'s default address-building (currently
+`bytes([reg])` or equivalent) needs to widen.
+
+### 11.3 Design: address width as a per-connection setting
+
+Address width (1–4 bytes) is set once per connection instance, at construction — the same
+pattern `SPIConnection` already uses for `read_bit`/`multi_byte_bit`, and exactly the pattern
+VL53L0X/VL53L1X's `index_bytes` already uses by hand. A register's width doesn't vary
+call-to-call for a given chip (ADE7953 is uniformly 16-bit; a VL53L1X instance is uniformly
+whichever width that chip model needs), so there's no reason to make every `read_reg`/
+`write_reg` call site pass it.
+
+Default width stays **1**, so every already-migrated chip (the 6 in §7 plus the 26 more filed
+under #85) needs zero changes — this is additive, not a breaking change to §6.
+
+```python
+# Python — register_connection.py
+class RegisterConnection(Connection, ABC):
+    def __init__(self, int_pin=None, en_pin=None, reg_bytes=1):
+        super().__init__(int_pin, en_pin)
+        self._reg_bytes = reg_bytes
+
+    def read_reg(self, reg: int, length: int) -> bytes:
+        return self.write_read(reg.to_bytes(self._reg_bytes, 'big'), length)
+
+    def write_reg(self, reg: int, data) -> None:
+        payload = reg.to_bytes(self._reg_bytes, 'big') + (bytes([data]) if isinstance(data, int) else bytes(data))
+        self.write(payload)
+```
+
+`reg.to_bytes(n, 'big')` raises `OverflowError` if `reg` doesn't fit in `n` bytes — the same
+fail-loudly behavior `bytes([reg])` already gives today for a >255 value in the 1-byte case,
+not a silent truncation. `I2CConnection`/`SMBusConnection` gain a `reg_bytes=1` constructor
+parameter that they forward to `RegisterConnection.__init__`; existing call sites are
+unaffected since the parameter defaults to today's behavior exactly.
+
+```cpp
+// C++ — RegisterConnection.h
+// reg widens from uint8_t to uint32_t — a source-compatible change for every
+// existing 1-byte caller (implicit int -> wider-int conversion is lossless),
+// but SPIConnection's own read(uint8_t reg, ...) override must widen to
+// uint32_t too, or it stops being a valid override of the (now-changed)
+// virtual signature and silently becomes an unrelated overload instead.
+class RegisterConnection : public Connection {
+public:
+    explicit RegisterConnection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                                 uint8_t regBytes = 1)
+        : Connection(intPin, enPin), _regBytes(regBytes) {}
+
+    virtual void read(uint32_t reg, uint8_t* buf, size_t len) {
+        uint8_t addr[4];
+        for (uint8_t i = 0; i < _regBytes; i++)
+            addr[i] = (reg >> (8 * (_regBytes - 1 - i))) & 0xFF;
+        write_read(addr, _regBytes, buf, len);
+    }
+    virtual void write(uint32_t reg, const uint8_t* data, size_t len) {
+        uint8_t payload[20];  // up to 4 addr bytes + up to 16 data bytes
+        for (uint8_t i = 0; i < _regBytes; i++)
+            payload[i] = (reg >> (8 * (_regBytes - 1 - i))) & 0xFF;
+        memcpy(payload + _regBytes, data, len);
+        Connection::write(payload, _regBytes + len);
+    }
+private:
+    uint8_t _regBytes;
+};
+```
+
+```java
+// JVM — RegisterConnection.java
+// RegisterConnection is an interface (§6.5), so per-instance width can't be a
+// field on it — it needs an overridable accessor instead. Private interface
+// methods (Java 9+) let the default read/write share the address-building
+// logic without exposing it as public API.
+public interface RegisterConnection extends Connection {
+    default int regBytes() { return 1; }
+
+    default byte[] read(int reg, int length) throws IOException {
+        return writeRead(regAddrBytes(reg), length);
+    }
+
+    default void write(int reg, byte[] data) throws IOException {
+        byte[] addr = regAddrBytes(reg);
+        byte[] payload = new byte[addr.length + data.length];
+        System.arraycopy(addr, 0, payload, 0, addr.length);
+        System.arraycopy(data, 0, payload, addr.length, data.length);
+        write(payload);
+    }
+
+    private byte[] regAddrBytes(int reg) {
+        int n = regBytes();
+        byte[] addr = new byte[n];
+        for (int i = 0; i < n; i++) addr[i] = (byte) (reg >>> (8 * (n - 1 - i)));
+        return addr;
+    }
+}
+```
+`I2CConnection`/`SMBusConnection` gain a `regBytes` field (constructor parameter, default 1)
+and override `regBytes()` to return it. `reg` was already `int` (32-bit) here — no signature
+widening needed, unlike C++/Go/Rust.
+
+```go
+// Go — connection.go / i2c_linux.go, i2c_tinygo.go, smbus.go
+// reg widens from byte to uint32 on the RegisterConnection interface itself,
+// which propagates to every implementer's method signature (I2CConnection,
+// SMBusConnection, SPIConnection, both Linux and TinyGo) — Go has no
+// implicit interface satisfaction across mismatched signatures, so this is
+// the one language where the ripple is mandatory, not just advisable.
+type RegisterConnection interface {
+    Connection
+    ReadReg(reg uint32, length int) ([]byte, error)
+    WriteReg(reg uint32, data []byte) error
+}
+
+func (t *I2CConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+    addr := regAddrBytes(reg, t.regBytes)
+    return t.WriteRead(addr, length)
+}
+```
+`I2CConnection`/`SMBusConnection` gain a `regBytes byte` field (default 1, set via a
+`NewI2CConnectionWithWidth`-style constructor, mirroring `NewSPIConnectionWithConvention`
+from the main implementation). `SPIConnection.ReadReg`/`WriteReg` keep building a single
+command byte internally — they just take `reg uint32` now and truncate to the low byte
+themselves, to satisfy the widened interface without changing SPI's own convention.
+
+```rust
+// Rust — register.rs
+// No connection object to hold per-instance state (chip drivers are generic
+// directly over embedded-hal traits, per §6.4) — reg_bytes is an explicit
+// call parameter here, not construction-time state, the same way
+// SpiRegisterConvention is already passed per call rather than stored.
+pub fn read_register<I2C: I2c>(
+    i2c: &mut I2C, addr: u8, reg: u32, reg_bytes: u8, buf: &mut [u8],
+) -> Result<(), I2C::Error> {
+    let mut addr_buf = [0u8; 4];
+    for i in 0..reg_bytes {
+        addr_buf[i as usize] = (reg >> (8 * (reg_bytes - 1 - i))) as u8;
+    }
+    i2c.write_read(addr, &addr_buf[..reg_bytes as usize], buf)
+}
+```
+
+Node.js follows the same shape as Python (no type change — `reg` is already an untyped
+number and `Buffer` concatenation doesn't care about width); `RegisterConnection` gains a
+`regBytes` option, default 1.
+
+### 11.4 Why SPI stays out of scope
+
+Restating §11.2's core point since it's the main way this addendum could be over-read: wide
+SPI addressing is a **different convention**, not a wider version of the current one. The
+current `SPIConnection` model folds a read/burst flag into spare address bits; wide-address
+SPI hardware instead spends a whole separate byte on an opcode. Building that would mean
+designing a second `SPIConnection` addressing mode (opcode-byte-plus-address, no flag
+folding) against a *specific* chip's actual framing — there's no SPI flash or other
+wide-address SPI chip in this repo yet to design that against, so it's deferred rather than
+speculated on here.
+
+### 11.5 What this unlocks
+
+Once built, this turns two prior exclusions into real `RegisterConnection` migration
+candidates:
+
+- **ADE7953**, I2C/SMBus mode only (`reg_bytes=2`) — its SPI and UART framing (read bit
+  folded into only the low address byte, leading dummy response bytes on SPI; a distinct
+  `0x35`/`0xCA` command byte with reversed payload order on UART) stay hand-rolled regardless,
+  since that's a separate problem from address width (§11.4's point, restated per-chip). A
+  chip can be a clean fit for one of its bus modes without being fully migratable.
+- **VL53L0X/VL53L1X** (`reg_bytes=1` or `2`, matching the existing `index_bytes` per chip
+  model) — `_vl53_base.py`'s own `_index`/`_wr_block`/`_rd_block` become exactly what
+  `RegisterConnection.read_reg`/`write_reg` already do once this ships, so the chip driver
+  could drop them entirely and call the shared API directly.
+
+Neither is filed as a migration issue yet — this section is the design for the capability,
+not a decision to build it.
