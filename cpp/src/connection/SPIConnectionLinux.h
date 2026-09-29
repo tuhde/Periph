@@ -22,6 +22,13 @@
  */
 class SPIConnectionLinux : public RegisterConnection {
 public:
+    // See RegisterConnection.h's using declaration for why this is
+    // needed: overriding read()/write() below would otherwise hide
+    // RegisterConnection's (and, transitively, Connection's) other
+    // read()/write() overloads.
+    using RegisterConnection::read;
+    using RegisterConnection::write;
+
     SPIConnectionLinux(int bus_num, int device_num,
                        uint8_t mode = 0, uint32_t max_speed_hz = 1000000,
                        uint8_t readBit = 0x80, uint8_t multiByteBit = 0,

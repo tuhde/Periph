@@ -17,6 +17,15 @@
  */
 class RegisterConnection : public Connection {
 public:
+    // Declaring read()/write() below would otherwise hide Connection's
+    // 2-argument read(buf, len)/write(data, len) from any code operating on
+    // a RegisterConnection-derived object — C++ name lookup stops at the
+    // first scope declaring a name, it doesn't merge overloads across
+    // scopes the way Python/JS do. These bring the raw byte-level overloads
+    // back into scope so both coexist.
+    using Connection::read;
+    using Connection::write;
+
     /** @brief Construct with optional INT/EN pins and register address width.
      *  @param intPin    Optional InputPin for INT-line delivery.
      *  @param enPin     Optional OutputPin for hardware enable/power control.
