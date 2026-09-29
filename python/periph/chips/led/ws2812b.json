@@ -39,6 +39,14 @@
     [
       "periph/connection/output_pin.py",
       "github:tuhde/Periph/python/periph/connection/output_pin.py"
+    ],
+    [
+      "periph/connection/register.py",
+      "github:tuhde/Periph/python/periph/connection/register.py"
+    ],
+    [
+      "periph/connection/register_connection.py",
+      "github:tuhde/Periph/python/periph/connection/register_connection.py"
     ]
   ],
   "deps": [

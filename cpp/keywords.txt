@@ -153,6 +153,7 @@ RFM97Minimal	KEYWORD1
 RFM98Full	KEYWORD1
 RFM98Minimal	KEYWORD1
 ReadResult	KEYWORD1
+RegisterConnection	KEYWORD1
 SK6812RGBWFull	KEYWORD1
 SK6812RGBWMinimal	KEYWORD1
 SMBusConnection	KEYWORD1
@@ -720,6 +721,7 @@ system_calibrate_zero	KEYWORD2
 tare	KEYWORD2
 temperature	KEYWORD2
 timingBudget	KEYWORD2
+toSigned	KEYWORD2
 toggle	KEYWORD2
 touched	KEYWORD2
 transfer_value	KEYWORD2
