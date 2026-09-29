@@ -251,6 +251,7 @@ class BMP384Full extends BMP384Minimal {
     async read() {
         if (this._mode === _MODE_FORCED) {
             await this._triggerForced();
+            _delay(BMP384Full._computeTConvMs(this._osrP, this._osrT));
         }
         const { uncompPress, uncompTemp } = await this._readBurst();
         const t = this._compensateTemperature(uncompTemp);

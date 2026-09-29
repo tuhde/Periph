@@ -144,10 +144,10 @@ class Bmp384Minimal {
         partial3 = parP4 * tLin * tLin * tLin
         double partialOut2 = uncompPress * (parP1 + partial1 + partial2 + partial3)
 
-        partial1 = uncompPress * uncompPress
+        partial1 = (double) uncompPress * uncompPress
         partial2 = parP9 + parP10 * tLin
         partial3 = partial1 * partial2
-        double partial4 = partial3 + uncompPress * uncompPress * uncompPress * parP11
+        double partial4 = partial3 + (double) uncompPress * uncompPress * uncompPress * parP11
 
         return partialOut1 + partialOut2 + partial4
     }

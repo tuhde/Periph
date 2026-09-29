@@ -277,6 +277,7 @@ impl<I2C: I2c> Bmp384Full<I2C> {
         if self.inner.mode == MODE_FORCED_BITS {
             write_reg(&mut self.inner.i2c, self.inner.addr, REG_PWR_CTRL,
                 (MODE_FORCED_BITS << 4) | PWR_TEMP_EN | PWR_PRESS_EN, self.inner.spi)?;
+            delay_ms(compute_t_conv_ms(self.inner.osr_p, self.inner.osr_t));
         }
         let mut raw = [0u8; 6];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_DATA_0, &mut raw)?;

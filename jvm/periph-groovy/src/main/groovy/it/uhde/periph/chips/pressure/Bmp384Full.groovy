@@ -34,7 +34,11 @@ class Bmp384Full extends Bmp384Minimal {
     }
 
     double[] read() {
-        if (mode == MODE_FORCED) triggerForced()
+        if (mode == MODE_FORCED) {
+            triggerForced()
+            int tConvMs = computeTConvMs(osrP, osrT)
+            try { Thread.sleep(tConvMs) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
+        }
         int[] burst = readBurst()
         double t = compensateTemperature(burst[1])
         double p = compensatePressure(burst[0]) / 100.0d
@@ -59,7 +63,7 @@ class Bmp384Full extends Bmp384Minimal {
     }
 
     void setMode(int mode) {
-        this.mode = mode
+        this.@mode = mode
         applyPwr()
     }
 

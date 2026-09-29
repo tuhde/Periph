@@ -89,6 +89,8 @@ public class Bmp384Full extends Bmp384Minimal {
     public double[] read() throws IOException {
         if (mode == MODE_FORCED) {
             triggerForced();
+            int tConvMs = computeTConvMs(osrP, osrT);
+            try { Thread.sleep(tConvMs); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
         int[] burst = readBurst();
         double t = compensateTemperature(burst[1]);

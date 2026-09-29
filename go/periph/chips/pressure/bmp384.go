@@ -438,6 +438,8 @@ func (d *BMP384Full) Read() (float32, float32, error) {
 		if err := d.writeReg(bmp384RegPwrCtrl, pwrReg); err != nil {
 			return 0, 0, err
 		}
+		tConvMs := bmp384ComputeTConvMs(d.OsrP, d.OsrT)
+		time.Sleep(time.Duration(tConvMs) * time.Millisecond)
 	}
 	raw, err := d.readReg(bmp384RegData0, 6)
 	if err != nil {

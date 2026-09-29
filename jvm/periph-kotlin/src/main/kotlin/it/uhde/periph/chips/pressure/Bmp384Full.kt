@@ -38,7 +38,10 @@ class Bmp384Full @JvmOverloads constructor(
 
     /** Read both pressure and temperature in a single burst. */
     fun read(): DoubleArray {
-        if (powerMode == MODE_FORCED) triggerForced()
+        if (powerMode == MODE_FORCED) {
+            triggerForced()
+            Thread.sleep(computeTConvMs(osrP, osrT).toLong())
+        }
         val burst = readBurst()
         val t = compensateTemperature(burst[1])
         val p = compensatePressure(burst[0]) / 100.0

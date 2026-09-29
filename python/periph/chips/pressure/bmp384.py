@@ -209,7 +209,7 @@ class BMP384Minimal:
         if self._mode == self._MODE_FORCED:
             pwr_reg = (self._MODE_FORCED << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
             self._write_reg(self._REG_PWR_CTRL, pwr_reg)
-            time.sleep_ms(self._MEAS_TIME_MS)
+            time.sleep(self._MEAS_TIME_MS / 1000.0)
         uncomp_press, uncomp_temp = self._read_burst()
         return self._compensate_temperature(uncomp_temp)
 
@@ -226,7 +226,7 @@ class BMP384Minimal:
         if self._mode == self._MODE_FORCED:
             pwr_reg = (self._MODE_FORCED << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
             self._write_reg(self._REG_PWR_CTRL, pwr_reg)
-            time.sleep_ms(self._MEAS_TIME_MS)
+            time.sleep(self._MEAS_TIME_MS / 1000.0)
         uncomp_press, uncomp_temp = self._read_burst()
         self._compensate_temperature(uncomp_temp)
         return self._compensate_pressure(uncomp_press) / 100.0
@@ -299,6 +299,7 @@ class BMP384Full(BMP384Minimal):
         """
         if self._mode == self._MODE_FORCED:
             self._trigger_forced()
+            time.sleep(self._compute_t_conv_ms(self._osr_p, self._osr_t) / 1000.0)
         uncomp_press, uncomp_temp = self._read_burst()
         t = self._compensate_temperature(uncomp_temp)
         p = self._compensate_pressure(uncomp_press) / 100.0
@@ -314,7 +315,7 @@ class BMP384Full(BMP384Minimal):
         try:
             self.set_mode(self.MODE_FORCED)
             self._trigger_forced()
-            time.sleep_ms(self._compute_t_conv_ms(self._osr_p, self._osr_t))
+            time.sleep(self._compute_t_conv_ms(self._osr_p, self._osr_t) / 1000.0)
             uncomp_press, uncomp_temp = self._read_burst()
             t = self._compensate_temperature(uncomp_temp)
             p = self._compensate_pressure(uncomp_press) / 100.0
@@ -344,7 +345,7 @@ class BMP384Full(BMP384Minimal):
     def softreset(self):
         """Issue a soft reset, wait 2 ms, re-read calibration, re-apply config."""
         self._write_reg(self._REG_CMD, self._SOFT_RESET_CMD)
-        time.sleep_ms(3)
+        time.sleep(0.003)
         self._read_calibration()
         self._verify_chip_id()
         self._apply_config()

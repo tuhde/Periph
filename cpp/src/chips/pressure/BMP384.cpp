@@ -182,6 +182,10 @@ void BMP384Full::configure(uint8_t osr_p, uint8_t osr_t, uint8_t iir_filter, uin
 void BMP384Full::read(float& pressure_hpa, float& temperature_c) {
     if (_mode == MODE_FORCED) {
         _trigger_forced();
+        uint32_t t_conv_us = 234u
+            + 392u + (1u << _osr_p) * 2000u
+            + 313u + (1u << _osr_t) * 2000u;
+        delay((t_conv_us + 999) / 1000);
     }
     uint32_t uncomp_press, uncomp_temp;
     _read_burst(uncomp_press, uncomp_temp);
