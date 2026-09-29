@@ -269,7 +269,7 @@ impl<I2C: I2c> Ade7953Minimal<I2C> {
 
     /// Configure overcurrent threshold (amperes; shared by both channels).
     pub fn configure_overcurrent(&mut self, threshold: f32) -> Result<(), I2C::Error> {
-        let mut raw = (threshold * ADC_FS_CODE as f32) / ADC_FS_VOLTS;
+        let mut raw = (threshold * ADC_FS_CODE as f32) / (ADC_FS_VOLTS * self.current_gain_a);
         if raw < 0.0 { raw = 0.0; }
         if raw > 0xFFFFFF as f32 { raw = 0xFFFFFF as f32; }
         self.write_u24(REG_OILVL, raw as u32)
@@ -286,5 +286,101 @@ impl<I2C: I2c> Ade7953Minimal<I2C> {
         self.pga_b = 1;
         self.pga_v = 1;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_hal_mock::eh1::delay::NoopDelay;
+    use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+
+    const ADDR: u8 = 0x38;
+    // voltage_gain=900.0, current_gain=30.0 -- fixture values chosen so the
+    // overvoltage/overcurrent conversions below land comfortably inside the
+    // 24-bit range (see the dedicated clamp test for the >0xFFFFFF case).
+    const VOLTAGE_GAIN: f32 = 900.0;
+    const CURRENT_GAIN: f32 = 30.0;
+
+    fn new_ade7953(transactions: &[I2cTransaction]) -> Ade7953Minimal<I2cMock> {
+        let mut init = vec![
+            I2cTransaction::write(ADDR, vec![0x00, 0xFE, 0xAD]),
+            I2cTransaction::write(ADDR, vec![0x01, 0x20, 0x00, 0x30]),
+        ];
+        init.extend_from_slice(transactions);
+        let i2c = I2cMock::new(&init);
+        let mut delay = NoopDelay::new();
+        Ade7953Minimal::new(i2c, ADDR, VOLTAGE_GAIN, CURRENT_GAIN, &mut delay).expect("new")
+    }
+
+    #[test]
+    fn full_api() {
+        let mut ade = new_ade7953(&[
+            // version()
+            I2cTransaction::write_read(ADDR, vec![0x07, 0x02], vec![0xAB]),
+            // voltage(): raw_VRMS = 1_000_000
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x1C], vec![0x0F, 0x42, 0x40]),
+            // current(): raw_IRMSA = 500_000
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x1A], vec![0x07, 0xA1, 0x20]),
+            // active_power(): raw_AWATT = 1_000_000
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x12], vec![0x0F, 0x42, 0x40]),
+            // active_energy(): raw_AENERGYA = 2_000_000
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x1E], vec![0x1E, 0x84, 0x80]),
+            // reactive_power(): raw_AVAR = -300_000 (two's complement 24-bit)
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x14], vec![0xFB, 0x6C, 0x20]),
+            // apparent_power(): raw_AVA = 1_100_000
+            I2cTransaction::write_read(ADDR, vec![0x02, 0x10], vec![0x10, 0xC8, 0xE0]),
+            // power_factor(): raw_PFA = 20_000
+            I2cTransaction::write_read(ADDR, vec![0x01, 0x0A], vec![0x4E, 0x20]),
+            // line_period(): raw_Period = 4475
+            I2cTransaction::write_read(ADDR, vec![0x01, 0x0E], vec![0x11, 0x7B]),
+            // line_frequency() re-reads Period internally (calls line_period() again)
+            I2cTransaction::write_read(ADDR, vec![0x01, 0x0E], vec![0x11, 0x7B]),
+            // configure_overvoltage(260.0): raw = 260*ADC_FS_CODE/(ADC_FS_VOLTS*900) = 0x709C5F
+            I2cTransaction::write(ADDR, vec![0x02, 0x24, 0x70, 0x9C, 0x5F]),
+            // configure_overcurrent(5.0): raw = 5*ADC_FS_CODE/(ADC_FS_VOLTS*30) ~= 0x40F7C1
+            // (f32 rounding vs the f64 reference calc; regression: previously
+            // omitted current_gain entirely, writing a threshold ~30x too
+            // large -- see current_gain fix)
+            I2cTransaction::write(ADDR, vec![0x02, 0x25, 0x40, 0xF7, 0xC1]),
+            // reset(): read CONFIG=0x8004, set bit 7 -> 0x8084, then re-run
+            // the power-up unlock sequence
+            I2cTransaction::write_read(ADDR, vec![0x01, 0x02], vec![0x80, 0x04]),
+            I2cTransaction::write(ADDR, vec![0x01, 0x02, 0x80, 0x84]),
+            I2cTransaction::write(ADDR, vec![0x00, 0xFE, 0xAD]),
+            I2cTransaction::write(ADDR, vec![0x01, 0x20, 0x00, 0x30]),
+        ]);
+
+        assert_eq!(ade.version().unwrap(), 0xAB);
+        assert!((ade.voltage().unwrap() - 35.230049).abs() < 1e-2);
+        assert!((ade.current().unwrap() - 0.587167).abs() < 1e-3);
+        assert!((ade.active_power().unwrap() - 694.101535).abs() < 1e-1);
+        assert!((ade.active_energy().unwrap() - 9.062349).abs() < 1e-2);
+        assert!((ade.reactive_power().unwrap() - (-208.230461)).abs() < 1e-1);
+        assert!((ade.apparent_power().unwrap() - 763.511689).abs() < 1e-1);
+        assert!((ade.power_factor().unwrap() - 0.610352).abs() < 1e-4);
+        assert!((ade.line_period().unwrap() - 0.020004).abs() < 1e-5);
+        assert!((ade.line_frequency().unwrap() - 49.988829).abs() < 1e-1);
+
+        ade.configure_overvoltage(260.0).unwrap();
+        ade.configure_overcurrent(5.0).unwrap();
+        ade.reset(&mut NoopDelay::new()).unwrap();
+
+        ade.conn.i2c.done();
+    }
+
+    #[test]
+    fn configure_thresholds_clamp_and_floor_at_zero() {
+        let mut ade = new_ade7953(&[
+            // configure_overvoltage(-10.0): negative clamps to raw 0
+            I2cTransaction::write(ADDR, vec![0x02, 0x24, 0x00, 0x00, 0x00]),
+            // configure_overcurrent(100_000.0): raw overflows past 0xFFFFFF, clamps
+            I2cTransaction::write(ADDR, vec![0x02, 0x25, 0xFF, 0xFF, 0xFF]),
+        ]);
+
+        ade.configure_overvoltage(-10.0).unwrap();
+        ade.configure_overcurrent(100_000.0).unwrap();
+
+        ade.conn.i2c.done();
     }
 }
