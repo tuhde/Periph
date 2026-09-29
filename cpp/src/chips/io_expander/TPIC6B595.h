@@ -105,7 +105,11 @@ public:
         : _connection(connection), _num_devices(num_devices)
     {
         for (uint8_t i = 0; i < num_devices; ++i) _shadow[i] = 0;
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
         try { _connection.clear(); } catch (...) {}
+#else
+        _connection.clear();
+#endif
         _flush();
     }
 
