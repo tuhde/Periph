@@ -15,9 +15,33 @@ public final class SMBusConnection extends AbstractConnection implements Registe
     private final I2CConnection i2c;
     private final int address;
     private final boolean pec;
+    private final int regBytes;
 
     /**
      * Open an SMBus device.
+     *
+     * @param bus      I²C bus number (e.g. 1 for /dev/i2c-1)
+     * @param address  7-bit device address (0x08–0x77)
+     * @param pec      enable Packet Error Code (CRC-8) checking
+     * @param intPin   optional INT-line {@link InputPin}, or {@code null}
+     * @param enPin    optional EN-pin {@link OutputPin}, or {@code null}
+     * @param regBytes register address width in bytes, big-endian (default 1)
+     * @throws IOException if address is outside the valid SMBus range, or the device cannot be opened
+     */
+    public SMBusConnection(int bus, int address, boolean pec, InputPin intPin, OutputPin enPin, int regBytes)
+            throws IOException {
+        super(intPin, enPin);
+        if (address < 0x08 || address > 0x77) {
+            throw new IOException("SMBus address must be in range 0x08-0x77");
+        }
+        this.address = address;
+        this.pec = pec;
+        this.regBytes = regBytes;
+        this.i2c = new I2CConnection(bus, address);
+    }
+
+    /**
+     * Open an SMBus device, register address width 1 byte.
      *
      * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
      * @param address 7-bit device address (0x08–0x77)
@@ -27,13 +51,7 @@ public final class SMBusConnection extends AbstractConnection implements Registe
      * @throws IOException if address is outside the valid SMBus range, or the device cannot be opened
      */
     public SMBusConnection(int bus, int address, boolean pec, InputPin intPin, OutputPin enPin) throws IOException {
-        super(intPin, enPin);
-        if (address < 0x08 || address > 0x77) {
-            throw new IOException("SMBus address must be in range 0x08-0x77");
-        }
-        this.address = address;
-        this.pec = pec;
-        this.i2c = new I2CConnection(bus, address);
+        this(bus, address, pec, intPin, enPin, 1);
     }
 
     /**
@@ -45,8 +63,11 @@ public final class SMBusConnection extends AbstractConnection implements Registe
      * @throws IOException if address is outside the valid SMBus range, or the device cannot be opened
      */
     public SMBusConnection(int bus, int address, boolean pec) throws IOException {
-        this(bus, address, pec, null, null);
+        this(bus, address, pec, null, null, 1);
     }
+
+    @Override
+    public int regBytes() { return regBytes; }
 
     private static int crc8(byte[] data, int crc) {
         for (byte b : data) {

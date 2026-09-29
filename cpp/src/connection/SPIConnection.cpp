@@ -1,13 +1,13 @@
 #include "SPIConnection.h"
 
-void SPIConnection::read(uint8_t reg, uint8_t* buf, size_t len) {
-    uint8_t cmd = reg | _readBit;
+void SPIConnection::read(uint32_t reg, uint8_t* buf, size_t len) {
+    uint8_t cmd = static_cast<uint8_t>(reg) | _readBit;
     if (len > 1 && _multiByteBit) cmd |= _multiByteBit;
     write_read(&cmd, 1, buf, len);
 }
 
-void SPIConnection::write(uint8_t reg, const uint8_t* data, size_t len) {
-    uint8_t cmd = reg | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
+void SPIConnection::write(uint32_t reg, const uint8_t* data, size_t len) {
+    uint8_t cmd = static_cast<uint8_t>(reg) | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
     uint8_t payload[17];
     payload[0] = cmd;
     memcpy(payload + 1, data, len);

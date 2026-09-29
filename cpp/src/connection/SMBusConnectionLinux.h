@@ -18,7 +18,8 @@
 class SMBusConnectionLinux : public RegisterConnection {
 public:
     SMBusConnectionLinux(int bus, uint8_t addr, bool pec = false,
-                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                         uint8_t regBytes = 1);
     ~SMBusConnectionLinux();
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */

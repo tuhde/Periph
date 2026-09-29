@@ -21,8 +21,9 @@
 class SMBusConnectionZephyr : public RegisterConnection {
 public:
     SMBusConnectionZephyr(const struct device *dev, uint8_t addr, bool pec = false,
-                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _dev(dev), _addr(addr), _pec(pec) {
+                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                          uint8_t regBytes = 1)
+        : RegisterConnection(intPin, enPin, regBytes), _dev(dev), _addr(addr), _pec(pec) {
         if (addr < 0x08 || addr > 0x77) _valid = false;
     }
 

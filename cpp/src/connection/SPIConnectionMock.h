@@ -25,6 +25,7 @@
 class SPIConnectionMock : public RegisterConnection {
 public:
     SPIConnectionMock() = default;
+    explicit SPIConnectionMock(uint8_t regBytes) : RegisterConnection(nullptr, nullptr, regBytes) {}
 
     /** @brief Preload consecutive register bytes starting at @p reg. */
     void setRegister(uint8_t reg, std::initializer_list<uint8_t> values) {

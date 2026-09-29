@@ -25,8 +25,9 @@
  */
 class I2CConnectionPicoSDK : public RegisterConnection {
 public:
-    I2CConnectionPicoSDK(i2c_inst_t* i2c, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _i2c(i2c), _addr(addr) {}
+    I2CConnectionPicoSDK(i2c_inst_t* i2c, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                         uint8_t regBytes = 1)
+        : RegisterConnection(intPin, enPin, regBytes), _i2c(i2c), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device.

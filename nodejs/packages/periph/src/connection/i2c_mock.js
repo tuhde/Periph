@@ -86,12 +86,18 @@ class I2CConnectionMock {
     }
 
     async readReg(reg, length) {
-        return this.writeRead(Buffer.from([reg]), length);
+        return this.writeRead(this._regAddrBytes(reg), length);
     }
 
     async writeReg(reg, data) {
         const payload = Buffer.isBuffer(data) ? data : Buffer.from(typeof data === 'number' ? [data] : data);
-        return this.write(Buffer.concat([Buffer.from([reg]), payload]));
+        return this.write(Buffer.concat([this._regAddrBytes(reg), payload]));
+    }
+
+    _regAddrBytes(reg) {
+        const addr = Buffer.alloc(this._addressWidth);
+        addr.writeUIntBE(reg, 0, this._addressWidth);
+        return addr;
     }
 
     async close() {}

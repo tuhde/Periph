@@ -13,7 +13,8 @@
  */
 class I2CConnectionLinux : public RegisterConnection {
 public:
-    I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+    I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                       uint8_t regBytes = 1);
     ~I2CConnectionLinux();
 
 protected:

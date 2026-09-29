@@ -40,14 +40,24 @@ type i2cRdwrIoctlData struct {
 // represents one device on the bus.
 type I2CConnection struct {
 	connectionBase
-	fd   int
-	addr uint16
+	fd       int
+	addr     uint16
+	regBytes uint8
 }
 
 // NewI2CConnection opens /dev/i2c-N (N = bus) and binds the resulting file
 // descriptor to the given 7-bit device address via I2C_SLAVE. intPin and
 // enPin may be nil if the device's INT/EN lines are not wired.
+//
+// Uses a 1-byte register address. Use NewI2CConnectionWithWidth for chips
+// needing a wider address (e.g. ADE7953, VL53L1X).
 func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
+	return NewI2CConnectionWithWidth(bus, addr, 1, intPin, enPin)
+}
+
+// NewI2CConnectionWithWidth is like NewI2CConnection but additionally takes
+// the register address width in bytes, big-endian (1-4).
+func NewI2CConnectionWithWidth(bus int, addr uint8, regBytes uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
 	path := fmt.Sprintf("/dev/i2c-%d", bus)
 	fd, err := unix.Open(path, unix.O_RDWR, 0)
 	if err != nil {
@@ -61,6 +71,7 @@ func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I
 		connectionBase: connectionBase{intPin: intPin, enPin: enPin},
 		fd:              fd,
 		addr:            uint16(addr),
+		regBytes:        regBytes,
 	}, nil
 }
 
@@ -158,11 +169,11 @@ func (t *I2CConnection) FileDescriptor() int {
 }
 
 // ReadReg reads length bytes starting at register reg.
-func (t *I2CConnection) ReadReg(reg byte, length int) ([]byte, error) {
-	return t.WriteRead([]byte{reg}, length)
+func (t *I2CConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	return t.WriteRead(regAddrBytes(reg, t.regBytes), length)
 }
 
 // WriteReg writes data to register reg.
-func (t *I2CConnection) WriteReg(reg byte, data []byte) error {
-	return t.Write(append([]byte{reg}, data...))
+func (t *I2CConnection) WriteReg(reg uint32, data []byte) error {
+	return t.Write(append(regAddrBytes(reg, t.regBytes), data...))
 }

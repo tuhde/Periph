@@ -28,6 +28,7 @@
 class I2CConnectionMock : public RegisterConnection {
 public:
     I2CConnectionMock() = default;
+    explicit I2CConnectionMock(uint8_t regBytes) : RegisterConnection(nullptr, nullptr, regBytes) {}
 
     /** @brief Set the register address width in bytes (default 1). */
     void setAddressWidth(uint8_t addressWidth) { _addressWidth = addressWidth; }

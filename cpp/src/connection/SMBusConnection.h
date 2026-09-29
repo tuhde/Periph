@@ -17,7 +17,8 @@
 class SMBusConnection : public RegisterConnection {
 public:
     SMBusConnection(TwoWire& bus, uint8_t addr, bool pec = false,
-                    InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+                    InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                    uint8_t regBytes = 1);
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */
     bool valid() const { return _valid; }

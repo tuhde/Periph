@@ -48,9 +48,26 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
     }
 
     private final int fd;
+    private final int regBytes;
 
     /**
      * Open an I²C device.
+     *
+     * @param bus      I²C bus number (e.g. 1 for /dev/i2c-1)
+     * @param address  7-bit device address
+     * @param intPin   optional INT-line {@link InputPin}, or {@code null}
+     * @param enPin    optional EN-pin {@link OutputPin}, or {@code null}
+     * @param regBytes register address width in bytes, big-endian (default 1)
+     * @throws IOException if the device cannot be opened or the address ioctl fails
+     */
+    public I2CConnection(int bus, int address, InputPin intPin, OutputPin enPin, int regBytes) throws IOException {
+        super(intPin, enPin);
+        this.fd = openDevice(bus, address);
+        this.regBytes = regBytes;
+    }
+
+    /**
+     * Open an I²C device, register address width 1 byte.
      *
      * @param bus     I²C bus number (e.g. 1 for /dev/i2c-1)
      * @param address 7-bit device address
@@ -59,8 +76,7 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
      * @throws IOException if the device cannot be opened or the address ioctl fails
      */
     public I2CConnection(int bus, int address, InputPin intPin, OutputPin enPin) throws IOException {
-        super(intPin, enPin);
-        this.fd = openDevice(bus, address);
+        this(bus, address, intPin, enPin, 1);
     }
 
     /**
@@ -71,8 +87,11 @@ public final class I2CConnection extends AbstractConnection implements RegisterC
      * @throws IOException if the device cannot be opened or the address ioctl fails
      */
     public I2CConnection(int bus, int address) throws IOException {
-        this(bus, address, null, null);
+        this(bus, address, null, null, 1);
     }
+
+    @Override
+    public int regBytes() { return regBytes; }
 
     private static int openDevice(int bus, int address) throws IOException {
         int fd = -1;

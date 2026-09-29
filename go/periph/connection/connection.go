@@ -52,12 +52,29 @@ type Connection interface {
 // Go has no method overloading and Connection.Read(n int) already exists
 // with an incompatible signature, so the register methods get distinct
 // names rather than reusing Read/Write.
+//
+// reg is uint32 rather than byte so I2CConnection/SMBusConnection can build
+// a multi-byte big-endian address (regBytes, 1-4, set at construction);
+// SPIConnection keeps its own convention single-byte and just truncates reg
+// to its low byte when building its command byte — widening reg here is
+// what lets a wider address flow through the shared interface at all,
+// regardless of which concrete type ends up using it. See
+// specs/feature_register_access_design.md §11.
 type RegisterConnection interface {
 	Connection
 	// ReadReg reads length bytes starting at register reg.
-	ReadReg(reg byte, length int) ([]byte, error)
+	ReadReg(reg uint32, length int) ([]byte, error)
 	// WriteReg writes data to register reg.
-	WriteReg(reg byte, data []byte) error
+	WriteReg(reg uint32, data []byte) error
+}
+
+// regAddrBytes builds a big-endian register address of n bytes (1-4) from reg.
+func regAddrBytes(reg uint32, n uint8) []byte {
+	addr := make([]byte, n)
+	for i := uint8(0); i < n; i++ {
+		addr[i] = byte(reg >> (8 * (n - 1 - i)))
+	}
+	return addr
 }
 
 // connectionBase is embedded by every concrete Connection implementation to

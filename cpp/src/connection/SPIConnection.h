@@ -31,10 +31,10 @@ public:
     }
 
     /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */
-    void read(uint8_t reg, uint8_t* buf, size_t len) override;
+    void read(uint32_t reg, uint8_t* buf, size_t len) override;
 
     /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
-    void write(uint8_t reg, const uint8_t* data, size_t len) override;
+    void write(uint32_t reg, const uint8_t* data, size_t len) override;
 
 protected:
     /** @brief Assert CS, send bytes, deassert CS.

@@ -111,8 +111,8 @@ func (t *SPIConnection) WriteRead(data []byte, n int) ([]byte, error) {
 
 // ReadReg reads length bytes starting at register reg, building the SPI
 // command byte from the connection's configured convention.
-func (t *SPIConnection) ReadReg(reg byte, length int) ([]byte, error) {
-	cmd := reg | t.readBit
+func (t *SPIConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	cmd := byte(reg) | t.readBit
 	if length > 1 && t.multiByteBit != 0 {
 		cmd |= t.multiByteBit
 	}
@@ -121,8 +121,8 @@ func (t *SPIConnection) ReadReg(reg byte, length int) ([]byte, error) {
 
 // WriteReg writes data to register reg, building the SPI command byte from
 // the connection's configured convention.
-func (t *SPIConnection) WriteReg(reg byte, data []byte) error {
-	cmd := reg
+func (t *SPIConnection) WriteReg(reg uint32, data []byte) error {
+	cmd := byte(reg)
 	if len(data) > 1 && t.multiByteBit != 0 {
 		cmd |= t.multiByteBit
 	}

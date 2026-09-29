@@ -61,7 +61,7 @@ where
             buf.fill(0);
             return Ok(());
         }
-        read_register(&mut self.bus, addr, reg, buf)
+        read_register(&mut self.bus, addr, reg as u32, 1, buf)
     }
 
     /// Write `reg` followed by `data` in one transaction.
@@ -71,6 +71,6 @@ where
         if !self.enabled {
             return Ok(());
         }
-        write_register(&mut self.bus, addr, reg, data)
+        write_register(&mut self.bus, addr, reg as u32, 1, data)
     }
 }

@@ -605,8 +605,8 @@ Add a line to the per-chip implementation checklist guidance: "Accepts `Register
 
 ## 11. Addendum: Multi-Byte Register Addressing (I2C/SMBus)
 
-**Status:** Proposed — not yet implemented. Written up on request while auditing
-`RegisterConnection` migration candidates for #85; no issue filed yet.
+**Status:** Implemented (#228). Written up while auditing `RegisterConnection` migration
+candidates for #85.
 
 ### 11.1 Motivation
 

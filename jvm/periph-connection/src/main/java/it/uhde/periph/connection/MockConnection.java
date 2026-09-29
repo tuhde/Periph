@@ -43,6 +43,9 @@ public class MockConnection implements RegisterConnection {
         this.addressWidth = addressWidth;
     }
 
+    @Override
+    public int regBytes() { return addressWidth; }
+
     /** Preload consecutive register bytes starting at {@code reg}. */
     public void setRegister(int reg, int... values) {
         for (int i = 0; i < values.length; i++) {

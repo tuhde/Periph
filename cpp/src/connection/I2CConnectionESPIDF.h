@@ -31,8 +31,9 @@
  */
 class I2CConnectionESPIDF : public RegisterConnection {
 public:
-    I2CConnectionESPIDF(i2c_master_dev_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _dev(dev) {}
+    I2CConnectionESPIDF(i2c_master_dev_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                        uint8_t regBytes = 1)
+        : RegisterConnection(intPin, enPin, regBytes), _dev(dev) {}
 
 protected:
     /** @brief Send bytes to the device via `i2c_master_transmit`.

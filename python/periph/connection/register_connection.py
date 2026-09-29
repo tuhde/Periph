@@ -12,10 +12,21 @@ class RegisterConnection(Connection, ABC):
     SiPoConnection, DHTxxConnection) is unaffected and continues to extend
     Connection only.
 
-    The default implementation below (write_read/write of a leading
-    register-address byte) matches I2C/SMBus behavior as-is; SPIConnection
-    overrides both to build its command byte first.
+    The default implementation below (write_read/write of a leading, big-endian
+    register-address of `reg_bytes` bytes) matches I2C/SMBus behavior as-is;
+    SPIConnection overrides both to build its single-byte command byte instead
+    (see specs/feature_register_access_design.md §11.2 for why SPI stays
+    single-byte).
+
+    Args:
+        int_pin: Optional InputPin for INT-line delivery.
+        en_pin: Optional OutputPin for hardware enable/power control.
+        reg_bytes: Register address width in bytes, big-endian (default 1).
     """
+
+    def __init__(self, int_pin=None, en_pin=None, reg_bytes=1):
+        super().__init__(int_pin, en_pin)
+        self._reg_bytes = reg_bytes
 
     def read_reg(self, reg: int, length: int) -> bytes:
         """Read `length` bytes starting at register `reg`.
@@ -27,7 +38,7 @@ class RegisterConnection(Connection, ABC):
         Returns:
             bytes: Data received from the device.
         """
-        return self.write_read(bytes([reg]), length)
+        return self.write_read(reg.to_bytes(self._reg_bytes, 'big'), length)
 
     def write_reg(self, reg: int, data) -> None:
         """Write `data` to register `reg`.
@@ -36,5 +47,5 @@ class RegisterConnection(Connection, ABC):
             reg: Register address.
             data: Bytes to write, or a single int for a 1-byte register.
         """
-        payload = bytes([reg]) + (bytes([data]) if isinstance(data, int) else bytes(data))
+        payload = reg.to_bytes(self._reg_bytes, 'big') + (bytes([data]) if isinstance(data, int) else bytes(data))
         self.write(payload)

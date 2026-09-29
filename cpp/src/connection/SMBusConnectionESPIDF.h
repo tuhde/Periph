@@ -32,8 +32,9 @@
 class SMBusConnectionESPIDF : public I2CConnectionESPIDF {
 public:
     SMBusConnectionESPIDF(i2c_master_dev_handle_t dev, uint8_t addr, bool pec = false,
-                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : I2CConnectionESPIDF(dev, intPin, enPin), _addr(addr), _pec(pec) {
+                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                          uint8_t regBytes = 1)
+        : I2CConnectionESPIDF(dev, intPin, enPin, regBytes), _addr(addr), _pec(pec) {
         if (addr < 0x08 || addr > 0x77) _valid = false;
     }
 
