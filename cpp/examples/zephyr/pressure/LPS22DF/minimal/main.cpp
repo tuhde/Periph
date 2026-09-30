@@ -14,7 +14,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(LPS22DF_I2C_NODE);
     I2CConnectionZephyr connection(dev, LPS22DF_ADDR);
-    LPS22DFMinimal lps(connection);                        // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFMinimal lps(connection);                        // Create LPS22DF driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float p = lps.pressure();                         // Read pressure, () → float Pa

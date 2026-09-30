@@ -31,7 +31,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP384Minimal bmp(connection, false);                   // Create BMP384 driver, (connection, spi=false)
+    BMP384Minimal bmp(connection, false);                   // Create BMP384 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                        // Read temperature, () → float °C

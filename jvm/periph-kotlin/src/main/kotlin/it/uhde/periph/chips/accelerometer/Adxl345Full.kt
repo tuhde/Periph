@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.accelerometer
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -12,10 +12,9 @@ import java.io.IOException
  * inactivity detection, free-fall detection, 32-level FIFO, interrupt routing
  * (INT1 / INT2), and sleep / auto-sleep / link mode.
  */
-class Adxl345Full @JvmOverloads constructor(
-    connection: Connection,
-    busType: Int = Adxl345Minimal.BUS_I2C
-) : Adxl345Minimal(connection, busType) {
+class Adxl345Full(
+    connection: RegisterConnection
+) : Adxl345Minimal(connection) {
 
     /** Set the measurement range to ±2/±4/±8/±16 g. FULL_RES is preserved. */
     @Throws(IOException::class)

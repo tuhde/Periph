@@ -16,7 +16,7 @@ int main(void) {
     I2CConnectionZephyr connection(dev, BMP280_ADDR);
 
     // --- Weather monitoring preset: lowest power, forced mode ---
-    BMP280Full bmp(connection);                           // Create BMP280 driver, (connection, spi=false)
+    BMP280Full bmp(connection);                           // Create BMP280 driver, (connection)
     bmp.configure(BMP280Full::OSRS_X1, BMP280Full::OSRS_X1, BMP280Full::MODE_FORCED, BMP280Full::FILTER_OFF, BMP280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t=×1, osrs_p=×1, mode=forced, filter=off, t_sb=0) → None
 
     for (int n = 0; n < 30; n++) {

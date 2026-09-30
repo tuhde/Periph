@@ -12,7 +12,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x5C);
-    LPS22DFMinimal lps(connection, /*spi=*/false);        // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFMinimal lps(connection, /*spi=*/false);        // Create LPS22DF driver, (connection)
 
     stdio_init_all();
     sleep_ms(2000);

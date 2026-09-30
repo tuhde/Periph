@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.accelerometer;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -8,7 +9,9 @@ import java.io.IOException;
  * ADXL345 — 3-axis MEMS accelerometer (Analog Devices) — minimal interface.
  *
  * <p>Reads X, Y, Z acceleration in <i>g</i> with sensible defaults; no
- * configuration is required beyond the connection. Supports I²C and SPI.
+ * configuration is required beyond the connection. Supports I²C, SMBus, and SPI
+ * through the shared {@link RegisterConnection} (for SPI, construct the connection
+ * with readBit=0x80, multiByteBit=0x40 — the ADXL345 R/W|MB|A5..A0 command byte).
  *
  * <p>Default configuration (baked in at construction):
  * <ul>
@@ -22,11 +25,6 @@ import java.io.IOException;
  * CPOL=1/CPHA=1 (mode 3), max 5 MHz, MSB first, CS active low.
  */
 public class Adxl345Minimal {
-
-    /** Bus type: I²C (default). */
-    public static final int BUS_I2C = 0;
-    /** Bus type: SPI — writes prepend a command byte (R/W|MB|A5..A0). */
-    public static final int BUS_SPI = 1;
 
     // Register map (6-bit addresses, 0x00–0x39).
     protected static final int REG_DEVID         = 0x00;
@@ -69,31 +67,18 @@ public class Adxl345Minimal {
         {0x0A,  100}, {0x09,   50}, {0x08,   25}, {0x07,  12.5}, {0x06, 6.25},
     };
 
-    protected final Connection connection;
-    protected final int busType;
+    protected final RegisterConnection connection;
     protected int rangeBits;
     protected boolean fullRes = true;
 
     /**
-     * Construct the driver at the default I²C address (0x53).
+     * Construct the driver.
      *
-     * @param connection configured I²C connection bound to the device
+     * @param connection configured I²C, SMBus, or SPI register connection
      * @throws IOException on bus error or wrong DEVID
      */
-    public Adxl345Minimal(Connection connection) throws IOException {
-        this(connection, BUS_I2C);
-    }
-
-    /**
-     * Construct the driver over I²C or SPI.
-     *
-     * @param connection configured I²C or SPI connection
-     * @param busType    {@link #BUS_I2C} or {@link #BUS_SPI}
-     * @throws IOException on bus error or wrong DEVID
-     */
-    public Adxl345Minimal(Connection connection, int busType) throws IOException {
+    public Adxl345Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
-        this.busType = busType;
         this.rangeBits = 0;
         writeReg(REG_DATA_FORMAT, DATA_FORMAT_DEFAULT);
         writeReg(REG_BW_RATE, BW_RATE_DEFAULT);
@@ -106,36 +91,16 @@ public class Adxl345Minimal {
         }
     }
 
-    private static int cmdByte(int reg, boolean read, boolean multi) {
-        int addr = reg & 0x3F;
-        if (multi) addr |= 0x40;
-        if (read)  addr |= 0x80;
-        return addr;
-    }
-
     protected void writeReg(int reg, int value) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, false, false);
-            connection.write(new byte[]{(byte) cmd, (byte) value});
-        } else {
-            connection.write(new byte[]{(byte) reg, (byte) value});
-        }
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     protected int readReg(int reg) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, true, false);
-            return connection.writeRead(new byte[]{(byte) cmd}, 1)[0] & 0xFF;
-        }
-        return connection.writeRead(new byte[]{(byte) reg}, 1)[0] & 0xFF;
+        return connection.read(reg, 1)[0] & 0xFF;
     }
 
     protected byte[] readBurst(int reg, int n) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, true, n > 1);
-            return connection.writeRead(new byte[]{(byte) cmd}, n);
-        }
-        return connection.writeRead(new byte[]{(byte) reg}, n);
+        return connection.read(reg, n);
     }
 
     /**
@@ -149,12 +114,9 @@ public class Adxl345Minimal {
      */
     public double[] read() throws IOException {
         byte[] raw = readBurst(REG_DATAX0, 6);
-        int rx = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8);
-        int ry = (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
-        int rz = (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
-        if ((rx & 0x8000) != 0) rx -= 0x10000;
-        if ((ry & 0x8000) != 0) ry -= 0x10000;
-        if ((rz & 0x8000) != 0) rz -= 0x10000;
+        int rx = Register.toSigned((raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8), 16);
+        int ry = Register.toSigned((raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8), 16);
+        int rz = Register.toSigned((raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8), 16);
         double scale = fullRes
                 ? FULL_RES_SCALE_G_PER_LSB
                 : new double[]{3.9e-3, 7.8e-3, 15.6e-3, 31.2e-3}[rangeBits & 0x03];

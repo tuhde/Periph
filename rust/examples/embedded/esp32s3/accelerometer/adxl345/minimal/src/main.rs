@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let delay = Delay::new();
 
-    let mut accel = Adxl345Minimal::new(i2c, ADDR, false).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Minimal::new(i2c, ADDR).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53)
 
     loop {
         let (x, y, z) = accel.read().expect("read acceleration"); // Read 3-axis acceleration, () → (f32, f32, f32) g

@@ -11,7 +11,7 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x46;
     I2CConnectionLinux connection(bus, addr);
 
-    BMP581Minimal bmp(connection);                                          // Create BMP581 driver, (connection, spi=false)
+    BMP581Minimal bmp(connection);                                          // Create BMP581 driver, (connection)
 
     while (true) {
         float p = bmp.pressure();                                          // Read pressure, () → float Pa

@@ -19,7 +19,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BME280Minimal bme(connection);                       // Create BME280 driver, (connection, spi=false)
+    BME280Minimal bme(connection);                       // Create BME280 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bme.temperature();                    // Read temperature, () → float °C

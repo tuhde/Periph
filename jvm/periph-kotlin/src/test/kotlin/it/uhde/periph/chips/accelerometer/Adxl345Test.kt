@@ -170,22 +170,19 @@ class Adxl345Test {
         assertEquals(0x00, lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT) and 0x80)
     }
 
+    // SPI command-byte framing lives in SPIConnection.read/write now; the driver
+    // must address registers via RegisterConnection and fetch the six data bytes
+    // as one burst so MB gets set on SPI.
     @Test
-    fun spiAddressing() {
-        val connection = MockConnection()
-        val spiRd = 0x80
-        val spiBurstRd = 0xC0
-        connection.setRegister(Adxl345Minimal.REG_DEVID or spiRd, Adxl345Minimal.DEVID_VALUE)
-        connection.setRegister(Adxl345Minimal.REG_DATAX0 or spiBurstRd, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03)
+    fun registerBurstRead() {
+        val connection = newConnection()
+        val accel = Adxl345Minimal(connection)
 
-        val accel = Adxl345Minimal(connection, Adxl345Minimal.BUS_SPI)
-        assertEquals(0x08, lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT))
-
+        val before = connection.writes().size
         accel.read()
-        var sawBurst = false
-        for (w in connection.writes()) {
-            if (w.size == 1 && (w[0].toInt() and 0xC0) == 0xC0) sawBurst = true
-        }
-        assertTrue(sawBurst, "SPI burst read never set the MB bit (0x40) alongside R (0x80)")
+        val reads = connection.writes().subList(before, connection.writes().size)
+        assertEquals(1, reads.size, "read() should issue exactly one register burst")
+        assertEquals(1, reads[0].size)
+        assertEquals(Adxl345Minimal.REG_DATAX0, reads[0][0].toInt() and 0xFF)
     }
 }

@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x53);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel = Adxl345Minimal::new(dev, addr, false).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Minimal::new(dev, addr).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53)
 
     // --- 50-sample stationary tilt characterization at 10 Hz ---
     // With the sensor flat and the Z axis up, gravity should project entirely

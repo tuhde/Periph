@@ -26,7 +26,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x46);
-    BMP581Full bmp(connection);                           // Create BMP581 driver, (connection, spi=false)
+    BMP581Full bmp(connection);                           // Create BMP581 driver, (connection)
     uint8_t cid = bmp.chip_id();                         // Read chip ID, () → int
                                                         // returns 0x50 for BMP581
     check_true(cid == 0x50, "chip_id");

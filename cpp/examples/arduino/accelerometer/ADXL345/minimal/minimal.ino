@@ -2,7 +2,7 @@
 #include <Periph.h>
 
 I2CConnection connection(Wire, 0x53);
-ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
 void setup() {
     Serial.begin(115200);

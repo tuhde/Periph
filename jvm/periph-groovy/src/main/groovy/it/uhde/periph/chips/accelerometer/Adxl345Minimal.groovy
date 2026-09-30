@@ -1,13 +1,16 @@
 package it.uhde.periph.chips.accelerometer
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * ADXL345 — 3-axis MEMS accelerometer (Analog Devices) — minimal interface.
  *
  * Reads X, Y, Z acceleration in *g* with sensible defaults; no configuration
- * is required beyond the connection. Supports I²C and SPI.
+ * is required beyond the connection. Supports I²C, SMBus, and SPI
+ * through the shared RegisterConnection (for SPI, construct the connection with
+ * readBit=0x80, multiByteBit=0x40 — the ADXL345 R/W|MB|A5..A0 command byte).
  *
  * Default configuration (baked in at construction):
  * - Full-resolution mode (3.9 mg/LSB at any range)
@@ -20,11 +23,6 @@ import it.uhde.periph.connection.Connection
  */
 @CompileStatic
 class Adxl345Minimal {
-
-    /** Bus type: I²C (default). */
-    public static final int BUS_I2C = 0
-    /** Bus type: SPI — writes prepend a command byte (R/W|MB|A5..A0). */
-    public static final int BUS_SPI = 1
 
     protected static final int REG_DEVID         = 0x00
     protected static final int REG_THRESH_TAP    = 0x1D
@@ -62,18 +60,12 @@ class Adxl345Minimal {
         [0x0A,  100], [0x09,   50], [0x08,   25], [0x07, 12.5], [0x06, 6.25],
     ] as double[][]
 
-    protected final Connection connection
-    protected final int busType
+    protected final RegisterConnection connection
     protected int rangeBits = 0
     protected boolean fullRes = true
 
-    Adxl345Minimal(Connection connection) {
-        this(connection, BUS_I2C)
-    }
-
-    Adxl345Minimal(Connection connection, int busType) {
+    Adxl345Minimal(RegisterConnection connection) {
         this.connection = connection
-        this.busType = busType
         writeReg(REG_DATA_FORMAT, DATA_FORMAT_DEFAULT)
         writeReg(REG_BW_RATE, BW_RATE_DEFAULT)
         writeReg(REG_POWER_CTL, POWER_CTL_DEFAULT)
@@ -85,36 +77,16 @@ class Adxl345Minimal {
         }
     }
 
-    private static int cmdByte(int reg, boolean read, boolean multi) {
-        int addr = reg & 0x3F
-        if (multi) addr |= 0x40
-        if (read)  addr |= 0x80
-        return addr
-    }
-
     protected void writeReg(int reg, int value) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, false, false)
-            connection.write(new byte[]{(byte) cmd, (byte) value} as byte[])
-        } else {
-            connection.write(new byte[]{(byte) reg, (byte) value} as byte[])
-        }
+        connection.write(reg, new byte[]{(byte) value} as byte[])
     }
 
     protected int readReg(int reg) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, true, false)
-            return connection.writeRead(new byte[]{(byte) cmd} as byte[], 1)[0] & 0xFF
-        }
-        return connection.writeRead(new byte[]{(byte) reg} as byte[], 1)[0] & 0xFF
+        return connection.read(reg, 1)[0] & 0xFF
     }
 
     protected byte[] readBurst(int reg, int n) throws IOException {
-        if (busType == BUS_SPI) {
-            int cmd = cmdByte(reg, true, n > 1)
-            return connection.writeRead(new byte[]{(byte) cmd} as byte[], n)
-        }
-        return connection.writeRead(new byte[]{(byte) reg} as byte[], n)
+        return connection.read(reg, n)
     }
 
     /**
@@ -124,12 +96,9 @@ class Adxl345Minimal {
      */
     double[] read() throws IOException {
         byte[] raw = readBurst(REG_DATAX0, 6)
-        int rx = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8)
-        int ry = (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8)
-        int rz = (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8)
-        if ((rx & 0x8000) != 0) rx -= 0x10000
-        if ((ry & 0x8000) != 0) ry -= 0x10000
-        if ((rz & 0x8000) != 0) rz -= 0x10000
+        int rx = Register.toSigned((raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8), 16)
+        int ry = Register.toSigned((raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8), 16)
+        int rz = Register.toSigned((raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8), 16)
         double scale = fullRes
                 ? FULL_RES_SCALE_G_PER_LSB
                 : new double[]{3.9e-3, 7.8e-3, 15.6e-3, 31.2e-3}[rangeBits & 0x03]

@@ -24,7 +24,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    L3G4200DFull chip(connection, false);                // Create L3G4200D driver, (connection, spi=false)
+    L3G4200DFull chip(connection, false);                // Create L3G4200D driver, (connection)
     uint8_t cid = chip.who_am_i();                        // Read WHO_AM_I, () → int
                                                            // returns 0xD3 for L3G4200D
     chip.configure(1, 0, 500);                            // Configure chip, (odr=1 [200 Hz], bandwidth=0, full_scale=500) → None

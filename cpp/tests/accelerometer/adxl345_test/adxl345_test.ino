@@ -25,7 +25,7 @@ void setup() {
     delay(2000);
     Wire.begin(TEST_SDA, TEST_SCL, 400000);
     I2CConnection connection(Wire, TEST_ADDR);
-    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     float x, y, z;
     accel.read(x, y, z);                                    // Read 3-axis acceleration, (x, y, z) → g, g, g
@@ -33,7 +33,7 @@ void setup() {
     float mag = sqrtf(x * x + y * y + z * z);
     check_true(mag >= 0.5f && mag <= 1.5f, "magnitude_near_1g");
 
-    ADXL345Full accel_full(connection);                      // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel_full(connection);                      // Create ADXL345 Full driver, (connection)
     accel_full.set_range(4);                                // Set measurement range, (range_g) → g
     accel_full.read(x, y, z);                               // Read 3-axis acceleration, (x, y, z) → g, g, g
     check_true(x == x && y == y && z == z, "read_after_set_range_4g");

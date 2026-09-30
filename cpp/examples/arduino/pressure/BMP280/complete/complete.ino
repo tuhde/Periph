@@ -26,7 +26,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BMP280Full bmp(connection);                           // Create BMP280 driver, (connection, spi=false)
+    BMP280Full bmp(connection);                           // Create BMP280 driver, (connection)
     uint8_t cid = bmp.chip_id();                       // Read chip ID, () → int
                                                         // returns 0x58 for BMP280
     check_true(cid == 0x58, "chip_id");

@@ -19,7 +19,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x5C);
-    LPS22DFMinimal lps(connection);                        // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFMinimal lps(connection);                        // Create LPS22DF driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float p = lps.pressure();                         // Read pressure, () → float Pa

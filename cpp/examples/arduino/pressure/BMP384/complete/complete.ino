@@ -26,7 +26,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection, spi=false)
+    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection)
 
     bmp.configure(4, 1, 2, 0x03);                          // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
                                                             // sets oversampling, IIR coefficient, and output data rate

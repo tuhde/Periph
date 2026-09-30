@@ -32,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	sensor, err := accelerometer.NewADXL345Minimal(conn, false)
+	sensor, err := accelerometer.NewADXL345Minimal(conn)
 	if err != nil {
 		println("init:", err)
 		return
@@ -46,7 +46,7 @@ func main() {
 	mag := float32(math.Sqrt(float64(x*x + y*y + z*z)))
 	check("magnitude_near_1g", mag >= 0.5 && mag <= 1.5)
 
-	full, err := accelerometer.NewADXL345Full(conn, false)
+	full, err := accelerometer.NewADXL345Full(conn)
 	if err != nil {
 		println("init full:", err)
 		return

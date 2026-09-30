@@ -12,7 +12,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x5C);
-    LPS22DFFull lps(connection, /*spi=*/false);            // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFFull lps(connection, /*spi=*/false);            // Create LPS22DF driver, (connection)
     lps.configure(3, 0, false, 0, true);                     // Configure chip, (odr=10 Hz, avg=4, en_lpfp=false, lfpf_cfg=0, bdu=true) → None
     lps.oneshot();                                              // Trigger one-shot conversion, () → None
     float p = lps.pressure();                                  // Read pressure, () → float Pa

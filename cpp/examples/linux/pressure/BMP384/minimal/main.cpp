@@ -11,7 +11,7 @@
 
 int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
-    BMP384Minimal bmp(connection, /*spi=*/false);          // Create BMP384 driver, (connection, spi=false)
+    BMP384Minimal bmp(connection, /*spi=*/false);          // Create BMP384 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                        // Read temperature, () → float °C

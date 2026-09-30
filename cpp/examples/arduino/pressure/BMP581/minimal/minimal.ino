@@ -26,7 +26,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x46);
-    BMP581Minimal bmp(connection);                        // Create BMP581 driver, (connection, spi=false)
+    BMP581Minimal bmp(connection);                        // Create BMP581 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float p = bmp.pressure();                         // Read pressure, () → float Pa

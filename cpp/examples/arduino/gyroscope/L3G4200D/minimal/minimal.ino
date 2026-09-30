@@ -19,7 +19,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x68);
-    L3G4200DMinimal gyro(connection);                     // Create L3G4200D driver, (connection, spi=false)
+    L3G4200DMinimal gyro(connection);                     // Create L3G4200D driver, (connection)
 
     for (int i = 0; i < 10; i++) {
         float x, y, z;

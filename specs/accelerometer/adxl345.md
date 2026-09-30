@@ -25,6 +25,7 @@ The ADXL345 is a small, ultralow-power, 3-axis MEMS accelerometer with high reso
 - **Wire modes:** 4-wire (default) or 3-wire (SPI bit = 1 in DATA_FORMAT)
 
 SPI frame: first byte = R/W | MB | A5 | A4 | A3 | A2 | A1 | A0, where R/W=1 for read, MB=1 for multi-byte transfer.
+- **Register addressing:** read bit `0x80`; multi-byte bit `0x40` (build the `SPIConnection` with `read_bit=0x80, multi_byte_bit=0x40`). Drivers accept a `RegisterConnection` and call `read_reg`/`write_reg` (or the per-language equivalent) — no chip-local `_read_reg`/`_write_reg` or `bus_type` branch.
 
 ## Register Map
 

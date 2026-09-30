@@ -14,7 +14,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(LPS22DF_I2C_NODE);
     I2CConnectionZephyr connection(dev, LPS22DF_ADDR);
-    LPS22DFFull lps(connection);                              // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFFull lps(connection);                              // Create LPS22DF driver, (connection)
     lps.configure(3, 0, true, 1, true);                      // Configure chip, (odr=10 Hz, avg=4, en_lpfp=true, lfpf_cfg=ODR/9, bdu=true) → None
                                                                  // writes CTRL_REG1 and CTRL_REG2
     lps.oneshot();                                              // Trigger one-shot conversion, () → None

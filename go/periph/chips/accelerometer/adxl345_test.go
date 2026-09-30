@@ -11,6 +11,7 @@ import (
 type adxl345MockConnection struct {
 	registers map[byte]byte
 	writes    [][]byte
+	regReads  [][2]uint32
 }
 
 func newADXL345MockConnection() *adxl345MockConnection {
@@ -50,6 +51,15 @@ func (m *adxl345MockConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	return out, nil
 }
 
+func (m *adxl345MockConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	m.regReads = append(m.regReads, [2]uint32{reg, uint32(length)})
+	return m.WriteRead([]byte{byte(reg)}, length)
+}
+
+func (m *adxl345MockConnection) WriteReg(reg uint32, data []byte) error {
+	return m.Write(append([]byte{byte(reg)}, data...))
+}
+
 func (m *adxl345MockConnection) Close() error                { return nil }
 func (m *adxl345MockConnection) Enable()                     {}
 func (m *adxl345MockConnection) Disable()                    {}
@@ -83,7 +93,7 @@ func abs32ADXL345(v float32) float32 {
 
 func TestADXL345MinimalConstructionAndRead(t *testing.T) {
 	conn := newADXL345Connection()
-	chip, err := NewADXL345Minimal(conn, false)
+	chip, err := NewADXL345Minimal(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Minimal: %v", err)
 	}
@@ -110,14 +120,14 @@ func TestADXL345MinimalConstructionAndRead(t *testing.T) {
 func TestADXL345MinimalConstructionBadDevID(t *testing.T) {
 	conn := newADXL345MockConnection()
 	conn.setRegister(adxl345RegDevID, 0x00)
-	if _, err := NewADXL345Minimal(conn, false); err == nil {
+	if _, err := NewADXL345Minimal(conn); err == nil {
 		t.Error("NewADXL345Minimal with bad DEVID: expected error, got nil")
 	}
 }
 
 func TestADXL345FullRangeDataRateLowPowerOffset(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -160,7 +170,7 @@ func TestADXL345FullRangeDataRateLowPowerOffset(t *testing.T) {
 
 func TestADXL345FullTapAndFreeFall(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -191,7 +201,7 @@ func TestADXL345FullTapAndFreeFall(t *testing.T) {
 
 func TestADXL345FullActivityAndInactivity(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -220,7 +230,7 @@ func TestADXL345FullActivityAndInactivity(t *testing.T) {
 
 func TestADXL345FullInterruptRoutingAndSource(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -243,7 +253,7 @@ func TestADXL345FullInterruptRoutingAndSource(t *testing.T) {
 
 func TestADXL345FullFifo(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -284,7 +294,7 @@ func TestADXL345FullFifo(t *testing.T) {
 
 func TestADXL345FullSleepLinkAutoSleepSelfTest(t *testing.T) {
 	conn := newADXL345Connection()
-	full, err := NewADXL345Full(conn, false)
+	full, err := NewADXL345Full(conn)
 	if err != nil {
 		t.Fatalf("NewADXL345Full: %v", err)
 	}
@@ -331,32 +341,20 @@ func TestADXL345FullSleepLinkAutoSleepSelfTest(t *testing.T) {
 	}
 }
 
-func TestADXL345SPIAddressing(t *testing.T) {
-	conn := newADXL345MockConnection()
-	spiRd := byte(0x80)
-	spiBurstRd := byte(0xC0)
-	conn.setRegister(adxl345RegDevID|spiRd, 0xE5)
-	conn.setRegister(adxl345RegDataX0|spiBurstRd, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03)
-
-	chip, err := NewADXL345Minimal(conn, true)
+// SPI command-byte framing (R/W|MB|A5..A0) lives in SPIConnection.ReadReg/
+// WriteReg now; the driver must address registers through RegisterConnection
+// and fetch the six data bytes in one burst so MB gets set on SPI.
+func TestADXL345RegisterBurst(t *testing.T) {
+	conn := newADXL345Connection()
+	chip, err := NewADXL345Minimal(conn)
 	if err != nil {
-		t.Fatalf("NewADXL345Minimal (spi): %v", err)
+		t.Fatalf("NewADXL345Minimal: %v", err)
 	}
-	if v, ok := lastWriteToADXL345(conn, adxl345RegDataFormat); !ok || v != 0x08 {
-		t.Errorf("SPI DATA_FORMAT write = %#x, ok=%v, want 0x08", v, ok)
-	}
-
+	conn.regReads = nil
 	if _, _, _, err := chip.Read(); err != nil {
-		t.Fatalf("Read (spi): %v", err)
+		t.Fatalf("Read: %v", err)
 	}
-	var sawBurst bool
-	for _, w := range conn.writes {
-		if len(w) == 1 && w[0]&0xC0 == 0xC0 {
-			sawBurst = true
-		}
-	}
-	if !sawBurst {
-		t.Error("SPI burst read never set the MB bit (0x40) alongside R (0x80)")
+	if len(conn.regReads) != 1 || conn.regReads[0] != [2]uint32{uint32(adxl345RegDataX0), 6} {
+		t.Errorf("Read register reads = %v, want one 6-byte burst at DATAX0", conn.regReads)
 	}
 }
-

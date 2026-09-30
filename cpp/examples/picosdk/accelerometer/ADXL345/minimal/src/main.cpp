@@ -11,7 +11,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x53);
-    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     stdio_init_all();
     while (true) {

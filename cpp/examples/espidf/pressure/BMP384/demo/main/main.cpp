@@ -25,7 +25,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP384Full bmp(connection, false);                      // Create BMP384 driver, (connection, spi=false)
+    BMP384Full bmp(connection, false);                      // Create BMP384 driver, (connection)
 
     // --- Configure for noise-sensitive altitude logging ---
     // osr_p=×16 gives ~12 cm noise-equivalent altitude resolution; the IIR

@@ -27,7 +27,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP581Minimal bmp(connection, false);                // Create BMP581 driver, (connection, spi=false)
+    BMP581Minimal bmp(connection, false);                // Create BMP581 driver, (connection)
 
     while (1) {
         float p = bmp.pressure();                         // Read pressure, () → float Pa
