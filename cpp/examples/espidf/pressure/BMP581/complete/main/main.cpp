@@ -26,7 +26,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP581Full bmp(connection, false);                   // Create BMP581 driver, (connection, spi=false)
+    BMP581Full bmp(connection, false);                   // Create BMP581 driver, (connection)
     uint8_t cid = bmp.chip_id();                          // Read chip ID, () → int
                                                          // returns 0x50 for BMP581
     (void)cid;

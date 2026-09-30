@@ -18,7 +18,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x76);
-    BMP384Minimal bmp(connection, /*spi=*/false);          // Create BMP384 driver, (connection, spi=false)
+    BMP384Minimal bmp(connection, /*spi=*/false);          // Create BMP384 driver, (connection)
 
     stdio_init_all();
     sleep_ms(2000);

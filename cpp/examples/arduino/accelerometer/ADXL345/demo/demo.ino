@@ -3,7 +3,7 @@
 #include <Periph.h>
 
 I2CConnection connection(Wire, 0x53);
-ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
 // --- Stationary tilt characterization at 10 Hz ---
 // With the sensor flat and the Z axis up, gravity should project entirely

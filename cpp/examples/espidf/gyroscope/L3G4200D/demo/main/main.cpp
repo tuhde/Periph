@@ -29,7 +29,7 @@ extern "C" void app_main(void) {
     // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
     // 200 Hz ODR gives 5 ms per sample — fast enough to catch hand motion but
     // not so noisy that the FIFO drains before the watermark is reached.
-    L3G4200DFull chip(connection, false);                 // Create L3G4200D driver, (connection, spi=false)
+    L3G4200DFull chip(connection, false);                 // Create L3G4200D driver, (connection)
     chip.configure(1, 0, 500);                             // Configure chip, (odr=200Hz, bandwidth=0, full_scale=500) → None
     chip.enable_highpass(0, 4);                            // Enable high-pass, (mode=0, cutoff=4) → None
                                                             // cutoff index 4 at 200 Hz ODR ≈ 1 Hz; strips DC drift

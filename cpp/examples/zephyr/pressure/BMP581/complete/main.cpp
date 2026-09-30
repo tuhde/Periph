@@ -21,7 +21,7 @@ static void check_true(bool cond, const char *label) {
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP581_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP581_ADDR);
-    BMP581Full bmp(connection);                           // Create BMP581 driver, (connection, spi=false)
+    BMP581Full bmp(connection);                           // Create BMP581 driver, (connection)
     uint8_t cid = bmp.chip_id();                       // Read chip ID, () → int
     check_true(cid == 0x50, "chip_id");
 

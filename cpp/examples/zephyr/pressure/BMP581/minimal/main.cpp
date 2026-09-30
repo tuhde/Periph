@@ -21,7 +21,7 @@ static void check_true(bool cond, const char *label) {
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP581_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP581_ADDR);
-    BMP581Minimal bmp(connection);                        // Create BMP581 driver, (connection, spi=false)
+    BMP581Minimal bmp(connection);                        // Create BMP581 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float p = bmp.pressure();                         // Read pressure, () → float Pa

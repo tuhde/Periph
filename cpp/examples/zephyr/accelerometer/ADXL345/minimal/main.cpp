@@ -10,7 +10,7 @@
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
     I2CConnectionZephyr connection(i2c_dev, ADXL345_ADDR);
-    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     while (1) {
         float x, y, z;

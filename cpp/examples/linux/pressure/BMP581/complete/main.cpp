@@ -11,7 +11,7 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x46;
     I2CConnectionLinux connection(bus, addr);
 
-    BMP581Full bmp(connection);                                             // Create BMP581 driver, (connection, spi=false)
+    BMP581Full bmp(connection);                                             // Create BMP581 driver, (connection)
 
     uint8_t cid = bmp.chip_id();                                           // Read chip ID, () → uint8_t
                                                                             // returns 0x50 for a genuine BMP581

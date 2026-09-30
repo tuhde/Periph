@@ -10,7 +10,7 @@
 int main(void) {
     const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
     I2CConnectionZephyr connection(i2c_dev, ADXL345_ADDR);
-    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection)
 
     accel.set_range(4);                                     // Set measurement range, (range_g) → g
                                                               // selects ±4 g; FULL_RES is preserved so scale stays 3.9 mg/LSB

@@ -25,7 +25,7 @@ int main(void) {
     sleep_ms(2000);  // let USB CDC enumerate
 
     I2CConnectionPicoSDK connection(i2c0, 0x53);
-    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     float x, y, z;
     accel.read(x, y, z);                                    // Read 3-axis acceleration, (x, y, z) → g, g, g
@@ -33,7 +33,7 @@ int main(void) {
     float mag = sqrtf(x * x + y * y + z * z);
     check_true(mag >= 0.5f && mag <= 1.5f, "magnitude_near_1g");
 
-    ADXL345Full accel_full(connection);                     // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel_full(connection);                     // Create ADXL345 Full driver, (connection)
     accel_full.set_range(4);                                // Set measurement range, (range_g) → g
     accel_full.read(x, y, z);                               // Read 3-axis acceleration, (x, y, z) → g, g, g
     check_true(x == x && y == y && z == z, "read_after_set_range_4g");

@@ -21,7 +21,7 @@ static void check_true(bool cond, const char *label) {
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP384_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP384_ADDR);
-    BMP384Minimal bmp(connection);                          // Create BMP384 driver, (connection, spi=false)
+    BMP384Minimal bmp(connection);                          // Create BMP384 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                        // Read temperature, () → float °C

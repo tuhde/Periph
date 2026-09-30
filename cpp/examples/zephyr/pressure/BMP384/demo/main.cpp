@@ -15,7 +15,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BMP384_I2C_NODE);
     I2CConnectionZephyr connection(dev, BMP384_ADDR);
-    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection, spi=false)
+    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection)
 
     // --- Configure for noise-sensitive altitude logging ---
     // osr_p=×16 gives ~12 cm noise-equivalent altitude resolution; the IIR

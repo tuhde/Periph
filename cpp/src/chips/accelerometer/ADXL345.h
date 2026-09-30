@@ -1,7 +1,8 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
+#include "../../connection/Register.h"
 
 /** @brief ADXL345 3-axis MEMS accelerometer — minimal interface.
  *
@@ -16,12 +17,13 @@
  *  - 100 Hz output data rate, normal power
  *  - FIFO bypass, all interrupts disabled, no offsets
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi        Set true for SPI bus (prepends the R/W|MB|A5..A0 command byte).
+ *  @param connection Configured RegisterConnection (I²C, SMBus, or SPI) pointing at the
+ *                    device. For SPI, construct it with readBit=0x80, multiByteBit=0x40
+ *                    (ADXL345 command byte R/W|MB|A5..A0).
  */
 class ADXL345Minimal {
 public:
-    explicit ADXL345Minimal(Connection& connection, bool spi = false);
+    explicit ADXL345Minimal(RegisterConnection& connection);
 
     /** @brief Read 3-axis linear acceleration.
      *
@@ -67,12 +69,10 @@ protected:
 
     static constexpr float FULL_RES_SCALE_G_PER_LSB = 0.0039f;
 
-    Connection& _connection;
-    bool        _spi;
+    RegisterConnection& _connection;
     uint8_t     _range_bits = 0;  // 0..3: 0=±2, 1=±4, 2=±8, 3=±16 g
     bool        _full_res   = true;
 
-    uint8_t _cmd_byte(uint8_t reg, bool read, bool multi) const;
     void    _write_reg(uint8_t reg, uint8_t value);
     void    _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void    _delay_ms(uint32_t ms);
@@ -87,8 +87,9 @@ protected:
  *  activity and inactivity detection, free-fall detection, 32-level FIFO,
  *  interrupt routing (INT1 / INT2), and sleep / auto-sleep / link mode.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi        Set true for SPI bus (prepends the R/W|MB|A5..A0 command byte).
+ *  @param connection Configured RegisterConnection (I²C, SMBus, or SPI) pointing at the
+ *                    device. For SPI, construct it with readBit=0x80, multiByteBit=0x40
+ *                    (ADXL345 command byte R/W|MB|A5..A0).
  */
 class ADXL345Full : public ADXL345Minimal {
 public:
@@ -114,7 +115,7 @@ public:
     static constexpr uint8_t WAKEUP_2_HZ = 0x04;
     static constexpr uint8_t WAKEUP_1_HZ = 0x06;
 
-    explicit ADXL345Full(Connection& connection, bool spi = false);
+    explicit ADXL345Full(RegisterConnection& connection);
 
     /** @brief Set the measurement range to ±2/±4/±8/±16 g.
      *  @param range_g One of 2, 4, 8, 16. FULL_RES is preserved.

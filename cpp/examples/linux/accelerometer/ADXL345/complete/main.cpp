@@ -12,7 +12,7 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x53;
     I2CConnectionLinux connection(bus, addr);
 
-    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection)
 
     accel.set_range(4);                                     // Set measurement range, (range_g) → g
     accel.set_data_rate(200);                               // Set output data rate, (rate_hz) → Hz

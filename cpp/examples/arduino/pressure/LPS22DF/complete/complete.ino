@@ -19,7 +19,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x5C);
-    LPS22DFFull lps(connection);                           // Create LPS22DF driver, (connection, spi=false)
+    LPS22DFFull lps(connection);                           // Create LPS22DF driver, (connection)
 
     lps.configure(3, 0, false, 0, true);                   // Configure chip, (odr=3 [10 Hz], avg=0 [4], en_lpfp=false, lfpf_cfg=0, bdu=true) → None
                                                               // writes CTRL_REG1 and CTRL_REG2
