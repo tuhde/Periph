@@ -19,7 +19,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x68);
-    L3G4200DFull gyro(connection);                            // Create L3G4200D driver, (connection, spi=false)
+    L3G4200DFull gyro(connection);                            // Create L3G4200D driver, (connection)
     uint8_t cid = gyro.who_am_i();                            // Read WHO_AM_I, () → int
                                                                // returns 0xD3 for L3G4200D
     gyro.configure(1, 0, 500);                                // Configure chip, (odr=1 [200 Hz], bandwidth=0, full_scale=500) → None

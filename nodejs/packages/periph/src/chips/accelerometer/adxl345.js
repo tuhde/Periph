@@ -53,7 +53,9 @@ function _delayMs(ms) {
  * ADXL345 3-axis MEMS accelerometer (Analog Devices) — minimal interface.
  *
  * Reads X, Y, Z acceleration in *g* with sensible defaults; no configuration
- * is required beyond the connection. Supports both I²C and SPI.
+ * is required beyond the connection. Supports both I²C and SPI via the shared
+ * RegisterConnection (for SPI, construct the connection with
+ * `readBit: 0x80, multiByteBit: 0x40` — the ADXL345 R/W|MB|A5..A0 command byte).
  *
  * Default configuration (written at construction):
  * - Full-resolution mode (3.9 mg/LSB at any range)
@@ -73,12 +75,10 @@ function _delayMs(ms) {
  */
 class ADXL345Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - Configured I²C, SMBus, or SPI connection.
      */
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._rangeBits = 0;
         this._fullRes = true;
         this._init();
@@ -96,36 +96,16 @@ class ADXL345Minimal {
         _delayMs(11);
     }
 
-    _cmdByte(reg, read, multi) {
-        let addr = reg & 0x3F;
-        if (multi) addr |= 0x40;
-        if (read)  addr |= 0x80;
-        return addr;
-    }
-
     async _writeReg(reg, value) {
-        if (this._busType === 'spi') {
-            const cmd = this._cmdByte(reg, false, false);
-            await this._conn.write(Buffer.from([cmd, value & 0xFF]));
-        } else {
-            await this._conn.write(Buffer.from([reg & 0xFF, value & 0xFF]));
-        }
+        await this._conn.writeReg(reg, value & 0xFF);
     }
 
     async _readReg(reg) {
-        if (this._busType === 'spi') {
-            const cmd = this._cmdByte(reg, true, false);
-            return (await this._conn.writeRead(Buffer.from([cmd]), 1))[0];
-        }
-        return (await this._conn.writeRead(Buffer.from([reg & 0xFF]), 1))[0];
+        return (await this._conn.readReg(reg, 1))[0];
     }
 
     async _readBurst(reg, n) {
-        if (this._busType === 'spi') {
-            const cmd = this._cmdByte(reg, true, n > 1);
-            return this._conn.writeRead(Buffer.from([cmd]), n);
-        }
-        return this._conn.writeRead(Buffer.from([reg & 0xFF]), n);
+        return this._conn.readReg(reg, n);
     }
 
     /**
@@ -160,10 +140,9 @@ class ADXL345Minimal {
 class ADXL345Full extends ADXL345Minimal {
     /**
      * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
      */
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**

@@ -11,16 +11,13 @@ Default configuration (written at construction):
     - All interrupts disabled
 
 Args:
-    connection: Configured I²C or SPI connection pointing at the device.
-    bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
-        SPI writes prepend a command byte (R/W|MB|A5..A0) to each
-        transfer; multi-byte reads set MB=1 so the register pointer
-        auto-increments.
+    connection: Configured ``RegisterConnection`` (I²C, SMBus, or SPI)
+        pointing at the device. For SPI, construct the connection with
+        ``read_bit=0x80, multi_byte_bit=0x40`` (ADXL345 command byte:
+        R/W|MB|A5..A0).
 """
 
-
-_BUS_I2C = 'i2c'
-_BUS_SPI = 'spi'
+from periph.connection.register import to_signed
 
 # Default BW_RATE: 100 Hz output data rate, normal power.
 _BW_RATE_DEFAULT = 0x0A
@@ -72,8 +69,8 @@ class ADXL345Minimal:
         - FIFO bypass, all interrupts disabled, no offsets
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: Configured ``RegisterConnection`` (I²C, SMBus, or SPI;
+            SPI needs ``read_bit=0x80, multi_byte_bit=0x40``).
     """
 
     # Register map (6-bit addresses, 0x00–0x39).
@@ -106,9 +103,8 @@ class ADXL345Minimal:
     # Fixed device ID; reading any other value indicates wrong device/wiring.
     _DEVID_VALUE = 0xE5
 
-    def __init__(self, connection, bus_type=_BUS_I2C):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         self._range_bits = 0   # 0..3: 0=±2, 1=±4, 2=±8, 3=±16 g
         self._full_res = True
         self._write_reg(self._REG_DATA_FORMAT, _DATA_FORMAT_DEFAULT)
@@ -121,37 +117,15 @@ class ADXL345Minimal:
         # Per datasheet: allow at least one ODR period before reading data.
         _delay_ms(11)
 
-    def _cmd_byte(self, reg, read=False, multi=False):
-        """Build the SPI command byte for the ADXL345.
-
-        I²C calls bypass this — the connection's address byte is independent.
-        """
-        addr = (reg & 0x3F)
-        if multi:
-            addr |= 0x40
-        if read:
-            addr |= 0x80
-        return addr
-
     def _write_reg(self, reg, value):
-        if self._bus_type == _BUS_SPI:
-            cmd = self._cmd_byte(reg, read=False, multi=False)
-            self._connection.write(bytes([cmd, value & 0xFF]))
-        else:
-            self._connection.write(bytes([reg & 0xFF, value & 0xFF]))
+        self._connection.write_reg(reg, value & 0xFF)
 
     def _read_reg(self, reg):
-        if self._bus_type == _BUS_SPI:
-            cmd = self._cmd_byte(reg, read=True, multi=False)
-            return self._connection.write_read(bytes([cmd]), 1)[0]
-        return self._connection.write_read(bytes([reg & 0xFF]), 1)[0]
+        return self._connection.read_reg(reg, 1)[0]
 
     def _read_burst(self, reg, n):
         """Read n bytes starting at reg, auto-incrementing the register pointer."""
-        if self._bus_type == _BUS_SPI:
-            cmd = self._cmd_byte(reg, read=True, multi=(n > 1))
-            return self._connection.write_read(bytes([cmd]), n)
-        return self._connection.write_read(bytes([reg & 0xFF]), n)
+        return self._connection.read_reg(reg, n)
 
     def read(self):
         """Read 3-axis linear acceleration.
@@ -164,15 +138,9 @@ class ADXL345Minimal:
         """
         raw = self._read_burst(self._REG_DATAX0, 6)
         # Each axis is little-endian, signed 16-bit two's complement.
-        rx = raw[0] | (raw[1] << 8)
-        ry = raw[2] | (raw[3] << 8)
-        rz = raw[4] | (raw[5] << 8)
-        if rx & 0x8000:
-            rx -= 0x10000
-        if ry & 0x8000:
-            ry -= 0x10000
-        if rz & 0x8000:
-            rz -= 0x10000
+        rx = to_signed(raw[0] | (raw[1] << 8), 16)
+        ry = to_signed(raw[2] | (raw[3] << 8), 16)
+        rz = to_signed(raw[4] | (raw[5] << 8), 16)
         if self._full_res:
             scale = _FULL_RES_SCALE_G_PER_LSB
         else:
@@ -197,8 +165,8 @@ class ADXL345Full(ADXL345Minimal):
         - Sleep, auto-sleep, and link mode for power management.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: Configured ``RegisterConnection`` (I²C, SMBus, or SPI;
+            SPI needs ``read_bit=0x80, multi_byte_bit=0x40``).
     """
 
     # Interrupt source bits — match INT_ENABLE / INT_MAP / INT_SOURCE layout.
@@ -223,8 +191,8 @@ class ADXL345Full(ADXL345Minimal):
     WAKEUP_2_HZ = 0x04
     WAKEUP_1_HZ = 0x06
 
-    def __init__(self, connection, bus_type=_BUS_I2C):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def set_range(self, range_g):
         """Set the measurement range.
@@ -461,15 +429,9 @@ class ADXL345Full(ADXL345Minimal):
         out = []
         for _ in range(n):
             raw = self._read_burst(self._REG_DATAX0, 6)
-            rx = raw[0] | (raw[1] << 8)
-            ry = raw[2] | (raw[3] << 8)
-            rz = raw[4] | (raw[5] << 8)
-            if rx & 0x8000:
-                rx -= 0x10000
-            if ry & 0x8000:
-                ry -= 0x10000
-            if rz & 0x8000:
-                rz -= 0x10000
+            rx = to_signed(raw[0] | (raw[1] << 8), 16)
+            ry = to_signed(raw[2] | (raw[3] << 8), 16)
+            rz = to_signed(raw[4] | (raw[5] << 8), 16)
             if self._full_res:
                 scale = _FULL_RES_SCALE_G_PER_LSB
             else:

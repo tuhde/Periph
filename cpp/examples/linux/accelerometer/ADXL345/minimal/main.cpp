@@ -12,7 +12,7 @@ int main() {
     uint8_t addr = addr_env ? (uint8_t)strtol(addr_env, nullptr, 0) : 0x53;
     I2CConnectionLinux connection(bus, addr);
 
-    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection, spi=false)
+    ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     while (true) {
         float x, y, z;

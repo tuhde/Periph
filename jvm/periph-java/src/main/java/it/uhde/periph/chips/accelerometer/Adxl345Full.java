@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.accelerometer;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -38,20 +38,11 @@ public class Adxl345Full extends Adxl345Minimal {
     public static final int WAKEUP_1_HZ = 0x06;
 
     /**
-     * @param connection configured I²C or SPI connection
+     * @param connection configured I²C, SMBus, or SPI register connection
      * @throws IOException on bus error or wrong DEVID
      */
-    public Adxl345Full(Connection connection) throws IOException {
-        super(connection, BUS_I2C);
-    }
-
-    /**
-     * @param connection configured I²C or SPI connection
-     * @param busType    {@link #BUS_I2C} or {@link #BUS_SPI}
-     * @throws IOException on bus error or wrong DEVID
-     */
-    public Adxl345Full(Connection connection, int busType) throws IOException {
-        super(connection, busType);
+    public Adxl345Full(RegisterConnection connection) throws IOException {
+        super(connection);
     }
 
     /** Set the measurement range to ±2/±4/±8/±16 g. FULL_RES is preserved. */

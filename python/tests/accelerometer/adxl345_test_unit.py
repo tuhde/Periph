@@ -1,7 +1,7 @@
 """Unit test for the ADXL345 — runs without hardware using the I2C mock.
 
 Verifies the driver's register read/write sequencing, scale conversion,
-and SPI / I²C address-byte framing by observing what the driver writes
+and register-API usage by observing what the driver writes
 to the mock connection.
 """
 
@@ -116,34 +116,28 @@ accel_full.set_sleep(False)
 pwr_writes = [w for w in mock2.writes if len(w) == 2 and w[0] == ADXL345Minimal._REG_POWER_CTL]
 check_true('set_sleep_false', pwr_writes and (pwr_writes[-1][1] & 0x04) == 0x00)
 
-# SPI transport: command byte framing is R/W|MB|A5..A0. The I2C mock's
-# write_read() looks up registers[byte[0]] verbatim, so for SPI we preload
-# at the SPI command-byte value (reg | 0x80 for single reads, reg | 0xC0
-# for burst reads where MB=1).
-SPI_RD = 0x80
-SPI_BURST_RD = 0xC0
+# SPI transport: command-byte framing (R/W|MB|A5..A0) now lives in
+# SPIConnection.read_reg/write_reg, so the driver must simply address
+# registers through the RegisterConnection API — including a single
+# 6-byte burst for the data registers so MB gets set on SPI.
+class RecordingConn(I2CConnectionMock):
+    def __init__(self):
+        super().__init__()
+        self.reg_reads = []
 
-mock3 = I2CConnectionMock()
-mock3.set_register(ADXL345Minimal._REG_DEVID | SPI_RD, 0xE5)
-mock3.set_register(ADXL345Minimal._REG_DATAX0 | SPI_BURST_RD,
-                   0x00, 0x01, 0x00, 0x02, 0x00, 0x03)
+    def read_reg(self, reg, length):
+        self.reg_reads.append((reg, length))
+        return super().read_reg(reg, length)
 
-accel_spi = ADXL345Minimal(mock3, bus_type='spi')
-check_true('spi_construct_minimal', True)
 
-# SPI write: command byte = reg (read=0, MB=0) for single-byte writes.
-spi_data_format_writes = [w for w in mock3.writes
-                          if len(w) == 2 and w[0] == ADXL345Minimal._REG_DATA_FORMAT]
-check_true('spi_init_writes_data_format', spi_data_format_writes
-           and spi_data_format_writes[0][1] == 0x08)
-
-# SPI burst read uses MB=1 (0x40): command byte = reg | 0x80 | 0x40.
-# Force a burst read first so the mock records the SPI command byte.
-accel_spi.read()
-burst_reads = [w for w in mock3.writes
-               if len(w) == 1 and (w[0] & 0xC0) == 0xC0]
-check_true('spi_burst_read_sets_mb_bit',
-           len(burst_reads) >= 1 and (burst_reads[-1][0] & 0x40) == 0x40)
+mock3 = RecordingConn()
+mock3.set_register(ADXL345Minimal._REG_DEVID, 0xE5)
+accel_reg = ADXL345Minimal(mock3)
+accel_reg.read()
+check_true('reg_devid_single_byte_read',
+           (ADXL345Minimal._REG_DEVID, 1) in mock3.reg_reads)
+check_true('reg_burst_read_6_bytes',
+           (ADXL345Minimal._REG_DATAX0, 6) in mock3.reg_reads)
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or(0x53);
 
     let dev  = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel = Adxl345Full::new(dev, addr, false).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Full::new(dev, addr).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53)
 
     accel.set_range(4).expect("set_range");                            // Set measurement range, (range_g) → () g
                                                                             // selects ±4 g; FULL_RES preserved so scale stays 3.9 mg/LSB

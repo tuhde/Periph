@@ -11,7 +11,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x53);
-    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection)
 
     accel.set_range(4);                                     // Set measurement range, (range_g) → g
     accel.set_data_rate(200);                               // Set output data rate, (rate_hz) → Hz

@@ -24,7 +24,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    L3G4200DMinimal chip(connection, false);               // Create L3G4200D driver, (connection, spi=false)
+    L3G4200DMinimal chip(connection, false);               // Create L3G4200D driver, (connection)
     while (1) {
         float x, y, z;
         chip.angular_rate(x, y, z);                          // Read X/Y/Z angular rate, () → (float, float, float) rad/s

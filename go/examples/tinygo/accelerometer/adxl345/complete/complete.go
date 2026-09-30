@@ -19,7 +19,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	accel, err := accelerometer.NewADXL345Full(conn, false) // Create ADXL345 Full driver, (conn, spi=false) → (*ADXL345Full, error)
+	accel, err := accelerometer.NewADXL345Full(conn) // Create ADXL345 Full driver, (conn) → (*ADXL345Full, error)
 	if err != nil {
 		panic(err)
 	}

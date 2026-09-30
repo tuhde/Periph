@@ -33,12 +33,8 @@ class Adxl345Full extends Adxl345Minimal {
     public static final int WAKEUP_2_HZ = 0x04
     public static final int WAKEUP_1_HZ = 0x06
 
-    Adxl345Full(it.uhde.periph.connection.Connection connection) {
-        super(connection, BUS_I2C)
-    }
-
-    Adxl345Full(it.uhde.periph.connection.Connection connection, int busType) {
-        super(connection, busType)
+    Adxl345Full(it.uhde.periph.connection.RegisterConnection connection) {
+        super(connection)
     }
 
     /** Set the measurement range to ±2/±4/±8/±16 g. FULL_RES is preserved. */

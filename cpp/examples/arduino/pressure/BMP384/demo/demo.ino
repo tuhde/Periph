@@ -20,7 +20,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection, spi=false)
+    BMP384Full bmp(connection);                             // Create BMP384 driver, (connection)
 
     // --- Configure for noise-sensitive altitude logging ---
     // osr_p=×16 gives ~12 cm noise-equivalent altitude resolution; the IIR

@@ -243,25 +243,22 @@ class Adxl345Spec extends Specification {
         (lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT) & 0x80) == 0x00
     }
 
-    def "SPI addressing"() {
+    // SPI command-byte framing lives in SPIConnection.read/write now; the driver
+    // must address registers via RegisterConnection and fetch the six data bytes
+    // as one burst so MB gets set on SPI.
+    def "register burst read"() {
         given:
-        def connection = new MockConnection()
-        int spiRd = 0x80
-        int spiBurstRd = 0xC0
-        connection.setRegister(Adxl345Minimal.REG_DEVID | spiRd, Adxl345Minimal.DEVID_VALUE)
-        connection.setRegister(Adxl345Minimal.REG_DATAX0 | spiBurstRd, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03)
-
-        when:
-        def accel = new Adxl345Minimal(connection, Adxl345Minimal.BUS_SPI)
-
-        then:
-        lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT) == 0x08
+        def connection = newConnection()
+        def accel = new Adxl345Minimal(connection)
+        int before = connection.writes().size()
 
         when:
         accel.read()
-        boolean sawBurst = connection.writes().any { it.length == 1 && (it[0] & 0xC0) == 0xC0 }
+        def reads = connection.writes().subList(before, connection.writes().size())
 
         then:
-        sawBurst
+        reads.size() == 1
+        reads[0].length == 1
+        (reads[0][0] & 0xFF) == Adxl345Minimal.REG_DATAX0
     }
 }

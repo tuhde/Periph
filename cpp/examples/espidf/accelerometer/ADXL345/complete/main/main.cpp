@@ -24,7 +24,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection, spi=false)
+    ADXL345Full accel(connection);                          // Create ADXL345 Full driver, (connection)
 
     accel.set_range(4);                                     // Set measurement range, (range_g) → g
     accel.set_data_rate(200);                               // Set output data rate, (rate_hz) → Hz

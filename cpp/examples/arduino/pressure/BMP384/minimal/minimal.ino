@@ -26,7 +26,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BMP384Minimal bmp(connection);                          // Create BMP384 driver, (connection, spi=false)
+    BMP384Minimal bmp(connection);                          // Create BMP384 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bmp.temperature();                        // Read temperature, () → float °C
