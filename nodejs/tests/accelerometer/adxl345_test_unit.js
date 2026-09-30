@@ -155,22 +155,21 @@ async function main() {
     mock3.setRegister(0x30, [0x44]); // ACTIVITY | FREE_FALL
     checkTrue('read_interrupt_source', (await full3.readInterruptSource()) === 0x44);
 
-    // --- SPI transport: command byte framing ---
-    const SPI_RD = 0x80;
-    const SPI_BURST_RD = 0xC0;
+    // --- Register API: SPI command-byte framing lives in SPIConnection.readReg/
+    // writeReg now, so the driver must address registers via RegisterConnection,
+    // using a single 6-byte burst for the data registers (sets MB on SPI). ---
     const mock4 = new I2CConnectionMock();
-    mock4.setRegister(_REG_DEVID | SPI_RD, [0xE5]);
-    mock4.setRegister(_REG_DATAX0 | SPI_BURST_RD, [0x00, 0x01, 0x00, 0x02, 0x00, 0x03]);
-    const accelSpi = new ADXL345Minimal(mock4, 'spi');
+    const regReads = [];
+    const origReadReg = mock4.readReg.bind(mock4);
+    mock4.readReg = (reg, length) => { regReads.push([reg, length]); return origReadReg(reg, length); };
+    mock4.setRegister(_REG_DEVID, [0xE5]);
+    const accelReg = new ADXL345Minimal(mock4);
     await flushMicrotasks();
-
-    checkTrue('spi_init_writes_data_format',
-        mock4.writes.some((w) => w.length === 2 && w[0] === _REG_DATA_FORMAT && w[1] === 0x08));
-
-    await accelSpi.read();
-    const burstReads = mock4.writes.filter((w) => w.length === 1 && (w[0] & 0xC0) === 0xC0);
-    checkTrue('spi_burst_read_sets_mb_bit',
-        burstReads.length >= 1 && (burstReads[burstReads.length - 1][0] & 0x40) === 0x40);
+    await accelReg.read();
+    checkTrue('reg_devid_single_byte_read',
+        regReads.some(([r, l]) => r === _REG_DEVID && l === 1));
+    checkTrue('reg_burst_read_6_bytes',
+        regReads.some(([r, l]) => r === _REG_DATAX0 && l === 6));
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);
