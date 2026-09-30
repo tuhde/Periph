@@ -46,7 +46,7 @@ func main() {
 		}
 	}
 
-	chip, err := environmental.NewBME280Minimal(conn, false)
+	chip, err := environmental.NewBME280Minimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -69,7 +69,7 @@ func main() {
 	}
 	defer conn2.Close()
 
-	full, err := environmental.NewBME280Full(conn2, false)
+	full, err := environmental.NewBME280Full(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

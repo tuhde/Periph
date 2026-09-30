@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x76);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bme = Bme280Minimal::new(dev, addr, false).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76, spi=false)
+    let mut bme = Bme280Minimal::new(dev, addr).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76)
 
     for _ in 0..5 {
         let t = bme.temperature().expect("read temperature");            // Read temperature, () → f32 °C

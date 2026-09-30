@@ -174,7 +174,7 @@ common of the two conventions already in this codebase:
 | `read_bit` | `0x80` | Bit ORed into the command byte for a read; `0` if the chip has no such bit. |
 | `multi_byte_bit` | `None` / `0` | Bit ORed in for multi-byte (burst) transfers when `length > 1`; `None` if the chip has no such bit and always auto-increments. |
 
-Command byte: `cmd = reg | (read_bit if reading else 0) | (multi_byte_bit if length > 1 and multi_byte_bit else 0)`.
+Command byte: `cmd = (reg & ~read_bit if writing else reg | read_bit) | (multi_byte_bit if length > 1 and multi_byte_bit else 0)` — a write clears `read_bit` from `reg`, so chips whose register addresses have that bit set (every BME280 register, e.g. `0xF4`) are addressed correctly on both buses without the driver masking anything.
 
 | Chip family | `read_bit` | `multi_byte_bit` | Matches |
 |-------------|-----------|-------------------|---------|

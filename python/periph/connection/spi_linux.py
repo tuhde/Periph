@@ -55,7 +55,7 @@ class SPIConnection(RegisterConnection):
             data: Bytes to write, or a single int for a 1-byte register.
         """
         payload = bytes([data]) if isinstance(data, int) else bytes(data)
-        cmd = reg | (self._multi_byte_bit if len(payload) > 1 and self._multi_byte_bit else 0)
+        cmd = (reg & ~self._read_bit) | (self._multi_byte_bit if len(payload) > 1 and self._multi_byte_bit else 0)
         self.write(bytes([cmd]) + payload)
 
     def _write(self, data):

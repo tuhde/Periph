@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.environmental.bme280 import BME280Full
 
 connection = I2CConnection(0x76)
-bme = BME280Full(connection)                            # Create BME280 driver, (connection, bus_type='i2c')
+bme = BME280Full(connection)                            # Create BME280 driver, (connection)
 cid = bme.chip_id()                                    # Read chip ID, () → int
                                                          # returns 0x60 for BME280
 bme.configure(osrs_t=1, osrs_p=1, osrs_h=1, mode=0, filter=0, t_sb=0)  # Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → None

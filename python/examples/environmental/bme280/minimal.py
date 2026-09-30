@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.environmental.bme280 import BME280Minimal
 
 connection = I2CConnection(0x76)
-bme = BME280Minimal(connection)                         # Create BME280 driver, (connection, bus_type='i2c')
+bme = BME280Minimal(connection)                         # Create BME280 driver, (connection)
 
 for _ in range(5):
     t = bme.temperature()                              # Read temperature, () → float °C

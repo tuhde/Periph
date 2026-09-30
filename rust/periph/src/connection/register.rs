@@ -68,7 +68,7 @@ pub fn spi_read_register<SPI: SpiDevice>(
 pub fn spi_write_register<SPI: SpiDevice>(
     spi: &mut SPI, conv: &SpiRegisterConvention, reg: u8, data: &[u8],
 ) -> Result<(), SPI::Error> {
-    let mut cmd = reg;
+    let mut cmd = reg & !conv.read_bit;
     if data.len() > 1 { if let Some(mb) = conv.multi_byte_bit { cmd |= mb; } }
     spi.transaction(&mut [Operation::Write(&[cmd]), Operation::Write(data)])
 }

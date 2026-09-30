@@ -122,7 +122,7 @@ func (t *SPIConnection) ReadReg(reg uint32, length int) ([]byte, error) {
 // WriteReg writes data to register reg, building the SPI command byte from
 // the connection's configured convention.
 func (t *SPIConnection) WriteReg(reg uint32, data []byte) error {
-	cmd := byte(reg)
+	cmd := byte(reg) &^ t.readBit
 	if len(data) > 1 && t.multiByteBit != 0 {
 		cmd |= t.multiByteBit
 	}

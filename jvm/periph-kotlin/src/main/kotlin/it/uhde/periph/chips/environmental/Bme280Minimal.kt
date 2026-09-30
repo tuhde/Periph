@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -19,24 +20,17 @@ import java.io.IOException
  * Configurable I²C address: 0x76 (SDO low, default) or 0x77 (SDO high).
  */
 /**
+ * @param connection I²C, SMBus, or SPI register connection bound to the device.
+ * For SPI, construct it with the default Bosch convention (read bit 0x80, no
+ * multi-byte bit); the connection clears bit 7 on writes itself.
  * @param addr I²C device address (0x76 or 0x77); unused for SPI.
- * @param busType [BUS_I2C] (default) or [BUS_SPI] — per the datasheet's
- * register-address protocol, BME280's I²C register addresses already have
- * bit 7 set, so SPI reads use the same value unmasked; only writes differ,
- * clearing bit 7 (`reg and 0x7F`).
  */
 open class Bme280Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
-    addr: Int = 0x76,
-    protected val busType: Int = BUS_I2C
+    protected val connection: RegisterConnection,
+    addr: Int = 0x76
 ) {
 
     companion object {
-        /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
-        const val BUS_I2C = 0
-        /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
-        const val BUS_SPI = 1
-
         const val REG_CALIB       = 0x88
         const val REG_H1          = 0xA1
         const val REG_ID          = 0xD0
@@ -79,7 +73,7 @@ open class Bme280Minimal @JvmOverloads constructor(
     protected var config: Int = 0x00
 
     init {
-        val id = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val id = connection.read(REG_ID, 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID) {
             throw IOException("BME280 not found: expected 0x60, got 0x" + Integer.toHexString(chipId))
@@ -87,24 +81,9 @@ open class Bme280Minimal @JvmOverloads constructor(
 
         readCalibration()
 
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
-        writeReg(REG_CONFIG, config)
-    }
-
-    /**
-     * Write a single byte to a register, applying the SPI write-address mask
-     * if this driver was constructed with [BUS_SPI].
-     *
-     * Register constants are defined in their I²C (unmasked) form; on SPI,
-     * bit 7 is cleared for writes only (reads use the same constant unmasked).
-     *
-     * @param reg register address (I²C / unmasked form)
-     * @param value byte value to write
-     */
-    protected fun writeReg(reg: Int, value: Int) {
-        val addr = if (busType == BUS_SPI) reg and 0x7F else reg
-        connection.write(byteArrayOf(addr.toByte(), value.toByte()))
+        connection.write(REG_CTRL_HUM, byteArrayOf((ctrlHum).toByte()))
+        connection.write(REG_CTRL_MEAS, byteArrayOf((ctrlMeas).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
     }
 
     /**
@@ -118,7 +97,7 @@ open class Bme280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val cal = connection.writeRead(byteArrayOf(REG_CALIB.toByte()), 26)
+        val cal = connection.read(REG_CALIB, 26)
         digT1 = ((cal[1].toInt() and 0xFF) shl 8) or (cal[0].toInt() and 0xFF)
         digT2 = (((cal[3].toInt() and 0xFF) shl 8) or (cal[2].toInt() and 0xFF)).toShort().toInt()
         digT3 = (((cal[5].toInt() and 0xFF) shl 8) or (cal[4].toInt() and 0xFF)).toShort().toInt()
@@ -133,13 +112,13 @@ open class Bme280Minimal @JvmOverloads constructor(
         digP9 = (((cal[23].toInt() and 0xFF) shl 8) or (cal[22].toInt() and 0xFF)).toShort().toInt()
         digH1 = cal[25].toInt() and 0xFF
 
-        val h = connection.writeRead(byteArrayOf(REG_CAL_H2.toByte()), 7)
+        val h = connection.read(REG_CAL_H2, 7)
         digH2 = (((h[1].toInt() and 0xFF) shl 8) or (h[0].toInt() and 0xFF)).toShort().toInt()
         digH3 = h[2].toInt() and 0xFF
         val h4raw = ((h[3].toInt() and 0xFF) shl 4) or (h[4].toInt() and 0x0F)
         val h5raw = ((h[5].toInt() and 0xFF) shl 4) or ((h[4].toInt() shr 4) and 0x0F)
-        digH4 = if ((h4raw and 0x800) != 0) (h4raw or 0xF000).toShort().toInt() else h4raw.toShort().toInt()
-        digH5 = if ((h5raw and 0x800) != 0) (h5raw or 0xF000).toShort().toInt() else h5raw.toShort().toInt()
+        digH4 = Register.toSigned(h4raw, 12)
+        digH5 = Register.toSigned(h5raw, 12)
         digH6 = h[6].toByte().toInt()
     }
 
@@ -161,11 +140,11 @@ open class Bme280Minimal @JvmOverloads constructor(
         // calls ... should not re-trigger; just read the most recent shadow
         // registers").
         if ((ctrlMeas and 0x03) != 0x03) {
-            writeReg(REG_CTRL_HUM, ctrlHum)
-            writeReg(REG_CTRL_MEAS, (ctrlMeas and 0xFC) or 0x01)
+            connection.write(REG_CTRL_HUM, byteArrayOf((ctrlHum).toByte()))
+            connection.write(REG_CTRL_MEAS, byteArrayOf(((ctrlMeas and 0xFC) or 0x01).toByte()))
             try { Thread.sleep(MEAS_TIME_MS) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         }
-        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 8)
+        return connection.read(REG_DATA, 8)
     }
 
     /**

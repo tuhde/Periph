@@ -47,7 +47,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BME280Full inst(connection, false);  // Create BME280 driver
+    BME280Full inst(connection);  // Create BME280 driver
     check_eq_u8(inst.chip_id(), 0x60, "chip_id 0x60");
     float t = inst.temperature();
     check_near(t, -40.0f, 85.0f, "temperature range");

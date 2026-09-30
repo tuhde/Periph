@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -72,7 +73,7 @@ class Bme280Full extends Bme280Minimal {
      * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bme280Full(Connection connection) throws IOException {
+    Bme280Full(RegisterConnection connection) throws IOException {
         super(connection)
     }
 
@@ -84,26 +85,8 @@ class Bme280Full extends Bme280Minimal {
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bme280Full(Connection connection, int addr) throws IOException {
+    Bme280Full(RegisterConnection connection, int addr) throws IOException {
         super(connection, addr)
-    }
-
-    /**
-     * Construct the full driver at the given address and bus type, verify
-     * chip ID, and load calibration.
-     *
-     * <p>Pass {@link #BUS_SPI} for SPI — per the datasheet's register-address
-     * protocol, BME280's I²C register addresses already have bit 7 set, so
-     * SPI reads use the same value unmasked; only writes differ, clearing
-     * bit 7 ({@code reg & 0x7F}).
-     *
-     * @param connection I²C or SPI connection bound to the device
-     * @param addr      I²C device address (0x76 or 0x77); unused for SPI
-     * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
-     * @throws IOException on bus error, wrong chip ID, or invalid calibration
-     */
-    Bme280Full(Connection connection, int addr, int busType) throws IOException {
-        super(connection, addr, busType)
     }
 
     /**
@@ -125,9 +108,9 @@ class Bme280Full extends Bme280Minimal {
         ctrlHum  = osrsH & 0x07
         config   = ((tSb & 0x07) << 5) | ((filter & 0x07) << 2)
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03)
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CONFIG, config)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, [(byte) (ctrlHum)] as byte[])
+        connection.write(REG_CONFIG, [(byte) (config)] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) (ctrlMeas)] as byte[])
     }
 
     /**
@@ -144,8 +127,8 @@ class Bme280Full extends Bme280Minimal {
     void setOversampling(int osrsT, int osrsP, int osrsH) throws IOException {
         ctrlHum  = osrsH & 0x07
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03)
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, [(byte) (ctrlHum)] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) (ctrlMeas)] as byte[])
     }
 
     /**
@@ -156,7 +139,7 @@ class Bme280Full extends Bme280Minimal {
      */
     void setMode(int mode) throws IOException {
         ctrlMeas = (ctrlMeas & 0xFC) | (mode & 0x03)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_MEAS, [(byte) (ctrlMeas)] as byte[])
     }
 
     /**
@@ -167,7 +150,7 @@ class Bme280Full extends Bme280Minimal {
      */
     void setFilter(int coeff) throws IOException {
         config = (config & 0xE3) | ((coeff & 0x07) << 2)
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, [(byte) (config)] as byte[])
     }
 
     /**
@@ -179,7 +162,7 @@ class Bme280Full extends Bme280Minimal {
      */
     void setStandby(int tSb) throws IOException {
         config = (config & 0x1F) | ((tSb & 0x07) << 5)
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, [(byte) (config)] as byte[])
     }
 
     /**
@@ -189,7 +172,7 @@ class Bme280Full extends Bme280Minimal {
      * @throws IOException on I²C error
      */
     int status() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_STATUS}, 1)
+        byte[] b = connection.read(REG_STATUS, 1)
         return b[0] & 0xFF
     }
 
@@ -252,7 +235,7 @@ class Bme280Full extends Bme280Minimal {
      * @throws IOException on I²C error
      */
     int chipId() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_ID}, 1)
+        byte[] b = connection.read(REG_ID, 1)
         return b[0] & 0xFF
     }
 
@@ -266,11 +249,11 @@ class Bme280Full extends Bme280Minimal {
      * @throws IOException on I²C error
      */
     void reset() throws IOException {
-        writeReg(REG_RESET, RESET_CMD)
+        connection.write(REG_RESET, [(byte) (RESET_CMD)] as byte[])
         try { Thread.sleep(2) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         readCalibration()
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CONFIG, config)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, [(byte) (ctrlHum)] as byte[])
+        connection.write(REG_CONFIG, [(byte) (config)] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) (ctrlMeas)] as byte[])
     }
 }

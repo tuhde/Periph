@@ -22,7 +22,7 @@ static void check_true(bool cond, const char *label) {
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BME280_I2C_NODE);
     I2CConnectionZephyr connection(dev, BME280_ADDR);
-    BME280Full bme(connection);                          // Create BME280 driver, (connection, spi=false)
+    BME280Full bme(connection);                          // Create BME280 driver, (connection)
     uint8_t cid = bme.chip_id();                        // Read chip ID, () → uint8_t
                                                          // returns 0x60 for BME280
     bme.configure(BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::MODE_SLEEP, BME280Full::FILTER_OFF, BME280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → void

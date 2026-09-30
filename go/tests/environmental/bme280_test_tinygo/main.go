@@ -30,7 +30,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x76, nil, nil)
-	chip, err := environmental.NewBME280Full(conn, false)
+	chip, err := environmental.NewBME280Full(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

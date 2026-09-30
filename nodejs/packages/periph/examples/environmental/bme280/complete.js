@@ -6,7 +6,7 @@ const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x76', 16);
 
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-const bme = new BME280Full(connection);                 // Create BME280 driver, (connection, busType='i2c')
+const bme = new BME280Full(connection);                 // Create BME280 driver, (connection)
 
 (async () => {
     const cid = await bme.chipId();                     // Read chip ID, () → number

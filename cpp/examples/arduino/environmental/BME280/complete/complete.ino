@@ -20,7 +20,7 @@ void setup() {
     Wire.setClock(400000);
 #endif
     I2CConnection connection(Wire, 0x76);
-    BME280Full bme(connection);                          // Create BME280 driver, (connection, spi=false)
+    BME280Full bme(connection);                          // Create BME280 driver, (connection)
     uint8_t cid = bme.chip_id();                        // Read chip ID, () → uint8_t
                                                          // returns 0x60 for BME280
     bme.configure(1, 1, 1, 0, 0, 0);                    // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → void

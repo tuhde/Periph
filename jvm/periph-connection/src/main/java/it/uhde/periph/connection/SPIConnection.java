@@ -109,7 +109,7 @@ public final class SPIConnection implements RegisterConnection {
      */
     @Override
     public void write(int reg, byte[] data) throws IOException {
-        int cmd = reg | ((data.length > 1 && _multiByteBit != null) ? _multiByteBit : 0);
+        int cmd = (reg & ~_readBit) | ((data.length > 1 && _multiByteBit != null) ? _multiByteBit : 0);
         byte[] payload = new byte[data.length + 1];
         payload[0] = (byte) cmd;
         System.arraycopy(data, 0, payload, 1, data.length);

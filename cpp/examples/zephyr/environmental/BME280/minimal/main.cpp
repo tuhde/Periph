@@ -14,7 +14,7 @@
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(BME280_I2C_NODE);
     I2CConnectionZephyr connection(dev, BME280_ADDR);
-    BME280Minimal bme(connection);                       // Create BME280 driver, (connection, spi=false)
+    BME280Minimal bme(connection);                       // Create BME280 driver, (connection)
 
     for (int i = 0; i < 5; i++) {
         float t = bme.temperature();                    // Read temperature, () → float °C

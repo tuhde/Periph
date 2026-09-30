@@ -24,7 +24,7 @@ void setup() {
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between samples
     // to demonstrate battery-friendly indoor monitoring.
-    BME280Full bme(connection);                          // Create BME280 driver, (connection, spi=false)
+    BME280Full bme(connection);                          // Create BME280 driver, (connection)
     bme.configure(BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::OSRS_X1, BME280Full::MODE_FORCED, BME280Full::FILTER_OFF, BME280Full::T_SB_0_5_MS);  // Configure chip, (osrs_t=×1, osrs_p=×1, osrs_h=×1, mode=forced, filter=off, t_sb=0) → void
 
     float t_min = 999, t_max = -999, t_sum = 0;

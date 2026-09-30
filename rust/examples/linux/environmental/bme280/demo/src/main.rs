@@ -16,7 +16,7 @@ fn main() {
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between samples
     // to demonstrate battery-friendly indoor monitoring.
-    let mut bme = Bme280Full::new(dev, addr, false).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76, spi=false)
+    let mut bme = Bme280Full::new(dev, addr).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76)
     bme.configure(OSRS_X1, OSRS_X1, OSRS_X1, MODE_FORCED, FILTER_OFF, T_SB_0_5_MS).expect("configure");  // Configure chip, (osrs_t=×1, osrs_p=×1, osrs_h=×1, mode=forced, filter=off, t_sb=0) → ()
 
     let mut temps = Vec::new();
