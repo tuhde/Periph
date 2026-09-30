@@ -16,7 +16,7 @@ from periph.chips.accelerometer.adxl345 import ADXL345Minimal
 
 i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400_000)
 connection = I2CConnection(i2c, 0x53)
-accel = ADXL345Minimal(connection)                      # Create ADXL345 driver, (connection, bus_type='i2c')
+accel = ADXL345Minimal(connection)                      # Create ADXL345 driver, (connection)
 
 # --- 50-sample stationary tilt characterization at 10 Hz ---
 # With the sensor flat and the Z axis up, gravity should project entirely

@@ -12,7 +12,7 @@ from periph.chips.accelerometer.adxl345 import ADXL345Minimal
 # I²C bus on most ESP32 / Pi Pico dev boards; adjust for your wiring.
 i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400_000)
 connection = I2CConnection(i2c, 0x53)
-accel = ADXL345Minimal(connection)                      # Create ADXL345 driver, (connection, bus_type='i2c')
+accel = ADXL345Minimal(connection)                      # Create ADXL345 driver, (connection)
 
 for _ in range(10):
     x, y, z = accel.read()                             # Read 3-axis acceleration, () → tuple(float, float, float) g

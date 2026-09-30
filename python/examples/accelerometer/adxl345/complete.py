@@ -11,7 +11,7 @@ from periph.chips.accelerometer.adxl345 import ADXL345Full
 
 i2c = I2C(0, sda=Pin(21), scl=Pin(22), freq=400_000)
 connection = I2CConnection(i2c, 0x53)
-accel = ADXL345Full(connection)                         # Create ADXL345 Full driver, (connection, bus_type='i2c')
+accel = ADXL345Full(connection)                         # Create ADXL345 Full driver, (connection)
 
 accel.set_range(4)                                      # Set measurement range, (range_g) → None g
                                                          # selects ±4 g; FULL_RES is preserved so scale stays 3.9 mg/LSB
