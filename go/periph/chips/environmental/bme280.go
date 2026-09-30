@@ -11,16 +11,16 @@ import (
 
 // BME280 register addresses.
 const (
-	bme280RegCalStart uint8 = 0x88
-	bme280RegH1       uint8 = 0xA1
-	bme280RegID       uint8 = 0xD0
-	bme280RegReset    uint8 = 0xE0
-	bme280RegCalH2    uint8 = 0xE1
-	bme280RegCtrlHum  uint8 = 0xF2
-	bme280RegStatus   uint8 = 0xF3
-	bme280RegCtrlMeas uint8 = 0xF4
-	bme280RegConfig   uint8 = 0xF5
-	bme280RegData     uint8 = 0xF7
+	bme280RegCalStart = 0x88
+	bme280RegH1       = 0xA1
+	bme280RegID       = 0xD0
+	bme280RegReset    = 0xE0
+	bme280RegCalH2    = 0xE1
+	bme280RegCtrlHum  = 0xF2
+	bme280RegStatus   = 0xF3
+	bme280RegCtrlMeas = 0xF4
+	bme280RegConfig   = 0xF5
+	bme280RegData     = 0xF7
 )
 
 // BME280 expected chip ID.
@@ -122,24 +122,16 @@ type bme280Calibration struct {
 	digH6 int8
 }
 
-// signExtend12 zero- or sign-extends a 12-bit value to int16.
-func signExtend12(raw uint16) int16 {
-	if raw&0x800 != 0 {
-		return int16(raw | 0xF000)
-	}
-	return int16(raw)
-}
-
 // bme280ReadCalibration reads both calibration blocks (26 + 7 bytes) and unpacks
 // all 18 trimming coefficients. Block 1 (0x88..0xA1) holds the 16-bit temperature
 // and pressure coefficients (little-endian) plus dig_H1 at 0xA1. Block 2
 // (0xE1..0xE7) holds dig_H2..dig_H6 with dig_H4 and dig_H5 sharing register
 // 0xE5 — both are 12-bit two's-complement values.
-func bme280ReadCalibration(t connection.Connection) (bme280Calibration, error) {
+func bme280ReadCalibration(t connection.RegisterConnection) (bme280Calibration, error) {
 	var c bme280Calibration
 	// Block 1: 0x88..0xA0 = 25 bytes, skip reserved 0xA0, plus 0xA1 (dig_H1).
 	// Burst-read 26 bytes starting at 0x88 (this crosses the reserved 0xA0).
-	b1, err := t.WriteRead([]byte{bme280RegCalStart}, 26)
+	b1, err := t.ReadReg(bme280RegCalStart, 26)
 	if err != nil {
 		return c, err
 	}
@@ -157,14 +149,14 @@ func bme280ReadCalibration(t connection.Connection) (bme280Calibration, error) {
 	c.digP9 = int16(uint16(b1[22]) | uint16(b1[23])<<8)
 	c.digH1 = b1[25] // skip reserved 0xA0 at b1[24]
 	// Block 2: 0xE1..0xE7 = 7 bytes.
-	b2, err := t.WriteRead([]byte{bme280RegCalH2}, 7)
+	b2, err := t.ReadReg(bme280RegCalH2, 7)
 	if err != nil {
 		return c, err
 	}
 	c.digH2 = int16(uint16(b2[0]) | uint16(b2[1])<<8)
 	c.digH3 = b2[2]
-	c.digH4 = signExtend12((uint16(b2[3]) << 4) | (uint16(b2[4]) & 0x0F))
-	c.digH5 = signExtend12((uint16(b2[5]) << 4) | (uint16(b2[4]) >> 4))
+	c.digH4 = int16(connection.ToSigned((uint32(b2[3])<<4)|(uint32(b2[4])&0x0F), 12))
+	c.digH5 = int16(connection.ToSigned((uint32(b2[5])<<4)|(uint32(b2[4])>>4), 12))
 	c.digH6 = int8(b2[6])
 	return c, nil
 }
@@ -172,7 +164,7 @@ func bme280ReadCalibration(t connection.Connection) (bme280Calibration, error) {
 // bme280CompensateTemp returns (t_fine, temperature_C).
 func bme280CompensateTemp(adcT uint32, c bme280Calibration) (int32, float32) {
 	// Use 64-bit intermediates per datasheet section 4.2.3.
-	var1 := int64(((int64(adcT) >> 3) - (int64(c.digT1) << 1)) * int64(c.digT2)) >> 11
+	var1 := int64(((int64(adcT)>>3)-(int64(c.digT1)<<1))*int64(c.digT2)) >> 11
 	var2 := int64(((int64(adcT)>>4)-int64(c.digT1))*((int64(adcT)>>4)-int64(c.digT1))>>12) * int64(c.digT3) >> 14
 	tFine := int32(var1 + var2)
 	temp := float32((int64(tFine)*5+128)>>8) / 100.0
@@ -186,7 +178,7 @@ func bme280CompensatePressure(adcP uint32, tFine int32, c bme280Calibration) flo
 	var2 := var1 * var1 * int64(c.digP6)
 	var2 = var2 + ((var1 * int64(c.digP5)) << 17)
 	var2 = var2 + (int64(c.digP4) << 35)
-	var1 = ((var1*var1*int64(c.digP3))>>8) + ((var1 * int64(c.digP2)) << 12)
+	var1 = ((var1 * var1 * int64(c.digP3)) >> 8) + ((var1 * int64(c.digP2)) << 12)
 	var1 = (((int64(1) << 47) + var1) * int64(c.digP1)) >> 33
 	if var1 == 0 {
 		return 0
@@ -228,8 +220,7 @@ func bme280CompensateHumidity(adcH uint16, tFine int32, c bme280Calibration) flo
 // Each call to Temperature, Pressure, or Humidity triggers a fresh forced
 // measurement and reads all three ADCs in one burst.
 type BME280Minimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -245,56 +236,35 @@ type BME280Minimal struct {
 // NewBME280Minimal creates a BME280Minimal, reads the 18 trimming
 // coefficients, and applies the default weather-monitoring configuration.
 //
-// connection must be a configured I²C or SPI connection bound to the chip
-// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI -
-// per the datasheet's register-address protocol, BME280's I²C register
-// addresses already have bit 7 set, so SPI reads use the same value
-// unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
-func NewBME280Minimal(t connection.Connection, spi bool) (*BME280Minimal, error) {
+// connection must be a configured I²C, SMBus, or SPI register connection
+// bound to the chip (I²C address 0x76/0x77, or an SPI chip-select). For SPI,
+// use the default Bosch convention (readBit 0x80, no multi-byte bit).
+func NewBME280Minimal(t connection.RegisterConnection) (*BME280Minimal, error) {
 	cal, err := bme280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BME280Minimal{
 		connection: t,
-		spi:       spi,
-		osrsT:     BME280OSRSX1,
-		osrsP:     BME280OSRSX1,
-		osrsH:     BME280OSRSX1,
-		mode:      BME280ModeSleep,
-		filter:    BME280FilterOff,
-		tSB:       BME280TSB0p5MS,
-		cal:       cal,
+		osrsT:      BME280OSRSX1,
+		osrsP:      BME280OSRSX1,
+		osrsH:      BME280OSRSX1,
+		mode:       BME280ModeSleep,
+		filter:     BME280FilterOff,
+		tSB:        BME280TSB0p5MS,
+		cal:        cal,
 	}
 	// ctrl_hum must be written before ctrl_meas for the value to latch.
-	if err := d.writeReg(bme280RegCtrlHum, d.osrsH); err != nil {
+	if err := d.connection.WriteReg(bme280RegCtrlHum, []byte{d.osrsH}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bme280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|0); err != nil {
+	if err := d.connection.WriteReg(bme280RegCtrlMeas, []byte{(d.osrsT << 5) | (d.osrsP << 2) | 0}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bme280RegConfig, 0); err != nil {
+	if err := d.connection.WriteReg(bme280RegConfig, []byte{0}); err != nil {
 		return nil, err
 	}
 	return d, nil
-}
-
-// writeReg writes a single byte to a register.
-func (d *BME280Minimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x7F
-	}
-	return d.connection.Write([]byte{addr, val})
-}
-
-// readReg8 reads a single byte from a register.
-func (d *BME280Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
-	if err != nil {
-		return 0, err
-	}
-	return b[0], nil
 }
 
 // triggerAndRead triggers a forced measurement (unless in normal mode) and
@@ -302,16 +272,16 @@ func (d *BME280Minimal) readReg8(reg uint8) (uint8, error) {
 // ADC values from one burst read of registers 0xF7..0xFE.
 func (d *BME280Minimal) triggerAndRead() (uint32, uint32, uint16, error) {
 	if d.mode != BME280ModeNormal {
-		if err := d.writeReg(bme280RegCtrlHum, d.osrsH); err != nil {
+		if err := d.connection.WriteReg(bme280RegCtrlHum, []byte{d.osrsH}); err != nil {
 			return 0, 0, 0, err
 		}
 		ctrl := (d.osrsT << 5) | (d.osrsP << 2) | BME280ModeForced
-		if err := d.writeReg(bme280RegCtrlMeas, ctrl); err != nil {
+		if err := d.connection.WriteReg(bme280RegCtrlMeas, []byte{ctrl}); err != nil {
 			return 0, 0, 0, err
 		}
 		time.Sleep(bme280MeasTime)
 	}
-	raw, err := d.connection.WriteRead([]byte{bme280RegData}, 8)
+	raw, err := d.connection.ReadReg(bme280RegData, 8)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -375,10 +345,10 @@ type BME280Full struct {
 
 // NewBME280Full creates a BME280Full and applies the default configuration.
 //
-// connection must be a configured I²C or SPI connection bound to the chip
-// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI.
-func NewBME280Full(t connection.Connection, spi bool) (*BME280Full, error) {
-	m, err := NewBME280Minimal(t, spi)
+// connection must be a configured I²C, SMBus, or SPI register connection
+// bound to the chip (I²C address 0x76/0x77, or an SPI chip-select).
+func NewBME280Full(t connection.RegisterConnection) (*BME280Full, error) {
+	m, err := NewBME280Minimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -401,13 +371,13 @@ func (d *BME280Full) Configure(osrsT, osrsP, osrsH, mode, filter, tSB uint8) err
 	d.mode = mode
 	d.filter = filter
 	d.tSB = tSB
-	if err := d.writeReg(bme280RegCtrlHum, osrsH); err != nil {
+	if err := d.connection.WriteReg(bme280RegCtrlHum, []byte{osrsH}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bme280RegConfig, (tSB<<5)|(filter<<2)); err != nil {
+	if err := d.connection.WriteReg(bme280RegConfig, []byte{(tSB << 5) | (filter << 2)}); err != nil {
 		return err
 	}
-	return d.writeReg(bme280RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|mode)
+	return d.connection.WriteReg(bme280RegCtrlMeas, []byte{(osrsT << 5) | (osrsP << 2) | mode})
 }
 
 // SetOversampling updates the three oversampling settings. The chip requires
@@ -417,34 +387,38 @@ func (d *BME280Full) SetOversampling(osrsT, osrsP, osrsH uint8) error {
 	d.osrsT = osrsT
 	d.osrsP = osrsP
 	d.osrsH = osrsH
-	if err := d.writeReg(bme280RegCtrlHum, osrsH); err != nil {
+	if err := d.connection.WriteReg(bme280RegCtrlHum, []byte{osrsH}); err != nil {
 		return err
 	}
-	return d.writeReg(bme280RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|d.mode)
+	return d.connection.WriteReg(bme280RegCtrlMeas, []byte{(osrsT << 5) | (osrsP << 2) | d.mode})
 }
 
 // SetMode updates the power-mode bits of ctrl_meas.
 func (d *BME280Full) SetMode(mode uint8) error {
 	d.mode = mode
-	return d.writeReg(bme280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|mode)
+	return d.connection.WriteReg(bme280RegCtrlMeas, []byte{(d.osrsT << 5) | (d.osrsP << 2) | mode})
 }
 
 // SetFilter updates the IIR filter coefficient in the config register.
 func (d *BME280Full) SetFilter(coeff uint8) error {
 	d.filter = coeff
-	return d.writeReg(bme280RegConfig, (d.tSB<<5)|(coeff<<2))
+	return d.connection.WriteReg(bme280RegConfig, []byte{(d.tSB << 5) | (coeff << 2)})
 }
 
 // SetStandby updates the normal-mode standby time. Codes 6/7 are 10 ms /
 // 20 ms on the BME280 (BMP280 uses 2000/4000 ms for the same codes).
 func (d *BME280Full) SetStandby(tSB uint8) error {
 	d.tSB = tSB
-	return d.writeReg(bme280RegConfig, (tSB<<5)|(d.filter<<2))
+	return d.connection.WriteReg(bme280RegConfig, []byte{(tSB << 5) | (d.filter << 2)})
 }
 
 // Status reads the status register at 0xF3. Bit 3 = measuring, bit 0 = im_update.
 func (d *BME280Full) Status() (uint8, error) {
-	return d.readReg8(bme280RegStatus)
+	b, err := d.connection.ReadReg(bme280RegStatus, 1)
+	if err != nil {
+		return 0, err
+	}
+	return b[0], nil
 }
 
 // Altitude computes altitude above sea level from the current pressure
@@ -501,13 +475,17 @@ func (d *BME280Full) DewPoint() (float32, error) {
 
 // ChipID reads the chip ID register at 0xD0. Expect 0x60 for a BME280.
 func (d *BME280Full) ChipID() (uint8, error) {
-	return d.readReg8(bme280RegID)
+	b, err := d.connection.ReadReg(bme280RegID, 1)
+	if err != nil {
+		return 0, err
+	}
+	return b[0], nil
 }
 
 // Reset performs a soft reset (write 0xB6 to 0xE0), re-reads the
 // calibration coefficients, and re-applies the current configuration.
 func (d *BME280Full) Reset() error {
-	if err := d.writeReg(bme280RegReset, bme280ResetCmd); err != nil {
+	if err := d.connection.WriteReg(bme280RegReset, []byte{bme280ResetCmd}); err != nil {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
@@ -516,11 +494,11 @@ func (d *BME280Full) Reset() error {
 		return err
 	}
 	d.cal = cal
-	if err := d.writeReg(bme280RegCtrlHum, d.osrsH); err != nil {
+	if err := d.connection.WriteReg(bme280RegCtrlHum, []byte{d.osrsH}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bme280RegConfig, (d.tSB<<5)|(d.filter<<2)); err != nil {
+	if err := d.connection.WriteReg(bme280RegConfig, []byte{(d.tSB << 5) | (d.filter << 2)}); err != nil {
 		return err
 	}
-	return d.writeReg(bme280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|d.mode)
+	return d.connection.WriteReg(bme280RegCtrlMeas, []byte{(d.osrsT << 5) | (d.osrsP << 2) | d.mode})
 }

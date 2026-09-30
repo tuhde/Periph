@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_CAL_START  = 0x88;
 const _REG_H1         = 0xA1;
 const _REG_ID         = 0xD0;
@@ -21,11 +23,6 @@ function _delay(ms) {
     while (Date.now() - start < ms) { /* spin */ }
 }
 
-function _signExtend12(raw) {
-    if (raw & 0x800) return raw - 0x1000;
-    return raw;
-}
-
 /**
  * BME280 combined humidity + pressure + temperature sensor — minimal interface.
  *
@@ -44,13 +41,11 @@ function _signExtend12(raw) {
  * `await sensor.temperature()` (or any other async method) once before
  * relying on calibrated readings if this matters for your use case.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BME280Minimal {
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._mode = 0;
         this._osrsT = 1;
         this._osrsP = 1;
@@ -63,13 +58,13 @@ class BME280Minimal {
 
     async _init() {
         await this._readCalibration();
-        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        await this._writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
-        await this._writeReg(_REG_CONFIG, 0);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
+        await this._conn.writeReg(_REG_CONFIG, 0);
     }
 
     async _readCalibration() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), 26);
+        const data = await this._conn.readReg(_REG_CAL_START, 26);
         this._digT1 = data.readUInt16LE(0);
         this._digT2 = data.readInt16LE(2);
         this._digT3 = data.readInt16LE(4);
@@ -84,31 +79,22 @@ class BME280Minimal {
         this._digP9 = data.readInt16LE(22);
         this._digH1 = data[25];
 
-        const h = await this._conn.writeRead(Buffer.from([_REG_CAL_H2]), 7);
+        const h = await this._conn.readReg(_REG_CAL_H2, 7);
         this._digH2 = h.readInt16LE(0);
         this._digH3 = h[2];
-        this._digH4 = _signExtend12(((h[3] << 4) | (h[4] & 0x0F)) & 0x0FFF);
-        this._digH5 = _signExtend12(((h[5] << 4) | ((h[4] >> 4) & 0x0F)) & 0x0FFF);
+        this._digH4 = toSigned((h[3] << 4) | (h[4] & 0x0F), 12);
+        this._digH5 = toSigned((h[5] << 4) | ((h[4] >> 4) & 0x0F), 12);
         this._digH6 = h.readInt8(6);
-    }
-
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        await this._conn.write(Buffer.from([addr, value]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
     }
 
     async _triggerAndRead() {
         if (this._mode !== 3) {
-            await this._writeReg(_REG_CTRL_HUM, this._osrsH);
+            await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
             const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
-            await this._writeReg(_REG_CTRL_MEAS, ctrl);
+            await this._conn.writeReg(_REG_CTRL_MEAS, ctrl);
             _delay(_MEAS_TIME_MS);
         }
-        const raw = await this._readReg(_REG_DATA_START, 8);
+        const raw = await this._conn.readReg(_REG_DATA_START, 8);
         const adcP = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
         const adcT = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
         const adcH = (raw[6] << 8) | raw[7];
@@ -210,8 +196,7 @@ class BME280Minimal {
 /**
  * BME280 full interface — extends BME280Minimal with configuration, dew point, and altitude helpers.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BME280Full extends BME280Minimal {
     static OSRS_SKIP = 0;
@@ -243,8 +228,8 @@ class BME280Full extends BME280Minimal {
     static STATUS_MEASURING = 0x08;
     static STATUS_IM_UPDATE = 0x01;
 
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -265,9 +250,9 @@ class BME280Full extends BME280Minimal {
         this._mode = mode;
         this._filter = filter;
         this._tSb = tSb;
-        await this._writeReg(_REG_CTRL_HUM, osrsH);
-        await this._writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
@@ -281,8 +266,8 @@ class BME280Full extends BME280Minimal {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
         this._osrsH = osrsH;
-        await this._writeReg(_REG_CTRL_HUM, osrsH);
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
     }
 
     /**
@@ -292,7 +277,7 @@ class BME280Full extends BME280Minimal {
      */
     async setMode(mode) {
         this._mode = mode;
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
     }
 
     /**
@@ -302,7 +287,7 @@ class BME280Full extends BME280Minimal {
      */
     async setFilter(coeff) {
         this._filter = coeff;
-        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
+        await this._conn.writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
     }
 
     /**
@@ -313,7 +298,7 @@ class BME280Full extends BME280Minimal {
      */
     async setStandby(tSb) {
         this._tSb = tSb;
-        await this._writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
+        await this._conn.writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
     }
 
     /**
@@ -321,7 +306,7 @@ class BME280Full extends BME280Minimal {
      * @returns {Promise<number>} Status byte; bit 3 = measuring, bit 0 = im_update.
      */
     async status() {
-        const data = await this._readReg(_REG_STATUS, 1);
+        const data = await this._conn.readReg(_REG_STATUS, 1);
         return data[0];
     }
 
@@ -364,7 +349,7 @@ class BME280Full extends BME280Minimal {
      * @returns {Promise<number>} Chip ID; expect 0x60.
      */
     async chipId() {
-        const data = await this._readReg(_REG_ID, 1);
+        const data = await this._conn.readReg(_REG_ID, 1);
         return data[0];
     }
 
@@ -373,12 +358,12 @@ class BME280Full extends BME280Minimal {
      * @returns {Promise<void>}
      */
     async reset() {
-        await this._writeReg(_REG_RESET, _RESET_CMD);
+        await this._conn.writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
         await this._readCalibration();
-        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
     }
 }
 

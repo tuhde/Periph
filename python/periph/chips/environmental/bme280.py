@@ -2,6 +2,8 @@ import struct
 import time
 import math
 
+from periph.connection.register import to_signed
+
 
 class BME280Minimal:
     """BME280 combined humidity + pressure + temperature sensor — minimal interface.
@@ -21,9 +23,9 @@ class BME280Minimal:
         - spi3w_en = 0
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
-            SPI writes mask bit 7 of the register address.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the
+            device. For SPI, construct it with the default Bosch convention
+            (``read_bit=0x80``, no multi-byte bit).
     """
 
     _REG_CAL_START  = 0x88
@@ -42,9 +44,8 @@ class BME280Minimal:
 
     _MEAS_TIME_MS   = 9
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         self._mode = 0
         self._osrs_t = 1
         self._osrs_p = 1
@@ -53,12 +54,12 @@ class BME280Minimal:
         self._t_sb = 0
         self._t_fine = 0
         self._read_calibration()
-        self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
-        self._write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
-        self._write_reg(self._REG_CONFIG, 0)
+        self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
+        self._connection.write_reg(self._REG_CONFIG, 0)
 
     def _read_calibration(self):
-        data = self._connection.write_read(bytes([self._REG_CAL_START]), 26)
+        data = self._connection.read_reg(self._REG_CAL_START, 26)
         self._dig_T1 = struct.unpack('<H', data[0:2])[0]
         self._dig_T2 = struct.unpack('<h', data[2:4])[0]
         self._dig_T3 = struct.unpack('<h', data[4:6])[0]
@@ -73,34 +74,20 @@ class BME280Minimal:
         self._dig_P9 = struct.unpack('<h', data[22:24])[0]
         self._dig_H1 = data[25]
 
-        h = self._connection.write_read(bytes([self._REG_CAL_H2]), 7)
+        h = self._connection.read_reg(self._REG_CAL_H2, 7)
         self._dig_H2 = struct.unpack('<h', h[0:2])[0]
         self._dig_H3 = h[2]
-        h4_raw = (h[3] << 4) | (h[4] & 0x0F)
-        h5_raw = (h[5] << 4) | (h[4] >> 4)
-        if h4_raw & 0x800:
-            h4_raw -= 0x1000
-        if h5_raw & 0x800:
-            h5_raw -= 0x1000
-        self._dig_H4 = h4_raw
-        self._dig_H5 = h5_raw
+        self._dig_H4 = to_signed((h[3] << 4) | (h[4] & 0x0F), 12)
+        self._dig_H5 = to_signed((h[5] << 4) | (h[4] >> 4), 12)
         self._dig_H6 = struct.unpack('<b', h[6:7])[0]
-
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x7F
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
 
     def _trigger_and_read(self):
         if self._mode != 3:
-            self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
+            self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
             ctrl = (self._osrs_t << 5) | (self._osrs_p << 2) | 1
-            self._write_reg(self._REG_CTRL_MEAS, ctrl)
+            self._connection.write_reg(self._REG_CTRL_MEAS, ctrl)
             time.sleep(self._MEAS_TIME_MS / 1000.0)
-        raw = self._read_reg(self._REG_DATA_START, 8)
+        raw = self._connection.read_reg(self._REG_DATA_START, 8)
         adc_P = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4)
         adc_T = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4)
         adc_H = (raw[6] << 8) | raw[7]
@@ -209,8 +196,7 @@ class BME280Full(BME280Minimal):
     chip ID / soft reset.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the device.
     """
 
     OSRS_SKIP = 0
@@ -242,8 +228,8 @@ class BME280Full(BME280Minimal):
     STATUS_MEASURING = 0x08
     STATUS_IM_UPDATE = 0x01
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure(self, osrs_t=1, osrs_p=1, osrs_h=1, mode=0, filter=0, t_sb=0):
         """Write ctrl_hum, ctrl_meas, and config registers in the correct order.
@@ -266,9 +252,9 @@ class BME280Full(BME280Minimal):
         self._mode = mode
         self._filter = filter
         self._t_sb = t_sb
-        self._write_reg(self._REG_CTRL_HUM, osrs_h)
-        self._write_reg(self._REG_CONFIG, (t_sb << 5) | (filter << 2))
-        self._write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)
+        self._connection.write_reg(self._REG_CTRL_HUM, osrs_h)
+        self._connection.write_reg(self._REG_CONFIG, (t_sb << 5) | (filter << 2))
+        self._connection.write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)
 
     def set_oversampling(self, osrs_t, osrs_p, osrs_h):
         """Update temperature, pressure, and humidity oversampling.
@@ -283,8 +269,8 @@ class BME280Full(BME280Minimal):
         self._osrs_t = osrs_t
         self._osrs_p = osrs_p
         self._osrs_h = osrs_h
-        self._write_reg(self._REG_CTRL_HUM, osrs_h)
-        self._write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | self._mode)
+        self._connection.write_reg(self._REG_CTRL_HUM, osrs_h)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | self._mode)
 
     def set_mode(self, mode):
         """Update power mode.
@@ -293,7 +279,7 @@ class BME280Full(BME280Minimal):
             mode: Power mode (0=sleep, 1=forced, 3=normal).
         """
         self._mode = mode
-        self._write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | mode)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | mode)
 
     def set_filter(self, coeff):
         """Update IIR filter coefficient.
@@ -302,7 +288,7 @@ class BME280Full(BME280Minimal):
             coeff: Filter coefficient (0=off, 1=2, 2=4, 3=8, 4=16).
         """
         self._filter = coeff
-        self._write_reg(self._REG_CONFIG, (self._t_sb << 5) | (coeff << 2))
+        self._connection.write_reg(self._REG_CONFIG, (self._t_sb << 5) | (coeff << 2))
 
     def set_standby(self, t_sb):
         """Update standby time for normal mode.
@@ -312,7 +298,7 @@ class BME280Full(BME280Minimal):
                 10 ms and 20 ms respectively (not 2000 ms / 4000 ms).
         """
         self._t_sb = t_sb
-        self._write_reg(self._REG_CONFIG, (t_sb << 5) | (self._filter << 2))
+        self._connection.write_reg(self._REG_CONFIG, (t_sb << 5) | (self._filter << 2))
 
     def status(self):
         """Read the status register.
@@ -320,7 +306,7 @@ class BME280Full(BME280Minimal):
         Returns:
             int: Status byte; bit 3 = measuring, bit 0 = im_update.
         """
-        data = self._read_reg(self._REG_STATUS, 1)
+        data = self._connection.read_reg(self._REG_STATUS, 1)
         return data[0]
 
     def altitude(self, sea_level_hpa=1013.25):
@@ -371,14 +357,14 @@ class BME280Full(BME280Minimal):
         Returns:
             int: Chip ID; expect 0x60.
         """
-        data = self._read_reg(self._REG_ID, 1)
+        data = self._connection.read_reg(self._REG_ID, 1)
         return data[0]
 
     def reset(self):
         """Perform a soft reset, re-read calibration, and re-apply configuration."""
-        self._write_reg(self._REG_RESET, self._RESET_CMD)
+        self._connection.write_reg(self._REG_RESET, self._RESET_CMD)
         time.sleep(0.002)
         self._read_calibration()
-        self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
-        self._write_reg(self._REG_CONFIG, (self._t_sb << 5) | (self._filter << 2))
-        self._write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | self._mode)
+        self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
+        self._connection.write_reg(self._REG_CONFIG, (self._t_sb << 5) | (self._filter << 2))
+        self._connection.write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | self._mode)

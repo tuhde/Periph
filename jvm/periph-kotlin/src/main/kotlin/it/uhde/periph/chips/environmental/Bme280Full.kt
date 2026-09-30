@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 import kotlin.math.ln
 import kotlin.math.pow
@@ -29,10 +30,9 @@ import kotlin.math.pow
  * [STATUS_MEASURING], [STATUS_IM_UPDATE]
  */
 class Bme280Full @JvmOverloads constructor(
-    connection: Connection,
-    addr: Int = 0x76,
-    busType: Int = BUS_I2C
-) : Bme280Minimal(connection, addr, busType) {
+    connection: RegisterConnection,
+    addr: Int = 0x76
+) : Bme280Minimal(connection, addr) {
 
     companion object {
         const val OSRS_SKIP = 0
@@ -88,9 +88,9 @@ class Bme280Full @JvmOverloads constructor(
         ctrlHum  = osrsH and 0x07
         config   = ((tSb and 0x07) shl 5) or ((filter and 0x07) shl 2)
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (mode and 0x03)
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CONFIG, config)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, byteArrayOf((ctrlHum).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
+        connection.write(REG_CTRL_MEAS, byteArrayOf((ctrlMeas).toByte()))
     }
 
     /**
@@ -104,8 +104,8 @@ class Bme280Full @JvmOverloads constructor(
     fun setOversampling(osrsT: Int, osrsP: Int, osrsH: Int) {
         ctrlHum  = osrsH and 0x07
         ctrlMeas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or (ctrlMeas and 0x03)
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, byteArrayOf((ctrlHum).toByte()))
+        connection.write(REG_CTRL_MEAS, byteArrayOf((ctrlMeas).toByte()))
     }
 
     /**
@@ -116,7 +116,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setMode(mode: Int) {
         ctrlMeas = (ctrlMeas and 0xFC) or (mode and 0x03)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_MEAS, byteArrayOf((ctrlMeas).toByte()))
     }
 
     /**
@@ -127,7 +127,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setFilter(coeff: Int) {
         config = (config and 0xE3) or ((coeff and 0x07) shl 2)
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
     }
 
     /**
@@ -139,7 +139,7 @@ class Bme280Full @JvmOverloads constructor(
      */
     fun setStandby(tSb: Int) {
         config = (config and 0x1F) or ((tSb and 0x07) shl 5)
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
     }
 
     /**
@@ -149,7 +149,7 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun status(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
+        val b = connection.read(REG_STATUS, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -210,7 +210,7 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun chipId(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val b = connection.read(REG_ID, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -221,11 +221,11 @@ class Bme280Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun reset() {
-        writeReg(REG_SOFT_RST, RESET_CMD)
+        connection.write(REG_SOFT_RST, byteArrayOf((RESET_CMD).toByte()))
         try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         readCalibration()
-        writeReg(REG_CTRL_HUM, ctrlHum)
-        writeReg(REG_CONFIG, config)
-        writeReg(REG_CTRL_MEAS, ctrlMeas)
+        connection.write(REG_CTRL_HUM, byteArrayOf((ctrlHum).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
+        connection.write(REG_CTRL_MEAS, byteArrayOf((ctrlMeas).toByte()))
     }
 }

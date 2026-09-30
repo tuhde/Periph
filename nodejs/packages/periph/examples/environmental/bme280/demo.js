@@ -22,7 +22,7 @@ async function sleep(ms) {
     // BME280 datasheet "weather monitoring" preset: minimum power,
     // single-shot, 8 ms typ / 9.3 ms max per cycle. Sleep between samples
     // to demonstrate battery-friendly indoor monitoring.
-    const bme = new BME280Full(connection);             // Create BME280 driver, (connection, busType='i2c')
+    const bme = new BME280Full(connection);             // Create BME280 driver, (connection)
     await bme.configure(BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.OSRS_X1, BME280Full.MODE_FORCED, BME280Full.FILTER_OFF, BME280Full.T_SB_0_5_MS);  // Configure chip, (osrsT=×1, osrsP=×1, osrsH=×1, mode=forced, filter=off, tSb=0) → void
 
     const temps = [], hums = [], pressures = [], alts = [], dews = [];

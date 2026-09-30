@@ -43,7 +43,7 @@ public:
 
     /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
     void write(uint32_t reg, const uint8_t* data, size_t len) override {
-        uint8_t cmd = static_cast<uint8_t>(reg) | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
+        uint8_t cmd = (static_cast<uint8_t>(reg) & static_cast<uint8_t>(~_readBit)) | ((len > 1 && _multiByteBit) ? _multiByteBit : 0);
         uint8_t payload[17];
         payload[0] = cmd;
         memcpy(payload + 1, data, len);

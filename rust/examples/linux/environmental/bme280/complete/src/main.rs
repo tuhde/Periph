@@ -12,7 +12,7 @@ fn main() {
         .unwrap_or(0x76);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bme = Bme280Full::new(dev, addr, false).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76, spi=false)
+    let mut bme = Bme280Full::new(dev, addr).expect("init BME280"); // Create BME280 driver, (i2c, addr=0x76)
     let cid = bme.chip_id().expect("read chip id");                 // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                              // returns 0x60 for BME280
     bme.configure(OSRS_X1, OSRS_X1, OSRS_X1, MODE_FORCED, FILTER_4, T_SB_125_MS).expect("configure");  // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → ()

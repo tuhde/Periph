@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bme = Bme280Full::new(i2c, ADDR, false).expect("init BME280"); // Create BME280 driver, (i2c, ADDR=0x76, spi=false)
+    let mut bme = Bme280Full::new(i2c, ADDR).expect("init BME280"); // Create BME280 driver, (i2c, ADDR=0x76)
     let cid = bme.chip_id().expect("read chip id");                 // Read chip ID, () → u8
     println!("chip_id=0x{:02x}", cid);                              // returns 0x60 for BME280
     bme.configure(OSRS_X1, OSRS_X1, OSRS_X1, MODE_FORCED, FILTER_4, T_SB_125_MS).expect("configure");  // Configure chip, (osrs_t 0–5, osrs_p 0–5, osrs_h 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → ()

@@ -28,7 +28,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BME280Full chip(connection, false);  // Create BME280 driver
+    BME280Full chip(connection);  // Create BME280 driver
     float t, p, h, alt, slp, dp;
     uint8_t cid, st;
     // --- Weather monitoring preset: forced mode, x1/x1/x1, filter off ---

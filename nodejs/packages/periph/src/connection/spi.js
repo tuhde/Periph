@@ -54,7 +54,7 @@ class SPIConnection extends RegisterConnection {
      */
     async writeReg(reg, data) {
         const payload = Buffer.isBuffer(data) ? data : Buffer.from(typeof data === 'number' ? [data] : data);
-        const cmd = reg | ((payload.length > 1 && this._multiByteBit) ? this._multiByteBit : 0);
+        const cmd = (reg & ~this._readBit) | ((payload.length > 1 && this._multiByteBit) ? this._multiByteBit : 0);
         return this.write(Buffer.concat([Buffer.from([cmd]), payload]));
     }
 

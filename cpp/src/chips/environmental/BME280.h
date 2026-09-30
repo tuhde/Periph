@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief BME280 combined humidity + pressure + temperature sensor — minimal interface.
  *
@@ -14,12 +14,11 @@
  *
  *  Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BME280Minimal {
 public:
-    explicit BME280Minimal(Connection& connection, bool spi = false);
+    explicit BME280Minimal(RegisterConnection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -89,16 +88,13 @@ protected:
 
     static constexpr uint32_t MEAS_TIME_MS  = 9;
 
-    Connection& _connection;
-    bool      _spi;
+    RegisterConnection& _connection;
     uint8_t   _mode   = 0;
     uint8_t   _filter = 0;
     uint8_t   _t_sb   = 0;
     int32_t   _t_fine = 0;
 
     void     _read_calibration();
-    void     _write_reg(uint8_t reg, uint8_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _trigger_and_read(uint32_t& adc_P, uint32_t& adc_T, uint16_t& adc_H);
 };
 
@@ -108,8 +104,7 @@ protected:
  *  standby time, altitude / sea-level pressure conversion, dew point, and
  *  chip ID / soft reset.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BME280Full : public BME280Minimal {
 public:
@@ -142,7 +137,7 @@ public:
     static constexpr uint8_t STATUS_MEASURING = 0x08;
     static constexpr uint8_t STATUS_IM_UPDATE = 0x01;
 
-    explicit BME280Full(Connection& connection, bool spi = false);
+    explicit BME280Full(RegisterConnection& connection);
 
     /** @brief Write ctrl_hum, config, and ctrl_meas registers in the correct order.
      *  @param osrs_t Temperature oversampling (0–5).
