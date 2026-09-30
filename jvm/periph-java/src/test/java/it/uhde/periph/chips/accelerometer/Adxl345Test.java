@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Adxl345Test {
 
@@ -174,22 +173,19 @@ class Adxl345Test {
         assertEquals(0x00, lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT) & 0x80);
     }
 
+    // SPI command-byte framing (R/W|MB|A5..A0) lives in SPIConnection.read/write
+    // now; the driver must address registers through RegisterConnection and
+    // fetch the six data bytes as one burst so MB gets set on SPI.
     @Test
-    void spiAddressing() throws IOException {
-        MockConnection connection = new MockConnection();
-        int spiRd = 0x80;
-        int spiBurstRd = 0xC0;
-        connection.setRegister(Adxl345Minimal.REG_DEVID | spiRd, 0xE5);
-        connection.setRegister(Adxl345Minimal.REG_DATAX0 | spiBurstRd, 0x00, 0x01, 0x00, 0x02, 0x00, 0x03);
+    void registerBurstRead() throws IOException {
+        MockConnection connection = newConnection();
+        Adxl345Minimal accel = new Adxl345Minimal(connection);
 
-        Adxl345Minimal accel = new Adxl345Minimal(connection, Adxl345Minimal.BUS_SPI);
-        assertEquals(0x08, lastWriteTo(connection, Adxl345Minimal.REG_DATA_FORMAT));
-
+        int before = connection.writes().size();
         accel.read();
-        boolean sawBurst = false;
-        for (byte[] w : connection.writes()) {
-            if (w.length == 1 && (w[0] & 0xC0) == 0xC0) sawBurst = true;
-        }
-        assertTrue(sawBurst, "SPI burst read never set the MB bit (0x40) alongside R (0x80)");
+        var reads = connection.writes().subList(before, connection.writes().size());
+        assertEquals(1, reads.size(), "read() should issue exactly one register burst");
+        assertEquals(1, reads.get(0).length);
+        assertEquals(Adxl345Minimal.REG_DATAX0, reads.get(0)[0] & 0xFF);
     }
 }

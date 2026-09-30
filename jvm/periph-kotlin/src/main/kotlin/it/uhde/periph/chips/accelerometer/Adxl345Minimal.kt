@@ -1,13 +1,16 @@
 package it.uhde.periph.chips.accelerometer
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
  * ADXL345 — 3-axis MEMS accelerometer (Analog Devices) — minimal interface.
  *
  * Reads X, Y, Z acceleration in *g* with sensible defaults; no configuration
- * is required beyond the connection. Supports I²C and SPI.
+ * is required beyond the connection. Supports I²C, SMBus, and SPI
+ * through the shared [RegisterConnection] (for SPI, construct the connection with
+ * readBit=0x80, multiByteBit=0x40 — the ADXL345 R/W|MB|A5..A0 command byte).
  *
  * Default configuration (baked in at construction):
  * - Full-resolution mode (3.9 mg/LSB at any range)
@@ -18,9 +21,8 @@ import java.io.IOException
  * I²C address is 0x53 (SDO=GND) or 0x1D (SDO=VDDIO). SPI mode uses
  * CPOL=1/CPHA=1 (mode 3), max 5 MHz, MSB first, CS active low.
  */
-open class Adxl345Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
-    protected val busType: Int = BUS_I2C
+open class Adxl345Minimal(
+    protected val connection: RegisterConnection
 ) {
     init {
         writeReg(REG_DATA_FORMAT, DATA_FORMAT_DEFAULT)
@@ -48,12 +50,9 @@ open class Adxl345Minimal @JvmOverloads constructor(
     @Throws(IOException::class)
     fun read(): DoubleArray {
         val raw = readBurst(REG_DATAX0, 6)
-        var rx = (raw[0].toInt() and 0xFF) or ((raw[1].toInt() and 0xFF) shl 8)
-        var ry = (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
-        var rz = (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
-        if (rx and 0x8000 != 0) rx -= 0x10000
-        if (ry and 0x8000 != 0) ry -= 0x10000
-        if (rz and 0x8000 != 0) rz -= 0x10000
+        val rx = Register.toSigned((raw[0].toInt() and 0xFF) or ((raw[1].toInt() and 0xFF) shl 8), 16)
+        val ry = Register.toSigned((raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8), 16)
+        val rz = Register.toSigned((raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8), 16)
         val scale = if (fullRes)
             FULL_RES_SCALE_G_PER_LSB
         else
@@ -63,36 +62,20 @@ open class Adxl345Minimal @JvmOverloads constructor(
 
     @Throws(IOException::class)
     protected fun writeReg(reg: Int, value: Int) {
-        if (busType == BUS_SPI) {
-            val cmd = cmdByte(reg, false, false)
-            connection.write(byteArrayOf(cmd.toByte(), value.toByte()))
-        } else {
-            connection.write(byteArrayOf(reg.toByte(), value.toByte()))
-        }
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     @Throws(IOException::class)
     protected fun readReg(reg: Int): Int {
-        if (busType == BUS_SPI) {
-            val cmd = cmdByte(reg, true, false)
-            return connection.writeRead(byteArrayOf(cmd.toByte()), 1)[0].toInt() and 0xFF
-        }
-        return connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+        return connection.read(reg, 1)[0].toInt() and 0xFF
     }
 
     @Throws(IOException::class)
     protected fun readBurst(reg: Int, n: Int): ByteArray {
-        if (busType == BUS_SPI) {
-            val cmd = cmdByte(reg, true, n > 1)
-            return connection.writeRead(byteArrayOf(cmd.toByte()), n)
-        }
-        return connection.writeRead(byteArrayOf(reg.toByte()), n)
+        return connection.read(reg, n)
     }
 
     companion object {
-        const val BUS_I2C = 0
-        const val BUS_SPI = 1
-
         internal const val REG_DEVID         = 0x00
         internal const val REG_THRESH_TAP    = 0x1D
         internal const val REG_OFSX          = 0x1E
@@ -131,12 +114,5 @@ open class Adxl345Minimal @JvmOverloads constructor(
             doubleArrayOf(0x09.toDouble(),   50.0), doubleArrayOf(0x08.toDouble(),   25.0), doubleArrayOf(0x07.toDouble(), 12.5),
             doubleArrayOf(0x06.toDouble(), 6.25)
         )
-
-        private fun cmdByte(reg: Int, read: Boolean, multi: Boolean): Int {
-            var addr = reg and 0x3F
-            if (multi) addr = addr or 0x40
-            if (read)  addr = addr or 0x80
-            return addr
-        }
     }
 }
