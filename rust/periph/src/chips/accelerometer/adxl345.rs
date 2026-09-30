@@ -24,6 +24,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{read_register, write_register};
+
 const REG_DEVID: u8 = 0x00;
 const REG_THRESH_TAP: u8 = 0x1D;
 const REG_OFSX: u8 = 0x1E;
@@ -96,7 +98,6 @@ pub const WAKEUP_1_HZ: u8 = 0x06;
 pub struct Adxl345Minimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
     range_bits: u8,
     full_res: bool,
 }
@@ -107,16 +108,15 @@ impl<I2C: I2c> Adxl345Minimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus implementing [`embedded_hal::i2c::I2c`].
     /// * `addr` — 7-bit I²C address (typically `0x53` or `0x1D`).
-    /// * `spi` — Pass `true` for SPI bus (prepends the R/W|MB|A5..A0 command byte).
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        write_reg(&mut i2c, addr, REG_DATA_FORMAT, DATA_FORMAT_DEFAULT, spi)?;
-        write_reg(&mut i2c, addr, REG_BW_RATE, BW_RATE_DEFAULT, spi)?;
-        write_reg(&mut i2c, addr, REG_POWER_CTL, POWER_CTL_DEFAULT, spi)?;
-        let devid = read_reg8(&mut i2c, addr, REG_DEVID, spi)?;
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        write_reg(&mut i2c, addr, REG_DATA_FORMAT, DATA_FORMAT_DEFAULT)?;
+        write_reg(&mut i2c, addr, REG_BW_RATE, BW_RATE_DEFAULT)?;
+        write_reg(&mut i2c, addr, REG_POWER_CTL, POWER_CTL_DEFAULT)?;
+        let devid = read_reg8(&mut i2c, addr, REG_DEVID)?;
         if devid != DEVID_VALUE {
             panic!("ADXL345 DEVID: expected 0x{:02X}, got 0x{:02X}", DEVID_VALUE, devid);
         }
-        Ok(Self { i2c, addr, spi, range_bits: 0, full_res: true })
+        Ok(Self { i2c, addr, range_bits: 0, full_res: true })
     }
 
     /// Read 3-axis linear acceleration.
@@ -124,7 +124,7 @@ impl<I2C: I2c> Adxl345Minimal<I2C> {
     /// Returns (x, y, z) in *g*.
     pub fn read(&mut self) -> Result<(f32, f32, f32), I2C::Error> {
         let mut raw = [0u8; 6];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_DATAX0, &mut raw, self.spi)?;
+        read_register(&mut self.i2c, self.addr, REG_DATAX0 as u32, 1, &mut raw)?;
         let rx = i16::from_le_bytes([raw[0], raw[1]]) as f32;
         let ry = i16::from_le_bytes([raw[2], raw[3]]) as f32;
         let rz = i16::from_le_bytes([raw[4], raw[5]]) as f32;
@@ -134,40 +134,14 @@ impl<I2C: I2c> Adxl345Minimal<I2C> {
     }
 }
 
-fn cmd_byte(reg: u8, read: bool, multi: bool) -> u8 {
-    let mut addr = reg & 0x3F;
-    if multi { addr |= 0x40; }
-    if read  { addr |= 0x80; }
-    addr
+fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
+    write_register(i2c, addr, reg as u32, 1, &[value])
 }
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8, spi: bool) -> Result<(), I2C::Error> {
-    if spi {
-        let cmd = cmd_byte(reg, false, false);
-        i2c.write(addr, &[cmd, value])
-    } else {
-        i2c.write(addr, &[reg, value])
-    }
-}
-
-fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, spi: bool) -> Result<u8, I2C::Error> {
+fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    if spi {
-        let cmd = cmd_byte(reg, true, false);
-        i2c.write_read(addr, &[cmd], &mut buf)?;
-    } else {
-        i2c.write_read(addr, &[reg], &mut buf)?;
-    }
+    read_register(i2c, addr, reg as u32, 1, &mut buf)?;
     Ok(buf[0])
-}
-
-fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8], spi: bool) -> Result<(), I2C::Error> {
-    if spi {
-        let cmd = cmd_byte(reg, true, buf.len() > 1);
-        i2c.write_read(addr, &[cmd], buf)
-    } else {
-        i2c.write_read(addr, &[reg], buf)
-    }
 }
 
 fn encode_offset(offset_g: f32) -> u8 {
@@ -193,9 +167,8 @@ impl<I2C: I2c> Adxl345Full<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x53 or 0x1D).
-    /// * `spi` — Pass `true` for SPI bus.
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let inner = Adxl345Minimal::new(i2c, addr, spi)?;
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = Adxl345Minimal::new(i2c, addr)?;
         Ok(Self { inner })
     }
 
@@ -216,10 +189,10 @@ impl<I2C: I2c> Adxl345Full<I2C> {
             _ => return Ok(()),
         };
         self.inner.range_bits = code;
-        let mut df = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, self.inner.spi)?;
+        let mut df = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT)?;
         df = (df & !0x03) | (code & 0x03);
         if self.inner.full_res { df |= 0x08; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, df, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, df)
     }
 
     /// Set the output data rate to the nearest supported value (6.25 Hz–3200 Hz).
@@ -240,23 +213,23 @@ impl<I2C: I2c> Adxl345Full<I2C> {
                 best_diff = diff;
             }
         }
-        let mut bw = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, self.inner.spi)?;
+        let mut bw = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE)?;
         bw = (bw & !0x0F) | (best_code & 0x0F);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, bw, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, bw)
     }
 
     /// Enable or disable low-power mode (higher noise).
     pub fn set_low_power(&mut self, enabled: bool) -> Result<(), I2C::Error> {
-        let mut bw = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, self.inner.spi)?;
+        let mut bw = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE)?;
         if enabled { bw |= 0x10; } else { bw &= !0x10; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, bw, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_BW_RATE, bw)
     }
 
     /// Set per-axis offset in *g*.
     pub fn set_offset(&mut self, x: f32, y: f32, z: f32) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSX, encode_offset(x), self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSY, encode_offset(y), self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSZ, encode_offset(z), self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSX, encode_offset(x))?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSY, encode_offset(y))?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OFSZ, encode_offset(z))
     }
 
     /// Measure and write per-axis offsets to null sensor bias.
@@ -280,47 +253,47 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Configure single-tap detection and enable the SINGLE_TAP interrupt.
     pub fn set_tap_detection(&mut self, threshold_g: f32, duration_ms: f32, axes: u8, suppress: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_TAP, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DUR, libm::roundf(duration_ms / 0.625) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_TAP, libm::roundf(threshold_g / 0.0625) as u8)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DUR, libm::roundf(duration_ms / 0.625) as u8)?;
         let tap_axes = (axes & 0x07) | if suppress { 0x08 } else { 0x00 };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TAP_AXES, tap_axes, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TAP_AXES, tap_axes)?;
         self.enable_interrupt(INT_SINGLE_TAP)
     }
 
     /// Configure double-tap latency and window; enable DOUBLE_TAP interrupt.
     pub fn set_double_tap(&mut self, latency_ms: f32, window_ms: f32) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_LATENT, libm::roundf(latency_ms / 1.25) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_WINDOW, libm::roundf(window_ms / 1.25) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_LATENT, libm::roundf(latency_ms / 1.25) as u8)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_WINDOW, libm::roundf(window_ms / 1.25) as u8)?;
         self.enable_interrupt(INT_DOUBLE_TAP)
     }
 
     /// Configure activity detection.
     pub fn set_activity(&mut self, threshold_g: f32, axes: u8, ac_coupled: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_ACT, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
-        let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_ACT, libm::roundf(threshold_g / 0.0625) as u8)?;
+        let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL)?;
         aic &= !0xF0;
         if ac_coupled { aic |= 0x80; }
         aic |= axes & 0x70;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, aic, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, aic)?;
         self.enable_interrupt(INT_ACTIVITY)
     }
 
     /// Configure inactivity detection.
     pub fn set_inactivity(&mut self, threshold_g: f32, time_sec: f32, axes: u8, ac_coupled: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_INACT, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_INACT, libm::roundf(time_sec) as u8, self.inner.spi)?;
-        let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_INACT, libm::roundf(threshold_g / 0.0625) as u8)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_INACT, libm::roundf(time_sec) as u8)?;
+        let mut aic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL)?;
         aic &= !0x0F;
         if ac_coupled { aic |= 0x08; }
         aic |= axes & 0x07;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, aic, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACT_INACT_CTL, aic)?;
         self.enable_interrupt(INT_INACTIVITY)
     }
 
     /// Configure free-fall detection and enable the FREE_FALL interrupt.
     pub fn set_free_fall(&mut self, threshold_g: f32, time_ms: f32) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_FF, libm::roundf(threshold_g / 0.0625) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_FF, libm::roundf(time_ms / 5.0) as u8, self.inner.spi)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THRESH_FF, libm::roundf(threshold_g / 0.0625) as u8)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_TIME_FF, libm::roundf(time_ms / 5.0) as u8)?;
         self.enable_interrupt(INT_FREE_FALL)
     }
 
@@ -328,16 +301,16 @@ impl<I2C: I2c> Adxl345Full<I2C> {
     ///
     /// `pin` is 1 for INT1 (default) or 2 for INT2.
     pub fn set_interrupt(&mut self, source: u8, enabled: bool, pin: u8) -> Result<(), I2C::Error> {
-        let mut ie = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_ENABLE, self.inner.spi)?;
-        let mut im = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_MAP, self.inner.spi)?;
+        let mut ie = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_ENABLE)?;
+        let mut im = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_MAP)?;
         if enabled {
             ie |= source;
             if pin == 2 { im |= source; } else { im &= !source; }
         } else {
             ie &= !source;
         }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_ENABLE, ie, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_MAP, im, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_ENABLE, ie)?;
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_MAP, im)
     }
 
     fn enable_interrupt(&mut self, source: u8) -> Result<(), I2C::Error> {
@@ -346,7 +319,7 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Read the INT_SOURCE register; clears latched interrupts.
     pub fn read_interrupt_source(&mut self) -> Result<u8, I2C::Error> {
-        read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, self.inner.spi)
+        read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE)
     }
 
     /// Configure the FIFO.
@@ -356,12 +329,12 @@ impl<I2C: I2c> Adxl345Full<I2C> {
     /// or the number of samples to retain before triggering for Trigger.
     pub fn set_fifo_mode(&mut self, mode: u8, samples: u8) -> Result<(), I2C::Error> {
         let fifo_ctl = (mode & 0xC0) | (samples & 0x1F);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTL, fifo_ctl, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTL, fifo_ctl)
     }
 
     /// Number of FIFO entries currently available (0–32).
     pub fn fifo_count(&mut self) -> Result<u8, I2C::Error> {
-        let status = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS, self.inner.spi)?;
+        let status = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS)?;
         Ok(status & 0x3F)
     }
 
@@ -382,7 +355,7 @@ impl<I2C: I2c> Adxl345Full<I2C> {
 
     /// Enter or leave sleep mode.
     pub fn set_sleep(&mut self, enabled: bool, wakeup_hz: u8) -> Result<(), I2C::Error> {
-        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, self.inner.spi)?;
+        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL)?;
         if enabled {
             let wakeup_code = match wakeup_hz {
                 8 => WAKEUP_8_HZ, 4 => WAKEUP_4_HZ, 2 => WAKEUP_2_HZ, 1 => WAKEUP_1_HZ,
@@ -393,28 +366,28 @@ impl<I2C: I2c> Adxl345Full<I2C> {
         } else {
             pwr &= !0x04;
         }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr)
     }
 
     /// Enable or disable the activity/inactivity serial-link mode.
     pub fn set_link_mode(&mut self, enabled: bool) -> Result<(), I2C::Error> {
-        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, self.inner.spi)?;
+        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL)?;
         if enabled { pwr |= 0x40; } else { pwr &= !0x40; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr)
     }
 
     /// Enable or disable auto-sleep on inactivity (requires Link=1).
     pub fn set_auto_sleep(&mut self, enabled: bool) -> Result<(), I2C::Error> {
-        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, self.inner.spi)?;
+        let mut pwr = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL)?;
         if enabled { pwr |= 0x20; } else { pwr &= !0x20; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POWER_CTL, pwr)
     }
 
     /// Enable or disable the electrostatic self-test force on all axes.
     pub fn self_test(&mut self, enabled: bool) -> Result<(), I2C::Error> {
-        let mut df = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, self.inner.spi)?;
+        let mut df = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT)?;
         if enabled { df |= 0x80; } else { df &= !0x80; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, df, self.inner.spi)
+        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_FORMAT, df)
     }
 }
 
@@ -434,7 +407,7 @@ mod tests {
         ];
         init.extend_from_slice(extra);
         let i2c = I2cMock::new(&init);
-        Adxl345Full::new(i2c, ADDR, false).expect("new")
+        Adxl345Full::new(i2c, ADDR).expect("new")
     }
 
     #[test]

@@ -23,7 +23,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let delay = Delay::new();
 
-    let mut accel = Adxl345Minimal::new(i2c, ADDR, false).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Minimal::new(i2c, ADDR).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53)
 
     // --- Stationary tilt characterization at 10 Hz ---
     // With the sensor flat and the Z axis up, gravity should project entirely

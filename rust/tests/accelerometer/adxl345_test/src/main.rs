@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel = Adxl345Minimal::new(dev, addr, false).expect("init ADXL345");
+    let mut accel = Adxl345Minimal::new(dev, addr).expect("init ADXL345");
 
     let (x, y, z) = accel.read().expect("read");
     check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_returns_floats", passed, failed);
@@ -29,7 +29,7 @@ fn main() {
     drop(accel);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel_full = Adxl345Full::new(dev, addr, false).expect("init ADXL345 Full");
+    let mut accel_full = Adxl345Full::new(dev, addr).expect("init ADXL345 Full");
     accel_full.set_range(4).expect("set_range");
     let (x, y, z) = accel_full.read().expect("read");
     check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_after_set_range_4g", passed, failed);

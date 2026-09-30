@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let delay = Delay::new();
 
-    let mut accel = Adxl345Full::new(i2c, ADDR, false).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Full::new(i2c, ADDR).expect("init ADXL345"); // Create ADXL345 Full driver, (i2c, addr=0x53)
 
     accel.set_range(4).expect("set_range");                            // Set measurement range, (range_g) → () g
                                                                             // selects ±4 g; FULL_RES preserved so scale stays 3.9 mg/LSB

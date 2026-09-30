@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x53);
 
     let dev  = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut accel = Adxl345Minimal::new(dev, addr, false).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53, spi=false)
+    let mut accel = Adxl345Minimal::new(dev, addr).expect("init ADXL345"); // Create ADXL345 driver, (i2c, addr=0x53)
 
     for _ in 0..10 {
         let (x, y, z) = accel.read().expect("read acceleration");   // Read 3-axis acceleration, () → (f32, f32, f32) g

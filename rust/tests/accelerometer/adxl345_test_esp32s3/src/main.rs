@@ -34,7 +34,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2.reborrow());
 
     let mut delay = Delay::new();
-    let mut chip = Adxl345Minimal::new(i2c, ADDR, false).expect("init ADXL345");
+    let mut chip = Adxl345Minimal::new(i2c, ADDR).expect("init ADXL345");
 
     let mut passed = 0i32;
     let mut failed = 0i32;
@@ -49,7 +49,7 @@ fn main() -> ! {
         .unwrap()
         .with_sda(peripherals.GPIO1.reborrow())
         .with_scl(peripherals.GPIO2.reborrow());
-    let mut chip_full = periph::chips::accelerometer::Adxl345Full::new(i2c, ADDR, false).expect("init ADXL345 Full");
+    let mut chip_full = periph::chips::accelerometer::Adxl345Full::new(i2c, ADDR).expect("init ADXL345 Full");
     chip_full.set_range(4).expect("set_range");
     let (x, y, z) = chip_full.read().expect("read");
     check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_after_set_range_4g", passed, failed);
