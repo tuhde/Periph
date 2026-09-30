@@ -110,17 +110,6 @@ var adxl345RateCodes = []struct {
 	{0x06, 6.25},
 }
 
-func adxl345CmdByte(reg uint8, read, multi bool) uint8 {
-	addr := reg & 0x3F
-	if multi {
-		addr |= 0x40
-	}
-	if read {
-		addr |= 0x80
-	}
-	return addr
-}
-
 func adxl345EncodeOffset(offsetG float32) uint8 {
 	raw := int32(math.Round(float64(offsetG / 0.0156)))
 	if raw > 127 {
@@ -135,7 +124,8 @@ func adxl345EncodeOffset(offsetG float32) uint8 {
 // ADXL345Minimal is the ADXL345 3-axis accelerometer — minimal interface.
 //
 // Reads X, Y, Z acceleration in *g* with sensible defaults; no
-// configuration is required beyond the connection. Supports I²C and SPI.
+// configuration is required beyond the connection. Supports I²C, SMBus, and SPI
+// through the shared RegisterConnection.
 //
 // Default configuration (baked in at construction):
 // - Full-resolution mode (3.9 mg/LSB at any range)
@@ -143,8 +133,7 @@ func adxl345EncodeOffset(offsetG float32) uint8 {
 // - 100 Hz output data rate, normal power
 // - FIFO bypass, all interrupts disabled, no offsets
 type ADXL345Minimal struct {
-	conn       connection.Connection
-	spi        bool
+	conn       connection.RegisterConnection
 	rangeBits  uint8
 	fullRes    bool
 }
@@ -152,12 +141,12 @@ type ADXL345Minimal struct {
 // NewADXL345Minimal creates an ADXL345Minimal, verifies DEVID, and applies
 // defaults.
 //
-// connection must be a configured I²C or SPI connection bound to the
-// chip (I²C address 0x53/0x1D, or an SPI chip-select). Pass spi=true for
-// SPI — the driver prepends an R/W|MB|A5..A0 command byte to each
-// transfer and sets MB=1 for multi-byte reads.
-func NewADXL345Minimal(conn connection.Connection, spi bool) (*ADXL345Minimal, error) {
-	c := &ADXL345Minimal{conn: conn, spi: spi, fullRes: true}
+// conn must be a configured RegisterConnection (I²C, SMBus, or SPI) bound
+// to the chip (I²C address 0x53/0x1D, or an SPI chip-select). For SPI,
+// build it with NewSPIConnectionWithConvention(..., readBit=0x80,
+// multiByteBit=0x40) — the ADXL345 R/W|MB|A5..A0 command byte.
+func NewADXL345Minimal(conn connection.RegisterConnection) (*ADXL345Minimal, error) {
+	c := &ADXL345Minimal{conn: conn, fullRes: true}
 	if err := c.writeReg(adxl345RegDataFormat, adxl345DataFormatDefault); err != nil {
 		return nil, err
 	}
@@ -180,23 +169,11 @@ func NewADXL345Minimal(conn connection.Connection, spi bool) (*ADXL345Minimal, e
 }
 
 func (c *ADXL345Minimal) writeReg(reg, val uint8) error {
-	if c.spi {
-		cmd := adxl345CmdByte(reg, false, false)
-		return c.conn.Write([]byte{cmd, val})
-	}
-	return c.conn.Write([]byte{reg, val})
+	return c.conn.WriteReg(uint32(reg), []byte{val})
 }
 
 func (c *ADXL345Minimal) readReg8(reg uint8) (uint8, error) {
-	if c.spi {
-		cmd := adxl345CmdByte(reg, true, false)
-		b, err := c.conn.WriteRead([]byte{cmd}, 1)
-		if err != nil {
-			return 0, err
-		}
-		return b[0], nil
-	}
-	b, err := c.conn.WriteRead([]byte{reg}, 1)
+	b, err := c.conn.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -204,11 +181,7 @@ func (c *ADXL345Minimal) readReg8(reg uint8) (uint8, error) {
 }
 
 func (c *ADXL345Minimal) readBurst(reg uint8, n int) ([]byte, error) {
-	if c.spi {
-		cmd := adxl345CmdByte(reg, true, n > 1)
-		return c.conn.WriteRead([]byte{cmd}, n)
-	}
-	return c.conn.WriteRead([]byte{reg}, n)
+	return c.conn.ReadReg(uint32(reg), n)
 }
 
 // Read returns 3-axis linear acceleration as (x, y, z) in *g*.
@@ -220,9 +193,9 @@ func (c *ADXL345Minimal) Read() (float32, float32, float32, error) {
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	rx := int16(uint16(raw[0]) | uint16(raw[1])<<8)
-	ry := int16(uint16(raw[2]) | uint16(raw[3])<<8)
-	rz := int16(uint16(raw[4]) | uint16(raw[5])<<8)
+	rx := connection.ToSigned(uint32(raw[0])|uint32(raw[1])<<8, 16)
+	ry := connection.ToSigned(uint32(raw[2])|uint32(raw[3])<<8, 16)
+	rz := connection.ToSigned(uint32(raw[4])|uint32(raw[5])<<8, 16)
 	scale := adxl345FullResScaleGPerLSB
 	if !c.fullRes {
 		scales := [4]float32{0.0039, 0.0078, 0.0156, 0.0312}
@@ -243,8 +216,8 @@ type ADXL345Full struct {
 }
 
 // NewADXL345Full creates an ADXL345Full.
-func NewADXL345Full(conn connection.Connection, spi bool) (*ADXL345Full, error) {
-	m, err := NewADXL345Minimal(conn, spi)
+func NewADXL345Full(conn connection.RegisterConnection) (*ADXL345Full, error) {
+	m, err := NewADXL345Minimal(conn)
 	if err != nil {
 		return nil, err
 	}

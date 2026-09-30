@@ -37,7 +37,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	accel, err := accelerometer.NewADXL345Minimal(conn, false) // Create ADXL345 driver, (conn, spi=false) → (*ADXL345Minimal, error)
+	accel, err := accelerometer.NewADXL345Minimal(conn) // Create ADXL345 driver, (conn) → (*ADXL345Minimal, error)
 	if err != nil {
 		panic(err)
 	}
