@@ -149,6 +149,7 @@ Nothing under `registry/` imports or references `python/`, `cpp/`, `nodejs/`, `r
 | `id_probe.byte_order` | with `id_probe` | `big` or `little` (ENS160 `PART_ID` is little-endian) |
 | `id_probe.mask` | with `id_probe` | Bitmask applied to the value read before comparing (MPU6050 bits 6:1 → `0x7E`; TMP117 lower 12 bits → `0x0FFF`) |
 | `id_probe.expected` | with `id_probe` | Non-empty list of accepted masked values |
+| `aliased` | no | See §7.5 |
 | `probe_safety` | yes | `register_pointer` — a 1-byte write is only a register-pointer select; **or** `write_sensitive` — a write is interpreted as data/command (§7). Chips with `id_probe: null` use the value that describes their write behaviour anyway, so a future ID-bearing sibling at the same address is gated correctly |
 | `driver` | no | Driver module name in this repo, or absent/`null` for chips without one |
 | `datasheet` | yes | URL or repo path of the source for every value above |
@@ -204,6 +205,7 @@ DiscoveredDevice
   candidates:           list[str]    # chip ids, sorted; [] = present but not in registry
   identified:           str | None   # chip id confirmed by an identity read, else None
   in_use_by_kernel:     bool
+  aliases:              list[int]    # other addresses merged into this device (§7.5); usually []
   probe_skipped_reason: str | None   # "kernel_bound" | "write_sensitive_candidate" | None
 ```
 
@@ -258,13 +260,13 @@ Names follow each language's conventions; semantics are identical.
 
 ## 7. Safety Audit
 
-Audit basis: the `## Transport Configuration`, register map and Implementation Notes of each chip spec in `specs/` as of this writing. It is **not** a datasheet re-read for every chip; entries marked *verify* must be confirmed against the datasheet by whoever creates the registry entry, and corrected here if wrong.
+Audit basis: the `## Transport Configuration`, register map and Implementation Notes of each chip spec in `specs/`. The five chips flagged *verify* in the first draft (DRV8830, AHT21, ADE7953, MPR121, 24AA02UID) were then checked against the committed datasheets in `datasheets/`; the findings are in §7.4. Every other `probe_safety` value rests on the chip specs only, not on a datasheet re-read.
 
 ### 7.1 Scan (quick write / read byte)
 
 - An address-only write clocks **no data byte**, so none of the supported chips can interpret it as a command or data. No chip in the current specs is known to react to it.
-- Read byte at `0x30`–`0x37` and `0x50`–`0x5F` is used because those ranges hold EEPROM-class devices (24AA02UID at `0x50`; any EEPROM added later). A read byte on these returns data at the current address pointer, which is a pure read.
-- **Reads can still have side effects on pointer-less chips** (some command-driven sensors latch or clear a status flag on read). Within `0x30`–`0x37` / `0x50`–`0x5F` the only chips in the registry today are the 24AA02UID and, for `0x5A`–`0x5D`, the MPR121 and pressure sensors — all register-pointer chips where a read is harmless (*verify* MPR121).
+- Read byte at `0x30`–`0x37` and `0x50`–`0x5F` is used because those ranges hold EEPROM-class devices (24AA02UID at `0x50`–`0x57`; any EEPROM added later). A read byte on these is a current-address read, a pure read.
+- Within `0x30`–`0x37` / `0x50`–`0x5F` the only chips in the registry today are the 24AA02UID and, at `0x5A`–`0x5D`, the MPR121 and the LPS pressure sensors. Datasheet check of the MPR121 (§7.4) found no read side effect.
 
 ### 7.2 Identity probe (1+ byte register-pointer write, then read)
 
@@ -276,16 +278,15 @@ Writing a register address to a chip that has **no** register pointer means the 
 | PCF8591 | Byte is the control byte; changes channel / enables the DAC output |
 | MCP4725, MCP4728 | First bytes are DAC command/data; can change the output voltage |
 | PCF8576 | Byte is a mode/command word for the LCD driver |
-| DRV8830 | `0x00` is CONTROL (drive state); a stray pointer write that is read as data can start the motor (*verify*) |
 | RDA5807M | **No register pointer at all** — writes always start at register `0x02` and the bytes configure the tuner |
-| AHT21 | Command-driven; the write is a command byte (*verify* reset/trigger behaviour) |
-| ADE7953 | 16-bit register addressing; a 1-byte write is an incomplete frame (*verify*) |
+| AHT21 | Command-driven; the first byte is a command. The datasheet defines only `0x71` (read status) and `0xAC` (trigger measurement); behaviour for any other byte is undocumented |
+| ADE7953 | Register addresses are 16 bits; a 1-byte write is an incomplete address frame, and the datasheet does not say how the device recovers |
 | NEO-6 (DDC, `0x42`) | Write stream; DDC reads return a byte stream, not register contents |
 
 **Rule (§5.1 step 4):** if *any* candidate at an address is `write_sensitive`, `discover()` does not probe that address unless the caller passes `active=True`. Candidates are still reported.
 
-All other chips in the registry are `register_pointer`: BMP085/180/280/384/581/BME280/BME680, MPU6050/9250/9255, L3G4200D, L3GD20H, LPS22DF/28DFW/33HW, ADXL345, APDS9960/9930, ENS160, INA219/226/3221, MCP9808, TMP117, VL53L0X/L1X, DS3231, PCF8523, MPR121, AS5600, HMC5883L, MCP23017, 24AA02UID.
-*Verify* for 24AA02UID: a 1-byte write sets the EEPROM address pointer — harmless, but a *write after* the pointer would not be; `discover()` never writes more than the register address.
+All other chips in the registry are `register_pointer`: BMP085/180/280/384/581/BME280/BME680, MPU6050/9250/9255, L3G4200D, L3GD20H, LPS22DF/28DFW/33HW, ADXL345, APDS9960/9930, ENS160, INA219/226/3221, MCP9808, TMP117, VL53L0X/L1X, DS3231, PCF8523, MPR121, AS5600, HMC5883L, MCP23017, 24AA02UID, DRV8830.
+`discover()` never writes more than the register address, so on an EEPROM the pointer write cannot start a write cycle.
 
 ### 7.3 Known unavoidable ambiguities (to be listed in `known_ambiguities.json`)
 
@@ -297,6 +298,30 @@ All other chips in the registry are `register_pointer`: BMP085/180/280/384/581/B
 | `mcp4725` / `mcp4728` / `drv8830` at `0x60`–`0x67` | no ID registers |
 | `ina219` vs unknown INA-family parts at `0x40`–`0x4F` | no ID registers |
 | `aht21` / `ade7953` / `pcf8576` / `pcf8574a` at `0x38` | no ID registers |
+
+### 7.4 Datasheet check of the flagged chips
+
+Checked against `datasheets/…/<chip>.pdf`.
+
+| Chip | Finding | Effect on this spec |
+|---|---|---|
+| **DRV8830** | Addresses confirmed: write addresses `0xC0`–`0xD0` (Table 5) = 7-bit `0x60`–`0x68`. The byte after the address is always the **subaddress** (`0x00` CONTROL, `0x01` FAULT); a data byte only follows a subaddress (Figure 9). A one-byte write therefore selects a subaddress and never writes CONTROL. The first-draft claim that it "can start the motor" was **wrong**. Behaviour for subaddresses other than `0x00`/`0x01` is not documented | Reclassified `register_pointer`; remaining uncertainty is only the undocumented subaddresses |
+| **AHT21** | Address `0x38` confirmed. The only commands the datasheet documents are `0x71` (status) and `0xAC` + `0x33 0x00` (trigger). A stray byte equal to `0xAC` would start a measurement (harmless); behaviour for other first bytes is not documented | Stays `write_sensitive` — conservative, because behaviour is undocumented rather than known-safe |
+| **ADE7953** | Address `0111000X` = `0x38` confirmed. Write = slave address, **16-bit** register address, then data; read = write of the 16-bit address, then repeated start. The datasheet says nothing about an aborted 1-byte address. No version or identity register appears in this datasheet | Stays `write_sensitive`; `id_probe: null` |
+| **MPR121** | Addresses `0x5A`–`0x5D` confirmed (ADDR = VSS/VDD/SDA/SCL). Reads are allowed at any time in Run or Stop mode; only register **writes** are restricted to Stop Mode (§5.1). Nothing in the datasheet says a read clears a status or the IRQ line. No identity register | `register_pointer` confirmed; `id_probe: null` |
+| **24AA02UID** | **Address bits A2:A0 are "don't cares"** (§5.0; pins not connected on the 24AA02UID), so the chip ACKs on **all eight** addresses `0x50`–`0x57`. Control code `1010`. A byte write after the word address starts a 5 ms write cycle; a lone word-address write does not | See §7.5 — real design change |
+
+### 7.5 Aliased addresses (found by the 24AA02UID check)
+
+A single 24AA02UID answers on `0x50`–`0x57`, so `scan()` will report **eight** addresses for one chip. The registry therefore gains a field:
+
+| Field | Required | Meaning |
+|---|---|---|
+| `aliased` | no | `true` when the chip ACKs on every address in `addresses`, not just the one its pins select. Default `false` |
+
+`discover()` gives an aliased chip's addresses special handling: if every address of the alias set ACKs and is mapped only to that chip, they are merged into one `DiscoveredDevice` at the lowest address with `aliases=[…]` listing the rest. If only some of the set ACK, they are reported individually (a different EEPROM, e.g. a 24AA025UID with real chip-select pins, may be present — the 24AA025UID is not in this repo, so that case falls under ambiguity). `validate.js` rejects an `aliased` chip whose `addresses` are not a contiguous block.
+
+The 24AA02UID entry is `addresses: ["0x50..0x57"]`, `aliased: true`. This overrides the chip spec's "use `0x50` as the canonical address", which is a driver-construction convention and does not describe what answers on the bus.
 
 ---
 
@@ -333,7 +358,7 @@ The full `chips.json` is produced by implementation, one entry per I²C-capable 
 | VL53L1X | `0x29` | `0x010F` | 2 | 2 / big | `0xFFFF` | `0xEACC` |
 | HMC5883L | `0x1E` | `0x0A` | 1 | 3 / big | `0xFFFFFF` | `0x483433` |
 
-ID-less chips (`id_probe: null`): AS5600, DS3231, PCF8523, INA219, MPR121, AHT21, ADE7953, PCF8574/8574A/8575/8576, PCF8591, MCP4725/4728, MCP23017, DRV8830, RDA5807M, 24AA02UID, NEO-6.
+ID-less chips (`id_probe: null`): AS5600, DS3231, PCF8523, INA219, MPR121, AHT21, ADE7953, PCF8574/8574A/8575/8576, PCF8591, MCP4725/4728, MCP23017, DRV8830, RDA5807M, 24AA02UID (`aliased`, `0x50..0x57`), NEO-6.
 
 Notes:
 
@@ -386,6 +411,7 @@ Additional decisions made while writing this spec:
 ## 11. Implementation Checklist
 
 ### Registry
+- [ ] `aliased` handling (§7.5) in all six `discover()` implementations, with a test using a fake bus where all of `0x50`–`0x57` ACK
 - [ ] `registry/schema.json`, `registry/chips.json` (one entry per I²C chip, values traced to specs), `registry/known_ambiguities.json`, `registry/README.md`
 - [ ] `registry/scripts/validate.js` (§4.3) with `--check`; unit tests for each failure class
 - [ ] `registry/scripts/generate.js` emitting the six tables (§4.5) with `--check`; `--registry <path-or-url>` option
