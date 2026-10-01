@@ -1,5 +1,6 @@
 // GENERATED from registry/chips.json by registry/scripts/generate.js - do not edit; run the script instead.
 #pragma once
+#ifdef __linux__  // host-only: the discovery tables are not part of the embedded builds
 #include <cstddef>
 #include <cstdint>
 
@@ -177,3 +178,4 @@ static constexpr size_t kChipCount = 45;
 
 }  // namespace discovery
 }  // namespace periph
+#endif  // __linux__

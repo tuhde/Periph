@@ -61,7 +61,7 @@ function node(chips) {
 
 function cpp(chips) {
     const out = [
-        `// ${HEADER}`, '#pragma once', '#include <cstddef>', '#include <cstdint>', '',
+        `// ${HEADER}`, '#pragma once', '#ifdef __linux__  // host-only: the discovery tables are not part of the embedded builds', '#include <cstddef>', '#include <cstdint>', '',
         'namespace periph {', 'namespace discovery {', '',
         'struct IdProbe {',
         '    uint32_t reg;', '    uint8_t regBytes;', '    uint8_t length;', '    bool littleEndian;', '    uint32_t mask;',
@@ -84,7 +84,7 @@ function cpp(chips) {
         const v = c.id.replace(/[^a-z0-9]/g, '_');
         out.push(`    {${q(c.id)}, ${c.driver ? q(c.driver) : 'nullptr'}, ${c.writeSensitive}, ${c.aliased}, kAddr_${v}, ${c.addresses.length}, ${c.probe ? '&kProbe_' + v : 'nullptr'}},`);
     }
-    out.push('};', `static constexpr size_t kChipCount = ${chips.length};`, '', '}  // namespace discovery', '}  // namespace periph', '');
+    out.push('};', `static constexpr size_t kChipCount = ${chips.length};`, '', '}  // namespace discovery', '}  // namespace periph', '#endif  // __linux__', '');
     return out.join('\n');
 }
 
