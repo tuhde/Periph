@@ -226,7 +226,7 @@ class Decoder(srd.Decoder):
                 # the host's first transaction).
                 if self.ss_block is not None and self.state == 'GET_ADDR':
                     self._ann(ss, es, ANN_POWERON_START,
-                             ['poweron-start', 'poweron-start'])
+                             ['poweron-start: first START after power-on', 'poweron-start', 'PO\u25b6'])
             return
 
         if ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
@@ -295,19 +295,19 @@ class Decoder(srd.Decoder):
             en = value
             if en & 0x01:
                 self._ann(self.ss, self.es, ANN_CONVERSION_START,
-                         ['conversion-start', 'conversion-start'])
+                         ['conversion-start: ENABLE PON set', 'conversion-start', 'CV\u25b6'])
             if en & 0x02:
                 self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
-                         ['als-integration-start', 'als-integration-start'])
+                         ['als-integration-start: ENABLE AEN set', 'als-integration-start', 'AL\u25b6'])
             if en & 0x04:
                 self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
-                         ['proximity-integration-start', 'proximity-integration-start'])
+                         ['proximity-integration-start: ENABLE PEN set', 'proximity-integration-start', 'PX\u25b6'])
         if reg == 0x01:
             self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
-                     ['als-integration-start', 'als-integration-start'])
+                     ['als-integration-start: ATIME written', 'als-integration-start', 'AL\u25b6'])
         if reg == 0x0E:
             self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
-                     ['proximity-integration-start', 'proximity-integration-start'])
+                     ['proximity-integration-start: PTIME written', 'proximity-integration-start', 'PX\u25b6'])
         self._ann(self.ss, self.es, ANN_WRITE,
                  [decoded, '%s 0x%02X' % (name, value)])
 
@@ -327,15 +327,15 @@ class Decoder(srd.Decoder):
             if first == 0x13:
                 if (value & 0x01) and (value & 0x02):
                     self._ann(self.ss, self.es, ANN_CONVERSION_DONE,
-                             ['conversion-done', 'conversion-done'])
+                             ['conversion-done: STATUS AVALID and PVALID both set', 'conversion-done', 'CV\u2713'])
                     self._ann(self.ss, self.es, ANN_POWERON_DONE,
-                             ['poweron-done', 'poweron-done'])
+                             ['poweron-done: STATUS AVALID and PVALID both set', 'poweron-done', 'PO\u2713'])
                 elif value & 0x01:
                     self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_DONE,
-                             ['als-integration-done', 'als-integration-done'])
+                             ['als-integration-done: STATUS AVALID set', 'als-integration-done', 'AL\u2713'])
                 elif value & 0x02:
                     self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_DONE,
-                             ['proximity-integration-done', 'proximity-integration-done'])
+                             ['proximity-integration-done: STATUS PVALID set', 'proximity-integration-done', 'PX\u2713'])
         else:
             # Multi-byte read (auto-increment burst).
             text = '%s+%d' % (name, len(self.databuf) - 1)

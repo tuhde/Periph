@@ -346,8 +346,8 @@ class Decoder(srd.Decoder):
             # Per the Data-Ready Clear Latency timing constraint: brackets
             # a data-register read for the conformance check that measures
             # the delay until STATUS.DATA_READY clears afterward.
-            self._ann(ss, ss, ANN_DATA_START, ['Data read start', 'Read start', 'ST'])
-            self._ann(es, es, ANN_DATA_DONE, ['Data read done', 'Read done', 'DN'])
+            self._ann(ss, ss, ANN_DATA_START, ['data_read_start: data-register read begins', 'data_read_start', 'RD\u25b6'])
+            self._ann(es, es, ANN_DATA_DONE, ['data_read_done: data-register read finished', 'data_read_done', 'RD\u2713'])
             self._emit_axis_or_temp_values(addr, data, ss, es)
 
     def _emit_reg_read_side_effect(self, addr, value, ss, es):

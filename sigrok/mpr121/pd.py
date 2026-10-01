@@ -239,6 +239,7 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
         self.last_ecr_write_ss = None
+        self.pending_done = []   # (class, strings) emitted at the next START after a STOP
 
     def _ann(self, ss, es, cls, text):
         """Emit one annotation; `text` is one string or a list of long-to-short strings."""
@@ -258,6 +259,10 @@ class Decoder(srd.Decoder):
             self.is_read  = False
             self.ss_block = ss
             self.state    = 'GET_ADDR'
+            if ptype == 'START' and self.pending_done:
+                for cls, strs in self.pending_done:
+                    self._ann(ss, ss, cls, strs)
+                self.pending_done = []
 
         elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
             if pdata not in ADDRS:
@@ -341,10 +346,20 @@ class Decoder(srd.Decoder):
             self.last_ecr_write_ss = self.ss_block
             if value != 0:
                 self._ann(self.ss_block, self.es, ANN_AUTOCONFIG_START,
-                         'autoconfig start (ECR=%#x)' % value)
+                         ['autoconfig_start: ECR written with ELE_EN=0x%X' % (value & 0x0F),
+                          'autoconfig_start', 'AC\u25b6'])
+                self.pending_done.append(
+                    (ANN_AUTOCONFIG_DONE,
+                     ['autoconfig_done: first bus activity after the ECR write',
+                      'autoconfig_done', 'AC\u2713']))
         if reg_name == 'SRST' and value == 0x63:
             self._ann(self.ss_block, self.es, ANN_SOFT_RESET_START,
-                     'soft reset start (write 0x63 to 0x80)')
+                     ['soft_reset_start: SRST (0x80) written with 0x63',
+                      'soft_reset_start', 'SR\u25b6'])
+            self.pending_done.append(
+                (ANN_SOFT_RESET_DONE,
+                 ['soft_reset_done: first bus activity after the SRST write',
+                  'soft_reset_done', 'SR\u2713']))
         if reg_name in _DECODE_FNS:
             self._ann(self.ss_block, self.es, ANN_WRITE,
                      _DECODE_FNS[reg_name](value))

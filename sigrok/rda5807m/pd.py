@@ -209,7 +209,7 @@ class Decoder(srd.Decoder):
                     # specs/comms/rda5807m_timing.conf's reset_recovery check).
                     if raw & 0x4000:
                         self._emit(ANN_RESET_RECOVERY_DONE, self.ss_block, self.es,
-                                   ['reset_recovery_done', 'RD'])
+                                   ['reset_recovery_done: STC observed after reset', 'reset_recovery_done', 'RR\u2713'])
                 elif i == 1:
                     lines.append(_decode_status_b(raw))
                     # ready_settle_done: FM_READY (bit 7) observed set - marks
@@ -217,7 +217,7 @@ class Decoder(srd.Decoder):
                     # specs/comms/rda5807m_timing.conf's ready_settle check).
                     if raw & 0x0080:
                         self._emit(ANN_READY_SETTLE_DONE, self.ss_block, self.es,
-                                   ['ready_settle_done', 'RS'])
+                                   ['ready_settle_done: FM_READY observed set', 'ready_settle_done', 'RS\u2713'])
                 else:
                     lines.append('%s = 0x%04X ("%s")' % (names[i], raw, _ascii_pair(raw)))
             summary = ' | '.join(lines)
@@ -241,7 +241,7 @@ class Decoder(srd.Decoder):
                     # not be a distinctive start marker).
                     if raw & 0x0002:
                         self._emit(ANN_RESET_RECOVERY_START, self.ss_block, self.es,
-                                   ['reset_recovery_start', 'RR'])
+                                   ['reset_recovery_start: soft reset written', 'reset_recovery_start', 'RR\u25b6'])
                 elif i == 1:
                     text, band, space = _decode_chan(raw)
                     lines.append(text)
@@ -262,7 +262,7 @@ class Decoder(srd.Decoder):
             # reassert (see specs/comms/rda5807m_timing.conf's ready_settle
             # check).
             self._emit(ANN_READY_SETTLE_START, self.ss_block, self.es,
-                       ['ready_settle_start', 'W>'])
+                       ['ready_settle_start: register write deasserts FM_READY', 'ready_settle_start', 'RS\u25b6'])
 
     def decode(self, ss, es, data):
         ptype, pdata = data

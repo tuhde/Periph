@@ -115,7 +115,7 @@ class Decoder(srd.Decoder):
                     # SCK held HIGH > 60 µs — confirmed power-down.
                     pd_es = self.samplenum
                     self.put(pd_ss, pd_es, self.out_ann,
-                             [ANN_POWERDOWN, ['Power-down', 'PD']])
+                             [ANN_POWERDOWN, ['Power-down: SCK held high > 60 \u00b5s', 'Power-down', 'PD']])
                     self.put(pd_ss, pd_es, self.out_python, ['POWERDOWN', None])
                     # Wait for SCK to go LOW (power-up); start wake-up timer.
                     self.wait({1: 'f'})
@@ -132,6 +132,7 @@ class Decoder(srd.Decoder):
                     self.put(wakeup_ss, ready_ss, self.out_ann,
                              [ANN_WAKEUP, [
                                  'Wake-up: %.1f ms' % dur_ms,
+                                 'WU %.1f ms' % dur_ms,
                                  '%.1f ms' % dur_ms,
                              ]])
                 wakeup_ss = None
@@ -162,7 +163,7 @@ class Decoder(srd.Decoder):
                     pd_ss = bit_ss
                     self.wait({1: 'f'})
                     self.put(pd_ss, self.samplenum, self.out_ann,
-                             [ANN_POWERDOWN, ['Power-down', 'PD']])
+                             [ANN_POWERDOWN, ['Power-down: SCK held high > 60 \u00b5s', 'Power-down', 'PD']])
                     self.put(pd_ss, self.samplenum, self.out_python,
                              ['POWERDOWN', None])
                     current_reading = DEFAULT_READING

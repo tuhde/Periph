@@ -301,7 +301,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_ONE_SHOT_DONE,
                           ['one_shot_done: STATUS shows P_DA=1 and T_DA=1',
-                           'one_shot_done']])
+                           'one_shot_done', 'OS\u2713']])
             return
 
         # INT_SOURCE read.
@@ -412,7 +412,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_ONE_SHOT_START,
                           ['one_shot_start: CTRL_REG2 ONE_SHOT=1 reaches the bus',
-                           'one_shot_start']])
+                           'one_shot_start', 'OS\u25b6']])
             return
 
         if reg == 0x12 and len(buf) == 1:

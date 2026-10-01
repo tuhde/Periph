@@ -91,7 +91,7 @@ class Decoder(srd.Decoder):
             if self.is_read:
                 # read_cycle start: the ADDRESS READ that begins the 2-byte
                 # read transaction.
-                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['read_cycle_start']])
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['read_cycle_start: ADDRESS READ begins a read', 'read_cycle_start', 'RC\u25b6']])
 
         elif ptype in ('DATA READ', 'DATA WRITE') and self.state == 'GET_DATA':
             self.data_bytes.append(pdata)
@@ -121,7 +121,7 @@ class Decoder(srd.Decoder):
                            'R']])
                 # read_cycle done: the STOP that ends the read transaction
                 # started by the ANN_READ_CYCLE_START annotation above.
-                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['read_cycle_done']])
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['read_cycle_done: STOP ended the read', 'read_cycle_done', 'RC\u2713']])
             else:
                 self.put(self.ss_block, es, self.out_ann,
                          [ANN_WRITE,

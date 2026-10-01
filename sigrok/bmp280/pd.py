@@ -219,7 +219,7 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_CONVERSION_DONE,
                       ['conversion_done: data burst read (adc_P=%d adc_T=%d)' % (adc_p, adc_t),
-                       'conversion_done']])
+                       'conversion_done', 'C\u2713']])
             return
 
         if reg == 0xD0 and len(buf) == 1:
@@ -273,7 +273,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_CONVERSION_START,
                           ['conversion_start: ctrl_meas triggers forced mode',
-                           'conversion_start']])
+                           'conversion_start', 'C\u25b6']])
             return
 
         if reg == 0xF5 and len(buf) == 1:

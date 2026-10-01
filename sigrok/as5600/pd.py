@@ -240,13 +240,13 @@ class Decoder(srd.Decoder):
                 if raw in (0x80, 0x40):
                     # burn_settle start: Burn_Angle or Burn_Setting command issued.
                     self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_BURN_COMMAND, ['burn_command', 'burn_command']])
+                             [ANN_BURN_COMMAND, ['burn_command: Burn_Angle/Burn_Setting issued', 'burn_command', 'BURN']])
                 elif raw == 0x01:
                     # burn_settle end: first byte of the OTP reload/verify
                     # sequence (0x01, 0x11, 0x10), which the driver must not
                     # issue until >=1 ms after the burn command.
                     self.put(self.ss_block, self.es, self.out_ann,
-                             [ANN_OTP_RELOAD_START, ['otp_reload_start', 'otp_reload_start']])
+                             [ANN_OTP_RELOAD_START, ['otp_reload_start: first OTP reload/verify byte written', 'otp_reload_start', 'OTP\u25b6']])
             elif reg in (0x01, 0x03, 0x05) and len(self.databuf) == 2:
                 # ZPOS, MPOS, MANG: 12-bit pair writes
                 hi = self.databuf[0]

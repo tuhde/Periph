@@ -224,7 +224,7 @@ class Decoder(srd.Decoder):
             # descriptive dispatch below, which only decodes full 14-byte
             # bursts (see specs/imu/mpu6050_timing.conf's gyro_startup check).
             self.put(self.ss_block, self.es, self.out_ann,
-                     [ANN_GYRO_STARTUP_DONE, ['gyro_startup_done', 'GD']])
+                     [ANN_GYRO_STARTUP_DONE, ['gyro_startup_done: first sensor-data read', 'gyro_startup_done', 'GS\u2713']])
 
         if self.is_read:
             if reg == 0x75 and len(self.databuf) == 1:
@@ -281,20 +281,20 @@ class Decoder(srd.Decoder):
                         # specs/imu/mpu6050_timing.conf's reset_recovery
                         # check).
                         self.put(self.ss_block, self.es, self.out_ann,
-                                 [ANN_RESET_RECOVERY_START, ['reset_recovery_start', 'RR']])
+                                 [ANN_RESET_RECOVERY_START, ['reset_recovery_start: DEVICE_RESET written', 'reset_recovery_start', 'RR\u25b6']])
                     else:
                         # reset_recovery_done: any subsequent (non-reset)
                         # PWR_MGMT_1 write - in practice the wake-up write
                         # that follows DEVICE_RESET.
                         self.put(self.ss_block, self.es, self.out_ann,
-                                 [ANN_RESET_RECOVERY_DONE, ['reset_recovery_done', 'RD']])
+                                 [ANN_RESET_RECOVERY_DONE, ['reset_recovery_done: wake-up PWR_MGMT_1 write after reset', 'reset_recovery_done', 'RR\u2713']])
                         if not (val & 0x40):
                             # gyro_startup_start: SLEEP cleared, i.e. the
                             # chip was just commanded awake (see
                             # specs/imu/mpu6050_timing.conf's gyro_startup
                             # check).
                             self.put(self.ss_block, self.es, self.out_ann,
-                                     [ANN_GYRO_STARTUP_START, ['gyro_startup_start', 'GS']])
+                                     [ANN_GYRO_STARTUP_START, ['gyro_startup_start: SLEEP cleared, chip commanded awake', 'gyro_startup_start', 'GS\u25b6']])
                 elif reg == 0x6C:
                     desc = _decode_pwr_mgmt_2(val)
                 elif reg == 0x23:

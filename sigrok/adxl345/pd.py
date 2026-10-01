@@ -234,7 +234,7 @@ class Decoder(srd.Decoder):
                 desc = _decode_sensor_burst(self.databuf)
                 # startup-done: first data-register read after POWER_CTL Measure
                 self.put(self.ss_block, self.es, self.out_ann,
-                         [ANN_STARTUP_DONE, ['startup_done', 'SD']])
+                         [ANN_STARTUP_DONE, ['startup_done: first data-register read after Measure was set', 'startup_done', 'SU\u2713']])
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_READ, [desc, 'Burst 6B']])
             elif reg == 0x31 and len(self.databuf) == 1:
@@ -291,7 +291,7 @@ class Decoder(srd.Decoder):
                     desc = _decode_power_ctl(val)
                     if val & 0x08:
                         self.put(self.ss_block, self.es, self.out_ann,
-                                 [ANN_STARTUP_START, ['startup_start', 'SS']])
+                                 [ANN_STARTUP_START, ['startup_start: POWER_CTL Measure bit set', 'startup_start', 'SU\u25b6']])
                 elif reg == 0x31:
                     desc = _decode_data_format(val)
                 elif reg == 0x2C:

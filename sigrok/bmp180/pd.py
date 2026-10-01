@@ -189,7 +189,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_PRESSURE_CONV_DONE,
                           ['pressure_conversion_done: UP read (raw=%d)' % up,
-                           'pressure_conversion_done']])
+                           'pressure_conversion_done', 'PC\u2713']])
             else:
                 ut = (buf[0] << 8) | buf[1]
                 self.put(ss, es, self.out_ann,
@@ -198,7 +198,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_TEMP_CONV_DONE,
                           ['temp_conversion_done: UT read (raw=%d)' % ut,
-                           'temp_conversion_done']])
+                           'temp_conversion_done', 'TC\u2713']])
             return
 
         # Generic
@@ -231,12 +231,12 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_TEMP_CONV_START,
                           ['temp_conversion_start: ctrl_meas triggers temperature',
-                           'temp_conversion_start']])
+                           'temp_conversion_start', 'TC\u25b6']])
             elif meas == 0x14:
                 self.put(ss, es, self.out_ann,
                          [ANN_PRESSURE_CONV_START,
                           ['pressure_conversion_start: ctrl_meas triggers pressure (oss=%d)' % oss,
-                           'pressure_conversion_start']])
+                           'pressure_conversion_start', 'PC\u25b6']])
             return
 
         if reg == 0xE0 and len(buf) == 1:

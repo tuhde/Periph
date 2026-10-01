@@ -282,11 +282,11 @@ class Decoder(srd.Decoder):
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_ODR_READY,
                           ['odr_ready: ZYXDA=1 (STATUS_REG=0x%02X)' % raw,
-                           'odr_ready']])
+                           'odr_ready', 'O\u2713']])
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_ODR_NEXT,
                           ['odr_next: ZYXDA=1 (STATUS_REG=0x%02X)' % raw,
-                           'odr_next']])
+                           'odr_next', 'ON']])
         else:
             if not self.databuf:
                 self.put(self.ss_block, self.es, self.out_ann,
@@ -305,7 +305,7 @@ class Decoder(srd.Decoder):
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_ODR_START,
                               ['odr_start: CTRL_REG1=0x%02X (PD=1)' % raw,
-                               'odr_start']])
+                               'odr_start', 'O\u25b6']])
                 # Track the configured full scale so subsequent angular-rate
                 # reads can be annotated with the sensitivity.
                 if reg == 0x23:

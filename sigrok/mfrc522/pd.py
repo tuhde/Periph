@@ -251,7 +251,7 @@ class Decoder(srd.Decoder):
             if reg == 0x01 and len(resp) >= 1 and self._reset_pending and (resp[0] & 0x10) == 0:
                 self._reset_pending = False
                 self.put(ss, es, self.out_ann,
-                         [ANN_RESET_RECOVERY, ['reset_recovery_done', 'reset_done']])
+                         [ANN_RESET_RECOVERY, ['reset_recovery_done: CommandReg PowerDown bit cleared after SoftReset', 'reset_recovery_done', 'RR\u2713']])
                 # Fall through - still annotate the read itself normally below.
             if reg == 0x37 and len(resp) >= 1:
                 self.put(ss, es, self.out_ann,
@@ -276,7 +276,7 @@ class Decoder(srd.Decoder):
             if (self.mosi_buf[1] & 0x0F) == 0x0F:  # SoftReset
                 self._reset_pending = True
                 self.put(ss, es, self.out_ann,
-                         [ANN_RESET_RECOVERY, ['reset_recovery_start', 'reset_start']])
+                         [ANN_RESET_RECOVERY, ['reset_recovery_start: SoftReset command written', 'reset_recovery_start', 'RR\u25b6']])
             self.put(ss, es, self.out_ann,
                      [ANN_CMD_WRITE, [_decode_command_reg(self.mosi_buf[1]),
                                        'cmd=0x%02X' % (self.mosi_buf[1] & 0x0F)]])

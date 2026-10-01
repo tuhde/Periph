@@ -283,7 +283,7 @@ class Decoder(srd.Decoder):
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_POWERON_READY,
                           ['poweron_ready: first register read (0x%02X=%s)' % (reg, _decode_reg(reg, raw)),
-                           'poweron_ready']])
+                           'poweron_ready', 'P\u2713']])
         else:
             if not self.databuf:
                 self.put(self.ss_block, self.es, self.out_ann,
@@ -304,7 +304,7 @@ class Decoder(srd.Decoder):
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_POWERON_START,
                               ['poweron_start: CTRL_REG1=0x%02X (PD=1)' % raw,
-                               'poweron_start']])
+                               'poweron_start', 'P\u25b6']])
                 # Track the configured full scale so subsequent angular-rate
                 # reads can be annotated with the sensitivity.
                 if reg == 0x23:

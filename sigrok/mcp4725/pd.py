@@ -129,7 +129,7 @@ class Decoder(srd.Decoder):
             # check "eeprom_write_time"): marks the start of the EEPROM write
             # cycle that follows this command.
             self.put(ss, es, self.out_ann,
-                     [ANN_EEPROM_WRITE_START, ['eeprom_write_start', 'EE-W start']])
+                     [ANN_EEPROM_WRITE_START, ['eeprom_write_start: command starts an EEPROM write cycle', 'eeprom_write_start', 'EE\u25b6']])
         else:
             self._warn(ss, es, 'Unknown command 0x%02X' % b0)
 
@@ -164,7 +164,7 @@ class Decoder(srd.Decoder):
             # check "eeprom_write_time"): marks any read that observes
             # RDY/BSY=1, i.e. no EEPROM write in progress.
             self.put(ss, es, self.out_ann,
-                     [ANN_EEPROM_WRITE_DONE, ['eeprom_write_done', 'EE-W done']])
+                     [ANN_EEPROM_WRITE_DONE, ['eeprom_write_done: read observed RDY/BSY=1 (write finished)', 'eeprom_write_done', 'EE\u2713']])
 
     def _decode_gc(self, ss, es):
         buf = self.databuf

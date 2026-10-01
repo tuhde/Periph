@@ -190,7 +190,7 @@ class Decoder(srd.Decoder):
                 if reg == 0x02 and (raw & 0x02):
                     # conversion_cycle: Bus Voltage read with CNVR=1 (data ready).
                     self._emit(ANN_CONVERSION_READY, self.ss_block, self.es,
-                               ['conversion_ready', 'conversion_ready'])
+                               ['conversion_ready: Bus Voltage read with CNVR=1', 'conversion_ready', 'CNVR'])
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected read length %d for %s' % (len(self.databuf), name))
@@ -211,7 +211,7 @@ class Decoder(srd.Decoder):
                     # active (non-power-down) MODE - see the chip spec's
                     # "Recovery from power-down mode: 40 us" constraint.
                     self._emit(ANN_WAKE_WRITE, self.ss_block, self.es,
-                               ['wake_write', 'wake_write'])
+                               ['wake_write: Configuration written with active MODE', 'wake_write', 'WK\u25b6'])
                     self.awaiting_wake_done = True
             else:
                 self._warn(self.ss_block, self.es,
@@ -225,7 +225,7 @@ class Decoder(srd.Decoder):
             # wake_recovery end: first bus activity after a wake_write - a
             # correct driver waits >= 40 us (the chip's power-down recovery
             # time) before this happens.
-            self.put(ss, ss, self.out_ann, [ANN_WAKE_DONE, ['wake_done', 'wake_done']])
+            self.put(ss, ss, self.out_ann, [ANN_WAKE_DONE, ['wake_done: first bus activity after the wake write', 'wake_done', 'WK\u2713']])
             self.awaiting_wake_done = False
 
         if ptype in ('START', 'START REPEAT'):

@@ -151,8 +151,8 @@ class Decoder(srd.Decoder):
                 # register_write: ADDRESS WRITE of a CONTROL/FAULT write
                 # transaction through its STOP.
                 self.put(self.addr_ss, self.addr_es, self.out_ann,
-                         [ANN_WRITE_START, ['register_write_start', 'WR>']])
+                         [ANN_WRITE_START, ['register_write_start: ADDRESS WRITE of a CONTROL/FAULT write', 'register_write_start', 'WR\u25b6']])
                 self.put(ss, es, self.out_ann,
-                         [ANN_WRITE_DONE, ['register_write_done', 'WR|']])
+                         [ANN_WRITE_DONE, ['register_write_done: STOP ended the register write', 'register_write_done', 'WR\u2713']])
             self.state = 'IDLE'
             self.wrote = False

@@ -221,7 +221,7 @@ class Decoder(srd.Decoder):
                     if val & 0x01:  # AVALID
                         self.put(self.ss_block, self.es, self.out_ann,
                                  [ANN_ALS_INTEGRATION_DONE,
-                                  ['als_integration_done (AVALID)', 'AVALID']])
+                                  ['als_integration_done: STATUS AVALID set', 'als_integration_done', 'AVALID']])
                 elif reg == 0x9C:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_READ, ['PDATA %d' % val, 'P=%d' % val]])
@@ -262,7 +262,7 @@ class Decoder(srd.Decoder):
                     if val & 0x02:  # AEN
                         self.put(self.ss_block, self.es, self.out_ann,
                                  [ANN_ALS_INTEGRATION_START,
-                                  ['als_integration_start (AEN)', 'AEN']])
+                                  ['als_integration_start: ENABLE AEN set', 'als_integration_start', 'AEN']])
                 elif reg == 0x81:
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_WRITE, [_decode_atime(val), 'ATIME 0x%02X' % val]])

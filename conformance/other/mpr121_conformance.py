@@ -38,12 +38,12 @@ DECODER_ID = 'mpr121'
 
 CHECKS = {
     'soft_reset_ready': (
-        lambda t: 'soft reset start' in t,
-        lambda t: 'soft reset done' in t,
+        lambda t: 'soft_reset_start' in t,
+        lambda t: 'soft_reset_done' in t,
     ),
     'autoconfig_ready': (
-        lambda t: 'autoconfig start' in t,
-        lambda t: 'autoconfig done' in t,
+        lambda t: 'autoconfig_start' in t,
+        lambda t: 'autoconfig_done' in t,
     ),
 }
 

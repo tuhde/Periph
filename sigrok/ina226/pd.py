@@ -187,7 +187,7 @@ class Decoder(srd.Decoder):
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_CONVERSION_READY_DONE,
                               ['conversion_ready_done: CVRF set (Mask/Enable=0x%04X)' % raw,
-                               'conversion_ready_done']])
+                               'conversion_ready_done', 'CR\u2713']])
             elif self.databuf:
                 self._warn(self.ss_block, self.es,
                            'Unexpected read length %d for %s' % (len(self.databuf), name))
@@ -209,7 +209,7 @@ class Decoder(srd.Decoder):
                     self.put(self.ss_block, self.es, self.out_ann,
                              [ANN_CONVERSION_READY_START,
                               ['conversion_ready_start: Configuration written (CVRF cleared)',
-                               'conversion_ready_start']])
+                               'conversion_ready_start', 'CR\u25b6']])
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected write length %d for %s' % (len(self.databuf), name))

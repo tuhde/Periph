@@ -139,7 +139,7 @@ class Decoder(srd.Decoder):
             if self.ptr_reg is not None:
                 # register_read_cycle start: the repeated-start ADDRESS READ
                 # that begins the read phase of a register-pointer read.
-                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['register_read_start']])
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['register_read_start: ADDRESS READ begins the read phase', 'register_read_start', 'RD\u25b6']])
 
         elif ptype == 'DATA WRITE':
             if self.state == 'WAIT_REG':
@@ -179,7 +179,7 @@ class Decoder(srd.Decoder):
                     self._emit(self.ss_block, es, 'R', reg, val)
                     # register_read_cycle done: the STOP that ends the read
                     # phase started by the ANN_READ_CYCLE_START annotation above.
-                    self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['register_read_done']])
+                    self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['register_read_done: STOP ended the register read', 'register_read_done', 'RD\u2713']])
                 self.ptr_reg = None
 
             self.state     = 'IDLE'

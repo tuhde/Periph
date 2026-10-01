@@ -247,8 +247,8 @@ class Decoder(srd.Decoder):
                 f'D=0x{code:04X}',
             )
             self.put(self.ss_block, self.es, self.out_ann, [ANN_DATA, msg])
-            self.put(self.ss_block, self.ss_block, self.out_ann, [ANN_DATA_START, ['Data read start', 'Read start', 'ST']])
-            self.put(self.es, self.es, self.out_ann, [ANN_DATA_DONE, ['Data read done', 'Read done', 'DN']])
+            self.put(self.ss_block, self.ss_block, self.out_ann, [ANN_DATA_START, ['data_read_start: DRDY data-register read begins', 'data_read_start', 'RD\u25b6']])
+            self.put(self.es, self.es, self.out_ann, [ANN_DATA_DONE, ['data_read_done: data-register read finished', 'data_read_done', 'RD\u2713']])
         elif self.reg_ptr == 4:
             # Test Register — only a warning, handled inline above.
             pass

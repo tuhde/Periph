@@ -200,7 +200,7 @@ class Decoder(srd.Decoder):
                 # write_cycle start: the internal write cycle begins once
                 # STOP is issued (see the chip spec's "Byte Write" section).
                 self.put(self.ss_block, self.es, self.out_ann,
-                         [ANN_WRITE_CYCLE_START, ['write_cycle_start', 'write_cycle_start']])
+                         [ANN_WRITE_CYCLE_START, ['write_cycle_start: STOP issued, internal EEPROM write cycle begins', 'write_cycle_start', 'WC\u25b6']])
                 self.awaiting_write_done = True
 
     def _finish_sequential(self):
@@ -236,7 +236,7 @@ class Decoder(srd.Decoder):
             # again (ACK-polling) or after waiting the worst-case write
             # cycle time (see the chip spec's "ACK Polling" section).
             self.put(ss, ss, self.out_ann,
-                     [ANN_WRITE_CYCLE_DONE, ['write_cycle_done', 'write_cycle_done']])
+                     [ANN_WRITE_CYCLE_DONE, ['write_cycle_done: first bus activity after the write cycle', 'write_cycle_done', 'WC\u2713']])
             self.awaiting_write_done = False
 
         if ptype in ('START', 'START REPEAT'):

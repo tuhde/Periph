@@ -148,7 +148,7 @@ class Decoder(srd.Decoder):
         # no EEPROM write in progress.
         if (buf[0] >> 7) & 0x01:
             self._emit(ANN_EEPROM_WRITE_DONE, ss, es,
-                       ['eeprom_write_done', 'EE-W done'])
+                       ['eeprom_write_done: read observed RDY/BSY=1 (write finished)', 'eeprom_write_done', 'EE\u2713'])
         # 4 channels × 3 bytes input register + 3 bytes EEPROM
         for i, ch in enumerate(CHANNELS):
             inp = buf[i * 3: i * 3 + 3]
@@ -254,7 +254,7 @@ class Decoder(srd.Decoder):
                 # check "eeprom_write_time"): Sequential Write always persists
                 # to EEPROM at the end of the transaction.
                 self._emit(ANN_EEPROM_WRITE_START, ss, es,
-                           ['eeprom_write_start', 'EE-W start'])
+                           ['eeprom_write_start: write persists to EEPROM', 'eeprom_write_start', 'EE\u25b6'])
                 return
             if w == 0b11:
                 # Single Write: 1 + 2 = 3 bytes (one channel + EEPROM)
@@ -273,7 +273,7 @@ class Decoder(srd.Decoder):
                 # check "eeprom_write_time"): Single Write always persists to
                 # EEPROM.
                 self._emit(ANN_EEPROM_WRITE_START, ss, es,
-                           ['eeprom_write_start', 'EE-W start'])
+                           ['eeprom_write_start: write persists to EEPROM', 'eeprom_write_start', 'EE\u25b6'])
                 return
 
         # 00x xxx = Fast Write (8 data bytes, A→D)

@@ -270,7 +270,7 @@ class Decoder(srd.Decoder):
                        'P=%d T=%d H=%d' % (adc_p, adc_t, adc_h)]])
             self.put(ss, es, self.out_ann,
                      [ANN_MEASUREMENT_TRIGGER_DONE,
-                      ['measurement_trigger_done (ADC burst read)', 'MEAS_DONE']])
+                      ['measurement_trigger_done: ADC burst read', 'measurement_trigger_done', 'MEAS_DONE']])
             return
 
         if reg == 0xD0 and len(buf) == 1:
@@ -325,7 +325,7 @@ class Decoder(srd.Decoder):
             if (buf[0] & 0x03) == 0x01:  # mode == Forced
                 self.put(ss, es, self.out_ann,
                          [ANN_MEASUREMENT_TRIGGER_START,
-                          ['measurement_trigger_start (ctrl_meas mode=Forced)', 'MEAS_START']])
+                          ['measurement_trigger_start: ctrl_meas mode=Forced written', 'measurement_trigger_start', 'MEAS_START']])
             return
 
         if reg == 0xF5 and len(buf) == 1:
