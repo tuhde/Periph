@@ -5,8 +5,8 @@ Usage: linux-sources.py <app dir>
 
 Linux apps (cpp/examples/linux/..., cpp/tests/*/*_test_linux, *_test_unit)
 have no build files. This collects the app's own .cpp files plus the .cpp
-next to every header they include, transitively, from cpp/src/connection and
-cpp/src/chips/*. Used by cpp/scripts/build-all.sh and cpp/test_linux.sh.
+next to every header they include, transitively, from cpp/src/connection,
+cpp/src/discovery and cpp/src/chips/*. Used by cpp/scripts/build-all.sh and cpp/test_linux.sh.
 """
 import glob
 import os
@@ -15,7 +15,7 @@ import sys
 
 app = sys.argv[1]
 src = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src')
-search = [os.path.join(src, 'connection')] + sorted(glob.glob(os.path.join(src, 'chips', '*')))
+search = [os.path.join(src, 'connection'), os.path.join(src, 'discovery')] + sorted(glob.glob(os.path.join(src, 'chips', '*')))
 inc = re.compile(r'^\s*#\s*include\s*["<]([^">]+)[">]', re.M)
 seen, out = set(), []
 def visit(path):

@@ -1,0 +1,56 @@
+'use strict';
+
+// GENERATED from registry/chips.json by registry/scripts/generate.js - do not edit; run the script instead.
+
+const SCHEMA_VERSION = 1;
+
+const CHIPS = [
+    {"id":"adxl345","driver":"adxl345","writeSensitive":false,"aliased":false,"addresses":[29,83],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[229]}},
+    {"id":"mcp4725","driver":"mcp4725","writeSensitive":true,"aliased":false,"addresses":[96,97],"probe":null},
+    {"id":"mcp4728","driver":"mcp4728","writeSensitive":true,"aliased":false,"addresses":[96,97,98,99,100,101,102,103],"probe":null},
+    {"id":"pcf8591","driver":"pcf8591","writeSensitive":true,"aliased":false,"addresses":[72,73,74,75,76,77,78,79],"probe":null},
+    {"id":"rda5807m","driver":"rda5807m","writeSensitive":true,"aliased":false,"addresses":[16],"probe":null},
+    {"id":"pcf8576","driver":"pcf8576","writeSensitive":true,"aliased":false,"addresses":[56,57],"probe":null},
+    {"id":"aht21","driver":"aht21","writeSensitive":true,"aliased":false,"addresses":[56],"probe":null},
+    {"id":"bme280","driver":"bme280","writeSensitive":false,"aliased":false,"addresses":[118,119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[96]}},
+    {"id":"bme680","driver":"bme680","writeSensitive":false,"aliased":false,"addresses":[118,119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[97]}},
+    {"id":"ens160","driver":"ens160","writeSensitive":false,"aliased":false,"addresses":[82,83],"probe":{"register":0,"regBytes":1,"length":2,"order":"little","mask":65535,"expected":[352]}},
+    {"id":"neo-6","driver":"neo-6","writeSensitive":true,"aliased":false,"addresses":[66],"probe":null},
+    {"id":"l3g4200d","driver":"l3g4200d","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[211]}},
+    {"id":"l3gd20h","driver":"l3gd20h","writeSensitive":false,"aliased":false,"addresses":[106,107],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[212,215]}},
+    {"id":"mpu6050","driver":"mpu6050","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":126,"expected":[104]}},
+    {"id":"mpu9250","driver":"mpu9250","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[113]}},
+    {"id":"mpu9255","driver":"mpu9255","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[115]}},
+    {"id":"mcp23017","driver":"mcp23017","writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
+    {"id":"pcf8574","driver":"pcf8574","writeSensitive":true,"aliased":false,"addresses":[32,33,34,35,36,37,38,39,56,57,58,59,60,61,62,63],"probe":null},
+    {"id":"pcf8575","driver":"pcf8575","writeSensitive":true,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
+    {"id":"apds-9930","driver":"apds-9930","writeSensitive":false,"aliased":false,"addresses":[57],"probe":{"register":146,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[57]}},
+    {"id":"apds9960","driver":"apds9960","writeSensitive":false,"aliased":false,"addresses":[57],"probe":{"register":146,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[171]}},
+    {"id":"as5600","driver":"as5600","writeSensitive":false,"aliased":false,"addresses":[54],"probe":null},
+    {"id":"hmc5883l","driver":"hmc5883l","writeSensitive":false,"aliased":false,"addresses":[30],"probe":{"register":10,"regBytes":1,"length":3,"order":"big","mask":16777215,"expected":[4731955]}},
+    {"id":"24aa02uid","driver":"24aa02uid","writeSensitive":false,"aliased":true,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
+    {"id":"24aa025uid","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
+    {"id":"drv8830","driver":"drv8830","writeSensitive":false,"aliased":false,"addresses":[96,97,98,99,100,101,102,103,104],"probe":null},
+    {"id":"mpr121","driver":"mpr121","writeSensitive":false,"aliased":false,"addresses":[90,91,92,93],"probe":null},
+    {"id":"ade7953","driver":"ade7953","writeSensitive":true,"aliased":false,"addresses":[56],"probe":null},
+    {"id":"ina219","driver":"ina219","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":null},
+    {"id":"ina226","driver":"ina226","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[8800]}},
+    {"id":"ina3221","driver":"ina3221","writeSensitive":false,"aliased":false,"addresses":[64,65,66,67],"probe":{"register":255,"regBytes":1,"length":2,"order":"big","mask":65535,"expected":[12832]}},
+    {"id":"bmp085","driver":"bmp085","writeSensitive":false,"aliased":false,"addresses":[119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[85]}},
+    {"id":"bmp180","driver":"bmp180","writeSensitive":false,"aliased":false,"addresses":[119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[85]}},
+    {"id":"bmp280","driver":"bmp280","writeSensitive":false,"aliased":false,"addresses":[118,119],"probe":{"register":208,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[88]}},
+    {"id":"bmp384","driver":"bmp384","writeSensitive":false,"aliased":false,"addresses":[118,119],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[80]}},
+    {"id":"bmp581","driver":"bmp581","writeSensitive":false,"aliased":false,"addresses":[70,71],"probe":{"register":1,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[80]}},
+    {"id":"lps22df","driver":"lps22df","writeSensitive":false,"aliased":false,"addresses":[92,93],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[180]}},
+    {"id":"lps28dfw","driver":"lps28dfw","writeSensitive":false,"aliased":false,"addresses":[92,93],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[180]}},
+    {"id":"lps33hw","driver":"lps33hw","writeSensitive":false,"aliased":false,"addresses":[92,93],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[177]}},
+    {"id":"mfrc522","driver":"mfrc522","writeSensitive":false,"aliased":false,"addresses":[40,41,42,43,44,45,46,47],"probe":{"register":55,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[145,146]}},
+    {"id":"ds3231","driver":"ds3231","writeSensitive":false,"aliased":false,"addresses":[104],"probe":null},
+    {"id":"pcf8523","driver":"pcf8523","writeSensitive":false,"aliased":false,"addresses":[104],"probe":null},
+    {"id":"mcp9808","driver":"mcp9808","writeSensitive":false,"aliased":false,"addresses":[24,25,26,27,28,29,30,31],"probe":{"register":7,"regBytes":1,"length":2,"order":"big","mask":65280,"expected":[1024]}},
+    {"id":"tmp117","driver":"tmp117","writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":{"register":15,"regBytes":1,"length":2,"order":"big","mask":4095,"expected":[279]}},
+    {"id":"vl53l0x","driver":"vl53l0x","writeSensitive":false,"aliased":false,"addresses":[41],"probe":{"register":192,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[238]}},
+    {"id":"vl53l1x","driver":"vl53l1x","writeSensitive":false,"aliased":false,"addresses":[41],"probe":{"register":271,"regBytes":2,"length":2,"order":"big","mask":65535,"expected":[60108]}},
+];
+
+module.exports = { SCHEMA_VERSION, CHIPS };

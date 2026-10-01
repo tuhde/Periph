@@ -191,6 +191,38 @@ jobs:
         run: python3 python/scripts/generate-mip-packages.py --check
 
   # -----------------------------------------------------------------------
+  # I2C discovery registry — validate registry/chips.json, check the
+  # generated per-language tables are current, run the Python unit test
+  # -----------------------------------------------------------------------
+  registry:
+    name: I2C discovery registry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Validator tests
+        run: node registry/scripts/validate_test.js
+
+      - name: Validate registry
+        run: node registry/scripts/validate.js --check
+
+      - name: Check generated discovery tables are up to date
+        run: node registry/scripts/generate.js --check
+
+      - name: Python discovery unit test
+        run: |
+          pip install smbus2
+          PYTHONPATH=python python3 python/tests/discovery/discovery_test_unit.py
+
+  # -----------------------------------------------------------------------
   # Node.js — install deps, check syntax, verify chip driver loads
   # -----------------------------------------------------------------------
   nodejs:
@@ -221,6 +253,9 @@ jobs:
 
       - name: Check periph / Node-RED package READMEs are up to date
         run: node nodejs/scripts/generate-readmes.js --check
+
+      - name: I2C discovery unit test
+        run: node nodejs/tests/discovery/discovery_test_unit.js
 
   # -----------------------------------------------------------------------
   # Java / Kotlin / Groovy — compile-only (no hardware required)
@@ -354,6 +389,9 @@ jobs:
       - name: Check rust/periph/README.md is up to date
         run: node rust/scripts/generate-readme.js --check
 
+      - name: I2C discovery unit tests
+        run: cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery
+
   # -----------------------------------------------------------------------
   # Go — build + vet all packages (no hardware required)
   # -----------------------------------------------------------------------
@@ -374,6 +412,10 @@ jobs:
 
       - name: Vet
         run: go vet ./...
+        working-directory: go
+
+      - name: I2C discovery unit tests
+        run: go test ./periph/discovery/
         working-directory: go
 
   # -----------------------------------------------------------------------

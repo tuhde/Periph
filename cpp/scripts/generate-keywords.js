@@ -22,6 +22,7 @@ const path = require('path');
 const CPP_DIR = path.join(__dirname, '..');
 const SRC_DIR = path.join(CPP_DIR, 'src');
 const KEYWORDS_PATH = path.join(CPP_DIR, 'keywords.txt');
+const HOST_ONLY_DIR = path.join(SRC_DIR, 'discovery');
 
 // Connection headers for other platforms never reach an Arduino sketch.
 const NON_ARDUINO_HEADER = /(Linux|Zephyr|ESPIDF|PicoSDK|Mock)\.h$/;
@@ -32,7 +33,8 @@ function listHeaders(dir) {
     const out = [];
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
         const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) out.push(...listHeaders(full));
+        // src/discovery is Linux-host-only and not shipped in the Arduino library.
+        if (entry.isDirectory()) { if (full !== HOST_ONLY_DIR) out.push(...listHeaders(full)); }
         else if (entry.name.endsWith('.h') && !NON_ARDUINO_HEADER.test(entry.name)) out.push(full);
     }
     return out.sort();

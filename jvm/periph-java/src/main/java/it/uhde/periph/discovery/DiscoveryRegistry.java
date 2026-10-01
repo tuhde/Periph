@@ -1,0 +1,62 @@
+// GENERATED from registry/chips.json by registry/scripts/generate.js - do not edit; run the script instead.
+package it.uhde.periph.discovery;
+
+/** Generated registry table; see specs/feature_i2c_discovery.md. */
+public final class DiscoveryRegistry {
+    private DiscoveryRegistry() {}
+
+    /** Identity-register read that confirms a chip. */
+    public record IdProbe(int register, int regBytes, int length, boolean littleEndian, long mask, long[] expected) {}
+
+    /** One registry entry; {@code driver} and {@code probe} may be null. */
+    public record Chip(String id, String driver, boolean writeSensitive, boolean aliased, int[] addresses, IdProbe probe) {}
+
+    public static final Chip[] CHIPS = {
+        new Chip("adxl345", "adxl345", false, false, new int[] {0x1D, 0x53}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0xE5L})),
+        new Chip("mcp4725", "mcp4725", true, false, new int[] {0x60, 0x61}, null),
+        new Chip("mcp4728", "mcp4728", true, false, new int[] {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}, null),
+        new Chip("pcf8591", "pcf8591", true, false, new int[] {0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, null),
+        new Chip("rda5807m", "rda5807m", true, false, new int[] {0x10}, null),
+        new Chip("pcf8576", "pcf8576", true, false, new int[] {0x38, 0x39}, null),
+        new Chip("aht21", "aht21", true, false, new int[] {0x38}, null),
+        new Chip("bme280", "bme280", false, false, new int[] {0x76, 0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x60L})),
+        new Chip("bme680", "bme680", false, false, new int[] {0x76, 0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x61L})),
+        new Chip("ens160", "ens160", false, false, new int[] {0x52, 0x53}, new IdProbe(0x00, 1, 2, true, 0xFFFFL, new long[] {0x0160L})),
+        new Chip("neo-6", "neo-6", true, false, new int[] {0x42}, null),
+        new Chip("l3g4200d", "l3g4200d", false, false, new int[] {0x68, 0x69}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xD3L})),
+        new Chip("l3gd20h", "l3gd20h", false, false, new int[] {0x6A, 0x6B}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xD4L, 0xD7L})),
+        new Chip("mpu6050", "mpu6050", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0x7EL, new long[] {0x68L})),
+        new Chip("mpu9250", "mpu9250", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0xFFL, new long[] {0x71L})),
+        new Chip("mpu9255", "mpu9255", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0xFFL, new long[] {0x73L})),
+        new Chip("mcp23017", "mcp23017", false, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
+        new Chip("pcf8574", "pcf8574", true, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F}, null),
+        new Chip("pcf8575", "pcf8575", true, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
+        new Chip("apds-9930", "apds-9930", false, false, new int[] {0x39}, new IdProbe(0x92, 1, 1, false, 0xFFL, new long[] {0x39L})),
+        new Chip("apds9960", "apds9960", false, false, new int[] {0x39}, new IdProbe(0x92, 1, 1, false, 0xFFL, new long[] {0xABL})),
+        new Chip("as5600", "as5600", false, false, new int[] {0x36}, null),
+        new Chip("hmc5883l", "hmc5883l", false, false, new int[] {0x1E}, new IdProbe(0x0A, 1, 3, false, 0xFFFFFFL, new long[] {0x483433L})),
+        new Chip("24aa02uid", "24aa02uid", false, true, new int[] {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, null),
+        new Chip("24aa025uid", null, false, false, new int[] {0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}, null),
+        new Chip("drv8830", "drv8830", false, false, new int[] {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68}, null),
+        new Chip("mpr121", "mpr121", false, false, new int[] {0x5A, 0x5B, 0x5C, 0x5D}, null),
+        new Chip("ade7953", "ade7953", true, false, new int[] {0x38}, null),
+        new Chip("ina219", "ina219", false, false, new int[] {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, null),
+        new Chip("ina226", "ina226", false, false, new int[] {0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, new IdProbe(0xFF, 1, 2, false, 0xFFFFL, new long[] {0x2260L})),
+        new Chip("ina3221", "ina3221", false, false, new int[] {0x40, 0x41, 0x42, 0x43}, new IdProbe(0xFF, 1, 2, false, 0xFFFFL, new long[] {0x3220L})),
+        new Chip("bmp085", "bmp085", false, false, new int[] {0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x55L})),
+        new Chip("bmp180", "bmp180", false, false, new int[] {0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x55L})),
+        new Chip("bmp280", "bmp280", false, false, new int[] {0x76, 0x77}, new IdProbe(0xD0, 1, 1, false, 0xFFL, new long[] {0x58L})),
+        new Chip("bmp384", "bmp384", false, false, new int[] {0x76, 0x77}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0x50L})),
+        new Chip("bmp581", "bmp581", false, false, new int[] {0x46, 0x47}, new IdProbe(0x01, 1, 1, false, 0xFFL, new long[] {0x50L})),
+        new Chip("lps22df", "lps22df", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB4L})),
+        new Chip("lps28dfw", "lps28dfw", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB4L})),
+        new Chip("lps33hw", "lps33hw", false, false, new int[] {0x5C, 0x5D}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xB1L})),
+        new Chip("mfrc522", "mfrc522", false, false, new int[] {0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F}, new IdProbe(0x37, 1, 1, false, 0xFFL, new long[] {0x91L, 0x92L})),
+        new Chip("ds3231", "ds3231", false, false, new int[] {0x68}, null),
+        new Chip("pcf8523", "pcf8523", false, false, new int[] {0x68}, null),
+        new Chip("mcp9808", "mcp9808", false, false, new int[] {0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F}, new IdProbe(0x07, 1, 2, false, 0xFF00L, new long[] {0x0400L})),
+        new Chip("tmp117", "tmp117", false, false, new int[] {0x48, 0x49, 0x4A, 0x4B}, new IdProbe(0x0F, 1, 2, false, 0x0FFFL, new long[] {0x0117L})),
+        new Chip("vl53l0x", "vl53l0x", false, false, new int[] {0x29}, new IdProbe(0xC0, 1, 1, false, 0xFFL, new long[] {0xEEL})),
+        new Chip("vl53l1x", "vl53l1x", false, false, new int[] {0x29}, new IdProbe(0x10F, 2, 2, false, 0xFFFFL, new long[] {0xEACCL})),
+    };
+}

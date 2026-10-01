@@ -196,6 +196,7 @@ run_unit() {
     extra_srcs+=("${CHIP_BASE_SRCS[@]}")
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
+        -I"$SRC_DIR/discovery" \
         -I"$SRC_DIR/chips/$CATEGORY" \
         "$unit_src" "${extra_srcs[@]}" \
         -o "$bin"
@@ -222,6 +223,7 @@ run_hil() {
     echo "=== [hil] Compiling $TARGET for Linux GCC ==="
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
+        -I"$SRC_DIR/discovery" \
         "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \
@@ -256,6 +258,7 @@ run_conformance() {
     echo "=== [conformance] Compiling $TARGET for Linux GCC ==="
     g++ -std=c++17 \
         -I"$SRC_DIR/connection" \
+        -I"$SRC_DIR/discovery" \
         "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
         -DTEST_ADDR="$I2C_ADDR" \

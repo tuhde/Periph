@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "chips": [
+    {
+      "id": "adxl345",
+      "name": "ADXL345",
+      "category": "accelerometer",
+      "addresses": [
+        "0x1D",
+        "0x53"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xE5"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "adxl345",
+      "datasheet": "datasheets/accelerometer/adxl345.pdf"
+    },
+    {
+      "id": "mcp4725",
+      "name": "MCP4725",
+      "category": "adc_dac",
+      "addresses": [
+        "0x60..0x61"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "mcp4725",
+      "datasheet": "datasheets/adc_dac/mcp4725.pdf"
+    },
+    {
+      "id": "mcp4728",
+      "name": "MCP4728",
+      "category": "adc_dac",
+      "addresses": [
+        "0x60..0x67"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "mcp4728",
+      "datasheet": "datasheets/adc_dac/mcp4728.pdf"
+    },
+    {
+      "id": "pcf8591",
+      "name": "PCF8591",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "pcf8591",
+      "datasheet": "datasheets/adc_dac/PCF8591.pdf"
+    },
+    {
+      "id": "rda5807m",
+      "name": "RDA5807M",
+      "category": "comms",
+      "addresses": [
+        "0x10"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "rda5807m",
+      "datasheet": "datasheets/comms/rda5807m.pdf"
+    },
+    {
+      "id": "pcf8576",
+      "name": "PCF8576",
+      "category": "display",
+      "addresses": [
+        "0x38..0x39"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "pcf8576",
+      "datasheet": "datasheets/display/pcf8576.pdf"
+    },
+    {
+      "id": "aht21",
+      "name": "AHT21",
+      "category": "environmental",
+      "addresses": [
+        "0x38"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "aht21",
+      "datasheet": "datasheets/environmental/aht21.pdf"
+    },
+    {
+      "id": "bme280",
+      "name": "BME280",
+      "category": "environmental",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0xD0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x60"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bme280",
+      "datasheet": "datasheets/environmental/bme280.pdf"
+    },
+    {
+      "id": "bme680",
+      "name": "BME680",
+      "category": "environmental",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0xD0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x61"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bme680",
+      "datasheet": "datasheets/environmental/bme680.pdf"
+    },
+    {
+      "id": "ens160",
+      "name": "ENS160",
+      "category": "gas",
+      "addresses": [
+        "0x52..0x53"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "little",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x0160"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "ens160",
+      "datasheet": "datasheets/gas/ens160.pdf"
+    },
+    {
+      "id": "neo-6",
+      "name": "NEO-6",
+      "category": "gnss",
+      "addresses": [
+        "0x42"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "neo-6",
+      "datasheet": "datasheets/gnss/neo-6.pdf"
+    },
+    {
+      "id": "l3g4200d",
+      "name": "L3G4200D",
+      "category": "gyroscope",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xD3"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "l3g4200d",
+      "datasheet": "datasheets/gyroscope/L3G4200D.pdf"
+    },
+    {
+      "id": "l3gd20h",
+      "name": "L3GD20H",
+      "category": "gyroscope",
+      "addresses": [
+        "0x6A..0x6B"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xD4",
+          "0xD7"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "l3gd20h",
+      "datasheet": "datasheets/gyroscope/l3gd20h.pdf"
+    },
+    {
+      "id": "mpu6050",
+      "name": "MPU6050",
+      "category": "imu",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x75",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0x7E",
+        "expected": [
+          "0x68"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "mpu6050",
+      "datasheet": "datasheets/imu/mpu6050.pdf"
+    },
+    {
+      "id": "mpu9250",
+      "name": "MPU9250",
+      "category": "imu",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x75",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x71"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "mpu9250",
+      "datasheet": "datasheets/imu/mpu9250.pdf"
+    },
+    {
+      "id": "mpu9255",
+      "name": "MPU9255",
+      "category": "imu",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x75",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x73"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "mpu9255",
+      "datasheet": "datasheets/imu/mpu9255.pdf"
+    },
+    {
+      "id": "mcp23017",
+      "name": "MCP23017",
+      "category": "io_expander",
+      "addresses": [
+        "0x20..0x27"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "mcp23017",
+      "datasheet": "datasheets/io_expander/mcp23017.pdf"
+    },
+    {
+      "id": "pcf8574",
+      "name": "PCF8574 / PCF8574A",
+      "category": "io_expander",
+      "addresses": [
+        "0x20..0x27",
+        "0x38..0x3F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "pcf8574",
+      "datasheet": "datasheets/io_expander/pcf8574.pdf"
+    },
+    {
+      "id": "pcf8575",
+      "name": "PCF8575",
+      "category": "io_expander",
+      "addresses": [
+        "0x20..0x27"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "pcf8575",
+      "datasheet": "datasheets/io_expander/pcf8575.pdf"
+    },
+    {
+      "id": "apds-9930",
+      "name": "APDS-9930",
+      "category": "light",
+      "addresses": [
+        "0x39"
+      ],
+      "id_probe": {
+        "register": "0x92",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x39"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "apds-9930",
+      "datasheet": "datasheets/light/apds-9930.pdf"
+    },
+    {
+      "id": "apds9960",
+      "name": "APDS-9960",
+      "category": "light",
+      "addresses": [
+        "0x39"
+      ],
+      "id_probe": {
+        "register": "0x92",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xAB"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "apds9960",
+      "datasheet": "datasheets/light/apds9960.pdf"
+    },
+    {
+      "id": "as5600",
+      "name": "AS5600",
+      "category": "magnetometer",
+      "addresses": [
+        "0x36"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "as5600",
+      "datasheet": "datasheets/magnetometer/as5600.pdf"
+    },
+    {
+      "id": "hmc5883l",
+      "name": "HMC5883L",
+      "category": "magnetometer",
+      "addresses": [
+        "0x1E"
+      ],
+      "id_probe": {
+        "register": "0x0A",
+        "reg_bytes": 1,
+        "length": 3,
+        "byte_order": "big",
+        "mask": "0xFFFFFF",
+        "expected": [
+          "0x483433"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "hmc5883l",
+      "datasheet": "datasheets/magnetometer/HMC5883L.pdf"
+    },
+    {
+      "id": "24aa02uid",
+      "name": "24AA02UID",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "aliased": true,
+      "driver": "24aa02uid",
+      "datasheet": "datasheets/memory/24aa02uid.pdf"
+    },
+    {
+      "id": "24aa025uid",
+      "name": "24AA025UID",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "datasheet": "datasheets/memory/24aa02uid.pdf"
+    },
+    {
+      "id": "drv8830",
+      "name": "DRV8830",
+      "category": "motor",
+      "addresses": [
+        "0x60..0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "drv8830",
+      "datasheet": "datasheets/motor/drv8830.pdf"
+    },
+    {
+      "id": "mpr121",
+      "name": "MPR121",
+      "category": "other",
+      "addresses": [
+        "0x5A..0x5D"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "mpr121",
+      "datasheet": "datasheets/other/mpr121.pdf"
+    },
+    {
+      "id": "ade7953",
+      "name": "ADE7953",
+      "category": "power",
+      "addresses": [
+        "0x38"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": "ade7953",
+      "datasheet": "datasheets/power/ade7953.pdf"
+    },
+    {
+      "id": "ina219",
+      "name": "INA219",
+      "category": "power",
+      "addresses": [
+        "0x40..0x4F"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "ina219",
+      "datasheet": "datasheets/power/ina219.pdf"
+    },
+    {
+      "id": "ina226",
+      "name": "INA226",
+      "category": "power",
+      "addresses": [
+        "0x40..0x4F"
+      ],
+      "id_probe": {
+        "register": "0xFF",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x2260"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "ina226",
+      "datasheet": "datasheets/power/ina226.pdf"
+    },
+    {
+      "id": "ina3221",
+      "name": "INA3221",
+      "category": "power",
+      "addresses": [
+        "0x40..0x43"
+      ],
+      "id_probe": {
+        "register": "0xFF",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFFF",
+        "expected": [
+          "0x3220"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "ina3221",
+      "datasheet": "datasheets/power/ina3221.pdf"
+    },
+    {
+      "id": "bmp085",
+      "name": "BMP085",
+      "category": "pressure",
+      "addresses": [
+        "0x77"
+      ],
+      "id_probe": {
+        "register": "0xD0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x55"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bmp085",
+      "datasheet": "datasheets/pressure/BMP085.pdf"
+    },
+    {
+      "id": "bmp180",
+      "name": "BMP180",
+      "category": "pressure",
+      "addresses": [
+        "0x77"
+      ],
+      "id_probe": {
+        "register": "0xD0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x55"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bmp180",
+      "datasheet": "datasheets/pressure/bmp180.pdf"
+    },
+    {
+      "id": "bmp280",
+      "name": "BMP280",
+      "category": "pressure",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0xD0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x58"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bmp280",
+      "datasheet": "datasheets/pressure/bmp280.pdf"
+    },
+    {
+      "id": "bmp384",
+      "name": "BMP384",
+      "category": "pressure",
+      "addresses": [
+        "0x76..0x77"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x50"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bmp384",
+      "datasheet": "datasheets/pressure/bmp384.pdf"
+    },
+    {
+      "id": "bmp581",
+      "name": "BMP581",
+      "category": "pressure",
+      "addresses": [
+        "0x46..0x47"
+      ],
+      "id_probe": {
+        "register": "0x01",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x50"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bmp581",
+      "datasheet": "datasheets/pressure/bmp581.pdf"
+    },
+    {
+      "id": "lps22df",
+      "name": "LPS22DF",
+      "category": "pressure",
+      "addresses": [
+        "0x5C..0x5D"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xB4"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "lps22df",
+      "datasheet": "datasheets/pressure/lps22df.pdf"
+    },
+    {
+      "id": "lps28dfw",
+      "name": "LPS28DFW",
+      "category": "pressure",
+      "addresses": [
+        "0x5C..0x5D"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xB4"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "lps28dfw",
+      "datasheet": "datasheets/pressure/lps28dfw.pdf"
+    },
+    {
+      "id": "lps33hw",
+      "name": "LPS33HW",
+      "category": "pressure",
+      "addresses": [
+        "0x5C..0x5D"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xB1"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "lps33hw",
+      "datasheet": "datasheets/pressure/lps33hw.pdf"
+    },
+    {
+      "id": "mfrc522",
+      "name": "MFRC522",
+      "category": "rfid",
+      "addresses": [
+        "0x28..0x2F"
+      ],
+      "id_probe": {
+        "register": "0x37",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x91",
+          "0x92"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "mfrc522",
+      "datasheet": "datasheets/rfid/mfrc522.pdf"
+    },
+    {
+      "id": "ds3231",
+      "name": "DS3231",
+      "category": "rtc",
+      "addresses": [
+        "0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "ds3231",
+      "datasheet": "datasheets/rtc/ds3231.pdf"
+    },
+    {
+      "id": "pcf8523",
+      "name": "PCF8523",
+      "category": "rtc",
+      "addresses": [
+        "0x68"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": "pcf8523",
+      "datasheet": "datasheets/rtc/pcf8523.pdf"
+    },
+    {
+      "id": "mcp9808",
+      "name": "MCP9808",
+      "category": "temperature",
+      "addresses": [
+        "0x18..0x1F"
+      ],
+      "id_probe": {
+        "register": "0x07",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFF00",
+        "expected": [
+          "0x0400"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "mcp9808",
+      "datasheet": "datasheets/temperature/mcp9808.pdf"
+    },
+    {
+      "id": "tmp117",
+      "name": "TMP117",
+      "category": "temperature",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0x0FFF",
+        "expected": [
+          "0x0117"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "tmp117",
+      "datasheet": "datasheets/temperature/tmp117.pdf"
+    },
+    {
+      "id": "vl53l0x",
+      "name": "VL53L0X",
+      "category": "tof",
+      "addresses": [
+        "0x29"
+      ],
+      "id_probe": {
+        "register": "0xC0",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xEE"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "vl53l0x",
+      "datasheet": "datasheets/tof/vl53l0x.pdf"
+    },
+    {
+      "id": "vl53l1x",
+      "name": "VL53L1X",
+      "category": "tof",
+      "addresses": [
+        "0x29"
+      ],
+      "id_probe": {
+        "register": "0x010F",
+        "reg_bytes": 2,
+        "length": 2,
+        "byte_order": "big",
+        "mask": "0xFFFF",
+        "expected": [
+          "0xEACC"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "vl53l1x",
+      "datasheet": "datasheets/tof/vl53l1x.pdf"
+    }
+  ]
+}

@@ -30,6 +30,8 @@ REPO_DIR="$(dirname "$CPP_DIR")"
 find "$DEST" -mindepth 1 -not -path "$DEST/.git" -not -path "$DEST/.git/*" -delete
 
 cp -r "$CPP_DIR/src" "$DEST/src"
+# Linux-host-only I2C discovery is not part of the Arduino library.
+rm -rf "$DEST/src/discovery"
 
 mkdir -p "$DEST/examples"
 find "$CPP_DIR/examples/arduino" -name "*.ino" | while read -r ino; do
