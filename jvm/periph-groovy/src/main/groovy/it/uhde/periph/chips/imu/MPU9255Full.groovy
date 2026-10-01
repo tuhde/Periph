@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 import groovy.transform.CompileStatic
 
@@ -49,14 +49,14 @@ class MPU9255Full extends MPU9255Minimal {
     private double magScaleX = 1.0
     private double magScaleY = 1.0
     private double magScaleZ = 1.0
-    private final Connection magConnection
+    private final RegisterConnection magConnection
 
     /**
-     * @param connection Configured I²C or SPI connection pointing at the MPU-9255.
-     * @param magConnection Configured I²C connection bound to the AK8963's address
+     * @param connection RegisterConnection (I²C or SMBus) pointing at the MPU-9255.
+     * @param magConnection RegisterConnection (I²C or SMBus) bound to the AK8963's address
      *                      (0x0C), on the same bus as {@code connection}.
      */
-    MPU9255Full(Connection connection, Connection magConnection) throws IOException {
+    MPU9255Full(RegisterConnection connection, RegisterConnection magConnection) throws IOException {
         super(connection)
         this.magConnection = magConnection
     }
@@ -68,7 +68,7 @@ class MPU9255Full extends MPU9255Minimal {
      */
     void configureGyro(int fullScale = 0) throws IOException {
         gyroFs = fullScale & 0x03
-        writeReg(REG_GYRO_CONFIG, (fullScale & 0x03) << 3)
+        connection.write(REG_GYRO_CONFIG, [(byte) ((fullScale & 0x03) << 3)] as byte[])
     }
 
     /**
@@ -78,7 +78,7 @@ class MPU9255Full extends MPU9255Minimal {
      */
     void configureAccel(int fullScale = 0) throws IOException {
         accelFs = fullScale & 0x03
-        writeReg(REG_ACCEL_CONFIG, (fullScale & 0x03) << 3)
+        connection.write(REG_ACCEL_CONFIG, [(byte) ((fullScale & 0x03) << 3)] as byte[])
     }
 
     /**
@@ -88,8 +88,8 @@ class MPU9255Full extends MPU9255Minimal {
      * @param accelDlpf  Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
      */
     void configureDlpf(int gyroDlpf = 3, int accelDlpf = 3) throws IOException {
-        writeReg(REG_CONFIG, gyroDlpf & 0x07)
-        writeReg(REG_ACCEL_CONFIG2, accelDlpf & 0x07)
+        connection.write(REG_CONFIG, [(byte) (gyroDlpf & 0x07)] as byte[])
+        connection.write(REG_ACCEL_CONFIG2, [(byte) (accelDlpf & 0x07)] as byte[])
     }
 
     /**
@@ -98,7 +98,7 @@ class MPU9255Full extends MPU9255Minimal {
      * @param divider SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider) when DLPF is active.
      */
     void configureSampleRate(int divider = 4) throws IOException {
-        writeReg(REG_SMPLRT_DIV, divider & 0xFF)
+        connection.write(REG_SMPLRT_DIV, [(byte) (divider & 0xFF)] as byte[])
     }
 
     /**
@@ -118,13 +118,13 @@ class MPU9255Full extends MPU9255Minimal {
      * @param mode Operation mode (1=single, 2=8 Hz continuous, 6=100 Hz continuous).
      */
     void enableMag(int bits = 16, int mode = 6) throws IOException, InterruptedException {
-        writeReg(REG_INT_PIN_CFG, 0x22)
+        connection.write(REG_INT_PIN_CFG, [(byte) (0x22)] as byte[])
         Thread.sleep(10)
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00)
+        magConnection.write(AK8963_REG_CNTL1, [(byte) (0x00)] as byte[])
         Thread.sleep(10)
 
-        ak8963Write(AK8963_REG_CNTL1, 0x0F)
+        magConnection.write(AK8963_REG_CNTL1, [(byte) (0x0F)] as byte[])
         Thread.sleep(10)
 
         int asax = ak8963Read(AK8963_REG_ASAX)
@@ -135,7 +135,7 @@ class MPU9255Full extends MPU9255Minimal {
         magScaleY = (asay - 128) / 256.0 + 1.0
         magScaleZ = (asaz - 128) / 256.0 + 1.0
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00)
+        magConnection.write(AK8963_REG_CNTL1, [(byte) (0x00)] as byte[])
         Thread.sleep(10)
 
         int cntl1Val = 0
@@ -143,7 +143,7 @@ class MPU9255Full extends MPU9255Minimal {
             cntl1Val |= 0x10
         }
         cntl1Val |= (mode & 0x0F)
-        ak8963Write(AK8963_REG_CNTL1, cntl1Val)
+        magConnection.write(AK8963_REG_CNTL1, [(byte) (cntl1Val)] as byte[])
         Thread.sleep(10)
 
         magEnabled = true
@@ -160,7 +160,7 @@ class MPU9255Full extends MPU9255Minimal {
         if (!magEnabled) {
             throw new IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
-        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
+        byte[] buf = magConnection.read(AK8963_REG_HXL, 7)
         int mx = (short) ((buf[1] & 0xFF) << 8 | (buf[0] & 0xFF))
         int my = (short) ((buf[3] & 0xFF) << 8 | (buf[2] & 0xFF))
         int mz = (short) ((buf[5] & 0xFF) << 8 | (buf[4] & 0xFF))
@@ -178,7 +178,7 @@ class MPU9255Full extends MPU9255Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] accelRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6)
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -192,7 +192,7 @@ class MPU9255Full extends MPU9255Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] gyroRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6)
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -211,7 +211,7 @@ class MPU9255Full extends MPU9255Minimal {
             throw new IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
         // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
-        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
+        byte[] buf = magConnection.read(AK8963_REG_HXL, 7)
         return [
             (short) ((buf[1] & 0xFF) << 8 | (buf[0] & 0xFF)),
             (short) ((buf[3] & 0xFF) << 8 | (buf[2] & 0xFF)),
@@ -240,7 +240,7 @@ class MPU9255Full extends MPU9255Minimal {
         } else {
             val &= ~0x40
         }
-        writeReg(REG_PWR_MGMT_1, val)
+        connection.write(REG_PWR_MGMT_1, [(byte) (val)] as byte[])
     }
 
     /**
@@ -249,7 +249,7 @@ class MPU9255Full extends MPU9255Minimal {
      * @return FIFO byte count (0–512).
      */
     int fifoCount() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_FIFO_COUNTH}, 2)
+        byte[] buf = connection.read(REG_FIFO_COUNTH, 2)
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF)
     }
 
@@ -261,7 +261,7 @@ class MPU9255Full extends MPU9255Minimal {
     byte[] readFifo() throws IOException {
         int count = fifoCount()
         if (count == 0) return new byte[0]
-        return connection.writeRead(new byte[]{(byte) REG_FIFO_R_W}, count)
+        return connection.read(REG_FIFO_R_W, count)
     }
 
     /**
@@ -273,9 +273,9 @@ class MPU9255Full extends MPU9255Minimal {
      */
     void enableFifo(boolean gyro = true, boolean accel = true, boolean temp = false) throws IOException {
         int fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4)
-        writeReg(REG_FIFO_EN, fifoEn)
+        connection.write(REG_FIFO_EN, [(byte) (fifoEn)] as byte[])
         int userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl | 0x40)
+        connection.write(REG_USER_CTRL, [(byte) (userCtrl | 0x40)] as byte[])
     }
 
     /**
@@ -283,7 +283,7 @@ class MPU9255Full extends MPU9255Minimal {
      */
     void resetFifo() throws IOException {
         int userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl | 0x04)
+        connection.write(REG_USER_CTRL, [(byte) (userCtrl | 0x04)] as byte[])
     }
 
     /**
@@ -307,14 +307,14 @@ class MPU9255Full extends MPU9255Minimal {
             }
         }
 
-        writeReg(REG_PWR_MGMT_1, 0x01)
-        writeReg(REG_PWR_MGMT_2, 0x07)
-        writeReg(REG_ACCEL_CONFIG2, 0x01)
-        writeReg(REG_INT_ENABLE, 0x40)
-        writeReg(REG_MOT_DETECT_CTRL, 0xC0)
-        writeReg(REG_WOM_THR, thresholdLsb & 0xFF)
-        writeReg(REG_LP_ACCEL_ODR, bestSel & 0x0F)
-        writeReg(REG_PWR_MGMT_1, 0x21)
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x01)] as byte[])
+        connection.write(REG_PWR_MGMT_2, [(byte) (0x07)] as byte[])
+        connection.write(REG_ACCEL_CONFIG2, [(byte) (0x01)] as byte[])
+        connection.write(REG_INT_ENABLE, [(byte) (0x40)] as byte[])
+        connection.write(REG_MOT_DETECT_CTRL, [(byte) (0xC0)] as byte[])
+        connection.write(REG_WOM_THR, [(byte) (thresholdLsb & 0xFF)] as byte[])
+        connection.write(REG_LP_ACCEL_ODR, [(byte) (bestSel & 0x0F)] as byte[])
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x21)] as byte[])
     }
 
     /**
@@ -327,16 +327,9 @@ class MPU9255Full extends MPU9255Minimal {
         return (readReg(REG_INT_STATUS) & 0x40) != 0
     }
 
-    private void ak8963Write(int reg, int val) throws IOException {
-        magConnection.write(new byte[]{(byte) reg, (byte) val})
-    }
-
     private int ak8963Read(int reg) throws IOException {
-        byte[] b = magConnection.writeRead(new byte[]{(byte) reg}, 1)
+        byte[] b = magConnection.read(reg, 1)
         return b[0] & 0xFF
     }
 
-    private byte[] ak8963ReadBurst(int reg, int len) throws IOException {
-        return magConnection.writeRead(new byte[]{(byte) reg}, len)
-    }
 }

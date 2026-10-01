@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MPU-9255 — 9-axis MotionTracking device (accelerometer + gyroscope), minimal driver.
@@ -25,7 +25,7 @@ import it.uhde.periph.connection.Connection
  * - All six axes enabled
  */
 open class MPU9255Minimal @JvmOverloads constructor(
-    protected val connection: Connection
+    protected val connection: RegisterConnection
 ) {
     companion object {
         const val REG_SMPLRT_DIV    = 0x19
@@ -61,18 +61,18 @@ open class MPU9255Minimal @JvmOverloads constructor(
     protected var gyroFs = 0
 
     init {
-        writeReg(REG_PWR_MGMT_1, 0x80)
+        connection.write(REG_PWR_MGMT_1, byteArrayOf((0x80).toByte()))
         Thread.sleep(100)
-        writeReg(REG_PWR_MGMT_1, 0x01)
+        connection.write(REG_PWR_MGMT_1, byteArrayOf((0x01).toByte()))
         val who = readReg(REG_WHO_AM_I)
         if (who != WHO_AM_I_VALUE) {
             throw java.io.IOException("MPU9255 WHO_AM_I: expected 0x${Integer.toHexString(WHO_AM_I_VALUE)}, got 0x${Integer.toHexString(who)}")
         }
-        writeReg(REG_GYRO_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG2, 0x03)
-        writeReg(REG_CONFIG, 0x03)
-        writeReg(REG_SMPLRT_DIV, 0x04)
+        connection.write(REG_GYRO_CONFIG, byteArrayOf((0x00).toByte()))
+        connection.write(REG_ACCEL_CONFIG, byteArrayOf((0x00).toByte()))
+        connection.write(REG_ACCEL_CONFIG2, byteArrayOf((0x03).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf((0x03).toByte()))
+        connection.write(REG_SMPLRT_DIV, byteArrayOf((0x04).toByte()))
         Thread.sleep(35)
     }
 
@@ -82,7 +82,7 @@ open class MPU9255Minimal @JvmOverloads constructor(
      * @return array [x, y, z] in m/s².
      */
     fun accel(): DoubleArray {
-        val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_ACCEL_XOUT_H, 6)
         val ax = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
         val ay = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
         val az = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
@@ -96,7 +96,7 @@ open class MPU9255Minimal @JvmOverloads constructor(
      * @return array [x, y, z] in rad/s.
      */
     fun gyro(): DoubleArray {
-        val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_GYRO_XOUT_H, 6)
         val gx = ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt()
         val gy = ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt()
         val gz = ((buf[4].toInt() and 0xFF) shl 8 or (buf[5].toInt() and 0xFF)).toShort().toInt()
@@ -106,17 +106,13 @@ open class MPU9255Minimal @JvmOverloads constructor(
                              gz.toDouble() / sens * Math.PI / 180.0)
     }
 
-    protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
-    }
-
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
     protected fun readReg16Signed(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return ((b[0].toInt() and 0xFF) shl 8 or (b[1].toInt() and 0xFF)).toShort().toInt()
     }
 }
