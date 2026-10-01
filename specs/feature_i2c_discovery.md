@@ -23,7 +23,7 @@ A raw address scan cannot name a chip because addresses collide. From the curren
 | `0x39` | APDS9960, APDS-9930, PCF8576 (alt), PCF8574A |
 | `0x40`–`0x4F` | INA219, INA226, INA3221 (`0x40`–`0x43`), TMP117 (`0x48`–`0x4B`), PCF8591 (`0x48`–`0x4F`) |
 | `0x20`–`0x27` | PCF8574, PCF8575, MCP23017 |
-| `0x60`–`0x67` | MCP4725, MCP4728, DRV8830 (`0x60`–`0x68`) |
+| `0x60`–`0x68` | MCP4725 (`0x60`–`0x61`), MCP4728 (`0x60`–`0x67`), DRV8830 (`0x60`–`0x68`) |
 | `0x68`/`0x69` | MPU6050, MPU9250, MPU9255, L3G4200D, DS3231 (`0x68`), PCF8523 (`0x68`) |
 | `0x76`/`0x77` | BMP280, BME280, BME680, BMP384; `0x77` also BMP180 / BMP085 |
 | `0x5C`/`0x5D` | LPS22DF, LPS28DFW, LPS33HW |
@@ -54,8 +54,10 @@ The scan is **bus-level**. It is a static function on the platform's `I2CConnect
 
 ```
 scan(bus, first=0x08, last=0x77) -> sorted list of 7-bit addresses that ACK
-read_register(bus, addr, reg, reg_bytes, length) -> bytes      # used only by discover()
+scan_detailed(bus, first, last) -> {address: in_use_by_kernel}      # what discover() uses; scan() returns its sorted keys
 ```
+
+`discover()` reads identity registers through the language's existing `RegisterConnection` (§6), so there is no separate register-read primitive.
 
 `0x00`–`0x07` and `0x78`–`0x7F` are reserved by UM10204 and are never scanned.
 
@@ -154,7 +156,7 @@ Nothing under `registry/` imports or references `python/`, `cpp/`, `nodejs/`, `r
 | `driver` | no | Driver module name in this repo, or absent/`null` for chips without one |
 | `datasheet` | yes | URL or repo path of the source for every value above |
 
-Chips with the same `id_probe.register`/`reg_bytes`/`length`/`byte_order`/`mask` form a **probe group**; `discover()` reads each group once per address (§5).
+Chips with the same `id_probe.register`/`reg_bytes`/`length`/`byte_order` form a **probe group** (each chip applies its own `mask` and `expected` to the shared raw value); `discover()` reads each group once per address (§5).
 
 ### 4.3 Semantic validation (`validate.js`)
 
@@ -162,7 +164,7 @@ CI fails on any of:
 
 - schema violation, unknown `schema_version`, duplicate `id`;
 - an address outside `0x08`–`0x77`;
-- two chips whose `addresses` overlap **and** whose `id_probe` is in the same probe group with an overlapping `expected` value — this is *not* an error by itself (LPS22DF and LPS28DFW both read `0xB4`) but must be listed in `registry/known_ambiguities.json`, so a new overlap is a conscious, reviewed decision;
+- two chips whose `addresses` overlap, in the same probe group, where some raw value satisfies both chips' `(mask, expected)` pairs (`(e1 ^ e2) & m1 & m2 == 0`) — this is *not* an error by itself (LPS22DF/LPS28DFW both read `0xB4`; BMP085/BMP180 both read `0x55`) but must be listed in `registry/known_ambiguities.json`, so a new overlap is a conscious, reviewed decision;
 - a chip with `driver` set whose driver file is missing (checked only when run inside this repo; skipped in the standalone registry repo);
 - `probe_safety: "register_pointer"` combined with a register address wider than `reg_bytes`.
 
@@ -216,7 +218,8 @@ DiscoveredDevice
 1. `cands` = all registry chips listing the address.
 2. If `cands` is empty → `candidates=[]`, `identified=None`. (Present but unknown to the registry.)
 3. If the address is kernel-bound → report `cands`, `identified=None`, `probe_skipped_reason="kernel_bound"`.
-4. If any chip in `cands` is `write_sensitive` and `active` is false → report `cands`, `identified=None`, `probe_skipped_reason="write_sensitive_candidate"`.
+4. If no chip in `cands` has an `id_probe`, there is nothing to probe → report `cands`, `identified=None`, no skip reason.
+   Otherwise, if any chip in `cands` is `write_sensitive` and `active` is false → report `cands`, `identified=None`, `probe_skipped_reason="write_sensitive_candidate"`.
 5. Otherwise, for each probe group among the `cands` that have an `id_probe`, read the register once.
    A failed read (NACK, bus error) is treated as "no match" for that group.
 6. `matched` = chips whose group value (after `mask`) is in `expected`.
@@ -232,11 +235,13 @@ A chip that is the **only** candidate at its address but has no `id_probe` (AS56
 | Bus contents | Result |
 |---|---|
 | BME280 at `0x76` | probe groups at `0x76`: `0xD0/1` and BMP384's `0x00/1`; `0xD0`→`0x60` → `identified="bme280"` |
-| DS3231 at `0x68` alone | cands `{mpu6050, mpu9250, mpu9255, l3g4200d, ds3231, pcf8523}`; `0x75`→ no match, `0x0F` → no match; `candidates=["ds3231","pcf8523"]`, `identified=None` |
+| DS3231 at `0x68` alone | cands `{drv8830, ds3231, l3g4200d, mpu6050, mpu9250, mpu9255, pcf8523}`; `0x75` and `0x0F` match nothing; `candidates=["drv8830","ds3231","pcf8523"]`, `identified=None` |
 | INA226 at `0x40` | `0xFF` die ID `0x2260` → `identified="ina226"` |
 | INA219 at `0x40` | die-ID read matches nothing → `candidates=["ina219"]` (the only candidate without an ID register at `0x40`) |
 | LPS28DFW at `0x5C` | `0x0F`→`0xB4` matches two → `candidates=["lps22df","lps28dfw"]`, `identified=None` |
-| PCF8574 at `0x20` | cands include write-sensitive chips, `active=False` → `candidates=["mcp23017","pcf8574","pcf8575"]`, `probe_skipped_reason="write_sensitive_candidate"` |
+| PCF8574 at `0x20` | no candidate has an ID register → `candidates=["mcp23017","pcf8574","pcf8575"]`, nothing probed, no skip reason |
+| APDS-9960 at `0x39` | PCF8574A and PCF8576 (write-sensitive) are also candidates, so with `active=False` nothing is probed: `candidates=["apds-9930","apds9960","pcf8574","pcf8576"]`, `probe_skipped_reason="write_sensitive_candidate"`; with `active=True`, `0x92`→`0xAB` → `identified="apds9960"` |
+| TMP117 at `0x48` | PCF8591 (write-sensitive) is a candidate → same behaviour as APDS-9960 above |
 | Unknown device at `0x1B` | `candidates=[]` |
 
 ---
@@ -295,7 +300,8 @@ All other chips in the registry are `register_pointer`: BMP085/180/280/384/581/B
 | `lps22df` / `lps28dfw` at `0x5C`/`0x5D` | both `WHO_AM_I` = `0xB4` |
 | `pcf8574` / `mcp23017` / `pcf8575` at `0x20`–`0x27` | no ID registers |
 | `ds3231` / `pcf8523` at `0x68` | no ID registers |
-| `mcp4725` / `mcp4728` / `drv8830` at `0x60`–`0x67` | no ID registers |
+| `mcp4725` / `mcp4728` / `drv8830` at `0x60`–`0x68` | no ID registers |
+| `drv8830` / `ds3231` / `pcf8523` at `0x68` | no ID registers; DRV8830 is a candidate at `0x68` because its range is `0x60`–`0x68` |
 | `ina219` vs unknown INA-family parts at `0x40`–`0x4F` | no ID registers |
 | `aht21` / `ade7953` / `pcf8576` / `pcf8574a` at `0x38` | no ID registers |
 
@@ -319,7 +325,9 @@ A single 24AA02UID answers on `0x50`–`0x57`, so `scan()` will report **eight**
 |---|---|---|
 | `aliased` | no | `true` when the chip ACKs on every address in `addresses`, not just the one its pins select. Default `false` |
 
-`discover()` gives an aliased chip's addresses special handling: if every address of the alias set ACKs and is mapped only to that chip, they are merged into one `DiscoveredDevice` at the lowest address with `aliases=[…]` listing the rest. If only some of the set ACK, they are reported individually (a different EEPROM, e.g. a 24AA025UID with real chip-select pins, may be present — the 24AA025UID is not in this repo, so that case falls under ambiguity). `validate.js` rejects an `aliased` chip whose `addresses` are not a contiguous block.
+`discover()` merges an alias block: if **every** address of the block ACKs, the aliased chip is present — no other device can share those addresses with it, so other registry chips that also list some of them (the ENS160 at `0x52`/`0x53`) are ruled out. The block becomes one `DiscoveredDevice` at the lowest address with `aliases=[…]` listing the rest and `candidates=[<chip id>]`. If only part of the block ACKs, the addresses are classified individually like any others (and the ENS160 / 24AA02UID overlap is then an ordinary ambiguity).
+
+`validate.js` rejects an `aliased` chip whose `addresses` are not a contiguous block.
 
 The 24AA02UID entry is `addresses: ["0x50..0x57"]`, `aliased: true`. This overrides the chip spec's "use `0x50` as the canonical address", which is a driver-construction convention and does not describe what answers on the bus.
 

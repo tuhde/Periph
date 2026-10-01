@@ -1,0 +1,71 @@
+// GENERATED from registry/chips.json by registry/scripts/generate.js - do not edit; run the script instead.
+
+/// Identity-register read that confirms a chip.
+#[derive(Debug, Clone, Copy)]
+pub struct IdProbe {
+    pub register: u32,
+    pub reg_bytes: usize,
+    pub length: usize,
+    pub little_endian: bool,
+    pub mask: u32,
+    pub expected: &'static [u32],
+}
+
+/// One registry entry.
+#[derive(Debug, Clone, Copy)]
+pub struct ChipEntry {
+    pub id: &'static str,
+    pub driver: Option<&'static str>,
+    pub write_sensitive: bool,
+    pub aliased: bool,
+    pub addresses: &'static [u8],
+    pub probe: Option<IdProbe>,
+}
+
+pub const CHIPS: &[ChipEntry] = &[
+    ChipEntry { id: "adxl345", driver: Some("adxl345"), write_sensitive: false, aliased: false, addresses: &[0x1D, 0x53], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xE5] }) },
+    ChipEntry { id: "mcp4725", driver: Some("mcp4725"), write_sensitive: true, aliased: false, addresses: &[0x60, 0x61], probe: None },
+    ChipEntry { id: "mcp4728", driver: Some("mcp4728"), write_sensitive: true, aliased: false, addresses: &[0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67], probe: None },
+    ChipEntry { id: "pcf8591", driver: Some("pcf8591"), write_sensitive: true, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: None },
+    ChipEntry { id: "rda5807m", driver: Some("rda5807m"), write_sensitive: true, aliased: false, addresses: &[0x10], probe: None },
+    ChipEntry { id: "pcf8576", driver: Some("pcf8576"), write_sensitive: true, aliased: false, addresses: &[0x38, 0x39], probe: None },
+    ChipEntry { id: "aht21", driver: Some("aht21"), write_sensitive: true, aliased: false, addresses: &[0x38], probe: None },
+    ChipEntry { id: "bme280", driver: Some("bme280"), write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0xD0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x60] }) },
+    ChipEntry { id: "bme680", driver: Some("bme680"), write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0xD0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x61] }) },
+    ChipEntry { id: "ens160", driver: Some("ens160"), write_sensitive: false, aliased: false, addresses: &[0x52, 0x53], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 2, little_endian: true, mask: 0xFFFF, expected: &[0x0160] }) },
+    ChipEntry { id: "neo-6", driver: Some("neo-6"), write_sensitive: true, aliased: false, addresses: &[0x42], probe: None },
+    ChipEntry { id: "l3g4200d", driver: Some("l3g4200d"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xD3] }) },
+    ChipEntry { id: "l3gd20h", driver: Some("l3gd20h"), write_sensitive: false, aliased: false, addresses: &[0x6A, 0x6B], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xD4, 0xD7] }) },
+    ChipEntry { id: "mpu6050", driver: Some("mpu6050"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x75, reg_bytes: 1, length: 1, little_endian: false, mask: 0x7E, expected: &[0x68] }) },
+    ChipEntry { id: "mpu9250", driver: Some("mpu9250"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x75, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x71] }) },
+    ChipEntry { id: "mpu9255", driver: Some("mpu9255"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x75, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x73] }) },
+    ChipEntry { id: "mcp23017", driver: Some("mcp23017"), write_sensitive: false, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27], probe: None },
+    ChipEntry { id: "pcf8574", driver: Some("pcf8574"), write_sensitive: true, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F], probe: None },
+    ChipEntry { id: "pcf8575", driver: Some("pcf8575"), write_sensitive: true, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27], probe: None },
+    ChipEntry { id: "apds-9930", driver: Some("apds-9930"), write_sensitive: false, aliased: false, addresses: &[0x39], probe: Some(IdProbe { register: 0x92, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x39] }) },
+    ChipEntry { id: "apds9960", driver: Some("apds9960"), write_sensitive: false, aliased: false, addresses: &[0x39], probe: Some(IdProbe { register: 0x92, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xAB] }) },
+    ChipEntry { id: "as5600", driver: Some("as5600"), write_sensitive: false, aliased: false, addresses: &[0x36], probe: None },
+    ChipEntry { id: "hmc5883l", driver: Some("hmc5883l"), write_sensitive: false, aliased: false, addresses: &[0x1E], probe: Some(IdProbe { register: 0x0A, reg_bytes: 1, length: 3, little_endian: false, mask: 0xFFFFFF, expected: &[0x483433] }) },
+    ChipEntry { id: "24aa02uid", driver: Some("24aa02uid"), write_sensitive: false, aliased: true, addresses: &[0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57], probe: None },
+    ChipEntry { id: "drv8830", driver: Some("drv8830"), write_sensitive: false, aliased: false, addresses: &[0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68], probe: None },
+    ChipEntry { id: "mpr121", driver: Some("mpr121"), write_sensitive: false, aliased: false, addresses: &[0x5A, 0x5B, 0x5C, 0x5D], probe: None },
+    ChipEntry { id: "ade7953", driver: Some("ade7953"), write_sensitive: true, aliased: false, addresses: &[0x38], probe: None },
+    ChipEntry { id: "ina219", driver: Some("ina219"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: None },
+    ChipEntry { id: "ina226", driver: Some("ina226"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F], probe: Some(IdProbe { register: 0xFF, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0x2260] }) },
+    ChipEntry { id: "ina3221", driver: Some("ina3221"), write_sensitive: false, aliased: false, addresses: &[0x40, 0x41, 0x42, 0x43], probe: Some(IdProbe { register: 0xFF, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0x3220] }) },
+    ChipEntry { id: "bmp085", driver: Some("bmp085"), write_sensitive: false, aliased: false, addresses: &[0x77], probe: Some(IdProbe { register: 0xD0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x55] }) },
+    ChipEntry { id: "bmp180", driver: Some("bmp180"), write_sensitive: false, aliased: false, addresses: &[0x77], probe: Some(IdProbe { register: 0xD0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x55] }) },
+    ChipEntry { id: "bmp280", driver: Some("bmp280"), write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0xD0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x58] }) },
+    ChipEntry { id: "bmp384", driver: Some("bmp384"), write_sensitive: false, aliased: false, addresses: &[0x76, 0x77], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x50] }) },
+    ChipEntry { id: "bmp581", driver: Some("bmp581"), write_sensitive: false, aliased: false, addresses: &[0x46, 0x47], probe: Some(IdProbe { register: 0x01, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x50] }) },
+    ChipEntry { id: "lps22df", driver: Some("lps22df"), write_sensitive: false, aliased: false, addresses: &[0x5C, 0x5D], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xB4] }) },
+    ChipEntry { id: "lps28dfw", driver: Some("lps28dfw"), write_sensitive: false, aliased: false, addresses: &[0x5C, 0x5D], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xB4] }) },
+    ChipEntry { id: "lps33hw", driver: Some("lps33hw"), write_sensitive: false, aliased: false, addresses: &[0x5C, 0x5D], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xB1] }) },
+    ChipEntry { id: "mfrc522", driver: Some("mfrc522"), write_sensitive: false, aliased: false, addresses: &[0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F], probe: Some(IdProbe { register: 0x37, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x91, 0x92] }) },
+    ChipEntry { id: "ds3231", driver: Some("ds3231"), write_sensitive: false, aliased: false, addresses: &[0x68], probe: None },
+    ChipEntry { id: "pcf8523", driver: Some("pcf8523"), write_sensitive: false, aliased: false, addresses: &[0x68], probe: None },
+    ChipEntry { id: "mcp9808", driver: Some("mcp9808"), write_sensitive: false, aliased: false, addresses: &[0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F], probe: Some(IdProbe { register: 0x07, reg_bytes: 1, length: 2, little_endian: false, mask: 0xFF00, expected: &[0x0400] }) },
+    ChipEntry { id: "tmp117", driver: Some("tmp117"), write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 2, little_endian: false, mask: 0x0FFF, expected: &[0x0117] }) },
+    ChipEntry { id: "vl53l0x", driver: Some("vl53l0x"), write_sensitive: false, aliased: false, addresses: &[0x29], probe: Some(IdProbe { register: 0xC0, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xEE] }) },
+    ChipEntry { id: "vl53l1x", driver: Some("vl53l1x"), write_sensitive: false, aliased: false, addresses: &[0x29], probe: Some(IdProbe { register: 0x10F, reg_bytes: 2, length: 2, little_endian: false, mask: 0xFFFF, expected: &[0xEACC] }) },
+];

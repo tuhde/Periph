@@ -39,6 +39,8 @@ SPECS_DIR = REPO_DIR / "specs"
 
 GITHUB_BASE = "github:tuhde/Periph/python/"
 NON_MICROPYTHON = ("_circuitpython", "_linux", "_mock")
+# Linux-host-only modules (I2C auto-discovery needs smbus2 and a flash-hungry registry).
+HOST_ONLY = ("discovery", "discovery_registry")
 # periph.connection.input_pin / output_pin import abc, which MicroPython
 # firmware doesn't ship; micropython-lib publishes it on the mip index.
 DEPS = [["abc", "latest"]]
@@ -56,7 +58,7 @@ SPEC_TRANSPORTS = [
 
 
 def is_micropython_file(path):
-    return path.suffix == ".py" and not path.stem.endswith(NON_MICROPYTHON)
+    return path.suffix == ".py" and not path.stem.endswith(NON_MICROPYTHON) and path.stem not in HOST_ONLY
 
 
 def rel(path):
