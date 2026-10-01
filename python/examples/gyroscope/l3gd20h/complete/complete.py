@@ -2,7 +2,7 @@ from periph.connection.i2c_linux import I2CConnection
 from periph.chips.gyroscope.l3gd20h import L3GD20HFull
 
 conn = I2CConnection(bus=1, addr=0x6A)
-gyro = L3GD20HFull(conn)                                            # Create L3GD20H driver, (connection, bus_type='i2c')
+gyro = L3GD20HFull(conn)                                            # Create L3GD20H driver, (connection)
 
 gyro.configure(odr=1, bw=0, full_scale=1)                           # Configure ADC, (odr 0-3, bw 0-3, full_scale 0-2) -> None
 # sets ODR=190 Hz, bandwidth=default, full-scale=±500 dps

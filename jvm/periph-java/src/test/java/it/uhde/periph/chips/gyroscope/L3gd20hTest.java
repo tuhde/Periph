@@ -13,7 +13,7 @@ class L3gd20hTest {
         // Preload WHO_AM_I so init() doesn't throw.
         connection.setRegister(L3gd20hMinimal.REG_WHO_AM_I, 0xD7);
 
-        L3gd20hFull sensor = new L3gd20hFull(connection, false);
+        L3gd20hFull sensor = new L3gd20hFull(connection);
 
         assertEquals(L3gd20hFull.CTRL_REG4_DEFAULT,
                 (int) connection.registers().get(L3gd20hMinimal.REG_CTRL_REG4));

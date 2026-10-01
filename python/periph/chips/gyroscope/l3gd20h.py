@@ -1,6 +1,8 @@
 import math
 import time
 
+from periph.connection.register import to_signed
+
 
 _REG_WHO_AM_I      = 0x0F
 _REG_CTRL_REG1     = 0x20
@@ -45,10 +47,7 @@ _DPS_TO_RAD = math.pi / 180.0
 
 
 def _int16(data):
-    value = data[0] | (data[1] << 8)
-    if value & 0x8000:
-        value -= 0x10000
-    return value
+    return to_signed(data[0] | (data[1] << 8), 16)
 
 
 class L3GD20HMinimal:
@@ -66,37 +65,26 @@ class L3GD20HMinimal:
         - 250 ms startup delay for gyroscope stabilization
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: ``'i2c'`` (default) or ``'spi'``. SPI writes mask bit 7
-            of the register address and reads set bit 7 + bit 6 for
-            auto-increment on multi-byte reads.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the
+            device. For SPI, construct it with ``read_bit=0xC0,
+            multi_byte_bit=None`` (READ=1 and MS=1 on every read).
     """
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         who = self._read_reg(_REG_WHO_AM_I, 1)[0]
         if who not in (_WHO_AM_I_L3GD20, _WHO_AM_I_L3GD20H):
             raise ValueError(
                 'L3GD20H not found: WHO_AM_I expected 0xD4 (L3GD20) or 0xD7 (L3GD20H), got 0x{:02X}'.format(who))
         self._full_scale = 250
-        self._write_reg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT)
-        self._write_reg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT)
+        self._connection.write_reg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT)
+        self._connection.write_reg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT)
         time.sleep(0.250)
 
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x3F
-        self._connection.write(bytes([reg, value & 0xFF]))
-
     def _read_reg(self, reg, n):
-        if self._bus_type == 'spi':
-            sub_addr = reg | 0xC0
-        elif n > 1:
-            sub_addr = reg | 0x80
-        else:
-            sub_addr = reg
-        return self._connection.write_read(bytes([sub_addr & 0xFF]), n)
+        # I²C needs bit 7 of the sub-address set for multi-byte auto-increment;
+        # on SPI the connection's read_bit=0xC0 already ORs it in (idempotent).
+        return self._connection.read_reg(reg | 0x80 if n > 1 else reg, n)
 
     def _sensitivity(self):
         return _SENSITIVITY[self._full_scale]
@@ -129,8 +117,7 @@ class L3GD20HFull(L3GD20HMinimal):
     and access to temperature and status registers.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the device.
     """
 
     ODR_95_HZ   = 0
@@ -159,8 +146,8 @@ class L3GD20HFull(L3GD20HMinimal):
     POWER_SLEEP     = 'sleep'
     POWER_POWERDOWN = 'power_down'
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
         self._odr = 0
         self._bw = 0
         self._threshold_raw = 0
@@ -185,9 +172,9 @@ class L3GD20HFull(L3GD20HMinimal):
         fs_map = {0: 250, 1: 500, 2: 2000}
         self._full_scale = fs_map[full_scale]
         ctrl1 = _CTRL_REG1_DEFAULT | ((self._odr & 0x3) << 6) | ((self._bw & 0x3) << 4)
-        self._write_reg(_REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
         ctrl4 = _CTRL_REG4_DEFAULT | ((full_scale & 0x3) << 4)
-        self._write_reg(_REG_CTRL_REG4, ctrl4)
+        self._connection.write_reg(_REG_CTRL_REG4, ctrl4)
 
     def gyro_raw(self):
         """Read raw 16-bit signed angular rate values.
@@ -211,10 +198,7 @@ class L3GD20HFull(L3GD20HMinimal):
         Returns:
             int: Signed 8-bit temperature count.
         """
-        raw = self._read_reg(_REG_OUT_TEMP, 1)[0]
-        if raw & 0x80:
-            raw -= 0x100
-        return raw
+        return to_signed(self._read_reg(_REG_OUT_TEMP, 1)[0], 8)
 
     def data_ready(self):
         """Check whether a new X/Y/Z sample is ready.
@@ -237,7 +221,7 @@ class L3GD20HFull(L3GD20HMinimal):
         if cutoff < 0 or cutoff > 15:
             raise ValueError('cutoff must be 0..15')
         ctrl2 = ((mode & 0x3) << 4) | (cutoff & 0x0F)
-        self._write_reg(_REG_CTRL_REG2, ctrl2)
+        self._connection.write_reg(_REG_CTRL_REG2, ctrl2)
 
     def enable_hp_filter(self, enable=True):
         """Enable or disable the high-pass filter on the output path.
@@ -250,7 +234,7 @@ class L3GD20HFull(L3GD20HMinimal):
             ctrl5 |= 0x10
         else:
             ctrl5 &= ~0x10
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
 
     def configure_fifo(self, mode=0, watermark=0):
         """Configure the FIFO (FIFO_CTRL_REG).
@@ -266,9 +250,9 @@ class L3GD20HFull(L3GD20HMinimal):
         if watermark < 0 or watermark > 31:
             raise ValueError('watermark must be 0..31')
         ctrl5 = self._read_reg(_REG_CTRL_REG5, 1)[0] | 0x40
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
         fifo_ctrl = ((mode & 0x7) << 5) | (watermark & 0x1F)
-        self._write_reg(_REG_FIFO_CTRL, fifo_ctrl)
+        self._connection.write_reg(_REG_FIFO_CTRL, fifo_ctrl)
 
     def enable_fifo(self, enable=True):
         """Enable or disable the FIFO (FIFO_EN bit in CTRL_REG5).
@@ -281,8 +265,8 @@ class L3GD20HFull(L3GD20HMinimal):
             ctrl5 |= 0x40
         else:
             ctrl5 &= ~0x40
-            self._write_reg(_REG_FIFO_CTRL, 0x00)
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+            self._connection.write_reg(_REG_FIFO_CTRL, 0x00)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
 
     def fifo_level(self):
         """Read number of unread samples in FIFO (FIFO_SRC_REG FSS[4:0]).
@@ -325,13 +309,13 @@ class L3GD20HFull(L3GD20HMinimal):
         if mode == self.POWER_NORMAL:
             ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0]
             ctrl1 = (ctrl1 & 0xF0) | 0x0F
-            self._write_reg(_REG_CTRL_REG1, ctrl1)
+            self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
         elif mode == self.POWER_SLEEP:
             ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0]
             ctrl1 = (ctrl1 & 0xF8) | 0x08
-            self._write_reg(_REG_CTRL_REG1, ctrl1)
+            self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
         elif mode == self.POWER_POWERDOWN:
             ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0] & 0xF7
-            self._write_reg(_REG_CTRL_REG1, ctrl1)
+            self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
         else:
             raise ValueError("mode must be 'normal', 'sleep', or 'power_down'")

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * L3GD20H three-axis MEMS gyroscope — full driver.
@@ -8,10 +8,7 @@ import it.uhde.periph.connection.Connection
  * Extends [L3gd20hMinimal] with configuration, FIFO,
  * high-pass filter, interrupts, axis-enable, and power-mode control.
  */
-class L3gd20hFull @JvmOverloads constructor(
-    connection: Connection,
-    spi: Boolean = false
-) : L3gd20hMinimal(connection, spi) {
+class L3gd20hFull(connection: RegisterConnection) : L3gd20hMinimal(connection) {
 
     companion object {
         const val ODR_95_HZ  = 0
@@ -42,18 +39,6 @@ class L3gd20hFull @JvmOverloads constructor(
     private var odr = ODR_95_HZ
     private var bw = 0
 
-    /** Read a register via I²C or SPI. */
-    private fun readReg(reg: Int, n: Int): ByteArray {
-        return if (spi) {
-            connection.write(byteArrayOf((reg or 0xC0).toByte()))
-            connection.read(n)
-        } else if (n > 1) {
-            connection.writeRead(byteArrayOf((reg or 0x80).toByte()), n)
-        } else {
-            connection.writeRead(byteArrayOf(reg.toByte()), n)
-        }
-    }
-
     /**
      * Configure ODR, bandwidth, and full scale in one call.
      *
@@ -68,8 +53,8 @@ class L3gd20hFull @JvmOverloads constructor(
         val fsMap = intArrayOf(250, 500, 2000)
         this.fullScale = fsMap[fullScale]
         val ctrl1 = CTRL_REG1_DEFAULT or ((odr and 0x3) shl 6) or ((bw and 0x3) shl 4)
-        writeReg(REG_CTRL_REG1, ctrl1)
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT or ((fullScale and 0x3) shl 4))
+        connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1).toByte()))
+        connection.write(REG_CTRL_REG4, byteArrayOf((CTRL_REG4_DEFAULT or ((fullScale and 0x3) shl 4)).toByte()))
     }
 
     /**
@@ -116,7 +101,7 @@ class L3gd20hFull @JvmOverloads constructor(
      */
     fun configureHpFilter(mode: Int, cutoff: Int) {
         if (mode > 3 || cutoff > 15) return
-        writeReg(REG_CTRL_REG2, ((mode and 0x3) shl 4) or (cutoff and 0x0F))
+        connection.write(REG_CTRL_REG2, byteArrayOf((((mode and 0x3) shl 4) or (cutoff and 0x0F)).toByte()))
     }
 
     /**
@@ -126,7 +111,7 @@ class L3gd20hFull @JvmOverloads constructor(
      */
     fun enableHpFilter(enable: Boolean) {
         val ctrl5 = (readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF)
-        writeReg(REG_CTRL_REG5, if (enable) ctrl5 or 0x10 else ctrl5 and 0x10.inv())
+        connection.write(REG_CTRL_REG5, byteArrayOf((if (enable) ctrl5 or 0x10 else ctrl5 and 0x10.inv()).toByte()))
     }
 
     /**
@@ -139,8 +124,8 @@ class L3gd20hFull @JvmOverloads constructor(
         val valid = mode == 0 || mode == 1 || mode == 2 || mode == 3 || mode == 7
         if (!valid || watermark !in 0..31) return
         val ctrl5 = (readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF)
-        writeReg(REG_CTRL_REG5, ctrl5 or 0x40)
-        writeReg(REG_FIFO_CTRL, ((mode and 0x7) shl 5) or (watermark and 0x1F))
+        connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 or 0x40).toByte()))
+        connection.write(REG_FIFO_CTRL, byteArrayOf((((mode and 0x7) shl 5) or (watermark and 0x1F)).toByte()))
     }
 
     /**
@@ -151,10 +136,10 @@ class L3gd20hFull @JvmOverloads constructor(
     fun enableFifo(enable: Boolean) {
         val ctrl5 = (readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF)
         if (enable) {
-            writeReg(REG_CTRL_REG5, ctrl5 or 0x40)
+            connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 or 0x40).toByte()))
         } else {
-            writeReg(REG_CTRL_REG5, ctrl5 and 0x40.inv())
-            writeReg(REG_FIFO_CTRL, 0x00)
+            connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 and 0x40.inv()).toByte()))
+            connection.write(REG_FIFO_CTRL, byteArrayOf((0x00).toByte()))
         }
     }
 
@@ -201,9 +186,9 @@ class L3gd20hFull @JvmOverloads constructor(
     fun setPowerMode(mode: String) {
         val ctrl1 = (readReg(REG_CTRL_REG1, 1)[0].toInt() and 0xFF)
         when (mode) {
-            POWER_NORMAL     -> writeReg(REG_CTRL_REG1, (ctrl1 and 0xF0) or 0x0F)
-            POWER_SLEEP      -> writeReg(REG_CTRL_REG1, (ctrl1 and 0xF8) or 0x08)
-            POWER_POWERDOWN  -> writeReg(REG_CTRL_REG1, ctrl1 and 0xF7)
+            POWER_NORMAL     -> connection.write(REG_CTRL_REG1, byteArrayOf(((ctrl1 and 0xF0) or 0x0F).toByte()))
+            POWER_SLEEP      -> connection.write(REG_CTRL_REG1, byteArrayOf(((ctrl1 and 0xF8) or 0x08).toByte()))
+            POWER_POWERDOWN  -> connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1 and 0xF7).toByte()))
         }
     }
 }

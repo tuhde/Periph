@@ -8,6 +8,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_WHO_AM_I: u8      = 0x0F;
 const REG_CTRL_REG1: u8     = 0x20;
 const REG_CTRL_REG2: u8     = 0x21;
@@ -51,8 +53,7 @@ fn sensitivity(full_scale: u16) -> f32 {
 }
 
 fn int16_le(data: &[u8]) -> i16 {
-    let v = ((data[1] as i16) << 8) | (data[0] as i16);
-    v
+    to_signed(((data[1] as u32) << 8) | (data[0] as u32), 16) as i16
 }
 
 /// L3GD20H minimal driver — angular rate on X, Y, Z.
@@ -62,7 +63,6 @@ fn int16_le(data: &[u8]) -> i16 {
 pub struct L3gd20hMinimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
     full_scale: u16,
 }
 
@@ -72,34 +72,23 @@ impl<I2C: I2c> L3gd20hMinimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x6A or 0x6B).
-    /// * `spi` — Pass `true` for SPI bus.
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let mut s = Self { i2c, addr, spi, full_scale: 250 };
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let mut s = Self { i2c, addr, full_scale: 250 };
         let mut buf = [0u8; 1];
         let _ = s.read_reg_bytes(REG_WHO_AM_I, &mut buf);
         if buf[0] != WHO_AM_I_L3GD20 && buf[0] != WHO_AM_I_L3GD20H {
             return Ok(s);
         }
-        s.write_reg(REG_CTRL_REG4, CTRL_REG4_DEFAULT)?;
-        s.write_reg(REG_CTRL_REG1, CTRL_REG1_DEFAULT)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_REG4.into(), 1, &[CTRL_REG4_DEFAULT])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_REG1.into(), 1, &[CTRL_REG1_DEFAULT])?;
         // Note: 250 ms startup delay must be handled by caller in embedded context
         Ok(s)
     }
 
-    fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        let r = if self.spi { reg & 0x3F } else { reg };
-        self.i2c.write(self.addr, &[r, value])
-    }
-
     fn read_reg_bytes(&mut self, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-        let addr = if self.spi {
-            reg | 0xC0  // READ=1, MS=1 (auto-increment)
-        } else if buf.len() > 1 {
-            reg | 0x80  // I²C multi-byte auto-increment
-        } else {
-            reg
-        };
-        self.i2c.write_read(self.addr, &[addr & 0xFF], buf)
+        // I²C needs bit 7 of the sub-address set for multi-byte auto-increment.
+        let addr = if buf.len() > 1 { reg | 0x80 } else { reg };
+        register::read_register(&mut self.i2c, self.addr, addr.into(), 1, buf)
     }
 
     /// Read angular rate on all three axes as a single burst transaction.
@@ -177,14 +166,9 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x6A or 0x6B).
-    /// * `spi` — Pass `true` for SPI bus.
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let inner = L3gd20hMinimal::new(i2c, addr, spi)?;
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = L3gd20hMinimal::new(i2c, addr)?;
         Ok(Self { inner, odr: 0, bw: 0 })
-    }
-
-    fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.inner.write_reg(reg, value)
     }
 
     fn read_reg(&mut self, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
@@ -205,8 +189,8 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
         let fs_map = [250, 500, 2000];
         self.inner.full_scale = fs_map[full_scale as usize];
         let ctrl1 = CTRL_REG1_DEFAULT | ((self.odr & 0x3) << 6) | ((self.bw & 0x3) << 4);
-        self.write_reg(REG_CTRL_REG1, ctrl1)?;
-        self.write_reg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((full_scale & 0x3) << 4))?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[ctrl1])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG4.into(), 1, &[CTRL_REG4_DEFAULT | ((full_scale & 0x3) << 4)])?;
         Ok(())
     }
 
@@ -243,7 +227,7 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
             return Ok(());
         }
         let ctrl2 = ((mode & 0x3) << 4) | (cutoff & 0x0F);
-        self.write_reg(REG_CTRL_REG2, ctrl2)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2.into(), 1, &[ctrl2])
     }
 
     /// Enable or disable the high-pass filter on the output path.
@@ -251,7 +235,7 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
         let ctrl5 = if enable { buf[0] | 0x10 } else { buf[0] & !0x10 };
-        self.write_reg(REG_CTRL_REG5, ctrl5)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[ctrl5])
     }
 
     /// Configure the FIFO (FIFO_CTRL_REG).
@@ -266,9 +250,9 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
         }
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
-        self.write_reg(REG_CTRL_REG5, buf[0] | 0x40)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[buf[0] | 0x40])?;
         let fifo_ctrl = ((mode & 0x7) << 5) | (watermark & 0x1F);
-        self.write_reg(REG_FIFO_CTRL, fifo_ctrl)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL.into(), 1, &[fifo_ctrl])
     }
 
     /// Enable or disable the FIFO (FIFO_EN bit in CTRL_REG5).
@@ -276,9 +260,9 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
         let ctrl5 = if enable { buf[0] | 0x40 } else { buf[0] & !0x40 };
-        self.write_reg(REG_CTRL_REG5, ctrl5)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[ctrl5])?;
         if !enable {
-            self.write_reg(REG_FIFO_CTRL, 0x00)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL.into(), 1, &[0x00])?;
         }
         Ok(())
     }
@@ -326,7 +310,7 @@ impl<I2C: I2c> L3gd20hFull<I2C> {
             "power_down" => buf[0] & 0xF7,
             _ => return Ok(()),
         };
-        self.write_reg(REG_CTRL_REG1, ctrl1)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[ctrl1])
     }
 
     // Minimal one-line delegates.
@@ -416,7 +400,7 @@ mod tests {
         ];
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = L3gd20hFull::new(i2c, ADDR, false).expect("init");
+        let mut sensor = L3gd20hFull::new(i2c, ADDR).expect("init");
 
         let k = core::f32::consts::PI / 180.0;
         let expected_x = 16.0 * 0.00875 * k;
