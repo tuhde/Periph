@@ -113,7 +113,7 @@ class Decoder(srd.Decoder):
                       ['End frame (%d bytes)' % self.end_ff_count,
                        'End %dB' % self.end_ff_count,
                        'E%d' % self.end_ff_count]])
-            self.put(self.ss_end, es, self.out_python, ['END', self.end_ff_count])
+            self.put(self.ss_end, es, self.out_python, ('END', self.end_ff_count))
             self.ss_end = None
 
     def decode(self, ss, es, data):
@@ -139,7 +139,7 @@ class Decoder(srd.Decoder):
                     self.pixels_seen = 0
                     self.put(self.ss_start, es, self.out_ann,
                              [ANN_START, ['Start frame', 'Start', 'S']])
-                    self.put(self.ss_start, es, self.out_python, ['START', 4])
+                    self.put(self.ss_start, es, self.out_python, ('START', 4))
                     self.ss_start = None
             else:
                 self._warn(ss, es, 'Invalid start frame byte 0x%02X' % byte)
@@ -161,7 +161,7 @@ class Decoder(srd.Decoder):
                            (self.pixel_idx, hw_brightness, r, g, b, r, g, b),
                            'P%d #%02X%02X%02X' % (self.pixel_idx, r, g, b),
                            '#%02X%02X%02X' % (r, g, b)]])
-                self.put(self.ss_pixel, es, self.out_python, ['PIXEL', (self.pixel_idx, hw_brightness, r, g, b)])
+                self.put(self.ss_pixel, es, self.out_python, ('PIXEL', (self.pixel_idx, hw_brightness, r, g, b)))
                 self.pixel_idx += 1
                 self.pixels_seen += 1
                 self.pixel_buf = []
@@ -192,7 +192,7 @@ class Decoder(srd.Decoder):
                                (self.pixel_idx, hw_brightness, r, g, b, r, g, b),
                                'P%d #%02X%02X%02X' % (self.pixel_idx, r, g, b),
                                '#%02X%02X%02X' % (r, g, b)]])
-                    self.put(self.ss_pixel, es, self.out_python, ['PIXEL', (self.pixel_idx, hw_brightness, r, g, b)])
+                    self.put(self.ss_pixel, es, self.out_python, ('PIXEL', (self.pixel_idx, hw_brightness, r, g, b)))
                     self.pixel_idx += 1
                     self.pixels_seen += 1
                     self.pixel_buf = []

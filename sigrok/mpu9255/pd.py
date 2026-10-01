@@ -126,7 +126,29 @@ class Decoder(srd.Decoder):
                     if rid not in ('timing', 'warnings') for c in classes}
             if data[0] in tiered:
                 data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
         super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -200,22 +222,22 @@ class Decoder(srd.Decoder):
             val = self.databuf[0]
             ann_text = self._format_write(name, reg, val)
             self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [ann_text, ann_text, self._short_write(name, val)]])
-            self.put(self.ss_block, self.es, self.out_python, [('write', name, reg, val)])
+            self.put(self.ss_block, self.es, self.out_python, ('WRITE', (name, reg, val)))
 
             if reg == 0x6B and val & 0x80:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [POWERON_START, 'PWR', '▶']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', POWERON_START)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (POWERON_START,)))
             elif reg == 0x6B and (val & 0x80) == 0 and self.addr in MPU9255_ADDRS:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [POWERON_READY, 'PWR', '●']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', POWERON_READY)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (POWERON_READY,)))
             elif name == 'MOT_DETECT_CTRL' and val & 0x80:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [WOM_CONFIG, 'WOM', '⚙']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', WOM_CONFIG)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (WOM_CONFIG,)))
             elif name == 'PWR_MGMT_1' and (val & 0x20) and (val & 0x40) == 0:
                 # CYCLE=1 alone (no SLEEP) puts the chip into duty-cycled
                 # wake-on-motion mode - tag the motion timeline marker.
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [WOM_CONFIG, 'WOM', '⚙']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', WOM_CONFIG)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (WOM_CONFIG,)))
         else:
             self.put(self.ss_block, self.es, self.out_ann, [ANN_WARNING, [f'Unexpected write length {len(self.databuf)} for {name}', f'WR_LEN {len(self.databuf)}']])
 
@@ -231,14 +253,14 @@ class Decoder(srd.Decoder):
                 if az >= 0x8000: az -= 0x10000
                 ann_text = f'{name}: {ax} {ay} {az} (raw)'
                 ann_short = f'A {ax} {ay} {az}' if name == 'ACCEL_XOUT_H' else f'G {ax} {ay} {az}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, ax, ay, az)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, ax, ay, az)))
             elif name == 'TEMP_OUT_H' and n >= 2:
                 raw = (self.databuf[0] << 8) | self.databuf[1]
                 if raw >= 0x8000: raw -= 0x10000
                 temp = raw / 333.87 + 21.0
                 ann_text = f'{name}: {raw} -> {temp:.2f} °C'
                 ann_short = f'T {temp:.1f}°C'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, temp)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, temp)))
             elif name in ('HXL',) and n >= 7:
                 mx = ((self.databuf[1] << 8) | self.databuf[0])
                 my = ((self.databuf[3] << 8) | self.databuf[2])
@@ -248,7 +270,7 @@ class Decoder(srd.Decoder):
                 if mz >= 0x8000: mz -= 0x10000
                 ann_text = f'{name}-ST2: {mx} {my} {mz} (raw)'
                 ann_short = f'M {mx} {my} {mz}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, mx, my, mz)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, mx, my, mz)))
             elif name == 'WHO_AM_I' and n >= 1:
                 val = self.databuf[0]
                 if val != 0x73:
@@ -256,20 +278,20 @@ class Decoder(srd.Decoder):
                         [f'{name}: 0x{val:02X} (unexpected, expected 0x73)', f'WHO 0x{val:02X}', f'!{val:02X}']])
                 ann_text = f'{name}: 0x{val:02X}'
                 ann_short = f'ID 0x{val:02X}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, val)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, val)))
             elif name == 'INT_STATUS' and n >= 1:
                 val = self.databuf[0]
                 ann_text = f'{name}: 0x{val:02X}'
                 ann_short = f'INT 0x{val:02X}'
                 if val & 0x40:
                     self.put(self.ss_block, self.es, self.out_ann, [ANN_READ, [MOTION_INT, 'WOM', '!']])
-                    self.put(self.ss_block, self.es, self.out_python, [('timing', MOTION_INT)])
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, val)])
+                    self.put(self.ss_block, self.es, self.out_python, ('TIMING', (MOTION_INT,)))
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, val)))
             else:
                 val = (self.databuf[0] << 8) | self.databuf[1] if n >= 2 else self.databuf[0]
                 ann_text = f'{name}: 0x{val:02X}' if n == 1 else f'{name}: 0x{val:04X}'
                 ann_short = f'0x{val:02X}' if n == 1 else f'0x{val:04X}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, val)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, val)))
 
             self.put(self.ss_block, self.es, self.out_ann, [ANN_READ, [ann_text, ann_text, ann_short]])
         else:

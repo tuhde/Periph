@@ -826,6 +826,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, rxtx, pdata = data
@@ -954,6 +955,7 @@ class Decoder(srd.Decoder):
         payload = bytes(self.ubx_payload)
         self.put(self.ubx_ss, es, self.out_ann,
                  [ANN_SENTENCE, ['%s: %d-byte payload' % (name, len(payload)), name]])
+        self.put(self.ubx_ss, es, self.out_python, ('UBX', (self.ubx_class, self.ubx_id, payload)))
 
         decoder_fn = _UBX_DECODERS.get((self.ubx_class, self.ubx_id))
         if decoder_fn:
@@ -993,6 +995,7 @@ class Decoder(srd.Decoder):
         self.put(self.ss_block, es, self.out_ann,
                  [ANN_SENTENCE, ['%s%s: %s' % (talker, sentence_id, body),
                                  sentence_id]])
+        self.put(self.ss_block, es, self.out_python, ('NMEA', (talker, sentence_id, tuple(fields[1:]))))
 
         if sentence_id in _DETAILED:
             for long_text, short_text in decode_fields(sentence_id, fields):
@@ -1010,6 +1013,7 @@ class Decoder(srd.Decoder):
         self.put(self.ss_block, es, self.out_ann,
                  [ANN_SENTENCE, ['PUBX,%s (%s): %s' % (msg_id, name, body),
                                  'PUBX%s' % msg_id]])
+        self.put(self.ss_block, es, self.out_python, ('PUBX', (msg_id, tuple(fields[2:]))))
 
         decoder_fn = _PUBX_DECODERS.get(msg_id)
         if decoder_fn:

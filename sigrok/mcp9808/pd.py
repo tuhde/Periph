@@ -143,7 +143,29 @@ class Decoder(srd.Decoder):
                     if rid not in ('timing', 'warnings') for c in classes}
             if data[0] in tiered:
                 data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
         super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -201,20 +223,20 @@ class Decoder(srd.Decoder):
                      [ANN_STATUS, ['%s CONFIG [0x%04X] %s' % (rw, value, text),
                                    '%s CONFIG 0x%04X' % (rw, value),
                                    '%s CFG' % rw]])
-            self.put(ss, es, self.out_python, ('status', (rw, reg, value)))
+            self.put(ss, es, self.out_python, ('STATUS', (rw, reg, value)))
             self._note_config(value & ~CFG_INT_CLEAR)
             return
         if reg == REG_TA:
             t = _temperature(value)
             self.put(ss, es, self.out_ann,
                      [ANN_DATA, ['R TA [0x%04X] %.4f °C' % (value, t), 'TA %.2f °C' % t, '%.1f°' % t]])
-            self.put(ss, es, self.out_python, ('data', (rw, reg, t)))
+            self.put(ss, es, self.out_python, ('DATA', (rw, reg, t)))
             flags = _flags(value)
             self.put(ss, es, self.out_ann,
                      [ANN_STATUS, ['TA boundary flags: %s' % (', '.join(flags) or 'inside window'),
                                    'Flags %s' % (','.join(flags) or 'none'),
                                    'F%d' % ((value >> 13) & 7)]])
-            self.put(ss, es, self.out_python, ('status', (rw, reg, (value >> 13) & 7)))
+            self.put(ss, es, self.out_python, ('STATUS', (rw, reg, (value >> 13) & 7)))
             return
         if reg in (REG_TUPPER, REG_TLOWER, REG_TCRIT):
             if rw == 'W':
@@ -224,7 +246,7 @@ class Decoder(srd.Decoder):
                      [ANN_DATA, ['%s %s [0x%04X] %.2f °C' % (rw, name, value, c),
                                  '%s %s %.2f °C' % (rw, name, c),
                                  '%s%s' % (rw, name[1:3])]])
-            self.put(ss, es, self.out_python, ('data', (rw, reg, c)))
+            self.put(ss, es, self.out_python, ('DATA', (rw, reg, c)))
             return
         if reg == REG_RESOLUTION:
             code = value & 3
@@ -233,7 +255,7 @@ class Decoder(srd.Decoder):
                                  % (rw, value, RESOLUTIONS[code], CONV_MS[code]),
                                  '%s RES %s °C' % (rw, RESOLUTIONS[code]),
                                  '%sRES' % rw]])
-            self.put(ss, es, self.out_python, ('data', (rw, reg, float(RESOLUTIONS[code]))))
+            self.put(ss, es, self.out_python, ('DATA', (rw, reg, float(RESOLUTIONS[code]))))
             return
         if reg == REG_MFR_ID:
             ok = 'Microchip' if value == 0x0054 else 'unexpected, expected 0x0054'
@@ -245,7 +267,7 @@ class Decoder(srd.Decoder):
                      [ANN_DATA, ['R DEVICE_ID_REV [0x%04X] device 0x%02X (%s) rev 0x%02X'
                                  % (value, value >> 8, ok, value & 0xFF),
                                  'DEV 0x%02X rev 0x%02X' % (value >> 8, value & 0xFF), 'DEV']])
-        self.put(ss, es, self.out_python, ('data', (rw, reg, value)))
+        self.put(ss, es, self.out_python, ('DATA', (rw, reg, value)))
 
     def _flush(self):
         """Annotate the data phase collected since the pointer / read address."""

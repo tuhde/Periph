@@ -168,7 +168,7 @@ class Decoder(srd.Decoder):
                 byte_es = self.samplenum
                 self.put(byte_ss, byte_es, self.out_ann,
                          [ANN_BYTE, ['0x%02X' % current_byte, '%d' % current_byte]])
-                self.put(byte_ss, byte_es, self.out_python, ['BYTE', current_byte])
+                self.put(byte_ss, byte_es, self.out_python, ('BYTE', current_byte))
                 byte_count  += 1
                 current_byte = 0
                 bit_count    = 0
@@ -192,7 +192,7 @@ class Decoder(srd.Decoder):
                           ['Reset — %d byte%s' % (byte_count,
                                                    's' if byte_count != 1 else ''),
                            'RST %dB' % byte_count]])
-                self.put(reset_ss, reset_es, self.out_python, ['RESET', byte_count])
+                self.put(reset_ss, reset_es, self.out_python, ('RESET', byte_count))
 
                 current_byte = 0
                 bit_count    = 0

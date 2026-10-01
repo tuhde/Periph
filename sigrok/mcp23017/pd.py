@@ -132,6 +132,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARN, [msg]])
@@ -140,6 +141,8 @@ class Decoder(srd.Decoder):
         self.put(ss_block, es, self.out_ann,
                  [ANN_REG, ['%s %s [0x%02X] = %s' % (rw, REGISTERS[reg], reg, _ann_reg(reg, val)),
                             '%s [0x%02X]' % (rw, reg)]])
+        self.put(ss_block, es, self.out_python,
+                 ('REG_READ' if rw == 'R' else 'REG_WRITE', (reg, val)))
 
     def decode(self, ss, es, data):
         ptype, pdata = data

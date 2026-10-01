@@ -269,6 +269,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
@@ -277,6 +278,7 @@ class Decoder(srd.Decoder):
         if not self.cs_active or not self.mosi_buf:
             return
         ss, es = self.ss_block, self.es
+        self.put(ss, es, self.out_python, ('SPI_TRANSFER', (bytes(self.mosi_buf), bytes(self.miso_buf))))
         first = self.mosi_buf[0]
         is_write, reg, name = _reg_name(first)
 

@@ -92,6 +92,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
@@ -112,6 +113,7 @@ class Decoder(srd.Decoder):
                            (self.pixel_idx, r, g, b, r, g, b),
                            'P%d #%02X%02X%02X' % (self.pixel_idx, r, g, b),
                            '#%02X%02X%02X' % (r, g, b)]])
+                self.put(self.ss_pixel, es, self.out_python, ('PIXEL', (self.pixel_idx, r, g, b)))
                 self.pixel_idx += 1
                 self.pixel_buf  = []
                 self.ss_pixel   = None

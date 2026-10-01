@@ -157,7 +157,7 @@ class Decoder(srd.Decoder):
                     pd_es = self.samplenum
                     self.put(pd_ss, pd_es, self.out_ann,
                              [ANN_POWERDOWN, ['Power-down: SCK held high > 60 \u00b5s', 'Power-down', 'PD']])
-                    self.put(pd_ss, pd_es, self.out_python, ['POWERDOWN', None])
+                    self.put(pd_ss, pd_es, self.out_python, ('POWERDOWN', None))
                     # Wait for SCK to go LOW (power-up); start wake-up timer.
                     self.wait({1: 'f'})
                     wakeup_ss    = self.samplenum
@@ -206,7 +206,7 @@ class Decoder(srd.Decoder):
                     self.put(pd_ss, self.samplenum, self.out_ann,
                              [ANN_POWERDOWN, ['Power-down: SCK held high > 60 \u00b5s', 'Power-down', 'PD']])
                     self.put(pd_ss, self.samplenum, self.out_python,
-                             ['POWERDOWN', None])
+                             ('POWERDOWN', None))
                     current_gain = DEFAULT_GAIN
                     aborted = True
                     break
@@ -246,7 +246,7 @@ class Decoder(srd.Decoder):
                              '%s-%d: %d' % (ch, gain, signed),
                          ]])
                 self.put(conv_ss, last_es, self.out_python,
-                         ['CONVERSION', (signed, ch, gain)])
+                         ('CONVERSION', (signed, ch, gain)))
             elif pulse_count > 0:
                 self._warn(conv_ss, last_es,
                            'Invalid pulse count %d (expected 25, 26, or 27)' % pulse_count)

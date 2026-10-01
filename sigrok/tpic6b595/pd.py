@@ -97,6 +97,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, payload = data
@@ -132,6 +133,7 @@ class Decoder(srd.Decoder):
                              ('D%d:0x%02X' % (dev_idx, byte)),
                              ('0x%02X' % byte),
                          ]])
+                self.put(ss, es, self.out_python, ('LATCH', (dev_idx, byte)))
                 for bit in range(8):
                     if (byte >> bit) & 1:
                         self.put(ss, es, self.out_ann,
@@ -149,6 +151,7 @@ class Decoder(srd.Decoder):
                                  ]])
 
         elif ptype == 'CLEAR':
+            self.put(ss, es, self.out_python, ('CLEAR', None))
             self.put(ss, es, self.out_ann,
                      [ANN_CLEARED, [
                          'Shift register cleared (SRCLR)',

@@ -149,7 +149,7 @@ class Decoder(srd.Decoder):
                              'Latch: ' + ' '.join('%02X' % b for b in self.latch_bytes),
                              'Latch %dB' % len(self.latch_bytes),
                          ]])
-                self.put(ss, self.samplenum, self.out_python, ['LATCH', bytes(self.latch_bytes)])
+                self.put(ss, self.samplenum, self.out_python, ('LATCH', bytes(self.latch_bytes)))
                 self.latch_bytes = bytearray()
                 self.latch_ss = None
 
@@ -159,7 +159,7 @@ class Decoder(srd.Decoder):
                 elif self.srclr_ss is not None:
                     self.put(self.srclr_ss, self.samplenum, self.out_ann,
                              [ANN_CLEAR, ['Clear', 'CLR']])
-                    self.put(self.srclr_ss, self.samplenum, self.out_python, ['CLEAR', None])
+                    self.put(self.srclr_ss, self.samplenum, self.out_python, ('CLEAR', None))
                     self.srclr_ss = None
             if have_srclr:
                 idx += 1
