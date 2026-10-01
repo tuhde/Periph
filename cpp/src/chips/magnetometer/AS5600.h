@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief AS5600 12-bit programmable contactless rotary position sensor — minimal interface.
  *
@@ -12,7 +12,7 @@
  * - Reads ANGLE register (0x0E-0x0F), respecting any OTP-programmed ZPOS/MPOS range
  * - No CONF writes — uses power-on default CONF=0x0000
  *
- * @param connection  Configured I²C connection pointing at the device (fixed address 0x36).
+ * @param connection  RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x36).
  */
 class AS5600Minimal {
 public:
@@ -20,7 +20,7 @@ public:
      * @brief Construct and initialise the AS5600.
      * @param connection  I²C connection bound to the chip's address (0x36).
      */
-    AS5600Minimal(Connection& connection);
+    AS5600Minimal(RegisterConnection& connection);
 
     /**
      * @brief Read the scaled absolute angle.
@@ -76,7 +76,7 @@ protected:
     static constexpr uint8_t STATUS_ML = 0x10;
     static constexpr uint8_t STATUS_MH = 0x20;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     uint8_t  _read_reg8(uint8_t reg);
     uint16_t _read_reg16(uint8_t reg);
@@ -100,7 +100,7 @@ protected:
  * - OUTS_ANALOG2 = 1: analog 10–90% VDD
  * - OUTS_PWM     = 2: digital PWM
  *
- * @param connection  Configured I²C connection pointing at the device (fixed address 0x36).
+ * @param connection  RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x36).
  */
 class AS5600Full : public AS5600Minimal {
 public:
@@ -117,7 +117,7 @@ public:
      * @brief Construct and initialise the AS5600.
      * @param connection  I²C connection bound to the chip's address (0x36).
      */
-    AS5600Full(Connection& connection);
+    AS5600Full(RegisterConnection& connection);
 
     /**
      * @brief Read the unscaled raw 12-bit angle count.

@@ -1,7 +1,7 @@
 #include "AS5600.h"
 #include <stdlib.h>
 
-AS5600Minimal::AS5600Minimal(Connection& connection)
+AS5600Minimal::AS5600Minimal(RegisterConnection& connection)
     : _connection(connection) {
     uint8_t status = _read_reg8(REG_STATUS);
     if (!(status & STATUS_MD)) {
@@ -15,24 +15,23 @@ AS5600Minimal::AS5600Minimal(Connection& connection)
 
 uint8_t AS5600Minimal::_read_reg8(uint8_t reg) {
     uint8_t buf[1];
-    _connection.write_read(&reg, 1, buf, 1);
+    _connection.read(reg, buf, 1);
     return buf[0];
 }
 
 uint16_t AS5600Minimal::_read_reg16(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
 void AS5600Minimal::_write_reg8(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 void AS5600Minimal::_write_reg16(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
+    _connection.write(reg, buf, 2);
 }
 
 float AS5600Minimal::angle() {
@@ -58,7 +57,7 @@ bool AS5600Minimal::is_magnet_too_weak() {
 
 // AS5600Full
 
-AS5600Full::AS5600Full(Connection& connection)
+AS5600Full::AS5600Full(RegisterConnection& connection)
     : AS5600Minimal(connection) {}
 
 uint16_t AS5600Full::raw_angle() {

@@ -5,6 +5,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_ZMCO: u8 = 0x00;
 const REG_ZPOS_H: u8 = 0x01;
 const REG_ZPOS_L: u8 = 0x02;
@@ -278,24 +280,22 @@ impl<I2C: I2c> As5600Full<I2C> {
 }
 
 fn write_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    let buf = [reg, value];
-    i2c.write(addr, &buf)
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn write_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u16) -> Result<(), I2C::Error> {
-    let buf = [reg, (value >> 8) as u8, (value & 0xFF) as u8];
-    i2c.write(addr, &buf)
+    register::write_register(i2c, addr, reg.into(), 1, &[(value >> 8) as u8, (value & 0xFF) as u8])
 }
 
 fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn read_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(((buf[0] as u16) << 8) | buf[1] as u16)
 }
 

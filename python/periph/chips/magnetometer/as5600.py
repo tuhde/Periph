@@ -13,7 +13,7 @@ class AS5600Minimal:
         - No CONF writes — uses power-on default CONF=0x0000
 
     Args:
-        connection: Configured I²C connection pointing at the device (fixed address 0x36).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x36).
     """
 
     _REG_ZMCO      = 0x00
@@ -41,22 +41,9 @@ class AS5600Minimal:
 
     def __init__(self, connection):
         self._connection = connection
-        status = self._read_reg8(self._REG_STATUS)
+        status = self._connection.read_reg(self._REG_STATUS, 1)[0]
         if not (status & self._STATUS_MD):
             raise RuntimeError('AS5600: magnet not detected (MD=0)')
-
-    def _read_reg8(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
-
-    def _read_reg16(self, reg):
-        raw = self._connection.write_read(bytes([reg]), 2)
-        return (raw[0] << 8) | raw[1]
-
-    def _write_reg8(self, reg, value):
-        self._connection.write(struct.pack('>BB', reg, value))
-
-    def _write_reg16(self, reg, value):
-        self._connection.write(struct.pack('>BH', reg, value))
 
     def angle(self):
         """Read the scaled absolute angle.
@@ -72,7 +59,7 @@ class AS5600Minimal:
         Returns:
             int: Scaled angle count, 0–4095 (respects ZPOS/MPOS if programmed).
         """
-        raw = self._read_reg16(self._REG_ANGLE_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_ANGLE_H, 2))[0]
         return raw & 0x0FFF
 
     def is_magnet_detected(self):
@@ -81,7 +68,7 @@ class AS5600Minimal:
         Returns:
             bool: True if STATUS.MD=1 (magnetic field >= 8 mT).
         """
-        return bool(self._read_reg8(self._REG_STATUS) & self._STATUS_MD)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & self._STATUS_MD)
 
     def is_magnet_too_strong(self):
         """Check if the magnet is too strong.
@@ -89,7 +76,7 @@ class AS5600Minimal:
         Returns:
             bool: True if STATUS.MH=1 (AGC minimum gain overflow, Bz > 90 mT).
         """
-        return bool(self._read_reg8(self._REG_STATUS) & self._STATUS_MH)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & self._STATUS_MH)
 
     def is_magnet_too_weak(self):
         """Check if the magnet is too weak.
@@ -97,7 +84,7 @@ class AS5600Minimal:
         Returns:
             bool: True if STATUS.ML=1 (AGC maximum gain overflow, Bz < 30 mT).
         """
-        return bool(self._read_reg8(self._REG_STATUS) & self._STATUS_ML)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & self._STATUS_ML)
 
 
 class AS5600Full(AS5600Minimal):
@@ -118,7 +105,7 @@ class AS5600Full(AS5600Minimal):
         OUTS_PWM     = 2: digital PWM
 
     Args:
-        connection: Configured I²C connection pointing at the device (fixed address 0x36).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x36).
     """
 
     PM_NOM  = 0
@@ -139,7 +126,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: Raw angle count, 0–4095 (unaffected by ZPOS/MPOS).
         """
-        raw = self._read_reg16(self._REG_RAW_ANGLE_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_RAW_ANGLE_H, 2))[0]
         return raw & 0x0FFF
 
     def raw_angle_degrees(self):
@@ -157,7 +144,7 @@ class AS5600Full(AS5600Minimal):
             int: AGC value (0–255 in 5 V mode; 0–127 in 3.3 V mode).
                 Mid-range indicates optimal airgap.
         """
-        return self._read_reg8(self._REG_AGC)
+        return self._connection.read_reg(self._REG_AGC, 1)[0]
 
     def magnitude(self):
         """Read the CORDIC magnitude value.
@@ -165,7 +152,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: 12-bit CORDIC magnitude value.
         """
-        raw = self._read_reg16(self._REG_MAGNITUDE_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_MAGNITUDE_H, 2))[0]
         return raw & 0x0FFF
 
     def status_byte(self):
@@ -174,7 +161,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: Raw STATUS register (bits MH, ML, MD in positions 5, 4, 3).
         """
-        return self._read_reg8(self._REG_STATUS)
+        return self._connection.read_reg(self._REG_STATUS, 1)[0]
 
     def configure(self, pm=0, hyst=0, outs=0, pwmf=0, sf=0, fth=0, wd=False):
         """Write the CONF_H and CONF_L registers.
@@ -191,11 +178,11 @@ class AS5600Full(AS5600Minimal):
             fth: Fast filter threshold 0–7.
             wd: Watchdog enable (True=on, False=off).
         """
-        conf_h = self._read_reg8(self._REG_CONF_H)
-        conf_l = self._read_reg8(self._REG_CONF_L)
+        conf_h = self._connection.read_reg(self._REG_CONF_H, 1)[0]
+        conf_l = self._connection.read_reg(self._REG_CONF_L, 1)[0]
         conf_h = (conf_h & 0xC0) | ((wd & 1) << 5) | ((fth & 0x07) << 2) | (sf & 0x03)
         conf_l = ((pwmf & 0x03) << 6) | ((outs & 0x03) << 4) | ((hyst & 0x03) << 2) | (pm & 0x03)
-        self._write_reg16(self._REG_CONF_H, (conf_h << 8) | conf_l)
+        self._connection.write_reg(self._REG_CONF_H, struct.pack('>H', (conf_h << 8) | conf_l))
 
     def set_zero_position(self, pos):
         """Write the zero position (start angle) to volatile RAM.
@@ -203,8 +190,8 @@ class AS5600Full(AS5600Minimal):
         Args:
             pos: Zero position 0–4095. Lost on power cycle unless burned.
         """
-        self._write_reg8(self._REG_ZPOS_H, (pos >> 8) & 0x0F)
-        self._write_reg8(self._REG_ZPOS_L, pos & 0xFF)
+        self._connection.write_reg(self._REG_ZPOS_H, (pos >> 8) & 0x0F)
+        self._connection.write_reg(self._REG_ZPOS_L, pos & 0xFF)
 
     def set_max_position(self, pos):
         """Write the maximum position (stop angle) to volatile RAM.
@@ -212,8 +199,8 @@ class AS5600Full(AS5600Minimal):
         Args:
             pos: Maximum position 0–4095. Lost on power cycle unless burned.
         """
-        self._write_reg8(self._REG_MPOS_H, (pos >> 8) & 0x0F)
-        self._write_reg8(self._REG_MPOS_L, pos & 0xFF)
+        self._connection.write_reg(self._REG_MPOS_H, (pos >> 8) & 0x0F)
+        self._connection.write_reg(self._REG_MPOS_L, pos & 0xFF)
 
     def set_max_angle(self, span):
         """Write the maximum angle span to volatile RAM.
@@ -221,8 +208,8 @@ class AS5600Full(AS5600Minimal):
         Args:
             span: Angle span 0–4095 (must correspond to >= 18 degrees).
         """
-        self._write_reg8(self._REG_MANG_H, (span >> 8) & 0x0F)
-        self._write_reg8(self._REG_MANG_L, span & 0xFF)
+        self._connection.write_reg(self._REG_MANG_H, (span >> 8) & 0x0F)
+        self._connection.write_reg(self._REG_MANG_L, span & 0xFF)
 
     def zero_position(self):
         """Read the zero position (start angle).
@@ -230,7 +217,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: ZPOS value 0–4095.
         """
-        raw = self._read_reg16(self._REG_ZPOS_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_ZPOS_H, 2))[0]
         return raw & 0x0FFF
 
     def max_position(self):
@@ -239,7 +226,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: MPOS value 0–4095.
         """
-        raw = self._read_reg16(self._REG_MPOS_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_MPOS_H, 2))[0]
         return raw & 0x0FFF
 
     def max_angle(self):
@@ -248,7 +235,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: MANG value 0–4095.
         """
-        raw = self._read_reg16(self._REG_MANG_H)
+        raw = struct.unpack('>H', self._connection.read_reg(self._REG_MANG_H, 2))[0]
         return raw & 0x0FFF
 
     def burn_count(self):
@@ -257,7 +244,7 @@ class AS5600Full(AS5600Minimal):
         Returns:
             int: ZMCO value 0–3. Remaining permanent writes = 3 - ZMCO.
         """
-        return self._read_reg8(self._REG_ZMCO) & 0x03
+        return self._connection.read_reg(self._REG_ZMCO, 1)[0] & 0x03
 
     def burn_angle(self):
         """Permanently burn ZPOS and MPOS to OTP.
@@ -268,13 +255,13 @@ class AS5600Full(AS5600Minimal):
         Raises:
             RuntimeError: If magnet not detected (MD=0) or ZMCO >= 3.
         """
-        status = self._read_reg8(self._REG_STATUS)
+        status = self._connection.read_reg(self._REG_STATUS, 1)[0]
         if not (status & self._STATUS_MD):
             raise RuntimeError('AS5600: cannot burn angle — magnet not detected')
-        zmco = self._read_reg8(self._REG_ZMCO) & 0x03
+        zmco = self._connection.read_reg(self._REG_ZMCO, 1)[0] & 0x03
         if zmco >= 3:
             raise RuntimeError('AS5600: cannot burn angle — ZMCO limit reached (3)')
-        self._write_reg8(self._REG_BURN, self._BURN_ANGLE)
+        self._connection.write_reg(self._REG_BURN, self._BURN_ANGLE)
 
     def burn_setting(self):
         """Permanently burn MANG and CONF to OTP.
@@ -284,7 +271,7 @@ class AS5600Full(AS5600Minimal):
         Raises:
             RuntimeError: If ZMCO != 0.
         """
-        zmco = self._read_reg8(self._REG_ZMCO) & 0x03
+        zmco = self._connection.read_reg(self._REG_ZMCO, 1)[0] & 0x03
         if zmco != 0:
             raise RuntimeError('AS5600: cannot burn setting — ZMCO must be 0')
-        self._write_reg8(self._REG_BURN, self._BURN_SETTING)
+        self._connection.write_reg(self._REG_BURN, self._BURN_SETTING)
