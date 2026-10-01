@@ -18,6 +18,9 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 
 - Chip checklist: `specs/<category>/<chip>.md` → `## Implementation Checklist`
 - Transport checklist: `specs/transport_<name>.md` → `## Implementation Checklist`
+- Feature checklist: `specs/feature_<name>.md` → `## Implementation Checklist`
+
+**Discovery registry.** Every new chip with I²C transport needs an entry in `registry/chips.json` (addresses, identity register or `null`, probe safety). Run `node registry/scripts/generate.js` and commit the generated tables; CI fails on a missing entry or stale tables. See `specs/feature_i2c_discovery.md`.
 
 ## Finding the work
 
