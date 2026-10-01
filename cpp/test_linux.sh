@@ -196,6 +196,13 @@ check_bus_access() {
     fi
 }
 
+# uses_i2c PATH...: 0 (true) if any given test file/dir mentions I2C. SPI,
+# NeoPixel, GPIO and UART chips have no I2C address or bus, so the address
+# and bus checks must be skipped for them.
+uses_i2c() {
+    grep -rqi "i2c" "$@" 2>/dev/null
+}
+
 # --- unit level: mocked, no hardware, no testconfig needed ------------------
 run_unit() {
     local unit_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_unit/${CHIP}_test_unit.cpp"
@@ -227,8 +234,10 @@ run_unit() {
 
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
-    resolve_addr
-    check_bus_access
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"
     if [ ! -f "$test_src" ]; then
         echo "ERROR: test source not found: $test_src" >&2
@@ -244,7 +253,7 @@ run_hil() {
         -I"$SRC_DIR/discovery" \
         "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
-        -DTEST_ADDR="$I2C_ADDR" \
+        -DTEST_ADDR="${I2C_ADDR:-}" \
         "${APP_SRCS[@]}" \
         -o "$bin" -lgpiod -lpthread
     echo "Compile OK"
@@ -257,8 +266,10 @@ run_hil() {
 
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
-    resolve_addr
-    check_bus_access
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"
     if [ ! -f "$test_src" ]; then
         echo "ERROR: test source not found: $test_src" >&2
@@ -280,7 +291,7 @@ run_conformance() {
         -I"$SRC_DIR/discovery" \
         "${CHIP_INCLUDES[@]}" \
         -DTEST_I2C_BUS="$LINUX_I2C_BUS" \
-        -DTEST_ADDR="$I2C_ADDR" \
+        -DTEST_ADDR="${I2C_ADDR:-}" \
         "${APP_SRCS[@]}" \
         -o "$bin" -lgpiod -lpthread
     echo "Compile OK"

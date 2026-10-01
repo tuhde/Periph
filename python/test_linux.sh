@@ -154,6 +154,12 @@ check_bus_access() {
     fi
 }
 
+# uses_i2c FILE: 0 (true) if the test script talks I2C. SPI/NeoPixel/GPIO/UART
+# chips have no I2C address or bus, so those checks must be skipped for them.
+uses_i2c() {
+    grep -qi "i2c" "$1" 2>/dev/null
+}
+
 # --- unit level: mocked, no hardware, no testconfig needed ------------------
 run_unit() {
     local test_file="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_unit.py"
@@ -167,8 +173,6 @@ run_unit() {
 
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
-    resolve_addr
-    check_bus_access
     # Most chips have a dedicated Linux test file; a few newer ones (ENS160,
     # AHT21) instead share one i2c_auto-based test with test_mp.sh, which
     # auto-detects Linux vs MicroPython at import time - fall back to that.
@@ -180,14 +184,23 @@ run_hil() {
         echo "ERROR: test file not found: $SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux.py (or _test.py)" >&2
         exit 1
     fi
-    echo "=== [hil] Running $TARGET on Linux I2C bus $LINUX_I2C_BUS ==="
-    PYTHONPATH="$SCRIPT_DIR" LINUX_I2C_BUS="$LINUX_I2C_BUS" I2C_ADDR="$I2C_ADDR" python3 "$test_file"
+    if uses_i2c "$test_file"; then
+        resolve_addr
+        check_bus_access
+        echo "=== [hil] Running $TARGET on Linux I2C bus $LINUX_I2C_BUS ==="
+        PYTHONPATH="$SCRIPT_DIR" LINUX_I2C_BUS="$LINUX_I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" python3 "$test_file"
+    else
+        echo "=== [hil] Running $TARGET (non-I2C transport; see SPI_BUS/SPI_DEVICE) ==="
+        PYTHONPATH="$SCRIPT_DIR" python3 "$test_file"
+    fi
 }
 
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
-    resolve_addr
-    check_bus_access
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux.py" "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test.py"; then
+        resolve_addr
+        check_bus_access
+    fi
     local checker="$SCRIPT_DIR/../conformance/$CATEGORY/${CHIP}_conformance.py"
     if [ ! -f "$checker" ]; then
         echo "ERROR: conformance checker not found: $checker" >&2
@@ -195,7 +208,7 @@ run_conformance() {
         exit 1
     fi
     echo "=== [conformance] Running $TARGET via $checker ==="
-    PYTHONPATH="$SCRIPT_DIR" LINUX_I2C_BUS="$LINUX_I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+    PYTHONPATH="$SCRIPT_DIR" LINUX_I2C_BUS="$LINUX_I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" \
         SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
         python3 "$checker" --lang python
 }
