@@ -286,7 +286,7 @@ class Decoder(srd.Decoder):
             self.put(self.ss_block, self.es, self.out_ann,
                      [ANN_REG_READ, ['%s: 0x%02X%s' % (name, value, extra),
                                        '%s=0x%02X' % (name, value),
-                                       name]])
+                                       name[:8]]])
             self.reg_ptr = None
             return
 

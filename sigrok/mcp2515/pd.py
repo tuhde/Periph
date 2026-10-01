@@ -452,6 +452,7 @@ class Decoder(srd.Decoder):
 
     def decode(self, ss, es, data):
         ptype, pdata = data
+        self.es = es
         if ptype == 'CS_ASSERT':
             self._finish_transaction()
             self.mosi_buf  = []

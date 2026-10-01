@@ -234,6 +234,7 @@ class Decoder(srd.Decoder):
 
     def reset(self):
         self.state    = 'IDLE'
+        self.cmd      = None
         self.addr     = None
         self.range_bits = 0x00
         self.databuf  = []
@@ -261,7 +262,7 @@ class Decoder(srd.Decoder):
             if pdata != 0x00:
                 # ADXL362 requires CS=low → CS=high to be address 0.
                 # Any other first byte on a normal bus is unexpected.
-                self._ann(ss, es, ANN_WARN, ['Unexpected address byte 0x%02X' % pdata])
+                self._ann(ss, es, ANN_WARN, ['Unexpected address byte 0x%02X' % pdata, 'ADDR?'])
                 self.state = 'IDLE'
                 return
             self.state = 'GET_CMD'

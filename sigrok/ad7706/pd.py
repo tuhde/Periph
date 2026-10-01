@@ -314,7 +314,7 @@ class Decoder(srd.Decoder):
             msg = (
                 f'{kind} cal {CH_NAMES.get(self.channel, "?")}: 0x{cal:06X} ({cal})',
                 f'{kind} cal: 0x{cal:06X}',
-                f'{kind[0]}=0x{cal:06X}',
+                f'{kind[0]}{cal:06X}',
             )
             self.put(self.ss_block, self.es, self.out_ann, [ANN_CALIBRATION, msg])
         self.reg_ptr = None
