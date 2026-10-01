@@ -22,14 +22,14 @@ public class L3G4200DTest {
             System.getenv().getOrDefault("I2C_ADDR", "0x68").replaceFirst("^0[xX]", ""), 16);
 
         try (var connection = new I2CConnection(bus, addr)) {
-            var gyro = new L3g4200dMinimal(connection, false);
+            var gyro = new L3g4200dMinimal(connection);
             float[] xyz = gyro.angularRate();
             checkTrue(xyz[0] >= -50.0f && xyz[0] <= 50.0f, "angular_rate_x_range");
             checkTrue(xyz[1] >= -50.0f && xyz[1] <= 50.0f, "angular_rate_y_range");
             checkTrue(xyz[2] >= -50.0f && xyz[2] <= 50.0f, "angular_rate_z_range");
 
             try (var connection2 = new I2CConnection(bus, addr)) {
-                var gyroFull = new L3g4200dFull(connection2, false);
+                var gyroFull = new L3g4200dFull(connection2);
                 checkTrue(gyroFull.whoAmI() == 0xD3, "who_am_i");
                 gyroFull.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS);
                 checkTrue(gyroFull.getClass().equals(L3g4200dFull.class), "configure");

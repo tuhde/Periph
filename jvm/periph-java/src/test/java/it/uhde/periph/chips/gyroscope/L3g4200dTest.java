@@ -13,7 +13,7 @@ class L3g4200dTest {
         // Preload WHO_AM_I so init() doesn't throw.
         connection.setRegister(L3g4200dMinimal.REG_WHO_AM_I, 0xD3);
 
-        L3g4200dFull sensor = new L3g4200dFull(connection, false);
+        L3g4200dFull sensor = new L3g4200dFull(connection);
 
         assertEquals(L3g4200dFull.CTRL_REG4_DEFAULT,
                 (int) connection.registers().get(L3g4200dMinimal.REG_CTRL_REG4));

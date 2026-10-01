@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.gyroscope.l3g4200d import L3G4200DMinimal
 
 connection = I2CConnection(0x68)
-gyro = L3G4200DMinimal(connection)                         # Create L3G4200D driver, (connection, bus_type='i2c')
+gyro = L3G4200DMinimal(connection)                         # Create L3G4200D driver, (connection)
 
 for _ in range(10):
     x, y, z = gyro.angular_rate()                         # Read X/Y/Z angular rate, () → (float, float, float) rad/s

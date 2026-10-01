@@ -32,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := gyroscope.NewL3G4200DMinimal(conn, false) // Create L3G4200D driver, (connection) → (*L3G4200DMinimal, error)
+	chip, err := gyroscope.NewL3G4200DMinimal(conn) // Create L3G4200D driver, (connection) → (*L3G4200DMinimal, error)
 	if err != nil {
 		panic(err)
 	}

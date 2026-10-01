@@ -11,7 +11,7 @@ public class Demo {
     public static void main(String[] args) throws Exception {
         try (var connection = new I2CConnection(1, 0x68)) {       // open I²C bus 1, device 0x68
             // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
-            var gyro = new L3g4200dFull(connection, false);         // construct driver
+            var gyro = new L3g4200dFull(connection);         // construct driver
             gyro.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS);  // configure chip, (odr, bandwidth, fullScale) → void
             gyro.enableHighpass(0, 4);                              // enable high-pass, (mode=0, cutoff=4) → void
                                                                     // cutoff index 4 at 200 Hz ODR ≈ 1 Hz; strips DC drift

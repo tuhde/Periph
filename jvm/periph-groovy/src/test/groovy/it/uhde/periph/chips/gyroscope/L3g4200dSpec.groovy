@@ -10,7 +10,7 @@ class L3g4200dSpec extends Specification {
         def connection = new MockConnection()
         connection.setRegister(L3g4200dMinimal.REG_WHO_AM_I, 0xD3)
 
-        def sensor = new L3g4200dFull(connection, false)
+        def sensor = new L3g4200dFull(connection)
 
         expect:
         connection.registers().get(L3g4200dMinimal.REG_CTRL_REG4) == L3g4200dFull.CTRL_REG4_DEFAULT

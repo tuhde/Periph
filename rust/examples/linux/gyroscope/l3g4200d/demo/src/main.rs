@@ -13,7 +13,7 @@ fn main() {
     // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
     // 200 Hz ODR gives 5 ms per sample — fast enough to catch hand motion but
     // not so noisy that the FIFO drains before the watermark is reached.
-    let mut gyro = L3g4200dFull::new(dev, addr, false).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, addr=0x68, spi=false)
+    let mut gyro = L3g4200dFull::new(dev, addr).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, addr=0x68)
     gyro.configure(ODR_200_HZ, 0, FS_500_DPS).expect("configure");                     // Configure chip, (odr=ODR_200_HZ, bandwidth=0, full_scale=FS_500_DPS) → ()
     gyro.enable_highpass(0, 4).expect("enable_highpass");                             // Enable high-pass, (mode=0, cutoff=4) → ()
                                                                                        // cutoff index 4 at 200 Hz ODR ≈ 1 Hz; strips DC drift

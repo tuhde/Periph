@@ -43,6 +43,14 @@ func (m *mockConn) WriteRead(data []byte, n int) ([]byte, error) {
 
 func (m *mockConn) Enable()  {}
 func (m *mockConn) Disable() {}
+func (m *mockConn) ReadReg(reg uint32, length int) ([]byte, error) {
+	return m.WriteRead([]byte{byte(reg)}, length)
+}
+
+func (m *mockConn) WriteReg(reg uint32, data []byte) error {
+	return m.Write(append([]byte{byte(reg)}, data...))
+}
+
 func (m *mockConn) Close() error { return nil }
 func (m *mockConn) IsEnabled() bool { return true }
 func (m *mockConn) IntPin() connection.InputPin { return nil }
@@ -62,7 +70,7 @@ func lastWriteForReg(writes [][]byte, reg uint8) (uint8, bool) {
 
 func TestL3G4200DFullAPI(t *testing.T) {
 	conn := &mockConn{}
-	d, err := NewL3G4200DFull(conn, false)
+	d, err := NewL3G4200DFull(conn)
 	if err != nil {
 		t.Fatalf("init: %v", err)
 	}
@@ -91,7 +99,7 @@ func TestL3G4200DFullAPI(t *testing.T) {
 	}
 
 	// set_full_scale(2000): read CTRL_REG4 returns 0x90, write with FS=10 -> 0xA0.
-	conn.readSeq = []byte{0x90}
+	conn.readSeq, conn.readIdx = []byte{0x90}, 0
 	if err := d.SetFullScale(L3G4200DFS2000DPS); err != nil {
 		t.Fatalf("set_full_scale: %v", err)
 	}
@@ -101,7 +109,7 @@ func TestL3G4200DFullAPI(t *testing.T) {
 
 	// enable_fifo(FIFO_STREAM=2, watermark=10): read CTRL_REG5 returns 0x00,
 	// then writes CTRL_REG5=0x40 and FIFO_CTRL=((2<<5)|10)=0x4A.
-	conn.readSeq = []byte{0x00}
+	conn.readSeq, conn.readIdx = []byte{0x00}, 0
 	if err := d.EnableFIFO(L3G4200DFIFOStream, 10); err != nil {
 		t.Fatalf("enable_fifo: %v", err)
 	}
@@ -113,7 +121,7 @@ func TestL3G4200DFullAPI(t *testing.T) {
 	}
 
 	// fifo_samples(): FIFO_SRC returns 0x1A (26).
-	conn.readSeq = []byte{0x1A}
+	conn.readSeq, conn.readIdx = []byte{0x1A}, 0
 	if n, err := d.FIFOSamples(); err != nil || n != 26 {
 		t.Errorf("fifo_samples: got %d err=%v, want 26", n, err)
 	}
@@ -156,7 +164,7 @@ func TestL3G4200DAngularRateDecode(t *testing.T) {
 		0x00, 0x00,
 		0xF0, 0xFF,
 	}
-	d, err := NewL3G4200DFull(conn, false)
+	d, err := NewL3G4200DFull(conn)
 	if err != nil {
 		t.Fatalf("init: %v", err)
 	}

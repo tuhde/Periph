@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.gyroscope
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * L3G4200D three-axis MEMS gyroscope — minimal driver.
@@ -46,25 +47,24 @@ class L3g4200dMinimal {
     protected static final int CTRL_REG1_DEFAULT = 0x0F
     protected static final int CTRL_REG4_DEFAULT = 0x80
 
-    protected final Connection connection
-    protected final boolean spi
+    protected final RegisterConnection connection
     protected int fullScaleDps = 250
 
-    L3g4200dMinimal(Connection connection, boolean spi) throws Exception {
+    L3g4200dMinimal(RegisterConnection connection) throws Exception {
         this.connection = connection
-        this.spi = spi
-        byte[] id = connection.writeRead([REG_WHO_AM_I as byte] as byte[], 1)
+        byte[] id = readReg(REG_WHO_AM_I, 1)
         if ((id[0] & 0xFF) != WHO_AM_I_EXPECTED) {
             throw new IOException("L3G4200D not found: WHO_AM_I expected 0x"
                     + Integer.toHexString(WHO_AM_I_EXPECTED) + ", got 0x" + Integer.toHexString(id[0] & 0xFF))
         }
-        connection.write([REG_CTRL_REG4 as byte, CTRL_REG4_DEFAULT as byte] as byte[])
-        connection.write([REG_CTRL_REG1 as byte, CTRL_REG1_DEFAULT as byte] as byte[])
+        connection.write(REG_CTRL_REG4, [CTRL_REG4_DEFAULT as byte] as byte[])
+        connection.write(REG_CTRL_REG1, [CTRL_REG1_DEFAULT as byte] as byte[])
     }
 
-    protected void writeReg(int reg, int value) throws Exception {
-        int addr = spi ? (reg & 0x3F) : reg
-        connection.write([addr as byte, (value & 0xFF) as byte] as byte[])
+    // I²C needs bit 7 of the sub-address set for multi-byte auto-increment; on
+    // SPI the connection's read bit 0xC0 already ORs it in (idempotent).
+    protected byte[] readReg(int reg, int n) throws Exception {
+        return connection.read(n > 1 ? (reg | 0x80) : reg, n)
     }
 
     protected static float sensitivity(int fullScale) {
@@ -78,18 +78,11 @@ class L3g4200dMinimal {
 
     protected static int int16Le(byte[] data, int offset) {
         int v = (data[offset] & 0xFF) | ((data[offset + 1] & 0xFF) << 8)
-        if (v >= 0x8000) v -= 0x10000
-        return v
+        return Register.toSigned(v, 16)
     }
 
     float[] angularRate() throws Exception {
-        byte[] raw
-        if (spi) {
-            connection.write([(byte) ((REG_OUT_X_L | 0xC0) & 0xFF)] as byte[])
-            raw = connection.read(6)
-        } else {
-            raw = connection.writeRead([(byte) (REG_OUT_X_L | 0x80)] as byte[], 6)
-        }
+        byte[] raw = readReg(REG_OUT_X_L, 6)
         float sens = sensitivity(fullScaleDps)
         float k = (float) (Math.PI / 180.0)
         float x = int16Le(raw, 0) * sens * k

@@ -1,6 +1,8 @@
 import math
 import time
 
+from periph.connection.register import to_signed
+
 
 _REG_WHO_AM_I     = 0x0F
 _REG_CTRL_REG1    = 0x20
@@ -47,10 +49,7 @@ _DPS_TO_RAD = math.pi / 180.0
 
 
 def _int16(data):
-    value = data[0] | (data[1] << 8)
-    if value & 0x8000:
-        value -= 0x10000
-    return value
+    return to_signed(data[0] | (data[1] << 8), 16)
 
 
 class L3G4200DMinimal:
@@ -69,35 +68,24 @@ class L3G4200DMinimal:
         - HPF disabled
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: ``'i2c'`` (default) or ``'spi'``. SPI writes mask bit 7
-            of the register address and reads set bit 7 + bit 6 for
-            auto-increment on multi-byte reads.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the
+            device. For SPI, construct it with ``read_bit=0xC0,
+            multi_byte_bit=None`` (READ=1 and MS=1 on every read).
     """
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         if self._read_reg(_REG_WHO_AM_I, 1)[0] != _WHO_AM_I_EXPECTED:
             raise ValueError(
                 'L3G4200D not found: WHO_AM_I expected 0x{:02X}'.format(_WHO_AM_I_EXPECTED))
         self._full_scale = 250
-        self._write_reg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT)
-        self._write_reg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT)
-
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x3F
-        self._connection.write(bytes([reg, value & 0xFF]))
+        self._connection.write_reg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT)
+        self._connection.write_reg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT)
 
     def _read_reg(self, reg, n):
-        if self._bus_type == 'spi':
-            sub_addr = reg | 0xC0  # READ=1, MS=1 (auto-increment)
-        elif n > 1:
-            sub_addr = reg | 0x80  # MSB set = I²C multi-byte auto-increment
-        else:
-            sub_addr = reg
-        return self._connection.write_read(bytes([sub_addr & 0xFF]), n)
+        # I²C needs bit 7 of the sub-address set for multi-byte auto-increment;
+        # on SPI the connection's read_bit=0xC0 already ORs it in (idempotent).
+        return self._connection.read_reg(reg | 0x80 if n > 1 else reg, n)
 
     def _sensitivity(self):
         return _SENSITIVITY[self._full_scale]
@@ -130,8 +118,7 @@ class L3G4200DFull(L3G4200DMinimal):
     and access to temperature and status registers.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI) pointing at the device.
     """
 
     ODR_100_HZ = 0
@@ -171,8 +158,8 @@ class L3G4200DFull(L3G4200DMinimal):
     OUT_SEL_LPF2        = 2
     OUT_SEL_HPF_LPF2    = 3
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
         self._odr = 0
         self._bw = 0
         self._threshold_raw = 0
@@ -195,10 +182,10 @@ class L3G4200DFull(L3G4200DMinimal):
         self._bw = bandwidth & 0x3
         self._full_scale = full_scale
         ctrl1 = _CTRL_REG1_DEFAULT | ((self._odr & 0x3) << 6) | ((self._bw & 0x3) << 4)
-        self._write_reg(_REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
         fs_bits = 0 if full_scale == 250 else (1 if full_scale == 500 else 2)
         ctrl4 = _CTRL_REG4_DEFAULT | ((fs_bits & 0x3) << 4)
-        self._write_reg(_REG_CTRL_REG4, ctrl4)
+        self._connection.write_reg(_REG_CTRL_REG4, ctrl4)
 
     def set_full_scale(self, full_scale):
         """Update the full-scale range.
@@ -212,7 +199,7 @@ class L3G4200DFull(L3G4200DMinimal):
         fs_bits = 0 if full_scale == 250 else (1 if full_scale == 500 else 2)
         ctrl4 = self._read_reg(_REG_CTRL_REG4, 1)[0]
         ctrl4 = (ctrl4 & 0xCF) | ((fs_bits & 0x3) << 4)
-        self._write_reg(_REG_CTRL_REG4, ctrl4)
+        self._connection.write_reg(_REG_CTRL_REG4, ctrl4)
 
     def who_am_i(self):
         """Read WHO_AM_I (0x0F).
@@ -250,24 +237,21 @@ class L3G4200DFull(L3G4200DMinimal):
         Returns:
             int: Signed 8-bit temperature count.
         """
-        raw = self._read_reg(_REG_OUT_TEMP, 1)[0]
-        if raw & 0x80:
-            raw -= 0x100
-        return raw
+        return to_signed(self._read_reg(_REG_OUT_TEMP, 1)[0], 8)
 
     def power_down(self):
         """Enter power-down mode (PD=0 in CTRL_REG1)."""
         ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0] & 0xF7
-        self._write_reg(_REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
 
     def wake_up(self):
         """Wake from power-down (PD=1); previously enabled axes restored."""
         ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0] | 0x08
-        self._write_reg(_REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
 
     def sleep(self):
         """Enter sleep mode (PD=1, all axes disabled)."""
-        self._write_reg(_REG_CTRL_REG1, 0x08)
+        self._connection.write_reg(_REG_CTRL_REG1, 0x08)
 
     def enable_axes(self, x=True, y=True, z=True):
         """Enable or disable individual axes (Xen/Yen/Zen in CTRL_REG1).
@@ -279,7 +263,7 @@ class L3G4200DFull(L3G4200DMinimal):
         """
         ctrl1 = self._read_reg(_REG_CTRL_REG1, 1)[0]
         ctrl1 = (ctrl1 & 0xF8) | (0x04 if z else 0) | (0x02 if y else 0) | (0x01 if x else 0)
-        self._write_reg(_REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(_REG_CTRL_REG1, ctrl1)
 
     def enable_fifo(self, mode=0, watermark=0):
         """Configure and enable the FIFO.
@@ -294,15 +278,15 @@ class L3G4200DFull(L3G4200DMinimal):
         if watermark < 0 or watermark > 31:
             raise ValueError('watermark must be 0..31')
         ctrl5 = self._read_reg(_REG_CTRL_REG5, 1)[0] | 0x40  # FIFO_EN
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
         fifo_ctrl = ((mode & 0x7) << 5) | (watermark & 0x1F)
-        self._write_reg(_REG_FIFO_CTRL, fifo_ctrl)
+        self._connection.write_reg(_REG_FIFO_CTRL, fifo_ctrl)
 
     def disable_fifo(self):
         """Disable the FIFO (clear FIFO_EN and put it in bypass mode)."""
         ctrl5 = self._read_reg(_REG_CTRL_REG5, 1)[0] & ~0x40
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
-        self._write_reg(_REG_FIFO_CTRL, 0x00)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_FIFO_CTRL, 0x00)
 
     def fifo_samples(self):
         """Read FSS[4:0] from FIFO_SRC_REG.
@@ -345,14 +329,14 @@ class L3G4200DFull(L3G4200DMinimal):
         if cutoff < 0 or cutoff > 9:
             raise ValueError('cutoff must be 0..9')
         ctrl2 = ((mode & 0x3) << 4) | (cutoff & 0x0F)
-        self._write_reg(_REG_CTRL_REG2, ctrl2)
+        self._connection.write_reg(_REG_CTRL_REG2, ctrl2)
         ctrl5 = self._read_reg(_REG_CTRL_REG5, 1)[0] | 0x10  # HPen
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
 
     def disable_highpass(self):
         """Clear HPen in CTRL_REG5."""
         ctrl5 = self._read_reg(_REG_CTRL_REG5, 1)[0] & ~0x10
-        self._write_reg(_REG_CTRL_REG5, ctrl5)
+        self._connection.write_reg(_REG_CTRL_REG5, ctrl5)
 
     def set_interrupt(self, x_high=False, x_low=False, y_high=False, y_low=False,
                       z_high=False, z_low=False, and_mode=False, latch=False):
@@ -385,10 +369,10 @@ class L3G4200DFull(L3G4200DMinimal):
             cfg |= 0x02
         if x_low:
             cfg |= 0x01
-        self._write_reg(_REG_INT1_CFG, cfg)
+        self._connection.write_reg(_REG_INT1_CFG, cfg)
         if cfg & 0x3F:
             ctrl3 = self._read_reg(_REG_CTRL_REG3, 1)[0] | 0x80
-            self._write_reg(_REG_CTRL_REG3, ctrl3)
+            self._connection.write_reg(_REG_CTRL_REG3, ctrl3)
 
     def set_threshold(self, axis, threshold_dps):
         """Set the interrupt threshold for one axis.
@@ -408,8 +392,8 @@ class L3G4200DFull(L3G4200DMinimal):
             hi, lo = _REG_INT1_THS_ZH, _REG_INT1_THS_ZL
         else:
             raise ValueError("axis must be 'x', 'y' or 'z'")
-        self._write_reg(hi, (raw >> 8) & 0x7F)
-        self._write_reg(lo, raw & 0xFF)
+        self._connection.write_reg(hi, (raw >> 8) & 0x7F)
+        self._connection.write_reg(lo, raw & 0xFF)
 
     def set_duration(self, samples, wait=False):
         """Set INT1_DURATION.
@@ -424,7 +408,7 @@ class L3G4200DFull(L3G4200DMinimal):
         if samples < 0 or samples > 127:
             raise ValueError('samples must be 0..127')
         val = ((1 if wait else 0) << 7) | (samples & 0x7F)
-        self._write_reg(_REG_INT1_DURATION, val)
+        self._connection.write_reg(_REG_INT1_DURATION, val)
 
     def read_int_source(self):
         """Read INT1_SRC; reading clears the interrupt-active bit.
@@ -445,4 +429,4 @@ class L3G4200DFull(L3G4200DMinimal):
             ctrl3 |= 0x08
         else:
             ctrl3 &= ~0x08
-        self._write_reg(_REG_CTRL_REG3, ctrl3)
+        self._connection.write_reg(_REG_CTRL_REG3, ctrl3)

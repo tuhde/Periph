@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or(0x68);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro = L3g4200dFull::new(dev, addr, false).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, addr=0x68, spi=false)
+    let mut gyro = L3g4200dFull::new(dev, addr).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, addr=0x68)
     let cid = gyro.who_am_i().expect("who_am_i");                                     // Read WHO_AM_I, () → u8
                                                                                        // returns 0xD3 for L3G4200D
     gyro.configure(ODR_200_HZ, 0, FS_500_DPS).expect("configure");                     // Configure chip, (odr ODR_200_HZ, bandwidth 0–3, full_scale 250/500/2000) → ()

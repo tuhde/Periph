@@ -107,26 +107,24 @@ func int16Le(b []byte) int16 {
 // Default configuration baked in: 100 Hz ODR, 12.5 Hz LPF2 cutoff, ±250 dps
 // full scale, BDU=1, all axes enabled, FIFO disabled, HPF disabled.
 type L3G4200DMinimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 	fullScale  uint16
 }
 
 // NewL3G4200DMinimal creates an L3G4200DMinimal and runs the chip init sequence.
 //
-// Pass spi=true for SPI — per the L3G4200D SPI protocol, writes clear bits
-// 7 and 6 of the register address (reg & 0x3F); reads set both bits
-// (reg | 0xC0) for READ=1 and MS=1 auto-increment.
-func NewL3G4200DMinimal(t connection.Connection, spi bool) (*L3G4200DMinimal, error) {
+// For SPI, construct the connection with readBit=0xC0 and no multi-byte bit:
+// the L3G4200D protocol needs READ=1 and MS=1 on every read, and writes clear
+// both bits.
+func NewL3G4200DMinimal(t connection.RegisterConnection) (*L3G4200DMinimal, error) {
 	d := &L3G4200DMinimal{
 		connection: t,
-		spi:        spi,
 		fullScale:  L3G4200DFS250DPS,
 	}
-	if err := d.writeReg(l3g4200dRegCtrlReg4, l3g4200dCtrlReg4Default); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg4), []byte{l3g4200dCtrlReg4Default}); err != nil {
 		_ = err
 	}
-	if err := d.writeReg(l3g4200dRegCtrlReg1, l3g4200dCtrlReg1Default); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{l3g4200dCtrlReg1Default}); err != nil {
 		_ = err
 	}
 	// Sleep briefly for the chip to settle; matches init in Python/C++ drivers.
@@ -134,26 +132,14 @@ func NewL3G4200DMinimal(t connection.Connection, spi bool) (*L3G4200DMinimal, er
 	return d, nil
 }
 
-// writeReg writes a single byte to a register.
-func (d *L3G4200DMinimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x3F
-	}
-	return d.connection.Write([]byte{addr, val})
-}
-
 // readRegBytes reads n bytes from a register into buf.
 func (d *L3G4200DMinimal) readRegBytes(reg uint8, n int) ([]byte, error) {
-	var addr uint8
-	if d.spi {
-		addr = reg | 0xC0
-	} else if n > 1 {
-		addr = reg | 0x80
-	} else {
-		addr = reg
+	// I2C needs bit 7 of the sub-address set for multi-byte auto-increment;
+	// on SPI the connection's readBit=0xC0 already ORs it in (idempotent).
+	if n > 1 {
+		reg |= 0x80
 	}
-	return d.connection.WriteRead([]byte{addr & 0xFF}, n)
+	return d.connection.ReadReg(uint32(reg), n)
 }
 
 // AngularRate reads angular rate on all three axes as a single burst transaction.
@@ -182,8 +168,8 @@ type L3G4200DFull struct {
 }
 
 // NewL3G4200DFull creates an L3G4200DFull and runs the chip init sequence.
-func NewL3G4200DFull(t connection.Connection, spi bool) (*L3G4200DFull, error) {
-	m, err := NewL3G4200DMinimal(t, spi)
+func NewL3G4200DFull(t connection.RegisterConnection) (*L3G4200DFull, error) {
+	m, err := NewL3G4200DMinimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +190,7 @@ func (d *L3G4200DFull) Configure(odr, bandwidth uint8, fullScale uint16) error {
 	d.bw = bandwidth & 0x3
 	d.fullScale = fullScale
 	ctrl1 := l3g4200dCtrlReg1Default | ((d.odr & 0x3) << 6) | ((d.bw & 0x3) << 4)
-	if err := d.writeReg(l3g4200dRegCtrlReg1, ctrl1); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{ctrl1}); err != nil {
 		return err
 	}
 	var fsBits uint8
@@ -216,7 +202,7 @@ func (d *L3G4200DFull) Configure(odr, bandwidth uint8, fullScale uint16) error {
 	default:
 		fsBits = 2
 	}
-	return d.writeReg(l3g4200dRegCtrlReg4, l3g4200dCtrlReg4Default|((fsBits&0x3)<<4))
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg4), []byte{l3g4200dCtrlReg4Default|((fsBits&0x3)<<4)})
 }
 
 // SetFullScale updates the full-scale range.
@@ -239,7 +225,7 @@ func (d *L3G4200DFull) SetFullScale(fullScale uint16) error {
 		return err
 	}
 	ctrl4 := (buf[0] & 0xCF) | ((fsBits & 0x3) << 4)
-	return d.writeReg(l3g4200dRegCtrlReg4, ctrl4)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg4), []byte{ctrl4})
 }
 
 // WHOAMI reads WHO_AM_I (0x0F). Returns 0xD3 for a genuine L3G4200D.
@@ -287,7 +273,7 @@ func (d *L3G4200DFull) PowerDown() error {
 	if err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegCtrlReg1, buf[0]&0xF7)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{buf[0]&0xF7})
 }
 
 // WakeUp wakes from power-down (PD=1); previously enabled axes restored.
@@ -296,12 +282,12 @@ func (d *L3G4200DFull) WakeUp() error {
 	if err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegCtrlReg1, buf[0]|0x08)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{buf[0]|0x08})
 }
 
 // Sleep enters sleep mode (PD=1, all axes disabled).
 func (d *L3G4200DFull) Sleep() error {
-	return d.writeReg(l3g4200dRegCtrlReg1, 0x08)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{0x08})
 }
 
 // EnableAxes enables or disables individual axes (Xen/Yen/Zen in CTRL_REG1).
@@ -320,7 +306,7 @@ func (d *L3G4200DFull) EnableAxes(x, y, z bool) error {
 	if x {
 		val |= 0x01
 	}
-	return d.writeReg(l3g4200dRegCtrlReg1, val)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg1), []byte{val})
 }
 
 // EnableFIFO configures and enables the FIFO.
@@ -335,10 +321,10 @@ func (d *L3G4200DFull) EnableFIFO(mode, watermark uint8) error {
 	if err != nil {
 		return err
 	}
-	if err := d.writeReg(l3g4200dRegCtrlReg5, buf[0]|0x40); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg5), []byte{buf[0]|0x40}); err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegFifoCtrl, ((mode&0x7)<<5)|(watermark&0x1F))
+	return d.connection.WriteReg(uint32(l3g4200dRegFifoCtrl), []byte{((mode&0x7)<<5)|(watermark&0x1F)})
 }
 
 // DisableFIFO disables the FIFO.
@@ -347,10 +333,10 @@ func (d *L3G4200DFull) DisableFIFO() error {
 	if err != nil {
 		return err
 	}
-	if err := d.writeReg(l3g4200dRegCtrlReg5, buf[0]&^0x40); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg5), []byte{buf[0]&^0x40}); err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegFifoCtrl, 0x00)
+	return d.connection.WriteReg(uint32(l3g4200dRegFifoCtrl), []byte{0x00})
 }
 
 // FIFOSamples reads FSS[4:0] from FIFO_SRC_REG (number of stored samples, 0-31).
@@ -390,14 +376,14 @@ func (d *L3G4200DFull) ReadFIFO() ([][3]float32, error) {
 
 // EnableHighpass enables the high-pass filter on the output path.
 func (d *L3G4200DFull) EnableHighpass(mode, cutoff uint8) error {
-	if err := d.writeReg(l3g4200dRegCtrlReg2, ((mode&0x3)<<4)|(cutoff&0x0F)); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegCtrlReg2), []byte{((mode&0x3)<<4)|(cutoff&0x0F)}); err != nil {
 		return err
 	}
 	buf, err := d.readRegBytes(l3g4200dRegCtrlReg5, 1)
 	if err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegCtrlReg5, buf[0]|0x10)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg5), []byte{buf[0]|0x10})
 }
 
 // DisableHighpass clears HPen in CTRL_REG5.
@@ -406,7 +392,7 @@ func (d *L3G4200DFull) DisableHighpass() error {
 	if err != nil {
 		return err
 	}
-	return d.writeReg(l3g4200dRegCtrlReg5, buf[0]&^0x10)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg5), []byte{buf[0]&^0x10})
 }
 
 // SetInterrupt configures INT1_CFG axis/direction events.
@@ -436,7 +422,7 @@ func (d *L3G4200DFull) SetInterrupt(xHigh, xLow, yHigh, yLow, zHigh, zLow, andMo
 	if xLow {
 		cfg |= 0x01
 	}
-	if err := d.writeReg(l3g4200dRegInt1Cfg, cfg); err != nil {
+	if err := d.connection.WriteReg(uint32(l3g4200dRegInt1Cfg), []byte{cfg}); err != nil {
 		return err
 	}
 	if cfg&0x3F != 0 {
@@ -444,7 +430,7 @@ func (d *L3G4200DFull) SetInterrupt(xHigh, xLow, yHigh, yLow, zHigh, zLow, andMo
 		if err != nil {
 			return err
 		}
-		return d.writeReg(l3g4200dRegCtrlReg3, buf[0]|0x80)
+		return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg3), []byte{buf[0]|0x80})
 	}
 	return nil
 }
@@ -468,10 +454,10 @@ func (d *L3G4200DFull) SetThreshold(axis byte, thresholdDps float32) error {
 	default:
 		return nil
 	}
-	if err := d.writeReg(hi, uint8((raw>>8)&0x7F)); err != nil {
+	if err := d.connection.WriteReg(uint32(hi), []byte{uint8((raw>>8)&0x7F)}); err != nil {
 		return err
 	}
-	return d.writeReg(lo, uint8(raw&0xFF))
+	return d.connection.WriteReg(uint32(lo), []byte{uint8(raw&0xFF)})
 }
 
 // SetDuration sets INT1_DURATION.
@@ -481,7 +467,7 @@ func (d *L3G4200DFull) SetDuration(samples uint8, wait bool) error {
 		val = 0x80
 	}
 	val |= samples & 0x7F
-	return d.writeReg(l3g4200dRegInt1Dur, val)
+	return d.connection.WriteReg(uint32(l3g4200dRegInt1Dur), []byte{val})
 }
 
 // ReadIntSource reads INT1_SRC; reading clears the interrupt-active bit.
@@ -505,5 +491,5 @@ func (d *L3G4200DFull) SetDataReadyPin(enable bool) error {
 	} else {
 		ctrl3 = buf[0] &^ 0x08
 	}
-	return d.writeReg(l3g4200dRegCtrlReg3, ctrl3)
+	return d.connection.WriteReg(uint32(l3g4200dRegCtrlReg3), []byte{ctrl3})
 }

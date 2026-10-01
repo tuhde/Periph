@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut gyro = L3g4200dMinimal::new(i2c, ADDR, false).expect("init L3G4200D"); // Create L3G4200D driver, (i2c, ADDR=0x68)
+    let mut gyro = L3g4200dMinimal::new(i2c, ADDR).expect("init L3G4200D"); // Create L3G4200D driver, (i2c, ADDR=0x68)
 
     for _ in 0..10 {
         let (x, y, z) = gyro.angular_rate().expect("angular_rate");                  // Read X/Y/Z angular rate, () → (f32, f32, f32) rad/s

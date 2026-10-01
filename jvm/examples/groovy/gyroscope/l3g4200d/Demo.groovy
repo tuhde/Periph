@@ -10,7 +10,7 @@ import it.uhde.periph.chips.gyroscope.L3g4200dFull
 def connection = new I2CConnection(1, 0x68)                      // open I²C bus 1, device 0x68
 try {
     // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
-    def gyro = new L3g4200dFull(connection, false)                 // construct driver, verifies chip ID, (connection, spi=false) → L3g4200dFull
+    def gyro = new L3g4200dFull(connection)                 // construct driver, verifies chip ID, (connection) → L3g4200dFull
     gyro.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS)  // configure chip, (odr, bandwidth, fullScale) → void
     gyro.enableHighpass(0, 4)                                      // enable high-pass, (mode=0, cutoff=4) → void
                                                                     // cutoff index 4 at 200 Hz ODR ≈ 1 Hz; strips DC drift

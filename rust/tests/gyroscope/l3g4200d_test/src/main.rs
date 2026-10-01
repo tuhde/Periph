@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro = L3g4200dMinimal::new(dev, addr, false).expect("init L3G4200D");
+    let mut gyro = L3g4200dMinimal::new(dev, addr).expect("init L3G4200D");
 
     let (x, y, z) = gyro.angular_rate().unwrap();
     check_true!(x.abs() < 50.0, "angular_rate_x_range", passed, failed);
@@ -29,7 +29,7 @@ fn main() {
     drop(gyro);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro_full = L3g4200dFull::new(dev, addr, false).expect("init L3G4200D Full");
+    let mut gyro_full = L3g4200dFull::new(dev, addr).expect("init L3G4200D Full");
     check_true!(gyro_full.who_am_i().unwrap_or(0) == 0xD3, "who_am_i", passed, failed);
 
     gyro_full.configure(ODR_200_HZ, 0, FS_500_DPS).unwrap();

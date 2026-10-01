@@ -29,7 +29,7 @@ fn main() -> ! {
             .unwrap()
             .with_sda(peripherals.GPIO1)
             .with_scl(peripherals.GPIO2);
-        let mut gyro = L3g4200dMinimal::new(i2c, ADDR, false).expect("init L3G4200D");
+        let mut gyro = L3g4200dMinimal::new(i2c, ADDR).expect("init L3G4200D");
         let (x, y, z) = gyro.angular_rate().unwrap();
         check_true!(x.abs() < 50.0, "angular_rate_x_range");
         check_true!(y.abs() < 50.0, "angular_rate_y_range");
@@ -40,7 +40,7 @@ fn main() -> ! {
         .unwrap()
         .with_sda(peripherals.GPIO3)
         .with_scl(peripherals.GPIO4);
-    let mut gyro_full = L3g4200dFull::new(i2c2, ADDR, false).expect("init L3G4200D Full");
+    let mut gyro_full = L3g4200dFull::new(i2c2, ADDR).expect("init L3G4200D Full");
     check_true!(gyro_full.who_am_i().unwrap_or(0) == 0xD3, "who_am_i");
 
     gyro_full.configure(ODR_200_HZ, 0, FS_500_DPS).unwrap();

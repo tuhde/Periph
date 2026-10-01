@@ -10,7 +10,7 @@ import it.uhde.periph.chips.gyroscope.L3g4200dMinimal;
 public class Minimal {
     public static void main(String[] args) throws Exception {
         try (var connection = new I2CConnection(1, 0x68)) {       // open I²C bus 1, device 0x68, (bus, address=0x68) → I2CConnection
-            var sensor = new L3g4200dMinimal(connection, false);    // construct driver, verifies chip ID, (connection, spi=false) → L3g4200dMinimal
+            var sensor = new L3g4200dMinimal(connection);    // construct driver, verifies chip ID, (connection) → L3g4200dMinimal
 
             for (int i = 0; i < 10; i++) {
                 float[] xyz = sensor.angularRate();                // read X/Y/Z angular rate, () → float[3] rad/s
