@@ -66,7 +66,7 @@ const (
 // Default: STANDARD mode (gas sensing active), polling only, no external
 // T/RH compensation.
 type ENS160Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 }
 
 // NewENS160Minimal creates a new ENS160Minimal, verifies PART_ID, and
@@ -74,10 +74,10 @@ type ENS160Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x52 default, 0x53 alternate).
-func NewENS160Minimal(t connection.Connection) (*ENS160Minimal, error) {
+func NewENS160Minimal(t connection.RegisterConnection) (*ENS160Minimal, error) {
 	d := &ENS160Minimal{connection: t}
 	// Force IDLE for a clean init state.
-	if err := d.writeReg(regOPMODE, opModeIdle); err != nil {
+	if err := d.connection.WriteReg(regOPMODE, []byte{opModeIdle}); err != nil {
 		return nil, err
 	}
 	time.Sleep(ens160StepDelay)
@@ -88,26 +88,18 @@ func NewENS160Minimal(t connection.Connection) (*ENS160Minimal, error) {
 	if part != partIDExpected {
 		return nil, fmt.Errorf("ENS160 PART_ID: expected 0x%04X, got 0x%04X", partIDExpected, part)
 	}
-	if err := d.writeReg(regOPMODE, opModeStandard); err != nil {
+	if err := d.connection.WriteReg(regOPMODE, []byte{opModeStandard}); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-func (d *ENS160Minimal) writeReg(reg, value byte) error {
-	return d.connection.Write([]byte{reg, value})
+func (d *ENS160Minimal) writeReg16LE(reg uint32, value uint16) error {
+	return d.connection.WriteReg(reg, []byte{byte(value & 0xFF), byte((value >> 8) & 0xFF)})
 }
 
-func (d *ENS160Minimal) writeReg16LE(reg byte, value uint16) error {
-	return d.connection.Write([]byte{reg, byte(value & 0xFF), byte((value >> 8) & 0xFF)})
-}
-
-func (d *ENS160Minimal) readReg(reg byte, n int) ([]byte, error) {
-	return d.connection.WriteRead([]byte{reg}, n)
-}
-
-func (d *ENS160Minimal) readReg16LE(reg byte) (uint16, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 2)
+func (d *ENS160Minimal) readReg16LE(reg uint32) (uint16, error) {
+	b, err := d.connection.ReadReg(reg, 2)
 	if err != nil {
 		return 0, err
 	}
@@ -115,7 +107,7 @@ func (d *ENS160Minimal) readReg16LE(reg byte) (uint16, error) {
 }
 
 func (d *ENS160Minimal) readDeviceStatus() (byte, error) {
-	b, err := d.readReg(regDeviceStatus, 1)
+	b, err := d.connection.ReadReg(regDeviceStatus, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -164,7 +156,7 @@ func (d *ENS160Minimal) ReadAirQuality() (int, float32, float32, error) {
 		return 0, 0, 0, fmt.Errorf("ENS160: data not valid (VALIDITY_FLAG=%d)", validity)
 	}
 	// Burst-read 5 bytes from 0x21: AQI, TVOC[0:2], eCO2[0:2].
-	b, err := d.readReg(regDataAQI, 5)
+	b, err := d.connection.ReadReg(regDataAQI, 5)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -187,7 +179,7 @@ type ENS160Full struct {
 
 // NewENS160Full creates a new ENS160Full with the same initialization as
 // NewENS160Minimal.
-func NewENS160Full(t connection.Connection) (*ENS160Full, error) {
+func NewENS160Full(t connection.RegisterConnection) (*ENS160Full, error) {
 	m, err := NewENS160Minimal(t)
 	if err != nil {
 		return nil, err
@@ -238,7 +230,7 @@ func (d *ENS160Full) ReadAQI() (int, error) {
 	if _, err := d.waitForNewData(); err != nil {
 		return 0, err
 	}
-	b, err := d.readReg(regDataAQI, 1)
+	b, err := d.connection.ReadReg(regDataAQI, 1)
 	if err != nil {
 		return 0, err
 	}
@@ -271,7 +263,7 @@ func (d *ENS160Full) ReadRawResistance(sensor int) (float32, error) {
 	default:
 		return 0, fmt.Errorf("ENS160 ReadRawResistance: sensor must be 1 or 4, got %d", sensor)
 	}
-	v, err := d.readReg16LE(byte(regGPR_READ + offset))
+	v, err := d.readReg16LE(uint32(regGPR_READ + offset))
 	if err != nil {
 		return 0, err
 	}
@@ -283,7 +275,7 @@ func (d *ENS160Full) ReadRawResistance(sensor int) (float32, error) {
 //
 // Returns (tempCelsius, rhPercent).
 func (d *ENS160Full) ReadCompensationActuals() (float32, float32, error) {
-	b, err := d.readReg(regDataT, 4)
+	b, err := d.connection.ReadReg(regDataT, 4)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -298,19 +290,19 @@ func (d *ENS160Full) ReadCompensationActuals() (float32, float32, error) {
 //
 // Returns (major, minor, release).
 func (d *ENS160Full) GetFirmwareVersion() (int, int, int, error) {
-	if err := d.writeReg(regOPMODE, opModeIdle); err != nil {
+	if err := d.connection.WriteReg(regOPMODE, []byte{opModeIdle}); err != nil {
 		return 0, 0, 0, err
 	}
 	time.Sleep(ens160StepDelay)
-	if err := d.writeReg(regCOMMAND, cmdAppVer); err != nil {
+	if err := d.connection.WriteReg(regCOMMAND, []byte{cmdAppVer}); err != nil {
 		return 0, 0, 0, err
 	}
 	time.Sleep(ens160StepDelay)
-	b, err := d.readReg(byte(regGPR_READ+4), 3)
+	b, err := d.connection.ReadReg(regGPR_READ+4, 3)
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	if err := d.writeReg(regOPMODE, opModeStandard); err != nil {
+	if err := d.connection.WriteReg(regOPMODE, []byte{opModeStandard}); err != nil {
 		return 0, 0, 0, err
 	}
 	return int(b[0]), int(b[1]), int(b[2]), nil
@@ -334,19 +326,19 @@ func (d *ENS160Full) ConfigureInterrupt(enabled, activeHigh, pushPull, onData, o
 	if activeHigh {
 		v |= 0x40
 	}
-	return d.writeReg(regCONFIG, v)
+	return d.connection.WriteReg(regCONFIG, []byte{v})
 }
 
 // Sleep puts the sensor into DEEP SLEEP for power saving.
 func (d *ENS160Full) Sleep() error {
-	return d.writeReg(regOPMODE, opModeDeepSleep)
+	return d.connection.WriteReg(regOPMODE, []byte{opModeDeepSleep})
 }
 
 // Wake returns the sensor to STANDARD gas-sensing mode.
 func (d *ENS160Full) Wake() error {
-	if err := d.writeReg(regOPMODE, opModeIdle); err != nil {
+	if err := d.connection.WriteReg(regOPMODE, []byte{opModeIdle}); err != nil {
 		return err
 	}
 	time.Sleep(ens160StepDelay)
-	return d.writeReg(regOPMODE, opModeStandard)
+	return d.connection.WriteReg(regOPMODE, []byte{opModeStandard})
 }

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -28,7 +28,7 @@ public class Ens160Full extends Ens160Minimal {
      * @param connection I²C or SPI connection bound to the device.
      * @throws IOException on I²C error or wrong PART_ID.
      */
-    public Ens160Full(Connection connection) throws IOException {
+    public Ens160Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -76,7 +76,7 @@ public class Ens160Full extends Ens160Minimal {
      */
     public int readAqi() throws IOException {
         waitForNewData(5000);
-        byte[] data = readReg(REG_DATA_AQI, 1);
+        byte[] data = connection.read(REG_DATA_AQI, 1);
         return data[0] & 0x07;
     }
 
@@ -119,7 +119,7 @@ public class Ens160Full extends Ens160Minimal {
      * @throws IOException on I²C error.
      */
     public double[] readCompensationActuals() throws IOException {
-        byte[] data = readReg(REG_DATA_T, 4);
+        byte[] data = connection.read(REG_DATA_T, 4);
         int tempRaw = (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
         int rhRaw = (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
         double tempCelsius = (tempRaw / 64.0) - 273.15;
@@ -137,15 +137,15 @@ public class Ens160Full extends Ens160Minimal {
      * @throws IOException on I²C error.
      */
     public int[] getFirmwareVersion() throws IOException {
-        writeReg(REG_OPMODE, OPMODE_IDLE);
+        connection.write(REG_OPMODE, new byte[]{(byte) OPMODE_IDLE});
         try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        writeReg(REG_COMMAND, 0x0E);
+        connection.write(REG_COMMAND, new byte[]{(byte) 0x0E});
         try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] data = readReg(REG_GPR_READ + 4, 3);
+        byte[] data = connection.read(REG_GPR_READ + 4, 3);
         int major = data[0] & 0xFF;
         int minor = data[1] & 0xFF;
         int release = data[2] & 0xFF;
-        writeReg(REG_OPMODE, OPMODE_STANDARD);
+        connection.write(REG_OPMODE, new byte[]{(byte) OPMODE_STANDARD});
         return new int[]{major, minor, release};
     }
 
@@ -166,7 +166,7 @@ public class Ens160Full extends Ens160Minimal {
         if (onGpr) config |= 0x08;
         if (pushPull) config |= 0x20;
         if (activeHigh) config |= 0x40;
-        writeReg(REG_CONFIG, config);
+        connection.write(REG_CONFIG, new byte[]{(byte) config});
     }
 
     /**
@@ -175,7 +175,7 @@ public class Ens160Full extends Ens160Minimal {
      * @throws IOException on I²C error.
      */
     public void sleep() throws IOException {
-        writeReg(REG_OPMODE, OPMODE_DEEP_SLEEP);
+        connection.write(REG_OPMODE, new byte[]{(byte) OPMODE_DEEP_SLEEP});
     }
 
     /**
@@ -184,8 +184,8 @@ public class Ens160Full extends Ens160Minimal {
      * @throws IOException on I²C error.
      */
     public void wake() throws IOException {
-        writeReg(REG_OPMODE, OPMODE_IDLE);
+        connection.write(REG_OPMODE, new byte[]{(byte) OPMODE_IDLE});
         try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        writeReg(REG_OPMODE, OPMODE_STANDARD);
+        connection.write(REG_OPMODE, new byte[]{(byte) OPMODE_STANDARD});
     }
 }

@@ -15,7 +15,7 @@ class ENS160Minimal:
         - No external T/RH compensation (device uses internal defaults)
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_PART_ID       = 0x00
@@ -45,28 +45,22 @@ class ENS160Minimal:
 
     def __init__(self, connection):
         self._connection = connection
-        self._write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
         time.sleep(0.001)
         part_id = self._read_reg_le16(self._REG_PART_ID)
         if part_id != self._PART_ID_EXPECTED:
             raise ValueError('ENS160 not found: expected PART_ID 0x0160, got 0x{:04X}'.format(part_id))
-        self._write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
-
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
 
     def _write_reg_le16(self, reg, value):
-        self._connection.write(bytes([reg, value & 0xFF, (value >> 8) & 0xFF]))
-
-    def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
+        self._connection.write_reg(reg, bytes([value & 0xFF, (value >> 8) & 0xFF]))
 
     def _read_reg_le16(self, reg):
-        data = self._read_reg(reg, 2)
+        data = self._connection.read_reg(reg, 2)
         return data[0] | (data[1] << 8)
 
     def _read_device_status(self):
-        data = self._read_reg(self._REG_DEVICE_STATUS, 1)
+        data = self._connection.read_reg(self._REG_DEVICE_STATUS, 1)
         return data[0]
 
     def _wait_for_new_data(self, timeout_ms=5000):
@@ -106,7 +100,7 @@ class ENS160Minimal:
         validity = (status >> 2) & 0x03
         if validity != 0:
             raise RuntimeError('ENS160: data not valid (VALIDITY_FLAG={})'.format(validity))
-        data = self._read_reg(self._REG_DATA_AQI, 5)
+        data = self._connection.read_reg(self._REG_DATA_AQI, 5)
         aqi = data[0] & 0x07
         tvoc_ppb = data[1] | (data[2] << 8)
         eco2_ppm = data[3] | (data[4] << 8)
@@ -121,7 +115,7 @@ class ENS160Full(ENS160Minimal):
     and sleep/wake control.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     VALIDITY_OK              = 0
@@ -172,7 +166,7 @@ class ENS160Full(ENS160Minimal):
             int: AQI value 1–5 (1=Excellent, 5=Unhealthy).
         """
         self._wait_for_new_data()
-        data = self._read_reg(self._REG_DATA_AQI, 1)
+        data = self._connection.read_reg(self._REG_DATA_AQI, 1)
         return data[0] & 0x07
 
     def read_ethanol(self):
@@ -202,7 +196,7 @@ class ENS160Full(ENS160Minimal):
             offset = 6
         else:
             raise ValueError('sensor must be 1 or 4, got {}'.format(sensor))
-        data = self._read_reg(self._REG_GPR_READ + offset, 2)
+        data = self._connection.read_reg(self._REG_GPR_READ + offset, 2)
         raw = data[0] | (data[1] << 8)
         return 2.0 ** (raw / 2048.0)
 
@@ -212,7 +206,7 @@ class ENS160Full(ENS160Minimal):
         Returns:
             dict: Keys ``temp_celsius`` (float) and ``rh_percent`` (float).
         """
-        data = self._read_reg(self._REG_DATA_T, 4)
+        data = self._connection.read_reg(self._REG_DATA_T, 4)
         temp_raw = data[0] | (data[1] << 8)
         rh_raw = data[2] | (data[3] << 8)
         temp_celsius = (temp_raw / 64.0) - 273.15
@@ -228,15 +222,15 @@ class ENS160Full(ENS160Minimal):
         Returns:
             tuple: (major, minor, release) as integers.
         """
-        self._write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
         time.sleep(0.001)
-        self._write_reg(self._REG_COMMAND, 0x0E)
+        self._connection.write_reg(self._REG_COMMAND, 0x0E)
         time.sleep(0.001)
-        data = self._read_reg(self._REG_GPR_READ + 4, 3)
+        data = self._connection.read_reg(self._REG_GPR_READ + 4, 3)
         major = data[0]
         minor = data[1]
         release = data[2]
-        self._write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
         return (major, minor, release)
 
     def configure_interrupt(self, enabled=True, active_high=False, push_pull=False, on_data=True, on_gpr=False):
@@ -260,14 +254,14 @@ class ENS160Full(ENS160Minimal):
             config |= 0x20
         if active_high:
             config |= 0x40
-        self._write_reg(self._REG_CONFIG, config)
+        self._connection.write_reg(self._REG_CONFIG, config)
 
     def sleep(self):
         """Enter DEEP SLEEP mode for power saving."""
-        self._write_reg(self._REG_OPMODE, self._OPMODE_DEEP_SLEEP)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_DEEP_SLEEP)
 
     def wake(self):
         """Wake from DEEP SLEEP and resume STANDARD gas sensing."""
-        self._write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_IDLE)
         time.sleep(0.001)
-        self._write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)
+        self._connection.write_reg(self._REG_OPMODE, self._OPMODE_STANDARD)

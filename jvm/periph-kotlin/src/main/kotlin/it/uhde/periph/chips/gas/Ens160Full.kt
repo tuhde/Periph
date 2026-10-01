@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -10,7 +10,7 @@ import java.io.IOException
  * raw sensor resistance, firmware version query, interrupt configuration,
  * and sleep/wake control.
  */
-class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
+class Ens160Full(connection: RegisterConnection) : Ens160Minimal(connection) {
 
     companion object {
         /** Validity flag: OK. */
@@ -63,7 +63,7 @@ class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
      */
     fun readAqi(): Int {
         waitForNewData(5000)
-        val data = readReg(REG_DATA_AQI, 1)
+        val data = connection.read(REG_DATA_AQI, 1)
         return data[0].toInt() and 0x07
     }
 
@@ -99,7 +99,7 @@ class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
      * @return DoubleArray: [tempCelsius, rhPercent].
      */
     fun readCompensationActuals(): DoubleArray {
-        val data = readReg(REG_DATA_T, 4)
+        val data = connection.read(REG_DATA_T, 4)
         val tempRaw = (data[0].toInt() and 0xFF) or ((data[1].toInt() and 0xFF) shl 8)
         val rhRaw = (data[2].toInt() and 0xFF) or ((data[3].toInt() and 0xFF) shl 8)
         val tempCelsius = (tempRaw / 64.0) - 273.15
@@ -116,15 +116,15 @@ class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
      * @return IntArray: [major, minor, release].
      */
     fun getFirmwareVersion(): IntArray {
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_IDLE).toByte()))
         Thread.sleep(1)
-        writeReg(REG_COMMAND, 0x0E)
+        connection.write(REG_COMMAND, byteArrayOf((0x0E).toByte()))
         Thread.sleep(1)
-        val data = readReg(REG_GPR_READ + 4, 3)
+        val data = connection.read(REG_GPR_READ + 4, 3)
         val major = data[0].toInt() and 0xFF
         val minor = data[1].toInt() and 0xFF
         val release = data[2].toInt() and 0xFF
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_STANDARD).toByte()))
         return intArrayOf(major, minor, release)
     }
 
@@ -144,22 +144,22 @@ class Ens160Full(connection: Connection) : Ens160Minimal(connection) {
         if (onGpr) config = config or 0x08
         if (pushPull) config = config or 0x20
         if (activeHigh) config = config or 0x40
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, byteArrayOf((config).toByte()))
     }
 
     /**
      * Enter DEEP SLEEP mode for power saving.
      */
     fun sleep() {
-        writeReg(REG_OPMODE, OPMODE_DEEP_SLEEP)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_DEEP_SLEEP).toByte()))
     }
 
     /**
      * Wake from DEEP SLEEP and resume STANDARD gas sensing.
      */
     fun wake() {
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_IDLE).toByte()))
         Thread.sleep(1)
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_STANDARD).toByte()))
     }
 }

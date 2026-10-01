@@ -48,7 +48,7 @@ function _delay(ms) {
  * absent device" deterministically should call an async method (e.g.
  * `await sensor.status()`) right after construction and handle its rejection.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class ENS160Minimal {
     constructor(connection) {
@@ -57,34 +57,26 @@ class ENS160Minimal {
     }
 
     async _init() {
-        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
         const partId = await this._readRegLE16(_REG_PART_ID);
         if (partId !== _PART_ID_EXPECTED) {
             throw new Error('ENS160 not found: expected PART_ID 0x0160, got 0x' + partId.toString(16).padStart(4, '0'));
         }
-        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
-    }
-
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_STANDARD);
     }
 
     async _writeRegLE16(reg, value) {
-        await this._conn.write(Buffer.from([reg, value & 0xFF, (value >> 8) & 0xFF]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
+        await this._conn.writeReg(reg, Buffer.from([value & 0xFF, (value >> 8) & 0xFF]));
     }
 
     async _readRegLE16(reg) {
-        const data = await this._readReg(reg, 2);
+        const data = await this._conn.readReg(reg, 2);
         return data[0] | (data[1] << 8);
     }
 
     async _readDeviceStatus() {
-        const data = await this._readReg(_REG_DEVICE_STATUS, 1);
+        const data = await this._conn.readReg(_REG_DEVICE_STATUS, 1);
         return data[0];
     }
 
@@ -127,7 +119,7 @@ class ENS160Minimal {
         if (validity !== 0) {
             throw new Error('ENS160: data not valid (VALIDITY_FLAG=' + validity + ')');
         }
-        const data = await this._readReg(_REG_DATA_AQI, 5);
+        const data = await this._conn.readReg(_REG_DATA_AQI, 5);
         const aqi = data[0] & 0x07;
         const tvocPpb = data[1] | (data[2] << 8);
         const eco2Ppm = data[3] | (data[4] << 8);
@@ -142,7 +134,7 @@ class ENS160Minimal {
  * raw sensor resistance, firmware version query, interrupt configuration,
  * and sleep/wake control.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class ENS160Full extends ENS160Minimal {
     static VALIDITY_OK              = 0;
@@ -191,7 +183,7 @@ class ENS160Full extends ENS160Minimal {
      */
     async readAqi() {
         await this._waitForNewData();
-        const data = await this._readReg(_REG_DATA_AQI, 1);
+        const data = await this._conn.readReg(_REG_DATA_AQI, 1);
         return data[0] & 0x07;
     }
 
@@ -228,7 +220,7 @@ class ENS160Full extends ENS160Minimal {
      * @returns {Promise<object>} Keys: tempCelsius (number), rhPercent (number).
      */
     async readCompensationActuals() {
-        const data = await this._readReg(_REG_DATA_T, 4);
+        const data = await this._conn.readReg(_REG_DATA_T, 4);
         const tempRaw = data[0] | (data[1] << 8);
         const rhRaw = data[2] | (data[3] << 8);
         const tempCelsius = (tempRaw / 64.0) - 273.15;
@@ -245,15 +237,15 @@ class ENS160Full extends ENS160Minimal {
      * @returns {Promise<object>} Keys: major (number), minor (number), release (number).
      */
     async getFirmwareVersion() {
-        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
-        await this._writeReg(_REG_COMMAND, 0x0E);
+        await this._conn.writeReg(_REG_COMMAND, 0x0E);
         _delay(1);
-        const data = await this._readReg(_REG_GPR_READ + 4, 3);
+        const data = await this._conn.readReg(_REG_GPR_READ + 4, 3);
         const major = data[0];
         const minor = data[1];
         const release = data[2];
-        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_STANDARD);
         return { major, minor, release };
     }
 
@@ -273,7 +265,7 @@ class ENS160Full extends ENS160Minimal {
         if (onGpr) config |= 0x08;
         if (pushPull) config |= 0x20;
         if (activeHigh) config |= 0x40;
-        await this._writeReg(_REG_CONFIG, config);
+        await this._conn.writeReg(_REG_CONFIG, config);
     }
 
     /**
@@ -281,7 +273,7 @@ class ENS160Full extends ENS160Minimal {
      * @returns {Promise<void>}
      */
     async sleep() {
-        await this._writeReg(_REG_OPMODE, _OPMODE_DEEP_SLEEP);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_DEEP_SLEEP);
     }
 
     /**
@@ -289,9 +281,9 @@ class ENS160Full extends ENS160Minimal {
      * @returns {Promise<void>}
      */
     async wake() {
-        await this._writeReg(_REG_OPMODE, _OPMODE_IDLE);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_IDLE);
         _delay(1);
-        await this._writeReg(_REG_OPMODE, _OPMODE_STANDARD);
+        await this._conn.writeReg(_REG_OPMODE, _OPMODE_STANDARD);
     }
 }
 
