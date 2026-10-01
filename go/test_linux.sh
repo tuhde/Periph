@@ -148,6 +148,30 @@ detect_level() {
     fi
 }
 
+# check_bus_access: hard-fail with a clear message when the I2C bus device
+# node is missing or not readable/writable by the current user, instead of
+# letting the test crash with an exception from the bus layer.
+check_bus_access() {
+    local dev="/dev/i2c-$I2C_BUS"
+    if [ ! -e "$dev" ]; then
+        echo "ERROR: I2C bus device $dev does not exist." >&2
+        echo "       Load the i2c-dev kernel module (sudo modprobe i2c-dev), enable I2C, or set I2C_BUS to another bus." >&2
+        exit 1
+    fi
+    if [ ! -r "$dev" ] || [ ! -w "$dev" ]; then
+        echo "ERROR: no read/write permission on $dev (user $(id -un))." >&2
+        echo "       Add the user to the i2c group (sudo usermod -aG i2c $(id -un), then re-login) or fix the udev rule." >&2
+        exit 1
+    fi
+}
+
+# uses_i2c PATH...: 0 (true) if any given test file/dir mentions I2C. SPI,
+# NeoPixel, GPIO and UART chips have no I2C address or bus, so the address
+# and bus checks must be skipped for them.
+uses_i2c() {
+    grep -rqi "i2c" "$@" 2>/dev/null
+}
+
 # --- unit level: mocked, no hardware, no testconfig needed ------------------
 run_unit() {
     echo "=== [unit] Running $TARGET (mocked, no hardware) ==="
@@ -156,7 +180,10 @@ run_unit() {
 
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
-    resolve_addr
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_dir="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
     if [ ! -d "$test_dir" ]; then
         echo "Error: test not found: $test_dir" >&2; exit 2
@@ -173,12 +200,15 @@ run_hil() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [hil] Running on /dev/i2c-$I2C_BUS ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" "$bin"
+    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" "$bin"
 }
 
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
-    resolve_addr
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_dir="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
     if [ ! -d "$test_dir" ]; then
         echo "Error: test not found: $test_dir" >&2; exit 2
@@ -201,7 +231,7 @@ run_conformance() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [conformance] Running via $checker ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" \
         SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
         python3 "$checker" --lang go --binary "$bin"
 }

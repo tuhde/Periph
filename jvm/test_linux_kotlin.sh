@@ -148,6 +148,30 @@ detect_level() {
     fi
 }
 
+# check_bus_access: hard-fail with a clear message when the I2C/SPI device
+# node is missing or not readable/writable by the current user, instead of
+# letting the test crash with an exception from the bus layer.
+check_bus_access() {
+    local dev group hint
+    if [ "$TRANSPORT" = "i2c" ]; then
+        dev="/dev/i2c-$I2C_BUS"; group="i2c"
+        hint="Load the i2c-dev kernel module (sudo modprobe i2c-dev), enable I2C, or set I2C_BUS to another bus."
+    else
+        dev="/dev/spidev$SPI_BUS.$SPI_DEVICE"; group="spi"
+        hint="Enable SPI (e.g. dtparam=spi=on) or set SPI_BUS/SPI_DEVICE to another device."
+    fi
+    if [ ! -e "$dev" ]; then
+        echo "ERROR: bus device $dev does not exist." >&2
+        echo "       $hint" >&2
+        exit 1
+    fi
+    if [ ! -r "$dev" ] || [ ! -w "$dev" ]; then
+        echo "ERROR: no read/write permission on $dev (user $(id -un))." >&2
+        echo "       Add the user to the $group group (sudo usermod -aG $group $(id -un), then re-login) or fix the udev rule." >&2
+        exit 1
+    fi
+}
+
 # --- unit level: mocked, no hardware, no testconfig needed ------------------
 run_unit() {
     echo "=== [unit] Running $TARGET (mocked, no hardware) ==="
@@ -162,6 +186,7 @@ find_test_file() {
 
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
+    check_bus_access
     local test_file
     test_file=$(find_test_file)
     if [ -z "$test_file" ]; then
@@ -179,6 +204,7 @@ run_hil() {
 
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
+    check_bus_access
     local checker="$SCRIPT_DIR/../conformance/$CATEGORY/${CHIP}_conformance.py"
     if [ ! -f "$checker" ]; then
         echo "ERROR: conformance checker not found: $checker" >&2
