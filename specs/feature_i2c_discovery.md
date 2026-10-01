@@ -327,11 +327,11 @@ A single 24AA02UID answers on `0x50`–`0x57`, so `scan()` will report **eight**
 
 `discover()` merges an alias block: if **every** address of the block ACKs, the aliased chip is present — no other device can share those addresses with it, so other registry chips that also list some of them (the ENS160 at `0x52`/`0x53`) are ruled out. The block becomes one `DiscoveredDevice` at the lowest address with `aliases=[…]` listing the rest and `candidates=[<chip id>]`. If only part of the block ACKs, the addresses are classified individually like any others (and the ENS160 / 24AA02UID overlap is then an ordinary ambiguity).
 
-**Known limitation — 24AA025UID.** The sibling 24AA025UID *does* use A2:A0 and offers eight choosable addresses (`0x50`–`0x57`), so up to eight of them can share a bus. It is not in the registry. A bus that has a 24AA025UID at every address of the block looks identical to one 24AA02UID, and `discover()` will report the merged 24AA02UID. Neither chip has an identity register, so this cannot be resolved by probing. Partial occupancy (some of the eight addresses answering) is reported per address as usual.
+**24AA025UID look-alike.** The sibling 24AA025UID *does* use A2:A0 and offers eight choosable addresses (`0x50`–`0x57`), so up to eight can share a bus; a full house looks identical to one 24AA02UID. The registry therefore has a driverless `24aa025uid` entry (`0x50..0x57`, not aliased, no identity register), and a merged alias block lists **every non-aliased chip that covers all of the block's addresses** as a candidate: `candidates=["24aa025uid","24aa02uid"]`. Neither chip has an identity register, so the ambiguity is final. Partial occupancy is reported per address, where both chips are candidates as well.
 
 `validate.js` rejects an `aliased` chip whose `addresses` are not a contiguous block.
 
-The 24AA02UID entry is `addresses: ["0x50..0x57"]`, `aliased: true`. This overrides the chip spec's "use `0x50` as the canonical address", which is a driver-construction convention and does not describe what answers on the bus.
+The 24AA02UID entry is `addresses: ["0x50..0x57"]`, `aliased: true`; the 24AA025UID entry is the same range without `aliased`. This overrides the chip spec's "use `0x50` as the canonical address", which is a driver-construction convention and does not describe what answers on the bus.
 
 ---
 
@@ -368,7 +368,7 @@ The full `chips.json` is produced by implementation, one entry per I²C-capable 
 | VL53L1X | `0x29` | `0x010F` | 2 | 2 / big | `0xFFFF` | `0xEACC` |
 | HMC5883L | `0x1E` | `0x0A` | 1 | 3 / big | `0xFFFFFF` | `0x483433` |
 
-ID-less chips (`id_probe: null`): AS5600, DS3231, PCF8523, INA219, MPR121, AHT21, ADE7953, PCF8574/8574A/8575/8576, PCF8591, MCP4725/4728, MCP23017, DRV8830, RDA5807M, 24AA02UID (`aliased`, `0x50..0x57`), NEO-6.
+ID-less chips (`id_probe: null`): AS5600, 24AA025UID (driverless), DS3231, PCF8523, INA219, MPR121, AHT21, ADE7953, PCF8574/8574A/8575/8576, PCF8591, MCP4725/4728, MCP23017, DRV8830, RDA5807M, 24AA02UID (`aliased`, `0x50..0x57`), NEO-6.
 
 Notes:
 
@@ -466,5 +466,5 @@ Deviations and details settled while implementing (the spec text above has been 
 - **Rust.** `embedded-hal` folds `EBUSY` into `ErrorKind::Bus` and `EREMOTEIO` into `Other`, so `default_classify` recognises them from the error's `Debug` text (Linux, `linux-embedded-hal`); other HALs pass their own classifier to `scan_detailed_with`. A quick-write that fails with anything but a NACK is retried as a read byte, which stands in for the capability check Rust cannot do generically. The module needs the `std` feature.
 - **Go.** `registry.go` carries no build tag (only `bus_linux.go` does) so the algorithm is testable anywhere.
 - **`probe_skipped_reason`** is only set when a probe was actually skipped: kernel-bound addresses always; write-sensitive only if some candidate has an identity register (§5.1 step 4).
-- **Alias merge** requires only that every address of the block ACKs (§7.5); chips that merely share some of those addresses (ENS160 at `0x52`/`0x53`) are ruled out by the merge.
+- **Alias merge** requires only that every address of the block ACKs (§7.5); chips that merely share some of those addresses (ENS160 at `0x52`/`0x53`) are ruled out by the merge, while chips covering the whole block (24AA025UID) stay as candidates.
 - **Not exercised:** hardware-in-the-loop (no bus attached here); Pico SDK, Zephyr, ESP-IDF and Arduino builds (the new C++ files are guarded and outside those builds' source globs, but that was reasoned, not compiled).

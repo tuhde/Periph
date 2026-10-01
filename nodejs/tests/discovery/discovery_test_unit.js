@@ -172,7 +172,7 @@ async function main() {
 
     // --- aliased 24AA02UID ---
     let list = await discover(new FakeBus(addrs([0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57])));
-    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa02uid'])
+    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid'])
         && same(list[0].aliases, [0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57]));
     list = await discover(new FakeBus(addrs([0x50, 0x51])));
     checkTrue('partial_alias_reported_individually', same(list.map(x => x.address), [0x50, 0x51]) && list.every(x => x.aliases.length === 0));

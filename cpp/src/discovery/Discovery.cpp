@@ -201,7 +201,20 @@ std::vector<DiscoveredDevice> discover(Bus& bus, const ChipEntry* registry, size
         if (!all) continue;
         DiscoveredDevice dev;
         dev.address = c.addresses[0];
-        dev.candidates = {c.id};
+        // A full block also fits any non-aliased chip that lists every address (24AA025UID).
+        std::vector<const ChipEntry*> block = {&c};
+        for (size_t k = 0; k < count; k++) {
+            const ChipEntry& o = registry[k];
+            if (&o == &c || o.aliased) continue;
+            bool coversAll = true;
+            for (size_t j = 0; j < c.nAddresses; j++) {
+                bool found = false;
+                for (size_t m = 0; m < o.nAddresses; m++) found = found || o.addresses[m] == c.addresses[j];
+                coversAll = coversAll && found;
+            }
+            if (coversAll) block.push_back(&o);
+        }
+        dev.candidates = sortedIds(block);
         dev.inUseByKernel = busy;
         for (size_t j = 1; j < c.nAddresses; j++) dev.aliases.push_back(c.addresses[j]);
         devices.push_back(dev);

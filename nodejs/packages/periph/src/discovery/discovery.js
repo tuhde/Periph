@@ -196,8 +196,10 @@ async function discover(bus, { active = false, registry = CHIPS } = {}) {
         for (const chip of registry) {
             if (!chip.aliased) continue;
             if (chip.addresses.every(a => present.has(a))) {
+                // A full block also fits any non-aliased chip that lists every address (24AA025UID).
+                const twins = registry.filter(o => o !== chip && !o.aliased && chip.addresses.every(a => o.addresses.includes(a)));
                 devices.push(device(chip.addresses[0], {
-                    candidates: [chip.id],
+                    candidates: sortedIds([chip, ...twins]),
                     inUseByKernel: chip.addresses.some(a => present.get(a)),
                     aliases: chip.addresses.slice(1),
                 }));

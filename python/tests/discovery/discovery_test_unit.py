@@ -181,7 +181,7 @@ check_true('failed_read_is_no_match', d.identified is None and d.candidates == [
 # --- aliased 24AA02UID ---
 bus = FakeBus({a: {} for a in range(0x50, 0x58)})
 devs = discover(bus)
-check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa02uid']
+check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa025uid', '24aa02uid']
            and devs[0].aliases == list(range(0x51, 0x58)))
 bus = FakeBus({0x50: {}, 0x51: {}})
 devs = discover(bus)

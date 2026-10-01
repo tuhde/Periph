@@ -213,7 +213,14 @@ public final class Discovery {
             if (Arrays.stream(chip.addresses()).allMatch(present::containsKey)) {
                 boolean busy = Arrays.stream(chip.addresses()).anyMatch(present::get);
                 List<Integer> aliases = Arrays.stream(chip.addresses()).skip(1).boxed().toList();
-                devices.add(device(chip.addresses()[0], List.of(chip.id()), null, null, busy, null, aliases));
+                // A full block also fits any non-aliased chip that lists every address (24AA025UID).
+                List<DiscoveryRegistry.Chip> block = new ArrayList<>(List.of(chip));
+                for (var o : registry) {
+                    if (o != chip && !o.aliased() && Arrays.stream(chip.addresses()).allMatch(a -> Arrays.stream(o.addresses()).anyMatch(x -> x == a))) {
+                        block.add(o);
+                    }
+                }
+                devices.add(device(chip.addresses()[0], sortedIds(block), null, null, busy, null, aliases));
                 for (int a : chip.addresses()) merged.add(a);
             }
         }

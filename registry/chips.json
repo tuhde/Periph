@@ -402,6 +402,17 @@
       "datasheet": "datasheets/memory/24aa02uid.pdf"
     },
     {
+      "id": "24aa025uid",
+      "name": "24AA025UID",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "datasheet": "datasheets/memory/24aa02uid.pdf"
+    },
+    {
       "id": "drv8830",
       "name": "DRV8830",
       "category": "motor",

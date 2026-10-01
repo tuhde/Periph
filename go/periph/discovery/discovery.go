@@ -147,6 +147,20 @@ func sortedIDs(chips []*Chip) []string {
 	return ids
 }
 
+// coversAll reports whether have contains every address in want.
+func coversAll(have, want []uint8) bool {
+	set := map[uint8]bool{}
+	for _, a := range have {
+		set[a] = true
+	}
+	for _, a := range want {
+		if !set[a] {
+			return false
+		}
+	}
+	return true
+}
+
 func contains(list []uint32, v uint32) bool {
 	for _, x := range list {
 		if x == v {
@@ -239,8 +253,16 @@ func DiscoverBus(b Bus, registry []Chip, active bool) ([]Device, error) {
 			busy = busy || inUse
 		}
 		if all {
+			// A full block also fits any non-aliased chip that lists every address (24AA025UID).
+			block := []*Chip{c}
+			for j := range registry {
+				o := &registry[j]
+				if o != c && !o.Aliased && coversAll(o.Addresses, c.Addresses) {
+					block = append(block, o)
+				}
+			}
 			devices = append(devices, Device{
-				Address: c.Addresses[0], Candidates: []string{c.ID}, InUseByKernel: busy,
+				Address: c.Addresses[0], Candidates: sortedIDs(block), InUseByKernel: busy,
 				Aliases: append([]uint8(nil), c.Addresses[1:]...),
 			})
 			for _, a := range c.Addresses {

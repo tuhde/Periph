@@ -195,8 +195,10 @@ def discover(bus, registry=None, active=False):
                 continue
             addrs = chip['addresses']
             if all(a in present for a in addrs):
+                # A full block also fits any non-aliased chip that lists every address (24AA025UID).
+                twins = [o['id'] for o in chips if o is not chip and not o['aliased'] and set(addrs) <= set(o['addresses'])]
                 devices.append(DiscoveredDevice(
-                    addrs[0], [chip['id']], in_use_by_kernel=any(present[a] for a in addrs),
+                    addrs[0], sorted([chip['id']] + twins), in_use_by_kernel=any(present[a] for a in addrs),
                     aliases=list(addrs[1:])))
                 merged.update(addrs)
 

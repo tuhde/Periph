@@ -289,7 +289,14 @@ where
     for chip in registry.iter().filter(|c| c.aliased) {
         if chip.addresses.iter().all(|a| present.contains_key(a)) {
             let mut dev = DiscoveredDevice::new(chip.addresses[0]);
-            dev.candidates = vec![chip.id];
+            // A full block also fits any non-aliased chip that lists every address (24AA025UID).
+            let twins: Vec<&ChipEntry> = registry
+                .iter()
+                .filter(|o| o.id != chip.id && !o.aliased && chip.addresses.iter().all(|a| o.addresses.contains(a)))
+                .collect();
+            let mut block = vec![chip];
+            block.extend(twins);
+            dev.candidates = sorted_ids(&block);
             dev.in_use_by_kernel = chip.addresses.iter().any(|a| present[a]);
             dev.aliases = chip.addresses[1..].to_vec();
             devices.push(dev);

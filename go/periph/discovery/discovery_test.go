@@ -289,7 +289,7 @@ func TestAliasedBlockMergedOnlyWhenComplete(t *testing.T) {
 		all[a] = map[uint32]byte{}
 	}
 	got, _ := DiscoverBus(newBus(all), registry, false)
-	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa02uid"}) ||
+	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid"}) ||
 		!reflect.DeepEqual(got[0].Aliases, []uint8{0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}) {
 		t.Errorf("merged: %+v", got)
 	}

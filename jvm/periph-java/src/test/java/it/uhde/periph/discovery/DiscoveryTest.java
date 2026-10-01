@@ -206,7 +206,7 @@ class DiscoveryTest {
         var devs = Discovery.discover(bus, DiscoveryRegistry.CHIPS, false);
         assertEquals(1, devs.size());
         assertEquals(0x50, devs.get(0).address());
-        assertEquals(List.of("24aa02uid"), devs.get(0).candidates());
+        assertEquals(List.of("24aa025uid", "24aa02uid"), devs.get(0).candidates());
         assertEquals(List.of(0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57), devs.get(0).aliases());
         devs = Discovery.discover(new FakeBus().with(0x50).with(0x51), DiscoveryRegistry.CHIPS, false);
         assertEquals(List.of(0x50, 0x51), devs.stream().map(DiscoveredDevice::address).toList());

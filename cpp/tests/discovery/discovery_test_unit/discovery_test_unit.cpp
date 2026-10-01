@@ -191,7 +191,7 @@ int main() {
         FakeBus bus;
         for (uint8_t a = 0x50; a <= 0x57; a++) bus.with(a);
         std::vector<DiscoveredDevice> devs = discover(bus);
-        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa02uid"}) &&
+        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid"}) &&
                    devs[0].aliases == std::vector<uint8_t>({0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}), "alias_block_merged");
         FakeBus partial; partial.with(0x50).with(0x51);
         devs = discover(partial);

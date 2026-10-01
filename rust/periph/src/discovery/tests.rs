@@ -252,7 +252,7 @@ fn aliased_24aa02uid_block_is_merged_only_when_complete() {
     let all: Vec<(u8, &[(u32, u8)])> = (0x50u8..=0x57).map(|a| (a, &[][..])).collect();
     let devs = discover(&mut FakeI2c::with(&all), false).unwrap();
     assert_eq!(devs.len(), 1);
-    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa02uid"]));
+    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa025uid", "24aa02uid"]));
     assert_eq!(devs[0].aliases, (0x51u8..=0x57).collect::<Vec<_>>());
     let devs = discover(&mut FakeI2c::with(&[(0x50, &[]), (0x51, &[])]), false).unwrap();
     assert_eq!(devs.iter().map(|d| d.address).collect::<Vec<_>>(), vec![0x50, 0x51]);
