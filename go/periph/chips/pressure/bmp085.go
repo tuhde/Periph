@@ -57,7 +57,7 @@ const Bmp085Addr uint8 = 0x77
 //
 // Default oversampling setting (OSS): 0 (ultra-low-power).
 type Bmp085Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 
 	// Calibration coefficients (signed/unsigned per the datasheet).
 	ac1, ac2, ac3 int32
@@ -73,7 +73,7 @@ type Bmp085Minimal struct {
 // loads the calibration coefficients.
 //
 // connection must be a configured I²C connection bound to address 0x77.
-func NewBmp085Minimal(t connection.Connection) (*Bmp085Minimal, error) {
+func NewBmp085Minimal(t connection.RegisterConnection) (*Bmp085Minimal, error) {
 	d := &Bmp085Minimal{connection: t, oss: 0}
 
 	id, err := d.readReg8(bmp085RegID)
@@ -91,7 +91,7 @@ func NewBmp085Minimal(t connection.Connection) (*Bmp085Minimal, error) {
 
 // readReg8 reads a single byte from the given register.
 func (d *Bmp085Minimal) readReg8(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -100,7 +100,7 @@ func (d *Bmp085Minimal) readReg8(reg uint8) (uint8, error) {
 
 // readReg16 reads a 16-bit big-endian value from the given register.
 func (d *Bmp085Minimal) readReg16(reg uint8) (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -109,13 +109,13 @@ func (d *Bmp085Minimal) readReg16(reg uint8) (uint16, error) {
 
 // writeReg8 writes a single byte to the given register.
 func (d *Bmp085Minimal) writeReg8(reg uint8, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
+	return d.connection.WriteReg(uint32(reg), []byte{val})
 }
 
 // readCalibration reads and unpacks the 22-byte calibration block from EEPROM
 // (0xAA-0xBF) and sanity-checks that no coefficient is 0x0000 or 0xFFFF.
 func (d *Bmp085Minimal) readCalibration() error {
-	buf, err := d.connection.WriteRead([]byte{bmp085RegCalStart}, 22)
+	buf, err := d.connection.ReadReg(uint32(bmp085RegCalStart), 22)
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,7 @@ func (d *Bmp085Minimal) readRawPressure() (int32, error) {
 	}
 	time.Sleep(time.Duration(convUs) * time.Microsecond)
 
-	buf, err := d.connection.WriteRead([]byte{bmp085RegOutMsb}, 3)
+	buf, err := d.connection.ReadReg(uint32(bmp085RegOutMsb), 3)
 	if err != nil {
 		return 0, err
 	}
@@ -255,7 +255,7 @@ type Bmp085Full struct {
 
 // NewBmp085Full creates a new Bmp085Full, verifies the chip ID, and loads
 // the calibration coefficients.
-func NewBmp085Full(t connection.Connection) (*Bmp085Full, error) {
+func NewBmp085Full(t connection.RegisterConnection) (*Bmp085Full, error) {
 	m, err := NewBmp085Minimal(t)
 	if err != nil {
 		return nil, err
