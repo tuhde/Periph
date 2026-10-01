@@ -87,6 +87,11 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
 
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
+
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
 
@@ -94,25 +99,32 @@ class Decoder(srd.Decoder):
         if self.ss_block is None or self.reg_ptr is None:
             return
         if self.reg_ptr not in REGS:
-            self.put(self.ss_block, self.ss_block, ANN_WARNING,
+            self._ann(self.ss_block, self.ss_block, ANN_WARNING,
                      ['Unknown register 0x%02X' % self.reg_ptr])
             self.ss_block = None
             self.reg_ptr  = None
             self.databuf  = []
             return
         name = REGS[self.reg_ptr]
+        if not self.databuf:
+            self._ann(self.ss_block, self.es, ANN_REG_WRITE,
+                      ['Pointer \u2192 %s (0x%02X)' % (name, self.reg_ptr),
+                       'PTR %s' % name, 'PTR'])
+            self.ss_block = None
+            self.reg_ptr  = None
+            return
         if self.is_read:
             payload = self._decode_value(self.reg_ptr, self.databuf)
             label = '%s read: %s' % (name, payload[0])
             short = '%s=%s' % (name, payload[1])
-            self.put(self.ss_block, self.ss_block, ANN_REG_READ,
-                     [label, short] + payload[2:])
+            self._ann(self.ss_block, self.ss_block, ANN_REG_READ,
+                     [label, short] + list(payload[2:]))
         else:
             payload = self._decode_value(self.reg_ptr, self.databuf)
             label = '%s write: %s' % (name, payload[0])
             short = '%s=%s' % (name, payload[1])
-            self.put(self.ss_block, self.ss_block, ANN_REG_WRITE,
-                     [label, short] + payload[2:])
+            self._ann(self.ss_block, self.ss_block, ANN_REG_WRITE,
+                     [label, short] + list(payload[2:]))
         self.ss_block = None
         self.reg_ptr  = None
         self.databuf  = []

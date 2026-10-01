@@ -198,6 +198,11 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
 
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
+
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
 
@@ -215,7 +220,7 @@ class Decoder(srd.Decoder):
             if pdata != 0x00:
                 # ADXL362 requires CS=low → CS=high to be address 0.
                 # Any other first byte on a normal bus is unexpected.
-                self.put(ss, es, ANN_WARN, ['Unexpected address byte 0x%02X' % pdata])
+                self._ann(ss, es, ANN_WARN, ['Unexpected address byte 0x%02X' % pdata])
                 self.state = 'IDLE'
                 return
             self.state = 'GET_CMD'
@@ -230,7 +235,7 @@ class Decoder(srd.Decoder):
                 elif pdata == CMD_READ_FIFO:
                     self.state = 'GET_FIFO_DATA'
                 else:
-                    self.put(ss, es, ANN_INSTR, ['UNKNOWN 0x%02X' % pdata, '?0x%02X' % pdata, '?'])
+                    self._ann(ss, es, ANN_INSTR, ['UNKNOWN 0x%02X' % pdata, '?0x%02X' % pdata, '?'])
                     self.state = 'IDLE'
             elif self.state == 'GET_REG_PTR':
                 self.addr = pdata & 0x3F
@@ -278,18 +283,18 @@ class Decoder(srd.Decoder):
         regname = REGS.get(addr, '0x%02X' % addr)
         data = self.databuf
         if addr == 0x1F and len(data) >= 1 and data[0] == SOFT_RESET_KEY:
-            self.put(ss, es, ANN_INSTR, ['SOFT_RESET (0x52)', 'SOFT_RESET', 'SR'])
-            self.put(ss, es, ANN_REG_WRITE,
+            self._ann(ss, es, ANN_INSTR, ['SOFT_RESET (0x52)', 'SOFT_RESET', 'SR'])
+            self._ann(ss, es, ANN_REG_WRITE,
                      ['SOFT_RESET ← 0x52',
                       'SOFT_RESET ← 0x52',
                       'SR←52'])
             return
         if not data:
-            self.put(ss, es, ANN_REG_WRITE, ['%s ←' % regname, regname, regname])
+            self._ann(ss, es, ANN_REG_WRITE, ['%s ←' % regname, regname, regname])
             return
         value = data[0]
-        self.put(ss, es, ANN_INSTR, ['WRITE 0x%02X' % addr, 'W', 'W'])
-        self.put(ss, es, ANN_REG_WRITE,
+        self._ann(ss, es, ANN_INSTR, ['WRITE 0x%02X' % addr, 'W', 'W'])
+        self._ann(ss, es, ANN_REG_WRITE,
                  ['%s ← 0x%02X' % (regname, value),
                   '%s ← 0x%02X' % (regname, value),
                   '%s←%02X' % (regname, value)])
@@ -309,17 +314,17 @@ class Decoder(srd.Decoder):
 
     def _emit_reg_read(self, addr, ss, es):
         data = self.databuf
-        self.put(ss, es, ANN_INSTR, ['READ 0x%02X' % addr, 'R', 'R'])
+        self._ann(ss, es, ANN_INSTR, ['READ 0x%02X' % addr, 'R', 'R'])
         if not data:
             regname = REGS.get(addr, '0x%02X' % addr)
-            self.put(ss, es, ANN_REG_READ,
+            self._ann(ss, es, ANN_REG_READ,
                      ['%s →' % regname, regname, regname])
             return
 
         if len(data) == 1:
             regname = REGS.get(addr, '0x%02X' % addr)
             value = data[0]
-            self.put(ss, es, ANN_REG_READ,
+            self._ann(ss, es, ANN_REG_READ,
                      ['%s → 0x%02X' % (regname, value),
                       '%s → 0x%02X' % (regname, value),
                       '%s→%02X' % (regname, value)])
@@ -330,7 +335,7 @@ class Decoder(srd.Decoder):
             start_name = REGS.get(addr, '0x%02X' % addr)
             end_name = REGS.get(addr + len(data) - 1, '0x%02X' % (addr + len(data) - 1))
             hexbytes = ' '.join('%02X' % b for b in data)
-            self.put(ss, es, ANN_REG_READ,
+            self._ann(ss, es, ANN_REG_READ,
                      ['%s..%s → %s' % (start_name, end_name, hexbytes),
                       '%s..%s' % (start_name, end_name),
                       '%s..%s' % (start_name, end_name)])
@@ -341,8 +346,8 @@ class Decoder(srd.Decoder):
             # Per the Data-Ready Clear Latency timing constraint: brackets
             # a data-register read for the conformance check that measures
             # the delay until STATUS.DATA_READY clears afterward.
-            self.put(ss, ss, ANN_DATA_START, ['Data read start', 'Read start', 'ST'])
-            self.put(es, es, ANN_DATA_DONE, ['Data read done', 'Read done', 'DN'])
+            self._ann(ss, ss, ANN_DATA_START, ['Data read start', 'Read start', 'ST'])
+            self._ann(es, es, ANN_DATA_DONE, ['Data read done', 'Read done', 'DN'])
             self._emit_axis_or_temp_values(addr, data, ss, es)
 
     def _emit_reg_read_side_effect(self, addr, value, ss, es):
@@ -376,7 +381,7 @@ class Decoder(srd.Decoder):
                     break
                 g = _sign_extend_12(byte << 4) * sens
                 name = axis_names[axis_idx]
-                self.put(ss, es, ANN_DATA,
+                self._ann(ss, es, ANN_DATA,
                          ['%sDATA → %+.3f g' % (name, g),
                           '%s = %+.3f g' % (name, g),
                           '%+.3f' % g])
@@ -391,11 +396,11 @@ class Decoder(srd.Decoder):
                 name = pair_names[pair_idx]
                 if name == 'TEMP':
                     t = 25.0 + (raw12 - 350) * 0.065
-                    self.put(ss, es, ANN_DATA,
+                    self._ann(ss, es, ANN_DATA,
                              ['TEMP → %.2f °C' % t, 'T = %.2f °C' % t, '%.2f' % t])
                 else:
                     g = raw12 * sens
-                    self.put(ss, es, ANN_DATA,
+                    self._ann(ss, es, ANN_DATA,
                              ['%sDATA → %+.3f g' % (name, g),
                               '%s = %+.3f g' % (name, g),
                               '%+.3f' % g])
@@ -405,9 +410,9 @@ class Decoder(srd.Decoder):
     def _emit_status(self, value, ss, es):
         names = [n for bit, n in STATUS_BITS if value & bit]
         if not names:
-            self.put(ss, es, ANN_STATUS, ['STATUS=0', '0', '0'])
+            self._ann(ss, es, ANN_STATUS, ['STATUS=0', '0', '0'])
         else:
-            self.put(ss, es, ANN_STATUS,
+            self._ann(ss, es, ANN_STATUS,
                      ['STATUS: ' + '|'.join(names),
                       '|'.join(names[:3]),
                       'S'])
@@ -422,7 +427,7 @@ class Decoder(srd.Decoder):
         long = 'FILTER_CTL: RANGE=%s HALF_BW=%s ODR=%s%s' % (
             rng_name, half_bw, odr_name, ' ' + ext_sample if ext_sample else '')
         med = '%s %s' % (rng_name, odr_name)
-        self.put(ss, es, ANN_FIELD, [long, med, 'F'])
+        self._ann(ss, es, ANN_FIELD, [long, med, 'F'])
 
     def _emit_power_ctl(self, value, ss, es):
         measure = value & POWER_MEASURE_MASK
@@ -437,7 +442,7 @@ class Decoder(srd.Decoder):
             flags = ' ' + flags
         long = 'POWER_CTL: %s noise=%s%s' % (measure_name, low_noise_name, flags)
         med = '%s %s' % (measure_name, low_noise_name)
-        self.put(ss, es, ANN_FIELD, [long, med, 'P'])
+        self._ann(ss, es, ANN_FIELD, [long, med, 'P'])
 
     def _emit_act_inact_ctl(self, value, ss, es):
         aen = 'ACT_EN' if (value & AIC_ACT_EN) else 'ACT_DIS'
@@ -448,14 +453,14 @@ class Decoder(srd.Decoder):
         linkloop_name = AIC_LINKLOOP_NAMES.get(linkloop, 'reserved')
         long = 'ACT_INACT_CTL: %s/%s %s/%s LINKLOOP=%s' % (aen, ren, ien, iren, linkloop_name)
         med = '%s/%s %s' % (aen, ren, linkloop_name)
-        self.put(ss, es, ANN_FIELD, [long, med, 'A'])
+        self._ann(ss, es, ANN_FIELD, [long, med, 'A'])
 
     def _emit_intmap(self, regname, value, ss, es):
         names = [n for bit, n in INTMAP_NAMES if value & bit]
         if not names:
-            self.put(ss, es, ANN_STATUS, ['%s=0' % regname, regname + '=0', '0'])
+            self._ann(ss, es, ANN_STATUS, ['%s=0' % regname, regname + '=0', '0'])
         else:
-            self.put(ss, es, ANN_STATUS,
+            self._ann(ss, es, ANN_STATUS,
                      ['%s: %s' % (regname, '|'.join(names)),
                       '|'.join(names[:3]),
                       'I'])
@@ -470,10 +475,10 @@ class Decoder(srd.Decoder):
             flags = ' ' + flags
         long = 'FIFO_CONTROL: %s%s' % (mode_name, flags)
         med = mode_name
-        self.put(ss, es, ANN_FIELD, [long, med, 'FC'])
+        self._ann(ss, es, ANN_FIELD, [long, med, 'FC'])
 
     def _emit_fifo_read(self, ss, es):
-        self.put(ss, es, ANN_INSTR, ['READ FIFO', 'FIFO', 'F'])
+        self._ann(ss, es, ANN_INSTR, ['READ FIFO', 'FIFO', 'F'])
         n_bytes = len(self.databuf) // 2
         sens = _sensitivity_for_range_bits(self.range_bits)
         for i in range(n_bytes):
@@ -485,13 +490,13 @@ class Decoder(srd.Decoder):
             axis_name = FIFO_AXIS_NAMES.get(axis, '?')
             if axis == 3:  # temperature
                 value = 25.0 + (raw12 - 350) * 0.065
-                self.put(ss, es, ANN_FIFO,
+                self._ann(ss, es, ANN_FIFO,
                          ['TEMP → %.2f °C' % value,
                           'T %.2f' % value,
                           'T'])
             else:
                 g = raw12 * sens
-                self.put(ss, es, ANN_FIFO,
+                self._ann(ss, es, ANN_FIFO,
                          ['%s → %+.3f g' % (axis_name, g),
                           '%s %+.3f' % (axis_name, g),
                           axis_name])

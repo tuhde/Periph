@@ -240,6 +240,11 @@ class Decoder(srd.Decoder):
         self.ss_block = None
         self.last_ecr_write_ss = None
 
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
+
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
 
@@ -297,36 +302,36 @@ class Decoder(srd.Decoder):
                 lsb = self.databuf[0]
                 msb = self.databuf[1] & 0x03
                 raw10 = lsb | (msb << 8)
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          'EFD%d 0x%03X (electrode %d filtered = %d)' % (
                              electrode, raw10, electrode, raw10))
             elif len(self.databuf) == 1:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s 0x%02X' % (reg_name, self.databuf[0]))
             else:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s (%d bytes)' % (reg_name, len(self.databuf)))
         elif reg_name in ('EFDPROXL',):
             if len(self.databuf) == 2:
                 lsb = self.databuf[0]
                 msb = self.databuf[1] & 0x03
                 raw10 = lsb | (msb << 8)
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          'EFDPROX 0x%03X (proximity filtered = %d)' % (raw10, raw10))
             elif len(self.databuf) == 1:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s 0x%02X' % (reg_name, self.databuf[0]))
             else:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s (%d bytes)' % (reg_name, len(self.databuf)))
         elif reg_name == 'ELE0_7_TOUCH' and len(self.databuf) >= 2:
             raw = self.databuf[0]
-            self.put(self.ss_block, self.es, ANN_READ, _decode_touch_status_0(raw))
+            self._ann(self.ss_block, self.es, ANN_READ, _decode_touch_status_0(raw))
             if len(self.databuf) >= 2:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          _decode_touch_status_1(self.databuf[1]))
         else:
-            self.put(self.ss_block, self.es, ANN_READ,
+            self._ann(self.ss_block, self.es, ANN_READ,
                      '%s 0x%02X' % (reg_name, self.databuf[0] if self.databuf else 0))
 
     def _emit_write(self):
@@ -335,29 +340,29 @@ class Decoder(srd.Decoder):
         if reg_name == 'ECR':
             self.last_ecr_write_ss = self.ss_block
             if value != 0:
-                self.put(self.ss_block, self.es, ANN_AUTOCONFIG_START,
+                self._ann(self.ss_block, self.es, ANN_AUTOCONFIG_START,
                          'autoconfig start (ECR=%#x)' % value)
         if reg_name == 'SRST' and value == 0x63:
-            self.put(self.ss_block, self.es, ANN_SOFT_RESET_START,
+            self._ann(self.ss_block, self.es, ANN_SOFT_RESET_START,
                      'soft reset start (write 0x63 to 0x80)')
         if reg_name in _DECODE_FNS:
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _DECODE_FNS[reg_name](value))
         elif reg_name.startswith('E') and reg_name.endswith('TTH'):
-            electrode = int(reg_name[1:-3])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            electrode = reg_name[1:-3]  # '0'..'11' or 'PROX'
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _decode_threshold(reg_name, value) +
-                     ' [ELE%d touch threshold]' % electrode)
+                     ' [ELE%s touch threshold]' % electrode)
         elif reg_name.startswith('E') and reg_name.endswith('RTH'):
-            electrode = int(reg_name[1:-3])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            electrode = reg_name[1:-3]  # '0'..'11' or 'PROX'
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _decode_threshold(reg_name, value) +
-                     ' [ELE%d release threshold]' % electrode)
+                     ' [ELE%s release threshold]' % electrode)
         elif reg_name.startswith('E') and reg_name.endswith('BV') and len(reg_name) == 4:
             electrode = int(reg_name[1:-2])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      '%s 0x%02X (baseline MSB; 10-bit baseline = %d)' % (
                          reg_name, value, value << 2))
         else:
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      '%s 0x%02X' % (reg_name, value))

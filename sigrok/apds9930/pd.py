@@ -204,6 +204,11 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
 
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
+
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
 
@@ -224,7 +229,7 @@ class Decoder(srd.Decoder):
                 # captures from VDD-stable to settled so any START here is
                 # the host's first transaction).
                 if self.ss_block is not None and self.state == 'GET_ADDR':
-                    self.put(ss, es, ANN_POWERON_START,
+                    self._ann(ss, es, ANN_POWERON_START,
                              ['poweron-start', 'poweron-start'])
             return
 
@@ -293,21 +298,21 @@ class Decoder(srd.Decoder):
         if reg == 0x00:
             en = value
             if en & 0x01:
-                self.put(self.ss, self.es, ANN_CONVERSION_START,
+                self._ann(self.ss, self.es, ANN_CONVERSION_START,
                          ['conversion-start', 'conversion-start'])
             if en & 0x02:
-                self.put(self.ss, self.es, ANN_ALS_INTEGRATION_START,
+                self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
                          ['als-integration-start', 'als-integration-start'])
             if en & 0x04:
-                self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
+                self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
                          ['proximity-integration-start', 'proximity-integration-start'])
         if reg == 0x01:
-            self.put(self.ss, self.es, ANN_ALS_INTEGRATION_START,
+            self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
                      ['als-integration-start', 'als-integration-start'])
         if reg == 0x0E:
-            self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
+            self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
                      ['proximity-integration-start', 'proximity-integration-start'])
-        self.put(self.ss, self.es, ANN_WRITE,
+        self._ann(self.ss, self.es, ANN_WRITE,
                  [decoded, '%s 0x%02X' % (name, value)])
 
     def _emit_read(self):
@@ -318,27 +323,27 @@ class Decoder(srd.Decoder):
         if len(self.databuf) == 1:
             value = self.databuf[0]
             decoded = self._decode(first, value)
-            self.put(self.ss, self.es, ANN_READ,
+            self._ann(self.ss, self.es, ANN_READ,
                      [decoded, '%s 0x%02X' % (name, value)])
             # Mark conformance "done" boundaries when STATUS is read with
             # both AVALID and PVALID set, or with AVALID alone for the
             # als_integration_time check.
             if first == 0x13:
                 if (value & 0x01) and (value & 0x02):
-                    self.put(self.ss, self.es, ANN_CONVERSION_DONE,
+                    self._ann(self.ss, self.es, ANN_CONVERSION_DONE,
                              ['conversion-done', 'conversion-done'])
-                    self.put(self.ss, self.es, ANN_POWERON_DONE,
+                    self._ann(self.ss, self.es, ANN_POWERON_DONE,
                              ['poweron-done', 'poweron-done'])
                 elif value & 0x01:
-                    self.put(self.ss, self.es, ANN_ALS_INTEGRATION_DONE,
+                    self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_DONE,
                              ['als-integration-done', 'als-integration-done'])
                 elif value & 0x02:
-                    self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_DONE,
+                    self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_DONE,
                              ['proximity-integration-done', 'proximity-integration-done'])
         else:
             # Multi-byte read (auto-increment burst).
             text = '%s+%d' % (name, len(self.databuf) - 1)
-            self.put(self.ss, self.es, ANN_READ, [text, text])
+            self._ann(self.ss, self.es, ANN_READ, [text, text])
 
     def _decode(self, reg, value):
         if reg == 0x00: return _decode_enable(value)
