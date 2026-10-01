@@ -406,7 +406,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/<chip>/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only; for every Timing Constraint above with a conformance check, also emits the named start/end annotation pair the Sigrok Decoder section names
+- [ ] Decoder `sigrok/<chip>/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`); for every Timing Constraint above with a conformance check, also emits the named start/end annotation pair the Sigrok Decoder section names
 
 ### Conformance
 - [ ] Checker `conformance/io_expander/<chip>_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"

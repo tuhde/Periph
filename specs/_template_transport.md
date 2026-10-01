@@ -85,4 +85,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/<transport>/__init__.py` — module docstring describing protocol framing, signal channels, and what is annotated
-- [ ] Decoder `sigrok/<transport>/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/<transport>/pd.py` — annotates framing, data bytes, and decoded values; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

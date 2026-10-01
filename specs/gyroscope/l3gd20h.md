@@ -351,7 +351,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/l3gd20h/__init__.py` — module docstring describing connection input, addresses, and what is annotated
-- [ ] Decoder `sigrok/l3gd20h/pd.py` — for the Timing Constraint above with a conformance check, emits the `poweron_start` / `poweron_ready` annotation pair; annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/l3gd20h/pd.py` — for the Timing Constraint above with a conformance check, emits the `poweron_start` / `poweron_ready` annotation pair; annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
 
 ### Conformance
 - [ ] Checker `conformance/gyroscope/l3gd20h_conformance.py` — one check: power-on to stable data ≥250 ms, from the `poweron_start` / `poweron_ready` annotation pair; see `specs/testing_framework.md`, "Conformance Implementation"

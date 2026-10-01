@@ -700,7 +700,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Conformance
 - [x] Checker `conformance/tof/vl53l0x_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
 - [x] Timing config `specs/tof/vl53l0x_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
-- [x] Decoder `sigrok/vl53l0x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [x] Decoder `sigrok/vl53l0x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
 
 ### Base class refactor (added with VL53L1X issue #175)
 - [x] Refactor `python/periph/chips/tof/vl53l0x.py` onto `_VL53Base` (`python/periph/chips/tof/_vl53_base.py`)

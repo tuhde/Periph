@@ -490,4 +490,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [x] Decoder `sigrok/rfm9x/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [x] Decoder `sigrok/rfm9x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [x] Decoder `sigrok/rfm9x/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

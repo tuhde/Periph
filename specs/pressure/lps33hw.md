@@ -467,4 +467,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 ### Conformance
 - [ ] Checker `conformance/pressure/lps33hw_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
 - [ ] Timing config `specs/pressure/lps33hw_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
-- [ ] Decoder `sigrok/lps33hw/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/lps33hw/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

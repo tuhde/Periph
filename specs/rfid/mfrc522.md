@@ -534,4 +534,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/mfrc522/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/mfrc522/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/mfrc522/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

@@ -382,4 +382,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/tpic6b595/__init__.py` — module docstring describing transport input (`sipo`), the `num_devices` option, and what is annotated
-- [ ] Decoder `sigrok/tpic6b595/pd.py` — reverses `LATCH` payloads into per-device order and annotates DRAIN0–DRAIN7 ON/OFF per cascaded device; annotates `CLEARED` on `CLEAR` packets; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/tpic6b595/pd.py` — reverses `LATCH` payloads into per-device order and annotates DRAIN0–DRAIN7 ON/OFF per cascaded device; annotates `CLEARED` on `CLEAR` packets; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
