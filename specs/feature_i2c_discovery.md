@@ -327,6 +327,8 @@ A single 24AA02UID answers on `0x50`–`0x57`, so `scan()` will report **eight**
 
 `discover()` merges an alias block: if **every** address of the block ACKs, the aliased chip is present — no other device can share those addresses with it, so other registry chips that also list some of them (the ENS160 at `0x52`/`0x53`) are ruled out. The block becomes one `DiscoveredDevice` at the lowest address with `aliases=[…]` listing the rest and `candidates=[<chip id>]`. If only part of the block ACKs, the addresses are classified individually like any others (and the ENS160 / 24AA02UID overlap is then an ordinary ambiguity).
 
+**Known limitation — 24AA025UID.** The sibling 24AA025UID *does* use A2:A0 and offers eight choosable addresses (`0x50`–`0x57`), so up to eight of them can share a bus. It is not in the registry. A bus that has a 24AA025UID at every address of the block looks identical to one 24AA02UID, and `discover()` will report the merged 24AA02UID. Neither chip has an identity register, so this cannot be resolved by probing. Partial occupancy (some of the eight addresses answering) is reported per address as usual.
+
 `validate.js` rejects an `aliased` chip whose `addresses` are not a contiguous block.
 
 The 24AA02UID entry is `addresses: ["0x50..0x57"]`, `aliased: true`. This overrides the chip spec's "use `0x50` as the canonical address", which is a driver-construction convention and does not describe what answers on the bus.
