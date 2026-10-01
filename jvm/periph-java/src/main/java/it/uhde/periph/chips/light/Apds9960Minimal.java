@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -69,7 +69,7 @@ public class Apds9960Minimal {
     protected static final int CONTROL_DEFAULT = 0x01;
     protected static final int CONFIG2_DEFAULT = 0x01;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver.
@@ -77,16 +77,16 @@ public class Apds9960Minimal {
      * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9960Minimal(Connection connection) throws IOException {
+    public Apds9960Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         try { Thread.sleep(6); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         int id = readReg(REG_ID);
         if (id != 0xAB) throw new IOException("APDS-9960 not found (ID=0x" + Integer.toHexString(id) + ", expected 0xAB)");
-        writeReg(REG_ENABLE, 0x00);
-        writeReg(REG_ATIME, ATIME_DEFAULT);
-        writeReg(REG_CONTROL, CONTROL_DEFAULT);
-        writeReg(REG_CONFIG2, CONFIG2_DEFAULT);
-        writeReg(REG_ENABLE, 0x03);
+        connection.write(REG_ENABLE, new byte[]{(byte) (0x00)});
+        connection.write(REG_ATIME, new byte[]{(byte) (ATIME_DEFAULT)});
+        connection.write(REG_CONTROL, new byte[]{(byte) (CONTROL_DEFAULT)});
+        connection.write(REG_CONFIG2, new byte[]{(byte) (CONFIG2_DEFAULT)});
+        connection.write(REG_ENABLE, new byte[]{(byte) (0x03)});
         try { Thread.sleep(210); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
@@ -109,7 +109,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorRed() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.read(REG_CDATAL, 8);
         return (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
     }
 
@@ -122,7 +122,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorGreen() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.read(REG_CDATAL, 8);
         return (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
     }
 
@@ -135,7 +135,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int colorBlue() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.read(REG_CDATAL, 8);
         return (raw[6] & 0xFF) | ((raw[7] & 0xFF) << 8);
     }
 
@@ -148,7 +148,7 @@ public class Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public int[] color() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_CDATAL}, 8);
+        byte[] raw = connection.read(REG_CDATAL, 8);
         int c = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8);
         int r = (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8);
         int g = (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8);
@@ -156,17 +156,13 @@ public class Apds9960Minimal {
         return new int[]{c, r, g, b};
     }
 
-    protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
-    }
-
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.read(reg, 1);
         return b[0] & 0xFF;
     }
 
     protected int readReg16LE(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.read(reg, 2);
         return (b[0] & 0xFF) | ((b[1] & 0xFF) << 8);
     }
 }

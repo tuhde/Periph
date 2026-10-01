@@ -68,7 +68,7 @@ const (
 //   - CONFIG2 = 0x01 (LED_BOOST=100%, reserved bit 0 set)
 //   - PON + AEN enabled; no wait, no proximity, no gesture, no interrupts
 type APDS9960Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	addr      uint8
 }
 
@@ -79,7 +79,7 @@ type APDS9960Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x39, fixed).
-func NewAPDS9960Minimal(t connection.Connection) (*APDS9960Minimal, error) {
+func NewAPDS9960Minimal(t connection.RegisterConnection) (*APDS9960Minimal, error) {
 	d := &APDS9960Minimal{connection: t, addr: 0x39}
 	time.Sleep(6 * time.Millisecond)
 	id, err := d.readReg(apdsRegID)
@@ -89,19 +89,19 @@ func NewAPDS9960Minimal(t connection.Connection) (*APDS9960Minimal, error) {
 	if id != apdsIDExpected {
 		return nil, &apdsIDError{got: id}
 	}
-	if err := d.writeReg(apdsRegENABLE, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegENABLE), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apdsRegATIME, apdsATIMEDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegATIME), []byte{apdsATIMEDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apdsRegCONTROL, apdsCONTROLDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegCONTROL), []byte{apdsCONTROLDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apdsRegCONFIG2, apdsCONFIG2Default); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegCONFIG2), []byte{apdsCONFIG2Default}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apdsRegENABLE, 0x03); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegENABLE), []byte{0x03}); err != nil {
 		return nil, err
 	}
 	time.Sleep(210 * time.Millisecond)
@@ -124,12 +124,8 @@ func hexByte(b uint8) string {
 	return string([]byte{hex[(b>>4)&0xF], hex[b&0xF]})
 }
 
-func (d *APDS9960Minimal) writeReg(reg, value uint8) error {
-	return d.connection.Write([]byte{reg, value})
-}
-
 func (d *APDS9960Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -137,7 +133,7 @@ func (d *APDS9960Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *APDS9960Minimal) readReg16LE(reg uint8) (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -189,7 +185,7 @@ func (d *APDS9960Minimal) Color() (clear, red, green, blue uint16, err error) {
 
 // rgbc performs the 8-byte burst read and decodes the four channels.
 func (d *APDS9960Minimal) rgbc() (uint16, uint16, uint16, uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{apdsRegCDATAL}, 8)
+	buf, err := d.connection.ReadReg(uint32(apdsRegCDATAL), 8)
 	if err != nil {
 		return 0, 0, 0, 0, err
 	}
@@ -209,7 +205,7 @@ type APDS9960Full struct {
 
 // NewAPDS9960Full creates a new APDS9960Full with the same
 // initialisation as NewAPDS9960Minimal.
-func NewAPDS9960Full(t connection.Connection) (*APDS9960Full, error) {
+func NewAPDS9960Full(t connection.RegisterConnection) (*APDS9960Full, error) {
 	m, err := NewAPDS9960Minimal(t)
 	if err != nil {
 		return nil, err
@@ -241,7 +237,7 @@ func (d *APDS9960Full) EnableWait(enabled bool) error {
 // ConfigureWait writes WTIME and updates CONFIG1.WLONG (preserving
 // the reserved bits 6:5 = 1,1). long=true enables the 12× multiplier.
 func (d *APDS9960Full) ConfigureWait(wtime uint8, long bool) error {
-	if err := d.writeReg(apdsRegWTIME, wtime); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegWTIME), []byte{wtime}); err != nil {
 		return err
 	}
 	c1, err := d.readReg(apdsRegCONFIG1)
@@ -254,13 +250,13 @@ func (d *APDS9960Full) ConfigureWait(wtime uint8, long bool) error {
 		c1 &^= 0x02
 	}
 	c1 = (c1 & 0x03) | 0x60
-	return d.writeReg(apdsRegCONFIG1, c1)
+	return d.connection.WriteReg(uint32(apdsRegCONFIG1), []byte{c1})
 }
 
 // ConfigureALS writes ATIME and updates the AGAIN field of CONTROL
 // (preserving LDRIVE and PGAIN). again 0=1×, 1=4×, 2=16×, 3=64×.
 func (d *APDS9960Full) ConfigureALS(atime, again uint8) error {
-	if err := d.writeReg(apdsRegATIME, atime); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegATIME), []byte{atime}); err != nil {
 		return err
 	}
 	ctrl, err := d.readReg(apdsRegCONTROL)
@@ -268,7 +264,7 @@ func (d *APDS9960Full) ConfigureALS(atime, again uint8) error {
 		return err
 	}
 	ctrl = (ctrl & 0xFC) | (again & 0x03)
-	return d.writeReg(apdsRegCONTROL, ctrl)
+	return d.connection.WriteReg(uint32(apdsRegCONTROL), []byte{ctrl})
 }
 
 // ConfigureProximityLED writes the LED drive, proximity gain, and
@@ -280,10 +276,10 @@ func (d *APDS9960Full) ConfigureProximityLED(ldrive, pgain, ppulse, pplen uint8)
 		return err
 	}
 	ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03)
-	if err := d.writeReg(apdsRegCONTROL, ctrl); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegCONTROL), []byte{ctrl}); err != nil {
 		return err
 	}
-	return d.writeReg(apdsRegPPULSE, ((pplen&0x03)<<6)|(ppulse&0x3F))
+	return d.connection.WriteReg(uint32(apdsRegPPULSE), []byte{((pplen&0x03)<<6)|(ppulse&0x3F)})
 }
 
 // SetLEDBoost sets the LED_BOOST field of CONFIG2 (preserving bit 0
@@ -294,35 +290,35 @@ func (d *APDS9960Full) SetLEDBoost(boost uint8) error {
 		return err
 	}
 	c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01
-	return d.writeReg(apdsRegCONFIG2, c2)
+	return d.connection.WriteReg(uint32(apdsRegCONFIG2), []byte{c2})
 }
 
 // AlsThreshold sets ALS interrupt thresholds (16-bit LE).
 func (d *APDS9960Full) AlsThreshold(low, high uint16) error {
-	if err := d.writeReg(apdsRegAILTL, uint8(low)); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegAILTL), []byte{uint8(low)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apdsRegAILTH, uint8(low>>8)); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegAILTH), []byte{uint8(low>>8)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apdsRegAIHTL, uint8(high)); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegAIHTL), []byte{uint8(high)}); err != nil {
 		return err
 	}
-	return d.writeReg(apdsRegAIHTH, uint8(high>>8))
+	return d.connection.WriteReg(uint32(apdsRegAIHTH), []byte{uint8(high>>8)})
 }
 
 // ProximityThreshold sets proximity interrupt thresholds (8-bit).
 func (d *APDS9960Full) ProximityThreshold(low, high uint8) error {
-	if err := d.writeReg(apdsRegPILT, low); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegPILT), []byte{low}); err != nil {
 		return err
 	}
-	return d.writeReg(apdsRegPIHT, high)
+	return d.connection.WriteReg(uint32(apdsRegPIHT), []byte{high})
 }
 
 // SetPersistence sets the interrupt persistence filters. ppers 0–15
 // (proximity), apers 0–15 (ALS).
 func (d *APDS9960Full) SetPersistence(ppers, apers uint8) error {
-	return d.writeReg(apdsRegPERS, ((ppers&0x0F)<<4)|(apers&0x0F))
+	return d.connection.WriteReg(uint32(apdsRegPERS), []byte{((ppers&0x0F)<<4)|(apers&0x0F)})
 }
 
 // EnableAlsInterrupt sets or clears the AIEN bit in ENABLE.
@@ -354,10 +350,10 @@ func (d *APDS9960Full) ClearAllInterrupts() error {
 // SetProximityOffset sets the proximity offsets for UP/RIGHT and
 // DOWN/LEFT photodiodes (sign-magnitude, −127 to +127).
 func (d *APDS9960Full) SetProximityOffset(ur, dl int8) error {
-	if err := d.writeReg(apdsRegPOFFSET_UR, apdsEncodeOffset(ur)); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegPOFFSET_UR), []byte{apdsEncodeOffset(ur)}); err != nil {
 		return err
 	}
-	return d.writeReg(apdsRegPOFFSET_DL, apdsEncodeOffset(dl))
+	return d.connection.WriteReg(uint32(apdsRegPOFFSET_DL), []byte{apdsEncodeOffset(dl)})
 }
 
 // SetProximityMask masks individual photodiodes in proximity detection.
@@ -379,7 +375,7 @@ func (d *APDS9960Full) SetProximityMask(u, dl, l, r bool) error {
 	if r {
 		c3 |= 0x01
 	}
-	return d.writeReg(apdsRegCONFIG3, c3)
+	return d.connection.WriteReg(uint32(apdsRegCONFIG3), []byte{c3})
 }
 
 // EnableGesture sets or clears the GEN bit in ENABLE; also sets or
@@ -391,7 +387,7 @@ func (d *APDS9960Full) EnableGesture(enabled bool) error {
 	}
 	if enabled {
 		val |= 0x40
-		if err := d.writeReg(apdsRegENABLE, val); err != nil {
+		if err := d.connection.WriteReg(uint32(apdsRegENABLE), []byte{val}); err != nil {
 			return err
 		}
 		g4, err := d.readReg(apdsRegGCONF4)
@@ -399,10 +395,10 @@ func (d *APDS9960Full) EnableGesture(enabled bool) error {
 			return err
 		}
 		g4 |= 0x01
-		return d.writeReg(apdsRegGCONF4, g4)
+		return d.connection.WriteReg(uint32(apdsRegGCONF4), []byte{g4})
 	}
 	val &^= 0x40
-	if err := d.writeReg(apdsRegENABLE, val); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegENABLE), []byte{val}); err != nil {
 		return err
 	}
 	g4, err := d.readReg(apdsRegGCONF4)
@@ -410,24 +406,24 @@ func (d *APDS9960Full) EnableGesture(enabled bool) error {
 		return err
 	}
 	g4 &^= 0x01
-	return d.writeReg(apdsRegGCONF4, g4)
+	return d.connection.WriteReg(uint32(apdsRegGCONF4), []byte{g4})
 }
 
 // ConfigureGesture sets the gesture engine parameters. ggain 0–3,
 // gldrive 0–3, gpulse 0–63 (N-1), gplen 0–3, gwtime 0–7, gpenth 0–255,
 // gexth 0–255.
 func (d *APDS9960Full) ConfigureGesture(ggain, gldrive, gpulse, gplen, gwtime, gpenth, gexth uint8) error {
-	if err := d.writeReg(apdsRegGPENTH, gpenth); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegGPENTH), []byte{gpenth}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apdsRegGEXTH, gexth); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegGEXTH), []byte{gexth}); err != nil {
 		return err
 	}
 	g2 := ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07)
-	if err := d.writeReg(apdsRegGCONF2, g2); err != nil {
+	if err := d.connection.WriteReg(uint32(apdsRegGCONF2), []byte{g2}); err != nil {
 		return err
 	}
-	return d.writeReg(apdsRegGPULSE, ((gplen&0x03)<<6)|(gpulse&0x3F))
+	return d.connection.WriteReg(uint32(apdsRegGPULSE), []byte{((gplen&0x03)<<6)|(gpulse&0x3F)})
 }
 
 // GestureAvailable returns true if GSTATUS.GVALID is set.
@@ -459,7 +455,7 @@ func (d *APDS9960Full) ReadGestureFIFO(maxSets int) ([][4]uint8, error) {
 	}
 	result := make([][4]uint8, count)
 	for i := 0; i < count; i++ {
-		raw, err := d.connection.WriteRead([]byte{apdsRegGFIFO_U}, 4)
+		raw, err := d.connection.ReadReg(uint32(apdsRegGFIFO_U), 4)
 		if err != nil {
 			return nil, err
 		}
@@ -475,7 +471,7 @@ func (d *APDS9960Full) ClearGestureFIFO() error {
 		return err
 	}
 	g4 |= 0x04
-	return d.writeReg(apdsRegGCONF4, g4)
+	return d.connection.WriteReg(uint32(apdsRegGCONF4), []byte{g4})
 }
 
 // EnableGestureInterrupt sets or clears the GIEN bit in GCONF4.
@@ -489,7 +485,7 @@ func (d *APDS9960Full) EnableGestureInterrupt(enabled bool) error {
 	} else {
 		g4 &^= 0x02
 	}
-	return d.writeReg(apdsRegGCONF4, g4)
+	return d.connection.WriteReg(uint32(apdsRegGCONF4), []byte{g4})
 }
 
 // Status returns the raw STATUS register byte.
@@ -544,7 +540,7 @@ func (d *APDS9960Full) setEnableBit(mask uint8, enabled bool) error {
 	} else {
 		val &^= mask
 	}
-	return d.writeReg(apdsRegENABLE, val)
+	return d.connection.WriteReg(uint32(apdsRegENABLE), []byte{val})
 }
 
 // apdsEncodeOffset converts a signed offset to the chip's sign-magnitude

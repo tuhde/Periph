@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.light
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9960 — full driver. Extends {@link Apds9960Minimal} with proximity, gesture,
@@ -15,7 +15,7 @@ class Apds9960Full extends Apds9960Minimal {
      *
      * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      */
-    Apds9960Full(Connection connection) {
+    Apds9960Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -27,7 +27,7 @@ class Apds9960Full extends Apds9960Minimal {
     void enableProximity(boolean enabled) {
         int val = readReg(REG_ENABLE)
         if (enabled) val |= 0x04; else val &= ~0x04
-        writeReg(REG_ENABLE, val)
+        connection.write(REG_ENABLE, [(byte) (val)] as byte[])
     }
 
     /**
@@ -47,7 +47,7 @@ class Apds9960Full extends Apds9960Minimal {
     void enableWait(boolean enabled) {
         int val = readReg(REG_ENABLE)
         if (enabled) val |= 0x08; else val &= ~0x08
-        writeReg(REG_ENABLE, val)
+        connection.write(REG_ENABLE, [(byte) (val)] as byte[])
     }
 
     /**
@@ -57,11 +57,11 @@ class Apds9960Full extends Apds9960Minimal {
      * @param wlong true to enable WLONG 12x multiplier
      */
     void configureWait(int wtime, boolean wlong = false) {
-        writeReg(REG_WTIME, wtime & 0xFF)
+        connection.write(REG_WTIME, [(byte) (wtime & 0xFF)] as byte[])
         int c1 = readReg(REG_CONFIG1)
         if (wlong) c1 |= 0x02; else c1 &= ~0x02
         c1 = (c1 & 0x03) | 0x60
-        writeReg(REG_CONFIG1, c1)
+        connection.write(REG_CONFIG1, [(byte) (c1)] as byte[])
     }
 
     /**
@@ -71,10 +71,10 @@ class Apds9960Full extends Apds9960Minimal {
      * @param again ALS gain 0-3 (0=1x, 1=4x, 2=16x, 3=64x)
      */
     void configureAls(int atime, int again) {
-        writeReg(REG_ATIME, atime & 0xFF)
+        connection.write(REG_ATIME, [(byte) (atime & 0xFF)] as byte[])
         int ctrl = readReg(REG_CONTROL)
         ctrl = (ctrl & 0xFC) | (again & 0x03)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(REG_CONTROL, [(byte) (ctrl)] as byte[])
     }
 
     /**
@@ -83,8 +83,8 @@ class Apds9960Full extends Apds9960Minimal {
     void configureProximityLed(int ldrive, int pgain, int ppulse, int pplen) {
         int ctrl = readReg(REG_CONTROL)
         ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03)
-        writeReg(REG_CONTROL, ctrl)
-        writeReg(REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F))
+        connection.write(REG_CONTROL, [(byte) (ctrl)] as byte[])
+        connection.write(REG_PPULSE, [(byte) (((pplen & 0x03) << 6) | (ppulse & 0x3F))] as byte[])
     }
 
     /**
@@ -95,32 +95,32 @@ class Apds9960Full extends Apds9960Minimal {
     void setLedBoost(int boost) {
         int c2 = readReg(REG_CONFIG2)
         c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01
-        writeReg(REG_CONFIG2, c2)
+        connection.write(REG_CONFIG2, [(byte) (c2)] as byte[])
     }
 
     /**
      * Set ALS interrupt thresholds.
      */
     void alsThreshold(int low, int high) {
-        writeReg(REG_AILTL, low & 0xFF)
-        writeReg(REG_AILTH, (low >> 8) & 0xFF)
-        writeReg(REG_AIHTL, high & 0xFF)
-        writeReg(REG_AIHTH, (high >> 8) & 0xFF)
+        connection.write(REG_AILTL, [(byte) (low & 0xFF)] as byte[])
+        connection.write(REG_AILTH, [(byte) ((low >> 8) & 0xFF)] as byte[])
+        connection.write(REG_AIHTL, [(byte) (high & 0xFF)] as byte[])
+        connection.write(REG_AIHTH, [(byte) ((high >> 8) & 0xFF)] as byte[])
     }
 
     /**
      * Set proximity interrupt thresholds.
      */
     void proximityThreshold(int low, int high) {
-        writeReg(REG_PILT, low & 0xFF)
-        writeReg(REG_PIHT, high & 0xFF)
+        connection.write(REG_PILT, [(byte) (low & 0xFF)] as byte[])
+        connection.write(REG_PIHT, [(byte) (high & 0xFF)] as byte[])
     }
 
     /**
      * Set interrupt persistence filters.
      */
     void setPersistence(int ppers, int apers) {
-        writeReg(REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F))
+        connection.write(REG_PERS, [(byte) (((ppers & 0x0F) << 4) | (apers & 0x0F))] as byte[])
     }
 
     /**
@@ -129,7 +129,7 @@ class Apds9960Full extends Apds9960Minimal {
     void enableAlsInterrupt(boolean enabled) {
         int val = readReg(REG_ENABLE)
         if (enabled) val |= 0x10; else val &= ~0x10
-        writeReg(REG_ENABLE, val)
+        connection.write(REG_ENABLE, [(byte) (val)] as byte[])
     }
 
     /**
@@ -138,7 +138,7 @@ class Apds9960Full extends Apds9960Minimal {
     void enableProximityInterrupt(boolean enabled) {
         int val = readReg(REG_ENABLE)
         if (enabled) val |= 0x20; else val &= ~0x20
-        writeReg(REG_ENABLE, val)
+        connection.write(REG_ENABLE, [(byte) (val)] as byte[])
     }
 
     /**
@@ -166,8 +166,8 @@ class Apds9960Full extends Apds9960Minimal {
      * Set proximity offset for UP/RIGHT and DOWN/LEFT photodiodes (sign-magnitude).
      */
     void setProximityOffset(int ur, int dl) {
-        writeReg(REG_POFFSET_UR, encodeOffset(ur))
-        writeReg(REG_POFFSET_DL, encodeOffset(dl))
+        connection.write(REG_POFFSET_UR, [(byte) (encodeOffset(ur))] as byte[])
+        connection.write(REG_POFFSET_DL, [(byte) (encodeOffset(dl))] as byte[])
     }
 
     /**
@@ -179,7 +179,7 @@ class Apds9960Full extends Apds9960Minimal {
         if (d) c3 |= 0x04
         if (l) c3 |= 0x02
         if (r) c3 |= 0x01
-        writeReg(REG_CONFIG3, c3)
+        connection.write(REG_CONFIG3, [(byte) (c3)] as byte[])
     }
 
     /**
@@ -189,16 +189,16 @@ class Apds9960Full extends Apds9960Minimal {
         int val = readReg(REG_ENABLE)
         if (enabled) {
             val |= 0x40
-            writeReg(REG_ENABLE, val)
+            connection.write(REG_ENABLE, [(byte) (val)] as byte[])
             int g4 = readReg(REG_GCONF4)
             g4 |= 0x01
-            writeReg(REG_GCONF4, g4)
+            connection.write(REG_GCONF4, [(byte) (g4)] as byte[])
         } else {
             val &= ~0x40
-            writeReg(REG_ENABLE, val)
+            connection.write(REG_ENABLE, [(byte) (val)] as byte[])
             int g4 = readReg(REG_GCONF4)
             g4 &= ~0x01
-            writeReg(REG_GCONF4, g4)
+            connection.write(REG_GCONF4, [(byte) (g4)] as byte[])
         }
     }
 
@@ -206,11 +206,11 @@ class Apds9960Full extends Apds9960Minimal {
      * Configure gesture engine parameters.
      */
     void configureGesture(int ggain, int gldrive, int gpulse, int gplen, int gwtime, int gpenth, int gexth) {
-        writeReg(REG_GPENTH, gpenth & 0xFF)
-        writeReg(REG_GEXTH, gexth & 0xFF)
+        connection.write(REG_GPENTH, [(byte) (gpenth & 0xFF)] as byte[])
+        connection.write(REG_GEXTH, [(byte) (gexth & 0xFF)] as byte[])
         int g2 = ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07)
-        writeReg(REG_GCONF2, g2)
-        writeReg(REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F))
+        connection.write(REG_GCONF2, [(byte) (g2)] as byte[])
+        connection.write(REG_GPULSE, [(byte) (((gplen & 0x03) << 6) | (gpulse & 0x3F))] as byte[])
     }
 
     /**
@@ -232,7 +232,7 @@ class Apds9960Full extends Apds9960Minimal {
         if (level == 0) return []
         List<int[]> result = []
         for (int i = 0; i < level; i++) {
-            byte[] raw = connection.writeRead([(byte) REG_GFIFO_U] as byte[], 4)
+            byte[] raw = connection.read(REG_GFIFO_U, 4)
             result.add([raw[0] & 0xFF, raw[1] & 0xFF, raw[2] & 0xFF, raw[3] & 0xFF] as int[])
         }
         result
@@ -251,7 +251,7 @@ class Apds9960Full extends Apds9960Minimal {
     void clearGestureFifo() {
         int g4 = readReg(REG_GCONF4)
         g4 |= 0x04
-        writeReg(REG_GCONF4, g4)
+        connection.write(REG_GCONF4, [(byte) (g4)] as byte[])
     }
 
     /**
@@ -260,7 +260,7 @@ class Apds9960Full extends Apds9960Minimal {
     void enableGestureInterrupt(boolean enabled) {
         int g4 = readReg(REG_GCONF4)
         if (enabled) g4 |= 0x02; else g4 &= ~0x02
-        writeReg(REG_GCONF4, g4)
+        connection.write(REG_GCONF4, [(byte) (g4)] as byte[])
     }
 
     /**
