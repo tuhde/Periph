@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * 24AA02UID — full driver. Extends [Eeprom24Aa02UidMinimal] with
@@ -10,7 +10,7 @@ import it.uhde.periph.connection.Connection
  * in the upper (read-only) block.
  */
 class Eeprom24Aa02UidFull(
-    connection: Connection
+    connection: RegisterConnection
 ) : Eeprom24Aa02UidMinimal(connection) {
 
     companion object {
@@ -28,7 +28,7 @@ class Eeprom24Aa02UidFull(
      * @return bytes read from the device
      */
     fun read(address: Int, length: Int): ByteArray =
-        connection.writeRead(byteArrayOf(address.toByte()), length)
+        connection.read(address, length)
 
     /**
      * Write up to 8 bytes within a single 8-byte page.
@@ -43,10 +43,7 @@ class Eeprom24Aa02UidFull(
      */
     fun writePage(address: Int, data: ByteArray) {
         if (data.isEmpty()) return
-        val buf = ByteArray(1 + data.size)
-        buf[0] = address.toByte()
-        System.arraycopy(data, 0, buf, 1, data.size)
-        connection.write(buf)
+        connection.write(address, data)
         Thread.sleep(WRITE_CYCLE_MS)
     }
 

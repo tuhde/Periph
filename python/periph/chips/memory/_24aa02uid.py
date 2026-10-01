@@ -24,7 +24,7 @@ class EEPROM24AA02UIDMinimal:
           retained.
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x50).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x50).
     """
 
     _ADDR_UID_BASE    = 0xFC
@@ -37,13 +37,13 @@ class EEPROM24AA02UIDMinimal:
         self._connection = connection
 
     def _read_byte(self, address):
-        return self._connection.write_read(bytes([address & 0xFF]), 1)[0]
+        return self._connection.read_reg(address & 0xFF, 1)[0]
 
     def _read_bytes(self, address, length):
-        return self._connection.write_read(bytes([address & 0xFF]), length)
+        return self._connection.read_reg(address & 0xFF, length)
 
     def _write_byte(self, address, value):
-        self._connection.write(bytes([address & 0xFF, value & 0xFF]))
+        self._connection.write_reg(address & 0xFF, value & 0xFF)
 
     def _ack_poll(self):
         try:
@@ -52,7 +52,7 @@ class EEPROM24AA02UIDMinimal:
             sleep_ms = lambda ms: time.sleep(ms / 1000.0)
         for _ in range(20):
             try:
-                self._connection.write_read(bytes([0x00]), 1)
+                self._connection.read_reg(0x00, 1)
                 return
             except OSError:
                 sleep_ms(1)
@@ -99,7 +99,7 @@ class EEPROM24AA02UIDFull(EEPROM24AA02UIDMinimal):
     the manufacturer and device codes in the upper (read-only) block.
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x50).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x50).
     """
 
     _PAGE_SIZE = 8
@@ -131,8 +131,7 @@ class EEPROM24AA02UIDFull(EEPROM24AA02UIDMinimal):
             address: Start address within an 8-byte page (0, 8, 16, …).
             data:    Bytes to write (1 to 8 bytes).
         """
-        buf = bytes([address & 0xFF]) + bytes(data)
-        self._connection.write(buf)
+        self._connection.write_reg(address & 0xFF, bytes(data))
         self._ack_poll()
 
     def write(self, address, data):

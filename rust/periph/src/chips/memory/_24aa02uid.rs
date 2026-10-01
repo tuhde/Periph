@@ -16,6 +16,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const ADDR_UID_BASE: u8 = 0xFC;
 const ADDR_MFR_CODE: u8 = 0xFA;
 const ADDR_DEV_CODE: u8 = 0xFB;
@@ -56,7 +58,7 @@ impl<I2C: I2c> Eeprom24Aa02UidMinimal<I2C> {
     /// Returns 4 bytes (MSB first) from 0xFC-0xFF.
     pub fn read_uid(&mut self) -> Result<[u8; 4], I2C::Error> {
         let mut buf = [0u8; 4];
-        self.i2c.write_read(self.addr, &[ADDR_UID_BASE], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, ADDR_UID_BASE.into(), 1, &mut buf)?;
         Ok(buf)
     }
 
@@ -66,7 +68,7 @@ impl<I2C: I2c> Eeprom24Aa02UidMinimal<I2C> {
     /// * `address` — Memory address 0-127.
     pub fn read_byte(&mut self, address: u8) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.write_read(self.addr, &[address], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, address.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
@@ -86,7 +88,7 @@ impl<I2C: I2c> Eeprom24Aa02UidMinimal<I2C> {
         value: u8,
         delay: &mut D,
     ) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[address, value])?;
+        register::write_register(&mut self.i2c, self.addr, address.into(), 1, &[value])?;
         delay.delay_ms(WRITE_CYCLE_MS);
         Ok(())
     }
@@ -139,7 +141,7 @@ impl<I2C: I2c> Eeprom24Aa02UidFull<I2C> {
     /// The internal address pointer auto-increments; reads may cross any
     /// boundary and wrap at the end of the 256-byte address space.
     pub fn read(&mut self, address: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-        self.inner.i2c.write_read(self.inner.addr, &[address], buf)
+        register::read_register(&mut self.inner.i2c, self.inner.addr, address.into(), 1, buf)
     }
 
     /// Write up to 8 bytes within a single 8-byte page.
@@ -155,11 +157,8 @@ impl<I2C: I2c> Eeprom24Aa02UidFull<I2C> {
         delay: &mut D,
     ) -> Result<(), I2C::Error> {
         if data.is_empty() { return Ok(()); }
-        let mut buf = [0u8; 1 + PAGE_SIZE as usize];
-        buf[0] = address;
         let n = data.len().min(PAGE_SIZE as usize);
-        buf[1..=n].copy_from_slice(&data[..n]);
-        self.inner.i2c.write(self.inner.addr, &buf[..=n])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, address.into(), 1, &data[..n])?;
         delay.delay_ms(WRITE_CYCLE_MS);
         Ok(())
     }

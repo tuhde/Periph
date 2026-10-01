@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.memory
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * 24AA02UID — 2 Kbit I²C EEPROM with 32-bit unique serial number (minimal driver).
@@ -39,14 +39,14 @@ class Eeprom24Aa02UidMinimal {
     protected static final int  ADDR_DEV_CODE   = 0xFB
     protected static final long WRITE_CYCLE_MS  = 5
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver.
      *
      * @param connection I²C connection bound to the device address (0x50)
      */
-    Eeprom24Aa02UidMinimal(Connection connection) {
+    Eeprom24Aa02UidMinimal(RegisterConnection connection) {
         this.connection = connection
     }
 
@@ -58,7 +58,7 @@ class Eeprom24Aa02UidMinimal {
      * @return 4-byte UID array
      */
     byte[] readUid() {
-        connection.writeRead([(byte) ADDR_UID_BASE] as byte[], 4)
+        connection.read(ADDR_UID_BASE, 4)
     }
 
     /**
@@ -68,7 +68,7 @@ class Eeprom24Aa02UidMinimal {
      * @return byte value 0-255
      */
     int readByte(int address) {
-        byte[] b = connection.writeRead([(byte) address] as byte[], 1)
+        byte[] b = connection.read(address, 1)
         b[0] & 0xFF
     }
 
@@ -83,7 +83,7 @@ class Eeprom24Aa02UidMinimal {
      * @param value   byte value 0-255
      */
     void writeByte(int address, int value) {
-        connection.write([(byte) address, (byte) value] as byte[])
+        connection.write(address, [(byte) value] as byte[])
         Thread.sleep(WRITE_CYCLE_MS)
     }
 }

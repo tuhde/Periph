@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ public class Eeprom24Aa02UidMinimal {
     protected static final int  ADDR_DEV_CODE   = 0xFB;
     protected static final int  WRITE_CYCLE_MS  = 5;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver.
@@ -50,7 +50,7 @@ public class Eeprom24Aa02UidMinimal {
      *
      * @param connection I²C connection bound to the device address (0x50)
      */
-    public Eeprom24Aa02UidMinimal(Connection connection) {
+    public Eeprom24Aa02UidMinimal(RegisterConnection connection) {
         this.connection = connection;
     }
 
@@ -63,7 +63,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public byte[] readUid() throws IOException {
-        return connection.writeRead(new byte[]{(byte) ADDR_UID_BASE}, 4);
+        return connection.read(ADDR_UID_BASE, 4);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public int readByte(int address) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) address}, 1);
+        byte[] b = connection.read(address, 1);
         return b[0] & 0xFF;
     }
 
@@ -90,7 +90,7 @@ public class Eeprom24Aa02UidMinimal {
      * @throws IOException on I²C error
      */
     public void writeByte(int address, int value) throws IOException {
-        connection.write(new byte[]{(byte) address, (byte) value});
+        connection.write(address, new byte[]{(byte) value});
         sleep(WRITE_CYCLE_MS);
     }
 

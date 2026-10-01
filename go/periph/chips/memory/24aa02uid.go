@@ -23,20 +23,20 @@ const (
 // serial number) and single-byte user EEPROM read/write. User EEPROM
 // spans 0x00–0x7F; addresses 0x80–0xFF are write-protected.
 type EEPROM24AA02UIDMinimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 }
 
 // NewEEPROM24AA02UIDMinimal creates a new EEPROM24AA02UIDMinimal bound to
 // the given connection. The chip has no configuration registers; no I²C
 // traffic is performed at construction.
-func NewEEPROM24AA02UIDMinimal(t connection.Connection) (*EEPROM24AA02UIDMinimal, error) {
+func NewEEPROM24AA02UIDMinimal(t connection.RegisterConnection) (*EEPROM24AA02UIDMinimal, error) {
 	return &EEPROM24AA02UIDMinimal{connection: t}, nil
 }
 
 // ReadUID reads the chip's 32-bit factory-programmed serial number from
 // 0xFC–0xFF, MSB first.
 func (d *EEPROM24AA02UIDMinimal) ReadUID() ([4]byte, error) {
-	buf, err := d.connection.WriteRead([]byte{eeprom24aa02UIDBase}, 4)
+	buf, err := d.connection.ReadReg(uint32(eeprom24aa02UIDBase), 4)
 	if err != nil {
 		return [4]byte{}, err
 	}
@@ -46,7 +46,7 @@ func (d *EEPROM24AA02UIDMinimal) ReadUID() ([4]byte, error) {
 // ReadUserByte reads a single byte from user EEPROM at the given memory
 // address (0x00–0x7F).
 func (d *EEPROM24AA02UIDMinimal) ReadUserByte(address byte) (byte, error) {
-	buf, err := d.connection.WriteRead([]byte{address}, 1)
+	buf, err := d.connection.ReadReg(uint32(address), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -59,7 +59,7 @@ func (d *EEPROM24AA02UIDMinimal) ReadUserByte(address byte) (byte, error) {
 // Writes to 0x80–0xFF are accepted by the bus but silently ignored by
 // the chip.
 func (d *EEPROM24AA02UIDMinimal) WriteUserByte(address byte, value byte) error {
-	if err := d.connection.Write([]byte{address, value}); err != nil {
+	if err := d.connection.WriteReg(uint32(address), []byte{value}); err != nil {
 		return err
 	}
 	time.Sleep(eeprom24aa02UIDWriteCycleMs * time.Millisecond)
@@ -76,7 +76,7 @@ type EEPROM24AA02UIDFull struct {
 
 // NewEEPROM24AA02UIDFull creates a new EEPROM24AA02UIDFull bound to the
 // given connection.
-func NewEEPROM24AA02UIDFull(t connection.Connection) (*EEPROM24AA02UIDFull, error) {
+func NewEEPROM24AA02UIDFull(t connection.RegisterConnection) (*EEPROM24AA02UIDFull, error) {
 	m, err := NewEEPROM24AA02UIDMinimal(t)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (d *EEPROM24AA02UIDFull) Read(address byte, length int) ([]byte, error) {
 	if length == 0 {
 		return []byte{}, nil
 	}
-	return d.connection.WriteRead([]byte{address}, length)
+	return d.connection.ReadReg(uint32(address), length)
 }
 
 // WritePage writes up to 8 bytes within a single 8-byte page.
@@ -109,10 +109,7 @@ func (d *EEPROM24AA02UIDFull) WritePage(address byte, data []byte) error {
 	if n > eeprom24aa02UIDPageSize {
 		n = eeprom24aa02UIDPageSize
 	}
-	buf := make([]byte, 1+n)
-	buf[0] = address
-	copy(buf[1:], data[:n])
-	if err := d.connection.Write(buf); err != nil {
+	if err := d.connection.WriteReg(uint32(address), data[:n]); err != nil {
 		return err
 	}
 	time.Sleep(eeprom24aa02UIDWriteCycleMs * time.Millisecond)
