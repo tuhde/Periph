@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gas
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -13,7 +13,7 @@ import java.io.IOException
  * Default: STANDARD mode (gas sensing active), polling only, no external
  * T/RH compensation.
  */
-open class Ens160Minimal(protected val connection: Connection) {
+open class Ens160Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         const val REG_PART_ID       = 0x00
@@ -38,34 +38,26 @@ open class Ens160Minimal(protected val connection: Connection) {
     }
 
     init {
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_IDLE).toByte()))
         Thread.sleep(1)
         val partId = readRegLE16(REG_PART_ID)
         if (partId != PART_ID_EXPECTED) {
             throw IOException("ENS160 not found: expected PART_ID 0x0160, got 0x${partId.toString(16)}")
         }
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
-    }
-
-    protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(REG_OPMODE, byteArrayOf((OPMODE_STANDARD).toByte()))
     }
 
     protected fun writeRegLE16(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte()))
-    }
-
-    protected fun readReg(reg: Int, n: Int): ByteArray {
-        return connection.writeRead(byteArrayOf(reg.toByte()), n)
+        connection.write(reg, byteArrayOf((value and 0xFF).toByte(), ((value shr 8) and 0xFF).toByte()))
     }
 
     protected fun readRegLE16(reg: Int): Int {
-        val data = readReg(reg, 2)
+        val data = connection.read(reg, 2)
         return (data[0].toInt() and 0xFF) or ((data[1].toInt() and 0xFF) shl 8)
     }
 
     protected fun readDeviceStatus(): Int {
-        val data = readReg(REG_DEVICE_STATUS, 1)
+        val data = connection.read(REG_DEVICE_STATUS, 1)
         return data[0].toInt() and 0xFF
     }
 
@@ -108,7 +100,7 @@ open class Ens160Minimal(protected val connection: Connection) {
         if (validity != 0) {
             throw IOException("ENS160: data not valid (VALIDITY_FLAG=$validity)")
         }
-        val data = readReg(REG_DATA_AQI, 5)
+        val data = connection.read(REG_DATA_AQI, 5)
         val aqi = data[0].toInt() and 0x07
         val tvocPpb = (data[1].toInt() and 0xFF) or ((data[2].toInt() and 0xFF) shl 8)
         val eco2Ppm = (data[3].toInt() and 0xFF) or ((data[4].toInt() and 0xFF) shl 8)

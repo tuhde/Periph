@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief ENS160 digital multi-gas sensor — minimal interface.
  *
@@ -11,11 +11,11 @@
  *  Default: STANDARD mode (gas sensing active), polling only, no external
  *  T/RH compensation.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class ENS160Minimal {
 public:
-    explicit ENS160Minimal(Connection& connection);
+    explicit ENS160Minimal(RegisterConnection& connection);
 
     /** @brief Read the VALIDITY_FLAG from DEVICE_STATUS.
      *  @return Validity flag (0=OK, 1=Warm-up, 2=Initial Start-up, 3=No valid output).
@@ -59,11 +59,9 @@ protected:
 
     static constexpr uint16_t PART_ID_EXPECTED = 0x0160;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
-    void     _write_reg(uint8_t reg, uint8_t value);
     void     _write_reg_le16(uint8_t reg, uint16_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     uint16_t _read_reg_le16(uint8_t reg);
     uint8_t  _read_device_status();
     bool     _wait_for_new_data(uint32_t timeout_ms = 5000);
@@ -75,7 +73,7 @@ protected:
  *  raw sensor resistance, firmware version query, interrupt configuration,
  *  and sleep/wake control.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class ENS160Full : public ENS160Minimal {
 public:
@@ -84,7 +82,7 @@ public:
     static constexpr uint8_t VALIDITY_INITIAL_STARTUP = 2;
     static constexpr uint8_t VALIDITY_INVALID         = 3;
 
-    explicit ENS160Full(Connection& connection);
+    explicit ENS160Full(RegisterConnection& connection);
 
     /** @brief Write external temperature and humidity for compensation.
      *  @param temp_celsius Ambient temperature in degrees Celsius.

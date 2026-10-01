@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gas
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 import java.io.IOException
 
@@ -38,7 +38,7 @@ class Ens160Minimal {
 
     static final int PART_ID_EXPECTED  = 0x0160
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver, verify PART_ID, and start STANDARD mode.
@@ -46,36 +46,28 @@ class Ens160Minimal {
      * @param connection I²C or SPI connection bound to the device.
      * @throws IOException on I²C error or wrong PART_ID.
      */
-    Ens160Minimal(Connection connection) {
+    Ens160Minimal(RegisterConnection connection) {
         this.connection = connection
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, [(byte) OPMODE_IDLE] as byte[])
         Thread.sleep(1)
         int partId = readRegLE16(REG_PART_ID)
         if (partId != PART_ID_EXPECTED) {
             throw new IOException("ENS160 not found: expected PART_ID 0x0160, got 0x" + Integer.toHexString(partId))
         }
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
-    }
-
-    protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) value] as byte[])
+        connection.write(REG_OPMODE, [(byte) OPMODE_STANDARD] as byte[])
     }
 
     protected void writeRegLE16(int reg, int value) {
-        connection.write([(byte) reg, (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)] as byte[])
-    }
-
-    protected byte[] readReg(int reg, int n) {
-        return connection.writeRead([(byte) reg] as byte[], n)
+        connection.write(reg, [(byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF)] as byte[])
     }
 
     protected int readRegLE16(int reg) {
-        byte[] data = readReg(reg, 2)
+        byte[] data = connection.read(reg, 2)
         return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8)
     }
 
     protected int readDeviceStatus() {
-        byte[] data = readReg(REG_DEVICE_STATUS, 1)
+        byte[] data = connection.read(REG_DEVICE_STATUS, 1)
         return data[0] & 0xFF
     }
 
@@ -118,7 +110,7 @@ class Ens160Minimal {
         if (validity != 0) {
             throw new IOException("ENS160: data not valid (VALIDITY_FLAG=" + validity + ")")
         }
-        byte[] data = readReg(REG_DATA_AQI, 5)
+        byte[] data = connection.read(REG_DATA_AQI, 5)
         int aqi = data[0] & 0x07
         int tvocPpb = (data[1] & 0xFF) | ((data[2] & 0xFF) << 8)
         int eco2Ppm = (data[3] & 0xFF) | ((data[4] & 0xFF) << 8)

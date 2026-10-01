@@ -9,6 +9,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_PART_ID: u8 = 0x00;
 const REG_OPMODE: u8 = 0x10;
 const REG_CONFIG: u8 = 0x11;
@@ -45,27 +47,19 @@ fn delay_ms(ms: u32) {
     let _ = ms;
 }
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
-}
-
 fn write_reg_le16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u16) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, (value & 0xFF) as u8, ((value >> 8) & 0xFF) as u8])
-}
-
-fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::write_register(i2c, addr, reg.into(), 1, &[(value & 0xFF) as u8, ((value >> 8) & 0xFF) as u8])
 }
 
 fn read_reg_le16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
-    read_reg(i2c, addr, reg, &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(u16::from_le_bytes(buf))
 }
 
 fn read_device_status<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    read_reg(i2c, addr, REG_DEVICE_STATUS, &mut buf)?;
+    register::read_register(i2c, addr, REG_DEVICE_STATUS.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
@@ -100,13 +94,13 @@ impl<I2C: I2c> Ens160Minimal<I2C> {
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x52 or 0x53).
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
-        write_reg(&mut i2c, addr, REG_OPMODE, OPMODE_IDLE)?;
+        register::write_register(&mut i2c, addr, REG_OPMODE.into(), 1, &[OPMODE_IDLE])?;
         delay_ms(1);
         let part_id = read_reg_le16(&mut i2c, addr, REG_PART_ID)?;
         if part_id != PART_ID_EXPECTED {
             panic!("ENS160 not found: expected PART_ID 0x0160, got 0x{:04X}", part_id);
         }
-        write_reg(&mut i2c, addr, REG_OPMODE, OPMODE_STANDARD)?;
+        register::write_register(&mut i2c, addr, REG_OPMODE.into(), 1, &[OPMODE_STANDARD])?;
         Ok(Self { i2c, addr })
     }
 
@@ -148,7 +142,7 @@ impl<I2C: I2c> Ens160Minimal<I2C> {
             panic!("ENS160: data not valid (VALIDITY_FLAG={})", validity);
         }
         let mut data = [0u8; 5];
-        read_reg(&mut self.i2c, self.addr, REG_DATA_AQI, &mut data)?;
+        register::read_register(&mut self.i2c, self.addr, REG_DATA_AQI.into(), 1, &mut data)?;
         let aqi = data[0] & 0x07;
         let tvoc_ppb = u16::from_le_bytes([data[1], data[2]]) as f32;
         let eco2_ppm = u16::from_le_bytes([data[3], data[4]]) as f32;
@@ -208,7 +202,7 @@ impl<I2C: I2c> Ens160Full<I2C> {
     pub fn read_aqi(&mut self) -> Result<u8, I2C::Error> {
         wait_for_new_data(&mut self.inner.i2c, self.inner.addr, 5000)?;
         let mut data = [0u8; 1];
-        read_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_AQI, &mut data)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_DATA_AQI.into(), 1, &mut data)?;
         Ok(data[0] & 0x07)
     }
 
@@ -242,7 +236,7 @@ impl<I2C: I2c> Ens160Full<I2C> {
     /// Returns (temp_celsius, rh_percent).
     pub fn read_compensation_actuals(&mut self) -> Result<(f32, f32), I2C::Error> {
         let mut data = [0u8; 4];
-        read_reg(&mut self.inner.i2c, self.inner.addr, REG_DATA_T, &mut data)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_DATA_T.into(), 1, &mut data)?;
         let temp_raw = u16::from_le_bytes([data[0], data[1]]);
         let rh_raw = u16::from_le_bytes([data[2], data[3]]);
         let temp_celsius = (temp_raw as f32 / 64.0) - 273.15;
@@ -257,16 +251,16 @@ impl<I2C: I2c> Ens160Full<I2C> {
     ///
     /// Returns (major, minor, release).
     pub fn get_firmware_version(&mut self) -> Result<(u8, u8, u8), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_IDLE)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OPMODE.into(), 1, &[OPMODE_IDLE])?;
         delay_ms(1);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_COMMAND, 0x0E)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_COMMAND.into(), 1, &[0x0E])?;
         delay_ms(1);
         let mut data = [0u8; 3];
-        read_reg(&mut self.inner.i2c, self.inner.addr, REG_GPR_READ + 4, &mut data)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, (REG_GPR_READ + 4).into(), 1, &mut data)?;
         let major = data[0];
         let minor = data[1];
         let release = data[2];
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_STANDARD)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OPMODE.into(), 1, &[OPMODE_STANDARD])?;
         Ok((major, minor, release))
     }
 
@@ -285,19 +279,19 @@ impl<I2C: I2c> Ens160Full<I2C> {
         if on_gpr { config |= 0x08; }
         if push_pull { config |= 0x20; }
         if active_high { config |= 0x40; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, config)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[config])
     }
 
     /// Enter DEEP SLEEP mode for power saving.
     pub fn sleep(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_DEEP_SLEEP)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OPMODE.into(), 1, &[OPMODE_DEEP_SLEEP])
     }
 
     /// Wake from DEEP SLEEP and resume STANDARD gas sensing.
     pub fn wake(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_IDLE)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OPMODE.into(), 1, &[OPMODE_IDLE])?;
         delay_ms(1);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OPMODE, OPMODE_STANDARD)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OPMODE.into(), 1, &[OPMODE_STANDARD])
     }
 
     /// Poll DEVICE_STATUS until NEWDAT is set or `timeout_ms` elapses.

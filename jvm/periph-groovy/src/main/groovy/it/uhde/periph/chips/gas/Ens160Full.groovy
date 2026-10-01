@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gas
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 import java.io.IOException
 
@@ -29,7 +29,7 @@ class Ens160Full extends Ens160Minimal {
      *
      * @param connection I²C or SPI connection bound to the device.
      */
-    Ens160Full(Connection connection) {
+    Ens160Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -73,7 +73,7 @@ class Ens160Full extends Ens160Minimal {
      */
     int readAqi() {
         waitForNewData(5000)
-        byte[] data = readReg(REG_DATA_AQI, 1)
+        byte[] data = connection.read(REG_DATA_AQI, 1)
         return data[0] & 0x07
     }
 
@@ -112,7 +112,7 @@ class Ens160Full extends Ens160Minimal {
      * @return array: [tempCelsius, rhPercent].
      */
     double[] readCompensationActuals() {
-        byte[] data = readReg(REG_DATA_T, 4)
+        byte[] data = connection.read(REG_DATA_T, 4)
         int tempRaw = (data[0] & 0xFF) | ((data[1] & 0xFF) << 8)
         int rhRaw = (data[2] & 0xFF) | ((data[3] & 0xFF) << 8)
         double tempCelsius = (tempRaw / 64.0) - 273.15
@@ -129,15 +129,15 @@ class Ens160Full extends Ens160Minimal {
      * @return array: [major, minor, release].
      */
     int[] getFirmwareVersion() {
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, [(byte) OPMODE_IDLE] as byte[])
         Thread.sleep(1)
-        writeReg(REG_COMMAND, 0x0E)
+        connection.write(REG_COMMAND, [(byte) 0x0E] as byte[])
         Thread.sleep(1)
-        byte[] data = readReg(REG_GPR_READ + 4, 3)
+        byte[] data = connection.read(REG_GPR_READ + 4, 3)
         int major = data[0] & 0xFF
         int minor = data[1] & 0xFF
         int release = data[2] & 0xFF
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
+        connection.write(REG_OPMODE, [(byte) OPMODE_STANDARD] as byte[])
         return [major, minor, release] as int[]
     }
 
@@ -157,22 +157,22 @@ class Ens160Full extends Ens160Minimal {
         if (onGpr) config |= 0x08
         if (pushPull) config |= 0x20
         if (activeHigh) config |= 0x40
-        writeReg(REG_CONFIG, config)
+        connection.write(REG_CONFIG, [(byte) config] as byte[])
     }
 
     /**
      * Enter DEEP SLEEP mode for power saving.
      */
     void sleep() {
-        writeReg(REG_OPMODE, OPMODE_DEEP_SLEEP)
+        connection.write(REG_OPMODE, [(byte) OPMODE_DEEP_SLEEP] as byte[])
     }
 
     /**
      * Wake from DEEP SLEEP and resume STANDARD gas sensing.
      */
     void wake() {
-        writeReg(REG_OPMODE, OPMODE_IDLE)
+        connection.write(REG_OPMODE, [(byte) OPMODE_IDLE] as byte[])
         Thread.sleep(1)
-        writeReg(REG_OPMODE, OPMODE_STANDARD)
+        connection.write(REG_OPMODE, [(byte) OPMODE_STANDARD] as byte[])
     }
 }
