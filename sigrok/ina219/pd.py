@@ -135,7 +135,7 @@ class Decoder(srd.Decoder):
     annotation_rows = (
         ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
         ('warnings',    'Warnings',    (ANN_WARNING,)),
-        ('conformance', 'Conformance', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
+        ('timing', 'Timing', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
     )
 
     def __init__(self):

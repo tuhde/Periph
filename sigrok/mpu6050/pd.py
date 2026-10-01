@@ -176,7 +176,7 @@ class Decoder(srd.Decoder):
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
-        ('conformance', 'Conformance', (ANN_RESET_RECOVERY_START, ANN_RESET_RECOVERY_DONE,
+        ('timing', 'Timing', (ANN_RESET_RECOVERY_START, ANN_RESET_RECOVERY_DONE,
                                          ANN_GYRO_STARTUP_START, ANN_GYRO_STARTUP_DONE)),
     )
 

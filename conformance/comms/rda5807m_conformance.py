@@ -43,12 +43,12 @@ DECODER_ID = 'rda5807m'
 
 CHECKS = {
     'ready_settle': (
-        lambda t: t == 'ready_settle_start',
-        lambda t: t == 'ready_settle_done',
+        lambda t: 'ready_settle_start' in t,
+        lambda t: 'ready_settle_done' in t,
     ),
     'reset_recovery': (
-        lambda t: t == 'reset_recovery_start',
-        lambda t: t == 'reset_recovery_done',
+        lambda t: 'reset_recovery_start' in t,
+        lambda t: 'reset_recovery_done' in t,
     ),
 }
 

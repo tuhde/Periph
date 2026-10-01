@@ -56,7 +56,7 @@ class Decoder(srd.Decoder):
         ('ready',       'Ready',       (ANN_READY,)),
         ('bits',        'Bits',        (ANN_BIT,)),
         ('conversions', 'Conversions', (ANN_CONV,)),
-        ('power',       'Power',       (ANN_POWERDOWN, ANN_WAKEUP)),
+        ('timing',      'Timing',      (ANN_POWERDOWN, ANN_WAKEUP)),
         ('warnings',    'Warnings',    (ANN_WARNING,)),
     )
 

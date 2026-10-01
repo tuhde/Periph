@@ -43,12 +43,12 @@ DECODER_ID = 'mpu6050'
 
 CHECKS = {
     'reset_recovery': (
-        lambda t: t == 'reset_recovery_start',
-        lambda t: t == 'reset_recovery_done',
+        lambda t: 'reset_recovery_start' in t,
+        lambda t: 'reset_recovery_done' in t,
     ),
     'gyro_startup': (
-        lambda t: t == 'gyro_startup_start',
-        lambda t: t == 'gyro_startup_done',
+        lambda t: 'gyro_startup_start' in t,
+        lambda t: 'gyro_startup_done' in t,
     ),
 }
 
