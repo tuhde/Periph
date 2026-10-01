@@ -179,6 +179,23 @@ detect_level() {
     fi
 }
 
+# check_bus_access: hard-fail with a clear message when the I2C bus device
+# node is missing or not readable/writable by the current user, instead of
+# letting the test crash with an exception from the bus layer.
+check_bus_access() {
+    local dev="/dev/i2c-$LINUX_I2C_BUS"
+    if [ ! -e "$dev" ]; then
+        echo "ERROR: I2C bus device $dev does not exist." >&2
+        echo "       Load the i2c-dev kernel module (sudo modprobe i2c-dev), enable I2C, or set LINUX_I2C_BUS to another bus." >&2
+        exit 1
+    fi
+    if [ ! -r "$dev" ] || [ ! -w "$dev" ]; then
+        echo "ERROR: no read/write permission on $dev (user $(id -un))." >&2
+        echo "       Add the user to the i2c group (sudo usermod -aG i2c $(id -un), then re-login) or fix the udev rule." >&2
+        exit 1
+    fi
+}
+
 # --- unit level: mocked, no hardware, no testconfig needed ------------------
 run_unit() {
     local unit_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_unit/${CHIP}_test_unit.cpp"
@@ -211,6 +228,7 @@ run_unit() {
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
     resolve_addr
+    check_bus_access
     local test_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"
     if [ ! -f "$test_src" ]; then
         echo "ERROR: test source not found: $test_src" >&2
@@ -240,6 +258,7 @@ run_hil() {
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
     resolve_addr
+    check_bus_access
     local test_src="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test_linux/${CHIP}_test_linux.cpp"
     if [ ! -f "$test_src" ]; then
         echo "ERROR: test source not found: $test_src" >&2
