@@ -419,35 +419,50 @@ Additional decisions made while writing this spec:
 ## 11. Implementation Checklist
 
 ### Registry
-- [ ] `aliased` handling (§7.5) in all six `discover()` implementations, with a test using a fake bus where all of `0x50`–`0x57` ACK
-- [ ] `registry/schema.json`, `registry/chips.json` (one entry per I²C chip, values traced to specs), `registry/known_ambiguities.json`, `registry/README.md`
-- [ ] `registry/scripts/validate.js` (§4.3) with `--check`; unit tests for each failure class
-- [ ] `registry/scripts/generate.js` emitting the six tables (§4.5) with `--check`; `--registry <path-or-url>` option
-- [ ] CI jobs for both `--check` modes
+- [x] `aliased` handling (§7.5) in all six `discover()` implementations, with a test using a fake bus where all of `0x50`–`0x57` ACK
+- [x] `registry/schema.json`, `registry/chips.json` (one entry per I²C chip, values traced to specs), `registry/known_ambiguities.json`, `registry/README.md`
+- [x] `registry/scripts/validate.js` (§4.3) with `--check`; unit tests for each failure class
+- [x] `registry/scripts/generate.js` emitting the six tables (§4.5) with `--check`; `--registry <path-or-url>` option
+- [x] CI jobs for both `--check` modes
 
 ### Python
-- [ ] `python/periph/discovery.py` (`scan`, `discover`, `DiscoveredDevice`), `discovery_registry.py` (generated)
-- [ ] Unit tests with a fake bus: scan ranges and method selection (quick vs read byte), `EBUSY`, all §5.2 examples, every row of §8 identifies correctly, failed ID read handling
-- [ ] Example `python/examples/discovery/discover.py` (minimal/complete/demo tiers per `CLAUDE.md`)
+- [x] `python/periph/discovery.py` (`scan`, `discover`, `DiscoveredDevice`), `discovery_registry.py` (generated)
+- [x] Unit tests with a fake bus: scan ranges and method selection (quick vs read byte), `EBUSY`, all §5.2 examples, every row of §8 identifies correctly, failed ID read handling
+- [x] Example `python/examples/discovery/discover.py` (minimal/complete/demo tiers per `CLAUDE.md`)
 
 ### C++ (Linux GCC)
-- [ ] `Discovery.h/.cpp`, `DiscoveryRegistry.h` (generated); unit tests against a mock bus; excluded from the Arduino/Zephyr/ESP-IDF/Pico SDK builds (verify by running `cpp/scripts/build-all.sh` on all five platforms)
-- [ ] Linux examples (minimal/complete/demo)
+- [x] `Discovery.h/.cpp`, `DiscoveryRegistry.h` (generated); unit tests against a mock bus; excluded from the Arduino/Zephyr/ESP-IDF/Pico SDK builds (`#ifdef __linux__` guards; Arduino staging and `keywords.txt` skip `src/discovery`). Only `build-all.sh linux` was run — the other four platforms' toolchains were not exercised, see §12
+- [x] Linux examples (minimal/complete/demo)
 
 ### Node.js
-- [ ] `discovery.js`, `registry.js` (generated); tests; examples; document any quick-write deviation (§3.4)
+- [x] `discovery.js`, `registry.js` (generated); tests; examples; document any quick-write deviation (§3.4)
 
 ### Rust
-- [ ] `discovery` module generic over `embedded_hal::i2c::I2c`; `no_std` is **not** required; tests with `embedded-hal-mock`; Linux example crates
+- [x] `discovery` module generic over `embedded_hal::i2c::I2c`; `no_std` is **not** required; tests with a hand-written fake bus (`embedded-hal-mock`'s expectation model does not fit a 112-address scan); Linux example crates
 
 ### JVM
-- [ ] `Discovery.java`, `DiscoveryRegistry.java` (generated); JUnit tests; JBang examples (Java only)
+- [x] `Discovery.java`, `DiscoveryRegistry.java` (generated); JUnit tests; JBang examples (Java only)
 
 ### Go
-- [ ] `go/periph/discovery`; `go test`; Linux examples (no TinyGo build)
+- [x] `go/periph/discovery`; `go test`; Linux examples (no TinyGo build)
 
 ### Docs
-- [ ] `CLAUDE.md` chip flow sub-step (§9.1); `_template_chip*.md` fields (§9.2); `AGENTS.md` note (§9.3); wiki page `I2C-Discovery.md` with quick-start snippets and platform matrix, linked from Home and the sidebar
+- [x] `CLAUDE.md` chip flow sub-step (§9.1); `_template_chip*.md` fields (§9.2); `AGENTS.md` note (§9.3); wiki page `I2C-Discovery.md` with quick-start snippets and platform matrix, linked from Home and the sidebar
 
 ### Hardware-in-loop
 - [ ] On a Linux host with at least two chips from different collision groups (e.g. a BME280 and an MPU6050), `discover()` reports both with `identified` set; an ID-less chip at a shared address reports `candidates` only
+
+---
+
+## 12. Implementation Notes
+
+Deviations and details settled while implementing (the spec text above has been corrected where it was wrong):
+
+- **Scan API names.** Each language exposes `scan` (sorted addresses) and `scan_detailed` / `scanDetailed` / `ScanDetailed` (address → in-use-by-kernel). Python and Node.js take a bus number or an open bus handle; C++ and Go define a small `Bus` interface so tests can inject a fake (`BusLinux` / `LinuxBus` for the real thing); the Rust functions are generic over `embedded_hal::i2c::I2c`.
+- **JVM.** The scan primitive is a new class `I2CBus` in `periph-connection` (it needs an fd-level ioctl handle with errno capture), not a static on `I2CConnection`. `periph-java` exports the new `it.uhde.periph.discovery` package.
+- **Node.js.** `i2c-bus` has no true quick write, so the scan uses a zero-length `i2cWriteSync`, falling back to `receiveByteSync` when the adapter rejects it (`EOPNOTSUPP`/`EINVAL`). Identity reads write the register address and read back with a STOP in between: the existing `I2CConnection` only sends one register byte and `i2c-bus` has no synchronous repeated-start transfer, so a two-byte register (VL53L1X) could not go through it.
+- **Rust.** `embedded-hal` folds `EBUSY` into `ErrorKind::Bus` and `EREMOTEIO` into `Other`, so `default_classify` recognises them from the error's `Debug` text (Linux, `linux-embedded-hal`); other HALs pass their own classifier to `scan_detailed_with`. A quick-write that fails with anything but a NACK is retried as a read byte, which stands in for the capability check Rust cannot do generically. The module needs the `std` feature.
+- **Go.** `registry.go` carries no build tag (only `bus_linux.go` does) so the algorithm is testable anywhere.
+- **`probe_skipped_reason`** is only set when a probe was actually skipped: kernel-bound addresses always; write-sensitive only if some candidate has an identity register (§5.1 step 4).
+- **Alias merge** requires only that every address of the block ACKs (§7.5); chips that merely share some of those addresses (ENS160 at `0x52`/`0x53`) are ruled out by the merge.
+- **Not exercised:** hardware-in-the-loop (no bus attached here); Pico SDK, Zephyr, ESP-IDF and Arduino builds (the new C++ files are guarded and outside those builds' source globs, but that was reasoned, not compiled).
