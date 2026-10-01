@@ -37,13 +37,13 @@ class INA3221Minimal:
             self._r_shunt = (float(r_shunt), float(r_shunt), float(r_shunt))
 
     def _write_reg(self, reg, value):
-        self._connection.write(struct.pack('>BH', reg, value))
+        self._connection.write_reg(reg, struct.pack('>H', value))
 
     def _read_reg(self, reg):
-        return struct.unpack('>H', self._connection.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>H', self._connection.read_reg(reg, 2))[0]
 
     def _read_reg_signed(self, reg):
-        return struct.unpack('>h', self._connection.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>h', self._connection.read_reg(reg, 2))[0]
 
     def _channel_valid(self, channel):
         if channel not in (1, 2, 3):

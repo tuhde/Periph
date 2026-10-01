@@ -50,18 +50,15 @@ class INA3221Minimal {
     }
 
     async _writeReg(reg, value) {
-        const buf = Buffer.alloc(3);
-        buf[0] = reg;
-        buf.writeUInt16BE(value, 1);
-        await this._conn.write(buf);
+        await this._conn.writeReg(reg, Buffer.from([(value >> 8) & 0xFF, value & 0xFF]));
     }
 
     async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readUInt16BE(0);
+        return (await this._conn.readReg(reg, 2)).readUInt16BE(0);
     }
 
     async _readRegSigned(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
+        return (await this._conn.readReg(reg, 2)).readInt16BE(0);
     }
 
     _channelValid(channel) {

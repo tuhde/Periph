@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -74,7 +74,7 @@ public class Ina3221Full extends Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω applied to all three channels
      */
-    public Ina3221Full(Connection connection, double rShunt) {
+    public Ina3221Full(RegisterConnection connection, double rShunt) {
         super(connection, rShunt);
     }
 
@@ -84,7 +84,7 @@ public class Ina3221Full extends Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunts   shunt resistances in Ω for channels 1, 2, and 3
      */
-    public Ina3221Full(Connection connection, double[] rShunts) {
+    public Ina3221Full(RegisterConnection connection, double[] rShunts) {
         super(connection, rShunts);
     }
 
@@ -93,7 +93,7 @@ public class Ina3221Full extends Ina3221Minimal {
      *
      * @param connection I²C connection bound to the INA3221 device address
      */
-    public Ina3221Full(Connection connection) {
+    public Ina3221Full(RegisterConnection connection) {
         super(connection);
     }
 
