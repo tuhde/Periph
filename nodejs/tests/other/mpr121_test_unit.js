@@ -30,7 +30,7 @@ async function main() {
     mpr = new MPR121Minimal(mock);
     await new Promise(r => setTimeout(r, 10));
     const t = await mpr.touched();
-    checkTrue('touched returns 0x55A', t === 0x5A);
+    checkTrue('touched returns 0x55A', t === 0x55A);
 
     mock = new I2CConnectionMock();
     mock.setRegister(0x00, [0x28, 0x08]);

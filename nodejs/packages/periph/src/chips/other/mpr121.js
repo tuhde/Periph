@@ -57,7 +57,7 @@ function _sleep(ms) {
  * - USL = 0xC9, TL = 0xB4, LSL = 0x82 (3.3 V VDD)
  * - ECR = 0x8C (all 12 electrodes enabled)
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x5A by default).
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x5A by default).
  */
 class MPR121Minimal {
     constructor(connection) {
@@ -90,15 +90,15 @@ class MPR121Minimal {
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, value & 0xFF);
     }
 
     async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg & 0xFF]), 1))[0];
+        return (await this._conn.readReg(reg & 0xFF, 1))[0];
     }
 
     async _readReg16(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg & 0xFF]), 2);
+        const buf = await this._conn.readReg(reg & 0xFF, 2);
         return (buf[0]) | ((buf[1] & 0x03) << 8);
     }
 
@@ -111,7 +111,7 @@ class MPR121Minimal {
      * @returns {Promise<number>} 12-bit bitmask; bit n = 1 if ELEn is touched.
      */
     async touched() {
-        const buf = await this._conn.writeRead(Buffer.from([_REG_ELE0_7_TOUCH]), 2);
+        const buf = await this._conn.readReg(_REG_ELE0_7_TOUCH, 2);
         return buf[0] | ((buf[1] & 0x0F) << 8);
     }
 
@@ -140,7 +140,7 @@ class MPR121Full extends MPR121Minimal {
     static get SOURCE_ACF() { return 0x01; }
 
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device.
      */
     constructor(connection) {
         super(connection);
@@ -267,7 +267,7 @@ class MPR121Full extends MPR121Minimal {
      * @returns {Promise<number>} bits 0-11 = ELE0-ELE11 OOR, bit 12 = ELEPROX OOR.
      */
     async oorStatus() {
-        const buf = await this._conn.writeRead(Buffer.from([_REG_ELE0_7_OOR]), 2);
+        const buf = await this._conn.readReg(_REG_ELE0_7_OOR, 2);
         return buf[0] | ((buf[1] & 0x1F) << 8);
     }
 

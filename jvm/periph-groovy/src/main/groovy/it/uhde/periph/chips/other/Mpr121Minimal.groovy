@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.other
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MPR121 — proximity capacitive touch sensor controller (minimal driver).
@@ -59,9 +59,9 @@ class Mpr121Minimal {
     static final int TL_3V3              = 0xB4
     static final int LSL_3V3             = 0x82
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
-    Mpr121Minimal(Connection connection) {
+    Mpr121Minimal(RegisterConnection connection) {
         this.connection = connection
         softReset()
         writeReg(REG_MHDR, 0x01)
@@ -83,7 +83,7 @@ class Mpr121Minimal {
 
     /** Read the 12-bit electrode touch bitmask. */
     int touched() {
-        byte[] buf = connection.writeRead([REG_ELE0_7_TOUCH] as byte[], 2)
+        byte[] buf = connection.read(REG_ELE0_7_TOUCH, 2)
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x0F) << 8)
     }
 
@@ -101,17 +101,16 @@ class Mpr121Minimal {
     }
 
     protected void writeReg(int reg, int value) {
-        byte[] buf = [(reg & 0xFF) as byte, (value & 0xFF) as byte]
-        connection.write(buf)
+        connection.write(reg & 0xFF, [(value & 0xFF) as byte] as byte[])
     }
 
     protected int readReg(int reg) {
-        byte[] buf = connection.writeRead([(reg & 0xFF) as byte] as byte[], 1)
+        byte[] buf = connection.read(reg & 0xFF, 1)
         return buf[0] & 0xFF
     }
 
     protected int readReg16(int reg) {
-        byte[] buf = connection.writeRead([(reg & 0xFF) as byte] as byte[], 2)
+        byte[] buf = connection.read(reg & 0xFF, 2)
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x03) << 8)
     }
 }

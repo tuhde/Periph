@@ -24,7 +24,7 @@ public class Mpr121Full extends Mpr121Minimal {
      * @param connection I²C connection bound to the MPR121 device address
      * @throws IOException on I²C error
      */
-    public Mpr121Full(it.uhde.periph.connection.Connection connection) throws IOException {
+    public Mpr121Full(it.uhde.periph.connection.RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -135,7 +135,7 @@ public class Mpr121Full extends Mpr121Minimal {
 
     /** Read the 13-bit out-of-range bitmask. */
     public int oorStatus() throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { REG_ELE0_7_OOR }, 2);
+        byte[] buf = connection.read(REG_ELE0_7_OOR, 2);
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x1F) << 8);
     }
 

@@ -54,7 +54,7 @@ const (
 //
 // Default I²C address: 0x5A (selects via ADDR pin: 0x5A/0x5B/0x5C/0x5D).
 type MPR121Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	addr       uint8
 }
 
@@ -63,7 +63,7 @@ type MPR121Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (typically 0x5A).
-func NewMPR121Minimal(conn connection.Connection) (*MPR121Minimal, error) {
+func NewMPR121Minimal(conn connection.RegisterConnection) (*MPR121Minimal, error) {
 	d := &MPR121Minimal{connection: conn, addr: 0x5A}
 	if err := d.softReset(); err != nil {
 		return nil, err
@@ -121,11 +121,11 @@ func (d *MPR121Minimal) softReset() error {
 }
 
 func (d *MPR121Minimal) writeReg(reg, value uint8) error {
-	return d.connection.Write([]byte{reg, value})
+	return d.connection.WriteReg(uint32(reg), []byte{value})
 }
 
 func (d *MPR121Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -133,7 +133,7 @@ func (d *MPR121Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *MPR121Minimal) readReg16(reg uint8) (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -147,7 +147,7 @@ func (d *MPR121Minimal) readReg16(reg uint8) (uint16, error) {
 //
 // Returns the 12-bit bitmask; bit n = 1 if ELEn is currently touched.
 func (d *MPR121Minimal) Touched() (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{mpr121RegELE0_7Touch}, 2)
+	buf, err := d.connection.ReadReg(uint32(mpr121RegELE0_7Touch), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -190,7 +190,7 @@ const (
 
 // NewMPR121Full creates a new MPR121Full with the same initialisation as
 // NewMPR121Minimal.
-func NewMPR121Full(conn connection.Connection) (*MPR121Full, error) {
+func NewMPR121Full(conn connection.RegisterConnection) (*MPR121Full, error) {
 	m, err := NewMPR121Minimal(conn)
 	if err != nil {
 		return nil, err
@@ -344,7 +344,7 @@ func (d *MPR121Full) SetBaseline(electrode uint8, value uint16) error {
 
 // OORStatus reads the 13-bit out-of-range bitmask.
 func (d *MPR121Full) OORStatus() (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{mpr121RegELE0_7OOR}, 2)
+	buf, err := d.connection.ReadReg(uint32(mpr121RegELE0_7OOR), 2)
 	if err != nil {
 		return 0, err
 	}

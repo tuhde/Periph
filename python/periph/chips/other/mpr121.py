@@ -28,7 +28,7 @@ class Mpr121Minimal:
     and enters Run Mode on all 12 electrodes at construction.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_ELE0_7_TOUCH  = 0x00
@@ -87,10 +87,10 @@ class Mpr121Minimal:
         time.sleep(0.001)
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg & 0xFF, value & 0xFF]))
+        self._connection.write_reg(reg & 0xFF, value & 0xFF)
 
     def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg & 0xFF]), 1)[0]
+        return self._connection.read_reg(reg & 0xFF, 1)[0]
 
     def touched(self):
         """Read the 12-bit electrode touch bitmask.
@@ -102,7 +102,7 @@ class Mpr121Minimal:
         Returns:
             int: 12-bit bitmask; bit n = 1 if ELEn is currently touched.
         """
-        raw = self._connection.write_read(bytes([self._REG_ELE0_7_TOUCH]), 2)
+        raw = self._connection.read_reg(self._REG_ELE0_7_TOUCH, 2)
         return raw[0] | ((raw[1] & 0x0F) << 8)
 
     def is_touched(self, electrode):
@@ -134,7 +134,7 @@ class Mpr121Full(Mpr121Minimal):
     interrupt.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     SOURCE_OOR = 0x04
@@ -233,7 +233,7 @@ class Mpr121Full(Mpr121Minimal):
             addr = 0x1C
         else:
             addr = 0x04 + 2 * electrode
-        raw = self._connection.write_read(bytes([addr]), 2)
+        raw = self._connection.read_reg(addr, 2)
         return (raw[0] | ((raw[1] & 0x03) << 8))
 
     def baseline(self, electrode):
@@ -277,7 +277,7 @@ class Mpr121Full(Mpr121Minimal):
         Returns:
             int: bits 0-11 = ELE0-ELE11 OOR, bit 12 = ELEPROX OOR.
         """
-        raw = self._connection.write_read(bytes([self._REG_ELE0_7_OOR]), 2)
+        raw = self._connection.read_reg(self._REG_ELE0_7_OOR, 2)
         return raw[0] | ((raw[1] & 0x1F) << 8)
 
     def configure_baseline_filter(self, mhdr, nhdr, nclr, fdlr,
@@ -364,7 +364,7 @@ class Mpr121Full(Mpr121Minimal):
         ELEPROX must be enabled via start(eleprox_en>0) for this to be
         meaningful; otherwise the chip never reports ELEPROX touches.
         """
-        raw = self._connection.write_read(bytes([self._REG_ELE8_PROX_TCH]), 1)
+        raw = self._connection.read_reg(self._REG_ELE8_PROX_TCH, 1)
         return bool(raw[0] & 0x10)
 
     def clear_overcurrent(self):
@@ -461,5 +461,5 @@ class Mpr121Full(Mpr121Minimal):
         Returns:
             int: 13-bit touched bitmask.
         """
-        raw = self._connection.write_read(bytes([self._REG_ELE0_7_TOUCH]), 2)
+        raw = self._connection.read_reg(self._REG_ELE0_7_TOUCH, 2)
         return raw[0] | ((raw[1] & 0x1F) << 8)

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.other;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -61,7 +61,7 @@ public class Mpr121Minimal {
     protected static final int TL_3V3              = 0xB4;
     protected static final int LSL_3V3             = 0x82;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver.
@@ -69,7 +69,7 @@ public class Mpr121Minimal {
      * @param connection I²C connection bound to the MPR121 device address (typically 0x5A)
      * @throws IOException on I²C error
      */
-    public Mpr121Minimal(Connection connection) throws IOException {
+    public Mpr121Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         softReset();
         writeReg(REG_MHDR, 0x01);
@@ -99,7 +99,7 @@ public class Mpr121Minimal {
      * @throws IOException on I²C error
      */
     public int touched() throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { REG_ELE0_7_TOUCH }, 2);
+        byte[] buf = connection.read(REG_ELE0_7_TOUCH, 2);
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x0F) << 8);
     }
 
@@ -123,17 +123,16 @@ public class Mpr121Minimal {
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        byte[] buf = new byte[] { (byte) (reg & 0xFF), (byte) (value & 0xFF) };
-        connection.write(buf);
+        connection.write(reg & 0xFF, new byte[] { (byte) (value & 0xFF) });
     }
 
     protected int readReg(int reg) throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { (byte) (reg & 0xFF) }, 1);
+        byte[] buf = connection.read((reg & 0xFF), 1);
         return buf[0] & 0xFF;
     }
 
     protected int readReg16(int reg) throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { (byte) (reg & 0xFF) }, 2);
+        byte[] buf = connection.read((reg & 0xFF), 2);
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x03) << 8);
     }
 

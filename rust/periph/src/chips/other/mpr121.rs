@@ -11,6 +11,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_ELE0_7_TOUCH: u8 = 0x00;
 const REG_ELE8_PROX_TCH: u8 = 0x01;
 const REG_ELE0_7_OOR: u8 = 0x02;
@@ -52,30 +54,30 @@ pub const SOURCE_ARF: u8 = 0x02;
 pub const SOURCE_ACF: u8 = 0x01;
 
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn read_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8, 0];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok((buf[0] as u16) | (((buf[1] & 0x03) as u16) << 8))
 }
 
 fn read_touched<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8, 0];
-    i2c.write_read(addr, &[REG_ELE0_7_TOUCH], &mut buf)?;
+    register::read_register(i2c, addr, REG_ELE0_7_TOUCH.into(), 1, &mut buf)?;
     Ok((buf[0] as u16) | (((buf[1] & 0x0F) as u16) << 8))
 }
 
 fn read_oor<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8, 0];
-    i2c.write_read(addr, &[REG_ELE0_7_OOR], &mut buf)?;
+    register::read_register(i2c, addr, REG_ELE0_7_OOR.into(), 1, &mut buf)?;
     Ok((buf[0] as u16) | (((buf[1] & 0x1F) as u16) << 8))
 }
 

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.other
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MPR121 — full driver. Extends Mpr121Minimal with explicit Stop/Run
@@ -20,7 +20,7 @@ class Mpr121Full extends Mpr121Minimal {
     /** AUTOCONFIG1 ACFIE interrupt source (bit 0 of 0x7C). */
     static final int SOURCE_ACF = 0x01
 
-    Mpr121Full(Connection connection) {
+    Mpr121Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -120,7 +120,7 @@ class Mpr121Full extends Mpr121Minimal {
 
     /** Read the 13-bit out-of-range bitmask. */
     int oorStatus() {
-        byte[] buf = connection.writeRead([REG_ELE0_7_OOR] as byte[], 2)
+        byte[] buf = connection.read(REG_ELE0_7_OOR, 2)
         return (buf[0] & 0xFF) | (((buf[1] & 0xFF) & 0x1F) << 8)
     }
 

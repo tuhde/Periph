@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief MPR121 proximity capacitive touch sensor controller — minimal interface.
  *
@@ -22,11 +22,11 @@
  *
  * I²C address: 0x5A (default) / 0x5B / 0x5C / 0x5D (selected by ADDR pin).
  *
- * @param connection Configured I2C connection pointing at the device.
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MPR121Minimal {
 public:
-    MPR121Minimal(Connection& connection);
+    MPR121Minimal(RegisterConnection& connection);
 
     /** @brief Read the 12-bit electrode touch bitmask.
      *
@@ -82,7 +82,7 @@ protected:
     uint8_t _read_reg(uint8_t reg);
     uint16_t _read_reg16(uint8_t reg);
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 };
 
 /** @brief MPR121 full interface — extends MPR121Minimal.
@@ -94,7 +94,7 @@ protected:
  */
 class MPR121Full : public MPR121Minimal {
 public:
-    MPR121Full(Connection& connection);
+    MPR121Full(RegisterConnection& connection);
 
     static constexpr uint8_t SOURCE_OOR = 0x04;
     static constexpr uint8_t SOURCE_ARF = 0x02;
