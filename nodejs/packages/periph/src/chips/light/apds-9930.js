@@ -81,7 +81,7 @@ function _againFactor(againIdx, agl) {
  */
 class APDS9930Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x39).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x39).
      */
     constructor(connection) {
         this._conn = connection;
@@ -90,27 +90,19 @@ class APDS9930Minimal {
 
     async _init() {
         _sleep(6);
-        const id = await this._readReg(_REG_ID);
+        const id = (await this._conn.readReg(_cmdRead(_REG_ID), 1))[0];
         if (id !== 0x39) throw new Error('APDS-9930 not found (ID=0x' + id.toString(16) + ', expected 0x39)');
-        await this._writeReg(_REG_ENABLE, 0x00);
-        await this._writeReg(_REG_ATIME, _ATIME_DEFAULT);
-        await this._writeReg(_REG_PTIME, _PTIME_DEFAULT);
-        await this._writeReg(_REG_PPULSE, _PPULSE_DEFAULT);
-        await this._writeReg(_REG_CONTROL, _CONTROL_DEFAULT);
-        await this._writeReg(_REG_ENABLE, _ENABLE_DEFAULT);
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), 0x00);
+        await this._conn.writeReg(_cmdWrite(_REG_ATIME), _ATIME_DEFAULT);
+        await this._conn.writeReg(_cmdWrite(_REG_PTIME), _PTIME_DEFAULT);
+        await this._conn.writeReg(_cmdWrite(_REG_PPULSE), _PPULSE_DEFAULT);
+        await this._conn.writeReg(_cmdWrite(_REG_CONTROL), _CONTROL_DEFAULT);
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), _ENABLE_DEFAULT);
         _sleep(12);
     }
 
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([_cmdWrite(reg), value & 0xFF]));
-    }
-
-    async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([_cmdRead(reg)]), 1))[0];
-    }
-
     async _readReg16(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([_cmdRead(reg)]), 2);
+        const buf = await this._conn.readReg(_cmdRead(reg), 2);
         return (buf[1] << 8) | buf[0];
     }
 
@@ -130,9 +122,9 @@ class APDS9930Minimal {
     async lux() {
         const ch0 = await this._readReg16(_REG_CH0DATAL);
         const ch1 = await this._readReg16(_REG_CH1DATAL);
-        const ctrl = await this._readReg(_REG_CONTROL);
-        const cfg  = await this._readReg(_REG_CONFIG);
-        const atime = await this._readReg(_REG_ATIME);
+        const ctrl = (await this._conn.readReg(_cmdRead(_REG_CONTROL), 1))[0];
+        const cfg  = (await this._conn.readReg(_cmdRead(_REG_CONFIG), 1))[0];
+        const atime = (await this._conn.readReg(_cmdRead(_REG_ATIME), 1))[0];
         const alsitMs = 2.73 * (256 - atime);
         const againX = _againFactor(ctrl & 0x03, (cfg & 0x04) !== 0);
         let iac1 = ch0 - 1.862 * ch1;
@@ -166,7 +158,7 @@ class APDS9930Minimal {
  */
 class APDS9930Full extends APDS9930Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x39).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x39).
      */
     constructor(connection) {
         super(connection);
@@ -180,13 +172,13 @@ class APDS9930Full extends APDS9930Minimal {
      * @returns {Promise<void>}
      */
     async configureAls(atime = 0xDB, again = 0, agl = false) {
-        await this._writeReg(_REG_ATIME, atime & 0xFF);
-        const ctrl = (await this._readReg(_REG_CONTROL) & 0xFC) | (again & 0x03);
-        await this._writeReg(_REG_CONTROL, ctrl);
-        let cfg = await this._readReg(_REG_CONFIG);
+        await this._conn.writeReg(_cmdWrite(_REG_ATIME), atime & 0xFF);
+        const ctrl = ((await this._conn.readReg(_cmdRead(_REG_CONTROL), 1))[0] & 0xFC) | (again & 0x03);
+        await this._conn.writeReg(_cmdWrite(_REG_CONTROL), ctrl);
+        let cfg = (await this._conn.readReg(_cmdRead(_REG_CONFIG), 1))[0];
         if (agl) cfg |= 0x04; else cfg &= ~0x04;
         cfg &= ~0x06;
-        await this._writeReg(_REG_CONFIG, cfg);
+        await this._conn.writeReg(_cmdWrite(_REG_CONFIG), cfg);
     }
 
     /**
@@ -199,17 +191,17 @@ class APDS9930Full extends APDS9930Minimal {
      * @returns {Promise<void>}
      */
     async configureProximity(ppulse = 8, pgain = 0, pdrive = 0, pdl = false, ptime = 0xFF) {
-        await this._writeReg(_REG_PPULSE, ppulse & 0xFF);
-        await this._writeReg(_REG_PTIME, ptime & 0xFF);
-        const ctrl = ((await this._readReg(_REG_CONTROL)) & 0x03)
+        await this._conn.writeReg(_cmdWrite(_REG_PPULSE), ppulse & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_PTIME), ptime & 0xFF);
+        const ctrl = (((await this._conn.readReg(_cmdRead(_REG_CONTROL), 1))[0]) & 0x03)
                    | ((pdrive & 0x03) << 6)
                    | 0x20
                    | ((pgain & 0x03) << 2);
-        await this._writeReg(_REG_CONTROL, ctrl);
-        let cfg = await this._readReg(_REG_CONFIG);
+        await this._conn.writeReg(_cmdWrite(_REG_CONTROL), ctrl);
+        let cfg = (await this._conn.readReg(_cmdRead(_REG_CONFIG), 1))[0];
         if (pdl) cfg |= 0x01; else cfg &= ~0x01;
         cfg &= ~0x06;
-        await this._writeReg(_REG_CONFIG, cfg);
+        await this._conn.writeReg(_cmdWrite(_REG_CONFIG), cfg);
     }
 
     /**
@@ -219,13 +211,13 @@ class APDS9930Full extends APDS9930Minimal {
      * @returns {Promise<void>}
      */
     async configureWait(wtime = 0xFF, wlong = false) {
-        await this._writeReg(_REG_WTIME, wtime & 0xFF);
-        let cfg = await this._readReg(_REG_CONFIG);
+        await this._conn.writeReg(_cmdWrite(_REG_WTIME), wtime & 0xFF);
+        let cfg = (await this._conn.readReg(_cmdRead(_REG_CONFIG), 1))[0];
         if (wlong) cfg |= 0x02; else cfg &= ~0x02;
         cfg &= ~0x04;
-        await this._writeReg(_REG_CONFIG, cfg);
-        const en = (await this._readReg(_REG_ENABLE)) | 0x08;
-        await this._writeReg(_REG_ENABLE, en);
+        await this._conn.writeReg(_cmdWrite(_REG_CONFIG), cfg);
+        const en = ((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) | 0x08;
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), en);
     }
 
     /**
@@ -233,8 +225,8 @@ class APDS9930Full extends APDS9930Minimal {
      * @returns {Promise<void>}
      */
     async disableWait() {
-        const en = (await this._readReg(_REG_ENABLE)) & ~0x08;
-        await this._writeReg(_REG_ENABLE, en);
+        const en = ((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) & ~0x08;
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), en);
     }
 
     /**
@@ -254,7 +246,7 @@ class APDS9930Full extends APDS9930Minimal {
      * @returns {Promise<{avalid: boolean, pvalid: boolean, psat: boolean, aint: boolean, pint: boolean}>}
      */
     async status() {
-        const s = await this._readReg(_REG_STATUS);
+        const s = (await this._conn.readReg(_cmdRead(_REG_STATUS), 1))[0];
         return {
             avalid: (s & 0x01) !== 0,
             pvalid: (s & 0x02) !== 0,
@@ -274,14 +266,14 @@ class APDS9930Full extends APDS9930Minimal {
      */
     async setAlsThresholds(low, high, persistence = 1) {
         if (low > high) high = low;
-        await this._writeReg(_REG_AILTL, low & 0xFF);
-        await this._writeReg(_REG_AILTH, (low >> 8) & 0xFF);
-        await this._writeReg(_REG_AIHTL, high & 0xFF);
-        await this._writeReg(_REG_AIHTH, (high >> 8) & 0xFF);
-        const pers = (await this._readReg(_REG_PERS) & 0xF0) | (persistence & 0x0F);
-        await this._writeReg(_REG_PERS, pers);
-        const en = (await this._readReg(_REG_ENABLE)) | 0x10;
-        await this._writeReg(_REG_ENABLE, en);
+        await this._conn.writeReg(_cmdWrite(_REG_AILTL), low & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_AILTH), (low >> 8) & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_AIHTL), high & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_AIHTH), (high >> 8) & 0xFF);
+        const pers = ((await this._conn.readReg(_cmdRead(_REG_PERS), 1))[0] & 0xF0) | (persistence & 0x0F);
+        await this._conn.writeReg(_cmdWrite(_REG_PERS), pers);
+        const en = ((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) | 0x10;
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), en);
     }
 
     /**
@@ -293,14 +285,14 @@ class APDS9930Full extends APDS9930Minimal {
      */
     async setProximityThresholds(low, high, persistence = 1) {
         if (low > high) high = low;
-        await this._writeReg(_REG_PILTL, low & 0xFF);
-        await this._writeReg(_REG_PILTH, (low >> 8) & 0xFF);
-        await this._writeReg(_REG_PIHTL, high & 0xFF);
-        await this._writeReg(_REG_PIHTH, (high >> 8) & 0xFF);
-        const pers = (await this._readReg(_REG_PERS) & 0x0F) | ((persistence & 0x0F) << 4);
-        await this._writeReg(_REG_PERS, pers);
-        const en = (await this._readReg(_REG_ENABLE)) | 0x20;
-        await this._writeReg(_REG_ENABLE, en);
+        await this._conn.writeReg(_cmdWrite(_REG_PILTL), low & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_PILTH), (low >> 8) & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_PIHTL), high & 0xFF);
+        await this._conn.writeReg(_cmdWrite(_REG_PIHTH), (high >> 8) & 0xFF);
+        const pers = ((await this._conn.readReg(_cmdRead(_REG_PERS), 1))[0] & 0x0F) | ((persistence & 0x0F) << 4);
+        await this._conn.writeReg(_cmdWrite(_REG_PERS), pers);
+        const en = ((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) | 0x20;
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), en);
     }
 
     /**
@@ -323,7 +315,7 @@ class APDS9930Full extends APDS9930Minimal {
         const enc = offset >= 0
             ? (0x80 | (offset & 0x7F))
             : ((-offset) & 0x7F);
-        await this._writeReg(_REG_POFFSET, enc);
+        await this._conn.writeReg(_cmdWrite(_REG_POFFSET), enc);
     }
 
     /**
@@ -333,9 +325,9 @@ class APDS9930Full extends APDS9930Minimal {
      */
     async sleepAfterInterrupt(enable) {
         const en = enable
-            ? ((await this._readReg(_REG_ENABLE)) | 0x40)
-            : ((await this._readReg(_REG_ENABLE)) & ~0x40);
-        await this._writeReg(_REG_ENABLE, en);
+            ? (((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) | 0x40)
+            : (((await this._conn.readReg(_cmdRead(_REG_ENABLE), 1))[0]) & ~0x40);
+        await this._conn.writeReg(_cmdWrite(_REG_ENABLE), en);
     }
 }
 

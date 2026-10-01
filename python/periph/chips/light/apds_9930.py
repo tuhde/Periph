@@ -56,7 +56,7 @@ class APDS9930Minimal:
     stable readings under typical indoor/outdoor lighting.
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x39).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x39).
 
     Raises:
         ValueError: If the ID register does not read back 0x39.
@@ -102,27 +102,21 @@ class APDS9930Minimal:
 
     def __init__(self, connection):
         self._connection = connection
-        chip_id = self._read_reg(self._REG_ID)
+        chip_id = self._connection.read_reg(_CMD_READ | self._REG_ID, 1)[0]
         if chip_id != 0x39:
             raise ValueError(
                 'APDS-9930 not found (ID=0x{:02X}, expected 0x39)'.format(chip_id)
             )
-        self._write_reg(self._REG_ENABLE, 0x00)
-        self._write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
-        self._write_reg(self._REG_PTIME, self._PTIME_DEFAULT)
-        self._write_reg(self._REG_PPULSE, self._PPULSE_DEFAULT)
-        self._write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
-        self._write_reg(self._REG_ENABLE, self._ENABLE_DEFAULT)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, 0x00)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ATIME, self._ATIME_DEFAULT)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PTIME, self._PTIME_DEFAULT)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PPULSE, self._PPULSE_DEFAULT)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONTROL, self._CONTROL_DEFAULT)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, self._ENABLE_DEFAULT)
         time.sleep(0.012)
 
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([_CMD_WRITE | (reg & 0x1F), value & 0xFF]))
-
-    def _read_reg(self, reg):
-        return self._connection.write_read(bytes([_CMD_READ | (reg & 0x1F)]), 1)[0]
-
     def _read_reg16(self, reg):
-        raw = self._connection.write_read(bytes([_CMD_READ | (reg & 0x1F)]), 2)
+        raw = self._connection.read_reg(_CMD_READ | reg, 2)
         return (raw[1] << 8) | raw[0]
 
     def _special(self, function_code):
@@ -141,12 +135,12 @@ class APDS9930Minimal:
         """
         ch0 = self._read_reg16(self._REG_CH0DATAL)
         ch1 = self._read_reg16(self._REG_CH1DATAL)
-        ctrl = self._read_reg(self._REG_CONTROL)
+        ctrl = self._connection.read_reg(_CMD_READ | self._REG_CONTROL, 1)[0]
         again_idx = ctrl & 0x03
-        cfg = self._read_reg(self._REG_CONFIG)
+        cfg = self._connection.read_reg(_CMD_READ | self._REG_CONFIG, 1)[0]
         agl = bool(cfg & 0x04)
         again_x = _again_factor(again_idx, agl)
-        atime = self._read_reg(self._REG_ATIME)
+        atime = self._connection.read_reg(_CMD_READ | self._REG_ATIME, 1)[0]
         alsit_ms = 2.73 * (256 - atime)
         iac1 = ch0 - 1.862 * ch1
         iac2 = 0.746 * ch0 - 1.291 * ch1
@@ -178,7 +172,7 @@ class APDS9930Full(APDS9930Minimal):
     decoding, sleep-after-interrupt, and proximity offset compensation.
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x39).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x39).
     """
 
     def __init__(self, connection):
@@ -192,17 +186,17 @@ class APDS9930Full(APDS9930Minimal):
             again: ALS gain index 0-3 (0=1x, 1=8x, 2=16x, 3=120x).
             agl: True to enable the AGL divide-by-6 gain-level bit (CONFIG.AGL=1).
         """
-        self._write_reg(self._REG_ATIME, atime & 0xFF)
-        ctrl = self._read_reg(self._REG_CONTROL)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ATIME, atime & 0xFF)
+        ctrl = self._connection.read_reg(_CMD_READ | self._REG_CONTROL, 1)[0]
         ctrl = (ctrl & 0xFC) | (again & 0x03)
-        self._write_reg(self._REG_CONTROL, ctrl)
-        cfg = self._read_reg(self._REG_CONFIG)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONTROL, ctrl)
+        cfg = self._connection.read_reg(_CMD_READ | self._REG_CONFIG, 1)[0]
         if agl:
             cfg |= 0x04
         else:
             cfg &= ~0x04
         cfg &= ~0x06
-        self._write_reg(self._REG_CONFIG, cfg)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONFIG, cfg)
 
     def configure_proximity(self, ppulse=8, pgain=0, pdrive=0, pdl=False, ptime=0xFF):
         """Configure proximity LED pulses, gain, drive, and ADC integration time.
@@ -214,18 +208,18 @@ class APDS9930Full(APDS9930Minimal):
             pdl: True to enable PDL (reduces drive to 1/9 of PDRIVE).
             ptime: PTIME register value 0-255.
         """
-        self._write_reg(self._REG_PPULSE, ppulse & 0xFF)
-        self._write_reg(self._REG_PTIME, ptime & 0xFF)
-        ctrl = self._read_reg(self._REG_CONTROL)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PPULSE, ppulse & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PTIME, ptime & 0xFF)
+        ctrl = self._connection.read_reg(_CMD_READ | self._REG_CONTROL, 1)[0]
         ctrl = (ctrl & 0x03) | ((pdrive & 0x03) << 6) | 0x20 | ((pgain & 0x03) << 2)
-        self._write_reg(self._REG_CONTROL, ctrl)
-        cfg = self._read_reg(self._REG_CONFIG)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONTROL, ctrl)
+        cfg = self._connection.read_reg(_CMD_READ | self._REG_CONFIG, 1)[0]
         if pdl:
             cfg |= 0x01
         else:
             cfg &= ~0x01
         cfg &= ~0x06
-        self._write_reg(self._REG_CONFIG, cfg)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONFIG, cfg)
 
     def configure_wait(self, wtime=0xFF, wlong=False):
         """Configure wait time and enable the wait timer.
@@ -234,23 +228,23 @@ class APDS9930Full(APDS9930Minimal):
             wtime: WTIME register value 0-255 (cycles = 256 - wtime, each 2.73 ms).
             wlong: True to enable WLONG (multiplies wait by 12x).
         """
-        self._write_reg(self._REG_WTIME, wtime & 0xFF)
-        cfg = self._read_reg(self._REG_CONFIG)
+        self._connection.write_reg(_CMD_WRITE | self._REG_WTIME, wtime & 0xFF)
+        cfg = self._connection.read_reg(_CMD_READ | self._REG_CONFIG, 1)[0]
         if wlong:
             cfg |= 0x02
         else:
             cfg &= ~0x02
         cfg &= ~0x04
-        self._write_reg(self._REG_CONFIG, cfg)
-        en = self._read_reg(self._REG_ENABLE)
+        self._connection.write_reg(_CMD_WRITE | self._REG_CONFIG, cfg)
+        en = self._connection.read_reg(_CMD_READ | self._REG_ENABLE, 1)[0]
         en |= 0x08
-        self._write_reg(self._REG_ENABLE, en)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, en)
 
     def disable_wait(self):
         """Clear WEN in ENABLE (disables the wait timer between cycles)."""
-        en = self._read_reg(self._REG_ENABLE)
+        en = self._connection.read_reg(_CMD_READ | self._REG_ENABLE, 1)[0]
         en &= ~0x08
-        self._write_reg(self._REG_ENABLE, en)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, en)
 
     def ch0(self):
         """Read the raw Ch0 (visible + IR) ADC count.
@@ -274,7 +268,7 @@ class APDS9930Full(APDS9930Minimal):
         Returns:
             dict: {avalid, pvalid, psat, aint, pint} as booleans.
         """
-        s = self._read_reg(self._REG_STATUS)
+        s = self._connection.read_reg(_CMD_READ | self._REG_STATUS, 1)[0]
         return {
             'avalid': bool(s & 0x01),
             'pvalid': bool(s & 0x02),
@@ -297,16 +291,16 @@ class APDS9930Full(APDS9930Minimal):
         """
         if low > high:
             high = low
-        self._write_reg(self._REG_AILTL, low & 0xFF)
-        self._write_reg(self._REG_AILTH, (low >> 8) & 0xFF)
-        self._write_reg(self._REG_AIHTL, high & 0xFF)
-        self._write_reg(self._REG_AIHTH, (high >> 8) & 0xFF)
-        pers = self._read_reg(self._REG_PERS)
+        self._connection.write_reg(_CMD_WRITE | self._REG_AILTL, low & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_AILTH, (low >> 8) & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_AIHTL, high & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_AIHTH, (high >> 8) & 0xFF)
+        pers = self._connection.read_reg(_CMD_READ | self._REG_PERS, 1)[0]
         pers = (pers & 0xF0) | (persistence & 0x0F)
-        self._write_reg(self._REG_PERS, pers)
-        en = self._read_reg(self._REG_ENABLE)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PERS, pers)
+        en = self._connection.read_reg(_CMD_READ | self._REG_ENABLE, 1)[0]
         en |= 0x10
-        self._write_reg(self._REG_ENABLE, en)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, en)
 
     def set_proximity_thresholds(self, low, high, persistence=1):
         """Set proximity interrupt thresholds and enable PIEN.
@@ -318,16 +312,16 @@ class APDS9930Full(APDS9930Minimal):
         """
         if low > high:
             high = low
-        self._write_reg(self._REG_PILTL, low & 0xFF)
-        self._write_reg(self._REG_PILTH, (low >> 8) & 0xFF)
-        self._write_reg(self._REG_PIHTL, high & 0xFF)
-        self._write_reg(self._REG_PIHTH, (high >> 8) & 0xFF)
-        pers = self._read_reg(self._REG_PERS)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PILTL, low & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PILTH, (low >> 8) & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PIHTL, high & 0xFF)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PIHTH, (high >> 8) & 0xFF)
+        pers = self._connection.read_reg(_CMD_READ | self._REG_PERS, 1)[0]
         pers = (pers & 0x0F) | ((persistence & 0x0F) << 4)
-        self._write_reg(self._REG_PERS, pers)
-        en = self._read_reg(self._REG_ENABLE)
+        self._connection.write_reg(_CMD_WRITE | self._REG_PERS, pers)
+        en = self._connection.read_reg(_CMD_READ | self._REG_ENABLE, 1)[0]
         en |= 0x20
-        self._write_reg(self._REG_ENABLE, en)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, en)
 
     def clear_interrupt(self, channel='both'):
         """Clear pending interrupt(s).
@@ -348,7 +342,7 @@ class APDS9930Full(APDS9930Minimal):
         Args:
             offset: Signed integer -127..+127 (positive shifts data up).
         """
-        self._write_reg(self._REG_POFFSET, _encode_offset(offset))
+        self._connection.write_reg(_CMD_WRITE | self._REG_POFFSET, _encode_offset(offset))
 
     def sleep_after_interrupt(self, enable):
         """Enable or disable SAI (sleep after interrupt) in ENABLE.
@@ -356,9 +350,9 @@ class APDS9930Full(APDS9930Minimal):
         Args:
             enable: True to set SAI, False to clear it.
         """
-        en = self._read_reg(self._REG_ENABLE)
+        en = self._connection.read_reg(_CMD_READ | self._REG_ENABLE, 1)[0]
         if enable:
             en |= 0x40
         else:
             en &= ~0x40
-        self._write_reg(self._REG_ENABLE, en)
+        self._connection.write_reg(_CMD_WRITE | self._REG_ENABLE, en)

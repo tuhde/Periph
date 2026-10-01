@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -21,7 +21,7 @@ import java.io.IOException
  * - ENABLE: 0x07 (PON + AEN + PEN; wait timer and interrupts disabled)
  */
 open class Apds9930Minimal protected constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
 ) {
     /** Read the device ID register (expect 0x39). */
     fun chipId(): Int = readReg(REG_ID)
@@ -63,23 +63,14 @@ open class Apds9930Minimal protected constructor(
     fun proximity(): Int = readReg16(REG_PDATAL)
 
     @Throws(IOException::class)
-    protected fun writeReg(reg: Int, value: Int) {
-        val buf = byteArrayOf(
-            (cmdWrite(reg) and 0xFF).toByte(),
-            (value and 0xFF).toByte()
-        )
-        connection.write(buf)
-    }
-
-    @Throws(IOException::class)
     protected fun readReg(reg: Int): Int {
-        val buf = connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), 1)
+        val buf = connection.read(cmdRead(reg), 1)
         return buf[0].toInt() and 0xFF
     }
 
     @Throws(IOException::class)
     protected fun readReg16(reg: Int): Int {
-        val buf = connection.writeRead(byteArrayOf((cmdRead(reg) and 0xFF).toByte()), 2)
+        val buf = connection.read(cmdRead(reg), 2)
         return ((buf[1].toInt() and 0xFF) shl 8) or (buf[0].toInt() and 0xFF)
     }
 
@@ -157,12 +148,12 @@ open class Apds9930Minimal protected constructor(
         Thread.sleep(6)
         val id = readReg(REG_ID)
         if (id != 0x39) throw IOException("APDS-9930 not found (ID=0x${Integer.toHexString(id)}, expected 0x39)")
-        writeReg(REG_ENABLE, 0x00)
-        writeReg(REG_ATIME, ATIME_DEFAULT)
-        writeReg(REG_PTIME, PTIME_DEFAULT)
-        writeReg(REG_PPULSE, PPULSE_DEFAULT)
-        writeReg(REG_CONTROL, CONTROL_DEFAULT)
-        writeReg(REG_ENABLE, ENABLE_DEFAULT)
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((0x00).toByte()))
+        connection.write(cmdWrite(REG_ATIME), byteArrayOf((ATIME_DEFAULT).toByte()))
+        connection.write(cmdWrite(REG_PTIME), byteArrayOf((PTIME_DEFAULT).toByte()))
+        connection.write(cmdWrite(REG_PPULSE), byteArrayOf((PPULSE_DEFAULT).toByte()))
+        connection.write(cmdWrite(REG_CONTROL), byteArrayOf((CONTROL_DEFAULT).toByte()))
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((ENABLE_DEFAULT).toByte()))
         Thread.sleep(12)
     }
 }
