@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.io_expander
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
@@ -23,7 +23,7 @@ import it.uhde.periph.connection.Connection
 @CompileStatic
 class Mcp23017Minimal {
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected final int addr
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
@@ -50,29 +50,25 @@ class Mcp23017Minimal {
      * @param connection I²C connection bound to the device address
      * @param addr       7-bit I²C address ({@code 0x20}–{@code 0x27})
      */
-    Mcp23017Minimal(Connection connection, int addr = 0x20) {
+    Mcp23017Minimal(RegisterConnection connection, int addr = 0x20) {
         this.connection = connection
         this.addr     = addr
-        writeReg(REG_OLATA,  0x00)
-        writeReg(REG_OLATB,  0x00)
-        writeReg(REG_IODIRA, 0x7F)
-        writeReg(REG_IODIRB, 0x7F)
-        writeReg(REG_IPOLA,  0x00)
-        writeReg(REG_IPOLB,  0x00)
-        writeReg(REG_GPPUA,  0x00)
-        writeReg(REG_GPPUB,  0x00)
+        connection.write(REG_OLATA, [(byte) ( 0x00)] as byte[])
+        connection.write(REG_OLATB, [(byte) ( 0x00)] as byte[])
+        connection.write(REG_IODIRA, [(byte) (0x7F)] as byte[])
+        connection.write(REG_IODIRB, [(byte) (0x7F)] as byte[])
+        connection.write(REG_IPOLA, [(byte) ( 0x00)] as byte[])
+        connection.write(REG_IPOLB, [(byte) ( 0x00)] as byte[])
+        connection.write(REG_GPPUA, [(byte) ( 0x00)] as byte[])
+        connection.write(REG_GPPUB, [(byte) ( 0x00)] as byte[])
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) (value & 0xFF)] as byte[])
-    }
-
     protected int readReg(int reg) {
-        byte[] buf = connection.writeRead([(byte) reg] as byte[], 1)
+        byte[] buf = connection.read(reg, 1)
         return buf[0] & 0xFF
     }
 
@@ -99,7 +95,7 @@ class Mcp23017Minimal {
      */
     void writePort(int port, int mask) {
         shadow[port] = mask & 0xFF
-        writeReg(REG_OLATA + port, shadow[port])
+        connection.write(REG_OLATA + port, [(byte) (shadow[port])] as byte[])
     }
 
     /**
@@ -124,7 +120,7 @@ class Mcp23017Minimal {
         int bit  = n & 7
         if (high) shadow[port] |=   (1 << bit)
         else      shadow[port] &= ~((1 << bit))
-        writeReg(REG_OLATA + port, shadow[port])
+        connection.write(REG_OLATA + port, [(byte) (shadow[port])] as byte[])
     }
 
     /*package*/ int readPin(int n) {
@@ -164,7 +160,7 @@ class Mcp23017Minimal {
             int bit  = n & 7
             int reg  = REG_IODIRA + port
             int cur  = chip.readReg(reg)
-            chip.writeReg(reg, cur | (1 << bit))
+            chip.connection.write(reg, [(byte) (cur | (1 << bit))] as byte[])
         }
 
         /** Set this pin as an output (IODIR bit = 0). */
@@ -173,7 +169,7 @@ class Mcp23017Minimal {
             int bit  = n & 7
             int reg  = REG_IODIRA + port
             int cur  = chip.readReg(reg)
-            chip.writeReg(reg, cur & ~(1 << bit))
+            chip.connection.write(reg, [(byte) (cur & ~(1 << bit))] as byte[])
         }
 
         /** Drive the pin high. */

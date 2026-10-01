@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -21,7 +21,7 @@ import java.io.IOException
  * @param connection I²C connection bound to the device address
  * @param addr       7-bit I²C address
  */
-class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(connection, addr) {
+class Mcp23017Full(connection: RegisterConnection, addr: Int = 0x20) : Mcp23017Minimal(connection, addr) {
 
     companion object {
         private const val REG_GPINTENA = 0x04
@@ -79,7 +79,7 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
      * @param mask 8-bit mask; bit n = 1 enables pull-up on pin n
      */
     fun configurePullup(port: Int, mask: Int) {
-        writeReg(Mcp23017Minimal.REG_GPPUA + (port and 1), mask and 0xFF)
+        connection.write(Mcp23017Minimal.REG_GPPUA + (port and 1), byteArrayOf((mask and 0xFF).toByte()))
     }
 
     /**
@@ -89,7 +89,7 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
      * @param mask 8-bit mask; bit n = 1 inverts the GPIO read for pin n
      */
     fun configurePolarity(port: Int, mask: Int) {
-        writeReg(Mcp23017Minimal.REG_IPOLA + (port and 1), mask and 0xFF)
+        connection.write(Mcp23017Minimal.REG_IPOLA + (port and 1), byteArrayOf((mask and 0xFF).toByte()))
     }
 
     /**
@@ -99,13 +99,13 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
      * @param mask 8-bit default compare value
      */
     fun setDefaultValue(port: Int, mask: Int) {
-        writeReg(REG_DEFVALA + (port and 1), mask and 0xFF)
+        connection.write(REG_DEFVALA + (port and 1), byteArrayOf((mask and 0xFF).toByte()))
     }
 
     private fun armPort(port: Int, intPin: InputPin?) {
         val p = port and 1
-        writeReg(REG_INTCONA + p, 0x00) // interrupt-on-change mode
-        writeReg(REG_GPINTENA + p, 0xFF)
+        connection.write(REG_INTCONA + p, byteArrayOf((0x00).toByte())) // interrupt-on-change mode
+        connection.write(REG_GPINTENA + p, byteArrayOf((0xFF).toByte()))
         intPinUsed[p] = intPin
         stopPolling(p)
         if (intPin != null) {
@@ -131,7 +131,7 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
     fun onInterrupt(callback: (Int, Int) -> Unit, intPin: InputPin? = null, mirror: Boolean = false) {
         this.callbackBoth = callback
         val iocon = readReg(REG_IOCON)
-        writeReg(REG_IOCON, if (mirror) (iocon or (1 shl 6)) else iocon)
+        connection.write(REG_IOCON, byteArrayOf((if (mirror) (iocon or (1 shl 6)) else iocon).toByte()))
         val pin = intPin ?: connection.intPin()
         armPort(0, pin)
         armPort(1, pin)
@@ -167,7 +167,7 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
      */
     fun offInterruptPort(port: Int) {
         val p = port and 1
-        writeReg(REG_GPINTENA + p, 0x00)
+        connection.write(REG_GPINTENA + p, byteArrayOf((0x00).toByte()))
         intPinUsed[p]?.offEdge(edgeHandlers[p])
         intPinUsed[p] = null
         stopPolling(p)
@@ -277,7 +277,7 @@ class Mcp23017Full(connection: Connection, addr: Int = 0x20) : Mcp23017Minimal(c
             val bit  = n and 7
             val reg  = Mcp23017Minimal.REG_GPPUA + port
             val cur  = full.readReg(reg)
-            full.writeReg(reg, if (pullUp) cur or (1 shl bit) else cur and (1 shl bit).inv())
+            full.connection.write(reg, byteArrayOf((if (pullUp) cur or (1 shl bit) else cur and (1 shl bit).inv()).toByte()))
         }
 
         /**
