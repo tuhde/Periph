@@ -50,6 +50,7 @@ ANN_WARNING   = 5
 # unaffected.
 ANN_MEASUREMENT_TRIGGER_START = 6
 ANN_MEASUREMENT_TRIGGER_DONE  = 7
+ANN_STATUS = 8
 
 
 def _s8(raw):
@@ -141,10 +142,12 @@ class Decoder(srd.Decoder):
         ('warning',   'Warning'),
         ('measurement-trigger-start', 'Measurement trigger start'),
         ('measurement-trigger-done',  'Measurement trigger done'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_CAL_READ,
                                   ANN_DATA_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('timing',   'Timing',   (ANN_MEASUREMENT_TRIGGER_START, ANN_MEASUREMENT_TRIGGER_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
@@ -164,6 +167,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
@@ -193,6 +197,13 @@ class Decoder(srd.Decoder):
             self._finish_read(reg)
         else:
             self._finish_write(reg)
+
+    def _emit_status(self, text, raw, ss, es):
+        # text is e.g. 'status 0x03: measuring' -> flags after the colon
+        flags = text.split(': ', 1)[1]
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['meas_status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_read(self, reg):
         buf = self.databuf
@@ -270,6 +281,7 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ,
                       [_decode_meas_status(buf[0]), 'status 0x%02X' % buf[0]]])
+            self._emit_status(_decode_meas_status(buf[0]), buf[0], ss, es)
             return
 
         if reg == 0x00 and len(buf) == 1:

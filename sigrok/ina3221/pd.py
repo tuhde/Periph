@@ -170,7 +170,8 @@ class Decoder(srd.Decoder):
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
         ('conversion-ready-start', 'Conversion ready: start'),
-        ('conversion-ready-done',  'Conversion ready: done'),        ('status',    'Status flags'),
+        ('conversion-ready-done',  'Conversion ready: done'),
+        ('status',    'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
