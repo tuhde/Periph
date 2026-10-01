@@ -14,10 +14,9 @@ Checks (see specs/environmental/aht21.md, Timing Constraints):
     operator is expected to power the board right as the capture begins.
     See find_delta_samples()'s is_start=None case in _sigrok_conformance.py.
 
-Both key off sigrok/environmental/aht21/pd.py's existing annotation text
-(e.g. "Write Trigger Measurement", "Status 0x08 (IDLE, CAL)") rather than
-requiring new named start/end annotation classes - see
-conformance/gas/ens160_conformance.py's docstring for why.
+Both key off the named markers on sigrok/aht21/pd.py's `timing` row
+(`measurement_trigger_start`, `measurement_trigger_done`, `poweron_ready`),
+per specs/sigrok_annotations.md.
 
 Usage (invoked by each language's platform script's run_conformance(), not
 directly): see build_trigger() below for the --lang-specific flags. Reads
@@ -42,12 +41,12 @@ DECODER_ID = 'aht21'
 
 CHECKS = {
     'measurement_trigger': (
-        lambda t: 'Trigger Measurement' in t,
-        lambda t: 'IDLE' in t,
+        lambda t: 'measurement_trigger_start' in t,
+        lambda t: 'measurement_trigger_done' in t,
     ),
     'poweron_ready': (
         None,  # start = capture start, see module docstring
-        lambda t: True,  # first decoded transaction of any kind
+        lambda t: 'poweron_ready' in t,  # first decoded transaction of any kind
     ),
 }
 

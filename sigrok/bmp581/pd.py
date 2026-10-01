@@ -66,6 +66,9 @@ ANN_REG_READ  = 1
 ANN_DATA_READ = 2
 ANN_PTR_WRITE = 3
 ANN_WARNING   = 4
+ANN_STATUS    = 5
+ANN_RESET_START = 6
+ANN_NVM_READY   = 7
 
 
 def _s24(raw):
@@ -210,9 +213,14 @@ class Decoder(srd.Decoder):
         ('data-read', 'Data read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('status',    'STATUS / INT_STATUS flags'),
+        ('reset-start', 'Soft reset written'),
+        ('nvm-ready', 'NVM ready after reset'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_DATA_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
+        ('timing',   'Timing',   (ANN_RESET_START, ANN_NVM_READY)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
@@ -229,6 +237,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
@@ -248,6 +257,13 @@ class Decoder(srd.Decoder):
             self._finish_read(reg)
         else:
             self._finish_write(reg)
+
+    def _emit_status(self, kind, text, raw, ss, es):
+        # text is e.g. 'status 0x03: nvm_rdy+core_rdy' -> flags after the colon
+        flags = text.split(': ', 1)[1]
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['%s %s' % (kind, flags), flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, (kind, (raw, flags)))
 
     def _finish_read(self, reg):
         buf = self.databuf
@@ -301,12 +317,18 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ,
                       [_decode_status(buf[0]), 'status 0x%02X' % buf[0]]])
+            self._emit_status('STATUS', _decode_status(buf[0]), buf[0], ss, es)
+            if buf[0] & 0x02:
+                self.put(ss, es, self.out_ann,
+                         [ANN_NVM_READY, ['nvm_rdy: STATUS read reports NVM ready',
+                                          'nvm_rdy', 'NVM\u2713']])
             return
 
         if reg == 0x27 and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ,
                       [_decode_int_status(buf[0]), 'isr 0x%02X' % buf[0]]])
+            self._emit_status('INT_STATUS', _decode_int_status(buf[0]), buf[0], ss, es)
             return
 
         if reg == 0x38 and len(buf) == 1:
@@ -403,6 +425,10 @@ class Decoder(srd.Decoder):
         if reg == 0x7E and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_cmd(buf[0]), 'CMD 0x%02X' % buf[0]]])
+            if buf[0] == 0xB6:
+                self.put(ss, es, self.out_ann,
+                         [ANN_RESET_START, ['soft_reset: CMD 0xB6 written',
+                                            'soft_reset', 'RST']])
             return
 
         hex_bytes = ' '.join('0x%02X' % b for b in buf)
