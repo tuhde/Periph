@@ -145,7 +145,7 @@ d = discover(FakeBus({0x40: {}}))[0]
 check_true('ina219_by_elimination', d.identified is None and d.candidates == ['ina219'])
 d = discover(FakeBus({0x36: {}}))[0]
 check_true('as5600_sole_candidate_unconfirmed', d.identified is None and d.candidates == ['as5600'])
-d = discover(FakeBus({0x1B: {}}))[0]
+d = discover(FakeBus({0x0B: {}}))[0]
 check_true('unknown_device', d.candidates == [] and d.identified is None)
 
 # --- write-sensitive gating ---

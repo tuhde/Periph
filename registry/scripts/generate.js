@@ -133,7 +133,7 @@ function java(chips) {
 
 function go(chips) {
     const out = [
-        `// ${HEADER}`, '', '//go:build linux', '', 'package discovery', '',
+        `// ${HEADER}`, '', 'package discovery', '',
         '// IdProbe is the identity-register read that confirms a chip.',
         'type IdProbe struct {', '\tRegister     uint32', '\tRegBytes     int', '\tLength       int', '\tLittleEndian bool', '\tMask         uint32', '\tExpected     []uint32', '}', '',
         '// Chip is one registry entry. Driver is "" and Probe is nil when absent.',

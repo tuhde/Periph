@@ -1,7 +1,5 @@
 // GENERATED from registry/chips.json by registry/scripts/generate.js - do not edit; run the script instead.
 
-//go:build linux
-
 package discovery
 
 // IdProbe is the identity-register read that confirms a chip.

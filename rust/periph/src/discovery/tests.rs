@@ -197,7 +197,7 @@ fn falls_back_to_id_less_candidates() {
     assert_eq!(one(0x40, &[]).candidates, vec!["ina219"]);
     let d = one(0x36, &[]);
     assert_eq!((d.identified, d.candidates), (None, vec!["as5600"]));
-    let d = one(0x1B, &[]);
+    let d = one(0x0B, &[]);
     assert!(d.candidates.is_empty() && d.identified.is_none());
     let mut bus = FakeI2c::with(&[(0x38, &[])]);
     let d = only(&mut bus, false);

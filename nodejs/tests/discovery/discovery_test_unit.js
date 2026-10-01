@@ -138,7 +138,7 @@ async function main() {
     checkTrue('ina219_by_elimination', d.identified === null && same(d.candidates, ['ina219']));
     d = await only(new FakeBus({ 0x36: {} }));
     checkTrue('as5600_sole_candidate_unconfirmed', d.identified === null && same(d.candidates, ['as5600']));
-    d = await only(new FakeBus({ 0x1b: {} }));
+    d = await only(new FakeBus({ 0x0b: {} }));
     checkTrue('unknown_device', d.candidates.length === 0 && d.identified === null);
 
     // --- write-sensitive gating ---
