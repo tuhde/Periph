@@ -53,6 +53,7 @@ ANN_WARNING   = 3
 # replace the generic reg-write/reg-read annotations emitted alongside these.
 ANN_CONVERSION_READY_START = 4
 ANN_CONVERSION_READY_DONE  = 5
+ANN_STATUS = 6
 
 
 def _decode_config(raw):
@@ -169,12 +170,13 @@ class Decoder(srd.Decoder):
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
         ('conversion-ready-start', 'Conversion ready: start'),
-        ('conversion-ready-done',  'Conversion ready: done'),
+        ('conversion-ready-done',  'Conversion ready: done'),        ('status',    'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('timing',   'Timing',   (ANN_CONVERSION_READY_START, ANN_CONVERSION_READY_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
     def __init__(self):
@@ -194,6 +196,17 @@ class Decoder(srd.Decoder):
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
+    def _emit_status(self, raw):
+        flags = []
+        if raw & (1 << 4): flags.append('SF')
+        if raw & (1 << 3): flags.append('CF')
+        if raw & (1 << 2): flags.append('WF')
+        if raw & (1 << 1): flags.append('PVAF')
+        if raw & 1: flags.append('CVRF')
+        text = ', '.join(flags) if flags else 'none'
+        self.put(self.ss_block, self.es, self.out_ann,
+                 [ANN_STATUS, ['%s flags: %s' % ('Mask/Enable', text), text, ' '.join(flags) or '-']])
+
     def _finish_transaction(self):
         if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
             return
@@ -208,6 +221,8 @@ class Decoder(srd.Decoder):
                          [ANN_REG_READ,
                           ['Read %s: %s' % (name, _decode_reg(reg, raw)),
                            'R %s 0x%04X' % (name, raw)]])
+                if reg == 0x0F:
+                    self._emit_status(raw)
                 # conversion_ready_done: Mask/Enable read with CVRF (bit 0) set.
                 if reg == 0x0F and (raw & 0x0001):
                     self.put(self.ss_block, self.es, self.out_ann,

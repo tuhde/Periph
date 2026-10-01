@@ -89,8 +89,8 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ, ANN_GC)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
         ('timing',   'Timing',   (ANN_EEPROM_WRITE_START, ANN_EEPROM_WRITE_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
     def __init__(self):

@@ -105,8 +105,8 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_DATA,)),
-        ('status',   'Status',   (ANN_STATUS,)),
         ('config',   'Config',   (ANN_CONFIG,)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('timing',   'Timing',   (ANN_RANGING_START, ANN_RANGING_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )

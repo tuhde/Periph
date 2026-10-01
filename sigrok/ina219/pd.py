@@ -57,6 +57,7 @@ ANN_WARNING   = 3
 ANN_WAKE_WRITE       = 4
 ANN_WAKE_DONE        = 5
 ANN_CONVERSION_READY = 6
+ANN_STATUS = 7
 
 
 def _decode_config(raw):
@@ -145,11 +146,13 @@ class Decoder(srd.Decoder):
         ('wake-write', 'Wake write (conformance: wake_recovery start)'),
         ('wake-done',  'Wake done (conformance: wake_recovery end)'),
         ('conversion-ready', 'Conversion ready (conformance: conversion_cycle)'),
+        ('status',    'Status flags'),
     )
     annotation_rows = (
         ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
-        ('warnings',    'Warnings',    (ANN_WARNING,)),
+        ('status',      'Status',      (ANN_STATUS,)),
         ('timing', 'Timing', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
+        ('warnings',    'Warnings',    (ANN_WARNING,)),
     )
 
     def __init__(self):
@@ -173,6 +176,14 @@ class Decoder(srd.Decoder):
     def _emit(self, ann_idx, ss, es, texts):
         self.put(ss, es, self.out_ann, [ann_idx, texts])
 
+    def _emit_status(self, raw):
+        flags = []
+        if raw & 2: flags.append('CNVR')
+        if raw & 1: flags.append('OVF')
+        text = ', '.join(flags) if flags else 'none'
+        self.put(self.ss_block, self.es, self.out_ann,
+                 [ANN_STATUS, ['%s flags: %s' % ('Bus Voltage', text), text, ' '.join(flags) or '-']])
+
     def _finish_transaction(self):
         if not self.databuf:
             return
@@ -187,6 +198,8 @@ class Decoder(srd.Decoder):
                 self._emit(ANN_REG_READ, self.ss_block, self.es,
                            ['Read %s: %s' % (name, detail),
                             'R %s 0x%04X' % (name, raw)])
+                if reg == 0x02:
+                    self._emit_status(raw)
                 if reg == 0x02 and (raw & 0x02):
                     # conversion_cycle: Bus Voltage read with CNVR=1 (data ready).
                     self._emit(ANN_CONVERSION_READY, self.ss_block, self.es,
