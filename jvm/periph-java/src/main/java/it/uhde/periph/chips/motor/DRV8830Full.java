@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.motor;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 import it.uhde.periph.connection.EdgeHandler;
 import it.uhde.periph.connection.EdgeTrigger;
 import it.uhde.periph.connection.InputPin;
@@ -64,7 +64,7 @@ public class DRV8830Full extends DRV8830Minimal {
      * @param connection configured I²C connection bound to the device (0x60–0x68)
      * @throws IOException on bus error
      */
-    public DRV8830Full(Connection connection) throws IOException {
+    public DRV8830Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 

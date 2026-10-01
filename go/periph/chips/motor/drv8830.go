@@ -112,14 +112,14 @@ func drv8830VSetToVoltage(vset uint8) float32 {
 // voltage regardless of supply sag. Conversion follows the datasheet's
 // Table 1: voltage = VREF * vset / 16, usable 0.48-5.06 V.
 type DRV8830Minimal struct {
-	conn connection.Connection
+	conn connection.RegisterConnection
 }
 
 // NewDRV8830Minimal creates a DRV8830Minimal and confirms the device answers
 // on the bus (the DRV8830 has no identity register, so this is a plain
 // CONTROL read). No register writes are made — the POR default already
 // leaves the motor in standby/coast.
-func NewDRV8830Minimal(conn connection.Connection) (*DRV8830Minimal, error) {
+func NewDRV8830Minimal(conn connection.RegisterConnection) (*DRV8830Minimal, error) {
 	d := &DRV8830Minimal{conn: conn}
 	if _, err := d.readReg(drv8830RegControl); err != nil {
 		return nil, fmt.Errorf("DRV8830: device not responding: %w", err)
@@ -128,7 +128,7 @@ func NewDRV8830Minimal(conn connection.Connection) (*DRV8830Minimal, error) {
 }
 
 func (d *DRV8830Minimal) readReg(reg uint8) (uint8, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 1)
+	b, err := d.conn.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -136,7 +136,7 @@ func (d *DRV8830Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *DRV8830Minimal) writeReg(reg, val uint8) error {
-	return d.conn.Write([]byte{reg, val})
+	return d.conn.WriteReg(uint32(reg), []byte{val})
 }
 
 // Drive drives the motor at a regulated output voltage. voltage is signed,
@@ -180,7 +180,7 @@ type DRV8830Full struct {
 }
 
 // NewDRV8830Full creates a DRV8830Full.
-func NewDRV8830Full(conn connection.Connection) (*DRV8830Full, error) {
+func NewDRV8830Full(conn connection.RegisterConnection) (*DRV8830Full, error) {
 	m, err := NewDRV8830Minimal(conn)
 	if err != nil {
 		return nil, err

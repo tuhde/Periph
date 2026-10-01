@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.motor;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -47,7 +47,7 @@ public class DRV8830Minimal {
     protected static final int FAULT_ILIMIT = 0x10;
     protected static final int FAULT_CLEAR  = 0x80;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver. Confirms the device answers on the bus by reading
@@ -58,17 +58,17 @@ public class DRV8830Minimal {
      * @param connection configured I²C connection bound to the device (0x60–0x68)
      * @throws IOException on bus error
      */
-    public DRV8830Minimal(Connection connection) throws IOException {
+    public DRV8830Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         readReg(REG_CONTROL);
     }
 
     protected int readReg(int reg) throws IOException {
-        return connection.writeRead(new byte[]{(byte) reg}, 1)[0] & 0xFF;
+        return connection.read(reg, 1)[0] & 0xFF;
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     /** Map |voltage| to a {@code VSET} code; 0 means coast (below the floor). */

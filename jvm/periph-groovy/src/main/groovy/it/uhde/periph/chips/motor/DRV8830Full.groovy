@@ -2,7 +2,7 @@ package it.uhde.periph.chips.motor
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -59,7 +59,7 @@ class DRV8830Full extends DRV8830Minimal {
      *
      * @param connection configured I²C connection bound to the device (0x60–0x68)
      */
-    DRV8830Full(Connection connection) {
+    DRV8830Full(RegisterConnection connection) {
         super(connection)
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief DRV8830 low-voltage motor driver with I²C interface — minimal interface.
  *
@@ -14,7 +14,7 @@
  *  the bus is started); the chip's POR default already leaves the motor in
  *  standby/coast, so no register writes are needed before the first drive().
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class DRV8830Minimal {
 public:
@@ -28,7 +28,7 @@ public:
     /** @brief Highest VSET code (≈5.06 V). */
     static constexpr uint8_t VSET_MAX = 63;
 
-    explicit DRV8830Minimal(Connection& connection);
+    explicit DRV8830Minimal(RegisterConnection& connection);
 
     /** @brief Drive the motor at a regulated output voltage.
      *
@@ -63,7 +63,7 @@ protected:
     static constexpr uint8_t FAULT_ILIMIT = 0x10;
     static constexpr uint8_t FAULT_CLEAR  = 0x80;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     void _writeReg(uint8_t reg, uint8_t value);
     uint8_t _readReg(uint8_t reg);
@@ -80,7 +80,7 @@ protected:
  *  Faults are never cleared implicitly: a latched OCP/ILIMIT fault also
  *  disables the H-bridge, so clearing is always an explicit clearFault().
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class DRV8830Full : public DRV8830Minimal {
 public:
@@ -107,7 +107,7 @@ public:
         bool ilimit;  ///< Extended current-limit event
     };
 
-    explicit DRV8830Full(Connection& connection);
+    explicit DRV8830Full(RegisterConnection& connection);
 
     /** @brief Write the CONTROL register from raw fields.
      *  @param vset VSET DAC code, 6–63; out-of-range codes are ignored (no write).

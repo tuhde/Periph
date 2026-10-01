@@ -8,7 +8,7 @@ tri-state A0/A1 strap pins. The same driver file is used on MicroPython,
 CircuitPython, and Linux hosts.
 
 Args:
-    connection: Configured I2C connection pointing at the device
+    connection: RegisterConnection (I²C or SMBus) pointing at the device
         (0x60-0x68, per the board's A0/A1 strapping).
 """
 
@@ -60,7 +60,7 @@ class DRV8830Minimal:
     configuration required beyond the connection.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_CONTROL = 0x00
@@ -83,10 +83,10 @@ class DRV8830Minimal:
         self._read_reg(self._REG_CONTROL)  # presence check; no writes needed
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value & 0xFF]))
+        self._connection.write_reg(reg, value & 0xFF)
 
     def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
+        return self._connection.read_reg(reg, 1)[0]
 
     def drive(self, voltage):
         """Drive the motor at a regulated output voltage.
@@ -124,7 +124,7 @@ class DRV8830Full(DRV8830Minimal):
     disables the H-bridge, so clearing is always an explicit clear_fault().
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     def __init__(self, connection):

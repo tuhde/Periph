@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.motor
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -17,7 +17,7 @@ import java.io.IOException
  *
  * @param connection configured I²C connection bound to the device (0x60–0x68)
  */
-class DRV8830Full(connection: Connection) : DRV8830Minimal(connection) {
+class DRV8830Full(connection: RegisterConnection) : DRV8830Minimal(connection) {
 
     /** H-bridge state decoded from `IN1`/`IN2`. */
     enum class Direction {
