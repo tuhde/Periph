@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -38,7 +38,7 @@ public class Ina226Minimal {
     /** Default configuration: mode=7, VBUSCT=4, VSHCT=4, AVG=0 → 0x4127. */
     protected static final int DEFAULT_CONFIG = 0x4127;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
     protected final double currentLsb;
     protected final int    cal;
     /** Stored MODE bits (2:0) for wake(). Updated by configure() and shutdown(). */
@@ -50,7 +50,7 @@ public class Ina226Minimal {
      * @param connection I²C connection bound to the INA226 device address
      * @throws IOException on I²C error
      */
-    public Ina226Minimal(Connection connection) throws IOException {
+    public Ina226Minimal(RegisterConnection connection) throws IOException {
         this(connection, 0.1, 2.0);
     }
 
@@ -66,7 +66,7 @@ public class Ina226Minimal {
      * @param maxCurrent maximum expected current in A (e.g. 2.0)
      * @throws IOException on I²C error
      */
-    public Ina226Minimal(Connection connection, double rShunt, double maxCurrent) throws IOException {
+    public Ina226Minimal(RegisterConnection connection, double rShunt, double maxCurrent) throws IOException {
         this.connection  = connection;
         this.currentLsb = maxCurrent / 32768.0;
         this.cal        = (int) (0.00512 / (currentLsb * rShunt));
@@ -128,11 +128,8 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int val) throws IOException {
-        connection.write(new byte[]{
-                (byte) reg,
-                (byte) (val >> 8),
-                (byte) (val & 0xFF)
-        });
+        connection.write(reg, new byte[]{(byte) (val >> 8),
+                (byte) (val & 0xFF)});
     }
 
     /**
@@ -143,7 +140,7 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.read(reg, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -155,7 +152,7 @@ public class Ina226Minimal {
      * @throws IOException on I²C error
      */
     protected int readRegSigned(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.read(reg, 2);
         return (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
     }
 }

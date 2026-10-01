@@ -28,7 +28,7 @@ const _CONFIG_DEFAULT = 0x4127;
  */
 class INA226Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection (writeRead, write).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (writeRead, write).
      * @param {number} [rShunt=0.1]       - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */
@@ -41,18 +41,15 @@ class INA226Minimal {
     }
 
     async _writeReg(reg, value) {
-        const buf = Buffer.alloc(3);
-        buf[0] = reg;
-        buf.writeUInt16BE(value, 1);
-        await this._conn.write(buf);
+        await this._conn.writeReg(reg, Buffer.from([(value >> 8) & 0xFF, value & 0xFF]));
     }
 
     async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readUInt16BE(0);
+        return (await this._conn.readReg(reg, 2)).readUInt16BE(0);
     }
 
     async _readRegSigned(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
+        return (await this._conn.readReg(reg, 2)).readInt16BE(0);
     }
 
     /**
@@ -104,7 +101,7 @@ class INA226Full extends INA226Minimal {
     static AFF  = 0x0010;
 
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      * @param {number} [rShunt=0.1]       - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */

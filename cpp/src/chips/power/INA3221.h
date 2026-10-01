@@ -9,7 +9,7 @@
  * The chip's power-on default (all three channels on, continuous shunt+bus)
  * is used without modification.
  *
- * @param connection Configured I2C or SMBus connection pointing at the device.
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt  Shunt resistor value in ohms. Pass a single float to apply
  *                  the same value to all three channels, or a 3-element float
  *                  array for per-channel values (default 0.1 ohms for all).
@@ -89,7 +89,7 @@ protected:
  * - MODE_BUS_CONT       = 6
  * - MODE_SHUNT_BUS_CONT = 7
  *
- * @param connection Configured I2C or SMBus connection pointing at the device.
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt  Shunt resistor value in ohms. Pass a single float to apply
  *                  the same value to all three channels, or a 3-element float
  *                  array for per-channel values (default 0.1 ohms for all).

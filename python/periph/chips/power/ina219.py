@@ -16,7 +16,7 @@ class INA219Minimal:
         - MODE = 111: shunt + bus, continuous
 
     Args:
-        connection: Configured I²C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -32,7 +32,7 @@ class INA219Minimal:
         """Initialize INA219Minimal and program the Calibration Register.
 
         Args:
-            connection: Configured I²C or SMBus connection pointing at the device.
+            connection: RegisterConnection (I²C or SMBus) pointing at the device.
             r_shunt: Shunt resistor value in ohms (default 0.1).
             max_current: Maximum expected current in amperes (default 2.0).
         """
@@ -94,7 +94,7 @@ class INA219Full(INA219Minimal):
     conversion-ready and overflow status, reset, and shutdown/wake.
 
     Args:
-        connection: Configured I²C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms (default 0.1).
         max_current: Maximum expected current in amperes (default 2.0).
     """
@@ -132,7 +132,7 @@ class INA219Full(INA219Minimal):
         """Initialize INA219Full.
 
         Args:
-            connection: Configured I²C or SMBus connection pointing at the device.
+            connection: RegisterConnection (I²C or SMBus) pointing at the device.
             r_shunt: Shunt resistor value in ohms (default 0.1).
             max_current: Maximum expected current in amperes (default 2.0).
         """

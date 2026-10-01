@@ -10,7 +10,7 @@ class INA3221Minimal:
     is used without modification.
 
     Args:
-        connection: Configured I2C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).
@@ -126,7 +126,7 @@ class INA3221Full(INA3221Minimal):
         MODE_SHUNT_BUS_CONT = 7
 
     Args:
-        connection: Configured I2C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).

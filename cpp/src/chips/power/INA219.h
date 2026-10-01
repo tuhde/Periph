@@ -15,7 +15,7 @@
  * - SADC = 0011: 12-bit, 532 µs
  * - MODE = 111: shunt + bus, continuous
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt    Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
@@ -65,7 +65,7 @@ protected:
  * Adds Configuration Register programming (bus range, PGA, ADC resolution/averaging, mode),
  * conversion-ready and overflow status, reset, and shutdown/wake.
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt    Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */

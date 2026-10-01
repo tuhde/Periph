@@ -34,7 +34,7 @@ const _WARN_REGS  = [_REG_CH1_WARN, _REG_CH2_WARN, _REG_CH3_WARN];
  * The chip's power-on default (all three channels on, continuous shunt+bus)
  * is used without modification.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I2C or SMBus connection (writeRead, write).
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (writeRead, write).
  * @param {number|number[]} [rShunt=0.1] - Shunt resistor value in ohms. Pass a
  *        single number to apply the same value to all three channels, or an
  *        array of 3 numbers for per-channel values.
@@ -137,7 +137,7 @@ class INA3221Minimal {
  * - INA3221Full.MODE_BUS_CONT       = 6
  * - INA3221Full.MODE_SHUNT_BUS_CONT = 7
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I2C or SMBus connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  * @param {number|number[]} [rShunt=0.1] - Shunt resistor value in ohms.
  */
 class INA3221Full extends INA3221Minimal {

@@ -23,7 +23,7 @@ const _REG_CAL     = 0x05;
  */
 class INA219Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection (writeRead, write).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (writeRead, write).
      * @param {number} [rShunt=0.1]        - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */
@@ -96,7 +96,7 @@ class INA219Full extends INA219Minimal {
     static MODE_SHUNT_BUS_CONT = 7;
 
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SMBus connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      * @param {number} [rShunt=0.1]       - Shunt resistor value in ohms.
      * @param {number} [maxCurrent=2.0]   - Maximum expected current in amperes.
      */
