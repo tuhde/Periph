@@ -19,6 +19,29 @@
 
 import sigrokdecode as srd
 
+ANN_WRITE   = 0
+ANN_READ    = 1
+ANN_WARNING = 2
+ANN_STATUS  = 3
+ANN_WARMUP_START  = 4
+ANN_WARMUP_DONE   = 5
+ANN_MEASUREMENT   = 6
+
+VALIDITY_NAMES = ['OK', 'Warm-up', 'Initial Start-up', 'No valid output']
+VALIDITY_SHORT = ['OK', 'WARM', 'INIT', 'INVLD']
+PART_ID_ENS160 = 0x0160
+
+
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'part id' in m:
+        return 'ID?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    return 'WARN'
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'ens160'
@@ -27,16 +50,22 @@ class Decoder(srd.Decoder):
     desc = 'Digital multi-gas sensor with I2C/SPI interface.'
     license = 'gplv2+'
     inputs = ['i2c']
-    outputs = []
+    outputs = ['ens160']
     tags = ['IC', 'Sensor']
     annotations = (
         ('reg-write', 'Register write'),
         ('reg-read', 'Register read'),
         ('warning', 'Warning'),
+        ('validity', 'DEVICE_STATUS validity'),
+        ('warmup-start', 'Warm-up observed'),
+        ('warmup-done', 'Warm-up finished (validity OK)'),
+        ('measurement', 'DATA_AQI read'),
     )
     annotation_rows = (
-        ('regs', 'Registers', (0, 1)),
-        ('warnings', 'Warnings', (2,)),
+        ('data', 'Data', (ANN_WRITE, ANN_READ)),
+        ('status', 'Status', (ANN_STATUS,)),
+        ('timing', 'Timing', (ANN_WARMUP_START, ANN_WARMUP_DONE, ANN_MEASUREMENT)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
     def __init__(self):
@@ -52,12 +81,13 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
-    def putx(self, data):
-        self.put(self.ss_block, self.es, self.out_ann, data)
+    def putx(self, ann, strings):
+        self.put(self.ss_block, self.es, self.out_ann, [ann, strings])
 
     def putw(self, msg):
-        self.putx([2, [msg]])
+        self.putx(ANN_WARNING, [msg, _warn_tag(msg)])
 
     def decode(self, ss, es, data):
         cmd, databyte = data
@@ -90,7 +120,7 @@ class Decoder(srd.Decoder):
         elif cmd == 'STOP':
             if self.state == 'DATA WRITE VALUE' and self.reg is not None:
                 self.handle_write()
-            elif self.state == 'REGISTER READ' and len(self.data) > 0:
+            elif self.state == 'REGISTER READ' and len(self.data) > 0 and self.reg is not None:
                 self.handle_read()
             self.reset()
 
@@ -99,26 +129,69 @@ class Decoder(srd.Decoder):
         if len(self.data) == 1:
             val = self.data[0]
             desc = self.get_write_desc(self.reg, val)
-            self.putx([0, ['%s: 0x%02X (%s)' % (reg_name, val, desc)]])
+            self.putx(ANN_WRITE, ['%s: 0x%02X (%s)' % (reg_name, val, desc),
+                                  '%s \u2190 0x%02X' % (reg_name, val), 'W 0x%02X' % val])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_WRITE', (self.reg, val)))
         elif len(self.data) == 2:
             val = self.data[0] | (self.data[1] << 8)
             desc = self.get_write_desc_16(self.reg, val)
-            self.putx([0, ['%s: 0x%04X (%s)' % (reg_name, val, desc)]])
+            self.putx(ANN_WRITE, ['%s: 0x%04X (%s)' % (reg_name, val, desc),
+                                  '%s \u2190 0x%04X' % (reg_name, val), 'W 0x%04X' % val])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_WRITE', (self.reg, val)))
+        elif len(self.data) == 0:
+            self.putw('Write to %s with no data bytes' % reg_name)
         else:
-            self.putx([0, ['%s: %d bytes' % (reg_name, len(self.data))]])
+            self.putx(ANN_WRITE, ['%s: %d bytes' % (reg_name, len(self.data)),
+                                  '%s %dB' % (reg_name, len(self.data)), 'W %dB' % len(self.data)])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_WRITE', (self.reg, bytes(self.data))))
 
     def handle_read(self):
         reg_name = self.get_reg_name(self.reg)
         if len(self.data) == 1:
             val = self.data[0]
             desc = self.get_read_desc(self.reg, val)
-            self.putx([1, ['%s: 0x%02X (%s)' % (reg_name, val, desc)]])
+            self.putx(ANN_READ, ['%s: 0x%02X (%s)' % (reg_name, val, desc),
+                                 '%s = 0x%02X' % (reg_name, val), 'R 0x%02X' % val])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_READ', (self.reg, val)))
+            if self.reg == 0x20:
+                self.emit_status(val)
+            elif self.reg == 0x21:
+                self.emit_measurement()
         elif len(self.data) == 2:
             val = self.data[0] | (self.data[1] << 8)
             desc = self.get_read_desc_16(self.reg, val)
-            self.putx([1, ['%s: 0x%04X (%s)' % (reg_name, val, desc)]])
+            self.putx(ANN_READ, ['%s: 0x%04X (%s)' % (reg_name, val, desc),
+                                 '%s = 0x%04X' % (reg_name, val), 'R 0x%04X' % val])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_READ', (self.reg, val)))
+            if self.reg == 0x00 and val != PART_ID_ENS160:
+                self.putw('Unexpected part ID 0x%04X (expected 0x%04X)' % (val, PART_ID_ENS160))
         else:
-            self.putx([1, ['%s: %d bytes' % (reg_name, len(self.data))]])
+            self.putx(ANN_READ, ['%s: %d bytes' % (reg_name, len(self.data)),
+                                 '%s %dB' % (reg_name, len(self.data)), 'R %dB' % len(self.data)])
+            self.put(self.ss_block, self.es, self.out_python, ('REG_READ', (self.reg, bytes(self.data))))
+
+    def emit_status(self, val):
+        """DEVICE_STATUS read: validity flag -> status row, warm-up edges -> timing row."""
+        validity = (val >> 2) & 0x03
+        flags = []
+        if val & 0x02: flags.append('NEWDAT')
+        if val & 0x01: flags.append('NEWGPR')
+        if val & 0x80: flags.append('STATAS')
+        if val & 0x40: flags.append('STATER')
+        text = 'Validity: %s' % VALIDITY_NAMES[validity]
+        long_text = text + (', ' + ', '.join(flags) if flags else '')
+        self.putx(ANN_STATUS, [long_text, text, VALIDITY_SHORT[validity]])
+        self.put(self.ss_block, self.es, self.out_python, ('STATUS', (VALIDITY_NAMES[validity], tuple(flags))))
+        if validity == 1:
+            self.putx(ANN_WARMUP_START, ['warmup_time_start: validity reports Warm-up',
+                                         'warmup_time_start', '\u2192WARM'])
+        elif validity == 0:
+            self.putx(ANN_WARMUP_DONE, ['warmup_time_done: validity reports OK',
+                                        'warmup_time_done', 'WARM\u2713'])
+
+    def emit_measurement(self):
+        self.putx(ANN_MEASUREMENT, ['measurement_cycle: DATA_AQI read',
+                                    'measurement_cycle', 'AQI'])
 
     def get_reg_name(self, reg):
         regs = {

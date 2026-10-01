@@ -182,15 +182,11 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
+        ('timing',   'Timing',   (ANN_POWERON_START, ANN_POWERON_DONE,
+                                  ANN_CONVERSION_START, ANN_CONVERSION_DONE,
+                                  ANN_ALS_INTEGRATION_START, ANN_ALS_INTEGRATION_DONE,
+                                  ANN_PROXIMITY_INTEGRATION_START, ANN_PROXIMITY_INTEGRATION_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
-        ('poweron',                'Power-on (poweron_ready)',
-            (ANN_POWERON_START, ANN_POWERON_DONE)),
-        ('conversion',             'First conversion (first_conversion_ready)',
-            (ANN_CONVERSION_START, ANN_CONVERSION_DONE)),
-        ('als_integration',        'ALS integration (als_integration_time)',
-            (ANN_ALS_INTEGRATION_START, ANN_ALS_INTEGRATION_DONE)),
-        ('proximity_integration',  'Proximity integration (proximity_integration_time)',
-            (ANN_PROXIMITY_INTEGRATION_START, ANN_PROXIMITY_INTEGRATION_DONE)),
     )
 
     def __init__(self):

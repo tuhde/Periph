@@ -10,6 +10,7 @@ ANN_BYTE      = 0
 ANN_LATCH     = 1
 ANN_CLEAR     = 2
 ANN_DISABLED  = 3
+ANN_WARNING   = 4
 
 
 class Decoder(srd.Decoder):
@@ -39,12 +40,14 @@ class Decoder(srd.Decoder):
         ('latch',    'Latch'),
         ('clear',    'Clear'),
         ('disabled', 'Outputs disabled'),
+        ('warning',  'Warning'),
     )
     annotation_rows = (
         ('bytes',     'Bytes',            (ANN_BYTE,)),
         ('latches',   'Latches',          (ANN_LATCH,)),
         ('clears',    'Clears',           (ANN_CLEAR,)),
         ('disableds', 'Outputs disabled', (ANN_DISABLED,)),
+        ('warnings',  'Warnings',         (ANN_WARNING,)),
     )
 
     def __init__(self):
@@ -96,6 +99,10 @@ class Decoder(srd.Decoder):
             if self.matched[1]:
                 # RCK rising edge — latch buffered bytes into the output register.
                 ss = self.latch_ss if self.latch_ss is not None else self.samplenum
+                if self.bit_count:
+                    self.put(ss, self.samplenum, self.out_ann,
+                             [ANN_WARNING, ['Latch with %d stray bit(s) not forming a full byte' % self.bit_count,
+                                            'Stray bits: %d' % self.bit_count, 'BITS?']])
                 self.put(ss, self.samplenum, self.out_ann,
                          [ANN_LATCH, [
                              'Latch: ' + ' '.join('%02X' % b for b in self.latch_bytes),
