@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.environmental
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -22,7 +23,7 @@ import java.io.IOException
  * Configurable I²C address: 0x76 (SDO low, default) or 0x77 (SDO high).
  */
 open class Bme680Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
     addr: Int = 0x76
 ) {
 
@@ -99,7 +100,7 @@ open class Bme680Minimal @JvmOverloads constructor(
     protected var lastHeatStable: Boolean = false
 
     init {
-        val id = connection.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
+        val id = connection.read(REG_CHIP_ID, 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID) {
             throw IOException(
@@ -107,16 +108,14 @@ open class Bme680Minimal @JvmOverloads constructor(
             )
         }
         readCalibration()
-        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
         connection.write(
-            byteArrayOf(
-                REG_CTRL_MEAS.toByte(),
-                (((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x00).toByte()
-            )
+            REG_CTRL_MEAS,
+            byteArrayOf((((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x00).toByte())
         )
-        connection.write(byteArrayOf(REG_CONFIG.toByte(), ((filterCoeff and 0x07) shl 2).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf(((filterCoeff and 0x07) shl 2).toByte()))
         configureHeaterProfile(0, 320, 150)
-        connection.write(byteArrayOf(REG_CTRL_GAS_1.toByte(), ctrlGas1.toByte()))
+        connection.write(REG_CTRL_GAS_1, byteArrayOf(ctrlGas1.toByte()))
     }
 
     /**
@@ -129,8 +128,8 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val b1 = connection.writeRead(byteArrayOf(REG_CALIB_BLOCK1.toByte()), 23)
-        val b2 = connection.writeRead(byteArrayOf(REG_CALIB_BLOCK2.toByte()), 14)
+        val b1 = connection.read(REG_CALIB_BLOCK1, 23)
+        val b2 = connection.read(REG_CALIB_BLOCK2, 14)
 
         parT2 = ((b1[1].toInt() and 0xFF) shl 8) or (b1[0].toInt() and 0xFF)
         if (parT2 > 32767) parT2 -= 65536
@@ -164,12 +163,12 @@ open class Bme680Minimal @JvmOverloads constructor(
         parG1 = b2[12].toInt()
         parG3 = b2[13].toInt()
 
-        val rhv = connection.writeRead(byteArrayOf(REG_RES_HEAT_VAL.toByte()), 1)
+        val rhv = connection.read(REG_RES_HEAT_VAL, 1)
         resHeatVal = rhv[0].toInt()
-        val rhr = connection.writeRead(byteArrayOf(REG_RES_HEAT_RNG.toByte()), 1)
+        val rhr = connection.read(REG_RES_HEAT_RNG, 1)
         resHeatRange = (rhr[0].toInt() and 0xFF) shr 4 and 0x03
-        val rse = connection.writeRead(byteArrayOf(REG_RANGE_SW_ERR.toByte()), 1)
-        rangeSwitchingError = signExtend4((rse[0].toInt() and 0xFF) shr 4)
+        val rse = connection.read(REG_RANGE_SW_ERR, 1)
+        rangeSwitchingError = Register.toSigned((rse[0].toInt() and 0xFF) shr 4, 4)
     }
 
     /**
@@ -187,17 +186,13 @@ open class Bme680Minimal @JvmOverloads constructor(
     protected fun configureHeaterProfile(profile: Int, targetTempC: Int, durationMs: Int) {
         val resHeat = calcHeaterResistance(targetTempC, ambientTemp)
         connection.write(
-            byteArrayOf(
-                (REG_RES_HEAT_BASE + profile).toByte(),
-                resHeat.toByte()
-            )
+            REG_RES_HEAT_BASE + profile,
+            byteArrayOf(resHeat.toByte())
         )
         val gasWait = encodeGasWait(durationMs)
         connection.write(
-            byteArrayOf(
-                (REG_GAS_WAIT_BASE + profile).toByte(),
-                gasWait.toByte()
-            )
+            REG_GAS_WAIT_BASE + profile,
+            byteArrayOf(gasWait.toByte())
         )
     }
 
@@ -213,11 +208,11 @@ open class Bme680Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readRawData(): ByteArray {
-        connection.write(byteArrayOf(REG_CTRL_HUM.toByte(), (osrsH and 0x07).toByte()))
+        connection.write(REG_CTRL_HUM, byteArrayOf((osrsH and 0x07).toByte()))
         val meas = ((osrsT and 0x07) shl 5) or ((osrsP and 0x07) shl 2) or 0x01
-        connection.write(byteArrayOf(REG_CTRL_MEAS.toByte(), meas.toByte()))
+        connection.write(REG_CTRL_MEAS, byteArrayOf(meas.toByte()))
         Thread.sleep(200)
-        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 13)
+        return connection.read(REG_DATA, 13)
     }
 
     /**
@@ -345,7 +340,6 @@ open class Bme680Minimal @JvmOverloads constructor(
         }
     }
 
-    private fun signExtend4(v: Int): Int = if (v and 0x08 != 0) v - 16 else v
 
     /**
      * Read the temperature.

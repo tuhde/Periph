@@ -1,4 +1,5 @@
 #include "BME680.h"
+#include "../../connection/Register.h"
 #include <stdlib.h>
 #include <math.h>
 
@@ -33,23 +34,23 @@ static const uint32_t CONST_ARRAY2[16] = {
     125000U
 };
 
-BME680Minimal::BME680Minimal(Connection& connection)
+BME680Minimal::BME680Minimal(RegisterConnection& connection)
     : _connection(connection) {
     _read_calibration();
-    _write_reg(REG_CTRL_HUM, _osrs_h);
-    _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | 0);
-    _write_reg(REG_CONFIG, 0);
+    { uint8_t v = _osrs_h; _connection.write(REG_CTRL_HUM, &v, 1); }
+    { uint8_t v = (_osrs_t << 5) | (_osrs_p << 2) | 0; _connection.write(REG_CTRL_MEAS, &v, 1); }
+    { uint8_t v = 0; _connection.write(REG_CONFIG, &v, 1); }
     _setup_heater(0, _heat_temp, _heat_dur);
-    _write_reg(REG_CTRL_GAS_1, (1 << 4) | 0);
+    { uint8_t v = (1 << 4) | 0; _connection.write(REG_CTRL_GAS_1, &v, 1); }
 }
 
 void BME680Minimal::_read_calibration() {
     uint8_t b1[23], b2[14], s1[1], s2[1], s3[1];
-    _read_reg(REG_CAL_BLOCK1, b1, 23);
-    _read_reg(REG_CAL_BLOCK2, b2, 14);
-    _read_reg(REG_RES_HEAT_VAL, s1, 1);
-    _read_reg(REG_RES_HEAT_RANGE, s2, 1);
-    _read_reg(REG_RANGE_SW_ERR, s3, 1);
+    _connection.read(REG_CAL_BLOCK1, b1, 23);
+    _connection.read(REG_CAL_BLOCK2, b2, 14);
+    _connection.read(REG_RES_HEAT_VAL, s1, 1);
+    _connection.read(REG_RES_HEAT_RANGE, s2, 1);
+    _connection.read(REG_RANGE_SW_ERR, s3, 1);
 
     _par_T2 = (int16_t)(b1[0] | (b1[1] << 8));
     _par_T3 = (int8_t)b1[2];
@@ -79,16 +80,7 @@ void BME680Minimal::_read_calibration() {
     _res_heat_val = (int8_t)s1[0];
     _res_heat_range = (s2[0] >> 4) & 0x03;
     uint8_t rse = (s3[0] >> 4) & 0x0F;
-    _range_switching_error = (rse < 8) ? (int8_t)rse : (int8_t)(rse - 16);
-}
-
-void BME680Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
-}
-
-void BME680Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    _connection.write_read(&reg, 1, buf, len);
+    _range_switching_error = (int8_t)toSigned(rse, 4);
 }
 
 uint8_t BME680Minimal::_calc_heater_resistance(int16_t target_temp, float ambient_temp) {
@@ -119,20 +111,20 @@ uint8_t BME680Minimal::_calc_gas_wait(uint16_t target_ms) {
 void BME680Minimal::_setup_heater(uint8_t index, int16_t temp_c, uint16_t dur_ms) {
     uint8_t res = _calc_heater_resistance(temp_c, _ambient_temp);
     uint8_t gw = _calc_gas_wait(dur_ms);
-    _write_reg(0x5A + index, res);
-    _write_reg(0x64 + index, gw);
+    { uint8_t v = res; _connection.write(0x5A + index, &v, 1); }
+    { uint8_t v = gw; _connection.write(0x64 + index, &v, 1); }
 }
 
 void BME680Minimal::_trigger_and_read(uint32_t& press_adc, uint32_t& temp_adc,
                                        uint16_t& hum_adc, uint16_t& gas_adc,
                                        uint8_t& gas_range, uint8_t& gas_valid,
                                        uint8_t& heat_stab) {
-    _write_reg(REG_CTRL_HUM, _osrs_h);
+    { uint8_t v = _osrs_h; _connection.write(REG_CTRL_HUM, &v, 1); }
     uint8_t ctrl = (_osrs_t << 5) | (_osrs_p << 2) | 1;
-    _write_reg(REG_CTRL_MEAS, ctrl);
+    { uint8_t v = ctrl; _connection.write(REG_CTRL_MEAS, &v, 1); }
     delay(MEAS_TIME_MS);
     uint8_t raw[13];
-    _read_reg(REG_PRESS_MSB, raw, 13);
+    _connection.read(REG_PRESS_MSB, raw, 13);
     press_adc = ((uint32_t)raw[0] << 12) | ((uint32_t)raw[1] << 4) | (raw[2] >> 4);
     temp_adc  = ((uint32_t)raw[3] << 12) | ((uint32_t)raw[4] << 4) | (raw[5] >> 4);
     hum_adc   = ((uint16_t)raw[6] << 8) | raw[7];
@@ -239,7 +231,7 @@ float BME680Minimal::gas_resistance() {
 
 // BME680Full
 
-BME680Full::BME680Full(Connection& connection)
+BME680Full::BME680Full(RegisterConnection& connection)
     : BME680Minimal(connection) {
 }
 
@@ -248,29 +240,29 @@ void BME680Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h, uint8
     _osrs_p = osrs_p;
     _osrs_h = osrs_h;
     _filter = filter;
-    _write_reg(REG_CTRL_HUM, osrs_h);
-    _write_reg(REG_CONFIG, filter << 2);
-    _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode);
+    { uint8_t v = osrs_h; _connection.write(REG_CTRL_HUM, &v, 1); }
+    { uint8_t v = filter << 2; _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v = (osrs_t << 5) | (osrs_p << 2) | mode; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }
 
 void BME680Full::set_oversampling(uint8_t osrs_t, uint8_t osrs_p, uint8_t osrs_h) {
     _osrs_t = osrs_t;
     _osrs_p = osrs_p;
     _osrs_h = osrs_h;
-    _write_reg(REG_CTRL_HUM, osrs_h);
-    _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | 0);
+    { uint8_t v = osrs_h; _connection.write(REG_CTRL_HUM, &v, 1); }
+    { uint8_t v = (osrs_t << 5) | (osrs_p << 2) | 0; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }
 
 void BME680Full::set_filter(uint8_t coeff) {
     _filter = coeff;
-    _write_reg(REG_CONFIG, coeff << 2);
+    { uint8_t v = coeff << 2; _connection.write(REG_CONFIG, &v, 1); }
 }
 
 void BME680Full::set_heater(int16_t temp_c, uint16_t duration_ms) {
     _heat_temp = temp_c;
     _heat_dur = duration_ms;
     _setup_heater(0, temp_c, duration_ms);
-    _write_reg(REG_CTRL_GAS_1, (1 << 4) | 0);
+    { uint8_t v = (1 << 4) | 0; _connection.write(REG_CTRL_GAS_1, &v, 1); }
 }
 
 void BME680Full::set_heater_profile(uint8_t index, int16_t temp_c, uint16_t duration_ms) {
@@ -280,17 +272,17 @@ void BME680Full::set_heater_profile(uint8_t index, int16_t temp_c, uint16_t dura
 void BME680Full::select_heater_profile(uint8_t index) {
     _nb_conv = index;
     uint8_t gas1 = _gas_enabled ? ((1 << 4) | index) : index;
-    _write_reg(REG_CTRL_GAS_1, gas1);
+    { uint8_t v = gas1; _connection.write(REG_CTRL_GAS_1, &v, 1); }
 }
 
 void BME680Full::set_gas_enabled(bool enabled) {
     _gas_enabled = enabled ? 1 : 0;
     uint8_t gas1 = enabled ? ((1 << 4) | _nb_conv) : _nb_conv;
-    _write_reg(REG_CTRL_GAS_1, gas1);
+    { uint8_t v = gas1; _connection.write(REG_CTRL_GAS_1, &v, 1); }
 }
 
 void BME680Full::set_heater_off(bool off) {
-    _write_reg(REG_CTRL_GAS_0, off ? 0x08 : 0x00);
+    { uint8_t v = off ? 0x08 : 0x00; _connection.write(REG_CTRL_GAS_0, &v, 1); }
 }
 
 void BME680Full::set_ambient_temperature(float temp_c) {
@@ -312,36 +304,36 @@ void BME680Full::read_all(float& t, float& p, float& h, float& g) {
 
 bool BME680Full::gas_valid() {
     uint8_t buf[1];
-    _read_reg(0x2B, buf, 1);
+    _connection.read(0x2B, buf, 1);
     return (buf[0] >> 5) & 1;
 }
 
 bool BME680Full::heater_stable() {
     uint8_t buf[1];
-    _read_reg(0x2B, buf, 1);
+    _connection.read(0x2B, buf, 1);
     return (buf[0] >> 4) & 1;
 }
 
 uint8_t BME680Full::status() {
     uint8_t buf[1];
-    _read_reg(REG_MEAS_STATUS, buf, 1);
+    _connection.read(REG_MEAS_STATUS, buf, 1);
     return buf[0];
 }
 
 uint8_t BME680Full::chip_id() {
     uint8_t buf[1];
-    _read_reg(REG_ID, buf, 1);
+    _connection.read(REG_ID, buf, 1);
     return buf[0];
 }
 
 void BME680Full::reset() {
-    _write_reg(REG_RESET, RESET_CMD);
+    { uint8_t v = RESET_CMD; _connection.write(REG_RESET, &v, 1); }
     delay(2);
     _read_calibration();
-    _write_reg(REG_CTRL_HUM, _osrs_h);
-    _write_reg(REG_CONFIG, _filter << 2);
-    _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | 0);
+    { uint8_t v = _osrs_h; _connection.write(REG_CTRL_HUM, &v, 1); }
+    { uint8_t v = _filter << 2; _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v = (_osrs_t << 5) | (_osrs_p << 2) | 0; _connection.write(REG_CTRL_MEAS, &v, 1); }
     _setup_heater(_nb_conv, (int16_t)_heat_temp, _heat_dur);
     uint8_t gas1 = _gas_enabled ? ((1 << 4) | _nb_conv) : _nb_conv;
-    _write_reg(REG_CTRL_GAS_1, gas1);
+    { uint8_t v = gas1; _connection.write(REG_CTRL_GAS_1, &v, 1); }
 }

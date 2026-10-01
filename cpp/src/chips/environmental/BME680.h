@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief BME680 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance — minimal interface.
  *
@@ -11,11 +11,11 @@
  *  Default: forced mode, osrs_t=×1, osrs_p=×1, osrs_h=×1, IIR filter off,
  *  heater profile 0 at 320 °C / 150 ms.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class BME680Minimal {
 public:
-    explicit BME680Minimal(Connection& connection);
+    explicit BME680Minimal(RegisterConnection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -97,7 +97,7 @@ protected:
 
     static constexpr uint32_t MEAS_TIME_MS      = 200;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     uint8_t   _filter = 0;
     uint8_t   _gas_enabled = 1;
     uint8_t   _nb_conv = 0;
@@ -105,8 +105,6 @@ protected:
     uint16_t  _heat_dur = 150;
 
     void     _read_calibration();
-    void     _write_reg(uint8_t reg, uint8_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _trigger_and_read(uint32_t& press_adc, uint32_t& temp_adc,
                                uint16_t& hum_adc, uint16_t& gas_adc,
                                uint8_t& gas_range, uint8_t& gas_valid,
@@ -121,7 +119,7 @@ protected:
  *  Adds oversampling for all three TPH channels, IIR filter, multi-profile
  *  heater control, ambient-temperature override, read_all, and status queries.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class BME680Full : public BME680Minimal {
 public:
@@ -150,7 +148,7 @@ public:
     static constexpr uint8_t STATUS_GAS_VALID      = 0x20;
     static constexpr uint8_t STATUS_HEATER_STABLE  = 0x10;
 
-    explicit BME680Full(Connection& connection);
+    explicit BME680Full(RegisterConnection& connection);
 
     /** @brief Write ctrl_hum, ctrl_meas, and config registers in the correct order.
      *  @param osrs_t Temperature oversampling (0–5).

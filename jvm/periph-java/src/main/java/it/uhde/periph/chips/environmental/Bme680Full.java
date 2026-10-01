@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.environmental;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -65,7 +66,7 @@ public class Bme680Full extends Bme680Minimal {
      * @param connection I²C connection bound to the BME680 address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bme680Full(Connection connection) throws IOException {
+    public Bme680Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -86,9 +87,9 @@ public class Bme680Full extends Bme680Minimal {
         ctrlHum  = osrsH & 0x07;
         config   = ((filter & 0x07) << 2);
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03);
-        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(REG_CTRL_HUM, new byte[]{(byte) ctrlHum});
+        connection.write(REG_CONFIG, new byte[]{(byte) config});
+        connection.write(REG_CTRL_MEAS, new byte[]{(byte) ctrlMeas});
     }
 
     /**
@@ -105,8 +106,8 @@ public class Bme680Full extends Bme680Minimal {
     public void setOversampling(int osrsT, int osrsP, int osrsH) throws IOException {
         ctrlHum  = osrsH & 0x07;
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03);
-        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(REG_CTRL_HUM, new byte[]{(byte) ctrlHum});
+        connection.write(REG_CTRL_MEAS, new byte[]{(byte) ctrlMeas});
     }
 
     /**
@@ -119,7 +120,7 @@ public class Bme680Full extends Bme680Minimal {
      */
     public void setFilter(int coeff) throws IOException {
         config = (config & 0xE3) | ((coeff & 0x07) << 2);
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
+        connection.write(REG_CONFIG, new byte[]{(byte) config});
     }
 
     /**
@@ -162,7 +163,7 @@ public class Bme680Full extends Bme680Minimal {
      */
     public void selectHeaterProfile(int index) throws IOException {
         ctrlGas1 = (ctrlGas1 & 0xF0) | (index & 0x0F);
-        connection.write(new byte[]{(byte) REG_CTRL_GAS_1, (byte) ctrlGas1});
+        connection.write(REG_CTRL_GAS_1, new byte[]{(byte) ctrlGas1});
     }
 
     /**
@@ -175,7 +176,7 @@ public class Bme680Full extends Bme680Minimal {
      */
     public void setGasEnabled(boolean enabled) throws IOException {
         ctrlGas1 = (ctrlGas1 & ~0x10) | (enabled ? 0x10 : 0x00);
-        connection.write(new byte[]{(byte) REG_CTRL_GAS_1, (byte) ctrlGas1});
+        connection.write(REG_CTRL_GAS_1, new byte[]{(byte) ctrlGas1});
     }
 
     /**
@@ -186,7 +187,7 @@ public class Bme680Full extends Bme680Minimal {
      */
     public void setHeaterOff(boolean off) throws IOException {
         ctrlGas0 = (ctrlGas0 & ~0x08) | (off ? 0x08 : 0x00);
-        connection.write(new byte[]{(byte) REG_CTRL_GAS_0, (byte) ctrlGas0});
+        connection.write(REG_CTRL_GAS_0, new byte[]{(byte) ctrlGas0});
     }
 
     /**
@@ -242,7 +243,7 @@ public class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     public boolean gasValid() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{0x2B}, 1);
+        byte[] b = connection.read(0x2B, 1);
         return ((b[0] >> 5) & 1) == 1;
     }
 
@@ -257,7 +258,7 @@ public class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     public boolean heaterStable() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{0x2B}, 1);
+        byte[] b = connection.read(0x2B, 1);
         return ((b[0] >> 4) & 1) == 1;
     }
 
@@ -271,7 +272,7 @@ public class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     public int status() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_MEAS_STATUS}, 1);
+        byte[] b = connection.read(REG_MEAS_STATUS, 1);
         return b[0] & 0xFF;
     }
 
@@ -284,7 +285,7 @@ public class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     public int chipId() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] b = connection.read(REG_ID, 1);
         return b[0] & 0xFF;
     }
 
@@ -299,7 +300,7 @@ public class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     public void reset() throws IOException {
-        connection.write(new byte[]{(byte) REG_RESET, (byte) RESET_CMD});
+        connection.write(REG_RESET, new byte[]{(byte) RESET_CMD});
         try {
             Thread.sleep(2);
         } catch (InterruptedException e) {
@@ -307,10 +308,10 @@ public class Bme680Full extends Bme680Minimal {
         }
         readCalibration();
         setupHeater(0, heaterTempC, heaterDurationMs);
-        connection.write(new byte[]{(byte) REG_CTRL_GAS_0, (byte) ctrlGas0});
-        connection.write(new byte[]{(byte) REG_CTRL_GAS_1, (byte) ctrlGas1});
-        connection.write(new byte[]{(byte) REG_CTRL_HUM, (byte) ctrlHum});
-        connection.write(new byte[]{(byte) REG_CONFIG, (byte) config});
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) ctrlMeas});
+        connection.write(REG_CTRL_GAS_0, new byte[]{(byte) ctrlGas0});
+        connection.write(REG_CTRL_GAS_1, new byte[]{(byte) ctrlGas1});
+        connection.write(REG_CTRL_HUM, new byte[]{(byte) ctrlHum});
+        connection.write(REG_CONFIG, new byte[]{(byte) config});
+        connection.write(REG_CTRL_MEAS, new byte[]{(byte) ctrlMeas});
     }
 }

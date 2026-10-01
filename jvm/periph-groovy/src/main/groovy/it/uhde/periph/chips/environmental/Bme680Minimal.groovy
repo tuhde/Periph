@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -53,7 +54,7 @@ class Bme680Minimal {
         4000000L, 2000000L, 1000000L, 500000L, 250000L, 125000L
     ] as long[]
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     protected int parT1
     protected int parT2
@@ -118,7 +119,7 @@ class Bme680Minimal {
      * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bme680Minimal(Connection connection) {
+    Bme680Minimal(RegisterConnection connection) {
         this(connection, 0x76)
     }
 
@@ -130,10 +131,10 @@ class Bme680Minimal {
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bme680Minimal(Connection connection, int addr) {
+    Bme680Minimal(RegisterConnection connection, int addr) {
         this.connection = connection
 
-        byte[] id = connection.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] id = connection.read(REG_ID, 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID) {
             throw new IOException(
@@ -145,9 +146,9 @@ class Bme680Minimal {
         writeSettings()
 
         int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
-        connection.write([(byte) REG_RES_HEAT_0, (byte) resHeat] as byte[])
+        connection.write(REG_RES_HEAT_0, [(byte) resHeat] as byte[])
         int gasWait = encodeGasWait(heaterDuration)
-        connection.write([(byte) REG_GAS_WAIT_0, (byte) gasWait] as byte[])
+        connection.write(REG_GAS_WAIT_0, [(byte) gasWait] as byte[])
     }
 
     /**
@@ -158,8 +159,8 @@ class Bme680Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() {
-        byte[] b1 = connection.writeRead([(byte) REG_CALIB_BLOCK1] as byte[], 23)
-        byte[] b2 = connection.writeRead([(byte) REG_CALIB_BLOCK2] as byte[], 14)
+        byte[] b1 = connection.read(REG_CALIB_BLOCK1, 23)
+        byte[] b2 = connection.read(REG_CALIB_BLOCK2, 14)
 
         parT2 = (int)(short)(((b1[1] & 0xFF) << 8) | (b1[0] & 0xFF))
         parT3 = (int) b1[2]
@@ -186,13 +187,13 @@ class Bme680Minimal {
         parG1 = (int) b2[12]
         parG3 = (int) b2[13]
 
-        byte[] rhv = connection.writeRead([(byte) REG_RES_HEAT_VAL] as byte[], 1)
+        byte[] rhv = connection.read(REG_RES_HEAT_VAL, 1)
         resHeatVal = (int) rhv[0]
 
-        byte[] rhr = connection.writeRead([(byte) REG_RES_HEAT_RANGE] as byte[], 1)
+        byte[] rhr = connection.read(REG_RES_HEAT_RANGE, 1)
         resHeatRange = (rhr[0] & 0xFF) >> 4 & 0x03
 
-        byte[] rse = connection.writeRead([(byte) REG_RANGE_SWITCH] as byte[], 1)
+        byte[] rse = connection.read(REG_RANGE_SWITCH, 1)
         int rseRaw = (rse[0] & 0xFF) >> 4
         rangeSwitchError = rseRaw > 7 ? rseRaw - 16 : rseRaw
     }
@@ -205,10 +206,10 @@ class Bme680Minimal {
      * @throws IOException on I²C error
      */
     protected void writeSettings() {
-        connection.write([(byte) REG_CTRL_HUM, (byte) ctrlHum] as byte[])
-        connection.write([(byte) REG_CONFIG, (byte) config] as byte[])
-        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
-        connection.write([(byte) REG_CTRL_GAS_1, (byte) ctrlGas1] as byte[])
+        connection.write(REG_CTRL_HUM, [(byte) ctrlHum] as byte[])
+        connection.write(REG_CONFIG, [(byte) config] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) ctrlMeas] as byte[])
+        connection.write(REG_CTRL_GAS_1, [(byte) ctrlGas1] as byte[])
     }
 
     /**
@@ -221,10 +222,10 @@ class Bme680Minimal {
      * @throws IOException on I²C error
      */
     protected byte[] readRawData() {
-        connection.write([(byte) REG_CTRL_HUM, (byte) ctrlHum] as byte[])
-        connection.write([(byte) REG_CTRL_MEAS, (byte)((ctrlMeas & 0xFC) | 0x01)] as byte[])
+        connection.write(REG_CTRL_HUM, [(byte) ctrlHum] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) ((ctrlMeas & 0xFC) | 0x01)] as byte[])
         Thread.sleep((long)(heaterDuration + 50))
-        byte[] raw = connection.writeRead([(byte) REG_DATA] as byte[], 13)
+        byte[] raw = connection.read(REG_DATA, 13)
         lastGasValid = ((raw[12] & 0xFF) >> 5 & 1) == 1
         lastHeatStable = ((raw[12] & 0xFF) >> 4 & 1) == 1
         return raw

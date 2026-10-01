@@ -2,6 +2,8 @@ import struct
 import time
 import math
 
+from periph.connection.register import to_signed
+
 
 _CONST_ARRAY1 = [
     2147483647, 2147483647, 2147483647, 2147483647, 2147483647,
@@ -29,7 +31,7 @@ class BME680Minimal:
         - Gas heater profile 0: 320 degC target, 150 ms duration, gas conversion enabled
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I2C or SMBus) pointing at the device.
     """
 
     _REG_RES_HEAT_VAL   = 0x00
@@ -65,18 +67,18 @@ class BME680Minimal:
         self._gas_enabled = True
         self._nb_conv = 0
         self._read_calibration()
-        self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
-        self._write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
-        self._write_reg(self._REG_CONFIG, 0)
+        self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
+        self._connection.write_reg(self._REG_CONFIG, 0)
         self._setup_heater(0, self._heat_temp, self._heat_dur)
-        self._write_reg(self._REG_CTRL_GAS_1, (1 << 4) | 0)
+        self._connection.write_reg(self._REG_CTRL_GAS_1, (1 << 4) | 0)
 
     def _read_calibration(self):
-        b1 = self._connection.write_read(bytes([self._REG_CAL_BLOCK1]), 23)
-        b2 = self._connection.write_read(bytes([self._REG_CAL_BLOCK2]), 14)
-        s1 = self._connection.write_read(bytes([self._REG_RES_HEAT_VAL]), 1)
-        s2 = self._connection.write_read(bytes([self._REG_RES_HEAT_RANGE]), 1)
-        s3 = self._connection.write_read(bytes([self._REG_RANGE_SW_ERR]), 1)
+        b1 = self._connection.read_reg(self._REG_CAL_BLOCK1, 23)
+        b2 = self._connection.read_reg(self._REG_CAL_BLOCK2, 14)
+        s1 = self._connection.read_reg(self._REG_RES_HEAT_VAL, 1)
+        s2 = self._connection.read_reg(self._REG_RES_HEAT_RANGE, 1)
+        s3 = self._connection.read_reg(self._REG_RANGE_SW_ERR, 1)
 
         self._par_T2 = struct.unpack('<h', b1[0:2])[0]
         self._par_T3 = struct.unpack('<b', b1[2:3])[0]
@@ -106,13 +108,7 @@ class BME680Minimal:
         self._res_heat_val = struct.unpack('<b', s1[0:1])[0]
         self._res_heat_range = (s2[0] >> 4) & 0x03
         rse = (s3[0] >> 4) & 0x0F
-        self._range_switching_error = rse if rse < 8 else rse - 16
-
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
+        self._range_switching_error = to_signed(rse, 4)
 
     def _calc_heater_resistance(self, target_temp, ambient_temp):
         par_g1 = self._par_G1
@@ -143,15 +139,15 @@ class BME680Minimal:
     def _setup_heater(self, index, temp_c, dur_ms):
         res = self._calc_heater_resistance(temp_c, self._ambient_temp)
         gw = self._calc_gas_wait(dur_ms)
-        self._write_reg(0x5A + index, res)
-        self._write_reg(0x64 + index, gw)
+        self._connection.write_reg(0x5A + index, res)
+        self._connection.write_reg(0x64 + index, gw)
 
     def _trigger_and_read(self):
-        self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
+        self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
         ctrl = (self._osrs_t << 5) | (self._osrs_p << 2) | 1
-        self._write_reg(self._REG_CTRL_MEAS, ctrl)
+        self._connection.write_reg(self._REG_CTRL_MEAS, ctrl)
         time.sleep(self._MEAS_TIME_MS / 1000.0)
-        raw = self._read_reg(self._REG_PRESS_MSB, 13)
+        raw = self._connection.read_reg(self._REG_PRESS_MSB, 13)
         press_adc = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4)
         temp_adc = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4)
         hum_adc = (raw[6] << 8) | raw[7]
@@ -301,7 +297,7 @@ class BME680Full(BME680Minimal):
     heater control, ambient-temperature override, read_all, and status queries.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I2C or SMBus) pointing at the device.
     """
 
     OSRS_SKIP = 0
@@ -346,9 +342,9 @@ class BME680Full(BME680Minimal):
         self._osrs_p = osrs_p
         self._osrs_h = osrs_h
         self._filter = filter
-        self._write_reg(self._REG_CTRL_HUM, osrs_h)
-        self._write_reg(self._REG_CONFIG, filter << 2)
-        self._write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)
+        self._connection.write_reg(self._REG_CTRL_HUM, osrs_h)
+        self._connection.write_reg(self._REG_CONFIG, filter << 2)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)
 
     def set_oversampling(self, osrs_t, osrs_p, osrs_h):
         """Update oversampling for all three TPH channels.
@@ -361,8 +357,8 @@ class BME680Full(BME680Minimal):
         self._osrs_t = osrs_t
         self._osrs_p = osrs_p
         self._osrs_h = osrs_h
-        self._write_reg(self._REG_CTRL_HUM, osrs_h)
-        self._write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | 0)
+        self._connection.write_reg(self._REG_CTRL_HUM, osrs_h)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | 0)
 
     def set_filter(self, coeff):
         """Update IIR filter coefficient.
@@ -371,7 +367,7 @@ class BME680Full(BME680Minimal):
             coeff: Filter coefficient (0-7).
         """
         self._filter = coeff
-        self._write_reg(self._REG_CONFIG, coeff << 2)
+        self._connection.write_reg(self._REG_CONFIG, coeff << 2)
 
     def set_heater(self, temp_c, duration_ms):
         """Configure heater profile 0 and activate it.
@@ -383,7 +379,7 @@ class BME680Full(BME680Minimal):
         self._heat_temp = temp_c
         self._heat_dur = duration_ms
         self._setup_heater(0, temp_c, duration_ms)
-        self._write_reg(self._REG_CTRL_GAS_1, (1 << 4) | 0)
+        self._connection.write_reg(self._REG_CTRL_GAS_1, (1 << 4) | 0)
 
     def set_heater_profile(self, index, temp_c, duration_ms):
         """Configure one of the 10 heater profiles.
@@ -403,7 +399,7 @@ class BME680Full(BME680Minimal):
         """
         self._nb_conv = index
         gas1 = (1 << 4) | index if self._gas_enabled else index
-        self._write_reg(self._REG_CTRL_GAS_1, gas1)
+        self._connection.write_reg(self._REG_CTRL_GAS_1, gas1)
 
     def set_gas_enabled(self, enabled):
         """Enable or disable gas conversion.
@@ -413,7 +409,7 @@ class BME680Full(BME680Minimal):
         """
         self._gas_enabled = enabled
         gas1 = (1 << 4) | self._nb_conv if enabled else self._nb_conv
-        self._write_reg(self._REG_CTRL_GAS_1, gas1)
+        self._connection.write_reg(self._REG_CTRL_GAS_1, gas1)
 
     def set_heater_off(self, off):
         """Turn the heater off or on via ctrl_gas_0.
@@ -421,7 +417,7 @@ class BME680Full(BME680Minimal):
         Args:
             off: True to disable the heater.
         """
-        self._write_reg(self._REG_CTRL_GAS_0, 0x08 if off else 0x00)
+        self._connection.write_reg(self._REG_CTRL_GAS_0, 0x08 if off else 0x00)
 
     def set_ambient_temperature(self, temp_c):
         """Override the ambient temperature used for heater-resistance calculation.
@@ -458,7 +454,7 @@ class BME680Full(BME680Minimal):
         Returns:
             bool: True if gas_valid_r was set.
         """
-        raw = self._read_reg(0x2B, 1)
+        raw = self._connection.read_reg(0x2B, 1)
         return bool((raw[0] >> 5) & 1)
 
     def heater_stable(self):
@@ -467,7 +463,7 @@ class BME680Full(BME680Minimal):
         Returns:
             bool: True if heat_stab_r was set.
         """
-        raw = self._read_reg(0x2B, 1)
+        raw = self._connection.read_reg(0x2B, 1)
         return bool((raw[0] >> 4) & 1)
 
     def status(self):
@@ -476,7 +472,7 @@ class BME680Full(BME680Minimal):
         Returns:
             int: Status byte with flags STATUS_NEW_DATA, STATUS_MEASURING, STATUS_GAS_MEASURING.
         """
-        raw = self._read_reg(self._REG_MEAS_STATUS, 1)
+        raw = self._connection.read_reg(self._REG_MEAS_STATUS, 1)
         return raw[0]
 
     def chip_id(self):
@@ -485,17 +481,17 @@ class BME680Full(BME680Minimal):
         Returns:
             int: Chip ID; expect 0x61.
         """
-        raw = self._read_reg(self._REG_ID, 1)
+        raw = self._connection.read_reg(self._REG_ID, 1)
         return raw[0]
 
     def reset(self):
         """Perform a soft reset, re-read calibration, and re-apply configuration."""
-        self._write_reg(self._REG_RESET, self._RESET_CMD)
+        self._connection.write_reg(self._REG_RESET, self._RESET_CMD)
         time.sleep(0.002)
         self._read_calibration()
-        self._write_reg(self._REG_CTRL_HUM, self._osrs_h)
-        self._write_reg(self._REG_CONFIG, self._filter << 2)
-        self._write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
+        self._connection.write_reg(self._REG_CTRL_HUM, self._osrs_h)
+        self._connection.write_reg(self._REG_CONFIG, self._filter << 2)
+        self._connection.write_reg(self._REG_CTRL_MEAS, (self._osrs_t << 5) | (self._osrs_p << 2) | 0)
         self._setup_heater(self._nb_conv, self._heat_temp, self._heat_dur)
         gas1 = (1 << 4) | self._nb_conv if self._gas_enabled else self._nb_conv
-        self._write_reg(self._REG_CTRL_GAS_1, gas1)
+        self._connection.write_reg(self._REG_CTRL_GAS_1, gas1)

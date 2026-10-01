@@ -13,6 +13,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_RES_HEAT_VAL: u8 = 0x00;
 const REG_RES_HEAT_RANGE: u8 = 0x02;
 const REG_RANGE_SW_ERR: u8 = 0x04;
@@ -100,14 +102,6 @@ pub const STATUS_GAS_VALID: u8 = 0x20;
 /// Gas status flag: heater reached target (in gas_r_lsb).
 pub const STATUS_HEATER_STABLE: u8 = 0x10;
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
-}
-
-fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
-}
-
 #[derive(Clone, Copy)]
 struct Calibration {
     par_t1: u16,
@@ -145,11 +139,11 @@ fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<Calibration, I2
     let mut s2 = [0u8; 1];
     let mut s3 = [0u8; 1];
 
-    read_reg_bytes(i2c, addr, REG_CAL_BLOCK1, &mut b1)?;
-    read_reg_bytes(i2c, addr, REG_CAL_BLOCK2, &mut b2)?;
-    read_reg_bytes(i2c, addr, REG_RES_HEAT_VAL, &mut s1)?;
-    read_reg_bytes(i2c, addr, REG_RES_HEAT_RANGE, &mut s2)?;
-    read_reg_bytes(i2c, addr, REG_RANGE_SW_ERR, &mut s3)?;
+    register::read_register(i2c, addr, REG_CAL_BLOCK1.into(), 1, &mut b1)?;
+    register::read_register(i2c, addr, REG_CAL_BLOCK2.into(), 1, &mut b2)?;
+    register::read_register(i2c, addr, REG_RES_HEAT_VAL.into(), 1, &mut s1)?;
+    register::read_register(i2c, addr, REG_RES_HEAT_RANGE.into(), 1, &mut s2)?;
+    register::read_register(i2c, addr, REG_RANGE_SW_ERR.into(), 1, &mut s3)?;
 
     let par_t2 = i16::from_le_bytes([b1[0], b1[1]]);
     let par_t3 = b1[2] as i8;
@@ -179,7 +173,7 @@ fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<Calibration, I2
     let res_heat_val = s1[0] as i8;
     let res_heat_range = (s2[0] >> 4) & 0x03;
     let rse = (s3[0] >> 4) & 0x0F;
-    let range_switching_error = if rse < 8 { rse as i8 } else { (rse as i8) - 16 };
+    let range_switching_error = to_signed(rse as u32, 4) as i8;
 
     Ok(Calibration {
         par_t1, par_t2, par_t3,
@@ -338,28 +332,28 @@ impl<I2C: I2c> Bme680Minimal<I2C> {
             heat_temp: 320, heat_dur: 150,
             gas_enabled: true, nb_conv: 0, cal,
         };
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_HUM, s.osrs_h)?;
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (s.osrs_t << 5) | (s.osrs_p << 2) | 0)?;
-        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_HUM.into(), 1, &[s.osrs_h])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_MEAS.into(), 1, &[(s.osrs_t << 5) | (s.osrs_p << 2) | 0])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CONFIG.into(), 1, &[0])?;
         s.setup_heater(0)?;
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_GAS_1, (1 << 4) | 0)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_GAS_1.into(), 1, &[(1 << 4) | 0])?;
         Ok(s)
     }
 
     fn setup_heater(&mut self, index: u8) -> Result<(), I2C::Error> {
         let res = calc_heater_resistance(self.heat_temp, self.ambient_temp, &self.cal);
         let gw = calc_gas_wait(self.heat_dur);
-        write_reg(&mut self.i2c, self.addr, 0x5A + index, res)?;
-        write_reg(&mut self.i2c, self.addr, 0x64 + index, gw)
+        register::write_register(&mut self.i2c, self.addr, (0x5A + index).into(), 1, &[res])?;
+        register::write_register(&mut self.i2c, self.addr, (0x64 + index).into(), 1, &[gw])
     }
 
     fn trigger_and_read(&mut self) -> Result<(u32, u32, u16, u16, u8, bool, bool), I2C::Error> {
-        write_reg(&mut self.i2c, self.addr, REG_CTRL_HUM, self.osrs_h)?;
+        register::write_register(&mut self.i2c, self.addr, REG_CTRL_HUM.into(), 1, &[self.osrs_h])?;
         let ctrl = (self.osrs_t << 5) | (self.osrs_p << 2) | 1;
-        write_reg(&mut self.i2c, self.addr, REG_CTRL_MEAS, ctrl)?;
+        register::write_register(&mut self.i2c, self.addr, REG_CTRL_MEAS.into(), 1, &[ctrl])?;
         delay_ms(MEAS_TIME_MS);
         let mut raw = [0u8; 13];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_MSB, &mut raw)?;
+        register::read_register(&mut self.i2c, self.addr, REG_PRESS_MSB.into(), 1, &mut raw)?;
         let press_adc = ((raw[0] as u32) << 12) | ((raw[1] as u32) << 4) | ((raw[2] as u32) >> 4);
         let temp_adc = ((raw[3] as u32) << 12) | ((raw[4] as u32) << 4) | ((raw[5] as u32) >> 4);
         let hum_adc = ((raw[6] as u16) << 8) | raw[7] as u16;
@@ -435,9 +429,9 @@ impl<I2C: I2c> Bme680Full<I2C> {
         self.inner.osrs_p = osrs_p;
         self.inner.osrs_h = osrs_h;
         self.inner.filter = filter;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM, osrs_h)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, filter << 2)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[filter << 2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | mode])
     }
 
     /// Update oversampling for all three TPH channels.
@@ -445,14 +439,14 @@ impl<I2C: I2c> Bme680Full<I2C> {
         self.inner.osrs_t = osrs_t;
         self.inner.osrs_p = osrs_p;
         self.inner.osrs_h = osrs_h;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM, osrs_h)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | 0)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | 0])
     }
 
     /// Update IIR filter coefficient.
     pub fn set_filter(&mut self, coeff: u8) -> Result<(), I2C::Error> {
         self.inner.filter = coeff;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, coeff << 2)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[coeff << 2])
     }
 
     /// Configure heater profile 0 and activate it.
@@ -460,7 +454,7 @@ impl<I2C: I2c> Bme680Full<I2C> {
         self.inner.heat_temp = temp_c;
         self.inner.heat_dur = duration_ms;
         self.inner.setup_heater(0)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1, (1 << 4) | 0)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[(1 << 4) | 0])
     }
 
     /// Configure one of the 10 heater profiles.
@@ -479,19 +473,19 @@ impl<I2C: I2c> Bme680Full<I2C> {
     pub fn select_heater_profile(&mut self, index: u8) -> Result<(), I2C::Error> {
         self.inner.nb_conv = index;
         let gas1 = if self.inner.gas_enabled { (1 << 4) | index } else { index };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1, gas1)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
     }
 
     /// Enable or disable gas conversion.
     pub fn set_gas_enabled(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         self.inner.gas_enabled = enabled;
         let gas1 = if enabled { (1 << 4) | self.inner.nb_conv } else { self.inner.nb_conv };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1, gas1)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
     }
 
     /// Turn the heater off or on via ctrl_gas_0.
     pub fn set_heater_off(&mut self, off: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_0, if off { 0x08 } else { 0x00 })
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_0.into(), 1, &[if off { 0x08 } else { 0x00 }])
     }
 
     /// Override the ambient temperature used for heater-resistance calculation.
@@ -522,43 +516,42 @@ impl<I2C: I2c> Bme680Full<I2C> {
     /// Check if the most recent gas reading is valid.
     pub fn gas_valid(&mut self) -> Result<bool, I2C::Error> {
         let mut buf = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, 0x2B, &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, 0x2Bu32, 1, &mut buf)?;
         Ok((buf[0] >> 5) & 1 == 1)
     }
 
     /// Check if the heater reached its target temperature.
     pub fn heater_stable(&mut self) -> Result<bool, I2C::Error> {
         let mut buf = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, 0x2B, &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, 0x2Bu32, 1, &mut buf)?;
         Ok((buf[0] >> 4) & 1 == 1)
     }
 
     /// Read the measurement status register.
     pub fn status(&mut self) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_MEAS_STATUS, &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_MEAS_STATUS.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
     /// Read the chip ID register.
     pub fn chip_id(&mut self) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_ID, &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_ID.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
     /// Perform a soft reset, re-read calibration, and re-apply configuration.
     pub fn reset(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_RESET, RESET_CMD)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_RESET.into(), 1, &[RESET_CMD])?;
         delay_ms(2);
         self.inner.cal = read_calibration(&mut self.inner.i2c, self.inner.addr)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM, self.inner.osrs_h)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, self.inner.filter << 2)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS,
-            (self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | 0)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_HUM.into(), 1, &[self.inner.osrs_h])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[self.inner.filter << 2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | 0])?;
         self.inner.setup_heater(self.inner.nb_conv)?;
         let gas1 = if self.inner.gas_enabled { (1 << 4) | self.inner.nb_conv } else { self.inner.nb_conv };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1, gas1)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_GAS_1.into(), 1, &[gas1])
     }
 
     /// Read calibrated temperature.

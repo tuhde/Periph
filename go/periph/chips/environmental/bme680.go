@@ -11,22 +11,22 @@ import (
 
 // BME680 register addresses (I²C; the chip has a flat address space on I²C).
 const (
-	bme680RegResHeatVal   uint8 = 0x00
-	bme680RegResHeatRange uint8 = 0x02
-	bme680RegRangeSwErr   uint8 = 0x04
-	bme680RegMeasStatus   uint8 = 0x1D
-	bme680RegPressMsb     uint8 = 0x1F
-	bme680RegResHeat0     uint8 = 0x5A
-	bme680RegGasWait0     uint8 = 0x64
-	bme680RegCtrlGas0     uint8 = 0x70
-	bme680RegCtrlGas1     uint8 = 0x71
-	bme680RegCtrlHum      uint8 = 0x72
-	bme680RegCtrlMeas     uint8 = 0x74
-	bme680RegConfig       uint8 = 0x75
-	bme680RegCalBlock1    uint8 = 0x8A
-	bme680RegID           uint8 = 0xD0
-	bme680RegReset        uint8 = 0xE0
-	bme680RegCalBlock2    uint8 = 0xE1
+	bme680RegResHeatVal   = 0x00
+	bme680RegResHeatRange = 0x02
+	bme680RegRangeSwErr   = 0x04
+	bme680RegMeasStatus   = 0x1D
+	bme680RegPressMsb     = 0x1F
+	bme680RegResHeat0     = 0x5A
+	bme680RegGasWait0     = 0x64
+	bme680RegCtrlGas0     = 0x70
+	bme680RegCtrlGas1     = 0x71
+	bme680RegCtrlHum      = 0x72
+	bme680RegCtrlMeas     = 0x74
+	bme680RegConfig       = 0x75
+	bme680RegCalBlock1    = 0x8A
+	bme680RegID           = 0xD0
+	bme680RegReset        = 0xE0
+	bme680RegCalBlock2    = 0xE1
 )
 
 // BME680 expected chip ID.
@@ -123,29 +123,29 @@ var (
 // bme680Calibration holds all 28 factory trimming coefficients and the
 // three single-byte calibration values for the BME680.
 type bme680Calibration struct {
-	parT1 uint16
-	parT2 int16
-	parT3 int8
-	parP1 uint16
-	parP2 int16
-	parP3 int8
-	parP4 int16
-	parP5 int16
-	parP6 int8
-	parP7 int8
-	parP8 int16
-	parP9 int16
+	parT1  uint16
+	parT2  int16
+	parT3  int8
+	parP1  uint16
+	parP2  int16
+	parP3  int8
+	parP4  int16
+	parP5  int16
+	parP6  int8
+	parP7  int8
+	parP8  int16
+	parP9  int16
 	parP10 uint8
-	parH1 uint16
-	parH2 uint16
-	parH3 int8
-	parH4 int8
-	parH5 int8
-	parH6 uint8
-	parH7 int8
-	parG1 int8
-	parG2 int16
-	parG3 int8
+	parH1  uint16
+	parH2  uint16
+	parH3  int8
+	parH4  int8
+	parH5  int8
+	parH6  uint8
+	parH7  int8
+	parG1  int8
+	parG2  int16
+	parG3  int8
 
 	resHeatVal          int8
 	resHeatRange        uint8
@@ -158,25 +158,25 @@ type bme680Calibration struct {
 // ordering). Block 2 (0xE1..0xEE) holds 14 bytes for the H, T1, and G
 // coefficients — note that par_H1 and par_H2 share register 0xE2 (par_H2 in
 // the high nibble, par_H1 in the low nibble).
-func bme680ReadCalibration(t connection.Connection) (bme680Calibration, error) {
+func bme680ReadCalibration(t connection.RegisterConnection) (bme680Calibration, error) {
 	var c bme680Calibration
-	b1, err := t.WriteRead([]byte{bme680RegCalBlock1}, 23)
+	b1, err := t.ReadReg(bme680RegCalBlock1, 23)
 	if err != nil {
 		return c, err
 	}
-	b2, err := t.WriteRead([]byte{bme680RegCalBlock2}, 14)
+	b2, err := t.ReadReg(bme680RegCalBlock2, 14)
 	if err != nil {
 		return c, err
 	}
-	s1, err := t.WriteRead([]byte{bme680RegResHeatVal}, 1)
+	s1, err := t.ReadReg(bme680RegResHeatVal, 1)
 	if err != nil {
 		return c, err
 	}
-	s2, err := t.WriteRead([]byte{bme680RegResHeatRange}, 1)
+	s2, err := t.ReadReg(bme680RegResHeatRange, 1)
 	if err != nil {
 		return c, err
 	}
-	s3, err := t.WriteRead([]byte{bme680RegRangeSwErr}, 1)
+	s3, err := t.ReadReg(bme680RegRangeSwErr, 1)
 	if err != nil {
 		return c, err
 	}
@@ -215,12 +215,7 @@ func bme680ReadCalibration(t connection.Connection) (bme680Calibration, error) {
 	c.resHeatVal = int8(s1[0])
 	c.resHeatRange = (s2[0] >> 4) & 0x03
 	rse := (s3[0] >> 4) & 0x0F
-	// 4-bit signed: if the high bit is set, sign-extend from bit 3.
-	if rse >= 8 {
-		c.rangeSwitchingError = int8(rse) - 16
-	} else {
-		c.rangeSwitchingError = int8(rse)
-	}
+	c.rangeSwitchingError = int8(connection.ToSigned(uint32(rse), 4))
 	return c, nil
 }
 
@@ -287,7 +282,7 @@ func bme680CompensateHumidity(adcH uint16, tFine int32, c bme680Calibration) flo
 
 	var1 := int64(adcH) - ((parH1 << 4) + (((tempScaled * parH3) / 100) >> 1))
 	var2 := (parH2 * (((tempScaled * parH4) / 100) +
-		(((tempScaled*((tempScaled*parH5)/100))>>6)/100) +
+		(((tempScaled * ((tempScaled * parH5) / 100)) >> 6) / 100) +
 		(1 << 14))) >> 10
 	var3 := var1 * var2
 	var4 := ((parH6 << 7) + ((tempScaled * parH7) / 100)) >> 4
@@ -365,7 +360,7 @@ func bme680CalcGasWait(targetMs uint16) uint8 {
 // forced-mode TPHG cycle and reads all 13 output bytes (0x1F..0x2B) in one
 // burst.
 type BME680Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -390,58 +385,44 @@ type BME680Minimal struct {
 //
 // connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME680Minimal(t connection.Connection) (*BME680Minimal, error) {
+func NewBME680Minimal(t connection.RegisterConnection) (*BME680Minimal, error) {
 	cal, err := bme680ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BME680Minimal{
 		connection: t,
-		osrsT:     BME680OSRSX1,
-		osrsP:     BME680OSRSX1,
-		osrsH:     BME680OSRSX1,
-		filter:    BME680Filter0,
-		mode:      BME680ModeSleep,
-		ambientC:  bme680DefaultAmbientC,
-		heatTemp:  bme680DefaultHeaterTempC,
-		heatDur:   bme680DefaultHeaterDurMs,
-		gasOn:     true,
-		nbConv:    0,
-		heaterIdx: 0,
-		cal:       cal,
+		osrsT:      BME680OSRSX1,
+		osrsP:      BME680OSRSX1,
+		osrsH:      BME680OSRSX1,
+		filter:     BME680Filter0,
+		mode:       BME680ModeSleep,
+		ambientC:   bme680DefaultAmbientC,
+		heatTemp:   bme680DefaultHeaterTempC,
+		heatDur:    bme680DefaultHeaterDurMs,
+		gasOn:      true,
+		nbConv:     0,
+		heaterIdx:  0,
+		cal:        cal,
 	}
 	// ctrl_hum must be written before ctrl_meas for the value to latch.
-	if err := d.writeReg(bme680RegCtrlHum, d.osrsH); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlHum, []byte{d.osrsH}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bme680RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|0); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlMeas, []byte{(d.osrsT << 5) | (d.osrsP << 2) | 0}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bme680RegConfig, 0); err != nil {
+	if err := d.connection.WriteReg(bme680RegConfig, []byte{0}); err != nil {
 		return nil, err
 	}
 	if err := d.setupHeater(0); err != nil {
 		return nil, err
 	}
 	// Enable gas conversion on profile 0.
-	if err := d.writeReg(bme680RegCtrlGas1, (1<<4)|0); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlGas1, []byte{(1 << 4) | 0}); err != nil {
 		return nil, err
 	}
 	return d, nil
-}
-
-// writeReg writes a single byte to a register.
-func (d *BME680Minimal) writeReg(reg, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
-}
-
-// readReg8 reads a single byte from a register.
-func (d *BME680Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
-	if err != nil {
-		return 0, err
-	}
-	return b[0], nil
 }
 
 // setupHeater configures the res_heat_x and gas_wait_x registers for the
@@ -449,24 +430,24 @@ func (d *BME680Minimal) readReg8(reg uint8) (uint8, error) {
 func (d *BME680Minimal) setupHeater(index uint8) error {
 	res := bme680CalcHeaterResistance(d.heatTemp, d.ambientC, d.cal)
 	gw := bme680CalcGasWait(d.heatDur)
-	if err := d.writeReg(bme680RegResHeat0+index, res); err != nil {
+	if err := d.connection.WriteReg(bme680RegResHeat0+uint32(index), []byte{res}); err != nil {
 		return err
 	}
-	return d.writeReg(bme680RegGasWait0+index, gw)
+	return d.connection.WriteReg(bme680RegGasWait0+uint32(index), []byte{gw})
 }
 
 // triggerAndRead triggers a forced TPHG cycle and returns the raw ADC values
 // and gas status flags from one burst read of registers 0x1F..0x2B.
 func (d *BME680Minimal) triggerAndRead() (uint32, uint32, uint16, uint16, uint8, bool, bool, error) {
-	if err := d.writeReg(bme680RegCtrlHum, d.osrsH); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlHum, []byte{d.osrsH}); err != nil {
 		return 0, 0, 0, 0, 0, false, false, err
 	}
 	ctrl := (d.osrsT << 5) | (d.osrsP << 2) | BME680ModeForced
-	if err := d.writeReg(bme680RegCtrlMeas, ctrl); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlMeas, []byte{ctrl}); err != nil {
 		return 0, 0, 0, 0, 0, false, false, err
 	}
 	time.Sleep(bme680MeasTime)
-	raw, err := d.connection.WriteRead([]byte{bme680RegPressMsb}, 13)
+	raw, err := d.connection.ReadReg(bme680RegPressMsb, 13)
 	if err != nil {
 		return 0, 0, 0, 0, 0, false, false, err
 	}
@@ -554,7 +535,7 @@ type BME680Full struct {
 //
 // connection must be a configured I²C connection bound to the chip's 7-bit
 // address (0x76 or 0x77).
-func NewBME680Full(t connection.Connection) (*BME680Full, error) {
+func NewBME680Full(t connection.RegisterConnection) (*BME680Full, error) {
 	m, err := NewBME680Minimal(t)
 	if err != nil {
 		return nil, err
@@ -576,13 +557,13 @@ func (d *BME680Full) Configure(osrsT, osrsP, osrsH, mode, filter uint8) error {
 	d.osrsH = osrsH
 	d.mode = mode
 	d.filter = filter
-	if err := d.writeReg(bme680RegCtrlHum, osrsH); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlHum, []byte{osrsH}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bme680RegConfig, filter<<2); err != nil {
+	if err := d.connection.WriteReg(bme680RegConfig, []byte{filter << 2}); err != nil {
 		return err
 	}
-	return d.writeReg(bme680RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|mode)
+	return d.connection.WriteReg(bme680RegCtrlMeas, []byte{(osrsT << 5) | (osrsP << 2) | mode})
 }
 
 // SetOversampling updates all three TPH oversampling settings. The chip
@@ -592,17 +573,17 @@ func (d *BME680Full) SetOversampling(osrsT, osrsP, osrsH uint8) error {
 	d.osrsT = osrsT
 	d.osrsP = osrsP
 	d.osrsH = osrsH
-	if err := d.writeReg(bme680RegCtrlHum, osrsH); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlHum, []byte{osrsH}); err != nil {
 		return err
 	}
-	return d.writeReg(bme680RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|0)
+	return d.connection.WriteReg(bme680RegCtrlMeas, []byte{(osrsT << 5) | (osrsP << 2) | 0})
 }
 
 // SetFilter updates the IIR filter coefficient in the config register. The
 // IIR filter applies to temperature and pressure only (not humidity or gas).
 func (d *BME680Full) SetFilter(coeff uint8) error {
 	d.filter = coeff
-	return d.writeReg(bme680RegConfig, coeff<<2)
+	return d.connection.WriteReg(bme680RegConfig, []byte{coeff << 2})
 }
 
 // SetHeater configures profile 0 with the given heater target temperature
@@ -614,7 +595,7 @@ func (d *BME680Full) SetHeater(tempC int16, durationMs uint16) error {
 	if err := d.setupHeater(0); err != nil {
 		return err
 	}
-	return d.writeReg(bme680RegCtrlGas1, (1<<4)|0)
+	return d.connection.WriteReg(bme680RegCtrlGas1, []byte{(1 << 4) | 0})
 }
 
 // SetHeaterProfile configures one of the 10 heater profiles without
@@ -644,7 +625,7 @@ func (d *BME680Full) SelectHeaterProfile(index uint8) error {
 	} else {
 		gas1 = index
 	}
-	return d.writeReg(bme680RegCtrlGas1, gas1)
+	return d.connection.WriteReg(bme680RegCtrlGas1, []byte{gas1})
 }
 
 // SetGasEnabled enables or disables gas conversion in the next forced cycle.
@@ -656,7 +637,7 @@ func (d *BME680Full) SetGasEnabled(enabled bool) error {
 	} else {
 		gas1 = d.nbConv
 	}
-	return d.writeReg(bme680RegCtrlGas1, gas1)
+	return d.connection.WriteReg(bme680RegCtrlGas1, []byte{gas1})
 }
 
 // SetHeaterOff controls the heat_off override in ctrl_gas_0. true disables
@@ -666,7 +647,7 @@ func (d *BME680Full) SetHeaterOff(off bool) error {
 	if off {
 		val = 0x08
 	}
-	return d.writeReg(bme680RegCtrlGas0, val)
+	return d.connection.WriteReg(bme680RegCtrlGas0, []byte{val})
 }
 
 // SetAmbientTemperature overrides the ambient temperature used for
@@ -701,39 +682,47 @@ func (d *BME680Full) ReadAll() (float32, float32, float32, float32, error) {
 // GasValid returns true if the most recent gas reading is real (gas_valid_r
 // bit set in 0x2B).
 func (d *BME680Full) GasValid() (bool, error) {
-	b, err := d.readReg8(0x2B)
+	r, err := d.connection.ReadReg(0x2B, 1)
 	if err != nil {
 		return false, err
 	}
-	return (b>>5)&1 == 1, nil
+	return (r[0]>>5)&1 == 1, nil
 }
 
 // HeaterStable returns true if the most recent gas-conversion heater reached
 // its target temperature within the gas_wait_x window (heat_stab_r bit in
 // 0x2B).
 func (d *BME680Full) HeaterStable() (bool, error) {
-	b, err := d.readReg8(0x2B)
+	r, err := d.connection.ReadReg(0x2B, 1)
 	if err != nil {
 		return false, err
 	}
-	return (b>>4)&1 == 1, nil
+	return (r[0]>>4)&1 == 1, nil
 }
 
 // Status reads the measurement-status register at 0x1D. Bit 7 = new_data,
 // bit 6 = gas_measuring, bit 5 = measuring, bits 3:0 = gas_meas_index.
 func (d *BME680Full) Status() (uint8, error) {
-	return d.readReg8(bme680RegMeasStatus)
+	r, err := d.connection.ReadReg(bme680RegMeasStatus, 1)
+	if err != nil {
+		return 0, err
+	}
+	return r[0], nil
 }
 
 // ChipID reads the chip ID register at 0xD0. Expect 0x61 for a BME680.
 func (d *BME680Full) ChipID() (uint8, error) {
-	return d.readReg8(bme680RegID)
+	r, err := d.connection.ReadReg(bme680RegID, 1)
+	if err != nil {
+		return 0, err
+	}
+	return r[0], nil
 }
 
 // Reset performs a soft reset (write 0xB6 to 0xE0), re-reads the
 // calibration coefficients, and re-applies the current configuration.
 func (d *BME680Full) Reset() error {
-	if err := d.writeReg(bme680RegReset, bme680ResetCmd); err != nil {
+	if err := d.connection.WriteReg(bme680RegReset, []byte{bme680ResetCmd}); err != nil {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
@@ -742,13 +731,13 @@ func (d *BME680Full) Reset() error {
 		return err
 	}
 	d.cal = cal
-	if err := d.writeReg(bme680RegCtrlHum, d.osrsH); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlHum, []byte{d.osrsH}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bme680RegConfig, d.filter<<2); err != nil {
+	if err := d.connection.WriteReg(bme680RegConfig, []byte{d.filter << 2}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bme680RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|0); err != nil {
+	if err := d.connection.WriteReg(bme680RegCtrlMeas, []byte{(d.osrsT << 5) | (d.osrsP << 2) | 0}); err != nil {
 		return err
 	}
 	if err := d.setupHeater(d.nbConv); err != nil {
@@ -760,5 +749,5 @@ func (d *BME680Full) Reset() error {
 	} else {
 		gas1 = d.nbConv
 	}
-	return d.writeReg(bme680RegCtrlGas1, gas1)
+	return d.connection.WriteReg(bme680RegCtrlGas1, []byte{gas1})
 }
