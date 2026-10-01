@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -8,7 +8,7 @@ import java.io.IOException
  * temperature, raw data access, data-ready polling, sleep/standby, and FIFO management.
  */
 class MPU6050Full @JvmOverloads constructor(
-    connection: Connection
+    connection: RegisterConnection
 ) : MPU6050Minimal(connection) {
 
     /**
@@ -18,7 +18,7 @@ class MPU6050Full @JvmOverloads constructor(
      */
     fun configureGyro(fullScale: Int = 0) {
         gyroFs = fullScale and 0x03
-        writeReg(REG_GYRO_CONFIG, (fullScale and 0x03) shl 3)
+        connection.write(REG_GYRO_CONFIG, byteArrayOf(((fullScale and 0x03) shl 3).toByte()))
     }
 
     /**
@@ -28,7 +28,7 @@ class MPU6050Full @JvmOverloads constructor(
      */
     fun configureAccel(fullScale: Int = 0) {
         accelFs = fullScale and 0x03
-        writeReg(REG_ACCEL_CONFIG, (fullScale and 0x03) shl 3)
+        connection.write(REG_ACCEL_CONFIG, byteArrayOf(((fullScale and 0x03) shl 3).toByte()))
     }
 
     /**
@@ -37,7 +37,7 @@ class MPU6050Full @JvmOverloads constructor(
      * @param dlpf filter setting 0–6 (0=260/256 Hz … 6=5/5 Hz).
      */
     fun configureDlpf(dlpf: Int = 3) {
-        writeReg(REG_CONFIG, dlpf and 0x07)
+        connection.write(REG_CONFIG, byteArrayOf((dlpf and 0x07).toByte()))
     }
 
     /**
@@ -46,7 +46,7 @@ class MPU6050Full @JvmOverloads constructor(
      * @param divider SMPLRT_DIV value 0–255.
      */
     fun configureSampleRate(divider: Int = 4) {
-        writeReg(REG_SMPLRT_DIV, divider and 0xFF)
+        connection.write(REG_SMPLRT_DIV, byteArrayOf((divider and 0xFF).toByte()))
     }
 
     /**
@@ -65,7 +65,7 @@ class MPU6050Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun accelRaw(): IntArray {
-        val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_ACCEL_XOUT_H, 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -79,7 +79,7 @@ class MPU6050Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun gyroRaw(): IntArray {
-        val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_GYRO_XOUT_H, 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -104,7 +104,7 @@ class MPU6050Full @JvmOverloads constructor(
     fun setSleep(sleep: Boolean = true) {
         var v = readReg(REG_PWR_MGMT_1)
         v = if (sleep) v or 0x40 else v and 0xBF
-        writeReg(REG_PWR_MGMT_1, v)
+        connection.write(REG_PWR_MGMT_1, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -114,7 +114,7 @@ class MPU6050Full @JvmOverloads constructor(
                    xg: Boolean = false, yg: Boolean = false, zg: Boolean = false) {
         val v = ((if (xa) 1 else 0) shl 5) or ((if (ya) 1 else 0) shl 4) or ((if (za) 1 else 0) shl 3) or
                 ((if (xg) 1 else 0) shl 2) or ((if (yg) 1 else 0) shl 1) or (if (zg) 1 else 0)
-        writeReg(REG_PWR_MGMT_2, v)
+        connection.write(REG_PWR_MGMT_2, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -123,7 +123,7 @@ class MPU6050Full @JvmOverloads constructor(
      * @return FIFO byte count (0–1024).
      */
     fun fifoCount(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_FIFO_COUNTH.toByte()), 2)
+        val buf = connection.read(REG_FIFO_COUNTH, 2)
         return ((buf[0].toInt() and 0x1F) shl 8) or (buf[1].toInt() and 0xFF)
     }
 
@@ -135,7 +135,7 @@ class MPU6050Full @JvmOverloads constructor(
     fun readFifo(): ByteArray {
         val count = fifoCount()
         if (count == 0) return ByteArray(0)
-        return connection.writeRead(byteArrayOf(REG_FIFO_R_W.toByte()), count)
+        return connection.read(REG_FIFO_R_W, count)
     }
 
     /**
@@ -143,9 +143,9 @@ class MPU6050Full @JvmOverloads constructor(
      */
     fun enableFifo(gyro: Boolean = true, accel: Boolean = true, temp: Boolean = false) {
         val fifoEn = ((if (accel) 1 else 0) shl 3) or ((if (temp) 1 else 0) shl 2) or ((if (gyro) 1 else 0) shl 4)
-        writeReg(REG_FIFO_EN, fifoEn)
+        connection.write(REG_FIFO_EN, byteArrayOf((fifoEn).toByte()))
         val userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl or 0x40)
+        connection.write(REG_USER_CTRL, byteArrayOf((userCtrl or 0x40).toByte()))
     }
 
     /**
@@ -153,6 +153,6 @@ class MPU6050Full @JvmOverloads constructor(
      */
     fun resetFifo() {
         val userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl or 0x04)
+        connection.write(REG_USER_CTRL, byteArrayOf((userCtrl or 0x04).toByte()))
     }
 }

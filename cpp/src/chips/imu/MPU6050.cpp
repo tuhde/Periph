@@ -25,11 +25,11 @@ constexpr float MPU6050Minimal::GYRO_SENSITIVITY[4];
 #define DELAY_MS(ms) delay(ms)
 #endif
 
-MPU6050Minimal::MPU6050Minimal(Connection& connection)
+MPU6050Minimal::MPU6050Minimal(RegisterConnection& connection)
     : _connection(connection) {
-    _write_reg(REG_PWR_MGMT_1, 0x80);
+    { uint8_t v = 0x80; _connection.write(REG_PWR_MGMT_1, &v, 1); }
     DELAY_MS(100);
-    _write_reg(REG_PWR_MGMT_1, 0x01);
+    { uint8_t v = 0x01; _connection.write(REG_PWR_MGMT_1, &v, 1); }
     uint8_t who = _read_reg(REG_WHO_AM_I);
     if (who != WHO_AM_I_VALUE) {
         // Match this repo's established C++ convention for a failed identity
@@ -40,37 +40,28 @@ MPU6050Minimal::MPU6050Minimal(Connection& connection)
         // signal to the caller that construction failed.
         abort();
     }
-    _write_reg(REG_GYRO_CONFIG, 0x00);
-    _write_reg(REG_ACCEL_CONFIG, 0x00);
-    _write_reg(REG_CONFIG, 0x03);
-    _write_reg(REG_SMPLRT_DIV, 0x04);
+    { uint8_t v = 0x00; _connection.write(REG_GYRO_CONFIG, &v, 1); }
+    { uint8_t v = 0x00; _connection.write(REG_ACCEL_CONFIG, &v, 1); }
+    { uint8_t v = 0x03; _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v = 0x04; _connection.write(REG_SMPLRT_DIV, &v, 1); }
     DELAY_MS(35);
-}
-
-void MPU6050Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
 }
 
 uint8_t MPU6050Minimal::_read_reg(uint8_t reg) {
     uint8_t val;
-    _connection.write_read(&reg, 1, &val, 1);
+    _connection.read(reg, &val, 1);
     return val;
 }
 
 int16_t MPU6050Minimal::_read_reg16_signed(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
-}
-
-void MPU6050Minimal::_read_burst(uint8_t reg, uint8_t* buf, uint8_t len) {
-    _connection.write_read(&reg, 1, buf, len);
 }
 
 void MPU6050Minimal::accel(float& x, float& y, float& z) {
     uint8_t buf[6];
-    _read_burst(REG_ACCEL_XOUT_H, buf, 6);
+    _connection.read(REG_ACCEL_XOUT_H, buf, 6);
     int16_t ax = static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
     int16_t ay = static_cast<int16_t>((static_cast<uint16_t>(buf[2]) << 8) | buf[3]);
     int16_t az = static_cast<int16_t>((static_cast<uint16_t>(buf[4]) << 8) | buf[5]);
@@ -82,7 +73,7 @@ void MPU6050Minimal::accel(float& x, float& y, float& z) {
 
 void MPU6050Minimal::gyro(float& x, float& y, float& z) {
     uint8_t buf[6];
-    _read_burst(REG_GYRO_XOUT_H, buf, 6);
+    _connection.read(REG_GYRO_XOUT_H, buf, 6);
     int16_t gx = static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
     int16_t gy = static_cast<int16_t>((static_cast<uint16_t>(buf[2]) << 8) | buf[3]);
     int16_t gz = static_cast<int16_t>((static_cast<uint16_t>(buf[4]) << 8) | buf[5]);
@@ -92,25 +83,25 @@ void MPU6050Minimal::gyro(float& x, float& y, float& z) {
     z = gz / sens * 3.141592653589793f / 180.0f;
 }
 
-MPU6050Full::MPU6050Full(Connection& connection)
+MPU6050Full::MPU6050Full(RegisterConnection& connection)
     : MPU6050Minimal(connection) {}
 
 void MPU6050Full::configure_gyro(uint8_t full_scale) {
     _gyro_fs = full_scale & 0x03;
-    _write_reg(REG_GYRO_CONFIG, (full_scale & 0x03) << 3);
+    { uint8_t v = (full_scale & 0x03) << 3; _connection.write(REG_GYRO_CONFIG, &v, 1); }
 }
 
 void MPU6050Full::configure_accel(uint8_t full_scale) {
     _accel_fs = full_scale & 0x03;
-    _write_reg(REG_ACCEL_CONFIG, (full_scale & 0x03) << 3);
+    { uint8_t v = (full_scale & 0x03) << 3; _connection.write(REG_ACCEL_CONFIG, &v, 1); }
 }
 
 void MPU6050Full::configure_dlpf(uint8_t dlpf) {
-    _write_reg(REG_CONFIG, dlpf & 0x07);
+    { uint8_t v = dlpf & 0x07; _connection.write(REG_CONFIG, &v, 1); }
 }
 
 void MPU6050Full::configure_sample_rate(uint8_t divider) {
-    _write_reg(REG_SMPLRT_DIV, divider);
+    { uint8_t v = divider; _connection.write(REG_SMPLRT_DIV, &v, 1); }
 }
 
 float MPU6050Full::temperature() {
@@ -120,7 +111,7 @@ float MPU6050Full::temperature() {
 
 void MPU6050Full::accel_raw(int16_t& x, int16_t& y, int16_t& z) {
     uint8_t buf[6];
-    _read_burst(REG_ACCEL_XOUT_H, buf, 6);
+    _connection.read(REG_ACCEL_XOUT_H, buf, 6);
     x = static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
     y = static_cast<int16_t>((static_cast<uint16_t>(buf[2]) << 8) | buf[3]);
     z = static_cast<int16_t>((static_cast<uint16_t>(buf[4]) << 8) | buf[5]);
@@ -128,7 +119,7 @@ void MPU6050Full::accel_raw(int16_t& x, int16_t& y, int16_t& z) {
 
 void MPU6050Full::gyro_raw(int16_t& x, int16_t& y, int16_t& z) {
     uint8_t buf[6];
-    _read_burst(REG_GYRO_XOUT_H, buf, 6);
+    _connection.read(REG_GYRO_XOUT_H, buf, 6);
     x = static_cast<int16_t>((static_cast<uint16_t>(buf[0]) << 8) | buf[1]);
     y = static_cast<int16_t>((static_cast<uint16_t>(buf[2]) << 8) | buf[3]);
     z = static_cast<int16_t>((static_cast<uint16_t>(buf[4]) << 8) | buf[5]);
@@ -145,18 +136,18 @@ void MPU6050Full::set_sleep(bool sleep) {
     } else {
         val &= ~0x40;
     }
-    _write_reg(REG_PWR_MGMT_1, val);
+    { uint8_t v = val; _connection.write(REG_PWR_MGMT_1, &v, 1); }
 }
 
 void MPU6050Full::set_standby(bool xa, bool ya, bool za, bool xg, bool yg, bool zg) {
     uint8_t val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
                   ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0);
-    _write_reg(REG_PWR_MGMT_2, val);
+    { uint8_t v = val; _connection.write(REG_PWR_MGMT_2, &v, 1); }
 }
 
 uint16_t MPU6050Full::fifo_count() {
     uint8_t buf[2];
-    _read_burst(REG_FIFO_COUNTH, buf, 2);
+    _connection.read(REG_FIFO_COUNTH, buf, 2);
     return ((static_cast<uint16_t>(buf[0]) & 0x1F) << 8) | buf[1];
 }
 
@@ -164,20 +155,20 @@ uint16_t MPU6050Full::read_fifo(uint8_t* buf, uint16_t len) {
     uint16_t count = fifo_count();
     if (count == 0) return 0;
     uint16_t to_read = (count < len) ? count : len;
-    _read_burst(REG_FIFO_R_W, buf, to_read);
+    _connection.read(REG_FIFO_R_W, buf, to_read);
     return to_read;
 }
 
 void MPU6050Full::enable_fifo(bool gyro, bool accel, bool temp) {
     uint8_t fifo_en = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-    _write_reg(REG_FIFO_EN, fifo_en);
+    { uint8_t v = fifo_en; _connection.write(REG_FIFO_EN, &v, 1); }
     uint8_t user_ctrl = _read_reg(REG_USER_CTRL);
-    _write_reg(REG_USER_CTRL, user_ctrl | 0x40);
+    { uint8_t v = user_ctrl | 0x40; _connection.write(REG_USER_CTRL, &v, 1); }
 }
 
 void MPU6050Full::reset_fifo() {
     uint8_t user_ctrl = _read_reg(REG_USER_CTRL);
-    _write_reg(REG_USER_CTRL, user_ctrl | 0x04);
+    { uint8_t v = user_ctrl | 0x04; _connection.write(REG_USER_CTRL, &v, 1); }
 }
 
 uint8_t MPU6050Full::who_am_i() {

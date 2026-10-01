@@ -51,7 +51,7 @@ const _GYRO_SENSITIVITY  = [131.0, 65.5, 32.8, 16.4];
  */
 class MPU6050Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (writeRead, write).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      */
     constructor(connection) {
         this._conn = connection;
@@ -61,36 +61,24 @@ class MPU6050Minimal {
     }
 
     async _init() {
-        await this._writeReg(_REG_PWR_MGMT_1, 0x80);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, 0x80);
         const end1 = Date.now() + 100;
         while (Date.now() < end1) {}
-        await this._writeReg(_REG_PWR_MGMT_1, 0x01);
-        const who = await this._readReg(_REG_WHO_AM_I);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, 0x01);
+        const who = (await this._conn.readReg(_REG_WHO_AM_I, 1))[0];
         if (who !== _WHO_AM_I_VALUE) {
             throw new Error('MPU6050 WHO_AM_I: expected 0x' + _WHO_AM_I_VALUE.toString(16) + ', got 0x' + who.toString(16));
         }
-        await this._writeReg(_REG_GYRO_CONFIG, 0x00);
-        await this._writeReg(_REG_ACCEL_CONFIG, 0x00);
-        await this._writeReg(_REG_CONFIG, 0x03);
-        await this._writeReg(_REG_SMPLRT_DIV, 0x04);
+        await this._conn.writeReg(_REG_GYRO_CONFIG, 0x00);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG, 0x00);
+        await this._conn.writeReg(_REG_CONFIG, 0x03);
+        await this._conn.writeReg(_REG_SMPLRT_DIV, 0x04);
         const end2 = Date.now() + 35;
         while (Date.now() < end2) {}
     }
 
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
-    }
-
-    async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
-    }
-
     async _readReg16Signed(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
-    }
-
-    async _readBurst(reg, len) {
-        return this._conn.writeRead(Buffer.from([reg]), len);
+        return (await this._conn.readReg(reg, 2)).readInt16BE(0);
     }
 
     /**
@@ -98,7 +86,7 @@ class MPU6050Minimal {
      * @returns {Promise<number[]>} [x, y, z] acceleration in m/s².
      */
     async accel() {
-        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_ACCEL_XOUT_H, 6);
         const ax = buf.readInt16BE(0);
         const ay = buf.readInt16BE(2);
         const az = buf.readInt16BE(4);
@@ -111,7 +99,7 @@ class MPU6050Minimal {
      * @returns {Promise<number[]>} [x, y, z] angular rate in rad/s.
      */
     async gyro() {
-        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_GYRO_XOUT_H, 6);
         const gx = buf.readInt16BE(0);
         const gy = buf.readInt16BE(2);
         const gz = buf.readInt16BE(4);
@@ -131,7 +119,7 @@ class MPU6050Minimal {
  */
 class MPU6050Full extends MPU6050Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      */
     constructor(connection) {
         super(connection);
@@ -144,7 +132,7 @@ class MPU6050Full extends MPU6050Minimal {
      */
     async configureGyro(fullScale = 0) {
         this._gyroFs = fullScale & 0x03;
-        await this._writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+        await this._conn.writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
@@ -154,7 +142,7 @@ class MPU6050Full extends MPU6050Minimal {
      */
     async configureAccel(fullScale = 0) {
         this._accelFs = fullScale & 0x03;
-        await this._writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
@@ -164,7 +152,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<void>}
      */
     async configureDlpf(dlpf = 3) {
-        await this._writeReg(_REG_CONFIG, dlpf & 0x07);
+        await this._conn.writeReg(_REG_CONFIG, dlpf & 0x07);
     }
 
     /**
@@ -174,7 +162,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<void>}
      */
     async configureSampleRate(divider = 4) {
-        await this._writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
+        await this._conn.writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
     }
 
     /**
@@ -191,7 +179,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
     async accelRaw() {
-        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_ACCEL_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
@@ -200,7 +188,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
     async gyroRaw() {
-        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_GYRO_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
@@ -209,7 +197,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<boolean>} True when DATA_RDY_INT is set in INT_STATUS.
      */
     async dataReady() {
-        return !!((await this._readReg(_REG_INT_STATUS)) & 0x01);
+        return !!((await this._conn.readReg(_REG_INT_STATUS, 1))[0] & 0x01);
     }
 
     /**
@@ -218,13 +206,13 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<void>}
      */
     async setSleep(sleep = true) {
-        let val = await this._readReg(_REG_PWR_MGMT_1);
+        let val = (await this._conn.readReg(_REG_PWR_MGMT_1, 1))[0];
         if (sleep) {
             val |= 0x40;
         } else {
             val &= ~0x40;
         }
-        await this._writeReg(_REG_PWR_MGMT_1, val);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, val);
     }
 
     /**
@@ -240,7 +228,7 @@ class MPU6050Full extends MPU6050Minimal {
     async setStandby(xa = false, ya = false, za = false, xg = false, yg = false, zg = false) {
         const val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
                     ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0);
-        await this._writeReg(_REG_PWR_MGMT_2, val);
+        await this._conn.writeReg(_REG_PWR_MGMT_2, val);
     }
 
     /**
@@ -248,7 +236,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<number>} FIFO byte count (0–1024).
      */
     async fifoCount() {
-        const buf = await this._readBurst(_REG_FIFO_COUNTH, 2);
+        const buf = await this._conn.readReg(_REG_FIFO_COUNTH, 2);
         return ((buf[0] & 0x1F) << 8) | buf[1];
     }
 
@@ -259,7 +247,7 @@ class MPU6050Full extends MPU6050Minimal {
     async readFifo() {
         const count = await this.fifoCount();
         if (count === 0) return Buffer.alloc(0);
-        return this._readBurst(_REG_FIFO_R_W, count);
+        return this._conn.readReg(_REG_FIFO_R_W, count);
     }
 
     /**
@@ -271,9 +259,9 @@ class MPU6050Full extends MPU6050Minimal {
      */
     async enableFifo(gyro = true, accel = true, temp = false) {
         const fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-        await this._writeReg(_REG_FIFO_EN, fifoEn);
-        const userCtrl = await this._readReg(_REG_USER_CTRL);
-        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x40);
+        await this._conn.writeReg(_REG_FIFO_EN, fifoEn);
+        const userCtrl = (await this._conn.readReg(_REG_USER_CTRL, 1))[0];
+        await this._conn.writeReg(_REG_USER_CTRL, userCtrl | 0x40);
     }
 
     /**
@@ -281,8 +269,8 @@ class MPU6050Full extends MPU6050Minimal {
      * @returns {Promise<void>}
      */
     async resetFifo() {
-        const userCtrl = await this._readReg(_REG_USER_CTRL);
-        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x04);
+        const userCtrl = (await this._conn.readReg(_REG_USER_CTRL, 1))[0];
+        await this._conn.writeReg(_REG_USER_CTRL, userCtrl | 0x04);
     }
 }
 

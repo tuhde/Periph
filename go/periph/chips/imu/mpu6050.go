@@ -53,7 +53,7 @@ const mpu6050GyroStartupDelay = 35 * time.Millisecond
 //   - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //   - Clock: PLL with gyro X reference (CLKSEL=1)
 type MPU6050Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	accelFs   uint8
 	gyroFs    uint8
 }
@@ -63,13 +63,13 @@ type MPU6050Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x68 default, 0x69 alternate).
-func NewMPU6050Minimal(t connection.Connection) (*MPU6050Minimal, error) {
+func NewMPU6050Minimal(t connection.RegisterConnection) (*MPU6050Minimal, error) {
 	d := &MPU6050Minimal{connection: t}
-	if err := d.writeReg(regPwrMgmt1, 0x80); err != nil {
+	if err := d.connection.WriteReg(uint32(regPwrMgmt1), []byte{0x80}); err != nil {
 		return nil, err
 	}
 	time.Sleep(mpu6050ResetDelay)
-	if err := d.writeReg(regPwrMgmt1, 0x01); err != nil {
+	if err := d.connection.WriteReg(uint32(regPwrMgmt1), []byte{0x01}); err != nil {
 		return nil, err
 	}
 	who, err := d.readReg(regWhoAmI)
@@ -79,30 +79,25 @@ func NewMPU6050Minimal(t connection.Connection) (*MPU6050Minimal, error) {
 	if who != whoAmIValue {
 		return nil, fmt.Errorf("MPU6050 WHO_AM_I: expected 0x%02X, got 0x%02X", whoAmIValue, who)
 	}
-	if err := d.writeReg(regGyroConfig, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(regGyroConfig), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(regAccelConfig, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(regAccelConfig), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(regConfig, 0x03); err != nil {
+	if err := d.connection.WriteReg(uint32(regConfig), []byte{0x03}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(regSmplrtDiv, 0x04); err != nil {
+	if err := d.connection.WriteReg(uint32(regSmplrtDiv), []byte{0x04}); err != nil {
 		return nil, err
 	}
 	time.Sleep(mpu6050GyroStartupDelay)
 	return d, nil
 }
 
-// writeReg writes a single byte to the given register.
-func (d *MPU6050Minimal) writeReg(reg, value byte) error {
-	return d.connection.Write([]byte{reg, value})
-}
-
 // readReg reads a single byte from the given register.
 func (d *MPU6050Minimal) readReg(reg byte) (byte, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -111,7 +106,7 @@ func (d *MPU6050Minimal) readReg(reg byte) (byte, error) {
 
 // readReg16Signed reads a big-endian signed 16-bit register value.
 func (d *MPU6050Minimal) readReg16Signed(reg byte) (int16, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -122,7 +117,7 @@ func (d *MPU6050Minimal) readReg16Signed(reg byte) (int16, error) {
 //
 // Returns (x, y, z) in m/s².
 func (d *MPU6050Minimal) Accel() (float32, float32, float32, error) {
-	b, err := d.connection.WriteRead([]byte{regAccelXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(regAccelXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -140,7 +135,7 @@ func (d *MPU6050Minimal) Accel() (float32, float32, float32, error) {
 //
 // Returns (x, y, z) in rad/s.
 func (d *MPU6050Minimal) Gyro() (float32, float32, float32, error) {
-	b, err := d.connection.WriteRead([]byte{regGyroXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(regGyroXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -168,7 +163,7 @@ type MPU6050Full struct {
 
 // NewMPU6050Full creates a new MPU6050Full with the same initialization as
 // NewMPU6050Minimal.
-func NewMPU6050Full(t connection.Connection) (*MPU6050Full, error) {
+func NewMPU6050Full(t connection.RegisterConnection) (*MPU6050Full, error) {
 	m, err := NewMPU6050Minimal(t)
 	if err != nil {
 		return nil, err
@@ -181,7 +176,7 @@ func NewMPU6050Full(t connection.Connection) (*MPU6050Full, error) {
 // full_scale selects the range: 0=±250, 1=±500, 2=±1000, 3=±2000 dps.
 func (d *MPU6050Full) ConfigureGyro(fullScale uint8) error {
 	d.gyroFs = fullScale & 0x03
-	return d.writeReg(regGyroConfig, (fullScale&0x03)<<3)
+	return d.connection.WriteReg(uint32(regGyroConfig), []byte{(fullScale&0x03)<<3})
 }
 
 // ConfigureAccel sets the accelerometer full-scale range.
@@ -189,7 +184,7 @@ func (d *MPU6050Full) ConfigureGyro(fullScale uint8) error {
 // full_scale selects the range: 0=±2g, 1=±4g, 2=±8g, 3=±16g.
 func (d *MPU6050Full) ConfigureAccel(fullScale uint8) error {
 	d.accelFs = fullScale & 0x03
-	return d.writeReg(regAccelConfig, (fullScale&0x03)<<3)
+	return d.connection.WriteReg(uint32(regAccelConfig), []byte{(fullScale&0x03)<<3})
 }
 
 // ConfigureDLPF sets the digital low-pass filter bandwidth.
@@ -197,7 +192,7 @@ func (d *MPU6050Full) ConfigureAccel(fullScale uint8) error {
 // dlpf selects the bandwidth: 0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
 // 3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz (gyro/accel BW).
 func (d *MPU6050Full) ConfigureDLPF(dlpf uint8) error {
-	return d.writeReg(regConfig, dlpf&0x07)
+	return d.connection.WriteReg(uint32(regConfig), []byte{dlpf&0x07})
 }
 
 // ConfigureSampleRate sets the sample rate divider.
@@ -205,7 +200,7 @@ func (d *MPU6050Full) ConfigureDLPF(dlpf uint8) error {
 // divider is the SMPLRT_DIV value (0–255); output rate = 1 kHz / (1 + divider)
 // when DLPF is active.
 func (d *MPU6050Full) ConfigureSampleRate(divider uint8) error {
-	return d.writeReg(regSmplrtDiv, divider)
+	return d.connection.WriteReg(uint32(regSmplrtDiv), []byte{divider})
 }
 
 // Temperature reads the die temperature.
@@ -223,7 +218,7 @@ func (d *MPU6050Full) Temperature() (float32, error) {
 //
 // Returns (x, y, z) as raw 16-bit signed values.
 func (d *MPU6050Full) AccelRaw() (int16, int16, int16, error) {
-	b, err := d.connection.WriteRead([]byte{regAccelXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(regAccelXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -237,7 +232,7 @@ func (d *MPU6050Full) AccelRaw() (int16, int16, int16, error) {
 //
 // Returns (x, y, z) as raw 16-bit signed values.
 func (d *MPU6050Full) GyroRaw() (int16, int16, int16, error) {
-	b, err := d.connection.WriteRead([]byte{regGyroXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(regGyroXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -269,7 +264,7 @@ func (d *MPU6050Full) SetSleep(sleep bool) error {
 	} else {
 		v &^= 0x40
 	}
-	return d.writeReg(regPwrMgmt1, v)
+	return d.connection.WriteReg(uint32(regPwrMgmt1), []byte{v})
 }
 
 // SetStandby puts individual axes into standby mode via PWR_MGMT_2.
@@ -293,12 +288,12 @@ func (d *MPU6050Full) SetStandby(xa, ya, za, xg, yg, zg bool) error {
 	if zg {
 		v |= 1
 	}
-	return d.writeReg(regPwrMgmt2, v)
+	return d.connection.WriteReg(uint32(regPwrMgmt2), []byte{v})
 }
 
 // FIFOcount returns the number of bytes currently in the FIFO (0–1024).
 func (d *MPU6050Full) FIFOcount() (uint16, error) {
-	b, err := d.connection.WriteRead([]byte{regFifoCountH}, 2)
+	b, err := d.connection.ReadReg(uint32(regFifoCountH), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -319,7 +314,7 @@ func (d *MPU6050Full) ReadFIFO(buf []byte) (uint16, error) {
 	if toRead > len(buf) {
 		toRead = len(buf)
 	}
-	read, err := d.connection.WriteRead([]byte{regFifoR_W}, toRead)
+	read, err := d.connection.ReadReg(uint32(regFifoR_W), toRead)
 	if err != nil {
 		return 0, err
 	}
@@ -339,14 +334,14 @@ func (d *MPU6050Full) EnableFIFO(gyro, accel, temp bool) error {
 	if gyro {
 		v |= 1 << 4
 	}
-	if err := d.writeReg(regFifoEn, v); err != nil {
+	if err := d.connection.WriteReg(uint32(regFifoEn), []byte{v}); err != nil {
 		return err
 	}
 	uc, err := d.readReg(regUserCtrl)
 	if err != nil {
 		return err
 	}
-	return d.writeReg(regUserCtrl, uc|0x40)
+	return d.connection.WriteReg(uint32(regUserCtrl), []byte{uc|0x40})
 }
 
 // ResetFIFO resets the FIFO buffer by setting FIFO_RST in USER_CTRL.
@@ -355,5 +350,5 @@ func (d *MPU6050Full) ResetFIFO() error {
 	if err != nil {
 		return err
 	}
-	return d.writeReg(regUserCtrl, uc|0x04)
+	return d.connection.WriteReg(uint32(regUserCtrl), []byte{uc|0x04})
 }

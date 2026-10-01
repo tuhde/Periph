@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import groovy.transform.CompileStatic
 
 /**
@@ -10,7 +10,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class MPU6050Full extends MPU6050Minimal {
 
-    MPU6050Full(Connection connection) {
+    MPU6050Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -21,7 +21,7 @@ class MPU6050Full extends MPU6050Minimal {
      */
     void configureGyro(int fullScale = 0) {
         gyroFs = fullScale & 0x03
-        writeReg(REG_GYRO_CONFIG, (fullScale & 0x03) << 3)
+        connection.write(REG_GYRO_CONFIG, [(byte) ((fullScale & 0x03) << 3)] as byte[])
     }
 
     /**
@@ -31,7 +31,7 @@ class MPU6050Full extends MPU6050Minimal {
      */
     void configureAccel(int fullScale = 0) {
         accelFs = fullScale & 0x03
-        writeReg(REG_ACCEL_CONFIG, (fullScale & 0x03) << 3)
+        connection.write(REG_ACCEL_CONFIG, [(byte) ((fullScale & 0x03) << 3)] as byte[])
     }
 
     /**
@@ -40,7 +40,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @param dlpf filter setting 0–6 (0=260/256 Hz … 6=5/5 Hz).
      */
     void configureDlpf(int dlpf = 3) {
-        writeReg(REG_CONFIG, dlpf & 0x07)
+        connection.write(REG_CONFIG, [(byte) (dlpf & 0x07)] as byte[])
     }
 
     /**
@@ -49,7 +49,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @param divider SMPLRT_DIV value 0–255.
      */
     void configureSampleRate(int divider = 4) {
-        writeReg(REG_SMPLRT_DIV, divider & 0xFF)
+        connection.write(REG_SMPLRT_DIV, [(byte) (divider & 0xFF)] as byte[])
     }
 
     /**
@@ -68,7 +68,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] accelRaw() {
-        byte[] buf = connection.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -82,7 +82,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     int[] gyroRaw() {
-        byte[] buf = connection.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6)
         return [
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -111,7 +111,7 @@ class MPU6050Full extends MPU6050Minimal {
         } else {
             val &= ~0x40
         }
-        writeReg(REG_PWR_MGMT_1, val)
+        connection.write(REG_PWR_MGMT_1, [(byte) (val)] as byte[])
     }
 
     /**
@@ -121,7 +121,7 @@ class MPU6050Full extends MPU6050Minimal {
                     boolean xg = false, boolean yg = false, boolean zg = false) {
         int val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
                   ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0)
-        writeReg(REG_PWR_MGMT_2, val)
+        connection.write(REG_PWR_MGMT_2, [(byte) (val)] as byte[])
     }
 
     /**
@@ -130,7 +130,7 @@ class MPU6050Full extends MPU6050Minimal {
      * @return FIFO byte count (0–1024).
      */
     int fifoCount() {
-        byte[] buf = connection.writeRead([(byte) REG_FIFO_COUNTH] as byte[], 2)
+        byte[] buf = connection.read(REG_FIFO_COUNTH, 2)
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF)
     }
 
@@ -142,7 +142,7 @@ class MPU6050Full extends MPU6050Minimal {
     byte[] readFifo() {
         int count = fifoCount()
         if (count == 0) return new byte[0]
-        return connection.writeRead([(byte) REG_FIFO_R_W] as byte[], count)
+        return connection.read(REG_FIFO_R_W, count)
     }
 
     /**
@@ -150,9 +150,9 @@ class MPU6050Full extends MPU6050Minimal {
      */
     void enableFifo(boolean gyro = true, boolean accel = true, boolean temp = false) {
         int fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4)
-        writeReg(REG_FIFO_EN, fifoEn)
+        connection.write(REG_FIFO_EN, [(byte) (fifoEn)] as byte[])
         int userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl | 0x40)
+        connection.write(REG_USER_CTRL, [(byte) (userCtrl | 0x40)] as byte[])
     }
 
     /**
@@ -160,6 +160,6 @@ class MPU6050Full extends MPU6050Minimal {
      */
     void resetFifo() {
         int userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl | 0x04)
+        connection.write(REG_USER_CTRL, [(byte) (userCtrl | 0x04)] as byte[])
     }
 }
