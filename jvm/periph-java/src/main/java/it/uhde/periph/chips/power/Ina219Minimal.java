@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class Ina219Minimal {
     protected static final int REG_CURRENT   = 0x04;
     protected static final int REG_CALIBRATE = 0x05;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /** Shunt resistance in Ω — retained for calibration register recalculation. */
     protected final double rShunt;
@@ -49,7 +49,7 @@ public class Ina219Minimal {
      * @param maxCurrent maximum expected current in A (e.g. 2.0)
      * @throws IOException on I²C error
      */
-    public Ina219Minimal(Connection connection, double rShunt, double maxCurrent) throws IOException {
+    public Ina219Minimal(RegisterConnection connection, double rShunt, double maxCurrent) throws IOException {
         this.connection  = connection;
         this.rShunt     = rShunt;
         this.currentLsb = maxCurrent / 32768.0;
@@ -64,7 +64,7 @@ public class Ina219Minimal {
      * @param connection I²C connection bound to the INA219 device address
      * @throws IOException on I²C error
      */
-    public Ina219Minimal(Connection connection) throws IOException {
+    public Ina219Minimal(RegisterConnection connection) throws IOException {
         this(connection, 0.1, 2.0);
     }
 
@@ -136,7 +136,7 @@ public class Ina219Minimal {
      * @throws IOException on I²C error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.read(reg, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -148,10 +148,7 @@ public class Ina219Minimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int val) throws IOException {
-        connection.write(new byte[]{
-                (byte) reg,
-                (byte) ((val >> 8) & 0xFF),
-                (byte) (val & 0xFF)
-        });
+        connection.write(reg, new byte[]{(byte) ((val >> 8) & 0xFF),
+                (byte) (val & 0xFF)});
     }
 }

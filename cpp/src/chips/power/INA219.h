@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief INA219 26V, 12-bit current/voltage/power monitor — minimal interface.
  *
@@ -21,7 +21,7 @@
  */
 class INA219Minimal {
 public:
-    INA219Minimal(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA219Minimal(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Read bus voltage.
      *  @return Bus voltage in volts ((raw >> 3) × 4 mV LSB).
@@ -51,7 +51,7 @@ protected:
     static constexpr uint8_t  REG_CURRENT = 0x04;
     static constexpr uint8_t  REG_CAL     = 0x05;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     float      _current_lsb;
     uint16_t   _cal;
 
@@ -100,7 +100,7 @@ public:
     static constexpr uint8_t MODE_BUS_CONT       = 6;
     static constexpr uint8_t MODE_SHUNT_BUS_CONT = 7;
 
-    INA219Full(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA219Full(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Write the Configuration Register.
      *  @param brng  Bus voltage range — 0 = 16 V FSR, 1 = 32 V FSR (default 1).
