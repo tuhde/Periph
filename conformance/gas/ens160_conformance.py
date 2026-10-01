@@ -9,13 +9,10 @@ Checks (see specs/gas/ens160.md, Timing Constraints):
   - measurement_cycle: successive DATA_AQI reads in STANDARD mode land no
     more than measurement_cycle_max_ms apart.
 
-Both key off sigrok/gas/ens160/pd.py's existing generic reg-read annotation
-text (e.g. "DEVICE_STATUS: 0x02 (Validity: OK, NEWDAT)", "DATA_AQI: 5
-bytes") rather than requiring new named start/end annotation classes -
-unlike a brand-new chip (see specs/_template_chip.md), ENS160's decoder
-predates this convention and its existing text already carries everything
-these two checks need without risking behavior change to the decoder's
-already-relied-on manual PulseView annotations.
+Both key off the named markers on sigrok/ens160/pd.py's `timing` row
+(`warmup_time_start`/`warmup_time_done` when a DEVICE_STATUS read reports
+Warm-up / OK validity, `measurement_cycle` on every DATA_AQI read), per
+specs/sigrok_annotations.md - not the generic Data-row register text.
 
 Usage (invoked by each language's platform script's run_conformance(), not
 directly): see build_trigger() below for the --lang-specific flags. Reads
@@ -40,12 +37,12 @@ DECODER_ID = 'ens160'
 
 CHECKS = {
     'warmup_time': (
-        lambda t: 'Validity: Warm-up' in t,
-        lambda t: 'Validity: OK' in t,
+        lambda t: 'warmup_time_start' in t,
+        lambda t: 'warmup_time_done' in t,
     ),
     'measurement_cycle': (
-        lambda t: 'DATA_AQI:' in t,
-        lambda t: 'DATA_AQI:' in t,
+        lambda t: 'measurement_cycle' in t,
+        lambda t: 'measurement_cycle' in t,
     ),
 }
 

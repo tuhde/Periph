@@ -10,6 +10,37 @@ ANN_BYTE      = 0
 ANN_LATCH     = 1
 ANN_CLEAR     = 2
 ANN_DISABLED  = 3
+ANN_WARNING   = 4
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
 
 
 class Decoder(srd.Decoder):
@@ -39,13 +70,26 @@ class Decoder(srd.Decoder):
         ('latch',    'Latch'),
         ('clear',    'Clear'),
         ('disabled', 'Outputs disabled'),
+        ('warning',  'Warning'),
     )
     annotation_rows = (
         ('bytes',     'Bytes',            (ANN_BYTE,)),
         ('latches',   'Latches',          (ANN_LATCH,)),
         ('clears',    'Clears',           (ANN_CLEAR,)),
         ('disableds', 'Outputs disabled', (ANN_DISABLED,)),
+        ('warnings',  'Warnings',         (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
 
     def __init__(self):
         self.reset()
@@ -96,12 +140,16 @@ class Decoder(srd.Decoder):
             if self.matched[1]:
                 # RCK rising edge — latch buffered bytes into the output register.
                 ss = self.latch_ss if self.latch_ss is not None else self.samplenum
+                if self.bit_count:
+                    self.put(ss, self.samplenum, self.out_ann,
+                             [ANN_WARNING, ['Latch with %d stray bit(s) not forming a full byte' % self.bit_count,
+                                            'Stray bits: %d' % self.bit_count, 'BITS?']])
                 self.put(ss, self.samplenum, self.out_ann,
                          [ANN_LATCH, [
                              'Latch: ' + ' '.join('%02X' % b for b in self.latch_bytes),
                              'Latch %dB' % len(self.latch_bytes),
                          ]])
-                self.put(ss, self.samplenum, self.out_python, ['LATCH', bytes(self.latch_bytes)])
+                self.put(ss, self.samplenum, self.out_python, ('LATCH', bytes(self.latch_bytes)))
                 self.latch_bytes = bytearray()
                 self.latch_ss = None
 
@@ -111,7 +159,7 @@ class Decoder(srd.Decoder):
                 elif self.srclr_ss is not None:
                     self.put(self.srclr_ss, self.samplenum, self.out_ann,
                              [ANN_CLEAR, ['Clear', 'CLR']])
-                    self.put(self.srclr_ss, self.samplenum, self.out_python, ['CLEAR', None])
+                    self.put(self.srclr_ss, self.samplenum, self.out_python, ('CLEAR', None))
                     self.srclr_ss = None
             if have_srclr:
                 idx += 1

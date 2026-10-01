@@ -53,6 +53,36 @@ def _ann_reg(reg, byte):
     return '%s: %s' % (name, detail)
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'mcp23017'
@@ -72,9 +102,20 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',    'Data',    (ANN_REG,)),
-        ('warnings','Warnings',(ANN_WARN,)),
         ('timing',  'Timing',  (ANN_READ_CYCLE_START, ANN_READ_CYCLE_DONE)),
+        ('warnings','Warnings',(ANN_WARN,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
 
     def __init__(self):
         self.reset()
@@ -91,6 +132,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARN, [msg]])
@@ -99,6 +141,8 @@ class Decoder(srd.Decoder):
         self.put(ss_block, es, self.out_ann,
                  [ANN_REG, ['%s %s [0x%02X] = %s' % (rw, REGISTERS[reg], reg, _ann_reg(reg, val)),
                             '%s [0x%02X]' % (rw, reg)]])
+        self.put(ss_block, es, self.out_python,
+                 ('REG_READ' if rw == 'R' else 'REG_WRITE', (reg, val)))
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -139,7 +183,7 @@ class Decoder(srd.Decoder):
             if self.ptr_reg is not None:
                 # register_read_cycle start: the repeated-start ADDRESS READ
                 # that begins the read phase of a register-pointer read.
-                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['register_read_start']])
+                self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_START, ['register_read_start: ADDRESS READ begins the read phase', 'register_read_start', 'RD\u25b6']])
 
         elif ptype == 'DATA WRITE':
             if self.state == 'WAIT_REG':
@@ -179,7 +223,7 @@ class Decoder(srd.Decoder):
                     self._emit(self.ss_block, es, 'R', reg, val)
                     # register_read_cycle done: the STOP that ends the read
                     # phase started by the ANN_READ_CYCLE_START annotation above.
-                    self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['register_read_done']])
+                    self.put(ss, es, self.out_ann, [ANN_READ_CYCLE_DONE, ['register_read_done: STOP ended the register read', 'register_read_done', 'RD\u2713']])
                 self.ptr_reg = None
 
             self.state     = 'IDLE'

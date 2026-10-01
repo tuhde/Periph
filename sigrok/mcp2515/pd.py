@@ -133,6 +133,50 @@ def _format_id_hex(can_id, extended):
     return '0x%03X' % can_id
 
 
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'mcp2515'
@@ -165,6 +209,17 @@ class Decoder(srd.Decoder):
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
+
     def __init__(self):
         self.reset()
 
@@ -178,14 +233,16 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
-        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _finish_transaction(self):
         if not self.cs_active or not self.mosi_buf:
             return
         ss, es = self.ss_block, self.es
+        self.put(ss, es, self.out_python, ('SPI_TRANSFER', (bytes(self.mosi_buf), bytes(self.miso_buf))))
         first = self.mosi_buf[0]
         resp = self.miso_buf[1:] if len(self.miso_buf) > 1 else []
 
@@ -397,6 +454,7 @@ class Decoder(srd.Decoder):
 
     def decode(self, ss, es, data):
         ptype, pdata = data
+        self.es = es
         if ptype == 'CS_ASSERT':
             self._finish_transaction()
             self.mosi_buf  = []

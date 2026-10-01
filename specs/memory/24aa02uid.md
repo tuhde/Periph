@@ -257,7 +257,7 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/24aa02uid/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/24aa02uid/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/24aa02uid/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
 
 ### Go
 - [x] Driver `go/periph/chips/memory/24aa02uid.go` — Go doc comment on every exported type and method

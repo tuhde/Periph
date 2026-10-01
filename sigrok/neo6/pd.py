@@ -741,6 +741,36 @@ _UBX_DECODERS = {
 }
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'neo6'
@@ -762,6 +792,17 @@ class Decoder(srd.Decoder):
         ('fields',    'Fields',    (ANN_FIELD,)),
         ('warnings',  'Warnings',  (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
 
     def __init__(self):
         self.reset()
@@ -785,6 +826,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, rxtx, pdata = data
@@ -913,6 +955,7 @@ class Decoder(srd.Decoder):
         payload = bytes(self.ubx_payload)
         self.put(self.ubx_ss, es, self.out_ann,
                  [ANN_SENTENCE, ['%s: %d-byte payload' % (name, len(payload)), name]])
+        self.put(self.ubx_ss, es, self.out_python, ('UBX', (self.ubx_class, self.ubx_id, payload)))
 
         decoder_fn = _UBX_DECODERS.get((self.ubx_class, self.ubx_id))
         if decoder_fn:
@@ -952,6 +995,7 @@ class Decoder(srd.Decoder):
         self.put(self.ss_block, es, self.out_ann,
                  [ANN_SENTENCE, ['%s%s: %s' % (talker, sentence_id, body),
                                  sentence_id]])
+        self.put(self.ss_block, es, self.out_python, ('NMEA', (talker, sentence_id, tuple(fields[1:]))))
 
         if sentence_id in _DETAILED:
             for long_text, short_text in decode_fields(sentence_id, fields):
@@ -969,6 +1013,7 @@ class Decoder(srd.Decoder):
         self.put(self.ss_block, es, self.out_ann,
                  [ANN_SENTENCE, ['PUBX,%s (%s): %s' % (msg_id, name, body),
                                  'PUBX%s' % msg_id]])
+        self.put(self.ss_block, es, self.out_python, ('PUBX', (msg_id, tuple(fields[2:]))))
 
         decoder_fn = _PUBX_DECODERS.get(msg_id)
         if decoder_fn:

@@ -121,6 +121,50 @@ def _ascii_pair(raw):
     return c1 + c2
 
 
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'rda5807m'
@@ -143,10 +187,43 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data', 'Data', (ANN_REG_WRITE, ANN_REG_READ)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
-        ('conformance', 'Conformance', (ANN_READY_SETTLE_START, ANN_READY_SETTLE_DONE,
+        ('timing', 'Timing', (ANN_READY_SETTLE_START, ANN_READY_SETTLE_DONE,
                                          ANN_RESET_RECOVERY_START, ANN_RESET_RECOVERY_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -163,9 +240,10 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
-        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _emit(self, ann_idx, ss, es, texts):
         self.put(ss, es, self.out_ann, [ann_idx, texts])
@@ -195,7 +273,7 @@ class Decoder(srd.Decoder):
                     # specs/comms/rda5807m_timing.conf's reset_recovery check).
                     if raw & 0x4000:
                         self._emit(ANN_RESET_RECOVERY_DONE, self.ss_block, self.es,
-                                   ['reset_recovery_done', 'RD'])
+                                   ['reset_recovery_done: STC observed after reset', 'reset_recovery_done', 'RR\u2713'])
                 elif i == 1:
                     lines.append(_decode_status_b(raw))
                     # ready_settle_done: FM_READY (bit 7) observed set - marks
@@ -203,7 +281,7 @@ class Decoder(srd.Decoder):
                     # specs/comms/rda5807m_timing.conf's ready_settle check).
                     if raw & 0x0080:
                         self._emit(ANN_READY_SETTLE_DONE, self.ss_block, self.es,
-                                   ['ready_settle_done', 'RS'])
+                                   ['ready_settle_done: FM_READY observed set', 'ready_settle_done', 'RS\u2713'])
                 else:
                     lines.append('%s = 0x%04X ("%s")' % (names[i], raw, _ascii_pair(raw)))
             summary = ' | '.join(lines)
@@ -227,7 +305,7 @@ class Decoder(srd.Decoder):
                     # not be a distinctive start marker).
                     if raw & 0x0002:
                         self._emit(ANN_RESET_RECOVERY_START, self.ss_block, self.es,
-                                   ['reset_recovery_start', 'RR'])
+                                   ['reset_recovery_start: soft reset written', 'reset_recovery_start', 'RR\u25b6'])
                 elif i == 1:
                     text, band, space = _decode_chan(raw)
                     lines.append(text)
@@ -248,7 +326,7 @@ class Decoder(srd.Decoder):
             # reassert (see specs/comms/rda5807m_timing.conf's ready_settle
             # check).
             self._emit(ANN_READY_SETTLE_START, self.ss_block, self.es,
-                       ['ready_settle_start', 'W>'])
+                       ['ready_settle_start: register write deasserts FM_READY', 'ready_settle_start', 'RS\u25b6'])
 
     def decode(self, ss, es, data):
         ptype, pdata = data

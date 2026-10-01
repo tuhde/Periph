@@ -148,12 +148,26 @@ This is a full retrofit of existing decoders, not a going-forward-only conventio
 
 ## Implementation Checklist
 
-- [ ] `AGENTS.md` "Annotation conventions" section rewritten per this spec
-- [ ] `specs/_template_chip.md` Sigrok Decoder section references this spec's row convention
-- [ ] `specs/_template_chip_io_expander.md` Sigrok Decoder section references this spec's row convention
-- [ ] `wiki/Sigrok.md` Annotations section rewritten per this spec
-- [ ] Every `sigrok/<x>/pd.py` retrofitted per the per-decoder inventory table above (row renames/merges, tier-3 warning strings, tier-shaped timing markers, `status` rows where the criterion is met, `OUTPUT_PYTHON` registered)
-- [ ] `conformance/imu/mpu6050_conformance.py` — exact-match predicates changed to substring containment
-- [ ] `conformance/comms/rda5807m_conformance.py` — exact-match predicates changed to substring containment
-- [ ] Every conformance checker whose chip's decoder text changed has been re-read and, if needed, its predicates updated to match the new tier-0 text (see "Required companion review")
-- [ ] Spot-check: for at least one I²C chip (`ina219`), one SPI chip (`mfrc522`), and one raw-logic chip (`hx711`), replay the committed `.sr` test session (or a fresh capture) through both PulseView (visual tier check at multiple zoom levels) and `sigrok-cli -P ...,--protocol-decoder-samplenum` (confirms tier-0 text still matches every affected checker's predicate)
+- [x] `AGENTS.md` "Annotation conventions" section rewritten per this spec
+- [x] `specs/_template_chip.md` Sigrok Decoder section references this spec's row convention
+- [x] `specs/_template_chip_io_expander.md` Sigrok Decoder section references this spec's row convention
+- [x] `wiki/Sigrok.md` Annotations section rewritten per this spec (plus a "Machine-readable output" subsection)
+- [x] Every `sigrok/<x>/pd.py` retrofitted (row renames/merges, tiered warnings, tier-shaped timing markers, `status` rows where the criterion is met, `OUTPUT_PYTHON` registered) — this covers all 61 decoders now in the tree, including the 23 added after the inventory table above was written (`drv8830`, `ds3231`, `l3g4200d`, `mcp9808`, `tmp117`, `vl53l0x`, `vl53l1x`, ...)
+- [x] `conformance/imu/mpu6050_conformance.py` — exact-match predicates changed to substring containment
+- [x] `conformance/comms/rda5807m_conformance.py` — exact-match predicates changed to substring containment
+- [x] Every conformance checker whose chip's decoder text changed has been re-read and, if needed, its predicates updated (`ens160`, `aht21`, `bmp581`, `mpr121`)
+- [ ] Spot-check against real captures: the committed `.sr` sessions (`bmp280`/`bme280`, `mcp23017`, `pcf8575`, `sipo`, `neo-6m`) replay through `sigrok-cli` with unchanged tier-0 text except the intended timing-marker rewording; `ina219` (I²C) and `hx711`/`neopixel` (logic) were exercised through `sigrok-cli` on synthetic captures. **Still open:** a visual PulseView check at several zoom levels, and an SPI chip (`mfrc522`) — see Known Gaps.
+
+## Implementation Notes
+
+How the convention is enforced in code, so the next decoder author doesn't have to rediscover it:
+
+- **`>= 3` tiers for Data/Status without touching every call site.** Each decoder's `Decoder.put()` override pads Data/Status annotations (every row except `timing`/`warnings`) via a module-level `_with_short()` helper that derives a short tier from the existing text. Warnings get their short tag from `_warn_tag()`; timing markers are authored by hand in the `'<check_name>: <description>'`, `'<check_name>'`, `'<glyph>'` shape.
+- **`OUTPUT_PYTHON` payloads.** Register-pointer I²C decoders mirror every transaction-level Data annotation as `('REG_READ' | 'REG_WRITE', (register, bytes))` (`('I2C_READ' | 'I2C_WRITE', (address, bytes))` when the chip has no register pointer); CS-framed SPI decoders emit `('SPI_TRANSFER', (mosi, miso))`; chip-specific kinds (`'STATUS'`, `'DATA'`, `'MEASUREMENT'`, ...) are uppercase. Explicit emitters that used lists (`['BYTE', x]`) were converted to tuples; stacked decoders only unpack two items, so they are unaffected.
+
+## Known Gaps
+
+Found while retrofitting; not fixed here because they are outside annotation rework:
+
+- `ad7705`, `ad7706` and `adxl362` declare `inputs = ['spi']` but decode I²C-style `ADDRESS`/`DATA READ`/`DATA WRITE` events, which the stock sigrok `spi` decoder never emits.
+- `mcp2515`, `mfrc522` and `rfm9x` expect `('CS_ASSERT', None)` / `('DATA', (mosi, miso))` packets; the stock `spi` decoder's Python output is `['DATA', mosi, miso]` / `['BITS', ...]`, so they cannot be stacked on it as-is. No `.sr` capture exists to confirm either way.

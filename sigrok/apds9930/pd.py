@@ -155,6 +155,36 @@ def _decode_ppulse(raw):
     return 'PPULSE 0x%02X (%d pulses)' % (raw, raw)
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'apds9930'
@@ -182,16 +212,45 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
+        ('timing',   'Timing',   (ANN_POWERON_START, ANN_POWERON_DONE,
+                                  ANN_CONVERSION_START, ANN_CONVERSION_DONE,
+                                  ANN_ALS_INTEGRATION_START, ANN_ALS_INTEGRATION_DONE,
+                                  ANN_PROXIMITY_INTEGRATION_START, ANN_PROXIMITY_INTEGRATION_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
-        ('poweron',                'Power-on (poweron_ready)',
-            (ANN_POWERON_START, ANN_POWERON_DONE)),
-        ('conversion',             'First conversion (first_conversion_ready)',
-            (ANN_CONVERSION_START, ANN_CONVERSION_DONE)),
-        ('als_integration',        'ALS integration (als_integration_time)',
-            (ANN_ALS_INTEGRATION_START, ANN_ALS_INTEGRATION_DONE)),
-        ('proximity_integration',  'Proximity integration (proximity_integration_time)',
-            (ANN_PROXIMITY_INTEGRATION_START, ANN_PROXIMITY_INTEGRATION_DONE)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -204,8 +263,14 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
 
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
+
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -224,8 +289,8 @@ class Decoder(srd.Decoder):
                 # captures from VDD-stable to settled so any START here is
                 # the host's first transaction).
                 if self.ss_block is not None and self.state == 'GET_ADDR':
-                    self.put(ss, es, ANN_POWERON_START,
-                             ['poweron-start', 'poweron-start'])
+                    self._ann(ss, es, ANN_POWERON_START,
+                             ['poweron-start: first START after power-on', 'poweron-start', 'PO\u25b6'])
             return
 
         if ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
@@ -293,21 +358,21 @@ class Decoder(srd.Decoder):
         if reg == 0x00:
             en = value
             if en & 0x01:
-                self.put(self.ss, self.es, ANN_CONVERSION_START,
-                         ['conversion-start', 'conversion-start'])
+                self._ann(self.ss, self.es, ANN_CONVERSION_START,
+                         ['conversion-start: ENABLE PON set', 'conversion-start', 'CV\u25b6'])
             if en & 0x02:
-                self.put(self.ss, self.es, ANN_ALS_INTEGRATION_START,
-                         ['als-integration-start', 'als-integration-start'])
+                self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
+                         ['als-integration-start: ENABLE AEN set', 'als-integration-start', 'AL\u25b6'])
             if en & 0x04:
-                self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
-                         ['proximity-integration-start', 'proximity-integration-start'])
+                self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
+                         ['proximity-integration-start: ENABLE PEN set', 'proximity-integration-start', 'PX\u25b6'])
         if reg == 0x01:
-            self.put(self.ss, self.es, ANN_ALS_INTEGRATION_START,
-                     ['als-integration-start', 'als-integration-start'])
+            self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_START,
+                     ['als-integration-start: ATIME written', 'als-integration-start', 'AL\u25b6'])
         if reg == 0x0E:
-            self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
-                     ['proximity-integration-start', 'proximity-integration-start'])
-        self.put(self.ss, self.es, ANN_WRITE,
+            self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_START,
+                     ['proximity-integration-start: PTIME written', 'proximity-integration-start', 'PX\u25b6'])
+        self._ann(self.ss, self.es, ANN_WRITE,
                  [decoded, '%s 0x%02X' % (name, value)])
 
     def _emit_read(self):
@@ -318,27 +383,27 @@ class Decoder(srd.Decoder):
         if len(self.databuf) == 1:
             value = self.databuf[0]
             decoded = self._decode(first, value)
-            self.put(self.ss, self.es, ANN_READ,
+            self._ann(self.ss, self.es, ANN_READ,
                      [decoded, '%s 0x%02X' % (name, value)])
             # Mark conformance "done" boundaries when STATUS is read with
             # both AVALID and PVALID set, or with AVALID alone for the
             # als_integration_time check.
             if first == 0x13:
                 if (value & 0x01) and (value & 0x02):
-                    self.put(self.ss, self.es, ANN_CONVERSION_DONE,
-                             ['conversion-done', 'conversion-done'])
-                    self.put(self.ss, self.es, ANN_POWERON_DONE,
-                             ['poweron-done', 'poweron-done'])
+                    self._ann(self.ss, self.es, ANN_CONVERSION_DONE,
+                             ['conversion-done: STATUS AVALID and PVALID both set', 'conversion-done', 'CV\u2713'])
+                    self._ann(self.ss, self.es, ANN_POWERON_DONE,
+                             ['poweron-done: STATUS AVALID and PVALID both set', 'poweron-done', 'PO\u2713'])
                 elif value & 0x01:
-                    self.put(self.ss, self.es, ANN_ALS_INTEGRATION_DONE,
-                             ['als-integration-done', 'als-integration-done'])
+                    self._ann(self.ss, self.es, ANN_ALS_INTEGRATION_DONE,
+                             ['als-integration-done: STATUS AVALID set', 'als-integration-done', 'AL\u2713'])
                 elif value & 0x02:
-                    self.put(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_DONE,
-                             ['proximity-integration-done', 'proximity-integration-done'])
+                    self._ann(self.ss, self.es, ANN_PROXIMITY_INTEGRATION_DONE,
+                             ['proximity-integration-done: STATUS PVALID set', 'proximity-integration-done', 'PX\u2713'])
         else:
             # Multi-byte read (auto-increment burst).
             text = '%s+%d' % (name, len(self.databuf) - 1)
-            self.put(self.ss, self.es, ANN_READ, [text, text])
+            self._ann(self.ss, self.es, ANN_READ, [text, text])
 
     def _decode(self, reg, value):
         if reg == 0x00: return _decode_enable(value)

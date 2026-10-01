@@ -82,6 +82,37 @@ ANN_TEMP_READ    = 3
 ANN_FIFO_COUNT   = 4
 ANN_FIFO_READ    = 5
 ANN_WARNING      = 6
+ANN_STATUS = 7
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
 
 
 class Decoder(srd.Decoder):
@@ -103,11 +134,46 @@ class Decoder(srd.Decoder):
         ('fifo-count','FIFO sample count'),
         ('fifo-read', 'FIFO pressure burst read'),
         ('warning',   'Warning'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PRESS_READ, ANN_TEMP_READ, ANN_FIFO_COUNT, ANN_FIFO_READ)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -122,6 +188,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -158,6 +225,11 @@ class Decoder(srd.Decoder):
             self._finish_transaction()
             self.state = 'IDLE'
             self.databuf = []
+
+    def _emit_status(self, flags, raw, ss, es):
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_transaction(self):
         if self.reg_ptr is None:
@@ -229,12 +301,14 @@ class Decoder(srd.Decoder):
                     extra = ' (unexpected, expected 0xB4)'
             elif self.reg_ptr == 0x27:
                 extra = ' [' + ', '.join(n for bit, n in STATUS_NAMES.items() if value & bit) + ']'
+                flags = ', '.join(n for bit, n in STATUS_NAMES.items() if value & bit and n != '\u2014') or 'none'
+                self._emit_status(flags, value, self.ss_block, self.es)
             elif self.reg_ptr == 0x24:
                 extra = ' [' + ', '.join(n for bit, n in INT_SOURCE_NAMES.items() if value & bit) + ']'
             self.put(self.ss_block, self.es, self.out_ann,
                      [ANN_REG_READ, ['%s: 0x%02X%s' % (name, value, extra),
                                        '%s=0x%02X' % (name, value),
-                                       name]])
+                                       name[:8]]])
             self.reg_ptr = None
             return
 
@@ -259,5 +333,5 @@ class Decoder(srd.Decoder):
         self.put(self.ss_block, self.es, self.out_ann,
                  [ANN_REG_WRITE, ['%s <- 0x%02X%s' % (name, value, extra),
                                     '%s=0x%02X' % (name, value),
-                                    name]])
+                                    name[:8]]])
         self.reg_ptr = None

@@ -201,6 +201,36 @@ _DECODE_FNS = {
 }
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'mpr121'
@@ -223,10 +253,43 @@ class Decoder(srd.Decoder):
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
-        ('conformance', 'Conformance', (ANN_SOFT_RESET_START, ANN_SOFT_RESET_DONE,
+        ('timing', 'Timing', (ANN_SOFT_RESET_START, ANN_SOFT_RESET_DONE,
                                          ANN_AUTOCONFIG_START, ANN_AUTOCONFIG_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -239,9 +302,16 @@ class Decoder(srd.Decoder):
         self.databuf  = []
         self.ss_block = None
         self.last_ecr_write_ss = None
+        self.pending_done = []   # (class, strings) emitted at the next START after a STOP
+
+    def _ann(self, ss, es, cls, text):
+        """Emit one annotation; `text` is one string or a list of long-to-short strings."""
+        strs = [text] if isinstance(text, str) else list(text)
+        self.put(ss, es, self.out_ann, [cls, strs])
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -253,6 +323,10 @@ class Decoder(srd.Decoder):
             self.is_read  = False
             self.ss_block = ss
             self.state    = 'GET_ADDR'
+            if ptype == 'START' and self.pending_done:
+                for cls, strs in self.pending_done:
+                    self._ann(ss, ss, cls, strs)
+                self.pending_done = []
 
         elif ptype in ('ADDRESS READ', 'ADDRESS WRITE'):
             if pdata not in ADDRS:
@@ -297,36 +371,36 @@ class Decoder(srd.Decoder):
                 lsb = self.databuf[0]
                 msb = self.databuf[1] & 0x03
                 raw10 = lsb | (msb << 8)
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          'EFD%d 0x%03X (electrode %d filtered = %d)' % (
                              electrode, raw10, electrode, raw10))
             elif len(self.databuf) == 1:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s 0x%02X' % (reg_name, self.databuf[0]))
             else:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s (%d bytes)' % (reg_name, len(self.databuf)))
         elif reg_name in ('EFDPROXL',):
             if len(self.databuf) == 2:
                 lsb = self.databuf[0]
                 msb = self.databuf[1] & 0x03
                 raw10 = lsb | (msb << 8)
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          'EFDPROX 0x%03X (proximity filtered = %d)' % (raw10, raw10))
             elif len(self.databuf) == 1:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s 0x%02X' % (reg_name, self.databuf[0]))
             else:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          '%s (%d bytes)' % (reg_name, len(self.databuf)))
         elif reg_name == 'ELE0_7_TOUCH' and len(self.databuf) >= 2:
             raw = self.databuf[0]
-            self.put(self.ss_block, self.es, ANN_READ, _decode_touch_status_0(raw))
+            self._ann(self.ss_block, self.es, ANN_READ, _decode_touch_status_0(raw))
             if len(self.databuf) >= 2:
-                self.put(self.ss_block, self.es, ANN_READ,
+                self._ann(self.ss_block, self.es, ANN_READ,
                          _decode_touch_status_1(self.databuf[1]))
         else:
-            self.put(self.ss_block, self.es, ANN_READ,
+            self._ann(self.ss_block, self.es, ANN_READ,
                      '%s 0x%02X' % (reg_name, self.databuf[0] if self.databuf else 0))
 
     def _emit_write(self):
@@ -335,29 +409,39 @@ class Decoder(srd.Decoder):
         if reg_name == 'ECR':
             self.last_ecr_write_ss = self.ss_block
             if value != 0:
-                self.put(self.ss_block, self.es, ANN_AUTOCONFIG_START,
-                         'autoconfig start (ECR=%#x)' % value)
+                self._ann(self.ss_block, self.es, ANN_AUTOCONFIG_START,
+                         ['autoconfig_start: ECR written with ELE_EN=0x%X' % (value & 0x0F),
+                          'autoconfig_start', 'AC\u25b6'])
+                self.pending_done.append(
+                    (ANN_AUTOCONFIG_DONE,
+                     ['autoconfig_done: first bus activity after the ECR write',
+                      'autoconfig_done', 'AC\u2713']))
         if reg_name == 'SRST' and value == 0x63:
-            self.put(self.ss_block, self.es, ANN_SOFT_RESET_START,
-                     'soft reset start (write 0x63 to 0x80)')
+            self._ann(self.ss_block, self.es, ANN_SOFT_RESET_START,
+                     ['soft_reset_start: SRST (0x80) written with 0x63',
+                      'soft_reset_start', 'SR\u25b6'])
+            self.pending_done.append(
+                (ANN_SOFT_RESET_DONE,
+                 ['soft_reset_done: first bus activity after the SRST write',
+                  'soft_reset_done', 'SR\u2713']))
         if reg_name in _DECODE_FNS:
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _DECODE_FNS[reg_name](value))
         elif reg_name.startswith('E') and reg_name.endswith('TTH'):
-            electrode = int(reg_name[1:-3])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            electrode = reg_name[1:-3]  # '0'..'11' or 'PROX'
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _decode_threshold(reg_name, value) +
-                     ' [ELE%d touch threshold]' % electrode)
+                     ' [ELE%s touch threshold]' % electrode)
         elif reg_name.startswith('E') and reg_name.endswith('RTH'):
-            electrode = int(reg_name[1:-3])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            electrode = reg_name[1:-3]  # '0'..'11' or 'PROX'
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      _decode_threshold(reg_name, value) +
-                     ' [ELE%d release threshold]' % electrode)
+                     ' [ELE%s release threshold]' % electrode)
         elif reg_name.startswith('E') and reg_name.endswith('BV') and len(reg_name) == 4:
             electrode = int(reg_name[1:-2])
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      '%s 0x%02X (baseline MSB; 10-bit baseline = %d)' % (
                          reg_name, value, value << 2))
         else:
-            self.put(self.ss_block, self.es, ANN_WRITE,
+            self._ann(self.ss_block, self.es, ANN_WRITE,
                      '%s 0x%02X' % (reg_name, value))

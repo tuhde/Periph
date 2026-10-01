@@ -57,6 +57,7 @@ ANN_WARNING   = 3
 ANN_WAKE_WRITE       = 4
 ANN_WAKE_DONE        = 5
 ANN_CONVERSION_READY = 6
+ANN_STATUS = 7
 
 
 def _decode_config(raw):
@@ -112,6 +113,50 @@ def _decode_reg(reg, raw):
     return 'Reg[0x%02X] 0x%04X' % (reg, raw)
 
 
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'ina219'
@@ -131,12 +176,47 @@ class Decoder(srd.Decoder):
         ('wake-write', 'Wake write (conformance: wake_recovery start)'),
         ('wake-done',  'Wake done (conformance: wake_recovery end)'),
         ('conversion-ready', 'Conversion ready (conformance: conversion_cycle)'),
+        ('status',    'Status flags'),
     )
     annotation_rows = (
         ('data',        'Data',        (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('status',      'Status',      (ANN_STATUS,)),
+        ('timing', 'Timing', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
         ('warnings',    'Warnings',    (ANN_WARNING,)),
-        ('conformance', 'Conformance', (ANN_WAKE_WRITE, ANN_WAKE_DONE, ANN_CONVERSION_READY)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -152,12 +232,21 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
-        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _emit(self, ann_idx, ss, es, texts):
         self.put(ss, es, self.out_ann, [ann_idx, texts])
+
+    def _emit_status(self, raw):
+        flags = []
+        if raw & 2: flags.append('CNVR')
+        if raw & 1: flags.append('OVF')
+        text = ', '.join(flags) if flags else 'none'
+        self.put(self.ss_block, self.es, self.out_ann,
+                 [ANN_STATUS, ['%s flags: %s' % ('Bus Voltage', text), text, ' '.join(flags) or '-']])
 
     def _finish_transaction(self):
         if not self.databuf:
@@ -173,10 +262,12 @@ class Decoder(srd.Decoder):
                 self._emit(ANN_REG_READ, self.ss_block, self.es,
                            ['Read %s: %s' % (name, detail),
                             'R %s 0x%04X' % (name, raw)])
+                if reg == 0x02:
+                    self._emit_status(raw)
                 if reg == 0x02 and (raw & 0x02):
                     # conversion_cycle: Bus Voltage read with CNVR=1 (data ready).
                     self._emit(ANN_CONVERSION_READY, self.ss_block, self.es,
-                               ['conversion_ready', 'conversion_ready'])
+                               ['conversion_ready: Bus Voltage read with CNVR=1', 'conversion_ready', 'CNVR'])
             else:
                 self._warn(self.ss_block, self.es,
                            'Unexpected read length %d for %s' % (len(self.databuf), name))
@@ -197,7 +288,7 @@ class Decoder(srd.Decoder):
                     # active (non-power-down) MODE - see the chip spec's
                     # "Recovery from power-down mode: 40 us" constraint.
                     self._emit(ANN_WAKE_WRITE, self.ss_block, self.es,
-                               ['wake_write', 'wake_write'])
+                               ['wake_write: Configuration written with active MODE', 'wake_write', 'WK\u25b6'])
                     self.awaiting_wake_done = True
             else:
                 self._warn(self.ss_block, self.es,
@@ -211,7 +302,7 @@ class Decoder(srd.Decoder):
             # wake_recovery end: first bus activity after a wake_write - a
             # correct driver waits >= 40 us (the chip's power-down recovery
             # time) before this happens.
-            self.put(ss, ss, self.out_ann, [ANN_WAKE_DONE, ['wake_done', 'wake_done']])
+            self.put(ss, ss, self.out_ann, [ANN_WAKE_DONE, ['wake_done: first bus activity after the wake write', 'wake_done', 'WK\u2713']])
             self.awaiting_wake_done = False
 
         if ptype in ('START', 'START REPEAT'):

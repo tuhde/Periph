@@ -61,6 +61,36 @@ POWERON_START = 'poweron_start'
 POWERON_READY = 'poweron_ready'
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'mpu9250'
@@ -81,6 +111,39 @@ class Decoder(srd.Decoder):
         ('data',     'Data',     (ANN_WRITE, ANN_READ)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -154,14 +217,14 @@ class Decoder(srd.Decoder):
             val = self.databuf[0]
             ann_text = self._format_write(name, reg, val)
             self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [ann_text, ann_text, self._short_write(name, val)]])
-            self.put(self.ss_block, self.es, self.out_python, [('write', name, reg, val)])
+            self.put(self.ss_block, self.es, self.out_python, ('WRITE', (name, reg, val)))
 
             if reg == 0x6B and val & 0x80:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [POWERON_START, 'PWR', '▶']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', POWERON_START)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (POWERON_START,)))
             elif reg == 0x6B and (val & 0x80) == 0 and self.addr in MPU9250_ADDRS:
                 self.put(self.ss_block, self.es, self.out_ann, [ANN_WRITE, [POWERON_READY, 'PWR', '●']])
-                self.put(self.ss_block, self.es, self.out_python, [('timing', POWERON_READY)])
+                self.put(self.ss_block, self.es, self.out_python, ('TIMING', (POWERON_READY,)))
         else:
             self.put(self.ss_block, self.es, self.out_ann, [ANN_WARNING, [f'Unexpected write length {len(self.databuf)} for {name}', f'WR_LEN {len(self.databuf)}']])
 
@@ -178,18 +241,18 @@ class Decoder(srd.Decoder):
                 if name == 'ACCEL_XOUT_H':
                     ann_text = f'{name}: {ax} {ay} {az} (raw)'
                     ann_short = f'A {ax} {ay} {az}'
-                    self.put(self.ss_block, self.es, self.out_python, [('read', name, ax, ay, az)])
+                    self.put(self.ss_block, self.es, self.out_python, ('READ', (name, ax, ay, az)))
                 else:
                     ann_text = f'{name}: {ax} {ay} {az} (raw)'
                     ann_short = f'G {ax} {ay} {az}'
-                    self.put(self.ss_block, self.es, self.out_python, [('read', name, ax, ay, az)])
+                    self.put(self.ss_block, self.es, self.out_python, ('READ', (name, ax, ay, az)))
             elif name == 'TEMP_OUT_H' and n >= 2:
                 raw = (self.databuf[0] << 8) | self.databuf[1]
                 if raw >= 0x8000: raw -= 0x10000
                 temp = raw / 333.87 + 21.0
                 ann_text = f'{name}: {raw} -> {temp:.2f} °C'
                 ann_short = f'T {temp:.1f}°C'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, temp)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, temp)))
             elif name in ('HXL',) and n >= 7:
                 mx = ((self.databuf[1] << 8) | self.databuf[0])
                 my = ((self.databuf[3] << 8) | self.databuf[2])
@@ -199,17 +262,17 @@ class Decoder(srd.Decoder):
                 if mz >= 0x8000: mz -= 0x10000
                 ann_text = f'{name}-ST2: {mx} {my} {mz} (raw)'
                 ann_short = f'M {mx} {my} {mz}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, mx, my, mz)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, mx, my, mz)))
             elif name == 'WHO_AM_I' and n >= 1:
                 val = self.databuf[0]
                 ann_text = f'{name}: 0x{val:02X}'
                 ann_short = f'ID 0x{val:02X}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, val)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, val)))
             else:
                 val = (self.databuf[0] << 8) | self.databuf[1] if n >= 2 else self.databuf[0]
                 ann_text = f'{name}: 0x{val:02X}' if n == 1 else f'{name}: 0x{val:04X}'
                 ann_short = f'0x{val:02X}' if n == 1 else f'0x{val:04X}'
-                self.put(self.ss_block, self.es, self.out_python, [('read', name, val)])
+                self.put(self.ss_block, self.es, self.out_python, ('READ', (name, val)))
 
             self.put(self.ss_block, self.es, self.out_ann, [ANN_READ, [ann_text, ann_text, ann_short]])
         else:

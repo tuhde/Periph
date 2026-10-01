@@ -66,6 +66,36 @@ def _config(raw):
                (raw >> 1) & 1))
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'tmp117'
@@ -90,6 +120,39 @@ class Decoder(srd.Decoder):
         ('timing',   'Timing',   (ANN_EEPROM_START, ANN_EEPROM_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -140,7 +203,7 @@ class Decoder(srd.Decoder):
                      [ANN_STATUS, ['%s CONFIGURATION [0x%04X] %s' % (rw, value, _config(value)),
                                    '%s CONFIG 0x%04X' % (rw, value),
                                    '%s CFG' % rw]])
-            self.put(ss, es, self.out_python, ('status', (rw, reg, value)))
+            self.put(ss, es, self.out_python, ('STATUS', (rw, reg, value)))
             if rw == 'R':
                 self._eeprom_busy_read(ss, es, value & CFG_EEPROM_BUSY)
             return
@@ -152,7 +215,7 @@ class Decoder(srd.Decoder):
                                    % (rw, value, (value >> 15) & 1, (value >> 14) & 1),
                                    '%s EEPROM_UL 0x%04X' % (rw, value),
                                    '%s UL' % rw]])
-            self.put(ss, es, self.out_python, ('status', (rw, reg, value)))
+            self.put(ss, es, self.out_python, ('STATUS', (rw, reg, value)))
             if rw == 'R':
                 self._eeprom_busy_read(ss, es, value & UL_EEPROM_BUSY)
             return
@@ -162,7 +225,7 @@ class Decoder(srd.Decoder):
                      [ANN_DATA, ['%s %s [0x%04X] %.4f °C' % (rw, name, value, c),
                                  '%s %s %.2f °C' % (rw, name, c),
                                  '%.1f°' % c]])
-            self.put(ss, es, self.out_python, ('data', (rw, reg, c)))
+            self.put(ss, es, self.out_python, ('DATA', (rw, reg, c)))
             return
         if reg in SCRATCH_REGS:
             self.put(ss, es, self.out_ann,
@@ -173,7 +236,7 @@ class Decoder(srd.Decoder):
                      [ANN_DATA, ['R DEVICE_ID [0x%04X] device 0x%03X (%s) rev %d'
                                  % (value, value & 0x0FFF, ok, value >> 12),
                                  'DID 0x%03X rev %d' % (value & 0x0FFF, value >> 12), 'DID']])
-        self.put(ss, es, self.out_python, ('data', (rw, reg, value)))
+        self.put(ss, es, self.out_python, ('DATA', (rw, reg, value)))
 
     def _flush(self):
         """Annotate the data phase collected since the pointer / read address."""

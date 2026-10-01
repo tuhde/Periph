@@ -423,4 +423,4 @@ Tick each box as the item is committed. The PR may not be opened until every box
 
 ### Sigrok
 - [ ] Decoder `sigrok/lps22df/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/lps22df/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` only
+- [ ] Decoder `sigrok/lps22df/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)

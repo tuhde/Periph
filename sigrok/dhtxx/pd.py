@@ -16,6 +16,36 @@ ANN_CHECKSUM_OK   = 4
 ANN_WARNING       = 5
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'dhtxx'
@@ -42,6 +72,17 @@ class Decoder(srd.Decoder):
         ('warnings','Warnings', (ANN_WARNING,)),
     )
 
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
+
     def __init__(self):
         self.reset()
 
@@ -58,6 +99,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _edge_us(self, ss, es):
         # sigrok logic edges are point-in-time, so duration is 0. The
@@ -96,9 +138,10 @@ class Decoder(srd.Decoder):
                 if T_START_LOW_MS_MIN * 1000 <= pulse_us <= T_START_LOW_MS_MAX * 1000:
                     self.put(self.ss_frame, es, self.out_ann,
                              [ANN_START, ['Start: {} ms'.format(pulse_us // 1000)]])
+                    self.put(self.ss_frame, es, self.out_python, ('START', pulse_us))
                 else:
                     self.put(self.ss_frame, es, self.out_ann,
-                             [ANN_WARNING, ['Start LOW out of range: {} us'.format(pulse_us)]])
+                             [ANN_WARNING, ['Start LOW out of range: {} us'.format(pulse_us), 'START?']])
                 self.state = 'START_RELEASE'
             self.last_edge_ss = ss
             self.last_level = level
@@ -156,6 +199,7 @@ class Decoder(srd.Decoder):
                     self.frame_bytes.append(self.current_byte)
                     self.put(self.ss_frame, es, self.out_ann,
                              [ANN_BYTE, ['Byte {}: 0x{:02X} ({})'.format(self.byte_index, self.current_byte, self.current_byte)]])
+                    self.put(self.ss_frame, es, self.out_python, ('BYTE', (self.byte_index, self.current_byte)))
                     self.current_byte = 0
                     self.bit_count = 0
                     self.byte_index += 1
@@ -166,9 +210,14 @@ class Decoder(srd.Decoder):
                             if cs == self.frame_bytes[4]:
                                 self.put(self.ss_frame, es, self.out_ann,
                                          [ANN_CHECKSUM_OK, ['Checksum OK: 0x{:02X}'.format(cs)]])
+                                self.put(self.ss_frame, es, self.out_python, ('CHECKSUM', (cs, True)))
                             else:
                                 self.put(self.ss_frame, es, self.out_ann,
                                          [ANN_CHECKSUM_OK, ['Checksum mismatch: 0x{:02X} != 0x{:02X}'.format(cs, self.frame_bytes[4])]])
+                                self.put(self.ss_frame, es, self.out_ann,
+                                         [ANN_WARNING, ['Checksum mismatch: computed 0x{:02X}, frame carries 0x{:02X}'.format(
+                                             cs, self.frame_bytes[4]), 'CS?']])
+                                self.put(self.ss_frame, es, self.out_python, ('CHECKSUM', (cs, False)))
                         self.state = 'IDLE'
                         self.last_level = 1
                         return

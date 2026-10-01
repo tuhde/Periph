@@ -35,7 +35,7 @@ DECODER_ID = 'bmp581'
 
 CHECKS = {
     'soft_reset': (
-        lambda t: 'soft reset' in t,
+        lambda t: 'soft_reset' in t,
         lambda t: 'nvm_rdy' in t,
     ),
 }

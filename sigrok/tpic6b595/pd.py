@@ -13,6 +13,36 @@ def _device_state_label(values):
                     for i in range(7, -1, -1))
 
 
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'tpic6b595'
@@ -42,6 +72,17 @@ class Decoder(srd.Decoder):
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+        super().put(ss, es, out, data)
+
     def __init__(self):
         self.reset()
 
@@ -56,6 +97,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, payload = data
@@ -91,6 +133,7 @@ class Decoder(srd.Decoder):
                              ('D%d:0x%02X' % (dev_idx, byte)),
                              ('0x%02X' % byte),
                          ]])
+                self.put(ss, es, self.out_python, ('LATCH', (dev_idx, byte)))
                 for bit in range(8):
                     if (byte >> bit) & 1:
                         self.put(ss, es, self.out_ann,
@@ -108,6 +151,7 @@ class Decoder(srd.Decoder):
                                  ]])
 
         elif ptype == 'CLEAR':
+            self.put(ss, es, self.out_python, ('CLEAR', None))
             self.put(ss, es, self.out_ann,
                      [ANN_CLEARED, [
                          'Shift register cleared (SRCLR)',

@@ -79,6 +79,7 @@ ANN_WARNING       = 4
 # reg-read annotations emitted alongside.
 ANN_ONE_SHOT_START = 5
 ANN_ONE_SHOT_DONE  = 6
+ANN_STATUS = 7
 
 
 def _s16(raw):
@@ -199,6 +200,50 @@ def _decode_fifo_ctrl(raw):
         raw, FIFO_MODE_NAMES[f_mode], wtm)
 
 
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'lps33hw'
@@ -218,12 +263,47 @@ class Decoder(srd.Decoder):
         ('warning',       'Warning'),
         ('one-shot-start', 'One-shot: start'),
         ('one-shot-done',  'One-shot: done'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_BURST_READ, ANN_PTR_WRITE)),
-        ('warnings', 'Warnings', (ANN_WARNING,)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('timing',   'Timing',   (ANN_ONE_SHOT_START, ANN_ONE_SHOT_DONE)),
+        ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -240,9 +320,10 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
-        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _reg_name(self, reg):
         return REGS.get(reg, 'reg[0x%02X]' % reg)
@@ -257,6 +338,11 @@ class Decoder(srd.Decoder):
             self._finish_read(reg)
         else:
             self._finish_write(reg)
+
+    def _emit_status(self, flags, raw, ss, es):
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_read(self, reg):
         buf = self.databuf
@@ -279,6 +365,7 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ, [_decode_status(buf[0]),
                                      'status 0x%02X' % buf[0]]])
+            self._emit_status(_decode_status(buf[0]).split(': ', 1)[1], buf[0], ss, es)
             # one_shot_done: P_DA=1 AND T_DA=1 set. Conformance checker keys
             # off the substring 'Pressure ready' AND 'Temperature ready' (or
             # both bit names) in the annotation text — emitting it here keeps
@@ -287,7 +374,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_ONE_SHOT_DONE,
                           ['one_shot_done: STATUS shows P_DA=1 and T_DA=1',
-                           'one_shot_done']])
+                           'one_shot_done', 'OS\u2713']])
             return
 
         # INT_SOURCE read.
@@ -398,7 +485,7 @@ class Decoder(srd.Decoder):
                 self.put(ss, es, self.out_ann,
                          [ANN_ONE_SHOT_START,
                           ['one_shot_start: CTRL_REG2 ONE_SHOT=1 reaches the bus',
-                           'one_shot_start']])
+                           'one_shot_start', 'OS\u25b6']])
             return
 
         if reg == 0x12 and len(buf) == 1:

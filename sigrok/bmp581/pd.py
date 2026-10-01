@@ -66,6 +66,9 @@ ANN_REG_READ  = 1
 ANN_DATA_READ = 2
 ANN_PTR_WRITE = 3
 ANN_WARNING   = 4
+ANN_STATUS    = 5
+ANN_RESET_START = 6
+ANN_NVM_READY   = 7
 
 
 def _s24(raw):
@@ -179,6 +182,50 @@ def _decode_cmd(raw):
     return 'cmd ← 0x%02X' % raw
 
 
+def _warn_tag(msg):
+    """Short (<= 5 char) tag for a warning message, used as the narrow-zoom tier."""
+    m = msg.lower()
+    if 'chip id' in m or 'device id' in m:
+        return 'ID?'
+    if 'address' in m:
+        return 'ADDR?'
+    if any(k in m for k in ('length', 'byte', 'short', 'missing', 'expected', 'no data', 'empty')):
+        return 'LEN?'
+    if any(k in m for k in ('unknown', 'unexpected', 'invalid', 'undefined', 'reserved', 'out of range')):
+        return 'BAD?'
+    return 'WARN'
+
+
+def _with_short(strings):
+    """Data/status annotations carry >= 3 tiers (long, medium, short); if a
+    call site supplied fewer, derive the missing tier from the existing text
+    (leading name token, <= 8 chars when it becomes the shortest tier) so a
+    narrow PulseView zoom still has something to show."""
+    strings = list(strings)
+    if len(strings) >= 3 or not strings:
+        return strings
+
+    def lead(text):
+        text = text.strip()
+        n = 0
+        while n < len(text) and (text[n].isalnum() or text[n] in '_\u2192'):
+            n += 1
+        return text[:n]
+
+    first = strings[0]
+    words = first.split()
+    for cand in (lead(strings[-1])[:8], lead(first), ' '.join(words[:2]).rstrip(':,'),
+                 ' '.join(words[:3]).rstrip(':,'), lead(first)[:8]):
+        if len(strings) >= 3:
+            break
+        if cand and cand not in strings and len(cand) < len(first):
+            i = 0
+            while i < len(strings) and len(strings[i]) > len(cand):
+                i += 1
+            strings.insert(i, cand)
+    return strings
+
+
 class Decoder(srd.Decoder):
     api_version = 3
     id = 'bmp581'
@@ -196,11 +243,49 @@ class Decoder(srd.Decoder):
         ('data-read', 'Data read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('status',    'STATUS / INT_STATUS flags'),
+        ('reset-start', 'Soft reset written'),
+        ('nvm-ready', 'NVM ready after reset'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_DATA_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
+        ('timing',   'Timing',   (ANN_RESET_START, ANN_NVM_READY)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
+
+    def put(self, ss, es, out, data):
+        if out == self.out_ann:
+            tiered = self.__dict__.get('_tiered')
+            if tiered is None:
+                tiered = self._tiered = {
+                    c for rid, _title, classes in self.annotation_rows
+                    if rid not in ('timing', 'warnings') for c in classes}
+            if data[0] in tiered:
+                data = [data[0], _with_short(data[1])]
+                self._mirror_python(ss, es)
+        super().put(ss, es, out, data)
+
+    def _mirror_python(self, ss, es):
+        """OUTPUT_PYTHON mirror of each transaction-level data annotation:
+        ('REG_READ' | 'REG_WRITE', (register, bytes)), or
+        ('I2C_READ' | 'I2C_WRITE', (address, bytes)) for chips without a register pointer."""
+        out_py = self.__dict__.get('out_python')
+        if out_py is None or self.__dict__.get('_py_span') == (ss, es):
+            return
+        self._py_span = (ss, es)
+        try:
+            buf = bytes(b & 0xFF for b in getattr(self, 'databuf', None) or ())
+        except TypeError:
+            return
+        rw = 'READ' if getattr(self, 'is_read', False) else 'WRITE'
+        reg = getattr(self, 'reg_ptr', None)
+        if reg is None:
+            reg = getattr(self, 'reg_byte', None)
+        if reg is not None:
+            super().put(ss, es, out_py, ('REG_' + rw, (reg, buf)))
+        else:
+            super().put(ss, es, out_py, ('I2C_' + rw, (getattr(self, 'addr', None), buf)))
 
     def __init__(self):
         self.reset()
@@ -215,9 +300,10 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
-        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg]])
+        self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
 
     def _reg_name(self, reg):
         if reg in REGS:
@@ -234,6 +320,13 @@ class Decoder(srd.Decoder):
             self._finish_read(reg)
         else:
             self._finish_write(reg)
+
+    def _emit_status(self, kind, text, raw, ss, es):
+        # text is e.g. 'status 0x03: nvm_rdy+core_rdy' -> flags after the colon
+        flags = text.split(': ', 1)[1]
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['%s %s' % (kind, flags), flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, (kind, (raw, flags)))
 
     def _finish_read(self, reg):
         buf = self.databuf
@@ -287,12 +380,18 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ,
                       [_decode_status(buf[0]), 'status 0x%02X' % buf[0]]])
+            self._emit_status('STATUS', _decode_status(buf[0]), buf[0], ss, es)
+            if buf[0] & 0x02:
+                self.put(ss, es, self.out_ann,
+                         [ANN_NVM_READY, ['nvm_rdy: STATUS read reports NVM ready',
+                                          'nvm_rdy', 'NVM\u2713']])
             return
 
         if reg == 0x27 and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ,
                       [_decode_int_status(buf[0]), 'isr 0x%02X' % buf[0]]])
+            self._emit_status('INT_STATUS', _decode_int_status(buf[0]), buf[0], ss, es)
             return
 
         if reg == 0x38 and len(buf) == 1:
@@ -389,6 +488,10 @@ class Decoder(srd.Decoder):
         if reg == 0x7E and len(buf) == 1:
             self.put(ss, es, self.out_ann,
                      [ANN_REG_WRITE, [_decode_cmd(buf[0]), 'CMD 0x%02X' % buf[0]]])
+            if buf[0] == 0xB6:
+                self.put(ss, es, self.out_ann,
+                         [ANN_RESET_START, ['soft_reset: CMD 0xB6 written',
+                                            'soft_reset', 'RST']])
             return
 
         hex_bytes = ' '.join('0x%02X' % b for b in buf)
