@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 import groovy.transform.CompileStatic
 
@@ -53,25 +53,25 @@ class MPU9250Minimal {
     protected static final double[] ACCEL_SENSITIVITY = [16384.0, 8192.0, 4096.0, 2048.0]
     protected static final double[] GYRO_SENSITIVITY  = [131.0, 65.5, 32.8, 16.4]
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected int accelFs = 0
     protected int gyroFs = 0
 
-    MPU9250Minimal(Connection connection) {
+    MPU9250Minimal(RegisterConnection connection) {
         this.connection = connection
-        writeReg(REG_PWR_MGMT_1, 0x80)
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x80)] as byte[])
         Thread.sleep(100)
-        writeReg(REG_PWR_MGMT_1, 0x01)
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x01)] as byte[])
         int who = readReg(REG_WHO_AM_I)
         if (who != WHO_AM_I_VALUE) {
             throw new IOException("MPU9250 WHO_AM_I: expected 0x" +
                     Integer.toHexString(WHO_AM_I_VALUE) + ", got 0x" + Integer.toHexString(who))
         }
-        writeReg(REG_GYRO_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG2, 0x03)
-        writeReg(REG_CONFIG, 0x03)
-        writeReg(REG_SMPLRT_DIV, 0x04)
+        connection.write(REG_GYRO_CONFIG, [(byte) (0x00)] as byte[])
+        connection.write(REG_ACCEL_CONFIG, [(byte) (0x00)] as byte[])
+        connection.write(REG_ACCEL_CONFIG2, [(byte) (0x03)] as byte[])
+        connection.write(REG_CONFIG, [(byte) (0x03)] as byte[])
+        connection.write(REG_SMPLRT_DIV, [(byte) (0x04)] as byte[])
         Thread.sleep(35)
     }
 
@@ -81,7 +81,7 @@ class MPU9250Minimal {
      * @return array [x, y, z] in m/s².
      */
     double[] accel() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6)
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6)
         int ax = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int ay = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int az = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -95,7 +95,7 @@ class MPU9250Minimal {
      * @return array [x, y, z] in rad/s.
      */
     double[] gyro() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6)
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6)
         int gx = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int gy = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int gz = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -105,17 +105,13 @@ class MPU9250Minimal {
                 gz / sens * Math.PI / 180.0] as double[]
     }
 
-    protected void writeReg(int reg, int val) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) val})
-    }
-
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1)
+        byte[] b = connection.read(reg, 1)
         return b[0] & 0xFF
     }
 
     protected int readReg16Signed(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2)
+        byte[] b = connection.read(reg, 2)
         return (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF))
     }
 }

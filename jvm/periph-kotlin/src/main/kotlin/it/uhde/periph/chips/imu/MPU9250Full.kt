@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MPU-9250 full interface — extends MPU9250Minimal with complete functionality.
@@ -18,13 +18,13 @@ import it.uhde.periph.connection.Connection
  * connection the same way as the primary one (e.g. `I2CConnection(1, 0x0C)`
  * alongside `I2CConnection(1, 0x68)`) and pass both in.
  *
- * @param connection Configured I²C or SPI connection pointing at the MPU-9250.
- * @param magConnection Configured I²C connection bound to the AK8963's address
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the MPU-9250.
+ * @param magConnection RegisterConnection (I²C or SMBus) bound to the AK8963's address
  *                      (0x0C), on the same bus as [connection].
  */
 class MPU9250Full @JvmOverloads constructor(
-    connection: Connection,
-    private val magConnection: Connection
+    connection: RegisterConnection,
+    private val magConnection: RegisterConnection
 ) : MPU9250Minimal(connection) {
 
     companion object {
@@ -56,7 +56,7 @@ class MPU9250Full @JvmOverloads constructor(
      */
     fun configureGyro(fullScale: Int = 0) {
         gyroFs = fullScale and 0x03
-        writeReg(REG_GYRO_CONFIG, (fullScale and 0x03) shl 3)
+        connection.write(REG_GYRO_CONFIG, byteArrayOf(((fullScale and 0x03) shl 3).toByte()))
     }
 
     /**
@@ -66,7 +66,7 @@ class MPU9250Full @JvmOverloads constructor(
      */
     fun configureAccel(fullScale: Int = 0) {
         accelFs = fullScale and 0x03
-        writeReg(REG_ACCEL_CONFIG, (fullScale and 0x03) shl 3)
+        connection.write(REG_ACCEL_CONFIG, byteArrayOf(((fullScale and 0x03) shl 3).toByte()))
     }
 
     /**
@@ -76,8 +76,8 @@ class MPU9250Full @JvmOverloads constructor(
      * @param accelDlpf  Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
      */
     fun configureDlpf(gyroDlpf: Int = 3, accelDlpf: Int = 3) {
-        writeReg(REG_CONFIG, gyroDlpf and 0x07)
-        writeReg(REG_ACCEL_CONFIG2, accelDlpf and 0x07)
+        connection.write(REG_CONFIG, byteArrayOf((gyroDlpf and 0x07).toByte()))
+        connection.write(REG_ACCEL_CONFIG2, byteArrayOf((accelDlpf and 0x07).toByte()))
     }
 
     /**
@@ -86,7 +86,7 @@ class MPU9250Full @JvmOverloads constructor(
      * @param divider SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider) when DLPF is active.
      */
     fun configureSampleRate(divider: Int = 4) {
-        writeReg(REG_SMPLRT_DIV, divider and 0xFF)
+        connection.write(REG_SMPLRT_DIV, byteArrayOf((divider and 0xFF).toByte()))
     }
 
     /**
@@ -106,13 +106,13 @@ class MPU9250Full @JvmOverloads constructor(
      * @param mode Operation mode (1=single, 2=8 Hz continuous, 6=100 Hz continuous).
      */
     fun enableMag(bits: Int = 16, mode: Int = 6) {
-        writeReg(REG_INT_PIN_CFG, 0x22)
+        connection.write(REG_INT_PIN_CFG, byteArrayOf((0x22).toByte()))
         Thread.sleep(10)
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00)
+        magConnection.write(AK8963_REG_CNTL1, byteArrayOf((0x00).toByte()))
         Thread.sleep(10)
 
-        ak8963Write(AK8963_REG_CNTL1, 0x0F)
+        magConnection.write(AK8963_REG_CNTL1, byteArrayOf((0x0F).toByte()))
         Thread.sleep(10)
 
         val asax = ak8963Read(AK8963_REG_ASAX)
@@ -123,7 +123,7 @@ class MPU9250Full @JvmOverloads constructor(
         magScaleY = (asay - 128) / 256.0 + 1.0
         magScaleZ = (asaz - 128) / 256.0 + 1.0
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00)
+        magConnection.write(AK8963_REG_CNTL1, byteArrayOf((0x00).toByte()))
         Thread.sleep(10)
 
         var cntl1Val = 0
@@ -131,7 +131,7 @@ class MPU9250Full @JvmOverloads constructor(
             cntl1Val = cntl1Val or 0x10
         }
         cntl1Val = cntl1Val or (mode and 0x0F)
-        ak8963Write(AK8963_REG_CNTL1, cntl1Val)
+        magConnection.write(AK8963_REG_CNTL1, byteArrayOf((cntl1Val).toByte()))
         Thread.sleep(10)
 
         magEnabled = true
@@ -148,7 +148,7 @@ class MPU9250Full @JvmOverloads constructor(
         if (!magEnabled) {
             throw IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
-        val buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
+        val buf = magConnection.read(AK8963_REG_HXL, 7)
         val mx = ((buf[1].toInt() and 0xFF) shl 8 or (buf[0].toInt() and 0xFF)).toShort().toInt()
         val my = ((buf[3].toInt() and 0xFF) shl 8 or (buf[2].toInt() and 0xFF)).toShort().toInt()
         val mz = ((buf[5].toInt() and 0xFF) shl 8 or (buf[4].toInt() and 0xFF)).toShort().toInt()
@@ -166,7 +166,7 @@ class MPU9250Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun accelRaw(): IntArray {
-        val buf = connection.writeRead(byteArrayOf(REG_ACCEL_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_ACCEL_XOUT_H, 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -180,7 +180,7 @@ class MPU9250Full @JvmOverloads constructor(
      * @return array [x, y, z] as raw 16-bit signed values.
      */
     fun gyroRaw(): IntArray {
-        val buf = connection.writeRead(byteArrayOf(REG_GYRO_XOUT_H.toByte()), 6)
+        val buf = connection.read(REG_GYRO_XOUT_H, 6)
         return intArrayOf(
             ((buf[0].toInt() and 0xFF) shl 8 or (buf[1].toInt() and 0xFF)).toShort().toInt(),
             ((buf[2].toInt() and 0xFF) shl 8 or (buf[3].toInt() and 0xFF)).toShort().toInt(),
@@ -199,7 +199,7 @@ class MPU9250Full @JvmOverloads constructor(
             throw IllegalStateException("Magnetometer not enabled. Call enableMag() first.")
         }
         // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
-        val buf = ak8963ReadBurst(AK8963_REG_HXL, 7)
+        val buf = magConnection.read(AK8963_REG_HXL, 7)
         return intArrayOf(
             ((buf[1].toInt() and 0xFF) shl 8 or (buf[0].toInt() and 0xFF)).toShort().toInt(),
             ((buf[3].toInt() and 0xFF) shl 8 or (buf[2].toInt() and 0xFF)).toShort().toInt(),
@@ -228,7 +228,7 @@ class MPU9250Full @JvmOverloads constructor(
         } else {
             value = value and 0xFFBF
         }
-        writeReg(REG_PWR_MGMT_1, value)
+        connection.write(REG_PWR_MGMT_1, byteArrayOf((value).toByte()))
     }
 
     /**
@@ -237,7 +237,7 @@ class MPU9250Full @JvmOverloads constructor(
      * @return FIFO byte count (0–512).
      */
     fun fifoCount(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_FIFO_COUNTH.toByte()), 2)
+        val buf = connection.read(REG_FIFO_COUNTH, 2)
         return ((buf[0].toInt() and 0x1F) shl 8) or (buf[1].toInt() and 0xFF)
     }
 
@@ -249,7 +249,7 @@ class MPU9250Full @JvmOverloads constructor(
     fun readFifo(): ByteArray {
         val count = fifoCount()
         if (count == 0) return byteArrayOf()
-        return connection.writeRead(byteArrayOf(REG_FIFO_R_W.toByte()), count)
+        return connection.read(REG_FIFO_R_W, count)
     }
 
     /**
@@ -261,9 +261,9 @@ class MPU9250Full @JvmOverloads constructor(
      */
     fun enableFifo(gyro: Boolean = true, accel: Boolean = true, temp: Boolean = false) {
         val fifoEn = ((if (accel) 1 else 0) shl 3) or ((if (temp) 1 else 0) shl 2) or ((if (gyro) 1 else 0) shl 4)
-        writeReg(REG_FIFO_EN, fifoEn)
+        connection.write(REG_FIFO_EN, byteArrayOf((fifoEn).toByte()))
         val userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl or 0x40)
+        connection.write(REG_USER_CTRL, byteArrayOf((userCtrl or 0x40).toByte()))
     }
 
     /**
@@ -271,19 +271,12 @@ class MPU9250Full @JvmOverloads constructor(
      */
     fun resetFifo() {
         val userCtrl = readReg(REG_USER_CTRL)
-        writeReg(REG_USER_CTRL, userCtrl or 0x04)
-    }
-
-    private fun ak8963Write(reg: Int, value: Int) {
-        magConnection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(REG_USER_CTRL, byteArrayOf((userCtrl or 0x04).toByte()))
     }
 
     private fun ak8963Read(reg: Int): Int {
-        val b = magConnection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = magConnection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
-    private fun ak8963ReadBurst(reg: Int, len: Int): ByteArray {
-        return magConnection.writeRead(byteArrayOf(reg.toByte()), len)
-    }
 }

@@ -61,11 +61,11 @@ const _MAG_SENSITIVITY_16BIT = 0.15;
  * - All six axes enabled
  * - SPI only: I2C_IF_DIS set to prevent accidental I²C re-enable
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class MPU9250Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      */
     constructor(connection) {
         this._conn = connection;
@@ -75,37 +75,25 @@ class MPU9250Minimal {
     }
 
     async _init() {
-        await this._writeReg(_REG_PWR_MGMT_1, 0x80);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, 0x80);
         const end1 = Date.now() + 100;
         while (Date.now() < end1) {}
-        await this._writeReg(_REG_PWR_MGMT_1, 0x01);
-        const who = await this._readReg(_REG_WHO_AM_I);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, 0x01);
+        const who = (await this._conn.readReg(_REG_WHO_AM_I, 1))[0];
         if (who !== _WHO_AM_I_VALUE) {
             throw new Error('MPU9250 WHO_AM_I: expected 0x' + _WHO_AM_I_VALUE.toString(16) + ', got 0x' + who.toString(16));
         }
-        await this._writeReg(_REG_GYRO_CONFIG, 0x00);
-        await this._writeReg(_REG_ACCEL_CONFIG, 0x00);
-        await this._writeReg(_REG_ACCEL_CONFIG2, 0x03);
-        await this._writeReg(_REG_CONFIG, 0x03);
-        await this._writeReg(_REG_SMPLRT_DIV, 0x04);
+        await this._conn.writeReg(_REG_GYRO_CONFIG, 0x00);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG, 0x00);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG2, 0x03);
+        await this._conn.writeReg(_REG_CONFIG, 0x03);
+        await this._conn.writeReg(_REG_SMPLRT_DIV, 0x04);
         const end2 = Date.now() + 35;
         while (Date.now() < end2) {}
     }
 
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
-    }
-
-    async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
-    }
-
     async _readReg16Signed(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 2)).readInt16BE(0);
-    }
-
-    async _readBurst(reg, len) {
-        return this._conn.writeRead(Buffer.from([reg]), len);
+        return (await this._conn.readReg(reg, 2)).readInt16BE(0);
     }
 
     /**
@@ -113,7 +101,7 @@ class MPU9250Minimal {
      * @returns {Promise<number[]>} [x, y, z] acceleration in m/s².
      */
     async accel() {
-        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_ACCEL_XOUT_H, 6);
         const ax = buf.readInt16BE(0);
         const ay = buf.readInt16BE(2);
         const az = buf.readInt16BE(4);
@@ -126,7 +114,7 @@ class MPU9250Minimal {
      * @returns {Promise<number[]>} [x, y, z] angular rate in rad/s.
      */
     async gyro() {
-        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_GYRO_XOUT_H, 6);
         const gx = buf.readInt16BE(0);
         const gy = buf.readInt16BE(2);
         const gz = buf.readInt16BE(4);
@@ -154,8 +142,8 @@ class MPU9250Minimal {
  */
 class MPU9250Full extends MPU9250Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection pointing at the MPU-9250.
-     * @param {import('../../connection/connection').Connection} magConnection - Configured I²C connection bound to the AK8963's address (0x0C), on the same bus as connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the MPU-9250.
+     * @param {import('../../connection/register_connection').RegisterConnection} magConnection - I²C or SMBus register connection bound to the AK8963's address (0x0C), on the same bus as connection.
      */
     constructor(connection, magConnection) {
         super(connection);
@@ -167,18 +155,6 @@ class MPU9250Full extends MPU9250Minimal {
         this._magScaleZ = 1.0;
     }
 
-    async _ak8963Write(reg, value) {
-        await this._magConn.write(Buffer.from([reg, value]));
-    }
-
-    async _ak8963Read(reg) {
-        return (await this._magConn.writeRead(Buffer.from([reg]), 1))[0];
-    }
-
-    async _ak8963ReadBurst(reg, len) {
-        return this._magConn.writeRead(Buffer.from([reg]), len);
-    }
-
     /**
      * Set gyroscope full-scale range.
      * @param {number} [fullScale=0] - Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
@@ -186,7 +162,7 @@ class MPU9250Full extends MPU9250Minimal {
      */
     async configureGyro(fullScale = 0) {
         this._gyroFs = fullScale & 0x03;
-        await this._writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+        await this._conn.writeReg(_REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
@@ -196,7 +172,7 @@ class MPU9250Full extends MPU9250Minimal {
      */
     async configureAccel(fullScale = 0) {
         this._accelFs = fullScale & 0x03;
-        await this._writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
     }
 
     /**
@@ -206,8 +182,8 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<void>}
      */
     async configureDlpf(gyroDlpf = 3, accelDlpf = 3) {
-        await this._writeReg(_REG_CONFIG, gyroDlpf & 0x07);
-        await this._writeReg(_REG_ACCEL_CONFIG2, accelDlpf & 0x07);
+        await this._conn.writeReg(_REG_CONFIG, gyroDlpf & 0x07);
+        await this._conn.writeReg(_REG_ACCEL_CONFIG2, accelDlpf & 0x07);
     }
 
     /**
@@ -216,7 +192,7 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<void>}
      */
     async configureSampleRate(divider = 4) {
-        await this._writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
+        await this._conn.writeReg(_REG_SMPLRT_DIV, divider & 0xFF);
     }
 
     /**
@@ -235,27 +211,27 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<void>}
      */
     async enableMag(bits = 16, mode = 6) {
-        await this._writeReg(_REG_INT_PIN_CFG, 0x22);
+        await this._conn.writeReg(_REG_INT_PIN_CFG, 0x22);
         const end1 = Date.now() + 10;
         while (Date.now() < end1) {}
 
-        await this._ak8963Write(_AK8963_REG_CNTL1, 0x00);
+        await this._magConn.writeReg(_AK8963_REG_CNTL1, 0x00);
         const end2 = Date.now() + 10;
         while (Date.now() < end2) {}
 
-        await this._ak8963Write(_AK8963_REG_CNTL1, 0x0F);
+        await this._magConn.writeReg(_AK8963_REG_CNTL1, 0x0F);
         const end3 = Date.now() + 10;
         while (Date.now() < end3) {}
 
-        const asax = await this._ak8963Read(_AK8963_REG_ASAX);
-        const asay = await this._ak8963Read(_AK8963_REG_ASAY);
-        const asaz = await this._ak8963Read(_AK8963_REG_ASAZ);
+        const asax = (await this._magConn.readReg(_AK8963_REG_ASAX, 1))[0];
+        const asay = (await this._magConn.readReg(_AK8963_REG_ASAY, 1))[0];
+        const asaz = (await this._magConn.readReg(_AK8963_REG_ASAZ, 1))[0];
 
         this._magScaleX = (asax - 128) / 256.0 + 1.0;
         this._magScaleY = (asay - 128) / 256.0 + 1.0;
         this._magScaleZ = (asaz - 128) / 256.0 + 1.0;
 
-        await this._ak8963Write(_AK8963_REG_CNTL1, 0x00);
+        await this._magConn.writeReg(_AK8963_REG_CNTL1, 0x00);
         const end4 = Date.now() + 10;
         while (Date.now() < end4) {}
 
@@ -264,7 +240,7 @@ class MPU9250Full extends MPU9250Minimal {
             cntl1Val |= 0x10;
         }
         cntl1Val |= (mode & 0x0F);
-        await this._ak8963Write(_AK8963_REG_CNTL1, cntl1Val);
+        await this._magConn.writeReg(_AK8963_REG_CNTL1, cntl1Val);
         const end5 = Date.now() + 10;
         while (Date.now() < end5) {}
 
@@ -281,7 +257,7 @@ class MPU9250Full extends MPU9250Minimal {
         if (!this._magEnabled) {
             throw new Error('Magnetometer not enabled. Call enableMag() first.');
         }
-        const buf = await this._ak8963ReadBurst(_AK8963_REG_HXL, 7);
+        const buf = await this._magConn.readReg(_AK8963_REG_HXL, 7);
         const mx = buf.readInt16LE(0);
         const my = buf.readInt16LE(2);
         const mz = buf.readInt16LE(4);
@@ -298,7 +274,7 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
     async accelRaw() {
-        const buf = await this._readBurst(_REG_ACCEL_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_ACCEL_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
@@ -307,7 +283,7 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<number[]>} [x, y, z] raw 16-bit signed values.
      */
     async gyroRaw() {
-        const buf = await this._readBurst(_REG_GYRO_XOUT_H, 6);
+        const buf = await this._conn.readReg(_REG_GYRO_XOUT_H, 6);
         return [buf.readInt16BE(0), buf.readInt16BE(2), buf.readInt16BE(4)];
     }
 
@@ -321,7 +297,7 @@ class MPU9250Full extends MPU9250Minimal {
             throw new Error('Magnetometer not enabled. Call enableMag() first.');
         }
         // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
-        const buf = await this._ak8963ReadBurst(_AK8963_REG_HXL, 7);
+        const buf = await this._magConn.readReg(_AK8963_REG_HXL, 7);
         return [buf.readInt16LE(0), buf.readInt16LE(2), buf.readInt16LE(4)];
     }
 
@@ -330,7 +306,7 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<boolean>} True when RAW_DATA_RDY_INT is set in INT_STATUS.
      */
     async dataReady() {
-        return !!((await this._readReg(_REG_INT_STATUS)) & 0x01);
+        return !!((await this._conn.readReg(_REG_INT_STATUS, 1))[0] & 0x01);
     }
 
     /**
@@ -339,13 +315,13 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<void>}
      */
     async setSleep(sleep = true) {
-        let val = await this._readReg(_REG_PWR_MGMT_1);
+        let val = (await this._conn.readReg(_REG_PWR_MGMT_1, 1))[0];
         if (sleep) {
             val |= 0x40;
         } else {
             val &= ~0x40;
         }
-        await this._writeReg(_REG_PWR_MGMT_1, val);
+        await this._conn.writeReg(_REG_PWR_MGMT_1, val);
     }
 
     /**
@@ -353,7 +329,7 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<number>} FIFO byte count (0–512).
      */
     async fifoCount() {
-        const buf = await this._readBurst(_REG_FIFO_COUNTH, 2);
+        const buf = await this._conn.readReg(_REG_FIFO_COUNTH, 2);
         return ((buf[0] & 0x1F) << 8) | buf[1];
     }
 
@@ -364,7 +340,7 @@ class MPU9250Full extends MPU9250Minimal {
     async readFifo() {
         const count = await this.fifoCount();
         if (count === 0) return Buffer.alloc(0);
-        return this._readBurst(_REG_FIFO_R_W, count);
+        return this._conn.readReg(_REG_FIFO_R_W, count);
     }
 
     /**
@@ -376,9 +352,9 @@ class MPU9250Full extends MPU9250Minimal {
      */
     async enableFifo(gyro = true, accel = true, temp = false) {
         const fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-        await this._writeReg(_REG_FIFO_EN, fifoEn);
-        const userCtrl = await this._readReg(_REG_USER_CTRL);
-        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x40);
+        await this._conn.writeReg(_REG_FIFO_EN, fifoEn);
+        const userCtrl = (await this._conn.readReg(_REG_USER_CTRL, 1))[0];
+        await this._conn.writeReg(_REG_USER_CTRL, userCtrl | 0x40);
     }
 
     /**
@@ -386,8 +362,8 @@ class MPU9250Full extends MPU9250Minimal {
      * @returns {Promise<void>}
      */
     async resetFifo() {
-        const userCtrl = await this._readReg(_REG_USER_CTRL);
-        await this._writeReg(_REG_USER_CTRL, userCtrl | 0x04);
+        const userCtrl = (await this._conn.readReg(_REG_USER_CTRL, 1))[0];
+        await this._conn.writeReg(_REG_USER_CTRL, userCtrl | 0x04);
     }
 }
 

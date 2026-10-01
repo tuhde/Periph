@@ -68,7 +68,7 @@ const (
 //   - Sample rate: 200 Hz (SMPLRT_DIV=4)
 //   - Clock: auto PLL (CLKSEL=1)
 type MPU9250Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	accelFs   uint8
 	gyroFs    uint8
 }
@@ -78,13 +78,13 @@ type MPU9250Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x68 default, 0x69 alternate).
-func NewMPU9250Minimal(t connection.Connection) (*MPU9250Minimal, error) {
+func NewMPU9250Minimal(t connection.RegisterConnection) (*MPU9250Minimal, error) {
 	d := &MPU9250Minimal{connection: t}
-	if err := d.writeReg(reg9250PwrMgmt1, 0x80); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250PwrMgmt1), []byte{0x80}); err != nil {
 		return nil, err
 	}
 	time.Sleep(mpu9250ResetDelay)
-	if err := d.writeReg(reg9250PwrMgmt1, 0x01); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250PwrMgmt1), []byte{0x01}); err != nil {
 		return nil, err
 	}
 	who, err := d.readReg(reg9250WhoAmI)
@@ -94,31 +94,27 @@ func NewMPU9250Minimal(t connection.Connection) (*MPU9250Minimal, error) {
 	if who != whoAmI9250Value {
 		return nil, fmt.Errorf("MPU9250 WHO_AM_I: expected 0x%02X, got 0x%02X", whoAmI9250Value, who)
 	}
-	if err := d.writeReg(reg9250GyroConfig, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250GyroConfig), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9250AccelConfig, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250AccelConfig), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9250AccelConfig2, 0x03); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250AccelConfig2), []byte{0x03}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9250Config, 0x03); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250Config), []byte{0x03}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(reg9250SmplrtDiv, 0x04); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250SmplrtDiv), []byte{0x04}); err != nil {
 		return nil, err
 	}
 	time.Sleep(mpu9250GyroStartupDelay)
 	return d, nil
 }
 
-func (d *MPU9250Minimal) writeReg(reg, value byte) error {
-	return d.connection.Write([]byte{reg, value})
-}
-
 func (d *MPU9250Minimal) readReg(reg byte) (byte, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -126,7 +122,7 @@ func (d *MPU9250Minimal) readReg(reg byte) (byte, error) {
 }
 
 func (d *MPU9250Minimal) readReg16Signed(reg byte) (int16, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -137,7 +133,7 @@ func (d *MPU9250Minimal) readReg16Signed(reg byte) (int16, error) {
 //
 // Returns (x, y, z) in m/s².
 func (d *MPU9250Minimal) Accel() (float32, float32, float32, error) {
-	b, err := d.connection.WriteRead([]byte{reg9250AccelXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(reg9250AccelXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -155,7 +151,7 @@ func (d *MPU9250Minimal) Accel() (float32, float32, float32, error) {
 //
 // Returns (x, y, z) in rad/s.
 func (d *MPU9250Minimal) Gyro() (float32, float32, float32, error) {
-	b, err := d.connection.WriteRead([]byte{reg9250GyroXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(reg9250GyroXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -182,7 +178,7 @@ func (d *MPU9250Minimal) Gyro() (float32, float32, float32, error) {
 // on the same bus.
 type MPU9250Full struct {
 	*MPU9250Minimal
-	magConnection connection.Connection
+	magConnection connection.RegisterConnection
 	magEnabled   bool
 	magScaleX    float32
 	magScaleY    float32
@@ -190,16 +186,16 @@ type MPU9250Full struct {
 	magBits      uint8
 }
 
-// ConnectionFactory returns a Connection bound to the given 7-bit address on
+// ConnectionFactory returns a RegisterConnection bound to the given 7-bit address on
 // the same underlying bus. Used by MPU9250Full to construct the secondary
 // connection for the AK8963 magnetometer.
-type ConnectionFactory func(addr uint8) (connection.Connection, error)
+type ConnectionFactory func(addr uint8) (connection.RegisterConnection, error)
 
 // NewMPU9250Full creates a new MPU9250Full with the same initialization as
 // NewMPU9250Minimal. The magFactory is used to construct the AK8963
 // connection on demand when EnableMag is called; it must return a
 // connection bound to the given 7-bit address (0x0C for the AK8963).
-func NewMPU9250Full(t connection.Connection, magFactory ConnectionFactory) (*MPU9250Full, error) {
+func NewMPU9250Full(t connection.RegisterConnection, magFactory ConnectionFactory) (*MPU9250Full, error) {
 	m, err := NewMPU9250Minimal(t)
 	if err != nil {
 		return nil, err
@@ -233,21 +229,21 @@ func (d *MPU9250Full) Close() error {
 // mode: 1=single, 2=8 Hz continuous, 6=100 Hz continuous.
 func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 	// 1) Enable I2C bypass so the host can address the AK8963 directly.
-	if err := d.writeReg(reg9250IntPinCfg, 0x22); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250IntPinCfg), []byte{0x22}); err != nil {
 		return err
 	}
 	// 2) Power down the AK8963, wait 10 ms.
-	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
+	if err := d.magConnection.WriteReg(uint32(ak8963CNTL1), []byte{ak8963ModePowerDown}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
 	// 3) Enter fuse ROM access mode, wait 10 ms.
-	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModeFuseROM}); err != nil {
+	if err := d.magConnection.WriteReg(uint32(ak8963CNTL1), []byte{ak8963ModeFuseROM}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
 	// 4) Read ASAX/Y/Z factory calibration.
-	asax, err := d.magConnection.WriteRead([]byte{ak8963ASAX}, 3)
+	asax, err := d.magConnection.ReadReg(uint32(ak8963ASAX), 3)
 	if err != nil {
 		return err
 	}
@@ -255,7 +251,7 @@ func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 	d.magScaleY = (float32(asax[1]) - 128.0) / 256.0 + 1.0
 	d.magScaleZ = (float32(asax[2]) - 128.0) / 256.0 + 1.0
 	// 5) Power down, wait 10 ms.
-	if err := d.magConnection.Write([]byte{ak8963CNTL1, ak8963ModePowerDown}); err != nil {
+	if err := d.magConnection.WriteReg(uint32(ak8963CNTL1), []byte{ak8963ModePowerDown}); err != nil {
 		return err
 	}
 	time.Sleep(mpu9250MagPowerDownDelay)
@@ -264,7 +260,7 @@ func (d *MPU9250Full) EnableMag(bits, mode uint8) error {
 	if bits == 16 {
 		bitFlag = 0x10
 	}
-	if err := d.magConnection.Write([]byte{ak8963CNTL1, bitFlag | (mode & 0x0F)}); err != nil {
+	if err := d.magConnection.WriteReg(uint32(ak8963CNTL1), []byte{bitFlag | (mode & 0x0F)}); err != nil {
 		return err
 	}
 	d.magEnabled = true
@@ -281,7 +277,7 @@ func (d *MPU9250Full) Mag() (float32, float32, float32, error) {
 	}
 	// Read 7 bytes from 0x03 (HXL) through 0x09 (ST2). ST2 must be read
 	// to unlock the next measurement.
-	b, err := d.magConnection.WriteRead([]byte{ak8963HXL}, 7)
+	b, err := d.magConnection.ReadReg(uint32(ak8963HXL), 7)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -306,26 +302,26 @@ func (d *MPU9250Full) Mag() (float32, float32, float32, error) {
 // ConfigureGyro sets the gyroscope full-scale range.
 func (d *MPU9250Full) ConfigureGyro(fullScale uint8) error {
 	d.gyroFs = fullScale & 0x03
-	return d.writeReg(reg9250GyroConfig, (fullScale&0x03)<<3)
+	return d.connection.WriteReg(uint32(reg9250GyroConfig), []byte{(fullScale&0x03)<<3})
 }
 
 // ConfigureAccel sets the accelerometer full-scale range.
 func (d *MPU9250Full) ConfigureAccel(fullScale uint8) error {
 	d.accelFs = fullScale & 0x03
-	return d.writeReg(reg9250AccelConfig, (fullScale&0x03)<<3)
+	return d.connection.WriteReg(uint32(reg9250AccelConfig), []byte{(fullScale&0x03)<<3})
 }
 
 // ConfigureDLPF sets the gyroscope and accelerometer DLPF bandwidths.
 func (d *MPU9250Full) ConfigureDLPF(gyroDLPF, accelDLPF uint8) error {
-	if err := d.writeReg(reg9250Config, gyroDLPF&0x07); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250Config), []byte{gyroDLPF&0x07}); err != nil {
 		return err
 	}
-	return d.writeReg(reg9250AccelConfig2, accelDLPF&0x07)
+	return d.connection.WriteReg(uint32(reg9250AccelConfig2), []byte{accelDLPF&0x07})
 }
 
 // ConfigureSampleRate sets the sample rate divider.
 func (d *MPU9250Full) ConfigureSampleRate(divider uint8) error {
-	return d.writeReg(reg9250SmplrtDiv, divider)
+	return d.connection.WriteReg(uint32(reg9250SmplrtDiv), []byte{divider})
 }
 
 // Temperature reads the die temperature in °C.
@@ -339,7 +335,7 @@ func (d *MPU9250Full) Temperature() (float32, error) {
 
 // AccelRaw reads the raw 3-axis accelerometer values.
 func (d *MPU9250Full) AccelRaw() (int16, int16, int16, error) {
-	b, err := d.connection.WriteRead([]byte{reg9250AccelXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(reg9250AccelXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -351,7 +347,7 @@ func (d *MPU9250Full) AccelRaw() (int16, int16, int16, error) {
 
 // GyroRaw reads the raw 3-axis gyroscope values.
 func (d *MPU9250Full) GyroRaw() (int16, int16, int16, error) {
-	b, err := d.connection.WriteRead([]byte{reg9250GyroXoutH}, 6)
+	b, err := d.connection.ReadReg(uint32(reg9250GyroXoutH), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -366,7 +362,7 @@ func (d *MPU9250Full) MagRaw() (int16, int16, int16, error) {
 	if !d.magEnabled {
 		return 0, 0, 0, fmt.Errorf("MPU9250 MagRaw: magnetometer not enabled (call EnableMag first)")
 	}
-	b, err := d.magConnection.WriteRead([]byte{ak8963HXL}, 7)
+	b, err := d.magConnection.ReadReg(uint32(ak8963HXL), 7)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -396,12 +392,12 @@ func (d *MPU9250Full) SetSleep(sleep bool) error {
 	} else {
 		v &^= 0x40
 	}
-	return d.writeReg(reg9250PwrMgmt1, v)
+	return d.connection.WriteReg(uint32(reg9250PwrMgmt1), []byte{v})
 }
 
 // FIFOcount returns the number of bytes in the FIFO.
 func (d *MPU9250Full) FIFOcount() (uint16, error) {
-	b, err := d.connection.WriteRead([]byte{reg9250FifoCountH}, 2)
+	b, err := d.connection.ReadReg(uint32(reg9250FifoCountH), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -421,7 +417,7 @@ func (d *MPU9250Full) ReadFIFO(buf []byte) (uint16, error) {
 	if toRead > len(buf) {
 		toRead = len(buf)
 	}
-	read, err := d.connection.WriteRead([]byte{reg9250FifoR_W}, toRead)
+	read, err := d.connection.ReadReg(uint32(reg9250FifoR_W), toRead)
 	if err != nil {
 		return 0, err
 	}
@@ -441,14 +437,14 @@ func (d *MPU9250Full) EnableFIFO(gyro, accel, temp bool) error {
 	if gyro {
 		v |= 1 << 4
 	}
-	if err := d.writeReg(reg9250FifoEn, v); err != nil {
+	if err := d.connection.WriteReg(uint32(reg9250FifoEn), []byte{v}); err != nil {
 		return err
 	}
 	uc, err := d.readReg(reg9250UserCtrl)
 	if err != nil {
 		return err
 	}
-	return d.writeReg(reg9250UserCtrl, uc|0x40)
+	return d.connection.WriteReg(uint32(reg9250UserCtrl), []byte{uc|0x40})
 }
 
 // ResetFIFO resets the FIFO buffer.
@@ -457,5 +453,5 @@ func (d *MPU9250Full) ResetFIFO() error {
 	if err != nil {
 		return err
 	}
-	return d.writeReg(reg9250UserCtrl, uc|0x04)
+	return d.connection.WriteReg(uint32(reg9250UserCtrl), []byte{uc|0x04})
 }
