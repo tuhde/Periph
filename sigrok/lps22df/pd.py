@@ -82,6 +82,7 @@ ANN_TEMP_READ    = 3
 ANN_FIFO_COUNT   = 4
 ANN_FIFO_READ    = 5
 ANN_WARNING      = 6
+ANN_STATUS = 7
 
 
 class Decoder(srd.Decoder):
@@ -103,9 +104,11 @@ class Decoder(srd.Decoder):
         ('fifo-count','FIFO sample count'),
         ('fifo-read', 'FIFO pressure burst read'),
         ('warning',   'Warning'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PRESS_READ, ANN_TEMP_READ, ANN_FIFO_COUNT, ANN_FIFO_READ)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
@@ -122,6 +125,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -158,6 +162,11 @@ class Decoder(srd.Decoder):
             self._finish_transaction()
             self.state = 'IDLE'
             self.databuf = []
+
+    def _emit_status(self, flags, raw, ss, es):
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_transaction(self):
         if self.reg_ptr is None:
@@ -229,6 +238,8 @@ class Decoder(srd.Decoder):
                     extra = ' (unexpected, expected 0xB4)'
             elif self.reg_ptr == 0x27:
                 extra = ' [' + ', '.join(n for bit, n in STATUS_NAMES.items() if value & bit) + ']'
+                flags = ', '.join(n for bit, n in STATUS_NAMES.items() if value & bit and n != '\u2014') or 'none'
+                self._emit_status(flags, value, self.ss_block, self.es)
             elif self.reg_ptr == 0x24:
                 extra = ' [' + ', '.join(n for bit, n in INT_SOURCE_NAMES.items() if value & bit) + ']'
             self.put(self.ss_block, self.es, self.out_ann,

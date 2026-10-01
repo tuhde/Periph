@@ -43,6 +43,7 @@ ANN_REG_WRITE = 0
 ANN_REG_READ  = 1
 ANN_PTR_WRITE = 2
 ANN_WARNING   = 3
+ANN_STATUS = 4
 
 
 def _decode_config_a(raw):
@@ -118,9 +119,11 @@ class Decoder(srd.Decoder):
         ('reg-read',  'Register read'),
         ('ptr-write', 'Register pointer write'),
         ('warning',   'Warning'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
 
@@ -140,9 +143,15 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, 'WARN']])
+
+    def _emit_status(self, flags, raw, ss, es):
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['STATUS %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_transaction(self):
         if self.state not in ('GET_DATA_WRITE', 'GET_DATA_READ', 'GET_REG_PTR'):
@@ -175,6 +184,7 @@ class Decoder(srd.Decoder):
                 text = _decode_status(raw)
                 self.put(self.ss_block, self.es, self.out_ann,
                          [ANN_REG_READ, [text, 'R STATUS 0x%02X' % raw]])
+                self._emit_status(text.split(': ', 1)[1], raw, self.ss_block, self.es)
             elif reg in (0x0A, 0x0B, 0x0C) and len(self.databuf) == 1:
                 # ID registers
                 raw = self.databuf[0]

@@ -79,6 +79,7 @@ ANN_WARNING       = 4
 # reg-read annotations emitted alongside.
 ANN_ONE_SHOT_START = 5
 ANN_ONE_SHOT_DONE  = 6
+ANN_STATUS = 7
 
 
 def _s16(raw):
@@ -232,9 +233,11 @@ class Decoder(srd.Decoder):
         ('warning',       'Warning'),
         ('one-shot-start', 'One-shot: start'),
         ('one-shot-done',  'One-shot: done'),
+        ('status', 'Status flags'),
     )
     annotation_rows = (
         ('data',     'Data',     (ANN_REG_WRITE, ANN_REG_READ, ANN_BURST_READ, ANN_PTR_WRITE)),
+        ('status',   'Status',   (ANN_STATUS,)),
         ('timing',   'Timing',   (ANN_ONE_SHOT_START, ANN_ONE_SHOT_DONE)),
         ('warnings', 'Warnings', (ANN_WARNING,)),
     )
@@ -254,6 +257,7 @@ class Decoder(srd.Decoder):
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
+        self.out_python = self.register(srd.OUTPUT_PYTHON)
 
     def _warn(self, ss, es, msg):
         self.put(ss, es, self.out_ann, [ANN_WARNING, [msg, _warn_tag(msg)]])
@@ -271,6 +275,11 @@ class Decoder(srd.Decoder):
             self._finish_read(reg)
         else:
             self._finish_write(reg)
+
+    def _emit_status(self, flags, raw, ss, es):
+        self.put(ss, es, self.out_ann,
+                 [ANN_STATUS, ['status %s' % flags, flags, '0x%02X' % raw]])
+        self.put(ss, es, self.out_python, ('STATUS', (raw, flags)))
 
     def _finish_read(self, reg):
         buf = self.databuf
@@ -293,6 +302,7 @@ class Decoder(srd.Decoder):
             self.put(ss, es, self.out_ann,
                      [ANN_REG_READ, [_decode_status(buf[0]),
                                      'status 0x%02X' % buf[0]]])
+            self._emit_status(_decode_status(buf[0]).split(': ', 1)[1], buf[0], ss, es)
             # one_shot_done: P_DA=1 AND T_DA=1 set. Conformance checker keys
             # off the substring 'Pressure ready' AND 'Temperature ready' (or
             # both bit names) in the annotation text — emitting it here keeps
