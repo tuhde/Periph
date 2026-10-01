@@ -13,7 +13,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
     // --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
     // 200 Hz ODR gives 5 ms per sample — fast enough to catch hand motion but
     // not so noisy that the FIFO drains before the watermark is reached.
-    const gyro = new L3G4200DFull(connection);            // Create L3G4200D driver, (connection, busType='i2c')
+    const gyro = new L3G4200DFull(connection);            // Create L3G4200D driver, (connection)
     await gyro.configure(1, 0, 500);                      // Configure chip, (odr=200Hz, bandwidth=0, full_scale=500) → undefined
     await gyro.enableHighpass(0, 4);                     // Enable high-pass, (mode=0, cutoff=4) → undefined
                                                           // cutoff index 4 at 200 Hz ODR ≈ 1 Hz; strips DC drift

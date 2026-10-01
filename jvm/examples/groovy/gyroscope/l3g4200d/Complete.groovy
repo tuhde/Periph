@@ -9,7 +9,7 @@ import it.uhde.periph.chips.gyroscope.L3g4200dFull
 
 def connection = new I2CConnection(1, 0x68)                      // open I²C bus 1, device 0x68
 try {
-    def gyro = new L3g4200dFull(connection, false)                 // construct driver, verifies chip ID, (connection, spi=false) → L3g4200dFull
+    def gyro = new L3g4200dFull(connection)                 // construct driver, verifies chip ID, (connection) → L3g4200dFull
     def cid = gyro.whoAmI()                                        // read WHO_AM_I, () → int
                                                                     // returns 0xD3 for L3G4200D
     gyro.configure(L3g4200dFull.ODR_200_HZ, 0, L3g4200dFull.FS_500_DPS)  // configure chip, (odr, bandwidth, fullScale) → void

@@ -22,7 +22,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x68, nil, nil) // Create I2C connection, (i2c, addr=0x68) → (*I2CConnection)
-	chip, err := gyroscope.NewL3G4200DFull(conn, false)      // Create L3G4200D driver, (connection) → (*L3G4200DFull, error)
+	chip, err := gyroscope.NewL3G4200DFull(conn)      // Create L3G4200D driver, (connection) → (*L3G4200DFull, error)
 	if err != nil {
 		panic(err)
 	}

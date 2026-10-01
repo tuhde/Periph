@@ -8,7 +8,7 @@ const I2C_ADDR = parseInt(process.env.I2C_ADDR || '0x68', 16);
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
 
 (async () => {
-    const gyro = new L3G4200DFull(connection);            // Create L3G4200D driver, (connection, busType='i2c')
+    const gyro = new L3G4200DFull(connection);            // Create L3G4200D driver, (connection)
     const cid = await gyro.whoAmI();                      // Read WHO_AM_I, () → number
                                                           // returns 0xD3 for L3G4200D
     await gyro.configure(1, 0, 500);                      // Configure chip, (odr 0–3, bandwidth 0–3, full_scale 250/500/2000) → undefined

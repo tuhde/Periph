@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.gyroscope.l3g4200d import L3G4200DFull
 
 connection = I2CConnection(0x68)
-gyro = L3G4200DFull(connection)                            # Create L3G4200D driver, (connection, bus_type='i2c')
+gyro = L3G4200DFull(connection)                            # Create L3G4200D driver, (connection)
 cid = gyro.who_am_i()                                      # Read WHO_AM_I, () → int
                                                             # returns 0xD3 for L3G4200D
 gyro.configure(odr=200, bandwidth=0, full_scale=500)       # Configure chip, (odr 100/200/400/800 Hz, bandwidth 0–3, full_scale 250/500/2000 dps) → None

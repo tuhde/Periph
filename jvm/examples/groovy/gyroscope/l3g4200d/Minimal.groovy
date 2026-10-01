@@ -8,7 +8,7 @@ import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.gyroscope.L3g4200dMinimal
 
 def connection = new I2CConnection(1, 0x68)                      // open I²C bus 1, device 0x68, (bus, address=0x68) → I2CConnection
-def sensor = new L3g4200dMinimal(connection, false)              // construct driver, verifies chip ID, (connection, spi=false) → L3g4200dMinimal
+def sensor = new L3g4200dMinimal(connection)              // construct driver, verifies chip ID, (connection) → L3g4200dMinimal
 try {
     10.times {
         def xyz = sensor.angularRate()                            // read X/Y/Z angular rate, () → float[3] rad/s

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -33,20 +33,8 @@ public class L3g4200dFull extends L3g4200dMinimal {
     private int odr = ODR_100_HZ;
     private int bw = 0;
 
-    public L3g4200dFull(Connection connection, boolean spi) throws IOException {
-        super(connection, spi);
-    }
-
-    /** Read a single byte via I²C or SPI (with appropriate register address framing). */
-    private byte[] readReg(int reg, int n) throws IOException {
-        if (spi) {
-            connection.write(new byte[] { (byte) ((reg | 0xC0) & 0xFF) });
-            return connection.read(n);
-        } else if (n > 1) {
-            return connection.writeRead(new byte[] { (byte) (reg | 0x80) }, n);
-        } else {
-            return connection.writeRead(new byte[] { (byte) reg }, n);
-        }
+    public L3g4200dFull(RegisterConnection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -62,9 +50,9 @@ public class L3g4200dFull extends L3g4200dMinimal {
         this.bw = bandwidth & 0x3;
         this.fullScale = fullScale;
         int ctrl1 = CTRL_REG1_DEFAULT | ((this.odr & 0x3) << 6) | ((this.bw & 0x3) << 4);
-        writeReg(REG_CTRL_REG1, ctrl1);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1) });
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2);
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4));
+        connection.write(REG_CTRL_REG4, new byte[] { (byte) (CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4)) });
     }
 
     /** Update the full-scale range. */
@@ -74,7 +62,7 @@ public class L3g4200dFull extends L3g4200dMinimal {
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2);
         int ctrl4 = readReg(REG_CTRL_REG4, 1)[0] & 0xFF;
         ctrl4 = (ctrl4 & 0xCF) | ((fsBits & 0x3) << 4);
-        writeReg(REG_CTRL_REG4, ctrl4);
+        connection.write(REG_CTRL_REG4, new byte[] { (byte) (ctrl4) });
     }
 
     /** @return WHO_AM_I (0xD3 for genuine L3G4200D). */
@@ -103,18 +91,18 @@ public class L3g4200dFull extends L3g4200dMinimal {
     /** Enter power-down mode (PD=0 in CTRL_REG1). */
     public void powerDown() throws IOException {
         int ctrl1 = readReg(REG_CTRL_REG1, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG1, ctrl1 & 0xF7);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1 & 0xF7) });
     }
 
     /** Wake from power-down (PD=1); previously enabled axes restored. */
     public void wakeUp() throws IOException {
         int ctrl1 = readReg(REG_CTRL_REG1, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG1, ctrl1 | 0x08);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1 | 0x08) });
     }
 
     /** Enter sleep mode (PD=1, all axes disabled). */
     public void sleep() throws IOException {
-        writeReg(REG_CTRL_REG1, 0x08);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (0x08) });
     }
 
     /** Enable or disable individual axes (Xen/Yen/Zen in CTRL_REG1). */
@@ -124,7 +112,7 @@ public class L3g4200dFull extends L3g4200dMinimal {
         if (z) ctrl1 |= 0x04;
         if (y) ctrl1 |= 0x02;
         if (x) ctrl1 |= 0x01;
-        writeReg(REG_CTRL_REG1, ctrl1);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1) });
     }
 
     /**
@@ -138,15 +126,15 @@ public class L3g4200dFull extends L3g4200dMinimal {
         if (watermark < 0) watermark = 0;
         if (watermark > 31) watermark = 31;
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x40);
-        writeReg(REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 | 0x40) });
+        connection.write(REG_FIFO_CTRL, new byte[] { (byte) (((mode & 0x7) << 5) | (watermark & 0x1F)) });
     }
 
     /** Disable the FIFO. */
     public void disableFifo() throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, ctrl5 & ~0x40);
-        writeReg(REG_FIFO_CTRL, 0x00);
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 & ~0x40) });
+        connection.write(REG_FIFO_CTRL, new byte[] { (byte) (0x00) });
     }
 
     /** @return FSS[4:0] from FIFO_SRC_REG. */
@@ -185,15 +173,15 @@ public class L3g4200dFull extends L3g4200dMinimal {
     public void enableHighpass(int mode, int cutoff) throws IOException {
         if (mode < 0 || mode > 3) return;
         if (cutoff < 0 || cutoff > 9) return;
-        writeReg(REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
+        connection.write(REG_CTRL_REG2, new byte[] { (byte) (((mode & 0x3) << 4) | (cutoff & 0x0F)) });
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x10);
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 | 0x10) });
     }
 
     /** Clear HPen in CTRL_REG5. */
     public void disableHighpass() throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, ctrl5 & ~0x10);
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 & ~0x10) });
     }
 
     /** Configure INT1_CFG axis/direction events. */
@@ -210,10 +198,10 @@ public class L3g4200dFull extends L3g4200dMinimal {
         if (yLow)    cfg |= 0x04;
         if (xHigh)   cfg |= 0x02;
         if (xLow)    cfg |= 0x01;
-        writeReg(REG_INT1_CFG, cfg);
+        connection.write(REG_INT1_CFG, new byte[] { (byte) (cfg) });
         if ((cfg & 0x3F) != 0) {
             int ctrl3 = readReg(REG_CTRL_REG3, 1)[0] & 0xFF;
-            writeReg(REG_CTRL_REG3, ctrl3 | 0x80);
+            connection.write(REG_CTRL_REG3, new byte[] { (byte) (ctrl3 | 0x80) });
         }
     }
 
@@ -232,15 +220,15 @@ public class L3g4200dFull extends L3g4200dMinimal {
             case 'z': hiReg = REG_INT1_THS_ZH; loReg = REG_INT1_THS_ZL; break;
             default: return;
         }
-        writeReg(hiReg, (raw >> 8) & 0x7F);
-        writeReg(loReg, raw & 0xFF);
+        connection.write(hiReg, new byte[] { (byte) ((raw >> 8) & 0x7F) });
+        connection.write(loReg, new byte[] { (byte) (raw & 0xFF) });
     }
 
     /** Set INT1_DURATION. */
     public void setDuration(int samples, boolean wait) throws IOException {
         if (samples < 0 || samples > 127) return;
         int val = ((wait ? 1 : 0) << 7) | (samples & 0x7F);
-        writeReg(REG_INT1_DURATION, val);
+        connection.write(REG_INT1_DURATION, new byte[] { (byte) (val) });
     }
 
     /** Read INT1_SRC; reading clears the interrupt-active bit. */
@@ -256,6 +244,6 @@ public class L3g4200dFull extends L3g4200dMinimal {
         } else {
             ctrl3 &= ~0x08;
         }
-        writeReg(REG_CTRL_REG3, ctrl3);
+        connection.write(REG_CTRL_REG3, new byte[] { (byte) (ctrl3) });
     }
 }

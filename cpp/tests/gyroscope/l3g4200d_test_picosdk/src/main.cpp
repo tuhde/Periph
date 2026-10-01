@@ -20,7 +20,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x68);
-    L3G4200DFull gyro(connection, /*spi=*/false);
+    L3G4200DFull gyro(connection);
 
     stdio_init_all();
     sleep_ms(2000);

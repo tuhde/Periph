@@ -8,6 +8,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_WHO_AM_I: u8      = 0x0F;
 const REG_CTRL_REG1: u8     = 0x20;
 const REG_CTRL_REG2: u8     = 0x21;
@@ -50,8 +52,7 @@ fn sensitivity(full_scale: u16) -> f32 {
 }
 
 fn int16_le(data: &[u8]) -> i16 {
-    let v = ((data[1] as i16) << 8) | (data[0] as i16);
-    v
+    to_signed(((data[1] as u32) << 8) | (data[0] as u32), 16) as i16
 }
 
 /// L3G4200D minimal driver — angular rate on X, Y, Z.
@@ -61,7 +62,6 @@ fn int16_le(data: &[u8]) -> i16 {
 pub struct L3g4200dMinimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
     full_scale: u16,
 }
 
@@ -71,33 +71,22 @@ impl<I2C: I2c> L3g4200dMinimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x68 or 0x69).
-    /// * `spi` — Pass `true` for SPI bus.
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let mut s = Self { i2c, addr, spi, full_scale: 250 };
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let mut s = Self { i2c, addr, full_scale: 250 };
         let mut buf = [0u8; 1];
         let _ = s.read_reg_bytes(REG_WHO_AM_I, &mut buf);
         if buf[0] != WHO_AM_I_EXPECTED {
             return Ok(s);
         }
-        s.write_reg(REG_CTRL_REG4, CTRL_REG4_DEFAULT)?;
-        s.write_reg(REG_CTRL_REG1, CTRL_REG1_DEFAULT)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_REG4.into(), 1, &[CTRL_REG4_DEFAULT])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_REG1.into(), 1, &[CTRL_REG1_DEFAULT])?;
         Ok(s)
     }
 
-    fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        let r = if self.spi { reg & 0x3F } else { reg };
-        self.i2c.write(self.addr, &[r, value])
-    }
-
     fn read_reg_bytes(&mut self, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-        let addr = if self.spi {
-            reg | 0xC0  // READ=1, MS=1 (auto-increment)
-        } else if buf.len() > 1 {
-            reg | 0x80  // I²C multi-byte auto-increment
-        } else {
-            reg
-        };
-        self.i2c.write_read(self.addr, &[addr & 0xFF], buf)
+        // I²C needs bit 7 of the sub-address set for multi-byte auto-increment.
+        let addr = if buf.len() > 1 { reg | 0x80 } else { reg };
+        register::read_register(&mut self.i2c, self.addr, addr.into(), 1, buf)
     }
 
     /// Read angular rate on all three axes as a single burst transaction.
@@ -159,14 +148,9 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x68 or 0x69).
-    /// * `spi` — Pass `true` for SPI bus.
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let inner = L3g4200dMinimal::new(i2c, addr, spi)?;
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = L3g4200dMinimal::new(i2c, addr)?;
         Ok(Self { inner, odr: 0, bw: 0 })
-    }
-
-    fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.inner.write_reg(reg, value)
     }
 
     fn read_reg(&mut self, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
@@ -186,9 +170,9 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
         self.bw = bandwidth & 0x3;
         self.inner.full_scale = full_scale;
         let ctrl1 = CTRL_REG1_DEFAULT | ((self.odr & 0x3) << 6) | ((self.bw & 0x3) << 4);
-        self.write_reg(REG_CTRL_REG1, ctrl1)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[ctrl1])?;
         let fs_bits: u8 = match full_scale { 250 => 0, 500 => 1, _ => 2 };
-        self.write_reg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((fs_bits & 0x3) << 4))?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG4.into(), 1, &[CTRL_REG4_DEFAULT | ((fs_bits & 0x3) << 4)])?;
         Ok(())
     }
 
@@ -202,7 +186,7 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG4, &mut buf)?;
         let ctrl4 = (buf[0] & 0xCF) | ((fs_bits & 0x3) << 4);
-        self.write_reg(REG_CTRL_REG4, ctrl4)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG4.into(), 1, &[ctrl4])?;
         Ok(())
     }
 
@@ -239,19 +223,19 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
     pub fn power_down(&mut self) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG1, &mut buf)?;
-        self.write_reg(REG_CTRL_REG1, buf[0] & 0xF7)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[buf[0] & 0xF7])
     }
 
     /// Wake from power-down (PD=1); previously enabled axes restored.
     pub fn wake_up(&mut self) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG1, &mut buf)?;
-        self.write_reg(REG_CTRL_REG1, buf[0] | 0x08)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[buf[0] | 0x08])
     }
 
     /// Enter sleep mode (PD=1, all axes disabled).
     pub fn sleep(&mut self) -> Result<(), I2C::Error> {
-        self.write_reg(REG_CTRL_REG1, 0x08)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[0x08])
     }
 
     /// Enable or disable individual axes (Xen/Yen/Zen in CTRL_REG1).
@@ -262,7 +246,7 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
         if z { val |= 0x04; }
         if y { val |= 0x02; }
         if x { val |= 0x01; }
-        self.write_reg(REG_CTRL_REG1, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[val])
     }
 
     /// Configure and enable the FIFO.
@@ -273,17 +257,17 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
     pub fn enable_fifo(&mut self, mode: u8, watermark: u8) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
-        self.write_reg(REG_CTRL_REG5, buf[0] | 0x40)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[buf[0] | 0x40])?;
         let fifo_ctrl = ((mode & 0x7) << 5) | (watermark & 0x1F);
-        self.write_reg(REG_FIFO_CTRL, fifo_ctrl)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL.into(), 1, &[fifo_ctrl])
     }
 
     /// Disable the FIFO.
     pub fn disable_fifo(&mut self) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
-        self.write_reg(REG_CTRL_REG5, buf[0] & !0x40)?;
-        self.write_reg(REG_FIFO_CTRL, 0x00)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[buf[0] & !0x40])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL.into(), 1, &[0x00])
     }
 
     /// Read FSS[4:0] from FIFO_SRC_REG (number of stored samples, 0-31).
@@ -322,17 +306,17 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
     /// * `cutoff` — HPF cutoff code 0-9 (HPCF field in CTRL_REG2).
     pub fn enable_highpass(&mut self, mode: u8, cutoff: u8) -> Result<(), I2C::Error> {
         let ctrl2 = ((mode & 0x3) << 4) | (cutoff & 0x0F);
-        self.write_reg(REG_CTRL_REG2, ctrl2)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2.into(), 1, &[ctrl2])?;
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
-        self.write_reg(REG_CTRL_REG5, buf[0] | 0x10)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[buf[0] | 0x10])
     }
 
     /// Clear HPen in CTRL_REG5.
     pub fn disable_highpass(&mut self) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG5, &mut buf)?;
-        self.write_reg(REG_CTRL_REG5, buf[0] & !0x10)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG5.into(), 1, &[buf[0] & !0x10])
     }
 
     /// Configure INT1_CFG axis/direction events.
@@ -351,11 +335,11 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
         if y_low    { cfg |= 0x04; }
         if x_high   { cfg |= 0x02; }
         if x_low    { cfg |= 0x01; }
-        self.write_reg(REG_INT1_CFG, cfg)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INT1_CFG.into(), 1, &[cfg])?;
         if cfg & 0x3F != 0 {
             let mut buf = [0u8; 1];
             self.read_reg(REG_CTRL_REG3, &mut buf)?;
-            self.write_reg(REG_CTRL_REG3, buf[0] | 0x80)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG3.into(), 1, &[buf[0] | 0x80])?;
         }
         Ok(())
     }
@@ -372,8 +356,8 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
             'z' => (REG_INT1_THS_ZH, REG_INT1_THS_ZL),
             _ => return Ok(()),
         };
-        self.write_reg(hi, ((raw >> 8) & 0x7F) as u8)?;
-        self.write_reg(lo, (raw & 0xFF) as u8)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, hi.into(), 1, &[((raw >> 8) & 0x7F) as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, lo.into(), 1, &[(raw & 0xFF) as u8])?;
         Ok(())
     }
 
@@ -383,7 +367,7 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
     /// * `wait` — If true, INT1 stays asserted until INT1_SRC is read.
     pub fn set_duration(&mut self, samples: u8, wait: bool) -> Result<(), I2C::Error> {
         let val = ((if wait { 1 } else { 0 }) << 7) | (samples & 0x7F);
-        self.write_reg(REG_INT1_DURATION, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INT1_DURATION.into(), 1, &[val])
     }
 
     /// Read INT1_SRC; reading clears the interrupt-active bit.
@@ -398,7 +382,7 @@ impl<I2C: I2c> L3g4200dFull<I2C> {
         let mut buf = [0u8; 1];
         self.read_reg(REG_CTRL_REG3, &mut buf)?;
         let ctrl3 = if enable { buf[0] | 0x08 } else { buf[0] & !0x08 };
-        self.write_reg(REG_CTRL_REG3, ctrl3)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG3.into(), 1, &[ctrl3])
     }
 
     // Minimal one-line delegates.
@@ -483,7 +467,7 @@ mod tests {
         ];
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = L3g4200dFull::new(i2c, ADDR, false).expect("init");
+        let mut sensor = L3g4200dFull::new(i2c, ADDR).expect("init");
 
         let k = core::f32::consts::PI / 180.0;
         let expected_x = 16.0 * 0.00875 * k;
@@ -550,7 +534,7 @@ mod tests {
         ];
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = L3g4200dFull::new(i2c, ADDR, false).expect("init");
+        let mut sensor = L3g4200dFull::new(i2c, ADDR).expect("init");
         sensor.configure(ODR_200_HZ, 0, FS_2000_DPS).unwrap();
         sensor.enable_fifo(FIFO_STREAM, 10).unwrap();
 

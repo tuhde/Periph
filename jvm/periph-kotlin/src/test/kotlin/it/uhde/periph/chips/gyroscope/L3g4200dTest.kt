@@ -12,7 +12,7 @@ class L3g4200dTest {
         val connection = MockConnection()
         connection.setRegister(L3g4200dMinimal.REG_WHO_AM_I, 0xD3)
 
-        val sensor = L3g4200dFull(connection, false)
+        val sensor = L3g4200dFull(connection)
 
         assertEquals(L3g4200dMinimal.CTRL_REG4_DEFAULT,
                 connection.registers()[L3g4200dMinimal.REG_CTRL_REG4]!!)

@@ -36,7 +36,7 @@ func main() {
 		}
 	}
 
-	chip, err := gyroscope.NewL3G4200DMinimal(conn, false)
+	chip, err := gyroscope.NewL3G4200DFull(conn)
 	if err != nil {
 		println("FAIL init:", err.Error())
 		return

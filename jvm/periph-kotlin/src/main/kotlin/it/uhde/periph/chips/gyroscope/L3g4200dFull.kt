@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -9,22 +9,9 @@ import java.io.IOException
  * Extends [L3g4200dMinimal] with configuration, FIFO, high-pass filter,
  * interrupts, axis-enable, and power-mode control.
  */
-open class L3g4200dFull @JvmOverloads constructor(
-    connection: Connection,
-    spi: Boolean = false,
-) : L3g4200dMinimal(connection, spi) {
+open class L3g4200dFull(connection: RegisterConnection) : L3g4200dMinimal(connection) {
     private var odr: Int = ODR_100_HZ
     private var bw: Int = 0
-
-    /** Read a single byte via I²C (auto-increment) or SPI (READ=1, MS=1). */
-    private fun readReg(reg: Int, n: Int): ByteArray {
-        if (spi) {
-            connection.write(byteArrayOf(((reg or 0xC0) and 0xFF).toByte()))
-            return connection.read(n)
-        }
-        val addr = if (n > 1) reg or 0x80 else reg
-        return connection.writeRead(byteArrayOf(addr.toByte()), n)
-    }
 
     /**
      * Configure ODR, LPF2 bandwidth, and full scale in one call.
@@ -40,13 +27,13 @@ open class L3g4200dFull @JvmOverloads constructor(
         this.bw = bandwidth and 0x3
         this.fullScaleDps = fullScale
         val ctrl1 = CTRL_REG1_DEFAULT or ((this.odr and 0x3) shl 6) or ((this.bw and 0x3) shl 4)
-        writeReg(REG_CTRL_REG1, ctrl1)
+        connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1).toByte()))
         val fsBits = when (fullScale) {
             FS_250_DPS -> 0
             FS_500_DPS -> 1
             else -> 2
         }
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT or ((fsBits and 0x3) shl 4))
+        connection.write(REG_CTRL_REG4, byteArrayOf((CTRL_REG4_DEFAULT or ((fsBits and 0x3) shl 4)).toByte()))
     }
 
     /** Update the full-scale range. */
@@ -59,7 +46,7 @@ open class L3g4200dFull @JvmOverloads constructor(
             else -> 2
         }
         val ctrl4 = readReg(REG_CTRL_REG4, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG4, (ctrl4 and 0xCF) or ((fsBits and 0x3) shl 4))
+        connection.write(REG_CTRL_REG4, byteArrayOf(((ctrl4 and 0xCF) or ((fsBits and 0x3) shl 4)).toByte()))
     }
 
     /** @return WHO_AM_I (0xD3 for genuine L3G4200D). */
@@ -77,18 +64,18 @@ open class L3g4200dFull @JvmOverloads constructor(
     /** Enter power-down mode (PD=0 in CTRL_REG1). */
     fun powerDown() {
         val ctrl1 = readReg(REG_CTRL_REG1, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG1, ctrl1 and 0xF7)
+        connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1 and 0xF7).toByte()))
     }
 
     /** Wake from power-down (PD=1); previously enabled axes restored. */
     fun wakeUp() {
         val ctrl1 = readReg(REG_CTRL_REG1, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG1, ctrl1 or 0x08)
+        connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1 or 0x08).toByte()))
     }
 
     /** Enter sleep mode (PD=1, all axes disabled). */
     fun sleep() {
-        writeReg(REG_CTRL_REG1, 0x08)
+        connection.write(REG_CTRL_REG1, byteArrayOf((0x08).toByte()))
     }
 
     /** Enable or disable individual axes (Xen/Yen/Zen in CTRL_REG1). */
@@ -99,7 +86,7 @@ open class L3g4200dFull @JvmOverloads constructor(
         if (z) ctrl1 = ctrl1 or 0x04
         if (y) ctrl1 = ctrl1 or 0x02
         if (x) ctrl1 = ctrl1 or 0x01
-        writeReg(REG_CTRL_REG1, ctrl1)
+        connection.write(REG_CTRL_REG1, byteArrayOf((ctrl1).toByte()))
     }
 
     /**
@@ -113,15 +100,15 @@ open class L3g4200dFull @JvmOverloads constructor(
         if (mode < 0 || mode > 4) return
         val wm = watermark.coerceIn(0, 31)
         val ctrl5 = readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 or 0x40)
-        writeReg(REG_FIFO_CTRL, ((mode and 0x7) shl 5) or (wm and 0x1F))
+        connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 or 0x40).toByte()))
+        connection.write(REG_FIFO_CTRL, byteArrayOf((((mode and 0x7) shl 5) or (wm and 0x1F)).toByte()))
     }
 
     /** Disable the FIFO. */
     fun disableFifo() {
         val ctrl5 = readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 and 0xBF.inv())
-        writeReg(REG_FIFO_CTRL, 0x00)
+        connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 and 0xBF.inv()).toByte()))
+        connection.write(REG_FIFO_CTRL, byteArrayOf((0x00).toByte()))
     }
 
     /** @return FSS[4:0] from FIFO_SRC_REG. */
@@ -157,15 +144,15 @@ open class L3g4200dFull @JvmOverloads constructor(
     fun enableHighpass(mode: Int = 0, cutoff: Int = 0) {
         if (mode < 0 || mode > 3) return
         if (cutoff < 0 || cutoff > 9) return
-        writeReg(REG_CTRL_REG2, ((mode and 0x3) shl 4) or (cutoff and 0x0F))
+        connection.write(REG_CTRL_REG2, byteArrayOf((((mode and 0x3) shl 4) or (cutoff and 0x0F)).toByte()))
         val ctrl5 = readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 or 0x10)
+        connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 or 0x10).toByte()))
     }
 
     /** Clear HPen in CTRL_REG5. */
     fun disableHighpass() {
         val ctrl5 = readReg(REG_CTRL_REG5, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 and 0xEF)
+        connection.write(REG_CTRL_REG5, byteArrayOf((ctrl5 and 0xEF).toByte()))
     }
 
     /** Configure INT1_CFG axis/direction events. */
@@ -185,10 +172,10 @@ open class L3g4200dFull @JvmOverloads constructor(
         if (yLow)    cfg = cfg or 0x04
         if (xHigh)   cfg = cfg or 0x02
         if (xLow)    cfg = cfg or 0x01
-        writeReg(REG_INT1_CFG, cfg)
+        connection.write(REG_INT1_CFG, byteArrayOf((cfg).toByte()))
         if ((cfg and 0x3F) != 0) {
             val ctrl3 = readReg(REG_CTRL_REG3, 1)[0].toInt() and 0xFF
-            writeReg(REG_CTRL_REG3, ctrl3 or 0x80)
+            connection.write(REG_CTRL_REG3, byteArrayOf((ctrl3 or 0x80).toByte()))
         }
     }
 
@@ -203,8 +190,8 @@ open class L3g4200dFull @JvmOverloads constructor(
             'z' -> REG_INT1_THS_ZH to REG_INT1_THS_ZL
             else -> return
         }
-        writeReg(hiReg, (raw shr 8) and 0x7F)
-        writeReg(loReg, raw and 0xFF)
+        connection.write(hiReg, byteArrayOf(((raw shr 8) and 0x7F).toByte()))
+        connection.write(loReg, byteArrayOf((raw and 0xFF).toByte()))
     }
 
     /** Set INT1_DURATION. */
@@ -212,7 +199,7 @@ open class L3g4200dFull @JvmOverloads constructor(
     fun setDuration(samples: Int = 0, wait: Boolean = false) {
         if (samples !in 0..127) return
         val val_ = ((if (wait) 1 else 0) shl 7) or (samples and 0x7F)
-        writeReg(REG_INT1_DURATION, val_)
+        connection.write(REG_INT1_DURATION, byteArrayOf((val_).toByte()))
     }
 
     /** Read INT1_SRC; reading clears the interrupt-active bit. */
@@ -222,7 +209,7 @@ open class L3g4200dFull @JvmOverloads constructor(
     @JvmOverloads
     fun setDataReadyPin(enable: Boolean = true) {
         val ctrl3 = readReg(REG_CTRL_REG3, 1)[0].toInt() and 0xFF
-        writeReg(REG_CTRL_REG3, if (enable) ctrl3 or 0x08 else ctrl3 and 0xF7)
+        connection.write(REG_CTRL_REG3, byteArrayOf((if (enable) ctrl3 or 0x08 else ctrl3 and 0xF7).toByte()))
     }
 
     companion object {

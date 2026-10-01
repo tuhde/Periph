@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x68);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro = L3g4200dMinimal::new(dev, addr, false).expect("init L3G4200D"); // Create L3G4200D driver, (i2c, addr=0x68, spi=false)
+    let mut gyro = L3g4200dMinimal::new(dev, addr).expect("init L3G4200D"); // Create L3G4200D driver, (i2c, addr=0x68)
 
     for _ in 0..10 {
         let (x, y, z) = gyro.angular_rate().expect("angular_rate");                  // Read X/Y/Z angular rate, () → (f32, f32, f32) rad/s

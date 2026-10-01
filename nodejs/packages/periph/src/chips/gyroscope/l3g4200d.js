@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_WHO_AM_I      = 0x0F;
 const _REG_CTRL_REG1     = 0x20;
 const _REG_CTRL_REG2     = 0x21;
@@ -39,9 +41,7 @@ const _SENSITIVITY = {
 const _DPS_TO_RAD = Math.PI / 180.0;
 
 function _int16Le(data, offset) {
-    let v = data[offset] | (data[offset + 1] << 8);
-    if (v & 0x8000) v -= 0x10000;
-    return v;
+    return toSigned(data[offset] | (data[offset + 1] << 8), 16);
 }
 
 class L3G4200DMinimal {
@@ -60,12 +60,10 @@ class L3G4200DMinimal {
      *     - FIFO disabled
      *     - HPF disabled
      *
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit=0xC0, no multi-byte bit).
      */
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._fullScale = 250;
         this._init();
     }
@@ -74,26 +72,15 @@ class L3G4200DMinimal {
         try {
             const who = (await this._readReg(_REG_WHO_AM_I, 1))[0];
             if (who !== _WHO_AM_I_EXPECTED) return;
-            await this._writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT);
-            await this._writeReg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT);
+            await this._conn.writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT);
+            await this._conn.writeReg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT);
         } catch (e) { /* bus may be idle */ }
     }
 
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x3F) : reg;
-        await this._conn.write(Buffer.from([addr, value & 0xFF]));
-    }
-
     async _readReg(reg, n) {
-        let addr;
-        if (this._busType === 'spi') {
-            addr = reg | 0xC0;  // READ=1, MS=1 (auto-increment)
-        } else if (n > 1) {
-            addr = reg | 0x80;  // MSB set = I²C multi-byte auto-increment
-        } else {
-            addr = reg;
-        }
-        return this._conn.writeRead(Buffer.from([addr & 0xFF]), n);
+        // I²C needs bit 7 of the sub-address set for multi-byte auto-increment;
+        // on SPI the connection's readBit=0xC0 already ORs it in (idempotent).
+        return this._conn.readReg(n > 1 ? reg | 0x80 : reg, n);
     }
 
     _sensitivity() {
@@ -119,11 +106,10 @@ class L3G4200DFull extends L3G4200DMinimal {
      * L3G4200D full interface — extends L3G4200DMinimal with full configuration,
      * FIFO, high-pass filter, interrupts, axis-enable, and power-mode control.
      *
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit=0xC0, no multi-byte bit).
      */
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
         this._odr = 0;
         this._bw = 0;
     }
@@ -160,9 +146,9 @@ class L3G4200DFull extends L3G4200DMinimal {
         this._bw = bandwidth & 0x3;
         this._fullScale = fullScale;
         const ctrl1 = _CTRL_REG1_DEFAULT | ((this._odr & 0x3) << 6) | ((this._bw & 0x3) << 4);
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
         const fsBits = fullScale === 250 ? 0 : (fullScale === 500 ? 1 : 2);
-        await this._writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4));
+        await this._conn.writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4));
     }
 
     /**
@@ -176,7 +162,7 @@ class L3G4200DFull extends L3G4200DMinimal {
         this._fullScale = fullScale;
         const fsBits = fullScale === 250 ? 0 : (fullScale === 500 ? 1 : 2);
         const ctrl4 = (await this._readReg(_REG_CTRL_REG4, 1))[0];
-        await this._writeReg(_REG_CTRL_REG4, (ctrl4 & 0xCF) | ((fsBits & 0x3) << 4));
+        await this._conn.writeReg(_REG_CTRL_REG4, (ctrl4 & 0xCF) | ((fsBits & 0x3) << 4));
     }
 
     /** @returns {Promise<number>} WHO_AM_I (0xD3 for genuine L3G4200D). */
@@ -196,26 +182,24 @@ class L3G4200DFull extends L3G4200DMinimal {
 
     /** @returns {Promise<number>} Signed 8-bit temperature count (-1 °C/digit). */
     async temperature() {
-        let raw = (await this._readReg(_REG_OUT_TEMP, 1))[0];
-        if (raw & 0x80) raw -= 0x100;
-        return raw;
+        return toSigned((await this._readReg(_REG_OUT_TEMP, 1))[0], 8);
     }
 
     /** Enter power-down mode (PD=0 in CTRL_REG1). */
     async powerDown() {
         const ctrl1 = (await this._readReg(_REG_CTRL_REG1, 1))[0] & 0xF7;
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
     }
 
     /** Wake from power-down (PD=1); previously enabled axes restored. */
     async wakeUp() {
         const ctrl1 = (await this._readReg(_REG_CTRL_REG1, 1))[0] | 0x08;
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
     }
 
     /** Enter sleep mode (PD=1, all axes disabled). */
     async sleep() {
-        await this._writeReg(_REG_CTRL_REG1, 0x08);
+        await this._conn.writeReg(_REG_CTRL_REG1, 0x08);
     }
 
     /**
@@ -227,7 +211,7 @@ class L3G4200DFull extends L3G4200DMinimal {
     async enableAxes(x, y, z) {
         const ctrl1 = (await this._readReg(_REG_CTRL_REG1, 1))[0] & 0xF8;
         const val = ctrl1 | (z ? 0x04 : 0) | (y ? 0x02 : 0) | (x ? 0x01 : 0);
-        await this._writeReg(_REG_CTRL_REG1, val);
+        await this._conn.writeReg(_REG_CTRL_REG1, val);
     }
 
     /**
@@ -239,15 +223,15 @@ class L3G4200DFull extends L3G4200DMinimal {
         if (mode < 0 || mode > 4) throw new Error('mode must be 0..4');
         if (watermark < 0 || watermark > 31) throw new Error('watermark must be 0..31');
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0] | 0x40;
-        await this._writeReg(_REG_CTRL_REG5, ctrl5);
-        await this._writeReg(_REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
+        await this._conn.writeReg(_REG_CTRL_REG5, ctrl5);
+        await this._conn.writeReg(_REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
     }
 
     /** Disable the FIFO. */
     async disableFifo() {
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0] & ~0x40;
-        await this._writeReg(_REG_CTRL_REG5, ctrl5);
-        await this._writeReg(_REG_FIFO_CTRL, 0x00);
+        await this._conn.writeReg(_REG_CTRL_REG5, ctrl5);
+        await this._conn.writeReg(_REG_FIFO_CTRL, 0x00);
     }
 
     /** @returns {Promise<number>} FSS[4:0] from FIFO_SRC_REG. */
@@ -283,15 +267,15 @@ class L3G4200DFull extends L3G4200DMinimal {
     async enableHighpass(mode, cutoff) {
         if (mode < 0 || mode > 3) throw new Error('mode must be 0..3');
         if (cutoff < 0 || cutoff > 9) throw new Error('cutoff must be 0..9');
-        await this._writeReg(_REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
+        await this._conn.writeReg(_REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0] | 0x10;
-        await this._writeReg(_REG_CTRL_REG5, ctrl5);
+        await this._conn.writeReg(_REG_CTRL_REG5, ctrl5);
     }
 
     /** Disable the high-pass filter. */
     async disableHighpass() {
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0] & ~0x10;
-        await this._writeReg(_REG_CTRL_REG5, ctrl5);
+        await this._conn.writeReg(_REG_CTRL_REG5, ctrl5);
     }
 
     /**
@@ -315,10 +299,10 @@ class L3G4200DFull extends L3G4200DMinimal {
         if (yLow)    cfg |= 0x04;
         if (xHigh)   cfg |= 0x02;
         if (xLow)    cfg |= 0x01;
-        await this._writeReg(_REG_INT1_CFG, cfg);
+        await this._conn.writeReg(_REG_INT1_CFG, cfg);
         if (cfg & 0x3F) {
             const ctrl3 = (await this._readReg(_REG_CTRL_REG3, 1))[0] | 0x80;
-            await this._writeReg(_REG_CTRL_REG3, ctrl3);
+            await this._conn.writeReg(_REG_CTRL_REG3, ctrl3);
         }
     }
 
@@ -334,8 +318,8 @@ class L3G4200DFull extends L3G4200DMinimal {
         else if (axis === 'y') { hi = _REG_INT1_THS_YH; lo = _REG_INT1_THS_YL; }
         else if (axis === 'z') { hi = _REG_INT1_THS_ZH; lo = _REG_INT1_THS_ZL; }
         else throw new Error("axis must be 'x', 'y' or 'z'");
-        await this._writeReg(hi, (raw >> 8) & 0x7F);
-        await this._writeReg(lo, raw & 0xFF);
+        await this._conn.writeReg(hi, (raw >> 8) & 0x7F);
+        await this._conn.writeReg(lo, raw & 0xFF);
     }
 
     /**
@@ -345,7 +329,7 @@ class L3G4200DFull extends L3G4200DMinimal {
      */
     async setDuration(samples, wait) {
         if (samples < 0 || samples > 127) throw new Error('samples must be 0..127');
-        await this._writeReg(_REG_INT1_DURATION, ((wait ? 1 : 0) << 7) | (samples & 0x7F));
+        await this._conn.writeReg(_REG_INT1_DURATION, ((wait ? 1 : 0) << 7) | (samples & 0x7F));
     }
 
     /** @returns {Promise<number>} Raw INT1_SRC byte; reading clears the interrupt-active bit. */
@@ -359,7 +343,7 @@ class L3G4200DFull extends L3G4200DMinimal {
      */
     async setDataReadyPin(enable) {
         const ctrl3 = (await this._readReg(_REG_CTRL_REG3, 1))[0];
-        await this._writeReg(_REG_CTRL_REG3, enable ? (ctrl3 | 0x08) : (ctrl3 & ~0x08));
+        await this._conn.writeReg(_REG_CTRL_REG3, enable ? (ctrl3 | 0x08) : (ctrl3 & ~0x08));
     }
 }
 

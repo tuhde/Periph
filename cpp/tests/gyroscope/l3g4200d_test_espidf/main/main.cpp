@@ -32,7 +32,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    L3G4200DFull inst(connection, false);
+    L3G4200DFull inst(connection);
     check_true(inst.who_am_i() == 0xD3, "who_am_i");
 
     float x, y, z;

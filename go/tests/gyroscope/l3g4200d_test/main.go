@@ -45,7 +45,7 @@ func main() {
 		}
 	}
 
-	chip, err := gyroscope.NewL3G4200DMinimal(conn, false)
+	chip, err := gyroscope.NewL3G4200DMinimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -62,7 +62,7 @@ func main() {
 	}
 	defer conn2.Close()
 
-	full, err := gyroscope.NewL3G4200DFull(conn2, false)
+	full, err := gyroscope.NewL3G4200DFull(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)

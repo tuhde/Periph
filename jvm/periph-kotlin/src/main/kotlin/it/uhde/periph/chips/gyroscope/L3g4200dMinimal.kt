@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -13,31 +13,31 @@ import java.io.IOException
  * Default configuration: 100 Hz ODR, 12.5 Hz LPF2 cutoff, ±250 dps
  * full scale, BDU=1, all axes enabled, FIFO disabled, HPF disabled.
  *
- * @property connection Configured I²C connection bound to the device.
- * @property spi        true for SPI bus, false for I²C.
+ * @property connection I²C, SMBus, or SPI register connection bound to the device
+ *                   (SPI: read bit 0xC0, no multi-byte bit).
  * @constructor Creates an L3G4200D driver and runs the init sequence.
  * @throws IOException on I²C error or wrong chip ID.
  */
-open class L3g4200dMinimal @JvmOverloads constructor(
-    protected val connection: Connection,
-    protected val spi: Boolean = false,
-) {
+open class L3g4200dMinimal(protected val connection: RegisterConnection) {
     protected var fullScaleDps: Int = 250
 
     init {
-        val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val id = readReg(REG_WHO_AM_I, 1)
         if ((id[0].toInt() and 0xFF) != WHO_AM_I_EXPECTED) {
             throw IOException("L3G4200D not found: WHO_AM_I expected 0x"
                     + Integer.toHexString(WHO_AM_I_EXPECTED) + ", got 0x" + Integer.toHexString(id[0].toInt() and 0xFF))
         }
-        connection.write(byteArrayOf(REG_CTRL_REG4.toByte(), CTRL_REG4_DEFAULT.toByte()))
-        connection.write(byteArrayOf(REG_CTRL_REG1.toByte(), CTRL_REG1_DEFAULT.toByte()))
+        connection.write(REG_CTRL_REG4, byteArrayOf(CTRL_REG4_DEFAULT.toByte()))
+        connection.write(REG_CTRL_REG1, byteArrayOf(CTRL_REG1_DEFAULT.toByte()))
     }
 
-    protected fun writeReg(reg: Int, value: Int) {
-        val addr = if (spi) (reg and 0x3F) else reg
-        connection.write(byteArrayOf(addr.toByte(), (value and 0xFF).toByte()))
-    }
+    /**
+     * Read [n] bytes starting at [reg]. I²C needs bit 7 of the sub-address set
+     * for multi-byte auto-increment; on SPI the connection's read bit 0xC0
+     * already ORs it in (idempotent).
+     */
+    protected fun readReg(reg: Int, n: Int): ByteArray =
+        connection.read(if (n > 1) reg or 0x80 else reg, n)
 
     /**
      * Read angular rate on all three axes as a single burst transaction.
@@ -46,12 +46,7 @@ open class L3g4200dMinimal @JvmOverloads constructor(
      * @throws IOException on I²C error.
      */
     open fun angularRate(): Triple<Float, Float, Float> {
-        val raw: ByteArray = if (spi) {
-            connection.write(byteArrayOf(((REG_OUT_X_L or 0xC0) and 0xFF).toByte()))
-            connection.read(6)
-        } else {
-            connection.writeRead(byteArrayOf((REG_OUT_X_L or 0x80).toByte()), 6)
-        }
+        val raw: ByteArray = readReg(REG_OUT_X_L, 6)
         val sens = sensitivity(fullScaleDps)
         val k = (Math.PI / 180.0).toFloat()
         val x = int16Le(raw, 0) * sens * k

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.gyroscope
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * L3G4200D three-axis MEMS gyroscope — full driver.
@@ -30,17 +30,8 @@ class L3g4200dFull extends L3g4200dMinimal {
     private int odr = ODR_100_HZ
     private int bw = 0
 
-    L3g4200dFull(Connection connection, boolean spi) throws Exception {
-        super(connection, spi)
-    }
-
-    private byte[] readReg(int reg, int n) throws Exception {
-        if (spi) {
-            connection.write([(byte) ((reg | 0xC0) & 0xFF)] as byte[])
-            return connection.read(n)
-        }
-        int addr = n > 1 ? (reg | 0x80) : reg
-        return connection.writeRead([(byte) addr] as byte[], n)
+    L3g4200dFull(RegisterConnection connection) throws Exception {
+        super(connection)
     }
 
     void configure(int odr, int bandwidth, int fullScale) throws Exception {
@@ -49,9 +40,9 @@ class L3g4200dFull extends L3g4200dMinimal {
         this.bw = bandwidth & 0x3
         this.fullScaleDps = fullScale
         int ctrl1 = CTRL_REG1_DEFAULT | ((this.odr & 0x3) << 6) | ((this.bw & 0x3) << 4)
-        writeReg(REG_CTRL_REG1, ctrl1)
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1)] as byte[])
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2)
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4))
+        connection.write(REG_CTRL_REG4, [(byte) (CTRL_REG4_DEFAULT | ((fsBits & 0x3) << 4))] as byte[])
     }
 
     void setFullScale(int fullScale) throws Exception {
@@ -60,7 +51,7 @@ class L3g4200dFull extends L3g4200dMinimal {
         int fsBits = (fullScale == FS_250_DPS) ? 0 : (fullScale == FS_500_DPS ? 1 : 2)
         int ctrl4 = readReg(REG_CTRL_REG4, 1)[0] & 0xFF
         ctrl4 = (ctrl4 & 0xCF) | ((fsBits & 0x3) << 4)
-        writeReg(REG_CTRL_REG4, ctrl4)
+        connection.write(REG_CTRL_REG4, [(byte) (ctrl4)] as byte[])
     }
 
     int whoAmI() throws Exception {
@@ -81,16 +72,16 @@ class L3g4200dFull extends L3g4200dMinimal {
 
     void powerDown() throws Exception {
         int ctrl1 = readReg(REG_CTRL_REG1, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG1, ctrl1 & 0xF7)
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1 & 0xF7)] as byte[])
     }
 
     void wakeUp() throws Exception {
         int ctrl1 = readReg(REG_CTRL_REG1, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG1, ctrl1 | 0x08)
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1 | 0x08)] as byte[])
     }
 
     void sleep() throws Exception {
-        writeReg(REG_CTRL_REG1, 0x08)
+        connection.write(REG_CTRL_REG1, [(byte) (0x08)] as byte[])
     }
 
     void enableAxes(boolean x, boolean y, boolean z) throws Exception {
@@ -99,7 +90,7 @@ class L3g4200dFull extends L3g4200dMinimal {
         if (z) ctrl1 |= 0x04
         if (y) ctrl1 |= 0x02
         if (x) ctrl1 |= 0x01
-        writeReg(REG_CTRL_REG1, ctrl1)
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1)] as byte[])
     }
 
     void enableFifo(int mode, int watermark) throws Exception {
@@ -108,14 +99,14 @@ class L3g4200dFull extends L3g4200dMinimal {
         if (wm < 0) wm = 0
         if (wm > 31) wm = 31
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x40)
-        writeReg(REG_FIFO_CTRL, ((mode & 0x7) << 5) | (wm & 0x1F))
+        connection.write(REG_CTRL_REG5, [(byte) (ctrl5 | 0x40)] as byte[])
+        connection.write(REG_FIFO_CTRL, [(byte) (((mode & 0x7) << 5) | (wm & 0x1F))] as byte[])
     }
 
     void disableFifo() throws Exception {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 & ~0x40)
-        writeReg(REG_FIFO_CTRL, 0x00)
+        connection.write(REG_CTRL_REG5, [(byte) (ctrl5 & ~0x40)] as byte[])
+        connection.write(REG_FIFO_CTRL, [(byte) (0x00)] as byte[])
     }
 
     int fifoSamples() throws Exception {
@@ -142,14 +133,14 @@ class L3g4200dFull extends L3g4200dMinimal {
     void enableHighpass(int mode, int cutoff) throws Exception {
         if (mode < 0 || mode > 3) return
         if (cutoff < 0 || cutoff > 9) return
-        writeReg(REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F))
+        connection.write(REG_CTRL_REG2, [(byte) (((mode & 0x3) << 4) | (cutoff & 0x0F))] as byte[])
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x10)
+        connection.write(REG_CTRL_REG5, [(byte) (ctrl5 | 0x10)] as byte[])
     }
 
     void disableHighpass() throws Exception {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 & ~0x10)
+        connection.write(REG_CTRL_REG5, [(byte) (ctrl5 & ~0x10)] as byte[])
     }
 
     void setInterrupt(boolean xHigh, boolean xLow,
@@ -165,10 +156,10 @@ class L3g4200dFull extends L3g4200dMinimal {
         if (yLow)    cfg |= 0x04
         if (xHigh)   cfg |= 0x02
         if (xLow)    cfg |= 0x01
-        writeReg(REG_INT1_CFG, cfg)
+        connection.write(REG_INT1_CFG, [(byte) (cfg)] as byte[])
         if ((cfg & 0x3F) != 0) {
             int ctrl3 = readReg(REG_CTRL_REG3, 1)[0] & 0xFF
-            writeReg(REG_CTRL_REG3, ctrl3 | 0x80)
+            connection.write(REG_CTRL_REG3, [(byte) (ctrl3 | 0x80)] as byte[])
         }
     }
 
@@ -183,14 +174,14 @@ class L3g4200dFull extends L3g4200dMinimal {
             case 'z': hiReg = REG_INT1_THS_ZH; loReg = REG_INT1_THS_ZL; break
             default: return
         }
-        writeReg(hiReg, (raw >> 8) & 0x7F)
-        writeReg(loReg, raw & 0xFF)
+        connection.write(hiReg, [(byte) ((raw >> 8) & 0x7F)] as byte[])
+        connection.write(loReg, [(byte) (raw & 0xFF)] as byte[])
     }
 
     void setDuration(int samples, boolean wait) throws Exception {
         if (samples < 0 || samples > 127) return
         int val = ((wait ? 1 : 0) << 7) | (samples & 0x7F)
-        writeReg(REG_INT1_DURATION, val)
+        connection.write(REG_INT1_DURATION, [(byte) (val)] as byte[])
     }
 
     int readIntSource() throws Exception {
@@ -200,6 +191,6 @@ class L3g4200dFull extends L3g4200dMinimal {
     void setDataReadyPin(boolean enable) throws Exception {
         int ctrl3 = readReg(REG_CTRL_REG3, 1)[0] & 0xFF
         int v = enable ? (ctrl3 | 0x08) : (ctrl3 & ~0x08)
-        writeReg(REG_CTRL_REG3, v)
+        connection.write(REG_CTRL_REG3, [(byte) (v)] as byte[])
     }
 }

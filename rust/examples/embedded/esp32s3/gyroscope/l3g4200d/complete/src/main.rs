@@ -24,7 +24,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut gyro = L3g4200dFull::new(i2c, ADDR, false).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, ADDR=0x68)
+    let mut gyro = L3g4200dFull::new(i2c, ADDR).expect("init L3G4200D");      // Create L3G4200D driver, (i2c, ADDR=0x68)
     let cid = gyro.who_am_i().expect("who_am_i");                                     // Read WHO_AM_I, () → u8
     gyro.configure(ODR_200_HZ, 0, FS_500_DPS).expect("configure");                     // Configure chip, (odr, bandwidth, full_scale) → ()
     gyro.enable_axes(true, true, true).expect("enable_axes");                          // Enable axes, (x, y, z) → ()

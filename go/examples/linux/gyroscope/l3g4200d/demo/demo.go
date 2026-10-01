@@ -37,7 +37,7 @@ func main() {
 	// --- Rotation detector: 200 Hz, ±500 dps, FIFO stream with watermark 10 ---
 	// 200 Hz ODR gives 5 ms per sample — fast enough to catch hand motion
 	// but not so noisy that the FIFO drains before the watermark is reached.
-	chip, err := gyroscope.NewL3G4200DFull(conn, false) // Create L3G4200D driver, (connection) → (*L3G4200DFull, error)
+	chip, err := gyroscope.NewL3G4200DFull(conn) // Create L3G4200D driver, (connection) → (*L3G4200DFull, error)
 	if err != nil {
 		panic(err)
 	}
