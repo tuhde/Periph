@@ -15,7 +15,7 @@ class HMC5883LMinimal:
         - Mode: continuous measurement
 
     Args:
-        connection: Configured I²C connection pointing at the device (fixed address 0x1E).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x1E).
     """
 
     _REG_CONFIG_A = 0x00
@@ -45,20 +45,20 @@ class HMC5883LMinimal:
         self._init_minimal()
 
     def _init_minimal(self):
-        self._connection.write(bytes([self._REG_CONFIG_A, 0x70]))
-        self._connection.write(bytes([self._REG_CONFIG_B, 0x20]))
-        self._connection.write(bytes([self._REG_MODE, 0x00]))
+        self._connection.write_reg(self._REG_CONFIG_A, 0x70)
+        self._connection.write_reg(self._REG_CONFIG_B, 0x20)
+        self._connection.write_reg(self._REG_MODE, 0x00)
         time.sleep(0.006)
 
     def _read_reg8(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
+        return self._connection.read_reg(reg, 1)[0]
 
     def _read_reg16(self, reg):
-        raw = self._connection.write_read(bytes([reg]), 2)
+        raw = self._connection.read_reg(reg, 2)
         return (raw[0] << 8) | raw[1]
 
     def _read_data_burst(self):
-        raw = self._connection.write_read(bytes([self._REG_DATA_X_MSB]), 6)
+        raw = self._connection.read_reg(self._REG_DATA_X_MSB, 6)
         raw_x = struct.unpack('>h', raw[0:2])[0]
         raw_z = struct.unpack('>h', raw[2:4])[0]
         raw_y = struct.unpack('>h', raw[4:6])[0]
@@ -87,7 +87,7 @@ class HMC5883LFull(HMC5883LMinimal):
     Adds configuration, single-shot mode, self-test, identification, and status access.
 
     Args:
-        connection: Configured I²C connection pointing at the device (fixed address 0x1E).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x1E).
     """
 
     def __init__(self, connection):
@@ -115,10 +115,10 @@ class HMC5883LFull(HMC5883LMinimal):
         ma = ma_map[averaging]
         do = do_map[odr]
         config_a = (ma << 5) | (do << 2)
-        self._connection.write(bytes([self._REG_CONFIG_A, config_a]))
+        self._connection.write_reg(self._REG_CONFIG_A, config_a)
 
         config_b = (gain << 5)
-        self._connection.write(bytes([self._REG_CONFIG_B, config_b]))
+        self._connection.write_reg(self._REG_CONFIG_B, config_b)
 
         self._gain = gain
         self._gain_lsb_per_gauss = self._GAIN_LSB_PER_GAUSS[gain]
@@ -132,7 +132,7 @@ class HMC5883LFull(HMC5883LMinimal):
         if not 0 <= gain <= 7:
             raise ValueError('gain must be 0–7')
         config_b = (gain << 5)
-        self._connection.write(bytes([self._REG_CONFIG_B, config_b]))
+        self._connection.write_reg(self._REG_CONFIG_B, config_b)
         self._gain = gain
         self._gain_lsb_per_gauss = self._GAIN_LSB_PER_GAUSS[gain]
 
@@ -145,7 +145,7 @@ class HMC5883LFull(HMC5883LMinimal):
         mode_map = {'continuous': 0b00, 'single': 0b01, 'idle': 0b10}
         if mode not in mode_map:
             raise ValueError("mode must be 'continuous', 'single', or 'idle'")
-        self._connection.write(bytes([self._REG_MODE, mode_map[mode]]))
+        self._connection.write_reg(self._REG_MODE, mode_map[mode])
 
     def data_ready(self):
         """Check if new measurement data is ready.
@@ -171,7 +171,7 @@ class HMC5883LFull(HMC5883LMinimal):
             tuple: (x, y, z) magnetic field strength in Tesla.
                    Returns None for any axis that overflows (raw == -4096).
         """
-        self._connection.write(bytes([self._REG_MODE, 0x01]))
+        self._connection.write_reg(self._REG_MODE, 0x01)
         time.sleep(0.006)
         return self.magnetic_field()
 
@@ -197,14 +197,14 @@ class HMC5883LFull(HMC5883LMinimal):
                    Returns None for any axis that overflows.
         """
         ms = 0b01 if positive else 0b10
-        config_a = self._connection.write_read(bytes([self._REG_CONFIG_A]), 1)[0]
+        config_a = self._connection.read_reg(self._REG_CONFIG_A, 1)[0]
         config_a = (config_a & 0xFC) | ms
-        self._connection.write(bytes([self._REG_CONFIG_A, config_a]))
+        self._connection.write_reg(self._REG_CONFIG_A, config_a)
 
-        self._connection.write(bytes([self._REG_MODE, 0x01]))
+        self._connection.write_reg(self._REG_MODE, 0x01)
         time.sleep(0.006)
         result = self.magnetic_field()
 
         config_a = (config_a & 0xFC) | 0b00
-        self._connection.write(bytes([self._REG_CONFIG_A, config_a]))
+        self._connection.write_reg(self._REG_CONFIG_A, config_a)
         return result

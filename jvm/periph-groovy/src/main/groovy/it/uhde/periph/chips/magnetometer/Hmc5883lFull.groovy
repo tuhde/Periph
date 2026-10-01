@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.magnetometer
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * HMC5883L — full driver. Extends {@link Hmc5883lMinimal} with configuration,
@@ -15,7 +15,7 @@ class Hmc5883lFull extends Hmc5883lMinimal {
      *
      * @param connection I²C connection bound to address 0x1E
      */
-    Hmc5883lFull(Connection connection) {
+    Hmc5883lFull(RegisterConnection connection) {
         super(connection)
     }
 
@@ -51,10 +51,10 @@ class Hmc5883lFull extends Hmc5883lMinimal {
         }
 
         int configA = (ma << 5) | (doBits << 2)
-        writeReg8(REG_CONFIG_A, configA)
+        connection.write(REG_CONFIG_A, [(byte) (configA)] as byte[])
 
         int configB = (gain << 5)
-        writeReg8(REG_CONFIG_B, configB)
+        connection.write(REG_CONFIG_B, [(byte) (configB)] as byte[])
 
         this.@gain = gain
         this.@gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
@@ -69,7 +69,7 @@ class Hmc5883lFull extends Hmc5883lMinimal {
         if (gain < 0 || gain > 7) {
             throw new IllegalArgumentException("gain must be 0–7")
         }
-        writeReg8(REG_CONFIG_B, gain << 5)
+        connection.write(REG_CONFIG_B, [(byte) (gain << 5)] as byte[])
         this.@gain = gain
         this.@gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
     }
@@ -85,7 +85,7 @@ class Hmc5883lFull extends Hmc5883lMinimal {
         else if ("single".equals(mode))     md = 0b01
         else if ("idle".equals(mode))       md = 0b10
         else throw new IllegalArgumentException("mode must be 'continuous', 'single', or 'idle'")
-        writeReg8(REG_MODE, md)
+        connection.write(REG_MODE, [(byte) (md)] as byte[])
     }
 
     /**
@@ -115,7 +115,7 @@ class Hmc5883lFull extends Hmc5883lMinimal {
      *         Returns null for any axis that overflows (raw == -4096).
      */
     Double[] singleMeasurement() {
-        writeReg8(REG_MODE, 0x01)
+        connection.write(REG_MODE, [(byte) (0x01)] as byte[])
         Thread.sleep(6)
         magneticField()
     }
@@ -142,13 +142,13 @@ class Hmc5883lFull extends Hmc5883lMinimal {
     Double[] selfTest(boolean positive) {
         int configA = readReg8(REG_CONFIG_A)
         int ms = positive ? 0b01 : 0b10
-        writeReg8(REG_CONFIG_A, (configA & 0xFC) | ms)
+        connection.write(REG_CONFIG_A, [(byte) ((configA & 0xFC) | ms)] as byte[])
 
-        writeReg8(REG_MODE, 0x01)
+        connection.write(REG_MODE, [(byte) (0x01)] as byte[])
         Thread.sleep(6)
         Double[] result = magneticField()
 
-        writeReg8(REG_CONFIG_A, (configA & 0xFC) | 0b00)
+        connection.write(REG_CONFIG_A, [(byte) ((configA & 0xFC) | 0b00)] as byte[])
         return result
     }
 }

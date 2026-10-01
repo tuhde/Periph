@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
      * @param connection I²C connection bound to address 0x1E
      * @throws IOException on I²C error
      */
-    public Hmc5883lFull(Connection connection) throws IOException {
+    public Hmc5883lFull(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -54,10 +54,10 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
         }
 
         int configA = (ma << 5) | (doBits << 2);
-        writeReg8(REG_CONFIG_A, configA);
+        connection.write(REG_CONFIG_A, new byte[]{(byte) (configA)});
 
         int configB = (gain << 5);
-        writeReg8(REG_CONFIG_B, configB);
+        connection.write(REG_CONFIG_B, new byte[]{(byte) (configB)});
 
         this.gain = gain;
         this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain];
@@ -74,7 +74,7 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
         if (gain < 0 || gain > 7) {
             throw new IllegalArgumentException("gain must be 0–7");
         }
-        writeReg8(REG_CONFIG_B, gain << 5);
+        connection.write(REG_CONFIG_B, new byte[]{(byte) (gain << 5)});
         this.gain = gain;
         this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain];
     }
@@ -92,7 +92,7 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
         else if ("single".equals(mode))     md = 0b01;
         else if ("idle".equals(mode))       md = 0b10;
         else throw new IllegalArgumentException("mode must be 'continuous', 'single', or 'idle'");
-        writeReg8(REG_MODE, md);
+        connection.write(REG_MODE, new byte[]{(byte) (md)});
     }
 
     /**
@@ -125,7 +125,7 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
      * @throws IOException on I²C error
      */
     public Double[] singleMeasurement() throws IOException {
-        writeReg8(REG_MODE, 0x01);
+        connection.write(REG_MODE, new byte[]{(byte) (0x01)});
         try { Thread.sleep(6); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         return magneticField();
     }
@@ -154,13 +154,13 @@ public class Hmc5883lFull extends Hmc5883lMinimal {
     public Double[] selfTest(boolean positive) throws IOException {
         int configA = readReg8(REG_CONFIG_A);
         int ms = positive ? 0b01 : 0b10;
-        writeReg8(REG_CONFIG_A, (configA & 0xFC) | ms);
+        connection.write(REG_CONFIG_A, new byte[]{(byte) ((configA & 0xFC) | ms)});
 
-        writeReg8(REG_MODE, 0x01);
+        connection.write(REG_MODE, new byte[]{(byte) (0x01)});
         try { Thread.sleep(6); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         Double[] result = magneticField();
 
-        writeReg8(REG_CONFIG_A, (configA & 0xFC) | 0b00);
+        connection.write(REG_CONFIG_A, new byte[]{(byte) ((configA & 0xFC) | 0b00)});
         return result;
     }
 }

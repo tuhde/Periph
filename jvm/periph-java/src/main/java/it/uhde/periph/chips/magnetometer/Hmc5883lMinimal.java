@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ public class Hmc5883lMinimal {
         230,  // GN=7: ±8.1 Ga
     };
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
     protected int gain = 1;
     protected int gainLsbPerGauss = GAIN_LSB_PER_GAUSS[1];
 
@@ -58,15 +58,15 @@ public class Hmc5883lMinimal {
      * @param connection I²C connection bound to address 0x1E
      * @throws IOException on I²C error
      */
-    public Hmc5883lMinimal(Connection connection) throws IOException {
+    public Hmc5883lMinimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         initMinimal();
     }
 
     protected void initMinimal() throws IOException {
-        writeReg8(REG_CONFIG_A, 0x70);  // 8 avg, 15 Hz, normal
-        writeReg8(REG_CONFIG_B, 0x20);  // gain=1 (±1.3 Ga)
-        writeReg8(REG_MODE, 0x00);      // continuous mode
+        connection.write(REG_CONFIG_A, new byte[]{(byte) (0x70)});  // 8 avg, 15 Hz, normal
+        connection.write(REG_CONFIG_B, new byte[]{(byte) (0x20)});  // gain=1 (±1.3 Ga)
+        connection.write(REG_MODE, new byte[]{(byte) (0x00)});      // continuous mode
         try { Thread.sleep(6); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
@@ -81,7 +81,7 @@ public class Hmc5883lMinimal {
      * @throws IOException on I²C error
      */
     public Double[] magneticField() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_DATA_X_MSB}, 6);
+        byte[] raw = connection.read(REG_DATA_X_MSB, 6);
         int rawX = ((raw[0] & 0xFF) << 8) | (raw[1] & 0xFF);
         int rawZ = ((raw[2] & 0xFF) << 8) | (raw[3] & 0xFF);
         int rawY = ((raw[4] & 0xFF) << 8) | (raw[5] & 0xFF);
@@ -106,22 +106,18 @@ public class Hmc5883lMinimal {
 
     // ---- low-level helpers ----
 
-    protected void writeReg8(int reg, int val) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) (val & 0xFF)});
-    }
-
     protected int readReg8(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.read(reg, 1);
         return b[0] & 0xFF;
     }
 
     protected int readReg16(int regHi) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) regHi}, 2);
+        byte[] b = connection.read(regHi, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
     protected int readReg16Signed(int regHi) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) regHi}, 2);
+        byte[] b = connection.read(regHi, 2);
         return (short) (((b[0] & 0xFF) << 8) | (b[1] & 0xFF));
     }
 }

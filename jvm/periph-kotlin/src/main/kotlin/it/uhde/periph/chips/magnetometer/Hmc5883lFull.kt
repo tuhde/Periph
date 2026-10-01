@@ -1,12 +1,12 @@
 package it.uhde.periph.chips.magnetometer
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * HMC5883L — full driver. Extends [Hmc5883lMinimal] with configuration,
  * single-shot mode, self-test, identification, and status access.
  */
-class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
+class Hmc5883lFull(connection: RegisterConnection) : Hmc5883lMinimal(connection) {
 
     /**
      * Write Configuration Registers A and B.
@@ -40,10 +40,10 @@ class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
         }
 
         val configA = (ma shl 5) or (doBits shl 2)
-        writeReg8(REG_CONFIG_A, configA)
+        connection.write(REG_CONFIG_A, byteArrayOf((configA).toByte()))
 
         val configB = gain shl 5
-        writeReg8(REG_CONFIG_B, configB)
+        connection.write(REG_CONFIG_B, byteArrayOf((configB).toByte()))
 
         this.gain = gain
         this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
@@ -58,7 +58,7 @@ class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
         if (gain !in 0..7) {
             throw IllegalArgumentException("gain must be 0–7")
         }
-        writeReg8(REG_CONFIG_B, gain shl 5)
+        connection.write(REG_CONFIG_B, byteArrayOf((gain shl 5).toByte()))
         this.gain = gain
         this.gainLsbPerGauss = GAIN_LSB_PER_GAUSS[gain]
     }
@@ -75,7 +75,7 @@ class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
             "idle"       -> 0b10
             else -> throw IllegalArgumentException("mode must be 'continuous', 'single', or 'idle'")
         }
-        writeReg8(REG_MODE, md)
+        connection.write(REG_MODE, byteArrayOf((md).toByte()))
     }
 
     /**
@@ -105,7 +105,7 @@ class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
      *         Returns null for any axis that overflows (raw == -4096).
      */
     fun singleMeasurement(): Array<Double?> {
-        writeReg8(REG_MODE, 0x01)
+        connection.write(REG_MODE, byteArrayOf((0x01).toByte()))
         Thread.sleep(6)
         return magneticField()
     }
@@ -132,13 +132,13 @@ class Hmc5883lFull(connection: Connection) : Hmc5883lMinimal(connection) {
     fun selfTest(positive: Boolean): Array<Double?> {
         val configA = readReg8(REG_CONFIG_A)
         val ms = if (positive) 0b01 else 0b10
-        writeReg8(REG_CONFIG_A, (configA and 0xFC) or ms)
+        connection.write(REG_CONFIG_A, byteArrayOf(((configA and 0xFC) or ms).toByte()))
 
-        writeReg8(REG_MODE, 0x01)
+        connection.write(REG_MODE, byteArrayOf((0x01).toByte()))
         Thread.sleep(6)
         val result = magneticField()
 
-        writeReg8(REG_CONFIG_A, (configA and 0xFC) or 0b00)
+        connection.write(REG_CONFIG_A, byteArrayOf(((configA and 0xFC) or 0b00).toByte()))
         return result
     }
 }
