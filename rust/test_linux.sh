@@ -171,6 +171,13 @@ check_bus_access() {
     fi
 }
 
+# uses_i2c PATH...: 0 (true) if any given test file/dir mentions I2C. SPI,
+# NeoPixel, GPIO and UART chips have no I2C address or bus, so the address
+# and bus checks must be skipped for them.
+uses_i2c() {
+    grep -rqi "i2c" "$@" 2>/dev/null
+}
+
 # --- unit level: mocked (embedded-hal-mock), no hardware, no testconfig ----
 run_unit() {
     echo "=== [unit] Running $TARGET (mocked, no hardware) ==="
@@ -180,8 +187,10 @@ run_unit() {
 
 # --- hil level: real hardware, value checks ---------------------------------
 run_hil() {
-    resolve_addr
-    check_bus_access
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_dir="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
     if [ ! -d "$test_dir" ]; then
         echo "ERROR: test not found: $test_dir" >&2
@@ -194,14 +203,16 @@ run_hil() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [hil] Running on /dev/i2c-$I2C_BUS ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" \
         "$SCRIPT_DIR/target/release/${CHIP}_test"
 }
 
 # --- conformance level: real hardware, timing checks via sigrok -------------
 run_conformance() {
-    resolve_addr
-    check_bus_access
+    if uses_i2c "$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"; then
+        resolve_addr
+        check_bus_access
+    fi
     local test_dir="$SCRIPT_DIR/tests/$CATEGORY/${CHIP}_test"
     if [ ! -d "$test_dir" ]; then
         echo "ERROR: test not found: $test_dir" >&2
@@ -220,7 +231,7 @@ run_conformance() {
     [ "$COMPILE_ONLY" -eq 1 ] && return 0
 
     echo "=== [conformance] Running via $checker ==="
-    I2C_BUS="$I2C_BUS" I2C_ADDR="$I2C_ADDR" \
+    I2C_BUS="$I2C_BUS" I2C_ADDR="${I2C_ADDR:-}" \
         SIGROK_DRIVER="${SIGROK_DRIVER:-}" SIGROK_CONN="${SIGROK_CONN:-}" SIGROK_CHANNELS="${SIGROK_CHANNELS:-}" \
         python3 "$checker" --lang rust --binary "$SCRIPT_DIR/target/release/${CHIP}_test"
 }
