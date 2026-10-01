@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const CONST_ARRAY1 = [
     2147483647, 2147483647, 2147483647, 2147483647, 2147483647,
     2126008810, 2147483647, 2130303777, 2147483647, 2147483647,
@@ -57,7 +59,7 @@ function _delay(ms) {
  * `await sensor.temperature()` (or any other async method) once before
  * relying on calibrated readings if this matters for your use case.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class BME680Minimal {
     constructor(connection) {
@@ -77,19 +79,19 @@ class BME680Minimal {
 
     async _init() {
         await this._readCalibration();
-        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
-        await this._writeReg(_REG_CONFIG, 0);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._conn.writeReg(_REG_CONFIG, 0);
         await this._setupHeater(0, this._heatTemp, this._heatDur);
-        await this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
     }
 
     async _readCalibration() {
-        const b1 = await this._conn.writeRead(Buffer.from([_REG_CAL_BLOCK1]), 23);
-        const b2 = await this._conn.writeRead(Buffer.from([_REG_CAL_BLOCK2]), 14);
-        const s1 = await this._conn.writeRead(Buffer.from([_REG_RES_HEAT_VAL]), 1);
-        const s2 = await this._conn.writeRead(Buffer.from([_REG_RES_HEAT_RANGE]), 1);
-        const s3 = await this._conn.writeRead(Buffer.from([_REG_RANGE_SW_ERR]), 1);
+        const b1 = await this._conn.readReg(_REG_CAL_BLOCK1, 23);
+        const b2 = await this._conn.readReg(_REG_CAL_BLOCK2, 14);
+        const s1 = await this._conn.readReg(_REG_RES_HEAT_VAL, 1);
+        const s2 = await this._conn.readReg(_REG_RES_HEAT_RANGE, 1);
+        const s3 = await this._conn.readReg(_REG_RANGE_SW_ERR, 1);
 
         this._parT2 = b1.readInt16LE(0);
         this._parT3 = b1.readInt8(2);
@@ -119,16 +121,9 @@ class BME680Minimal {
         this._resHeatVal = s1.readInt8(0);
         this._resHeatRange = (s2[0] >> 4) & 0x03;
         const rse = (s3[0] >> 4) & 0x0F;
-        this._rangeSwitchingError = rse < 8 ? rse : rse - 16;
+        this._rangeSwitchingError = toSigned(rse, 4);
     }
 
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
-    }
 
     _calcHeaterResistance(targetTemp, ambientTemp) {
         const parG1 = this._parG1;
@@ -157,16 +152,16 @@ class BME680Minimal {
     async _setupHeater(index, tempC, durMs) {
         const res = this._calcHeaterResistance(tempC, this._ambientTemp);
         const gw = this._calcGasWait(durMs);
-        await this._writeReg(0x5A + index, res);
-        await this._writeReg(0x64 + index, gw);
+        await this._conn.writeReg(0x5A + index, res);
+        await this._conn.writeReg(0x64 + index, gw);
     }
 
     async _triggerAndRead() {
-        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
         const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
-        await this._writeReg(_REG_CTRL_MEAS, ctrl);
+        await this._conn.writeReg(_REG_CTRL_MEAS, ctrl);
         _delay(_MEAS_TIME_MS);
-        const raw = await this._readReg(_REG_PRESS_MSB, 13);
+        const raw = await this._conn.readReg(_REG_PRESS_MSB, 13);
         const pressAdc = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
         const tempAdc  = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
         const humAdc   = (raw[6] << 8) | raw[7];
@@ -301,7 +296,7 @@ class BME680Minimal {
 /**
  * BME680 full interface — extends BME680Minimal with configuration, multi-profile heater, and status.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class BME680Full extends BME680Minimal {
     static OSRS_SKIP = 0;
@@ -347,9 +342,9 @@ class BME680Full extends BME680Minimal {
         this._osrsP = osrsP;
         this._osrsH = osrsH;
         this._filter = filter;
-        await this._writeReg(_REG_CTRL_HUM, osrsH);
-        await this._writeReg(_REG_CONFIG, filter << 2);
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CONFIG, filter << 2);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
@@ -363,8 +358,8 @@ class BME680Full extends BME680Minimal {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
         this._osrsH = osrsH;
-        await this._writeReg(_REG_CTRL_HUM, osrsH);
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | 0);
+        await this._conn.writeReg(_REG_CTRL_HUM, osrsH);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | 0);
     }
 
     /**
@@ -374,7 +369,7 @@ class BME680Full extends BME680Minimal {
      */
     async setFilter(coeff) {
         this._filter = coeff;
-        await this._writeReg(_REG_CONFIG, coeff << 2);
+        await this._conn.writeReg(_REG_CONFIG, coeff << 2);
     }
 
     /**
@@ -387,7 +382,7 @@ class BME680Full extends BME680Minimal {
         this._heatTemp = tempC;
         this._heatDur = durationMs;
         await this._setupHeater(0, tempC, durationMs);
-        await this._writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, (1 << 4) | 0);
     }
 
     /**
@@ -409,7 +404,7 @@ class BME680Full extends BME680Minimal {
     async selectHeaterProfile(index) {
         this._nbConv = index;
         const gas1 = this._gasEnabled ? ((1 << 4) | index) : index;
-        await this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
     }
 
     /**
@@ -420,7 +415,7 @@ class BME680Full extends BME680Minimal {
     async setGasEnabled(enabled) {
         this._gasEnabled = enabled;
         const gas1 = enabled ? ((1 << 4) | this._nbConv) : this._nbConv;
-        await this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
     }
 
     /**
@@ -429,7 +424,7 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<void>}
      */
     async setHeaterOff(off) {
-        await this._writeReg(_REG_CTRL_GAS_0, off ? 0x08 : 0x00);
+        await this._conn.writeReg(_REG_CTRL_GAS_0, off ? 0x08 : 0x00);
     }
 
     /**
@@ -461,7 +456,7 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<boolean>} True if gas_valid_r was set.
      */
     async gasValid() {
-        const raw = await this._readReg(0x2B, 1);
+        const raw = await this._conn.readReg(0x2B, 1);
         return ((raw[0] >> 5) & 1) === 1;
     }
 
@@ -470,7 +465,7 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<boolean>} True if heat_stab_r was set.
      */
     async heaterStable() {
-        const raw = await this._readReg(0x2B, 1);
+        const raw = await this._conn.readReg(0x2B, 1);
         return ((raw[0] >> 4) & 1) === 1;
     }
 
@@ -479,7 +474,7 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<number>} Status byte with flags.
      */
     async status() {
-        const raw = await this._readReg(_REG_MEAS_STATUS, 1);
+        const raw = await this._conn.readReg(_REG_MEAS_STATUS, 1);
         return raw[0];
     }
 
@@ -488,7 +483,7 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<number>} Chip ID; expect 0x61.
      */
     async chipId() {
-        const raw = await this._readReg(_REG_ID, 1);
+        const raw = await this._conn.readReg(_REG_ID, 1);
         return raw[0];
     }
 
@@ -497,15 +492,15 @@ class BME680Full extends BME680Minimal {
      * @returns {Promise<void>}
      */
     async reset() {
-        await this._writeReg(_REG_RESET, _RESET_CMD);
+        await this._conn.writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
         await this._readCalibration();
-        await this._writeReg(_REG_CTRL_HUM, this._osrsH);
-        await this._writeReg(_REG_CONFIG, this._filter << 2);
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
+        await this._conn.writeReg(_REG_CTRL_HUM, this._osrsH);
+        await this._conn.writeReg(_REG_CONFIG, this._filter << 2);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | 0);
         await this._setupHeater(this._nbConv, this._heatTemp, this._heatDur);
         const gas1 = this._gasEnabled ? ((1 << 4) | this._nbConv) : this._nbConv;
-        await this._writeReg(_REG_CTRL_GAS_1, gas1);
+        await this._conn.writeReg(_REG_CTRL_GAS_1, gas1);
     }
 }
 

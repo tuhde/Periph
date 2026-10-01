@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.environmental
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -65,7 +66,7 @@ class Bme680Full extends Bme680Minimal {
      * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bme680Full(Connection connection) {
+    Bme680Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -77,7 +78,7 @@ class Bme680Full extends Bme680Minimal {
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bme680Full(Connection connection, int addr) {
+    Bme680Full(RegisterConnection connection, int addr) {
         super(connection, addr)
     }
 
@@ -97,9 +98,9 @@ class Bme680Full extends Bme680Minimal {
         ctrlHum  = osrsH & 0x07
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (mode & 0x03)
         config   = ((filter & 0x07) << 2)
-        connection.write([(byte) REG_CTRL_HUM, (byte) ctrlHum] as byte[])
-        connection.write([(byte) REG_CONFIG, (byte) config] as byte[])
-        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write(REG_CTRL_HUM, [(byte) ctrlHum] as byte[])
+        connection.write(REG_CONFIG, [(byte) config] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) ctrlMeas] as byte[])
     }
 
     /**
@@ -116,8 +117,8 @@ class Bme680Full extends Bme680Minimal {
     void setOversampling(int osrsT, int osrsP, int osrsH) {
         ctrlHum  = osrsH & 0x07
         ctrlMeas = ((osrsT & 0x07) << 5) | ((osrsP & 0x07) << 2) | (ctrlMeas & 0x03)
-        connection.write([(byte) REG_CTRL_HUM, (byte) ctrlHum] as byte[])
-        connection.write([(byte) REG_CTRL_MEAS, (byte) ctrlMeas] as byte[])
+        connection.write(REG_CTRL_HUM, [(byte) ctrlHum] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) ctrlMeas] as byte[])
     }
 
     /**
@@ -130,7 +131,7 @@ class Bme680Full extends Bme680Minimal {
      */
     void setFilter(int coeff) {
         config = (config & 0xE3) | ((coeff & 0x07) << 2)
-        connection.write([(byte) REG_CONFIG, (byte) config] as byte[])
+        connection.write(REG_CONFIG, [(byte) config] as byte[])
     }
 
     /**
@@ -160,8 +161,8 @@ class Bme680Full extends Bme680Minimal {
         heaterDuration = durationMs
         int resHeat = calcHeaterResistance(tempC, ambientTemp)
         int gasWait = encodeGasWait(durationMs)
-        connection.write([(byte)(REG_RES_HEAT_0 + index), (byte) resHeat] as byte[])
-        connection.write([(byte)(REG_GAS_WAIT_0 + index), (byte) gasWait] as byte[])
+        connection.write((REG_RES_HEAT_0 + index), [(byte) resHeat] as byte[])
+        connection.write((REG_GAS_WAIT_0 + index), [(byte) gasWait] as byte[])
     }
 
     /**
@@ -173,7 +174,7 @@ class Bme680Full extends Bme680Minimal {
      */
     void selectHeaterProfile(int index) {
         ctrlGas1 = (ctrlGas1 & 0xF0) | (index & 0x0F)
-        connection.write([(byte) REG_CTRL_GAS_1, (byte) ctrlGas1] as byte[])
+        connection.write(REG_CTRL_GAS_1, [(byte) ctrlGas1] as byte[])
     }
 
     /**
@@ -184,7 +185,7 @@ class Bme680Full extends Bme680Minimal {
      */
     void setGasEnabled(boolean enabled) {
         ctrlGas1 = enabled ? (ctrlGas1 | 0x10) : (ctrlGas1 & 0xEF)
-        connection.write([(byte) REG_CTRL_GAS_1, (byte) ctrlGas1] as byte[])
+        connection.write(REG_CTRL_GAS_1, [(byte) ctrlGas1] as byte[])
     }
 
     /**
@@ -195,7 +196,7 @@ class Bme680Full extends Bme680Minimal {
      */
     void setHeaterOff(boolean off) {
         int ctrlGas0 = off ? 0x08 : 0x00
-        connection.write([(byte) REG_CTRL_GAS_0, (byte) ctrlGas0] as byte[])
+        connection.write(REG_CTRL_GAS_0, [(byte) ctrlGas0] as byte[])
     }
 
     /**
@@ -209,7 +210,7 @@ class Bme680Full extends Bme680Minimal {
         ambientTemp = tempC
         int profile = ctrlGas1 & 0x0F
         int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
-        connection.write([(byte)(REG_RES_HEAT_0 + profile), (byte) resHeat] as byte[])
+        connection.write((REG_RES_HEAT_0 + profile), [(byte) resHeat] as byte[])
     }
 
     /**
@@ -275,7 +276,7 @@ class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     int status() {
-        byte[] b = connection.writeRead([(byte) REG_STATUS] as byte[], 1)
+        byte[] b = connection.read(REG_STATUS, 1)
         return b[0] & 0xFF
     }
 
@@ -288,7 +289,7 @@ class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     int chipId() {
-        byte[] b = connection.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] b = connection.read(REG_ID, 1)
         return b[0] & 0xFF
     }
 
@@ -303,15 +304,15 @@ class Bme680Full extends Bme680Minimal {
      * @throws IOException on I²C error
      */
     void reset() {
-        connection.write([(byte) REG_RESET, (byte) 0xB6] as byte[])
+        connection.write(REG_RESET, [(byte) 0xB6] as byte[])
         Thread.sleep(2)
         readCalibration()
         writeSettings()
         int profile = ctrlGas1 & 0x0F
         int resHeat = calcHeaterResistance(heaterTemp, ambientTemp)
-        connection.write([(byte)(REG_RES_HEAT_0 + profile), (byte) resHeat] as byte[])
+        connection.write((REG_RES_HEAT_0 + profile), [(byte) resHeat] as byte[])
         int gasWait = encodeGasWait(heaterDuration)
-        connection.write([(byte)(REG_GAS_WAIT_0 + profile), (byte) gasWait] as byte[])
+        connection.write((REG_GAS_WAIT_0 + profile), [(byte) gasWait] as byte[])
     }
 
     /**
