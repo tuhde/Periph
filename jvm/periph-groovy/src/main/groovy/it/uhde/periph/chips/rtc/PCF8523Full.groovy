@@ -2,7 +2,7 @@ package it.uhde.periph.chips.rtc
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -158,7 +158,7 @@ class PCF8523Full extends PCF8523Minimal {
     /**
      * @param connection configured I²C connection bound to address 0x68
      */
-    PCF8523Full(Connection connection) {
+    PCF8523Full(RegisterConnection connection) {
         super(connection)
     }
 

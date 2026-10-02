@@ -10,13 +10,13 @@ import (
 
 // BMP280 register addresses.
 const (
-	bmp280RegCalStart uint8 = 0x88
-	bmp280RegID       uint8 = 0xD0
-	bmp280RegReset    uint8 = 0xE0
-	bmp280RegStatus   uint8 = 0xF3
-	bmp280RegCtrlMeas uint8 = 0xF4
-	bmp280RegConfig   uint8 = 0xF5
-	bmp280RegData     uint8 = 0xF7
+	bmp280RegCalStart = 0x88
+	bmp280RegID       = 0xD0
+	bmp280RegReset    = 0xE0
+	bmp280RegStatus   = 0xF3
+	bmp280RegCtrlMeas = 0xF4
+	bmp280RegConfig   = 0xF5
+	bmp280RegData     = 0xF7
 )
 
 // BMP280 expected chip ID.
@@ -114,9 +114,9 @@ type bmp280Calibration struct {
 
 // bmp280ReadCalibration reads the 24-byte calibration block (0x88..0x9F) and
 // unpacks all 12 little-endian trimming coefficients.
-func bmp280ReadCalibration(t connection.Connection) (bmp280Calibration, error) {
+func bmp280ReadCalibration(t connection.RegisterConnection) (bmp280Calibration, error) {
 	var c bmp280Calibration
-	buf, err := t.WriteRead([]byte{bmp280RegCalStart}, 24)
+	buf, err := t.ReadReg(uint32(bmp280RegCalStart), 24)
 	if err != nil {
 		return c, err
 	}
@@ -137,7 +137,7 @@ func bmp280ReadCalibration(t connection.Connection) (bmp280Calibration, error) {
 
 // bmp280CompensateTemp returns (t_fine, temperature_C).
 func bmp280CompensateTemp(adcT uint32, c bmp280Calibration) (int32, float32) {
-	var1 := int64(((int64(adcT) >> 3) - (int64(c.digT1) << 1)) * int64(c.digT2)) >> 11
+	var1 := int64(((int64(adcT)>>3)-(int64(c.digT1)<<1))*int64(c.digT2)) >> 11
 	var2 := int64(((int64(adcT)>>4)-int64(c.digT1))*((int64(adcT)>>4)-int64(c.digT1))>>12) * int64(c.digT3) >> 14
 	tFine := int32(var1 + var2)
 	temp := float32((int64(tFine)*5+128)>>8) / 100.0
@@ -151,7 +151,7 @@ func bmp280CompensatePressure(adcP uint32, tFine int32, c bmp280Calibration) flo
 	var2 := var1 * var1 * int64(c.digP6)
 	var2 = var2 + ((var1 * int64(c.digP5)) << 17)
 	var2 = var2 + (int64(c.digP4) << 35)
-	var1 = ((var1*var1*int64(c.digP3))>>8) + ((var1 * int64(c.digP2)) << 12)
+	var1 = ((var1 * var1 * int64(c.digP3)) >> 8) + ((var1 * int64(c.digP2)) << 12)
 	var1 = (((int64(1) << 47) + var1) * int64(c.digP1)) >> 33
 	if var1 == 0 {
 		return 0
@@ -172,8 +172,7 @@ func bmp280CompensatePressure(adcP uint32, tFine int32, c bmp280Calibration) flo
 // Temperature or Pressure triggers a fresh forced measurement and reads both
 // ADCs in one burst.
 type BMP280Minimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 
 	osrsT  uint8
 	osrsP  uint8
@@ -188,47 +187,35 @@ type BMP280Minimal struct {
 // NewBMP280Minimal creates a BMP280Minimal, reads the 12 trimming
 // coefficients, and applies the default ultra-low-power configuration.
 //
-// connection must be a configured I²C or SPI connection bound to the chip
-// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI -
-// per the datasheet's register-address protocol, BMP280's I²C register
-// addresses already have bit 7 set (0x88-0xFC), so SPI reads use the same
-// value unmasked; only writes differ, clearing bit 7 (reg & 0x7F).
-func NewBMP280Minimal(t connection.Connection, spi bool) (*BMP280Minimal, error) {
+// connection must be a configured I²C, SMBus, or SPI register connection bound
+// to the chip (I²C address 0x76/0x77, or an SPI chip-select). For SPI, use the
+// default Bosch convention (readBit 0x80, no multi-byte bit).
+func NewBMP280Minimal(t connection.RegisterConnection) (*BMP280Minimal, error) {
 	cal, err := bmp280ReadCalibration(t)
 	if err != nil {
 		return nil, err
 	}
 	d := &BMP280Minimal{
 		connection: t,
-		spi:       spi,
-		osrsT:     BMP280OSRSX1,
-		osrsP:     BMP280OSRSX1,
-		mode:      BMP280ModeSleep,
-		filter:    BMP280FilterOff,
-		tSB:       BMP280TSB0p5MS,
-		cal:       cal,
+		osrsT:      BMP280OSRSX1,
+		osrsP:      BMP280OSRSX1,
+		mode:       BMP280ModeSleep,
+		filter:     BMP280FilterOff,
+		tSB:        BMP280TSB0p5MS,
+		cal:        cal,
 	}
-	if err := d.writeReg(bmp280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|0); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{(d.osrsT << 5) | (d.osrsP << 2) | 0}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bmp280RegConfig, 0); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp280RegConfig), []byte{0}); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// writeReg writes a single byte to a register.
-func (d *BMP280Minimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x7F
-	}
-	return d.connection.Write([]byte{addr, val})
-}
-
 // readReg8 reads a single byte from a register.
 func (d *BMP280Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -241,12 +228,12 @@ func (d *BMP280Minimal) readReg8(reg uint8) (uint8, error) {
 func (d *BMP280Minimal) triggerAndRead() (uint32, uint32, error) {
 	if d.mode != BMP280ModeNormal {
 		ctrl := (d.osrsT << 5) | (d.osrsP << 2) | BMP280ModeForced
-		if err := d.writeReg(bmp280RegCtrlMeas, ctrl); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{ctrl}); err != nil {
 			return 0, 0, err
 		}
 		time.Sleep(bmp280MeasTime)
 	}
-	raw, err := d.connection.WriteRead([]byte{bmp280RegData}, 6)
+	raw, err := d.connection.ReadReg(uint32(bmp280RegData), 6)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -294,10 +281,10 @@ type BMP280Full struct {
 
 // NewBMP280Full creates a BMP280Full and applies the default configuration.
 //
-// connection must be a configured I²C or SPI connection bound to the chip
-// (I²C address 0x76/0x77, or an SPI chip-select). Pass spi=true for SPI.
-func NewBMP280Full(t connection.Connection, spi bool) (*BMP280Full, error) {
-	m, err := NewBMP280Minimal(t, spi)
+// connection must be a configured I²C, SMBus, or SPI register connection bound to the chip
+// (I²C address 0x76/0x77, or an SPI chip-select).
+func NewBMP280Full(t connection.RegisterConnection) (*BMP280Full, error) {
+	m, err := NewBMP280Minimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -318,35 +305,35 @@ func (d *BMP280Full) Configure(osrsT, osrsP, mode, filter, tSB uint8) error {
 	d.mode = mode
 	d.filter = filter
 	d.tSB = tSB
-	if err := d.writeReg(bmp280RegConfig, (tSB<<5)|(filter<<2)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp280RegConfig), []byte{(tSB << 5) | (filter << 2)}); err != nil {
 		return err
 	}
-	return d.writeReg(bmp280RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|mode)
+	return d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{(osrsT << 5) | (osrsP << 2) | mode})
 }
 
 // SetOversampling updates the two oversampling settings.
 func (d *BMP280Full) SetOversampling(osrsT, osrsP uint8) error {
 	d.osrsT = osrsT
 	d.osrsP = osrsP
-	return d.writeReg(bmp280RegCtrlMeas, (osrsT<<5)|(osrsP<<2)|d.mode)
+	return d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{(osrsT << 5) | (osrsP << 2) | d.mode})
 }
 
 // SetMode updates the power-mode bits of ctrl_meas.
 func (d *BMP280Full) SetMode(mode uint8) error {
 	d.mode = mode
-	return d.writeReg(bmp280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|mode)
+	return d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{(d.osrsT << 5) | (d.osrsP << 2) | mode})
 }
 
 // SetFilter updates the IIR filter coefficient in the config register.
 func (d *BMP280Full) SetFilter(coeff uint8) error {
 	d.filter = coeff
-	return d.writeReg(bmp280RegConfig, (d.tSB<<5)|(coeff<<2))
+	return d.connection.WriteReg(uint32(bmp280RegConfig), []byte{(d.tSB << 5) | (coeff << 2)})
 }
 
 // SetStandby updates the normal-mode standby time.
 func (d *BMP280Full) SetStandby(tSB uint8) error {
 	d.tSB = tSB
-	return d.writeReg(bmp280RegConfig, (tSB<<5)|(d.filter<<2))
+	return d.connection.WriteReg(uint32(bmp280RegConfig), []byte{(tSB << 5) | (d.filter << 2)})
 }
 
 // Status reads the status register at 0xF3. Bit 3 = measuring, bit 0 = im_update.
@@ -391,7 +378,7 @@ func (d *BMP280Full) ChipID() (uint8, error) {
 // Reset performs a soft reset (write 0xB6 to 0xE0), re-reads the
 // calibration coefficients, and re-applies the current configuration.
 func (d *BMP280Full) Reset() error {
-	if err := d.writeReg(bmp280RegReset, bmp280ResetCmd); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp280RegReset), []byte{bmp280ResetCmd}); err != nil {
 		return err
 	}
 	time.Sleep(2 * time.Millisecond)
@@ -400,8 +387,8 @@ func (d *BMP280Full) Reset() error {
 		return err
 	}
 	d.cal = cal
-	if err := d.writeReg(bmp280RegConfig, (d.tSB<<5)|(d.filter<<2)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp280RegConfig), []byte{(d.tSB << 5) | (d.filter << 2)}); err != nil {
 		return err
 	}
-	return d.writeReg(bmp280RegCtrlMeas, (d.osrsT<<5)|(d.osrsP<<2)|d.mode)
+	return d.connection.WriteReg(uint32(bmp280RegCtrlMeas), []byte{(d.osrsT << 5) | (d.osrsP << 2) | d.mode})
 }

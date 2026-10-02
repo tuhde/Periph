@@ -1,6 +1,6 @@
 #include "INA219.h"
 
-INA219Minimal::INA219Minimal(Connection& connection, float r_shunt, float max_current)
+INA219Minimal::INA219Minimal(RegisterConnection& connection, float r_shunt, float max_current)
     : _connection(connection) {
     _current_lsb = max_current / 32768.0f;
     _cal = (uint16_t)(0.04096f / (_current_lsb * r_shunt)) & 0xFFFEu;
@@ -8,13 +8,13 @@ INA219Minimal::INA219Minimal(Connection& connection, float r_shunt, float max_cu
 }
 
 void INA219Minimal::_write_reg(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
+    _connection.write(reg, buf, 2);
 }
 
 uint16_t INA219Minimal::_read_reg(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
@@ -40,7 +40,7 @@ float INA219Minimal::power() {
 
 // INA219Full
 
-INA219Full::INA219Full(Connection& connection, float r_shunt, float max_current)
+INA219Full::INA219Full(RegisterConnection& connection, float r_shunt, float max_current)
     : INA219Minimal(connection, r_shunt, max_current) {}
 
 void INA219Full::configure(uint8_t brng, uint8_t pga, uint8_t badc, uint8_t sadc, uint8_t mode) {

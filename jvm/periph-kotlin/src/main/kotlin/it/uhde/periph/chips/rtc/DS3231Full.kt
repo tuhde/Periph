@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -16,7 +16,7 @@ import it.uhde.periph.connection.InputPin
  * and clears the alarm flags. [enableInterrupt]/[disableInterrupt] select
  * which alarm(s) assert the pin.
  */
-class DS3231Full(connection: Connection) : DS3231Minimal(connection) {
+class DS3231Full(connection: RegisterConnection) : DS3231Minimal(connection) {
 
     companion object {
         /** Interrupt source: Alarm 1 matched. */

@@ -31,7 +31,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP384Full bmp(connection, false);                      // Create BMP384 driver, (connection)
+    BMP384Full bmp(connection);                      // Create BMP384 driver, (connection)
 
     bmp.configure(4, 1, 2, 0x03);                          // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
                                                             // sets oversampling, IIR coefficient, and output data rate

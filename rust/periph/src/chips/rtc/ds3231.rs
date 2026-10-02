@@ -23,6 +23,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_SECONDS: u8 = 0x00;
 const REG_MINUTES: u8 = 0x01;
 const REG_HOURS: u8 = 0x02;
@@ -119,17 +121,17 @@ fn bin_to_bcd(v: u8) -> u8 {
 }
 
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn read_regs<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::read_register(i2c, addr, reg.into(), 1, buf)
 }
 
 fn decode_alarm1_mask(a1m4: bool, a1m3: bool, a1m2: bool, a1m1: bool, dydt: bool) -> Alarm1Match {
@@ -206,7 +208,7 @@ impl<I2C: I2c> Ds3231Minimal<I2C> {
             bin_to_bcd(dt.month) & 0x1F,
             bin_to_bcd(year2),
         ];
-        self.i2c.write(self.addr, &buf)?;
+        register::write_register(&mut self.i2c, self.addr, buf[0].into(), 1, &buf[1..])?;
         let status = read_reg8(&mut self.i2c, self.addr, REG_CONTROL_STATUS)?;
         write_reg(&mut self.i2c, self.addr, REG_CONTROL_STATUS, status & !STATUS_OSF)
     }
@@ -295,7 +297,7 @@ impl<I2C: I2c> Ds3231Full<I2C> {
             (bin_to_bcd(hour) & 0x3F) | if a1m3 { 0x80 } else { 0 },
             (bin_to_bcd(day_or_date) & 0x3F) | if dydt { 0x40 } else { 0 } | if a1m4 { 0x80 } else { 0 },
         ];
-        self.inner.i2c.write(self.inner.addr, &buf)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, buf[0].into(), 1, &buf[1..])
     }
 
     /// Read Alarm 2 (`minute`, `hour`, `day_or_date`, match mode).
@@ -326,7 +328,7 @@ impl<I2C: I2c> Ds3231Full<I2C> {
             (bin_to_bcd(hour) & 0x3F) | if a2m3 { 0x80 } else { 0 },
             (bin_to_bcd(day_or_date) & 0x3F) | if dydt { 0x40 } else { 0 } | if a2m4 { 0x80 } else { 0 },
         ];
-        self.inner.i2c.write(self.inner.addr, &buf)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, buf[0].into(), 1, &buf[1..])
     }
 
     /// Enable the square-wave output on `INT/SQW`.

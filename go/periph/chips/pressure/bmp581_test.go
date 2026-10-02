@@ -16,7 +16,7 @@ func TestBMP581FullAPI(t *testing.T) {
 	conn := newMockConnection()
 	preloadBmp581(conn)
 
-	sensor, err := NewBMP581Full(conn, false)
+	sensor, err := NewBMP581Full(conn)
 	if err != nil {
 		t.Fatalf("NewBMP581Full: %v", err)
 	}

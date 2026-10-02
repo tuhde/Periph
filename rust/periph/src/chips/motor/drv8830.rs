@@ -21,6 +21,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_CONTROL: u8 = 0x00;
 const REG_FAULT: u8 = 0x01;
 
@@ -130,17 +132,17 @@ impl<I2C: I2c> Drv8830Minimal<I2C> {
     /// `addr` is `0x60`–`0x68` per the board's `A0`/`A1` strapping.
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let mut buf = [0u8; 1];
-        i2c.write_read(addr, &[REG_CONTROL], &mut buf)?;
+        register::read_register(&mut i2c, addr, REG_CONTROL.into(), 1, &mut buf)?;
         Ok(Self { i2c, addr })
     }
 
     fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, value])
+        register::write_register(&mut self.i2c, self.addr, reg.into(), 1, &[value])
     }
 
     fn read_reg(&mut self, reg: u8) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 

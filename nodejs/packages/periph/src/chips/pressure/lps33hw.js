@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_INTERRUPT_CFG = 0x0B;
 const _REG_THS_P_L       = 0x0C;
 const _REG_THS_P_H       = 0x0D;
@@ -29,8 +31,8 @@ function _delay(ms) {
     while (Date.now() - start < ms) {}
 }
 
-function _signExtend24(v) { return (v & 0x800000) ? (v | 0xFF000000) : v; }
-function _signExtend16(v) { return (v & 0x8000) ? (v | 0xFF00) : v; }
+function _signExtend24(v) { return toSigned(v, 24); }
+function _signExtend16(v) { return toSigned(v, 16); }
 
 /**
  * LPS33HW water-resistant MEMS absolute pressure sensor - minimal interface.
@@ -40,7 +42,7 @@ function _signExtend16(v) { return (v & 0x8000) ? (v | 0xFF00) : v; }
  *
  * Default: ODR=1 Hz, BDU=1, EN_LPFP=0, IF_ADD_INC=1.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I2C or SPI connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class LPS33HWMinimal {
     constructor(connection) {
@@ -64,11 +66,11 @@ class LPS33HWMinimal {
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
+        await this._conn.writeReg(reg, value);
     }
 
     async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
+        return this._conn.readReg(reg, n);
     }
 
     async _waitStatus(mask) {

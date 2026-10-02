@@ -13,6 +13,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_INTERRUPT_CFG: u8 = 0x0B;
 const REG_THS_P_L: u8       = 0x0C;
 const REG_THS_P_H: u8       = 0x0D;
@@ -104,16 +106,6 @@ fn delay_ms(ms: u32) {
     let _ = ms;
 }
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8, spi: bool) -> Result<(), I2C::Error> {
-    let r = if spi { reg & 0x7F } else { reg };
-    i2c.write(addr, &[r, value])
-}
-
-fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8], spi: bool) -> Result<(), I2C::Error> {
-    let r = if spi { reg | 0x80 } else { reg };
-    i2c.write_read(addr, &[r], buf)
-}
-
 /// LPS22DF minimal driver — pressure (Pa) and temperature (°C).
 ///
 /// Default: ODR=10 Hz, AVG=4 samples, BDU enabled, low-pass filter off,
@@ -121,7 +113,6 @@ fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8], sp
 pub struct Lps22dfMinimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
 }
 
 impl<I2C: I2c> Lps22dfMinimal<I2C> {
@@ -130,22 +121,21 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x5C or 0x5D).
-    /// * `spi` — Pass `true` for SPI bus (clears bit 7 on writes, sets it on reads).
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let mut who = [0u8; 1];
-        read_reg_bytes(&mut i2c, addr, REG_WHO_AM_I, &mut who, spi)?;
+        register::read_register(&mut i2c, addr, REG_WHO_AM_I.into(), 1, &mut who)?;
         let _ = who[0];
-        write_reg(&mut i2c, addr, REG_CTRL_REG2, 0x04, spi)?;  // SWRESET
+        register::write_register(&mut i2c, addr, REG_CTRL_REG2.into(), 1, &[0x04])?;  // SWRESET
         delay_ms(1);
-        write_reg(&mut i2c, addr, REG_CTRL_REG1, (LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4, spi)?;
-        write_reg(&mut i2c, addr, REG_CTRL_REG2, 0x08, spi)?;  // BDU=1
-        Ok(Self { i2c, addr, spi })
+        register::write_register(&mut i2c, addr, REG_CTRL_REG1.into(), 1, &[(LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4])?;
+        register::write_register(&mut i2c, addr, REG_CTRL_REG2.into(), 1, &[0x08])?;  // BDU=1
+        Ok(Self { i2c, addr })
     }
 
     fn wait_p_da(&mut self) -> Result<(), I2C::Error> {
         loop {
             let mut status = [0u8; 1];
-            read_reg_bytes(&mut self.i2c, self.addr, REG_STATUS, &mut status, self.spi)?;
+            register::read_register(&mut self.i2c, self.addr, REG_STATUS.into(), 1, &mut status)?;
             if status[0] & LPS22DF_STATUS_P_DA != 0 { return Ok(()); }
             delay_ms(1);
         }
@@ -154,7 +144,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     fn wait_t_da(&mut self) -> Result<(), I2C::Error> {
         loop {
             let mut status = [0u8; 1];
-            read_reg_bytes(&mut self.i2c, self.addr, REG_STATUS, &mut status, self.spi)?;
+            register::read_register(&mut self.i2c, self.addr, REG_STATUS.into(), 1, &mut status)?;
             if status[0] & LPS22DF_STATUS_T_DA != 0 { return Ok(()); }
             delay_ms(1);
         }
@@ -169,9 +159,9 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     pub fn pressure(&mut self) -> Result<f32, I2C::Error> {
         self.wait_p_da()?;
         let mut raw = [0u8; 3];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_OUT_XL, &mut raw, self.spi)?;
+        register::read_register(&mut self.i2c, self.addr, REG_PRESS_OUT_XL.into(), 1, &mut raw)?;
         let mut value = (raw[0] as i32) | ((raw[1] as i32) << 8) | ((raw[2] as i32) << 16);
-        if value & 0x800000 != 0 { value -= 0x1000000; }
+        value = to_signed(value as u32, 24);
         Ok((value as f32 / 4096.0) * 100.0)
     }
 
@@ -184,7 +174,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     pub fn temperature(&mut self) -> Result<f32, I2C::Error> {
         self.wait_t_da()?;
         let mut raw = [0u8; 2];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_TEMP_OUT_L, &mut raw, self.spi)?;
+        register::read_register(&mut self.i2c, self.addr, REG_TEMP_OUT_L.into(), 1, &mut raw)?;
         let value = i16::from_le_bytes([raw[0], raw[1]]);
         Ok(value as f32 / 100.0)
     }
@@ -192,7 +182,7 @@ impl<I2C: I2c> Lps22dfMinimal<I2C> {
     /// Re-read the chip ID register (expected 0xB4).
     pub fn who_am_i(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.i2c, self.addr, REG_WHO_AM_I, &mut v, self.spi)?;
+        register::read_register(&mut self.i2c, self.addr, REG_WHO_AM_I.into(), 1, &mut v)?;
         Ok(v[0])
     }
 }
@@ -205,8 +195,8 @@ pub struct Lps22dfFull<I2C> {
 
 impl<I2C: I2c> Lps22dfFull<I2C> {
     /// Create a new `Lps22dfFull`.
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let inner = Lps22dfMinimal::new(i2c, addr, spi)?;
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = Lps22dfMinimal::new(i2c, addr)?;
         Ok(Self { inner })
     }
 
@@ -224,14 +214,14 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         if en_lpfp  { ctrl2 |= 0x10; }
         if lfpf_cfg != 0 { ctrl2 |= 0x20; }
         if bdu      { ctrl2 |= 0x08; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1, ctrl1, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2, ctrl2, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[ctrl1])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2.into(), 1, &[ctrl2])
     }
 
     /// Trigger a single measurement in power-down mode.
     pub fn oneshot(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1, 0x00, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2, 0x08 | 0x01, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG1.into(), 1, &[0x00])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2.into(), 1, &[0x08 | 0x01])?;
         self.inner.wait_p_da()
     }
 
@@ -248,7 +238,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
 
     /// Software-reset the chip and wait for self-clear.
     pub fn software_reset(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2, 0x04, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG2.into(), 1, &[0x04])?;
         delay_ms(1);
         Ok(())
     }
@@ -258,16 +248,16 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         let offset_hpa = offset_pa / 100.0;
         let mut raw = libm::roundf(offset_hpa * 4096.0) as i32;
         if raw < 0 { raw += 0x10000; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_RPDS_L, raw as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_RPDS_H, (raw >> 8) as u8, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_RPDS_L.into(), 1, &[raw as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_RPDS_H.into(), 1, &[(raw >> 8) as u8])
     }
 
     /// Write a 15-bit unsigned pressure threshold.
     pub fn set_pressure_threshold(&mut self, threshold_pa: f32) -> Result<(), I2C::Error> {
         let threshold_hpa = threshold_pa / 100.0;
         let raw = (libm::roundf(threshold_hpa * 16.0) as i32 as u16) & 0x7FFF;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THS_P_L, raw as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_THS_P_H, (raw >> 8) as u8, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_THS_P_L.into(), 1, &[raw as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_THS_P_H.into(), 1, &[(raw >> 8) as u8])
     }
 
     /// Configure the INT pin and routing.
@@ -283,8 +273,8 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         if int_f_full{ ctrl4 |= 0x04; }
         if int_f_wtm { ctrl4 |= 0x02; }
         if int_f_ovr { ctrl4 |= 0x01; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG3, ctrl3, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG4, ctrl4, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG3.into(), 1, &[ctrl3])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_REG4.into(), 1, &[ctrl4])
     }
 
     /// Configure pressure-event interrupts.
@@ -293,28 +283,28 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         if phe { cfg |= 0x01; }
         if ple { cfg |= 0x02; }
         if lir { cfg |= 0x04; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG, cfg, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG.into(), 1, &[cfg])
     }
 
     /// Capture the current pressure as the AUTOZERO reference.
     pub fn autozero(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG, 0x20, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG.into(), 1, &[0x20])
     }
 
     /// Capture the current pressure in REF_P for use as a comparator.
     pub fn autorefp(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG, 0x80, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG.into(), 1, &[0x80])
     }
 
     /// Reset AUTOZERO and AUTOREFP, returning PRESS_OUT to absolute.
     pub fn reset_reference(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG, 0x50, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INTERRUPT_CFG.into(), 1, &[0x50])
     }
 
     /// Read the stored AUTOZERO/AUTOREFP reference pressure.
     pub fn reference_pressure(&mut self) -> Result<f32, I2C::Error> {
         let mut raw = [0u8; 2];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_REF_P_L, &mut raw, self.inner.spi)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_REF_P_L.into(), 1, &mut raw)?;
         let value = i16::from_le_bytes([raw[0], raw[1]]);
         Ok((value as f32 / 4096.0) * 100.0)
     }
@@ -329,18 +319,18 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
             4 => (1, 2),
             _ => (1, 3),
         };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL, (trig << 2) | (fm & 0x03), self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CTRL.into(), 1, &[(trig << 2) | (fm & 0x03)])
     }
 
     /// Set the FIFO watermark level (0..127).
     pub fn set_fifo_watermark(&mut self, level: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_WTM, level & 0x7F, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_WTM.into(), 1, &[level & 0x7F])
     }
 
     /// Read the FIFO sample count.
     pub fn fifo_sample_count(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS1, &mut v, self.inner.spi)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_STATUS1.into(), 1, &mut v)?;
         Ok(v[0])
     }
 
@@ -353,11 +343,11 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
         let max = core::cmp::min(count as usize, out.len());
         if max == 0 { return Ok(0); }
         let mut raw = [0u8; 3 * 128];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_FIFO_PRESS_XL, &mut raw[..max * 3], self.inner.spi)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_PRESS_XL.into(), 1, &mut raw[..max * 3])?;
         for i in 0..max {
             let base = i * 3;
             let mut value = (raw[base] as i32) | ((raw[base + 1] as i32) << 8) | ((raw[base + 2] as i32) << 16);
-            if value & 0x800000 != 0 { value -= 0x1000000; }
+            value = to_signed(value as u32, 24);
             out[i] = (value as f32 / 4096.0) * 100.0;
         }
         Ok(max as u8)
@@ -366,7 +356,7 @@ impl<I2C: I2c> Lps22dfFull<I2C> {
     /// Read and clear the INT_SOURCE register.
     pub fn interrupt_source(&mut self) -> Result<u8, I2C::Error> {
         let mut v = [0u8; 1];
-        read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, &mut v, self.inner.spi)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE.into(), 1, &mut v)?;
         Ok(v[0])
     }
 
@@ -449,7 +439,7 @@ mod tests {
         ];
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Lps22dfFull::new(i2c, ADDR, false).expect("init");
+        let mut sensor = Lps22dfFull::new(i2c, ADDR).expect("init");
         assert_eq!(sensor.who_am_i().unwrap(), 0xB4);
 
         // pressure(): 4096 raw -> 100 Pa
@@ -483,28 +473,5 @@ mod tests {
         assert_eq!(sensor.interrupt_source().unwrap(), 0x87);
 
         sensor.inner.i2c.done();
-    }
-
-    #[test]
-    fn spi_read_sets_rw_bit_write_clears_it() {
-        // LPS22DF register addresses (0x0B-0x7A) never have bit 7 set
-        // naturally, so a write address mask (reg & 0x7F) is a no-op — the
-        // only observable behavior is that reads must be sent with bit 7
-        // set (R/W̄=1) while writes are sent with bit 7 clear.
-        let transactions = vec![
-            I2cTransaction::write_read(ADDR, vec![REG_WHO_AM_I | 0x80], vec![0xB4]),
-            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x04]),
-            I2cTransaction::write(ADDR, vec![REG_CTRL_REG1, (LPS22DF_ODR_10_HZ << 3) | LPS22DF_AVG_4]),
-            I2cTransaction::write(ADDR, vec![REG_CTRL_REG2, 0x08]),
-            I2cTransaction::write_read(ADDR, vec![REG_STATUS | 0x80], vec![0x01]),
-            I2cTransaction::write_read(ADDR, vec![REG_PRESS_OUT_XL | 0x80], vec![0x00, 0x10, 0x00]),
-        ];
-        let i2c = I2cMock::new(&transactions);
-
-        let mut sensor = Lps22dfMinimal::new(i2c, ADDR, true).expect("init");
-        let p = sensor.pressure().unwrap();
-        assert!((p - 100.0).abs() < 0.01, "pressure = {}", p);
-
-        sensor.i2c.done();
     }
 }

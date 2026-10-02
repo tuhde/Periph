@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * INA226 — full driver. Extends {@link Ina226Minimal} with configuration,
@@ -63,7 +63,7 @@ class Ina226Full extends Ina226Minimal {
      *
      * @param connection I²C connection bound to the INA226 device address
      */
-    Ina226Full(Connection connection) {
+    Ina226Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -74,7 +74,7 @@ class Ina226Full extends Ina226Minimal {
      * @param rShunt     shunt resistor value in Ω
      * @param maxCurrent maximum expected current in A
      */
-    Ina226Full(Connection connection, double rShunt, double maxCurrent) {
+    Ina226Full(RegisterConnection connection, double rShunt, double maxCurrent) {
         super(connection, rShunt, maxCurrent)
     }
 

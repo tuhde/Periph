@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -18,16 +19,10 @@ import java.io.IOException
  * FIFO bypass mode.
  */
 open class Lps22dfMinimal(
-    protected val conn: Connection,
-    protected val addr: Int = 0x5C,
-    protected val busType: Int = BUS_I2C
+    protected val conn: RegisterConnection,
+    protected val addr: Int = 0x5C
 ) {
     companion object {
-        /** Bus type: I²C — register addresses used unmasked. */
-        const val BUS_I2C = 0
-        /** Bus type: SPI — write addresses have bit 7 cleared, read addresses have bit 7 set. */
-        const val BUS_SPI = 1
-
         // Register addresses
         protected const val REG_INTERRUPT_CFG = 0x0B
         protected const val REG_THS_P_L       = 0x0C
@@ -72,16 +67,14 @@ open class Lps22dfMinimal(
         writeReg(REG_CTRL_REG2, 0x08)
     }
 
-    /** Write a single byte to a register, applying the SPI write-address mask when needed. */
+    /** Write a single byte to a register. */
     protected fun writeReg(reg: Int, value: Int) {
-        val a = if (busType == BUS_SPI) (reg and 0x7F) else reg
-        conn.write(byteArrayOf(a.toByte(), value.toByte()))
+        conn.write(reg, byteArrayOf(value.toByte()))
     }
 
-    /** Read bytes from a register, setting the SPI read-address bit when needed. */
+    /** Read bytes from a register. */
     protected fun readReg(reg: Int, len: Int): ByteArray {
-        val a = if (busType == BUS_SPI) (reg or 0x80) else reg
-        return conn.writeRead(byteArrayOf(a.toByte()), len)
+        return conn.read(reg, len)
     }
 
     /** Poll STATUS until P_DA is set. */
@@ -118,7 +111,7 @@ open class Lps22dfMinimal(
         var value = (raw[0].toInt() and 0xFF) or
                     ((raw[1].toInt() and 0xFF) shl 8) or
                     ((raw[2].toInt() and 0xFF) shl 16)
-        if ((value and 0x800000) != 0) value -= 0x1000000
+        value = Register.toSigned(value, 24)
         return (value / 4096.0) * 100.0
     }
 

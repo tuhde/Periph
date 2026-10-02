@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief BMP280 piezo-resistive pressure + temperature sensor — minimal interface.
  *
@@ -9,12 +9,11 @@
  *
  *  Default: forced mode, osrs_t=×1, osrs_p=×1, IIR filter off.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP280Minimal {
 public:
-    explicit BMP280Minimal(Connection& connection, bool spi = false);
+    explicit BMP280Minimal(RegisterConnection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -65,16 +64,13 @@ protected:
 
     static constexpr uint32_t MEAS_TIME_MS  = 7;
 
-    Connection& _connection;
-    bool      _spi;
+    RegisterConnection& _connection;
     uint8_t   _mode   = 0;
     uint8_t   _filter = 0;
     uint8_t   _t_sb   = 0;
     int32_t   _t_fine = 0;
 
     void     _read_calibration();
-    void     _write_reg(uint8_t reg, uint8_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _trigger_and_read(uint32_t& adc_P, uint32_t& adc_T);
 };
 
@@ -83,8 +79,7 @@ protected:
  *  Adds power-mode control, oversampling, IIR filter, standby time,
  *  and altitude / sea-level pressure conversion.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP280Full : public BMP280Minimal {
 public:
@@ -117,7 +112,7 @@ public:
     static constexpr uint8_t STATUS_MEASURING = 0x08;
     static constexpr uint8_t STATUS_IM_UPDATE = 0x01;
 
-    explicit BMP280Full(Connection& connection, bool spi = false);
+    explicit BMP280Full(RegisterConnection& connection);
 
     /** @brief Write both ctrl_meas and config registers.
      *  @param osrs_t Temperature oversampling (0–5).

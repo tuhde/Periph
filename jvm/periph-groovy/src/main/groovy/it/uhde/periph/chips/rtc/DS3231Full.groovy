@@ -2,7 +2,7 @@ package it.uhde.periph.chips.rtc
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -72,7 +72,7 @@ class DS3231Full extends DS3231Minimal {
      */
     private final EdgeHandler edgeHandler = { -> handleEdge() } as EdgeHandler
 
-    DS3231Full(Connection connection) {
+    DS3231Full(RegisterConnection connection) {
         super(connection)
     }
 

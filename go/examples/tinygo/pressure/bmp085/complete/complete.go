@@ -20,10 +20,7 @@ func main() {
 		SDA:       machine.GPIO4,
 		SCL:       machine.GPIO5,
 	})
-	conn, err := connection.NewI2CConnection(machine.I2C0, 0x77, nil, nil) // Create I2C connection, (bus=I2C0, addr=0x77) → (*I2CConnection, error)
-	if err != nil {
-		panic(err)
-	}
+	conn := connection.NewI2CConnection(machine.I2C0, 0x77, nil, nil) // Create I2C connection, (bus=I2C0, addr=0x77) → *I2CConnection
 	defer conn.Close()
 
 	chip, err := pressure.NewBmp085Full(conn) // Create BMP085 driver, (connection) → (*Bmp085Full, error)

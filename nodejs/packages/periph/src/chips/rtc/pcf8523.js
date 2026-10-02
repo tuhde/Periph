@@ -86,22 +86,22 @@ function _intToBcd(v) {
  */
 class PCF8523Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection at address 0x68.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection at address 0x68.
      */
     constructor(connection) {
         this._conn = connection;
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, value & 0xFF);
     }
 
     async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg & 0xFF]), 1))[0];
+        return (await this._conn.readReg(reg & 0xFF, 1))[0];
     }
 
     async _readRegs(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg & 0xFF]), n);
+        return this._conn.readReg(reg & 0xFF, n);
     }
 
     async _readControl1() {
@@ -156,16 +156,13 @@ class PCF8523Minimal {
     async setDatetime(year, month, day, weekday, hour, minute, second) {
         const ctrl1 = (await this._readControl1()) & ~_C1_12_24 & 0xFF;
         await this._writeReg(_REG_CONTROL_1, ctrl1 | _C1_STOP);
-        await this._conn.write(Buffer.from([
-            _REG_SECONDS,
-            _intToBcd(second) & 0x7F, // OS = 0
+        await this._conn.writeReg(_REG_SECONDS, Buffer.from([_intToBcd(second) & 0x7F, // OS = 0
             _intToBcd(minute),
             _intToBcd(hour) & 0x3F,
             _intToBcd(day),
             weekday & 0x07,
             _intToBcd(month),
-            _intToBcd(year - 2000),
-        ]));
+            _intToBcd(year - 2000),]));
         await this._writeReg(_REG_CONTROL_1, ctrl1 & ~_C1_STOP & 0xFF);
     }
 }
@@ -229,13 +226,10 @@ class PCF8523Full extends PCF8523Minimal {
      * @returns {Promise<void>}
      */
     async setAlarm({ minute = null, hour = null, day = null, weekday = null } = {}) {
-        await this._conn.write(Buffer.from([
-            _REG_MINUTE_ALARM,
-            minute == null ? 0x80 : _intToBcd(minute) & 0x7F,
+        await this._conn.writeReg(_REG_MINUTE_ALARM, Buffer.from([minute == null ? 0x80 : _intToBcd(minute) & 0x7F,
             hour == null ? 0x80 : _intToBcd(hour) & 0x3F,
             day == null ? 0x80 : _intToBcd(day) & 0x3F,
-            weekday == null ? 0x80 : weekday & 0x07,
-        ]));
+            weekday == null ? 0x80 : weekday & 0x07,]));
     }
 
     // -- Timers -----------------------------------------------------------

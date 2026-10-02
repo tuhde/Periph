@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -13,7 +13,7 @@ import java.io.IOException
  * Default settings: osr_p=×16, osr_t=×2, iir=coef 3, ODR=25 Hz, normal mode.
  */
 open class Bmp384Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
     addr: Int = 0x76
 ) {
     companion object {
@@ -70,7 +70,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
     protected var tLin: Double = 0.0
 
     init {
-        val id = connection.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
+        val id = connection.read(REG_CHIP_ID, 1)
         if ((id[0].toInt() and 0xFF) != CHIP_ID) {
             throw IOException(
                 "BMP384 not found: expected 0x50, got 0x%02X".format(id[0].toInt() and 0xFF)
@@ -82,7 +82,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
 
     /** Read and unpack the 21-byte calibration block from NVM (0x31–0x45). */
     protected fun readCalibration() {
-        val cal = connection.writeRead(byteArrayOf(REG_CAL_START.toByte()), REG_CAL_LEN)
+        val cal = connection.read(REG_CAL_START, REG_CAL_LEN)
 
         val nvmT1  = readU16LE(cal, 0)
         val nvmT2  = readU16LE(cal, 2)
@@ -120,26 +120,21 @@ open class Bmp384Minimal @JvmOverloads constructor(
         val osrReg = (osrT shl 3) or (osrP shl 0)
         val configReg = (iir shl 1)
         val pwrReg = (powerMode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN
-        writeReg(REG_OSR,      osrReg)
-        writeReg(REG_CONFIG,   configReg)
-        writeReg(REG_ODR,      odr)
-        writeReg(REG_PWR_CTRL, pwrReg)
-    }
-
-    /** Write a single byte to a register. */
-    protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(REG_OSR, byteArrayOf((     osrReg).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf((  configReg).toByte()))
+        connection.write(REG_ODR, byteArrayOf((     odr).toByte()))
+        connection.write(REG_PWR_CTRL, byteArrayOf((pwrReg).toByte()))
     }
 
     /** Read a single byte from a register. */
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
     /** Burst-read 6 bytes from DATA_0..DATA_5. Returns (uncomp_press, uncomp_temp). */
     protected fun readBurst(): IntArray {
-        val raw = connection.writeRead(byteArrayOf(REG_DATA_0.toByte()), 6)
+        val raw = connection.read(REG_DATA_0, 6)
         val uncompPress = ((raw[2].toInt() and 0xFF) shl 16) or ((raw[1].toInt() and 0xFF) shl 8) or (raw[0].toInt() and 0xFF)
         val uncompTemp  = ((raw[5].toInt() and 0xFF) shl 16) or ((raw[4].toInt() and 0xFF) shl 8) or (raw[3].toInt() and 0xFF)
         return intArrayOf(uncompPress, uncompTemp)
@@ -176,7 +171,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
     /** Read the temperature. */
     fun temperature(): Double {
         if (powerMode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
+            connection.write(REG_PWR_CTRL, byteArrayOf(((MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN).toByte()))
             Thread.sleep(40)
         }
         val burst = readBurst()
@@ -186,7 +181,7 @@ open class Bmp384Minimal @JvmOverloads constructor(
     /** Read the pressure. */
     fun pressure(): Double {
         if (powerMode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
+            connection.write(REG_PWR_CTRL, byteArrayOf(((MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN).toByte()))
             Thread.sleep(40)
         }
         val burst = readBurst()

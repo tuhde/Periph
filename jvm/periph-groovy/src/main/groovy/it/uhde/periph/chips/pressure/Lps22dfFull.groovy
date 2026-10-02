@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 
 import groovy.transform.CompileStatic
 
@@ -36,16 +37,12 @@ class Lps22dfFull extends Lps22dfMinimal {
     public static final int FIFO_BYPASS_TO_CONT = 4
     public static final int FIFO_CONT_TO_FIFO   = 5
 
-    Lps22dfFull(Connection connection) {
+    Lps22dfFull(RegisterConnection connection) {
         super(connection)
     }
 
-    Lps22dfFull(Connection connection, int addr) {
-        super(connection, addr, BUS_I2C)
-    }
-
-    Lps22dfFull(Connection connection, int addr, int busType) {
-        super(connection, addr, busType)
+    Lps22dfFull(RegisterConnection connection, int addr) {
+        super(connection, addr)
     }
 
     void configure(int odr, int avg, boolean enLpfp, int lfpfCfg, boolean bdu) {
@@ -153,7 +150,7 @@ class Lps22dfFull extends Lps22dfMinimal {
         for (int i = 0; i < n; i++) {
             int base = i * 3
             int value = (raw[base] & 0xFF) | ((raw[base + 1] & 0xFF) << 8) | ((raw[base + 2] & 0xFF) << 16)
-            if ((value & 0x800000) != 0) value -= 0x1000000
+            value = Register.toSigned(value, 24)
             out[i] = (value / 4096.0d) * 100.0d
         }
         return n

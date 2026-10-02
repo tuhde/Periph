@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.temperature
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -84,7 +84,7 @@ class MCP9808Full extends MCP9808Minimal {
      * @param connection configured I²C connection pointing at the device (0x18–0x1F)
      * @throws IOException on bus error or identity mismatch
      */
-    MCP9808Full(Connection connection) {
+    MCP9808Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -131,7 +131,7 @@ class MCP9808Full extends MCP9808Minimal {
     void setResolution(double celsius) {
         int code = indexOf(RESOLUTIONS, celsius)
         if (code < 0) throw new IllegalArgumentException("resolution must be one of 0.5, 0.25, 0.125, 0.0625")
-        connection.write(new byte[]{(byte) REG_RESOLUTION, (byte) code})
+        connection.write(REG_RESOLUTION, new byte[]{(byte) code})
     }
 
     /**
@@ -141,7 +141,7 @@ class MCP9808Full extends MCP9808Minimal {
      * @throws IOException on bus error
      */
     double getResolution() {
-        return RESOLUTIONS[connection.writeRead(new byte[]{(byte) REG_RESOLUTION}, 1)[0] & 0x03]
+        return RESOLUTIONS[connection.read(REG_RESOLUTION, 1)[0] & 0x03]
     }
 
     // -------------------------------------------------------------------------

@@ -13,7 +13,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x76);
-    BMP280Minimal bmp(connection, /*spi=*/false);
+    BMP280Minimal bmp(connection);
 
     static int passed = 0, failed = 0;
 

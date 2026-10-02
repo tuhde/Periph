@@ -35,7 +35,7 @@ fn main() -> ! {
     let mut passed = 0i32;
     let mut failed = 0i32;
 
-    let mut chip = match Lps22dfFull::new(i2c, TEST_ADDR, false) {
+    let mut chip = match Lps22dfFull::new(i2c, TEST_ADDR) {
         Ok(c) => c,
         Err(_) => {
             println!("FAIL init: could not reach LPS22DF at 0x{:02X}", TEST_ADDR);

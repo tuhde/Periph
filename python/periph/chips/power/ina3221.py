@@ -10,7 +10,7 @@ class INA3221Minimal:
     is used without modification.
 
     Args:
-        connection: Configured I2C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).
@@ -37,13 +37,13 @@ class INA3221Minimal:
             self._r_shunt = (float(r_shunt), float(r_shunt), float(r_shunt))
 
     def _write_reg(self, reg, value):
-        self._connection.write(struct.pack('>BH', reg, value))
+        self._connection.write_reg(reg, struct.pack('>H', value))
 
     def _read_reg(self, reg):
-        return struct.unpack('>H', self._connection.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>H', self._connection.read_reg(reg, 2))[0]
 
     def _read_reg_signed(self, reg):
-        return struct.unpack('>h', self._connection.write_read(bytes([reg]), 2))[0]
+        return struct.unpack('>h', self._connection.read_reg(reg, 2))[0]
 
     def _channel_valid(self, channel):
         if channel not in (1, 2, 3):
@@ -126,7 +126,7 @@ class INA3221Full(INA3221Minimal):
         MODE_SHUNT_BUS_CONT = 7
 
     Args:
-        connection: Configured I2C or SMBus connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         r_shunt: Shunt resistor value in ohms. Pass a single float to apply
             the same value to all three channels, or a 3-element sequence
             (list/tuple) for per-channel values (default 0.1 ohms for all).

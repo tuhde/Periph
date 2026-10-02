@@ -36,7 +36,7 @@ function _sleep(ms) {
  */
 class EEPROM24AA02UIDMinimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x50).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x50).
      */
     constructor(connection) {
         this._conn = connection;
@@ -47,7 +47,7 @@ class EEPROM24AA02UIDMinimal {
      * @returns {Promise<Buffer>} 4-byte UID, MSB first (0xFC, 0xFD, 0xFE, 0xFF).
      */
     async readUid() {
-        return this._conn.writeRead(Buffer.from([ADDR_UID_BASE]), 4);
+        return this._conn.readReg(ADDR_UID_BASE, 4);
     }
 
     /**
@@ -56,7 +56,7 @@ class EEPROM24AA02UIDMinimal {
      * @returns {Promise<number>} Byte value 0-255.
      */
     async readByte(address) {
-        return (await this._conn.writeRead(Buffer.from([address & 0xFF]), 1))[0];
+        return (await this._conn.readReg(address & 0xFF, 1))[0];
     }
 
     /**
@@ -71,14 +71,14 @@ class EEPROM24AA02UIDMinimal {
      * @returns {Promise<void>}
      */
     async writeByte(address, value) {
-        await this._conn.write(Buffer.from([address & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(address & 0xFF, value & 0xFF);
         await this._ackPoll();
     }
 
     async _ackPoll() {
         for (let i = 0; i < ACK_POLL_MAX; i++) {
             try {
-                await this._conn.writeRead(Buffer.from([0x00]), 1);
+                await this._conn.readReg(0x00, 1);
                 return;
             } catch (e) {
                 _sleep(1);
@@ -96,7 +96,7 @@ class EEPROM24AA02UIDMinimal {
  */
 class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x50).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x50).
      */
     constructor(connection) {
         super(connection);
@@ -113,7 +113,7 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
      * @returns {Promise<Buffer>} `length` bytes from the device.
      */
     async read(address, length) {
-        return this._conn.writeRead(Buffer.from([address & 0xFF]), length);
+        return this._conn.readReg(address & 0xFF, length);
     }
 
     /**
@@ -130,10 +130,7 @@ class EEPROM24AA02UIDFull extends EEPROM24AA02UIDMinimal {
      */
     async writePage(address, data) {
         if (data.length === 0) return;
-        const buf = Buffer.alloc(1 + data.length);
-        buf[0] = address & 0xFF;
-        for (let i = 0; i < data.length; i++) buf[1 + i] = data[i];
-        await this._conn.write(buf);
+        await this._conn.writeReg(address & 0xFF, Buffer.from(data));
         await this._ackPoll();
     }
 

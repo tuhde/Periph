@@ -46,18 +46,18 @@ function _vsetToVoltage(vset) {
  */
 class DRV8830Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x60–0x68).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x60–0x68).
      */
     constructor(connection) {
         this._conn = connection;
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, value & 0xFF);
     }
 
     async _readReg(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg & 0xFF]), 1);
+        const buf = await this._conn.readReg(reg & 0xFF, 1);
         return buf[0];
     }
 
@@ -115,7 +115,7 @@ class DRV8830Minimal {
  */
 class DRV8830Full extends DRV8830Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x60–0x68).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x60–0x68).
      */
     constructor(connection) {
         super(connection);

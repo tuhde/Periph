@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.other
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -10,7 +10,7 @@ import java.io.IOException
  * configuration, debounce, autoconfig recomputation, OOR status, and
  * over-current flag clear.
  */
-class Mpr121Full(connection: Connection) : Mpr121Minimal(connection) {
+class Mpr121Full(connection: RegisterConnection) : Mpr121Minimal(connection) {
 
     /** Software-reset the chip and re-apply Minimal defaults. */
     @Throws(IOException::class)
@@ -115,7 +115,7 @@ class Mpr121Full(connection: Connection) : Mpr121Minimal(connection) {
     /** Read the 13-bit out-of-range bitmask. */
     @Throws(IOException::class)
     fun oorStatus(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_ELE0_7_OOR.toByte()), 2)
+        val buf = connection.read(REG_ELE0_7_OOR, 2)
         return (buf[0].toInt() and 0xFF) or (((buf[1].toInt() and 0xFF) and 0x1F) shl 8)
     }
 

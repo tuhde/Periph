@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * BMP581 — full driver. Extends Bmp581Minimal with configuration, FIFO,
@@ -67,15 +67,15 @@ class Bmp581Full extends Bmp581Minimal {
     protected int osrT = 0
     protected boolean pressEn = true
 
-    Bmp581Full(Connection connection) throws Exception {
+    Bmp581Full(RegisterConnection connection) throws Exception {
         super(connection, 0x46, BUS_I2C)
     }
 
-    Bmp581Full(Connection connection, int addr) throws Exception {
+    Bmp581Full(RegisterConnection connection, int addr) throws Exception {
         super(connection, addr, BUS_I2C)
     }
 
-    Bmp581Full(Connection connection, int addr, int busType) throws Exception {
+    Bmp581Full(RegisterConnection connection, int addr, int busType) throws Exception {
         super(connection, addr, busType)
     }
 
@@ -100,7 +100,7 @@ class Bmp581Full extends Bmp581Minimal {
         int prev = pwrMode
         if (prev != MODE_FORCED) setMode(MODE_FORCED)
         for (int i = 0; i < 400; i++) {
-            byte[] st = connection.writeRead([(byte) REG_INT_STATUS] as byte[], 1)
+            byte[] st = connection.read(REG_INT_STATUS, 1)
             if ((st[0] & INT_STATUS_DRDY) != 0) break
             Thread.sleep(5)
         }
@@ -123,22 +123,22 @@ class Bmp581Full extends Bmp581Minimal {
     }
 
     int chipId() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_CHIP_ID] as byte[], 1)
+        byte[] buf = connection.read(REG_CHIP_ID, 1)
         return buf[0] & 0xFF
     }
 
     int revId() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_REV_ID] as byte[], 1)
+        byte[] buf = connection.read(REG_REV_ID, 1)
         return buf[0] & 0xFF
     }
 
     int status() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_STATUS] as byte[], 1)
+        byte[] buf = connection.read(REG_STATUS, 1)
         return buf[0] & 0xFF
     }
 
     int interruptStatus() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_INT_STATUS] as byte[], 1)
+        byte[] buf = connection.read(REG_INT_STATUS, 1)
         return buf[0] & 0xFF
     }
 
@@ -155,7 +155,7 @@ class Bmp581Full extends Bmp581Minimal {
     }
 
     private void setIntSource(int source, boolean enable) throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_INT_SOURCE] as byte[], 1)
+        byte[] buf = connection.read(REG_INT_SOURCE, 1)
         int cur = buf[0] & 0xFF
         int next = enable ? (cur | source) : (cur & ~source)
         writeReg(REG_INT_SOURCE, next)
@@ -164,7 +164,7 @@ class Bmp581Full extends Bmp581Minimal {
     void enableDrdyInterrupt(boolean enable) throws Exception { setIntSource(INT_SOURCE_DRDY, enable) }
 
     void enableFifoInterrupt(boolean threshold, boolean full) throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_INT_SOURCE] as byte[], 1)
+        byte[] buf = connection.read(REG_INT_SOURCE, 1)
         int cur = buf[0] & 0xFF
         cur &= ~(INT_SOURCE_FIFO_FULL | INT_SOURCE_FIFO_THS)
         if (threshold) cur |= INT_SOURCE_FIFO_THS
@@ -175,7 +175,7 @@ class Bmp581Full extends Bmp581Minimal {
     void enableOorInterrupt(boolean enable) throws Exception { setIntSource(INT_SOURCE_OOR_P, enable) }
 
     void setIirFilter(int coeffP, int coeffT) throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_DSP_CONFIG] as byte[], 1)
+        byte[] buf = connection.read(REG_DSP_CONFIG, 1)
         int dsp = (buf[0] & 0xFF) | 0x28
         writeReg(REG_DSP_CONFIG, dsp)
         int iirVal = ((coeffP & 0x7) << 3) | (coeffT & 0x7)
@@ -192,17 +192,17 @@ class Bmp581Full extends Bmp581Minimal {
     }
 
     int fifoCount() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_FIFO_COUNT] as byte[], 1)
+        byte[] buf = connection.read(REG_FIFO_COUNT, 1)
         return buf[0] & 0x3F
     }
 
     int[] effectiveOsr() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_OSR_EFF] as byte[], 1)
+        byte[] buf = connection.read(REG_OSR_EFF, 1)
         return new int[]{(buf[0] >> 3) & 0x7, buf[0] & 0x7}
     }
 
     boolean odrIsValid() throws Exception {
-        byte[] buf = connection.writeRead([(byte) REG_OSR_EFF] as byte[], 1)
+        byte[] buf = connection.read(REG_OSR_EFF, 1)
         return (buf[0] & 0x80) != 0
     }
 
@@ -227,7 +227,7 @@ class Bmp581Full extends Bmp581Minimal {
             writeReg(REG_NVM_ADDR, 0x40 | (row & 0x3F))
             writeReg(REG_CMD, 0xA5)
             Thread.sleep(2)
-            byte[] buf = connection.writeRead([(byte) REG_NVM_DATA_LSB] as byte[], 2)
+            byte[] buf = connection.read(REG_NVM_DATA_LSB, 2)
             return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
         } finally {
             if (prev != MODE_STANDBY) setMode(prev)

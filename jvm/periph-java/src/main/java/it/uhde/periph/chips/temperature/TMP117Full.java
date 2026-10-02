@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.temperature;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 import it.uhde.periph.connection.EdgeHandler;
 import it.uhde.periph.connection.EdgeTrigger;
 import it.uhde.periph.connection.InputPin;
@@ -112,7 +112,7 @@ public class TMP117Full extends TMP117Minimal {
      * @param connection configured I²C connection pointing at the device (0x48–0x4B)
      * @throws IOException on bus error or identity mismatch
      */
-    public TMP117Full(Connection connection) throws IOException {
+    public TMP117Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 

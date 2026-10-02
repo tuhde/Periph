@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -35,7 +35,7 @@ public class Bmp085Full extends Bmp085Minimal {
      * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp085Full(Connection connection) throws IOException {
+    public Bmp085Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -108,7 +108,7 @@ public class Bmp085Full extends Bmp085Minimal {
      * @throws IOException on I²C error
      */
     public int chipId() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] b = connection.read(REG_ID, 1);
         return b[0] & 0xFF;
     }
 
@@ -121,7 +121,7 @@ public class Bmp085Full extends Bmp085Minimal {
      * @throws IOException on I²C error or invalid calibration after reset
      */
     public void reset() throws IOException {
-        connection.write(new byte[]{(byte) REG_SOFT_RST, (byte) 0xB6});
+        connection.write(REG_SOFT_RST, new byte[]{(byte) 0xB6});
         try {
             Thread.sleep(15);
         } catch (InterruptedException e) {

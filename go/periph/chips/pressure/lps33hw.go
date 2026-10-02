@@ -108,13 +108,13 @@ const (
 )
 
 // lps33hwWriteReg writes a single byte to a register.
-func lps33hwWriteReg(t connection.Connection, reg, value uint8) error {
-	return t.Write([]byte{reg, value})
+func lps33hwWriteReg(t connection.RegisterConnection, reg, value uint8) error {
+	return t.WriteReg(uint32(reg), []byte{value})
 }
 
 // lps33hwReadReg8 reads a single byte from a register.
-func lps33hwReadReg8(t connection.Connection, reg uint8) (uint8, error) {
-	b, err := t.WriteRead([]byte{reg}, 1)
+func lps33hwReadReg8(t connection.RegisterConnection, reg uint8) (uint8, error) {
+	b, err := t.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -122,7 +122,7 @@ func lps33hwReadReg8(t connection.Connection, reg uint8) (uint8, error) {
 }
 
 // lps33hwWaitStatus polls STATUS until (status & mask) == mask, or times out.
-func lps33hwWaitStatus(t connection.Connection, mask uint8) error {
+func lps33hwWaitStatus(t connection.RegisterConnection, mask uint8) error {
 	for i := 0; i < lps33hwStatusTimeoutIterations; i++ {
 		s, err := lps33hwReadReg8(t, lps33hwRegStatus)
 		if err != nil {
@@ -140,7 +140,7 @@ func lps33hwWaitStatus(t connection.Connection, mask uint8) error {
 // minimal interface. The default configuration baked in is ODR=1 Hz,
 // BDU=1, EN_LPFP=0, IF_ADD_INC=1.
 type LPS33HWMinimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	addr       uint8
 }
 
@@ -149,7 +149,7 @@ type LPS33HWMinimal struct {
 //
 // t must be a configured I²C connection bound to the chip (I²C address
 // 0x5C or 0x5D).
-func NewLPS33HWMinimal(t connection.Connection, addr uint8) (*LPS33HWMinimal, error) {
+func NewLPS33HWMinimal(t connection.RegisterConnection, addr uint8) (*LPS33HWMinimal, error) {
 	id, err := lps33hwReadReg8(t, lps33hwRegWhoAmI)
 	if err != nil {
 		return nil, err
@@ -218,18 +218,14 @@ func (d *LPS33HWMinimal) readPressTemp() (float32, float32, error) {
 	if err := lps33hwWaitStatus(d.connection, LPS33HWStatusPDA|LPS33HWStatusTDA); err != nil {
 		return 0, 0, err
 	}
-	raw, err := d.connection.WriteRead([]byte{lps33hwRegPressXl}, 5)
+	raw, err := d.connection.ReadReg(uint32(lps33hwRegPressXl), 5)
 	if err != nil {
 		return 0, 0, err
 	}
 	rawPress := int32(raw[0]) | int32(raw[1])<<8 | int32(raw[2])<<16
-	if rawPress >= 0x800000 {
-		rawPress -= 0x1000000
-	}
+	rawPress = int32(connection.ToSigned(uint32(rawPress), 24))
 	rawTemp := int32(raw[3]) | int32(raw[4])<<8
-	if rawTemp >= 0x8000 {
-		rawTemp -= 0x10000
-	}
+	rawTemp = int32(connection.ToSigned(uint32(rawTemp), 16))
 	pressurePa := float32(rawPress) * 100.0 / 4096.0
 	temperatureC := float32(rawTemp) / 100.0
 	return pressurePa, temperatureC, nil
@@ -245,7 +241,7 @@ type LPS33HWFull struct {
 
 // NewLPS33HWFull creates an LPS33HWFull and applies the default
 // configuration.
-func NewLPS33HWFull(t connection.Connection, addr uint8) (*LPS33HWFull, error) {
+func NewLPS33HWFull(t connection.RegisterConnection, addr uint8) (*LPS33HWFull, error) {
 	m, err := NewLPS33HWMinimal(t, addr)
 	if err != nil {
 		return nil, err
@@ -481,6 +477,6 @@ func (d *LPS33HWFull) FifoStatus() (uint8, error) {
 
 // ResetLpf reads LPFP_RES to flush any transitory LPF state.
 func (d *LPS33HWFull) ResetLpf() error {
-	_, err := d.connection.WriteRead([]byte{lps33hwRegLpfpRes}, 1)
+	_, err := d.connection.ReadReg(uint32(lps33hwRegLpfpRes), 1)
 	return err
 }

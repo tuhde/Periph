@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.memory
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * 24AA02UID — 2 Kbit I²C EEPROM with 32-bit unique serial number (minimal driver).
@@ -27,7 +27,7 @@ import it.uhde.periph.connection.Connection
  *   ignored by the chip
  */
 open class Eeprom24Aa02UidMinimal(
-    protected val connection: Connection
+    protected val connection: RegisterConnection
 ) {
     companion object {
         const val ADDR_UID_BASE  = 0xFC
@@ -44,7 +44,7 @@ open class Eeprom24Aa02UidMinimal(
      * @return 4-byte UID array
      */
     fun readUid(): ByteArray =
-        connection.writeRead(byteArrayOf(ADDR_UID_BASE.toByte()), 4)
+        connection.read(ADDR_UID_BASE, 4)
 
     /**
      * Read a single byte from user EEPROM at 0x00-0x7F.
@@ -53,7 +53,7 @@ open class Eeprom24Aa02UidMinimal(
      * @return byte value 0-255
      */
     fun readByte(address: Int): Int {
-        val b = connection.writeRead(byteArrayOf(address.toByte()), 1)
+        val b = connection.read(address, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -68,7 +68,7 @@ open class Eeprom24Aa02UidMinimal(
      * @param value   byte value 0-255
      */
     fun writeByte(address: Int, value: Int) {
-        connection.write(byteArrayOf(address.toByte(), value.toByte()))
+        connection.write(address, byteArrayOf(value.toByte()))
         Thread.sleep(WRITE_CYCLE_MS)
     }
 }

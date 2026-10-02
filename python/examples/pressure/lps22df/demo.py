@@ -7,7 +7,7 @@ connection = I2CConnection(0x5C)
 # Low-pass at ODR/9 smooths short-term pressure noise (door slams, fans);
 # 4-sample averaging trims noise without adding visible lag. The sensor's
 # built-in filters eliminate the need for downstream software smoothing.
-lps = LPS22DFFull(connection)                              # Create LPS22DF driver, (connection, bus_type='i2c')
+lps = LPS22DFFull(connection)                              # Create LPS22DF driver, (connection)
 lps.configure(odr=4, avg=0, en_lpfp=True, lfpf_cfg=1, bdu=True)  # Configure chip, (odr=25 Hz, avg=4, en_lpfp=True, lfpf_cfg=ODR/9, bdu=True) → None
 
 # --- Baseline capture: 2-second stabilization then zero the altimeter ---

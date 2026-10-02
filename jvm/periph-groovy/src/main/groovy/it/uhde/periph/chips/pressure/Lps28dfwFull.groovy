@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
+import it.uhde.periph.connection.Register
 
 /**
  * LPS28DFW — dual full-scale digital barometer (full driver).
@@ -54,7 +55,7 @@ class Lps28dfwFull extends Lps28dfwMinimal {
     private static final int REG_FIFO_STATUS1 = 0x25
     private static final int REG_FIFO_DATA_XL = 0x78
 
-    Lps28dfwFull(it.uhde.periph.connection.Connection connection) {
+    Lps28dfwFull(it.uhde.periph.connection.RegisterConnection connection) {
         super(connection)
     }
 
@@ -73,9 +74,9 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** Burst-read pressure and temperature. */
     double[] read() {
-        byte[] b = connection.writeRead([REG_PRESS_OUT_XL] as byte[], 5)
+        byte[] b = connection.read(REG_PRESS_OUT_XL, 5)
         int p = ((b[2] & 0xFF) << 16) | ((b[1] & 0xFF) << 8) | (b[0] & 0xFF)
-        if ((p & 0x800000) != 0) p = (int) (p | 0xFF000000L)
+        p = Register.toSigned(p, 24)
         int t = (short) (((b[4] & 0xFF) << 8) | (b[3] & 0xFF))
         double sens = (fsMode == 0) ? SENSITIVITY_MODE1 : SENSITIVITY_MODE2
         return [p / sens, t / 100.0d] as double[]
@@ -83,19 +84,19 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** True if STATUS.P_DA is set. */
     boolean isDataReady() {
-        byte[] status = connection.writeRead([REG_STATUS] as byte[], 1)
+        byte[] status = connection.read(REG_STATUS, 1)
         return (status[0] & STATUS_P_DA) != 0
     }
 
     /** Trigger a one-shot measurement (with ODR=0000) and read the result. */
     double[] readOneshot() {
-        byte[] saved = connection.writeRead([REG_CTRL_REG1] as byte[], 1)
+        byte[] saved = connection.read(REG_CTRL_REG1, 1)
         int savedOdr = (saved[0] & 0xFF) >> 3
         writeReg(REG_CTRL_REG1, avg & 0x07)
-        byte[] c2 = connection.writeRead([REG_CTRL_REG2] as byte[], 1)
+        byte[] c2 = connection.read(REG_CTRL_REG2, 1)
         writeReg(REG_CTRL_REG2, (c2[0] & 0xFF) | 0x01)
         for (int i = 0; i < 200; i++) {
-            byte[] status = connection.writeRead([REG_STATUS] as byte[], 1)
+            byte[] status = connection.read(REG_STATUS, 1)
             if ((status[0] & STATUS_P_DA) != 0) break
             try { Thread.sleep(5) } catch (InterruptedException ignored) { Thread.currentThread().interrupt() }
         }
@@ -115,7 +116,7 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** Issue a software reset and wait for the chip to reboot (~2 ms). */
     void softreset() {
-        byte[] c2 = connection.writeRead([REG_CTRL_REG2] as byte[], 1)
+        byte[] c2 = connection.read(REG_CTRL_REG2, 1)
         writeReg(REG_CTRL_REG2, (c2[0] & 0xFF) | 0x02)
         try { Thread.sleep(2) } catch (InterruptedException ignored) { Thread.currentThread().interrupt() }
     }
@@ -136,13 +137,13 @@ class Lps28dfwFull extends Lps28dfwMinimal {
     double[] fifoRead(int count) {
         if (count <= 0) return new double[0]
         int n = count > 128 ? 128 : count
-        byte[] raw = connection.writeRead([REG_FIFO_DATA_XL] as byte[], n * 3)
+        byte[] raw = connection.read(REG_FIFO_DATA_XL, n * 3)
         double sens = (fsMode == 0) ? SENSITIVITY_MODE1 : SENSITIVITY_MODE2
         double[] out = new double[n]
         for (int i = 0; i < n; i++) {
             int base = i * 3
             int v = ((raw[base + 2] & 0xFF) << 16) | ((raw[base + 1] & 0xFF) << 8) | (raw[base] & 0xFF)
-            if ((v & 0x800000) != 0) v = (int) (v | 0xFF000000L)
+            v = Register.toSigned(v, 24)
             out[i] = v / sens
         }
         return out
@@ -150,7 +151,7 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** Return the number of unread samples in the FIFO. */
     int fifoLevel() {
-        byte[] b = connection.writeRead([REG_FIFO_STATUS1] as byte[], 1)
+        byte[] b = connection.read(REG_FIFO_STATUS1, 1)
         return b[0] & 0xFF
     }
 
@@ -162,7 +163,7 @@ class Lps28dfwFull extends Lps28dfwMinimal {
         if (raw > 0x7FFF) raw = 0x7FFF
         writeReg(REG_THS_P_L, raw & 0xFF)
         writeReg(REG_THS_P_H, (raw >> 8) & 0x7F)
-        byte[] cfg = connection.writeRead([REG_INTERRUPT_CFG] as byte[], 1)
+        byte[] cfg = connection.read(REG_INTERRUPT_CFG, 1)
         int v = (cfg[0] & 0xFF) & ~0x03
         if (high) v |= 0x01
         if (low)  v |= 0x02
@@ -171,7 +172,7 @@ class Lps28dfwFull extends Lps28dfwMinimal {
 
     /** Read the WHO_AM_I register. */
     int chipId() {
-        byte[] b = connection.writeRead([REG_WHO_AM_I] as byte[], 1)
+        byte[] b = connection.read(REG_WHO_AM_I, 1)
         return b[0] & 0xFF
     }
 

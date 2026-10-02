@@ -41,7 +41,7 @@ const _STATUS_MH = 0x20;
  */
 class AS5600Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x36).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (fixed address 0x36).
      */
     constructor(connection) {
         this._conn = connection;
@@ -56,26 +56,12 @@ class AS5600Minimal {
     }
 
     async _readReg8(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
+        return (await this._conn.readReg(reg, 1))[0];
     }
 
     async _readReg16(reg) {
-        const raw = await this._conn.writeRead(Buffer.from([reg]), 2);
+        const raw = await this._conn.readReg(reg, 2);
         return (raw[0] << 8) | raw[1];
-    }
-
-    async _writeReg8(reg, value) {
-        const buf = Buffer.alloc(2);
-        buf[0] = reg;
-        buf[1] = value;
-        await this._conn.write(buf);
-    }
-
-    async _writeReg16(reg, value) {
-        const buf = Buffer.alloc(3);
-        buf[0] = reg;
-        buf.writeUInt16BE(value, 1);
-        await this._conn.write(buf);
     }
 
     /**
@@ -137,7 +123,7 @@ class AS5600Full extends AS5600Minimal {
     static OUTS_PWM     = 2;
 
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x36).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (fixed address 0x36).
      */
     constructor(connection) {
         super(connection);
@@ -205,7 +191,7 @@ class AS5600Full extends AS5600Minimal {
         let confL = await this._readReg8(_REG_CONF_L);
         confH = (confH & 0xC0) | ((wd ? 1 : 0) << 5) | ((fth & 0x07) << 2) | (sf & 0x03);
         confL = ((pwmf & 0x03) << 6) | ((outs & 0x03) << 4) | ((hyst & 0x03) << 2) | (pm & 0x03);
-        await this._writeReg16(_REG_CONF_H, (confH << 8) | confL);
+        await this._conn.writeReg(_REG_CONF_H, Buffer.from([(((confH << 8) | confL) >> 8) & 0xFF, ((confH << 8) | confL) & 0xFF]));
     }
 
     /**
@@ -214,8 +200,8 @@ class AS5600Full extends AS5600Minimal {
      * @returns {Promise<void>}
      */
     async setZeroPosition(pos) {
-        await this._writeReg8(_REG_ZPOS_H, (pos >> 8) & 0x0F);
-        await this._writeReg8(_REG_ZPOS_L, pos & 0xFF);
+        await this._conn.writeReg(_REG_ZPOS_H, (pos >> 8) & 0x0F);
+        await this._conn.writeReg(_REG_ZPOS_L, pos & 0xFF);
     }
 
     /**
@@ -224,8 +210,8 @@ class AS5600Full extends AS5600Minimal {
      * @returns {Promise<void>}
      */
     async setMaxPosition(pos) {
-        await this._writeReg8(_REG_MPOS_H, (pos >> 8) & 0x0F);
-        await this._writeReg8(_REG_MPOS_L, pos & 0xFF);
+        await this._conn.writeReg(_REG_MPOS_H, (pos >> 8) & 0x0F);
+        await this._conn.writeReg(_REG_MPOS_L, pos & 0xFF);
     }
 
     /**
@@ -234,8 +220,8 @@ class AS5600Full extends AS5600Minimal {
      * @returns {Promise<void>}
      */
     async setMaxAngle(span) {
-        await this._writeReg8(_REG_MANG_H, (span >> 8) & 0x0F);
-        await this._writeReg8(_REG_MANG_L, span & 0xFF);
+        await this._conn.writeReg(_REG_MANG_H, (span >> 8) & 0x0F);
+        await this._conn.writeReg(_REG_MANG_L, span & 0xFF);
     }
 
     /**
@@ -290,7 +276,7 @@ class AS5600Full extends AS5600Minimal {
         if (zmco >= 3) {
             throw new Error('AS5600: cannot burn angle — ZMCO limit reached (3)');
         }
-        await this._writeReg8(_REG_BURN, 0x80);
+        await this._conn.writeReg(_REG_BURN, 0x80);
     }
 
     /**
@@ -306,7 +292,7 @@ class AS5600Full extends AS5600Minimal {
         if (zmco !== 0) {
             throw new Error('AS5600: cannot burn setting — ZMCO must be 0');
         }
-        await this._writeReg8(_REG_BURN, 0x40);
+        await this._conn.writeReg(_REG_BURN, 0x40);
     }
 }
 

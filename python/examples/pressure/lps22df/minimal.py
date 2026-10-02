@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.lps22df import LPS22DFMinimal
 
 connection = I2CConnection(0x5C)
-lps = LPS22DFMinimal(connection)                           # Create LPS22DF driver, (connection, bus_type='i2c')
+lps = LPS22DFMinimal(connection)                           # Create LPS22DF driver, (connection)
 
 for _ in range(5):
     p = lps.pressure()                                   # Read pressure, () → float Pa

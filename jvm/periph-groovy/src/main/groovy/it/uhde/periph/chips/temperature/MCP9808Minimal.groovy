@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.temperature
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 
 import java.io.IOException
 
@@ -38,7 +39,7 @@ class MCP9808Minimal {
     protected static final int REG_DEVICE_ID  = 0x07
     protected static final int REG_RESOLUTION = 0x08
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver and confirm the chip's identity (the revision byte is ignored).
@@ -46,7 +47,7 @@ class MCP9808Minimal {
      * @param connection configured I²C connection pointing at the device (0x18–0x1F)
      * @throws IOException on bus error, or if {@code MANUFACTURER_ID}/{@code DEVICE_ID} do not match
      */
-    MCP9808Minimal(Connection connection) {
+    MCP9808Minimal(RegisterConnection connection) {
         this.connection = connection
         int mfr = readReg(REG_MFR_ID)
         if (mfr != MANUFACTURER_ID) {
@@ -68,7 +69,7 @@ class MCP9808Minimal {
      * @throws IOException on bus error
      */
     protected int readReg(int reg) {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2)
+        byte[] b = connection.read(reg, 2)
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 
@@ -80,7 +81,7 @@ class MCP9808Minimal {
      * @throws IOException on bus error
      */
     protected void writeReg(int reg, int value) {
-        connection.write(new byte[]{(byte) reg, (byte) (value >> 8), (byte) value})
+        connection.write(reg, new byte[]{(byte) (value >> 8), (byte) value})
     }
 
     /**
@@ -94,7 +95,7 @@ class MCP9808Minimal {
      */
     double readTemperature() {
         int raw = readReg(REG_TA) & 0x1FFF
-        if ((raw & 0x1000) != 0) raw -= 0x2000
+        raw = Register.toSigned(raw, 13)
         return raw / 16.0d
     }
 }

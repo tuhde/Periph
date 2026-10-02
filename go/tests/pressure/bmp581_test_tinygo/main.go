@@ -39,7 +39,7 @@ func main() {
 		}
 	}
 
-	chip, err := pressure.NewBMP581Minimal(conn, false)
+	chip, err := pressure.NewBMP581Full(conn)
 	if err != nil {
 		println("FAIL init:", err.Error())
 		return

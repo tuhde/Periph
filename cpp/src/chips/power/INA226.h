@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief INA226 36V, 16-bit current/voltage/power monitor — minimal interface.
  *
@@ -14,13 +14,13 @@
  * - VSHCT = 4: 1.1 ms shunt voltage conversion time
  * - AVG = 0: 1 sample (no averaging)
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt     Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
 class INA226Minimal {
 public:
-    INA226Minimal(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA226Minimal(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Read bus voltage.
      *  @return Bus voltage in volts (raw × 1.25 mV LSB).
@@ -51,7 +51,7 @@ protected:
     static constexpr uint8_t  REG_CAL         = 0x05;
     static constexpr uint16_t CONFIG_DEFAULT  = 0x4127;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     float      _current_lsb;
     uint16_t   _cal;
 
@@ -73,7 +73,7 @@ protected:
  * - POL  — power over-limit
  * - CNVR — conversion ready
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt     Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
@@ -87,7 +87,7 @@ public:
     static constexpr uint16_t CNVR = 0x0400;
     static constexpr uint16_t AFF  = 0x0010;
 
-    INA226Full(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA226Full(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Write the Configuration Register.
      *  @param avg     Averaging count selector 0–7 (0 = 1 sample … 7 = 1024 samples).

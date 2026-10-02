@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -8,10 +9,9 @@ import java.io.IOException
  * threshold/offset calibration, FIFO, interrupts, and AUTOZERO/AUTOREFP.
  */
 class Lps22dfFull @JvmOverloads constructor(
-    conn: Connection,
-    addr: Int = 0x5C,
-    busType: Int = Lps22dfMinimal.BUS_I2C
-) : Lps22dfMinimal(conn, addr, busType) {
+    conn: RegisterConnection,
+    addr: Int = 0x5C
+) : Lps22dfMinimal(conn, addr) {
 
     companion object {
         /** Output data rate: power-down. */
@@ -199,7 +199,7 @@ class Lps22dfFull @JvmOverloads constructor(
             var value = (raw[base].toInt() and 0xFF) or
                         ((raw[base + 1].toInt() and 0xFF) shl 8) or
                         ((raw[base + 2].toInt() and 0xFF) shl 16)
-            if ((value and 0x800000) != 0) value -= 0x1000000
+            value = Register.toSigned(value, 24)
             out[i] = (value / 4096.0) * 100.0
         }
         return n

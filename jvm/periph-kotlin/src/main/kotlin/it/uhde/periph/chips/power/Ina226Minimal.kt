@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * INA226 — 16-bit current/power monitor with I²C interface (minimal driver).
@@ -18,7 +18,7 @@ import it.uhde.periph.connection.Connection
  * - Averaging: 1 sample (0)
  */
 open class Ina226Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
 ) {
@@ -91,11 +91,8 @@ open class Ina226Minimal @JvmOverloads constructor(
      * @param val 16-bit value
      */
     protected fun writeReg(reg: Int, `val`: Int) {
-        connection.write(byteArrayOf(
-            reg.toByte(),
-            (`val` shr 8).toByte(),
-            (`val` and 0xFF).toByte()
-        ))
+        connection.write(reg, byteArrayOf((`val` shr 8).toByte(),
+            (`val` and 0xFF).toByte()))
     }
 
     /**
@@ -105,7 +102,7 @@ open class Ina226Minimal @JvmOverloads constructor(
      * @return unsigned 16-bit value (0–65535)
      */
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
@@ -116,7 +113,7 @@ open class Ina226Minimal @JvmOverloads constructor(
      * @return signed 16-bit value (-32768–32767)
      */
     protected fun readRegSigned(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return (((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)).toShort().toInt()
     }
 }

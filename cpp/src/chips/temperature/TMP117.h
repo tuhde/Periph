@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief TMP117 ±0.1°C high-accuracy, low-power digital temperature sensor — minimal interface.
  *
@@ -16,7 +16,7 @@
  *  the POR/EEPROM default (continuous conversion, 8-conversion averaging,
  *  1 s cycle, Alert mode) already serves the primary use case.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class TMP117Minimal {
 public:
@@ -25,7 +25,7 @@ public:
     /** @brief Expected DEVICE_ID bits 11:0 (bits 15:12 are the silicon revision). */
     static constexpr uint16_t DEVICE_ID = 0x117;
 
-    explicit TMP117Minimal(Connection& connection);
+    explicit TMP117Minimal(RegisterConnection& connection);
 
     /** @brief Read the temperature.
      *
@@ -49,7 +49,7 @@ protected:
     static constexpr uint8_t REG_EEPROM3     = 0x08;
     static constexpr uint8_t REG_DEVICE_ID   = 0x0F;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     uint16_t _readReg(uint8_t reg);
     void _writeReg(uint8_t reg, uint16_t value);
@@ -63,7 +63,7 @@ protected:
  *  limits, the calibration offset, soft reset, EEPROM persistence and
  *  scratch storage, and the Level-2 Alert/interrupt API.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class TMP117Full : public TMP117Minimal {
 public:
@@ -101,7 +101,7 @@ public:
         float cycleSeconds;  ///< CONV[2:0] cycle time in s (no-averaging column)
     };
 
-    explicit TMP117Full(Connection& connection);
+    explicit TMP117Full(RegisterConnection& connection);
 
     /** @brief Set conversion mode, averaging and cycle time.
      *

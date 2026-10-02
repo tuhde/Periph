@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import kotlin.math.roundToInt
 
 /**
@@ -85,7 +85,7 @@ class Ina3221Full : Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω applied to all three channels
      */
-    constructor(connection: Connection, rShunt: Double) : super(connection, rShunt)
+    constructor(connection: RegisterConnection, rShunt: Double) : super(connection, rShunt)
 
     /**
      * Construct with per-channel shunt resistances.
@@ -93,14 +93,14 @@ class Ina3221Full : Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunts   shunt resistances in Ω for channels 1, 2, and 3
      */
-    constructor(connection: Connection, rShunts: DoubleArray) : super(connection, rShunts)
+    constructor(connection: RegisterConnection, rShunts: DoubleArray) : super(connection, rShunts)
 
     /**
      * Construct with the default shunt resistance (0.1 Ω) for all channels.
      *
      * @param connection I²C connection bound to the INA3221 device address
      */
-    constructor(connection: Connection) : super(connection)
+    constructor(connection: RegisterConnection) : super(connection)
 
     /**
      * Write the configuration register, preserving the channel-enable bits.

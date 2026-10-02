@@ -1,4 +1,6 @@
 import struct
+
+from periph.connection.register import to_signed
 import time
 
 
@@ -16,7 +18,7 @@ class LPS28DFWMinimal:
         - BDU = 1, EN_LPFP = 1, LFPF_CFG = 0 (ODR/4 bandwidth)
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_INTERRUPT_CFG = 0x0B
@@ -57,23 +59,21 @@ class LPS28DFWMinimal:
         self._write_reg(self._REG_CTRL_REG1, ctrl1)
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
+        self._connection.write_reg(reg, value)
 
     def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
+        return self._connection.read_reg(reg, n)
 
     def _read_pressure_raw(self):
         raw = self._read_reg(self._REG_PRESS_OUT_XL, 3)
         value = (raw[2] << 16) | (raw[1] << 8) | raw[0]
-        if value & 0x800000:
-            value -= 0x1000000
+        value = to_signed(value, 24)
         return value
 
     def _read_temperature_raw(self):
         raw = self._read_reg(self._REG_TEMP_OUT_L, 2)
         value = (raw[1] << 8) | raw[0]
-        if value & 0x8000:
-            value -= 0x10000
+        value = to_signed(value, 16)
         return value
 
     def read_pressure(self):
@@ -106,7 +106,7 @@ class LPS28DFWFull(LPS28DFWMinimal):
     configuration / drain / level, and pressure-threshold interrupt setup.
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     ODR_POWER_DOWN = 0x00
@@ -181,11 +181,9 @@ class LPS28DFWFull(LPS28DFWMinimal):
         """
         raw = self._read_reg(self._REG_PRESS_OUT_XL, 5)
         p = (raw[2] << 16) | (raw[1] << 8) | raw[0]
-        if p & 0x800000:
-            p -= 0x1000000
+        p = to_signed(p, 24)
         t = (raw[4] << 8) | raw[3]
-        if t & 0x8000:
-            t -= 0x10000
+        t = to_signed(t, 16)
         if self._fs_mode == 0:
             pressure = p / self._SENSITIVITY_LSB_PER_HPA_MODE1
         else:
@@ -294,8 +292,7 @@ class LPS28DFWFull(LPS28DFWMinimal):
         for i in range(count):
             base = i * 3
             v = (raw[base + 2] << 16) | (raw[base + 1] << 8) | raw[base]
-            if v & 0x800000:
-                v -= 0x1000000
+            v = to_signed(v, 24)
             out.append(v / sens)
         return out
 

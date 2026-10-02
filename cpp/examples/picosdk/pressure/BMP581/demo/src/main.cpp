@@ -15,7 +15,7 @@ int main(void) {
     stdio_init_all();
     sleep_ms(2000);
 
-    BMP581Full bmp(connection, /*spi=*/false);
+    BMP581Full bmp(connection);
 
     // --- Precision altimeter: 10 Hz NORMAL mode for 30 seconds ---
     bmp.configure(0x17, BMP581Full::OSR_16X, BMP581Full::OSR_4X, true);  // Configure chip, (odr=10Hz, osr_p=×16, osr_t=×4, press_en) → None

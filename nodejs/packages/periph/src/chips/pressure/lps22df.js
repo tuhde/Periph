@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_INTERRUPT_CFG = 0x0B;
 const _REG_THS_P_L       = 0x0C;
 const _REG_THS_P_H       = 0x0D;
@@ -38,40 +40,28 @@ function _delay(ms) {
  * Default: ODR=10 Hz, AVG=4 samples, BDU enabled, low-pass filter off,
  * FIFO bypass mode.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit 0x80, no multi-byte bit).
  */
 class LPS22DFMinimal {
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._init();
     }
 
     async _init() {
-        const who = await this._readReg(_REG_WHO_AM_I, 1);
+        const who = await this._conn.readReg(_REG_WHO_AM_I, 1);
         if (who[0] !== _CHIP_ID) {
             throw new Error(`LPS22DF not found: WHO_AM_I expected 0x${_CHIP_ID.toString(16)}, got 0x${who[0].toString(16)}`);
         }
-        await this._writeReg(_REG_CTRL_REG2, 0x04);  // SWRESET=1
+        await this._conn.writeReg(_REG_CTRL_REG2, 0x04);  // SWRESET=1
         _delay(1);
-        await this._writeReg(_REG_CTRL_REG1, (3 << 3) | 0);  // ODR=10 Hz, AVG=4
-        await this._writeReg(_REG_CTRL_REG2, 0x08);          // BDU=1
-    }
-
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        await this._conn.write(Buffer.from([addr, value & 0xFF]));
-    }
-
-    async _readReg(reg, n) {
-        const addr = this._busType === 'spi' ? (reg | 0x80) : reg;
-        return this._conn.writeRead(Buffer.from([addr]), n);
+        await this._conn.writeReg(_REG_CTRL_REG1, (3 << 3) | 0);  // ODR=10 Hz, AVG=4
+        await this._conn.writeReg(_REG_CTRL_REG2, 0x08);          // BDU=1
     }
 
     async _waitPDa() {
         while (true) {
-            const status = await this._readReg(_REG_STATUS, 1);
+            const status = await this._conn.readReg(_REG_STATUS, 1);
             if (status[0] & 0x01) return;
             _delay(1);
         }
@@ -79,7 +69,7 @@ class LPS22DFMinimal {
 
     async _waitTDa() {
         while (true) {
-            const status = await this._readReg(_REG_STATUS, 1);
+            const status = await this._conn.readReg(_REG_STATUS, 1);
             if (status[0] & 0x02) return;
             _delay(1);
         }
@@ -95,9 +85,9 @@ class LPS22DFMinimal {
      */
     async pressure() {
         await this._waitPDa();
-        const raw = await this._readReg(_REG_PRESS_OUT_XL, 3);
+        const raw = await this._conn.readReg(_REG_PRESS_OUT_XL, 3);
         let value = raw[0] | (raw[1] << 8) | (raw[2] << 16);
-        if (value & 0x800000) value -= 0x1000000;
+        value = toSigned(value, 24);
         return (value / 4096.0) * 100.0;
     }
 
@@ -111,9 +101,9 @@ class LPS22DFMinimal {
      */
     async temperature() {
         await this._waitTDa();
-        const raw = await this._readReg(_REG_TEMP_OUT_L, 2);
+        const raw = await this._conn.readReg(_REG_TEMP_OUT_L, 2);
         let value = raw[0] | (raw[1] << 8);
-        if (value & 0x8000) value -= 0x10000;
+        value = toSigned(value, 16);
         return value / 100.0;
     }
 }
@@ -122,8 +112,7 @@ class LPS22DFMinimal {
  * LPS22DF full interface — extends LPS22DFMinimal with configuration,
  * threshold/offset calibration, FIFO, interrupts, and AUTOZERO/AUTOREFP.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit 0x80, no multi-byte bit).
  */
 class LPS22DFFull extends LPS22DFMinimal {
     static ODR_POWER_DOWN = 0;
@@ -151,8 +140,8 @@ class LPS22DFFull extends LPS22DFMinimal {
     static FIFO_BYPASS_TO_CONT = 4;
     static FIFO_CONT_TO_FIFO   = 5;
 
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -170,14 +159,14 @@ class LPS22DFFull extends LPS22DFMinimal {
         if (enLpfp)  ctrl2 |= 0x10;
         if (lfpfCfg) ctrl2 |= 0x20;
         if (bdu)      ctrl2 |= 0x08;
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
-        await this._writeReg(_REG_CTRL_REG2, ctrl2);
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG2, ctrl2);
     }
 
     /** @returns {Promise<void>} */
     async oneshot() {
-        await this._writeReg(_REG_CTRL_REG1, 0x00);
-        await this._writeReg(_REG_CTRL_REG2, 0x08 | 0x01);
+        await this._conn.writeReg(_REG_CTRL_REG1, 0x00);
+        await this._conn.writeReg(_REG_CTRL_REG2, 0x08 | 0x01);
         await this._waitPDa();
     }
 
@@ -193,7 +182,7 @@ class LPS22DFFull extends LPS22DFMinimal {
 
     /** @returns {Promise<void>} */
     async softwareReset() {
-        await this._writeReg(_REG_CTRL_REG2, 0x04);
+        await this._conn.writeReg(_REG_CTRL_REG2, 0x04);
         _delay(1);
     }
 
@@ -206,8 +195,8 @@ class LPS22DFFull extends LPS22DFMinimal {
         const offsetHpa = offsetPa / 100.0;
         let raw = Math.round(offsetHpa * 4096.0);
         if (raw < 0) raw += 0x10000;
-        await this._writeReg(_REG_RPDS_L, raw & 0xFF);
-        await this._writeReg(_REG_RPDS_H, (raw >> 8) & 0xFF);
+        await this._conn.writeReg(_REG_RPDS_L, raw & 0xFF);
+        await this._conn.writeReg(_REG_RPDS_H, (raw >> 8) & 0xFF);
     }
 
     /**
@@ -218,8 +207,8 @@ class LPS22DFFull extends LPS22DFMinimal {
     async setPressureThreshold(thresholdPa) {
         const thresholdHpa = thresholdPa / 100.0;
         const raw = (Math.round(thresholdHpa * 16.0)) & 0x7FFF;
-        await this._writeReg(_REG_THS_P_L, raw & 0xFF);
-        await this._writeReg(_REG_THS_P_H, (raw >> 8) & 0xFF);
+        await this._conn.writeReg(_REG_THS_P_L, raw & 0xFF);
+        await this._conn.writeReg(_REG_THS_P_H, (raw >> 8) & 0xFF);
     }
 
     /**
@@ -237,8 +226,8 @@ class LPS22DFFull extends LPS22DFMinimal {
         if (intFFull)  ctrl4 |= 0x04;
         if (intFWtm)   ctrl4 |= 0x02;
         if (intFOvr)   ctrl4 |= 0x01;
-        await this._writeReg(_REG_CTRL_REG3, ctrl3);
-        await this._writeReg(_REG_CTRL_REG4, ctrl4);
+        await this._conn.writeReg(_REG_CTRL_REG3, ctrl3);
+        await this._conn.writeReg(_REG_CTRL_REG4, ctrl4);
     }
 
     /**
@@ -250,22 +239,22 @@ class LPS22DFFull extends LPS22DFMinimal {
         if (phe) cfg |= 0x01;
         if (ple) cfg |= 0x02;
         if (lir) cfg |= 0x04;
-        await this._writeReg(_REG_INTERRUPT_CFG, cfg);
+        await this._conn.writeReg(_REG_INTERRUPT_CFG, cfg);
     }
 
     /** @returns {Promise<void>} */
     async autozero() {
-        await this._writeReg(_REG_INTERRUPT_CFG, 0x20);
+        await this._conn.writeReg(_REG_INTERRUPT_CFG, 0x20);
     }
 
     /** @returns {Promise<void>} */
     async autorefp() {
-        await this._writeReg(_REG_INTERRUPT_CFG, 0x80);
+        await this._conn.writeReg(_REG_INTERRUPT_CFG, 0x80);
     }
 
     /** @returns {Promise<void>} */
     async resetReference() {
-        await this._writeReg(_REG_INTERRUPT_CFG, 0x50);
+        await this._conn.writeReg(_REG_INTERRUPT_CFG, 0x50);
     }
 
     /**
@@ -273,9 +262,9 @@ class LPS22DFFull extends LPS22DFMinimal {
      * @returns {Promise<number>} Reference pressure in pascals.
      */
     async referencePressure() {
-        const raw = await this._readReg(_REG_REF_P_L, 2);
+        const raw = await this._conn.readReg(_REG_REF_P_L, 2);
         let value = raw[0] | (raw[1] << 8);
-        if (value & 0x8000) value -= 0x10000;
+        value = toSigned(value, 16);
         return (value / 4096.0) * 100.0;
     }
 
@@ -292,7 +281,7 @@ class LPS22DFFull extends LPS22DFMinimal {
         else if (mode === 3) { trig = 1; fm = 1; }
         else if (mode === 4) { trig = 1; fm = 2; }
         else                { trig = 1; fm = 3; }
-        await this._writeReg(_REG_FIFO_CTRL, (trig << 2) | (fm & 0x03));
+        await this._conn.writeReg(_REG_FIFO_CTRL, (trig << 2) | (fm & 0x03));
     }
 
     /**
@@ -301,7 +290,7 @@ class LPS22DFFull extends LPS22DFMinimal {
      * @returns {Promise<void>}
      */
     async setFifoWatermark(level) {
-        await this._writeReg(_REG_FIFO_WTM, level & 0x7F);
+        await this._conn.writeReg(_REG_FIFO_WTM, level & 0x7F);
     }
 
     /**
@@ -309,7 +298,7 @@ class LPS22DFFull extends LPS22DFMinimal {
      * @returns {Promise<number>} Stored FIFO samples (0..127).
      */
     async fifoSampleCount() {
-        const v = await this._readReg(_REG_FIFO_STATUS1, 1);
+        const v = await this._conn.readReg(_REG_FIFO_STATUS1, 1);
         return v[0];
     }
 
@@ -320,12 +309,12 @@ class LPS22DFFull extends LPS22DFMinimal {
     async readFifo() {
         const count = await this.fifoSampleCount();
         if (count === 0) return [];
-        const raw = await this._readReg(_REG_FIFO_PRESS_XL, count * 3);
+        const raw = await this._conn.readReg(_REG_FIFO_PRESS_XL, count * 3);
         const out = new Array(count);
         for (let i = 0; i < count; i++) {
             const base = i * 3;
             let value = raw[base] | (raw[base + 1] << 8) | (raw[base + 2] << 16);
-            if (value & 0x800000) value -= 0x1000000;
+            value = toSigned(value, 24);
             out[i] = (value / 4096.0) * 100.0;
         }
         return out;
@@ -336,7 +325,7 @@ class LPS22DFFull extends LPS22DFMinimal {
      * @returns {Promise<{boot_on:boolean,ia:boolean,ph:boolean,pl:boolean}>}
      */
     async interruptSource() {
-        const raw = await this._readReg(_REG_INT_SOURCE, 1);
+        const raw = await this._conn.readReg(_REG_INT_SOURCE, 1);
         const v = raw[0];
         return {
             boot_on: !!(v & 0x80),

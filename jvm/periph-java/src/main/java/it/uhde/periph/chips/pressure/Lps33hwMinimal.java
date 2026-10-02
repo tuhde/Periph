@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -60,7 +61,7 @@ public class Lps33hwMinimal {
     /** Default CTRL_REG2 after reset (IF_ADD_INC=1). */
     protected static final int CTRL_REG2_DEFAULT = 0x10;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver, verify the chip ID, software-reset, and apply
@@ -69,11 +70,11 @@ public class Lps33hwMinimal {
      * @param connection I²C connection bound to address 0x5C
      * @throws IOException on I²C error or wrong chip ID
      */
-    public Lps33hwMinimal(Connection connection) throws IOException {
+    public Lps33hwMinimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
 
         // Verify chip ID.
-        byte[] id = connection.writeRead(new byte[]{(byte) REG_WHO_AM_I}, 1);
+        byte[] id = connection.read(REG_WHO_AM_I, 1);
         int chipId = id[0] & 0xFF;
         if (chipId != CHIP_ID) {
             throw new IOException(
@@ -96,7 +97,7 @@ public class Lps33hwMinimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     /**
@@ -107,7 +108,7 @@ public class Lps33hwMinimal {
      * @throws IOException on I²C error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.read(reg, 1);
         return b[0] & 0xFF;
     }
 
@@ -139,13 +140,13 @@ public class Lps33hwMinimal {
      */
     protected double[] readPressTemp() throws IOException {
         waitStatus(STATUS_P_DA | STATUS_T_DA);
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_PRESS_XL}, 5);
+        byte[] raw = connection.read(REG_PRESS_XL, 5);
         int rawPress = ((raw[0] & 0xFF))
                      | ((raw[1] & 0xFF) << 8)
                      | ((raw[2] & 0xFF) << 16);
-        if (rawPress >= 0x800000) rawPress -= 0x1000000;
+        rawPress = Register.toSigned(rawPress, 24);
         int rawTemp = (raw[3] & 0xFF) | ((raw[4] & 0xFF) << 8);
-        if (rawTemp >= 0x8000) rawTemp -= 0x10000;
+        rawTemp = Register.toSigned(rawTemp, 16);
         double pressure_Pa = rawPress * 100.0 / 4096.0;
         double temperature_C = rawTemp / 100.0;
         return new double[]{pressure_Pa, temperature_C};

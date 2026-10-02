@@ -11,7 +11,7 @@ const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
     // --- Indoor altimeter preset: 25 Hz, 4-sample average, low-pass filter ---
     // Low-pass at ODR/9 smooths short-term pressure noise (door slams, fans);
     // 4-sample averaging trims noise without adding visible lag.
-    const lps = new LPS22DFFull(connection);                 // Create LPS22DF driver, (connection, busType='i2c')
+    const lps = new LPS22DFFull(connection);                 // Create LPS22DF driver, (connection)
     await lps.configure(4, 0, true, 1, true);                // Configure chip, (odr=25 Hz, avg=4, enLpfp=true, lfpfCfg=ODR/9, bdu=true) → undefined
 
     // --- Baseline capture: 2-second stabilization then zero the altimeter ---

@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -19,11 +20,6 @@ import java.io.IOException;
  * FIFO bypass mode.
  */
 public class Lps22dfMinimal {
-
-    /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
-    public static final int BUS_I2C = 0;
-    /** Bus type: SPI — write addresses have bit 7 cleared, read addresses have bit 7 set. */
-    public static final int BUS_SPI = 1;
 
     // Register addresses
     protected static final int REG_INTERRUPT_CFG = 0x0B;
@@ -56,8 +52,7 @@ public class Lps22dfMinimal {
     /** Status flag: temperature data available. */
     protected static final int STATUS_T_DA = 0x02;
 
-    protected final Connection connection;
-    protected final int busType;
+    protected final RegisterConnection connection;
     protected final int addr;
 
     /**
@@ -66,33 +61,23 @@ public class Lps22dfMinimal {
      * @param connection I²C connection bound to address 0x5C.
      * @throws IOException on I²C error or wrong chip ID.
      */
-    public Lps22dfMinimal(Connection connection) throws IOException {
-        this(connection, 0x5C, BUS_I2C);
+    public Lps22dfMinimal(RegisterConnection connection) throws IOException {
+        this(connection, 0x5C);
     }
 
     /**
      * Construct at the given address.
      *
-     * @param connection I²C connection bound to the chip.
-     * @param addr       I²C device address (0x5C or 0x5D).
-     * @throws IOException on I²C error or wrong chip ID.
-     */
-    public Lps22dfMinimal(Connection connection, int addr) throws IOException {
-        this(connection, addr, BUS_I2C);
-    }
-
-    /**
-     * Construct at the given address and bus type.
+     * <p>For SPI, construct the connection with the ST convention (read bit
+     * 0x80, no multi-byte bit); the connection clears bit 7 on writes itself.
      *
-     * @param connection I²C or SPI connection.
+     * @param connection I²C, SMBus, or SPI register connection.
      * @param addr       I²C device address; unused for SPI.
-     * @param busType    {@link #BUS_I2C} or {@link #BUS_SPI}.
      * @throws IOException on bus error or wrong chip ID.
      */
-    public Lps22dfMinimal(Connection connection, int addr, int busType) throws IOException {
+    public Lps22dfMinimal(RegisterConnection connection, int addr) throws IOException {
         this.connection = connection;
         this.addr = addr;
-        this.busType = busType;
 
         byte[] who = readReg(REG_WHO_AM_I, 1);
         if ((who[0] & 0xFF) != CHIP_ID) {
@@ -110,21 +95,18 @@ public class Lps22dfMinimal {
     }
 
     /**
-     * Write a single byte to a register, applying the SPI write-address mask
-     * when this driver was constructed with {@link #BUS_SPI}.
+     * Write a single byte to a register.
      *
-     * @param reg   register address (I²C / unmasked form)
+     * @param reg   register address
      * @param value byte value to write
      * @throws IOException on bus error
      */
     protected void writeReg(int reg, int value) throws IOException {
-        int a = (busType == BUS_SPI) ? (reg & 0x7F) : reg;
-        connection.write(new byte[]{(byte) a, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     /**
-     * Read bytes from a register, setting the SPI read-address bit when
-     * this driver was constructed with {@link #BUS_SPI}.
+     * Read bytes from a register.
      *
      * @param reg register address
      * @param len number of bytes to read
@@ -132,8 +114,7 @@ public class Lps22dfMinimal {
      * @throws IOException on bus error
      */
     protected byte[] readReg(int reg, int len) throws IOException {
-        int a = (busType == BUS_SPI) ? (reg | 0x80) : reg;
-        return connection.writeRead(new byte[]{(byte) a}, len);
+        return connection.read(reg, len);
     }
 
     /** Poll STATUS until P_DA is set. */
@@ -167,7 +148,7 @@ public class Lps22dfMinimal {
         waitPDa();
         byte[] raw = readReg(REG_PRESS_OUT_XL, 3);
         int value = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8) | ((raw[2] & 0xFF) << 16);
-        if ((value & 0x800000) != 0) value -= 0x1000000;
+        value = Register.toSigned(value, 24);
         return (value / 4096.0) * 100.0;
     }
 

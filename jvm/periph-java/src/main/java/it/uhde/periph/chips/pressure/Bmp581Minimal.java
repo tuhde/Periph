@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ public class Bmp581Minimal {
     protected static final int STATUS_NVM_ERR = 0x04;
     protected static final int INT_STATUS_DRDY = 0x01;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
     protected final int busType;
 
     protected int odr = 0x1C;
@@ -53,7 +53,7 @@ public class Bmp581Minimal {
      * @param connection I²C connection bound to address 0x46
      * @throws IOException on I²C error or wrong chip ID
      */
-    public Bmp581Minimal(Connection connection) throws IOException {
+    public Bmp581Minimal(RegisterConnection connection) throws IOException {
         this(connection, 0x46);
     }
 
@@ -64,7 +64,7 @@ public class Bmp581Minimal {
      * @param addr      I²C device address (0x46 or 0x47)
      * @throws IOException on I²C error or wrong chip ID
      */
-    public Bmp581Minimal(Connection connection, int addr) throws IOException {
+    public Bmp581Minimal(RegisterConnection connection, int addr) throws IOException {
         this(connection, addr, BUS_I2C);
     }
 
@@ -79,7 +79,7 @@ public class Bmp581Minimal {
      * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
      * @throws IOException on bus error or wrong chip ID
      */
-    public Bmp581Minimal(Connection connection, int addr, int busType) throws IOException {
+    public Bmp581Minimal(RegisterConnection connection, int addr, int busType) throws IOException {
         this.connection = connection;
         this.busType = busType;
 
@@ -92,32 +92,32 @@ public class Bmp581Minimal {
             connection.write(new byte[]{(byte) (REG_CHIP_ID | 0x80)});
             connection.read(1);
         }
-        byte[] id = connection.writeRead(new byte[]{(byte) REG_CHIP_ID}, 1);
+        byte[] id = connection.read(REG_CHIP_ID, 1);
         int chipId = id[0] & 0xFF;
         if (chipId != CHIP_ID) {
             throw new IOException(
                 "BMP581 not found: expected 0x50, got 0x" + Integer.toHexString(chipId));
         }
         for (int i = 0; i < 50; i++) {
-            byte[] st = connection.writeRead(new byte[]{(byte) REG_STATUS}, 1);
+            byte[] st = connection.read(REG_STATUS, 1);
             int s = st[0] & 0xFF;
             if ((s & STATUS_NVM_RDY) != 0 && (s & STATUS_NVM_ERR) == 0) break;
             try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
-        connection.writeRead(new byte[]{(byte) REG_INT_STATUS}, 1);
+        connection.read(REG_INT_STATUS, 1);
         try {
-            connection.write(new byte[]{(byte) REG_CMD, (byte) SOFT_RESET});
+            connection.write(REG_CMD, new byte[]{(byte) SOFT_RESET});
         } catch (IOException e) {
             // expected NACK on I²C during reset
         }
         try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         for (int i = 0; i < 50; i++) {
-            byte[] st = connection.writeRead(new byte[]{(byte) REG_STATUS}, 1);
+            byte[] st = connection.read(REG_STATUS, 1);
             int s = st[0] & 0xFF;
             if ((s & STATUS_NVM_RDY) != 0 && (s & STATUS_NVM_ERR) == 0) break;
             try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
-        connection.writeRead(new byte[]{(byte) REG_INT_STATUS}, 1);
+        connection.read(REG_INT_STATUS, 1);
         writeReg(REG_OSR_CONFIG, 0x40);
         writeReg(REG_ODR_CONFIG, 0x71);
     }
@@ -132,14 +132,14 @@ public class Bmp581Minimal {
      */
     protected void writeReg(int reg, int value) throws IOException {
         int addr = (busType == BUS_SPI) ? (reg & 0x7F) : reg;
-        connection.write(new byte[]{(byte) addr, (byte) (value & 0xFF)});
+        connection.write(addr, new byte[]{(byte) (value & 0xFF)});
     }
 
     /** Wait for drdy_data_reg if the chip is in FORCED mode. */
     protected void waitForced() throws IOException {
         if (pwrMode != 2) return;
         for (int i = 0; i < 200; i++) {
-            byte[] st = connection.writeRead(new byte[]{(byte) REG_INT_STATUS}, 1);
+            byte[] st = connection.read(REG_INT_STATUS, 1);
             if ((st[0] & INT_STATUS_DRDY) != 0) return;
             try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
@@ -148,14 +148,14 @@ public class Bmp581Minimal {
     /** Burst-read 3 bytes from REG_PRESS_XLSB and decode to Pa. */
     protected int readRawPress() throws IOException {
         waitForced();
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_PRESS_XLSB}, 3);
+        byte[] buf = connection.read(REG_PRESS_XLSB, 3);
         return ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
     }
 
     /** Burst-read 3 bytes from REG_TEMP_XLSB and decode to °C raw (signed 24-bit). */
     protected int readRawTemp() throws IOException {
         waitForced();
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_TEMP_XLSB}, 3);
+        byte[] buf = connection.read(REG_TEMP_XLSB, 3);
         return ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
     }
 
@@ -204,7 +204,7 @@ public class Bmp581Minimal {
      */
     public double[] both() throws IOException {
         waitForced();
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_TEMP_XLSB}, 6);
+        byte[] buf = connection.read(REG_TEMP_XLSB, 6);
         int rawT = ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
         int rawP = ((buf[5] & 0xFF) << 16) | ((buf[4] & 0xFF) << 8) | (buf[3] & 0xFF);
         return new double[]{rawToPressure(rawP), rawToTemperature(rawT)};

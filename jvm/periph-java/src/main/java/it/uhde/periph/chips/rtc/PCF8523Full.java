@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 import it.uhde.periph.connection.EdgeHandler;
 import it.uhde.periph.connection.EdgeTrigger;
 import it.uhde.periph.connection.InputPin;
@@ -147,7 +147,7 @@ public class PCF8523Full extends PCF8523Minimal {
      * @param connection configured I²C connection bound to address 0x68
      * @throws IOException on bus error
      */
-    public PCF8523Full(Connection connection) throws IOException {
+    public PCF8523Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 

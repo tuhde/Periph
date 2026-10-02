@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -58,18 +59,13 @@ public class Lps22dfFull extends Lps22dfMinimal {
     public static final int FIFO_CONT_TO_FIFO   = 5;
 
     /** Construct at default address 0x5C. */
-    public Lps22dfFull(Connection connection) throws IOException {
+    public Lps22dfFull(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
     /** Construct at given address. */
-    public Lps22dfFull(Connection connection, int addr) throws IOException {
-        super(connection, addr, BUS_I2C);
-    }
-
-    /** Construct at given address and bus type. */
-    public Lps22dfFull(Connection connection, int addr, int busType) throws IOException {
-        super(connection, addr, busType);
+    public Lps22dfFull(RegisterConnection connection, int addr) throws IOException {
+        super(connection, addr);
     }
 
     /**
@@ -238,7 +234,7 @@ public class Lps22dfFull extends Lps22dfMinimal {
         for (int i = 0; i < n; i++) {
             int base = i * 3;
             int value = (raw[base] & 0xFF) | ((raw[base + 1] & 0xFF) << 8) | ((raw[base + 2] & 0xFF) << 16);
-            if ((value & 0x800000) != 0) value -= 0x1000000;
+            value = Register.toSigned(value, 24);
             out[i] = (value / 4096.0) * 100.0;
         }
         return n;

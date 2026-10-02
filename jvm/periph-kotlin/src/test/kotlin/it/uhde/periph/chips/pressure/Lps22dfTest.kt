@@ -237,18 +237,4 @@ class Lps22dfTest {
         connection.setRegister(0x24, 0x85) // BOOT_ON | IA | PH
         assertEquals(0x85, full.interruptSource())
     }
-
-    @Test
-    fun spiAddressing() {
-        val connection = MockConnection()
-        // The mock's register map is keyed by the literal address byte sent,
-        // so for SPI (read addresses have bit 7 set) the fixture must be
-        // preloaded at the shifted address.
-        connection.setRegister(0x0F or 0x80, 0xB4)
-        Lps22dfMinimal(connection, 0x5C, Lps22dfMinimal.BUS_SPI)
-
-        val writes = connection.writes()
-        assertEquals(0x0F or 0x80, writes[0][0].toInt() and 0xFF)
-        assertEquals(0x11 and 0x7F, writes[1][0].toInt() and 0xFF)
-    }
 }

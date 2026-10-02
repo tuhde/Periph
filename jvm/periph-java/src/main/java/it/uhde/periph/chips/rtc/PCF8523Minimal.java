@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ public class PCF8523Minimal {
     protected static final int C1_SIE   = 0x04;
     protected static final int C1_AIE   = 0x02;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver. Confirms the device answers by reading
@@ -56,7 +56,7 @@ public class PCF8523Minimal {
      * @param connection configured I²C connection bound to address 0x68
      * @throws IOException on bus error
      */
-    public PCF8523Minimal(Connection connection) throws IOException {
+    public PCF8523Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         readReg(REG_CONTROL_1);
         writeReg(REG_CONTROL_3, 0x00);
@@ -67,22 +67,21 @@ public class PCF8523Minimal {
     // -------------------------------------------------------------------------
 
     protected int readReg(int reg) throws IOException {
-        return connection.writeRead(new byte[]{(byte) reg}, 1)[0] & 0xFF;
+        return connection.read(reg, 1)[0] & 0xFF;
     }
 
     protected byte[] readBurst(int reg, int n) throws IOException {
-        return connection.writeRead(new byte[]{(byte) reg}, n);
+        return connection.read(reg, n);
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     protected void writeBurst(int reg, int... values) throws IOException {
-        byte[] out = new byte[values.length + 1];
-        out[0] = (byte) reg;
-        for (int i = 0; i < values.length; i++) out[i + 1] = (byte) values[i];
-        connection.write(out);
+        byte[] out = new byte[values.length];
+        for (int i = 0; i < values.length; i++) out[i] = (byte) values[i];
+        connection.write(reg, out);
     }
 
     /** {@code CONTROL_1} with {@code T}/{@code SR} masked, safe for read-modify-write. */

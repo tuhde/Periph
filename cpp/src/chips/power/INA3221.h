@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief INA3221 three-channel 26V current/voltage/power monitor — minimal interface.
  *
@@ -9,15 +9,15 @@
  * The chip's power-on default (all three channels on, continuous shunt+bus)
  * is used without modification.
  *
- * @param connection Configured I2C or SMBus connection pointing at the device.
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt  Shunt resistor value in ohms. Pass a single float to apply
  *                  the same value to all three channels, or a 3-element float
  *                  array for per-channel values (default 0.1 ohms for all).
  */
 class INA3221Minimal {
 public:
-    INA3221Minimal(Connection& connection, float r_shunt = 0.1f);
-    INA3221Minimal(Connection& connection, const float r_shunt[3]);
+    INA3221Minimal(RegisterConnection& connection, float r_shunt = 0.1f);
+    INA3221Minimal(RegisterConnection& connection, const float r_shunt[3]);
 
     /** @brief Read bus voltage for a channel.
      *  @param channel Channel number 1, 2, or 3.
@@ -57,7 +57,7 @@ protected:
     static constexpr uint8_t  SHUNT_REGS[3] = { REG_SHUNT1, REG_SHUNT2, REG_SHUNT3 };
     static constexpr uint8_t  BUS_REGS[3]   = { REG_BUS1,   REG_BUS2,   REG_BUS3   };
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     float      _r_shunt[3];
 
     void     _write_reg(uint8_t reg, uint16_t value);
@@ -89,7 +89,7 @@ protected:
  * - MODE_BUS_CONT       = 6
  * - MODE_SHUNT_BUS_CONT = 7
  *
- * @param connection Configured I2C or SMBus connection pointing at the device.
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt  Shunt resistor value in ohms. Pass a single float to apply
  *                  the same value to all three channels, or a 3-element float
  *                  array for per-channel values (default 0.1 ohms for all).
@@ -115,8 +115,8 @@ public:
     static constexpr uint8_t MODE_BUS_CONT       = 6;
     static constexpr uint8_t MODE_SHUNT_BUS_CONT = 7;
 
-    INA3221Full(Connection& connection, float r_shunt = 0.1f);
-    INA3221Full(Connection& connection, const float r_shunt[3]);
+    INA3221Full(RegisterConnection& connection, float r_shunt = 0.1f);
+    INA3221Full(RegisterConnection& connection, const float r_shunt[3]);
 
     /** @brief Write the Configuration Register.
      *  @param avg     Averaging count selector 0–7 (0=1 sample, 7=1024 samples).

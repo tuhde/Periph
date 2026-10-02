@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut lps = Lps22dfMinimal::new(dev, addr, false).expect("init LPS22DF");
+    let mut lps = Lps22dfMinimal::new(dev, addr).expect("init LPS22DF");
 
     let t = lps.temperature().expect("temperature");
     check_true!(t >= -40.0 && t <= 85.0, "temperature_range", passed, failed);
@@ -30,7 +30,7 @@ fn main() {
     drop(lps);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut full = Lps22dfFull::new(dev, addr, false).expect("init LPS22DF Full");
+    let mut full = Lps22dfFull::new(dev, addr).expect("init LPS22DF Full");
     full.configure(3, 0, true, 1, true).expect("configure");
     check_true!(true, "configure", passed, failed);
 

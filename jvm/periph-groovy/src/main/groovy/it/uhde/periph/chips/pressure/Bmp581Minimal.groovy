@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * BMP581 — digital barometric pressure and temperature sensor (minimal driver).
@@ -32,21 +32,21 @@ class Bmp581Minimal {
     protected static final int STATUS_NVM_ERR = 0x04
     protected static final int INT_STATUS_DRDY = 0x01
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected final int busType
 
     protected int odr = 0x1C
     protected int pwrMode = 0x01
 
-    Bmp581Minimal(Connection connection) throws Exception {
+    Bmp581Minimal(RegisterConnection connection) throws Exception {
         this(connection, 0x46, BUS_I2C)
     }
 
-    Bmp581Minimal(Connection connection, int addr) throws Exception {
+    Bmp581Minimal(RegisterConnection connection, int addr) throws Exception {
         this(connection, addr, BUS_I2C)
     }
 
-    Bmp581Minimal(Connection connection, int addr, int busType) throws Exception {
+    Bmp581Minimal(RegisterConnection connection, int addr, int busType) throws Exception {
         this.connection = connection
         this.busType = busType
         init(addr)
@@ -57,42 +57,42 @@ class Bmp581Minimal {
             connection.write([(byte) (REG_CHIP_ID | 0x80)] as byte[])
             connection.read(1)
         }
-        byte[] id = connection.writeRead([(byte) REG_CHIP_ID] as byte[], 1)
+        byte[] id = connection.read(REG_CHIP_ID, 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID) {
             throw new IOException("BMP581 not found: expected 0x50, got 0x${Integer.toHexString(chipId)}")
         }
         for (int i = 0; i < 50; i++) {
-            byte[] st = connection.writeRead([(byte) REG_STATUS] as byte[], 1)
+            byte[] st = connection.read(REG_STATUS, 1)
             int s = st[0] & 0xFF
             if ((s & STATUS_NVM_RDY) != 0 && (s & STATUS_NVM_ERR) == 0) break
             Thread.sleep(2)
         }
-        connection.writeRead([(byte) REG_INT_STATUS] as byte[], 1)
+        connection.read(REG_INT_STATUS, 1)
         try {
-            connection.write([(byte) REG_CMD, (byte) SOFT_RESET] as byte[])
+            connection.write(REG_CMD, [(byte) SOFT_RESET] as byte[])
         } catch (IOException ignored) { /* expected NACK */ }
         Thread.sleep(2)
         for (int i = 0; i < 50; i++) {
-            byte[] st = connection.writeRead([(byte) REG_STATUS] as byte[], 1)
+            byte[] st = connection.read(REG_STATUS, 1)
             int s = st[0] & 0xFF
             if ((s & STATUS_NVM_RDY) != 0 && (s & STATUS_NVM_ERR) == 0) break
             Thread.sleep(2)
         }
-        connection.writeRead([(byte) REG_INT_STATUS] as byte[], 1)
+        connection.read(REG_INT_STATUS, 1)
         writeReg(REG_OSR_CONFIG, 0x40)
         writeReg(REG_ODR_CONFIG, 0x71)
     }
 
     protected void writeReg(int reg, int value) throws Exception {
         int addr = (busType == BUS_SPI) ? (reg & 0x7F) : reg
-        connection.write([(byte) addr, (byte) (value & 0xFF)] as byte[])
+        connection.write(addr, [(byte) (value & 0xFF)] as byte[])
     }
 
     protected void waitForced() throws Exception {
         if (pwrMode != 2) return
         for (int i = 0; i < 200; i++) {
-            byte[] st = connection.writeRead([(byte) REG_INT_STATUS] as byte[], 1)
+            byte[] st = connection.read(REG_INT_STATUS, 1)
             if ((st[0] & INT_STATUS_DRDY) != 0) return
             Thread.sleep(5)
         }
@@ -100,7 +100,7 @@ class Bmp581Minimal {
 
     double pressure() throws Exception {
         waitForced()
-        byte[] buf = connection.writeRead([(byte) REG_PRESS_XLSB] as byte[], 3)
+        byte[] buf = connection.read(REG_PRESS_XLSB, 3)
         int raw = ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
         int signedRaw = (raw & 0x800000) != 0 ? (raw - 0x1000000) : raw
         return signedRaw / 64.0d
@@ -108,7 +108,7 @@ class Bmp581Minimal {
 
     double temperature() throws Exception {
         waitForced()
-        byte[] buf = connection.writeRead([(byte) REG_TEMP_XLSB] as byte[], 3)
+        byte[] buf = connection.read(REG_TEMP_XLSB, 3)
         int raw = ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
         int signedRaw = (raw & 0x800000) != 0 ? (raw - 0x1000000) : raw
         return signedRaw / 65536.0d
@@ -116,7 +116,7 @@ class Bmp581Minimal {
 
     double[] both() throws Exception {
         waitForced()
-        byte[] buf = connection.writeRead([(byte) REG_TEMP_XLSB] as byte[], 6)
+        byte[] buf = connection.read(REG_TEMP_XLSB, 6)
         int rawT = ((buf[2] & 0xFF) << 16) | ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
         int rawP = ((buf[5] & 0xFF) << 16) | ((buf[4] & 0xFF) << 8) | (buf[3] & 0xFF)
         int signedT = (rawT & 0x800000) != 0 ? (rawT - 0x1000000) : rawT

@@ -1,6 +1,6 @@
 #include "INA226.h"
 
-INA226Minimal::INA226Minimal(Connection& connection, float r_shunt, float max_current)
+INA226Minimal::INA226Minimal(RegisterConnection& connection, float r_shunt, float max_current)
     : _connection(connection) {
     _current_lsb = max_current / 32768.0f;
     _cal = (uint16_t)(0.00512f / (_current_lsb * r_shunt));
@@ -9,13 +9,13 @@ INA226Minimal::INA226Minimal(Connection& connection, float r_shunt, float max_cu
 }
 
 void INA226Minimal::_write_reg(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
+    _connection.write(reg, buf, 2);
 }
 
 uint16_t INA226Minimal::_read_reg(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return ((uint16_t)buf[0] << 8) | buf[1];
 }
 
@@ -41,7 +41,7 @@ float INA226Minimal::power() {
 
 // INA226Full
 
-INA226Full::INA226Full(Connection& connection, float r_shunt, float max_current)
+INA226Full::INA226Full(RegisterConnection& connection, float r_shunt, float max_current)
     : INA226Minimal(connection, r_shunt, max_current) {}
 
 void INA226Full::configure(uint8_t avg, uint8_t vbus_ct, uint8_t vsh_ct, uint8_t mode) {

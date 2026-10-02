@@ -16,7 +16,7 @@ int main(void) {
     // --- Indoor altimeter preset: 25 Hz, 4-sample average, low-pass filter ---
     // Low-pass at ODR/9 smooths short-term pressure noise (door slams, fans);
     // 4-sample averaging trims noise without adding visible lag.
-    LPS22DFFull lps(connection, /*spi=*/false);            // Create LPS22DF driver, (connection)
+    LPS22DFFull lps(connection);            // Create LPS22DF driver, (connection)
     lps.configure(4, 0, true, 1, true);                       // Configure chip, (odr=25 Hz, avg=4, en_lpfp=true, lfpf_cfg=ODR/9, bdu=true) → None
 
     stdio_init_all();

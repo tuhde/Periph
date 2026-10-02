@@ -23,6 +23,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_TEMP_RESULT: u8 = 0x00;
 const REG_CONFIG: u8 = 0x01;
 const REG_THIGH: u8 = 0x02;
@@ -179,12 +181,12 @@ impl<I2C: I2c> Tmp117Minimal<I2C> {
 
     fn read_reg(&mut self, reg: u8) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(((buf[0] as u16) << 8) | buf[1] as u16)
     }
 
     fn write_reg(&mut self, reg: u8, value: u16) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, (value >> 8) as u8, value as u8])
+        register::write_register(&mut self.i2c, self.addr, reg.into(), 1, &[(value >> 8) as u8, value as u8])
     }
 
     /// Read the temperature in °C.

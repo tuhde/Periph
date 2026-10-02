@@ -61,13 +61,11 @@ function _u24(data, offset) {
  * `await sensor.temperature()` (or any other async method) once before
  * relying on calibrated readings if this matters.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP581Minimal {
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._odr = 0x1C;
         this._pwrMode = 0x01;
         this._osrP = 0;
@@ -77,51 +75,43 @@ class BMP581Minimal {
     }
 
     async _init() {
+        await this._dummyRead();
         try {
-            const cid = (await this._readReg(_REG_CHIP_ID, 1))[0];
+            const cid = (await this._conn.readReg(_REG_CHIP_ID, 1))[0];
             if (cid !== _CHIP_ID_EXPECTED) return;
             for (let i = 0; i < 50; i++) {
-                const st = (await this._readReg(_REG_STATUS, 1))[0];
+                const st = (await this._conn.readReg(_REG_STATUS, 1))[0];
                 if ((st & _STATUS_NVM_RDY) && !(st & _STATUS_NVM_ERR)) break;
                 _delay(2);
             }
-            await this._readReg(_REG_INT_STATUS, 1);
+            await this._conn.readReg(_REG_INT_STATUS, 1);
             try {
-                await this._writeReg(_REG_CMD, _SOFT_RESET_CMD);
+                await this._conn.writeReg(_REG_CMD, _SOFT_RESET_CMD);
             } catch (e) { /* expected NACK */ }
             _delay(2);
             for (let i = 0; i < 50; i++) {
-                const st = (await this._readReg(_REG_STATUS, 1))[0];
+                const st = (await this._conn.readReg(_REG_STATUS, 1))[0];
                 if ((st & _STATUS_NVM_RDY) && !(st & _STATUS_NVM_ERR)) break;
                 _delay(2);
             }
-            await this._readReg(_REG_INT_STATUS, 1);
-            await this._writeReg(_REG_OSR_CONFIG, 0x40);
-            await this._writeReg(_REG_ODR_CONFIG, 0x71);
+            await this._conn.readReg(_REG_INT_STATUS, 1);
+            await this._conn.writeReg(_REG_OSR_CONFIG, 0x40);
+            await this._conn.writeReg(_REG_ODR_CONFIG, 0x71);
         } catch (e) { /* bus may be idle */ }
     }
 
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        await this._conn.write(Buffer.from([addr, value & 0xFF]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
-    }
-
-    async _spiDummyRead() {
-        if (this._busType !== 'spi') return;
+    // The first read after CSB falls on SPI returns invalid data (datasheet);
+    // one throwaway CHIP_ID read is harmless on I²C, so it is unconditional.
+    async _dummyRead() {
         try {
-            await this._conn.write(Buffer.from([_REG_CHIP_ID | 0x80]));
-            await this._conn.read(1);
+            await this._conn.readReg(_REG_CHIP_ID, 1);
         } catch (e) { /* ignore */ }
     }
 
     async _waitForced() {
         if (this._pwrMode !== 2) return;
         for (let i = 0; i < 200; i++) {
-            const st = (await this._readReg(_REG_INT_STATUS, 1))[0];
+            const st = (await this._conn.readReg(_REG_INT_STATUS, 1))[0];
             if (st & _INT_STATUS_DRDY) return;
             _delay(5);
         }
@@ -133,7 +123,7 @@ class BMP581Minimal {
      */
     async pressure() {
         await this._waitForced();
-        const buf = await this._readReg(_REG_PRESS_XLSB, 3);
+        const buf = await this._conn.readReg(_REG_PRESS_XLSB, 3);
         return _u24(buf, 0) / 64.0;
     }
 
@@ -143,7 +133,7 @@ class BMP581Minimal {
      */
     async temperature() {
         await this._waitForced();
-        const buf = await this._readReg(_REG_TEMP_XLSB, 3);
+        const buf = await this._conn.readReg(_REG_TEMP_XLSB, 3);
         return _u24(buf, 0) / 65536.0;
     }
 
@@ -153,7 +143,7 @@ class BMP581Minimal {
      */
     async both() {
         await this._waitForced();
-        const buf = await this._readReg(_REG_TEMP_XLSB, 6);
+        const buf = await this._conn.readReg(_REG_TEMP_XLSB, 6);
         return {
             pressure: _u24(buf, 3) / 64.0,
             temperature: _u24(buf, 0) / 65536.0,
@@ -165,8 +155,7 @@ class BMP581Minimal {
  * BMP581 full interface — extends BMP581Minimal with configuration, FIFO,
  * interrupts, OOR detection, and NVM access.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP581Full extends BMP581Minimal {
     static OSR_1X   = 0;
@@ -205,8 +194,8 @@ class BMP581Full extends BMP581Minimal {
     static INT_SOURCE_FIFO_THS   = 0x04;
     static INT_SOURCE_OOR_P      = 0x08;
 
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -223,9 +212,9 @@ class BMP581Full extends BMP581Minimal {
         this._osrT = osrT;
         this._pressEn = pressEn;
         const osr = (pressEn ? 0x40 : 0) | ((osrP & 0x7) << 3) | (osrT & 0x7);
-        await this._writeReg(_REG_OSR_CONFIG, osr);
+        await this._conn.writeReg(_REG_OSR_CONFIG, osr);
         const odrByte = ((odr & 0x1F) << 2) | (this._pwrMode & 0x3);
-        await this._writeReg(_REG_ODR_CONFIG, odrByte);
+        await this._conn.writeReg(_REG_ODR_CONFIG, odrByte);
     }
 
     /**
@@ -236,7 +225,7 @@ class BMP581Full extends BMP581Minimal {
     async setMode(mode) {
         this._pwrMode = mode;
         const odrByte = ((this._odr & 0x1F) << 2) | (mode & 0x3);
-        await this._writeReg(_REG_ODR_CONFIG, odrByte);
+        await this._conn.writeReg(_REG_ODR_CONFIG, odrByte);
     }
 
     /**
@@ -247,11 +236,11 @@ class BMP581Full extends BMP581Minimal {
         const prev = this._pwrMode;
         if (prev !== 2) await this.setMode(2);
         for (let i = 0; i < 400; i++) {
-            const st = (await this._readReg(_REG_INT_STATUS, 1))[0];
+            const st = (await this._conn.readReg(_REG_INT_STATUS, 1))[0];
             if (st & _INT_STATUS_DRDY) break;
             _delay(5);
         }
-        const buf = await this._readReg(_REG_TEMP_XLSB, 6);
+        const buf = await this._conn.readReg(_REG_TEMP_XLSB, 6);
         return {
             pressure: _u24(buf, 3) / 64.0,
             temperature: _u24(buf, 0) / 65536.0,
@@ -272,7 +261,7 @@ class BMP581Full extends BMP581Minimal {
     /** Issue a soft reset and re-initialise the chip. @returns {Promise<void>} */
     async softwareReset() {
         try {
-            await this._writeReg(_REG_CMD, _SOFT_RESET_CMD);
+            await this._conn.writeReg(_REG_CMD, _SOFT_RESET_CMD);
         } catch (e) { /* expected NACK */ }
         _delay(2);
         await this._init();
@@ -283,7 +272,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<number>} 0x50 for a genuine BMP581.
      */
     async chipId() {
-        const buf = await this._readReg(_REG_CHIP_ID, 1);
+        const buf = await this._conn.readReg(_REG_CHIP_ID, 1);
         return buf[0];
     }
 
@@ -292,7 +281,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<number>} ASIC revision identifier.
      */
     async revId() {
-        const buf = await this._readReg(_REG_REV_ID, 1);
+        const buf = await this._conn.readReg(_REG_REV_ID, 1);
         return buf[0];
     }
 
@@ -301,7 +290,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<number>} Raw status byte.
      */
     async status() {
-        const buf = await this._readReg(_REG_STATUS, 1);
+        const buf = await this._conn.readReg(_REG_STATUS, 1);
         return buf[0];
     }
 
@@ -310,7 +299,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<number>} Raw interrupt status byte.
      */
     async interruptStatus() {
-        const buf = await this._readReg(_REG_INT_STATUS, 1);
+        const buf = await this._conn.readReg(_REG_INT_STATUS, 1);
         return buf[0];
     }
 
@@ -335,15 +324,15 @@ class BMP581Full extends BMP581Minimal {
         if (openDrain) val |= 0x04;
         if (polarity)   val |= 0x02;
         if (mode)       val |= 0x01;
-        await this._writeReg(_REG_INT_CONFIG, val);
+        await this._conn.writeReg(_REG_INT_CONFIG, val);
     }
 
     async _setIntSource(source, enable) {
-        const buf = await this._readReg(_REG_INT_SOURCE, 1);
+        const buf = await this._conn.readReg(_REG_INT_SOURCE, 1);
         let cur = buf[0];
         if (enable) cur |= source;
         else        cur &= ~source;
-        await this._writeReg(_REG_INT_SOURCE, cur);
+        await this._conn.writeReg(_REG_INT_SOURCE, cur);
     }
 
     /** Enable/disable the data-ready interrupt source. @returns {Promise<void>} */
@@ -353,11 +342,11 @@ class BMP581Full extends BMP581Minimal {
 
     /** Enable/disable FIFO threshold and FIFO-full interrupt sources. @returns {Promise<void>} */
     async enableFifoInterrupt(threshold, full) {
-        const buf = await this._readReg(_REG_INT_SOURCE, 1);
+        const buf = await this._conn.readReg(_REG_INT_SOURCE, 1);
         let cur = buf[0] & ~(BMP581Full.INT_SOURCE_FIFO_FULL | BMP581Full.INT_SOURCE_FIFO_THS);
         if (threshold) cur |= BMP581Full.INT_SOURCE_FIFO_THS;
         if (full)      cur |= BMP581Full.INT_SOURCE_FIFO_FULL;
-        await this._writeReg(_REG_INT_SOURCE, cur);
+        await this._conn.writeReg(_REG_INT_SOURCE, cur);
     }
 
     /** Enable/disable the pressure out-of-range interrupt source. @returns {Promise<void>} */
@@ -373,11 +362,11 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<void>}
      */
     async setIirFilter(coeffP, coeffT) {
-        const buf = await this._readReg(_REG_DSP_CONFIG, 1);
+        const buf = await this._conn.readReg(_REG_DSP_CONFIG, 1);
         let dsp = buf[0] | 0x28;
-        await this._writeReg(_REG_DSP_CONFIG, dsp);
+        await this._conn.writeReg(_REG_DSP_CONFIG, dsp);
         const iirVal = ((coeffP & 0x7) << 3) | (coeffT & 0x7);
-        await this._writeReg(_REG_DSP_IIR, iirVal);
+        await this._conn.writeReg(_REG_DSP_IIR, iirVal);
     }
 
     /**
@@ -390,8 +379,8 @@ class BMP581Full extends BMP581Minimal {
     async configureFifo(frameSel, mode, threshold) {
         const prev = this._pwrMode;
         if (prev !== 0) await this.setMode(0);
-        await this._writeReg(_REG_FIFO_SEL, frameSel & 0x3);
-        await this._writeReg(_REG_FIFO_CONFIG, ((mode & 0x1) << 5) | (threshold & 0x1F));
+        await this._conn.writeReg(_REG_FIFO_SEL, frameSel & 0x3);
+        await this._conn.writeReg(_REG_FIFO_CONFIG, ((mode & 0x1) << 5) | (threshold & 0x1F));
         if (prev !== 0) await this.setMode(prev);
     }
 
@@ -400,7 +389,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<number>} Frame count 0-32.
      */
     async fifoCount() {
-        const buf = await this._readReg(_REG_FIFO_COUNT, 1);
+        const buf = await this._conn.readReg(_REG_FIFO_COUNT, 1);
         return buf[0] & 0x3F;
     }
 
@@ -409,7 +398,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<{osrP: number, osrT: number}>}
      */
     async effectiveOsr() {
-        const buf = await this._readReg(_REG_OSR_EFF, 1);
+        const buf = await this._conn.readReg(_REG_OSR_EFF, 1);
         return {
             osrP: (buf[0] >> 3) & 0x7,
             osrT: buf[0] & 0x7,
@@ -421,7 +410,7 @@ class BMP581Full extends BMP581Minimal {
      * @returns {Promise<boolean>}
      */
     async odrIsValid() {
-        const buf = await this._readReg(_REG_OSR_EFF, 1);
+        const buf = await this._conn.readReg(_REG_OSR_EFF, 1);
         return (buf[0] & 0x80) !== 0;
     }
 
@@ -434,12 +423,12 @@ class BMP581Full extends BMP581Minimal {
      */
     async setOorThreshold(thresholdPa, rangePa, countLimit) {
         let thr17 = Math.floor(thresholdPa * 64.0) >> 7;
-        await this._writeReg(_REG_OOR_THR_P_LSB, thr17 & 0xFF);
-        await this._writeReg(_REG_OOR_THR_P_MSB, (thr17 >> 8) & 0xFF);
+        await this._conn.writeReg(_REG_OOR_THR_P_LSB, thr17 & 0xFF);
+        await this._conn.writeReg(_REG_OOR_THR_P_MSB, (thr17 >> 8) & 0xFF);
         const range8 = (Math.floor(rangePa * 64.0) >> 7) & 0xFF;
-        await this._writeReg(_REG_OOR_RANGE, range8);
+        await this._conn.writeReg(_REG_OOR_RANGE, range8);
         const oorCfg = ((countLimit & 0x3) << 6) | ((thr17 >> 16) & 0x01);
-        await this._writeReg(_REG_OOR_CONFIG, oorCfg);
+        await this._conn.writeReg(_REG_OOR_CONFIG, oorCfg);
     }
 
     /**
@@ -451,13 +440,13 @@ class BMP581Full extends BMP581Minimal {
         const prev = this._pwrMode;
         if (prev !== 0) await this.setMode(0);
         try {
-            await this._writeReg(_REG_NVM_ADDR, 0x5D);
-            await this._writeReg(_REG_CMD, 0xA5);
+            await this._conn.writeReg(_REG_NVM_ADDR, 0x5D);
+            await this._conn.writeReg(_REG_CMD, 0xA5);
             _delay(2);
-            await this._writeReg(_REG_NVM_ADDR, 0x40 | (row & 0x3F));
-            await this._writeReg(_REG_CMD, 0xA5);
+            await this._conn.writeReg(_REG_NVM_ADDR, 0x40 | (row & 0x3F));
+            await this._conn.writeReg(_REG_CMD, 0xA5);
             _delay(2);
-            const buf = await this._readReg(_REG_NVM_DATA_LSB, 2);
+            const buf = await this._conn.readReg(_REG_NVM_DATA_LSB, 2);
             return (buf[1] << 8) | buf[0];
         } finally {
             if (prev !== 0) await this.setMode(prev);
@@ -474,11 +463,11 @@ class BMP581Full extends BMP581Minimal {
         const prev = this._pwrMode;
         if (prev !== 0) await this.setMode(0);
         try {
-            await this._writeReg(_REG_NVM_ADDR, 0x40 | (row & 0x3F));
-            await this._writeReg(_REG_NVM_DATA_LSB, value & 0xFF);
-            await this._writeReg(_REG_NVM_DATA_MSB, (value >> 8) & 0xFF);
-            await this._writeReg(_REG_NVM_ADDR, 0x5D);
-            await this._writeReg(_REG_CMD, 0xA0);
+            await this._conn.writeReg(_REG_NVM_ADDR, 0x40 | (row & 0x3F));
+            await this._conn.writeReg(_REG_NVM_DATA_LSB, value & 0xFF);
+            await this._conn.writeReg(_REG_NVM_DATA_MSB, (value >> 8) & 0xFF);
+            await this._conn.writeReg(_REG_NVM_ADDR, 0x5D);
+            await this._conn.writeReg(_REG_CMD, 0xA0);
             _delay(5);
         } finally {
             if (prev !== 0) await this.setMode(prev);

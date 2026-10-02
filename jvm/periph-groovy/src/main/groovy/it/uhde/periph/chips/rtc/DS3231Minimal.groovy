@@ -2,7 +2,7 @@ package it.uhde.periph.chips.rtc
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * DS3231 — extremely accurate I²C-integrated RTC/TCXO/crystal (Analog Devices /
@@ -61,7 +61,7 @@ class DS3231Minimal {
     protected static final int STATUS_A2F = 0x02
     protected static final int STATUS_A1F = 0x01
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver. Confirms the device answers on the bus by reading
@@ -70,28 +70,27 @@ class DS3231Minimal {
      *
      * @param connection configured I²C connection bound to address 0x68
      */
-    DS3231Minimal(Connection connection) {
+    DS3231Minimal(RegisterConnection connection) {
         this.connection = connection
         readReg(REG_CONTROL)
     }
 
     protected int readReg(int reg) {
-        return connection.writeRead([(byte) reg] as byte[], 1)[0] & 0xFF
+        return connection.read(reg, 1)[0] & 0xFF
     }
 
     protected byte[] readBurst(int reg, int n) {
-        return connection.writeRead([(byte) reg] as byte[], n)
+        return connection.read(reg, n)
     }
 
     protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) value] as byte[])
+        connection.write(reg, [(byte) value] as byte[])
     }
 
     protected void writeBurst(int reg, int... values) {
-        byte[] out = new byte[values.length + 1]
-        out[0] = (byte) reg
-        for (int i = 0; i < values.length; i++) out[i + 1] = (byte) values[i]
-        connection.write(out)
+        byte[] out = new byte[values.length]
+        for (int i = 0; i < values.length; i++) out[i] = (byte) values[i]
+        connection.write(reg, out)
     }
 
     protected static int bcdToInt(int b) {

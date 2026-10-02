@@ -24,7 +24,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x5C);
-    LPS22DFFull lps(connection, /*spi=*/false);
+    LPS22DFFull lps(connection);
 
     stdio_init_all();
     sleep_ms(2000);

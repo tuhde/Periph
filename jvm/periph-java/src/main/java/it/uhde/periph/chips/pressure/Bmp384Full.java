@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -58,8 +58,8 @@ public class Bmp384Full extends Bmp384Minimal {
         }
     }
 
-    public Bmp384Full(Connection conn) throws IOException { super(conn); }
-    public Bmp384Full(Connection conn, int addr) throws IOException { super(conn, addr); }
+    public Bmp384Full(RegisterConnection conn) throws IOException { super(conn); }
+    public Bmp384Full(RegisterConnection conn, int addr) throws IOException { super(conn, addr); }
 
     /**
      * Write OSR, CONFIG, and ODR registers.
@@ -75,9 +75,9 @@ public class Bmp384Full extends Bmp384Minimal {
         this.osrT = osrT;
         this.iir   = iirFilter;
         this.odr   = odrSel;
-        writeReg(REG_OSR,    (osrT << 3) | (osrP << 0));
-        writeReg(REG_CONFIG, (iirFilter << 1));
-        writeReg(REG_ODR,    odrSel);
+        connection.write(REG_OSR, new byte[]{(byte) (   (osrT << 3) | (osrP << 0))});
+        connection.write(REG_CONFIG, new byte[]{(byte) ((iirFilter << 1))});
+        connection.write(REG_ODR, new byte[]{(byte) (   odrSel)});
     }
 
     /**
@@ -142,7 +142,7 @@ public class Bmp384Full extends Bmp384Minimal {
      * Soft-reset, re-read calibration, re-apply configuration.
      */
     public void softreset() throws IOException {
-        writeReg(REG_CMD, SOFT_RESET_CMD);
+        connection.write(REG_CMD, new byte[]{(byte) (SOFT_RESET_CMD)});
         try { Thread.sleep(3); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         readCalibration();
         applyConfig();
@@ -161,9 +161,9 @@ public class Bmp384Full extends Bmp384Minimal {
             | ((stopOnFull ? 1 : 0) << 3)
             | ((tempEn ? 1 : 0) << 1)
             | (pressEn ? 1 : 0);
-        writeReg(0x17, cfg1);
-        writeReg(0x15, wtm & 0xFF);
-        writeReg(0x16, (wtm >> 8) & 0x01);
+        connection.write(0x17, new byte[]{(byte) (cfg1)});
+        connection.write(0x15, new byte[]{(byte) (wtm & 0xFF)});
+        connection.write(0x16, new byte[]{(byte) ((wtm >> 8) & 0x01)});
     }
 
     /**
@@ -174,7 +174,7 @@ public class Bmp384Full extends Bmp384Minimal {
         int lenHi = readReg(0x13);
         int length = ((lenHi & 0xFF) << 8) | (lenLo & 0xFF);
         if (length == 0) return new FifoFrame[0];
-        byte[] buf = connection.writeRead(new byte[]{(byte) 0x14}, length);
+        byte[] buf = connection.read(0x14, length);
 
         java.util.List<FifoFrame> frames = new java.util.ArrayList<>();
         int i = 0;
@@ -212,7 +212,7 @@ public class Bmp384Full extends Bmp384Minimal {
      * Flush the FIFO contents.
      */
     public void fifoFlush() throws IOException {
-        writeReg(REG_CMD, FIFO_FLUSH_CMD);
+        connection.write(REG_CMD, new byte[]{(byte) (FIFO_FLUSH_CMD)});
     }
 
     /**
@@ -231,11 +231,11 @@ public class Bmp384Full extends Bmp384Minimal {
     public double altitude() throws IOException { return altitude(1013.25); }
 
     private void triggerForced() throws IOException {
-        writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
+        connection.write(REG_PWR_CTRL, new byte[]{(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)});
     }
 
     private void applyPwr() throws IOException {
-        writeReg(REG_PWR_CTRL, (mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
+        connection.write(REG_PWR_CTRL, new byte[]{(byte) ((mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN)});
     }
 
     private double compensatePressureWithTLin(int uncompPress, double tLin) {

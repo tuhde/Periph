@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -82,7 +82,7 @@ public class Lps33hwFull extends Lps33hwMinimal {
      * @param connection I²C connection bound to address 0x5C
      * @throws IOException on I²C error or wrong chip ID
      */
-    public Lps33hwFull(Connection connection) throws IOException {
+    public Lps33hwFull(RegisterConnection connection) throws IOException {
         super(connection);
     }
 

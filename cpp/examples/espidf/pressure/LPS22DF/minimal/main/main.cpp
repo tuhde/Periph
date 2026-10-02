@@ -24,7 +24,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    LPS22DFMinimal chip(connection, false);              // Create LPS22DF driver, (connection)
+    LPS22DFMinimal chip(connection);              // Create LPS22DF driver, (connection)
     while (1) {
         chip.pressure();                                   // Read pressure, () → float Pa
         chip.temperature();                                // Read temperature, () → float °C

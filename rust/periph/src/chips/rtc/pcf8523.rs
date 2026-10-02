@@ -23,6 +23,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_CONTROL_1: u8 = 0x00;
 const REG_CONTROL_2: u8 = 0x01;
 const REG_CONTROL_3: u8 = 0x02;
@@ -202,19 +204,19 @@ impl<I2C: I2c> Pcf8523Minimal<I2C> {
     /// * `addr` — 7-bit I²C address (fixed [`I2C_ADDRESS`]).
     pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let mut buf = [0u8; 1];
-        i2c.write_read(addr, &[REG_CONTROL_1], &mut buf)?;
-        i2c.write(addr, &[REG_CONTROL_3, 0x00])?;
+        register::read_register(&mut i2c, addr, REG_CONTROL_1.into(), 1, &mut buf)?;
+        register::write_register(&mut i2c, addr, REG_CONTROL_3.into(), 1, &[0x00])?;
         Ok(Self { i2c, addr })
     }
 
     fn read_reg(&mut self, reg: u8) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
     fn write_reg(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, value])
+        register::write_register(&mut self.i2c, self.addr, reg.into(), 1, &[value])
     }
 
     /// `CONTROL_1` with `T` and `SR` masked, safe for read-modify-write.
@@ -225,7 +227,7 @@ impl<I2C: I2c> Pcf8523Minimal<I2C> {
     /// Read the current calendar clock.
     pub fn get_datetime(&mut self) -> Result<DateTime, I2C::Error> {
         let mut buf = [0u8; 7];
-        self.i2c.write_read(self.addr, &[REG_SECONDS], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_SECONDS.into(), 1, &mut buf)?;
         Ok(DateTime {
             second: bcd_to_bin(buf[0] & 0x7F),
             minute: bcd_to_bin(buf[1] & 0x7F),
@@ -254,7 +256,7 @@ impl<I2C: I2c> Pcf8523Minimal<I2C> {
             bin_to_bcd(dt.month),
             bin_to_bcd((dt.year % 100) as u8),
         ];
-        self.i2c.write(self.addr, &buf)?;
+        register::write_register(&mut self.i2c, self.addr, buf[0].into(), 1, &buf[1..])?;
         self.write_reg(REG_CONTROL_1, ctrl1 & !C1_STOP)
     }
 }
@@ -304,7 +306,7 @@ impl<I2C: I2c> Pcf8523Full<I2C> {
     /// Read the alarm registers (`0x0A`-`0x0D`); disabled fields are `None`.
     pub fn get_alarm(&mut self) -> Result<Alarm, I2C::Error> {
         let mut buf = [0u8; 4];
-        self.inner.i2c.write_read(self.inner.addr, &[REG_MINUTE_ALARM], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_MINUTE_ALARM.into(), 1, &mut buf)?;
         let field = |b: u8, mask: u8, bcd: bool| -> Option<u8> {
             if b & 0x80 != 0 {
                 None
@@ -333,7 +335,7 @@ impl<I2C: I2c> Pcf8523Full<I2C> {
             enc(alarm.day, 0x3F),
             alarm.weekday.map_or(0x80, |w| w & 0x07),
         ];
-        self.inner.i2c.write(self.inner.addr, &buf)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, buf[0].into(), 1, &buf[1..])
     }
 
     /// Configure and start Timer A with a countdown `value` (0-255) ticking
@@ -470,7 +472,7 @@ impl<I2C: I2c> Pcf8523Full<I2C> {
     /// return the pre-clear status mask — test with the `SOURCE_*` constants.
     pub fn poll_interrupt(&mut self) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.inner.i2c.write_read(self.inner.addr, &[REG_CONTROL_2], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_CONTROL_2.into(), 1, &mut buf)?;
         let (ctrl2, ctrl3) = (buf[0], buf[1]);
         let mut status = 0;
         if ctrl2 & C2_SF != 0 {

@@ -35,13 +35,11 @@ function _delay(ms) {
  * `await sensor.temperature()` (or any other async method) once before
  * relying on calibrated readings if this matters for your use case.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP280Minimal {
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._mode = 0;
         this._osrsT = 1;
         this._osrsP = 1;
@@ -53,12 +51,12 @@ class BMP280Minimal {
 
     async _init() {
         await this._readCalibration();
-        await this._writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
-        await this._writeReg(_REG_CONFIG, 0);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
+        await this._conn.writeReg(_REG_CONFIG, 0);
     }
 
     async _readCalibration() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), 24);
+        const data = await this._conn.readReg(_REG_CAL_START, 24);
         this._digT1 = data.readUInt16LE(0);
         this._digT2 = data.readInt16LE(2);
         this._digT3 = data.readInt16LE(4);
@@ -73,22 +71,13 @@ class BMP280Minimal {
         this._digP9 = data.readInt16LE(22);
     }
 
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        await this._conn.write(Buffer.from([addr, value]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
-    }
-
     async _triggerAndRead() {
         if (this._mode !== 3) {
             const ctrl = (this._osrsT << 5) | (this._osrsP << 2) | 1;
-            await this._writeReg(_REG_CTRL_MEAS, ctrl);
+            await this._conn.writeReg(_REG_CTRL_MEAS, ctrl);
             _delay(_MEAS_TIME_MS);
         }
-        const raw = await this._readReg(_REG_DATA_START, 6);
+        const raw = await this._conn.readReg(_REG_DATA_START, 6);
         const adcP = (raw[0] << 12) | (raw[1] << 4) | (raw[2] >> 4);
         const adcT = (raw[3] << 12) | (raw[4] << 4) | (raw[5] >> 4);
         return { adcP, adcT };
@@ -158,8 +147,7 @@ class BMP280Minimal {
 /**
  * BMP280 full interface — extends BMP280Minimal with configuration and altitude helpers.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP280Full extends BMP280Minimal {
     static OSRS_SKIP = 0;
@@ -191,8 +179,8 @@ class BMP280Full extends BMP280Minimal {
     static STATUS_MEASURING = 0x08;
     static STATUS_IM_UPDATE = 0x01;
 
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -210,8 +198,8 @@ class BMP280Full extends BMP280Minimal {
         this._mode = mode;
         this._filter = filter;
         this._tSb = tSb;
-        await this._writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
+        await this._conn.writeReg(_REG_CONFIG, (tSb << 5) | (filter << 2));
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | mode);
     }
 
     /**
@@ -223,7 +211,7 @@ class BMP280Full extends BMP280Minimal {
     async setOversampling(osrsT, osrsP) {
         this._osrsT = osrsT;
         this._osrsP = osrsP;
-        await this._writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (osrsT << 5) | (osrsP << 2) | this._mode);
     }
 
     /**
@@ -233,7 +221,7 @@ class BMP280Full extends BMP280Minimal {
      */
     async setMode(mode) {
         this._mode = mode;
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | mode);
     }
 
     /**
@@ -243,7 +231,7 @@ class BMP280Full extends BMP280Minimal {
      */
     async setFilter(coeff) {
         this._filter = coeff;
-        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
+        await this._conn.writeReg(_REG_CONFIG, (this._tSb << 5) | (coeff << 2));
     }
 
     /**
@@ -253,7 +241,7 @@ class BMP280Full extends BMP280Minimal {
      */
     async setStandby(tSb) {
         this._tSb = tSb;
-        await this._writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
+        await this._conn.writeReg(_REG_CONFIG, (tSb << 5) | (this._filter << 2));
     }
 
     /**
@@ -261,7 +249,7 @@ class BMP280Full extends BMP280Minimal {
      * @returns {Promise<number>} Status byte; bit 3 = measuring, bit 0 = im_update.
      */
     async status() {
-        const data = await this._readReg(_REG_STATUS, 1);
+        const data = await this._conn.readReg(_REG_STATUS, 1);
         return data[0];
     }
 
@@ -290,7 +278,7 @@ class BMP280Full extends BMP280Minimal {
      * @returns {Promise<number>} Chip ID; expect 0x58.
      */
     async chipId() {
-        const data = await this._readReg(_REG_ID, 1);
+        const data = await this._conn.readReg(_REG_ID, 1);
         return data[0];
     }
 
@@ -299,11 +287,11 @@ class BMP280Full extends BMP280Minimal {
      * @returns {Promise<void>}
      */
     async reset() {
-        await this._writeReg(_REG_RESET, _RESET_CMD);
+        await this._conn.writeReg(_REG_RESET, _RESET_CMD);
         _delay(2);
         await this._readCalibration();
-        await this._writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
-        await this._writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
+        await this._conn.writeReg(_REG_CONFIG, (this._tSb << 5) | (this._filter << 2));
+        await this._conn.writeReg(_REG_CTRL_MEAS, (this._osrsT << 5) | (this._osrsP << 2) | this._mode);
     }
 }
 

@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -89,7 +90,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @param connection I²C connection bound to address 0x5C
      * @throws IOException on I²C error or WHO_AM_I mismatch
      */
-    public Lps28dfwFull(Connection connection) throws IOException {
+    public Lps28dfwFull(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -122,9 +123,9 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     public double[] read() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{REG_PRESS_OUT_XL}, 5);
+        byte[] b = connection.read(REG_PRESS_OUT_XL, 5);
         int p = ((b[2] & 0xFF) << 16) | ((b[1] & 0xFF) << 8) | (b[0] & 0xFF);
-        if ((p & 0x800000) != 0) p |= 0xFF000000;
+        p = Register.toSigned(p, 24);
         int t = (short) (((b[4] & 0xFF) << 8) | (b[3] & 0xFF));
         double sens = (fsMode == 0) ? SENSITIVITY_MODE1 : SENSITIVITY_MODE2;
         return new double[]{p / sens, t / 100.0};
@@ -137,13 +138,13 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error or timeout
      */
     public double[] readOneshot() throws IOException {
-        byte[] saved = connection.writeRead(new byte[]{REG_CTRL_REG1}, 1);
+        byte[] saved = connection.read(REG_CTRL_REG1, 1);
         int savedOdr = (saved[0] & 0xFF) >> 3;
         writeReg(REG_CTRL_REG1, (avg & 0x07));
-        byte[] c2 = connection.writeRead(new byte[]{REG_CTRL_REG2}, 1);
+        byte[] c2 = connection.read(REG_CTRL_REG2, 1);
         writeReg(REG_CTRL_REG2, (c2[0] & 0xFF) | 0x01);
         for (int i = 0; i < 200; i++) {
-            byte[] status = connection.writeRead(new byte[]{REG_STATUS}, 1);
+            byte[] status = connection.read(REG_STATUS, 1);
             if ((status[0] & STATUS_P_DA) != 0) break;
             try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
@@ -159,7 +160,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     public boolean isDataReady() throws IOException {
-        byte[] status = connection.writeRead(new byte[]{REG_STATUS}, 1);
+        byte[] status = connection.read(REG_STATUS, 1);
         return (status[0] & STATUS_P_DA) != 0;
     }
 
@@ -183,7 +184,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     public void softreset() throws IOException {
-        byte[] c2 = connection.writeRead(new byte[]{REG_CTRL_REG2}, 1);
+        byte[] c2 = connection.read(REG_CTRL_REG2, 1);
         writeReg(REG_CTRL_REG2, (c2[0] & 0xFF) | 0x02);
         try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
@@ -218,13 +219,13 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
     public double[] fifoRead(int count) throws IOException {
         if (count <= 0) return new double[0];
         if (count > 128) count = 128;
-        byte[] raw = connection.writeRead(new byte[]{REG_FIFO_DATA_XL}, count * 3);
+        byte[] raw = connection.read(REG_FIFO_DATA_XL, count * 3);
         double sens = (fsMode == 0) ? SENSITIVITY_MODE1 : SENSITIVITY_MODE2;
         double[] out = new double[count];
         for (int i = 0; i < count; i++) {
             int base = i * 3;
             int v = ((raw[base + 2] & 0xFF) << 16) | ((raw[base + 1] & 0xFF) << 8) | (raw[base] & 0xFF);
-            if ((v & 0x800000) != 0) v |= 0xFF000000;
+            v = Register.toSigned(v, 24);
             out[i] = v / sens;
         }
         return out;
@@ -237,7 +238,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     public int fifoLevel() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{REG_FIFO_STATUS1}, 1);
+        byte[] b = connection.read(REG_FIFO_STATUS1, 1);
         return b[0] & 0xFF;
     }
 
@@ -256,7 +257,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
         if (raw > 0x7FFF) raw = 0x7FFF;
         writeReg(REG_THS_P_L, raw & 0xFF);
         writeReg(REG_THS_P_H, (raw >> 8) & 0x7F);
-        byte[] cfg = connection.writeRead(new byte[]{REG_INTERRUPT_CFG}, 1);
+        byte[] cfg = connection.read(REG_INTERRUPT_CFG, 1);
         int v = (cfg[0] & 0xFF) & ~0x03;
         if (high) v |= 0x01;
         if (low)  v |= 0x02;
@@ -270,7 +271,7 @@ public class Lps28dfwFull extends Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     public int chipId() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{REG_WHO_AM_I}, 1);
+        byte[] b = connection.read(REG_WHO_AM_I, 1);
         return b[0] & 0xFF;
     }
 

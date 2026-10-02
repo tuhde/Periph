@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief LPS28DFW dual full-scale digital barometer — minimal interface.
  *
@@ -13,11 +13,11 @@
  *      - ODR = 0100b (25 Hz)
  *      - BDU = 1, EN_LPFP = 1, LFPF_CFG = 0 (ODR/4 bandwidth)
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class LPS28DFWMinimal {
 public:
-    explicit LPS28DFWMinimal(Connection& connection);
+    explicit LPS28DFWMinimal(RegisterConnection& connection);
 
     /** @brief Read absolute pressure.
      *
@@ -61,7 +61,7 @@ protected:
     static constexpr float   SENSITIVITY_LSB_PER_HPA_MODE1 = 4096.0f;
     static constexpr float   SENSITIVITY_LSB_PER_HPA_MODE2 = 2048.0f;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     void    _init();
     void    _write_reg(uint8_t reg, uint8_t value);
@@ -76,7 +76,7 @@ protected:
  *  block-data-update, one-shot trigger, one-point calibration offset, FIFO
  *  configuration / drain / level, and pressure-threshold interrupt setup.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class LPS28DFWFull : public LPS28DFWMinimal {
 public:
@@ -116,7 +116,7 @@ public:
     static constexpr uint8_t STATUS_P_OR = 0x10;
     static constexpr uint8_t STATUS_T_OR = 0x20;
 
-    explicit LPS28DFWFull(Connection& connection);
+    explicit LPS28DFWFull(RegisterConnection& connection);
 
     /** @brief Set output data rate, averaging, full-scale mode, and IIR filter.
      *  @param odr     Output data rate code (0=power-down, 1–7=1–100 Hz, 8=200 Hz).

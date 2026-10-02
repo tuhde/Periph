@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -10,7 +11,7 @@ import java.io.IOException
  * calibration offset, FIFO configuration / drain / level, and pressure-threshold
  * interrupt setup.
  */
-class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
+class Lps28dfwFull(connection: RegisterConnection) : Lps28dfwMinimal(connection) {
 
     companion object {
         const val ODR_POWER_DOWN = 0x00
@@ -75,9 +76,9 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
      * Burst-read pressure and temperature.
      */
     fun read(): DoubleArray {
-        val b = connection.writeRead(byteArrayOf(REG_PRESS_OUT_XL.toByte()), 5)
+        val b = connection.read(REG_PRESS_OUT_XL, 5)
         var p = ((b[2].toInt() and 0xFF) shl 16) or ((b[1].toInt() and 0xFF) shl 8) or (b[0].toInt() and 0xFF)
-        if ((p and 0x800000) != 0) p = p or 0xFF000000.toInt()
+        p = Register.toSigned(p, 24)
         val t = ((b[4].toInt() and 0xFF) shl 8 or (b[3].toInt() and 0xFF)).toShort().toInt()
         val sens = if (fsMode == 0) SENSITIVITY_MODE1 else SENSITIVITY_MODE2
         return doubleArrayOf(p / sens, t / 100.0)
@@ -85,19 +86,19 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
 
     /** True if STATUS.P_DA is set (new pressure sample available). */
     fun isDataReady(): Boolean {
-        val status = connection.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
+        val status = connection.read(REG_STATUS, 1)
         return (status[0].toInt() and STATUS_P_DA) != 0
     }
 
     /** Trigger a one-shot measurement (with ODR=0000) and read the result. */
     fun readOneshot(): DoubleArray {
-        val saved = connection.writeRead(byteArrayOf(REG_CTRL_REG1.toByte()), 1)
+        val saved = connection.read(REG_CTRL_REG1, 1)
         val savedOdr = (saved[0].toInt() and 0xFF) shr 3
         writeReg(REG_CTRL_REG1, avg and 0x07)
-        val c2 = connection.writeRead(byteArrayOf(REG_CTRL_REG2.toByte()), 1)
+        val c2 = connection.read(REG_CTRL_REG2, 1)
         writeReg(REG_CTRL_REG2, (c2[0].toInt() and 0xFF) or 0x01)
         for (i in 0 until 200) {
-            val status = connection.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
+            val status = connection.read(REG_STATUS, 1)
             if ((status[0].toInt() and STATUS_P_DA) != 0) break
             try { Thread.sleep(5) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         }
@@ -117,7 +118,7 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
 
     /** Issue a software reset and wait for the chip to reboot (~2 ms). */
     fun softreset() {
-        val c2 = connection.writeRead(byteArrayOf(REG_CTRL_REG2.toByte()), 1)
+        val c2 = connection.read(REG_CTRL_REG2, 1)
         writeReg(REG_CTRL_REG2, (c2[0].toInt() and 0xFF) or 0x02)
         try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
     }
@@ -142,13 +143,13 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
     fun fifoRead(count: Int): DoubleArray {
         if (count <= 0) return DoubleArray(0)
         val n = if (count > 128) 128 else count
-        val raw = connection.writeRead(byteArrayOf(REG_FIFO_DATA_XL.toByte()), n * 3)
+        val raw = connection.read(REG_FIFO_DATA_XL, n * 3)
         val sens = if (fsMode == 0) SENSITIVITY_MODE1 else SENSITIVITY_MODE2
         val out = DoubleArray(n)
         for (i in 0 until n) {
             val b = i * 3
             var v = ((raw[b + 2].toInt() and 0xFF) shl 16) or ((raw[b + 1].toInt() and 0xFF) shl 8) or (raw[b].toInt() and 0xFF)
-            if ((v and 0x800000) != 0) v = v or 0xFF000000.toInt()
+            v = Register.toSigned(v, 24)
             out[i] = v / sens
         }
         return out
@@ -156,7 +157,7 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
 
     /** Return the number of unread samples in the FIFO. */
     fun fifoLevel(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_FIFO_STATUS1.toByte()), 1)
+        val b = connection.read(REG_FIFO_STATUS1, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -170,7 +171,7 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
         if (raw > 0x7FFF) raw = 0x7FFF
         writeReg(REG_THS_P_L, raw and 0xFF)
         writeReg(REG_THS_P_H, (raw shr 8) and 0x7F)
-        val cfg = connection.writeRead(byteArrayOf(REG_INTERRUPT_CFG.toByte()), 1)
+        val cfg = connection.read(REG_INTERRUPT_CFG, 1)
         var v = (cfg[0].toInt() and 0xFF) and 0xFFFFFFFC.toInt()
         if (high) v = v or 0x01
         if (low)  v = v or 0x02
@@ -179,7 +180,7 @@ class Lps28dfwFull(connection: Connection) : Lps28dfwMinimal(connection) {
 
     /** Read the WHO_AM_I register. */
     fun chipId(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val b = connection.read(REG_WHO_AM_I, 1)
         return b[0].toInt() and 0xFF
     }
 

@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -36,7 +36,7 @@ class Bmp085Full extends Bmp085Minimal {
      * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bmp085Full(Connection connection) {
+    Bmp085Full(RegisterConnection connection) {
         super(connection)
     }
 
@@ -109,7 +109,7 @@ class Bmp085Full extends Bmp085Minimal {
      * @throws IOException on I²C error
      */
     int chipId() throws IOException {
-        byte[] b = connection.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] b = connection.read(REG_ID, 1)
         return b[0] & 0xFF
     }
 
@@ -122,7 +122,7 @@ class Bmp085Full extends Bmp085Minimal {
      * @throws IOException on I²C error or invalid calibration after reset
      */
     void reset() throws IOException {
-        connection.write([(byte) REG_SOFT_RST, (byte) 0xB6] as byte[])
+        connection.write(REG_SOFT_RST, [(byte) 0xB6] as byte[])
         Thread.sleep(15)
         readCalibration()
     }

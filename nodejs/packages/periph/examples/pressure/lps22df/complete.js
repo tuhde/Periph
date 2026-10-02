@@ -6,7 +6,7 @@ const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR  || '0x5C', 16);
 
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-const lps = new LPS22DFFull(connection);                     // Create LPS22DF driver, (connection, busType='i2c')
+const lps = new LPS22DFFull(connection);                     // Create LPS22DF driver, (connection)
 
 (async () => {
     await lps.configure(3, 0, false, 0, true);               // Configure chip, (odr=10 Hz, avg=4, enLpfp=false, lfpfCfg=0, bdu=true) → undefined

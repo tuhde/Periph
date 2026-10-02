@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp280 import BMP280Full
 
 connection = I2CConnection(0x76)
-bmp = BMP280Full(connection)                              # Create BMP280 driver, (connection, bus_type='i2c')
+bmp = BMP280Full(connection)                              # Create BMP280 driver, (connection)
 cid = bmp.chip_id()                                     # Read chip ID, () → int
                                                          # returns 0x58 for BMP280
 bmp.configure(osrs_t=1, osrs_p=1, mode=0, filter=0, t_sb=0)  # Configure chip, (osrs_t 0–5, osrs_p 0–5, mode 0/1/3, filter 0–4, t_sb 0–7) → None

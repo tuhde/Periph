@@ -26,6 +26,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_INTERRUPT_CFG: u8 = 0x0B;
 const REG_THS_P_L: u8      = 0x0C;
 const REG_THS_P_H: u8      = 0x0D;
@@ -121,11 +123,11 @@ fn delay_ms(ms: u32) {
 }
 
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::read_register(i2c, addr, reg.into(), 1, buf)
 }
 
 fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
@@ -196,9 +198,9 @@ impl<I2C: I2c> Lps33hwMinimal<I2C> {
         let mut raw = [0u8; 5];
         read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_XL, &mut raw)?;
         let raw_press: i32 = ((raw[2] as i32) << 16) | ((raw[1] as i32) << 8) | (raw[0] as i32);
-        let raw_press = if raw_press >= 0x800000 { raw_press - 0x1000000 } else { raw_press };
+        let raw_press = to_signed(raw_press as u32, 24);
         let raw_temp: i32 = ((raw[4] as i32) << 8) | (raw[3] as i32);
-        let raw_temp = if raw_temp >= 0x8000 { raw_temp - 0x10000 } else { raw_temp };
+        let raw_temp = to_signed(raw_temp as u32, 16);
         let pressure_Pa = raw_press as f32 * 100.0 / 4096.0;
         let temperature_C = raw_temp as f32 / 100.0;
         Ok((pressure_Pa, temperature_C))
@@ -281,9 +283,9 @@ impl<I2C: I2c> Lps33hwFull<I2C> {
                 let mut raw = [0u8; 5];
                 read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_PRESS_XL, &mut raw)?;
                 let raw_press: i32 = ((raw[2] as i32) << 16) | ((raw[1] as i32) << 8) | (raw[0] as i32);
-                let raw_press = if raw_press >= 0x800000 { raw_press - 0x1000000 } else { raw_press };
+                let raw_press = to_signed(raw_press as u32, 24);
                 let raw_temp: i32 = ((raw[4] as i32) << 8) | (raw[3] as i32);
-                let raw_temp = if raw_temp >= 0x8000 { raw_temp - 0x10000 } else { raw_temp };
+                let raw_temp = to_signed(raw_temp as u32, 16);
                 let pressure_Pa = raw_press as f32 * 100.0 / 4096.0;
                 let temperature_C = raw_temp as f32 / 100.0;
                 return Ok((pressure_Pa, temperature_C));

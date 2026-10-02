@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -21,11 +21,6 @@ import java.nio.ByteOrder
 @CompileStatic
 class Bmp280Minimal {
 
-    /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
-    static final int BUS_I2C = 0
-    /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
-    static final int BUS_SPI = 1
-
     static final int REG_CALIB     = 0x88
     static final int REG_ID        = 0xD0
     static final int REG_SOFT_RST  = 0xE0
@@ -36,8 +31,7 @@ class Bmp280Minimal {
     static final int CHIP_ID         = 0x58
     static final int CHIP_ID_BME280  = 0x60  // same P/T interface; humidity not supported
 
-    protected final Connection connection
-    protected final int busType
+    protected final RegisterConnection connection
 
     // Calibration coefficients
     protected int digT1   // uint16
@@ -68,7 +62,7 @@ class Bmp280Minimal {
      * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error or wrong chip ID
      */
-    Bmp280Minimal(Connection connection) {
+    Bmp280Minimal(RegisterConnection connection) {
         this(connection, 0x76)
     }
 
@@ -76,33 +70,17 @@ class Bmp280Minimal {
      * Construct the driver at the given address, verify the chip ID, and load
      * calibration data.
      *
-     * @param connection I²C connection bound to the given address
-     * @param addr      I²C device address (0x76 or 0x77)
-     * @throws IOException on I²C error or wrong chip ID
-     */
-    Bmp280Minimal(Connection connection, int addr) {
-        this(connection, addr, BUS_I2C)
-    }
-
-    /**
-     * Construct the driver at the given address and bus type, verify the chip
-     * ID, and load calibration data.
+     * <p>For SPI, construct the connection with the default Bosch convention
+     * (read bit 0x80, no multi-byte bit); the connection clears bit 7 on writes itself.
      *
-     * <p>Pass {@link #BUS_SPI} for SPI — per the datasheet's register-address
-     * protocol, BMP280's I²C register addresses already have bit 7 set
-     * (0x88-0xFC), so SPI reads use the same value unmasked; only writes
-     * differ, clearing bit 7 ({@code reg & 0x7F}).
-     *
-     * @param connection I²C or SPI connection bound to the device
+     * @param connection I²C, SMBus, or SPI register connection bound to the device
      * @param addr      I²C device address (0x76 or 0x77); unused for SPI
-     * @param busType   {@link #BUS_I2C} or {@link #BUS_SPI}
-     * @throws IOException on bus error or wrong chip ID
+     * @throws IOException on bus error, wrong chip ID, or invalid calibration
      */
-    Bmp280Minimal(Connection connection, int addr, int busType) {
+    Bmp280Minimal(RegisterConnection connection, int addr) throws IOException {
         this.connection = connection
-        this.busType = busType
 
-        byte[] id = connection.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] id = connection.read(REG_ID, 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw new IOException(
@@ -122,7 +100,7 @@ class Bmp280Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() {
-        byte[] cal = connection.writeRead([(byte) REG_CALIB] as byte[], 24)
+        byte[] cal = connection.read(REG_CALIB, 24)
         ByteBuffer buf = ByteBuffer.wrap(cal).order(ByteOrder.LITTLE_ENDIAN)
 
         digT1 = buf.getShort() & 0xFFFF   // uint16
@@ -147,25 +125,9 @@ class Bmp280Minimal {
      * @throws IOException on I²C error
      */
     protected byte[] readRawData() {
-        writeReg(REG_CTRL_MEAS, (ctrlMeas & 0xFC) | 0x01)
+        connection.write(REG_CTRL_MEAS, [(byte) ((ctrlMeas & 0xFC) | 0x01)] as byte[])
         Thread.sleep(7)
-        return connection.writeRead([(byte) REG_DATA] as byte[], 6)
-    }
-
-    /**
-     * Write a single byte to a register, applying the SPI write-address mask
-     * if this driver was constructed with {@link #BUS_SPI}.
-     *
-     * <p>Register constants are defined in their I²C (unmasked) form; on SPI,
-     * bit 7 is cleared for writes only (reads use the same constant unmasked).
-     *
-     * @param reg   register address (I²C / unmasked form)
-     * @param value byte value to write
-     * @throws IOException on bus error
-     */
-    protected void writeReg(int reg, int value) {
-        int addr = (busType == BUS_SPI) ? (reg & 0x7F) : reg
-        connection.write([(byte) addr, (byte) value] as byte[])
+        return connection.read(REG_DATA, 6)
     }
 
     /**

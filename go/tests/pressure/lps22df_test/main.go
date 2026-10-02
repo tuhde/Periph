@@ -42,7 +42,7 @@ func main() {
 		}
 	}
 
-	chip, err := pressure.NewLPS22DFMinimal(conn, false)
+	chip, err := pressure.NewLPS22DFMinimal(conn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new minimal:", err)
 		os.Exit(2)
@@ -64,7 +64,7 @@ func main() {
 	}
 	defer conn2.Close()
 
-	full, err := pressure.NewLPS22DFFull(conn2, false)
+	full, err := pressure.NewLPS22DFFull(conn2)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "new full:", err)
 		os.Exit(2)
