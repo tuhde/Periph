@@ -30,9 +30,6 @@ struct ChipEntry {
 static constexpr uint8_t kAddr_adxl345[] = {0x1D, 0x53};
 static constexpr uint32_t kExp_adxl345[] = {0xE5};
 static constexpr IdProbe kProbe_adxl345 = {0x00, 1, 1, false, 0xFF, kExp_adxl345, 1};
-static constexpr uint8_t kAddr_bma150[] = {0x38};
-static constexpr uint32_t kExp_bma150[] = {0x02};
-static constexpr IdProbe kProbe_bma150 = {0x00, 1, 1, false, 0x07, kExp_bma150, 1};
 static constexpr uint8_t kAddr_mcp4725[] = {0x60, 0x61};
 static constexpr uint8_t kAddr_mcp4728[] = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67};
 static constexpr uint8_t kAddr_pcf8591[] = {0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
@@ -133,7 +130,6 @@ static constexpr IdProbe kProbe_vl53l1x = {0x10F, 2, 2, false, 0xFFFF, kExp_vl53
 
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
-    {"bma150", "bma150", false, false, kAddr_bma150, 1, &kProbe_bma150},
     {"mcp4725", "mcp4725", true, false, kAddr_mcp4725, 2, nullptr},
     {"mcp4728", "mcp4728", true, false, kAddr_mcp4728, 8, nullptr},
     {"pcf8591", "pcf8591", true, false, kAddr_pcf8591, 8, nullptr},
@@ -180,7 +176,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 47;
+static constexpr size_t kChipCount = 46;
 
 }  // namespace discovery
 }  // namespace periph
