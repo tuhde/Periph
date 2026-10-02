@@ -62,6 +62,14 @@ func (m *wordConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	return []byte{byte(w >> 8), byte(w)}, nil
 }
 
+func (m *wordConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	return m.WriteRead([]byte{byte(reg)}, length)
+}
+
+func (m *wordConnection) WriteReg(reg uint32, data []byte) error {
+	return m.Write(append([]byte{byte(reg)}, data...))
+}
+
 func (m *wordConnection) Close() error                { return nil }
 func (m *wordConnection) Enable()                     {}
 func (m *wordConnection) Disable()                    {}

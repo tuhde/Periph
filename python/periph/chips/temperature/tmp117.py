@@ -12,7 +12,7 @@ Registers are 16-bit, big-endian, addressed through a non-incrementing
 Register Pointer.
 
 Args:
-    connection: Configured I2C connection pointing at the device
+    connection: RegisterConnection (I²C or SMBus) pointing at the device
         (0x48-0x4B, per the board's ADD0 strapping).
 """
 
@@ -23,6 +23,8 @@ except ImportError:
     _LINUX = False
 
 import time
+
+from periph.connection.register import to_signed
 
 
 I2C_ADDRESS = 0x48
@@ -49,7 +51,7 @@ _LSB_C = 0.0078125
 
 
 def _decode_temperature(raw16):
-    raw = raw16 - 0x10000 if raw16 & 0x8000 else raw16
+    raw = to_signed(raw16, 16)
     return raw * _LSB_C
 
 
@@ -71,7 +73,7 @@ class TMP117Minimal:
     mode) already serves the primary use case.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
 
     Raises:
         ValueError: If the DEVICE_ID register does not identify a TMP117.
@@ -93,11 +95,11 @@ class TMP117Minimal:
                 DEVICE_ID, did))
 
     def _read_reg(self, reg):
-        data = self._connection.write_read(bytes([reg]), 2)
+        data = self._connection.read_reg(reg, 2)
         return (data[0] << 8) | data[1]
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, (value >> 8) & 0xFF, value & 0xFF]))
+        self._connection.write_reg(reg, bytes([(value >> 8) & 0xFF, value & 0xFF]))
 
     def read_temperature(self):
         """Read the temperature.
@@ -119,7 +121,7 @@ class TMP117Full(TMP117Minimal):
     and the Level-2 Alert/interrupt API.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
 
     Raises:
         ValueError: If the DEVICE_ID register does not identify a TMP117.

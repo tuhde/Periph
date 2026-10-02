@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.temperature
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -20,7 +20,7 @@ import java.io.IOException
  * @param connection configured I²C connection bound to the device (0x48–0x4B)
  * @throws IOException on bus error or identity mismatch
  */
-open class TMP117Minimal(protected val connection: Connection) {
+open class TMP117Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** Default I²C address (ADD0 = GND). Valid range 0x48–0x4B. */
@@ -57,13 +57,13 @@ open class TMP117Minimal(protected val connection: Connection) {
 
     /** Read a 16-bit big-endian register as an unsigned value. */
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
     /** Write a 16-bit big-endian register. */
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), (value shr 8).toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf((value shr 8).toByte(), value.toByte()))
     }
 
     /**

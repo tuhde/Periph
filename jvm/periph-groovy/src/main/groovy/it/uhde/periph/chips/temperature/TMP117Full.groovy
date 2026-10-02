@@ -2,7 +2,7 @@ package it.uhde.periph.chips.temperature
 
 import groovy.transform.CompileStatic
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -115,7 +115,7 @@ class TMP117Full extends TMP117Minimal {
      * @param connection configured I²C connection pointing at the device (0x48–0x4B)
      * @throws IOException on bus error or identity mismatch
      */
-    TMP117Full(Connection connection) {
+    TMP117Full(RegisterConnection connection) {
         super(connection)
     }
 
