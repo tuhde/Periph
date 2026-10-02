@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief DS3231 extremely accurate I²C-integrated RTC/TCXO/crystal — minimal interface.
  *
@@ -9,7 +9,7 @@
  *  temperature reading, with sensible defaults: 24-hour time format,
  *  oscillator continuously enabled on VBAT. Fixed I²C address 0x68.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class DS3231Minimal {
 public:
@@ -28,7 +28,7 @@ public:
         uint8_t  second;
     };
 
-    explicit DS3231Minimal(Connection& connection);
+    explicit DS3231Minimal(RegisterConnection& connection);
 
     /** @brief Read the current calendar clock value. */
     void getDatetime(DateTime& dt);
@@ -84,7 +84,7 @@ protected:
     static constexpr uint8_t STAT_A2F     = 0x02;
     static constexpr uint8_t STAT_A1F     = 0x01;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     void _writeReg(uint8_t reg, uint8_t value);
     uint8_t _readReg(uint8_t reg);
@@ -107,7 +107,7 @@ protected:
  *  still reports alarm matches correctly regardless of INTCN, since A1F/A2F
  *  latch independently of the pin's mode.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class DS3231Full : public DS3231Minimal {
 public:
@@ -152,7 +152,7 @@ public:
         uint8_t matchMode;
     };
 
-    explicit DS3231Full(Connection& connection);
+    explicit DS3231Full(RegisterConnection& connection);
 
     /** @brief Decode the Alarm 1 registers (0x07–0x0A). */
     void getAlarm1(Alarm1& alarm);

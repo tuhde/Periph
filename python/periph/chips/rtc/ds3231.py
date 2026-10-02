@@ -10,7 +10,7 @@ chip's DAY register is a free-running 1-7 counter with no hardware-enforced
 meaning.
 
 Args:
-    connection: Configured I2C connection pointing at the device (fixed
+    connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed
         address 0x68).
 """
 
@@ -56,7 +56,7 @@ class DS3231Minimal:
     """DS3231 extremely accurate I2C RTC/TCXO/crystal — minimal interface.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_SECONDS        = 0x00
@@ -101,16 +101,16 @@ class DS3231Minimal:
         self._read_reg(self._REG_CONTROL)  # presence check; no writes needed
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value & 0xFF]))
+        self._connection.write_reg(reg, value & 0xFF)
 
     def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
+        return self._connection.read_reg(reg, 1)[0]
 
     def _write_regs(self, start_reg, data):
-        self._connection.write(bytes([start_reg]) + bytes(data))
+        self._connection.write_reg(start_reg, bytes(data))
 
     def _read_regs(self, start_reg, length):
-        return self._connection.write_read(bytes([start_reg]), length)
+        return self._connection.read_reg(start_reg, length)
 
     def get_datetime(self):
         """Read the current calendar clock value.
@@ -243,7 +243,7 @@ class DS3231Full(DS3231Minimal):
     A1F/A2F latch independently of the pin's mode.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     def __init__(self, connection):

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -16,7 +16,7 @@ import java.io.IOException
  * (day-of-week) register is a free-running 1–7 counter with no
  * hardware-enforced meaning — this driver defines 1=Monday…7=Sunday (ISO 8601).
  */
-open class DS3231Minimal(protected val connection: Connection) {
+open class DS3231Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** Fixed I²C address — the DS3231 has no address pins. */
@@ -68,19 +68,18 @@ open class DS3231Minimal(protected val connection: Connection) {
         readReg(REG_CONTROL)
     }
 
-    protected fun readReg(reg: Int): Int = connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+    protected fun readReg(reg: Int): Int = connection.read(reg, 1)[0].toInt() and 0xFF
 
-    protected fun readBurst(reg: Int, n: Int): ByteArray = connection.writeRead(byteArrayOf(reg.toByte()), n)
+    protected fun readBurst(reg: Int, n: Int): ByteArray = connection.read(reg, n)
 
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     protected fun writeBurst(reg: Int, vararg values: Int) {
-        val out = ByteArray(values.size + 1)
-        out[0] = reg.toByte()
-        for (i in values.indices) out[i + 1] = values[i].toByte()
-        connection.write(out)
+        val out = ByteArray(values.size)
+        for (i in values.indices) out[i] = values[i].toByte()
+        connection.write(reg, out)
     }
 
     /**
