@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.gyroscope
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -13,13 +14,10 @@ import java.io.IOException
  * Default configuration: 95 Hz ODR, default bandwidth, ±250 dps
  * full scale, BDU=1, all axes enabled, 250 ms startup delay.
  *
- * @param connection I²C connection bound to the chip.
- * @param spi true for SPI bus, false for I²C.
+ * @param connection I²C, SMBus, or SPI register connection bound to the chip
+ *                   (SPI: read bit 0xC0, no multi-byte bit).
  */
-open class L3gd20hMinimal @JvmOverloads constructor(
-    protected val connection: Connection,
-    spi: Boolean = false
-) {
+open class L3gd20hMinimal(protected val connection: RegisterConnection) {
     companion object {
         const val REG_WHO_AM_I      = 0x0F
         const val REG_CTRL_REG1     = 0x20
@@ -63,28 +61,30 @@ open class L3gd20hMinimal @JvmOverloads constructor(
 
         fun int16Le(data: ByteArray, offset: Int): Short {
             val v = (data[offset].toInt() and 0xFF) or ((data[offset + 1].toInt() and 0xFF) shl 8)
-            return v.toShort()
+            return Register.toSigned(v, 16).toShort()
         }
     }
 
-    protected val spi: Boolean = spi
     protected var fullScale: Int = 250
 
     init {
-        val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val id = readReg(REG_WHO_AM_I, 1)
         val who = id[0].toInt() and 0xFF
         if (who != WHO_AM_I_L3GD20 && who != WHO_AM_I_L3GD20H) {
             throw IOException("L3GD20H not found: WHO_AM_I expected 0xD4 or 0xD7, got 0x${who.toString(16)}")
         }
-        connection.write(byteArrayOf(REG_CTRL_REG4.toByte(), CTRL_REG4_DEFAULT.toByte()))
-        connection.write(byteArrayOf(REG_CTRL_REG1.toByte(), CTRL_REG1_DEFAULT.toByte()))
+        connection.write(REG_CTRL_REG4, byteArrayOf(CTRL_REG4_DEFAULT.toByte()))
+        connection.write(REG_CTRL_REG1, byteArrayOf(CTRL_REG1_DEFAULT.toByte()))
         Thread.sleep(250)
     }
 
-    protected fun writeReg(reg: Int, value: Int) {
-        val addr = if (spi) reg and 0x3F else reg
-        connection.write(byteArrayOf(addr.toByte(), (value and 0xFF).toByte()))
-    }
+    /**
+     * Read [n] bytes starting at [reg]. I²C needs bit 7 of the sub-address set
+     * for multi-byte auto-increment; on SPI the connection's read bit 0xC0
+     * already ORs it in (idempotent).
+     */
+    protected fun readReg(reg: Int, n: Int): ByteArray =
+        connection.read(if (n > 1) reg or 0x80 else reg, n)
 
     /**
      * Read angular rate on all three axes as a single burst transaction.
@@ -96,12 +96,7 @@ open class L3gd20hMinimal @JvmOverloads constructor(
      * @return FloatArray {x, y, z} angular rates in rad/s.
      */
     fun gyro(): FloatArray {
-        val raw = if (spi) {
-            connection.write(byteArrayOf((REG_OUT_X_L or 0xC0).toByte()))
-            connection.read(6)
-        } else {
-            connection.writeRead(byteArrayOf((REG_OUT_X_L or 0x80).toByte()), 6)
-        }
+        val raw = readReg(REG_OUT_X_L, 6)
         val sens = sensitivity(fullScale)
         val k = Math.PI.toFloat() / 180.0f
         return floatArrayOf(

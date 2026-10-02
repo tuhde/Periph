@@ -12,6 +12,8 @@
 //! - Clock: PLL with gyro X reference (CLKSEL=1)
 
 use embedded_hal::i2c::I2c;
+
+use crate::connection::register;
 use embedded_hal::delay::DelayNs;
 
 const REG_SMPLRT_DIV: u8 = 0x19;
@@ -53,9 +55,9 @@ impl<I2C: I2c> MPU6050Minimal<I2C> {
     /// * `addr`  — 7-bit device address (typically `0x68` or `0x69`).
     /// * `delay` — Delay provider for init timing (100 ms reset, 35 ms gyro startup).
     pub fn new<D: DelayNs>(mut i2c: I2C, addr: u8, delay: &mut D) -> Result<Self, I2C::Error> {
-        write_reg(&mut i2c, addr, REG_PWR_MGMT_1, 0x80)?;
+        register::write_register(&mut i2c, addr, REG_PWR_MGMT_1.into(), 1, &[0x80])?;
         delay.delay_ms(100);
-        write_reg(&mut i2c, addr, REG_PWR_MGMT_1, 0x01)?;
+        register::write_register(&mut i2c, addr, REG_PWR_MGMT_1.into(), 1, &[0x01])?;
         let who = read_reg8(&mut i2c, addr, REG_WHO_AM_I)?;
         if who != WHO_AM_I_VALUE {
             // Re-reading WHO_AM_I and unwrapping it as an error was wrong on
@@ -67,10 +69,10 @@ impl<I2C: I2c> MPU6050Minimal<I2C> {
             // in a Rust driver (see Ens160Minimal::new's PART_ID check).
             panic!("MPU6050 WHO_AM_I: expected 0x{:02X}, got 0x{:02X}", WHO_AM_I_VALUE, who);
         }
-        write_reg(&mut i2c, addr, REG_GYRO_CONFIG, 0x00)?;
-        write_reg(&mut i2c, addr, REG_ACCEL_CONFIG, 0x00)?;
-        write_reg(&mut i2c, addr, REG_CONFIG, 0x03)?;
-        write_reg(&mut i2c, addr, REG_SMPLRT_DIV, 0x04)?;
+        register::write_register(&mut i2c, addr, REG_GYRO_CONFIG.into(), 1, &[0x00])?;
+        register::write_register(&mut i2c, addr, REG_ACCEL_CONFIG.into(), 1, &[0x00])?;
+        register::write_register(&mut i2c, addr, REG_CONFIG.into(), 1, &[0x03])?;
+        register::write_register(&mut i2c, addr, REG_SMPLRT_DIV.into(), 1, &[0x04])?;
         delay.delay_ms(35);
         Ok(Self { i2c, addr, accel_fs: 0, gyro_fs: 0 })
     }
@@ -80,7 +82,7 @@ impl<I2C: I2c> MPU6050Minimal<I2C> {
     /// Returns (x, y, z) in m/s².
     pub fn accel(&mut self) -> Result<(f32, f32, f32), I2C::Error> {
         let mut buf = [0u8; 6];
-        self.i2c.write_read(self.addr, &[REG_ACCEL_XOUT_H], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_ACCEL_XOUT_H.into(), 1, &mut buf)?;
         let ax = i16::from_be_bytes([buf[0], buf[1]]);
         let ay = i16::from_be_bytes([buf[2], buf[3]]);
         let az = i16::from_be_bytes([buf[4], buf[5]]);
@@ -95,7 +97,7 @@ impl<I2C: I2c> MPU6050Minimal<I2C> {
     /// Returns (x, y, z) in rad/s.
     pub fn gyro(&mut self) -> Result<(f32, f32, f32), I2C::Error> {
         let mut buf = [0u8; 6];
-        self.i2c.write_read(self.addr, &[REG_GYRO_XOUT_H], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_GYRO_XOUT_H.into(), 1, &mut buf)?;
         let gx = i16::from_be_bytes([buf[0], buf[1]]);
         let gy = i16::from_be_bytes([buf[2], buf[3]]);
         let gz = i16::from_be_bytes([buf[4], buf[5]]);
@@ -140,7 +142,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// * `full_scale` — Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
     pub fn configure_gyro(&mut self, full_scale: u8) -> Result<(), I2C::Error> {
         self.inner.gyro_fs = full_scale & 0x03;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GYRO_CONFIG, (full_scale & 0x03) << 3)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GYRO_CONFIG.into(), 1, &[(full_scale & 0x03) << 3])
     }
 
     /// Set accelerometer full-scale range.
@@ -149,7 +151,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// * `full_scale` — Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
     pub fn configure_accel(&mut self, full_scale: u8) -> Result<(), I2C::Error> {
         self.inner.accel_fs = full_scale & 0x03;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_CONFIG, (full_scale & 0x03) << 3)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_CONFIG.into(), 1, &[(full_scale & 0x03) << 3])
     }
 
     /// Set digital low-pass filter bandwidth.
@@ -158,7 +160,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// * `dlpf` — Filter setting 0–6 (0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
     ///            3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz; gyro/accel BW).
     pub fn configure_dlpf(&mut self, dlpf: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, dlpf & 0x07)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[dlpf & 0x07])
     }
 
     /// Set sample rate divider.
@@ -166,7 +168,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// # Arguments
     /// * `divider` — SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider).
     pub fn configure_sample_rate(&mut self, divider: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_SMPLRT_DIV, divider)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_SMPLRT_DIV.into(), 1, &[divider])
     }
 
     /// Read die temperature.
@@ -182,7 +184,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// Returns (x, y, z) as raw 16-bit signed values.
     pub fn accel_raw(&mut self) -> Result<(i16, i16, i16), I2C::Error> {
         let mut buf = [0u8; 6];
-        self.inner.i2c.write_read(self.inner.addr, &[REG_ACCEL_XOUT_H], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_ACCEL_XOUT_H.into(), 1, &mut buf)?;
         Ok((i16::from_be_bytes([buf[0], buf[1]]),
             i16::from_be_bytes([buf[2], buf[3]]),
             i16::from_be_bytes([buf[4], buf[5]])))
@@ -193,7 +195,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// Returns (x, y, z) as raw 16-bit signed values.
     pub fn gyro_raw(&mut self) -> Result<(i16, i16, i16), I2C::Error> {
         let mut buf = [0u8; 6];
-        self.inner.i2c.write_read(self.inner.addr, &[REG_GYRO_XOUT_H], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_GYRO_XOUT_H.into(), 1, &mut buf)?;
         Ok((i16::from_be_bytes([buf[0], buf[1]]),
             i16::from_be_bytes([buf[2], buf[3]]),
             i16::from_be_bytes([buf[4], buf[5]])))
@@ -217,7 +219,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
         } else {
             val &= !0x40;
         }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_1, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_1.into(), 1, &[val])
     }
 
     /// Put individual axes into standby mode.
@@ -232,7 +234,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     pub fn set_standby(&mut self, xa: bool, ya: bool, za: bool, xg: bool, yg: bool, zg: bool) -> Result<(), I2C::Error> {
         let val = ((xa as u8) << 5) | ((ya as u8) << 4) | ((za as u8) << 3) |
                   ((xg as u8) << 2) | ((yg as u8) << 1) | (zg as u8);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_2, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PWR_MGMT_2.into(), 1, &[val])
     }
 
     /// Read the number of bytes in the FIFO buffer.
@@ -240,7 +242,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// Returns FIFO byte count (0–1024).
     pub fn fifo_count(&mut self) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.inner.i2c.write_read(self.inner.addr, &[REG_FIFO_COUNTH], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_COUNTH.into(), 1, &mut buf)?;
         Ok((((buf[0] as u16) & 0x1F) << 8) | buf[1] as u16)
     }
 
@@ -256,7 +258,7 @@ impl<I2C: I2c> MPU6050Full<I2C> {
             return Ok(0);
         }
         let to_read = if (count as usize) < buf.len() { count as usize } else { buf.len() };
-        self.inner.i2c.write_read(self.inner.addr, &[REG_FIFO_R_W], &mut buf[..to_read])?;
+        register::read_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_R_W.into(), 1, &mut buf[..to_read])?;
         Ok(to_read as u16)
     }
 
@@ -268,31 +270,27 @@ impl<I2C: I2c> MPU6050Full<I2C> {
     /// * `temp`  — Enable temperature data in FIFO.
     pub fn enable_fifo(&mut self, gyro: bool, accel: bool, temp: bool) -> Result<(), I2C::Error> {
         let fifo_en = ((accel as u8) << 3) | ((temp as u8) << 2) | ((gyro as u8) << 4);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_EN, fifo_en)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_EN.into(), 1, &[fifo_en])?;
         let user_ctrl = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL, user_ctrl | 0x40)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL.into(), 1, &[user_ctrl | 0x40])
     }
 
     /// Reset the FIFO buffer by setting FIFO_RST in USER_CTRL.
     pub fn reset_fifo(&mut self) -> Result<(), I2C::Error> {
         let user_ctrl = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL, user_ctrl | 0x04)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_USER_CTRL.into(), 1, &[user_ctrl | 0x04])
     }
-}
-
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
 }
 
 fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn read_reg16_signed<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<i16, I2C::Error> {
     let mut buf = [0u8; 2];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(i16::from_be_bytes([buf[0], buf[1]]))
 }
 

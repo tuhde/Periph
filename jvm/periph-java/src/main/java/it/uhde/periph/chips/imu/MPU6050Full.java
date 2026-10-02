@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class MPU6050Full extends MPU6050Minimal {
 
-    public MPU6050Full(Connection connection) throws IOException {
+    public MPU6050Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -22,7 +22,7 @@ public class MPU6050Full extends MPU6050Minimal {
      */
     public void configureGyro(int fullScale) throws IOException {
         gyroFs = fullScale & 0x03;
-        writeReg(REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+        connection.write(REG_GYRO_CONFIG, new byte[]{(byte) ((fullScale & 0x03) << 3)});
     }
 
     /**
@@ -33,7 +33,7 @@ public class MPU6050Full extends MPU6050Minimal {
      */
     public void configureAccel(int fullScale) throws IOException {
         accelFs = fullScale & 0x03;
-        writeReg(REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+        connection.write(REG_ACCEL_CONFIG, new byte[]{(byte) ((fullScale & 0x03) << 3)});
     }
 
     /**
@@ -43,7 +43,7 @@ public class MPU6050Full extends MPU6050Minimal {
      * @throws IOException on I²C error.
      */
     public void configureDlpf(int dlpf) throws IOException {
-        writeReg(REG_CONFIG, dlpf & 0x07);
+        connection.write(REG_CONFIG, new byte[]{(byte) (dlpf & 0x07)});
     }
 
     /**
@@ -53,7 +53,7 @@ public class MPU6050Full extends MPU6050Minimal {
      * @throws IOException on I²C error.
      */
     public void configureSampleRate(int divider) throws IOException {
-        writeReg(REG_SMPLRT_DIV, divider & 0xFF);
+        connection.write(REG_SMPLRT_DIV, new byte[]{(byte) (divider & 0xFF)});
     }
 
     /**
@@ -74,7 +74,7 @@ public class MPU6050Full extends MPU6050Minimal {
      * @throws IOException on I²C error.
      */
     public int[] accelRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6);
         return new int[]{
                 (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
                 (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -89,7 +89,7 @@ public class MPU6050Full extends MPU6050Minimal {
      * @throws IOException on I²C error.
      */
     public int[] gyroRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6);
         return new int[]{
                 (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
                 (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -120,7 +120,7 @@ public class MPU6050Full extends MPU6050Minimal {
         } else {
             val &= ~0x40;
         }
-        writeReg(REG_PWR_MGMT_1, val);
+        connection.write(REG_PWR_MGMT_1, new byte[]{(byte) (val)});
     }
 
     /**
@@ -138,7 +138,7 @@ public class MPU6050Full extends MPU6050Minimal {
                            boolean xg, boolean yg, boolean zg) throws IOException {
         int val = ((xa ? 1 : 0) << 5) | ((ya ? 1 : 0) << 4) | ((za ? 1 : 0) << 3) |
                   ((xg ? 1 : 0) << 2) | ((yg ? 1 : 0) << 1) | (zg ? 1 : 0);
-        writeReg(REG_PWR_MGMT_2, val);
+        connection.write(REG_PWR_MGMT_2, new byte[]{(byte) (val)});
     }
 
     /**
@@ -148,7 +148,7 @@ public class MPU6050Full extends MPU6050Minimal {
      * @throws IOException on I²C error.
      */
     public int fifoCount() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_FIFO_COUNTH}, 2);
+        byte[] buf = connection.read(REG_FIFO_COUNTH, 2);
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF);
     }
 
@@ -161,7 +161,7 @@ public class MPU6050Full extends MPU6050Minimal {
     public byte[] readFifo() throws IOException {
         int count = fifoCount();
         if (count == 0) return new byte[0];
-        return connection.writeRead(new byte[]{(byte) REG_FIFO_R_W}, count);
+        return connection.read(REG_FIFO_R_W, count);
     }
 
     /**
@@ -174,9 +174,9 @@ public class MPU6050Full extends MPU6050Minimal {
      */
     public void enableFifo(boolean gyro, boolean accel, boolean temp) throws IOException {
         int fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-        writeReg(REG_FIFO_EN, fifoEn);
+        connection.write(REG_FIFO_EN, new byte[]{(byte) (fifoEn)});
         int userCtrl = readReg(REG_USER_CTRL);
-        writeReg(REG_USER_CTRL, userCtrl | 0x40);
+        connection.write(REG_USER_CTRL, new byte[]{(byte) (userCtrl | 0x40)});
     }
 
     /**
@@ -186,6 +186,6 @@ public class MPU6050Full extends MPU6050Minimal {
      */
     public void resetFifo() throws IOException {
         int userCtrl = readReg(REG_USER_CTRL);
-        writeReg(REG_USER_CTRL, userCtrl | 0x04);
+        connection.write(REG_USER_CTRL, new byte[]{(byte) (userCtrl | 0x04)});
     }
 }

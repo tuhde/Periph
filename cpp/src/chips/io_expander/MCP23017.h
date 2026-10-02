@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 #ifndef OUTPUT
 #define INPUT        0
@@ -18,7 +18,7 @@
  *  A shadow register is maintained for OLATA/OLATB so individual output pins can
  *  be set/cleared/toggled without a read-modify-write transaction.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  *  @param addr 7-bit I²C device address (default 0x20, range 0x20–0x27).
  */
 class MCP23017Minimal {
@@ -70,7 +70,7 @@ public:
         uint8_t  _direction;
     };
 
-    explicit MCP23017Minimal(Connection& connection, uint8_t addr = 0x20);
+    explicit MCP23017Minimal(RegisterConnection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a pin proxy for pin n (0–15).
      *  @param n Pin index 0–15; 0–7 = PORTA (GPA0–GPA7), 8–15 = PORTB (GPB0–GPB7).
@@ -101,7 +101,7 @@ protected:
     static constexpr uint8_t REG_OLATA  = 0x14;
     static constexpr uint8_t REG_OLATB  = 0x15;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     uint8_t   _addr;
 
 public:
@@ -109,7 +109,6 @@ public:
     uint8_t   _direction[2] = {0x7F, 0x7F};
 protected:
 
-    void _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
     void _write_port(uint8_t port, uint8_t mask);
     uint8_t _read_port_raw(uint8_t port);
@@ -129,7 +128,7 @@ protected:
  *  contains no platform-specific interrupt code (see
  *  specs/feature_connection_design.md §4, §9).
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  *  @param addr 7-bit I²C device address (default 0x20).
  */
 class MCP23017Full : public MCP23017Minimal {
@@ -170,7 +169,7 @@ public:
         friend class MCP23017Full;
     };
 
-    explicit MCP23017Full(Connection& connection, uint8_t addr = 0x20);
+    explicit MCP23017Full(RegisterConnection& connection, uint8_t addr = 0x20);
 
     /** @brief Return a Full pin proxy for pin n (0–15). */
     IOExpanderPin pin(uint8_t n);

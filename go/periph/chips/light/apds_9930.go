@@ -101,7 +101,7 @@ func apds9930EncodeOffset(v int8) uint8 {
 //   - CONTROL = 0x20 (PDIODE=Ch1, PDRIVE=100 mA, PGAIN=1x, AGAIN=1x)
 //   - ENABLE  = 0x07 (PON + AEN + PEN; wait timer and interrupts disabled)
 type APDS9930Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	addr       uint8
 }
 
@@ -112,7 +112,7 @@ type APDS9930Minimal struct {
 //
 // connection must be a configured I²C connection bound to the device's
 // 7-bit address (0x39, fixed).
-func NewAPDS9930Minimal(conn connection.Connection) (*APDS9930Minimal, error) {
+func NewAPDS9930Minimal(conn connection.RegisterConnection) (*APDS9930Minimal, error) {
 	d := &APDS9930Minimal{connection: conn, addr: 0x39}
 	time.Sleep(6 * time.Millisecond)
 	id, err := d.readReg(apds9930RegID)
@@ -122,22 +122,22 @@ func NewAPDS9930Minimal(conn connection.Connection) (*APDS9930Minimal, error) {
 	if id != apds9930IDExpected {
 		return nil, &apds9930IDError{got: id}
 	}
-	if err := d.writeReg(apds9930RegENABLE, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apds9930RegATIME, apds9930ATIMEDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegATIME)), []byte{apds9930ATIMEDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apds9930RegPTIME, apds9930PTIMEDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPTIME)), []byte{apds9930PTIMEDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apds9930RegPPULSE, apds9930PPULSEDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPPULSE)), []byte{apds9930PPULSEDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apds9930RegCONTROL, apds9930CONTROLDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONTROL)), []byte{apds9930CONTROLDefault}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(apds9930RegENABLE, apds9930ENABLEDefault); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{apds9930ENABLEDefault}); err != nil {
 		return nil, err
 	}
 	time.Sleep(12 * time.Millisecond)
@@ -159,12 +159,8 @@ func apdsHexByte(b uint8) string {
 	return string([]byte{hex[(b>>4)&0xF], hex[b&0xF]})
 }
 
-func (d *APDS9930Minimal) writeReg(reg, value uint8) error {
-	return d.connection.Write([]byte{apds9930CmdWrite(reg), value})
-}
-
 func (d *APDS9930Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{apds9930CmdRead(reg)}, 1)
+	buf, err := d.connection.ReadReg(uint32(apds9930CmdRead(reg)), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -172,7 +168,7 @@ func (d *APDS9930Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *APDS9930Minimal) readReg16(reg uint8) (uint16, error) {
-	buf, err := d.connection.WriteRead([]byte{apds9930CmdRead(reg)}, 2)
+	buf, err := d.connection.ReadReg(uint32(apds9930CmdRead(reg)), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -248,7 +244,7 @@ type APDS9930Full struct {
 
 // NewAPDS9930Full creates a new APDS9930Full with the same initialisation
 // as NewAPDS9930Minimal.
-func NewAPDS9930Full(conn connection.Connection) (*APDS9930Full, error) {
+func NewAPDS9930Full(conn connection.RegisterConnection) (*APDS9930Full, error) {
 	m, err := NewAPDS9930Minimal(conn)
 	if err != nil {
 		return nil, err
@@ -260,7 +256,7 @@ func NewAPDS9930Full(conn connection.Connection) (*APDS9930Full, error) {
 // PDRIVE/PDIODE/PGAIN). atime 0-255, again 0-3 (0=1x, 1=8x, 2=16x, 3=120x).
 // agl=true enables the AGL divide-by-6 gain-level bit in CONFIG.
 func (d *APDS9930Full) ConfigureALS(atime, again uint8, agl bool) error {
-	if err := d.writeReg(apds9930RegATIME, atime); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegATIME)), []byte{atime}); err != nil {
 		return err
 	}
 	ctrl, err := d.readReg(apds9930RegCONTROL)
@@ -268,7 +264,7 @@ func (d *APDS9930Full) ConfigureALS(atime, again uint8, agl bool) error {
 		return err
 	}
 	ctrl = (ctrl & 0xFC) | (again & 0x03)
-	if err := d.writeReg(apds9930RegCONTROL, ctrl); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONTROL)), []byte{ctrl}); err != nil {
 		return err
 	}
 	cfg, err := d.readReg(apds9930RegCONFIG)
@@ -281,16 +277,16 @@ func (d *APDS9930Full) ConfigureALS(atime, again uint8, agl bool) error {
 		cfg &^= 0x04
 	}
 	cfg &^= 0x06
-	return d.writeReg(apds9930RegCONFIG, cfg)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONFIG)), []byte{cfg})
 }
 
 // ConfigureProximity sets the LED pulse count, gain, drive current, ADC
 // integration time, and PDL flag.
 func (d *APDS9930Full) ConfigureProximity(ppulse, pgain, pdrive uint8, pdl bool, ptime uint8) error {
-	if err := d.writeReg(apds9930RegPPULSE, ppulse); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPPULSE)), []byte{ppulse}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegPTIME, ptime); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPTIME)), []byte{ptime}); err != nil {
 		return err
 	}
 	ctrl, err := d.readReg(apds9930RegCONTROL)
@@ -298,7 +294,7 @@ func (d *APDS9930Full) ConfigureProximity(ppulse, pgain, pdrive uint8, pdl bool,
 		return err
 	}
 	ctrl = (ctrl & 0x03) | ((pdrive & 0x03) << 6) | 0x20 | ((pgain & 0x03) << 2)
-	if err := d.writeReg(apds9930RegCONTROL, ctrl); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONTROL)), []byte{ctrl}); err != nil {
 		return err
 	}
 	cfg, err := d.readReg(apds9930RegCONFIG)
@@ -311,12 +307,12 @@ func (d *APDS9930Full) ConfigureProximity(ppulse, pgain, pdrive uint8, pdl bool,
 		cfg &^= 0x01
 	}
 	cfg &^= 0x06
-	return d.writeReg(apds9930RegCONFIG, cfg)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONFIG)), []byte{cfg})
 }
 
 // ConfigureWait sets WTIME and the WLONG bit in CONFIG, then enables WEN.
 func (d *APDS9930Full) ConfigureWait(wtime uint8, wlong bool) error {
-	if err := d.writeReg(apds9930RegWTIME, wtime); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegWTIME)), []byte{wtime}); err != nil {
 		return err
 	}
 	cfg, err := d.readReg(apds9930RegCONFIG)
@@ -329,7 +325,7 @@ func (d *APDS9930Full) ConfigureWait(wtime uint8, wlong bool) error {
 		cfg &^= 0x02
 	}
 	cfg &^= 0x04
-	if err := d.writeReg(apds9930RegCONFIG, cfg); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegCONFIG)), []byte{cfg}); err != nil {
 		return err
 	}
 	en, err := d.readReg(apds9930RegENABLE)
@@ -337,7 +333,7 @@ func (d *APDS9930Full) ConfigureWait(wtime uint8, wlong bool) error {
 		return err
 	}
 	en |= 0x08
-	return d.writeReg(apds9930RegENABLE, en)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{en})
 }
 
 // DisableWait clears WEN in ENABLE.
@@ -347,7 +343,7 @@ func (d *APDS9930Full) DisableWait() error {
 		return err
 	}
 	en &^= 0x08
-	return d.writeReg(apds9930RegENABLE, en)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{en})
 }
 
 // Ch0 reads the raw Ch0 (visible + IR) ADC count.
@@ -391,16 +387,16 @@ func (d *APDS9930Full) SetAlsThresholds(low, high uint16, persistence uint8) err
 	if low > high {
 		high = low
 	}
-	if err := d.writeReg(apds9930RegAILTL, uint8(low)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegAILTL)), []byte{uint8(low)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegAILTH, uint8(low>>8)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegAILTH)), []byte{uint8(low>>8)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegAIHTL, uint8(high)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegAIHTL)), []byte{uint8(high)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegAIHTH, uint8(high>>8)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegAIHTH)), []byte{uint8(high>>8)}); err != nil {
 		return err
 	}
 	pers, err := d.readReg(apds9930RegPERS)
@@ -408,7 +404,7 @@ func (d *APDS9930Full) SetAlsThresholds(low, high uint16, persistence uint8) err
 		return err
 	}
 	pers = (pers & 0xF0) | (persistence & 0x0F)
-	if err := d.writeReg(apds9930RegPERS, pers); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPERS)), []byte{pers}); err != nil {
 		return err
 	}
 	en, err := d.readReg(apds9930RegENABLE)
@@ -416,7 +412,7 @@ func (d *APDS9930Full) SetAlsThresholds(low, high uint16, persistence uint8) err
 		return err
 	}
 	en |= 0x10
-	return d.writeReg(apds9930RegENABLE, en)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{en})
 }
 
 // SetProximityThresholds sets proximity interrupt thresholds and enables
@@ -425,16 +421,16 @@ func (d *APDS9930Full) SetProximityThresholds(low, high uint16, persistence uint
 	if low > high {
 		high = low
 	}
-	if err := d.writeReg(apds9930RegPILTL, uint8(low)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPILTL)), []byte{uint8(low)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegPILTH, uint8(low>>8)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPILTH)), []byte{uint8(low>>8)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegPIHTL, uint8(high)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPIHTL)), []byte{uint8(high)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(apds9930RegPIHTH, uint8(high>>8)); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPIHTH)), []byte{uint8(high>>8)}); err != nil {
 		return err
 	}
 	pers, err := d.readReg(apds9930RegPERS)
@@ -442,7 +438,7 @@ func (d *APDS9930Full) SetProximityThresholds(low, high uint16, persistence uint
 		return err
 	}
 	pers = (pers & 0x0F) | ((persistence & 0x0F) << 4)
-	if err := d.writeReg(apds9930RegPERS, pers); err != nil {
+	if err := d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPERS)), []byte{pers}); err != nil {
 		return err
 	}
 	en, err := d.readReg(apds9930RegENABLE)
@@ -450,7 +446,7 @@ func (d *APDS9930Full) SetProximityThresholds(low, high uint16, persistence uint
 		return err
 	}
 	en |= 0x20
-	return d.writeReg(apds9930RegENABLE, en)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{en})
 }
 
 // ClearInterrupt issues the chip's special-function command to clear
@@ -471,7 +467,7 @@ func (d *APDS9930Full) ClearInterrupt(channel uint8) error {
 // SetProximityOffset sets the POFFSET register (sign-magnitude).
 // offset in -127..+127 (positive shifts data up).
 func (d *APDS9930Full) SetProximityOffset(offset int8) error {
-	return d.writeReg(apds9930RegPOFFSET, apds9930EncodeOffset(offset))
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegPOFFSET)), []byte{apds9930EncodeOffset(offset)})
 }
 
 // SleepAfterInterrupt enables or disables SAI in ENABLE.
@@ -485,5 +481,5 @@ func (d *APDS9930Full) SleepAfterInterrupt(enable bool) error {
 	} else {
 		en &^= 0x40
 	}
-	return d.writeReg(apds9930RegENABLE, en)
+	return d.connection.WriteReg(uint32(apds9930CmdWrite(apds9930RegENABLE)), []byte{en})
 }

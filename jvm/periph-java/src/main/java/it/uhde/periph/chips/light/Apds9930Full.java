@@ -15,7 +15,7 @@ public class Apds9930Full extends Apds9930Minimal {
      * @param connection I²C connection bound to the APDS-9930 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9930Full(it.uhde.periph.connection.Connection connection) throws IOException {
+    public Apds9930Full(it.uhde.periph.connection.RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -28,14 +28,14 @@ public class Apds9930Full extends Apds9930Minimal {
      * @throws IOException on I²C error
      */
     public void configureAls(int atime, int again, boolean agl) throws IOException {
-        writeReg(REG_ATIME, atime & 0xFF);
+        connection.write(cmdWrite(REG_ATIME), new byte[] { (byte) (atime & 0xFF) });
         int ctrl = readReg(REG_CONTROL);
         ctrl = (ctrl & 0xFC) | (again & 0x03);
-        writeReg(REG_CONTROL, ctrl);
+        connection.write(cmdWrite(REG_CONTROL), new byte[] { (byte) (ctrl) });
         int cfg = readReg(REG_CONFIG);
         if (agl) cfg |= 0x04; else cfg &= ~0x04;
         cfg &= ~0x06;
-        writeReg(REG_CONFIG, cfg);
+        connection.write(cmdWrite(REG_CONFIG), new byte[] { (byte) (cfg) });
     }
 
     /**
@@ -49,15 +49,15 @@ public class Apds9930Full extends Apds9930Minimal {
      * @throws IOException on I²C error
      */
     public void configureProximity(int ppulse, int pgain, int pdrive, boolean pdl, int ptime) throws IOException {
-        writeReg(REG_PPULSE, ppulse & 0xFF);
-        writeReg(REG_PTIME, ptime & 0xFF);
+        connection.write(cmdWrite(REG_PPULSE), new byte[] { (byte) (ppulse & 0xFF) });
+        connection.write(cmdWrite(REG_PTIME), new byte[] { (byte) (ptime & 0xFF) });
         int ctrl = readReg(REG_CONTROL);
         ctrl = (ctrl & 0x03) | ((pdrive & 0x03) << 6) | 0x20 | ((pgain & 0x03) << 2);
-        writeReg(REG_CONTROL, ctrl);
+        connection.write(cmdWrite(REG_CONTROL), new byte[] { (byte) (ctrl) });
         int cfg = readReg(REG_CONFIG);
         if (pdl) cfg |= 0x01; else cfg &= ~0x01;
         cfg &= ~0x06;
-        writeReg(REG_CONFIG, cfg);
+        connection.write(cmdWrite(REG_CONFIG), new byte[] { (byte) (cfg) });
     }
 
     /**
@@ -68,21 +68,21 @@ public class Apds9930Full extends Apds9930Minimal {
      * @throws IOException on I²C error
      */
     public void configureWait(int wtime, boolean wlong) throws IOException {
-        writeReg(REG_WTIME, wtime & 0xFF);
+        connection.write(cmdWrite(REG_WTIME), new byte[] { (byte) (wtime & 0xFF) });
         int cfg = readReg(REG_CONFIG);
         if (wlong) cfg |= 0x02; else cfg &= ~0x02;
         cfg &= ~0x04;
-        writeReg(REG_CONFIG, cfg);
+        connection.write(cmdWrite(REG_CONFIG), new byte[] { (byte) (cfg) });
         int en = readReg(REG_ENABLE);
         en |= 0x08;
-        writeReg(REG_ENABLE, en);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (en) });
     }
 
     /** Clear WEN in ENABLE (disable the wait timer). */
     public void disableWait() throws IOException {
         int en = readReg(REG_ENABLE);
         en &= ~0x08;
-        writeReg(REG_ENABLE, en);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (en) });
     }
 
     /** Read the raw Ch0 (visible + IR) ADC count. */
@@ -137,16 +137,16 @@ public class Apds9930Full extends Apds9930Minimal {
      */
     public void setAlsThresholds(int low, int high, int persistence) throws IOException {
         if (low > high) high = low;
-        writeReg(REG_AILTL, low & 0xFF);
-        writeReg(REG_AILTH, (low >> 8) & 0xFF);
-        writeReg(REG_AIHTL, high & 0xFF);
-        writeReg(REG_AIHTH, (high >> 8) & 0xFF);
+        connection.write(cmdWrite(REG_AILTL), new byte[] { (byte) (low & 0xFF) });
+        connection.write(cmdWrite(REG_AILTH), new byte[] { (byte) ((low >> 8) & 0xFF) });
+        connection.write(cmdWrite(REG_AIHTL), new byte[] { (byte) (high & 0xFF) });
+        connection.write(cmdWrite(REG_AIHTH), new byte[] { (byte) ((high >> 8) & 0xFF) });
         int pers = readReg(REG_PERS);
         pers = (pers & 0xF0) | (persistence & 0x0F);
-        writeReg(REG_PERS, pers);
+        connection.write(cmdWrite(REG_PERS), new byte[] { (byte) (pers) });
         int en = readReg(REG_ENABLE);
         en |= 0x10;
-        writeReg(REG_ENABLE, en);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (en) });
     }
 
     /**
@@ -159,16 +159,16 @@ public class Apds9930Full extends Apds9930Minimal {
      */
     public void setProximityThresholds(int low, int high, int persistence) throws IOException {
         if (low > high) high = low;
-        writeReg(REG_PILTL, low & 0xFF);
-        writeReg(REG_PILTH, (low >> 8) & 0xFF);
-        writeReg(REG_PIHTL, high & 0xFF);
-        writeReg(REG_PIHTH, (high >> 8) & 0xFF);
+        connection.write(cmdWrite(REG_PILTL), new byte[] { (byte) (low & 0xFF) });
+        connection.write(cmdWrite(REG_PILTH), new byte[] { (byte) ((low >> 8) & 0xFF) });
+        connection.write(cmdWrite(REG_PIHTL), new byte[] { (byte) (high & 0xFF) });
+        connection.write(cmdWrite(REG_PIHTH), new byte[] { (byte) ((high >> 8) & 0xFF) });
         int pers = readReg(REG_PERS);
         pers = (pers & 0x0F) | ((persistence & 0x0F) << 4);
-        writeReg(REG_PERS, pers);
+        connection.write(cmdWrite(REG_PERS), new byte[] { (byte) (pers) });
         int en = readReg(REG_ENABLE);
         en |= 0x20;
-        writeReg(REG_ENABLE, en);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (en) });
     }
 
     /**
@@ -195,13 +195,13 @@ public class Apds9930Full extends Apds9930Minimal {
         int enc;
         if (offset >= 0) enc = 0x80 | (offset & 0x7F);
         else             enc = (-offset) & 0x7F;
-        writeReg(REG_POFFSET, enc);
+        connection.write(cmdWrite(REG_POFFSET), new byte[] { (byte) (enc) });
     }
 
     /** Enable or disable SAI (sleep after interrupt). */
     public void sleepAfterInterrupt(boolean enable) throws IOException {
         int en = readReg(REG_ENABLE);
         if (enable) en |= 0x40; else en &= ~0x40;
-        writeReg(REG_ENABLE, en);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (en) });
     }
 }

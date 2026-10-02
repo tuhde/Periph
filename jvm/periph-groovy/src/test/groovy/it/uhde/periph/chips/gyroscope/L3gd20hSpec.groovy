@@ -10,7 +10,7 @@ class L3gd20hSpec extends Specification {
         def connection = new MockConnection()
         connection.setRegister(L3gd20hMinimal.REG_WHO_AM_I, 0xD7)
 
-        def sensor = new L3gd20hFull(connection, false)
+        def sensor = new L3gd20hFull(connection)
 
         expect:
         connection.registers().get(L3gd20hMinimal.REG_CTRL_REG4) == L3gd20hFull.CTRL_REG4_DEFAULT

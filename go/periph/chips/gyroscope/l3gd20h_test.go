@@ -38,6 +38,14 @@ func (m *l3gd20hMockConn) WriteRead(data []byte, n int) ([]byte, error) {
 	return make([]byte, n), nil
 }
 
+func (m *l3gd20hMockConn) ReadReg(reg uint32, length int) ([]byte, error) {
+	return m.WriteRead([]byte{byte(reg)}, length)
+}
+
+func (m *l3gd20hMockConn) WriteReg(reg uint32, data []byte) error {
+	return m.Write(append([]byte{byte(reg)}, data...))
+}
+
 func (m *l3gd20hMockConn) Close() error { return nil }
 func (m *l3gd20hMockConn) Enable()       {}
 func (m *l3gd20hMockConn) Disable()      {}
@@ -52,7 +60,7 @@ func TestL3GD20H(t *testing.T) {
 	mock.setReg(l3gd20hRegCtrlReg4, []byte{l3gd20hCtrlReg4Default})
 	mock.setReg(l3gd20hRegOutXL, []byte{0x00, 0x01, 0x00, 0x02, 0x00, 0x03})
 
-	gyro, err := NewL3GD20HFull(mock, false)
+	gyro, err := NewL3GD20HFull(mock)
 	if err != nil {
 		t.Fatalf("init failed: %v", err)
 	}

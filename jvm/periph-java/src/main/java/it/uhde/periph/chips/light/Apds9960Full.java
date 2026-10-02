@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ public class Apds9960Full extends Apds9960Minimal {
      * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9960Full(Connection connection) throws IOException {
+    public Apds9960Full(RegisterConnection connection) throws IOException {
         super(connection);
     }
 
@@ -29,7 +29,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void enableProximity(boolean enabled) throws IOException {
         int val = readReg(REG_ENABLE);
         if (enabled) val |= 0x04; else val &= ~0x04;
-        writeReg(REG_ENABLE, val);
+        connection.write(REG_ENABLE, new byte[]{(byte) (val)});
     }
 
     /**
@@ -51,7 +51,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void enableWait(boolean enabled) throws IOException {
         int val = readReg(REG_ENABLE);
         if (enabled) val |= 0x08; else val &= ~0x08;
-        writeReg(REG_ENABLE, val);
+        connection.write(REG_ENABLE, new byte[]{(byte) (val)});
     }
 
     /**
@@ -62,11 +62,11 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void configureWait(int wtime, boolean wlong) throws IOException {
-        writeReg(REG_WTIME, wtime & 0xFF);
+        connection.write(REG_WTIME, new byte[]{(byte) (wtime & 0xFF)});
         int c1 = readReg(REG_CONFIG1);
         if (wlong) c1 |= 0x02; else c1 &= ~0x02;
         c1 = (c1 & 0x03) | 0x60;
-        writeReg(REG_CONFIG1, c1);
+        connection.write(REG_CONFIG1, new byte[]{(byte) (c1)});
     }
 
     /**
@@ -77,10 +77,10 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void configureAls(int atime, int again) throws IOException {
-        writeReg(REG_ATIME, atime & 0xFF);
+        connection.write(REG_ATIME, new byte[]{(byte) (atime & 0xFF)});
         int ctrl = readReg(REG_CONTROL);
         ctrl = (ctrl & 0xFC) | (again & 0x03);
-        writeReg(REG_CONTROL, ctrl);
+        connection.write(REG_CONTROL, new byte[]{(byte) (ctrl)});
     }
 
     /**
@@ -95,8 +95,8 @@ public class Apds9960Full extends Apds9960Minimal {
     public void configureProximityLed(int ldrive, int pgain, int ppulse, int pplen) throws IOException {
         int ctrl = readReg(REG_CONTROL);
         ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03);
-        writeReg(REG_CONTROL, ctrl);
-        writeReg(REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F));
+        connection.write(REG_CONTROL, new byte[]{(byte) (ctrl)});
+        connection.write(REG_PPULSE, new byte[]{(byte) (((pplen & 0x03) << 6) | (ppulse & 0x3F))});
     }
 
     /**
@@ -108,7 +108,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void setLedBoost(int boost) throws IOException {
         int c2 = readReg(REG_CONFIG2);
         c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01;
-        writeReg(REG_CONFIG2, c2);
+        connection.write(REG_CONFIG2, new byte[]{(byte) (c2)});
     }
 
     /**
@@ -119,10 +119,10 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void alsThreshold(int low, int high) throws IOException {
-        writeReg(REG_AILTL, low & 0xFF);
-        writeReg(REG_AILTH, (low >> 8) & 0xFF);
-        writeReg(REG_AIHTL, high & 0xFF);
-        writeReg(REG_AIHTH, (high >> 8) & 0xFF);
+        connection.write(REG_AILTL, new byte[]{(byte) (low & 0xFF)});
+        connection.write(REG_AILTH, new byte[]{(byte) ((low >> 8) & 0xFF)});
+        connection.write(REG_AIHTL, new byte[]{(byte) (high & 0xFF)});
+        connection.write(REG_AIHTH, new byte[]{(byte) ((high >> 8) & 0xFF)});
     }
 
     /**
@@ -133,8 +133,8 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void proximityThreshold(int low, int high) throws IOException {
-        writeReg(REG_PILT, low & 0xFF);
-        writeReg(REG_PIHT, high & 0xFF);
+        connection.write(REG_PILT, new byte[]{(byte) (low & 0xFF)});
+        connection.write(REG_PIHT, new byte[]{(byte) (high & 0xFF)});
     }
 
     /**
@@ -145,7 +145,7 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void setPersistence(int ppers, int apers) throws IOException {
-        writeReg(REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F));
+        connection.write(REG_PERS, new byte[]{(byte) (((ppers & 0x0F) << 4) | (apers & 0x0F))});
     }
 
     /**
@@ -157,7 +157,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void enableAlsInterrupt(boolean enabled) throws IOException {
         int val = readReg(REG_ENABLE);
         if (enabled) val |= 0x10; else val &= ~0x10;
-        writeReg(REG_ENABLE, val);
+        connection.write(REG_ENABLE, new byte[]{(byte) (val)});
     }
 
     /**
@@ -169,7 +169,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void enableProximityInterrupt(boolean enabled) throws IOException {
         int val = readReg(REG_ENABLE);
         if (enabled) val |= 0x20; else val &= ~0x20;
-        writeReg(REG_ENABLE, val);
+        connection.write(REG_ENABLE, new byte[]{(byte) (val)});
     }
 
     /**
@@ -207,8 +207,8 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void setProximityOffset(int ur, int dl) throws IOException {
-        writeReg(REG_POFFSET_UR, encodeOffset(ur));
-        writeReg(REG_POFFSET_DL, encodeOffset(dl));
+        connection.write(REG_POFFSET_UR, new byte[]{(byte) (encodeOffset(ur))});
+        connection.write(REG_POFFSET_DL, new byte[]{(byte) (encodeOffset(dl))});
     }
 
     /**
@@ -226,7 +226,7 @@ public class Apds9960Full extends Apds9960Minimal {
         if (d) c3 |= 0x04;
         if (l) c3 |= 0x02;
         if (r) c3 |= 0x01;
-        writeReg(REG_CONFIG3, c3);
+        connection.write(REG_CONFIG3, new byte[]{(byte) (c3)});
     }
 
     /**
@@ -239,16 +239,16 @@ public class Apds9960Full extends Apds9960Minimal {
         int val = readReg(REG_ENABLE);
         if (enabled) {
             val |= 0x40;
-            writeReg(REG_ENABLE, val);
+            connection.write(REG_ENABLE, new byte[]{(byte) (val)});
             int g4 = readReg(REG_GCONF4);
             g4 |= 0x01;
-            writeReg(REG_GCONF4, g4);
+            connection.write(REG_GCONF4, new byte[]{(byte) (g4)});
         } else {
             val &= ~0x40;
-            writeReg(REG_ENABLE, val);
+            connection.write(REG_ENABLE, new byte[]{(byte) (val)});
             int g4 = readReg(REG_GCONF4);
             g4 &= ~0x01;
-            writeReg(REG_GCONF4, g4);
+            connection.write(REG_GCONF4, new byte[]{(byte) (g4)});
         }
     }
 
@@ -265,11 +265,11 @@ public class Apds9960Full extends Apds9960Minimal {
      * @throws IOException on I²C error
      */
     public void configureGesture(int ggain, int gldrive, int gpulse, int gplen, int gwtime, int gpenth, int gexth) throws IOException {
-        writeReg(REG_GPENTH, gpenth & 0xFF);
-        writeReg(REG_GEXTH, gexth & 0xFF);
+        connection.write(REG_GPENTH, new byte[]{(byte) (gpenth & 0xFF)});
+        connection.write(REG_GEXTH, new byte[]{(byte) (gexth & 0xFF)});
         int g2 = ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07);
-        writeReg(REG_GCONF2, g2);
-        writeReg(REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F));
+        connection.write(REG_GCONF2, new byte[]{(byte) (g2)});
+        connection.write(REG_GPULSE, new byte[]{(byte) (((gplen & 0x03) << 6) | (gpulse & 0x3F))});
     }
 
     /**
@@ -293,7 +293,7 @@ public class Apds9960Full extends Apds9960Minimal {
         if (level == 0) return new int[0][];
         int[][] result = new int[level][4];
         for (int i = 0; i < level; i++) {
-            byte[] raw = connection.writeRead(new byte[]{(byte) REG_GFIFO_U}, 4);
+            byte[] raw = connection.read(REG_GFIFO_U, 4);
             result[i] = new int[]{raw[0] & 0xFF, raw[1] & 0xFF, raw[2] & 0xFF, raw[3] & 0xFF};
         }
         return result;
@@ -317,7 +317,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void clearGestureFifo() throws IOException {
         int g4 = readReg(REG_GCONF4);
         g4 |= 0x04;
-        writeReg(REG_GCONF4, g4);
+        connection.write(REG_GCONF4, new byte[]{(byte) (g4)});
     }
 
     /**
@@ -329,7 +329,7 @@ public class Apds9960Full extends Apds9960Minimal {
     public void enableGestureInterrupt(boolean enabled) throws IOException {
         int g4 = readReg(REG_GCONF4);
         if (enabled) g4 |= 0x02; else g4 &= ~0x02;
-        writeReg(REG_GCONF4, g4);
+        connection.write(REG_GCONF4, new byte[]{(byte) (g4)});
     }
 
     /**

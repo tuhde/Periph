@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -37,7 +37,7 @@ public class MPU9250Full extends MPU9250Minimal {
     private static final double MAG_SENSITIVITY_14BIT = 0.6;
     private static final double MAG_SENSITIVITY_16BIT = 0.15;
 
-    private final Connection magConnection;
+    private final RegisterConnection magConnection;
     private boolean magEnabled = false;
     private int magBits = 16;
     private double magScaleX = 1.0;
@@ -45,11 +45,11 @@ public class MPU9250Full extends MPU9250Minimal {
     private double magScaleZ = 1.0;
 
     /**
-     * @param connection Configured I²C or SPI connection pointing at the MPU-9250.
-     * @param magConnection Configured I²C connection bound to the AK8963's address
+     * @param connection RegisterConnection (I²C or SMBus) pointing at the MPU-9250.
+     * @param magConnection RegisterConnection (I²C or SMBus) bound to the AK8963's address
      *                      (0x0C), on the same bus as {@code connection}.
      */
-    public MPU9250Full(Connection connection, Connection magConnection) throws IOException {
+    public MPU9250Full(RegisterConnection connection, RegisterConnection magConnection) throws IOException {
         super(connection);
         this.magConnection = magConnection;
     }
@@ -62,7 +62,7 @@ public class MPU9250Full extends MPU9250Minimal {
      */
     public void configureGyro(int fullScale) throws IOException {
         gyroFs = fullScale & 0x03;
-        writeReg(REG_GYRO_CONFIG, (fullScale & 0x03) << 3);
+        connection.write(REG_GYRO_CONFIG, new byte[]{(byte) ((fullScale & 0x03) << 3)});
     }
 
     /**
@@ -73,7 +73,7 @@ public class MPU9250Full extends MPU9250Minimal {
      */
     public void configureAccel(int fullScale) throws IOException {
         accelFs = fullScale & 0x03;
-        writeReg(REG_ACCEL_CONFIG, (fullScale & 0x03) << 3);
+        connection.write(REG_ACCEL_CONFIG, new byte[]{(byte) ((fullScale & 0x03) << 3)});
     }
 
     /**
@@ -84,8 +84,8 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws IOException on I²C error.
      */
     public void configureDlpf(int gyroDlpf, int accelDlpf) throws IOException {
-        writeReg(REG_CONFIG, gyroDlpf & 0x07);
-        writeReg(REG_ACCEL_CONFIG2, accelDlpf & 0x07);
+        connection.write(REG_CONFIG, new byte[]{(byte) (gyroDlpf & 0x07)});
+        connection.write(REG_ACCEL_CONFIG2, new byte[]{(byte) (accelDlpf & 0x07)});
     }
 
     /**
@@ -95,7 +95,7 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws IOException on I²C error.
      */
     public void configureSampleRate(int divider) throws IOException {
-        writeReg(REG_SMPLRT_DIV, divider & 0xFF);
+        connection.write(REG_SMPLRT_DIV, new byte[]{(byte) (divider & 0xFF)});
     }
 
     /**
@@ -118,13 +118,13 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws InterruptedException if interrupted during sleep.
      */
     public void enableMag(int bits, int mode) throws IOException, InterruptedException {
-        writeReg(REG_INT_PIN_CFG, 0x22);
+        connection.write(REG_INT_PIN_CFG, new byte[]{(byte) (0x22)});
         Thread.sleep(10);
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00);
+        magConnection.write(AK8963_REG_CNTL1, new byte[]{(byte) (0x00)});
         Thread.sleep(10);
 
-        ak8963Write(AK8963_REG_CNTL1, 0x0F);
+        magConnection.write(AK8963_REG_CNTL1, new byte[]{(byte) (0x0F)});
         Thread.sleep(10);
 
         int asax = ak8963Read(AK8963_REG_ASAX);
@@ -135,7 +135,7 @@ public class MPU9250Full extends MPU9250Minimal {
         magScaleY = (asay - 128) / 256.0 + 1.0;
         magScaleZ = (asaz - 128) / 256.0 + 1.0;
 
-        ak8963Write(AK8963_REG_CNTL1, 0x00);
+        magConnection.write(AK8963_REG_CNTL1, new byte[]{(byte) (0x00)});
         Thread.sleep(10);
 
         int cntl1Val = 0;
@@ -143,7 +143,7 @@ public class MPU9250Full extends MPU9250Minimal {
             cntl1Val |= 0x10;
         }
         cntl1Val |= (mode & 0x0F);
-        ak8963Write(AK8963_REG_CNTL1, cntl1Val);
+        magConnection.write(AK8963_REG_CNTL1, new byte[]{(byte) (cntl1Val)});
         Thread.sleep(10);
 
         magEnabled = true;
@@ -161,7 +161,7 @@ public class MPU9250Full extends MPU9250Minimal {
         if (!magEnabled) {
             throw new IllegalStateException("Magnetometer not enabled. Call enableMag() first.");
         }
-        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 7);
+        byte[] buf = magConnection.read(AK8963_REG_HXL, 7);
         int mx = (short) ((buf[1] & 0xFF) << 8 | (buf[0] & 0xFF));
         int my = (short) ((buf[3] & 0xFF) << 8 | (buf[2] & 0xFF));
         int mz = (short) ((buf[5] & 0xFF) << 8 | (buf[4] & 0xFF));
@@ -180,7 +180,7 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws IOException on I²C error.
      */
     public int[] accelRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_ACCEL_XOUT_H}, 6);
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6);
         return new int[]{
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -195,7 +195,7 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws IOException on I²C error.
      */
     public int[] gyroRaw() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_GYRO_XOUT_H}, 6);
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6);
         return new int[]{
             (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF)),
             (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF)),
@@ -215,7 +215,7 @@ public class MPU9250Full extends MPU9250Minimal {
             throw new IllegalStateException("Magnetometer not enabled. Call enableMag() first.");
         }
         // ST2 (buf[6]) is not used but must be read to unlock the next measurement.
-        byte[] buf = ak8963ReadBurst(AK8963_REG_HXL, 7);
+        byte[] buf = magConnection.read(AK8963_REG_HXL, 7);
         return new int[]{
             (short) ((buf[1] & 0xFF) << 8 | (buf[0] & 0xFF)),
             (short) ((buf[3] & 0xFF) << 8 | (buf[2] & 0xFF)),
@@ -246,7 +246,7 @@ public class MPU9250Full extends MPU9250Minimal {
         } else {
             val &= ~0x40;
         }
-        writeReg(REG_PWR_MGMT_1, val);
+        connection.write(REG_PWR_MGMT_1, new byte[]{(byte) (val)});
     }
 
     /**
@@ -256,7 +256,7 @@ public class MPU9250Full extends MPU9250Minimal {
      * @throws IOException on I²C error.
      */
     public int fifoCount() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_FIFO_COUNTH}, 2);
+        byte[] buf = connection.read(REG_FIFO_COUNTH, 2);
         return ((buf[0] & 0x1F) << 8) | (buf[1] & 0xFF);
     }
 
@@ -269,7 +269,7 @@ public class MPU9250Full extends MPU9250Minimal {
     public byte[] readFifo() throws IOException {
         int count = fifoCount();
         if (count == 0) return new byte[0];
-        return connection.writeRead(new byte[]{(byte) REG_FIFO_R_W}, count);
+        return connection.read(REG_FIFO_R_W, count);
     }
 
     /**
@@ -282,9 +282,9 @@ public class MPU9250Full extends MPU9250Minimal {
      */
     public void enableFifo(boolean gyro, boolean accel, boolean temp) throws IOException {
         int fifoEn = ((accel ? 1 : 0) << 3) | ((temp ? 1 : 0) << 2) | ((gyro ? 1 : 0) << 4);
-        writeReg(REG_FIFO_EN, fifoEn);
+        connection.write(REG_FIFO_EN, new byte[]{(byte) (fifoEn)});
         int userCtrl = readReg(REG_USER_CTRL);
-        writeReg(REG_USER_CTRL, userCtrl | 0x40);
+        connection.write(REG_USER_CTRL, new byte[]{(byte) (userCtrl | 0x40)});
     }
 
     /**
@@ -294,19 +294,12 @@ public class MPU9250Full extends MPU9250Minimal {
      */
     public void resetFifo() throws IOException {
         int userCtrl = readReg(REG_USER_CTRL);
-        writeReg(REG_USER_CTRL, userCtrl | 0x04);
-    }
-
-    private void ak8963Write(int reg, int val) throws IOException {
-        magConnection.write(new byte[]{(byte) reg, (byte) val});
+        connection.write(REG_USER_CTRL, new byte[]{(byte) (userCtrl | 0x04)});
     }
 
     private int ak8963Read(int reg) throws IOException {
-        byte[] b = magConnection.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = magConnection.read(reg, 1);
         return b[0] & 0xFF;
     }
 
-    private byte[] ak8963ReadBurst(int reg, int len) throws IOException {
-        return magConnection.writeRead(new byte[]{(byte) reg}, len);
-    }
 }

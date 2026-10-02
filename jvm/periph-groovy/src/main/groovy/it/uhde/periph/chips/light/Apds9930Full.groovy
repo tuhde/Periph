@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.light
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9930 — full driver. Extends {@link Apds9930Minimal} with ALS/proximity
@@ -24,50 +24,50 @@ class Apds9930Full extends Apds9930Minimal {
         }
     }
 
-    Apds9930Full(Connection connection) {
+    Apds9930Full(RegisterConnection connection) {
         super(connection)
     }
 
     /** Configure ALS integration time, AGAIN index, and AGL flag. */
     void configureAls(int atime, int again, boolean agl) {
-        writeReg(REG_ATIME, atime & 0xFF)
+        connection.write(cmdWrite(REG_ATIME), [(byte) (atime & 0xFF)] as byte[])
         int ctrl = (readReg(REG_CONTROL) & 0xFC) | (again & 0x03)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(cmdWrite(REG_CONTROL), [(byte) (ctrl)] as byte[])
         int cfg = readReg(REG_CONFIG)
         if (agl) cfg |= 0x04 else cfg &= ~0x04
         cfg &= ~0x06
-        writeReg(REG_CONFIG, cfg)
+        connection.write(cmdWrite(REG_CONFIG), [(byte) (cfg)] as byte[])
     }
 
     /** Configure proximity LED pulses, gain, drive, and ADC integration time. */
     void configureProximity(int ppulse, int pgain, int pdrive, boolean pdl, int ptime) {
-        writeReg(REG_PPULSE, ppulse & 0xFF)
-        writeReg(REG_PTIME, ptime & 0xFF)
+        connection.write(cmdWrite(REG_PPULSE), [(byte) (ppulse & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_PTIME), [(byte) (ptime & 0xFF)] as byte[])
         int ctrl = (readReg(REG_CONTROL) & 0x03) | ((pdrive & 0x03) << 6) | 0x20 | ((pgain & 0x03) << 2)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(cmdWrite(REG_CONTROL), [(byte) (ctrl)] as byte[])
         int cfg = readReg(REG_CONFIG)
         if (pdl) cfg |= 0x01 else cfg &= ~0x01
         cfg &= ~0x06
-        writeReg(REG_CONFIG, cfg)
+        connection.write(cmdWrite(REG_CONFIG), [(byte) (cfg)] as byte[])
     }
 
     /** Configure wait time and enable the wait timer. */
     void configureWait(int wtime, boolean wlong) {
-        writeReg(REG_WTIME, wtime & 0xFF)
+        connection.write(cmdWrite(REG_WTIME), [(byte) (wtime & 0xFF)] as byte[])
         int cfg = readReg(REG_CONFIG)
         if (wlong) cfg |= 0x02 else cfg &= ~0x02
         cfg &= ~0x04
-        writeReg(REG_CONFIG, cfg)
+        connection.write(cmdWrite(REG_CONFIG), [(byte) (cfg)] as byte[])
         int en = readReg(REG_ENABLE)
         en |= 0x08
-        writeReg(REG_ENABLE, en)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (en)] as byte[])
     }
 
     /** Clear WEN in ENABLE (disable the wait timer). */
     void disableWait() {
         int en = readReg(REG_ENABLE)
         en &= ~0x08
-        writeReg(REG_ENABLE, en)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (en)] as byte[])
     }
 
     /** Read the raw Ch0 (visible + IR) ADC count. */
@@ -91,29 +91,29 @@ class Apds9930Full extends Apds9930Minimal {
     /** Set ALS interrupt thresholds and enable AIEN. */
     void setAlsThresholds(int low, int high, int persistence) {
         if (low > high) high = low
-        writeReg(REG_AILTL, low & 0xFF)
-        writeReg(REG_AILTH, (low >> 8) & 0xFF)
-        writeReg(REG_AIHTL, high & 0xFF)
-        writeReg(REG_AIHTH, (high >> 8) & 0xFF)
+        connection.write(cmdWrite(REG_AILTL), [(byte) (low & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_AILTH), [(byte) ((low >> 8) & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_AIHTL), [(byte) (high & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_AIHTH), [(byte) ((high >> 8) & 0xFF)] as byte[])
         int pers = (readReg(REG_PERS) & 0xF0) | (persistence & 0x0F)
-        writeReg(REG_PERS, pers)
+        connection.write(cmdWrite(REG_PERS), [(byte) (pers)] as byte[])
         int en = readReg(REG_ENABLE)
         en |= 0x10
-        writeReg(REG_ENABLE, en)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (en)] as byte[])
     }
 
     /** Set proximity interrupt thresholds and enable PIEN. */
     void setProximityThresholds(int low, int high, int persistence) {
         if (low > high) high = low
-        writeReg(REG_PILTL, low & 0xFF)
-        writeReg(REG_PILTH, (low >> 8) & 0xFF)
-        writeReg(REG_PIHTL, high & 0xFF)
-        writeReg(REG_PIHTH, (high >> 8) & 0xFF)
+        connection.write(cmdWrite(REG_PILTL), [(byte) (low & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_PILTH), [(byte) ((low >> 8) & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_PIHTL), [(byte) (high & 0xFF)] as byte[])
+        connection.write(cmdWrite(REG_PIHTH), [(byte) ((high >> 8) & 0xFF)] as byte[])
         int pers = (readReg(REG_PERS) & 0x0F) | ((persistence & 0x0F) << 4)
-        writeReg(REG_PERS, pers)
+        connection.write(cmdWrite(REG_PERS), [(byte) (pers)] as byte[])
         int en = readReg(REG_ENABLE)
         en |= 0x20
-        writeReg(REG_ENABLE, en)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (en)] as byte[])
     }
 
     /** Clear pending interrupt(s). */
@@ -130,13 +130,13 @@ class Apds9930Full extends Apds9930Minimal {
         int enc
         if (offset >= 0) enc = 0x80 | (offset & 0x7F)
         else            enc = (-offset) & 0x7F
-        writeReg(REG_POFFSET, enc)
+        connection.write(cmdWrite(REG_POFFSET), [(byte) (enc)] as byte[])
     }
 
     /** Enable or disable SAI (sleep after interrupt). */
     void sleepAfterInterrupt(boolean enable) {
         int en = readReg(REG_ENABLE)
         if (enable) en |= 0x40 else en &= ~0x40
-        writeReg(REG_ENABLE, en)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (en)] as byte[])
     }
 }

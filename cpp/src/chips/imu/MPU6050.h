@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief MPU-6050 6-axis MotionTracking device (accelerometer + gyroscope) — minimal interface.
  *
@@ -15,11 +15,11 @@
  * - Sample rate: 200 Hz (SMPLRT_DIV=4)
  * - Clock: PLL with gyro X reference (CLKSEL=1)
  *
- * @param connection   Configured I²C connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MPU6050Minimal {
 public:
-    MPU6050Minimal(Connection& connection);
+    MPU6050Minimal(RegisterConnection& connection);
 
     /** @brief Read 3-axis linear acceleration.
      *  @param[out] x  X acceleration in m/s².
@@ -60,14 +60,12 @@ protected:
     static constexpr float ACCEL_SENSITIVITY[4] = {16384.0f, 8192.0f, 4096.0f, 2048.0f};
     static constexpr float GYRO_SENSITIVITY[4]  = {131.0f, 65.5f, 32.8f, 16.4f};
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     uint8_t    _accel_fs = 0;
     uint8_t    _gyro_fs  = 0;
 
-    void    _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
     int16_t _read_reg16_signed(uint8_t reg);
-    void    _read_burst(uint8_t reg, uint8_t* buf, uint8_t len);
 };
 
 /** @brief MPU-6050 full interface — extends MPU6050Minimal with configuration and FIFO support.
@@ -76,11 +74,11 @@ protected:
  * sample rate control, temperature reading, raw data access, data-ready polling,
  * sleep/standby control, and FIFO management.
  *
- * @param connection   Configured I²C connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MPU6050Full : public MPU6050Minimal {
 public:
-    MPU6050Full(Connection& connection);
+    MPU6050Full(RegisterConnection& connection);
 
     /** @brief Set gyroscope full-scale range.
      *  @param full_scale  Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).

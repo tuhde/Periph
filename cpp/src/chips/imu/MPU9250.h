@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief MPU-9250 9-axis MotionTracking device (accelerometer + gyroscope) — minimal interface.
  *
@@ -19,11 +19,11 @@
  * - All six axes enabled
  * - SPI only: I2C_IF_DIS set to prevent accidental I²C re-enable
  *
- * @param connection   Configured I²C or SPI connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MPU9250Minimal {
 public:
-    MPU9250Minimal(Connection& connection);
+    MPU9250Minimal(RegisterConnection& connection);
 
     /** @brief Read 3-axis linear acceleration.
      *  @param[out] x  X acceleration in m/s².
@@ -67,14 +67,12 @@ protected:
     static constexpr float ACCEL_SENSITIVITY[4] = {16384.0f, 8192.0f, 4096.0f, 2048.0f};
     static constexpr float GYRO_SENSITIVITY[4]  = {131.0f, 65.5f, 32.8f, 16.4f};
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     uint8_t    _accel_fs = 0;
     uint8_t    _gyro_fs  = 0;
 
-    void    _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
     int16_t _read_reg16_signed(uint8_t reg);
-    void    _read_burst(uint8_t reg, uint8_t* buf, uint8_t len);
 };
 
 /** @brief MPU-9250 full interface — extends MPU9250Minimal with complete functionality.
@@ -90,13 +88,13 @@ protected:
  * second connection the same way as the primary one (e.g. on Linux,
  * I2CConnection(1, 0x0C) alongside I2CConnection(1, 0x68)) and pass both in.
  *
- * @param connection      Configured I²C or SPI connection pointing at the MPU-9250.
- * @param magConnection   Configured I²C connection bound to the AK8963's address (0x0C),
+ * @param connection      RegisterConnection (I²C or SMBus) pointing at the MPU-9250.
+ * @param magConnection   RegisterConnection (I²C or SMBus) bound to the AK8963's address (0x0C),
  *                        on the same bus as connection.
  */
 class MPU9250Full : public MPU9250Minimal {
 public:
-    MPU9250Full(Connection& connection, Connection& magConnection);
+    MPU9250Full(RegisterConnection& connection, RegisterConnection& magConnection);
 
     /** @brief Set gyroscope full-scale range.
      *  @param full_scale  Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
@@ -210,14 +208,12 @@ protected:
     static constexpr float MAG_SENSITIVITY_14BIT = 0.6f;
     static constexpr float MAG_SENSITIVITY_16BIT = 0.15f;
 
-    Connection& _mag_connection;
+    RegisterConnection& _mag_connection;
     bool   _mag_enabled   = false;
     uint8_t _mag_bits      = 16;
     float  _mag_scale_x    = 1.0f;
     float  _mag_scale_y    = 1.0f;
     float  _mag_scale_z    = 1.0f;
 
-    void _ak8963_write(uint8_t reg, uint8_t value);
     uint8_t _ak8963_read(uint8_t reg);
-    void _ak8963_read_burst(uint8_t reg, uint8_t* buf, uint8_t len);
 };

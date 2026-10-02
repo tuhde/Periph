@@ -55,6 +55,14 @@ func (m *mockConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	return out, nil
 }
 
+func (m *mockConnection) ReadReg(reg uint32, length int) ([]byte, error) {
+	return m.WriteRead([]byte{byte(reg)}, length)
+}
+
+func (m *mockConnection) WriteReg(reg uint32, data []byte) error {
+	return m.Write(append([]byte{byte(reg)}, data...))
+}
+
 func (m *mockConnection) Close() error                { return nil }
 func (m *mockConnection) Enable()                     {}
 func (m *mockConnection) Disable()                    {}

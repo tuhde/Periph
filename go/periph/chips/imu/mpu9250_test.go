@@ -24,7 +24,7 @@ func newInitializedSensor9250(t *testing.T) (*mockConnection, *mockConnection, *
 	conn := newMockConnection()
 	conn.setRegister(reg9250WhoAmI, whoAmI9250Value)
 	magConn := newMockConnection()
-	sensor, err := NewMPU9250Full(conn, func(addr uint8) (connection.Connection, error) {
+	sensor, err := NewMPU9250Full(conn, func(addr uint8) (connection.RegisterConnection, error) {
 		return magConn, nil
 	})
 	if err != nil {

@@ -4,7 +4,7 @@ import time
 import math
 
 conn = I2CConnection(bus=1, addr=0x6A)
-gyro = L3GD20HFull(conn)                                            # Create L3GD20H driver, (connection, bus_type='i2c')
+gyro = L3GD20HFull(conn)                                            # Create L3GD20H driver, (connection)
 
 # --- Configure for shake detection at 190 Hz, ±500 dps ---
 # 190 Hz ODR provides good temporal resolution for shake detection;

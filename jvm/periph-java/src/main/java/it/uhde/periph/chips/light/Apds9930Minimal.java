@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -62,7 +62,7 @@ public class Apds9930Minimal {
     protected static final int CMD_WRITE = 0x80;
     protected static final int CMD_READ  = 0xA0;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver.
@@ -70,19 +70,19 @@ public class Apds9930Minimal {
      * @param connection I²C connection bound to the APDS-9930 device address (0x39)
      * @throws IOException on I²C error
      */
-    public Apds9930Minimal(Connection connection) throws IOException {
+    public Apds9930Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         sleep(6);
         int id = readReg(REG_ID);
         if (id != 0x39) {
             throw new IOException("APDS-9930 not found (ID=0x" + Integer.toHexString(id) + ", expected 0x39)");
         }
-        writeReg(REG_ENABLE, 0x00);
-        writeReg(REG_ATIME, ATIME_DEFAULT);
-        writeReg(REG_PTIME, PTIME_DEFAULT);
-        writeReg(REG_PPULSE, PPULSE_DEFAULT);
-        writeReg(REG_CONTROL, CONTROL_DEFAULT);
-        writeReg(REG_ENABLE, ENABLE_DEFAULT);
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (0x00) });
+        connection.write(cmdWrite(REG_ATIME), new byte[] { (byte) (ATIME_DEFAULT) });
+        connection.write(cmdWrite(REG_PTIME), new byte[] { (byte) (PTIME_DEFAULT) });
+        connection.write(cmdWrite(REG_PPULSE), new byte[] { (byte) (PPULSE_DEFAULT) });
+        connection.write(cmdWrite(REG_CONTROL), new byte[] { (byte) (CONTROL_DEFAULT) });
+        connection.write(cmdWrite(REG_ENABLE), new byte[] { (byte) (ENABLE_DEFAULT) });
         sleep(12);
     }
 
@@ -136,18 +136,13 @@ public class Apds9930Minimal {
         return readReg16(REG_PDATAL);
     }
 
-    protected void writeReg(int reg, int value) throws IOException {
-        byte[] buf = new byte[] { (byte) cmdWrite(reg), (byte) (value & 0xFF) };
-        connection.write(buf);
-    }
-
     protected int readReg(int reg) throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 1);
+        byte[] buf = connection.read(cmdRead(reg), 1);
         return buf[0] & 0xFF;
     }
 
     protected int readReg16(int reg) throws IOException {
-        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 2);
+        byte[] buf = connection.read(cmdRead(reg), 2);
         return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
     }
 

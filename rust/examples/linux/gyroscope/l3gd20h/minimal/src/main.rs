@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x6A);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro = L3gd20hMinimal::new(dev, addr, false).expect("init");
+    let mut gyro = L3gd20hMinimal::new(dev, addr).expect("init");
 
     loop {
         let (x, y, z) = gyro.gyro().expect("read gyro"); // Read angular rate, () -> (f32, f32, f32) rad/s

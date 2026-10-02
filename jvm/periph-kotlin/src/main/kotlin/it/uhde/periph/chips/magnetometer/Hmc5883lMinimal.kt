@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.magnetometer
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * HMC5883L — 3-axis magnetometer (minimal driver).
@@ -15,7 +15,7 @@ import it.uhde.periph.connection.Connection
  * - Mode: continuous measurement
  */
 open class Hmc5883lMinimal(
-    protected val connection: Connection
+    protected val connection: RegisterConnection
 ) {
     companion object {
         // Register addresses
@@ -54,9 +54,9 @@ open class Hmc5883lMinimal(
     }
 
     protected fun initMinimal() {
-        writeReg8(REG_CONFIG_A, 0x70)  // 8 avg, 15 Hz, normal
-        writeReg8(REG_CONFIG_B, 0x20)  // gain=1 (±1.3 Ga)
-        writeReg8(REG_MODE, 0x00)      // continuous mode
+        connection.write(REG_CONFIG_A, byteArrayOf((0x70).toByte()))  // 8 avg, 15 Hz, normal
+        connection.write(REG_CONFIG_B, byteArrayOf((0x20).toByte()))  // gain=1 (±1.3 Ga)
+        connection.write(REG_MODE, byteArrayOf((0x00).toByte()))      // continuous mode
         Thread.sleep(6)
     }
 
@@ -70,7 +70,7 @@ open class Hmc5883lMinimal(
      *         Returns null for any axis that overflows (raw == -4096).
      */
     fun magneticField(): Array<Double?> {
-        val raw = connection.writeRead(byteArrayOf(REG_DATA_X_MSB.toByte()), 6)
+        val raw = connection.read(REG_DATA_X_MSB, 6)
         val rawX = (raw[0].toInt() shl 8) or (raw[1].toInt() and 0xFF)
         val rawZ = (raw[2].toInt() shl 8) or (raw[3].toInt() and 0xFF)
         val rawY = (raw[4].toInt() shl 8) or (raw[5].toInt() and 0xFF)
@@ -93,22 +93,18 @@ open class Hmc5883lMinimal(
 
     // ---- low-level helpers ----
 
-    protected fun writeReg8(reg: Int, `val`: Int) {
-        connection.write(byteArrayOf(reg.toByte(), `val`.toByte()))
-    }
-
     protected fun readReg8(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
     protected fun readReg16(regHi: Int): Int {
-        val b = connection.writeRead(byteArrayOf(regHi.toByte()), 2)
+        val b = connection.read(regHi, 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
     protected fun readReg16Signed(regHi: Int): Int {
-        val b = connection.writeRead(byteArrayOf(regHi.toByte()), 2)
+        val b = connection.read(regHi, 2)
         return ((b[0].toInt() and 0xFF) shl 8 or (b[1].toInt() and 0xFF)).toShort().toInt()
     }
 }

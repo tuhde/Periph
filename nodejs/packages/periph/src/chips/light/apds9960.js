@@ -77,7 +77,7 @@ function sleep(ms) {
  */
 class APDS9960Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x39).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x39).
      */
     constructor(connection) {
         this._conn = connection;
@@ -86,26 +86,18 @@ class APDS9960Minimal {
 
     async _init() {
         sleep(6);
-        const id = await this._readReg(_REG_ID);
+        const id = (await this._conn.readReg(_REG_ID, 1))[0];
         if (id !== 0xAB) throw new Error('APDS-9960 not found (ID=0x' + id.toString(16) + ', expected 0xAB)');
-        await this._writeReg(_REG_ENABLE, 0x00);
-        await this._writeReg(_REG_ATIME, _ATIME_DEFAULT);
-        await this._writeReg(_REG_CONTROL, _CONTROL_DEFAULT);
-        await this._writeReg(_REG_CONFIG2, _CONFIG2_DEFAULT);
-        await this._writeReg(_REG_ENABLE, 0x03);
+        await this._conn.writeReg(_REG_ENABLE, 0x00);
+        await this._conn.writeReg(_REG_ATIME, _ATIME_DEFAULT);
+        await this._conn.writeReg(_REG_CONTROL, _CONTROL_DEFAULT);
+        await this._conn.writeReg(_REG_CONFIG2, _CONFIG2_DEFAULT);
+        await this._conn.writeReg(_REG_ENABLE, 0x03);
         sleep(210);
     }
 
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
-    }
-
-    async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
-    }
-
     async _readReg16LE(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg]), 2);
+        const buf = await this._conn.readReg(reg, 2);
         return buf[0] | (buf[1] << 8);
     }
 
@@ -122,7 +114,7 @@ class APDS9960Minimal {
      * @returns {Promise<number>} Raw red channel count, 0-65535.
      */
     async colorRed() {
-        const raw = await this._conn.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        const raw = await this._conn.readReg(_REG_CDATAL, 8);
         return raw[2] | (raw[3] << 8);
     }
 
@@ -133,7 +125,7 @@ class APDS9960Minimal {
      * @returns {Promise<number>} Raw green channel count, 0-65535.
      */
     async colorGreen() {
-        const raw = await this._conn.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        const raw = await this._conn.readReg(_REG_CDATAL, 8);
         return raw[4] | (raw[5] << 8);
     }
 
@@ -144,7 +136,7 @@ class APDS9960Minimal {
      * @returns {Promise<number>} Raw blue channel count, 0-65535.
      */
     async colorBlue() {
-        const raw = await this._conn.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        const raw = await this._conn.readReg(_REG_CDATAL, 8);
         return raw[6] | (raw[7] << 8);
     }
 
@@ -156,7 +148,7 @@ class APDS9960Minimal {
      * @returns {Promise<{ clear: number, red: number, green: number, blue: number }>}
      */
     async color() {
-        const raw = await this._conn.writeRead(Buffer.from([_REG_CDATAL]), 8);
+        const raw = await this._conn.readReg(_REG_CDATAL, 8);
         return {
             clear: raw[0] | (raw[1] << 8),
             red:   raw[2] | (raw[3] << 8),
@@ -174,7 +166,7 @@ class APDS9960Minimal {
  */
 class APDS9960Full extends APDS9960Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I2C connection pointing at the device (address 0x39).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (address 0x39).
      */
     constructor(connection) {
         super(connection);
@@ -186,16 +178,16 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableProximity(enabled) {
-        let val = await this._readReg(_REG_ENABLE);
+        let val = (await this._conn.readReg(_REG_ENABLE, 1))[0];
         if (enabled) val |= 0x04; else val &= ~0x04;
-        await this._writeReg(_REG_ENABLE, val);
+        await this._conn.writeReg(_REG_ENABLE, val);
     }
 
     /**
      * Read the proximity count.
      * @returns {Promise<number>} Proximity count 0-255; higher means closer.
      */
-    async proximity() { return this._readReg(_REG_PDATA); }
+    async proximity() { return (await this._conn.readReg(_REG_PDATA, 1))[0]; }
 
     /**
      * Enable or disable the wait engine.
@@ -203,9 +195,9 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableWait(enabled) {
-        let val = await this._readReg(_REG_ENABLE);
+        let val = (await this._conn.readReg(_REG_ENABLE, 1))[0];
         if (enabled) val |= 0x08; else val &= ~0x08;
-        await this._writeReg(_REG_ENABLE, val);
+        await this._conn.writeReg(_REG_ENABLE, val);
     }
 
     /**
@@ -215,11 +207,11 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async configureWait(wtime, wlong = false) {
-        await this._writeReg(_REG_WTIME, wtime & 0xFF);
-        let c1 = await this._readReg(_REG_CONFIG1);
+        await this._conn.writeReg(_REG_WTIME, wtime & 0xFF);
+        let c1 = (await this._conn.readReg(_REG_CONFIG1, 1))[0];
         if (wlong) c1 |= 0x02; else c1 &= ~0x02;
         c1 = (c1 & 0x03) | 0x60;
-        await this._writeReg(_REG_CONFIG1, c1);
+        await this._conn.writeReg(_REG_CONFIG1, c1);
     }
 
     /**
@@ -229,10 +221,10 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async configureAls(atime, again) {
-        await this._writeReg(_REG_ATIME, atime & 0xFF);
-        let ctrl = await this._readReg(_REG_CONTROL);
+        await this._conn.writeReg(_REG_ATIME, atime & 0xFF);
+        let ctrl = (await this._conn.readReg(_REG_CONTROL, 1))[0];
         ctrl = (ctrl & 0xFC) | (again & 0x03);
-        await this._writeReg(_REG_CONTROL, ctrl);
+        await this._conn.writeReg(_REG_CONTROL, ctrl);
     }
 
     /**
@@ -244,10 +236,10 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async configureProximityLed(ldrive, pgain, ppulse, pplen) {
-        let ctrl = await this._readReg(_REG_CONTROL);
+        let ctrl = (await this._conn.readReg(_REG_CONTROL, 1))[0];
         ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03);
-        await this._writeReg(_REG_CONTROL, ctrl);
-        await this._writeReg(_REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F));
+        await this._conn.writeReg(_REG_CONTROL, ctrl);
+        await this._conn.writeReg(_REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F));
     }
 
     /**
@@ -256,9 +248,9 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async setLedBoost(boost) {
-        let c2 = await this._readReg(_REG_CONFIG2);
+        let c2 = (await this._conn.readReg(_REG_CONFIG2, 1))[0];
         c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01;
-        await this._writeReg(_REG_CONFIG2, c2);
+        await this._conn.writeReg(_REG_CONFIG2, c2);
     }
 
     /**
@@ -268,10 +260,10 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async alsThreshold(low, high) {
-        await this._writeReg(_REG_AILTL, low & 0xFF);
-        await this._writeReg(_REG_AILTH, (low >> 8) & 0xFF);
-        await this._writeReg(_REG_AIHTL, high & 0xFF);
-        await this._writeReg(_REG_AIHTH, (high >> 8) & 0xFF);
+        await this._conn.writeReg(_REG_AILTL, low & 0xFF);
+        await this._conn.writeReg(_REG_AILTH, (low >> 8) & 0xFF);
+        await this._conn.writeReg(_REG_AIHTL, high & 0xFF);
+        await this._conn.writeReg(_REG_AIHTH, (high >> 8) & 0xFF);
     }
 
     /**
@@ -281,8 +273,8 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async proximityThreshold(low, high) {
-        await this._writeReg(_REG_PILT, low & 0xFF);
-        await this._writeReg(_REG_PIHT, high & 0xFF);
+        await this._conn.writeReg(_REG_PILT, low & 0xFF);
+        await this._conn.writeReg(_REG_PIHT, high & 0xFF);
     }
 
     /**
@@ -292,7 +284,7 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async setPersistence(ppers, apers) {
-        await this._writeReg(_REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F));
+        await this._conn.writeReg(_REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F));
     }
 
     /**
@@ -301,9 +293,9 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableAlsInterrupt(enabled) {
-        let val = await this._readReg(_REG_ENABLE);
+        let val = (await this._conn.readReg(_REG_ENABLE, 1))[0];
         if (enabled) val |= 0x10; else val &= ~0x10;
-        await this._writeReg(_REG_ENABLE, val);
+        await this._conn.writeReg(_REG_ENABLE, val);
     }
 
     /**
@@ -312,9 +304,9 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableProximityInterrupt(enabled) {
-        let val = await this._readReg(_REG_ENABLE);
+        let val = (await this._conn.readReg(_REG_ENABLE, 1))[0];
         if (enabled) val |= 0x20; else val &= ~0x20;
-        await this._writeReg(_REG_ENABLE, val);
+        await this._conn.writeReg(_REG_ENABLE, val);
     }
 
     /**
@@ -349,8 +341,8 @@ class APDS9960Full extends APDS9960Minimal {
      */
     async setProximityOffset(ur, dl) {
         const encode = (v) => v < 0 ? (0x80 | ((-v) & 0x7F)) : (v & 0x7F);
-        await this._writeReg(_REG_POFFSET_UR, encode(ur));
-        await this._writeReg(_REG_POFFSET_DL, encode(dl));
+        await this._conn.writeReg(_REG_POFFSET_UR, encode(ur));
+        await this._conn.writeReg(_REG_POFFSET_DL, encode(dl));
     }
 
     /**
@@ -362,12 +354,12 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async setProximityMask(u, d, l, r) {
-        let c3 = (await this._readReg(_REG_CONFIG3)) & 0xF0;
+        let c3 = (await this._conn.readReg(_REG_CONFIG3, 1))[0] & 0xF0;
         if (u) c3 |= 0x08;
         if (d) c3 |= 0x04;
         if (l) c3 |= 0x02;
         if (r) c3 |= 0x01;
-        await this._writeReg(_REG_CONFIG3, c3);
+        await this._conn.writeReg(_REG_CONFIG3, c3);
     }
 
     /**
@@ -376,19 +368,19 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableGesture(enabled) {
-        let val = await this._readReg(_REG_ENABLE);
+        let val = (await this._conn.readReg(_REG_ENABLE, 1))[0];
         if (enabled) {
             val |= 0x40;
-            await this._writeReg(_REG_ENABLE, val);
-            let g4 = await this._readReg(_REG_GCONF4);
+            await this._conn.writeReg(_REG_ENABLE, val);
+            let g4 = (await this._conn.readReg(_REG_GCONF4, 1))[0];
             g4 |= 0x01;
-            await this._writeReg(_REG_GCONF4, g4);
+            await this._conn.writeReg(_REG_GCONF4, g4);
         } else {
             val &= ~0x40;
-            await this._writeReg(_REG_ENABLE, val);
-            let g4 = await this._readReg(_REG_GCONF4);
+            await this._conn.writeReg(_REG_ENABLE, val);
+            let g4 = (await this._conn.readReg(_REG_GCONF4, 1))[0];
             g4 &= ~0x01;
-            await this._writeReg(_REG_GCONF4, g4);
+            await this._conn.writeReg(_REG_GCONF4, g4);
         }
     }
 
@@ -404,29 +396,29 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async configureGesture(ggain, gldrive, gpulse, gplen, gwtime, gpenth, gexth) {
-        await this._writeReg(_REG_GPENTH, gpenth & 0xFF);
-        await this._writeReg(_REG_GEXTH, gexth & 0xFF);
+        await this._conn.writeReg(_REG_GPENTH, gpenth & 0xFF);
+        await this._conn.writeReg(_REG_GEXTH, gexth & 0xFF);
         const g2 = ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07);
-        await this._writeReg(_REG_GCONF2, g2);
-        await this._writeReg(_REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F));
+        await this._conn.writeReg(_REG_GCONF2, g2);
+        await this._conn.writeReg(_REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F));
     }
 
     /**
      * Check if gesture data is available in the FIFO.
      * @returns {Promise<boolean>} true if GSTATUS.GVALID is set.
      */
-    async gestureAvailable() { return !!((await this._readReg(_REG_GSTATUS)) & 0x01); }
+    async gestureAvailable() { return !!((await this._conn.readReg(_REG_GSTATUS, 1))[0] & 0x01); }
 
     /**
      * Read all gesture datasets from the FIFO.
      * @returns {Promise<Array<{ u: number, d: number, l: number, r: number }>>}
      */
     async readGestureFifo() {
-        const level = await this._readReg(_REG_GFLVL);
+        const level = (await this._conn.readReg(_REG_GFLVL, 1))[0];
         if (level === 0) return [];
         const result = [];
         for (let i = 0; i < level; i++) {
-            const raw = await this._conn.writeRead(Buffer.from([_REG_GFIFO_U]), 4);
+            const raw = await this._conn.readReg(_REG_GFIFO_U, 4);
             result.push({ u: raw[0], d: raw[1], l: raw[2], r: raw[3] });
         }
         return result;
@@ -436,16 +428,16 @@ class APDS9960Full extends APDS9960Minimal {
      * Read the number of datasets in the gesture FIFO.
      * @returns {Promise<number>} Number of 4-byte datasets currently in FIFO.
      */
-    async gestureFifoLevel() { return this._readReg(_REG_GFLVL); }
+    async gestureFifoLevel() { return (await this._conn.readReg(_REG_GFLVL, 1))[0]; }
 
     /**
      * Clear the gesture FIFO by setting GFIFO_CLR in GCONF4.
      * @returns {Promise<void>}
      */
     async clearGestureFifo() {
-        let g4 = await this._readReg(_REG_GCONF4);
+        let g4 = (await this._conn.readReg(_REG_GCONF4, 1))[0];
         g4 |= 0x04;
-        await this._writeReg(_REG_GCONF4, g4);
+        await this._conn.writeReg(_REG_GCONF4, g4);
     }
 
     /**
@@ -454,46 +446,46 @@ class APDS9960Full extends APDS9960Minimal {
      * @returns {Promise<void>}
      */
     async enableGestureInterrupt(enabled) {
-        let g4 = await this._readReg(_REG_GCONF4);
+        let g4 = (await this._conn.readReg(_REG_GCONF4, 1))[0];
         if (enabled) g4 |= 0x02; else g4 &= ~0x02;
-        await this._writeReg(_REG_GCONF4, g4);
+        await this._conn.writeReg(_REG_GCONF4, g4);
     }
 
     /**
      * Read the raw STATUS register.
      * @returns {Promise<number>} Raw STATUS byte.
      */
-    async status() { return this._readReg(_REG_STATUS); }
+    async status() { return (await this._conn.readReg(_REG_STATUS, 1))[0]; }
 
     /**
      * Check if ALS/color data is valid.
      * @returns {Promise<boolean>} true if STATUS.AVALID is set.
      */
-    async isAlsValid() { return !!((await this._readReg(_REG_STATUS)) & 0x01); }
+    async isAlsValid() { return !!((await this._conn.readReg(_REG_STATUS, 1))[0] & 0x01); }
 
     /**
      * Check if proximity data is valid.
      * @returns {Promise<boolean>} true if STATUS.PVALID is set.
      */
-    async isProximityValid() { return !!((await this._readReg(_REG_STATUS)) & 0x02); }
+    async isProximityValid() { return !!((await this._conn.readReg(_REG_STATUS, 1))[0] & 0x02); }
 
     /**
      * Check if the clear photodiode is saturated.
      * @returns {Promise<boolean>} true if STATUS.CPSAT is set.
      */
-    async isAlsSaturated() { return !!((await this._readReg(_REG_STATUS)) & 0x80); }
+    async isAlsSaturated() { return !!((await this._conn.readReg(_REG_STATUS, 1))[0] & 0x80); }
 
     /**
      * Check if analog saturation occurred during proximity.
      * @returns {Promise<boolean>} true if STATUS.PGSAT is set.
      */
-    async isProximitySaturated() { return !!((await this._readReg(_REG_STATUS)) & 0x40); }
+    async isProximitySaturated() { return !!((await this._conn.readReg(_REG_STATUS, 1))[0] & 0x40); }
 
     /**
      * Read the device ID register.
      * @returns {Promise<number>} ID register value (expect 0xAB).
      */
-    async chipId() { return this._readReg(_REG_ID); }
+    async chipId() { return (await this._conn.readReg(_REG_ID, 1))[0]; }
 }
 
 module.exports = { APDS9960Minimal, APDS9960Full };

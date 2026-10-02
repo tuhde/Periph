@@ -49,7 +49,7 @@ const (
 // GPA7 (pin 7) and GPB7 (pin 15) are output-only on the hardware.
 // Configuring them as inputs is not possible.
 type MCP23017Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	addr       uint8
 	// shadow tracks OLATA and OLATB. Bit n in shadow[0] = last value
 	// written to OLATA bit n (pins 0–7). Bit n in shadow[1] = OLATB.
@@ -62,43 +62,38 @@ type MCP23017Minimal struct {
 //
 // conn must be a configured I²C connection bound to the device's
 // 7-bit address (0x20–0x27; default 0x20 with A2=A1=A0=0).
-func NewMCP23017Minimal(conn connection.Connection, addr uint8) (*MCP23017Minimal, error) {
+func NewMCP23017Minimal(conn connection.RegisterConnection, addr uint8) (*MCP23017Minimal, error) {
 	d := &MCP23017Minimal{connection: conn, addr: addr}
-	if err := d.writeReg(mcpRegOLATA, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegOLATA), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegOLATB, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegOLATB), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegIODIRA, 0x7F); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegIODIRA), []byte{0x7F}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegIODIRB, 0x7F); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegIODIRB), []byte{0x7F}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegIPOLA, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegIPOLA), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegIPOLB, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegIPOLB), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegGPPUA, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegGPPUA), []byte{0x00}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(mcpRegGPPUB, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegGPPUB), []byte{0x00}); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// writeReg writes a single register.
-func (d *MCP23017Minimal) writeReg(reg, value uint8) error {
-	return d.connection.Write([]byte{reg, value})
-}
-
 // readReg reads a single register.
 func (d *MCP23017Minimal) readReg(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -110,7 +105,7 @@ func (d *MCP23017Minimal) readReg(reg uint8) (uint8, error) {
 // Note: pins 7 and 15 (GPA7/GPB7) are output-only on the hardware; their
 // IODIR bits must remain 0.
 func (d *MCP23017Minimal) ConfigureDirection(port uint8, mask uint8) error {
-	return d.writeReg(mcpRegIODIRA+(port&1), mask)
+	return d.connection.WriteReg(uint32(mcpRegIODIRA+(port&1)), []byte{mask})
 }
 
 // ReadPort reads all 8 pins of the given port (0 = PORTA, 1 = PORTB)
@@ -123,7 +118,7 @@ func (d *MCP23017Minimal) ReadPort(port uint8) (uint8, error) {
 // latch (OLATA/OLATB) and updates the in-memory shadow register.
 func (d *MCP23017Minimal) WritePort(port uint8, mask uint8) error {
 	d.shadow[port&1] = mask
-	return d.writeReg(mcpRegOLATA+(port&1), mask)
+	return d.connection.WriteReg(uint32(mcpRegOLATA+(port&1)), []byte{mask})
 }
 
 // Pin returns a Pin proxy for pin n (0–15). 0–7 = PORTA, 8–15 = PORTB.
@@ -141,7 +136,7 @@ func (d *MCP23017Minimal) setPin(n uint8, high bool) error {
 	} else {
 		d.shadow[port] &^= 1 << bit
 	}
-	return d.writeReg(mcpRegOLATA+uint8(port), d.shadow[port])
+	return d.connection.WriteReg(uint32(mcpRegOLATA+uint8(port)), []byte{d.shadow[port]})
 }
 
 // MCP23017Pin is a GPIO proxy for a single MCP23017 pin.
@@ -202,7 +197,7 @@ type MCP23017Full struct {
 
 // NewMCP23017Full creates a new MCP23017Full with the same mandatory
 // initialisation as NewMCP23017Minimal.
-func NewMCP23017Full(conn connection.Connection, addr uint8) (*MCP23017Full, error) {
+func NewMCP23017Full(conn connection.RegisterConnection, addr uint8) (*MCP23017Full, error) {
 	m, err := NewMCP23017Minimal(conn, addr)
 	if err != nil {
 		return nil, err
@@ -217,7 +212,7 @@ func NewMCP23017Full(conn connection.Connection, addr uint8) (*MCP23017Full, err
 //
 // mask bit n = 1 → pull-up enabled on pin n.
 func (d *MCP23017Full) ConfigurePullup(port uint8, mask uint8) error {
-	return d.MCP23017Minimal.writeReg(mcpRegGPPUA+(port&1), mask)
+	return d.connection.WriteReg(uint32(mcpRegGPPUA+(port&1)), []byte{mask})
 }
 
 // ConfigurePolarity sets the input polarity inversion register for the
@@ -225,7 +220,7 @@ func (d *MCP23017Full) ConfigurePullup(port uint8, mask uint8) error {
 //
 // mask bit n = 1 → GPIO read for pin n is inverted.
 func (d *MCP23017Full) ConfigurePolarity(port uint8, mask uint8) error {
-	return d.MCP23017Minimal.writeReg(mcpRegIPOLA+(port&1), mask)
+	return d.connection.WriteReg(uint32(mcpRegIPOLA+(port&1)), []byte{mask})
 }
 
 // MCP23017FullPin is a GPIO proxy for a single MCP23017 pin obtained via
@@ -271,10 +266,10 @@ func (p MCP23017FullPin) Unwatch() error {
 // 5 ms polling goroutine dedicated to this port.
 func (d *MCP23017Full) OnInterruptPort(port uint8, callback func(uint8)) error {
 	p := port & 1
-	if err := d.MCP23017Minimal.writeReg(mcpRegINTCONA+p, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegINTCONA+p), []byte{0x00}); err != nil {
 		return err
 	}
-	if err := d.MCP23017Minimal.writeReg(mcpRegGPINTENA+p, 0xFF); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegGPINTENA+p), []byte{0xFF}); err != nil {
 		return err
 	}
 
@@ -314,7 +309,7 @@ func (d *MCP23017Full) OnInterrupt(callback func(port int, status uint8)) error 
 // unsubscribes its delivery.
 func (d *MCP23017Full) OffInterruptPort(port uint8) error {
 	p := port & 1
-	if err := d.MCP23017Minimal.writeReg(mcpRegGPINTENA+p, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(mcpRegGPINTENA+p), []byte{0x00}); err != nil {
 		return err
 	}
 

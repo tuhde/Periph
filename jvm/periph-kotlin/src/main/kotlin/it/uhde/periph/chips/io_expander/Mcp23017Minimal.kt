@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * MCP23017 16-bit bidirectional I/O port expander — minimal interface.
@@ -19,7 +19,7 @@ import it.uhde.periph.connection.Connection
  * @param connection I²C connection bound to the device address
  * @param addr       7-bit I²C address (`0x20`–`0x27`, default `0x20`)
  */
-open class Mcp23017Minimal(protected val connection: Connection, val addr: Int = 0x20) {
+open class Mcp23017Minimal(protected val connection: RegisterConnection, val addr: Int = 0x20) {
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
     val shadow = intArrayOf(0, 0)
@@ -38,26 +38,22 @@ open class Mcp23017Minimal(protected val connection: Connection, val addr: Int =
     }
 
     init {
-        writeReg(REG_OLATA,  0x00)
-        writeReg(REG_OLATB,  0x00)
-        writeReg(REG_IODIRA, 0x7F)
-        writeReg(REG_IODIRB, 0x7F)
-        writeReg(REG_IPOLA,  0x00)
-        writeReg(REG_IPOLB,  0x00)
-        writeReg(REG_GPPUA,  0x00)
-        writeReg(REG_GPPUB,  0x00)
+        connection.write(REG_OLATA, byteArrayOf(( 0x00).toByte()))
+        connection.write(REG_OLATB, byteArrayOf(( 0x00).toByte()))
+        connection.write(REG_IODIRA, byteArrayOf((0x7F).toByte()))
+        connection.write(REG_IODIRB, byteArrayOf((0x7F).toByte()))
+        connection.write(REG_IPOLA, byteArrayOf(( 0x00).toByte()))
+        connection.write(REG_IPOLB, byteArrayOf(( 0x00).toByte()))
+        connection.write(REG_GPPUA, byteArrayOf(( 0x00).toByte()))
+        connection.write(REG_GPPUB, byteArrayOf(( 0x00).toByte()))
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    internal fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), (value and 0xFF).toByte()))
-    }
-
     internal fun readReg(reg: Int): Int {
-        return connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+        return connection.read(reg, 1)[0].toInt() and 0xFF
     }
 
     // -------------------------------------------------------------------------
@@ -81,7 +77,7 @@ open class Mcp23017Minimal(protected val connection: Connection, val addr: Int =
      */
     fun writePort(port: Int, mask: Int) {
         shadow[port] = mask and 0xFF
-        writeReg(REG_OLATA + port, shadow[port])
+        connection.write(REG_OLATA + port, byteArrayOf((shadow[port]).toByte()))
     }
 
     /**
@@ -103,7 +99,7 @@ open class Mcp23017Minimal(protected val connection: Connection, val addr: Int =
         val port = n shr 3
         val bit  = n and 7
         shadow[port] = if (high) shadow[port] or   (1 shl bit) else shadow[port] and (1 shl bit).inv()
-        writeReg(REG_OLATA + port, shadow[port])
+        connection.write(REG_OLATA + port, byteArrayOf((shadow[port]).toByte()))
     }
 
     internal fun readPin(n: Int): Int {
@@ -132,7 +128,7 @@ open class Mcp23017Minimal(protected val connection: Connection, val addr: Int =
             val bit  = n and 7
             val reg  = REG_IODIRA + port
             val cur  = chip.readReg(reg)
-            chip.writeReg(reg, cur or (1 shl bit))
+            chip.connection.write(reg, byteArrayOf((cur or (1 shl bit)).toByte()))
         }
 
         /** Set this pin as an output (IODIR bit = 0). */
@@ -141,7 +137,7 @@ open class Mcp23017Minimal(protected val connection: Connection, val addr: Int =
             val bit  = n and 7
             val reg  = REG_IODIRA + port
             val cur  = chip.readReg(reg)
-            chip.writeReg(reg, cur and (1 shl bit).inv())
+            chip.connection.write(reg, byteArrayOf((cur and (1 shl bit).inv()).toByte()))
         }
 
         /** Drive the pin high. */

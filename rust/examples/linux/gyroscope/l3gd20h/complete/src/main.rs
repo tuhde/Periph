@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x6A);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut gyro = L3gd20hFull::new(dev, addr, false).expect("init");
+    let mut gyro = L3gd20hFull::new(dev, addr).expect("init");
 
     gyro.configure(ODR_190_HZ, 0, L3GD20H_FS_500_DPS).expect("configure"); // Configure, (odr, bw, full_scale) -> Result
 

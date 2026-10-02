@@ -22,34 +22,22 @@ static inline void delay_ms(unsigned long ms) { usleep(ms * 1000UL); }
 
 static constexpr float kPi = 3.141592653589793f;
 
-L3gd20hMinimal::L3gd20hMinimal(Connection& connection, bool spi)
-    : _connection(connection), _spi(spi), _full_scale(250) {
+L3gd20hMinimal::L3gd20hMinimal(RegisterConnection& connection)
+    : _connection(connection), _full_scale(250) {
     uint8_t who = 0;
     _read_reg(REG_WHO_AM_I, &who, 1);
     if (who != WHO_AM_I_L3GD20 && who != WHO_AM_I_L3GD20H) {
         return;
     }
-    _write_reg(REG_CTRL_REG4, CTRL_REG4_DEFAULT);
-    _write_reg(REG_CTRL_REG1, CTRL_REG1_DEFAULT);
+    { uint8_t v = CTRL_REG4_DEFAULT; _connection.write(REG_CTRL_REG4, &v, 1); }
+    { uint8_t v = CTRL_REG1_DEFAULT; _connection.write(REG_CTRL_REG1, &v, 1); }
     delay_ms(250);
 }
 
-void L3gd20hMinimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t addr = _spi ? (reg & 0x3F) : reg;
-    uint8_t buf[2] = { addr, value };
-    _connection.write(buf, 2);
-}
-
 void L3gd20hMinimal::_read_reg(uint8_t reg, uint8_t* buf, uint8_t len) {
-    if (_spi) {
-        uint8_t addr = reg | 0xC0;
-        _connection.write_read(&addr, 1, buf, len);
-    } else if (len > 1) {
-        uint8_t addr = reg | 0x80;
-        _connection.write_read(&addr, 1, buf, len);
-    } else {
-        _connection.write_read(&reg, 1, buf, len);
-    }
+    // I2C needs bit 7 of the sub-address set for multi-byte auto-increment;
+    // on SPI the connection's readBit=0xC0 already ORs it in (idempotent).
+    _connection.read(len > 1 ? (reg | 0x80) : reg, buf, len);
 }
 
 float L3gd20hMinimal::_sensitivity() const {
@@ -80,8 +68,8 @@ void L3gd20hMinimal::gyro(float& x_rad_s, float& y_rad_s, float& z_rad_s) {
 
 // L3gd20hFull
 
-L3gd20hFull::L3gd20hFull(Connection& connection, bool spi)
-    : L3gd20hMinimal(connection, spi), _odr(0), _bw(0), _threshold_raw(0) {
+L3gd20hFull::L3gd20hFull(RegisterConnection& connection)
+    : L3gd20hMinimal(connection), _odr(0), _bw(0), _threshold_raw(0) {
 }
 
 void L3gd20hFull::configure(uint8_t odr, uint8_t bw, uint8_t full_scale) {
@@ -93,9 +81,9 @@ void L3gd20hFull::configure(uint8_t odr, uint8_t bw, uint8_t full_scale) {
     static const uint16_t fs_map[3] = { 250, 500, 2000 };
     _full_scale = fs_map[full_scale];
     uint8_t ctrl1 = CTRL_REG1_DEFAULT | ((_odr & 0x3) << 6) | ((_bw & 0x3) << 4);
-    _write_reg(REG_CTRL_REG1, ctrl1);
+    { uint8_t v = ctrl1; _connection.write(REG_CTRL_REG1, &v, 1); }
     uint8_t ctrl4 = CTRL_REG4_DEFAULT | ((full_scale & 0x3) << 4);
-    _write_reg(REG_CTRL_REG4, ctrl4);
+    { uint8_t v = ctrl4; _connection.write(REG_CTRL_REG4, &v, 1); }
 }
 
 void L3gd20hFull::gyro_raw(int16_t& x_raw, int16_t& y_raw, int16_t& z_raw) {
@@ -122,7 +110,7 @@ void L3gd20hFull::configure_hp_filter(uint8_t mode, uint8_t cutoff) {
     if (mode > 3) mode = 3;
     if (cutoff > 15) cutoff = 15;
     uint8_t ctrl2 = ((mode & 0x3) << 4) | (cutoff & 0x0F);
-    _write_reg(REG_CTRL_REG2, ctrl2);
+    { uint8_t v = ctrl2; _connection.write(REG_CTRL_REG2, &v, 1); }
 }
 
 void L3gd20hFull::enable_hp_filter(bool enable) {
@@ -133,7 +121,7 @@ void L3gd20hFull::enable_hp_filter(bool enable) {
     } else {
         ctrl5 &= ~0x10;
     }
-    _write_reg(REG_CTRL_REG5, ctrl5);
+    { uint8_t v = ctrl5; _connection.write(REG_CTRL_REG5, &v, 1); }
 }
 
 void L3gd20hFull::configure_fifo(uint8_t mode, uint8_t watermark) {
@@ -147,9 +135,9 @@ void L3gd20hFull::configure_fifo(uint8_t mode, uint8_t watermark) {
     uint8_t ctrl5 = 0;
     _read_reg(REG_CTRL_REG5, &ctrl5, 1);
     ctrl5 |= 0x40;
-    _write_reg(REG_CTRL_REG5, ctrl5);
+    { uint8_t v = ctrl5; _connection.write(REG_CTRL_REG5, &v, 1); }
     uint8_t fifo_ctrl = ((mode & 0x7) << 5) | (watermark & 0x1F);
-    _write_reg(REG_FIFO_CTRL, fifo_ctrl);
+    { uint8_t v = fifo_ctrl; _connection.write(REG_FIFO_CTRL, &v, 1); }
 }
 
 void L3gd20hFull::enable_fifo(bool enable) {
@@ -159,9 +147,9 @@ void L3gd20hFull::enable_fifo(bool enable) {
         ctrl5 |= 0x40;
     } else {
         ctrl5 &= ~0x40;
-        _write_reg(REG_FIFO_CTRL, 0x00);
+        { uint8_t v = 0x00; _connection.write(REG_FIFO_CTRL, &v, 1); }
     }
-    _write_reg(REG_CTRL_REG5, ctrl5);
+    { uint8_t v = ctrl5; _connection.write(REG_CTRL_REG5, &v, 1); }
 }
 
 uint8_t L3gd20hFull::fifo_level() {
@@ -196,16 +184,16 @@ void L3gd20hFull::set_power_mode(const char* mode) {
         uint8_t ctrl1 = 0;
         _read_reg(REG_CTRL_REG1, &ctrl1, 1);
         ctrl1 = (ctrl1 & 0xF0) | 0x0F;
-        _write_reg(REG_CTRL_REG1, ctrl1);
+        { uint8_t v = ctrl1; _connection.write(REG_CTRL_REG1, &v, 1); }
     } else if (strcmp(mode, POWER_SLEEP) == 0) {
         uint8_t ctrl1 = 0;
         _read_reg(REG_CTRL_REG1, &ctrl1, 1);
         ctrl1 = (ctrl1 & 0xF8) | 0x08;
-        _write_reg(REG_CTRL_REG1, ctrl1);
+        { uint8_t v = ctrl1; _connection.write(REG_CTRL_REG1, &v, 1); }
     } else if (strcmp(mode, POWER_POWERDOWN) == 0) {
         uint8_t ctrl1 = 0;
         _read_reg(REG_CTRL_REG1, &ctrl1, 1);
         ctrl1 &= 0xF7;
-        _write_reg(REG_CTRL_REG1, ctrl1);
+        { uint8_t v = ctrl1; _connection.write(REG_CTRL_REG1, &v, 1); }
     }
 }

@@ -17,10 +17,9 @@ def check_true(label, condition):
         failed += 1
 
 
-# MCP23017's _read_reg() issues a plain 1-byte register-pointer write
-# followed by a plain read() (not write_read()), so I2CConnectionMock's
-# register map is not consulted on reads here — every read must be
-# preloaded via queue_read() in the exact order the driver will issue it.
+# MCP23017 reads go through RegisterConnection.read_reg() (a write_read), so
+# I2CConnectionMock's register map backs every read — preload the register
+# the driver will read.
 connection = I2CConnectionMock()
 chip = Mcp23017Full(connection)
 check_true('init', True)
@@ -37,9 +36,9 @@ check_true('init_gppua', connection.registers[Mcp23017Full._REG_GPPUA] == 0x00)
 check_true('init_gppub', connection.registers[Mcp23017Full._REG_GPPUB] == 0x00)
 
 # read_port(0)/(1) -> GPIOA/GPIOB.
-connection.queue_read([0xA5])
+connection.registers[Mcp23017Full._REG_GPIOA] = 0xA5
 check_true('read_port_a', chip.read_port(0) == 0xA5)
-connection.queue_read([0x5A])
+connection.registers[Mcp23017Full._REG_GPIOB] = 0x5A
 check_true('read_port_b', chip.read_port(1) == 0x5A)
 
 # write_port updates OLAT register and shadow.
@@ -49,11 +48,11 @@ check_true('write_port_a_shadow', chip._shadow[0] == 0x3C)
 
 # pin() read on PORTA and PORTB.
 pin0 = chip.pin(0)
-connection.queue_read([0x01])  # GPA0 high
+connection.registers[Mcp23017Full._REG_GPIOA] = 0x01  # GPA0 high
 check_true('pin_read_porta', pin0.value() == 1)
 
 pin9 = chip.pin(9)  # GPB1
-connection.queue_read([0x02])  # GPB1 high
+connection.registers[Mcp23017Full._REG_GPIOB] = 0x02  # GPB1 high
 check_true('pin_read_portb', pin9.value() == 1)
 
 # Pin direction: setting a pin to OUT clears its IODIRA bit; IN sets it.
@@ -88,12 +87,12 @@ chip.set_default_value(0, 0x11)
 check_true('set_default_value', connection.registers[Mcp23017Full._REG_DEFVALA] == 0x11)
 
 # poll_interrupt(port): reads INTF then INTCAP (discarded); returns INTF value.
-connection.queue_read([0x08])   # INTFA
-connection.queue_read([0xFF])   # INTCAPA (discarded)
+connection.registers[Mcp23017Full._REG_INTFA] = 0x08
+connection.registers[Mcp23017Full._REG_INTCAPA] = 0xFF   # discarded
 check_true('poll_interrupt', chip.poll_interrupt(0) == 0x08)
 
 # read_capture(port): reads INTCAP directly.
-connection.queue_read([0x22])   # INTCAPB
+connection.registers[Mcp23017Full._REG_INTCAPB] = 0x22
 check_true('read_capture', chip.read_capture(1) == 0x22)
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief APDS-9930 digital ambient light and proximity sensor — minimal interface.
  *
@@ -18,11 +18,11 @@
  *
  * I²C address: 0x39 (fixed).
  *
- * @param connection Configured I2C connection pointing at the device (address 0x39).
+ * @param connection RegisterConnection (I²C or SMBus) pointing at the device (address 0x39).
  */
 class APDS9930Minimal {
 public:
-    APDS9930Minimal(Connection& connection);
+    APDS9930Minimal(RegisterConnection& connection);
 
     /** @brief Read the ambient illuminance.
      *
@@ -88,12 +88,11 @@ protected:
     static uint8_t cmd_read(uint8_t reg)  { return CMD_READ  | (reg & 0x1F); }
     static uint8_t cmd_special(uint8_t f) { return CMD_SPECIAL | (f & 0x1F); }
 
-    void _write_reg(uint8_t reg, uint8_t value);
     uint8_t _read_reg(uint8_t reg);
     uint16_t _read_reg16(uint8_t reg);
     void _special(uint8_t function_code);
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 };
 
 /** @brief APDS-9930 full interface — extends APDS9930Minimal.
@@ -104,7 +103,7 @@ protected:
  */
 class APDS9930Full : public APDS9930Minimal {
 public:
-    APDS9930Full(Connection& connection);
+    APDS9930Full(RegisterConnection& connection);
 
     /** @brief Configure ALS integration time, AGAIN index, and AGL flag.
      *  @param atime ATIME register value 0-255.

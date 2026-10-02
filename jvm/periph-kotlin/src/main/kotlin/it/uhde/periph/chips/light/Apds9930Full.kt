@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -8,7 +8,7 @@ import java.io.IOException
  * configuration, raw channel reads, interrupt thresholds with persistence,
  * status decoding, sleep-after-interrupt, and proximity offset compensation.
  */
-class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
+class Apds9930Full(connection: RegisterConnection) : Apds9930Minimal(connection) {
 
     /** STATUS register decoded into named boolean fields. */
     data class Status(val avalid: Boolean, val pvalid: Boolean, val psat: Boolean,
@@ -23,13 +23,13 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
      */
     @Throws(IOException::class)
     fun configureAls(atime: Int, again: Int, agl: Boolean) {
-        writeReg(REG_ATIME, atime and 0xFF)
+        connection.write(cmdWrite(REG_ATIME), byteArrayOf((atime and 0xFF).toByte()))
         val ctrl = (readReg(REG_CONTROL) and 0xFC) or (again and 0x03)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(cmdWrite(REG_CONTROL), byteArrayOf((ctrl).toByte()))
         var cfg = readReg(REG_CONFIG)
         cfg = if (agl) cfg or 0x04 else cfg and 0x04.inv()
         cfg = cfg and 0x06.inv()
-        writeReg(REG_CONFIG, cfg)
+        connection.write(cmdWrite(REG_CONFIG), byteArrayOf((cfg).toByte()))
     }
 
     /**
@@ -37,15 +37,15 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
      */
     @Throws(IOException::class)
     fun configureProximity(ppulse: Int, pgain: Int, pdrive: Int, pdl: Boolean, ptime: Int) {
-        writeReg(REG_PPULSE, ppulse and 0xFF)
-        writeReg(REG_PTIME, ptime and 0xFF)
+        connection.write(cmdWrite(REG_PPULSE), byteArrayOf((ppulse and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_PTIME), byteArrayOf((ptime and 0xFF).toByte()))
         val ctrl = (readReg(REG_CONTROL) and 0x03) or
                    ((pdrive and 0x03) shl 6) or 0x20 or ((pgain and 0x03) shl 2)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(cmdWrite(REG_CONTROL), byteArrayOf((ctrl).toByte()))
         var cfg = readReg(REG_CONFIG)
         cfg = if (pdl) cfg or 0x01 else cfg and 0x01.inv()
         cfg = cfg and 0x06.inv()
-        writeReg(REG_CONFIG, cfg)
+        connection.write(cmdWrite(REG_CONFIG), byteArrayOf((cfg).toByte()))
     }
 
     /**
@@ -53,18 +53,18 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
      */
     @Throws(IOException::class)
     fun configureWait(wtime: Int, wlong: Boolean) {
-        writeReg(REG_WTIME, wtime and 0xFF)
+        connection.write(cmdWrite(REG_WTIME), byteArrayOf((wtime and 0xFF).toByte()))
         var cfg = readReg(REG_CONFIG)
         cfg = if (wlong) cfg or 0x02 else cfg and 0x02.inv()
         cfg = cfg and 0x04.inv()
-        writeReg(REG_CONFIG, cfg)
-        writeReg(REG_ENABLE, readReg(REG_ENABLE) or 0x08)
+        connection.write(cmdWrite(REG_CONFIG), byteArrayOf((cfg).toByte()))
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((readReg(REG_ENABLE) or 0x08).toByte()))
     }
 
     /** Clear WEN in ENABLE (disable the wait timer). */
     @Throws(IOException::class)
     fun disableWait() {
-        writeReg(REG_ENABLE, readReg(REG_ENABLE) and 0x08.inv())
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((readReg(REG_ENABLE) and 0x08.inv()).toByte()))
     }
 
     /** Read the raw Ch0 (visible + IR) ADC count. */
@@ -95,13 +95,13 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
     @Throws(IOException::class)
     fun setAlsThresholds(low: Int, high: Int, persistence: Int) {
         val h = if (low > high) low else high
-        writeReg(REG_AILTL, low and 0xFF)
-        writeReg(REG_AILTH, (low shr 8) and 0xFF)
-        writeReg(REG_AIHTL, h and 0xFF)
-        writeReg(REG_AIHTH, (h shr 8) and 0xFF)
+        connection.write(cmdWrite(REG_AILTL), byteArrayOf((low and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_AILTH), byteArrayOf(((low shr 8) and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_AIHTL), byteArrayOf((h and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_AIHTH), byteArrayOf(((h shr 8) and 0xFF).toByte()))
         val pers = (readReg(REG_PERS) and 0xF0) or (persistence and 0x0F)
-        writeReg(REG_PERS, pers)
-        writeReg(REG_ENABLE, readReg(REG_ENABLE) or 0x10)
+        connection.write(cmdWrite(REG_PERS), byteArrayOf((pers).toByte()))
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((readReg(REG_ENABLE) or 0x10).toByte()))
     }
 
     /**
@@ -110,13 +110,13 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
     @Throws(IOException::class)
     fun setProximityThresholds(low: Int, high: Int, persistence: Int) {
         val h = if (low > high) low else high
-        writeReg(REG_PILTL, low and 0xFF)
-        writeReg(REG_PILTH, (low shr 8) and 0xFF)
-        writeReg(REG_PIHTL, h and 0xFF)
-        writeReg(REG_PIHTH, (h shr 8) and 0xFF)
+        connection.write(cmdWrite(REG_PILTL), byteArrayOf((low and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_PILTH), byteArrayOf(((low shr 8) and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_PIHTL), byteArrayOf((h and 0xFF).toByte()))
+        connection.write(cmdWrite(REG_PIHTH), byteArrayOf(((h shr 8) and 0xFF).toByte()))
         val pers = (readReg(REG_PERS) and 0x0F) or ((persistence and 0x0F) shl 4)
-        writeReg(REG_PERS, pers)
-        writeReg(REG_ENABLE, readReg(REG_ENABLE) or 0x20)
+        connection.write(cmdWrite(REG_PERS), byteArrayOf((pers).toByte()))
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((readReg(REG_ENABLE) or 0x20).toByte()))
     }
 
     /**
@@ -139,13 +139,13 @@ class Apds9930Full(connection: Connection) : Apds9930Minimal(connection) {
     @Throws(IOException::class)
     fun setProximityOffset(offset: Int) {
         val enc = if (offset >= 0) 0x80 or (offset and 0x7F) else (-offset) and 0x7F
-        writeReg(REG_POFFSET, enc)
+        connection.write(cmdWrite(REG_POFFSET), byteArrayOf((enc).toByte()))
     }
 
     /** Enable or disable SAI (sleep after interrupt). */
     @Throws(IOException::class)
     fun sleepAfterInterrupt(enable: Boolean) {
         val en = readReg(REG_ENABLE)
-        writeReg(REG_ENABLE, if (enable) en or 0x40 else en and 0x40.inv())
+        connection.write(cmdWrite(REG_ENABLE), byteArrayOf((if (enable) en or 0x40 else en and 0x40.inv()).toByte()))
     }
 }

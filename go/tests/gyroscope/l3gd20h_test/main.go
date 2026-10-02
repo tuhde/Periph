@@ -24,7 +24,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	gyro, err := gyroscope.NewL3GD20HMinimal(conn, false)
+	gyro, err := gyroscope.NewL3GD20HMinimal(conn)
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief HMC5883L 3-axis magnetometer — minimal interface.
  *
@@ -13,7 +13,7 @@
  * - Gain: ±1.3 Ga (GN=001), 1090 LSb/Gauss
  * - Mode: continuous measurement
  *
- * @param connection  Configured I²C connection pointing at the device (fixed address 0x1E).
+ * @param connection  RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x1E).
  */
 class HMC5883LMinimal {
 public:
@@ -21,7 +21,7 @@ public:
      * @brief Construct and initialise the HMC5883L.
      * @param connection  I²C connection bound to the chip's address (0x1E).
      */
-    HMC5883LMinimal(Connection& connection);
+    HMC5883LMinimal(RegisterConnection& connection);
 
     /**
      * @brief Read magnetic field on all three axes.
@@ -53,14 +53,13 @@ protected:
         230.0f,   // GN=7: ±8.1 Ga
     };
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     uint8_t _gain;          // 0-7
     float _gain_lsb_per_gauss;
 
     void _init_minimal();
     uint8_t  _read_reg8(uint8_t reg);
     int16_t  _read_reg16(uint8_t reg);
-    void     _write_reg8(uint8_t reg, uint8_t value);
     void     _read_data_burst(int16_t& raw_x, int16_t& raw_y, int16_t& raw_z);
     float    _raw_to_tesla(int16_t raw);
 };
@@ -69,7 +68,7 @@ protected:
  *
  * Adds configuration, single-shot mode, self-test, identification, and status access.
  *
- * @param connection  Configured I²C connection pointing at the device (fixed address 0x1E).
+ * @param connection  RegisterConnection (I²C or SMBus) pointing at the device (fixed address 0x1E).
  */
 class HMC5883LFull : public HMC5883LMinimal {
 public:
@@ -77,7 +76,7 @@ public:
      * @brief Construct and initialise the HMC5883L.
      * @param connection  I²C connection bound to the chip's address (0x1E).
      */
-    HMC5883LFull(Connection& connection);
+    HMC5883LFull(RegisterConnection& connection);
 
     /**
      * @brief Write Configuration Registers A and B.

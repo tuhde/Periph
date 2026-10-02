@@ -36,7 +36,7 @@ func main() {
 	// address 0x0C through its I2C bypass. Construct a connection
 	// factory that opens a second file descriptor on the same bus for
 	// any requested address.
-	magFactory := func(a uint8) (connection.Connection, error) {
+	magFactory := func(a uint8) (connection.RegisterConnection, error) {
 		return connection.NewI2CConnection(bus, a, nil, nil) // Open second I2C fd for the AK8963, (bus, addr) → (*I2CConnection, error)
 	}
 

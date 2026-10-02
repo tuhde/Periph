@@ -39,7 +39,7 @@ const _GAIN_LSB_PER_GAUSS = {
  */
 class HMC5883LMinimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x1E).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (fixed address 0x1E).
      */
     constructor(connection) {
         this._conn = connection;
@@ -49,30 +49,23 @@ class HMC5883LMinimal {
     }
 
     async _initMinimal() {
-        await this._writeReg8(_REG_CONFIG_A, 0x70);
-        await this._writeReg8(_REG_CONFIG_B, 0x20);
-        await this._writeReg8(_REG_MODE, 0x00);
+        await this._conn.writeReg(_REG_CONFIG_A, 0x70);
+        await this._conn.writeReg(_REG_CONFIG_B, 0x20);
+        await this._conn.writeReg(_REG_MODE, 0x00);
         _delay(6); // first measurement available ~6 ms after mode write
     }
 
     async _readReg8(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg]), 1))[0];
+        return (await this._conn.readReg(reg, 1))[0];
     }
 
     async _readReg16(reg) {
-        const raw = await this._conn.writeRead(Buffer.from([reg]), 2);
+        const raw = await this._conn.readReg(reg, 2);
         return raw.readInt16BE(0);
     }
 
-    async _writeReg8(reg, value) {
-        const buf = Buffer.alloc(2);
-        buf[0] = reg;
-        buf[1] = value;
-        await this._conn.write(buf);
-    }
-
     async _readDataBurst() {
-        const raw = await this._conn.writeRead(Buffer.from([_REG_DATA_X_MSB]), 6);
+        const raw = await this._conn.readReg(_REG_DATA_X_MSB, 6);
         const rawX = raw.readInt16BE(0);
         const rawZ = raw.readInt16BE(2);
         const rawY = raw.readInt16BE(4);
@@ -108,7 +101,7 @@ class HMC5883LMinimal {
  */
 class HMC5883LFull extends HMC5883LMinimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection pointing at the device (fixed address 0x1E).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection pointing at the device (fixed address 0x1E).
      */
     constructor(connection) {
         super(connection);
@@ -136,10 +129,10 @@ class HMC5883LFull extends HMC5883LMinimal {
         const ma = maMap[averaging];
         const doBits = doMap[odr];
         const configA = (ma << 5) | (doBits << 2);
-        await this._writeReg8(_REG_CONFIG_A, configA);
+        await this._conn.writeReg(_REG_CONFIG_A, configA);
 
         const configB = (gain << 5);
-        await this._writeReg8(_REG_CONFIG_B, configB);
+        await this._conn.writeReg(_REG_CONFIG_B, configB);
 
         this._gain = gain;
         this._gainLsbPerGauss = _GAIN_LSB_PER_GAUSS[gain];
@@ -152,7 +145,7 @@ class HMC5883LFull extends HMC5883LMinimal {
      */
     async setGain(gain) {
         if (gain < 0 || gain > 7) throw new Error('gain must be 0–7');
-        await this._writeReg8(_REG_CONFIG_B, gain << 5);
+        await this._conn.writeReg(_REG_CONFIG_B, gain << 5);
         this._gain = gain;
         this._gainLsbPerGauss = _GAIN_LSB_PER_GAUSS[gain];
     }
@@ -167,7 +160,7 @@ class HMC5883LFull extends HMC5883LMinimal {
         // modeMap.continuous === 0, so this must check key presence, not
         // truthiness -- `!modeMap[mode]` would wrongly reject 'continuous'.
         if (!(mode in modeMap)) throw new Error("mode must be 'continuous', 'single', or 'idle'");
-        await this._writeReg8(_REG_MODE, modeMap[mode]);
+        await this._conn.writeReg(_REG_MODE, modeMap[mode]);
     }
 
     /**
@@ -193,7 +186,7 @@ class HMC5883LFull extends HMC5883LMinimal {
      * Returns null for any axis that overflows (raw == -4096).
      */
     async singleMeasurement() {
-        await this._writeReg8(_REG_MODE, 0x01);
+        await this._conn.writeReg(_REG_MODE, 0x01);
         _delay(6);
         return this.magneticField();
     }
@@ -218,13 +211,13 @@ class HMC5883LFull extends HMC5883LMinimal {
     async selfTest(positive = true) {
         const configA = await this._readReg8(_REG_CONFIG_A);
         const ms = positive ? 0b01 : 0b10;
-        await this._writeReg8(_REG_CONFIG_A, (configA & 0xFC) | ms);
+        await this._conn.writeReg(_REG_CONFIG_A, (configA & 0xFC) | ms);
 
-        await this._writeReg8(_REG_MODE, 0x01);
+        await this._conn.writeReg(_REG_MODE, 0x01);
         _delay(6);
         const result = await this.magneticField();
 
-        await this._writeReg8(_REG_CONFIG_A, (configA & 0xFC) | 0b00);
+        await this._conn.writeReg(_REG_CONFIG_A, (configA & 0xFC) | 0b00);
         return result;
     }
 }

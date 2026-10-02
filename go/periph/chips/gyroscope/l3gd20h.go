@@ -134,26 +134,24 @@ func l3gd20hInt16Le(b []byte) int16 {
 // Default configuration baked in: 95 Hz ODR, default bandwidth, ±250 dps
 // full scale, BDU=1, all axes enabled, 250 ms startup delay.
 type L3GD20HMinimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 	fullScale  uint8 // code 0=250, 1=500, 2=2000 dps
 }
 
 // NewL3GD20HMinimal creates an L3GD20HMinimal and runs the chip init sequence.
 //
-// Pass spi=true for SPI — per the L3GD20H SPI protocol, writes clear bits
-// 7 and 6 of the register address (reg & 0x3F); reads set both bits
-// (reg | 0xC0) for READ=1 and MS=1 auto-increment.
-func NewL3GD20HMinimal(t connection.Connection, spi bool) (*L3GD20HMinimal, error) {
+// For SPI, construct the connection with readBit=0xC0 and no multi-byte bit:
+// the L3GD20H protocol needs READ=1 and MS=1 on every read, and writes clear
+// both bits.
+func NewL3GD20HMinimal(t connection.RegisterConnection) (*L3GD20HMinimal, error) {
 	d := &L3GD20HMinimal{
 		connection: t,
-		spi:        spi,
 		fullScale:  L3GD20HFS250DPS,
 	}
-	if err := d.writeReg(l3gd20hRegCtrlReg4, l3gd20hCtrlReg4Default); err != nil {
+	if err := d.connection.WriteReg(uint32(l3gd20hRegCtrlReg4), []byte{l3gd20hCtrlReg4Default}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(l3gd20hRegCtrlReg1, l3gd20hCtrlReg1Default); err != nil {
+	if err := d.connection.WriteReg(uint32(l3gd20hRegCtrlReg1), []byte{l3gd20hCtrlReg1Default}); err != nil {
 		return nil, err
 	}
 	// 250 ms startup delay for gyroscope stabilization.
@@ -161,26 +159,14 @@ func NewL3GD20HMinimal(t connection.Connection, spi bool) (*L3GD20HMinimal, erro
 	return d, nil
 }
 
-// writeReg writes a single byte to a register.
-func (d *L3GD20HMinimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x3F
-	}
-	return d.connection.Write([]byte{addr, val})
-}
-
 // readRegBytes reads n bytes from a register into buf.
 func (d *L3GD20HMinimal) readRegBytes(reg uint8, n int) ([]byte, error) {
-	var addr uint8
-	if d.spi {
-		addr = reg | 0xC0
-	} else if n > 1 {
-		addr = reg | 0x80
-	} else {
-		addr = reg
+	// I2C needs bit 7 of the sub-address set for multi-byte auto-increment;
+	// on SPI the connection's readBit=0xC0 already ORs it in (idempotent).
+	if n > 1 {
+		reg |= 0x80
 	}
-	return d.connection.WriteRead([]byte{addr & 0xFF}, n)
+	return d.connection.ReadReg(uint32(reg), n)
 }
 
 // AngularRate reads angular rate on all three axes as a single burst transaction.
@@ -209,8 +195,8 @@ type L3GD20HFull struct {
 }
 
 // NewL3GD20HFull creates an L3GD20HFull and runs the chip init sequence.
-func NewL3GD20HFull(t connection.Connection, spi bool) (*L3GD20HFull, error) {
-	m, err := NewL3GD20HMinimal(t, spi)
+func NewL3GD20HFull(t connection.RegisterConnection) (*L3GD20HFull, error) {
+	m, err := NewL3GD20HMinimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -231,10 +217,10 @@ func (d *L3GD20HFull) Configure(odr, bw, fullScale uint8) error {
 	d.bw = bw
 	d.fullScale = fullScale
 	ctrl1 := l3gd20hCtrlReg1Default | ((d.odr & 0x3) << 6) | ((d.bw & 0x3) << 4)
-	if err := d.writeReg(l3gd20hRegCtrlReg1, ctrl1); err != nil {
+	if err := d.connection.WriteReg(uint32(l3gd20hRegCtrlReg1), []byte{ctrl1}); err != nil {
 		return err
 	}
-	return d.writeReg(l3gd20hRegCtrlReg4, l3gd20hCtrlReg4Default|((fullScale&0x3)<<4))
+	return d.connection.WriteReg(uint32(l3gd20hRegCtrlReg4), []byte{l3gd20hCtrlReg4Default|((fullScale&0x3)<<4)})
 }
 
 // AngularRateRaw reads raw 16-bit signed angular rate values.
@@ -282,7 +268,7 @@ func (d *L3GD20HFull) ConfigureHighpass(mode, cutoff uint8) error {
 		return nil
 	}
 	ctrl2 := ((mode & 0x3) << 4) | (cutoff & 0x0F)
-	return d.writeReg(l3gd20hRegCtrlReg2, ctrl2)
+	return d.connection.WriteReg(uint32(l3gd20hRegCtrlReg2), []byte{ctrl2})
 }
 
 // EnableHighpass enables or disables the high-pass filter on the output path.
@@ -297,7 +283,7 @@ func (d *L3GD20HFull) EnableHighpass(enable bool) error {
 	} else {
 		ctrl5 = buf[0] &^ 0x10
 	}
-	return d.writeReg(l3gd20hRegCtrlReg5, ctrl5)
+	return d.connection.WriteReg(uint32(l3gd20hRegCtrlReg5), []byte{ctrl5})
 }
 
 // ConfigureFIFO configures the FIFO (FIFO_CTRL_REG).
@@ -315,10 +301,10 @@ func (d *L3GD20HFull) ConfigureFIFO(mode, watermark uint8) error {
 	if err != nil {
 		return err
 	}
-	if err := d.writeReg(l3gd20hRegCtrlReg5, buf[0]|0x40); err != nil {
+	if err := d.connection.WriteReg(uint32(l3gd20hRegCtrlReg5), []byte{buf[0]|0x40}); err != nil {
 		return err
 	}
-	return d.writeReg(l3gd20hRegFifoCtrl, ((mode&0x7)<<5)|(watermark&0x1F))
+	return d.connection.WriteReg(uint32(l3gd20hRegFifoCtrl), []byte{((mode&0x7)<<5)|(watermark&0x1F)})
 }
 
 // EnableFIFO enables or disables the FIFO (FIFO_EN bit in CTRL_REG5).
@@ -332,12 +318,12 @@ func (d *L3GD20HFull) EnableFIFO(enable bool) error {
 		ctrl5 = buf[0] | 0x40
 	} else {
 		ctrl5 = buf[0] &^ 0x40
-		if err := d.writeReg(l3gd20hRegCtrlReg5, ctrl5); err != nil {
+		if err := d.connection.WriteReg(uint32(l3gd20hRegCtrlReg5), []byte{ctrl5}); err != nil {
 			return err
 		}
-		return d.writeReg(l3gd20hRegFifoCtrl, 0x00)
+		return d.connection.WriteReg(uint32(l3gd20hRegFifoCtrl), []byte{0x00})
 	}
-	return d.writeReg(l3gd20hRegCtrlReg5, ctrl5)
+	return d.connection.WriteReg(uint32(l3gd20hRegCtrlReg5), []byte{ctrl5})
 }
 
 // FIFOLevel reads number of unread samples in FIFO (FIFO_SRC_REG FSS[4:0]).
@@ -400,5 +386,5 @@ func (d *L3GD20HFull) SetPowerMode(mode string) error {
 	default:
 		return nil
 	}
-	return d.writeReg(l3gd20hRegCtrlReg1, ctrl1)
+	return d.connection.WriteReg(uint32(l3gd20hRegCtrlReg1), []byte{ctrl1})
 }
