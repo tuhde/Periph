@@ -24,6 +24,27 @@
       "datasheet": "datasheets/accelerometer/adxl345.pdf"
     },
     {
+      "id": "bma180",
+      "name": "BMA180",
+      "category": "accelerometer",
+      "addresses": [
+        "0x40..0x41"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0x07",
+        "expected": [
+          "0x03"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": "bma180",
+      "datasheet": "datasheets/accelerometer/bma180.pdf"
+    },
+    {
       "id": "bma150",
       "name": "BMA150",
       "category": "accelerometer",
