@@ -2,7 +2,7 @@ package it.uhde.periph.chips.rtc
 
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * PCF8523 — low-power I²C real-time clock and calendar (NXP) — minimal
@@ -46,7 +46,7 @@ class PCF8523Minimal {
     protected static final int C1_SIE   = 0x04
     protected static final int C1_AIE   = 0x02
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver. Confirms the device answers by reading
@@ -56,7 +56,7 @@ class PCF8523Minimal {
      *
      * @param connection configured I²C connection bound to address 0x68
      */
-    PCF8523Minimal(Connection connection) {
+    PCF8523Minimal(RegisterConnection connection) {
         this.connection = connection
         readReg(REG_CONTROL_1)
         writeReg(REG_CONTROL_3, 0x00)
@@ -67,22 +67,21 @@ class PCF8523Minimal {
     // -------------------------------------------------------------------------
 
     protected int readReg(int reg) {
-        return connection.writeRead([(byte) reg] as byte[], 1)[0] & 0xFF
+        return connection.read(reg, 1)[0] & 0xFF
     }
 
     protected byte[] readBurst(int reg, int n) {
-        return connection.writeRead([(byte) reg] as byte[], n)
+        return connection.read(reg, n)
     }
 
     protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) value] as byte[])
+        connection.write(reg, [(byte) value] as byte[])
     }
 
     protected void writeBurst(int reg, int... values) {
-        byte[] out = new byte[values.length + 1]
-        out[0] = (byte) reg
-        for (int i = 0; i < values.length; i++) out[i + 1] = (byte) values[i]
-        connection.write(out)
+        byte[] out = new byte[values.length]
+        for (int i = 0; i < values.length; i++) out[i] = (byte) values[i]
+        connection.write(reg, out)
     }
 
     /** {@code CONTROL_1} with {@code T}/{@code SR} masked, safe for read-modify-write. */

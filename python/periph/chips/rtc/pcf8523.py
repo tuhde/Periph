@@ -10,7 +10,7 @@ assignment, 0=Sunday..6=Saturday — the chip's WEEKDAYS register is a
 free-running 0-6 counter with no hardware-enforced meaning.
 
 Args:
-    connection: Configured I2C connection pointing at the device (fixed
+    connection: RegisterConnection (I²C or SMBus) pointing at the device (fixed
         address 0x68).
 """
 
@@ -36,7 +36,7 @@ class PCF8523Minimal:
     """PCF8523 low-power I2C real-time clock — minimal interface.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_CONTROL_1       = 0x00
@@ -99,16 +99,16 @@ class PCF8523Minimal:
         self._write_reg(self._REG_CONTROL_3, 0x00)
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value & 0xFF]))
+        self._connection.write_reg(reg, value & 0xFF)
 
     def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
+        return self._connection.read_reg(reg, 1)[0]
 
     def _write_regs(self, start_reg, data):
-        self._connection.write(bytes([start_reg]) + bytes(data))
+        self._connection.write_reg(start_reg, bytes(data))
 
     def _read_regs(self, start_reg, length):
-        return self._connection.write_read(bytes([start_reg]), length)
+        return self._connection.read_reg(start_reg, length)
 
     def _read_control_1(self):
         # T must always be written 0 and SR always reads 0; mask both so a
@@ -214,7 +214,7 @@ class PCF8523Full(PCF8523Minimal):
     implicitly. Timer B additionally drives the dedicated INT2 pin.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _TMR_TAM      = 0x80

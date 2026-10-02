@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief PCF8523 low-power I²C real-time clock and calendar — minimal interface.
  *
@@ -13,7 +13,7 @@
  *  Weekday convention: 0=Sunday..6=Saturday (the datasheet's suggested
  *  assignment — the WEEKDAYS register has no hardware-enforced meaning).
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class PCF8523Minimal {
 public:
@@ -34,7 +34,7 @@ public:
 
     /** @brief Confirm the device answers (reads CONTROL_1) and enable
      *  battery switch-over standard mode with battery-low detection. */
-    explicit PCF8523Minimal(Connection& connection);
+    explicit PCF8523Minimal(RegisterConnection& connection);
 
     /** @brief Read the current calendar clock value. */
     void getDatetime(DateTime& dt);
@@ -97,7 +97,7 @@ protected:
 
     static constexpr uint8_t SECONDS_OS = 0x80;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     void _writeReg(uint8_t reg, uint8_t value);
     uint8_t _readReg(uint8_t reg);
@@ -118,7 +118,7 @@ protected:
  *  disabled (disableClockOutput()); the driver never does that implicitly.
  *  Timer B additionally drives the dedicated `INT2` pin.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class PCF8523Full : public PCF8523Minimal {
 public:
@@ -171,7 +171,7 @@ public:
         uint8_t weekday;
     };
 
-    explicit PCF8523Full(Connection& connection);
+    explicit PCF8523Full(RegisterConnection& connection);
 
     /** @brief Decode the alarm registers (0x0A–0x0D); disabled fields read
      *  as ALARM_DISABLED. */

@@ -2,7 +2,7 @@
 
 // PCF8523Minimal
 
-PCF8523Minimal::PCF8523Minimal(Connection& connection) : _connection(connection) {
+PCF8523Minimal::PCF8523Minimal(RegisterConnection& connection) : _connection(connection) {
     _readReg(REG_CONTROL_1);  // presence check (no identity register)
     // Battery switch-over standard mode, battery-low detection enabled
     // (PM=000); BSF/BSIE/BLIE left at their POR-default 0.
@@ -10,25 +10,21 @@ PCF8523Minimal::PCF8523Minimal(Connection& connection) : _connection(connection)
 }
 
 void PCF8523Minimal::_writeReg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 uint8_t PCF8523Minimal::_readReg(uint8_t reg) {
     uint8_t buf[1];
-    _connection.write_read(&reg, 1, buf, 1);
+    _connection.read(reg, buf, 1);
     return buf[0];
 }
 
 void PCF8523Minimal::_writeRegs(uint8_t startReg, const uint8_t* data, size_t len) {
-    uint8_t buf[8];
-    buf[0] = startReg;
-    for (size_t i = 0; i < len; ++i) buf[1 + i] = data[i];
-    _connection.write(buf, len + 1);
+    _connection.write(startReg, data, len);
 }
 
 void PCF8523Minimal::_readRegs(uint8_t startReg, uint8_t* buf, size_t len) {
-    _connection.write_read(&startReg, 1, buf, len);
+    _connection.read(startReg, buf, len);
 }
 
 uint8_t PCF8523Minimal::_readControl1() {
@@ -75,7 +71,7 @@ PCF8523Full* PCF8523Full::_activeInstance = nullptr;
 // TBW[2:0] -> low-pulse width in ms (datasheet Table 36; not uniformly spaced).
 static const float kTbwWidthsMs[8] = { 46.875f, 62.5f, 78.125f, 93.75f, 125.0f, 156.25f, 187.5f, 218.75f };
 
-PCF8523Full::PCF8523Full(Connection& connection) : PCF8523Minimal(connection) {}
+PCF8523Full::PCF8523Full(RegisterConnection& connection) : PCF8523Minimal(connection) {}
 
 void PCF8523Full::_updateTmrClkout(uint8_t clearMask, uint8_t setBits) {
     uint8_t reg = _readReg(REG_TMR_CLKOUT_CTRL);

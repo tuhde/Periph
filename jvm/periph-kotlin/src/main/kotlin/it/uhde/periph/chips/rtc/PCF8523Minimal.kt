@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * PCF8523 — low-power I²C real-time clock and calendar (NXP) — minimal
@@ -18,7 +18,7 @@ import it.uhde.periph.connection.Connection
  *
  * @param connection configured I²C connection bound to address 0x68
  */
-open class PCF8523Minimal(protected val connection: Connection) {
+open class PCF8523Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** Fixed I²C address — the PCF8523 has no address pins. */
@@ -54,19 +54,18 @@ open class PCF8523Minimal(protected val connection: Connection) {
         writeReg(REG_CONTROL_3, 0x00)   // PM=000: standard switch-over, low detection on
     }
 
-    protected fun readReg(reg: Int): Int = connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+    protected fun readReg(reg: Int): Int = connection.read(reg, 1)[0].toInt() and 0xFF
 
-    protected fun readBurst(reg: Int, n: Int): ByteArray = connection.writeRead(byteArrayOf(reg.toByte()), n)
+    protected fun readBurst(reg: Int, n: Int): ByteArray = connection.read(reg, n)
 
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     protected fun writeBurst(reg: Int, vararg values: Int) {
-        val out = ByteArray(values.size + 1)
-        out[0] = reg.toByte()
-        for (i in values.indices) out[i + 1] = values[i].toByte()
-        connection.write(out)
+        val out = ByteArray(values.size)
+        for (i in values.indices) out[i] = values[i].toByte()
+        connection.write(reg, out)
     }
 
     /** `CONTROL_1` with `T`/`SR` masked, safe for read-modify-write. */
