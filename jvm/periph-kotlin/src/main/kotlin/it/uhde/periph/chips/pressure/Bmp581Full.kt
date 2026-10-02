@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -8,7 +8,7 @@ import java.io.IOException
  * interrupts, OOR detection, and NVM access.
  */
 class Bmp581Full @JvmOverloads constructor(
-    connection: Connection,
+    connection: RegisterConnection,
     busType: Int = Bmp581Minimal.BUS_I2C,
     addr: Int = 0x46,
 ) : Bmp581Minimal(connection, busType, addr) {
@@ -51,7 +51,7 @@ class Bmp581Full @JvmOverloads constructor(
         val prev = pwrMode
         if (prev != MODE_FORCED) setMode(MODE_FORCED)
         for (i in 0 until 400) {
-            val st = connection.writeRead(byteArrayOf(REG_INT_STATUS.toByte()), 1)
+            val st = connection.read(REG_INT_STATUS, 1)
             if ((st[0].toInt() and INT_STATUS_DRDY) != 0) break
             try { Thread.sleep(5) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         }
@@ -81,25 +81,25 @@ class Bmp581Full @JvmOverloads constructor(
 
     /** Read CHIP_ID. @return 0x50 for a genuine BMP581. */
     fun chipId(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_CHIP_ID.toByte()), 1)
+        val buf = connection.read(REG_CHIP_ID, 1)
         return buf[0].toInt() and 0xFF
     }
 
     /** Read REV_ID. */
     fun revId(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_REV_ID.toByte()), 1)
+        val buf = connection.read(REG_REV_ID, 1)
         return buf[0].toInt() and 0xFF
     }
 
     /** Read STATUS. */
     fun status(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_STATUS.toByte()), 1)
+        val buf = connection.read(REG_STATUS, 1)
         return buf[0].toInt() and 0xFF
     }
 
     /** Read INT_STATUS (clear-on-read). */
     fun interruptStatus(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_INT_STATUS.toByte()), 1)
+        val buf = connection.read(REG_INT_STATUS, 1)
         return buf[0].toInt() and 0xFF
     }
 
@@ -116,7 +116,7 @@ class Bmp581Full @JvmOverloads constructor(
     }
 
     private fun setIntSource(source: Int, enable: Boolean) {
-        val buf = connection.writeRead(byteArrayOf(REG_INT_SOURCE.toByte()), 1)
+        val buf = connection.read(REG_INT_SOURCE, 1)
         val cur = buf[0].toInt() and 0xFF
         val next = if (enable) (cur or source) else (cur and source.inv())
         writeReg(REG_INT_SOURCE, next)
@@ -127,7 +127,7 @@ class Bmp581Full @JvmOverloads constructor(
 
     /** Enable or disable FIFO threshold and FIFO-full interrupt sources. */
     fun enableFifoInterrupt(threshold: Boolean, full: Boolean) {
-        val buf = connection.writeRead(byteArrayOf(REG_INT_SOURCE.toByte()), 1)
+        val buf = connection.read(REG_INT_SOURCE, 1)
         var cur = buf[0].toInt() and 0xFF
         cur = cur and (INT_SOURCE_FIFO_FULL or INT_SOURCE_FIFO_THS).inv()
         if (threshold) cur = cur or INT_SOURCE_FIFO_THS
@@ -143,7 +143,7 @@ class Bmp581Full @JvmOverloads constructor(
      * shdw_sel_iir_p/t in DSP_CONFIG so the data registers hold post-IIR values.
      */
     fun setIirFilter(coeffP: Int, coeffT: Int) {
-        val buf = connection.writeRead(byteArrayOf(REG_DSP_CONFIG.toByte()), 1)
+        val buf = connection.read(REG_DSP_CONFIG, 1)
         val dsp = (buf[0].toInt() and 0xFF) or 0x28
         writeReg(REG_DSP_CONFIG, dsp)
         val iirVal = ((coeffP and 0x7) shl 3) or (coeffT and 0x7)
@@ -164,19 +164,19 @@ class Bmp581Full @JvmOverloads constructor(
 
     /** Read the number of frames currently in the FIFO. */
     fun fifoCount(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_FIFO_COUNT.toByte()), 1)
+        val buf = connection.read(REG_FIFO_COUNT, 1)
         return buf[0].toInt() and 0x3F
     }
 
     /** Read OSR_EFF. @return Pair of (osrP_eff, osrT_eff). */
     fun effectiveOsr(): Pair<Int, Int> {
-        val buf = connection.writeRead(byteArrayOf(REG_OSR_EFF.toByte()), 1)
+        val buf = connection.read(REG_OSR_EFF, 1)
         return ((buf[0].toInt() shr 3) and 0x7) to (buf[0].toInt() and 0x7)
     }
 
     /** Check whether the current ODR/OSR combination is valid. */
     fun odrIsValid(): Boolean {
-        val buf = connection.writeRead(byteArrayOf(REG_OSR_EFF.toByte()), 1)
+        val buf = connection.read(REG_OSR_EFF, 1)
         return (buf[0].toInt() and 0x80) != 0
     }
 
@@ -203,7 +203,7 @@ class Bmp581Full @JvmOverloads constructor(
             writeReg(REG_NVM_ADDR, 0x40 or (row and 0x3F))
             writeReg(REG_CMD, 0xA5)
             try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
-            val buf = connection.writeRead(byteArrayOf(REG_NVM_DATA_LSB.toByte()), 2)
+            val buf = connection.read(REG_NVM_DATA_LSB, 2)
             return ((buf[1].toInt() and 0xFF) shl 8) or (buf[0].toInt() and 0xFF)
         } finally {
             if (prev != MODE_STANDBY) setMode(prev)

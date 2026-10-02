@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp581Minimal::new(i2c, ADDR, false).expect("init BMP581"); // Create BMP581 driver, (i2c, ADDR=0x46)
+    let mut bmp = Bmp581Minimal::new(i2c, ADDR).expect("init BMP581"); // Create BMP581 driver, (i2c, ADDR=0x46)
 
     for _ in 0..5 {
         let p = bmp.pressure().expect("read pressure");            // Read pressure, () → f32 Pa

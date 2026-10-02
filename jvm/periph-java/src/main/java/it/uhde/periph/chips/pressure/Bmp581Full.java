@@ -98,17 +98,17 @@ public class Bmp581Full extends Bmp581Minimal {
     protected boolean pressEn = true;
 
     /** Construct at default address 0x46. */
-    public Bmp581Full(it.uhde.periph.connection.Connection connection) throws IOException {
+    public Bmp581Full(it.uhde.periph.connection.RegisterConnection connection) throws IOException {
         super(connection, 0x46);
     }
 
     /** Construct at a given I²C address. */
-    public Bmp581Full(it.uhde.periph.connection.Connection connection, int addr) throws IOException {
+    public Bmp581Full(it.uhde.periph.connection.RegisterConnection connection, int addr) throws IOException {
         super(connection, addr, BUS_I2C);
     }
 
     /** Construct with explicit bus type. */
-    public Bmp581Full(it.uhde.periph.connection.Connection connection, int addr, int busType) throws IOException {
+    public Bmp581Full(it.uhde.periph.connection.RegisterConnection connection, int addr, int busType) throws IOException {
         super(connection, addr, busType);
     }
 
@@ -156,7 +156,7 @@ public class Bmp581Full extends Bmp581Minimal {
         int prev = pwrMode;
         if (prev != MODE_FORCED) setMode(MODE_FORCED);
         for (int i = 0; i < 400; i++) {
-            byte[] st = connection.writeRead(new byte[]{(byte) REG_INT_STATUS}, 1);
+            byte[] st = connection.read(REG_INT_STATUS, 1);
             if ((st[0] & INT_STATUS_DRDY) != 0) break;
             try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
@@ -190,25 +190,25 @@ public class Bmp581Full extends Bmp581Minimal {
 
     /** Read CHIP_ID. @return 0x50 for a genuine BMP581. */
     public int chipId() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_CHIP_ID}, 1);
+        byte[] buf = connection.read(REG_CHIP_ID, 1);
         return buf[0] & 0xFF;
     }
 
     /** Read REV_ID. @return ASIC revision identifier. */
     public int revId() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_REV_ID}, 1);
+        byte[] buf = connection.read(REG_REV_ID, 1);
         return buf[0] & 0xFF;
     }
 
     /** Read STATUS. @return raw status byte. */
     public int status() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_STATUS}, 1);
+        byte[] buf = connection.read(REG_STATUS, 1);
         return buf[0] & 0xFF;
     }
 
     /** Read INT_STATUS (clear-on-read). @return raw interrupt status byte. */
     public int interruptStatus() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_INT_STATUS}, 1);
+        byte[] buf = connection.read(REG_INT_STATUS, 1);
         return buf[0] & 0xFF;
     }
 
@@ -240,7 +240,7 @@ public class Bmp581Full extends Bmp581Minimal {
     }
 
     private void setIntSource(int source, boolean enable) throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_INT_SOURCE}, 1);
+        byte[] buf = connection.read(REG_INT_SOURCE, 1);
         int cur = buf[0] & 0xFF;
         int next = enable ? (cur | source) : (cur & ~source);
         writeReg(REG_INT_SOURCE, next);
@@ -259,7 +259,7 @@ public class Bmp581Full extends Bmp581Minimal {
      * @throws IOException on bus error
      */
     public void enableFifoInterrupt(boolean threshold, boolean full) throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_INT_SOURCE}, 1);
+        byte[] buf = connection.read(REG_INT_SOURCE, 1);
         int cur = buf[0] & 0xFF;
         cur &= ~(INT_SOURCE_FIFO_FULL | INT_SOURCE_FIFO_THS);
         if (threshold) cur |= INT_SOURCE_FIFO_THS;
@@ -283,7 +283,7 @@ public class Bmp581Full extends Bmp581Minimal {
      * @throws IOException on bus error
      */
     public void setIirFilter(int coeffP, int coeffT) throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_DSP_CONFIG}, 1);
+        byte[] buf = connection.read(REG_DSP_CONFIG, 1);
         int dsp = (buf[0] & 0xFF) | 0x28;
         writeReg(REG_DSP_CONFIG, dsp);
         int iirVal = ((coeffP & 0x7) << 3) | (coeffT & 0x7);
@@ -310,7 +310,7 @@ public class Bmp581Full extends Bmp581Minimal {
 
     /** Read the number of frames currently in the FIFO. @return frame count 0-32. */
     public int fifoCount() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_FIFO_COUNT}, 1);
+        byte[] buf = connection.read(REG_FIFO_COUNT, 1);
         return buf[0] & 0x3F;
     }
 
@@ -321,7 +321,7 @@ public class Bmp581Full extends Bmp581Minimal {
      * @throws IOException on bus error
      */
     public int[] effectiveOsr() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_OSR_EFF}, 1);
+        byte[] buf = connection.read(REG_OSR_EFF, 1);
         return new int[]{(buf[0] >> 3) & 0x7, buf[0] & 0x7};
     }
 
@@ -332,7 +332,7 @@ public class Bmp581Full extends Bmp581Minimal {
      * @throws IOException on bus error
      */
     public boolean odrIsValid() throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{(byte) REG_OSR_EFF}, 1);
+        byte[] buf = connection.read(REG_OSR_EFF, 1);
         return (buf[0] & 0x80) != 0;
     }
 
@@ -372,7 +372,7 @@ public class Bmp581Full extends Bmp581Minimal {
             writeReg(REG_NVM_ADDR, 0x40 | (row & 0x3F));
             writeReg(REG_CMD, 0xA5);
             try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-            byte[] buf = connection.writeRead(new byte[]{(byte) REG_NVM_DATA_LSB}, 2);
+            byte[] buf = connection.read(REG_NVM_DATA_LSB, 2);
             return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF);
         } finally {
             if (prev != MODE_STANDBY) setMode(prev);

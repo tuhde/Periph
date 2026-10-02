@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief BMP581 MEMS barometric pressure + temperature sensor — minimal interface.
  *
@@ -12,12 +12,11 @@
  *  Default: NORMAL mode, ODR 1 Hz, press_en=1, osr_p=x1, osr_t=x1,
  *  IIR bypass, FIFO disabled, INT_SOURCE=0.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi        Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP581Minimal {
 public:
-    explicit BMP581Minimal(Connection& connection, bool spi = false);
+    explicit BMP581Minimal(RegisterConnection& connection);
 
     /** @brief Read calibrated pressure.
      *  @return Pressure in Pa.
@@ -53,8 +52,7 @@ protected:
     /** Power mode: forced. Shared with BMP581Full::MODE_FORCED. */
     static constexpr uint8_t MODE_FORCED       = 2;
 
-    Connection& _connection;
-    bool _spi;
+    RegisterConnection& _connection;
     uint8_t _odr;
     uint8_t _pwr_mode;
     uint8_t _osr_p;
@@ -62,8 +60,6 @@ protected:
     bool _press_en;
 
     void _init();
-    void _write_reg(uint8_t reg, uint8_t value);
-    void _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void _spi_dummy_read();
 };
 
@@ -74,8 +70,7 @@ protected:
  *  interrupt configuration, out-of-range threshold configuration, and
  *  NVM read/write.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi        Set true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP581Full : public BMP581Minimal {
 public:
@@ -115,7 +110,7 @@ public:
     static constexpr uint8_t INT_SOURCE_FIFO_THS   = 0x04;
     static constexpr uint8_t INT_SOURCE_OOR_P      = 0x08;
 
-    explicit BMP581Full(Connection& connection, bool spi = false);
+    explicit BMP581Full(RegisterConnection& connection);
 
     /** @brief Write OSR_CONFIG and ODR_CONFIG atomically.
      *  @param odr      ODR field 0x00-0x1F (default 0x1C = 1 Hz).

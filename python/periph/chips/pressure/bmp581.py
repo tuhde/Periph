@@ -71,62 +71,50 @@ class BMP581Minimal:
         - INT_SOURCE = 0 (no interrupt sources active)
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         self._init()
 
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x7F
-        self._connection.write(bytes([reg, value & 0xFF]))
-
-    def _read_reg(self, reg, n):
-        if self._bus_type == 'spi':
-            self._connection.write(bytes([reg | 0x80]))
-            return self._connection.read(n)
-        return self._connection.write_read(bytes([reg]), n)
-
     def _init(self):
-        if self._bus_type == 'spi':
-            try:
-                self._read_reg(_REG_CHIP_ID, 1)
-            except Exception:
-                pass
-        cid = self._read_reg(_REG_CHIP_ID, 1)[0]
+        # The first read after CSB falls on SPI returns invalid data (datasheet);
+        # one throwaway CHIP_ID read is harmless on I²C, so it is unconditional.
+        try:
+            self._connection.read_reg(_REG_CHIP_ID, 1)
+        except Exception:
+            pass
+        cid = self._connection.read_reg(_REG_CHIP_ID, 1)[0]
         if cid != _CHIP_ID_EXPECTED:
             raise OSError('BMP581 chip ID mismatch: expected 0x50, got 0x{:02X}'.format(cid))
         for _ in range(50):
-            st = self._read_reg(_REG_STATUS, 1)[0]
+            st = self._connection.read_reg(_REG_STATUS, 1)[0]
             if (st & _STATUS_NVM_RDY) and not (st & _STATUS_NVM_ERR):
                 break
             time.sleep(0.002)
         else:
             raise OSError('BMP581 STATUS.nvm_rdy never set')
         try:
-            self._read_reg(_REG_INT_STATUS, 1)
+            self._connection.read_reg(_REG_INT_STATUS, 1)
         except Exception:
             pass
         try:
-            self._write_reg(_REG_CMD, _SOFT_RESET_CMD)
+            self._connection.write_reg(_REG_CMD, _SOFT_RESET_CMD)
         except Exception:
             pass
         time.sleep(0.002)
         for _ in range(50):
-            st = self._read_reg(_REG_STATUS, 1)[0]
+            st = self._connection.read_reg(_REG_STATUS, 1)[0]
             if (st & _STATUS_NVM_RDY) and not (st & _STATUS_NVM_ERR):
                 break
             time.sleep(0.002)
         try:
-            self._read_reg(_REG_INT_STATUS, 1)
+            self._connection.read_reg(_REG_INT_STATUS, 1)
         except Exception:
             pass
-        self._write_reg(_REG_OSR_CONFIG, 0x40)
-        self._write_reg(_REG_ODR_CONFIG, 0x71)
+        self._connection.write_reg(_REG_OSR_CONFIG, 0x40)
+        self._connection.write_reg(_REG_ODR_CONFIG, 0x71)
         self._odr = 0x1C
         self._pwr_mode = 0x01
         self._osr_p = 0
@@ -134,7 +122,7 @@ class BMP581Minimal:
         self._press_en = True
 
     def _read_both(self):
-        data = self._read_reg(_REG_TEMP_XLSB, 6)
+        data = self._connection.read_reg(_REG_TEMP_XLSB, 6)
         raw_t = _u24(data[0:3])
         raw_p = _u24(data[3:6])
         return raw_p / 64.0, raw_t / 65536.0
@@ -147,11 +135,11 @@ class BMP581Minimal:
         """
         if self._pwr_mode == 2:
             for _ in range(200):
-                st = self._read_reg(_REG_INT_STATUS, 1)[0]
+                st = self._connection.read_reg(_REG_INT_STATUS, 1)[0]
                 if st & _INT_STATUS_DRDY:
                     break
                 time.sleep(0.005)
-        data = self._read_reg(_REG_PRESS_XLSB, 3)
+        data = self._connection.read_reg(_REG_PRESS_XLSB, 3)
         return _u24(data) / 64.0
 
     def temperature(self):
@@ -162,11 +150,11 @@ class BMP581Minimal:
         """
         if self._pwr_mode == 2:
             for _ in range(200):
-                st = self._read_reg(_REG_INT_STATUS, 1)[0]
+                st = self._connection.read_reg(_REG_INT_STATUS, 1)[0]
                 if st & _INT_STATUS_DRDY:
                     break
                 time.sleep(0.005)
-        data = self._read_reg(_REG_TEMP_XLSB, 3)
+        data = self._connection.read_reg(_REG_TEMP_XLSB, 3)
         return _u24(data) / 65536.0
 
     def both(self):
@@ -177,7 +165,7 @@ class BMP581Minimal:
         """
         if self._pwr_mode == 2:
             for _ in range(200):
-                st = self._read_reg(_REG_INT_STATUS, 1)[0]
+                st = self._connection.read_reg(_REG_INT_STATUS, 1)[0]
                 if st & _INT_STATUS_DRDY:
                     break
                 time.sleep(0.005)
@@ -193,8 +181,7 @@ class BMP581Full(BMP581Minimal):
     NVM read/write.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
     OSR_1X   = 0
@@ -233,8 +220,8 @@ class BMP581Full(BMP581Minimal):
     INT_SOURCE_FIFO_THS = 0x04
     INT_SOURCE_OOR_P = 0x08
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure(self, odr=0x1C, osr_p=0, osr_t=0, press_en=True):
         """Write OSR_CONFIG and ODR_CONFIG atomically.
@@ -250,9 +237,9 @@ class BMP581Full(BMP581Minimal):
         self._osr_t = osr_t
         self._press_en = press_en
         press_bit = 0x40 if press_en else 0
-        self._write_reg(_REG_OSR_CONFIG, press_bit | ((osr_p & 0x7) << 3) | (osr_t & 0x7))
+        self._connection.write_reg(_REG_OSR_CONFIG, press_bit | ((osr_p & 0x7) << 3) | (osr_t & 0x7))
         odr_byte = ((odr & 0x1F) << 2) | (self._pwr_mode & 0x3)
-        self._write_reg(_REG_ODR_CONFIG, odr_byte)
+        self._connection.write_reg(_REG_ODR_CONFIG, odr_byte)
 
     def set_mode(self, mode):
         """Set the power mode (preserves current ODR setting).
@@ -263,7 +250,7 @@ class BMP581Full(BMP581Minimal):
         """
         self._pwr_mode = mode
         odr_byte = ((self._odr & 0x1F) << 2) | (mode & 0x3)
-        self._write_reg(_REG_ODR_CONFIG, odr_byte)
+        self._connection.write_reg(_REG_ODR_CONFIG, odr_byte)
 
     def forced(self):
         """Trigger a single FORCED measurement, wait for completion, return readings.
@@ -275,7 +262,7 @@ class BMP581Full(BMP581Minimal):
         if prev_mode != 2:
             self.set_mode(2)
         for _ in range(400):
-            st = self._read_reg(_REG_INT_STATUS, 1)[0]
+            st = self._connection.read_reg(_REG_INT_STATUS, 1)[0]
             if st & _INT_STATUS_DRDY:
                 break
             time.sleep(0.005)
@@ -299,7 +286,7 @@ class BMP581Full(BMP581Minimal):
     def software_reset(self):
         """Issue a soft reset and re-initialise the chip with current config."""
         try:
-            self._write_reg(_REG_CMD, _SOFT_RESET_CMD)
+            self._connection.write_reg(_REG_CMD, _SOFT_RESET_CMD)
         except Exception:
             pass
         time.sleep(0.002)
@@ -311,7 +298,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             int: 0x50 for a genuine BMP581.
         """
-        return self._read_reg(_REG_CHIP_ID, 1)[0]
+        return self._connection.read_reg(_REG_CHIP_ID, 1)[0]
 
     def rev_id(self):
         """Read REV_ID (0x02).
@@ -319,7 +306,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             int: ASIC revision identifier.
         """
-        return self._read_reg(_REG_REV_ID, 1)[0]
+        return self._connection.read_reg(_REG_REV_ID, 1)[0]
 
     def status(self):
         """Read STATUS (0x28).
@@ -327,7 +314,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             int: Raw status byte.
         """
-        return self._read_reg(_REG_STATUS, 1)[0]
+        return self._connection.read_reg(_REG_STATUS, 1)[0]
 
     def interrupt_status(self):
         """Read INT_STATUS (0x27) — clear-on-read.
@@ -335,7 +322,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             int: Raw interrupt status byte; reading clears all bits.
         """
-        return self._read_reg(_REG_INT_STATUS, 1)[0]
+        return self._connection.read_reg(_REG_INT_STATUS, 1)[0]
 
     def data_ready(self):
         """Check whether a new data sample is available.
@@ -363,7 +350,7 @@ class BMP581Full(BMP581Minimal):
             val |= 0x02
         if mode:
             val |= 0x01
-        self._write_reg(_REG_INT_CONFIG, val)
+        self._connection.write_reg(_REG_INT_CONFIG, val)
 
     def enable_drdy_interrupt(self, enable=True):
         """Enable/disable the data-ready interrupt source."""
@@ -371,25 +358,25 @@ class BMP581Full(BMP581Minimal):
 
     def enable_fifo_interrupt(self, threshold=True, full=False):
         """Enable/disable FIFO threshold and FIFO-full interrupt sources."""
-        cur = self._read_reg(_REG_INT_SOURCE, 1)[0]
+        cur = self._connection.read_reg(_REG_INT_SOURCE, 1)[0]
         cur &= ~(self.INT_SOURCE_FIFO_FULL | self.INT_SOURCE_FIFO_THS)
         if threshold:
             cur |= self.INT_SOURCE_FIFO_THS
         if full:
             cur |= self.INT_SOURCE_FIFO_FULL
-        self._write_reg(_REG_INT_SOURCE, cur)
+        self._connection.write_reg(_REG_INT_SOURCE, cur)
 
     def enable_oor_interrupt(self, enable=True):
         """Enable/disable the pressure out-of-range interrupt source."""
         self._set_int_source(self.INT_SOURCE_OOR_P, enable)
 
     def _set_int_source(self, source, enable):
-        cur = self._read_reg(_REG_INT_SOURCE, 1)[0]
+        cur = self._connection.read_reg(_REG_INT_SOURCE, 1)[0]
         if enable:
             cur |= source
         else:
             cur &= ~source
-        self._write_reg(_REG_INT_SOURCE, cur)
+        self._connection.write_reg(_REG_INT_SOURCE, cur)
 
     def set_iir_filter(self, coeff_p, coeff_t):
         """Set IIR filter coefficients for pressure and temperature.
@@ -401,14 +388,14 @@ class BMP581Full(BMP581Minimal):
             coeff_p: Pressure filter coefficient 0-7 (0 = bypass).
             coeff_t: Temperature filter coefficient 0-7 (0 = bypass).
         """
-        dsp = self._read_reg(_REG_DSP_CONFIG, 1)[0]
+        dsp = self._connection.read_reg(_REG_DSP_CONFIG, 1)[0]
         dsp |= 0x20
         dsp |= 0x08
         dsp &= ~0x10
         dsp &= ~0x04
-        self._write_reg(_REG_DSP_CONFIG, dsp)
+        self._connection.write_reg(_REG_DSP_CONFIG, dsp)
         iir_val = ((coeff_p & 0x7) << 3) | (coeff_t & 0x7)
-        self._write_reg(_REG_DSP_IIR, iir_val)
+        self._connection.write_reg(_REG_DSP_IIR, iir_val)
 
     def configure_fifo(self, frame_sel, mode=0, threshold=0):
         """Configure FIFO source, mode, and threshold.
@@ -424,9 +411,9 @@ class BMP581Full(BMP581Minimal):
         prev_mode = self._pwr_mode
         if prev_mode != 0:
             self.set_mode(0)
-        self._write_reg(_REG_FIFO_SEL, ((frame_sel & 0x3) << 0))
+        self._connection.write_reg(_REG_FIFO_SEL, ((frame_sel & 0x3) << 0))
         fifo_cfg = ((mode & 0x1) << 5) | (threshold & 0x1F)
-        self._write_reg(_REG_FIFO_CONFIG, fifo_cfg)
+        self._connection.write_reg(_REG_FIFO_CONFIG, fifo_cfg)
         if prev_mode != 0:
             self.set_mode(prev_mode)
 
@@ -436,7 +423,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             int: Number of frames (0-32).
         """
-        return self._read_reg(_REG_FIFO_COUNT, 1)[0] & 0x3F
+        return self._connection.read_reg(_REG_FIFO_COUNT, 1)[0] & 0x3F
 
     def read_fifo(self):
         """Drain all frames from the FIFO and decode them.
@@ -450,7 +437,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             list: Per-frame readings.
         """
-        sel = self._read_reg(_REG_FIFO_SEL, 1)[0] & 0x3
+        sel = self._connection.read_reg(_REG_FIFO_SEL, 1)[0] & 0x3
         n = self.fifo_count()
         if n == 0 or sel == 0:
             return []
@@ -461,7 +448,7 @@ class BMP581Full(BMP581Minimal):
             bytes_per_frame = 3
         elif sel == 2:
             bytes_per_frame = 3
-        buf = self._read_reg(_REG_FIFO_DATA, n * bytes_per_frame)
+        buf = self._connection.read_reg(_REG_FIFO_DATA, n * bytes_per_frame)
         result = []
         for i in range(n):
             offset = i * bytes_per_frame
@@ -481,7 +468,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             tuple: (osr_p_eff, osr_t_eff) as 0-7 values.
         """
-        val = self._read_reg(_REG_OSR_EFF, 1)[0]
+        val = self._connection.read_reg(_REG_OSR_EFF, 1)[0]
         return ((val >> 3) & 0x7, val & 0x7)
 
     def odr_is_valid(self):
@@ -490,7 +477,7 @@ class BMP581Full(BMP581Minimal):
         Returns:
             bool: True if odr_is_valid bit is set.
         """
-        return bool(self._read_reg(_REG_OSR_EFF, 1)[0] & 0x80)
+        return bool(self._connection.read_reg(_REG_OSR_EFF, 1)[0] & 0x80)
 
     def set_oor_threshold(self, threshold_pa, range_pa, count_limit=0):
         """Configure the out-of-range pressure detector.
@@ -504,12 +491,12 @@ class BMP581Full(BMP581Minimal):
         oor_thr_p_16 = (oor_thr_17bit >> 16) & 0x01
         oor_thr_p_msb = (oor_thr_17bit >> 8) & 0xFF
         oor_thr_p_lsb = oor_thr_17bit & 0xFF
-        self._write_reg(_REG_OOR_THR_P_LSB, oor_thr_p_lsb)
-        self._write_reg(_REG_OOR_THR_P_MSB, oor_thr_p_msb)
+        self._connection.write_reg(_REG_OOR_THR_P_LSB, oor_thr_p_lsb)
+        self._connection.write_reg(_REG_OOR_THR_P_MSB, oor_thr_p_msb)
         oor_range_8bit = int(range_pa * 64.0) >> 7
-        self._write_reg(_REG_OOR_RANGE, oor_range_8bit & 0xFF)
+        self._connection.write_reg(_REG_OOR_RANGE, oor_range_8bit & 0xFF)
         oor_cfg = ((count_limit & 0x3) << 6) | (oor_thr_p_16 & 0x01)
-        self._write_reg(_REG_OOR_CONFIG, oor_cfg)
+        self._connection.write_reg(_REG_OOR_CONFIG, oor_cfg)
 
     def nvm_read(self, row):
         """Read one user NVM row (3 rows: 0x20, 0x21, 0x22).
@@ -524,13 +511,13 @@ class BMP581Full(BMP581Minimal):
         if prev_mode != 0:
             self.set_mode(0)
         try:
-            self._write_reg(_REG_NVM_ADDR, _NVM_READ_SEQ)
-            self._write_reg(_REG_CMD, _NVM_READ_TRIG)
+            self._connection.write_reg(_REG_NVM_ADDR, _NVM_READ_SEQ)
+            self._connection.write_reg(_REG_CMD, _NVM_READ_TRIG)
             time.sleep(0.002)
-            self._write_reg(_REG_NVM_ADDR, _NVM_PROG_EN | (row & 0x3F))
-            self._write_reg(_REG_CMD, _NVM_READ_TRIG)
+            self._connection.write_reg(_REG_NVM_ADDR, _NVM_PROG_EN | (row & 0x3F))
+            self._connection.write_reg(_REG_CMD, _NVM_READ_TRIG)
             time.sleep(0.002)
-            data = self._read_reg(_REG_NVM_DATA_LSB, 2)
+            data = self._connection.read_reg(_REG_NVM_DATA_LSB, 2)
             return (data[1] << 8) | data[0]
         finally:
             if prev_mode != 0:
@@ -550,11 +537,11 @@ class BMP581Full(BMP581Minimal):
         if prev_mode != 0:
             self.set_mode(0)
         try:
-            self._write_reg(_REG_NVM_ADDR, _NVM_PROG_EN | (row & 0x3F))
-            self._write_reg(_REG_NVM_DATA_LSB, value & 0xFF)
-            self._write_reg(_REG_NVM_DATA_MSB, (value >> 8) & 0xFF)
-            self._write_reg(_REG_NVM_ADDR, _NVM_WRITE_SEQ)
-            self._write_reg(_REG_CMD, _NVM_WRITE_TRIG)
+            self._connection.write_reg(_REG_NVM_ADDR, _NVM_PROG_EN | (row & 0x3F))
+            self._connection.write_reg(_REG_NVM_DATA_LSB, value & 0xFF)
+            self._connection.write_reg(_REG_NVM_DATA_MSB, (value >> 8) & 0xFF)
+            self._connection.write_reg(_REG_NVM_ADDR, _NVM_WRITE_SEQ)
+            self._connection.write_reg(_REG_CMD, _NVM_WRITE_TRIG)
             time.sleep(0.005)
         finally:
             if prev_mode != 0:

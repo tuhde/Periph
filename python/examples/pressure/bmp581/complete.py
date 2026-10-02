@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp581 import BMP581Full
 
 connection = I2CConnection(0x46)
-bmp = BMP581Full(connection)                             # Create BMP581 driver, (connection, bus_type='i2c')
+bmp = BMP581Full(connection)                             # Create BMP581 driver, (connection)
 cid = bmp.chip_id()                                      # Read chip ID, () → int
                                                         # returns 0x50 for BMP581
 bmp.configure(odr=0x1C, osr_p=0, osr_t=0, press_en=True)  # Configure chip, (odr=1Hz 0x00–0x1F, osr_p 0–7, osr_t 0–7, press_en bool) → None

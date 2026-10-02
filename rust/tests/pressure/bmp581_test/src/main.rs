@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp581Minimal::new(dev, addr, false).expect("init BMP581");
+    let mut bmp = Bmp581Minimal::new(dev, addr).expect("init BMP581");
 
     let t = bmp.temperature().unwrap();
     check_true!(t >= -40.0 && t <= 85.0, "temperature_range", passed, failed);
@@ -30,7 +30,7 @@ fn main() {
     drop(bmp);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp_full = Bmp581Full::new(dev, addr, false).expect("init BMP581 Full");
+    let mut bmp_full = Bmp581Full::new(dev, addr).expect("init BMP581 Full");
 
     bmp_full.configure(0x1C, 0, 0, true).unwrap();
     bmp_full.set_mode(BMP581_MODE_NORMAL).unwrap();

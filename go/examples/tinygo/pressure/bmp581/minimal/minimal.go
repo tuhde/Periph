@@ -26,7 +26,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x46, nil, nil)        // Create I2C connection, (i2c, addr=0x46) → (*I2CConnection)
-	chip, err := pressure.NewBMP581Minimal(conn, false)               // Create BMP581 driver, (connection) → (*BMP581Minimal, error)
+	chip, err := pressure.NewBMP581Minimal(conn)               // Create BMP581 driver, (connection) → (*BMP581Minimal, error)
 	if err != nil {
 		panic(err)
 	}

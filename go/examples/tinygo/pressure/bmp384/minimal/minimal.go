@@ -19,11 +19,7 @@ func main() {
 	})
 	addr := uint8(0x76)
 
-	tr, err := connection.NewI2CConnection(machine.I2C0, addr, nil, nil)
-	if err != nil {
-		fmt.Printf("connection: %v\n", err)
-		panic(err)
-	}
+	tr := connection.NewI2CConnection(machine.I2C0, addr, nil, nil)
 	defer tr.Close()
 
 	chip, err := pressure.NewBMP384Minimal(tr)

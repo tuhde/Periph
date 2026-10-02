@@ -29,7 +29,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := pressure.NewBMP581Full(conn, false) // Create BMP581 driver, (connection) → (*BMP581Full, error)
+	chip, err := pressure.NewBMP581Full(conn) // Create BMP581 driver, (connection) → (*BMP581Full, error)
 	if err != nil {
 		panic(err)
 	}

@@ -6,7 +6,7 @@ connection = I2CConnection(0x46)
 # --- Precision altimeter: 10 Hz NORMAL mode for 30 seconds ---
 # 10 Hz ODR (odr field 0x17) gives sub-decimetre altitude resolution over
 # a 30-second window while still leaving headroom for higher OSR.
-bmp = BMP581Full(connection)                             # Create BMP581 driver, (connection, bus_type='i2c')
+bmp = BMP581Full(connection)                             # Create BMP581 driver, (connection)
 bmp.configure(odr=0x17, osr_p=4, osr_t=2, press_en=True)  # Configure chip, (odr=10Hz, osr_p=×16, osr_t=×4, press_en) → None
 
 pressures, temps, alts = [], [], []

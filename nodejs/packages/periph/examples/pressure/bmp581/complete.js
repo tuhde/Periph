@@ -6,7 +6,7 @@ const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1',  10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR || '0x46', 16);
 
 const connection = new I2CConnection(I2C_BUS, I2C_ADDR);
-const bmp = new BMP581Full(connection);                 // Create BMP581 driver, (connection, busType='i2c')
+const bmp = new BMP581Full(connection);                 // Create BMP581 driver, (connection)
 
 (async () => {
     const cid = await bmp.chipId();                     // Read chip ID, () → number

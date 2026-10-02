@@ -33,7 +33,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP581Full bmp(connection, /*spi=*/false);
+    BMP581Full bmp(connection);
 
     check_true(bmp.chip_id() == 0x50, "chip_id");
     bmp.configure(0x1C, BMP581Full::OSR_1X, BMP581Full::OSR_1X, true);
