@@ -19,7 +19,7 @@ fn main() {
     let mut failed = 0i32;
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp384Minimal::new(dev, addr, false).expect("init BMP384");
+    let mut bmp = Bmp384Minimal::new(dev, addr).expect("init BMP384");
 
     check_true!(bmp.osr_p == 4, "default_osr_p", passed, failed);
     check_true!(bmp.osr_t == 1, "default_osr_t", passed, failed);
@@ -34,7 +34,7 @@ fn main() {
     drop(bmp);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp_full = Bmp384Full::new(dev, addr, false).expect("init BMP384 Full");
+    let mut bmp_full = Bmp384Full::new(dev, addr).expect("init BMP384 Full");
 
     bmp_full.configure(2, 1, 1, 0x04).expect("configure");
     check_true!(bmp_full.inner.osr_p == 2 && bmp_full.inner.iir == 1 && bmp_full.inner.odr == 0x04,

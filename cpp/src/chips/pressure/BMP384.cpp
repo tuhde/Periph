@@ -20,8 +20,8 @@ static inline void delay(unsigned long ms) { sleep_ms(ms); }
 static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 
-BMP384Minimal::BMP384Minimal(Connection& connection, bool spi)
-    : _connection(connection), _spi(spi) {
+BMP384Minimal::BMP384Minimal(RegisterConnection& connection)
+    : _connection(connection) {
     _read_calibration();
     _verify_chip_id();
     _apply_config();
@@ -29,7 +29,7 @@ BMP384Minimal::BMP384Minimal(Connection& connection, bool spi)
 
 void BMP384Minimal::_verify_chip_id() {
     uint8_t buf[1];
-    _read_reg(REG_CHIP_ID, buf, 1);
+    _connection.read(REG_CHIP_ID, buf, 1);
     if (buf[0] != CHIP_ID) {
         // Indicate init failure silently — callers may catch via subsequent read errors.
         // (No exceptions; C++ chip drivers use the valid() flag pattern elsewhere.)
@@ -38,7 +38,7 @@ void BMP384Minimal::_verify_chip_id() {
 
 void BMP384Minimal::_read_calibration() {
     uint8_t buf[REG_CAL_LEN];
-    _read_reg(REG_CAL_START, buf, REG_CAL_LEN);
+    _connection.read(REG_CAL_START, buf, REG_CAL_LEN);
 
     uint16_t nvm_t1 = (uint16_t)(buf[0]  | (buf[1]  << 8));
     uint16_t nvm_t2 = (uint16_t)(buf[2]  | (buf[3]  << 8));
@@ -75,26 +75,15 @@ void BMP384Minimal::_apply_config() {
     uint8_t osr_reg   = (uint8_t)((_osr_t << 3) | (_osr_p << 0));
     uint8_t config    = (uint8_t)((_iir << 1));
     uint8_t pwr_reg   = (uint8_t)((_mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
-    _write_reg(REG_OSR,      osr_reg);
-    _write_reg(REG_CONFIG,   config);
-    _write_reg(REG_ODR,      _odr);
-    _write_reg(REG_PWR_CTRL, pwr_reg);
-}
-
-void BMP384Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t addr = _spi ? (reg & 0x7F) : reg;
-    uint8_t buf[2] = { addr, value };
-    _connection.write(buf, 2);
-}
-
-void BMP384Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    uint8_t addr = reg;
-    _connection.write_read(&addr, 1, buf, len);
+    { uint8_t v =      osr_reg; _connection.write(REG_OSR, &v, 1); }
+    { uint8_t v =   config; _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v =      _odr; _connection.write(REG_ODR, &v, 1); }
+    { uint8_t v = pwr_reg; _connection.write(REG_PWR_CTRL, &v, 1); }
 }
 
 void BMP384Minimal::_read_burst(uint32_t& uncomp_press, uint32_t& uncomp_temp) {
     uint8_t raw[6];
-    _read_reg(REG_DATA_0, raw, 6);
+    _connection.read(REG_DATA_0, raw, 6);
     uncomp_press = ((uint32_t)raw[2] << 16) | ((uint32_t)raw[1] << 8) | raw[0];
     uncomp_temp  = ((uint32_t)raw[5] << 16) | ((uint32_t)raw[4] << 8) | raw[3];
 }
@@ -131,7 +120,7 @@ double BMP384Minimal::_compensate_pressure(uint32_t uncomp_press) {
 float BMP384Minimal::temperature() {
     if (_mode == MODE_FORCED) {
         uint8_t pwr_reg = (uint8_t)((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
-        _write_reg(REG_PWR_CTRL, pwr_reg);
+        { uint8_t v = pwr_reg; _connection.write(REG_PWR_CTRL, &v, 1); }
         delay(MEAS_TIME_MS);
     }
     uint32_t uncomp_press, uncomp_temp;
@@ -143,7 +132,7 @@ float BMP384Minimal::temperature() {
 float BMP384Minimal::pressure() {
     if (_mode == MODE_FORCED) {
         uint8_t pwr_reg = (uint8_t)((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
-        _write_reg(REG_PWR_CTRL, pwr_reg);
+        { uint8_t v = pwr_reg; _connection.write(REG_PWR_CTRL, &v, 1); }
         delay(MEAS_TIME_MS);
     }
     uint32_t uncomp_press, uncomp_temp;
@@ -155,8 +144,8 @@ float BMP384Minimal::pressure() {
 
 // BMP384Full
 
-BMP384Full::BMP384Full(Connection& connection, bool spi)
-    : BMP384Minimal(connection, spi) {
+BMP384Full::BMP384Full(RegisterConnection& connection)
+    : BMP384Minimal(connection) {
 }
 
 void BMP384Full::configure(uint8_t osr_p, uint8_t osr_t, uint8_t iir_filter, uint8_t odr_sel) {
@@ -174,9 +163,9 @@ void BMP384Full::configure(uint8_t osr_p, uint8_t osr_t, uint8_t iir_filter, uin
 
     uint8_t osr_reg = (uint8_t)((osr_t << 3) | (osr_p << 0));
     uint8_t config  = (uint8_t)((iir_filter << 1));
-    _write_reg(REG_OSR,    osr_reg);
-    _write_reg(REG_CONFIG, config);
-    _write_reg(REG_ODR,    odr_sel);
+    { uint8_t v =    osr_reg; _connection.write(REG_OSR, &v, 1); }
+    { uint8_t v = config; _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v =    odr_sel; _connection.write(REG_ODR, &v, 1); }
 }
 
 void BMP384Full::read(float& pressure_hpa, float& temperature_c) {
@@ -216,12 +205,12 @@ void BMP384Full::set_mode(uint8_t mode) {
 
 bool BMP384Full::is_data_ready() {
     uint8_t buf[1];
-    _read_reg(REG_STATUS, buf, 1);
+    _connection.read(REG_STATUS, buf, 1);
     return (buf[0] & (1 << 5)) != 0;
 }
 
 void BMP384Full::softreset() {
-    _write_reg(REG_CMD, SOFT_RESET_CMD);
+    { uint8_t v = SOFT_RESET_CMD; _connection.write(REG_CMD, &v, 1); }
     delay(3);
     _read_calibration();
     _verify_chip_id();
@@ -233,22 +222,22 @@ void BMP384Full::fifo_configure(bool press_en, bool temp_en, uint16_t wtm, bool 
         | ((stop_on_full ? 1u : 0u) << 3)
         | ((temp_en ? 1u : 0u) << 1)
         | (press_en ? 1u : 0u));
-    _write_reg(0x17, cfg1);
-    _write_reg(0x15, (uint8_t)(wtm & 0xFF));
-    _write_reg(0x16, (uint8_t)((wtm >> 8) & 0x01));
+    { uint8_t v = cfg1; _connection.write(0x17, &v, 1); }
+    { uint8_t v = (uint8_t)(wtm & 0xFF); _connection.write(0x15, &v, 1); }
+    { uint8_t v = (uint8_t)((wtm >> 8) & 0x01); _connection.write(0x16, &v, 1); }
 }
 
 size_t BMP384Full::fifo_read(const char** type_out, double* value_out, size_t max_frames) {
     if (max_frames == 0) return 0;
     uint8_t len_lo[1], len_hi[1];
-    _read_reg(0x12, len_lo, 1);
-    _read_reg(0x13, len_hi, 1);
+    _connection.read(0x12, len_lo, 1);
+    _connection.read(0x13, len_hi, 1);
     uint16_t length = (uint16_t)(((uint16_t)len_hi[0] << 8) | len_lo[0]);
     if (length == 0) return 0;
 
     uint8_t* buf = (uint8_t*)malloc(length);
     if (!buf) return 0;
-    _read_reg(0x14, buf, length);
+    _connection.read(0x14, buf, length);
 
     size_t n = 0;
     size_t i = 0;
@@ -295,7 +284,7 @@ size_t BMP384Full::fifo_read(const char** type_out, double* value_out, size_t ma
 }
 
 void BMP384Full::fifo_flush() {
-    _write_reg(REG_CMD, FIFO_FLUSH_CMD);
+    { uint8_t v = FIFO_FLUSH_CMD; _connection.write(REG_CMD, &v, 1); }
 }
 
 float BMP384Full::altitude(float sea_level_hpa) {
@@ -306,12 +295,12 @@ float BMP384Full::altitude(float sea_level_hpa) {
 
 void BMP384Full::_trigger_forced() {
     uint8_t pwr_reg = (uint8_t)((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
-    _write_reg(REG_PWR_CTRL, pwr_reg);
+    { uint8_t v = pwr_reg; _connection.write(REG_PWR_CTRL, &v, 1); }
 }
 
 void BMP384Full::_apply_pwr() {
     uint8_t pwr_reg = (uint8_t)((_mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
-    _write_reg(REG_PWR_CTRL, pwr_reg);
+    { uint8_t v = pwr_reg; _connection.write(REG_PWR_CTRL, &v, 1); }
 }
 
 double BMP384Full::_compensate_pressure_with_t_lin(uint32_t uncomp_press, double t_lin) {

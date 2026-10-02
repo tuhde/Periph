@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * BMP384 — digital barometric pressure and temperature sensor (minimal driver).
@@ -37,7 +37,7 @@ class Bmp384Minimal {
     static final int PWR_PRESS_EN = 0x01
     static final int PWR_TEMP_EN  = 0x02
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     protected int osrP = 4
     protected int osrT = 1
@@ -51,11 +51,11 @@ class Bmp384Minimal {
 
     protected double tLin
 
-    Bmp384Minimal(Connection conn) { this(conn, 0x76) }
+    Bmp384Minimal(RegisterConnection conn) { this(conn, 0x76) }
 
-    Bmp384Minimal(Connection connection, int addr) {
+    Bmp384Minimal(RegisterConnection connection, int addr) {
         this.connection = connection
-        byte[] id = connection.writeRead(new byte[]{(byte) REG_CHIP_ID} as byte[], 1)
+        byte[] id = connection.read(REG_CHIP_ID, 1)
         int chipId = id[0] & 0xFF
         if (chipId != CHIP_ID) {
             throw new IOException(
@@ -67,7 +67,7 @@ class Bmp384Minimal {
     }
 
     protected void readCalibration() {
-        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CAL_START} as byte[], REG_CAL_LEN)
+        byte[] cal = connection.read(REG_CAL_START, REG_CAL_LEN)
 
         int nvmT1  = readU16LE(cal, 0)
         int nvmT2  = readU16LE(cal, 2)
@@ -104,23 +104,19 @@ class Bmp384Minimal {
         int osrReg = (osrT << 3) | (osrP << 0)
         int configReg = (iir << 1)
         int pwrReg = (mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN
-        writeReg(REG_OSR,      osrReg)
-        writeReg(REG_CONFIG,   configReg)
-        writeReg(REG_ODR,      odr)
-        writeReg(REG_PWR_CTRL, pwrReg)
-    }
-
-    protected void writeReg(int reg, int value) {
-        connection.write(new byte[]{(byte) reg, (byte) value} as byte[])
+        connection.write(REG_OSR, [(byte) (     osrReg)] as byte[])
+        connection.write(REG_CONFIG, [(byte) (  configReg)] as byte[])
+        connection.write(REG_ODR, [(byte) (     odr)] as byte[])
+        connection.write(REG_PWR_CTRL, [(byte) (pwrReg)] as byte[])
     }
 
     protected int readReg(int reg) {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg} as byte[], 1)
+        byte[] b = connection.read(reg, 1)
         return b[0] & 0xFF
     }
 
     protected int[] readBurst() {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_DATA_0} as byte[], 6)
+        byte[] raw = connection.read(REG_DATA_0, 6)
         int uncompPress = ((raw[2] & 0xFF) << 16) | ((raw[1] & 0xFF) << 8) | (raw[0] & 0xFF)
         int uncompTemp  = ((raw[5] & 0xFF) << 16) | ((raw[4] & 0xFF) << 8) | (raw[3] & 0xFF)
         return new int[]{uncompPress, uncompTemp}
@@ -154,7 +150,7 @@ class Bmp384Minimal {
 
     double temperature() {
         if (mode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)
+            connection.write(REG_PWR_CTRL, [(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)] as byte[])
             try { Thread.sleep(40) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         }
         int[] burst = readBurst()
@@ -163,7 +159,7 @@ class Bmp384Minimal {
 
     double pressure() {
         if (mode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)
+            connection.write(REG_PWR_CTRL, [(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)] as byte[])
             try { Thread.sleep(40) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         }
         int[] burst = readBurst()

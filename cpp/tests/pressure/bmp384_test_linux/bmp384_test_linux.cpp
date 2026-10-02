@@ -18,7 +18,7 @@ static void check_true(bool cond, const char *label) {
 
 int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
-    BMP384Minimal bmp(connection, /*spi=*/false);
+    BMP384Minimal bmp(connection);
 
     // Inject representative PAR coefficients to verify the compensation math
     // without waiting for a real conversion.
@@ -41,7 +41,7 @@ int main() {
     double comp_p = bmp._compensate_pressure(415148);
     check_true(comp_p > 0.0, "pressure_compensation_runs");
 
-    BMP384Full bmp_full(connection, /*spi=*/false);
+    BMP384Full bmp_full(connection);
 
     bmp_full.configure(2, 1, 1, 0x04);                     // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
     check_true(bmp_full._osr_p == 2 && bmp_full._iir == 1 && bmp_full._odr == 0x04, "configure_writes_through");

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class Bmp384Minimal {
     protected static final int PWR_PRESS_EN   = 0x01;
     protected static final int PWR_TEMP_EN    = 0x02;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /** PAR coefficients — scaled to floating-point per datasheet. */
     protected double parT1, parT2, parT3;
@@ -69,7 +69,7 @@ public class Bmp384Minimal {
      * @param connection I²C connection bound to address 0x76
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp384Minimal(Connection connection) throws IOException {
+    public Bmp384Minimal(RegisterConnection connection) throws IOException {
         this(connection, 0x76);
     }
 
@@ -81,10 +81,10 @@ public class Bmp384Minimal {
      * @param addr      I²C device address (0x76 or 0x77)
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp384Minimal(Connection connection, int addr) throws IOException {
+    public Bmp384Minimal(RegisterConnection connection, int addr) throws IOException {
         this.connection = connection;
 
-        byte[] id = connection.writeRead(new byte[]{(byte) REG_CHIP_ID}, 1);
+        byte[] id = connection.read(REG_CHIP_ID, 1);
         int chipId = id[0] & 0xFF;
         if (chipId != CHIP_ID) {
             throw new IOException(
@@ -105,7 +105,7 @@ public class Bmp384Minimal {
      * @throws IOException on I²C error
      */
     protected void readCalibration() throws IOException {
-        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CAL_START}, REG_CAL_LEN);
+        byte[] cal = connection.read(REG_CAL_START, REG_CAL_LEN);
 
         int nvmT1  = readU16LE(cal, 0);
         int nvmT2  = readU16LE(cal, 2);
@@ -144,27 +144,17 @@ public class Bmp384Minimal {
         int osrReg = (osrT << 3) | (osrP << 0);
         int configReg = (iir << 1);
         int pwrReg = (mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN;
-        writeReg(REG_OSR,      osrReg);
-        writeReg(REG_CONFIG,   configReg);
-        writeReg(REG_ODR,      odr);
-        writeReg(REG_PWR_CTRL, pwrReg);
-    }
-
-    /**
-     * Write a single byte to a register.
-     *
-     * @param reg   register address
-     * @param value byte value
-     */
-    protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(REG_OSR, new byte[]{(byte) (     osrReg)});
+        connection.write(REG_CONFIG, new byte[]{(byte) (  configReg)});
+        connection.write(REG_ODR, new byte[]{(byte) (     odr)});
+        connection.write(REG_PWR_CTRL, new byte[]{(byte) (pwrReg)});
     }
 
     /**
      * Read a single byte from a register.
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 1);
+        byte[] b = connection.read(reg, 1);
         return b[0] & 0xFF;
     }
 
@@ -172,7 +162,7 @@ public class Bmp384Minimal {
      * Burst-read 6 bytes from DATA_0..DATA_5, returning (uncomp_press, uncomp_temp).
      */
     protected int[] readBurst() throws IOException {
-        byte[] raw = connection.writeRead(new byte[]{(byte) REG_DATA_0}, 6);
+        byte[] raw = connection.read(REG_DATA_0, 6);
         int uncompPress = ((raw[2] & 0xFF) << 16) | ((raw[1] & 0xFF) << 8) | (raw[0] & 0xFF);
         int uncompTemp  = ((raw[5] & 0xFF) << 16) | ((raw[4] & 0xFF) << 8) | (raw[3] & 0xFF);
         return new int[]{uncompPress, uncompTemp};
@@ -224,7 +214,7 @@ public class Bmp384Minimal {
      */
     public double temperature() throws IOException {
         if (mode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
+            connection.write(REG_PWR_CTRL, new byte[]{(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)});
             try { Thread.sleep(40); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
         int[] burst = readBurst();
@@ -239,7 +229,7 @@ public class Bmp384Minimal {
      */
     public double pressure() throws IOException {
         if (mode == MODE_FORCED) {
-            writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN);
+            connection.write(REG_PWR_CTRL, new byte[]{(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)});
             try { Thread.sleep(40); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         }
         int[] burst = readBurst();

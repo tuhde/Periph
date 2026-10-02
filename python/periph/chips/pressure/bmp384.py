@@ -17,9 +17,7 @@ class BMP384Minimal:
         - Both pressure and temperature sensors enabled
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
-            SPI writes clear bit 7 of the register address.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
     _REG_CHIP_ID     = 0x00
@@ -50,9 +48,8 @@ class BMP384Minimal:
 
     _MEAS_TIME_MS    = 40
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
         self._osr_p = 4    # ×16
         self._osr_t = 1    # ×2
         self._iir = 2      # coefficient 3
@@ -63,7 +60,7 @@ class BMP384Minimal:
         self._apply_config()
 
     def _verify_chip_id(self):
-        raw = self._read_reg(self._REG_CHIP_ID, 1)
+        raw = self._connection.read_reg(self._REG_CHIP_ID, 1)
         if raw[0] != self._CHIP_ID:
             raise OSError(
                 'BMP384 not found: expected CHIP_ID 0x%02X, got 0x%02X'
@@ -71,7 +68,7 @@ class BMP384Minimal:
             )
 
     def _read_calibration(self):
-        data = self._read_reg(self._REG_CAL_START, self._REG_CAL_LEN)
+        data = self._connection.read_reg(self._REG_CAL_START, self._REG_CAL_LEN)
         # NVM_PAR_T1 (u16 LE)
         self._par_t1 = struct.unpack('<H', data[0:2])[0]
         # NVM_PAR_T2 (u16 LE)
@@ -135,22 +132,14 @@ class BMP384Minimal:
         osr_reg = (self._osr_t << self._OSR_T_SHIFT) | (self._osr_p << self._OSR_P_SHIFT)
         config_reg = (self._iir << self._IIR_SHIFT)
         pwr_reg = (self._mode << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
-        self._write_reg(self._REG_OSR, osr_reg)
-        self._write_reg(self._REG_CONFIG, config_reg)
-        self._write_reg(self._REG_ODR, self._odr)
-        self._write_reg(self._REG_PWR_CTRL, pwr_reg)
-
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x7F
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
+        self._connection.write_reg(self._REG_OSR, osr_reg)
+        self._connection.write_reg(self._REG_CONFIG, config_reg)
+        self._connection.write_reg(self._REG_ODR, self._odr)
+        self._connection.write_reg(self._REG_PWR_CTRL, pwr_reg)
 
     def _read_burst(self):
         # DATA_0..DATA_5 (0x04..0x09) = pressure XLSB/LSB/MSB, then temperature XLSB/LSB/MSB
-        raw = self._read_reg(self._REG_DATA_0, 6)
+        raw = self._connection.read_reg(self._REG_DATA_0, 6)
         uncomp_press = (raw[2] << 16) | (raw[1] << 8) | raw[0]
         uncomp_temp  = (raw[5] << 16) | (raw[4] << 8) | raw[3]
         return uncomp_press, uncomp_temp
@@ -208,7 +197,7 @@ class BMP384Minimal:
         """
         if self._mode == self._MODE_FORCED:
             pwr_reg = (self._MODE_FORCED << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
-            self._write_reg(self._REG_PWR_CTRL, pwr_reg)
+            self._connection.write_reg(self._REG_PWR_CTRL, pwr_reg)
             time.sleep(self._MEAS_TIME_MS / 1000.0)
         uncomp_press, uncomp_temp = self._read_burst()
         return self._compensate_temperature(uncomp_temp)
@@ -225,7 +214,7 @@ class BMP384Minimal:
         """
         if self._mode == self._MODE_FORCED:
             pwr_reg = (self._MODE_FORCED << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
-            self._write_reg(self._REG_PWR_CTRL, pwr_reg)
+            self._connection.write_reg(self._REG_PWR_CTRL, pwr_reg)
             time.sleep(self._MEAS_TIME_MS / 1000.0)
         uncomp_press, uncomp_temp = self._read_burst()
         self._compensate_temperature(uncomp_temp)
@@ -244,8 +233,7 @@ class BMP384Full(BMP384Minimal):
     and per-frame decoding).
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
     MODE_SLEEP  = 0x00
@@ -259,8 +247,8 @@ class BMP384Full(BMP384Minimal):
     FIFO_HEADER_ERROR    = 0x44
     FIFO_HEADER_EMPTY    = 0x80
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure(self, osr_p, osr_t, iir_filter, odr_sel):
         """Write OSR, CONFIG, and ODR registers and verify ODR ≥ T_conv.
@@ -287,9 +275,9 @@ class BMP384Full(BMP384Minimal):
                 'odr_sel 0x%02X (period %d ms) is shorter than T_conv %d ms at osr_p=%d osr_t=%d'
                 % (odr_sel, odr_period_ms, t_conv_ms, osr_p, osr_t)
             )
-        self._write_reg(self._REG_OSR, (osr_t << self._OSR_T_SHIFT) | (osr_p << self._OSR_P_SHIFT))
-        self._write_reg(self._REG_CONFIG, (iir_filter << self._IIR_SHIFT))
-        self._write_reg(self._REG_ODR, odr_sel)
+        self._connection.write_reg(self._REG_OSR, (osr_t << self._OSR_T_SHIFT) | (osr_p << self._OSR_P_SHIFT))
+        self._connection.write_reg(self._REG_CONFIG, (iir_filter << self._IIR_SHIFT))
+        self._connection.write_reg(self._REG_ODR, odr_sel)
 
     def read(self):
         """Read both pressure and temperature in a single burst.
@@ -339,12 +327,12 @@ class BMP384Full(BMP384Minimal):
         Returns:
             bool: True if a new pressure measurement is available.
         """
-        raw = self._read_reg(0x03, 1)
+        raw = self._connection.read_reg(0x03, 1)
         return bool(raw[0] & (1 << 5))
 
     def softreset(self):
         """Issue a soft reset, wait 2 ms, re-read calibration, re-apply config."""
-        self._write_reg(self._REG_CMD, self._SOFT_RESET_CMD)
+        self._connection.write_reg(self._REG_CMD, self._SOFT_RESET_CMD)
         time.sleep(0.003)
         self._read_calibration()
         self._verify_chip_id()
@@ -364,9 +352,9 @@ class BMP384Full(BMP384Minimal):
                 | ((1 if stop_on_full else 0) << 3)
                 | ((1 if temp_en else 0) << 1)
                 | (1 if press_en else 0))
-        self._write_reg(0x17, cfg1)
-        self._write_reg(0x15, wtm & 0xFF)
-        self._write_reg(0x16, (wtm >> 8) & 0x01)
+        self._connection.write_reg(0x17, cfg1)
+        self._connection.write_reg(0x15, wtm & 0xFF)
+        self._connection.write_reg(0x16, (wtm >> 8) & 0x01)
 
     def fifo_read(self):
         """Read and parse every available FIFO frame.
@@ -382,12 +370,12 @@ class BMP384Full(BMP384Minimal):
                 in hPa for pressure, °C for temperature, or raw sensor-time
                 ticks for sensortime. ``None`` for error and empty frames.
         """
-        length_lo = self._read_reg(0x12, 1)[0]
-        length_hi = self._read_reg(0x13, 1)[0]
+        length_lo = self._connection.read_reg(0x12, 1)[0]
+        length_hi = self._connection.read_reg(0x13, 1)[0]
         length = (length_hi << 8) | length_lo
         if length == 0:
             return []
-        buf = self._read_reg(0x14, length)
+        buf = self._connection.read_reg(0x14, length)
         frames = []
         i = 0
         while i < len(buf):
@@ -418,7 +406,7 @@ class BMP384Full(BMP384Minimal):
 
     def fifo_flush(self):
         """Flush all FIFO contents (writes 0xB0 to CMD)."""
-        self._write_reg(self._REG_CMD, self._FIFO_FLUSH_CMD)
+        self._connection.write_reg(self._REG_CMD, self._FIFO_FLUSH_CMD)
 
     def altitude(self, sea_level_hpa=1013.25):
         """Compute altitude above sea level from the current pressure.
@@ -437,12 +425,12 @@ class BMP384Full(BMP384Minimal):
     def _trigger_forced(self):
         """Issue a single forced-mode measurement (does not wait)."""
         pwr_reg = (self._MODE_FORCED << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
-        self._write_reg(self._REG_PWR_CTRL, pwr_reg)
+        self._connection.write_reg(self._REG_PWR_CTRL, pwr_reg)
 
     def _apply_pwr(self):
         """Write the current power-mode and sensor-enable bits to PWR_CTRL."""
         pwr_reg = (self._mode << 4) | self._PWR_TEMP_EN | self._PWR_PRESS_EN
-        self._write_reg(self._REG_PWR_CTRL, pwr_reg)
+        self._connection.write_reg(self._REG_PWR_CTRL, pwr_reg)
 
     def _compensate_pressure_with_t_lin(self, uncomp_press, t_lin):
         """Pressure compensation using a caller-supplied t_lin (used by FIFO pressure frames)."""

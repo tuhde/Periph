@@ -14,7 +14,7 @@
 
 int main() {
     I2CConnectionLinux connection(TEST_I2C_BUS, TEST_ADDR);
-    BMP384Full bmp(connection, /*spi=*/false);             // Create BMP384 driver, (connection)
+    BMP384Full bmp(connection);             // Create BMP384 driver, (connection)
 
     // --- Configure for noise-sensitive altitude logging ---
     // osr_p=×16 gives ~12 cm noise-equivalent altitude resolution; the IIR

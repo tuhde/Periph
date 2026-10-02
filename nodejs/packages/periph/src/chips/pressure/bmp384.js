@@ -56,13 +56,11 @@ function _s8(b) {
  * `await sensor.temperature()` (or any other async method) once before
  * relying on calibrated readings if this matters for your use case.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP384Minimal {
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._osrP = 4;     // ×16
         this._osrT = 1;     // ×2
         this._iir   = 2;    // coefficient 3
@@ -77,7 +75,7 @@ class BMP384Minimal {
     }
 
     async _readCalibration() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), _REG_CAL_LEN);
+        const data = await this._conn.readReg(_REG_CAL_START, _REG_CAL_LEN);
         // NVM_PAR_T1 (u16 LE)
         this._parT1 = data.readUInt16LE(0);
         // NVM_PAR_T2 (u16 LE)
@@ -129,24 +127,15 @@ class BMP384Minimal {
         const osrReg   = (this._osrT << 3) | (this._osrP << 0);
         const configReg = (this._iir << 1);
         const pwrReg   = (this._mode << 4) | _PWR_TEMP_EN | _PWR_PRESS_EN;
-        await this._writeReg(_REG_OSR,      osrReg);
-        await this._writeReg(_REG_CONFIG,   configReg);
-        await this._writeReg(_REG_ODR,      this._odr);
-        await this._writeReg(_REG_PWR_CTRL, pwrReg);
-    }
-
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x7F) : reg;
-        await this._conn.write(Buffer.from([addr, value]));
-    }
-
-    async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
+        await this._conn.writeReg(_REG_OSR,      osrReg);
+        await this._conn.writeReg(_REG_CONFIG,   configReg);
+        await this._conn.writeReg(_REG_ODR,      this._odr);
+        await this._conn.writeReg(_REG_PWR_CTRL, pwrReg);
     }
 
     async _readBurst() {
         // DATA_0..DATA_5 (0x04..0x09) = pressure XLSB/LSB/MSB, then temperature XLSB/LSB/MSB
-        const raw = await this._readReg(_REG_DATA_0, 6);
+        const raw = await this._conn.readReg(_REG_DATA_0, 6);
         const uncompPress = (raw[2] << 16) | (raw[1] << 8) | raw[0];
         const uncompTemp  = (raw[5] << 16) | (raw[4] << 8) | raw[3];
         return { uncompPress, uncompTemp };
@@ -188,7 +177,7 @@ class BMP384Minimal {
     async temperature() {
         if (this._mode === _MODE_FORCED) {
             const pwrReg = (_MODE_FORCED << 4) | _PWR_TEMP_EN | _PWR_PRESS_EN;
-            await this._writeReg(_REG_PWR_CTRL, pwrReg);
+            await this._conn.writeReg(_REG_PWR_CTRL, pwrReg);
             _delay(_MEAS_TIME_MS);
         }
         const { uncompTemp } = await this._readBurst();
@@ -202,7 +191,7 @@ class BMP384Minimal {
     async pressure() {
         if (this._mode === _MODE_FORCED) {
             const pwrReg = (_MODE_FORCED << 4) | _PWR_TEMP_EN | _PWR_PRESS_EN;
-            await this._writeReg(_REG_PWR_CTRL, pwrReg);
+            await this._conn.writeReg(_REG_PWR_CTRL, pwrReg);
             _delay(_MEAS_TIME_MS);
         }
         const { uncompPress, uncompTemp } = await this._readBurst();
@@ -214,16 +203,15 @@ class BMP384Minimal {
 /**
  * BMP384 full interface — extends BMP384Minimal with configuration, mode control, and FIFO access.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
- * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP384Full extends BMP384Minimal {
     static MODE_SLEEP  = 0x00;
     static MODE_FORCED = 0x01;
     static MODE_NORMAL = 0x03;
 
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
     }
 
     /**
@@ -239,9 +227,9 @@ class BMP384Full extends BMP384Minimal {
         this._osrT = osrT;
         this._iir   = iirFilter;
         this._odr   = odrSel;
-        await this._writeReg(_REG_OSR,    (osrT << 3) | (osrP << 0));
-        await this._writeReg(_REG_CONFIG, (iirFilter << 1));
-        await this._writeReg(_REG_ODR,    odrSel);
+        await this._conn.writeReg(_REG_OSR,    (osrT << 3) | (osrP << 0));
+        await this._conn.writeReg(_REG_CONFIG, (iirFilter << 1));
+        await this._conn.writeReg(_REG_ODR,    odrSel);
     }
 
     /**
@@ -295,7 +283,7 @@ class BMP384Full extends BMP384Minimal {
      * @returns {Promise<boolean>}
      */
     async isDataReady() {
-        const raw = await this._readReg(_REG_STATUS, 1);
+        const raw = await this._conn.readReg(_REG_STATUS, 1);
         return (raw[0] & (1 << 5)) !== 0;
     }
 
@@ -304,7 +292,7 @@ class BMP384Full extends BMP384Minimal {
      * @returns {Promise<void>}
      */
     async softreset() {
-        await this._writeReg(_REG_CMD, _SOFT_RESET_CMD);
+        await this._conn.writeReg(_REG_CMD, _SOFT_RESET_CMD);
         _delay(3);
         await this._readCalibration();
         await this._applyConfig();
@@ -323,9 +311,9 @@ class BMP384Full extends BMP384Minimal {
             | ((stopOnFull ? 1 : 0) << 3)
             | ((tempEn ? 1 : 0) << 1)
             | (pressEn ? 1 : 0);
-        await this._writeReg(0x17, cfg1);
-        await this._writeReg(0x15, wtm & 0xFF);
-        await this._writeReg(0x16, (wtm >> 8) & 0x01);
+        await this._conn.writeReg(0x17, cfg1);
+        await this._conn.writeReg(0x15, wtm & 0xFF);
+        await this._conn.writeReg(0x16, (wtm >> 8) & 0x01);
     }
 
     /**
@@ -333,11 +321,11 @@ class BMP384Full extends BMP384Minimal {
      * @returns {Promise<Array<{type:string, value:number|null}>>}
      */
     async fifoRead() {
-        const lenLo = (await this._readReg(0x12, 1))[0];
-        const lenHi = (await this._readReg(0x13, 1))[0];
+        const lenLo = (await this._conn.readReg(0x12, 1))[0];
+        const lenHi = (await this._conn.readReg(0x13, 1))[0];
         const length = (lenHi << 8) | lenLo;
         if (length === 0) return [];
-        const buf = await this._readReg(0x14, length);
+        const buf = await this._conn.readReg(0x14, length);
         const frames = [];
         let i = 0;
         while (i < buf.length) {
@@ -372,7 +360,7 @@ class BMP384Full extends BMP384Minimal {
      * @returns {Promise<void>}
      */
     async fifoFlush() {
-        await this._writeReg(_REG_CMD, _FIFO_FLUSH_CMD);
+        await this._conn.writeReg(_REG_CMD, _FIFO_FLUSH_CMD);
     }
 
     /**
@@ -388,12 +376,12 @@ class BMP384Full extends BMP384Minimal {
 
     async _triggerForced() {
         const pwrReg = (_MODE_FORCED << 4) | _PWR_TEMP_EN | _PWR_PRESS_EN;
-        await this._writeReg(_REG_PWR_CTRL, pwrReg);
+        await this._conn.writeReg(_REG_PWR_CTRL, pwrReg);
     }
 
     async _applyPwr() {
         const pwrReg = (this._mode << 4) | _PWR_TEMP_EN | _PWR_PRESS_EN;
-        await this._writeReg(_REG_PWR_CTRL, pwrReg);
+        await this._conn.writeReg(_REG_PWR_CTRL, pwrReg);
     }
 
     _compensatePressureWithTLin(uncompPress, tLin) {

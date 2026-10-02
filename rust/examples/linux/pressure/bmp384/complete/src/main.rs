@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x76);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp384Full::new(dev, addr, false).expect("init BMP384"); // Create BMP384 driver, (i2c, addr=0x76)
+    let mut bmp = Bmp384Full::new(dev, addr).expect("init BMP384"); // Create BMP384 driver, (i2c, addr=0x76)
 
     bmp.configure(4, 1, 2, 0x03).expect("configure");             // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → Result<()>
                                                                     // sets oversampling, IIR coefficient, and output data rate
