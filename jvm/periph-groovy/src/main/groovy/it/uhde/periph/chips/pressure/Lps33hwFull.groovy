@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * LPS33HW — full driver. Extends {@link Lps33hwMinimal} with configuration,
@@ -82,7 +82,7 @@ class Lps33hwFull extends Lps33hwMinimal {
      * @param connection I²C connection bound to address 0x5C
      * @throws IOException on I²C error or wrong chip ID
      */
-    Lps33hwFull(Connection connection) {
+    Lps33hwFull(RegisterConnection connection) {
         super(connection)
     }
 
