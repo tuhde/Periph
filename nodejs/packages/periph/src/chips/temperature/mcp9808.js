@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_CONFIG     = 0x01;
 const _REG_TUPPER     = 0x02;
 const _REG_TLOWER     = 0x03;
@@ -34,7 +36,7 @@ const _HYSTERESES  = [0, 1.5, 3.0, 6.0];
 
 function _decodeTemperature(raw16) {
     let raw = raw16 & 0x1FFF;
-    if (raw & 0x1000) raw -= 0x2000;
+    raw = toSigned(raw, 13);
     return raw / 16;
 }
 
@@ -80,7 +82,7 @@ function _indexOfStep(table, value) {
  */
 class MCP9808Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x18–0x1F).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x18–0x1F).
      */
     constructor(connection) {
         this._conn = connection;
@@ -116,12 +118,12 @@ class MCP9808Minimal {
     }
 
     async _readReg(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg & 0xFF]), 2);
+        const buf = await this._conn.readReg(reg & 0xFF, 2);
         return buf.readUInt16BE(0);
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, Buffer.from([(value >> 8) & 0xFF, value & 0xFF]));
     }
 
     /**
@@ -142,7 +144,7 @@ class MCP9808Minimal {
  */
 class MCP9808Full extends MCP9808Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x18–0x1F).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x18–0x1F).
      */
     constructor(connection) {
         super(connection);
@@ -172,7 +174,7 @@ class MCP9808Full extends MCP9808Minimal {
         const code = _indexOfStep(_RESOLUTIONS, celsius);
         if (code < 0) throw new RangeError('resolution must be one of 0.5, 0.25, 0.125, 0.0625');
         await this._ready;
-        await this._conn.write(Buffer.from([_REG_RESOLUTION, code]));
+        await this._conn.writeReg(_REG_RESOLUTION, code);
     }
 
     /**
@@ -181,7 +183,7 @@ class MCP9808Full extends MCP9808Minimal {
      */
     async getResolution() {
         await this._ready;
-        const buf = await this._conn.writeRead(Buffer.from([_REG_RESOLUTION]), 1);
+        const buf = await this._conn.readReg(_REG_RESOLUTION, 1);
         return _RESOLUTIONS[buf[0] & 0x03];
     }
 

@@ -1,4 +1,5 @@
 #include "MCP9808.h"
+#include "../../connection/Register.h"
 #include <stdlib.h>
 
 namespace {
@@ -13,7 +14,7 @@ bool nearlyEqual(float a, float b) {
 
 // MCP9808Minimal
 
-MCP9808Minimal::MCP9808Minimal(Connection& connection) : _connection(connection) {
+MCP9808Minimal::MCP9808Minimal(RegisterConnection& connection) : _connection(connection) {
     if (_readReg(REG_MFR_ID) != MANUFACTURER_ID ||
         (uint8_t)(_readReg(REG_DEVICE_ID) >> 8) != DEVICE_ID) {
         // Identity check failed — wrong chip / wrong address / wiring problem.
@@ -25,18 +26,18 @@ MCP9808Minimal::MCP9808Minimal(Connection& connection) : _connection(connection)
 
 uint16_t MCP9808Minimal::_readReg(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return (uint16_t)((buf[0] << 8) | buf[1]);
 }
 
 void MCP9808Minimal::_writeReg(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
+    _connection.write(reg, buf, 2);
 }
 
 float MCP9808Minimal::readTemperature() {
     int16_t raw = (int16_t)(_readReg(REG_TA) & 0x1FFF);
-    if (raw & 0x1000) raw -= 0x2000;
+    raw = toSigned((uint32_t)raw, 13);
     return (float)raw / 16.0f;
 }
 
@@ -44,7 +45,7 @@ float MCP9808Minimal::readTemperature() {
 
 MCP9808Full* MCP9808Full::_activeInstance = nullptr;
 
-MCP9808Full::MCP9808Full(Connection& connection) : MCP9808Minimal(connection) {}
+MCP9808Full::MCP9808Full(RegisterConnection& connection) : MCP9808Minimal(connection) {}
 
 uint16_t MCP9808Full::_readConfig() { return _readReg(REG_CONFIG) & CFG_WRITE_MASK; }
 
@@ -68,8 +69,7 @@ uint16_t MCP9808Full::_encodeLimit(float celsius) {
 bool MCP9808Full::setResolution(float celsius) {
     for (uint8_t code = 0; code < 4; code++) {
         if (nearlyEqual(celsius, RESOLUTIONS[code])) {
-            uint8_t buf[2] = { REG_RESOLUTION, code };
-            _connection.write(buf, 2);
+            _connection.write(REG_RESOLUTION, &code, 1);
             return true;
         }
     }
@@ -77,9 +77,8 @@ bool MCP9808Full::setResolution(float celsius) {
 }
 
 float MCP9808Full::getResolution() {
-    uint8_t reg = REG_RESOLUTION;
     uint8_t code = 0;
-    _connection.write_read(&reg, 1, &code, 1);
+    _connection.read(REG_RESOLUTION, &code, 1);
     return RESOLUTIONS[code & 0x03];
 }
 
