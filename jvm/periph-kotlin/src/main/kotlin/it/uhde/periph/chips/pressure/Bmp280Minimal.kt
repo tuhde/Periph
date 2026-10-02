@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -18,24 +18,17 @@ import java.nio.ByteOrder
  * triggered in forced mode (one shot per call).
  */
 /**
+ * @param connection I²C, SMBus, or SPI register connection bound to the device.
+ * For SPI, construct the connection with the default Bosch convention
+ * (read bit 0x80, no multi-byte bit); the connection clears bit 7 on writes itself.
  * @param addr I²C device address (0x76 or 0x77); unused for SPI.
- * @param busType [BUS_I2C] (default) or [BUS_SPI] — per the datasheet's
- * register-address protocol, BMP280's I²C register addresses already have
- * bit 7 set (0x88-0xFC), so SPI reads use the same value unmasked; only
- * writes differ, clearing bit 7 (`reg and 0x7F`).
  */
 open class Bmp280Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
     addr: Int = 0x76,
-    protected val busType: Int = BUS_I2C
 ) {
 
     companion object {
-        /** Bus type: I²C (default) — register addresses used unmasked for both reads and writes. */
-        const val BUS_I2C = 0
-        /** Bus type: SPI — write addresses have bit 7 cleared; reads stay unmasked. */
-        const val BUS_SPI = 1
-
         const val REG_CALIB     = 0x88
         const val REG_ID        = 0xD0
         const val REG_SOFT_RST  = 0xE0
@@ -71,7 +64,7 @@ open class Bmp280Minimal @JvmOverloads constructor(
 
     init {
         // Verify chip ID
-        val id = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val id = connection.read(REG_ID, 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID && chipId != CHIP_ID_BME280) {
             throw IOException(
@@ -90,7 +83,7 @@ open class Bmp280Minimal @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     protected fun readCalibration() {
-        val cal = connection.writeRead(byteArrayOf(REG_CALIB.toByte()), 24)
+        val cal = connection.read(REG_CALIB, 24)
         val buf = ByteBuffer.wrap(cal).order(ByteOrder.LITTLE_ENDIAN)
 
         digT1 = buf.short.toInt() and 0xFFFF   // uint16
@@ -108,21 +101,6 @@ open class Bmp280Minimal @JvmOverloads constructor(
     }
 
     /**
-     * Write a single byte to a register, applying the SPI write-address mask
-     * if this driver was constructed with [BUS_SPI].
-     *
-     * Register constants are defined in their I²C (unmasked) form; on SPI,
-     * bit 7 is cleared for writes only (reads use the same constant unmasked).
-     *
-     * @param reg register address (I²C / unmasked form)
-     * @param value byte value to write
-     */
-    protected fun writeReg(reg: Int, value: Int) {
-        val addr = if (busType == BUS_SPI) reg and 0x7F else reg
-        connection.write(byteArrayOf(addr.toByte(), value.toByte()))
-    }
-
-    /**
      * Trigger a forced-mode measurement and burst-read 6 bytes from 0xF7.
      *
      * Writes ctrl_meas with mode=01 (forced), waits 7 ms, then reads
@@ -132,9 +110,9 @@ open class Bmp280Minimal @JvmOverloads constructor(
      *         temp_msb, temp_lsb, temp_xlsb]
      */
     protected fun readRawData(): ByteArray {
-        writeReg(REG_CTRL_MEAS, (ctrlMeas and 0xFC) or 0x01)
+        connection.write(REG_CTRL_MEAS, byteArrayOf(((ctrlMeas and 0xFC) or 0x01).toByte()))
         Thread.sleep(7)
-        return connection.writeRead(byteArrayOf(REG_DATA.toByte()), 6)
+        return connection.read(REG_DATA, 6)
     }
 
     /**

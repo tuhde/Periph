@@ -19,16 +19,16 @@ static inline void delay(unsigned long ms) { sleep_ms(ms); }
 static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 
-BMP280Minimal::BMP280Minimal(Connection& connection, bool spi)
-    : _connection(connection), _spi(spi) {
+BMP280Minimal::BMP280Minimal(RegisterConnection& connection)
+    : _connection(connection) {
     _read_calibration();
-    _write_reg(REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0);
-    _write_reg(REG_CONFIG, 0);
+    { uint8_t v = (1 << 5) | (1 << 2) | 0; _connection.write(REG_CTRL_MEAS, &v, 1); }
+    { uint8_t v = 0; _connection.write(REG_CONFIG, &v, 1); }
 }
 
 void BMP280Minimal::_read_calibration() {
     uint8_t buf[24];
-    _read_reg(REG_CAL_START, buf, 24);
+    _connection.read(REG_CAL_START, buf, 24);
 
     _dig_T1 = (uint16_t)(buf[0] | (buf[1] << 8));
     _dig_T2 = (int16_t)(buf[2] | (buf[3] << 8));
@@ -44,25 +44,14 @@ void BMP280Minimal::_read_calibration() {
     _dig_P9 = (int16_t)(buf[22] | (buf[23] << 8));
 }
 
-void BMP280Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t addr = _spi ? (reg & 0x7F) : reg;
-    uint8_t buf[2] = { addr, value };
-    _connection.write(buf, 2);
-}
-
-void BMP280Minimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    uint8_t addr = reg;
-    _connection.write_read(&addr, 1, buf, len);
-}
-
 void BMP280Minimal::_trigger_and_read(uint32_t& adc_P, uint32_t& adc_T) {
     if (_mode != 3) {
         uint8_t ctrl = (_osrs_t << 5) | (_osrs_p << 2) | 1;
-        _write_reg(REG_CTRL_MEAS, ctrl);
+        { uint8_t v = ctrl; _connection.write(REG_CTRL_MEAS, &v, 1); }
         delay(MEAS_TIME_MS);
     }
     uint8_t raw[6];
-    _read_reg(REG_DATA_START, raw, 6);
+    _connection.read(REG_DATA_START, raw, 6);
     adc_P = ((uint32_t)raw[0] << 12) | ((uint32_t)raw[1] << 4) | (raw[2] >> 4);
     adc_T = ((uint32_t)raw[3] << 12) | ((uint32_t)raw[4] << 4) | (raw[5] >> 4);
 }
@@ -106,8 +95,8 @@ float BMP280Minimal::pressure() {
 
 // BMP280Full
 
-BMP280Full::BMP280Full(Connection& connection, bool spi)
-    : BMP280Minimal(connection, spi) {
+BMP280Full::BMP280Full(RegisterConnection& connection)
+    : BMP280Minimal(connection) {
 }
 
 void BMP280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t filter, uint8_t t_sb) {
@@ -116,34 +105,34 @@ void BMP280Full::configure(uint8_t osrs_t, uint8_t osrs_p, uint8_t mode, uint8_t
     _mode = mode;
     _filter = filter;
     _t_sb = t_sb;
-    _write_reg(REG_CONFIG, (t_sb << 5) | (filter << 2));
-    _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode);
+    { uint8_t v = (t_sb << 5) | (filter << 2); _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v = (osrs_t << 5) | (osrs_p << 2) | mode; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }
 
 void BMP280Full::set_oversampling(uint8_t osrs_t, uint8_t osrs_p) {
     _osrs_t = osrs_t;
     _osrs_p = osrs_p;
-    _write_reg(REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | _mode);
+    { uint8_t v = (osrs_t << 5) | (osrs_p << 2) | _mode; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }
 
 void BMP280Full::set_mode(uint8_t mode) {
     _mode = mode;
-    _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | mode);
+    { uint8_t v = (_osrs_t << 5) | (_osrs_p << 2) | mode; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }
 
 void BMP280Full::set_filter(uint8_t coeff) {
     _filter = coeff;
-    _write_reg(REG_CONFIG, (_t_sb << 5) | (coeff << 2));
+    { uint8_t v = (_t_sb << 5) | (coeff << 2); _connection.write(REG_CONFIG, &v, 1); }
 }
 
 void BMP280Full::set_standby(uint8_t t_sb) {
     _t_sb = t_sb;
-    _write_reg(REG_CONFIG, (t_sb << 5) | (_filter << 2));
+    { uint8_t v = (t_sb << 5) | (_filter << 2); _connection.write(REG_CONFIG, &v, 1); }
 }
 
 uint8_t BMP280Full::status() {
     uint8_t buf[1];
-    _read_reg(REG_STATUS, buf, 1);
+    _connection.read(REG_STATUS, buf, 1);
     return buf[0];
 }
 
@@ -159,14 +148,14 @@ float BMP280Full::sea_level_pressure(float altitude_m) {
 
 uint8_t BMP280Full::chip_id() {
     uint8_t buf[1];
-    _read_reg(REG_ID, buf, 1);
+    _connection.read(REG_ID, buf, 1);
     return buf[0];
 }
 
 void BMP280Full::reset() {
-    _write_reg(REG_RESET, RESET_CMD);
+    { uint8_t v = RESET_CMD; _connection.write(REG_RESET, &v, 1); }
     delay(2);
     _read_calibration();
-    _write_reg(REG_CONFIG, (_t_sb << 5) | (_filter << 2));
-    _write_reg(REG_CTRL_MEAS, (_osrs_t << 5) | (_osrs_p << 2) | _mode);
+    { uint8_t v = (_t_sb << 5) | (_filter << 2); _connection.write(REG_CONFIG, &v, 1); }
+    { uint8_t v = (_osrs_t << 5) | (_osrs_p << 2) | _mode; _connection.write(REG_CTRL_MEAS, &v, 1); }
 }

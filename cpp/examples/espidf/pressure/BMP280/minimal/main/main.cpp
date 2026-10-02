@@ -28,7 +28,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP280Minimal chip(connection, false);  // Create BMP280 driver
+    BMP280Minimal chip(connection);  // Create BMP280 driver
     float t, p;
     while (1) {
     chip.temperature();                               // Read temperature, () → float °C
