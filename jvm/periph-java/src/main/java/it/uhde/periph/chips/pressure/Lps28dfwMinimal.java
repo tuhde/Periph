@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -46,7 +47,7 @@ public class Lps28dfwMinimal {
     protected static final double SENSITIVITY_MODE1 = 4096.0;
     protected static final double SENSITIVITY_MODE2 = 2048.0;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
     protected int fsMode = 0;
     protected int odr = 0x04;
     protected int avg = 0x02;
@@ -61,7 +62,7 @@ public class Lps28dfwMinimal {
      * @param connection I²C connection bound to address 0x5C
      * @throws IOException on I²C error or WHO_AM_I mismatch
      */
-    public Lps28dfwMinimal(Connection connection) throws IOException {
+    public Lps28dfwMinimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         init();
     }
@@ -74,7 +75,7 @@ public class Lps28dfwMinimal {
      */
     protected void init() throws IOException {
         try { Thread.sleep(2); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] id = connection.writeRead(new byte[]{REG_WHO_AM_I}, 1);
+        byte[] id = connection.read(REG_WHO_AM_I, 1);
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException("LPS28DFW WHO_AM_I mismatch: expected 0x" +
                     Integer.toHexString(CHIP_ID) + ", got 0x" +
@@ -94,7 +95,7 @@ public class Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     /**
@@ -104,9 +105,9 @@ public class Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     protected int readPressureRaw() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{REG_PRESS_OUT_XL}, 3);
+        byte[] b = connection.read(REG_PRESS_OUT_XL, 3);
         int v = ((b[2] & 0xFF) << 16) | ((b[1] & 0xFF) << 8) | (b[0] & 0xFF);
-        if ((v & 0x800000) != 0) v |= 0xFF000000;
+        v = Register.toSigned(v, 24);
         return v;
     }
 
@@ -117,7 +118,7 @@ public class Lps28dfwMinimal {
      * @throws IOException on I²C error
      */
     protected int readTemperatureRaw() throws IOException {
-        byte[] b = connection.writeRead(new byte[]{REG_TEMP_OUT_L}, 2);
+        byte[] b = connection.read(REG_TEMP_OUT_L, 2);
         return (short) (((b[1] & 0xFF) << 8) | (b[0] & 0xFF));
     }
 

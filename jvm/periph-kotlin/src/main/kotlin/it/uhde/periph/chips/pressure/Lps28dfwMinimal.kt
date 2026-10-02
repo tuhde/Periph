@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -16,7 +17,7 @@ import java.io.IOException
  *  - ODR = 0b0100 (25 Hz)
  *  - BDU = 1, EN_LPFP = 1, LFPF_CFG = 0 (ODR/4 bandwidth)
  */
-open class Lps28dfwMinimal(protected val connection: Connection) {
+open class Lps28dfwMinimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** WHO_AM_I value: fixed device identifier for LPS28DFW. */
@@ -51,7 +52,7 @@ open class Lps28dfwMinimal(protected val connection: Connection) {
 
     init {
         try { Thread.sleep(2) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
-        val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val id = connection.read(REG_WHO_AM_I, 1)
         if ((id[0].toInt() and 0xFF) != CHIP_ID) {
             throw IOException("LPS28DFW WHO_AM_I mismatch: expected 0x" +
                     Integer.toHexString(CHIP_ID) + ", got 0x" +
@@ -70,16 +71,16 @@ open class Lps28dfwMinimal(protected val connection: Connection) {
      * @param value value to write
      */
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     /**
      * Read raw 24-bit pressure value (signed).
      */
     protected fun readPressureRaw(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_PRESS_OUT_XL.toByte()), 3)
+        val b = connection.read(REG_PRESS_OUT_XL, 3)
         var v = ((b[2].toInt() and 0xFF) shl 16) or ((b[1].toInt() and 0xFF) shl 8) or (b[0].toInt() and 0xFF)
-        if ((v and 0x800000) != 0) v = v or 0xFF000000.toInt()
+        v = Register.toSigned(v, 24)
         return v
     }
 
@@ -87,7 +88,7 @@ open class Lps28dfwMinimal(protected val connection: Connection) {
      * Read raw 16-bit temperature value (signed).
      */
     protected fun readTemperatureRaw(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_TEMP_OUT_L.toByte()), 2)
+        val b = connection.read(REG_TEMP_OUT_L, 2)
         return ((b[1].toInt() and 0xFF) shl 8 or (b[0].toInt() and 0xFF)).toShort().toInt()
     }
 

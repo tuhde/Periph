@@ -1,4 +1,5 @@
 #include "LPS28DFW.h"
+#include "../../connection/Register.h"
 #include <math.h>
 #include <stdlib.h>
 
@@ -20,7 +21,7 @@ static inline void LPS28DFW_DELAY_MS(unsigned long ms) { sleep_ms(ms); }
 static inline void LPS28DFW_DELAY_MS(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 
-LPS28DFWMinimal::LPS28DFWMinimal(Connection& connection)
+LPS28DFWMinimal::LPS28DFWMinimal(RegisterConnection& connection)
     : _connection(connection) {
     _init();
 }
@@ -39,19 +40,18 @@ void LPS28DFWMinimal::_init() {
 }
 
 void LPS28DFWMinimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 void LPS28DFWMinimal::_read_reg(uint8_t reg, uint8_t* buf, size_t len) {
-    _connection.write_read(&reg, 1, buf, len);
+    _connection.read(reg, buf, len);
 }
 
 int32_t LPS28DFWMinimal::_read_pressure_raw() {
     uint8_t buf[3];
     _read_reg(REG_PRESS_OUT_XL, buf, 3);
     int32_t v = (int32_t)((uint32_t)buf[2] << 16 | (uint32_t)buf[1] << 8 | buf[0]);
-    if (v & 0x800000) v |= (int32_t)0xFF000000;
+    v = toSigned((uint32_t)v, 24);
     return v;
 }
 
@@ -75,7 +75,7 @@ float LPS28DFWMinimal::read_temperature() {
 
 // LPS28DFWFull
 
-LPS28DFWFull::LPS28DFWFull(Connection& connection)
+LPS28DFWFull::LPS28DFWFull(RegisterConnection& connection)
     : LPS28DFWMinimal(connection) {
 }
 
@@ -95,7 +95,7 @@ void LPS28DFWFull::read(float& pressure, float& temperature) {
     uint8_t buf[5];
     _read_reg(REG_PRESS_OUT_XL, buf, 5);
     int32_t p = (int32_t)((uint32_t)buf[2] << 16 | (uint32_t)buf[1] << 8 | buf[0]);
-    if (p & 0x800000) p |= (int32_t)0xFF000000;
+    p = toSigned((uint32_t)p, 24);
     int16_t t = (int16_t)((uint16_t)buf[4] << 8 | buf[3]);
     float sens = (_fs_mode == 0) ? SENSITIVITY_LSB_PER_HPA_MODE1 : SENSITIVITY_LSB_PER_HPA_MODE2;
     pressure    = (float)p / sens;
@@ -163,7 +163,7 @@ void LPS28DFWFull::fifo_read(uint8_t count, float* buf) {
         uint8_t b1 = raw[i * 3 + 1];
         uint8_t b2 = raw[i * 3 + 2];
         int32_t v = (int32_t)((uint32_t)b2 << 16 | (uint32_t)b1 << 8 | b0);
-        if (v & 0x800000) v |= (int32_t)0xFF000000;
+        v = toSigned((uint32_t)v, 24);
         buf[i] = (float)v / sens;
     }
 }
