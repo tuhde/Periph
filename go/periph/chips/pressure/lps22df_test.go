@@ -13,7 +13,7 @@ func newLPS22DFConnection() *mockConnection {
 
 func TestLPS22DFMinimalConstructionSequence(t *testing.T) {
 	conn := newLPS22DFConnection()
-	if _, err := NewLPS22DFMinimal(conn, false); err != nil {
+	if _, err := NewLPS22DFMinimal(conn); err != nil {
 		t.Fatalf("NewLPS22DFMinimal: %v", err)
 	}
 	// Expected order: WHO_AM_I read, SWRESET write, CTRL_REG1 write, CTRL_REG2 (BDU) write.
@@ -38,14 +38,14 @@ func TestLPS22DFMinimalConstructionSequence(t *testing.T) {
 func TestLPS22DFMinimalConstructionBadChipID(t *testing.T) {
 	conn := newMockConnection()
 	conn.setRegister(lps22dfRegWhoAmI, 0x00)
-	if _, err := NewLPS22DFMinimal(conn, false); err == nil {
+	if _, err := NewLPS22DFMinimal(conn); err == nil {
 		t.Error("NewLPS22DFMinimal with bad WHO_AM_I: expected error, got nil")
 	}
 }
 
 func TestLPS22DFMinimalPressureAndTemperature(t *testing.T) {
 	conn := newLPS22DFConnection()
-	chip, err := NewLPS22DFMinimal(conn, false)
+	chip, err := NewLPS22DFMinimal(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFMinimal: %v", err)
 	}
@@ -82,7 +82,7 @@ func TestLPS22DFMinimalPressureAndTemperature(t *testing.T) {
 // unconditionally with no STATUS check at all.
 func TestLPS22DFMinimalTemperaturePollsStatusFirst(t *testing.T) {
 	conn := newLPS22DFConnection()
-	chip, err := NewLPS22DFMinimal(conn, false)
+	chip, err := NewLPS22DFMinimal(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFMinimal: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestLPS22DFMinimalTemperaturePollsStatusFirst(t *testing.T) {
 
 func TestLPS22DFFullConfigure(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestLPS22DFFullConfigure(t *testing.T) {
 
 func TestLPS22DFFullOneShot(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -152,7 +152,7 @@ func TestLPS22DFFullOneShot(t *testing.T) {
 
 func TestLPS22DFFullAltitude(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -169,7 +169,7 @@ func TestLPS22DFFullAltitude(t *testing.T) {
 
 func TestLPS22DFFullSoftwareReset(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -183,7 +183,7 @@ func TestLPS22DFFullSoftwareReset(t *testing.T) {
 
 func TestLPS22DFFullSetPressureOffset(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -201,7 +201,7 @@ func TestLPS22DFFullSetPressureOffset(t *testing.T) {
 
 func TestLPS22DFFullSetPressureThreshold(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -219,7 +219,7 @@ func TestLPS22DFFullSetPressureThreshold(t *testing.T) {
 
 func TestLPS22DFFullConfigureInterrupt(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -236,7 +236,7 @@ func TestLPS22DFFullConfigureInterrupt(t *testing.T) {
 
 func TestLPS22DFFullConfigurePressureEvent(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -250,7 +250,7 @@ func TestLPS22DFFullConfigurePressureEvent(t *testing.T) {
 
 func TestLPS22DFFullAutozeroAutorefpResetReference(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -278,7 +278,7 @@ func TestLPS22DFFullAutozeroAutorefpResetReference(t *testing.T) {
 
 func TestLPS22DFFullReferencePressure(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -291,7 +291,7 @@ func TestLPS22DFFullReferencePressure(t *testing.T) {
 
 func TestLPS22DFFullFifoModeAndWatermark(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -312,7 +312,7 @@ func TestLPS22DFFullFifoModeAndWatermark(t *testing.T) {
 
 func TestLPS22DFFullReadFifo(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -339,7 +339,7 @@ func TestLPS22DFFullReadFifo(t *testing.T) {
 
 func TestLPS22DFFullReadFifoTruncatesToOutBufferLength(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -363,7 +363,7 @@ func TestLPS22DFFullReadFifoTruncatesToOutBufferLength(t *testing.T) {
 
 func TestLPS22DFFullInterruptSource(t *testing.T) {
 	conn := newLPS22DFConnection()
-	full, err := NewLPS22DFFull(conn, false)
+	full, err := NewLPS22DFFull(conn)
 	if err != nil {
 		t.Fatalf("NewLPS22DFFull: %v", err)
 	}
@@ -375,26 +375,4 @@ func TestLPS22DFFullInterruptSource(t *testing.T) {
 	if !src.BootOn || !src.IA || !src.PH || src.PL {
 		t.Errorf("InterruptSource() = %+v, want {BootOn:true IA:true PH:true PL:false}", src)
 	}
-}
-
-func TestLPS22DFSpiAddressing(t *testing.T) {
-	conn := newMockConnection()
-	// The mock's register map is keyed by the literal address byte sent, so
-	// for SPI (read addresses have bit 7 set) the fixture must be preloaded
-	// at the shifted address.
-	conn.setRegister(lps22dfRegWhoAmI|0x80, lps22dfChipID)
-	chip, err := NewLPS22DFMinimal(conn, true)
-	if err != nil {
-		t.Fatalf("NewLPS22DFMinimal (spi): %v", err)
-	}
-	// SPI reads (WHO_AM_I during construction) must set bit 7; writes (SWRESET,
-	// CTRL_REG1, CTRL_REG2) must clear it.
-	writes := conn.writes
-	if writes[0][0] != lps22dfRegWhoAmI|0x80 {
-		t.Errorf("SPI WHO_AM_I read address = %#x, want %#x", writes[0][0], lps22dfRegWhoAmI|0x80)
-	}
-	if writes[1][0] != lps22dfRegCtrlReg2&0x7F {
-		t.Errorf("SPI SWRESET write address = %#x, want %#x", writes[1][0], lps22dfRegCtrlReg2&0x7F)
-	}
-	_ = chip
 }

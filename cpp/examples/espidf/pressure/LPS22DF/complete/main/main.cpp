@@ -24,7 +24,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    LPS22DFFull chip(connection, false);                 // Create LPS22DF driver, (connection)
+    LPS22DFFull chip(connection);                 // Create LPS22DF driver, (connection)
     chip.configure(3, 0, false, 0, true);                  // Configure chip, (odr=10 Hz, avg=4, en_lpfp=false, lfpf_cfg=0, bdu=true) → None
     chip.oneshot();                                          // Trigger one-shot conversion, () → None
     float p = chip.pressure();                               // Read pressure, () → float Pa

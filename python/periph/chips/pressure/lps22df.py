@@ -1,5 +1,7 @@
 import time
 
+from periph.connection.register import to_signed
+
 
 class LPS22DFMinimal:
     """LPS22DF absolute pressure and temperature sensor — minimal interface.
@@ -16,9 +18,7 @@ class LPS22DFMinimal:
         - FIFO: bypass mode
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
-            SPI writes mask bit 7 of the register address.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
     _REG_INTERRUPT_CFG = 0x0B
@@ -58,34 +58,23 @@ class LPS22DFMinimal:
     _STATUS_P_DA = 0x01
     _STATUS_T_DA = 0x02
 
-    def __init__(self, connection, bus_type='i2c'):
+    def __init__(self, connection):
         self._connection = connection
-        self._bus_type = bus_type
-        if self._read_reg(self._REG_WHO_AM_I, 1)[0] != self._CHIP_ID:
+        if self._connection.read_reg(self._REG_WHO_AM_I, 1)[0] != self._CHIP_ID:
             raise ValueError('LPS22DF not found: WHO_AM_I expected 0x{:02X}'.format(self._CHIP_ID))
-        self._write_reg(self._REG_CTRL_REG2, 0x04)  # SWRESET=1
+        self._connection.write_reg(self._REG_CTRL_REG2, 0x04)  # SWRESET=1
         time.sleep(0.001)
         # CTRL_REG1: ODR[3:0]=0011 (10 Hz), AVG[2:0]=000 (4 samples), no LP filter, normal mode
-        self._write_reg(self._REG_CTRL_REG1, (self._DEFAULT_ODR << 3) | self._DEFAULT_AVG)
+        self._connection.write_reg(self._REG_CTRL_REG1, (self._DEFAULT_ODR << 3) | self._DEFAULT_AVG)
         # CTRL_REG2: BDU=1 (block data update); leave everything else at reset
-        self._write_reg(self._REG_CTRL_REG2, 0x08)
-
-    def _write_reg(self, reg, value):
-        if self._bus_type == 'spi':
-            reg = reg & 0x7F
-        self._connection.write(bytes([reg, value & 0xFF]))
-
-    def _read_reg(self, reg, n):
-        if self._bus_type == 'spi':
-            reg = reg | 0x80
-        return self._connection.write_read(bytes([reg]), n)
+        self._connection.write_reg(self._REG_CTRL_REG2, 0x08)
 
     def _wait_p_da(self):
-        while not (self._read_reg(self._REG_STATUS, 1)[0] & self._STATUS_P_DA):
+        while not (self._connection.read_reg(self._REG_STATUS, 1)[0] & self._STATUS_P_DA):
             time.sleep(0.001)
 
     def _wait_t_da(self):
-        while not (self._read_reg(self._REG_STATUS, 1)[0] & self._STATUS_T_DA):
+        while not (self._connection.read_reg(self._REG_STATUS, 1)[0] & self._STATUS_T_DA):
             time.sleep(0.001)
 
     def pressure(self):
@@ -99,10 +88,9 @@ class LPS22DFMinimal:
             float: Pressure in pascals.
         """
         self._wait_p_da()
-        raw = self._read_reg(self._REG_PRESS_OUT_XL, 3)
+        raw = self._connection.read_reg(self._REG_PRESS_OUT_XL, 3)
         value = (raw[0] | (raw[1] << 8) | (raw[2] << 16))
-        if value & 0x800000:
-            value -= 0x1000000
+        value = to_signed(value, 24)
         hPa = value / 4096.0
         return hPa * 100.0
 
@@ -117,10 +105,9 @@ class LPS22DFMinimal:
             float: Temperature in degrees Celsius.
         """
         self._wait_t_da()
-        raw = self._read_reg(self._REG_TEMP_OUT_L, 2)
+        raw = self._connection.read_reg(self._REG_TEMP_OUT_L, 2)
         value = raw[0] | (raw[1] << 8)
-        if value & 0x8000:
-            value -= 0x10000
+        value = to_signed(value, 16)
         return value / 100.0
 
 
@@ -129,8 +116,7 @@ class LPS22DFFull(LPS22DFMinimal):
     threshold/offset calibration, FIFO, interrupts, and AUTOZERO/AUTOREFP.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
-        bus_type: Bus type string, ``'i2c'`` (default) or ``'spi'``.
+        connection: RegisterConnection (I²C, SMBus, or SPI; SPI: read_bit=0x80, no multi-byte bit) pointing at the device.
     """
 
     ODR_POWER_DOWN = 0
@@ -158,8 +144,8 @@ class LPS22DFFull(LPS22DFMinimal):
     FIFO_BYPASS_TO_CONT     = 4
     FIFO_CONT_TO_FIFO       = 5
 
-    def __init__(self, connection, bus_type='i2c'):
-        super().__init__(connection, bus_type)
+    def __init__(self, connection):
+        super().__init__(connection)
 
     def configure(self, odr=3, avg=0, en_lpfp=False, lfpf_cfg=0, bdu=True):
         """Write CTRL_REG1 and CTRL_REG2.
@@ -183,16 +169,16 @@ class LPS22DFFull(LPS22DFMinimal):
             ctrl2 |= 0x20
         if bdu:
             ctrl2 |= 0x08
-        self._write_reg(self._REG_CTRL_REG1, ctrl1)
-        self._write_reg(self._REG_CTRL_REG2, ctrl2)
+        self._connection.write_reg(self._REG_CTRL_REG1, ctrl1)
+        self._connection.write_reg(self._REG_CTRL_REG2, ctrl2)
 
     def oneshot(self):
         """Trigger a single measurement in power-down mode.
 
         Sets ODR to power-down then sets ONESHOT=1; blocks until STATUS.P_DA=1.
         """
-        self._write_reg(self._REG_CTRL_REG1, 0x00)  # ODR=power-down, AVG=4
-        self._write_reg(self._REG_CTRL_REG2, 0x08 | 0x01)  # BDU=1, ONESHOT=1
+        self._connection.write_reg(self._REG_CTRL_REG1, 0x00)  # ODR=power-down, AVG=4
+        self._connection.write_reg(self._REG_CTRL_REG2, 0x08 | 0x01)  # BDU=1, ONESHOT=1
         self._wait_p_da()
 
     def altitude(self, sea_level_pa=101325.0):
@@ -209,7 +195,7 @@ class LPS22DFFull(LPS22DFMinimal):
 
     def software_reset(self):
         """Software-reset the chip and wait for self-clear."""
-        self._write_reg(self._REG_CTRL_REG2, 0x04)  # SWRESET=1
+        self._connection.write_reg(self._REG_CTRL_REG2, 0x04)  # SWRESET=1
         time.sleep(0.001)
 
     def set_pressure_offset(self, offset_pa):
@@ -222,8 +208,8 @@ class LPS22DFFull(LPS22DFMinimal):
         raw = int(round(offset_hpa * 4096.0))
         if raw < 0:
             raw += 0x10000
-        self._write_reg(self._REG_RPDS_L, raw & 0xFF)
-        self._write_reg(self._REG_RPDS_H, (raw >> 8) & 0xFF)
+        self._connection.write_reg(self._REG_RPDS_L, raw & 0xFF)
+        self._connection.write_reg(self._REG_RPDS_H, (raw >> 8) & 0xFF)
 
     def set_pressure_threshold(self, threshold_pa):
         """Write a 15-bit unsigned pressure threshold.
@@ -236,8 +222,8 @@ class LPS22DFFull(LPS22DFMinimal):
         """
         threshold_hpa = threshold_pa / 100.0
         raw = int(round(threshold_hpa * 16.0)) & 0x7FFF
-        self._write_reg(self._REG_THS_P_L, raw & 0xFF)
-        self._write_reg(self._REG_THS_P_H, (raw >> 8) & 0xFF)
+        self._connection.write_reg(self._REG_THS_P_L, raw & 0xFF)
+        self._connection.write_reg(self._REG_THS_P_H, (raw >> 8) & 0xFF)
 
     def configure_interrupt(self, int_h_l=False, pp_od=False, drdy=False, drdy_pls=False,
                             int_en=False, int_f_wtm=False, int_f_full=False, int_f_ovr=False):
@@ -271,8 +257,8 @@ class LPS22DFFull(LPS22DFMinimal):
             ctrl4 |= 0x02
         if int_f_ovr:
             ctrl4 |= 0x01
-        self._write_reg(self._REG_CTRL_REG3, ctrl3)
-        self._write_reg(self._REG_CTRL_REG4, ctrl4)
+        self._connection.write_reg(self._REG_CTRL_REG3, ctrl3)
+        self._connection.write_reg(self._REG_CTRL_REG4, ctrl4)
 
     def configure_pressure_event(self, phe=False, ple=False, lir=False):
         """Configure pressure-event interrupts.
@@ -289,7 +275,7 @@ class LPS22DFFull(LPS22DFMinimal):
             cfg |= 0x02
         if lir:
             cfg |= 0x04
-        self._write_reg(self._REG_INTERRUPT_CFG, cfg)
+        self._connection.write_reg(self._REG_INTERRUPT_CFG, cfg)
 
     def autozero(self):
         """Capture the current pressure as the AUTOZERO reference.
@@ -297,17 +283,17 @@ class LPS22DFFull(LPS22DFMinimal):
         After this, PRESS_OUT reflects the differential pressure
         (current - reference).
         """
-        self._write_reg(self._REG_INTERRUPT_CFG, 0x20)  # AUTOZERO=1
+        self._connection.write_reg(self._REG_INTERRUPT_CFG, 0x20)  # AUTOZERO=1
 
     def autorefp(self):
         """Capture the current pressure in REF_P for use as a comparator against
         THS_P. PRESS_OUT remains absolute.
         """
-        self._write_reg(self._REG_INTERRUPT_CFG, 0x80)  # AUTOREFP=1
+        self._connection.write_reg(self._REG_INTERRUPT_CFG, 0x80)  # AUTOREFP=1
 
     def reset_reference(self):
         """Reset both AUTOZERO and AUTOREFP, returning PRESS_OUT to absolute."""
-        self._write_reg(self._REG_INTERRUPT_CFG, 0x50)  # RESET_AZ=1 | RESET_ARP=1
+        self._connection.write_reg(self._REG_INTERRUPT_CFG, 0x50)  # RESET_AZ=1 | RESET_ARP=1
 
     def reference_pressure(self):
         """Read the stored AUTOZERO/AUTOREFP reference pressure.
@@ -315,10 +301,9 @@ class LPS22DFFull(LPS22DFMinimal):
         Returns:
             float: Reference pressure in pascals.
         """
-        raw = self._read_reg(self._REG_REF_P_L, 2)
+        raw = self._connection.read_reg(self._REG_REF_P_L, 2)
         value = raw[0] | (raw[1] << 8)
-        if value & 0x8000:
-            value -= 0x10000
+        value = to_signed(value, 16)
         return (value / 4096.0) * 100.0
 
     def set_fifo_mode(self, mode):
@@ -343,7 +328,7 @@ class LPS22DFFull(LPS22DFMinimal):
             trig, fm = 1, 2
         else:
             trig, fm = 1, 3
-        self._write_reg(self._REG_FIFO_CTRL, (trig << 2) | (fm & 0x03))
+        self._connection.write_reg(self._REG_FIFO_CTRL, (trig << 2) | (fm & 0x03))
 
     def set_fifo_watermark(self, level):
         """Set the FIFO watermark level.
@@ -353,7 +338,7 @@ class LPS22DFFull(LPS22DFMinimal):
         """
         if level < 0 or level > 127:
             raise ValueError('level must be 0..127')
-        self._write_reg(self._REG_FIFO_WTM, level & 0x7F)
+        self._connection.write_reg(self._REG_FIFO_WTM, level & 0x7F)
 
     def fifo_sample_count(self):
         """Read the number of stored FIFO samples.
@@ -361,7 +346,7 @@ class LPS22DFFull(LPS22DFMinimal):
         Returns:
             int: Sample count (0..127).
         """
-        return self._read_reg(self._REG_FIFO_STATUS1, 1)[0]
+        return self._connection.read_reg(self._REG_FIFO_STATUS1, 1)[0]
 
     def read_fifo(self):
         """Read every available FIFO sample.
@@ -375,13 +360,12 @@ class LPS22DFFull(LPS22DFMinimal):
         count = self.fifo_sample_count()
         if count == 0:
             return []
-        raw = self._read_reg(self._REG_FIFO_PRESS_XL, count * 3)
+        raw = self._connection.read_reg(self._REG_FIFO_PRESS_XL, count * 3)
         samples = []
         for i in range(count):
             base = i * 3
             value = raw[base] | (raw[base + 1] << 8) | (raw[base + 2] << 16)
-            if value & 0x800000:
-                value -= 0x1000000
+            value = to_signed(value, 24)
             samples.append((value / 4096.0) * 100.0)
         return samples
 
@@ -391,7 +375,7 @@ class LPS22DFFull(LPS22DFMinimal):
         Returns:
             dict: Keys ``boot_on``, ``ia``, ``ph``, ``pl``.
         """
-        raw = self._read_reg(self._REG_INT_SOURCE, 1)[0]
+        raw = self._connection.read_reg(self._REG_INT_SOURCE, 1)[0]
         return {
             'boot_on': bool(raw & 0x80),
             'ia':      bool(raw & 0x04),

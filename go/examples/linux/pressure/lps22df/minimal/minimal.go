@@ -29,7 +29,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	chip, err := pressure.NewLPS22DFMinimal(conn, false)
+	chip, err := pressure.NewLPS22DFMinimal(conn)
 	if err != nil {
 		panic(err)
 	}

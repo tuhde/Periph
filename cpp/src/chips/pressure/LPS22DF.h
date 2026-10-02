@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief LPS22DF absolute pressure and temperature sensor — minimal interface.
  *
@@ -10,12 +10,11 @@
  *
  *  Default: ODR=10 Hz, AVG=4 samples, BDU enabled, low-pass filter off, FIFO bypass.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Pass true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: readBit 0x80, no multi-byte bit).
  */
 class LPS22DFMinimal {
 public:
-    explicit LPS22DFMinimal(Connection& connection, bool spi = false);
+    explicit LPS22DFMinimal(RegisterConnection& connection);
 
     /** @brief Read absolute pressure.
      *
@@ -60,11 +59,8 @@ protected:
 
     static constexpr uint8_t CHIP_ID = 0xB4;
 
-    Connection& _connection;
-    bool        _spi;
+    RegisterConnection& _connection;
 
-    void     _write_reg(uint8_t reg, uint8_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, uint8_t len);
     void     _wait_p_da();
     void     _wait_t_da();
 };
@@ -72,8 +68,7 @@ protected:
 /** @brief LPS22DF full interface — extends LPS22DFMinimal with configuration,
  *  threshold/offset calibration, FIFO, interrupts, and AUTOZERO/AUTOREFP.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Pass true for SPI bus (masks bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: readBit 0x80, no multi-byte bit).
  */
 class LPS22DFFull : public LPS22DFMinimal {
 public:
@@ -111,7 +106,7 @@ public:
     static constexpr uint8_t INT_PL      = 0x02;
     static constexpr uint8_t INT_PH      = 0x01;
 
-    explicit LPS22DFFull(Connection& connection, bool spi = false);
+    explicit LPS22DFFull(RegisterConnection& connection);
 
     /** @brief Write CTRL_REG1 and CTRL_REG2.
      *

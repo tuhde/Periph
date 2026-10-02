@@ -22,26 +22,26 @@ import (
 
 // LPS22DF register addresses.
 const (
-	lps22dfRegInterruptCfg uint8 = 0x0B
-	lps22dfRegThsPL       uint8 = 0x0C
-	lps22dfRegThsPH       uint8 = 0x0D
-	lps22dfRegWhoAmI      uint8 = 0x0F
-	lps22dfRegCtrlReg1    uint8 = 0x10
-	lps22dfRegCtrlReg2    uint8 = 0x11
-	lps22dfRegCtrlReg3    uint8 = 0x12
-	lps22dfRegCtrlReg4    uint8 = 0x13
-	lps22dfRegFifoCtrl    uint8 = 0x14
-	lps22dfRegFifoWtm     uint8 = 0x15
-	lps22dfRegRefPL       uint8 = 0x16
-	lps22dfRegRefPH       uint8 = 0x17
-	lps22dfRegRpdsL       uint8 = 0x1A
-	lps22dfRegRpdsH       uint8 = 0x1B
-	lps22dfRegIntSource   uint8 = 0x24
-	lps22dfRegFifoStatus1 uint8 = 0x25
-	lps22dfRegStatus      uint8 = 0x27
-	lps22dfRegPressOutXL  uint8 = 0x28
-	lps22dfRegTempOutL    uint8 = 0x2B
-	lps22dfRegFifoPressXL uint8 = 0x78
+	lps22dfRegInterruptCfg = 0x0B
+	lps22dfRegThsPL        = 0x0C
+	lps22dfRegThsPH        = 0x0D
+	lps22dfRegWhoAmI       = 0x0F
+	lps22dfRegCtrlReg1     = 0x10
+	lps22dfRegCtrlReg2     = 0x11
+	lps22dfRegCtrlReg3     = 0x12
+	lps22dfRegCtrlReg4     = 0x13
+	lps22dfRegFifoCtrl     = 0x14
+	lps22dfRegFifoWtm      = 0x15
+	lps22dfRegRefPL        = 0x16
+	lps22dfRegRefPH        = 0x17
+	lps22dfRegRpdsL        = 0x1A
+	lps22dfRegRpdsH        = 0x1B
+	lps22dfRegIntSource    = 0x24
+	lps22dfRegFifoStatus1  = 0x25
+	lps22dfRegStatus       = 0x27
+	lps22dfRegPressOutXL   = 0x28
+	lps22dfRegTempOutL     = 0x2B
+	lps22dfRegFifoPressXL  = 0x78
 )
 
 // LPS22DF expected chip ID.
@@ -124,19 +124,17 @@ type LPS22DFInterruptSource struct {
 // low-pass filter off, FIFO bypass mode. Pressure returns Pa; temperature
 // returns °C.
 type LPS22DFMinimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 }
 
 // NewLPS22DFMinimal creates an LPS22DFMinimal, verifies chip ID, and applies
 // the default configuration.
 //
-// connection must be a configured I²C or SPI connection bound to the chip
-// (I²C address 0x5C/0x5D, or an SPI chip-select). Pass spi=true for SPI —
-// per the datasheet's register-address protocol, write addresses have bit 7
-// cleared (reg & 0x7F) and read addresses have bit 7 set (reg | 0x80).
-func NewLPS22DFMinimal(t connection.Connection, spi bool) (*LPS22DFMinimal, error) {
-	d := &LPS22DFMinimal{connection: t, spi: spi}
+// connection must be a configured I²C, SMBus, or SPI register connection bound
+// to the chip (I²C address 0x5C/0x5D, or an SPI chip-select). For SPI, use the
+// ST convention (readBit 0x80, no multi-byte bit).
+func NewLPS22DFMinimal(t connection.RegisterConnection) (*LPS22DFMinimal, error) {
+	d := &LPS22DFMinimal{connection: t}
 	buf, err := d.readRegBytes(lps22dfRegWhoAmI, 1)
 	if err != nil {
 		return nil, err
@@ -144,25 +142,17 @@ func NewLPS22DFMinimal(t connection.Connection, spi bool) (*LPS22DFMinimal, erro
 	if buf[0] != lps22dfChipID {
 		return nil, fmt.Errorf("LPS22DF not found: WHO_AM_I expected 0x%02X, got 0x%02X", lps22dfChipID, buf[0])
 	}
-	if err := d.writeReg(lps22dfRegCtrlReg2, 0x04); err != nil { // SWRESET=1
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg2), []byte{0x04}); err != nil { // SWRESET=1
 		return nil, err
 	}
 	time.Sleep(time.Millisecond)
-	if err := d.writeReg(lps22dfRegCtrlReg1, (LPS22DFODR10Hz<<3)|LPS22DFAvg4); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg1), []byte{(LPS22DFODR10Hz << 3) | LPS22DFAvg4}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(lps22dfRegCtrlReg2, 0x08); err != nil { // BDU=1
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg2), []byte{0x08}); err != nil { // BDU=1
 		return nil, err
 	}
 	return d, nil
-}
-
-func (d *LPS22DFMinimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x7F
-	}
-	return d.connection.Write([]byte{addr, val})
 }
 
 func (d *LPS22DFMinimal) readReg8(reg uint8) (uint8, error) {
@@ -174,11 +164,7 @@ func (d *LPS22DFMinimal) readReg8(reg uint8) (uint8, error) {
 }
 
 func (d *LPS22DFMinimal) readRegBytes(reg uint8, n int) ([]byte, error) {
-	addr := reg
-	if d.spi {
-		addr |= 0x80
-	}
-	return d.connection.WriteRead([]byte{addr}, n)
+	return d.connection.ReadReg(uint32(reg), n)
 }
 
 func (d *LPS22DFMinimal) waitPDa() error {
@@ -220,9 +206,7 @@ func (d *LPS22DFMinimal) Pressure() (float32, error) {
 		return 0, err
 	}
 	value := int32(raw[0]) | int32(raw[1])<<8 | int32(raw[2])<<16
-	if value&0x800000 != 0 {
-		value -= 0x1000000
-	}
+	value = connection.ToSigned(uint32(value), 24)
 	return float32(value) / 4096.0 * 100.0, nil
 }
 
@@ -255,8 +239,8 @@ type LPS22DFFull struct {
 }
 
 // NewLPS22DFFull creates an LPS22DFFull and applies the default configuration.
-func NewLPS22DFFull(t connection.Connection, spi bool) (*LPS22DFFull, error) {
-	m, err := NewLPS22DFMinimal(t, spi)
+func NewLPS22DFFull(t connection.RegisterConnection) (*LPS22DFFull, error) {
+	m, err := NewLPS22DFMinimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -283,18 +267,18 @@ func (d *LPS22DFFull) Configure(odr, avg uint8, enLpfp bool, lfpfCfg uint8, bdu 
 	if bdu {
 		ctrl2 |= 0x08
 	}
-	if err := d.writeReg(lps22dfRegCtrlReg1, ctrl1); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg1), []byte{ctrl1}); err != nil {
 		return err
 	}
-	return d.writeReg(lps22dfRegCtrlReg2, ctrl2)
+	return d.connection.WriteReg(uint32(lps22dfRegCtrlReg2), []byte{ctrl2})
 }
 
 // OneShot triggers a single measurement in power-down mode; blocks until P_DA.
 func (d *LPS22DFFull) OneShot() error {
-	if err := d.writeReg(lps22dfRegCtrlReg1, 0x00); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg1), []byte{0x00}); err != nil {
 		return err
 	}
-	if err := d.writeReg(lps22dfRegCtrlReg2, 0x08|0x01); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg2), []byte{0x08 | 0x01}); err != nil {
 		return err
 	}
 	return d.waitPDa()
@@ -316,7 +300,7 @@ func (d *LPS22DFFull) Altitude(seaLevelPa float32) (float32, error) {
 
 // SoftwareReset asserts SWRESET and waits for self-clear.
 func (d *LPS22DFFull) SoftwareReset() error {
-	if err := d.writeReg(lps22dfRegCtrlReg2, 0x04); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg2), []byte{0x04}); err != nil {
 		return err
 	}
 	time.Sleep(time.Millisecond)
@@ -330,20 +314,20 @@ func (d *LPS22DFFull) SetPressureOffset(offsetPa float32) error {
 	if raw < 0 {
 		raw += 0x10000
 	}
-	if err := d.writeReg(lps22dfRegRpdsL, uint8(raw)); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegRpdsL), []byte{uint8(raw)}); err != nil {
 		return err
 	}
-	return d.writeReg(lps22dfRegRpdsH, uint8(raw>>8))
+	return d.connection.WriteReg(uint32(lps22dfRegRpdsH), []byte{uint8(raw >> 8)})
 }
 
 // SetPressureThreshold writes a 15-bit unsigned pressure threshold.
 func (d *LPS22DFFull) SetPressureThreshold(thresholdPa float32) error {
 	thresholdHpa := float64(thresholdPa) / 100.0
-	raw := uint16(math.Round(thresholdHpa * 16.0)) & 0x7FFF
-	if err := d.writeReg(lps22dfRegThsPL, uint8(raw)); err != nil {
+	raw := uint16(math.Round(thresholdHpa*16.0)) & 0x7FFF
+	if err := d.connection.WriteReg(uint32(lps22dfRegThsPL), []byte{uint8(raw)}); err != nil {
 		return err
 	}
-	return d.writeReg(lps22dfRegThsPH, uint8(raw>>8))
+	return d.connection.WriteReg(uint32(lps22dfRegThsPH), []byte{uint8(raw >> 8)})
 }
 
 // ConfigureInterrupt configures the INT pin and routing.
@@ -374,10 +358,10 @@ func (d *LPS22DFFull) ConfigureInterrupt(intHL, ppOd, drdy, drdyPls, intEn, intF
 	if intFOvr {
 		ctrl4 |= 0x01
 	}
-	if err := d.writeReg(lps22dfRegCtrlReg3, ctrl3); err != nil {
+	if err := d.connection.WriteReg(uint32(lps22dfRegCtrlReg3), []byte{ctrl3}); err != nil {
 		return err
 	}
-	return d.writeReg(lps22dfRegCtrlReg4, ctrl4)
+	return d.connection.WriteReg(uint32(lps22dfRegCtrlReg4), []byte{ctrl4})
 }
 
 // ConfigurePressureEvent configures pressure-event interrupts.
@@ -392,22 +376,22 @@ func (d *LPS22DFFull) ConfigurePressureEvent(phe, ple, lir bool) error {
 	if lir {
 		cfg |= 0x04
 	}
-	return d.writeReg(lps22dfRegInterruptCfg, cfg)
+	return d.connection.WriteReg(uint32(lps22dfRegInterruptCfg), []byte{cfg})
 }
 
 // Autozero captures the current pressure as the AUTOZERO reference.
 func (d *LPS22DFFull) Autozero() error {
-	return d.writeReg(lps22dfRegInterruptCfg, 0x20)
+	return d.connection.WriteReg(uint32(lps22dfRegInterruptCfg), []byte{0x20})
 }
 
 // Autorefp captures the current pressure in REF_P for use as a comparator.
 func (d *LPS22DFFull) Autorefp() error {
-	return d.writeReg(lps22dfRegInterruptCfg, 0x80)
+	return d.connection.WriteReg(uint32(lps22dfRegInterruptCfg), []byte{0x80})
 }
 
 // ResetReference resets AUTOZERO and AUTOREFP, returning PRESS_OUT to absolute.
 func (d *LPS22DFFull) ResetReference() error {
-	return d.writeReg(lps22dfRegInterruptCfg, 0x50)
+	return d.connection.WriteReg(uint32(lps22dfRegInterruptCfg), []byte{0x50})
 }
 
 // ReferencePressure reads the stored AUTOZERO/AUTOREFP reference pressure in Pa.
@@ -437,12 +421,12 @@ func (d *LPS22DFFull) SetFifoMode(mode uint8) error {
 	default:
 		trig, fm = 1, 3
 	}
-	return d.writeReg(lps22dfRegFifoCtrl, (trig<<2)|(fm&0x03))
+	return d.connection.WriteReg(uint32(lps22dfRegFifoCtrl), []byte{(trig << 2) | (fm & 0x03)})
 }
 
 // SetFifoWatermark sets the FIFO watermark level (0..127).
 func (d *LPS22DFFull) SetFifoWatermark(level uint8) error {
-	return d.writeReg(lps22dfRegFifoWtm, level&0x7F)
+	return d.connection.WriteReg(uint32(lps22dfRegFifoWtm), []byte{level & 0x7F})
 }
 
 // FifoSampleCount reads the FIFO sample count (0..127).
@@ -471,9 +455,7 @@ func (d *LPS22DFFull) ReadFifo(out []float32) (uint8, error) {
 	for i := uint8(0); i < count; i++ {
 		base := int(i) * 3
 		value := int32(raw[base]) | int32(raw[base+1])<<8 | int32(raw[base+2])<<16
-		if value&0x800000 != 0 {
-			value -= 0x1000000
-		}
+		value = connection.ToSigned(uint32(value), 24)
 		out[i] = float32(value) / 4096.0 * 100.0
 	}
 	return count, nil

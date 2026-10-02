@@ -23,7 +23,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x5C, nil, nil)
-	chip, err := pressure.NewLPS22DFMinimal(conn, false)
+	chip, err := pressure.NewLPS22DFMinimal(conn)
 	if err != nil {
 		panic(err)
 	}

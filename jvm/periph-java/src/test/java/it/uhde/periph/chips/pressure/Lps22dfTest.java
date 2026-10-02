@@ -234,18 +234,4 @@ class Lps22dfTest {
         connection.setRegister(Lps22dfMinimal.REG_INT_SOURCE, 0x85); // BOOT_ON | IA | PH
         assertEquals(0x85, full.interruptSource());
     }
-
-    @Test
-    void spiAddressing() throws IOException {
-        MockConnection connection = new MockConnection();
-        // The mock's register map is keyed by the literal address byte sent,
-        // so for SPI (read addresses have bit 7 set) the fixture must be
-        // preloaded at the shifted address.
-        connection.setRegister(Lps22dfMinimal.REG_WHO_AM_I | 0x80, Lps22dfMinimal.CHIP_ID);
-        new Lps22dfMinimal(connection, 0x5C, Lps22dfMinimal.BUS_SPI);
-
-        var writes = connection.writes();
-        assertEquals(Lps22dfMinimal.REG_WHO_AM_I | 0x80, writes.get(0)[0] & 0xFF);
-        assertEquals(Lps22dfMinimal.REG_CTRL_REG2 & 0x7F, writes.get(1)[0] & 0xFF);
-    }
 }

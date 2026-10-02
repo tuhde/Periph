@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x5C);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut lps = Lps22dfFull::new(dev, addr, false).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
+    let mut lps = Lps22dfFull::new(dev, addr).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
     lps.configure(3, 0, false, 0, true).expect("configure");           // Configure chip, (odr=10 Hz, avg=4, en_lpfp=false, lfpf_cfg=0, bdu=true) → ()
     lps.oneshot().expect("oneshot");                                    // Trigger one-shot conversion, () → ()
     let p = lps.pressure().expect("read pressure");                     // Read pressure, () → f32 Pa
