@@ -24,6 +24,7 @@ type Chip struct {
 
 var registry = []Chip{
 	{ID: "adxl345", Driver: "adxl345", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1D, 0x53}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xE5}}},
+	{ID: "bma180", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x07, Expected: []uint32{0x03}}},
 	{ID: "mcp4725", Driver: "mcp4725", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61}, Probe: nil},
 	{ID: "mcp4728", Driver: "mcp4728", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}, Probe: nil},
 	{ID: "pcf8591", Driver: "pcf8591", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
