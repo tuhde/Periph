@@ -20,7 +20,9 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 - Transport checklist: `specs/transport_<name>.md` → `## Implementation Checklist`
 - Feature checklist: `specs/feature_<name>.md` → `## Implementation Checklist`
 
-**Discovery registry.** Every new chip with I²C transport needs an entry in `registry/chips.json` (addresses, identity register or `null`, probe safety). Run `node registry/scripts/generate.js` and commit the generated tables; CI fails on a missing entry or stale tables. See `specs/feature_i2c_discovery.md`.
+**Discovery registry.** Every new chip with I²C transport needs an entry in `registry/chips.json` (addresses, identity register or `null`, probe safety). Claude Code adds it during spec prep with `"driver": null`; when you implement the chip, set `driver` to the driver name (the spec stem), run `node registry/scripts/generate.js`, and commit the regenerated tables; CI fails on a missing entry or stale tables. See `specs/feature_i2c_discovery.md`.
+
+**README chip table.** Claude Code adds the chip's row to the root `README.md` "Supported chips" table during spec prep with every language column left empty (a `-` would mean "deliberately never implemented", so do not use it for pending work). Flip each language's cell to `✓` when that language's implementation is complete.
 
 ## Finding the work
 
