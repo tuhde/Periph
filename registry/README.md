@@ -39,7 +39,7 @@ The file is deliberately **pure data** — nothing here references the language 
    - `id_probe`: `null` when the chip has no identity register. `register` is the byte(s) **as sent on the wire** (include command bits such as APDS-9930's `0x80`). `mask` is applied to the value read; `expected` lists the accepted masked values.
    - `probe_safety`: `register_pointer` if a one-byte write only selects a register; `write_sensitive` if the chip treats a write as data or a command (port expanders, DACs, command-driven sensors). When in doubt, use `write_sensitive`.
    - `aliased`: `true` only if the chip answers on *every* address in its range regardless of pins (24AA02UID).
-   - `driver`: omit or `null` for chips without a driver in this library.
+   - `driver`: omit or `null` for chips without a driver in this library. New chips are added with `null` during spec prep and set to the driver name when the driver is implemented.
 
 2. Run `node registry/scripts/validate.js`. If it reports a collision, check the identity registers; if two chips genuinely cannot be told apart, add the pair to `known_ambiguities.json`.
 3. Run `node registry/scripts/generate.js` and commit the regenerated tables.
