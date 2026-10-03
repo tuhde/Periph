@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.bmp581 import BMP581Minimal
 
 connection = I2CConnection(0x46)
-bmp = BMP581Minimal(connection)                          # Create BMP581 driver, (connection, bus_type='i2c')
+bmp = BMP581Minimal(connection)                          # Create BMP581 driver, (connection)
 
 for _ in range(5):
     p = bmp.pressure()                                   # Read pressure, () → float Pa

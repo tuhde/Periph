@@ -31,7 +31,7 @@ extern "C" void app_main(void) {
     I2CConnectionESPIDF connection(dev);
 
     // --- Precision altimeter: 10 Hz NORMAL mode for 30 seconds ---
-    BMP581Full bmp(connection, false);                   // Create BMP581 driver, (connection)
+    BMP581Full bmp(connection);                   // Create BMP581 driver, (connection)
     bmp.configure(0x17, BMP581Full::OSR_16X, BMP581Full::OSR_4X, true);  // Configure chip, (odr=10Hz, osr_p=×16, osr_t=×4, press_en) → None
 
     float pressures[300], temps[300], alts[300];

@@ -38,7 +38,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	magFactory := func(a uint8) (connection.Connection, error) {
+	magFactory := func(a uint8) (connection.RegisterConnection, error) {
 		return connection.NewI2CConnection(bus, a, nil, nil) // Open second I2C fd for the AK8963, (bus, addr) → (*I2CConnection, error)
 	}
 

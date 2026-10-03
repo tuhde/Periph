@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,20 +47,8 @@ public class L3gd20hFull extends L3gd20hMinimal {
     private int odr = ODR_95_HZ;
     private int bw = 0;
 
-    public L3gd20hFull(Connection connection, boolean spi) throws IOException {
-        super(connection, spi);
-    }
-
-    /** Read a register via I²C or SPI (with appropriate register address framing). */
-    private byte[] readReg(int reg, int n) throws IOException {
-        if (spi) {
-            connection.write(new byte[] { (byte) ((reg | 0xC0) & 0xFF) });
-            return connection.read(n);
-        } else if (n > 1) {
-            return connection.writeRead(new byte[] { (byte) (reg | 0x80) }, n);
-        } else {
-            return connection.writeRead(new byte[] { (byte) reg }, n);
-        }
+    public L3gd20hFull(RegisterConnection connection) throws IOException {
+        super(connection);
     }
 
     /**
@@ -77,8 +65,8 @@ public class L3gd20hFull extends L3gd20hMinimal {
         int[] fsMap = { 250, 500, 2000 };
         this.fullScale = fsMap[fullScale];
         int ctrl1 = CTRL_REG1_DEFAULT | ((this.odr & 0x3) << 6) | ((this.bw & 0x3) << 4);
-        writeReg(REG_CTRL_REG1, ctrl1);
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4));
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1) });
+        connection.write(REG_CTRL_REG4, new byte[] { (byte) (CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4)) });
     }
 
     /**
@@ -125,7 +113,7 @@ public class L3gd20hFull extends L3gd20hMinimal {
      */
     public void configureHpFilter(int mode, int cutoff) throws IOException {
         if (mode > 3 || cutoff > 15) return;
-        writeReg(REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
+        connection.write(REG_CTRL_REG2, new byte[] { (byte) (((mode & 0x3) << 4) | (cutoff & 0x0F)) });
     }
 
     /**
@@ -135,7 +123,7 @@ public class L3gd20hFull extends L3gd20hMinimal {
      */
     public void enableHpFilter(boolean enable) throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10));
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10)) });
     }
 
     /**
@@ -148,8 +136,8 @@ public class L3gd20hFull extends L3gd20hMinimal {
         boolean valid = mode == 0 || mode == 1 || mode == 2 || mode == 3 || mode == 7;
         if (!valid || watermark < 0 || watermark > 31) return;
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x40);
-        writeReg(REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
+        connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 | 0x40) });
+        connection.write(REG_FIFO_CTRL, new byte[] { (byte) (((mode & 0x7) << 5) | (watermark & 0x1F)) });
     }
 
     /**
@@ -160,10 +148,10 @@ public class L3gd20hFull extends L3gd20hMinimal {
     public void enableFifo(boolean enable) throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF;
         if (enable) {
-            writeReg(REG_CTRL_REG5, ctrl5 | 0x40);
+            connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 | 0x40) });
         } else {
-            writeReg(REG_CTRL_REG5, ctrl5 & ~0x40);
-            writeReg(REG_FIFO_CTRL, 0x00);
+            connection.write(REG_CTRL_REG5, new byte[] { (byte) (ctrl5 & ~0x40) });
+            connection.write(REG_FIFO_CTRL, new byte[] { (byte) (0x00) });
         }
     }
 
@@ -218,6 +206,6 @@ public class L3gd20hFull extends L3gd20hMinimal {
         } else {
             return;
         }
-        writeReg(REG_CTRL_REG1, ctrl1);
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) (ctrl1) });
     }
 }

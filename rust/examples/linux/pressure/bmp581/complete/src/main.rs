@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x46);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut bmp = Bmp581Full::new(dev, addr, false).expect("init BMP581"); // Create BMP581 driver, (i2c, addr=0x46)
+    let mut bmp = Bmp581Full::new(dev, addr).expect("init BMP581"); // Create BMP581 driver, (i2c, addr=0x46)
     let cid = bmp.chip_id().expect("chip_id");                            // Read chip ID, () → u8
     println!("chip_id={:#x} (expect 0x50)", cid);
 

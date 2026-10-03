@@ -17,6 +17,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_CHIP_ID: u8       = 0x01;
 const REG_REV_ID: u8        = 0x02;
 const REG_INT_SOURCE: u8    = 0x15;
@@ -122,13 +124,8 @@ fn delay_ms(ms: u32) {
     let _ = ms;
 }
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8, spi: bool) -> Result<(), I2C::Error> {
-    let r = if spi { reg & 0x7F } else { reg };
-    i2c.write(addr, &[r, value])
-}
-
 fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::read_register(i2c, addr, reg.into(), 1, buf)
 }
 
 fn u24(data: &[u8]) -> i32 {
@@ -143,7 +140,6 @@ fn u24(data: &[u8]) -> i32 {
 pub struct Bmp581Minimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
     odr: u8,
     pwr_mode: u8,
     osr_p: u8,
@@ -157,18 +153,12 @@ impl<I2C: I2c> Bmp581Minimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x46 or 0x47).
-    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let mut s = Self {
-            i2c, addr, spi,
+            i2c, addr,
             odr: 0x1C, pwr_mode: 0x01,
             osr_p: 0, osr_t: 0, press_en: true,
         };
-        if spi {
-            let _ = s.i2c.write(s.addr, &[REG_CHIP_ID | 0x80]);
-            let mut dummy = [0u8; 1];
-            let _ = s.i2c.read(s.addr, &mut dummy);
-        }
         let mut buf = [0u8; 1];
         let _ = read_reg_bytes(&mut s.i2c, s.addr, REG_CHIP_ID, &mut buf);
         for _ in 0..50 {
@@ -177,7 +167,7 @@ impl<I2C: I2c> Bmp581Minimal<I2C> {
             delay_ms(2);
         }
         let _ = read_reg_bytes(&mut s.i2c, s.addr, REG_INT_STATUS, &mut buf);
-        let _ = write_reg(&mut s.i2c, s.addr, REG_CMD, SOFT_RESET_CMD, spi);
+        let _ = register::write_register(&mut s.i2c, s.addr, REG_CMD.into(), 1, &[SOFT_RESET_CMD]);
         delay_ms(2);
         for _ in 0..50 {
             let _ = read_reg_bytes(&mut s.i2c, s.addr, REG_STATUS, &mut buf);
@@ -185,8 +175,8 @@ impl<I2C: I2c> Bmp581Minimal<I2C> {
             delay_ms(2);
         }
         let _ = read_reg_bytes(&mut s.i2c, s.addr, REG_INT_STATUS, &mut buf);
-        write_reg(&mut s.i2c, s.addr, REG_OSR_CONFIG, 0x40, spi)?;
-        write_reg(&mut s.i2c, s.addr, REG_ODR_CONFIG, 0x71, spi)?;
+        register::write_register(&mut s.i2c, s.addr, REG_OSR_CONFIG.into(), 1, &[0x40])?;
+        register::write_register(&mut s.i2c, s.addr, REG_ODR_CONFIG.into(), 1, &[0x71])?;
         Ok(s)
     }
 
@@ -242,9 +232,8 @@ impl<I2C: I2c> Bmp581Full<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x46 or 0x47).
-    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        Ok(Self { inner: Bmp581Minimal::new(i2c, addr, spi)? })
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        Ok(Self { inner: Bmp581Minimal::new(i2c, addr)? })
     }
 
     /// Configure OSR and ODR atomically.
@@ -260,16 +249,16 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         self.inner.osr_t = osr_t;
         self.inner.press_en = press_en;
         let osr = (if press_en { 0x40 } else { 0 }) | ((osr_p & 0x7) << 3) | (osr_t & 0x7);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OSR_CONFIG, osr, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OSR_CONFIG.into(), 1, &[osr])?;
         let odr_byte = ((odr & 0x1F) << 2) | (self.inner.pwr_mode & 0x3);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG, odr_byte, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG.into(), 1, &[odr_byte])
     }
 
     /// Set the power mode (preserves the current ODR setting).
     pub fn set_mode(&mut self, mode: u8) -> Result<(), I2C::Error> {
         self.inner.pwr_mode = mode;
         let odr_byte = ((self.inner.odr & 0x1F) << 2) | (mode & 0x3);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG, odr_byte, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG.into(), 1, &[odr_byte])
     }
 
     /// Trigger a single FORCED measurement, wait for completion, return readings.
@@ -294,7 +283,7 @@ impl<I2C: I2c> Bmp581Full<I2C> {
 
     /// Issue a soft reset and re-initialise the chip.
     pub fn software_reset(&mut self) -> Result<(), I2C::Error> {
-        let _ = write_reg(&mut self.inner.i2c, self.inner.addr, REG_CMD, SOFT_RESET_CMD, self.inner.spi);
+        let _ = register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CMD.into(), 1, &[SOFT_RESET_CMD]);
         delay_ms(2);
         let prev_odr = self.inner.odr;
         let prev_mode = self.inner.pwr_mode;
@@ -310,8 +299,8 @@ impl<I2C: I2c> Bmp581Full<I2C> {
             delay_ms(2);
         }
         let _ = read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_INT_STATUS, &mut buf);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OSR_CONFIG, 0x40, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG, 0x71, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OSR_CONFIG.into(), 1, &[0x40])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ODR_CONFIG.into(), 1, &[0x71])?;
         self.inner.odr = prev_odr;
         self.inner.pwr_mode = prev_mode;
         self.inner.osr_p = prev_osr_p;
@@ -359,14 +348,14 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         if open_drain { val |= 0x04; }
         if polarity != 0 { val |= 0x02; }
         if mode != 0 { val |= 0x01; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_CONFIG, val, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INT_CONFIG.into(), 1, &[val])
     }
 
     fn set_int_source(&mut self, source: u8, enable: bool) -> Result<(), I2C::Error> {
         let mut buf = [0u8; 1];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, &mut buf)?;
         let cur = if enable { buf[0] | source } else { buf[0] & !source };
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, cur, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE.into(), 1, &[cur])
     }
 
     /// Enable/disable the data-ready interrupt source.
@@ -381,7 +370,7 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         let mut cur = buf[0] & !(INT_SOURCE_FIFO_FULL | INT_SOURCE_FIFO_THS);
         if threshold { cur |= INT_SOURCE_FIFO_THS; }
         if full { cur |= INT_SOURCE_FIFO_FULL; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE, cur, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_INT_SOURCE.into(), 1, &[cur])
     }
 
     /// Enable/disable the pressure out-of-range interrupt source.
@@ -394,18 +383,18 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         let mut buf = [0u8; 1];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_DSP_CONFIG, &mut buf)?;
         let dsp = buf[0] | 0x28;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DSP_CONFIG, dsp, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_DSP_CONFIG.into(), 1, &[dsp])?;
         let iir = ((coeff_p & 0x7) << 3) | (coeff_t & 0x7);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_DSP_IIR, iir, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_DSP_IIR.into(), 1, &[iir])
     }
 
     /// Configure FIFO source, mode, and threshold. Must be called in STANDBY mode.
     pub fn configure_fifo(&mut self, frame_sel: u8, mode: u8, threshold: u8) -> Result<(), I2C::Error> {
         let prev = self.inner.pwr_mode;
         if prev != MODE_STANDBY { self.set_mode(MODE_STANDBY)?; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_SEL, frame_sel & 0x3, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_SEL.into(), 1, &[frame_sel & 0x3])?;
         let cfg = ((mode & 0x1) << 5) | (threshold & 0x1F);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CONFIG, cfg, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_FIFO_CONFIG.into(), 1, &[cfg])?;
         if prev != MODE_STANDBY { self.set_mode(prev)?; }
         Ok(())
     }
@@ -434,12 +423,12 @@ impl<I2C: I2c> Bmp581Full<I2C> {
     /// Configure the out-of-range pressure detector.
     pub fn set_oor_threshold(&mut self, threshold_pa: f32, range_pa: f32, count_limit: u8) -> Result<(), I2C::Error> {
         let thr17 = ((threshold_pa * 64.0) as i32) >> 7;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OOR_THR_P_LSB, (thr17 & 0xFF) as u8, self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OOR_THR_P_MSB, ((thr17 >> 8) & 0xFF) as u8, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OOR_THR_P_LSB.into(), 1, &[(thr17 & 0xFF) as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OOR_THR_P_MSB.into(), 1, &[((thr17 >> 8) & 0xFF) as u8])?;
         let range8 = (((range_pa * 64.0) as i32) >> 7) & 0xFF;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OOR_RANGE, range8 as u8, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OOR_RANGE.into(), 1, &[range8 as u8])?;
         let cfg = ((count_limit & 0x3) << 6) | ((thr17 >> 16) & 0x01) as u8;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_OOR_CONFIG, cfg, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_OOR_CONFIG.into(), 1, &[cfg])
     }
 
     /// Read one user NVM row.
@@ -447,11 +436,11 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         let prev = self.inner.pwr_mode;
         if prev != MODE_STANDBY { self.set_mode(MODE_STANDBY)?; }
         let result = (|| -> Result<u16, I2C::Error> {
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR, 0x5D, self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_CMD, 0xA5, self.inner.spi)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR.into(), 1, &[0x5D])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CMD.into(), 1, &[0xA5])?;
             delay_ms(2);
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR, 0x40 | (row & 0x3F), self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_CMD, 0xA5, self.inner.spi)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR.into(), 1, &[0x40 | (row & 0x3F)])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CMD.into(), 1, &[0xA5])?;
             delay_ms(2);
             let mut buf = [0u8; 2];
             read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_NVM_DATA_LSB, &mut buf)?;
@@ -466,11 +455,11 @@ impl<I2C: I2c> Bmp581Full<I2C> {
         let prev = self.inner.pwr_mode;
         if prev != MODE_STANDBY { self.set_mode(MODE_STANDBY)?; }
         let result = (|| -> Result<(), I2C::Error> {
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR, 0x40 | (row & 0x3F), self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_DATA_LSB, (value & 0xFF) as u8, self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_DATA_MSB, ((value >> 8) & 0xFF) as u8, self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR, 0x5D, self.inner.spi)?;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_CMD, 0xA0, self.inner.spi)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR.into(), 1, &[0x40 | (row & 0x3F)])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_DATA_LSB.into(), 1, &[(value & 0xFF) as u8])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_DATA_MSB.into(), 1, &[((value >> 8) & 0xFF) as u8])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_NVM_ADDR.into(), 1, &[0x5D])?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CMD.into(), 1, &[0xA0])?;
             delay_ms(5);
             Ok(())
         })();
@@ -581,7 +570,7 @@ mod tests {
         ]);
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Bmp581Full::new(i2c, ADDR, false).expect("init");
+        let mut sensor = Bmp581Full::new(i2c, ADDR).expect("init");
 
         assert_eq!(sensor.temperature().unwrap(), 0.0625);
         assert_eq!(sensor.pressure().unwrap(), 0.0625);

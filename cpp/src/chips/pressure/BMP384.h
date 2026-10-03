@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief BMP384 high-precision barometric pressure and temperature sensor — minimal interface.
  *
@@ -9,12 +9,11 @@
  *
  *  Default: normal mode, osr_p=×16, osr_t=×2, iir=coef 3, ODR=25 Hz.
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (clears bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP384Minimal {
 public:
-    explicit BMP384Minimal(Connection& connection, bool spi = false);
+    explicit BMP384Minimal(RegisterConnection& connection);
 
     /** @brief Read calibrated temperature.
      *  @return Temperature in degrees Celsius.
@@ -85,14 +84,11 @@ protected:
     static constexpr uint8_t PWR_PRESS_EN   = 0x01;
     static constexpr uint8_t PWR_TEMP_EN    = 0x02;
 
-    Connection& _connection;
-    bool      _spi;
+    RegisterConnection& _connection;
 
     void     _read_calibration();
     void     _verify_chip_id();
     void     _apply_config();
-    void     _write_reg(uint8_t reg, uint8_t value);
-    void     _read_reg(uint8_t reg, uint8_t* buf, size_t len);
     void     _read_burst(uint32_t& uncomp_press, uint32_t& uncomp_temp);
 
     static int8_t _s8(uint8_t b) { return b >= 128 ? (int8_t)(b - 256) : (int8_t)b; }
@@ -104,8 +100,7 @@ protected:
  *  polling, soft reset, and the 512-byte FIFO (with watermark, stop-on-full,
  *  and per-frame decoding).
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi       Set true for SPI bus (clears bit 7 on writes).
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: default Bosch convention, readBit 0x80, no multi-byte bit).
  */
 class BMP384Full : public BMP384Minimal {
 public:
@@ -120,7 +115,7 @@ public:
     static constexpr uint8_t FIFO_HEADER_ERROR    = 0x44;
     static constexpr uint8_t FIFO_HEADER_EMPTY    = 0x80;
 
-    explicit BMP384Full(Connection& connection, bool spi = false);
+    explicit BMP384Full(RegisterConnection& connection);
 
     /** @brief Write OSR, CONFIG, and ODR; validate ODR ≥ T_conv at chosen oversampling. */
     void configure(uint8_t osr_p, uint8_t osr_t, uint8_t iir_filter, uint8_t odr_sel);

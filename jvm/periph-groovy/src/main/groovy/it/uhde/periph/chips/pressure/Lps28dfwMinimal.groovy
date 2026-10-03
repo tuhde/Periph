@@ -1,7 +1,8 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * LPS28DFW — dual full-scale digital barometer (minimal driver).
@@ -40,7 +41,7 @@ class Lps28dfwMinimal {
     protected static final double SENSITIVITY_MODE1 = 4096.0d
     protected static final double SENSITIVITY_MODE2 = 2048.0d
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected int fsMode = 0
     protected int odr = 0x04
     protected int avg = 0x02
@@ -48,10 +49,10 @@ class Lps28dfwMinimal {
     protected int lpfCfg = 0
     protected int bdu = 1
 
-    Lps28dfwMinimal(Connection connection) {
+    Lps28dfwMinimal(RegisterConnection connection) {
         this.connection = connection
         try { Thread.sleep(2) } catch (InterruptedException ignored) { Thread.currentThread().interrupt() }
-        byte[] id = connection.writeRead([REG_WHO_AM_I] as byte[], 1)
+        byte[] id = connection.read(REG_WHO_AM_I, 1)
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException("LPS28DFW WHO_AM_I mismatch: expected 0x" +
                     Integer.toHexString(CHIP_ID) + ", got 0x" +
@@ -65,20 +66,20 @@ class Lps28dfwMinimal {
 
     /** Write one byte to a register. */
     protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) value] as byte[])
+        connection.write(reg, [(byte) value] as byte[])
     }
 
     /** Read raw 24-bit pressure value (signed). */
     protected int readPressureRaw() {
-        byte[] b = connection.writeRead([REG_PRESS_OUT_XL] as byte[], 3)
+        byte[] b = connection.read(REG_PRESS_OUT_XL, 3)
         int v = ((b[2] & 0xFF) << 16) | ((b[1] & 0xFF) << 8) | (b[0] & 0xFF)
-        if ((v & 0x800000) != 0) v = (int) (v | 0xFF000000L)
+        v = Register.toSigned(v, 24)
         return v
     }
 
     /** Read raw 16-bit temperature value (signed). */
     protected int readTemperatureRaw() {
-        byte[] b = connection.writeRead([REG_TEMP_OUT_L] as byte[], 2)
+        byte[] b = connection.read(REG_TEMP_OUT_L, 2)
         return (short) (((b[1] & 0xFF) << 8) | (b[0] & 0xFF))
     }
 

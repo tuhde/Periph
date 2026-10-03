@@ -21,6 +21,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_CONFIG: u8 = 0x01;
 const REG_TUPPER: u8 = 0x02;
 const REG_TLOWER: u8 = 0x03;
@@ -113,10 +115,7 @@ impl<E> From<E> for Mcp9808Error<E> {
 }
 
 fn decode_temperature(raw16: u16) -> f32 {
-    let mut raw = (raw16 & 0x1FFF) as i16;
-    if raw & 0x1000 != 0 {
-        raw -= 0x2000;
-    }
+    let raw = to_signed((raw16 & 0x1FFF) as u32, 13);
     raw as f32 / 16.0
 }
 
@@ -172,12 +171,12 @@ impl<I2C: I2c> Mcp9808Minimal<I2C> {
 
     fn read_reg(&mut self, reg: u8) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(((buf[0] as u16) << 8) | buf[1] as u16)
     }
 
     fn write_reg(&mut self, reg: u8, value: u16) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, (value >> 8) as u8, value as u8])
+        register::write_register(&mut self.i2c, self.addr, reg.into(), 1, &[(value >> 8) as u8, value as u8])
     }
 
     /// Read the ambient temperature in °C.
@@ -233,7 +232,7 @@ impl<I2C: I2c> Mcp9808Full<I2C> {
     pub fn set_resolution(&mut self, celsius: f32) -> Result<(), Mcp9808Error<I2C::Error>> {
         let code = index_of_step(&RESOLUTIONS, celsius).ok_or(Mcp9808Error::InvalidArgument)?;
         let addr = self.inner.addr;
-        self.inner.i2c.write(addr, &[REG_RESOLUTION, code as u8])?;
+        register::write_register(&mut self.inner.i2c, addr, REG_RESOLUTION.into(), 1, &[code as u8])?;
         Ok(())
     }
 
@@ -241,7 +240,7 @@ impl<I2C: I2c> Mcp9808Full<I2C> {
     pub fn get_resolution(&mut self) -> Result<f32, I2C::Error> {
         let mut buf = [0u8; 1];
         let addr = self.inner.addr;
-        self.inner.i2c.write_read(addr, &[REG_RESOLUTION], &mut buf)?;
+        register::read_register(&mut self.inner.i2c, addr, REG_RESOLUTION.into(), 1, &mut buf)?;
         Ok(RESOLUTIONS[(buf[0] & 0x03) as usize])
     }
 

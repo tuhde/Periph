@@ -2,16 +2,15 @@
 
 // DRV8830Minimal
 
-DRV8830Minimal::DRV8830Minimal(Connection& connection) : _connection(connection) {}
+DRV8830Minimal::DRV8830Minimal(RegisterConnection& connection) : _connection(connection) {}
 
 void DRV8830Minimal::_writeReg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 uint8_t DRV8830Minimal::_readReg(uint8_t reg) {
     uint8_t buf[1];
-    _connection.write_read(&reg, 1, buf, 1);
+    _connection.read(reg, buf, 1);
     return buf[0];
 }
 
@@ -47,7 +46,7 @@ void DRV8830Minimal::stop() { _writeReg(REG_CONTROL, 0x00); }
 
 DRV8830Full* DRV8830Full::_activeInstance = nullptr;
 
-DRV8830Full::DRV8830Full(Connection& connection) : DRV8830Minimal(connection) {}
+DRV8830Full::DRV8830Full(RegisterConnection& connection) : DRV8830Minimal(connection) {}
 
 bool DRV8830Full::setOutput(uint8_t vset, bool in1, bool in2) {
     if (vset < VSET_MIN || vset > VSET_MAX) return false;

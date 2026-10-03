@@ -18,7 +18,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x76);
-    BMP384Minimal bmp(connection, /*spi=*/false);
+    BMP384Minimal bmp(connection);
 
     stdio_init_all();
     sleep_ms(2000);
@@ -42,7 +42,7 @@ int main(void) {
     double comp_p = bmp._compensate_pressure(415148);
     check_true(comp_p > 0.0, "pressure_compensation_runs");
 
-    BMP384Full bmp_full(connection, /*spi=*/false);
+    BMP384Full bmp_full(connection);
     bmp_full.configure(2, 1, 1, 0x04);                     // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
     check_true(bmp_full._osr_p == 2 && bmp_full._iir == 1 && bmp_full._odr == 0x04, "configure_writes_through");
 

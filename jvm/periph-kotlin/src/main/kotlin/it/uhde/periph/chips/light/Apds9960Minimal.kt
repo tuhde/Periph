@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9960 — digital proximity, ambient light, RGB and gesture sensor (minimal driver).
@@ -18,7 +18,7 @@ import it.uhde.periph.connection.Connection
  * - PON + AEN enabled; no wait, proximity, gesture, or interrupts
  */
 open class Apds9960Minimal(
-    protected val connection: Connection
+    protected val connection: RegisterConnection
 ) {
     companion object {
         const val REG_ENABLE     = 0x80
@@ -72,11 +72,11 @@ open class Apds9960Minimal(
         try { Thread.sleep(6) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
         val id = readReg(REG_ID)
         if (id != 0xAB) throw java.io.IOException("APDS-9960 not found (ID=0x${id.toString(16)}, expected 0xAB)")
-        writeReg(REG_ENABLE, 0x00)
-        writeReg(REG_ATIME, ATIME_DEFAULT)
-        writeReg(REG_CONTROL, CONTROL_DEFAULT)
-        writeReg(REG_CONFIG2, CONFIG2_DEFAULT)
-        writeReg(REG_ENABLE, 0x03)
+        connection.write(REG_ENABLE, byteArrayOf((0x00).toByte()))
+        connection.write(REG_ATIME, byteArrayOf((ATIME_DEFAULT).toByte()))
+        connection.write(REG_CONTROL, byteArrayOf((CONTROL_DEFAULT).toByte()))
+        connection.write(REG_CONFIG2, byteArrayOf((CONFIG2_DEFAULT).toByte()))
+        connection.write(REG_ENABLE, byteArrayOf((0x03).toByte()))
         try { Thread.sleep(210) } catch (e: InterruptedException) { Thread.currentThread().interrupt() }
     }
 
@@ -95,7 +95,7 @@ open class Apds9960Minimal(
      * @return raw red channel count, 0-65535
      */
     fun colorRed(): Int {
-        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.read(REG_CDATAL, 8)
         return (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
     }
 
@@ -107,7 +107,7 @@ open class Apds9960Minimal(
      * @return raw green channel count, 0-65535
      */
     fun colorGreen(): Int {
-        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.read(REG_CDATAL, 8)
         return (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
     }
 
@@ -119,7 +119,7 @@ open class Apds9960Minimal(
      * @return raw blue channel count, 0-65535
      */
     fun colorBlue(): Int {
-        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.read(REG_CDATAL, 8)
         return (raw[6].toInt() and 0xFF) or ((raw[7].toInt() and 0xFF) shl 8)
     }
 
@@ -131,7 +131,7 @@ open class Apds9960Minimal(
      * @return array of [clear, red, green, blue] each 0-65535
      */
     fun color(): IntArray {
-        val raw = connection.writeRead(byteArrayOf(REG_CDATAL.toByte()), 8)
+        val raw = connection.read(REG_CDATAL, 8)
         val c = (raw[0].toInt() and 0xFF) or ((raw[1].toInt() and 0xFF) shl 8)
         val r = (raw[2].toInt() and 0xFF) or ((raw[3].toInt() and 0xFF) shl 8)
         val g = (raw[4].toInt() and 0xFF) or ((raw[5].toInt() and 0xFF) shl 8)
@@ -139,17 +139,13 @@ open class Apds9960Minimal(
         return intArrayOf(c, r, g, b)
     }
 
-    protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
-    }
-
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
     protected fun readReg16LE(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return (b[0].toInt() and 0xFF) or ((b[1].toInt() and 0xFF) shl 8)
     }
 }

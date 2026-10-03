@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ public class Bmp085Minimal {
     // Chip ID
     protected static final int CHIP_ID = 0x55;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     // Calibration coefficients
     protected int   AC1, AC2, AC3;
@@ -48,11 +48,11 @@ public class Bmp085Minimal {
      * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    public Bmp085Minimal(Connection connection) throws IOException {
+    public Bmp085Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
 
         // Verify chip ID
-        byte[] id = connection.writeRead(new byte[]{(byte) REG_ID}, 1);
+        byte[] id = connection.read(REG_ID, 1);
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException(
                     "BMP085 not found: expected chip ID 0x55, got 0x"
@@ -68,7 +68,7 @@ public class Bmp085Minimal {
      * @throws IOException on I²C error or invalid calibration data
      */
     protected void readCalibration() throws IOException {
-        byte[] cal = connection.writeRead(new byte[]{(byte) REG_CAL_START}, 22);
+        byte[] cal = connection.read(REG_CAL_START, 22);
 
         AC1 = (short) (((cal[0]  & 0xFF) << 8) | (cal[1]  & 0xFF));
         AC2 = (short) (((cal[2]  & 0xFF) << 8) | (cal[3]  & 0xFF));
@@ -114,9 +114,9 @@ public class Bmp085Minimal {
      * @throws IOException on I²C error
      */
     protected int readRawTemperature() throws IOException {
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) CMD_TEMP});
+        connection.write(REG_CTRL_MEAS, new byte[]{(byte) CMD_TEMP});
         try { Thread.sleep(5); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_OUT_MSB}, 2);
+        byte[] b = connection.read(REG_OUT_MSB, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -128,9 +128,9 @@ public class Bmp085Minimal {
      * @throws IOException on I²C error
      */
     protected long readRawPressure(int ossMode) throws IOException {
-        connection.write(new byte[]{(byte) REG_CTRL_MEAS, (byte) (CMD_PRES_OSS | (ossMode << 6))});
+        connection.write(REG_CTRL_MEAS, new byte[]{(byte) (CMD_PRES_OSS | (ossMode << 6))});
         try { Thread.sleep(ossMode * 10L + 5L); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        byte[] b = connection.writeRead(new byte[]{(byte) REG_OUT_MSB}, 3);
+        byte[] b = connection.read(REG_OUT_MSB, 3);
         long raw = (((long)(b[0] & 0xFF) << 16) | ((long)(b[1] & 0xFF) << 8) | (b[2] & 0xFF));
         return raw >> (8 - ossMode);
     }

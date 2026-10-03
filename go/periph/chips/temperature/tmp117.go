@@ -168,7 +168,7 @@ func tmp117Abs(x float32) float32 {
 // over an I²C/SMBus-compatible bus. Registers are 16-bit, big-endian,
 // addressed through a non-incrementing Register Pointer.
 type TMP117Minimal struct {
-	conn connection.Connection
+	conn connection.RegisterConnection
 }
 
 // NewTMP117Minimal creates a TMP117Minimal and confirms the chip's identity
@@ -176,7 +176,7 @@ type TMP117Minimal struct {
 // ErrTMP117NotFound on a mismatch. No register writes are made — the
 // POR/EEPROM default (continuous conversion, 8-conversion averaging, 1 s
 // cycle, Alert mode) already serves the primary use case.
-func NewTMP117Minimal(conn connection.Connection) (*TMP117Minimal, error) {
+func NewTMP117Minimal(conn connection.RegisterConnection) (*TMP117Minimal, error) {
 	d := &TMP117Minimal{conn: conn}
 	id, err := d.readReg(tmp117RegDeviceID)
 	if err != nil {
@@ -189,7 +189,7 @@ func NewTMP117Minimal(conn connection.Connection) (*TMP117Minimal, error) {
 }
 
 func (d *TMP117Minimal) readReg(reg uint8) (uint16, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 2)
+	b, err := d.conn.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -197,7 +197,7 @@ func (d *TMP117Minimal) readReg(reg uint8) (uint16, error) {
 }
 
 func (d *TMP117Minimal) writeReg(reg uint8, value uint16) error {
-	return d.conn.Write([]byte{reg, byte(value >> 8), byte(value)})
+	return d.conn.WriteReg(uint32(reg), []byte{byte(value >> 8), byte(value)})
 }
 
 func (d *TMP117Minimal) readTemperatureReg(reg uint8) (float32, error) {
@@ -231,7 +231,7 @@ type TMP117Full struct {
 
 // NewTMP117Full creates a TMP117Full; same identity check as
 // NewTMP117Minimal.
-func NewTMP117Full(conn connection.Connection) (*TMP117Full, error) {
+func NewTMP117Full(conn connection.RegisterConnection) (*TMP117Full, error) {
 	m, err := NewTMP117Minimal(conn)
 	if err != nil {
 		return nil, err

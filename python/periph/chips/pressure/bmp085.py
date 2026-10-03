@@ -13,7 +13,7 @@ class BMP085Minimal:
         - OSS = 0 (Ultra Low Power, 4.5 ms conversion)
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_ID         = 0xD0
@@ -39,7 +39,7 @@ class BMP085Minimal:
         self._read_calibration()
 
     def _read_calibration(self):
-        data = self._connection.write_read(bytes([self._REG_CAL_START]), 22)
+        data = self._connection.read_reg(self._REG_CAL_START, 22)
         ac1 = struct.unpack('>h', data[0:2])[0]
         ac2 = struct.unpack('>h', data[2:4])[0]
         ac3 = struct.unpack('>h', data[4:6])[0]
@@ -75,12 +75,12 @@ class BMP085Minimal:
         self._md  = md
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
+        self._connection.write_reg(reg, value)
 
     def _read_raw_temp(self):
         self._write_reg(self._REG_CTRL_MEAS, self._CMD_TEMP)
         time.sleep(self._CONVERSION_TIME)
-        data = self._connection.write_read(bytes([self._REG_OUT_MSB]), 2)
+        data = self._connection.read_reg(self._REG_OUT_MSB, 2)
         return (data[0] << 8) | data[1]
 
     def _read_raw_pressure(self):
@@ -88,7 +88,7 @@ class BMP085Minimal:
         self._write_reg(self._REG_CTRL_MEAS, cmd)
         conv_time = (0.0045, 0.0075, 0.0135, 0.0255)[self._oss]
         time.sleep(conv_time)
-        data = self._connection.write_read(bytes([self._REG_OUT_MSB]), 3)
+        data = self._connection.read_reg(self._REG_OUT_MSB, 3)
         up = ((data[0] << 16) | (data[1] << 8) | data[2]) >> (8 - self._oss)
         return up
 
@@ -171,7 +171,7 @@ class BMP085Full(BMP085Minimal):
         OSS_ULTRA_HIGH_RES — Ultra High Resolution (oss=3, 25.5 ms)
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         oss: Oversampling mode 0–3 (default 0 = ULP).
     """
 
@@ -230,7 +230,7 @@ class BMP085Full(BMP085Minimal):
         Returns:
             int: Chip ID; expect 0x55.
         """
-        data = self._connection.write_read(bytes([self._REG_ID]), 1)
+        data = self._connection.read_reg(self._REG_ID, 1)
         return data[0]
 
     def reset(self):

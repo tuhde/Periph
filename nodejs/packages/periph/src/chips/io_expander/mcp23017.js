@@ -42,7 +42,7 @@ const REG_OLATB    = 0x15;
  */
 class Mcp23017Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      * @param {number} [addr=0x20] - 7-bit I²C address (default 0x20, range 0x20–0x27).
      */
     constructor(connection, addr = 0x20) {
@@ -51,31 +51,22 @@ class Mcp23017Minimal {
         this._shadow = [0, 0];
 
         // fire-and-forget: underlying I2C write is synchronous
-        this._writeReg(REG_OLATA,  0x00);
-        this._writeReg(REG_OLATB,  0x00);
-        this._writeReg(REG_IODIRA, 0x7F);
-        this._writeReg(REG_IODIRB, 0x7F);
-        this._writeReg(REG_IPOLA,  0x00);
-        this._writeReg(REG_IPOLB,  0x00);
-        this._writeReg(REG_GPPUA,  0x00);
-        this._writeReg(REG_GPPUB,  0x00);
-    }
-
-    async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value & 0xFF]));
-    }
-
-    async _readReg(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg]), 1);
-        return buf[0];
+        this._conn.writeReg(REG_OLATA,  0x00);
+        this._conn.writeReg(REG_OLATB,  0x00);
+        this._conn.writeReg(REG_IODIRA, 0x7F);
+        this._conn.writeReg(REG_IODIRB, 0x7F);
+        this._conn.writeReg(REG_IPOLA,  0x00);
+        this._conn.writeReg(REG_IPOLB,  0x00);
+        this._conn.writeReg(REG_GPPUA,  0x00);
+        this._conn.writeReg(REG_GPPUB,  0x00);
     }
 
     async _writePort(port, mask) {
-        await this._writeReg(REG_OLATA + port, mask & 0xFF);
+        await this._conn.writeReg(REG_OLATA + port, mask & 0xFF);
     }
 
     async _readPort(port) {
-        return this._readReg(REG_GPIOA + port);
+        return (await this._conn.readReg(REG_GPIOA + port, 1))[0];
     }
 
     async _setPin(n, value) {
@@ -132,7 +123,7 @@ class Mcp23017Minimal {
      * @returns {Promise<void>}
      */
     async configureDirection(port, mask) {
-        await this._writeReg(REG_IODIRA + (port & 1), mask & 0xFF);
+        await this._conn.writeReg(REG_IODIRA + (port & 1), mask & 0xFF);
     }
 }
 
@@ -239,7 +230,7 @@ class _Pin {
  */
 class Mcp23017Full extends Mcp23017Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
      * @param {number} [addr=0x20] - 7-bit I²C address.
      */
     constructor(connection, addr = 0x20) {
@@ -275,7 +266,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {Promise<void>}
      */
     async configurePullup(port = 0, mask = 0x00) {
-        await this._writeReg(REG_GPPUA + port, mask & 0xFF);
+        await this._conn.writeReg(REG_GPPUA + port, mask & 0xFF);
     }
 
     /**
@@ -286,7 +277,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {Promise<void>}
      */
     async configurePolarity(port = 0, mask = 0x00) {
-        await this._writeReg(REG_IPOLA + port, mask & 0xFF);
+        await this._conn.writeReg(REG_IPOLA + port, mask & 0xFF);
     }
 
     /**
@@ -296,12 +287,12 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {Promise<void>}
      */
     async setDefaultValue(port = 0, mask = 0x00) {
-        await this._writeReg(REG_DEFVALA + (port & 1), mask & 0xFF);
+        await this._conn.writeReg(REG_DEFVALA + (port & 1), mask & 0xFF);
     }
 
     async _armPort(port, intPin) {
-        await this._writeReg(REG_INTCONA + port, 0x00); // interrupt-on-change mode
-        await this._writeReg(REG_GPINTENA + port, 0xFF);
+        await this._conn.writeReg(REG_INTCONA + port, 0x00); // interrupt-on-change mode
+        await this._conn.writeReg(REG_GPINTENA + port, 0xFF);
         this._intPinUsed[port] = intPin;
         if (this._pollTimer[port]) { clearInterval(this._pollTimer[port]); this._pollTimer[port] = null; }
         if (intPin) {
@@ -328,8 +319,8 @@ class Mcp23017Full extends Mcp23017Minimal {
      */
     async onInterrupt(callback, options = {}) {
         this._callbackBoth = callback;
-        const iocon = await this._readReg(REG_IOCON);
-        await this._writeReg(REG_IOCON, options.mirror ? (iocon | (1 << 6)) : iocon);
+        const iocon = (await this._conn.readReg(REG_IOCON, 1))[0];
+        await this._conn.writeReg(REG_IOCON, options.mirror ? (iocon | (1 << 6)) : iocon);
         const pin = options.intPin ?? this._conn.intPin ?? null;
         await this._armPort(0, pin);
         await this._armPort(1, pin);
@@ -370,7 +361,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      */
     async offInterruptPort(port) {
         port &= 1;
-        await this._writeReg(REG_GPINTENA + port, 0x00);
+        await this._conn.writeReg(REG_GPINTENA + port, 0x00);
         if (this._intPinUsed[port]) {
             await this._intPinUsed[port].offEdge(port === 0 ? this._edgeHandlerA : this._edgeHandlerB);
             this._intPinUsed[port] = null;
@@ -411,8 +402,8 @@ class Mcp23017Full extends Mcp23017Minimal {
      */
     async pollInterrupt(port = 0) {
         port &= 1;
-        const flags = await this._readReg(REG_INTFA + port);
-        await this._readReg(REG_INTCAPA + port); // clears and re-arms the interrupt; value discarded
+        const flags = (await this._conn.readReg(REG_INTFA + port, 1))[0];
+        await this._conn.readReg(REG_INTCAPA + port, 1); // clears and re-arms the interrupt; value discarded
         return flags;
     }
 
@@ -427,7 +418,7 @@ class Mcp23017Full extends Mcp23017Minimal {
      * @returns {Promise<number>} 8-bit captured port bitmask at the moment of interrupt.
      */
     async readCapture(port = 0) {
-        return this._readReg(REG_INTCAPA + (port & 1));
+        return (await this._conn.readReg(REG_INTCAPA + (port & 1), 1))[0];
     }
 }
 

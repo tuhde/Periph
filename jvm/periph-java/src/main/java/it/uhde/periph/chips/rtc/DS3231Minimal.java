@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -61,7 +61,7 @@ public class DS3231Minimal {
     protected static final int STATUS_A2F       = 0x02;
     protected static final int STATUS_A1F       = 0x01;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver. Confirms the device answers on the bus by reading
@@ -71,7 +71,7 @@ public class DS3231Minimal {
      * @param connection configured I²C connection bound to address 0x68
      * @throws IOException on bus error
      */
-    public DS3231Minimal(Connection connection) throws IOException {
+    public DS3231Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         readReg(REG_CONTROL);
     }
@@ -81,22 +81,21 @@ public class DS3231Minimal {
     // -------------------------------------------------------------------------
 
     protected int readReg(int reg) throws IOException {
-        return connection.writeRead(new byte[]{(byte) reg}, 1)[0] & 0xFF;
+        return connection.read(reg, 1)[0] & 0xFF;
     }
 
     protected byte[] readBurst(int reg, int n) throws IOException {
-        return connection.writeRead(new byte[]{(byte) reg}, n);
+        return connection.read(reg, n);
     }
 
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) value});
+        connection.write(reg, new byte[]{(byte) value});
     }
 
     protected void writeBurst(int reg, int... values) throws IOException {
-        byte[] out = new byte[values.length + 1];
-        out[0] = (byte) reg;
-        for (int i = 0; i < values.length; i++) out[i + 1] = (byte) values[i];
-        connection.write(out);
+        byte[] out = new byte[values.length];
+        for (int i = 0; i < values.length; i++) out[i] = (byte) values[i];
+        connection.write(reg, out);
     }
 
     protected static int bcdToInt(int b) {

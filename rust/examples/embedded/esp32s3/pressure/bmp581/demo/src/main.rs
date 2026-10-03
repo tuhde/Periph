@@ -23,7 +23,7 @@ fn main() -> ! {
     let mut delay = Delay::new();
 
     // --- Precision altimeter: 10 Hz NORMAL mode for 30 seconds ---
-    let mut bmp = Bmp581Full::new(i2c, ADDR, false).expect("init BMP581"); // Create BMP581 driver, (i2c, addr=0x46)
+    let mut bmp = Bmp581Full::new(i2c, ADDR).expect("init BMP581"); // Create BMP581 driver, (i2c, addr=0x46)
     bmp.configure(0x17, OSR_16X, OSR_4X, true).expect("configure");        // Configure chip, (odr=10Hz, osr_p=×16, osr_t=×4, press_en) → Result<(), E>
 
     let mut pressures = [0f32; 300];

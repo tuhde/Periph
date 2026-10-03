@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.gyroscope
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import groovy.transform.CompileStatic
 
 /**
@@ -39,22 +39,11 @@ class L3gd20hFull extends L3gd20hMinimal {
     private int odr = ODR_95_HZ
     private int bw = 0
 
-    L3gd20hFull(Connection connection, boolean spi) throws IOException {
-        super(connection, spi)
+    L3gd20hFull(RegisterConnection connection) throws IOException {
+        super(connection)
     }
 
     /** Read a register via I²C or SPI. */
-    private byte[] readReg(int reg, int n) throws IOException {
-        if (spi) {
-            connection.write([(byte) ((reg | 0xC0) & 0xFF)] as byte[])
-            return connection.read(n)
-        } else if (n > 1) {
-            return connection.writeRead([(byte) (reg | 0x80)] as byte[], n)
-        } else {
-            return connection.writeRead([(byte) reg] as byte[], n)
-        }
-    }
-
     /**
      * Configure ODR, bandwidth, and full scale in one call.
      *
@@ -69,8 +58,8 @@ class L3gd20hFull extends L3gd20hMinimal {
         int[] fsMap = [250, 500, 2000]
         this.fullScale = fsMap[fullScale]
         int ctrl1 = CTRL_REG1_DEFAULT | ((this.odr & 0x3) << 6) | ((this.bw & 0x3) << 4)
-        writeReg(REG_CTRL_REG1, ctrl1)
-        writeReg(REG_CTRL_REG4, CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4))
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1)] as byte[])
+        connection.write(REG_CTRL_REG4, [(byte) (CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4))] as byte[])
     }
 
     /**
@@ -117,7 +106,7 @@ class L3gd20hFull extends L3gd20hMinimal {
      */
     void configureHpFilter(int mode, int cutoff) throws IOException {
         if (mode > 3 || cutoff > 15) return
-        writeReg(REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F))
+        connection.write(REG_CTRL_REG2, [(byte) (((mode & 0x3) << 4) | (cutoff & 0x0F))] as byte[])
     }
 
     /**
@@ -127,7 +116,7 @@ class L3gd20hFull extends L3gd20hMinimal {
      */
     void enableHpFilter(boolean enable) throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10))
+        connection.write(REG_CTRL_REG5, [(byte) (enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10))] as byte[])
     }
 
     /**
@@ -140,8 +129,8 @@ class L3gd20hFull extends L3gd20hMinimal {
         boolean valid = mode == 0 || mode == 1 || mode == 2 || mode == 3 || mode == 7
         if (!valid || watermark < 0 || watermark > 31) return
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
-        writeReg(REG_CTRL_REG5, ctrl5 | 0x40)
-        writeReg(REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F))
+        connection.write(REG_CTRL_REG5, [(byte) (ctrl5 | 0x40)] as byte[])
+        connection.write(REG_FIFO_CTRL, [(byte) (((mode & 0x7) << 5) | (watermark & 0x1F))] as byte[])
     }
 
     /**
@@ -152,10 +141,10 @@ class L3gd20hFull extends L3gd20hMinimal {
     void enableFifo(boolean enable) throws IOException {
         int ctrl5 = readReg(REG_CTRL_REG5, 1)[0] & 0xFF
         if (enable) {
-            writeReg(REG_CTRL_REG5, ctrl5 | 0x40)
+            connection.write(REG_CTRL_REG5, [(byte) (ctrl5 | 0x40)] as byte[])
         } else {
-            writeReg(REG_CTRL_REG5, ctrl5 & ~0x40)
-            writeReg(REG_FIFO_CTRL, 0x00)
+            connection.write(REG_CTRL_REG5, [(byte) (ctrl5 & ~0x40)] as byte[])
+            connection.write(REG_FIFO_CTRL, [(byte) (0x00)] as byte[])
         }
     }
 
@@ -212,6 +201,6 @@ class L3gd20hFull extends L3gd20hMinimal {
                 ctrl1 &= 0xF7
                 break
         }
-        writeReg(REG_CTRL_REG1, ctrl1)
+        connection.write(REG_CTRL_REG1, [(byte) (ctrl1)] as byte[])
     }
 }

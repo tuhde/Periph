@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.memory
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * 24AA02UID — full driver. Extends {@link Eeprom24Aa02UidMinimal} with
@@ -20,7 +20,7 @@ class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
      *
      * @param connection I²C connection bound to the device address (0x50)
      */
-    Eeprom24Aa02UidFull(Connection connection) {
+    Eeprom24Aa02UidFull(RegisterConnection connection) {
         super(connection)
     }
 
@@ -35,7 +35,7 @@ class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
      * @return bytes read from the device
      */
     byte[] read(int address, int length) {
-        connection.writeRead([(byte) address] as byte[], length)
+        connection.read(address, length)
     }
 
     /**
@@ -51,10 +51,7 @@ class Eeprom24Aa02UidFull extends Eeprom24Aa02UidMinimal {
      */
     void writePage(int address, byte[] data) {
         if (data.length == 0) return
-        byte[] buf = new byte[1 + data.length]
-        buf[0] = (byte) address
-        System.arraycopy(data, 0, buf, 1, data.length)
-        connection.write(buf)
+        connection.write(address, data)
         Thread.sleep(WRITE_CYCLE_MS)
     }
 

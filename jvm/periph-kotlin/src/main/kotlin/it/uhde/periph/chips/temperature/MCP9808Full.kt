@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.temperature
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -19,7 +19,7 @@ import kotlin.math.abs
  * @param connection configured I²C connection bound to the device (0x18–0x1F)
  * @throws IOException on bus error or identity mismatch
  */
-class MCP9808Full(connection: Connection) : MCP9808Minimal(connection) {
+class MCP9808Full(connection: RegisterConnection) : MCP9808Minimal(connection) {
 
     /** Which boundaries drive the Alert output (`ALERT_SEL`). */
     enum class AlertMode {
@@ -111,7 +111,7 @@ class MCP9808Full(connection: Connection) : MCP9808Minimal(connection) {
     fun setResolution(celsius: Double) {
         val code = indexOf(RESOLUTIONS, celsius)
         require(code >= 0) { "resolution must be one of 0.5, 0.25, 0.125, 0.0625" }
-        connection.write(byteArrayOf(REG_RESOLUTION.toByte(), code.toByte()))
+        connection.write(REG_RESOLUTION, byteArrayOf(code.toByte()))
     }
 
     /**
@@ -120,7 +120,7 @@ class MCP9808Full(connection: Connection) : MCP9808Minimal(connection) {
      * @return resolution step in °C
      */
     fun getResolution(): Double =
-        RESOLUTIONS[connection.writeRead(byteArrayOf(REG_RESOLUTION.toByte()), 1)[0].toInt() and 0x03]
+        RESOLUTIONS[connection.read(REG_RESOLUTION, 1)[0].toInt() and 0x03]
 
     // -- Shutdown ------------------------------------------------------------
 

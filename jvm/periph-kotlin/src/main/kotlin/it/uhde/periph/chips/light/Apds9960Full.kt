@@ -1,13 +1,13 @@
 package it.uhde.periph.chips.light
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9960 — full driver. Extends [Apds9960Minimal] with proximity, gesture,
  * wait engine, threshold and interrupt configuration, status queries, and device identification.
  */
 class Apds9960Full(
-    connection: Connection
+    connection: RegisterConnection
 ) : Apds9960Minimal(connection) {
 
     /**
@@ -18,7 +18,7 @@ class Apds9960Full(
     fun enableProximity(enabled: Boolean) {
         var v = readReg(REG_ENABLE)
         v = if (enabled) v or 0x04 else v and 0x04.inv()
-        writeReg(REG_ENABLE, v)
+        connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -36,7 +36,7 @@ class Apds9960Full(
     fun enableWait(enabled: Boolean) {
         var v = readReg(REG_ENABLE)
         v = if (enabled) v or 0x08 else v and 0x08.inv()
-        writeReg(REG_ENABLE, v)
+        connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -46,11 +46,11 @@ class Apds9960Full(
      * @param wlong true to enable WLONG 12x multiplier
      */
     fun configureWait(wtime: Int, wlong: Boolean = false) {
-        writeReg(REG_WTIME, wtime and 0xFF)
+        connection.write(REG_WTIME, byteArrayOf((wtime and 0xFF).toByte()))
         var c1 = readReg(REG_CONFIG1)
         c1 = if (wlong) c1 or 0x02 else c1 and 0x02.inv()
         c1 = (c1 and 0x03) or 0x60
-        writeReg(REG_CONFIG1, c1)
+        connection.write(REG_CONFIG1, byteArrayOf((c1).toByte()))
     }
 
     /**
@@ -60,10 +60,10 @@ class Apds9960Full(
      * @param again ALS gain 0-3 (0=1x, 1=4x, 2=16x, 3=64x)
      */
     fun configureAls(atime: Int, again: Int) {
-        writeReg(REG_ATIME, atime and 0xFF)
+        connection.write(REG_ATIME, byteArrayOf((atime and 0xFF).toByte()))
         var ctrl = readReg(REG_CONTROL)
         ctrl = (ctrl and 0xFC) or (again and 0x03)
-        writeReg(REG_CONTROL, ctrl)
+        connection.write(REG_CONTROL, byteArrayOf((ctrl).toByte()))
     }
 
     /**
@@ -72,8 +72,8 @@ class Apds9960Full(
     fun configureProximityLed(ldrive: Int, pgain: Int, ppulse: Int, pplen: Int) {
         var ctrl = readReg(REG_CONTROL)
         ctrl = ((ldrive and 0x03) shl 6) or ((pgain and 0x03) shl 2) or (ctrl and 0x03)
-        writeReg(REG_CONTROL, ctrl)
-        writeReg(REG_PPULSE, ((pplen and 0x03) shl 6) or (ppulse and 0x3F))
+        connection.write(REG_CONTROL, byteArrayOf((ctrl).toByte()))
+        connection.write(REG_PPULSE, byteArrayOf((((pplen and 0x03) shl 6) or (ppulse and 0x3F)).toByte()))
     }
 
     /**
@@ -84,32 +84,32 @@ class Apds9960Full(
     fun setLedBoost(boost: Int) {
         var c2 = readReg(REG_CONFIG2)
         c2 = (c2 and 0xCF) or ((boost and 0x03) shl 4) or 0x01
-        writeReg(REG_CONFIG2, c2)
+        connection.write(REG_CONFIG2, byteArrayOf((c2).toByte()))
     }
 
     /**
      * Set ALS interrupt thresholds.
      */
     fun alsThreshold(low: Int, high: Int) {
-        writeReg(REG_AILTL, low and 0xFF)
-        writeReg(REG_AILTH, (low shr 8) and 0xFF)
-        writeReg(REG_AIHTL, high and 0xFF)
-        writeReg(REG_AIHTH, (high shr 8) and 0xFF)
+        connection.write(REG_AILTL, byteArrayOf((low and 0xFF).toByte()))
+        connection.write(REG_AILTH, byteArrayOf(((low shr 8) and 0xFF).toByte()))
+        connection.write(REG_AIHTL, byteArrayOf((high and 0xFF).toByte()))
+        connection.write(REG_AIHTH, byteArrayOf(((high shr 8) and 0xFF).toByte()))
     }
 
     /**
      * Set proximity interrupt thresholds.
      */
     fun proximityThreshold(low: Int, high: Int) {
-        writeReg(REG_PILT, low and 0xFF)
-        writeReg(REG_PIHT, high and 0xFF)
+        connection.write(REG_PILT, byteArrayOf((low and 0xFF).toByte()))
+        connection.write(REG_PIHT, byteArrayOf((high and 0xFF).toByte()))
     }
 
     /**
      * Set interrupt persistence filters.
      */
     fun setPersistence(ppers: Int, apers: Int) {
-        writeReg(REG_PERS, ((ppers and 0x0F) shl 4) or (apers and 0x0F))
+        connection.write(REG_PERS, byteArrayOf((((ppers and 0x0F) shl 4) or (apers and 0x0F)).toByte()))
     }
 
     /**
@@ -118,7 +118,7 @@ class Apds9960Full(
     fun enableAlsInterrupt(enabled: Boolean) {
         var v = readReg(REG_ENABLE)
         v = if (enabled) v or 0x10 else v and 0x10.inv()
-        writeReg(REG_ENABLE, v)
+        connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -127,7 +127,7 @@ class Apds9960Full(
     fun enableProximityInterrupt(enabled: Boolean) {
         var v = readReg(REG_ENABLE)
         v = if (enabled) v or 0x20 else v and 0x20.inv()
-        writeReg(REG_ENABLE, v)
+        connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
     }
 
     /**
@@ -155,8 +155,8 @@ class Apds9960Full(
      * Set proximity offset for UP/RIGHT and DOWN/LEFT photodiodes (sign-magnitude).
      */
     fun setProximityOffset(ur: Int, dl: Int) {
-        writeReg(REG_POFFSET_UR, encodeOffset(ur))
-        writeReg(REG_POFFSET_DL, encodeOffset(dl))
+        connection.write(REG_POFFSET_UR, byteArrayOf((encodeOffset(ur)).toByte()))
+        connection.write(REG_POFFSET_DL, byteArrayOf((encodeOffset(dl)).toByte()))
     }
 
     /**
@@ -168,7 +168,7 @@ class Apds9960Full(
         if (d) c3 = c3 or 0x04
         if (l) c3 = c3 or 0x02
         if (r) c3 = c3 or 0x01
-        writeReg(REG_CONFIG3, c3)
+        connection.write(REG_CONFIG3, byteArrayOf((c3).toByte()))
     }
 
     /**
@@ -178,16 +178,16 @@ class Apds9960Full(
         var v = readReg(REG_ENABLE)
         if (enabled) {
             v = v or 0x40
-            writeReg(REG_ENABLE, v)
+            connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
             var g4 = readReg(REG_GCONF4)
             g4 = g4 or 0x01
-            writeReg(REG_GCONF4, g4)
+            connection.write(REG_GCONF4, byteArrayOf((g4).toByte()))
         } else {
             v = v and 0x40.inv()
-            writeReg(REG_ENABLE, v)
+            connection.write(REG_ENABLE, byteArrayOf((v).toByte()))
             var g4 = readReg(REG_GCONF4)
             g4 = g4 and 0x01.inv()
-            writeReg(REG_GCONF4, g4)
+            connection.write(REG_GCONF4, byteArrayOf((g4).toByte()))
         }
     }
 
@@ -195,11 +195,11 @@ class Apds9960Full(
      * Configure gesture engine parameters.
      */
     fun configureGesture(ggain: Int, gldrive: Int, gpulse: Int, gplen: Int, gwtime: Int, gpenth: Int, gexth: Int) {
-        writeReg(REG_GPENTH, gpenth and 0xFF)
-        writeReg(REG_GEXTH, gexth and 0xFF)
+        connection.write(REG_GPENTH, byteArrayOf((gpenth and 0xFF).toByte()))
+        connection.write(REG_GEXTH, byteArrayOf((gexth and 0xFF).toByte()))
         val g2 = ((ggain and 0x03) shl 5) or ((gldrive and 0x03) shl 3) or (gwtime and 0x07)
-        writeReg(REG_GCONF2, g2)
-        writeReg(REG_GPULSE, ((gplen and 0x03) shl 6) or (gpulse and 0x3F))
+        connection.write(REG_GCONF2, byteArrayOf((g2).toByte()))
+        connection.write(REG_GPULSE, byteArrayOf((((gplen and 0x03) shl 6) or (gpulse and 0x3F)).toByte()))
     }
 
     /**
@@ -219,7 +219,7 @@ class Apds9960Full(
         if (level == 0) return emptyList()
         val result = mutableListOf<IntArray>()
         for (i in 0 until level) {
-            val raw = connection.writeRead(byteArrayOf(REG_GFIFO_U.toByte()), 4)
+            val raw = connection.read(REG_GFIFO_U, 4)
             result.add(intArrayOf(raw[0].toInt() and 0xFF, raw[1].toInt() and 0xFF, raw[2].toInt() and 0xFF, raw[3].toInt() and 0xFF))
         }
         return result
@@ -236,7 +236,7 @@ class Apds9960Full(
     fun clearGestureFifo() {
         var g4 = readReg(REG_GCONF4)
         g4 = g4 or 0x04
-        writeReg(REG_GCONF4, g4)
+        connection.write(REG_GCONF4, byteArrayOf((g4).toByte()))
     }
 
     /**
@@ -245,7 +245,7 @@ class Apds9960Full(
     fun enableGestureInterrupt(enabled: Boolean) {
         var g4 = readReg(REG_GCONF4)
         g4 = if (enabled) g4 or 0x02 else g4 and 0x02.inv()
-        writeReg(REG_GCONF4, g4)
+        connection.write(REG_GCONF4, byteArrayOf((g4).toByte()))
     }
 
     /**

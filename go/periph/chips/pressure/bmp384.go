@@ -10,16 +10,16 @@ import (
 
 // BMP384 register addresses.
 const (
-	bmp384RegChipID   uint8 = 0x00
-	bmp384RegStatus   uint8 = 0x03
-	bmp384RegData0    uint8 = 0x04
-	bmp384RegPwrCtrl  uint8 = 0x1B
-	bmp384RegOSR      uint8 = 0x1C
-	bmp384RegODR      uint8 = 0x1D
-	bmp384RegConfig   uint8 = 0x1F
-	bmp384RegCmd      uint8 = 0x7E
-	bmp384RegCalStart uint8 = 0x31
-	bmp384RegCalLen   uint8 = 21
+	bmp384RegChipID   = 0x00
+	bmp384RegStatus   = 0x03
+	bmp384RegData0    = 0x04
+	bmp384RegPwrCtrl  = 0x1B
+	bmp384RegOSR      = 0x1C
+	bmp384RegODR      = 0x1D
+	bmp384RegConfig   = 0x1F
+	bmp384RegCmd      = 0x7E
+	bmp384RegCalStart = 0x31
+	bmp384RegCalLen   = 21
 )
 
 // BMP384 expected chip ID.
@@ -76,9 +76,9 @@ type bmp384Calibration struct {
 // bmp384ReadCalibration reads the 21-byte NVM block (0x31..0x45) and unpacks
 // all 13 trimming coefficients into floating-point PAR values per datasheet
 // §"Calibration coefficient scaling".
-func bmp384ReadCalibration(t connection.Connection) (bmp384Calibration, error) {
+func bmp384ReadCalibration(t connection.RegisterConnection) (bmp384Calibration, error) {
 	var c bmp384Calibration
-	buf, err := t.WriteRead([]byte{bmp384RegCalStart}, int(bmp384RegCalLen))
+	buf, err := t.ReadReg(uint32(bmp384RegCalStart), int(bmp384RegCalLen))
 	if err != nil {
 		return c, err
 	}
@@ -148,7 +148,7 @@ func bmp384CompensatePressure(uncompP uint32, tLin float64, c bmp384Calibration)
 //
 // Default: normal mode, osr_p=×16, osr_t=×2, iir=coef 3, ODR=25 Hz.
 type BMP384Minimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 
 	mode    uint8
 	OsrP    uint8
@@ -161,7 +161,7 @@ type BMP384Minimal struct {
 
 // NewBMP384Minimal creates a BMP384Minimal, reads the 13 trimming
 // coefficients, and applies the default configuration.
-func NewBMP384Minimal(t connection.Connection) (*BMP384Minimal, error) {
+func NewBMP384Minimal(t connection.RegisterConnection) (*BMP384Minimal, error) {
 	cal, err := bmp384ReadCalibration(t)
 	if err != nil {
 		return nil, err
@@ -181,28 +181,24 @@ func NewBMP384Minimal(t connection.Connection) (*BMP384Minimal, error) {
 	return d, nil
 }
 
-func (d *BMP384Minimal) writeReg(reg, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
-}
-
 func (d *BMP384Minimal) readReg(reg uint8, n int) ([]byte, error) {
-	return d.connection.WriteRead([]byte{reg}, n)
+	return d.connection.ReadReg(uint32(reg), n)
 }
 
 func (d *BMP384Minimal) applyConfig() error {
 	osrReg := (d.OsrT << 3) | (d.OsrP << 0)
 	configReg := d.Iir << 1
 	pwrReg := (d.mode << 4) | bmp384PwrTempEn | bmp384PwrPressEn
-	if err := d.writeReg(bmp384RegOSR, osrReg); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegOSR), []byte{osrReg}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp384RegConfig, configReg); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegConfig), []byte{configReg}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp384RegODR, d.Odr); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegODR), []byte{d.Odr}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp384RegPwrCtrl, pwrReg); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegPwrCtrl), []byte{pwrReg}); err != nil {
 		return err
 	}
 	return nil
@@ -210,13 +206,13 @@ func (d *BMP384Minimal) applyConfig() error {
 
 func (d *BMP384Minimal) applyPwr() error {
 	pwrReg := (d.mode << 4) | bmp384PwrTempEn | bmp384PwrPressEn
-	return d.writeReg(bmp384RegPwrCtrl, pwrReg)
+	return d.connection.WriteReg(uint32(bmp384RegPwrCtrl), []byte{pwrReg})
 }
 
 func (d *BMP384Minimal) triggerAndRead() (uint32, uint32, error) {
 	if d.mode == bmp384ModeForced {
 		pwrReg := (bmp384ModeForced << 4) | bmp384PwrTempEn | bmp384PwrPressEn
-		if err := d.writeReg(bmp384RegPwrCtrl, pwrReg); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp384RegPwrCtrl), []byte{pwrReg}); err != nil {
 			return 0, 0, err
 		}
 		time.Sleep(bmp384MeasTime)
@@ -267,7 +263,7 @@ type BMP384Full struct {
 }
 
 // NewBMP384Full creates a BMP384Full and applies the default configuration.
-func NewBMP384Full(t connection.Connection) (*BMP384Full, error) {
+func NewBMP384Full(t connection.RegisterConnection) (*BMP384Full, error) {
 	m, err := NewBMP384Minimal(t)
 	if err != nil {
 		return nil, err
@@ -294,13 +290,13 @@ func (d *BMP384Full) Configure(osrP, osrT, iirFilt, odrSel uint8) error {
 	d.OsrT = osrT
 	d.Iir  = iirFilt
 	d.Odr  = odrSel
-	if err := d.writeReg(bmp384RegOSR, (osrT<<3)|(osrP<<0)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegOSR), []byte{(osrT<<3)|(osrP<<0)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp384RegConfig, iirFilt<<1); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegConfig), []byte{iirFilt<<1}); err != nil {
 		return err
 	}
-	return d.writeReg(bmp384RegODR, odrSel)
+	return d.connection.WriteReg(uint32(bmp384RegODR), []byte{odrSel})
 }
 
 // SetMode updates the power-mode bits of PWR_CTRL.
@@ -321,7 +317,7 @@ func (d *BMP384Full) IsDataReady() (bool, error) {
 // Softreset issues a soft reset (write 0xB6 to CMD), waits 2 ms, re-reads the
 // calibration coefficients, and re-applies the current configuration.
 func (d *BMP384Full) Softreset() error {
-	if err := d.writeReg(bmp384RegCmd, bmp384SoftResetCmd); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp384RegCmd), []byte{bmp384SoftResetCmd}); err != nil {
 		return err
 	}
 	time.Sleep(3 * time.Millisecond)
@@ -339,13 +335,13 @@ func (d *BMP384Full) FIFOConfig(pressEn, tempEn bool, wtm uint16, stopOnFull boo
 		(boolToUint8(stopOnFull) << 3) |
 		(boolToUint8(tempEn) << 1) |
 		boolToUint8(pressEn))
-	if err := d.writeReg(0x17, cfg1); err != nil {
+	if err := d.connection.WriteReg(uint32(0x17), []byte{cfg1}); err != nil {
 		return err
 	}
-	if err := d.writeReg(0x15, uint8(wtm&0xFF)); err != nil {
+	if err := d.connection.WriteReg(uint32(0x15), []byte{uint8(wtm&0xFF)}); err != nil {
 		return err
 	}
-	return d.writeReg(0x16, uint8((wtm>>8)&0x01))
+	return d.connection.WriteReg(uint32(0x16), []byte{uint8((wtm>>8)&0x01)})
 }
 
 // FIFORead reads and parses every available FIFO frame.
@@ -410,7 +406,7 @@ func (d *BMP384Full) FIFORead() ([]BMP384FIFOFrame, error) {
 
 // FIFOFlush flushes all FIFO contents (write 0xB0 to CMD).
 func (d *BMP384Full) FIFOFlush() error {
-	return d.writeReg(bmp384RegCmd, bmp384FIFOFlushCmd)
+	return d.connection.WriteReg(uint32(bmp384RegCmd), []byte{bmp384FIFOFlushCmd})
 }
 
 // Altitude computes altitude above sea level from the current pressure using
@@ -435,7 +431,7 @@ func (d *BMP384Full) Altitude(seaLevelHPa float32) (float32, error) {
 func (d *BMP384Full) Read() (float32, float32, error) {
 	if d.mode == bmp384ModeForced {
 		pwrReg := (bmp384ModeForced << 4) | bmp384PwrTempEn | bmp384PwrPressEn
-		if err := d.writeReg(bmp384RegPwrCtrl, pwrReg); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp384RegPwrCtrl), []byte{pwrReg}); err != nil {
 			return 0, 0, err
 		}
 		tConvMs := bmp384ComputeTConvMs(d.OsrP, d.OsrT)

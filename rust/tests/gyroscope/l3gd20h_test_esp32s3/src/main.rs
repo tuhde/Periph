@@ -34,7 +34,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO5);
 
     // L3gd20hFull carries the Minimal API too, so one driver covers both stages.
-    let mut gyro = L3gd20hFull::new(i2c, 0x6A, false).expect("init L3GD20H");
+    let mut gyro = L3gd20hFull::new(i2c, 0x6A).expect("init L3GD20H");
     // CTRL_REG1 power-up needs ~250 ms before the first valid sample.
     Delay::new().delay_millis(300);
 

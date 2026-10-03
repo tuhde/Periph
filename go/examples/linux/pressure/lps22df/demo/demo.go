@@ -30,7 +30,7 @@ func main() {
 	defer conn.Close()
 
 	// Indoor altimeter preset: 25 Hz, 4-sample average, low-pass filter.
-	lps, err := pressure.NewLPS22DFFull(conn, false)
+	lps, err := pressure.NewLPS22DFFull(conn)
 	if err != nil {
 		panic(err)
 	}

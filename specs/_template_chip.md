@@ -14,7 +14,7 @@
 ### I²C
 - **Address:** `0x??` (default) — `0x??` (alternate, if applicable)
 - **Max clock:** <e.g. 400 kHz>
-- **Identity register:** `0x??` = `0x??` (<name>) — or "none; chip has no ID register" (feeds `registry/chips.json`, see `specs/feature_i2c_discovery.md`)
+- **Identity register:** `0x??` = `0x??` (<name>) — or "none; chip has no ID register" (feeds `registry/chips.json` with `"driver": null` until implemented, see `specs/feature_i2c_discovery.md`)
 - **Probe safety:** `register_pointer` | `write_sensitive` — <one line why>
 
 ### SPI

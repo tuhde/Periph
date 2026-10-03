@@ -28,7 +28,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	lps, err := pressure.NewLPS22DFFull(conn, false)
+	lps, err := pressure.NewLPS22DFFull(conn)
 	if err != nil {
 		panic(err)
 	}

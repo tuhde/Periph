@@ -8,6 +8,8 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_ENABLE: u8 = 0x80;
 const REG_ATIME: u8 = 0x81;
 const REG_WTIME: u8 = 0x83;
@@ -69,11 +71,11 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     ///             verify the device identity (expects `0xAB`).
     pub fn new(mut i2c: I2C, addr: u8, delay: &mut impl DelayNs) -> Result<Self, I2C::Error> {
         delay.delay_ms(6);
-        write_reg(&mut i2c, addr, REG_ENABLE, 0x00)?;
-        write_reg(&mut i2c, addr, REG_ATIME, ATIME_DEFAULT)?;
-        write_reg(&mut i2c, addr, REG_CONTROL, CONTROL_DEFAULT)?;
-        write_reg(&mut i2c, addr, REG_CONFIG2, CONFIG2_DEFAULT)?;
-        write_reg(&mut i2c, addr, REG_ENABLE, 0x03)?;
+        register::write_register(&mut i2c, addr, REG_ENABLE.into(), 1, &[0x00])?;
+        register::write_register(&mut i2c, addr, REG_ATIME.into(), 1, &[ATIME_DEFAULT])?;
+        register::write_register(&mut i2c, addr, REG_CONTROL.into(), 1, &[CONTROL_DEFAULT])?;
+        register::write_register(&mut i2c, addr, REG_CONFIG2.into(), 1, &[CONFIG2_DEFAULT])?;
+        register::write_register(&mut i2c, addr, REG_ENABLE.into(), 1, &[0x03])?;
         delay.delay_ms(210);
         Ok(Self { i2c, addr })
     }
@@ -91,7 +93,7 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     /// Returns raw red channel count, 0–65535.
     pub fn color_red(&mut self) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 8];
-        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_CDATAL.into(), 1, &mut buf)?;
         Ok((buf[2] as u16) | ((buf[3] as u16) << 8))
     }
 
@@ -101,7 +103,7 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     /// Returns raw green channel count, 0–65535.
     pub fn color_green(&mut self) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 8];
-        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_CDATAL.into(), 1, &mut buf)?;
         Ok((buf[4] as u16) | ((buf[5] as u16) << 8))
     }
 
@@ -111,7 +113,7 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     /// Returns raw blue channel count, 0–65535.
     pub fn color_blue(&mut self) -> Result<u16, I2C::Error> {
         let mut buf = [0u8; 8];
-        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_CDATAL.into(), 1, &mut buf)?;
         Ok((buf[6] as u16) | ((buf[7] as u16) << 8))
     }
 
@@ -122,7 +124,7 @@ impl<I2C: I2c> Apds9960Minimal<I2C> {
     /// Returns `(clear, red, green, blue)` each 0–65535.
     pub fn color(&mut self) -> Result<(u16, u16, u16, u16), I2C::Error> {
         let mut buf = [0u8; 8];
-        self.i2c.write_read(self.addr, &[REG_CDATAL], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_CDATAL.into(), 1, &mut buf)?;
         let c = (buf[0] as u16) | ((buf[1] as u16) << 8);
         let r = (buf[2] as u16) | ((buf[3] as u16) << 8);
         let g = (buf[4] as u16) | ((buf[5] as u16) << 8);
@@ -177,7 +179,7 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     pub fn enable_proximity(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         let mut val = read_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE)?;
         if enabled { val |= 0x04; } else { val &= !0x04; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])
     }
 
     /// Read the proximity count (0–255; higher means closer).
@@ -189,7 +191,7 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     pub fn enable_wait(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         let mut val = read_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE)?;
         if enabled { val |= 0x08; } else { val &= !0x08; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])
     }
 
     /// Configure the wait time between ALS/proximity cycles.
@@ -198,11 +200,11 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     /// * `wtime` — WTIME register value 0–255.
     /// * `wlong` — `true` to enable WLONG 12x multiplier.
     pub fn configure_wait(&mut self, wtime: u8, wlong: bool) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_WTIME, wtime)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_WTIME.into(), 1, &[wtime])?;
         let mut c1 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG1)?;
         if wlong { c1 |= 0x02; } else { c1 &= !0x02; }
         c1 = (c1 & 0x03) | 0x60;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG1, c1)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG1.into(), 1, &[c1])
     }
 
     /// Configure ALS integration time and gain.
@@ -211,58 +213,58 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     /// * `atime` — ATIME register value 0–255.
     /// * `again` — ALS gain 0–3 (0=1x, 1=4x, 2=16x, 3=64x).
     pub fn configure_als(&mut self, atime: u8, again: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ATIME, atime)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ATIME.into(), 1, &[atime])?;
         let mut ctrl = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONTROL)?;
         ctrl = (ctrl & 0xFC) | (again & 0x03);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONTROL, ctrl)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONTROL.into(), 1, &[ctrl])
     }
 
     /// Configure proximity LED drive, gain, pulse count and length.
     pub fn configure_proximity_led(&mut self, ldrive: u8, pgain: u8, ppulse: u8, pplen: u8) -> Result<(), I2C::Error> {
         let mut ctrl = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONTROL)?;
         ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONTROL, ctrl)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F))
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONTROL.into(), 1, &[ctrl])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PPULSE.into(), 1, &[((pplen & 0x03) << 6) | (ppulse & 0x3F)])
     }
 
     /// Set additional LED current boost (0=100%, 1=150%, 2=200%, 3=300%).
     pub fn set_led_boost(&mut self, boost: u8) -> Result<(), I2C::Error> {
         let mut c2 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG2)?;
         c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG2, c2)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG2.into(), 1, &[c2])
     }
 
     /// Set ALS interrupt thresholds (16-bit LE).
     pub fn als_threshold(&mut self, low: u16, high: u16) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_AILTL, (low & 0xFF) as u8)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_AILTH, ((low >> 8) & 0xFF) as u8)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_AIHTL, (high & 0xFF) as u8)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_AIHTH, ((high >> 8) & 0xFF) as u8)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_AILTL.into(), 1, &[(low & 0xFF) as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_AILTH.into(), 1, &[((low >> 8) & 0xFF) as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_AIHTL.into(), 1, &[(high & 0xFF) as u8])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_AIHTH.into(), 1, &[((high >> 8) & 0xFF) as u8])
     }
 
     /// Set proximity interrupt thresholds.
     pub fn proximity_threshold(&mut self, low: u8, high: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PILT, low)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PIHT, high)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PILT.into(), 1, &[low])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PIHT.into(), 1, &[high])
     }
 
     /// Set interrupt persistence filters.
     pub fn set_persistence(&mut self, ppers: u8, apers: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F))
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_PERS.into(), 1, &[((ppers & 0x0F) << 4) | (apers & 0x0F)])
     }
 
     /// Enable or disable ALS interrupt.
     pub fn enable_als_interrupt(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         let mut val = read_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE)?;
         if enabled { val |= 0x10; } else { val &= !0x10; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])
     }
 
     /// Enable or disable proximity interrupt.
     pub fn enable_proximity_interrupt(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         let mut val = read_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE)?;
         if enabled { val |= 0x20; } else { val &= !0x20; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])
     }
 
     /// Clear the proximity interrupt via address-only write to PICLEAR.
@@ -282,8 +284,8 @@ impl<I2C: I2c> Apds9960Full<I2C> {
 
     /// Set proximity offset for UP/RIGHT and DOWN/LEFT photodiodes (sign-magnitude).
     pub fn set_proximity_offset(&mut self, ur: i8, dl: i8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POFFSET_UR, encode_offset(ur))?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_POFFSET_DL, encode_offset(dl))
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_POFFSET_UR.into(), 1, &[encode_offset(ur)])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_POFFSET_DL.into(), 1, &[encode_offset(dl)])
     }
 
     /// Mask individual photodiodes in proximity detection.
@@ -293,7 +295,7 @@ impl<I2C: I2c> Apds9960Full<I2C> {
         if d { c3 |= 0x04; }
         if l { c3 |= 0x02; }
         if r { c3 |= 0x01; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG3, c3)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG3.into(), 1, &[c3])
     }
 
     /// Enable or disable the gesture engine.
@@ -301,26 +303,26 @@ impl<I2C: I2c> Apds9960Full<I2C> {
         let mut val = read_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE)?;
         if enabled {
             val |= 0x40;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])?;
             let mut g4 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4)?;
             g4 |= 0x01;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4, g4)
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GCONF4.into(), 1, &[g4])
         } else {
             val &= !0x40;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_ENABLE, val)?;
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_ENABLE.into(), 1, &[val])?;
             let mut g4 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4)?;
             g4 &= !0x01;
-            write_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4, g4)
+            register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GCONF4.into(), 1, &[g4])
         }
     }
 
     /// Configure gesture engine parameters.
     pub fn configure_gesture(&mut self, ggain: u8, gldrive: u8, gpulse: u8, gplen: u8, gwtime: u8, gpenth: u8, gexth: u8) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GPENTH, gpenth)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GEXTH, gexth)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GPENTH.into(), 1, &[gpenth])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GEXTH.into(), 1, &[gexth])?;
         let g2 = ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07);
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF2, g2)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F))
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GCONF2.into(), 1, &[g2])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GPULSE.into(), 1, &[((gplen & 0x03) << 6) | (gpulse & 0x3F)])
     }
 
     /// Check if gesture data is available in the FIFO.
@@ -336,7 +338,7 @@ impl<I2C: I2c> Apds9960Full<I2C> {
         let count = if level > buf.len() { buf.len() } else { level };
         for i in 0..count {
             let mut raw = [0u8; 4];
-            self.inner.i2c.write_read(self.inner.addr, &[REG_GFIFO_U], &mut raw)?;
+            register::read_register(&mut self.inner.i2c, self.inner.addr, REG_GFIFO_U.into(), 1, &mut raw)?;
             buf[i] = (raw[0], raw[1], raw[2], raw[3]);
         }
         Ok(count)
@@ -351,14 +353,14 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     pub fn clear_gesture_fifo(&mut self) -> Result<(), I2C::Error> {
         let mut g4 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4)?;
         g4 |= 0x04;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4, g4)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GCONF4.into(), 1, &[g4])
     }
 
     /// Enable or disable gesture interrupt.
     pub fn enable_gesture_interrupt(&mut self, enabled: bool) -> Result<(), I2C::Error> {
         let mut g4 = read_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4)?;
         if enabled { g4 |= 0x02; } else { g4 &= !0x02; }
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_GCONF4, g4)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_GCONF4.into(), 1, &[g4])
     }
 
     /// Read the raw STATUS register.
@@ -392,19 +394,15 @@ impl<I2C: I2c> Apds9960Full<I2C> {
     }
 }
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
-}
-
 fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn read_reg16_le<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok((buf[0] as u16) | ((buf[1] as u16) << 8))
 }
 

@@ -28,7 +28,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x68, nil, nil)
-	magFactory := func(a uint8) (connection.Connection, error) {
+	magFactory := func(a uint8) (connection.RegisterConnection, error) {
 		return connection.NewI2CConnection(i2c, a, nil, nil), nil
 	}
 	chip, err := imu.NewMPU9250Full(conn, magFactory)

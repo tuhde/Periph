@@ -43,7 +43,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    LPS22DFFull inst(connection, false);
+    LPS22DFFull inst(connection);
     check_eq_u8(inst.who_am_i(), 0xB4, "who_am_i");
     float t = inst.temperature();
     check_near(t, -40.0f, 85.0f, "temperature_range");

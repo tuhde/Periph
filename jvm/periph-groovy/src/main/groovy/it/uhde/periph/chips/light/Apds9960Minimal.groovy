@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.light
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9960 — digital proximity, ambient light, RGB and gesture sensor (minimal driver).
@@ -69,23 +69,23 @@ class Apds9960Minimal {
     protected static final int CONTROL_DEFAULT = 0x01
     protected static final int CONFIG2_DEFAULT = 0x01
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     /**
      * Construct the driver.
      *
      * @param connection I²C connection bound to the APDS-9960 device address (0x39)
      */
-    Apds9960Minimal(Connection connection) {
+    Apds9960Minimal(RegisterConnection connection) {
         this.connection = connection
         try { Thread.sleep(6) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         int id = readReg(REG_ID)
         if (id != 0xAB) throw new IOException("APDS-9960 not found (ID=0x${Integer.toHexString(id)}, expected 0xAB)")
-        writeReg(REG_ENABLE, 0x00)
-        writeReg(REG_ATIME, ATIME_DEFAULT)
-        writeReg(REG_CONTROL, CONTROL_DEFAULT)
-        writeReg(REG_CONFIG2, CONFIG2_DEFAULT)
-        writeReg(REG_ENABLE, 0x03)
+        connection.write(REG_ENABLE, [(byte) (0x00)] as byte[])
+        connection.write(REG_ATIME, [(byte) (ATIME_DEFAULT)] as byte[])
+        connection.write(REG_CONTROL, [(byte) (CONTROL_DEFAULT)] as byte[])
+        connection.write(REG_CONFIG2, [(byte) (CONFIG2_DEFAULT)] as byte[])
+        connection.write(REG_ENABLE, [(byte) (0x03)] as byte[])
         try { Thread.sleep(210) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
     }
 
@@ -106,7 +106,7 @@ class Apds9960Minimal {
      * @return raw red channel count, 0-65535
      */
     int colorRed() {
-        byte[] raw = connection.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        byte[] raw = connection.read(REG_CDATAL, 8)
         (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8)
     }
 
@@ -118,7 +118,7 @@ class Apds9960Minimal {
      * @return raw green channel count, 0-65535
      */
     int colorGreen() {
-        byte[] raw = connection.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        byte[] raw = connection.read(REG_CDATAL, 8)
         (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8)
     }
 
@@ -130,7 +130,7 @@ class Apds9960Minimal {
      * @return raw blue channel count, 0-65535
      */
     int colorBlue() {
-        byte[] raw = connection.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        byte[] raw = connection.read(REG_CDATAL, 8)
         (raw[6] & 0xFF) | ((raw[7] & 0xFF) << 8)
     }
 
@@ -140,7 +140,7 @@ class Apds9960Minimal {
      * @return array of [clear, red, green, blue] each 0-65535
      */
     int[] color() {
-        byte[] raw = connection.writeRead([(byte) REG_CDATAL] as byte[], 8)
+        byte[] raw = connection.read(REG_CDATAL, 8)
         int c = (raw[0] & 0xFF) | ((raw[1] & 0xFF) << 8)
         int r = (raw[2] & 0xFF) | ((raw[3] & 0xFF) << 8)
         int g = (raw[4] & 0xFF) | ((raw[5] & 0xFF) << 8)
@@ -148,17 +148,13 @@ class Apds9960Minimal {
         [c, r, g, b] as int[]
     }
 
-    protected void writeReg(int reg, int value) {
-        connection.write([(byte) reg, (byte) value] as byte[])
-    }
-
     protected int readReg(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 1)
+        byte[] b = connection.read(reg, 1)
         b[0] & 0xFF
     }
 
     protected int readReg16LE(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.read(reg, 2)
         (b[0] & 0xFF) | ((b[1] & 0xFF) << 8)
     }
 }

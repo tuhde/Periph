@@ -1,5 +1,7 @@
 import time
 
+from periph.connection.register import to_signed
+
 
 class LPS33HWMinimal:
     """LPS33HW water-resistant MEMS absolute pressure sensor — minimal interface.
@@ -16,7 +18,7 @@ class LPS33HWMinimal:
         - IF_ADD_INC = 1 (auto-increment, kept from reset default)
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_INTERRUPT_CFG = 0x0B
@@ -65,10 +67,10 @@ class LPS33HWMinimal:
         self._write_reg(self._REG_CTRL_REG1, self._CTRL_REG1_DEFAULT)
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
+        self._connection.write_reg(reg, value)
 
     def _read_reg(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
+        return self._connection.read_reg(reg, n)
 
     def _wait_status(self, mask):
         for _ in range(50):
@@ -92,8 +94,7 @@ class LPS33HWMinimal:
         self._wait_status(self._STATUS_P_DA)
         raw = self._read_reg(self._REG_PRESS_XL, 5)
         raw_press = (raw[2] << 16) | (raw[1] << 8) | raw[0]
-        if raw_press >= 0x800000:
-            raw_press -= 0x1000000
+        raw_press = to_signed(raw_press, 24)
         return raw_press * 100.0 / 4096.0
 
     def temperature(self):
@@ -108,8 +109,7 @@ class LPS33HWMinimal:
         self._wait_status(self._STATUS_T_DA)
         raw = self._read_reg(self._REG_PRESS_XL, 5)
         raw_temp = (raw[4] << 8) | raw[3]
-        if raw_temp >= 0x8000:
-            raw_temp -= 0x10000
+        raw_temp = to_signed(raw_temp, 16)
         return raw_temp / 100.0
 
 
@@ -118,7 +118,7 @@ class LPS33HWFull(LPS33HWMinimal):
     one-shot, FIFO, interrupt, AUTOZERO/AUTORIFP, reset, and reboot.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     ODR_POWER_DOWN = 0
@@ -184,12 +184,10 @@ class LPS33HWFull(LPS33HWMinimal):
             if (status & 0x03) == 0x03:
                 raw = self._read_reg(self._REG_PRESS_XL, 5)
                 raw_press = (raw[2] << 16) | (raw[1] << 8) | raw[0]
-                if raw_press >= 0x800000:
-                    raw_press -= 0x1000000
+                raw_press = to_signed(raw_press, 24)
                 pressure_Pa = raw_press * 100.0 / 4096.0
                 raw_temp = (raw[4] << 8) | raw[3]
-                if raw_temp >= 0x8000:
-                    raw_temp -= 0x10000
+                raw_temp = to_signed(raw_temp, 16)
                 temperature_C = raw_temp / 100.0
                 return pressure_Pa, temperature_C
             time.sleep(0.005)
@@ -370,12 +368,10 @@ class LPS33HWFull(LPS33HWMinimal):
         for i in range(count):
             chunk = raw[i * 5:(i + 1) * 5]
             raw_press = (chunk[2] << 16) | (chunk[1] << 8) | chunk[0]
-            if raw_press >= 0x800000:
-                raw_press -= 0x1000000
+            raw_press = to_signed(raw_press, 24)
             pressure_Pa = raw_press * 100.0 / 4096.0
             raw_temp = (chunk[4] << 8) | chunk[3]
-            if raw_temp >= 0x8000:
-                raw_temp -= 0x10000
+            raw_temp = to_signed(raw_temp, 16)
             temperature_C = raw_temp / 100.0
             samples.append((pressure_Pa, temperature_C))
         return samples

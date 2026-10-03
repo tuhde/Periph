@@ -19,7 +19,7 @@
 #define DELAY_MS(ms) delay(ms)
 #endif
 
-MPR121Minimal::MPR121Minimal(Connection& connection)
+MPR121Minimal::MPR121Minimal(RegisterConnection& connection)
     : _connection(connection) {
     _reset();
     _write_reg(REG_MHDR, 0x01);
@@ -45,26 +45,24 @@ void MPR121Minimal::_reset() {
 }
 
 void MPR121Minimal::_write_reg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 uint8_t MPR121Minimal::_read_reg(uint8_t reg) {
     uint8_t val = 0;
-    _connection.write_read(&reg, 1, &val, 1);
+    _connection.read(reg, &val, 1);
     return val;
 }
 
 uint16_t MPR121Minimal::_read_reg16(uint8_t reg) {
     uint8_t buf[2] = { 0, 0 };
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return ((uint16_t)buf[0]) | ((uint16_t)(buf[1] & 0x03) << 8);
 }
 
 uint16_t MPR121Minimal::touched() {
-    uint8_t reg = REG_ELE0_7_TOUCH;
     uint8_t buf[2] = { 0, 0 };
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(REG_ELE0_7_TOUCH, buf, 2);
     return ((uint16_t)buf[0]) | ((uint16_t)(buf[1] & 0x0F) << 8);
 }
 
@@ -75,7 +73,7 @@ bool MPR121Minimal::is_touched(uint8_t electrode) {
 
 // MPR121Full
 
-MPR121Full::MPR121Full(Connection& connection)
+MPR121Full::MPR121Full(RegisterConnection& connection)
     : MPR121Minimal(connection) {}
 
 void MPR121Full::reset() {
@@ -145,9 +143,8 @@ void MPR121Full::set_baseline(uint8_t electrode, uint16_t value) {
 }
 
 uint16_t MPR121Full::oor_status() {
-    uint8_t reg = REG_ELE0_7_OOR;
     uint8_t buf[2] = { 0, 0 };
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(REG_ELE0_7_OOR, buf, 2);
     return ((uint16_t)buf[0]) | ((uint16_t)(buf[1] & 0x1F) << 8);
 }
 

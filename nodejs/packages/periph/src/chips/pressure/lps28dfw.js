@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_INTERRUPT_CFG = 0x0B;
 const _REG_THS_P_L       = 0x0C;
 const _REG_THS_P_H       = 0x0D;
@@ -36,7 +38,7 @@ function _delay(ms) {
  *     - ODR = 0100b (25 Hz)
  *     - BDU = 1, EN_LPFP = 1, LFPF_CFG = 0 (ODR/4 bandwidth)
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class LPS28DFWMinimal {
     constructor(connection) {
@@ -65,11 +67,11 @@ class LPS28DFWMinimal {
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
+        await this._conn.writeReg(reg, value);
     }
 
     async _readReg(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg]), n);
+        return this._conn.readReg(reg, n);
     }
 
     /**
@@ -79,7 +81,7 @@ class LPS28DFWMinimal {
     async readPressure() {
         const raw = await this._readReg(_REG_PRESS_OUT_XL, 3);
         let v = (raw[2] << 16) | (raw[1] << 8) | raw[0];
-        if (v & 0x800000) v |= 0xFF000000;
+        v = toSigned(v, 24);
         const sens = this._fsMode === 0 ? _SENSITIVITY_LSB_PER_HPA_MODE1 : _SENSITIVITY_LSB_PER_HPA_MODE2;
         return v / sens;
     }
@@ -98,7 +100,7 @@ class LPS28DFWMinimal {
 /**
  * LPS28DFW full interface — extends LPS28DFWMinimal with full configuration.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class LPS28DFWFull extends LPS28DFWMinimal {
     static ODR_POWER_DOWN = 0x00;
@@ -165,7 +167,7 @@ class LPS28DFWFull extends LPS28DFWMinimal {
     async read() {
         const raw = await this._readReg(_REG_PRESS_OUT_XL, 5);
         let p = (raw[2] << 16) | (raw[1] << 8) | raw[0];
-        if (p & 0x800000) p |= 0xFF000000;
+        p = toSigned(p, 24);
         const t = raw.readInt16LE(3);
         const sens = this._fsMode === 0 ? _SENSITIVITY_LSB_PER_HPA_MODE1 : _SENSITIVITY_LSB_PER_HPA_MODE2;
         return { pressure: p / sens, temperature: t / 100.0 };
@@ -255,7 +257,7 @@ class LPS28DFWFull extends LPS28DFWMinimal {
         for (let i = 0; i < count; i++) {
             const b = i * 3;
             let v = (raw[b + 2] << 16) | (raw[b + 1] << 8) | raw[b];
-            if (v & 0x800000) v |= 0xFF000000;
+            v = toSigned(v, 24);
             out.push(v / sens);
         }
         return out;

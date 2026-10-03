@@ -11,9 +11,11 @@ Registers are 16-bit, big-endian, addressed through a non-incrementing
 Register Pointer.
 
 Args:
-    connection: Configured I2C connection pointing at the device
+    connection: RegisterConnection (I²C or SMBus) pointing at the device
         (0x18-0x1F, per the board's A0/A1/A2 strapping).
 """
+
+from periph.connection.register import to_signed
 
 try:
     import threading as _threading
@@ -45,9 +47,7 @@ _LIMIT_MAX_QUARTERS = 1023
 
 
 def _decode_temperature(raw16):
-    raw = raw16 & 0x1FFF
-    if raw & 0x1000:
-        raw -= 0x2000
+    raw = to_signed(raw16 & 0x1FFF, 13)
     return raw / 16.0
 
 
@@ -75,7 +75,7 @@ class MCP9808Minimal:
     output disabled) already serves the primary use case.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
 
     Raises:
         ValueError: If the manufacturer or device ID does not match.
@@ -102,11 +102,11 @@ class MCP9808Minimal:
                 DEVICE_ID, dev))
 
     def _read_reg(self, reg):
-        data = self._connection.write_read(bytes([reg]), 2)
+        data = self._connection.read_reg(reg, 2)
         return (data[0] << 8) | data[1]
 
     def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, (value >> 8) & 0xFF, value & 0xFF]))
+        self._connection.write_reg(reg, bytes([(value >> 8) & 0xFF, value & 0xFF]))
 
     def read_temperature(self):
         """Read the ambient temperature.
@@ -126,7 +126,7 @@ class MCP9808Full(MCP9808Minimal):
     register locks, and the Level-2 Alert/interrupt API.
 
     Args:
-        connection: Configured I2C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
 
     Raises:
         ValueError: If the manufacturer or device ID does not match.
@@ -179,7 +179,7 @@ class MCP9808Full(MCP9808Minimal):
         """
         for code, step in enumerate(_RESOLUTIONS):
             if abs(celsius - step) < 1e-6:
-                self._connection.write(bytes([self._REG_RESOLUTION, code]))
+                self._connection.write_reg(self._REG_RESOLUTION, code)
                 return
         raise ValueError('resolution must be one of 0.5, 0.25, 0.125, 0.0625')
 
@@ -189,7 +189,7 @@ class MCP9808Full(MCP9808Minimal):
         Returns:
             float: Resolution step in °C.
         """
-        code = self._connection.write_read(bytes([self._REG_RESOLUTION]), 1)[0] & 0x03
+        code = self._connection.read_reg(self._REG_RESOLUTION, 1)[0] & 0x03
         return _RESOLUTIONS[code]
 
     # --- Shutdown ---------------------------------------------------------

@@ -14,6 +14,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register::{self, to_signed};
+
 const REG_INTERRUPT_CFG: u8 = 0x0B;
 const REG_THS_P_L: u8 = 0x0C;
 const REG_THS_P_H: u8 = 0x0D;
@@ -117,11 +119,11 @@ fn delay_ms(ms: u32) {
 }
 
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::read_register(i2c, addr, reg.into(), 1, buf)
 }
 
 /// LPS28DFW minimal driver — pressure (hPa) and temperature (°C).
@@ -167,7 +169,7 @@ impl<I2C: I2c> Lps28dfwMinimal<I2C> {
         let mut buf = [0u8; 3];
         read_reg_bytes(&mut self.i2c, self.addr, REG_PRESS_OUT_XL, &mut buf)?;
         let v = ((buf[2] as i32) << 16) | ((buf[1] as i32) << 8) | (buf[0] as i32);
-        Ok(if v & 0x800000 != 0 { v | -0x1000000 } else { v })
+        Ok(to_signed(v as u32, 24))
     }
 
     fn read_temperature_raw(&mut self) -> Result<i16, I2C::Error> {
@@ -219,7 +221,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         let mut buf = [0u8; 5];
         read_reg_bytes(&mut self.inner.i2c, self.inner.addr, REG_PRESS_OUT_XL, &mut buf)?;
         let p = ((buf[2] as i32) << 16) | ((buf[1] as i32) << 8) | (buf[0] as i32);
-        let p = if p & 0x800000 != 0 { p | -0x1000000 } else { p };
+        let p = to_signed(p as u32, 24);
         let t = i16::from_le_bytes([buf[3], buf[4]]);
         let sens = sensitivity_lsb_per_hpa(self.inner.fs_mode);
         Ok((p as f32 / sens, t as f32 / 100.0))
@@ -290,7 +292,7 @@ impl<I2C: I2c> Lps28dfwFull<I2C> {
         for i in 0..n as usize {
             let b = i * 3;
             let v = ((raw[b + 2] as i32) << 16) | ((raw[b + 1] as i32) << 8) | (raw[b] as i32);
-            let v = if v & 0x800000 != 0 { v | -0x1000000 } else { v };
+            let v = to_signed(v as u32, 24);
             buf[i] = v as f32 / sens;
         }
         Ok(())

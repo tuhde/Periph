@@ -5,6 +5,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_CONFIG_A: u8 = 0x00;
 const REG_CONFIG_B: u8 = 0x01;
 const REG_MODE: u8 = 0x02;
@@ -52,31 +54,27 @@ impl<I2C: I2c> Hmc5883lMinimal<I2C> {
     }
 
     fn init_minimal(&mut self) -> Result<(), I2C::Error> {
-        write_reg8(&mut self.i2c, self.addr, REG_CONFIG_A, 0x70)?;
-        write_reg8(&mut self.i2c, self.addr, REG_CONFIG_B, 0x20)?;
-        write_reg8(&mut self.i2c, self.addr, REG_MODE, 0x00)?;
+        register::write_register(&mut self.i2c, self.addr, REG_CONFIG_A.into(), 1, &[0x70])?;
+        register::write_register(&mut self.i2c, self.addr, REG_CONFIG_B.into(), 1, &[0x20])?;
+        register::write_register(&mut self.i2c, self.addr, REG_MODE.into(), 1, &[0x00])?;
         Ok(())
     }
 
     fn read_reg8(&mut self, reg: u8) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
     fn read_reg16(&mut self, reg: u8) -> Result<i16, I2C::Error> {
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, reg.into(), 1, &mut buf)?;
         Ok(((buf[0] as i16) << 8) | buf[1] as i16)
-    }
-
-    fn write_reg8(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.i2c.write(self.addr, &[reg, value])
     }
 
     fn read_data_burst(&mut self) -> Result<(i16, i16, i16), I2C::Error> {
         let mut buf = [0u8; 6];
-        self.i2c.write_read(self.addr, &[REG_DATA_X_MSB], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_DATA_X_MSB.into(), 1, &mut buf)?;
         let raw_x = ((buf[0] as i16) << 8) | buf[1] as i16;
         let raw_z = ((buf[2] as i16) << 8) | buf[3] as i16;
         let raw_y = ((buf[4] as i16) << 8) | buf[5] as i16;
@@ -171,10 +169,10 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
         }
 
         let config_a = (ma << 5) | (do_bits << 2);
-        self.inner.write_reg8(REG_CONFIG_A, config_a)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG_A.into(), 1, &[config_a])?;
 
         let config_b = gain << 5;
-        self.inner.write_reg8(REG_CONFIG_B, config_b)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG_B.into(), 1, &[config_b])?;
 
         self.inner.gain = gain;
         self.inner.gain_lsb_per_gauss = GAIN_LSB_PER_GAUSS[gain as usize];
@@ -189,7 +187,7 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
         if gain > 7 {
             return Err(Hmc5883lError::InvalidArgument);
         }
-        self.inner.write_reg8(REG_CONFIG_B, gain << 5)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG_B.into(), 1, &[gain << 5])?;
         self.inner.gain = gain;
         self.inner.gain_lsb_per_gauss = GAIN_LSB_PER_GAUSS[gain as usize];
         Ok(())
@@ -203,7 +201,7 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
         if mode > 2 {
             return Err(Hmc5883lError::InvalidArgument);
         }
-        self.inner.write_reg8(REG_MODE, mode)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_MODE.into(), 1, &[mode])?;
         Ok(())
     }
 
@@ -226,7 +224,7 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
     /// Returns `(x, y, z)` magnetic field strength in Tesla.
     /// Returns `None` for any axis that overflows (raw == -4096).
     pub fn single_measurement(&mut self) -> Result<(Option<f32>, Option<f32>, Option<f32>), I2C::Error> {
-        self.inner.write_reg8(REG_MODE, 0x01)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_MODE.into(), 1, &[0x01])?;
         // Caller should wait 6 ms before reading
         self.inner.magnetic_field()
     }
@@ -251,29 +249,15 @@ impl<I2C: I2c> Hmc5883lFull<I2C> {
     pub fn self_test(&mut self, positive: bool) -> Result<(Option<f32>, Option<f32>, Option<f32>), I2C::Error> {
         let config_a = self.inner.read_reg8(REG_CONFIG_A)?;
         let ms = if positive { 0b01 } else { 0b10 };
-        self.inner.write_reg8(REG_CONFIG_A, (config_a & 0xFC) | ms)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG_A.into(), 1, &[(config_a & 0xFC) | ms])?;
 
-        self.inner.write_reg8(REG_MODE, 0x01)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_MODE.into(), 1, &[0x01])?;
         // Caller should wait 6 ms
         let result = self.inner.magnetic_field()?;
 
-        self.inner.write_reg8(REG_CONFIG_A, (config_a & 0xFC) | 0b00)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG_A.into(), 1, &[(config_a & 0xFC) | 0b00])?;
         Ok(result)
     }
-}
-
-fn write_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
-}
-
-fn write_reg16<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u16) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, (value >> 8) as u8, (value & 0xFF) as u8])
-}
-
-fn read_reg8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
-    let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
-    Ok(buf[0])
 }
 
 #[cfg(test)]

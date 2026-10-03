@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -19,7 +20,7 @@ import java.io.IOException
  * IF_ADD_INC=1.
  */
 open class Lps33hwMinimal(
-    protected val connection: Connection
+    protected val connection: RegisterConnection
 ) {
 
     companion object {
@@ -65,7 +66,7 @@ open class Lps33hwMinimal(
 
     init {
         // Verify chip ID.
-        val id = connection.writeRead(byteArrayOf(REG_WHO_AM_I.toByte()), 1)
+        val id = connection.read(REG_WHO_AM_I, 1)
         val chipId = id[0].toInt() and 0xFF
         if (chipId != CHIP_ID) {
             throw IOException(
@@ -87,7 +88,7 @@ open class Lps33hwMinimal(
      * @param value byte value to write
      */
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     /**
@@ -97,7 +98,7 @@ open class Lps33hwMinimal(
      * @return raw byte
      */
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 1)
+        val b = connection.read(reg, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -123,13 +124,13 @@ open class Lps33hwMinimal(
      */
     protected fun readPressTemp(): Pair<Double, Double> {
         waitStatus(STATUS_P_DA or STATUS_T_DA)
-        val raw = connection.writeRead(byteArrayOf(REG_PRESS_XL.toByte()), 5)
+        val raw = connection.read(REG_PRESS_XL, 5)
         var rawPress = (raw[0].toInt() and 0xFF) or
                        ((raw[1].toInt() and 0xFF) shl 8) or
                        ((raw[2].toInt() and 0xFF) shl 16)
-        if (rawPress >= 0x800000) rawPress -= 0x1000000
+        rawPress = Register.toSigned(rawPress, 24)
         var rawTemp = (raw[3].toInt() and 0xFF) or ((raw[4].toInt() and 0xFF) shl 8)
-        if (rawTemp >= 0x8000) rawTemp -= 0x10000
+        rawTemp = Register.toSigned(rawTemp, 16)
         val pressure_Pa = rawPress * 100.0 / 4096.0
         val temperature_C = rawTemp / 100.0
         return Pair(pressure_Pa, temperature_C)

@@ -20,28 +20,24 @@ static inline void ds3231_delay_ms(unsigned long ms) { delay(ms); }
 
 // DS3231Minimal
 
-DS3231Minimal::DS3231Minimal(Connection& connection) : _connection(connection) {}
+DS3231Minimal::DS3231Minimal(RegisterConnection& connection) : _connection(connection) {}
 
 void DS3231Minimal::_writeReg(uint8_t reg, uint8_t value) {
-    uint8_t buf[2] = { reg, value };
-    _connection.write(buf, 2);
+    _connection.write(reg, &value, 1);
 }
 
 uint8_t DS3231Minimal::_readReg(uint8_t reg) {
     uint8_t buf[1];
-    _connection.write_read(&reg, 1, buf, 1);
+    _connection.read(reg, buf, 1);
     return buf[0];
 }
 
 void DS3231Minimal::_writeRegs(uint8_t startReg, const uint8_t* data, size_t len) {
-    uint8_t buf[8];
-    buf[0] = startReg;
-    for (size_t i = 0; i < len; ++i) buf[1 + i] = data[i];
-    _connection.write(buf, len + 1);
+    _connection.write(startReg, data, len);
 }
 
 void DS3231Minimal::_readRegs(uint8_t startReg, uint8_t* buf, size_t len) {
-    _connection.write_read(&startReg, 1, buf, len);
+    _connection.read(startReg, buf, len);
 }
 
 void DS3231Minimal::_delayMs(uint32_t ms) { ds3231_delay_ms(ms); }
@@ -104,7 +100,7 @@ float DS3231Minimal::readTemperature() {
 
 DS3231Full* DS3231Full::_activeInstance = nullptr;
 
-DS3231Full::DS3231Full(Connection& connection) : DS3231Minimal(connection) {}
+DS3231Full::DS3231Full(RegisterConnection& connection) : DS3231Minimal(connection) {}
 
 void DS3231Full::_alarm1MaskBits(uint8_t matchMode, uint8_t& a1m1, uint8_t& a1m2,
                                  uint8_t& a1m3, uint8_t& a1m4, uint8_t& dydt) {

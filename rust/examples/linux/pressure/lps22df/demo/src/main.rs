@@ -13,7 +13,7 @@ fn main() {
     // --- Indoor altimeter preset: 25 Hz, 4-sample average, low-pass filter ---
     // Low-pass at ODR/9 smooths short-term pressure noise (door slams, fans);
     // 4-sample averaging trims noise without adding visible lag.
-    let mut lps = Lps22dfFull::new(dev, addr, false).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
+    let mut lps = Lps22dfFull::new(dev, addr).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
     lps.configure(4, 0, true, 1, true).expect("configure");            // Configure chip, (odr=25 Hz, avg=4, en_lpfp=true, lfpf_cfg=ODR/9, bdu=true) → ()
 
     // --- Baseline capture: 2-second stabilization then zero the altimeter ---

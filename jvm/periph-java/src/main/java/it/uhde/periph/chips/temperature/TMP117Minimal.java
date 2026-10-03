@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.temperature;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -40,7 +40,7 @@ public class TMP117Minimal {
     /** Temperature LSB in °C, shared by TEMP_RESULT, the limits and TEMP_OFFSET. */
     protected static final double LSB_C = 0.0078125;
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
 
     /**
      * Construct the driver and confirm the chip's identity (the revision nibble is ignored).
@@ -48,7 +48,7 @@ public class TMP117Minimal {
      * @param connection configured I²C connection pointing at the device (0x48–0x4B)
      * @throws IOException on bus error, or if {@code DEVICE_ID} does not match
      */
-    public TMP117Minimal(Connection connection) throws IOException {
+    public TMP117Minimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
         int did = readReg(REG_DEVICE_ID) & 0x0FFF;
         if (did != DEVICE_ID) {
@@ -65,7 +65,7 @@ public class TMP117Minimal {
      * @throws IOException on bus error
      */
     protected int readReg(int reg) throws IOException {
-        byte[] b = connection.writeRead(new byte[]{(byte) reg}, 2);
+        byte[] b = connection.read(reg, 2);
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF);
     }
 
@@ -77,7 +77,7 @@ public class TMP117Minimal {
      * @throws IOException on bus error
      */
     protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{(byte) reg, (byte) (value >> 8), (byte) value});
+        connection.write(reg, new byte[]{(byte) (value >> 8), (byte) value});
     }
 
     /**

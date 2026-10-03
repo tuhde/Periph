@@ -9,7 +9,7 @@ fn main() {
         .unwrap_or(0x5C);
 
     let dev = I2cdev::new(format!("/dev/i2c-{}", i2c_bus)).expect("open i2c bus");
-    let mut lps = Lps22dfMinimal::new(dev, addr, false).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
+    let mut lps = Lps22dfMinimal::new(dev, addr).expect("init LPS22DF"); // Create LPS22DF driver, (i2c, addr=0x5C)
 
     for _ in 0..5 {
         let p = lps.pressure().expect("read pressure");               // Read pressure, () → f32 Pa

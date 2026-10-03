@@ -17,7 +17,7 @@ class MPU6050Minimal:
         - Clock: PLL with gyro X reference (CLKSEL=1)
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_SMPLRT_DIV   = 0x19
@@ -48,31 +48,22 @@ class MPU6050Minimal:
         self._connection = connection
         self._accel_fs = 0
         self._gyro_fs = 0
-        self._write_reg(self._REG_PWR_MGMT_1, 0x80)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, 0x80)
         time.sleep(0.1)
-        self._write_reg(self._REG_PWR_MGMT_1, 0x01)
-        who = self._read_reg(self._REG_WHO_AM_I)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, 0x01)
+        who = self._connection.read_reg(self._REG_WHO_AM_I, 1)[0]
         if who != self._WHO_AM_I_VALUE:
             raise ValueError('MPU6050 WHO_AM_I: expected 0x{:02X}, got 0x{:02X}'.format(
                 self._WHO_AM_I_VALUE, who))
-        self._write_reg(self._REG_GYRO_CONFIG, 0x00)
-        self._write_reg(self._REG_ACCEL_CONFIG, 0x00)
-        self._write_reg(self._REG_CONFIG, 0x03)
-        self._write_reg(self._REG_SMPLRT_DIV, 0x04)
+        self._connection.write_reg(self._REG_GYRO_CONFIG, 0x00)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG, 0x00)
+        self._connection.write_reg(self._REG_CONFIG, 0x03)
+        self._connection.write_reg(self._REG_SMPLRT_DIV, 0x04)
         time.sleep(0.035)
 
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
-
     def _read_reg16_signed(self, reg):
-        raw = self._connection.write_read(bytes([reg]), 2)
+        raw = self._connection.read_reg(reg, 2)
         return struct.unpack('>h', raw)[0]
-
-    def _read_burst(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
 
     def accel(self):
         """Read 3-axis linear acceleration.
@@ -80,7 +71,7 @@ class MPU6050Minimal:
         Returns:
             tuple: (x, y, z) acceleration in m/s².
         """
-        raw = self._read_burst(self._REG_ACCEL_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_ACCEL_XOUT_H, 6)
         ax, ay, az = struct.unpack('>hhh', raw)
         sens = self._ACCEL_SENSITIVITY[self._accel_fs]
         return (ax / sens * 9.80665, ay / sens * 9.80665, az / sens * 9.80665)
@@ -91,7 +82,7 @@ class MPU6050Minimal:
         Returns:
             tuple: (x, y, z) angular rate in rad/s.
         """
-        raw = self._read_burst(self._REG_GYRO_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_GYRO_XOUT_H, 6)
         gx, gy, gz = struct.unpack('>hhh', raw)
         sens = self._GYRO_SENSITIVITY[self._gyro_fs]
         return (gx / sens * 3.141592653589793 / 180.0,
@@ -107,7 +98,7 @@ class MPU6050Full(MPU6050Minimal):
     sleep/standby control, and FIFO management.
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     def __init__(self, connection):
@@ -120,7 +111,7 @@ class MPU6050Full(MPU6050Minimal):
             full_scale: Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
         """
         self._gyro_fs = full_scale & 0x03
-        self._write_reg(self._REG_GYRO_CONFIG, (full_scale & 0x03) << 3)
+        self._connection.write_reg(self._REG_GYRO_CONFIG, (full_scale & 0x03) << 3)
 
     def configure_accel(self, full_scale=0):
         """Set accelerometer full-scale range.
@@ -129,7 +120,7 @@ class MPU6050Full(MPU6050Minimal):
             full_scale: Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
         """
         self._accel_fs = full_scale & 0x03
-        self._write_reg(self._REG_ACCEL_CONFIG, (full_scale & 0x03) << 3)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG, (full_scale & 0x03) << 3)
 
     def configure_dlpf(self, dlpf=3):
         """Set digital low-pass filter bandwidth.
@@ -138,7 +129,7 @@ class MPU6050Full(MPU6050Minimal):
             dlpf: Filter setting 0–6 (0=260/256 Hz, 1=184/188 Hz, 2=94/98 Hz,
                 3=44/42 Hz, 4=21/20 Hz, 5=10/10 Hz, 6=5/5 Hz; gyro/accel BW).
         """
-        self._write_reg(self._REG_CONFIG, dlpf & 0x07)
+        self._connection.write_reg(self._REG_CONFIG, dlpf & 0x07)
 
     def configure_sample_rate(self, divider=4):
         """Set sample rate divider.
@@ -147,7 +138,7 @@ class MPU6050Full(MPU6050Minimal):
             divider: SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider)
                 when DLPF is active.
         """
-        self._write_reg(self._REG_SMPLRT_DIV, divider & 0xFF)
+        self._connection.write_reg(self._REG_SMPLRT_DIV, divider & 0xFF)
 
     def temperature(self):
         """Read die temperature.
@@ -164,7 +155,7 @@ class MPU6050Full(MPU6050Minimal):
         Returns:
             tuple: (x, y, z) raw 16-bit signed values.
         """
-        raw = self._read_burst(self._REG_ACCEL_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_ACCEL_XOUT_H, 6)
         return struct.unpack('>hhh', raw)
 
     def gyro_raw(self):
@@ -173,7 +164,7 @@ class MPU6050Full(MPU6050Minimal):
         Returns:
             tuple: (x, y, z) raw 16-bit signed values.
         """
-        raw = self._read_burst(self._REG_GYRO_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_GYRO_XOUT_H, 6)
         return struct.unpack('>hhh', raw)
 
     def data_ready(self):
@@ -182,7 +173,7 @@ class MPU6050Full(MPU6050Minimal):
         Returns:
             bool: True when DATA_RDY_INT is set in INT_STATUS.
         """
-        return bool(self._read_reg(self._REG_INT_STATUS) & 0x01)
+        return bool(self._connection.read_reg(self._REG_INT_STATUS, 1)[0] & 0x01)
 
     def set_sleep(self, sleep=True):
         """Set or clear the SLEEP bit in PWR_MGMT_1.
@@ -190,12 +181,12 @@ class MPU6050Full(MPU6050Minimal):
         Args:
             sleep: True to enter sleep mode, False to wake.
         """
-        val = self._read_reg(self._REG_PWR_MGMT_1)
+        val = self._connection.read_reg(self._REG_PWR_MGMT_1, 1)[0]
         if sleep:
             val |= 0x40
         else:
             val &= ~0x40
-        self._write_reg(self._REG_PWR_MGMT_1, val)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, val)
 
     def set_standby(self, xa=False, ya=False, za=False, xg=False, yg=False, zg=False):
         """Put individual axes into standby mode.
@@ -210,7 +201,7 @@ class MPU6050Full(MPU6050Minimal):
         """
         val = ((xa & 1) << 5) | ((ya & 1) << 4) | ((za & 1) << 3) | \
               ((xg & 1) << 2) | ((yg & 1) << 1) | (zg & 1)
-        self._write_reg(self._REG_PWR_MGMT_2, val)
+        self._connection.write_reg(self._REG_PWR_MGMT_2, val)
 
     def fifo_count(self):
         """Read the number of bytes in the FIFO buffer.
@@ -218,7 +209,7 @@ class MPU6050Full(MPU6050Minimal):
         Returns:
             int: FIFO byte count (0–1024).
         """
-        raw = self._read_burst(self._REG_FIFO_COUNTH, 2)
+        raw = self._connection.read_reg(self._REG_FIFO_COUNTH, 2)
         return ((raw[0] & 0x1F) << 8) | raw[1]
 
     def read_fifo(self):
@@ -230,7 +221,7 @@ class MPU6050Full(MPU6050Minimal):
         count = self.fifo_count()
         if count == 0:
             return b''
-        return self._read_burst(self._REG_FIFO_R_W, count)
+        return self._connection.read_reg(self._REG_FIFO_R_W, count)
 
     def enable_fifo(self, gyro=True, accel=True, temp=False):
         """Configure and enable FIFO sources.
@@ -241,11 +232,11 @@ class MPU6050Full(MPU6050Minimal):
             temp: Enable temperature data in FIFO.
         """
         fifo_en = ((accel & 1) << 3) | ((temp & 1) << 2) | ((gyro & 1) << 4)
-        self._write_reg(self._REG_FIFO_EN, fifo_en)
-        user_ctrl = self._read_reg(self._REG_USER_CTRL)
-        self._write_reg(self._REG_USER_CTRL, user_ctrl | 0x40)
+        self._connection.write_reg(self._REG_FIFO_EN, fifo_en)
+        user_ctrl = self._connection.read_reg(self._REG_USER_CTRL, 1)[0]
+        self._connection.write_reg(self._REG_USER_CTRL, user_ctrl | 0x40)
 
     def reset_fifo(self):
         """Reset the FIFO buffer by setting FIFO_RST in USER_CTRL."""
-        user_ctrl = self._read_reg(self._REG_USER_CTRL)
-        self._write_reg(self._REG_USER_CTRL, user_ctrl | 0x04)
+        user_ctrl = self._connection.read_reg(self._REG_USER_CTRL, 1)[0]
+        self._connection.write_reg(self._REG_USER_CTRL, user_ctrl | 0x04)

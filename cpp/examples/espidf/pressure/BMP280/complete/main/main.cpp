@@ -28,7 +28,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP280Full chip(connection, false);  // Create BMP280 driver
+    BMP280Full chip(connection);  // Create BMP280 driver
     float t, p, alt, slp;
     uint8_t cid, st;
     chip.chip_id();                                   // Read chip ID, () → uint8_t

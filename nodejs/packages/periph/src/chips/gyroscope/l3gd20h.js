@@ -1,5 +1,7 @@
 'use strict';
 
+const { toSigned } = require('../../connection/register');
+
 const _REG_WHO_AM_I      = 0x0F;
 const _REG_CTRL_REG1     = 0x20;
 const _REG_CTRL_REG2     = 0x21;
@@ -40,9 +42,7 @@ const _SENSITIVITY = {
 const _DPS_TO_RAD = Math.PI / 180.0;
 
 function _int16Le(data, offset) {
-    let v = data[offset] | (data[offset + 1] << 8);
-    if (v & 0x8000) v -= 0x10000;
-    return v;
+    return toSigned(data[offset] | (data[offset + 1] << 8), 16);
 }
 
 class L3GD20HMinimal {
@@ -60,12 +60,10 @@ class L3GD20HMinimal {
      *     - All axes enabled, normal power mode
      *     - 250 ms startup delay for gyroscope stabilization
      *
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit=0xC0, no multi-byte bit).
      */
-    constructor(connection, busType = 'i2c') {
+    constructor(connection) {
         this._conn = connection;
-        this._busType = busType;
         this._fullScale = 250;
         this._init();
     }
@@ -74,28 +72,17 @@ class L3GD20HMinimal {
         try {
             const who = (await this._readReg(_REG_WHO_AM_I, 1))[0];
             if (who !== _WHO_AM_I_L3GD20 && who !== _WHO_AM_I_L3GD20H) return;
-            await this._writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT);
-            await this._writeReg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT);
+            await this._conn.writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT);
+            await this._conn.writeReg(_REG_CTRL_REG1, _CTRL_REG1_DEFAULT);
             // 250 ms startup delay
             await new Promise(resolve => setTimeout(resolve, 250));
         } catch (e) { /* bus may be idle */ }
     }
 
-    async _writeReg(reg, value) {
-        const addr = this._busType === 'spi' ? (reg & 0x3F) : reg;
-        await this._conn.write(Buffer.from([addr, value & 0xFF]));
-    }
-
     async _readReg(reg, n) {
-        let addr;
-        if (this._busType === 'spi') {
-            addr = reg | 0xC0;  // READ=1, MS=1 (auto-increment)
-        } else if (n > 1) {
-            addr = reg | 0x80;  // MSB set = I²C multi-byte auto-increment
-        } else {
-            addr = reg;
-        }
-        return this._conn.writeRead(Buffer.from([addr & 0xFF]), n);
+        // I²C needs bit 7 of the sub-address set for multi-byte auto-increment;
+        // on SPI the connection's readBit=0xC0 already ORs it in (idempotent).
+        return this._conn.readReg(n > 1 ? reg | 0x80 : reg, n);
     }
 
     _sensitivity() {
@@ -126,11 +113,10 @@ class L3GD20HFull extends L3GD20HMinimal {
      * interrupt generation with threshold and duration, INT1 pin routing,
      * and access to temperature and status registers.
      *
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C or SPI connection.
-     * @param {string} [busType='i2c'] - Bus type: 'i2c' or 'spi'.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C, SMBus, or SPI register connection (SPI: readBit=0xC0, no multi-byte bit).
      */
-    constructor(connection, busType = 'i2c') {
-        super(connection, busType);
+    constructor(connection) {
+        super(connection);
         this._odr = 0;
         this._bw = 0;
         this._thresholdRaw = 0;
@@ -180,8 +166,8 @@ class L3GD20HFull extends L3GD20HMinimal {
         const fsMap = [250, 500, 2000];
         this._fullScale = fsMap[fullScale];
         const ctrl1 = _CTRL_REG1_DEFAULT | ((this._odr & 0x3) << 6) | ((this._bw & 0x3) << 4);
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
-        await this._writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4));
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG4, _CTRL_REG4_DEFAULT | ((fullScale & 0x3) << 4));
     }
 
     /**
@@ -201,9 +187,7 @@ class L3GD20HFull extends L3GD20HMinimal {
      * @returns {Promise<number>} Signed 8-bit temperature count.
      */
     async temperature() {
-        let raw = (await this._readReg(_REG_OUT_TEMP, 1))[0];
-        if (raw & 0x80) raw -= 0x100;
-        return raw;
+        return toSigned((await this._readReg(_REG_OUT_TEMP, 1))[0], 8);
     }
 
     /**
@@ -223,7 +207,7 @@ class L3GD20HFull extends L3GD20HMinimal {
     async configureHpFilter(mode, cutoff) {
         if (mode < 0 || mode > 3) throw new Error('mode must be 0..3');
         if (cutoff < 0 || cutoff > 15) throw new Error('cutoff must be 0..15');
-        await this._writeReg(_REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
+        await this._conn.writeReg(_REG_CTRL_REG2, ((mode & 0x3) << 4) | (cutoff & 0x0F));
     }
 
     /**
@@ -232,7 +216,7 @@ class L3GD20HFull extends L3GD20HMinimal {
      */
     async enableHpFilter(enable) {
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0];
-        await this._writeReg(_REG_CTRL_REG5, enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10));
+        await this._conn.writeReg(_REG_CTRL_REG5, enable ? (ctrl5 | 0x10) : (ctrl5 & ~0x10));
     }
 
     /**
@@ -245,8 +229,8 @@ class L3GD20HFull extends L3GD20HMinimal {
         if (!validModes.includes(mode)) throw new Error('mode must be 0, 1, 2, 3, or 7');
         if (watermark < 0 || watermark > 31) throw new Error('watermark must be 0..31');
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0] | 0x40;
-        await this._writeReg(_REG_CTRL_REG5, ctrl5);
-        await this._writeReg(_REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
+        await this._conn.writeReg(_REG_CTRL_REG5, ctrl5);
+        await this._conn.writeReg(_REG_FIFO_CTRL, ((mode & 0x7) << 5) | (watermark & 0x1F));
     }
 
     /**
@@ -256,10 +240,10 @@ class L3GD20HFull extends L3GD20HMinimal {
     async enableFifo(enable) {
         const ctrl5 = (await this._readReg(_REG_CTRL_REG5, 1))[0];
         if (enable) {
-            await this._writeReg(_REG_CTRL_REG5, ctrl5 | 0x40);
+            await this._conn.writeReg(_REG_CTRL_REG5, ctrl5 | 0x40);
         } else {
-            await this._writeReg(_REG_CTRL_REG5, ctrl5 & ~0x40);
-            await this._writeReg(_REG_FIFO_CTRL, 0x00);
+            await this._conn.writeReg(_REG_CTRL_REG5, ctrl5 & ~0x40);
+            await this._conn.writeReg(_REG_FIFO_CTRL, 0x00);
         }
     }
 
@@ -307,7 +291,7 @@ class L3GD20HFull extends L3GD20HMinimal {
         } else {
             throw new Error("mode must be 'normal', 'sleep', or 'power_down'");
         }
-        await this._writeReg(_REG_CTRL_REG1, ctrl1);
+        await this._conn.writeReg(_REG_CTRL_REG1, ctrl1);
     }
 }
 

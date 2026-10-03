@@ -47,7 +47,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP280Full inst(connection, false);  // Create BMP280 driver
+    BMP280Full inst(connection);  // Create BMP280 driver
     check_eq_u8(inst.chip_id(), 0x58, "chip_id 0x58");
     float t = inst.temperature();
     check_near(t, -40.0f, 85.0f, "temperature range");

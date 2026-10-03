@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.temperature
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -20,7 +20,7 @@ import kotlin.math.abs
  * @param connection configured I²C connection bound to the device (0x48–0x4B)
  * @throws IOException on bus error or identity mismatch
  */
-class TMP117Full(connection: Connection) : TMP117Minimal(connection) {
+class TMP117Full(connection: RegisterConnection) : TMP117Minimal(connection) {
 
     /** Conversion mode (`MOD[1:0]`). */
     enum class Mode(internal val bits: Int) {

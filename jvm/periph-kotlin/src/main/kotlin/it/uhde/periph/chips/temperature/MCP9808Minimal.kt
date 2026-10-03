@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.temperature
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -20,7 +21,7 @@ import java.io.IOException
  * @param connection configured I²C connection bound to the device (0x18–0x1F)
  * @throws IOException on bus error or identity mismatch
  */
-open class MCP9808Minimal(protected val connection: Connection) {
+open class MCP9808Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** Default I²C address (A0 = A1 = A2 = GND). Valid range 0x18–0x1F. */
@@ -56,13 +57,13 @@ open class MCP9808Minimal(protected val connection: Connection) {
 
     /** Read a 16-bit big-endian register as an unsigned value. */
     protected fun readReg(reg: Int): Int {
-        val b = connection.writeRead(byteArrayOf(reg.toByte()), 2)
+        val b = connection.read(reg, 2)
         return ((b[0].toInt() and 0xFF) shl 8) or (b[1].toInt() and 0xFF)
     }
 
     /** Write a 16-bit big-endian register. */
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), (value shr 8).toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf((value shr 8).toByte(), value.toByte()))
     }
 
     /**
@@ -73,7 +74,7 @@ open class MCP9808Minimal(protected val connection: Connection) {
      */
     fun readTemperature(): Double {
         var raw = readReg(REG_TA) and 0x1FFF
-        if (raw and 0x1000 != 0) raw -= 0x2000
+        raw = Register.toSigned(raw, 13)
         return raw / 16.0
     }
 }

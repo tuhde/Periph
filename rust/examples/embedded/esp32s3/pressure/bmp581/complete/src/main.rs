@@ -22,7 +22,7 @@ fn main() -> ! {
         .with_scl(peripherals.GPIO2);
     let mut delay = Delay::new();
 
-    let mut bmp = Bmp581Full::new(i2c, ADDR, false).expect("init BMP581");  // Create BMP581 driver, (i2c, addr=0x46)
+    let mut bmp = Bmp581Full::new(i2c, ADDR).expect("init BMP581");  // Create BMP581 driver, (i2c, addr=0x46)
     let cid = bmp.chip_id().expect("chip_id");                             // Read chip ID, () → u8
     println!("chip_id={:#x} (expect 0x50)", cid);
 

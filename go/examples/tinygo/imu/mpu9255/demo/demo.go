@@ -36,7 +36,7 @@ func main() {
 	// The on-board AK8963 magnetometer is accessed via the chip's I2C
 	// bypass at address 0x0C; the second I2CConnection binds the same
 	// machine.I2C1 to that address.
-	magFactory := func(a uint8) (connection.Connection, error) {
+	magFactory := func(a uint8) (connection.RegisterConnection, error) {
 		return connection.NewI2CConnection(i2c, a, nil, nil), nil // Open second I2C connection on same bus, (i2c, addr) → (*I2CConnection, error)
 	}
 

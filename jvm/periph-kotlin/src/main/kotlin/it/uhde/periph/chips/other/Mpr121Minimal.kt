@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.other
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -24,7 +24,7 @@ import java.io.IOException
  * - ECR: 0x8C (all 12 electrodes)
  */
 open class Mpr121Minimal @JvmOverloads constructor(
-    protected val connection: Connection,
+    protected val connection: RegisterConnection,
 ) {
     /**
      * Read the 12-bit electrode touch bitmask.
@@ -36,7 +36,7 @@ open class Mpr121Minimal @JvmOverloads constructor(
      */
     @Throws(IOException::class)
     fun touched(): Int {
-        val buf = connection.writeRead(byteArrayOf(REG_ELE0_7_TOUCH.toByte()), 2)
+        val buf = connection.read(REG_ELE0_7_TOUCH, 2)
         return (buf[0].toInt() and 0xFF) or (((buf[1].toInt() and 0xFF) and 0x0F) shl 8)
     }
 
@@ -53,19 +53,18 @@ open class Mpr121Minimal @JvmOverloads constructor(
 
     @Throws(IOException::class)
     protected fun writeReg(reg: Int, value: Int) {
-        val buf = byteArrayOf((reg and 0xFF).toByte(), (value and 0xFF).toByte())
-        connection.write(buf)
+        connection.write(reg and 0xFF, byteArrayOf((value and 0xFF).toByte()))
     }
 
     @Throws(IOException::class)
     protected fun readReg(reg: Int): Int {
-        val buf = connection.writeRead(byteArrayOf((reg and 0xFF).toByte()), 1)
+        val buf = connection.read(reg and 0xFF, 1)
         return buf[0].toInt() and 0xFF
     }
 
     @Throws(IOException::class)
     protected fun readReg16(reg: Int): Int {
-        val buf = connection.writeRead(byteArrayOf((reg and 0xFF).toByte()), 2)
+        val buf = connection.read(reg and 0xFF, 2)
         return (buf[0].toInt() and 0xFF) or (((buf[1].toInt() and 0xFF) and 0x03) shl 8)
     }
 

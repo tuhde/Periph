@@ -31,7 +31,7 @@ extern "C" void app_main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    BMP384Minimal bmp(connection, /*spi=*/false);
+    BMP384Minimal bmp(connection);
 
     bmp._par_t1 = 1.0e6;
     bmp._par_t2 = 1.0e-3;
@@ -52,7 +52,7 @@ extern "C" void app_main(void) {
     double comp_p = bmp._compensate_pressure(415148);
     check_true(comp_p > 0.0, "pressure_compensation_runs");
 
-    BMP384Full bmp_full(connection, /*spi=*/false);
+    BMP384Full bmp_full(connection);
     bmp_full.configure(2, 1, 1, 0x04);                     // Configure ADC and IIR filter, (osr_p 0–5, osr_t 0–5, iir_filter 0–7, odr_sel 0x00–0x11) → None
     check_true(bmp_full._osr_p == 2 && bmp_full._iir == 1 && bmp_full._odr == 0x04, "configure_writes_through");
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief MCP9808 ±0.5°C maximum accuracy digital temperature sensor — minimal interface.
  *
@@ -17,7 +17,7 @@
  *  0.0625 °C resolution, Alert output disabled) already serves the primary
  *  use case.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MCP9808Minimal {
 public:
@@ -28,7 +28,7 @@ public:
     /** @brief Expected DEVICE_ID (upper byte of DEVICE_ID_REV). */
     static constexpr uint8_t DEVICE_ID = 0x04;
 
-    explicit MCP9808Minimal(Connection& connection);
+    explicit MCP9808Minimal(RegisterConnection& connection);
 
     /** @brief Read the ambient temperature.
      *
@@ -49,7 +49,7 @@ protected:
     static constexpr uint8_t REG_DEVICE_ID  = 0x07;
     static constexpr uint8_t REG_RESOLUTION = 0x08;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
 
     uint16_t _readReg(uint8_t reg);
     void _writeReg(uint8_t reg, uint16_t value);
@@ -59,7 +59,7 @@ protected:
  *  Shutdown mode, the TUPPER/TLOWER/TCRIT boundaries, hysteresis, the one-way
  *  register locks, and the Level-2 Alert/interrupt API.
  *
- *  @param connection Configured I²C connection pointing at the device.
+ *  @param connection RegisterConnection (I²C or SMBus) pointing at the device.
  */
 class MCP9808Full : public MCP9808Minimal {
 public:
@@ -86,7 +86,7 @@ public:
         ActiveHigh = 1,
     };
 
-    explicit MCP9808Full(Connection& connection);
+    explicit MCP9808Full(RegisterConnection& connection);
 
     /** @brief Set the measurement resolution.
      *

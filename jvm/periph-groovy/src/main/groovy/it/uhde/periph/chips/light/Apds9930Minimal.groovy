@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.light
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * APDS-9930 — digital ambient light and proximity sensor (minimal driver).
@@ -58,21 +58,21 @@ class Apds9930Minimal {
     static final int CMD_WRITE = 0x80
     static final int CMD_READ  = 0xA0
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
-    Apds9930Minimal(Connection connection) {
+    Apds9930Minimal(RegisterConnection connection) {
         this.connection = connection
         Thread.sleep(6)
         int id = readReg(REG_ID)
         if (id != 0x39) {
             throw new IOException("APDS-9930 not found (ID=0x${Integer.toHexString(id)}, expected 0x39)")
         }
-        writeReg(REG_ENABLE, 0x00)
-        writeReg(REG_ATIME, ATIME_DEFAULT)
-        writeReg(REG_PTIME, PTIME_DEFAULT)
-        writeReg(REG_PPULSE, PPULSE_DEFAULT)
-        writeReg(REG_CONTROL, CONTROL_DEFAULT)
-        writeReg(REG_ENABLE, ENABLE_DEFAULT)
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (0x00)] as byte[])
+        connection.write(cmdWrite(REG_ATIME), [(byte) (ATIME_DEFAULT)] as byte[])
+        connection.write(cmdWrite(REG_PTIME), [(byte) (PTIME_DEFAULT)] as byte[])
+        connection.write(cmdWrite(REG_PPULSE), [(byte) (PPULSE_DEFAULT)] as byte[])
+        connection.write(cmdWrite(REG_CONTROL), [(byte) (CONTROL_DEFAULT)] as byte[])
+        connection.write(cmdWrite(REG_ENABLE), [(byte) (ENABLE_DEFAULT)] as byte[])
         Thread.sleep(12)
     }
 
@@ -108,18 +108,13 @@ class Apds9930Minimal {
     /** Read the proximity ADC count (0-1023 at the default PTIME=0xFF). */
     int proximity() { readReg16(REG_PDATAL) }
 
-    protected void writeReg(int reg, int value) {
-        byte[] buf = new byte[] { (byte) cmdWrite(reg), (byte) (value & 0xFF) }
-        connection.write(buf)
-    }
-
     protected int readReg(int reg) {
-        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 1)
+        byte[] buf = connection.read(cmdRead(reg), 1)
         return buf[0] & 0xFF
     }
 
     protected int readReg16(int reg) {
-        byte[] buf = connection.writeRead(new byte[] { (byte) cmdRead(reg) }, 2)
+        byte[] buf = connection.read(cmdRead(reg), 2)
         return ((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF)
     }
 

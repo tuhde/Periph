@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 import it.uhde.periph.connection.EdgeHandler;
 import it.uhde.periph.connection.EdgeTrigger;
 import it.uhde.periph.connection.InputPin;
@@ -73,7 +73,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @param addr       7-bit I²C address
      * @throws IOException on I²C error during init
      */
-    public Mcp23017Full(Connection connection, int addr) throws IOException {
+    public Mcp23017Full(RegisterConnection connection, int addr) throws IOException {
         super(connection, addr);
     }
 
@@ -99,7 +99,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public void configurePullup(int port, int mask) throws IOException {
-        writeReg(REG_GPPUA + (port & 1), mask & 0xFF);
+        connection.write(REG_GPPUA + (port & 1), new byte[]{(byte) (mask & 0xFF)});
     }
 
     /**
@@ -110,7 +110,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public void configurePolarity(int port, int mask) throws IOException {
-        writeReg(REG_IPOLA + (port & 1), mask & 0xFF);
+        connection.write(REG_IPOLA + (port & 1), new byte[]{(byte) (mask & 0xFF)});
     }
 
     /**
@@ -121,13 +121,13 @@ public class Mcp23017Full extends Mcp23017Minimal {
      * @throws IOException on I²C error
      */
     public void setDefaultValue(int port, int mask) throws IOException {
-        writeReg(REG_DEFVALA + (port & 1), mask & 0xFF);
+        connection.write(REG_DEFVALA + (port & 1), new byte[]{(byte) (mask & 0xFF)});
     }
 
     private void armPort(int port, InputPin intPin) throws IOException {
         port &= 1;
-        writeReg(REG_INTCONA + port, 0x00); // interrupt-on-change mode
-        writeReg(REG_GPINTENA + port, 0xFF);
+        connection.write(REG_INTCONA + port, new byte[]{(byte) (0x00)}); // interrupt-on-change mode
+        connection.write(REG_GPINTENA + port, new byte[]{(byte) (0xFF)});
         intPinUsed[port] = intPin;
         stopPolling(port);
         if (intPin != null) {
@@ -154,7 +154,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
     public void onInterrupt(PortStatusHandler callback, InputPin intPin, boolean mirror) throws IOException {
         this.callbackBoth = callback;
         int iocon = readReg(REG_IOCON);
-        writeReg(REG_IOCON, mirror ? (iocon | (1 << 6)) : iocon);
+        connection.write(REG_IOCON, new byte[]{(byte) (mirror ? (iocon | (1 << 6)) : iocon)});
         InputPin pin = intPin != null ? intPin : connection.intPin();
         armPort(0, pin);
         armPort(1, pin);
@@ -217,7 +217,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
      */
     public void offInterruptPort(int port) throws IOException {
         port &= 1;
-        writeReg(REG_GPINTENA + port, 0x00);
+        connection.write(REG_GPINTENA + port, new byte[]{(byte) (0x00)});
         if (intPinUsed[port] != null) {
             intPinUsed[port].offEdge(edgeHandlers[port]);
             intPinUsed[port] = null;
@@ -344,7 +344,7 @@ public class Mcp23017Full extends Mcp23017Minimal {
             int cur  = chip.readReg(reg);
             if (pullUp) cur |=   (1 << bit);
             else        cur &= ~((1 << bit));
-            chip.writeReg(reg, cur);
+            chip.connection.write(reg, new byte[]{(byte) (cur)});
         }
 
         /**

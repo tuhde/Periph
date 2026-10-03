@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -11,7 +11,7 @@ import java.io.IOException
  * Mode constants: [MODE_SLEEP], [MODE_FORCED], [MODE_NORMAL]
  */
 class Bmp384Full @JvmOverloads constructor(
-    conn: Connection,
+    conn: RegisterConnection,
     addr: Int = 0x76
 ) : Bmp384Minimal(conn, addr) {
 
@@ -31,9 +31,9 @@ class Bmp384Full @JvmOverloads constructor(
         this.osrT = osrT
         this.iir   = iirFilter
         this.odr   = odrSel
-        writeReg(REG_OSR,    (osrT shl 3) or (osrP shl 0))
-        writeReg(REG_CONFIG, (iirFilter shl 1))
-        writeReg(REG_ODR,    odrSel)
+        connection.write(REG_OSR, byteArrayOf((   (osrT shl 3) or (osrP shl 0)).toByte()))
+        connection.write(REG_CONFIG, byteArrayOf(((iirFilter shl 1)).toByte()))
+        connection.write(REG_ODR, byteArrayOf((   odrSel).toByte()))
     }
 
     /** Read both pressure and temperature in a single burst. */
@@ -77,7 +77,7 @@ class Bmp384Full @JvmOverloads constructor(
 
     /** Soft-reset, re-read calibration, re-apply configuration. */
     fun softreset() {
-        writeReg(REG_CMD, SOFT_RESET_CMD)
+        connection.write(REG_CMD, byteArrayOf((SOFT_RESET_CMD).toByte()))
         Thread.sleep(3)
         readCalibration()
         applyConfig()
@@ -89,9 +89,9 @@ class Bmp384Full @JvmOverloads constructor(
             ((if (stopOnFull) 1 else 0) shl 3) or
             ((if (tempEn) 1 else 0) shl 1) or
             (if (pressEn) 1 else 0)
-        writeReg(0x17, cfg1)
-        writeReg(0x15, wtm and 0xFF)
-        writeReg(0x16, (wtm shr 8) and 0x01)
+        connection.write(0x17, byteArrayOf((cfg1).toByte()))
+        connection.write(0x15, byteArrayOf((wtm and 0xFF).toByte()))
+        connection.write(0x16, byteArrayOf(((wtm shr 8) and 0x01).toByte()))
     }
 
     /** Read and parse every available FIFO frame. */
@@ -100,7 +100,7 @@ class Bmp384Full @JvmOverloads constructor(
         val lenHi = readReg(0x13)
         val length = ((lenHi and 0xFF) shl 8) or (lenLo and 0xFF)
         if (length == 0) return emptyList()
-        val buf = connection.writeRead(byteArrayOf(0x14.toByte()), length)
+        val buf = connection.read(0x14, length)
 
         val frames = mutableListOf<FifoFrame>()
         var i = 0
@@ -142,7 +142,7 @@ class Bmp384Full @JvmOverloads constructor(
 
     /** Flush the FIFO contents. */
     fun fifoFlush() {
-        writeReg(REG_CMD, FIFO_FLUSH_CMD)
+        connection.write(REG_CMD, byteArrayOf((FIFO_FLUSH_CMD).toByte()))
     }
 
     /** Compute altitude above sea level from the current pressure. */
@@ -153,11 +153,11 @@ class Bmp384Full @JvmOverloads constructor(
     }
 
     private fun triggerForced() {
-        writeReg(REG_PWR_CTRL, (MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
+        connection.write(REG_PWR_CTRL, byteArrayOf(((MODE_FORCED shl 4) or PWR_TEMP_EN or PWR_PRESS_EN).toByte()))
     }
 
     private fun applyPwr() {
-        writeReg(REG_PWR_CTRL, (powerMode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN)
+        connection.write(REG_PWR_CTRL, byteArrayOf(((powerMode shl 4) or PWR_TEMP_EN or PWR_PRESS_EN).toByte()))
     }
 
     private fun compensatePressureWithTLin(uncompPress: Int, tLin: Double): Double {

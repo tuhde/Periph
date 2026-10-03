@@ -10,6 +10,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_ID: u8 = 0xD0;
 const REG_CAL_START: u8 = 0xAA;
 const REG_CAL_END: u8 = 0xBF;
@@ -52,28 +54,27 @@ pub const OSS_ULTRA_HIGH_RES: u8 = 3;
 
 fn read_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u16, I2C::Error> {
     let mut buf = [0u8; 2];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok((buf[0] as u16) << 8 | buf[1] as u16)
 }
 
 fn read_reg_u8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8) -> Result<u8, I2C::Error> {
     let mut buf = [0u8; 1];
-    i2c.write_read(addr, &[reg], &mut buf)?;
+    register::read_register(i2c, addr, reg.into(), 1, &mut buf)?;
     Ok(buf[0])
 }
 
 fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u16) -> Result<(), I2C::Error> {
-    let buf = [reg, (value >> 8) as u8, (value & 0xFF) as u8];
-    i2c.write(addr, &buf)
+    register::write_register(i2c, addr, reg.into(), 1, &[(value >> 8) as u8, (value & 0xFF) as u8])
 }
 
 fn write_reg_u8<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8) -> Result<(), I2C::Error> {
-    i2c.write(addr, &[reg, value])
+    register::write_register(i2c, addr, reg.into(), 1, &[value])
 }
 
 fn read_calibration<I2C: I2c>(i2c: &mut I2C, addr: u8) -> Result<(i32,i32,i32,i32,i32,i32,i32,i32,i32,i32,i32), I2C::Error> {
     let mut buf = [0u8; 22];
-    i2c.write_read(addr, &[REG_CAL_START], &mut buf)?;
+    register::read_register(i2c, addr, REG_CAL_START.into(), 1, &mut buf)?;
 
     let ac1 = i16::from_be_bytes([buf[0],  buf[1]])  as i32;
     let ac2 = i16::from_be_bytes([buf[2],  buf[3]])  as i32;
@@ -167,7 +168,7 @@ impl<I2C: I2c> Bmp085Minimal<I2C> {
         write_reg_u8(&mut self.i2c, self.addr, REG_CTRL_MEAS, CMD_TEMP)?;
         delay_ms(CONV_TIME_TEMP_MS);
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[REG_OUT_MSB], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_OUT_MSB.into(), 1, &mut buf)?;
         let ut = ((buf[0] as u16) << 8 | buf[1] as u16) as i32;
         self.b5 = compensate_temp(ut, self.ac1, self.ac2, self.ac3, self.ac5, self.ac6, self.mc, self.md);
         Ok(((self.b5 + 8) >> 4) as f32 / 10.0)
@@ -183,7 +184,7 @@ impl<I2C: I2c> Bmp085Minimal<I2C> {
         write_reg_u8(&mut self.i2c, self.addr, REG_CTRL_MEAS, CMD_TEMP)?;
         delay_ms(CONV_TIME_TEMP_MS);
         let mut buf = [0u8; 2];
-        self.i2c.write_read(self.addr, &[REG_OUT_MSB], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_OUT_MSB.into(), 1, &mut buf)?;
         let ut = ((buf[0] as u16) << 8 | buf[1] as u16) as i32;
         self.b5 = compensate_temp(ut, self.ac1, self.ac2, self.ac3, self.ac5, self.ac6, self.mc, self.md);
 
@@ -203,7 +204,7 @@ impl<I2C: I2c> Bmp085Minimal<I2C> {
         delay_ms(conv_ms);
 
         let mut buf = [0u8; 3];
-        self.i2c.write_read(self.addr, &[REG_OUT_MSB], &mut buf)?;
+        register::read_register(&mut self.i2c, self.addr, REG_OUT_MSB.into(), 1, &mut buf)?;
         let up = (((buf[0] as u32) << 16 | (buf[1] as u32) << 8 | buf[2] as u32) >> (8 - self.oss as u32)) as i32;
 
         let p_pa = compensate_pressure(up, self.oss as i32, self.ac1, self.ac2, self.ac3, self.ac4,

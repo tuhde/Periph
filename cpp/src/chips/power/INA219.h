@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief INA219 26V, 12-bit current/voltage/power monitor — minimal interface.
  *
@@ -15,13 +15,13 @@
  * - SADC = 0011: 12-bit, 532 µs
  * - MODE = 111: shunt + bus, continuous
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt    Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
 class INA219Minimal {
 public:
-    INA219Minimal(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA219Minimal(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Read bus voltage.
      *  @return Bus voltage in volts ((raw >> 3) × 4 mV LSB).
@@ -51,7 +51,7 @@ protected:
     static constexpr uint8_t  REG_CURRENT = 0x04;
     static constexpr uint8_t  REG_CAL     = 0x05;
 
-    Connection& _connection;
+    RegisterConnection& _connection;
     float      _current_lsb;
     uint16_t   _cal;
 
@@ -65,7 +65,7 @@ protected:
  * Adds Configuration Register programming (bus range, PGA, ADC resolution/averaging, mode),
  * conversion-ready and overflow status, reset, and shutdown/wake.
  *
- * @param connection   Configured I²C or SMBus connection pointing at the device.
+ * @param connection   RegisterConnection (I²C or SMBus) pointing at the device.
  * @param r_shunt    Shunt resistor value in ohms (default 0.1).
  * @param max_current Maximum expected current in amperes (default 2.0).
  */
@@ -100,7 +100,7 @@ public:
     static constexpr uint8_t MODE_BUS_CONT       = 6;
     static constexpr uint8_t MODE_SHUNT_BUS_CONT = 7;
 
-    INA219Full(Connection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
+    INA219Full(RegisterConnection& connection, float r_shunt = 0.1f, float max_current = 2.0f);
 
     /** @brief Write the Configuration Register.
      *  @param brng  Bus voltage range — 0 = 16 V FSR, 1 = 32 V FSR (default 1).

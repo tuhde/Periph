@@ -69,22 +69,22 @@ function _delayMs(ms) {
  */
 class DS3231Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection at address 0x68.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection at address 0x68.
      */
     constructor(connection) {
         this._conn = connection;
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, value & 0xFF);
     }
 
     async _readReg(reg) {
-        return (await this._conn.writeRead(Buffer.from([reg & 0xFF]), 1))[0];
+        return (await this._conn.readReg(reg & 0xFF, 1))[0];
     }
 
     async _readRegs(reg, n) {
-        return this._conn.writeRead(Buffer.from([reg & 0xFF]), n);
+        return this._conn.readReg(reg & 0xFF, n);
     }
 
     /**
@@ -137,7 +137,7 @@ class DS3231Minimal {
             _intToBcd(month), // bit 7 (century) left at 0
             _intToBcd(year - 2000),
         ]);
-        await this._conn.write(buf);
+        await this._conn.writeReg(buf[0], buf.subarray(1));
         const status = await this._readReg(_REG_CONTROL_STATUS);
         await this._writeReg(_REG_CONTROL_STATUS, status & ~_STATUS_OSF);
     }
@@ -170,7 +170,7 @@ class DS3231Minimal {
  */
 class DS3231Full extends DS3231Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection at address 0x68.
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection at address 0x68.
      */
     constructor(connection) {
         super(connection);
@@ -235,7 +235,7 @@ class DS3231Full extends DS3231Minimal {
             (a1m3 << 7) | _intToBcd(hour),
             (a1m4 << 7) | (isDayOfWeek ? 0x40 : 0x00) | _intToBcd(dayOrDate),
         ]);
-        await this._conn.write(buf);
+        await this._conn.writeReg(buf[0], buf.subarray(1));
     }
 
     /**
@@ -282,7 +282,7 @@ class DS3231Full extends DS3231Minimal {
             (a2m3 << 7) | _intToBcd(hour),
             (a2m4 << 7) | (isDayOfWeek ? 0x40 : 0x00) | _intToBcd(dayOrDate),
         ]);
-        await this._conn.write(buf);
+        await this._conn.writeReg(buf[0], buf.subarray(1));
     }
 
     // -- Square wave / 32kHz --------------------------------------------

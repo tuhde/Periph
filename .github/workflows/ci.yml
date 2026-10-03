@@ -13,6 +13,15 @@ on:
 # Node 24 release.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Pinned so the board-package cache key only changes when the core does
+  # (keying on this file minted a new multi-GB cache entry per workflow edit).
+  ESP32_CORE_VERSION: "3.3.12"
+  AVR_CORE_VERSION: "1.8.8"
+
+# A new push to a PR supersedes its running CI; main pushes always finish.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # -----------------------------------------------------------------------
@@ -35,8 +44,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.arduino15
-          key: arduino15-esp32-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: arduino15-esp32-
+          key: arduino15-esp32-${{ env.ESP32_CORE_VERSION }}
 
       - name: Install arduino-cli
         uses: arduino/setup-arduino-cli@v2
@@ -47,7 +55,7 @@ jobs:
           arduino-cli config add board_manager.additional_urls \
             https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
           arduino-cli core update-index
-          arduino-cli core install esp32:esp32
+          arduino-cli core install esp32:esp32@${{ env.ESP32_CORE_VERSION }}
 
       # Every example (and, on this core, every test sketch) against cpp/
       # as one library, the layout the Library Manager ships.
@@ -68,8 +76,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.arduino15
-          key: arduino15-avr-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: arduino15-avr-
+          key: arduino15-avr-${{ env.AVR_CORE_VERSION }}
 
       - name: Install arduino-cli
         uses: arduino/setup-arduino-cli@v2
@@ -78,7 +85,7 @@ jobs:
         run: |
           arduino-cli config init --overwrite
           arduino-cli core update-index
-          arduino-cli core install arduino:avr
+          arduino-cli core install arduino:avr@${{ env.AVR_CORE_VERSION }}
 
       - name: Compile all examples (Mega 2560)
         run: cpp/test_arduino_examples.sh --fqbn arduino:avr:mega --shard ${{ matrix.shard }}/2
@@ -157,10 +164,35 @@ jobs:
           (cd /opt/pico-sdk && git submodule update --init --depth 1)
           echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
 
+      # ccache persists across runs, one cache per shard. Only main saves
+      # it (PRs restore main's), so PR runs can't evict the large caches.
+      - name: Restore ccache
+        id: ccache
+        uses: actions/cache/restore@v5
+        with:
+          path: .ccache
+          key: ccache-pico-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: ccache-pico-${{ matrix.shard }}-
+
       - name: Build all apps
         run: cpp/scripts/build-all.sh picosdk --shard ${{ matrix.shard }}/8
         env:
           PICO_BOARD: pico
+          CCACHE_DIR: ${{ github.workspace }}/.ccache
+          CCACHE_MAXSIZE: 400M
+          CCACHE_BASEDIR: /tmp
+          CCACHE_NOHASHDIR: "1"
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Save ccache
+        if: github.ref == 'refs/heads/main' && !cancelled()
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache.outputs.cache-primary-key }}
 
   # -----------------------------------------------------------------------
   # Python — syntax check across all chip drivers and tests
@@ -297,11 +329,34 @@ jobs:
       - name: Install ccache
         run: command -v ccache || { apt-get update && apt-get install -y --no-install-recommends ccache; }
 
+      # ccache persists across runs, one cache per shard. Only main saves
+      # it (PRs restore main's), so PR runs can't evict the large caches.
+      - name: Restore ccache
+        id: ccache
+        uses: actions/cache/restore@v5
+        with:
+          path: .ccache
+          key: ccache-espidf-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: ccache-espidf-${{ matrix.shard }}-
+
       - name: Build all apps
         shell: bash
         run: . "$IDF_PATH/export.sh" > /dev/null && cpp/scripts/build-all.sh espidf --shard ${{ matrix.shard }}/8
         env:
           ESPIDF_TARGET: esp32
+          CCACHE_DIR: ${{ github.workspace }}/.ccache
+          CCACHE_MAXSIZE: 400M
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Save ccache
+        if: github.ref == 'refs/heads/main' && !cancelled()
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache.outputs.cache-primary-key }}
 
   # -----------------------------------------------------------------------
   # Zephyr — every example and test app, compile-only, for the Raspberry Pi
@@ -352,11 +407,35 @@ jobs:
           pip install -r zephyr/scripts/requirements-base.txt
           west sdk install -t arm-zephyr-eabi
 
+      # ccache persists across runs, one cache per shard. Only main saves
+      # it (PRs restore main's), so PR runs can't evict the large caches.
+      - name: Restore ccache
+        id: ccache
+        uses: actions/cache/restore@v5
+        with:
+          path: .ccache
+          key: ccache-zephyr-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: ccache-zephyr-${{ matrix.shard }}-
+
       - name: Build all apps
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/.ccache
+          CCACHE_MAXSIZE: 400M
         run: |
           cd ~/zephyrproject
           source zephyr/zephyr-env.sh
           "$GITHUB_WORKSPACE/cpp/scripts/build-all.sh" zephyr --shard ${{ matrix.shard }}/4
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Save ccache
+        if: github.ref == 'refs/heads/main' && !cancelled()
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache.outputs.cache-primary-key }}
 
   # -----------------------------------------------------------------------
   # Rust — compile-only (no hardware required)

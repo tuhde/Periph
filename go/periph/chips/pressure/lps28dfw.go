@@ -94,7 +94,7 @@ const (
 //   - ODR = 0b0100 (25 Hz)
 //   - BDU = 1, EN_LPFP = 1, LFPF_CFG = 0 (ODR/4 bandwidth)
 type LPS28DFWMinimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 
 	fsMode uint8
 	odr     uint8
@@ -106,7 +106,7 @@ type LPS28DFWMinimal struct {
 
 // NewLPS28DFWMinimal creates an LPS28DFWMinimal, verifies the chip ID, and
 // applies the default configuration.
-func NewLPS28DFWMinimal(t connection.Connection) (*LPS28DFWMinimal, error) {
+func NewLPS28DFWMinimal(t connection.RegisterConnection) (*LPS28DFWMinimal, error) {
 	d := &LPS28DFWMinimal{
 		connection: t,
 		fsMode:     0,
@@ -145,11 +145,11 @@ func (e *lps28dfwChipIDError) Error() string {
 }
 
 func (d *LPS28DFWMinimal) writeReg(reg, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
+	return d.connection.WriteReg(uint32(reg), []byte{val})
 }
 
 func (d *LPS28DFWMinimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -157,7 +157,7 @@ func (d *LPS28DFWMinimal) readReg8(reg uint8) (uint8, error) {
 }
 
 func (d *LPS28DFWMinimal) readReg16(reg uint8) (uint16, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 2)
+	b, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -165,14 +165,12 @@ func (d *LPS28DFWMinimal) readReg16(reg uint8) (uint16, error) {
 }
 
 func (d *LPS28DFWMinimal) readPressureRaw() (int32, error) {
-	b, err := d.connection.WriteRead([]byte{lps28dfwRegPressOutXL}, 3)
+	b, err := d.connection.ReadReg(uint32(lps28dfwRegPressOutXL), 3)
 	if err != nil {
 		return 0, err
 	}
 	v := int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16)
-	if v&0x800000 != 0 {
-		v |= -0x1000000
-	}
+	v = int32(connection.ToSigned(uint32(v), 24))
 	return v, nil
 }
 
@@ -218,7 +216,7 @@ type LPS28DFWFull struct {
 }
 
 // NewLPS28DFWFull creates an LPS28DFWFull and applies the default configuration.
-func NewLPS28DFWFull(t connection.Connection) (*LPS28DFWFull, error) {
+func NewLPS28DFWFull(t connection.RegisterConnection) (*LPS28DFWFull, error) {
 	m, err := NewLPS28DFWMinimal(t)
 	if err != nil {
 		return nil, err
@@ -254,14 +252,12 @@ func (d *LPS28DFWFull) Configure(odr, avg, fsMode, lpfCfg uint8, lpfEn bool) err
 
 // Read burst-reads pressure and temperature.
 func (d *LPS28DFWFull) Read() (float32, float32, error) {
-	b, err := d.connection.WriteRead([]byte{lps28dfwRegPressOutXL}, 5)
+	b, err := d.connection.ReadReg(uint32(lps28dfwRegPressOutXL), 5)
 	if err != nil {
 		return 0, 0, err
 	}
 	p := int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16)
-	if p&0x800000 != 0 {
-		p |= -0x1000000
-	}
+	p = int32(connection.ToSigned(uint32(p), 24))
 	t := int16(uint16(b[3]) | uint16(b[4])<<8)
 	sens := float32(4096.0)
 	if d.fsMode == 1 {
@@ -376,7 +372,7 @@ func (d *LPS28DFWFull) FIFORead(count uint8) ([]float32, error) {
 	if count > 128 {
 		count = 128
 	}
-	raw, err := d.connection.WriteRead([]byte{lps28dfwRegFIFODataXL}, int(count)*3)
+	raw, err := d.connection.ReadReg(uint32(lps28dfwRegFIFODataXL), int(count)*3)
 	if err != nil {
 		return nil, err
 	}
@@ -388,9 +384,7 @@ func (d *LPS28DFWFull) FIFORead(count uint8) ([]float32, error) {
 	for i := 0; i < int(count); i++ {
 		b := i * 3
 		v := int32(uint32(raw[b]) | uint32(raw[b+1])<<8 | uint32(raw[b+2])<<16)
-		if v&0x800000 != 0 {
-			v |= -0x1000000
-		}
+		v = int32(connection.ToSigned(uint32(v), 24))
 		out[i] = float32(float64(v) / float64(sens))
 	}
 	return out, nil

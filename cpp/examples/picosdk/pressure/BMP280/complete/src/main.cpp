@@ -13,7 +13,7 @@ int main(void) {
     gpio_pull_up(4);
     gpio_pull_up(5);
     I2CConnectionPicoSDK connection(i2c0, 0x76);
-    BMP280Full bmp(connection, /*spi=*/false);
+    BMP280Full bmp(connection);
 
     stdio_init_all();
     sleep_ms(2000);

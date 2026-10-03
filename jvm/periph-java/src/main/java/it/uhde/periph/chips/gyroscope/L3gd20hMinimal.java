@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.gyroscope;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -15,7 +16,6 @@ import java.io.IOException;
  * full scale, BDU=1, all axes enabled, 250 ms startup delay.
  *
  * @param connection I²C connection bound to the chip.
- * @param spi        true for SPI bus, false for I²C.
  */
 public class L3gd20hMinimal {
 
@@ -51,34 +51,35 @@ public class L3gd20hMinimal {
     protected static final int CTRL_REG1_DEFAULT = 0x0F;
     protected static final int CTRL_REG4_DEFAULT = 0x80;
 
-    protected final Connection connection;
-    protected final boolean spi;
+    protected final RegisterConnection connection;
     protected int fullScale = 250;
 
     /**
      * Construct the driver.
      *
      * @param connection I²C connection bound to the chip.
-     * @param spi        true for SPI bus, false for I²C.
      * @throws IOException on I²C error or wrong chip ID.
      */
-    public L3gd20hMinimal(Connection connection, boolean spi) throws IOException {
+    public L3gd20hMinimal(RegisterConnection connection) throws IOException {
         this.connection = connection;
-        this.spi = spi;
-        byte[] id = connection.writeRead(new byte[] { (byte) REG_WHO_AM_I }, 1);
+        byte[] id = readReg(REG_WHO_AM_I, 1);
         int who = id[0] & 0xFF;
         if (who != WHO_AM_I_L3GD20 && who != WHO_AM_I_L3GD20H) {
             throw new IOException("L3GD20H not found: WHO_AM_I expected 0xD4 or 0xD7, got 0x"
                     + Integer.toHexString(who));
         }
-        connection.write(new byte[] { (byte) REG_CTRL_REG4, (byte) CTRL_REG4_DEFAULT });
-        connection.write(new byte[] { (byte) REG_CTRL_REG1, (byte) CTRL_REG1_DEFAULT });
+        connection.write(REG_CTRL_REG4, new byte[] { (byte) CTRL_REG4_DEFAULT });
+        connection.write(REG_CTRL_REG1, new byte[] { (byte) CTRL_REG1_DEFAULT });
         try { Thread.sleep(250); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
-    protected void writeReg(int reg, int value) throws IOException {
-        int addr = spi ? (reg & 0x3F) : reg;
-        connection.write(new byte[] { (byte) addr, (byte) (value & 0xFF) });
+    /**
+     * Read {@code n} bytes starting at {@code reg}. I²C needs bit 7 of the
+     * sub-address set for multi-byte auto-increment; on SPI the connection's
+     * read bit 0xC0 already ORs it in (idempotent).
+     */
+    protected byte[] readReg(int reg, int n) throws IOException {
+        return connection.read(n > 1 ? (reg | 0x80) : reg, n);
     }
 
     /** Sensitivity per full-scale range, dps/digit. */
@@ -93,7 +94,7 @@ public class L3gd20hMinimal {
 
     protected static short int16Le(byte[] data, int offset) {
         int v = (data[offset] & 0xFF) | ((data[offset + 1] & 0xFF) << 8);
-        return (short) v;
+        return (short) Register.toSigned(v, 16);
     }
 
     /**
@@ -107,13 +108,7 @@ public class L3gd20hMinimal {
      * @throws IOException on I²C error.
      */
     public float[] gyro() throws IOException {
-        byte[] raw;
-        if (spi) {
-            connection.write(new byte[] { (byte) ((REG_OUT_X_L | 0xC0) & 0xFF) });
-            raw = connection.read(6);
-        } else {
-            raw = connection.writeRead(new byte[] { (byte) (REG_OUT_X_L | 0x80) }, 6);
-        }
+        byte[] raw = readReg(REG_OUT_X_L, 6);
         float sens = sensitivity(fullScale);
         float k = (float) (Math.PI / 180.0);
         float x = int16Le(raw, 0) * sens * k;

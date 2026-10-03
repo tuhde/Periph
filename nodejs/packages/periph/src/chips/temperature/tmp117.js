@@ -79,7 +79,7 @@ function _encodeTemperature(celsius) {
  */
 class TMP117Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x48–0x4B).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x48–0x4B).
      */
     constructor(connection) {
         this._conn = connection;
@@ -110,12 +110,12 @@ class TMP117Minimal {
     }
 
     async _readReg(reg) {
-        const buf = await this._conn.writeRead(Buffer.from([reg & 0xFF]), 2);
+        const buf = await this._conn.readReg(reg & 0xFF, 2);
         return buf.readUInt16BE(0);
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg & 0xFF, (value >> 8) & 0xFF, value & 0xFF]));
+        await this._conn.writeReg(reg & 0xFF, Buffer.from([(value >> 8) & 0xFF, value & 0xFF]));
     }
 
     /**
@@ -138,7 +138,7 @@ class TMP117Minimal {
  */
 class TMP117Full extends TMP117Minimal {
     /**
-     * @param {import('../../connection/connection').Connection} connection - Configured I²C connection (0x48–0x4B).
+     * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection (0x48–0x4B).
      */
     constructor(connection) {
         super(connection);

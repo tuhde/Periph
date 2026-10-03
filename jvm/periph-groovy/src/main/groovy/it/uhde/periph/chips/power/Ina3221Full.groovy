@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * INA3221 — full driver. Extends {@link Ina3221Minimal} with configuration,
@@ -69,7 +69,7 @@ class Ina3221Full extends Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunt    shunt resistance in Ω applied to all three channels
      */
-    Ina3221Full(Connection connection, double rShunt = 0.1) {
+    Ina3221Full(RegisterConnection connection, double rShunt = 0.1) {
         super(connection, rShunt)
     }
 
@@ -79,7 +79,7 @@ class Ina3221Full extends Ina3221Minimal {
      * @param connection I²C connection bound to the INA3221 device address
      * @param rShunts   shunt resistances in Ω for channels 1, 2, and 3
      */
-    Ina3221Full(Connection connection, double[] rShunts) {
+    Ina3221Full(RegisterConnection connection, double[] rShunts) {
         super(connection, rShunts)
     }
 

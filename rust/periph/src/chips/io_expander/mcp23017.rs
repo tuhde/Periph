@@ -31,6 +31,8 @@ use core::cell::{Cell, RefCell};
 use embedded_hal::digital::{ErrorKind, ErrorType, InputPin, OutputPin, StatefulOutputPin};
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 // ============================================================
 // Register addresses (IOCON.BANK = 0)
 // ============================================================
@@ -99,26 +101,22 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
             addr,
             shadow: [Cell::new(0), Cell::new(0)],
         };
-        chip.write_reg(REG_OLATA,  0x00)?;
-        chip.write_reg(REG_OLATB,  0x00)?;
-        chip.write_reg(REG_IODIRA, 0x7F)?;
-        chip.write_reg(REG_IODIRB, 0x7F)?;
-        chip.write_reg(REG_IPOLA,  0x00)?;
-        chip.write_reg(REG_IPOLB,  0x00)?;
-        chip.write_reg(REG_GPPUA,  0x00)?;
-        chip.write_reg(REG_GPPUB,  0x00)?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_OLATA.into(), 1, &[0x00])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_OLATB.into(), 1, &[0x00])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_IODIRA.into(), 1, &[0x7F])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_IODIRB.into(), 1, &[0x7F])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_IPOLA.into(), 1, &[0x00])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_IPOLB.into(), 1, &[0x00])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_GPPUA.into(), 1, &[0x00])?;
+        register::write_register(&mut *chip.i2c.borrow_mut(), chip.addr, REG_GPPUB.into(), 1, &[0x00])?;
         Ok(chip)
     }
 
     /// Write a single register.
-    fn write_reg(&self, reg: u8, value: u8) -> Result<(), I2C::Error> {
-        self.i2c.borrow_mut().write(self.addr, &[reg, value])
-    }
-
     /// Read a single register.
     fn read_reg(&self, reg: u8) -> Result<u8, I2C::Error> {
         let mut buf = [0u8; 1];
-        self.i2c.borrow_mut().write_read(self.addr, &[reg], &mut buf)?;
+        register::read_register(&mut *self.i2c.borrow_mut(), self.addr, reg.into(), 1, &mut buf)?;
         Ok(buf[0])
     }
 
@@ -128,7 +126,7 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
     /// * `port` — 0 = PORTA (IODIRA), 1 = PORTB (IODIRB).
     /// * `mask` — 8-bit mask; bit = 1 → input, 0 → output.
     pub fn configure_direction(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
-        self.write_reg(REG_IODIRA + port, mask)
+        register::write_register(&mut *self.i2c.borrow_mut(), self.addr, (REG_IODIRA + port).into(), 1, &[mask])
     }
 
     /// Write all 8 output pins of a port via the output latch.
@@ -140,7 +138,7 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
     /// * `mask` — 8-bit output mask; bit n = 1 drives pin n high.
     pub fn write_port(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
         self.shadow[port as usize].set(mask & 0xFF);
-        self.write_reg(REG_OLATA + port, mask)
+        register::write_register(&mut *self.i2c.borrow_mut(), self.addr, (REG_OLATA + port).into(), 1, &[mask])
     }
 
     /// Read all 8 pins of a port as a bitmask.
@@ -171,7 +169,7 @@ impl<I2C: I2c> Mcp23017Minimal<I2C> {
         if high { s |=   1 << bit; }
         else    { s &= !(1 << bit); }
         self.shadow[port].set(s);
-        self.write_reg(REG_OLATA + port as u8, s)
+        register::write_register(&mut *self.i2c.borrow_mut(), self.addr, (REG_OLATA + port as u8).into(), 1, &[s])
     }
 
     pub(crate) fn read_pin(&self, n: u8) -> Result<u8, I2C::Error> {
@@ -291,7 +289,7 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
     /// * `port` — 0 = PORTA (GPPUA), 1 = PORTB (GPPUB).
     /// * `mask` — 8-bit mask: bit n = 1 enables pull-up on pin n.
     pub fn configure_pullup(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
-        self.inner.write_reg(REG_GPPUA + port, mask)
+        register::write_register(&mut *self.inner.i2c.borrow_mut(), self.inner.addr, (REG_GPPUA + port).into(), 1, &[mask])
     }
 
     /// Configure input polarity inversion on a port.
@@ -300,7 +298,7 @@ impl<I2C: I2c> Mcp23017Full<I2C> {
     /// * `port` — 0 = PORTA (IPOLA), 1 = PORTB (IPOLB).
     /// * `mask` — 8-bit mask: bit n = 1 inverts the GPIO read for pin n.
     pub fn configure_polarity(&self, port: u8, mask: u8) -> Result<(), I2C::Error> {
-        self.inner.write_reg(REG_IPOLA + port, mask)
+        register::write_register(&mut *self.inner.i2c.borrow_mut(), self.inner.addr, (REG_IPOLA + port).into(), 1, &[mask])
     }
 
     /// Read and clear the interrupt for a port, returning the changed-pin bitmask.

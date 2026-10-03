@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.io_expander;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public class Mcp23017Minimal {
 
-    protected final Connection connection;
+    protected final RegisterConnection connection;
     protected final int addr;
 
     /** Output latch shadow. shadow[0] = OLATA, shadow[1] = OLATB. */
@@ -51,29 +51,25 @@ public class Mcp23017Minimal {
      * @param addr       7-bit I²C address ({@code 0x20}–{@code 0x27})
      * @throws IOException on I²C error during init
      */
-    public Mcp23017Minimal(Connection connection, int addr) throws IOException {
+    public Mcp23017Minimal(RegisterConnection connection, int addr) throws IOException {
         this.connection = connection;
         this.addr     = addr;
-        writeReg(REG_OLATA,  0x00);
-        writeReg(REG_OLATB,  0x00);
-        writeReg(REG_IODIRA, 0x7F);
-        writeReg(REG_IODIRB, 0x7F);
-        writeReg(REG_IPOLA,  0x00);
-        writeReg(REG_IPOLB,  0x00);
-        writeReg(REG_GPPUA,  0x00);
-        writeReg(REG_GPPUB,  0x00);
+        connection.write(REG_OLATA, new byte[]{(byte) ( 0x00)});
+        connection.write(REG_OLATB, new byte[]{(byte) ( 0x00)});
+        connection.write(REG_IODIRA, new byte[]{(byte) (0x7F)});
+        connection.write(REG_IODIRB, new byte[]{(byte) (0x7F)});
+        connection.write(REG_IPOLA, new byte[]{(byte) ( 0x00)});
+        connection.write(REG_IPOLB, new byte[]{(byte) ( 0x00)});
+        connection.write(REG_GPPUA, new byte[]{(byte) ( 0x00)});
+        connection.write(REG_GPPUB, new byte[]{(byte) ( 0x00)});
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
 
-    protected void writeReg(int reg, int value) throws IOException {
-        connection.write(new byte[]{ (byte) reg, (byte) (value & 0xFF) });
-    }
-
     protected int readReg(int reg) throws IOException {
-        byte[] buf = connection.writeRead(new byte[]{ (byte) reg }, 1);
+        byte[] buf = connection.read(reg, 1);
         return buf[0] & 0xFF;
     }
 
@@ -102,7 +98,7 @@ public class Mcp23017Minimal {
      */
     public void writePort(int port, int mask) throws IOException {
         shadow[port] = mask & 0xFF;
-        writeReg(REG_OLATA + port, shadow[port]);
+        connection.write(REG_OLATA + port, new byte[]{(byte) (shadow[port])});
     }
 
     /**
@@ -127,7 +123,7 @@ public class Mcp23017Minimal {
         int bit  = n & 7;
         if (high) shadow[port] |=   (1 << bit);
         else      shadow[port] &= ~((1 << bit));
-        writeReg(REG_OLATA + port, shadow[port]);
+        connection.write(REG_OLATA + port, new byte[]{(byte) (shadow[port])});
     }
 
     /* package */ int readPin(int n) throws IOException {
@@ -175,7 +171,7 @@ public class Mcp23017Minimal {
             int bit  = n & 7;
             int reg  = REG_IODIRA + port;
             int cur  = chip.readReg(reg);
-            chip.writeReg(reg, cur | (1 << bit));
+            chip.connection.write(reg, new byte[]{(byte) (cur | (1 << bit))});
         }
 
         /**
@@ -188,7 +184,7 @@ public class Mcp23017Minimal {
             int bit  = n & 7;
             int reg  = REG_IODIRA + port;
             int cur  = chip.readReg(reg);
-            chip.writeReg(reg, cur & ~(1 << bit));
+            chip.connection.write(reg, new byte[]{(byte) (cur & ~(1 << bit))});
         }
 
         /**

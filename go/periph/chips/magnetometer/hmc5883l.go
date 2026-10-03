@@ -46,7 +46,7 @@ const HMC5883LAddr uint8 = 0x1E
 //   - Gain: ±1.3 Ga (GN=001), 1090 LSb/Gauss
 //   - Mode: continuous measurement
 type HMC5883LMinimal struct {
-	connection connection.Connection
+	connection connection.RegisterConnection
 	gain       uint8
 	gainLsb    float64
 }
@@ -57,7 +57,7 @@ type HMC5883LMinimal struct {
 // for the first measurement to become available.
 //
 // connection must be a configured I²C connection bound to address 0x1E.
-func NewHMC5883LMinimal(t connection.Connection) (*HMC5883LMinimal, error) {
+func NewHMC5883LMinimal(t connection.RegisterConnection) (*HMC5883LMinimal, error) {
 	d := &HMC5883LMinimal{
 		connection: t,
 		gain:       1,
@@ -70,25 +70,21 @@ func NewHMC5883LMinimal(t connection.Connection) (*HMC5883LMinimal, error) {
 }
 
 func (d *HMC5883LMinimal) initMinimal() error {
-	if err := d.writeReg8(hmc5883lRegConfigA, 0x70); err != nil { // 8 avg, 15 Hz, normal
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigA), []byte{0x70}); err != nil { // 8 avg, 15 Hz, normal
 		return err
 	}
-	if err := d.writeReg8(hmc5883lRegConfigB, 0x20); err != nil { // gain=1 (±1.3 Ga)
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigB), []byte{0x20}); err != nil { // gain=1 (±1.3 Ga)
 		return err
 	}
-	if err := d.writeReg8(hmc5883lRegMode, 0x00); err != nil { // continuous mode
+	if err := d.connection.WriteReg(uint32(hmc5883lRegMode), []byte{0x00}); err != nil { // continuous mode
 		return err
 	}
 	time.Sleep(6 * time.Millisecond) // first measurement available ~6 ms after mode write
 	return nil
 }
 
-func (d *HMC5883LMinimal) writeReg8(reg uint8, val uint8) error {
-	return d.connection.Write([]byte{reg, val})
-}
-
 func (d *HMC5883LMinimal) readReg8(reg uint8) (uint8, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 1)
+	buf, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -96,7 +92,7 @@ func (d *HMC5883LMinimal) readReg8(reg uint8) (uint8, error) {
 }
 
 func (d *HMC5883LMinimal) readReg16(reg uint8) (int16, error) {
-	buf, err := d.connection.WriteRead([]byte{reg}, 2)
+	buf, err := d.connection.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -111,7 +107,7 @@ func (d *HMC5883LMinimal) readReg16(reg uint8) (int16, error) {
 // Returns (x, y, z) magnetic field strength in Tesla.
 // Returns nil for any axis that overflows (raw == -4096).
 func (d *HMC5883LMinimal) MagneticField() (x, y, z float64, err error) {
-	buf, err := d.connection.WriteRead([]byte{hmc5883lRegDataXMSB}, 6)
+	buf, err := d.connection.ReadReg(uint32(hmc5883lRegDataXMSB), 6)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -142,7 +138,7 @@ type HMC5883LFull struct {
 }
 
 // NewHMC5883LFull creates a new HMC5883LFull and initialises with default configuration.
-func NewHMC5883LFull(t connection.Connection) (*HMC5883LFull, error) {
+func NewHMC5883LFull(t connection.RegisterConnection) (*HMC5883LFull, error) {
 	m, err := NewHMC5883LMinimal(t)
 	if err != nil {
 		return nil, err
@@ -186,12 +182,12 @@ func (d *HMC5883LFull) Configure(odr float64, averaging uint8, gain uint8) error
 	}
 
 	configA := (ma << 5) | (doBits << 2)
-	if err := d.writeReg8(hmc5883lRegConfigA, configA); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigA), []byte{configA}); err != nil {
 		return err
 	}
 
 	configB := gain << 5
-	if err := d.writeReg8(hmc5883lRegConfigB, configB); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigB), []byte{configB}); err != nil {
 		return err
 	}
 
@@ -205,7 +201,7 @@ func (d *HMC5883LFull) SetGain(gain uint8) error {
 	if gain > 7 {
 		return fmt.Errorf("gain must be 0–7")
 	}
-	if err := d.writeReg8(hmc5883lRegConfigB, gain<<5); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigB), []byte{gain<<5}); err != nil {
 		return err
 	}
 	d.gain = gain
@@ -227,7 +223,7 @@ func (d *HMC5883LFull) SetMode(mode string) error {
 	default:
 		return fmt.Errorf("mode must be 'continuous', 'single', or 'idle'")
 	}
-	return d.writeReg8(hmc5883lRegMode, md)
+	return d.connection.WriteReg(uint32(hmc5883lRegMode), []byte{md})
 }
 
 // DataReady checks if new measurement data is ready.
@@ -252,7 +248,7 @@ func (d *HMC5883LFull) Status() (uint8, error) {
 // Returns (x, y, z) magnetic field strength in Tesla.
 // Returns sentinel -1.0 for any axis that overflows.
 func (d *HMC5883LFull) SingleMeasurement() (x, y, z float64, err error) {
-	if err := d.writeReg8(hmc5883lRegMode, 0x01); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegMode), []byte{0x01}); err != nil {
 		return 0, 0, 0, err
 	}
 	time.Sleep(6 * time.Millisecond)
@@ -287,18 +283,18 @@ func (d *HMC5883LFull) SelfTest(positive bool) (x, y, z float64, err error) {
 	if !positive {
 		ms = 0b10
 	}
-	if err := d.writeReg8(hmc5883lRegConfigA, (configA&0xFC)|ms); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigA), []byte{(configA&0xFC)|ms}); err != nil {
 		return 0, 0, 0, err
 	}
 
-	if err := d.writeReg8(hmc5883lRegMode, 0x01); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegMode), []byte{0x01}); err != nil {
 		return 0, 0, 0, err
 	}
 	time.Sleep(6 * time.Millisecond)
 
 	x, y, z, err = d.MagneticField()
 
-	if err := d.writeReg8(hmc5883lRegConfigA, (configA&0xFC)|0b00); err != nil {
+	if err := d.connection.WriteReg(uint32(hmc5883lRegConfigA), []byte{(configA&0xFC)|0b00}); err != nil {
 		return 0, 0, 0, err
 	}
 	return x, y, z, err

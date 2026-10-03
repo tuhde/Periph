@@ -10,31 +10,31 @@ import (
 
 // BMP581 register addresses.
 const (
-	bmp581RegChipID       uint8 = 0x01
-	bmp581RegRevID        uint8 = 0x02
-	bmp581RegIntSource    uint8 = 0x15
-	bmp581RegIntConfig    uint8 = 0x14
-	bmp581RegFifoSel      uint8 = 0x18
-	bmp581RegFifoConfig   uint8 = 0x16
-	bmp581RegFifoCount    uint8 = 0x17
-	bmp581RegFifoData     uint8 = 0x29
-	bmp581RegTempXLSB     uint8 = 0x1D
-	bmp581RegPressXLSB    uint8 = 0x20
-	bmp581RegIntStatus    uint8 = 0x27
-	bmp581RegStatus       uint8 = 0x28
-	bmp581RegDspConfig    uint8 = 0x30
-	bmp581RegDspIIR       uint8 = 0x31
-	bmp581RegOORThrPLSB   uint8 = 0x32
-	bmp581RegOORThrPMSB   uint8 = 0x33
-	bmp581RegOORRange     uint8 = 0x34
-	bmp581RegOORConfig    uint8 = 0x35
-	bmp581RegOSRConfig    uint8 = 0x36
-	bmp581RegODRConfig    uint8 = 0x37
-	bmp581RegOSREff       uint8 = 0x38
-	bmp581RegNVMAddr      uint8 = 0x2B
-	bmp581RegNVMDataLSB   uint8 = 0x2C
-	bmp581RegNVMDataMSB   uint8 = 0x2D
-	bmp581RegCmd          uint8 = 0x7E
+	bmp581RegChipID     = 0x01
+	bmp581RegRevID      = 0x02
+	bmp581RegIntSource  = 0x15
+	bmp581RegIntConfig  = 0x14
+	bmp581RegFifoSel    = 0x18
+	bmp581RegFifoConfig = 0x16
+	bmp581RegFifoCount  = 0x17
+	bmp581RegFifoData   = 0x29
+	bmp581RegTempXLSB   = 0x1D
+	bmp581RegPressXLSB  = 0x20
+	bmp581RegIntStatus  = 0x27
+	bmp581RegStatus     = 0x28
+	bmp581RegDspConfig  = 0x30
+	bmp581RegDspIIR     = 0x31
+	bmp581RegOORThrPLSB = 0x32
+	bmp581RegOORThrPMSB = 0x33
+	bmp581RegOORRange   = 0x34
+	bmp581RegOORConfig  = 0x35
+	bmp581RegOSRConfig  = 0x36
+	bmp581RegODRConfig  = 0x37
+	bmp581RegOSREff     = 0x38
+	bmp581RegNVMAddr    = 0x2B
+	bmp581RegNVMDataLSB = 0x2C
+	bmp581RegNVMDataMSB = 0x2D
+	bmp581RegCmd        = 0x7E
 )
 
 // BMP581 expected chip ID.
@@ -150,36 +150,29 @@ func bmp581U24(b []byte) int32 {
 // Default configuration baked in: NORMAL mode, ODR 1 Hz, press_en=1,
 // osr_p=×1, osr_t=×1, IIR bypass, FIFO disabled, INT_SOURCE=0.
 type BMP581Minimal struct {
-	connection connection.Connection
-	spi        bool
+	connection connection.RegisterConnection
 
-	odr      uint8
-	pwrMode  uint8
-	osrP     uint8
-	osrT     uint8
-	pressEn  bool
+	odr     uint8
+	pwrMode uint8
+	osrP    uint8
+	osrT    uint8
+	pressEn bool
 }
 
 // NewBMP581Minimal creates a BMP581Minimal and runs the chip init sequence.
 //
-// connection must be a configured I²C or SPI connection bound to the device
-// (I²C address 0x46/0x47, or an SPI chip-select). Pass spi=true for SPI -
-// per the BMP581 SPI protocol, writes clear bit 7 of the register address
-// (reg & 0x7F); the chip does NOT need a SPI-mode-0/3 dummy read because
-// the I²C init sequence below handles the first-byte race without one.
-func NewBMP581Minimal(t connection.Connection, spi bool) (*BMP581Minimal, error) {
+// connection must be a configured I²C, SMBus, or SPI register connection bound
+// to the device (I²C address 0x46/0x47, or an SPI chip-select). The first read
+// after CSB falls on SPI is invalid; Init's initial CHIP_ID read (whose result
+// is deliberately ignored) serves as the throwaway read on both buses.
+func NewBMP581Minimal(t connection.RegisterConnection) (*BMP581Minimal, error) {
 	d := &BMP581Minimal{
 		connection: t,
-		spi:        spi,
 		odr:        0x1C,
 		pwrMode:    0x01,
 		osrP:       0,
 		osrT:       0,
 		pressEn:    true,
-	}
-	if spi {
-		_ = t.Write([]byte{bmp581RegChipID | 0x80})
-		_, _ = t.Read(1)
 	}
 	if _, err := d.readReg8(bmp581RegChipID); err != nil {
 		// Best effort; some buses don't reply at this stage.
@@ -193,7 +186,7 @@ func NewBMP581Minimal(t connection.Connection, spi bool) (*BMP581Minimal, error)
 		time.Sleep(2 * time.Millisecond)
 	}
 	_, _ = d.readReg8(bmp581RegIntStatus)
-	if err := d.writeReg(bmp581RegCmd, bmp581ResetCmd); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegCmd), []byte{bmp581ResetCmd}); err != nil {
 		// I²C reset write returns NACK (no ACK before chip resets); ignore.
 		_ = err
 	}
@@ -206,27 +199,18 @@ func NewBMP581Minimal(t connection.Connection, spi bool) (*BMP581Minimal, error)
 		time.Sleep(2 * time.Millisecond)
 	}
 	_, _ = d.readReg8(bmp581RegIntStatus)
-	if err := d.writeReg(bmp581RegOSRConfig, 0x40); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOSRConfig), []byte{0x40}); err != nil {
 		return nil, err
 	}
-	if err := d.writeReg(bmp581RegODRConfig, 0x71); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegODRConfig), []byte{0x71}); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// writeReg writes a single byte to a register.
-func (d *BMP581Minimal) writeReg(reg, val uint8) error {
-	addr := reg
-	if d.spi {
-		addr &= 0x7F
-	}
-	return d.connection.Write([]byte{addr, val})
-}
-
 // readReg8 reads a single byte from a register.
 func (d *BMP581Minimal) readReg8(reg uint8) (uint8, error) {
-	b, err := d.connection.WriteRead([]byte{reg}, 1)
+	b, err := d.connection.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -235,7 +219,7 @@ func (d *BMP581Minimal) readReg8(reg uint8) (uint8, error) {
 
 // readRegBytes reads n bytes from a register into buf.
 func (d *BMP581Minimal) readRegBytes(reg uint8, n int) ([]byte, error) {
-	return d.connection.WriteRead([]byte{reg}, n)
+	return d.connection.ReadReg(uint32(reg), n)
 }
 
 // waitForced blocks until drdy is set, if the chip is in FORCED mode.
@@ -303,8 +287,8 @@ type BMP581Full struct {
 }
 
 // NewBMP581Full creates a BMP581Full and runs the chip init sequence.
-func NewBMP581Full(t connection.Connection, spi bool) (*BMP581Full, error) {
-	m, err := NewBMP581Minimal(t, spi)
+func NewBMP581Full(t connection.RegisterConnection) (*BMP581Full, error) {
+	m, err := NewBMP581Minimal(t)
 	if err != nil {
 		return nil, err
 	}
@@ -329,18 +313,18 @@ func (d *BMP581Full) Configure(odr, osrP, osrT uint8, pressEn bool) error {
 	}
 	osrByte |= (osrP & 0x7) << 3
 	osrByte |= osrT & 0x7
-	if err := d.writeReg(bmp581RegOSRConfig, osrByte); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOSRConfig), []byte{osrByte}); err != nil {
 		return err
 	}
 	odrByte := (d.odr&0x1F)<<2 | (d.pwrMode & 0x3)
-	return d.writeReg(bmp581RegODRConfig, odrByte)
+	return d.connection.WriteReg(uint32(bmp581RegODRConfig), []byte{odrByte})
 }
 
 // SetMode sets the power mode (preserves the current ODR setting).
 func (d *BMP581Full) SetMode(mode uint8) error {
 	d.pwrMode = mode
 	odrByte := (d.odr&0x1F)<<2 | (mode & 0x3)
-	return d.writeReg(bmp581RegODRConfig, odrByte)
+	return d.connection.WriteReg(uint32(bmp581RegODRConfig), []byte{odrByte})
 }
 
 // Forced triggers a single FORCED measurement, waits for completion, and
@@ -381,7 +365,7 @@ func (d *BMP581Full) Altitude(seaLevelPa float32) (float32, error) {
 
 // SoftwareReset issues a soft reset (write 0xB6 to CMD) and re-runs the init.
 func (d *BMP581Full) SoftwareReset() error {
-	_ = d.writeReg(bmp581RegCmd, bmp581ResetCmd) // NACK expected on I²C
+	_ = d.connection.WriteReg(uint32(bmp581RegCmd), []byte{bmp581ResetCmd}) // NACK expected on I²C
 	time.Sleep(2 * time.Millisecond)
 	prevODR := d.odr
 	prevMode := d.pwrMode
@@ -397,10 +381,10 @@ func (d *BMP581Full) SoftwareReset() error {
 		time.Sleep(2 * time.Millisecond)
 	}
 	_, _ = d.readReg8(bmp581RegIntStatus)
-	if err := d.writeReg(bmp581RegOSRConfig, 0x40); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOSRConfig), []byte{0x40}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp581RegODRConfig, 0x71); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegODRConfig), []byte{0x71}); err != nil {
 		return err
 	}
 	d.odr = prevODR
@@ -455,7 +439,7 @@ func (d *BMP581Full) ConfigureInterrupt(mode, polarity uint8, openDrain, enable 
 	if mode != 0 {
 		val |= 0x01
 	}
-	return d.writeReg(bmp581RegIntConfig, val)
+	return d.connection.WriteReg(uint32(bmp581RegIntConfig), []byte{val})
 }
 
 func (d *BMP581Full) setIntSource(source uint8, enable bool) error {
@@ -469,7 +453,7 @@ func (d *BMP581Full) setIntSource(source uint8, enable bool) error {
 	} else {
 		next = cur &^ source
 	}
-	return d.writeReg(bmp581RegIntSource, next)
+	return d.connection.WriteReg(uint32(bmp581RegIntSource), []byte{next})
 }
 
 // EnableDRDYInterrupt enables or disables the data-ready interrupt source.
@@ -490,7 +474,7 @@ func (d *BMP581Full) EnableFIFOInterrupt(threshold, full bool) error {
 	if full {
 		next |= BMP581IntSourceFIFOFull
 	}
-	return d.writeReg(bmp581RegIntSource, next)
+	return d.connection.WriteReg(uint32(bmp581RegIntSource), []byte{next})
 }
 
 // EnableOORInterrupt enables or disables the pressure out-of-range interrupt source.
@@ -506,11 +490,11 @@ func (d *BMP581Full) SetIIRFilter(coeffP, coeffT uint8) error {
 		return err
 	}
 	dsp |= 0x28
-	if err := d.writeReg(bmp581RegDspConfig, dsp); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegDspConfig), []byte{dsp}); err != nil {
 		return err
 	}
 	iir := (coeffP&0x7)<<3 | (coeffT & 0x7)
-	return d.writeReg(bmp581RegDspIIR, iir)
+	return d.connection.WriteReg(uint32(bmp581RegDspIIR), []byte{iir})
 }
 
 // ConfigureFIFO configures FIFO source, mode, and threshold. Must be called in STANDBY mode.
@@ -521,11 +505,11 @@ func (d *BMP581Full) ConfigureFIFO(frameSel, mode, threshold uint8) error {
 			return err
 		}
 	}
-	if err := d.writeReg(bmp581RegFifoSel, frameSel&0x3); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegFifoSel), []byte{frameSel & 0x3}); err != nil {
 		return err
 	}
 	cfg := (mode&0x1)<<5 | (threshold & 0x1F)
-	if err := d.writeReg(bmp581RegFifoConfig, cfg); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegFifoConfig), []byte{cfg}); err != nil {
 		return err
 	}
 	if prev != BMP581ModeStandby {
@@ -568,18 +552,18 @@ func (d *BMP581Full) ODRIsValid() (bool, error) {
 // countLimit  — 0-3 successive over-threshold events required.
 func (d *BMP581Full) SetOORThreshold(thresholdPa, rangePa float32, countLimit uint8) error {
 	thr17 := int32(thresholdPa*64.0) >> 7
-	if err := d.writeReg(bmp581RegOORThrPLSB, uint8(thr17&0xFF)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOORThrPLSB), []byte{uint8(thr17 & 0xFF)}); err != nil {
 		return err
 	}
-	if err := d.writeReg(bmp581RegOORThrPMSB, uint8((thr17>>8)&0xFF)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOORThrPMSB), []byte{uint8((thr17 >> 8) & 0xFF)}); err != nil {
 		return err
 	}
 	range8 := (int32(rangePa*64.0) >> 7) & 0xFF
-	if err := d.writeReg(bmp581RegOORRange, uint8(range8)); err != nil {
+	if err := d.connection.WriteReg(uint32(bmp581RegOORRange), []byte{uint8(range8)}); err != nil {
 		return err
 	}
 	cfg := (countLimit&0x3)<<6 | uint8((thr17>>16)&0x01)
-	return d.writeReg(bmp581RegOORConfig, cfg)
+	return d.connection.WriteReg(uint32(bmp581RegOORConfig), []byte{cfg})
 }
 
 // NVMRead reads one user NVM row (row 0x20..0x22).
@@ -591,17 +575,17 @@ func (d *BMP581Full) NVMRead(row uint8) (uint16, error) {
 		}
 	}
 	value, err := func() (uint16, error) {
-		if err := d.writeReg(bmp581RegNVMAddr, 0x5D); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMAddr), []byte{0x5D}); err != nil {
 			return 0, err
 		}
-		if err := d.writeReg(bmp581RegCmd, 0xA5); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegCmd), []byte{0xA5}); err != nil {
 			return 0, err
 		}
 		time.Sleep(2 * time.Millisecond)
-		if err := d.writeReg(bmp581RegNVMAddr, 0x40|(row&0x3F)); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMAddr), []byte{0x40 | (row & 0x3F)}); err != nil {
 			return 0, err
 		}
-		if err := d.writeReg(bmp581RegCmd, 0xA5); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegCmd), []byte{0xA5}); err != nil {
 			return 0, err
 		}
 		time.Sleep(2 * time.Millisecond)
@@ -626,19 +610,19 @@ func (d *BMP581Full) NVMWrite(row uint8, value uint16) error {
 		}
 	}
 	err := func() error {
-		if err := d.writeReg(bmp581RegNVMAddr, 0x40|(row&0x3F)); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMAddr), []byte{0x40 | (row & 0x3F)}); err != nil {
 			return err
 		}
-		if err := d.writeReg(bmp581RegNVMDataLSB, uint8(value&0xFF)); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMDataLSB), []byte{uint8(value & 0xFF)}); err != nil {
 			return err
 		}
-		if err := d.writeReg(bmp581RegNVMDataMSB, uint8((value>>8)&0xFF)); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMDataMSB), []byte{uint8((value >> 8) & 0xFF)}); err != nil {
 			return err
 		}
-		if err := d.writeReg(bmp581RegNVMAddr, 0x5D); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegNVMAddr), []byte{0x5D}); err != nil {
 			return err
 		}
-		if err := d.writeReg(bmp581RegCmd, 0xA0); err != nil {
+		if err := d.connection.WriteReg(uint32(bmp581RegCmd), []byte{0xA0}); err != nil {
 			return err
 		}
 		time.Sleep(5 * time.Millisecond)

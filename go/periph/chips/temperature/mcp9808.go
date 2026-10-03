@@ -159,7 +159,7 @@ func mcp9808IndexOf(table [4]float32, value float32) int {
 // a band-gap sensor with a delta-sigma ADC, read over I²C. Registers are
 // 16-bit, big-endian, addressed through a non-incrementing Register Pointer.
 type MCP9808Minimal struct {
-	conn connection.Connection
+	conn connection.RegisterConnection
 }
 
 // NewMCP9808Minimal creates an MCP9808Minimal and confirms the chip's
@@ -167,7 +167,7 @@ type MCP9808Minimal struct {
 // is ignored), returning ErrMCP9808NotFound on a mismatch. No register
 // writes are made — the POR default (continuous conversion at 0.0625 °C,
 // Alert output disabled) already serves the primary use case.
-func NewMCP9808Minimal(conn connection.Connection) (*MCP9808Minimal, error) {
+func NewMCP9808Minimal(conn connection.RegisterConnection) (*MCP9808Minimal, error) {
 	d := &MCP9808Minimal{conn: conn}
 	mfr, err := d.readReg(mcp9808RegMfrID)
 	if err != nil {
@@ -184,7 +184,7 @@ func NewMCP9808Minimal(conn connection.Connection) (*MCP9808Minimal, error) {
 }
 
 func (d *MCP9808Minimal) readReg(reg uint8) (uint16, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 2)
+	b, err := d.conn.ReadReg(uint32(reg), 2)
 	if err != nil {
 		return 0, err
 	}
@@ -192,7 +192,7 @@ func (d *MCP9808Minimal) readReg(reg uint8) (uint16, error) {
 }
 
 func (d *MCP9808Minimal) writeReg(reg uint8, value uint16) error {
-	return d.conn.Write([]byte{reg, byte(value >> 8), byte(value)})
+	return d.conn.WriteReg(uint32(reg), []byte{byte(value >> 8), byte(value)})
 }
 
 // ReadTemperature reads the ambient temperature in °C. It masks off TA's
@@ -221,7 +221,7 @@ type MCP9808Full struct {
 
 // NewMCP9808Full creates an MCP9808Full; same identity check as
 // NewMCP9808Minimal.
-func NewMCP9808Full(conn connection.Connection) (*MCP9808Full, error) {
+func NewMCP9808Full(conn connection.RegisterConnection) (*MCP9808Full, error) {
 	m, err := NewMCP9808Minimal(conn)
 	if err != nil {
 		return nil, err
@@ -260,12 +260,12 @@ func (d *MCP9808Full) SetResolution(celsius float32) error {
 	if code < 0 {
 		return ErrMCP9808InvalidResolution
 	}
-	return d.conn.Write([]byte{mcp9808RegResolution, byte(code)})
+	return d.conn.WriteReg(uint32(mcp9808RegResolution), []byte{byte(code)})
 }
 
 // GetResolution reads the measurement resolution step in °C.
 func (d *MCP9808Full) GetResolution() (float32, error) {
-	b, err := d.conn.WriteRead([]byte{mcp9808RegResolution}, 1)
+	b, err := d.conn.ReadReg(uint32(mcp9808RegResolution), 1)
 	if err != nil {
 		return 0, err
 	}

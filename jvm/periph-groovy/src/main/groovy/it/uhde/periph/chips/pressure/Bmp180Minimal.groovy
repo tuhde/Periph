@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.pressure
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -27,7 +27,7 @@ class Bmp180Minimal {
     static final int CMD_PRES_OSS  = 0x34
     static final int CHIP_ID       = 0x55
 
-    protected final Connection connection
+    protected final RegisterConnection connection
 
     // Calibration coefficients (signed unless noted)
     protected int AC1, AC2, AC3
@@ -44,10 +44,10 @@ class Bmp180Minimal {
      * @param connection I²C connection bound to address 0x77
      * @throws IOException on I²C error, wrong chip ID, or invalid calibration
      */
-    Bmp180Minimal(Connection connection) {
+    Bmp180Minimal(RegisterConnection connection) {
         this.connection = connection
 
-        byte[] id = connection.writeRead([(byte) REG_ID] as byte[], 1)
+        byte[] id = connection.read(REG_ID, 1)
         if ((id[0] & 0xFF) != CHIP_ID) {
             throw new IOException(
                 "BMP180 not found: expected chip ID 0x55, got 0x" +
@@ -63,7 +63,7 @@ class Bmp180Minimal {
      * @throws IOException on I²C error or invalid calibration data
      */
     protected void readCalibration() {
-        byte[] cal = connection.writeRead([(byte) REG_CAL_START] as byte[], 22)
+        byte[] cal = connection.read(REG_CAL_START, 22)
 
         AC1 = (short)(((cal[0]  & 0xFF) << 8) | (cal[1]  & 0xFF))
         AC2 = (short)(((cal[2]  & 0xFF) << 8) | (cal[3]  & 0xFF))
@@ -108,9 +108,9 @@ class Bmp180Minimal {
      * @throws IOException on I²C error
      */
     protected int readRawTemperature() {
-        connection.write([(byte) REG_CTRL_MEAS, (byte) CMD_TEMP] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte) CMD_TEMP] as byte[])
         Thread.sleep(5)
-        byte[] b = connection.writeRead([(byte) REG_OUT_MSB] as byte[], 2)
+        byte[] b = connection.read(REG_OUT_MSB, 2)
         return ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 
@@ -122,9 +122,9 @@ class Bmp180Minimal {
      * @throws IOException on I²C error
      */
     protected long readRawPressure(int ossMode) {
-        connection.write([(byte) REG_CTRL_MEAS, (byte)(CMD_PRES_OSS | (ossMode << 6))] as byte[])
+        connection.write(REG_CTRL_MEAS, [(byte)(CMD_PRES_OSS | (ossMode << 6))] as byte[])
         Thread.sleep((long)(ossMode * 10L + 5L))
-        byte[] b = connection.writeRead([(byte) REG_OUT_MSB] as byte[], 3)
+        byte[] b = connection.read(REG_OUT_MSB, 3)
         long raw = (((long)(b[0] & 0xFF)) << 16) | (((long)(b[1] & 0xFF)) << 8) | ((long)(b[2] & 0xFF))
         return raw >> (8 - ossMode)
     }

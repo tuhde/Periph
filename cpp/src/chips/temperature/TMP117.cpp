@@ -31,7 +31,7 @@ float absf(float x) { return x < 0.0f ? -x : x; }
 
 // TMP117Minimal
 
-TMP117Minimal::TMP117Minimal(Connection& connection) : _connection(connection) {
+TMP117Minimal::TMP117Minimal(RegisterConnection& connection) : _connection(connection) {
     if ((_readReg(REG_DEVICE_ID) & 0x0FFF) != DEVICE_ID) {
         // Identity check failed — wrong chip / wrong address / wiring problem.
         // abort() rather than throwing: exceptions are disabled per platform
@@ -42,13 +42,13 @@ TMP117Minimal::TMP117Minimal(Connection& connection) : _connection(connection) {
 
 uint16_t TMP117Minimal::_readReg(uint8_t reg) {
     uint8_t buf[2];
-    _connection.write_read(&reg, 1, buf, 2);
+    _connection.read(reg, buf, 2);
     return (uint16_t)((buf[0] << 8) | buf[1]);
 }
 
 void TMP117Minimal::_writeReg(uint8_t reg, uint16_t value) {
-    uint8_t buf[3] = { reg, (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
-    _connection.write(buf, 3);
+    uint8_t buf[2] = { (uint8_t)(value >> 8), (uint8_t)(value & 0xFF) };
+    _connection.write(reg, buf, 2);
 }
 
 float TMP117Minimal::_decodeTemperature(uint16_t raw) {
@@ -70,7 +70,7 @@ float TMP117Minimal::readTemperature() { return _decodeTemperature(_readReg(REG_
 
 TMP117Full* TMP117Full::_activeInstance = nullptr;
 
-TMP117Full::TMP117Full(Connection& connection) : TMP117Minimal(connection) {}
+TMP117Full::TMP117Full(RegisterConnection& connection) : TMP117Minimal(connection) {}
 
 uint16_t TMP117Full::_readConfig() { return _readReg(REG_CONFIG) & CFG_WRITE_MASK; }
 

@@ -41,7 +41,7 @@ function _delay(ms) {
  * `await sensor.temperature()` right after construction and handle its
  * rejection.
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  */
 class BMP085Minimal {
     constructor(connection) {
@@ -51,7 +51,7 @@ class BMP085Minimal {
     }
 
     async _readCalibration() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_CAL_START]), 22);
+        const data = await this._conn.readReg(_REG_CAL_START, 22);
         this._ac1 = data.readInt16BE(0);
         this._ac2 = data.readInt16BE(2);
         this._ac3 = data.readInt16BE(4);
@@ -78,13 +78,13 @@ class BMP085Minimal {
     }
 
     async _writeReg(reg, value) {
-        await this._conn.write(Buffer.from([reg, value]));
+        await this._conn.writeReg(reg, value);
     }
 
     async _readRawTemp() {
         await this._writeReg(_REG_CTRL_MEAS, _CMD_TEMP);
         _delay(_CONV_TIME_TEMP * 1000);
-        const data = await this._conn.writeRead(Buffer.from([_REG_OUT_MSB]), 2);
+        const data = await this._conn.readReg(_REG_OUT_MSB, 2);
         return data.readUInt16BE(0);
     }
 
@@ -92,7 +92,7 @@ class BMP085Minimal {
         const cmd = _CMD_PRESSURE[this._oss];
         await this._writeReg(_REG_CTRL_MEAS, cmd);
         _delay(_CONV_TIME[this._oss] * 1000);
-        const data = await this._conn.writeRead(Buffer.from([_REG_OUT_MSB]), 3);
+        const data = await this._conn.readReg(_REG_OUT_MSB, 3);
         let up = ((data.readUInt16BE(0) << 8) | data[2]) >> (8 - this._oss);
         return up;
     }
@@ -184,7 +184,7 @@ class BMP085Minimal {
  * - BMP085Full.OSS_HIGH_RES — High Resolution (oss=2, 13.5 ms)
  * - BMP085Full.OSS_ULTRA_HIGH_RES — Ultra High Resolution (oss=3, 25.5 ms)
  *
- * @param {import('../../connection/connection').Connection} connection - Configured I²C connection.
+ * @param {import('../../connection/register_connection').RegisterConnection} connection - I²C or SMBus register connection.
  * @param {number} [oss=0] - Oversampling mode 0–3.
  */
 class BMP085Full extends BMP085Minimal {
@@ -239,7 +239,7 @@ class BMP085Full extends BMP085Minimal {
      * @returns {Promise<number>} Chip ID; expect 0x55.
      */
     async chipId() {
-        const data = await this._conn.writeRead(Buffer.from([_REG_ID]), 1);
+        const data = await this._conn.readReg(_REG_ID, 1);
         return data[0];
     }
 

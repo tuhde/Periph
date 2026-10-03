@@ -27,7 +27,7 @@ class Mcp23017Minimal:
     pins can be set/cleared/toggled without a read-modify-write transaction.
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         addr: 7-bit I²C device address (default 0x20, range 0x20–0x27).
     """
 
@@ -50,28 +50,21 @@ class Mcp23017Minimal:
         self._addr = addr
         self._shadow = [0, 0]
         self._direction = [0x7F, 0x7F]
-        self._write_reg(self._REG_OLATA, 0x00)
-        self._write_reg(self._REG_OLATB, 0x00)
-        self._write_reg(self._REG_IODIRA, 0x7F)
-        self._write_reg(self._REG_IODIRB, 0x7F)
-        self._write_reg(self._REG_IPOLA, 0x00)
-        self._write_reg(self._REG_IPOLB, 0x00)
-        self._write_reg(self._REG_GPPUA, 0x00)
-        self._write_reg(self._REG_GPPUB, 0x00)
-
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg, n=1):
-        self._connection.write(bytes([reg]))
-        return self._connection.read(n)
+        self._connection.write_reg(self._REG_OLATA, 0x00)
+        self._connection.write_reg(self._REG_OLATB, 0x00)
+        self._connection.write_reg(self._REG_IODIRA, 0x7F)
+        self._connection.write_reg(self._REG_IODIRB, 0x7F)
+        self._connection.write_reg(self._REG_IPOLA, 0x00)
+        self._connection.write_reg(self._REG_IPOLB, 0x00)
+        self._connection.write_reg(self._REG_GPPUA, 0x00)
+        self._connection.write_reg(self._REG_GPPUB, 0x00)
 
     def _write_port(self, port, mask):
         self._shadow[port & 1] = mask & 0xFF
-        self._write_reg(self._REG_OLATA + (port & 1), mask)
+        self._connection.write_reg(self._REG_OLATA + (port & 1), mask)
 
     def _read_port_raw(self, port):
-        return self._read_reg(self._REG_GPIOA + (port & 1), 1)[0]
+        return self._connection.read_reg(self._REG_GPIOA + (port & 1), 1)[0]
 
     def _set_pin(self, n, value):
         port = n >> 3
@@ -153,7 +146,7 @@ class Mcp23017Minimal:
             else:
                 dir_mask = self._chip._direction[port] & ~(1 << bit)
             self._chip._direction[port] = dir_mask
-            self._chip._write_reg(self._chip._REG_IODIRA + port, dir_mask)
+            self._chip._connection.write_reg(self._chip._REG_IODIRA + port, dir_mask)
 
         def value(self, x=None):
             """Read or write the pin.
@@ -210,7 +203,7 @@ class Mcp23017Minimal:
             else:
                 dir_mask = self._chip._direction[port] & ~(1 << bit)
             self._chip._direction[port] = dir_mask
-            self._chip._write_reg(self._chip._REG_IODIRA + port, dir_mask)
+            self._chip._connection.write_reg(self._chip._REG_IODIRA + port, dir_mask)
 
         @property
         def value(self):
@@ -239,7 +232,7 @@ class Mcp23017Full(Mcp23017Minimal):
     interrupt-on-change mode, default-compare mode, and poll_interrupt().
 
     Args:
-        connection: Configured I²C connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
         addr: 7-bit I²C device address (default 0x20).
     """
 
@@ -266,14 +259,14 @@ class Mcp23017Full(Mcp23017Minimal):
         self._shadow = [0, 0]
         self._direction = [0x7F, 0x7F]
         self._pullup = [0, 0]
-        self._write_reg(self._REG_OLATA, 0x00)
-        self._write_reg(self._REG_OLATB, 0x00)
-        self._write_reg(self._REG_IODIRA, 0x7F)
-        self._write_reg(self._REG_IODIRB, 0x7F)
-        self._write_reg(self._REG_IPOLA, 0x00)
-        self._write_reg(self._REG_IPOLB, 0x00)
-        self._write_reg(self._REG_GPPUA, 0x00)
-        self._write_reg(self._REG_GPPUB, 0x00)
+        self._connection.write_reg(self._REG_OLATA, 0x00)
+        self._connection.write_reg(self._REG_OLATB, 0x00)
+        self._connection.write_reg(self._REG_IODIRA, 0x7F)
+        self._connection.write_reg(self._REG_IODIRB, 0x7F)
+        self._connection.write_reg(self._REG_IPOLA, 0x00)
+        self._connection.write_reg(self._REG_IPOLB, 0x00)
+        self._connection.write_reg(self._REG_GPPUA, 0x00)
+        self._connection.write_reg(self._REG_GPPUB, 0x00)
         self._callback = [None, None]
         self._poll_thread = [None, None]
         self._poll_stop = [False, False]
@@ -289,7 +282,7 @@ class Mcp23017Full(Mcp23017Minimal):
             mask: 8-bit mask; bit n = 1 enables pull-up on pin n.
         """
         self._pullup[port & 1] = mask & 0xFF
-        self._write_reg(self._REG_GPPUA + (port & 1), mask)
+        self._connection.write_reg(self._REG_GPPUA + (port & 1), mask)
 
     def configure_polarity(self, port, mask):
         """Set input polarity inversion per pin.
@@ -298,7 +291,7 @@ class Mcp23017Full(Mcp23017Minimal):
             port: Port index, 0 = PORTA, 1 = PORTB.
             mask: 8-bit mask; bit n = 1 inverts GPIO read for pin n.
         """
-        self._write_reg(self._REG_IPOLA + (port & 1), mask)
+        self._connection.write_reg(self._REG_IPOLA + (port & 1), mask)
 
     def on_interrupt(self, callback, port=None, int_pin=None, mode='change', mirror=False):
         """Subscribe to INT assertions.
@@ -327,13 +320,13 @@ class Mcp23017Full(Mcp23017Minimal):
         for p in ports:
             self._callback[p] = (lambda status, p=p: callback(p, status)) if port is None else callback
             intcon_val = 0 if mode == 'change' else 0xFF
-            self._write_reg(self._REG_INTCONA + p, intcon_val)
-            self._write_reg(self._REG_GPINTENA + p, 0xFF)
+            self._connection.write_reg(self._REG_INTCONA + p, intcon_val)
+            self._connection.write_reg(self._REG_GPINTENA + p, 0xFF)
 
-        iocon = self._read_reg(self._REG_IOCON, 1)[0]
+        iocon = self._connection.read_reg(self._REG_IOCON, 1)[0]
         if mirror:
             iocon |= (1 << 6)
-        self._write_reg(self._REG_IOCON, iocon)
+        self._connection.write_reg(self._REG_IOCON, iocon)
 
         pin = int_pin if int_pin is not None else self._connection.int_pin
         for p in ports:
@@ -355,7 +348,7 @@ class Mcp23017Full(Mcp23017Minimal):
         ports = [0, 1] if port is None else [port & 1]
         pin = self._connection.int_pin
         for p in ports:
-            self._write_reg(self._REG_GPINTENA + p, 0x00)
+            self._connection.write_reg(self._REG_GPINTENA + p, 0x00)
             if pin is None:
                 self._poll_stop[p] = True
             self._callback[p] = None
@@ -372,7 +365,7 @@ class Mcp23017Full(Mcp23017Minimal):
             port: Port index, 0 = PORTA, 1 = PORTB.
             mask: 8-bit default compare value.
         """
-        self._write_reg(self._REG_DEFVALA + (port & 1), mask)
+        self._connection.write_reg(self._REG_DEFVALA + (port & 1), mask)
 
     def poll_interrupt(self, port):
         """Read & clear interrupt status; returns the raw INTF flag register.
@@ -388,8 +381,8 @@ class Mcp23017Full(Mcp23017Minimal):
         Returns:
             int: 8-bit interrupt flag mask; bit n = 1 if pin n triggered.
         """
-        flags = self._read_reg(self._REG_INTFA + (port & 1), 1)[0]
-        self._read_reg(self._REG_INTCAPA + (port & 1), 1)
+        flags = self._connection.read_reg(self._REG_INTFA + (port & 1), 1)[0]
+        self._connection.read_reg(self._REG_INTCAPA + (port & 1), 1)
         return flags
 
     def read_capture(self, port):
@@ -405,7 +398,7 @@ class Mcp23017Full(Mcp23017Minimal):
         Returns:
             int: 8-bit captured port bitmask at the moment of interrupt.
         """
-        return self._read_reg(self._REG_INTCAPA + (port & 1), 1)[0]
+        return self._connection.read_reg(self._REG_INTCAPA + (port & 1), 1)[0]
 
     def _poll_loop(self, port):
         prev = self._read_port_raw(port)
@@ -491,4 +484,4 @@ class Mcp23017Full(Mcp23017Minimal):
             else:
                 cur &= ~(1 << bit)
             self._chip._pullup[port] = cur
-            self._chip._write_reg(self._chip._REG_GPPUA + port, cur)
+            self._chip._connection.write_reg(self._chip._REG_GPPUA + port, cur)

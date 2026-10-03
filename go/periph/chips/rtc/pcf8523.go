@@ -140,13 +140,13 @@ var pcf8523TBWWidthsMs = [8]float64{46.875, 62.5, 78.125, 93.75, 125, 156.25, 18
 // The HOURS registers are always operated in 24-hour mode. weekday follows
 // the datasheet's suggested assignment, 0=Sunday..6=Saturday.
 type PCF8523Minimal struct {
-	conn connection.Connection
+	conn connection.RegisterConnection
 }
 
 // NewPCF8523Minimal creates a PCF8523Minimal, confirms the device answers
 // (plain CONTROL_1 read — no identity register), and writes CONTROL_3=0x00
 // (battery switch-over standard mode, battery-low detection enabled).
-func NewPCF8523Minimal(conn connection.Connection) (*PCF8523Minimal, error) {
+func NewPCF8523Minimal(conn connection.RegisterConnection) (*PCF8523Minimal, error) {
 	d := &PCF8523Minimal{conn: conn}
 	if _, err := d.readReg(pcf8523RegControl1); err != nil {
 		return nil, fmt.Errorf("PCF8523: device not responding: %w", err)
@@ -158,7 +158,7 @@ func NewPCF8523Minimal(conn connection.Connection) (*PCF8523Minimal, error) {
 }
 
 func (d *PCF8523Minimal) readReg(reg uint8) (uint8, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 1)
+	b, err := d.conn.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -166,7 +166,7 @@ func (d *PCF8523Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *PCF8523Minimal) writeReg(reg, val uint8) error {
-	return d.conn.Write([]byte{reg, val})
+	return d.conn.WriteReg(uint32(reg), []byte{val})
 }
 
 // readControl1 returns CONTROL_1 with T and SR masked, safe for
@@ -179,7 +179,7 @@ func (d *PCF8523Minimal) readControl1() (uint8, error) {
 // GetDatetime reads the calendar clock. year is 2000-2099; hour is 0-23;
 // weekday is 0=Sunday..6=Saturday.
 func (d *PCF8523Minimal) GetDatetime() (year, month, day, weekday, hour, minute, second int, err error) {
-	raw, err := d.conn.WriteRead([]byte{pcf8523RegSeconds}, 7)
+	raw, err := d.conn.ReadReg(uint32(pcf8523RegSeconds), 7)
 	if err != nil {
 		return
 	}
@@ -216,7 +216,7 @@ func (d *PCF8523Minimal) SetDatetime(year, month, day, weekday, hour, minute, se
 		intToBCD(month),
 		intToBCD(year - 2000),
 	}
-	if err := d.conn.Write(buf); err != nil {
+	if err := d.conn.WriteReg(uint32(buf[0]), buf[1:]); err != nil {
 		return err
 	}
 	return d.writeReg(pcf8523RegControl1, c1&^pcf8523C1Stop)
@@ -240,7 +240,7 @@ type PCF8523Full struct {
 }
 
 // NewPCF8523Full creates a PCF8523Full. See NewPCF8523Minimal.
-func NewPCF8523Full(conn connection.Connection) (*PCF8523Full, error) {
+func NewPCF8523Full(conn connection.RegisterConnection) (*PCF8523Full, error) {
 	m, err := NewPCF8523Minimal(conn)
 	if err != nil {
 		return nil, err
@@ -264,7 +264,7 @@ func (d *PCF8523Full) writeControl3(v uint8) error {
 // GetAlarm decodes the alarm registers (0x0A-0x0D); disabled fields read as
 // PCF8523AlarmDisabled.
 func (d *PCF8523Full) GetAlarm() (PCF8523Alarm, error) {
-	raw, err := d.conn.WriteRead([]byte{pcf8523RegMinuteAlarm}, 4)
+	raw, err := d.conn.ReadReg(uint32(pcf8523RegMinuteAlarm), 4)
 	if err != nil {
 		return PCF8523Alarm{}, err
 	}
@@ -300,7 +300,7 @@ func (d *PCF8523Full) SetAlarm(a PCF8523Alarm) error {
 	if a.Weekday >= 0 {
 		wd = uint8(a.Weekday) & 0x07
 	}
-	return d.conn.Write([]byte{pcf8523RegMinuteAlarm, enc(a.Minute, 0x7F), enc(a.Hour, 0x3F), enc(a.Day, 0x3F), wd})
+	return d.conn.WriteReg(uint32(pcf8523RegMinuteAlarm), []byte{enc(a.Minute, 0x7F), enc(a.Hour, 0x3F), enc(a.Day, 0x3F), wd})
 }
 
 // ConfigureTimerA configures and starts Timer A with a countdown value
@@ -537,7 +537,7 @@ func (d *PCF8523Full) handleEdge() {
 // BSF flags (WTAF/BLF are read-only; enable bits untouched), and returns
 // the pre-clear status mask — test with the PCF8523Source* constants.
 func (d *PCF8523Full) PollInterrupt() (uint8, error) {
-	raw, err := d.conn.WriteRead([]byte{pcf8523RegControl2}, 2)
+	raw, err := d.conn.ReadReg(uint32(pcf8523RegControl2), 2)
 	if err != nil {
 		return 0, err
 	}

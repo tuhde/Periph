@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * INA219 — full driver. Extends [Ina219Minimal] with ADC configuration,
@@ -22,7 +22,7 @@ import it.uhde.periph.connection.Connection
  * @param maxCurrent maximum expected current in A (default 2.0)
  */
 class Ina219Full @JvmOverloads constructor(
-    connection: Connection,
+    connection: RegisterConnection,
     rShunt: Double = 0.1,
     maxCurrent: Double = 2.0
 ) : Ina219Minimal(connection, rShunt, maxCurrent) {

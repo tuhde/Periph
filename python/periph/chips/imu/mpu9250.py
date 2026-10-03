@@ -21,7 +21,7 @@ class MPU9250Minimal:
         - SPI only: I2C_IF_DIS set to prevent accidental I²C re-enable
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the device.
+        connection: RegisterConnection (I²C or SMBus) pointing at the device.
     """
 
     _REG_SMPLRT_DIV    = 0x19
@@ -55,32 +55,23 @@ class MPU9250Minimal:
         self._connection = connection
         self._accel_fs = 0
         self._gyro_fs = 0
-        self._write_reg(self._REG_PWR_MGMT_1, 0x80)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, 0x80)
         time.sleep(0.1)
-        self._write_reg(self._REG_PWR_MGMT_1, 0x01)
-        who = self._read_reg(self._REG_WHO_AM_I)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, 0x01)
+        who = self._connection.read_reg(self._REG_WHO_AM_I, 1)[0]
         if who != self._WHO_AM_I_VALUE:
             raise ValueError('MPU9250 WHO_AM_I: expected 0x{:02X}, got 0x{:02X}'.format(
                 self._WHO_AM_I_VALUE, who))
-        self._write_reg(self._REG_GYRO_CONFIG, 0x00)
-        self._write_reg(self._REG_ACCEL_CONFIG, 0x00)
-        self._write_reg(self._REG_ACCEL_CONFIG2, 0x03)
-        self._write_reg(self._REG_CONFIG, 0x03)
-        self._write_reg(self._REG_SMPLRT_DIV, 0x04)
+        self._connection.write_reg(self._REG_GYRO_CONFIG, 0x00)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG, 0x00)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG2, 0x03)
+        self._connection.write_reg(self._REG_CONFIG, 0x03)
+        self._connection.write_reg(self._REG_SMPLRT_DIV, 0x04)
         time.sleep(0.035)
 
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
-
     def _read_reg16_signed(self, reg):
-        raw = self._connection.write_read(bytes([reg]), 2)
+        raw = self._connection.read_reg(reg, 2)
         return struct.unpack('>h', raw)[0]
-
-    def _read_burst(self, reg, n):
-        return self._connection.write_read(bytes([reg]), n)
 
     def accel(self):
         """Read 3-axis linear acceleration.
@@ -88,7 +79,7 @@ class MPU9250Minimal:
         Returns:
             tuple: (x, y, z) acceleration in m/s².
         """
-        raw = self._read_burst(self._REG_ACCEL_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_ACCEL_XOUT_H, 6)
         ax, ay, az = struct.unpack('>hhh', raw)
         sens = self._ACCEL_SENSITIVITY[self._accel_fs]
         return (ax / sens * 9.80665, ay / sens * 9.80665, az / sens * 9.80665)
@@ -99,7 +90,7 @@ class MPU9250Minimal:
         Returns:
             tuple: (x, y, z) angular rate in rad/s.
         """
-        raw = self._read_burst(self._REG_GYRO_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_GYRO_XOUT_H, 6)
         gx, gy, gz = struct.unpack('>hhh', raw)
         sens = self._GYRO_SENSITIVITY[self._gyro_fs]
         deg_to_rad = 3.141592653589793 / 180.0
@@ -124,8 +115,8 @@ class MPU9250Full(MPU9250Minimal):
     both in.
 
     Args:
-        connection: Configured I²C or SPI connection pointing at the MPU-9250.
-        mag_connection: Configured I²C connection bound to the AK8963's
+        connection: RegisterConnection (I²C or SMBus) pointing at the MPU-9250.
+        mag_connection: RegisterConnection (I²C or SMBus) bound to the AK8963's
             address (0x0C), on the same bus as ``connection``.
     """
 
@@ -162,15 +153,6 @@ class MPU9250Full(MPU9250Minimal):
         self._mag_scale_z = 1.0
         self._is_spi = False
 
-    def _ak8963_write(self, reg, value):
-        self._mag_connection.write(bytes([reg, value]))
-
-    def _ak8963_read(self, reg):
-        return self._mag_connection.write_read(bytes([reg]), 1)[0]
-
-    def _ak8963_read_burst(self, reg, n):
-        return self._mag_connection.write_read(bytes([reg]), n)
-
     def configure_gyro(self, full_scale=0):
         """Set gyroscope full-scale range.
 
@@ -178,7 +160,7 @@ class MPU9250Full(MPU9250Minimal):
             full_scale: Range selector 0–3 (0=±250, 1=±500, 2=±1000, 3=±2000 dps).
         """
         self._gyro_fs = full_scale & 0x03
-        self._write_reg(self._REG_GYRO_CONFIG, (full_scale & 0x03) << 3)
+        self._connection.write_reg(self._REG_GYRO_CONFIG, (full_scale & 0x03) << 3)
 
     def configure_accel(self, full_scale=0):
         """Set accelerometer full-scale range.
@@ -187,7 +169,7 @@ class MPU9250Full(MPU9250Minimal):
             full_scale: Range selector 0–3 (0=±2g, 1=±4g, 2=±8g, 3=±16g).
         """
         self._accel_fs = full_scale & 0x03
-        self._write_reg(self._REG_ACCEL_CONFIG, (full_scale & 0x03) << 3)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG, (full_scale & 0x03) << 3)
 
     def configure_dlpf(self, gyro_dlpf=3, accel_dlpf=3):
         """Set digital low-pass filter bandwidth.
@@ -197,9 +179,9 @@ class MPU9250Full(MPU9250Minimal):
             accel_dlpf: Accel filter setting 0–7 (0=218.1 Hz, 1=218.1 Hz, 2=99 Hz, 3=44.8 Hz, 4=21.2 Hz, 5=10.2 Hz, 6=5.05 Hz, 7=420 Hz).
         """
         cfg_val = gyro_dlpf & 0x07
-        self._write_reg(self._REG_CONFIG, cfg_val)
+        self._connection.write_reg(self._REG_CONFIG, cfg_val)
         accel2_val = accel_dlpf & 0x07
-        self._write_reg(self._REG_ACCEL_CONFIG2, accel2_val)
+        self._connection.write_reg(self._REG_ACCEL_CONFIG2, accel2_val)
 
     def configure_sample_rate(self, divider=4):
         """Set sample rate divider.
@@ -208,7 +190,7 @@ class MPU9250Full(MPU9250Minimal):
             divider: SMPLRT_DIV value 0–255; output rate = 1 kHz / (1 + divider)
                 when DLPF is active.
         """
-        self._write_reg(self._REG_SMPLRT_DIV, divider & 0xFF)
+        self._connection.write_reg(self._REG_SMPLRT_DIV, divider & 0xFF)
 
     def temperature(self):
         """Read die temperature.
@@ -226,31 +208,31 @@ class MPU9250Full(MPU9250Minimal):
             bits: Output resolution, 14 or 16.
             mode: Operation mode (1=single, 2=8 Hz continuous, 6=100 Hz continuous).
         """
-        self._write_reg(self._REG_INT_PIN_CFG, 0x22)
+        self._connection.write_reg(self._REG_INT_PIN_CFG, 0x22)
         time.sleep(0.01)
 
-        self._ak8963_write(self._AK8963_REG_CNTL1, 0x00)
+        self._mag_connection.write_reg(self._AK8963_REG_CNTL1, 0x00)
         time.sleep(0.01)
 
-        self._ak8963_write(self._AK8963_REG_CNTL1, 0x0F)
+        self._mag_connection.write_reg(self._AK8963_REG_CNTL1, 0x0F)
         time.sleep(0.01)
 
-        asax = self._ak8963_read(self._AK8963_REG_ASAX)
-        asay = self._ak8963_read(self._AK8963_REG_ASAY)
-        asaz = self._ak8963_read(self._AK8963_REG_ASAZ)
+        asax = self._mag_connection.read_reg(self._AK8963_REG_ASAX, 1)[0]
+        asay = self._mag_connection.read_reg(self._AK8963_REG_ASAY, 1)[0]
+        asaz = self._mag_connection.read_reg(self._AK8963_REG_ASAZ, 1)[0]
 
         self._mag_scale_x = (asax - 128) / 256.0 + 1.0
         self._mag_scale_y = (asay - 128) / 256.0 + 1.0
         self._mag_scale_z = (asaz - 128) / 256.0 + 1.0
 
-        self._ak8963_write(self._AK8963_REG_CNTL1, 0x00)
+        self._mag_connection.write_reg(self._AK8963_REG_CNTL1, 0x00)
         time.sleep(0.01)
 
         cntl1_val = 0
         if bits == 16:
             cntl1_val |= 0x10
         cntl1_val |= (mode & 0x0F)
-        self._ak8963_write(self._AK8963_REG_CNTL1, cntl1_val)
+        self._mag_connection.write_reg(self._AK8963_REG_CNTL1, cntl1_val)
         time.sleep(0.01)
 
         self._mag_enabled = True
@@ -268,7 +250,7 @@ class MPU9250Full(MPU9250Minimal):
         if not self._mag_enabled:
             raise RuntimeError('Magnetometer not enabled. Call enable_mag() first.')
 
-        raw = self._ak8963_read_burst(self._AK8963_REG_HXL, 7)
+        raw = self._mag_connection.read_reg(self._AK8963_REG_HXL, 7)
         mx, my, mz = struct.unpack('<hhh', raw[:6])
         st2 = raw[6]
 
@@ -290,7 +272,7 @@ class MPU9250Full(MPU9250Minimal):
         Returns:
             tuple: (x, y, z) raw 16-bit signed values.
         """
-        raw = self._read_burst(self._REG_ACCEL_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_ACCEL_XOUT_H, 6)
         return struct.unpack('>hhh', raw)
 
     def gyro_raw(self):
@@ -299,7 +281,7 @@ class MPU9250Full(MPU9250Minimal):
         Returns:
             tuple: (x, y, z) raw 16-bit signed values.
         """
-        raw = self._read_burst(self._REG_GYRO_XOUT_H, 6)
+        raw = self._connection.read_reg(self._REG_GYRO_XOUT_H, 6)
         return struct.unpack('>hhh', raw)
 
     def mag_raw(self):
@@ -314,7 +296,7 @@ class MPU9250Full(MPU9250Minimal):
         if not self._mag_enabled:
             raise RuntimeError('Magnetometer not enabled. Call enable_mag() first.')
 
-        raw = self._ak8963_read_burst(self._AK8963_REG_HXL, 7)
+        raw = self._mag_connection.read_reg(self._AK8963_REG_HXL, 7)
         mx, my, mz = struct.unpack('<hhh', raw[:6])
         return (mx, my, mz)
 
@@ -324,7 +306,7 @@ class MPU9250Full(MPU9250Minimal):
         Returns:
             bool: True when RAW_DATA_RDY_INT is set in INT_STATUS.
         """
-        return bool(self._read_reg(self._REG_INT_STATUS) & 0x01)
+        return bool(self._connection.read_reg(self._REG_INT_STATUS, 1)[0] & 0x01)
 
     def set_sleep(self, sleep=True):
         """Set or clear the SLEEP bit in PWR_MGMT_1.
@@ -332,12 +314,12 @@ class MPU9250Full(MPU9250Minimal):
         Args:
             sleep: True to enter sleep mode, False to wake.
         """
-        val = self._read_reg(self._REG_PWR_MGMT_1)
+        val = self._connection.read_reg(self._REG_PWR_MGMT_1, 1)[0]
         if sleep:
             val |= 0x40
         else:
             val &= ~0x40
-        self._write_reg(self._REG_PWR_MGMT_1, val)
+        self._connection.write_reg(self._REG_PWR_MGMT_1, val)
 
     def fifo_count(self):
         """Read the number of bytes in the FIFO buffer.
@@ -345,7 +327,7 @@ class MPU9250Full(MPU9250Minimal):
         Returns:
             int: FIFO byte count (0–512).
         """
-        raw = self._read_burst(self._REG_FIFO_COUNTH, 2)
+        raw = self._connection.read_reg(self._REG_FIFO_COUNTH, 2)
         return ((raw[0] & 0x1F) << 8) | raw[1]
 
     def read_fifo(self):
@@ -357,7 +339,7 @@ class MPU9250Full(MPU9250Minimal):
         count = self.fifo_count()
         if count == 0:
             return b''
-        return self._read_burst(self._REG_FIFO_R_W, count)
+        return self._connection.read_reg(self._REG_FIFO_R_W, count)
 
     def enable_fifo(self, gyro=True, accel=True, temp=False):
         """Configure and enable FIFO sources.
@@ -368,11 +350,11 @@ class MPU9250Full(MPU9250Minimal):
             temp: Enable temperature data in FIFO.
         """
         fifo_en = ((accel & 1) << 3) | ((temp & 1) << 2) | ((gyro & 1) << 4)
-        self._write_reg(self._REG_FIFO_EN, fifo_en)
-        user_ctrl = self._read_reg(self._REG_USER_CTRL)
-        self._write_reg(self._REG_USER_CTRL, user_ctrl | 0x40)
+        self._connection.write_reg(self._REG_FIFO_EN, fifo_en)
+        user_ctrl = self._connection.read_reg(self._REG_USER_CTRL, 1)[0]
+        self._connection.write_reg(self._REG_USER_CTRL, user_ctrl | 0x40)
 
     def reset_fifo(self):
         """Reset the FIFO buffer by setting FIFO_RST in USER_CTRL."""
-        user_ctrl = self._read_reg(self._REG_USER_CTRL)
-        self._write_reg(self._REG_USER_CTRL, user_ctrl | 0x04)
+        user_ctrl = self._connection.read_reg(self._REG_USER_CTRL, 1)[0]
+        self._connection.write_reg(self._REG_USER_CTRL, user_ctrl | 0x04)

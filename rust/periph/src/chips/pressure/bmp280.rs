@@ -14,6 +14,8 @@
 
 use embedded_hal::i2c::I2c;
 
+use crate::connection::register;
+
 const REG_CAL_START: u8 = 0x88;
 const REG_ID: u8 = 0xD0;
 const REG_RESET: u8 = 0xE0;
@@ -87,13 +89,8 @@ pub const STATUS_MEASURING: u8 = 0x08;
 /// Status flag: NVM image update in progress.
 pub const STATUS_IM_UPDATE: u8 = 0x01;
 
-fn write_reg<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, value: u8, spi: bool) -> Result<(), I2C::Error> {
-    let r = if spi { reg & 0x7F } else { reg };
-    i2c.write(addr, &[r, value])
-}
-
 fn read_reg_bytes<I2C: I2c>(i2c: &mut I2C, addr: u8, reg: u8, buf: &mut [u8]) -> Result<(), I2C::Error> {
-    i2c.write_read(addr, &[reg], buf)
+    register::read_register(i2c, addr, reg.into(), 1, buf)
 }
 
 #[derive(Clone, Copy)]
@@ -178,7 +175,6 @@ fn compensate_pressure(adc_p: u32, t_fine: i32, cal: &Calibration) -> f32 {
 pub struct Bmp280Minimal<I2C> {
     i2c: I2C,
     addr: u8,
-    spi: bool,
     mode: u8,
     osrs_t: u8,
     osrs_p: u8,
@@ -194,23 +190,22 @@ impl<I2C: I2c> Bmp280Minimal<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
-    pub fn new(mut i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
+    pub fn new(mut i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
         let cal = read_calibration(&mut i2c, addr)?;
         let mut s = Self {
-            i2c, addr, spi, mode: 0,
+            i2c, addr, mode: 0,
             osrs_t: 1, osrs_p: 1, filter: 0, t_sb: 0,
             t_fine: 0, cal,
         };
-        write_reg(&mut s.i2c, s.addr, REG_CTRL_MEAS, (1 << 5) | (1 << 2) | 0, s.spi)?;
-        write_reg(&mut s.i2c, s.addr, REG_CONFIG, 0, s.spi)?;
+        register::write_register(&mut s.i2c, s.addr, REG_CTRL_MEAS.into(), 1, &[(1 << 5) | (1 << 2) | 0])?;
+        register::write_register(&mut s.i2c, s.addr, REG_CONFIG.into(), 1, &[0])?;
         Ok(s)
     }
 
     fn trigger_and_read(&mut self) -> Result<(u32, u32), I2C::Error> {
         if self.mode != MODE_NORMAL {
             let ctrl = (self.osrs_t << 5) | (self.osrs_p << 2) | 1;
-            write_reg(&mut self.i2c, self.addr, REG_CTRL_MEAS, ctrl, self.spi)?;
+            register::write_register(&mut self.i2c, self.addr, REG_CTRL_MEAS.into(), 1, &[ctrl])?;
             delay_ms(MEAS_TIME_MS);
         }
         let mut raw = [0u8; 6];
@@ -255,9 +250,8 @@ impl<I2C: I2c> Bmp280Full<I2C> {
     /// # Arguments
     /// * `i2c` — Configured I²C bus.
     /// * `addr` — 7-bit I²C address (0x76 or 0x77).
-    /// * `spi` — Pass `true` for SPI bus (masks bit 7 on writes).
-    pub fn new(i2c: I2C, addr: u8, spi: bool) -> Result<Self, I2C::Error> {
-        let inner = Bmp280Minimal::new(i2c, addr, spi)?;
+    pub fn new(i2c: I2C, addr: u8) -> Result<Self, I2C::Error> {
+        let inner = Bmp280Minimal::new(i2c, addr)?;
         Ok(Self { inner })
     }
 
@@ -275,37 +269,33 @@ impl<I2C: I2c> Bmp280Full<I2C> {
         self.inner.mode = mode;
         self.inner.filter = filter;
         self.inner.t_sb = t_sb;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, (t_sb << 5) | (filter << 2), self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS, (osrs_t << 5) | (osrs_p << 2) | mode, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[(t_sb << 5) | (filter << 2)])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | mode])
     }
 
     /// Update temperature and pressure oversampling.
     pub fn set_oversampling(&mut self, osrs_t: u8, osrs_p: u8) -> Result<(), I2C::Error> {
         self.inner.osrs_t = osrs_t;
         self.inner.osrs_p = osrs_p;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS,
-            (osrs_t << 5) | (osrs_p << 2) | self.inner.mode, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(osrs_t << 5) | (osrs_p << 2) | self.inner.mode])
     }
 
     /// Update power mode.
     pub fn set_mode(&mut self, mode: u8) -> Result<(), I2C::Error> {
         self.inner.mode = mode;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS,
-            (self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | mode, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | mode])
     }
 
     /// Update IIR filter coefficient.
     pub fn set_filter(&mut self, coeff: u8) -> Result<(), I2C::Error> {
         self.inner.filter = coeff;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG,
-            (self.inner.t_sb << 5) | (coeff << 2), self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[(self.inner.t_sb << 5) | (coeff << 2)])
     }
 
     /// Update standby time for normal mode.
     pub fn set_standby(&mut self, t_sb: u8) -> Result<(), I2C::Error> {
         self.inner.t_sb = t_sb;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG,
-            (t_sb << 5) | (self.inner.filter << 2), self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[(t_sb << 5) | (self.inner.filter << 2)])
     }
 
     /// Read the status register.
@@ -350,13 +340,11 @@ impl<I2C: I2c> Bmp280Full<I2C> {
 
     /// Perform a soft reset, re-read calibration, and re-apply configuration.
     pub fn reset(&mut self) -> Result<(), I2C::Error> {
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_RESET, RESET_CMD, self.inner.spi)?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_RESET.into(), 1, &[RESET_CMD])?;
         delay_ms(2);
         self.inner.cal = read_calibration(&mut self.inner.i2c, self.inner.addr)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG,
-            (self.inner.t_sb << 5) | (self.inner.filter << 2), self.inner.spi)?;
-        write_reg(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS,
-            (self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | self.inner.mode, self.inner.spi)
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CONFIG.into(), 1, &[(self.inner.t_sb << 5) | (self.inner.filter << 2)])?;
+        register::write_register(&mut self.inner.i2c, self.inner.addr, REG_CTRL_MEAS.into(), 1, &[(self.inner.osrs_t << 5) | (self.inner.osrs_p << 2) | self.inner.mode])
     }
 
     /// Read calibrated temperature.
@@ -449,7 +437,7 @@ mod tests {
         ]);
         let i2c = I2cMock::new(&transactions);
 
-        let mut sensor = Bmp280Full::new(i2c, ADDR, false).expect("init");
+        let mut sensor = Bmp280Full::new(i2c, ADDR).expect("init");
 
         assert!((sensor.temperature().unwrap() - 25.08).abs() < 1e-3);
         assert!((sensor.pressure().unwrap() - 1006.5325390625).abs() < 1e-2);
@@ -469,28 +457,6 @@ mod tests {
         assert!((slp - 1030.736388797547).abs() < 0.5, "sea_level_pressure = {}", slp);
 
         sensor.reset().unwrap();
-
-        sensor.inner.i2c.done();
-    }
-
-    #[test]
-    fn spi_masks_write_addresses() {
-        // Per specs/pressure/bmp280.md's SPI Register-address protocol:
-        // BMP280's I2C register addresses already have bit 7 set
-        // (0x88-0xFC), so SPI reads use the same reg value unmasked; only
-        // writes differ, clearing bit 7 (reg & 0x7F). embedded-hal-mock's
-        // I2C transactions still model this fine since the driver just
-        // sends different bytes - it doesn't need a real SPI mock to prove
-        // the masking is correct.
-        let transactions = vec![
-            I2cTransaction::write_read(ADDR, vec![REG_CAL_START], CAL_BYTES.to_vec()),
-            // Masked write addresses (reg & 0x7F): CTRL_MEAS 0xF4->0x74, CONFIG 0xF5->0x75.
-            I2cTransaction::write(ADDR, vec![REG_CTRL_MEAS & 0x7F, 0x24]),
-            I2cTransaction::write(ADDR, vec![REG_CONFIG & 0x7F, 0x00]),
-        ];
-        let i2c = I2cMock::new(&transactions);
-
-        let mut sensor = Bmp280Full::new(i2c, ADDR, true).expect("init");
 
         sensor.inner.i2c.done();
     }

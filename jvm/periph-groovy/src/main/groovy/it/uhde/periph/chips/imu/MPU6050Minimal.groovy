@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.imu
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import groovy.transform.CompileStatic
 
 import java.io.IOException
@@ -36,23 +36,23 @@ class MPU6050Minimal {
     protected static final double[] ACCEL_SENSITIVITY = [16384.0d, 8192.0d, 4096.0d, 2048.0d] as double[]
     protected static final double[] GYRO_SENSITIVITY  = [131.0d, 65.5d, 32.8d, 16.4d] as double[]
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected int accelFs = 0
     protected int gyroFs = 0
 
-    MPU6050Minimal(Connection connection) {
+    MPU6050Minimal(RegisterConnection connection) {
         this.connection = connection
-        writeReg(REG_PWR_MGMT_1, 0x80)
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x80)] as byte[])
         Thread.sleep(100)
-        writeReg(REG_PWR_MGMT_1, 0x01)
+        connection.write(REG_PWR_MGMT_1, [(byte) (0x01)] as byte[])
         int who = readReg(REG_WHO_AM_I)
         if (who != WHO_AM_I_VALUE) {
             throw new IOException("MPU6050 WHO_AM_I: expected 0x${Integer.toHexString(WHO_AM_I_VALUE)}, got 0x${Integer.toHexString(who)}")
         }
-        writeReg(REG_GYRO_CONFIG, 0x00)
-        writeReg(REG_ACCEL_CONFIG, 0x00)
-        writeReg(REG_CONFIG, 0x03)
-        writeReg(REG_SMPLRT_DIV, 0x04)
+        connection.write(REG_GYRO_CONFIG, [(byte) (0x00)] as byte[])
+        connection.write(REG_ACCEL_CONFIG, [(byte) (0x00)] as byte[])
+        connection.write(REG_CONFIG, [(byte) (0x03)] as byte[])
+        connection.write(REG_SMPLRT_DIV, [(byte) (0x04)] as byte[])
         Thread.sleep(35)
     }
 
@@ -62,7 +62,7 @@ class MPU6050Minimal {
      * @return array [x, y, z] in m/s².
      */
     double[] accel() {
-        byte[] buf = connection.writeRead([(byte) REG_ACCEL_XOUT_H] as byte[], 6)
+        byte[] buf = connection.read(REG_ACCEL_XOUT_H, 6)
         int ax = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int ay = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int az = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -76,7 +76,7 @@ class MPU6050Minimal {
      * @return array [x, y, z] in rad/s.
      */
     double[] gyro() {
-        byte[] buf = connection.writeRead([(byte) REG_GYRO_XOUT_H] as byte[], 6)
+        byte[] buf = connection.read(REG_GYRO_XOUT_H, 6)
         int gx = (short) (((buf[0] & 0xFF) << 8) | (buf[1] & 0xFF))
         int gy = (short) (((buf[2] & 0xFF) << 8) | (buf[3] & 0xFF))
         int gz = (short) (((buf[4] & 0xFF) << 8) | (buf[5] & 0xFF))
@@ -86,17 +86,13 @@ class MPU6050Minimal {
                 gz / sens * Math.PI / 180.0d] as double[]
     }
 
-    protected void writeReg(int reg, int val) {
-        connection.write([(byte) reg, (byte) val] as byte[])
-    }
-
     protected int readReg(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 1)
+        byte[] b = connection.read(reg, 1)
         return b[0] & 0xFF
     }
 
     protected int readReg16Signed(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.read(reg, 2)
         int v = ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
         if (v > 32767) v -= 65536
         return v

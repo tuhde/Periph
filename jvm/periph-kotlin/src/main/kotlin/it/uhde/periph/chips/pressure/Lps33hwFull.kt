@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * LPS33HW — full driver. Extends [Lps33hwMinimal] with configuration,
@@ -20,7 +20,7 @@ import it.uhde.periph.connection.Connection
  * [INT_S_DATA_SIGNALS], [INT_S_PRESSURE_HIGH], [INT_S_PRESSURE_LOW],
  * [INT_S_PRESSURE_BOTH]
  */
-class Lps33hwFull(connection: Connection) : Lps33hwMinimal(connection) {
+class Lps33hwFull(connection: RegisterConnection) : Lps33hwMinimal(connection) {
 
     companion object {
         /** Output data rate: power-down / one-shot. */

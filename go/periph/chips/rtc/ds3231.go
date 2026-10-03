@@ -171,14 +171,14 @@ func decodeAlarm2Mode(m2, m3, m4, dayOfWeek bool) DS3231Alarm2Mode {
 // convention for weekday, in both GetDatetime/SetDatetime and the alarm
 // day-of-week fields.
 type DS3231Minimal struct {
-	conn connection.Connection
+	conn connection.RegisterConnection
 }
 
 // NewDS3231Minimal creates a DS3231Minimal and confirms the device answers
 // on the bus (the DS3231 has no WHO_AM_I register, so this is a plain
 // register read). No register writes are made — time/date register
 // contents are undefined until SetDatetime is called.
-func NewDS3231Minimal(conn connection.Connection) (*DS3231Minimal, error) {
+func NewDS3231Minimal(conn connection.RegisterConnection) (*DS3231Minimal, error) {
 	d := &DS3231Minimal{conn: conn}
 	if _, err := d.readReg(ds3231RegControl); err != nil {
 		return nil, fmt.Errorf("DS3231: device not responding: %w", err)
@@ -187,7 +187,7 @@ func NewDS3231Minimal(conn connection.Connection) (*DS3231Minimal, error) {
 }
 
 func (d *DS3231Minimal) readReg(reg uint8) (uint8, error) {
-	b, err := d.conn.WriteRead([]byte{reg}, 1)
+	b, err := d.conn.ReadReg(uint32(reg), 1)
 	if err != nil {
 		return 0, err
 	}
@@ -195,11 +195,11 @@ func (d *DS3231Minimal) readReg(reg uint8) (uint8, error) {
 }
 
 func (d *DS3231Minimal) writeReg(reg, val uint8) error {
-	return d.conn.Write([]byte{reg, val})
+	return d.conn.WriteReg(uint32(reg), []byte{val})
 }
 
 func (d *DS3231Minimal) readBurst(reg uint8, n int) ([]byte, error) {
-	return d.conn.WriteRead([]byte{reg}, n)
+	return d.conn.ReadReg(uint32(reg), n)
 }
 
 // GetDatetime reads the calendar clock. hour is always 0-23; weekday is
@@ -233,7 +233,7 @@ func (d *DS3231Minimal) SetDatetime(year, month, day, weekday, hour, minute, sec
 		intToBCD(month),
 		intToBCD(year - 2000),
 	}
-	if err := d.conn.Write(buf); err != nil {
+	if err := d.conn.WriteReg(uint32(buf[0]), buf[1:]); err != nil {
 		return err
 	}
 	status, err := d.readReg(ds3231RegControlStatus)
@@ -271,7 +271,7 @@ type DS3231Full struct {
 }
 
 // NewDS3231Full creates a DS3231Full.
-func NewDS3231Full(conn connection.Connection) (*DS3231Full, error) {
+func NewDS3231Full(conn connection.RegisterConnection) (*DS3231Full, error) {
 	m, err := NewDS3231Minimal(conn)
 	if err != nil {
 		return nil, err
@@ -319,7 +319,7 @@ func (d *DS3231Full) SetAlarm1(second, minute, hour, dayOrDate int, mode DS3231A
 	if dayOfWeek {
 		dayByte |= 0x40
 	}
-	return d.conn.Write([]byte{ds3231RegAlarm1Seconds, secByte, minByte, hourByte, dayByte})
+	return d.conn.WriteReg(uint32(ds3231RegAlarm1Seconds), []byte{secByte, minByte, hourByte, dayByte})
 }
 
 // GetAlarm2 decodes the Alarm 2 registers (0x0B-0x0D).
@@ -357,7 +357,7 @@ func (d *DS3231Full) SetAlarm2(minute, hour, dayOrDate int, mode DS3231Alarm2Mod
 	if dayOfWeek {
 		dayByte |= 0x40
 	}
-	return d.conn.Write([]byte{ds3231RegAlarm2Minutes, minByte, hourByte, dayByte})
+	return d.conn.WriteReg(uint32(ds3231RegAlarm2Minutes), []byte{minByte, hourByte, dayByte})
 }
 
 // EnableSquareWave sets INTCN=0, configures RS2:RS1 for rateHz (1, 1024,

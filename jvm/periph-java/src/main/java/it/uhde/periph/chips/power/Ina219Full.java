@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.power;
 
-import it.uhde.periph.connection.Connection;
+import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;
 
@@ -126,7 +126,7 @@ public class Ina219Full extends Ina219Minimal {
      * @param maxCurrent maximum expected current in A
      * @throws IOException on I²C error
      */
-    public Ina219Full(Connection connection, double rShunt, double maxCurrent) throws IOException {
+    public Ina219Full(RegisterConnection connection, double rShunt, double maxCurrent) throws IOException {
         super(connection, rShunt, maxCurrent);
     }
 
@@ -136,7 +136,7 @@ public class Ina219Full extends Ina219Minimal {
      * @param connection I²C connection bound to the INA219 device address
      * @throws IOException on I²C error
      */
-    public Ina219Full(Connection connection) throws IOException {
+    public Ina219Full(RegisterConnection connection) throws IOException {
         super(connection, 0.1, 2.0);
     }
 

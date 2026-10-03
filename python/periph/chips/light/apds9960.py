@@ -16,7 +16,7 @@ class APDS9960Minimal:
         - PON + AEN enabled; no wait, proximity, gesture, or interrupts
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x39).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x39).
 
     Raises:
         ValueError: If the ID register does not read back 0xAB.
@@ -76,24 +76,18 @@ class APDS9960Minimal:
     def __init__(self, connection):
         self._connection = connection
         time.sleep(0.006)
-        chip_id = self._read_reg(self._REG_ID)
+        chip_id = self._connection.read_reg(self._REG_ID, 1)[0]
         if chip_id != 0xAB:
             raise ValueError('APDS-9960 not found (ID=0x{:02X}, expected 0xAB)'.format(chip_id))
-        self._write_reg(self._REG_ENABLE, 0x00)
-        self._write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
-        self._write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
-        self._write_reg(self._REG_CONFIG2, self._CONFIG2_DEFAULT)
-        self._write_reg(self._REG_ENABLE, 0x03)
+        self._connection.write_reg(self._REG_ENABLE, 0x00)
+        self._connection.write_reg(self._REG_ATIME, self._ATIME_DEFAULT)
+        self._connection.write_reg(self._REG_CONTROL, self._CONTROL_DEFAULT)
+        self._connection.write_reg(self._REG_CONFIG2, self._CONFIG2_DEFAULT)
+        self._connection.write_reg(self._REG_ENABLE, 0x03)
         time.sleep(0.210)
 
-    def _write_reg(self, reg, value):
-        self._connection.write(bytes([reg, value]))
-
-    def _read_reg(self, reg):
-        return self._connection.write_read(bytes([reg]), 1)[0]
-
     def _read_reg16_le(self, reg):
-        raw = self._connection.write_read(bytes([reg]), 2)
+        raw = self._connection.read_reg(reg, 2)
         return raw[0] | (raw[1] << 8)
 
     def color_clear(self):
@@ -112,7 +106,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw red channel count, 0-65535.
         """
-        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.read_reg(self._REG_CDATAL, 8)
         return raw[2] | (raw[3] << 8)
 
     def color_green(self):
@@ -123,7 +117,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw green channel count, 0-65535.
         """
-        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.read_reg(self._REG_CDATAL, 8)
         return raw[4] | (raw[5] << 8)
 
     def color_blue(self):
@@ -134,7 +128,7 @@ class APDS9960Minimal:
         Returns:
             int: Raw blue channel count, 0-65535.
         """
-        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.read_reg(self._REG_CDATAL, 8)
         return raw[6] | (raw[7] << 8)
 
     def color(self):
@@ -145,7 +139,7 @@ class APDS9960Minimal:
         Returns:
             tuple: (clear, red, green, blue) each 0-65535.
         """
-        raw = self._connection.write_read(bytes([self._REG_CDATAL]), 8)
+        raw = self._connection.read_reg(self._REG_CDATAL, 8)
         c = raw[0] | (raw[1] << 8)
         r = raw[2] | (raw[3] << 8)
         g = raw[4] | (raw[5] << 8)
@@ -160,7 +154,7 @@ class APDS9960Full(APDS9960Minimal):
     interrupt configuration, status queries, and device identification.
 
     Args:
-        connection: Configured I2C connection pointing at the device (address 0x39).
+        connection: RegisterConnection (I²C or SMBus) pointing at the device (address 0x39).
     """
 
     def __init__(self, connection):
@@ -172,12 +166,12 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable PEN, False to disable.
         """
-        val = self._read_reg(self._REG_ENABLE)
+        val = self._connection.read_reg(self._REG_ENABLE, 1)[0]
         if enabled:
             val |= 0x04
         else:
             val &= ~0x04
-        self._write_reg(self._REG_ENABLE, val)
+        self._connection.write_reg(self._REG_ENABLE, val)
 
     def proximity(self):
         """Read the proximity count.
@@ -185,7 +179,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             int: Proximity count 0-255; higher means closer.
         """
-        return self._read_reg(self._REG_PDATA)
+        return self._connection.read_reg(self._REG_PDATA, 1)[0]
 
     def enable_wait(self, enabled):
         """Enable or disable the wait engine.
@@ -193,12 +187,12 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable WEN, False to disable.
         """
-        val = self._read_reg(self._REG_ENABLE)
+        val = self._connection.read_reg(self._REG_ENABLE, 1)[0]
         if enabled:
             val |= 0x08
         else:
             val &= ~0x08
-        self._write_reg(self._REG_ENABLE, val)
+        self._connection.write_reg(self._REG_ENABLE, val)
 
     def configure_wait(self, wtime, long=False):
         """Configure the wait time between ALS/proximity cycles.
@@ -207,14 +201,14 @@ class APDS9960Full(APDS9960Minimal):
             wtime: WTIME register value 0-255 (wait = (256 - wtime) * 2.78 ms).
             long: True to enable WLONG 12x multiplier in CONFIG1.
         """
-        self._write_reg(self._REG_WTIME, wtime & 0xFF)
-        c1 = self._read_reg(self._REG_CONFIG1)
+        self._connection.write_reg(self._REG_WTIME, wtime & 0xFF)
+        c1 = self._connection.read_reg(self._REG_CONFIG1, 1)[0]
         if long:
             c1 |= 0x02
         else:
             c1 &= ~0x02
         c1 = (c1 & 0x03) | 0x60
-        self._write_reg(self._REG_CONFIG1, c1)
+        self._connection.write_reg(self._REG_CONFIG1, c1)
 
     def configure_als(self, atime, again):
         """Configure ALS integration time and gain.
@@ -223,10 +217,10 @@ class APDS9960Full(APDS9960Minimal):
             atime: ATIME register value 0-255 (cycles = 256 - atime, each 2.78 ms).
             again: ALS gain 0-3 (0=1x, 1=4x, 2=16x, 3=64x).
         """
-        self._write_reg(self._REG_ATIME, atime & 0xFF)
-        ctrl = self._read_reg(self._REG_CONTROL)
+        self._connection.write_reg(self._REG_ATIME, atime & 0xFF)
+        ctrl = self._connection.read_reg(self._REG_CONTROL, 1)[0]
         ctrl = (ctrl & 0xFC) | (again & 0x03)
-        self._write_reg(self._REG_CONTROL, ctrl)
+        self._connection.write_reg(self._REG_CONTROL, ctrl)
 
     def configure_proximity_led(self, ldrive, pgain, ppulse, pplen):
         """Configure proximity LED drive, gain, pulse count and length.
@@ -237,10 +231,10 @@ class APDS9960Full(APDS9960Minimal):
             ppulse: Pulse count minus 1, 0-63 (0=1 pulse, 63=64 pulses).
             pplen: Pulse length 0-3 (0=4us, 1=8us, 2=16us, 3=32us).
         """
-        ctrl = self._read_reg(self._REG_CONTROL)
+        ctrl = self._connection.read_reg(self._REG_CONTROL, 1)[0]
         ctrl = ((ldrive & 0x03) << 6) | ((pgain & 0x03) << 2) | (ctrl & 0x03)
-        self._write_reg(self._REG_CONTROL, ctrl)
-        self._write_reg(self._REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F))
+        self._connection.write_reg(self._REG_CONTROL, ctrl)
+        self._connection.write_reg(self._REG_PPULSE, ((pplen & 0x03) << 6) | (ppulse & 0x3F))
 
     def set_led_boost(self, boost):
         """Set additional LED current boost.
@@ -248,9 +242,9 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             boost: LED_BOOST 0-3 (0=100%, 1=150%, 2=200%, 3=300%).
         """
-        c2 = self._read_reg(self._REG_CONFIG2)
+        c2 = self._connection.read_reg(self._REG_CONFIG2, 1)[0]
         c2 = (c2 & 0xCF) | ((boost & 0x03) << 4) | 0x01
-        self._write_reg(self._REG_CONFIG2, c2)
+        self._connection.write_reg(self._REG_CONFIG2, c2)
 
     def als_threshold(self, low, high):
         """Set ALS interrupt thresholds.
@@ -259,10 +253,10 @@ class APDS9960Full(APDS9960Minimal):
             low: Low threshold 0-65535.
             high: High threshold 0-65535.
         """
-        self._write_reg(self._REG_AILTL, low & 0xFF)
-        self._write_reg(self._REG_AILTH, (low >> 8) & 0xFF)
-        self._write_reg(self._REG_AIHTL, high & 0xFF)
-        self._write_reg(self._REG_AIHTH, (high >> 8) & 0xFF)
+        self._connection.write_reg(self._REG_AILTL, low & 0xFF)
+        self._connection.write_reg(self._REG_AILTH, (low >> 8) & 0xFF)
+        self._connection.write_reg(self._REG_AIHTL, high & 0xFF)
+        self._connection.write_reg(self._REG_AIHTH, (high >> 8) & 0xFF)
 
     def proximity_threshold(self, low, high):
         """Set proximity interrupt thresholds.
@@ -271,8 +265,8 @@ class APDS9960Full(APDS9960Minimal):
             low: Low threshold 0-255.
             high: High threshold 0-255.
         """
-        self._write_reg(self._REG_PILT, low & 0xFF)
-        self._write_reg(self._REG_PIHT, high & 0xFF)
+        self._connection.write_reg(self._REG_PILT, low & 0xFF)
+        self._connection.write_reg(self._REG_PIHT, high & 0xFF)
 
     def set_persistence(self, ppers, apers):
         """Set interrupt persistence filters.
@@ -281,7 +275,7 @@ class APDS9960Full(APDS9960Minimal):
             ppers: Proximity persistence 0-15 (0=every cycle, 1-15=N consecutive).
             apers: ALS persistence 0-15.
         """
-        self._write_reg(self._REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F))
+        self._connection.write_reg(self._REG_PERS, ((ppers & 0x0F) << 4) | (apers & 0x0F))
 
     def enable_als_interrupt(self, enabled):
         """Enable or disable ALS interrupt.
@@ -289,12 +283,12 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable AIEN, False to disable.
         """
-        val = self._read_reg(self._REG_ENABLE)
+        val = self._connection.read_reg(self._REG_ENABLE, 1)[0]
         if enabled:
             val |= 0x10
         else:
             val &= ~0x10
-        self._write_reg(self._REG_ENABLE, val)
+        self._connection.write_reg(self._REG_ENABLE, val)
 
     def enable_proximity_interrupt(self, enabled):
         """Enable or disable proximity interrupt.
@@ -302,12 +296,12 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable PIEN, False to disable.
         """
-        val = self._read_reg(self._REG_ENABLE)
+        val = self._connection.read_reg(self._REG_ENABLE, 1)[0]
         if enabled:
             val |= 0x20
         else:
             val &= ~0x20
-        self._write_reg(self._REG_ENABLE, val)
+        self._connection.write_reg(self._REG_ENABLE, val)
 
     def clear_proximity_interrupt(self):
         """Clear the proximity interrupt via address-only write to PICLEAR (0xE5)."""
@@ -330,8 +324,8 @@ class APDS9960Full(APDS9960Minimal):
             ur: UP/RIGHT offset -127 to +127.
             dl: DOWN/LEFT offset -127 to +127.
         """
-        self._write_reg(self._REG_POFFSET_UR, self._encode_offset(ur))
-        self._write_reg(self._REG_POFFSET_DL, self._encode_offset(dl))
+        self._connection.write_reg(self._REG_POFFSET_UR, self._encode_offset(ur))
+        self._connection.write_reg(self._REG_POFFSET_DL, self._encode_offset(dl))
 
     def _encode_offset(self, value):
         if value < 0:
@@ -347,7 +341,7 @@ class APDS9960Full(APDS9960Minimal):
             l: True to mask LEFT photodiode.
             r: True to mask RIGHT photodiode.
         """
-        c3 = self._read_reg(self._REG_CONFIG3)
+        c3 = self._connection.read_reg(self._REG_CONFIG3, 1)[0]
         c3 = (c3 & 0xF0)
         if u:
             c3 |= 0x08
@@ -357,7 +351,7 @@ class APDS9960Full(APDS9960Minimal):
             c3 |= 0x02
         if r:
             c3 |= 0x01
-        self._write_reg(self._REG_CONFIG3, c3)
+        self._connection.write_reg(self._REG_CONFIG3, c3)
 
     def enable_gesture(self, enabled):
         """Enable or disable the gesture engine.
@@ -365,19 +359,19 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable GEN and set GMODE, False to disable.
         """
-        val = self._read_reg(self._REG_ENABLE)
+        val = self._connection.read_reg(self._REG_ENABLE, 1)[0]
         if enabled:
             val |= 0x40
-            self._write_reg(self._REG_ENABLE, val)
-            g4 = self._read_reg(self._REG_GCONF4)
+            self._connection.write_reg(self._REG_ENABLE, val)
+            g4 = self._connection.read_reg(self._REG_GCONF4, 1)[0]
             g4 |= 0x01
-            self._write_reg(self._REG_GCONF4, g4)
+            self._connection.write_reg(self._REG_GCONF4, g4)
         else:
             val &= ~0x40
-            self._write_reg(self._REG_ENABLE, val)
-            g4 = self._read_reg(self._REG_GCONF4)
+            self._connection.write_reg(self._REG_ENABLE, val)
+            g4 = self._connection.read_reg(self._REG_GCONF4, 1)[0]
             g4 &= ~0x01
-            self._write_reg(self._REG_GCONF4, g4)
+            self._connection.write_reg(self._REG_GCONF4, g4)
 
     def configure_gesture(self, ggain, gldrive, gpulse, gplen, gwtime, gpenth, gexth):
         """Configure gesture engine parameters.
@@ -391,11 +385,11 @@ class APDS9960Full(APDS9960Minimal):
             gpenth: Gesture proximity entry threshold 0-255.
             gexth: Gesture exit threshold 0-255.
         """
-        self._write_reg(self._REG_GPENTH, gpenth & 0xFF)
-        self._write_reg(self._REG_GEXTH, gexth & 0xFF)
+        self._connection.write_reg(self._REG_GPENTH, gpenth & 0xFF)
+        self._connection.write_reg(self._REG_GEXTH, gexth & 0xFF)
         g2 = ((ggain & 0x03) << 5) | ((gldrive & 0x03) << 3) | (gwtime & 0x07)
-        self._write_reg(self._REG_GCONF2, g2)
-        self._write_reg(self._REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F))
+        self._connection.write_reg(self._REG_GCONF2, g2)
+        self._connection.write_reg(self._REG_GPULSE, ((gplen & 0x03) << 6) | (gpulse & 0x3F))
 
     def gesture_available(self):
         """Check if gesture data is available in the FIFO.
@@ -403,7 +397,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             bool: True if GSTATUS.GVALID is set (at least one dataset in FIFO).
         """
-        return bool(self._read_reg(self._REG_GSTATUS) & 0x01)
+        return bool(self._connection.read_reg(self._REG_GSTATUS, 1)[0] & 0x01)
 
     def read_gesture_fifo(self):
         """Read all gesture datasets from the FIFO.
@@ -411,12 +405,12 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             list: List of (U, D, L, R) tuples, one per dataset.
         """
-        level = self._read_reg(self._REG_GFLVL)
+        level = self._connection.read_reg(self._REG_GFLVL, 1)[0]
         if level == 0:
             return []
         result = []
         for _ in range(level):
-            raw = self._connection.write_read(bytes([self._REG_GFIFO_U]), 4)
+            raw = self._connection.read_reg(self._REG_GFIFO_U, 4)
             result.append((raw[0], raw[1], raw[2], raw[3]))
         return result
 
@@ -426,13 +420,13 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             int: Number of 4-byte datasets currently in FIFO.
         """
-        return self._read_reg(self._REG_GFLVL)
+        return self._connection.read_reg(self._REG_GFLVL, 1)[0]
 
     def clear_gesture_fifo(self):
         """Clear the gesture FIFO by setting GFIFO_CLR in GCONF4."""
-        g4 = self._read_reg(self._REG_GCONF4)
+        g4 = self._connection.read_reg(self._REG_GCONF4, 1)[0]
         g4 |= 0x04
-        self._write_reg(self._REG_GCONF4, g4)
+        self._connection.write_reg(self._REG_GCONF4, g4)
 
     def enable_gesture_interrupt(self, enabled):
         """Enable or disable gesture interrupt.
@@ -440,12 +434,12 @@ class APDS9960Full(APDS9960Minimal):
         Args:
             enabled: True to enable GIEN, False to disable.
         """
-        g4 = self._read_reg(self._REG_GCONF4)
+        g4 = self._connection.read_reg(self._REG_GCONF4, 1)[0]
         if enabled:
             g4 |= 0x02
         else:
             g4 &= ~0x02
-        self._write_reg(self._REG_GCONF4, g4)
+        self._connection.write_reg(self._REG_GCONF4, g4)
 
     def status(self):
         """Read the raw STATUS register.
@@ -453,7 +447,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             int: Raw STATUS byte.
         """
-        return self._read_reg(self._REG_STATUS)
+        return self._connection.read_reg(self._REG_STATUS, 1)[0]
 
     def is_als_valid(self):
         """Check if ALS/color data is valid.
@@ -461,7 +455,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             bool: True if STATUS.AVALID is set.
         """
-        return bool(self._read_reg(self._REG_STATUS) & 0x01)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & 0x01)
 
     def is_proximity_valid(self):
         """Check if proximity data is valid.
@@ -469,7 +463,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             bool: True if STATUS.PVALID is set.
         """
-        return bool(self._read_reg(self._REG_STATUS) & 0x02)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & 0x02)
 
     def is_als_saturated(self):
         """Check if the clear photodiode is saturated.
@@ -477,7 +471,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             bool: True if STATUS.CPSAT is set.
         """
-        return bool(self._read_reg(self._REG_STATUS) & 0x80)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & 0x80)
 
     def is_proximity_saturated(self):
         """Check if analog saturation occurred during proximity.
@@ -485,7 +479,7 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             bool: True if STATUS.PGSAT is set.
         """
-        return bool(self._read_reg(self._REG_STATUS) & 0x40)
+        return bool(self._connection.read_reg(self._REG_STATUS, 1)[0] & 0x40)
 
     def chip_id(self):
         """Read the device ID register.
@@ -493,4 +487,4 @@ class APDS9960Full(APDS9960Minimal):
         Returns:
             int: ID register value (expect 0xAB).
         """
-        return self._read_reg(self._REG_ID)
+        return self._connection.read_reg(self._REG_ID, 1)[0]

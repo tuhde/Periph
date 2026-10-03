@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.rtc
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import it.uhde.periph.connection.EdgeHandler
 import it.uhde.periph.connection.EdgeTrigger
 import it.uhde.periph.connection.InputPin
@@ -21,7 +21,7 @@ import kotlin.math.abs
  *
  * @param connection configured I²C connection bound to address 0x68
  */
-open class PCF8523Full(connection: Connection) : PCF8523Minimal(connection) {
+open class PCF8523Full(connection: RegisterConnection) : PCF8523Minimal(connection) {
 
     companion object {
         /** Interrupt source: second tick (`SF`). */

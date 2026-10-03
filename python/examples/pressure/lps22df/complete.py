@@ -2,7 +2,7 @@ from periph.connection.i2c_auto import I2CConnection
 from periph.chips.pressure.lps22df import LPS22DFFull
 
 connection = I2CConnection(0x5C)
-lps = LPS22DFFull(connection)                              # Create LPS22DF driver, (connection, bus_type='i2c')
+lps = LPS22DFFull(connection)                              # Create LPS22DF driver, (connection)
 lps.configure(odr=3, avg=0, en_lpfp=False, lfpf_cfg=0, bdu=True)  # Configure chip, (odr 0–8, avg 0–7, en_lpfp=False, lfpf_cfg=0/1, bdu=False/True) → None
                                                               # writes CTRL_REG1 and CTRL_REG2
 lps.oneshot()                                              # Trigger one-shot conversion, () → None

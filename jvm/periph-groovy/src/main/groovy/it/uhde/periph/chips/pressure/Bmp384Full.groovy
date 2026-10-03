@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import groovy.transform.CompileStatic
 
 /**
@@ -20,17 +20,17 @@ class Bmp384Full extends Bmp384Minimal {
         FifoFrame(String type, double value) { this.type = type; this.value = value }
     }
 
-    Bmp384Full(Connection conn) { super(conn) }
-    Bmp384Full(Connection conn, int addr) { super(conn, addr) }
+    Bmp384Full(RegisterConnection conn) { super(conn) }
+    Bmp384Full(RegisterConnection conn, int addr) { super(conn, addr) }
 
     void configure(int osrP, int osrT, int iirFilter, int odrSel) {
         this.osrP = osrP
         this.osrT = osrT
         this.iir  = iirFilter
         this.odr  = odrSel
-        writeReg(REG_OSR,    (osrT << 3) | (osrP << 0))
-        writeReg(REG_CONFIG, (iirFilter << 1))
-        writeReg(REG_ODR,    odrSel)
+        connection.write(REG_OSR, [(byte) (   (osrT << 3) | (osrP << 0))] as byte[])
+        connection.write(REG_CONFIG, [(byte) ((iirFilter << 1))] as byte[])
+        connection.write(REG_ODR, [(byte) (   odrSel)] as byte[])
     }
 
     double[] read() {
@@ -72,7 +72,7 @@ class Bmp384Full extends Bmp384Minimal {
     }
 
     void softreset() {
-        writeReg(REG_CMD, SOFT_RESET_CMD)
+        connection.write(REG_CMD, [(byte) (SOFT_RESET_CMD)] as byte[])
         try { Thread.sleep(3) } catch (InterruptedException e) { Thread.currentThread().interrupt() }
         readCalibration()
         applyConfig()
@@ -83,9 +83,9 @@ class Bmp384Full extends Bmp384Minimal {
             ((stopOnFull ? 1 : 0) << 3) |
             ((tempEn ? 1 : 0) << 1) |
             (pressEn ? 1 : 0)
-        writeReg(0x17, cfg1)
-        writeReg(0x15, wtm & 0xFF)
-        writeReg(0x16, (wtm >> 8) & 0x01)
+        connection.write(0x17, [(byte) (cfg1)] as byte[])
+        connection.write(0x15, [(byte) (wtm & 0xFF)] as byte[])
+        connection.write(0x16, [(byte) ((wtm >> 8) & 0x01)] as byte[])
     }
 
     FifoFrame[] fifoRead() {
@@ -93,7 +93,7 @@ class Bmp384Full extends Bmp384Minimal {
         int lenHi = readReg(0x13)
         int length = ((lenHi & 0xFF) << 8) | (lenLo & 0xFF)
         if (length == 0) return new FifoFrame[0]
-        byte[] buf = connection.writeRead(new byte[]{(byte) 0x14} as byte[], length)
+        byte[] buf = connection.read(0x14, length)
 
         List<FifoFrame> frames = []
         int i = 0
@@ -128,7 +128,7 @@ class Bmp384Full extends Bmp384Minimal {
     }
 
     void fifoFlush() {
-        writeReg(REG_CMD, FIFO_FLUSH_CMD)
+        connection.write(REG_CMD, [(byte) (FIFO_FLUSH_CMD)] as byte[])
     }
 
     double altitude(double seaLevelHpa) {
@@ -140,11 +140,11 @@ class Bmp384Full extends Bmp384Minimal {
     double altitude() { altitude(1013.25d) }
 
     private void triggerForced() {
-        writeReg(REG_PWR_CTRL, (MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)
+        connection.write(REG_PWR_CTRL, [(byte) ((MODE_FORCED << 4) | PWR_TEMP_EN | PWR_PRESS_EN)] as byte[])
     }
 
     private void applyPwr() {
-        writeReg(REG_PWR_CTRL, (mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN)
+        connection.write(REG_PWR_CTRL, [(byte) ((mode << 4) | PWR_TEMP_EN | PWR_PRESS_EN)] as byte[])
     }
 
     private double compensatePressureWithTLin(int uncompPress, double tLin) {

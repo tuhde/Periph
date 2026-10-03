@@ -24,7 +24,7 @@ func main() {
 	}
 
 	conn := connection.NewI2CConnection(i2c, 0x5C, nil, nil)
-	chip, err := pressure.NewLPS22DFFull(conn, false)
+	chip, err := pressure.NewLPS22DFFull(conn)
 	if err != nil {
 		fmt.Printf("FAIL new: %v\n", err)
 		fmt.Println("===DONE: 0 passed, 1 failed===")

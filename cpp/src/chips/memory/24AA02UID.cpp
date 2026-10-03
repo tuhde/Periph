@@ -20,24 +20,21 @@ static void periph_delay_ms(unsigned ms) { delay(ms); }
 
 // --- Minimal ---
 
-EEPROM24AA02UIDMinimal::EEPROM24AA02UIDMinimal(Connection& connection)
+EEPROM24AA02UIDMinimal::EEPROM24AA02UIDMinimal(RegisterConnection& connection)
     : _connection(connection) {}
 
 void EEPROM24AA02UIDMinimal::read_uid(uint8_t* buf) {
-    uint8_t reg = ADDR_UID_BASE;
-    _connection.write_read(&reg, 1, buf, 4);
+    _connection.read(ADDR_UID_BASE, buf, 4);
 }
 
 uint8_t EEPROM24AA02UIDMinimal::read_byte(uint8_t address) {
-    uint8_t reg = address;
     uint8_t val = 0;
-    _connection.write_read(&reg, 1, &val, 1);
+    _connection.read(address, &val, 1);
     return val;
 }
 
 void EEPROM24AA02UIDMinimal::write_byte(uint8_t address, uint8_t value) {
-    uint8_t buf[2] = { address, value };
-    _connection.write(buf, 2);
+    _connection.write(address, &value, 1);
     _ack_poll();
 }
 
@@ -50,21 +47,16 @@ void EEPROM24AA02UIDMinimal::_ack_poll() {
 
 // --- Full ---
 
-EEPROM24AA02UIDFull::EEPROM24AA02UIDFull(Connection& connection)
+EEPROM24AA02UIDFull::EEPROM24AA02UIDFull(RegisterConnection& connection)
     : EEPROM24AA02UIDMinimal(connection) {}
 
 void EEPROM24AA02UIDFull::read(uint8_t address, uint8_t* buf, uint8_t length) {
-    uint8_t reg = address;
-    _connection.write_read(&reg, 1, buf, length);
+    _connection.read(address, buf, length);
 }
 
 void EEPROM24AA02UIDFull::write_page(uint8_t address, const uint8_t* data, uint8_t length) {
     if (length == 0) return;
-    // Layout: [address, byte0, byte1, …, byteN-1]
-    uint8_t buf[1 + PAGE_SIZE];
-    buf[0] = address;
-    for (uint8_t i = 0; i < length; i++) buf[1 + i] = data[i];
-    _connection.write(buf, 1 + length);
+    _connection.write(address, data, length);
     _ack_poll();
 }
 

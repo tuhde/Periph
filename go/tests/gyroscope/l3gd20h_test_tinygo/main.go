@@ -21,7 +21,7 @@ func main() {
 	conn := connection.NewI2CConnection(machine.I2C0, 0x6A, nil, nil)
 	defer conn.Close()
 
-	gyro, err := gyroscope.NewL3GD20HMinimal(conn, false)
+	gyro, err := gyroscope.NewL3GD20HMinimal(conn)
 	if err != nil {
 		panic(err)
 	}

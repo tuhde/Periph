@@ -1,7 +1,7 @@
 package it.uhde.periph.chips.power
 
 import groovy.transform.CompileStatic
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 
 /**
  * INA226 — 16-bit current/power monitor with I²C interface (minimal driver).
@@ -38,7 +38,7 @@ class Ina226Minimal {
     /** Default configuration: mode=7, VBUSCT=4, VSHCT=4, AVG=0 → 0x4127. */
     protected static final int DEFAULT_CONFIG = 0x4127
 
-    protected final Connection connection
+    protected final RegisterConnection connection
     protected final double currentLsb
     protected final int    cal
     /** Stored MODE bits (2:0) for wake(). Updated by configure() and shutdown(). */
@@ -49,7 +49,7 @@ class Ina226Minimal {
      *
      * @param connection I²C connection bound to the INA226 device address
      */
-    Ina226Minimal(Connection connection) {
+    Ina226Minimal(RegisterConnection connection) {
         this(connection, 0.1d, 2.0d)
     }
 
@@ -64,7 +64,7 @@ class Ina226Minimal {
      * @param rShunt     shunt resistor value in Ω (e.g. 0.1)
      * @param maxCurrent maximum expected current in A (e.g. 2.0)
      */
-    Ina226Minimal(Connection connection, double rShunt, double maxCurrent) {
+    Ina226Minimal(RegisterConnection connection, double rShunt, double maxCurrent) {
         this.connection  = connection
         this.currentLsb = maxCurrent / 32768.0d
         this.cal        = (int) (0.00512d / (currentLsb * rShunt))
@@ -121,7 +121,7 @@ class Ina226Minimal {
      * @param val 16-bit value
      */
     protected void writeReg(int reg, int val) {
-        connection.write([(byte) reg, (byte) (val >> 8), (byte) (val & 0xFF)] as byte[])
+        connection.write(reg, [(byte) (val >> 8), (byte) (val & 0xFF)] as byte[])
     }
 
     /**
@@ -131,7 +131,7 @@ class Ina226Minimal {
      * @return unsigned 16-bit value (0–65535)
      */
     protected int readReg(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.read(reg, 2)
         ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
     }
 
@@ -142,7 +142,7 @@ class Ina226Minimal {
      * @return signed 16-bit value (-32768–32767)
      */
     protected int readRegSigned(int reg) {
-        byte[] b = connection.writeRead([(byte) reg] as byte[], 2)
+        byte[] b = connection.read(reg, 2)
         def v = ((b[0] & 0xFF) << 8) | (b[1] & 0xFF)
         if (v > 32767) v -= 65536
         v

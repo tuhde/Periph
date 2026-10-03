@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.motor
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import kotlin.math.abs
 
 /**
@@ -20,7 +20,7 @@ import kotlin.math.abs
  *
  * @param connection configured I²C connection bound to the device (0x60–0x68)
  */
-open class DRV8830Minimal(protected val connection: Connection) {
+open class DRV8830Minimal(protected val connection: RegisterConnection) {
 
     companion object {
         /** Default I²C address (A0 = A1 = GND). Valid range 0x60–0x68. */
@@ -66,10 +66,10 @@ open class DRV8830Minimal(protected val connection: Connection) {
         readReg(REG_CONTROL)
     }
 
-    protected fun readReg(reg: Int): Int = connection.writeRead(byteArrayOf(reg.toByte()), 1)[0].toInt() and 0xFF
+    protected fun readReg(reg: Int): Int = connection.read(reg, 1)[0].toInt() and 0xFF
 
     protected fun writeReg(reg: Int, value: Int) {
-        connection.write(byteArrayOf(reg.toByte(), value.toByte()))
+        connection.write(reg, byteArrayOf(value.toByte()))
     }
 
     /**

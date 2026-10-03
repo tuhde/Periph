@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "../../connection/Connection.h"
+#include "../../connection/RegisterConnection.h"
 
 /** @brief L3GD20H (and L3GD20) three-axis MEMS gyroscope — minimal interface.
  *
@@ -15,12 +15,11 @@
  *      - All axes enabled, normal power mode
  *      - 250 ms startup delay for gyroscope stabilization
  *
- *  @param connection Configured I²C or SPI connection pointing at the device.
- *  @param spi        Pass true for SPI bus.
+ *  @param connection RegisterConnection (I²C, SMBus, or SPI; SPI: readBit 0xC0, no multi-byte bit).
  */
 class L3gd20hMinimal {
 public:
-    explicit L3gd20hMinimal(Connection& connection, bool spi = false);
+    explicit L3gd20hMinimal(RegisterConnection& connection);
 
     /** @brief Read angular rate on all three axes as a single burst transaction.
      *
@@ -70,11 +69,9 @@ protected:
     /** CTRL_REG4 default: BDU=1, FS=00 (±250 dps), BLE=0, SIM=0. */
     static constexpr uint8_t CTRL_REG4_DEFAULT = 0x80;
 
-    Connection& _connection;
-    bool        _spi;
+    RegisterConnection& _connection;
     uint16_t    _full_scale;  // dps: 250, 500, or 2000
 
-    void _write_reg(uint8_t reg, uint8_t value);
     void _read_reg(uint8_t reg, uint8_t* buf, uint8_t len);
     float _sensitivity() const;
     static int16_t _int16_le(const uint8_t* data);
@@ -119,7 +116,7 @@ public:
     static constexpr const char* POWER_SLEEP      = "sleep";
     static constexpr const char* POWER_POWERDOWN  = "power_down";
 
-    explicit L3gd20hFull(Connection& connection, bool spi = false);
+    explicit L3gd20hFull(RegisterConnection& connection);
 
     /** @brief Configure ODR, bandwidth, and full scale in one call.
      *

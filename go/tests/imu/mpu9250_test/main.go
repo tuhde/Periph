@@ -35,7 +35,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	magFactory := func(a uint8) (connection.Connection, error) {
+	magFactory := func(a uint8) (connection.RegisterConnection, error) {
 		return connection.NewI2CConnection(bus, a, nil, nil)
 	}
 

@@ -269,25 +269,5 @@ src = sensor.interrupt_source()
 check_true('interrupt_source_none', not src['boot_on'] and not src['ia'] and not src['ph'] and not src['pl'])
 
 
-# --- SPI transport: reads set bit 7 (R/W̄=1), writes leave it clear ---
-# LPS22DF register addresses (0x0B-0x7A) never have bit 7 set naturally, so
-# a write address mask (reg & 0x7F) is a no-op — the only observable check
-# is that reads are sent with bit 7 set. The mock's register map is keyed by
-# whatever byte is actually sent, so preload reads at (reg | 0x80).
-spi_connection = I2CConnectionMock()
-spi_connection.set_register(LPS22DFFull._REG_WHO_AM_I | 0x80, 0xB4)
-spi_sensor = LPS22DFFull(spi_connection, bus_type='spi')
-spi_who_am_i_reads = [w for w in spi_connection.writes if len(w) == 1 and w[0] == (LPS22DFFull._REG_WHO_AM_I | 0x80)]
-spi_who_am_i_unmasked = [w for w in spi_connection.writes if len(w) == 1 and w[0] == LPS22DFFull._REG_WHO_AM_I]
-check_true('spi_read_sets_rw_bit', len(spi_who_am_i_reads) == 1)
-check_true('spi_read_no_unmasked_address', len(spi_who_am_i_unmasked) == 0)
-
-spi_ctrl1 = [w for w in spi_connection.writes if len(w) == 2 and w[0] == LPS22DFFull._REG_CTRL_REG1]
-check_true('spi_init_writes_ctrl_reg1', spi_ctrl1[0][1] == 0x18)
-
-spi_connection.set_register(LPS22DFFull._REG_STATUS | 0x80, 0x01)
-spi_connection.set_register(LPS22DFFull._REG_PRESS_OUT_XL | 0x80, *make_press_raw(1013.25))
-check_true('spi_pressure', abs(spi_sensor.pressure() - 101325.0) < 0.01)
-
 print('===DONE: {} passed, {} failed==='.format(passed, failed))
 sys.exit(0 if failed == 0 else 1)

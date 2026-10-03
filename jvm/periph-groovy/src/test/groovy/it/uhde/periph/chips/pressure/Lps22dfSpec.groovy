@@ -298,21 +298,4 @@ class Lps22dfSpec extends Specification {
         expect:
         full.interruptSource() == 0x85
     }
-
-    def "SPI addressing"() {
-        given:
-        def connection = new MockConnection()
-        // The mock's register map is keyed by the literal address byte sent,
-        // so for SPI (read addresses have bit 7 set) the fixture must be
-        // preloaded at the shifted address.
-        connection.setRegister(Lps22dfMinimal.REG_WHO_AM_I | 0x80, Lps22dfMinimal.CHIP_ID)
-
-        when:
-        new Lps22dfMinimal(connection, 0x5C, Lps22dfMinimal.BUS_SPI)
-        def writes = connection.writes()
-
-        then:
-        (writes[0][0] & 0xFF) == (Lps22dfMinimal.REG_WHO_AM_I | 0x80)
-        (writes[1][0] & 0xFF) == (Lps22dfMinimal.REG_CTRL_REG2 & 0x7F)
-    }
 }

@@ -1,6 +1,6 @@
 package it.uhde.periph.chips.pressure
 
-import it.uhde.periph.connection.Connection
+import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
 /**
@@ -15,7 +15,7 @@ import java.io.IOException
  * {@code altitude_m = 44330.0 × (1.0 − (pressure_Pa / seaLevelPa)^(1/5.255))}
  */
 class Bmp085Full @JvmOverloads constructor(
-    connection: Connection
+    connection: RegisterConnection
 ) : Bmp085Minimal(connection) {
 
     /** Ultra-low-power mode: OSS = 0 (1 sample, ~4.5 ms, 3 µA RMS). */
@@ -97,7 +97,7 @@ class Bmp085Full @JvmOverloads constructor(
      * @throws IOException on I²C error
      */
     fun chipId(): Int {
-        val b = connection.writeRead(byteArrayOf(REG_ID.toByte()), 1)
+        val b = connection.read(REG_ID, 1)
         return b[0].toInt() and 0xFF
     }
 
@@ -110,7 +110,7 @@ class Bmp085Full @JvmOverloads constructor(
      * @throws IOException on I²C error or invalid calibration after reset
      */
     fun reset() {
-        connection.write(byteArrayOf(REG_SOFT_RST.toByte(), 0xB6.toByte()))
+        connection.write(REG_SOFT_RST, byteArrayOf(0xB6.toByte()))
         Thread.sleep(15)
         readCalibration()
     }
