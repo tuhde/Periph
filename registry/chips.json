@@ -45,6 +45,27 @@
       "datasheet": "datasheets/accelerometer/bma180.pdf"
     },
     {
+      "id": "lis3dh",
+      "name": "LIS3DH",
+      "category": "accelerometer",
+      "addresses": [
+        "0x18..0x19"
+      ],
+      "id_probe": {
+        "register": "0x0F",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x33"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/accelerometer/lis3dh.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",
