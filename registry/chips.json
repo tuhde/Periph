@@ -121,6 +121,42 @@
       "datasheet": "datasheets/accelerometer/mma845x.pdf"
     },
     {
+      "id": "ads1013",
+      "name": "ADS1013",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1015.pdf"
+    },
+    {
+      "id": "ads1014",
+      "name": "ADS1014",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1015.pdf"
+    },
+    {
+      "id": "ads1015",
+      "name": "ADS1015",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1015.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",
