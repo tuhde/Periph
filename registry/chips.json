@@ -66,6 +66,39 @@
       "datasheet": "datasheets/accelerometer/lis3dh.pdf"
     },
     {
+      "id": "lsm303-accel",
+      "name": "LSM303 accelerometer",
+      "category": "accelerometer",
+      "addresses": [
+        "0x19"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/accelerometer/lsm303.pdf"
+    },
+    {
+      "id": "lsm303-mag",
+      "name": "LSM303 magnetometer",
+      "category": "accelerometer",
+      "addresses": [
+        "0x1E"
+      ],
+      "id_probe": {
+        "register": "0x0A",
+        "reg_bytes": 1,
+        "length": 3,
+        "byte_order": "big",
+        "mask": "0xFFFFFF",
+        "expected": [
+          "0x483433"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/accelerometer/lsm303.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",
