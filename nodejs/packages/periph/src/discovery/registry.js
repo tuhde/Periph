@@ -36,6 +36,7 @@ const CHIPS = [
     {"id":"24aa02uid","driver":"24aa02uid","writeSensitive":false,"aliased":true,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"24aa025uid","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
     {"id":"mb85rc","driver":null,"writeSensitive":false,"aliased":false,"addresses":[80,81,82,83,84,85,86,87],"probe":null},
+    {"id":"drv2605","driver":null,"writeSensitive":false,"aliased":false,"addresses":[90],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":224,"expected":[96]}},
     {"id":"drv8830","driver":"drv8830","writeSensitive":false,"aliased":false,"addresses":[96,97,98,99,100,101,102,103,104],"probe":null},
     {"id":"mpr121","driver":"mpr121","writeSensitive":false,"aliased":false,"addresses":[90,91,92,93],"probe":null},
     {"id":"ade7953","driver":"ade7953","writeSensitive":true,"aliased":false,"addresses":[56],"probe":null},

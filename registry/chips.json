@@ -522,6 +522,27 @@
       "datasheet": "datasheets/memory/mb85rc.pdf"
     },
     {
+      "id": "drv2605",
+      "name": "DRV2605",
+      "category": "motor",
+      "addresses": [
+        "0x5A"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xE0",
+        "expected": [
+          "0x60"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/motor/drv2605.pdf"
+    },
+    {
       "id": "drv8830",
       "name": "DRV8830",
       "category": "motor",
