@@ -488,6 +488,18 @@
       "datasheet": "datasheets/memory/24aa02uid.pdf"
     },
     {
+      "id": "mb85rc",
+      "name": "MB85RC256V",
+      "category": "memory",
+      "addresses": [
+        "0x50..0x57"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/memory/mb85rc.pdf"
+    },
+    {
       "id": "drv8830",
       "name": "DRV8830",
       "category": "motor",
