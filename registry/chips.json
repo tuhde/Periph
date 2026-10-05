@@ -332,6 +332,27 @@
       "datasheet": "datasheets/imu/mpu6050.pdf"
     },
     {
+      "id": "icm20948",
+      "name": "ICM-20948",
+      "category": "imu",
+      "addresses": [
+        "0x68..0x69"
+      ],
+      "id_probe": {
+        "register": "0x00",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xEA"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/imu/icm20948.pdf"
+    },
+    {
       "id": "mpu9250",
       "name": "MPU9250",
       "category": "imu",

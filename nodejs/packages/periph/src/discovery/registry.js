@@ -24,6 +24,7 @@ const CHIPS = [
     {"id":"l3g4200d","driver":"l3g4200d","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[211]}},
     {"id":"l3gd20h","driver":"l3gd20h","writeSensitive":false,"aliased":false,"addresses":[106,107],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[212,215]}},
     {"id":"mpu6050","driver":"mpu6050","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":126,"expected":[104]}},
+    {"id":"icm20948","driver":null,"writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[234]}},
     {"id":"mpu9250","driver":"mpu9250","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[113]}},
     {"id":"mpu9255","driver":"mpu9255","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[115]}},
     {"id":"mcp23017","driver":"mcp23017","writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
