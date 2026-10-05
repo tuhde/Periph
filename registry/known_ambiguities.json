@@ -2,6 +2,7 @@
   "comment": "Chip pairs at overlapping addresses whose identity registers can both read the same raw value. validate.js fails on any such pair not listed here.",
   "pairs": [
     ["bmp085", "bmp180"],
+    ["hmc5883l", "lsm303-mag"],
     ["lps22df", "lps28dfw"]
   ]
 }
