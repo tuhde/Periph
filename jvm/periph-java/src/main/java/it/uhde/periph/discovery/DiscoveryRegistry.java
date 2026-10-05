@@ -31,6 +31,7 @@ public final class DiscoveryRegistry {
         new Chip("l3g4200d", "l3g4200d", false, false, new int[] {0x68, 0x69}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xD3L})),
         new Chip("l3gd20h", "l3gd20h", false, false, new int[] {0x6A, 0x6B}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0xD4L, 0xD7L})),
         new Chip("mpu6050", "mpu6050", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0x7EL, new long[] {0x68L})),
+        new Chip("icm20948", null, false, false, new int[] {0x68, 0x69}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0xEAL})),
         new Chip("mpu9250", "mpu9250", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0xFFL, new long[] {0x71L})),
         new Chip("mpu9255", "mpu9255", false, false, new int[] {0x68, 0x69}, new IdProbe(0x75, 1, 1, false, 0xFFL, new long[] {0x73L})),
         new Chip("mcp23017", "mcp23017", false, false, new int[] {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, null),
