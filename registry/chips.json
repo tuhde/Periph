@@ -99,6 +99,28 @@
       "datasheet": "datasheets/accelerometer/lsm303.pdf"
     },
     {
+      "id": "mma8451q",
+      "name": "MMA8451Q",
+      "category": "accelerometer",
+      "addresses": [
+        "0x1C",
+        "0x1D"
+      ],
+      "id_probe": {
+        "register": "0x0D",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0x1A"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/accelerometer/mma845x.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",

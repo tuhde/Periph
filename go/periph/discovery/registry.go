@@ -28,6 +28,7 @@ var registry = []Chip{
 	{ID: "lis3dh", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x18, 0x19}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x33}}},
 	{ID: "lsm303-accel", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x19}, Probe: nil},
 	{ID: "lsm303-mag", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1E}, Probe: &IdProbe{Register: 0x0A, RegBytes: 1, Length: 3, LittleEndian: false, Mask: 0xFFFFFF, Expected: []uint32{0x483433}}},
+	{ID: "mma8451q", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1C, 0x1D}, Probe: &IdProbe{Register: 0x0D, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x1A}}},
 	{ID: "mcp4725", Driver: "mcp4725", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61}, Probe: nil},
 	{ID: "mcp4728", Driver: "mcp4728", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67}, Probe: nil},
 	{ID: "pcf8591", Driver: "pcf8591", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
