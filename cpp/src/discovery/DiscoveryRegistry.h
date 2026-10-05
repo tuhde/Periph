@@ -82,6 +82,7 @@ static constexpr IdProbe kProbe_mpu9250 = {0x75, 1, 1, false, 0xFF, kExp_mpu9250
 static constexpr uint8_t kAddr_mpu9255[] = {0x68, 0x69};
 static constexpr uint32_t kExp_mpu9255[] = {0x73};
 static constexpr IdProbe kProbe_mpu9255 = {0x75, 1, 1, false, 0xFF, kExp_mpu9255, 1};
+static constexpr uint8_t kAddr_mcp23008[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27};
 static constexpr uint8_t kAddr_mcp23017[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27};
 static constexpr uint8_t kAddr_pcf8574[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F};
 static constexpr uint8_t kAddr_pcf8575[] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27};
@@ -181,6 +182,7 @@ static constexpr ChipEntry kChips[] = {
     {"icm20948", nullptr, false, false, kAddr_icm20948, 2, &kProbe_icm20948},
     {"mpu9250", "mpu9250", false, false, kAddr_mpu9250, 2, &kProbe_mpu9250},
     {"mpu9255", "mpu9255", false, false, kAddr_mpu9255, 2, &kProbe_mpu9255},
+    {"mcp23008", nullptr, false, false, kAddr_mcp23008, 8, nullptr},
     {"mcp23017", "mcp23017", false, false, kAddr_mcp23017, 8, nullptr},
     {"pcf8574", "pcf8574", true, false, kAddr_pcf8574, 16, nullptr},
     {"pcf8575", "pcf8575", true, false, kAddr_pcf8575, 8, nullptr},
@@ -214,7 +216,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 59;
+static constexpr size_t kChipCount = 60;
 
 }  // namespace discovery
 }  // namespace periph

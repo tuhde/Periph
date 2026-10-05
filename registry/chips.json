@@ -455,6 +455,18 @@
       "datasheet": "datasheets/imu/mpu9255.pdf"
     },
     {
+      "id": "mcp23008",
+      "name": "MCP23008",
+      "category": "io_expander",
+      "addresses": [
+        "0x20..0x27"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/io_expander/mcp23008.pdf"
+    },
+    {
       "id": "mcp23017",
       "name": "MCP23017",
       "category": "io_expander",
