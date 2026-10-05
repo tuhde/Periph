@@ -148,6 +148,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MMA8451Q | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
 | MPR121 | Capacitive touch sensor (12-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
