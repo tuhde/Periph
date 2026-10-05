@@ -121,6 +121,30 @@
       "datasheet": "datasheets/accelerometer/mma845x.pdf"
     },
     {
+      "id": "ad5243",
+      "name": "AD5243",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2C"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ad5243.pdf"
+    },
+    {
+      "id": "ad5248",
+      "name": "AD5248",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2C..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ad5243.pdf"
+    },
+    {
       "id": "ads1013",
       "name": "ADS1013",
       "category": "adc_dac",
