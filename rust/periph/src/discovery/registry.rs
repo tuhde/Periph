@@ -29,6 +29,8 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "lsm303-accel", driver: None, write_sensitive: false, aliased: false, addresses: &[0x19], probe: None },
     ChipEntry { id: "lsm303-mag", driver: None, write_sensitive: false, aliased: false, addresses: &[0x1E], probe: Some(IdProbe { register: 0x0A, reg_bytes: 1, length: 3, little_endian: false, mask: 0xFFFFFF, expected: &[0x483433] }) },
     ChipEntry { id: "mma8451q", driver: None, write_sensitive: false, aliased: false, addresses: &[0x1C, 0x1D], probe: Some(IdProbe { register: 0x0D, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x1A] }) },
+    ChipEntry { id: "ad5243", driver: None, write_sensitive: true, aliased: false, addresses: &[0x2C], probe: None },
+    ChipEntry { id: "ad5248", driver: None, write_sensitive: true, aliased: false, addresses: &[0x2C, 0x2D, 0x2E, 0x2F], probe: None },
     ChipEntry { id: "ads1013", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
     ChipEntry { id: "ads1014", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
     ChipEntry { id: "ads1015", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
