@@ -32,6 +32,7 @@ const CHIPS = [
     {"id":"icm20948","driver":null,"writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[234]}},
     {"id":"mpu9250","driver":"mpu9250","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[113]}},
     {"id":"mpu9255","driver":"mpu9255","writeSensitive":false,"aliased":false,"addresses":[104,105],"probe":{"register":117,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[115]}},
+    {"id":"mcp23008","driver":null,"writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
     {"id":"mcp23017","driver":"mcp23017","writeSensitive":false,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
     {"id":"pcf8574","driver":"pcf8574","writeSensitive":true,"aliased":false,"addresses":[32,33,34,35,36,37,38,39,56,57,58,59,60,61,62,63],"probe":null},
     {"id":"pcf8575","driver":"pcf8575","writeSensitive":true,"aliased":false,"addresses":[32,33,34,35,36,37,38,39],"probe":null},
