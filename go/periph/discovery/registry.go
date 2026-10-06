@@ -56,6 +56,7 @@ var registry = []Chip{
 	{ID: "mpu9255", Driver: "mpu9255", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x68, 0x69}, Probe: &IdProbe{Register: 0x75, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x73}}},
 	{ID: "mcp23008", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, Probe: nil},
 	{ID: "mcp23017", Driver: "mcp23017", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, Probe: nil},
+	{ID: "pca6408a", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x20, 0x21}, Probe: nil},
 	{ID: "pcf8574", Driver: "pcf8574", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F}, Probe: nil},
 	{ID: "pcf8575", Driver: "pcf8575", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}, Probe: nil},
 	{ID: "apds-9930", Driver: "apds-9930", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x39}, Probe: &IdProbe{Register: 0x92, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x39}}},
