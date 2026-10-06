@@ -15,6 +15,7 @@ const CHIPS = [
     {"id":"ad5248","driver":null,"writeSensitive":true,"aliased":false,"addresses":[44,45,46,47],"probe":null},
     {"id":"cat5171","driver":null,"writeSensitive":true,"aliased":false,"addresses":[44,45],"probe":null},
     {"id":"ds1881","driver":null,"writeSensitive":true,"aliased":false,"addresses":[40,41,42,43,44,45,46,47],"probe":null},
+    {"id":"cs43l22","driver":null,"writeSensitive":false,"aliased":false,"addresses":[74,75],"probe":{"register":1,"regBytes":1,"length":1,"order":"big","mask":248,"expected":[224]}},
     {"id":"ads1013","driver":null,"writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},
     {"id":"ads1014","driver":null,"writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},
     {"id":"ads1015","driver":null,"writeSensitive":false,"aliased":false,"addresses":[72,73,74,75],"probe":null},

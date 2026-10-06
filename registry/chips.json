@@ -169,6 +169,27 @@
       "datasheet": "datasheets/adc_dac/ds1881.pdf"
     },
     {
+      "id": "cs43l22",
+      "name": "CS43L22",
+      "category": "adc_dac",
+      "addresses": [
+        "0x4A..0x4B"
+      ],
+      "id_probe": {
+        "register": "0x01",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xF8",
+        "expected": [
+          "0xE0"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/cs43l22.pdf"
+    },
+    {
       "id": "ads1013",
       "name": "ADS1013",
       "category": "adc_dac",
