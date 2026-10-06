@@ -168,6 +168,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
+| PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
 | PCF8523 | Real-time clock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
