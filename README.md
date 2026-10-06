@@ -166,6 +166,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PCF8578 | LCD dot-matrix row/column driver |  |  |  |  |  |  |  |  |
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
