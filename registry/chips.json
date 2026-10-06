@@ -289,6 +289,18 @@
       "datasheet": "datasheets/display/pcf8578.pdf"
     },
     {
+      "id": "pcf8579",
+      "name": "PCF8579",
+      "category": "display",
+      "addresses": [
+        "0x3C..0x3D"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/display/pcf8579.pdf"
+    },
+    {
       "id": "aht21",
       "name": "AHT21",
       "category": "environmental",
