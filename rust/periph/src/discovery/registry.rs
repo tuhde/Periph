@@ -33,6 +33,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "ad5248", driver: None, write_sensitive: true, aliased: false, addresses: &[0x2C, 0x2D, 0x2E, 0x2F], probe: None },
     ChipEntry { id: "cat5171", driver: None, write_sensitive: true, aliased: false, addresses: &[0x2C, 0x2D], probe: None },
     ChipEntry { id: "ds1881", driver: None, write_sensitive: true, aliased: false, addresses: &[0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F], probe: None },
+    ChipEntry { id: "cs43l22", driver: None, write_sensitive: false, aliased: false, addresses: &[0x4A, 0x4B], probe: Some(IdProbe { register: 0x01, reg_bytes: 1, length: 1, little_endian: false, mask: 0xF8, expected: &[0xE0] }) },
     ChipEntry { id: "ads1013", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
     ChipEntry { id: "ads1014", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
     ChipEntry { id: "ads1015", driver: None, write_sensitive: false, aliased: false, addresses: &[0x48, 0x49, 0x4A, 0x4B], probe: None },
