@@ -181,6 +181,42 @@
       "datasheet": "datasheets/adc_dac/ads1015.pdf"
     },
     {
+      "id": "ads1113",
+      "name": "ADS1113",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1115.pdf"
+    },
+    {
+      "id": "ads1114",
+      "name": "ADS1114",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1115.pdf"
+    },
+    {
+      "id": "ads1115",
+      "name": "ADS1115",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads1115.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",
