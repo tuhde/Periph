@@ -48,6 +48,9 @@ static constexpr uint8_t kAddr_ad5248[] = {0x2C, 0x2D, 0x2E, 0x2F};
 static constexpr uint8_t kAddr_ads1013[] = {0x48, 0x49, 0x4A, 0x4B};
 static constexpr uint8_t kAddr_ads1014[] = {0x48, 0x49, 0x4A, 0x4B};
 static constexpr uint8_t kAddr_ads1015[] = {0x48, 0x49, 0x4A, 0x4B};
+static constexpr uint8_t kAddr_ads1113[] = {0x48, 0x49, 0x4A, 0x4B};
+static constexpr uint8_t kAddr_ads1114[] = {0x48, 0x49, 0x4A, 0x4B};
+static constexpr uint8_t kAddr_ads1115[] = {0x48, 0x49, 0x4A, 0x4B};
 static constexpr uint8_t kAddr_mcp4725[] = {0x60, 0x61};
 static constexpr uint8_t kAddr_mcp4728[] = {0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67};
 static constexpr uint8_t kAddr_pcf8591[] = {0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F};
@@ -167,6 +170,9 @@ static constexpr ChipEntry kChips[] = {
     {"ads1013", nullptr, false, false, kAddr_ads1013, 4, nullptr},
     {"ads1014", nullptr, false, false, kAddr_ads1014, 4, nullptr},
     {"ads1015", nullptr, false, false, kAddr_ads1015, 4, nullptr},
+    {"ads1113", nullptr, false, false, kAddr_ads1113, 4, nullptr},
+    {"ads1114", nullptr, false, false, kAddr_ads1114, 4, nullptr},
+    {"ads1115", nullptr, false, false, kAddr_ads1115, 4, nullptr},
     {"mcp4725", "mcp4725", true, false, kAddr_mcp4725, 2, nullptr},
     {"mcp4728", "mcp4728", true, false, kAddr_mcp4728, 8, nullptr},
     {"pcf8591", "pcf8591", true, false, kAddr_pcf8591, 8, nullptr},
@@ -218,7 +224,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 61;
+static constexpr size_t kChipCount = 64;
 
 }  // namespace discovery
 }  // namespace periph
