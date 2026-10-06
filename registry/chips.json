@@ -229,6 +229,18 @@
       "datasheet": "datasheets/adc_dac/ads1115.pdf"
     },
     {
+      "id": "ads7828",
+      "name": "ADS7828",
+      "category": "adc_dac",
+      "addresses": [
+        "0x48..0x4B"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ads7828.pdf"
+    },
+    {
       "id": "mcp4725",
       "name": "MCP4725",
       "category": "adc_dac",
