@@ -143,7 +143,9 @@ func TestIdentifiesChips(t *testing.T) {
 		{"adxl345", 0x00, 0xE5, 0x53}, {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
 	}
 	for _, tc := range table {
-		if d := one(t, single(tc.addr, map[uint32]byte{tc.reg: tc.value}), false); d.Identified != tc.id {
+		// 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
+		active := tc.addr == 0x28 || tc.addr == 0x29
+		if d := one(t, single(tc.addr, map[uint32]byte{tc.reg: tc.value}), active); d.Identified != tc.id {
 			t.Errorf("%s: identified %q (candidates %v)", tc.id, d.Identified, d.Candidates)
 		}
 	}
@@ -162,16 +164,15 @@ func TestIdentifiesMultiByteAndMaskedRegisters(t *testing.T) {
 		{"ina226", 0x40, map[uint32]byte{0xFF: 0x22, 0x100: 0x60}},
 		{"ina3221", 0x40, map[uint32]byte{0xFF: 0x32, 0x100: 0x20}},
 		{"mcp9808", 0x18, map[uint32]byte{0x07: 0x04, 0x08: 0x01}},
-		{"hmc5883l", 0x1E, map[uint32]byte{0x0A: 0x48, 0x0B: 0x34, 0x0C: 0x33}},
 		{"vl53l1x", 0x29, map[uint32]byte{0x010F: 0xEA, 0x0110: 0xCC}},
 	}
 	for _, tc := range cases {
-		if d := one(t, single(tc.addr, tc.regs), false); d.Identified != tc.id {
+		if d := one(t, single(tc.addr, tc.regs), tc.addr == 0x29); d.Identified != tc.id {
 			t.Errorf("%s: identified %q (candidates %v)", tc.id, d.Identified, d.Candidates)
 		}
 	}
 	b := newBus(single(0x29, map[uint32]byte{0x010F: 0xEA, 0x0110: 0xCC}))
-	if _, err := DiscoverBus(b, registry, false); err != nil {
+	if _, err := DiscoverBus(b, registry, true); err != nil {
 		t.Fatal(err)
 	}
 	wide := false
@@ -283,13 +284,38 @@ func TestFailedIdentityReadIsNoMatch(t *testing.T) {
 	}
 }
 
+// 0x28-0x2F hosts the DS1881, whose command bytes can change a wiper, so
+// probing there needs active mode.
+func TestDS1881WriteSensitiveBlocksProbeAt0x29(t *testing.T) {
+	b := newBus(single(0x29, map[uint32]byte{0xC0: 0xEE}))
+	got, _ := DiscoverBus(b, registry, false)
+	if got[0].Identified != "" || got[0].ProbeSkipped != SkipWriteSensitive || len(b.registerOps) != 0 {
+		t.Errorf("not gated: %+v", got[0])
+	}
+	found := false
+	for _, c := range got[0].Candidates {
+		found = found || c == "ds1881"
+	}
+	if !found {
+		t.Errorf("ds1881 not a candidate: %v", got[0].Candidates)
+	}
+}
+
+// HMC5883L and the LSM303 magnetometer share the identity 0x483433 (known ambiguity).
+func TestHMC5883LAndLSM303MagAreAmbiguous(t *testing.T) {
+	d := one(t, single(0x1E, map[uint32]byte{0x0A: 0x48, 0x0B: 0x34, 0x0C: 0x33}), false)
+	if d.Identified != "" || !reflect.DeepEqual(d.Candidates, []string{"hmc5883l", "lsm303-mag"}) {
+		t.Errorf("%+v", d)
+	}
+}
+
 func TestAliasedBlockMergedOnlyWhenComplete(t *testing.T) {
 	all := map[uint8]map[uint32]byte{}
 	for a := uint8(0x50); a <= 0x57; a++ {
 		all[a] = map[uint32]byte{}
 	}
 	got, _ := DiscoverBus(newBus(all), registry, false)
-	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid"}) ||
+	if len(got) != 1 || got[0].Address != 0x50 || !reflect.DeepEqual(got[0].Candidates, []string{"24aa025uid", "24aa02uid", "mb85rc"}) ||
 		!reflect.DeepEqual(got[0].Aliases, []uint8{0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}) {
 		t.Errorf("merged: %+v", got)
 	}

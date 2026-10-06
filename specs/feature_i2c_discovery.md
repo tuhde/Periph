@@ -286,6 +286,7 @@ Writing a register address to a chip that has **no** register pointer means the 
 | RDA5807M | **No register pointer at all** — writes always start at register `0x02` and the bytes configure the tuner |
 | AHT21 | Command-driven; the first byte is a command. The datasheet defines only `0x71` (read status) and `0xAC` (trigger measurement); behaviour for any other byte is undocumented |
 | ADE7953 | Register addresses are 16 bits; a 1-byte write is an incomplete address frame, and the datasheet does not say how the device recovers |
+| DS1881 (`0x28`–`0x2F`) | No register pointer: every byte after the address is a command byte (`00xxxxxx` sets wiper 0, `01xxxxxx` sets wiper 1, `10xxxxxx` the configuration; only `11xxxxxx` is ignored). Because the range overlaps VL53L0X/VL53L1X (`0x29`) and MFRC522 (`0x28`), those are only identified with `active=True` |
 | NEO-6 (DDC, `0x42`) | Write stream; DDC reads return a byte stream, not register contents |
 
 **Rule (§5.1 step 4):** if *any* candidate at an address is `write_sensitive`, `discover()` does not probe that address unless the caller passes `active=True`. Candidates are still reported.

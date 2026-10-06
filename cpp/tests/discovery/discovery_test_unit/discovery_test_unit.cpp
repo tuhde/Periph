@@ -50,7 +50,7 @@ public:
 };
 
 static DiscoveredDevice only(FakeBus& bus, bool active = false) { return discover(bus, active).at(0); }
-static DiscoveredDevice one(uint8_t addr, Regs regs = Regs()) { FakeBus b; b.with(addr, regs); return only(b); }
+static DiscoveredDevice one(uint8_t addr, Regs regs = Regs(), bool active = false) { FakeBus b; b.with(addr, regs); return only(b, active); }
 
 int main() {
     // --- scan: method per address ---
@@ -97,17 +97,31 @@ int main() {
         {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
     };
     for (const Row& r : rows) {
-        DiscoveredDevice d = one(r.addr, {{r.reg, r.value}});
+        // 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
+        DiscoveredDevice d = one(r.addr, {{r.reg, r.value}}, r.addr == 0x28 || r.addr == 0x29);
         check_true(d.identified == r.id, (std::string("identify_") + r.id).c_str());
     }
     check_true(one(0x52, {{0x00, 0x60}, {0x01, 0x01}}).identified == "ens160", "identify_ens160_little_endian");
     check_true(one(0x40, {{0xFF, 0x22}, {0x100, 0x60}}).identified == "ina226", "identify_ina226_die_id");
     check_true(one(0x40, {{0xFF, 0x32}, {0x100, 0x20}}).identified == "ina3221", "identify_ina3221_die_id");
     check_true(one(0x18, {{0x07, 0x04}, {0x08, 0x01}}).identified == "mcp9808", "identify_mcp9808_masked");
-    check_true(one(0x1E, {{0x0A, 0x48}, {0x0B, 0x34}, {0x0C, 0x33}}).identified == "hmc5883l", "identify_hmc5883l_three_byte_id");
+    {
+        // HMC5883L and the LSM303 magnetometer share the identity 0x483433 (known ambiguity).
+        DiscoveredDevice d = one(0x1E, {{0x0A, 0x48}, {0x0B, 0x34}, {0x0C, 0x33}});
+        check_true(d.identified.empty() && d.candidates == Ids({"hmc5883l", "lsm303-mag"}), "hmc5883l_lsm303_mag_ambiguous");
+    }
+    {
+        // 0x28-0x2F hosts the DS1881, whose command bytes can change a wiper: no probing without active.
+        FakeBus bus; bus.with(0x29, {{0xC0, 0xEE}});
+        DiscoveredDevice d = only(bus);
+        bool hasDs1881 = false;
+        for (auto& c : d.candidates) hasDs1881 = hasDs1881 || c == "ds1881";
+        check_true(d.identified.empty() && d.probeSkipped == ProbeSkipReason::WriteSensitiveCandidate && hasDs1881 &&
+                   bus.registerReads.empty(), "ds1881_write_sensitive_blocks_probe_at_0x29");
+    }
     {
         FakeBus bus; bus.with(0x29, {{0x010F, 0xEA}, {0x0110, 0xCC}});
-        check_true(only(bus).identified == "vl53l1x", "identify_vl53l1x_two_byte_register");
+        check_true(only(bus, true).identified == "vl53l1x", "identify_vl53l1x_two_byte_register");
         bool wide = false;
         for (auto& r : bus.registerReads) wide = wide || r[2] == 2;
         check_true(wide, "vl53l1x_register_sent_as_two_bytes");
@@ -191,7 +205,7 @@ int main() {
         FakeBus bus;
         for (uint8_t a = 0x50; a <= 0x57; a++) bus.with(a);
         std::vector<DiscoveredDevice> devs = discover(bus);
-        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid"}) &&
+        check_true(devs.size() == 1 && devs[0].address == 0x50 && devs[0].candidates == Ids({"24aa025uid", "24aa02uid", "mb85rc"}) &&
                    devs[0].aliases == std::vector<uint8_t>({0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57}), "alias_block_merged");
         FakeBus partial; partial.with(0x50).with(0x51);
         devs = discover(partial);

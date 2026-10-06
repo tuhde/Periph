@@ -96,7 +96,8 @@ async function main() {
         ['l3g4200d', 0x0f, 0xd3, 0x68], ['lps33hw', 0x0f, 0xb1, 0x5c], ['adxl345', 0x00, 0xe5, 0x53],
         ['vl53l0x', 0xc0, 0xee, 0x29], ['mfrc522', 0x37, 0x92, 0x28]];
     for (const [id, reg, value, addr] of table) {
-        d = await only(new FakeBus({ [addr]: { [reg]: value } }));
+        // 0x28-0x2F also hosts the write-sensitive DS1881, so those need active: true.
+        d = await only(new FakeBus({ [addr]: { [reg]: value } }), { active: addr === 0x28 || addr === 0x29 });
         checkTrue('identify_' + id, d.identified === id);
     }
     d = await only(new FakeBus({ 0x52: { 0x00: 0x60, 0x01: 0x01 } }));
@@ -113,11 +114,16 @@ async function main() {
     d = await only(new FakeBus({ 0x18: { 0x07: 0x04, 0x08: 0x01 } }));
     checkTrue('identify_mcp9808_masked', d.identified === 'mcp9808');
     bus = new FakeBus({ 0x29: { 0x010f: 0xea, 0x0110: 0xcc } });
-    d = await only(bus);
+    d = await only(bus, { active: true });
     checkTrue('identify_vl53l1x_two_byte_register', d.identified === 'vl53l1x');
     checkTrue('vl53l1x_register_sent_as_two_bytes', bus.writes.some(([a, b]) => a === 0x29 && b.equals(Buffer.from([0x01, 0x0f]))));
+    bus = new FakeBus({ 0x29: { 0xc0: 0xee } });
+    d = await only(bus);
+    checkTrue('ds1881_write_sensitive_blocks_probe_at_0x29', d.identified === null && d.probeSkippedReason === 'write_sensitive_candidate'
+        && d.candidates.includes('ds1881') && bus.writes.length === 0);
+    // HMC5883L and the LSM303 magnetometer share the identity 0x483433 (known ambiguity).
     d = await only(new FakeBus({ 0x1e: { 0x0a: 0x48, 0x0b: 0x34, 0x0c: 0x33 } }));
-    checkTrue('hmc5883l_three_byte_id', d.identified === 'hmc5883l');
+    checkTrue('hmc5883l_lsm303_mag_ambiguous', d.identified === null && same(d.candidates, ['hmc5883l', 'lsm303-mag']));
     for (const [id, value] of [['apds9960', 0xab], ['apds-9930', 0x39]]) {
         d = await only(new FakeBus({ 0x39: { 0x92: value } }), { active: true });
         checkTrue('identify_' + id + '_active', d.identified === id);
@@ -172,7 +178,7 @@ async function main() {
 
     // --- aliased 24AA02UID ---
     let list = await discover(new FakeBus(addrs([0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57])));
-    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid'])
+    checkTrue('alias_block_merged', list.length === 1 && list[0].address === 0x50 && same(list[0].candidates, ['24aa025uid', '24aa02uid', 'mb85rc'])
         && same(list[0].aliases, [0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57]));
     list = await discover(new FakeBus(addrs([0x50, 0x51])));
     checkTrue('partial_alias_reported_individually', same(list.map(x => x.address), [0x50, 0x51]) && list.every(x => x.aliases.length === 0));

@@ -103,7 +103,8 @@ for chip_id, reg, value, addr in [('bmp280', 0xD0, 0x58, 0x76), ('bme680', 0xD0,
                                    ('l3g4200d', 0x0F, 0xD3, 0x68), ('lps33hw', 0x0F, 0xB1, 0x5C),
                                    ('adxl345', 0x00, 0xE5, 0x53), ('vl53l0x', 0xC0, 0xEE, 0x29),
                                    ('mfrc522', 0x37, 0x92, 0x28)]:
-    d = discover(FakeBus({addr: {reg: value}}))[0]
+    # 0x28-0x2F also hosts the write-sensitive DS1881, so those need active=True.
+    d = discover(FakeBus({addr: {reg: value}}), active=addr in (0x28, 0x29))[0]
     check_true('identify_' + chip_id, d.identified == chip_id)
 
 # multi-byte identity registers
@@ -126,11 +127,16 @@ check_true('apds_skipped_without_active', d.identified is None and d.probe_skipp
 d = discover(FakeBus({0x18: {0x07: 0x04, 0x08: 0x01}}))[0]
 check_true('identify_mcp9808_masked', d.identified == 'mcp9808')
 bus = FakeBus({0x29: {0x010F: 0xEA, 0x0110: 0xCC}})
-d = discover(bus)[0]
+d = discover(bus, active=True)[0]
 check_true('vl53l1x_register_sent_as_two_bytes', (0x29, bytes([0x01, 0x0F])) in bus.writes)
 check_true('identify_vl53l1x_two_byte_register', d.identified == 'vl53l1x')
+bus = FakeBus({0x29: {0xC0: 0xEE}})
+d = discover(bus)[0]
+check_true('ds1881_write_sensitive_blocks_probe_at_0x29', d.identified is None
+           and d.probe_skipped_reason == 'write_sensitive_candidate' and 'ds1881' in d.candidates and not bus.writes)
+# HMC5883L and the LSM303 magnetometer share the identity 0x483433 (known ambiguity).
 d = discover(FakeBus({0x1E: {0x0A: 0x48, 0x0B: 0x34, 0x0C: 0x33}}))[0]
-check_true('hmc5883l_unique_address_with_id', d.identified == 'hmc5883l')
+check_true('hmc5883l_lsm303_mag_ambiguous', d.identified is None and d.candidates == ['hmc5883l', 'lsm303-mag'])
 
 # --- ambiguity is a final answer ---
 d = discover(FakeBus({0x5C: {0x0F: 0xB4}}))[0]
@@ -181,7 +187,7 @@ check_true('failed_read_is_no_match', d.identified is None and d.candidates == [
 # --- aliased 24AA02UID ---
 bus = FakeBus({a: {} for a in range(0x50, 0x58)})
 devs = discover(bus)
-check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa025uid', '24aa02uid']
+check_true('alias_block_merged', len(devs) == 1 and devs[0].address == 0x50 and devs[0].candidates == ['24aa025uid', '24aa02uid', 'mb85rc']
            and devs[0].aliases == list(range(0x51, 0x58)))
 bus = FakeBus({0x50: {}, 0x51: {}})
 devs = discover(bus)
