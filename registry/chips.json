@@ -125,7 +125,7 @@
       "name": "AD5243",
       "category": "adc_dac",
       "addresses": [
-        "0x2C"
+        "0x2F"
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
@@ -143,6 +143,18 @@
       "probe_safety": "write_sensitive",
       "driver": null,
       "datasheet": "datasheets/adc_dac/ad5243.pdf"
+    },
+    {
+      "id": "cat5171",
+      "name": "CAT5171",
+      "category": "adc_dac",
+      "addresses": [
+        "0x2C..0x2D"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/cat5171.pdf"
     },
     {
       "id": "ads1013",
