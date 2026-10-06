@@ -15,10 +15,11 @@ class I2CConnection extends RegisterConnection {
      * @param {number} addr      - 7-bit device address.
      * @param {import('./input_pin').InputPin|null} [intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      * @param {number} [regBytes=1] - Register address width in bytes, big-endian.
      */
-    constructor(busNumber, addr, intPin = null, enPin = null, regBytes = 1) {
-        super(intPin, enPin, regBytes);
+    constructor(busNumber, addr, intPin = null, enPin = null, regBytes = 1, enActiveHigh = true) {
+        super(intPin, enPin, regBytes, enActiveHigh);
         this._bus = i2c.openSync(busNumber);
         this._addr = addr;
     }

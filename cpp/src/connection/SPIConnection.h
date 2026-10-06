@@ -18,6 +18,7 @@
  *                      auto-increments. Default 0.
  * @param intPin        Optional InputPin for INT-line delivery.
  * @param enPin         Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SPIConnection : public RegisterConnection {
 public:
@@ -30,8 +31,8 @@ public:
 
     SPIConnection(SPIClass& bus, uint8_t cs_pin, SPISettings settings,
                   uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
-                  InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _bus(bus), _cs_pin(cs_pin), _settings(settings),
+                  InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, 1, enActiveHigh), _bus(bus), _cs_pin(cs_pin), _settings(settings),
           _readBit(readBit), _multiByteBit(multiByteBit) {
         pinMode(_cs_pin, OUTPUT);
         digitalWrite(_cs_pin, HIGH);

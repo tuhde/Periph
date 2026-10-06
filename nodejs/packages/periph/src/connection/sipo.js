@@ -32,6 +32,7 @@ class SiPoConnection {
      * @param {object} [options.serIn] - Software mode: opengpio Output instance for SER IN.
      * @param {object} [options.srck] - Software mode: opengpio Output instance for SRCK.
      * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [options.enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      */
     constructor(rck, options = {}) {
         const hardware = options.busNumber !== undefined;
@@ -47,6 +48,7 @@ class SiPoConnection {
         this._serIn = options.serIn ?? null;
         this._srck = options.srck ?? null;
         this.enPin = options.enPin ?? null;
+        this.enActiveHigh = options.enActiveHigh ?? true;
         this._enabled = true;
 
         if (hardware) {
@@ -68,7 +70,7 @@ class SiPoConnection {
      */
     async enable() {
         this._enabled = true;
-        if (this.enPin) await this.enPin.set(true);
+        if (this.enPin) await this.enPin.set(this.enActiveHigh);
     }
 
     /** Gate write()/clear()/setOutputEnable(); drives the hardware EN pin low if wired.
@@ -76,7 +78,7 @@ class SiPoConnection {
      */
     async disable() {
         this._enabled = false;
-        if (this.enPin) await this.enPin.set(false);
+        if (this.enPin) await this.enPin.set(!this.enActiveHigh);
     }
 
     /** @returns {boolean} The current software-gate state. */

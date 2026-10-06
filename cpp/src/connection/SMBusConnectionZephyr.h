@@ -17,13 +17,14 @@
  * @param pec    Enable Packet Error Code (CRC-8) checking (default false).
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SMBusConnectionZephyr : public RegisterConnection {
 public:
     SMBusConnectionZephyr(const struct device *dev, uint8_t addr, bool pec = false,
                           InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                          uint8_t regBytes = 1)
-        : RegisterConnection(intPin, enPin, regBytes), _dev(dev), _addr(addr), _pec(pec) {
+                          uint8_t regBytes = 1, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _dev(dev), _addr(addr), _pec(pec) {
         if (addr < 0x08 || addr > 0x77) _valid = false;
     }
 

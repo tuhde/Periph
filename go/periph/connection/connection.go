@@ -26,10 +26,11 @@ type Connection interface {
 	// Close releases the bus. After Close, the connection must not be reused.
 	Close() error
 
-	// Enable resumes bus access, driving the EN pin high if wired.
+	// Enable resumes bus access, asserting the EN pin if wired (high by
+	// default; low after SetEnActiveHigh(false) on the concrete type).
 	Enable()
 	// Disable gates all bus access — reads return zeros, writes are dropped
-	// — and drives the EN pin low if wired.
+	// — and de-asserts the EN pin if wired.
 	Disable()
 	// IsEnabled returns the current software-gate state.
 	IsEnabled() bool
@@ -83,22 +84,32 @@ type connectionBase struct {
 	intPin InputPin  // nil if unused
 	enPin  OutputPin // nil if unused
 
-	disabled bool // zero value = enabled
+	disabled    bool // zero value = enabled
+	enActiveLow bool // zero value = active-high EN pin
 }
 
-// Enable resumes bus access and drives EnPin high if wired.
+// SetEnActiveHigh selects the EN pin polarity: true (the default) for an
+// active-high enable, false for an active-low one (SHDN, PD, OE, ...).
+// Call it once after construction, before Enable/Disable. Go has no default
+// arguments, so this is a setter instead of an extra constructor parameter
+// — the concrete connection types return pointers, so
+// c.SetEnActiveHigh(false) works directly on whatever a NewXConnection
+// returned.
+func (b *connectionBase) SetEnActiveHigh(activeHigh bool) { b.enActiveLow = !activeHigh }
+
+// Enable resumes bus access and asserts EnPin if wired.
 func (b *connectionBase) Enable() {
 	b.disabled = false
 	if b.enPin != nil {
-		_ = b.enPin.Set(true)
+		_ = b.enPin.Set(!b.enActiveLow)
 	}
 }
 
-// Disable gates all bus access and drives EnPin low if wired.
+// Disable gates all bus access and de-asserts EnPin if wired.
 func (b *connectionBase) Disable() {
 	b.disabled = true
 	if b.enPin != nil {
-		_ = b.enPin.Set(false)
+		_ = b.enPin.Set(b.enActiveLow)
 	}
 }
 

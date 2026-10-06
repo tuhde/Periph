@@ -6,14 +6,15 @@ try:
 
     _DHTxxConnection_base = DHTxxConnection
 
-    def DHTxxConnection(pin, en_pin=None):
+    def DHTxxConnection(pin, en_pin=None, en_active_high=True):
         """Create a DHTxx connection for MicroPython.
 
         Args:
             pin: GPIO pin number for the DATA line.
             en_pin: Optional OutputPin for hardware enable/power control.
+            en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
-        return _DHTxxConnection_base(_Pin(pin, _Pin.IN), en_pin=en_pin)
+        return _DHTxxConnection_base(_Pin(pin, _Pin.IN), en_pin=en_pin, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -21,19 +22,20 @@ except ImportError:
         import board as _board
         from .dhtxx_circuitpython import DHTxxConnection as _DHTxxConnection
 
-        def DHTxxConnection(pin, en_pin=None):
+        def DHTxxConnection(pin, en_pin=None, en_active_high=True):
             """Create a DHTxx connection for CircuitPython.
 
             Args:
                 pin: Integer pin number (mapped to board.D{n}) or board pin object.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if isinstance(pin, int):
                 p = _digitalio.DigitalInOut(getattr(_board, f'D{pin}'))
                 p.direction = _digitalio.Direction.INPUT
             else:
                 p = pin
-            return _DHTxxConnection(p, en_pin=en_pin)
+            return _DHTxxConnection(p, en_pin=en_pin, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -43,14 +45,15 @@ except ImportError:
             from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'gpiod', 'gpiod', 'DHTxx on Linux')
 
-        def DHTxxConnection(pin, chip_num=None, en_pin=None):
+        def DHTxxConnection(pin, chip_num=None, en_pin=None, en_active_high=True):
             """Create a DHTxx connection for Linux (gpiod v2).
 
             Args:
                 pin:      GPIO line offset for the DATA line.
                 chip_num: GPIO chip number; defaults to LINUX_GPIO_CHIP env var (int), then 0.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if chip_num is None:
                 chip_num = int(os.environ.get('LINUX_GPIO_CHIP', '0'))
-            return _DHTxxConnection(chip_num, pin, en_pin=en_pin)
+            return _DHTxxConnection(chip_num, pin, en_pin=en_pin, en_active_high=en_active_high)

@@ -32,6 +32,7 @@
  *                     auto-increments. Default 0.
  * @param intPin       Optional InputPin for INT-line delivery.
  * @param enPin        Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SPIConnectionPicoSDK : public RegisterConnection {
 public:
@@ -43,8 +44,8 @@ public:
     using RegisterConnection::write;
 
     SPIConnectionPicoSDK(spi_inst_t* spi, uint cs, uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
-                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _spi(spi), _cs(cs),
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, 1, enActiveHigh), _spi(spi), _cs(cs),
           _readBit(readBit), _multiByteBit(multiByteBit)
     {
         gpio_init(_cs);

@@ -135,24 +135,28 @@ no-ops returning zeros); de-asserts the hardware EN pin if wired (low when
 
 Chips differ: most EN / CE / PWDN pins are active-high (VL53L0X XSHUT is "high = enabled"),
 but many are active-low (`SHDN`, `PD`, `G`, `OE`, `STANDBY`). Every `Connection`
-therefore takes an optional **`en_active_high`** argument, default `true`, directly after
-`en_pin`:
+therefore supports an **`en_active_high`** option, default `true`. Where the language has
+default arguments it is an optional trailing constructor argument (trailing, not directly
+after `en_pin`, so existing positional callers such as `reg_bytes` are unaffected); where
+it does not (Go, JVM) it is a setter on the concrete connection:
 
 | Language | Form |
 |----------|------|
-| Python | `en_active_high: bool = True` (keyword, after `en_pin`) |
-| C++ | `bool enActiveHigh = true` (after `OutputPin* enPin`) |
-| Node.js | `enActiveHigh = true` (after `enPin`) |
-| JVM | overload with `boolean enActiveHigh`; existing constructors delegate with `true` |
-| Go | `EnActiveLow bool` field on `connectionBase` (zero value = active-high); constructors take `enActiveHigh bool` after `enPin` |
+| Python | `en_active_high: bool = True` (last keyword argument) |
+| C++ | `bool enActiveHigh = true` (last constructor argument) |
+| Node.js | `enActiveHigh = true` (last argument; `options.enActiveHigh` where the constructor takes an options object) |
+| JVM | `setEnActiveHigh(boolean)` on `AbstractConnection` / `DHTxxConnection`, returns the connection; no constructor overload changes (Kotlin/Groovy use the Java connections) |
+| Go | `SetEnActiveHigh(bool)` on `connectionBase` (so on every concrete connection); zero value = active-high; constructors unchanged |
 | Rust | n/a — callers drive the pin directly (see §4.5) |
+
+C++ HX711/DHTxx/SiPo connections have no EN pin (software gate only) and are unchanged.
 
 `enable()` drives the pin to the *asserted* level (`en_active_high`), `disable()` to the
 opposite. The pin is not driven until `enable()`/`disable()` is first called, so the
 caller (or the chip's init sequence) is responsible for the initial level; polarity never
 affects the software gate. Chip specs must state the pin's **native** polarity in
 `## Pin Configuration` and use `en_pin` for it regardless — they must not say an active-low
-enable "cannot be processed"; the user sets `en_active_high=False` at construction.
+enable "cannot be processed"; the user sets `en_active_high=False` (or calls the setter) when configuring the connection.
 
 ---
 
@@ -633,13 +637,12 @@ package it.uhde.periph.connection;
 public abstract class AbstractConnection implements Connection {
     private final InputPin  intPin;
     private final OutputPin enPin;
-    private final boolean enActiveHigh;
+    private volatile boolean enActiveHigh = true;   // see setEnActiveHigh()
     private volatile boolean enabled = true;
 
-    protected AbstractConnection(InputPin intPin, OutputPin enPin, boolean enActiveHigh) {
+    protected AbstractConnection(InputPin intPin, OutputPin enPin) {
         this.intPin = intPin;
         this.enPin  = enPin;
-        this.enActiveHigh = enActiveHigh;
     }
 
     @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(enActiveHigh);  }
@@ -669,8 +672,8 @@ Concrete example (`I2CConnection.java`, was `I2CTransport.java`):
 package it.uhde.periph.connection;
 
 public final class I2CConnection extends AbstractConnection {   // was: implements Transport
-    public I2CConnection(int bus, int addr, InputPin intPin, OutputPin enPin, boolean enActiveHigh) {
-        super(intPin, enPin, enActiveHigh);
+    public I2CConnection(int bus, int addr, InputPin intPin, OutputPin enPin) {
+        super(intPin, enPin);
         // ... open /dev/i2c-<bus> via FFM, as today
     }
 
@@ -707,7 +710,7 @@ type Connection interface {    // was: type Transport interface
 type connectionBase struct {
     IntPin   InputPin  // nil if unused
     EnPin    OutputPin // nil if unused
-    EnActiveLow bool   // zero value = active-high EN
+    EnActiveLow bool   // zero value = active-high EN; set via SetEnActiveHigh(bool)
     disabled bool       // zero value = enabled
 }
 
@@ -737,9 +740,9 @@ type I2CConnection struct {    // was: type I2CTransport struct
     addr uint8
 }
 
-func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin, enActiveHigh bool) (*I2CConnection, error) {
+func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
     // was: func NewI2CTransport(bus int, addr uint8) (*I2CTransport, error)
-    c := &I2CConnection{connectionBase: connectionBase{IntPin: intPin, EnPin: enPin, EnActiveLow: !enActiveHigh}, addr: addr}
+    c := &I2CConnection{connectionBase: connectionBase{IntPin: intPin, EnPin: enPin}, addr: addr}
     // ... open /dev/i2c-<bus>, as today
     return c, nil
 }

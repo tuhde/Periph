@@ -24,10 +24,11 @@ class NeoPixelConnection(Connection):
         bus_num: SPI bus number (opens /dev/spidevBUS.DEVICE).
         device_num: Chip-select line on the bus.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
-    def __init__(self, bus_num, device_num, en_pin=None):
-        super().__init__(en_pin=en_pin)
+    def __init__(self, bus_num, device_num, en_pin=None, en_active_high=True):
+        super().__init__(en_pin=en_pin, en_active_high=en_active_high)
         self._spi = spidev.SpiDev()
         self._spi.open(bus_num, device_num)
         self._spi.mode = 0

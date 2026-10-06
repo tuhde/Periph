@@ -20,11 +20,12 @@ class SPIConnection(RegisterConnection):
             auto-increments. Default None.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
     def __init__(self, bus, cs, baudrate=1_000_000, polarity=0, phase=0,
-                 read_bit=0x80, multi_byte_bit=None, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+                 read_bit=0x80, multi_byte_bit=None, int_pin=None, en_pin=None, en_active_high=True):
+        super().__init__(int_pin, en_pin, en_active_high=en_active_high)
         self._bus = bus
         self._cs = cs
         self._baudrate = baudrate

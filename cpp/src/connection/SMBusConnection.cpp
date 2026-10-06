@@ -1,8 +1,8 @@
 #include "SMBusConnection.h"
 
 SMBusConnection::SMBusConnection(TwoWire& bus, uint8_t addr, bool pec,
-                                  InputPin* intPin, OutputPin* enPin, uint8_t regBytes)
-    : RegisterConnection(intPin, enPin, regBytes), _bus(bus), _addr(addr), _pec(pec) {
+                                  InputPin* intPin, OutputPin* enPin, uint8_t regBytes, bool enActiveHigh)
+    : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _bus(bus), _addr(addr), _pec(pec) {
     if (addr < 0x08 || addr > 0x77) _valid = false;
 }
 

@@ -19,6 +19,7 @@
  *                     auto-increments. Default 0.
  * @param intPin       Optional InputPin for INT-line delivery.
  * @param enPin        Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SPIConnectionLinux : public RegisterConnection {
 public:
@@ -32,7 +33,7 @@ public:
     SPIConnectionLinux(int bus_num, int device_num,
                        uint8_t mode = 0, uint32_t max_speed_hz = 1000000,
                        uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
-                       InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+                       InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true);
     ~SPIConnectionLinux();
 
     /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */

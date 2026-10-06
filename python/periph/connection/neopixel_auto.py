@@ -5,7 +5,7 @@ try:
     from .neopixel_micropython import NeoPixelConnection as _NeoPixelConnection
 
     def NeoPixelConnection(mosi, sck=None, miso=None, baudrate=2_400_000, spi_id=None,
-                           en_pin=None):
+                           en_pin=None, en_active_high=True):
         """Create a NeoPixel connection for MicroPython.
 
         Args:
@@ -16,6 +16,7 @@ try:
             spi_id:   Hardware SPI peripheral id. If given, uses machine.SPI(spi_id)
                       and mosi/sck/miso are ignored.
             en_pin: Optional OutputPin for hardware enable/power control.
+            en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
         if spi_id is not None:
             spi = _machine.SPI(spi_id, baudrate=baudrate, polarity=0, phase=0)
@@ -26,7 +27,7 @@ try:
                 mosi=_machine.Pin(mosi),
                 miso=_machine.Pin(miso if miso is not None else mosi + 1),
             )
-        return _NeoPixelConnection(spi, en_pin=en_pin)
+        return _NeoPixelConnection(spi, en_pin=en_pin, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -35,7 +36,7 @@ except ImportError:
         from .neopixel_circuitpython import NeoPixelConnection as _NeoPixelConnection
 
         def NeoPixelConnection(mosi=None, sck=None, miso=None, baudrate=2_400_000, spi_id=None,
-                               en_pin=None):
+                               en_pin=None, en_active_high=True):
             """Create a NeoPixel connection for CircuitPython.
 
             Args:
@@ -45,6 +46,7 @@ except ImportError:
                 baudrate: SPI clock frequency (default 2 400 000).
                 spi_id:   Ignored (CircuitPython uses board pins).
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             spi = _busio.SPI(
                 sck if sck is not None else _board.SCK,
@@ -53,7 +55,7 @@ except ImportError:
             spi.try_lock()
             spi.configure(baudrate=baudrate, polarity=0, phase=0)
             spi.unlock()
-            return _NeoPixelConnection(spi, en_pin=en_pin)
+            return _NeoPixelConnection(spi, en_pin=en_pin, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -63,7 +65,7 @@ except ImportError:
             linux_pip_hint(exc, 'spidev', 'spidev', 'NeoPixel on Linux')
 
         def NeoPixelConnection(mosi=None, sck=None, miso=None, baudrate=2_400_000, spi_id=None,
-                               bus=None, device=None, en_pin=None):
+                               bus=None, device=None, en_pin=None, en_active_high=True):
             """Create a NeoPixel connection for Linux (spidev).
 
             Args:
@@ -71,9 +73,10 @@ except ImportError:
                 device: SPI device number; defaults to LINUX_SPI_DEVICE env var, then 0.
                 mosi, sck, miso, baudrate, spi_id: Ignored (Linux uses spidev).
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if bus is None:
                 bus = int(os.environ.get('LINUX_SPI_BUS', '0'))
             if device is None:
                 device = int(os.environ.get('LINUX_SPI_DEVICE', '0'))
-            return _NeoPixelConnection(bus, device, en_pin=en_pin)
+            return _NeoPixelConnection(bus, device, en_pin=en_pin, en_active_high=en_active_high)

@@ -13,14 +13,29 @@ public abstract class AbstractConnection implements Connection {
     private final InputPin  intPin;
     private final OutputPin enPin;
     private volatile boolean enabled = true;
+    private volatile boolean enActiveHigh = true;
 
     protected AbstractConnection(InputPin intPin, OutputPin enPin) {
         this.intPin = intPin;
         this.enPin  = enPin;
     }
 
-    @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(true);  }
-    @Override public void disable() { enabled = false; if (enPin != null) enPin.set(false); }
+    /**
+     * Select the EN-pin polarity: {@code true} (the default) for an active-high
+     * enable, {@code false} for an active-low one (SHDN, PD, OE, ...). Call once
+     * after construction, before {@link #enable()} / {@link #disable()}. A setter
+     * rather than a constructor argument so no existing constructor overload changes.
+     *
+     * @param activeHigh true if the EN pin is active-high
+     * @return this connection, for chaining
+     */
+    public AbstractConnection setEnActiveHigh(boolean activeHigh) {
+        this.enActiveHigh = activeHigh;
+        return this;
+    }
+
+    @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(enActiveHigh);  }
+    @Override public void disable() { enabled = false; if (enPin != null) enPin.set(!enActiveHigh); }
     @Override public boolean isEnabled() { return enabled; }
     @Override public InputPin  intPin() { return intPin; }
     @Override public OutputPin enPin()  { return enPin;  }

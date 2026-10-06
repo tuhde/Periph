@@ -10,11 +10,12 @@
  * @param bus    SPIClass instance to use (e.g., the global ::SPI).
  * @param intPin Optional InputPin (unused by NeoPixel; kept for API uniformity).
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class NeoPixelConnection : public Connection {
 public:
-    NeoPixelConnection(SPIClass& bus, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _bus(bus) {}
+    NeoPixelConnection(SPIClass& bus, InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _bus(bus) {}
 
 protected:
     /** @brief Encode and transmit pixel data, then hold MOSI low for reset.

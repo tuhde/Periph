@@ -13,12 +13,13 @@
  * @param de_pin DE pin number for RS-485 direction control; -1 disables RS-485.
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class UARTConnection : public Connection {
 public:
     UARTConnection(HardwareSerial& serial, int de_pin = -1,
-                   InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _serial(serial), _de_pin(de_pin)
+                   InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _serial(serial), _de_pin(de_pin)
     {
         if (_de_pin >= 0) {
             pinMode(_de_pin, OUTPUT);

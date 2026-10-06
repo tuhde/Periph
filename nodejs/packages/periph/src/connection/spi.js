@@ -23,9 +23,10 @@ class SPIConnection extends RegisterConnection {
      *   always auto-increments.
      * @param {import('./input_pin').InputPin|null} [options.intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [options.enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [options.enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      */
     constructor(busNumber, deviceNumber, options = {}) {
-        super(options.intPin ?? null, options.enPin ?? null);
+        super(options.intPin ?? null, options.enPin ?? null, options.enActiveHigh ?? true);
         this._device = spi.openSync(busNumber, deviceNumber, {
             mode: options.mode ?? spi.MODE0,
             maxSpeedHz: options.maxSpeedHz ?? 1_000_000,

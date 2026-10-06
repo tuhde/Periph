@@ -34,11 +34,12 @@ class SiPoConnection:
         srclr_offset: GPIO line offset for SRCLR; None (default) disables it.
         g_offset: GPIO line offset for G (output enable); None (default) disables it.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
     def __init__(self, gpio_request, rck_offset, bus_num=None, device_num=None,
                  max_speed_hz=1_000_000, ser_in_offset=None, srck_offset=None,
-                 srclr_offset=None, g_offset=None, en_pin=None):
+                 srclr_offset=None, g_offset=None, en_pin=None, en_active_high=True):
         hardware = bus_num is not None
         software = ser_in_offset is not None
         if hardware == software:
@@ -52,6 +53,7 @@ class SiPoConnection:
         self._ser_in = ser_in_offset
         self._srck = srck_offset
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
 
         if hardware:
@@ -69,16 +71,16 @@ class SiPoConnection:
             self._gpio.set_value(self._g, Value.INACTIVE)
 
     def enable(self):
-        """Resume writes; drives the hardware EN pin high if wired."""
+        """Resume writes; asserts the hardware EN pin if wired."""
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
-        """Gate write(); drives the hardware EN pin low if wired."""
+        """Gate write(); de-asserts the hardware EN pin if wired."""
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self):
         """Return the current software-gate state.

@@ -28,12 +28,13 @@
  *               `i2c_master_bus_add_device()`.
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class I2CConnectionESPIDF : public RegisterConnection {
 public:
     I2CConnectionESPIDF(i2c_master_dev_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                        uint8_t regBytes = 1)
-        : RegisterConnection(intPin, enPin, regBytes), _dev(dev) {}
+                        uint8_t regBytes = 1, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _dev(dev) {}
 
 protected:
     /** @brief Send bytes to the device via `i2c_master_transmit`.

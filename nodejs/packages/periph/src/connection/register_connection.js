@@ -21,10 +21,11 @@ class RegisterConnection extends Connection {
     /**
      * @param {import('./input_pin').InputPin|null} [intPin=null] - Optional INT-line InputPin.
      * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      * @param {number} [regBytes=1] - Register address width in bytes, big-endian.
      */
-    constructor(intPin = null, enPin = null, regBytes = 1) {
-        super(intPin, enPin);
+    constructor(intPin = null, enPin = null, regBytes = 1, enActiveHigh = true) {
+        super(intPin, enPin, enActiveHigh);
         this._regBytes = regBytes;
     }
 

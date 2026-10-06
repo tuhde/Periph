@@ -24,14 +24,15 @@ class SMBusConnection(RegisterConnection):
         pec: Enable Packet Error Code (CRC-8) checking (default False).
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
         reg_bytes: Register address width in bytes, big-endian (default 1).
 
     Raises:
         ValueError: If addr is outside the valid SMBus range.
     """
 
-    def __init__(self, bus, addr, pec=False, int_pin=None, en_pin=None, reg_bytes=1):
-        super().__init__(int_pin, en_pin, reg_bytes)
+    def __init__(self, bus, addr, pec=False, int_pin=None, en_pin=None, reg_bytes=1, en_active_high=True):
+        super().__init__(int_pin, en_pin, reg_bytes, en_active_high)
         if not (0x08 <= addr <= 0x77):
             raise ValueError("SMBus address must be in range 0x08-0x77")
         self._bus = bus

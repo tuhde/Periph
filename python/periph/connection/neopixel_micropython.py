@@ -22,10 +22,11 @@ class NeoPixelConnection(Connection):
     Args:
         spi: Configured machine.SPI or machine.SoftSPI instance.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
-    def __init__(self, spi, en_pin=None):
-        super().__init__(en_pin=en_pin)
+    def __init__(self, spi, en_pin=None, en_active_high=True):
+        super().__init__(en_pin=en_pin, en_active_high=en_active_high)
         self._spi = spi
 
     def _write(self, data):

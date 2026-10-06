@@ -29,13 +29,14 @@
  *               (port == NULL) disables RS-485 mode.
  * @param intPin  Optional InputPin for INT-line delivery.
  * @param enPin   Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class UARTConnectionZephyr : public Connection {
 public:
     UARTConnectionZephyr(const struct device* dev,
                          const struct gpio_dt_spec& de_gpio = {},
-                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev), _de_gpio(de_gpio)
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _dev(dev), _de_gpio(de_gpio)
     {
         k_sem_init(&_tx_done, 0, 1);
         uart_irq_callback_user_data_set(_dev, _uart_isr, this);

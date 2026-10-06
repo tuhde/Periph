@@ -44,6 +44,14 @@ func (s *SMBusConnection) Enable() { s.c.Enable() }
 // Disable delegates to the wrapped Connection.
 func (s *SMBusConnection) Disable() { s.c.Disable() }
 
+// SetEnActiveHigh delegates to the wrapped Connection when it supports EN
+// polarity (every concrete connection in this package does).
+func (s *SMBusConnection) SetEnActiveHigh(activeHigh bool) {
+	if p, ok := s.c.(interface{ SetEnActiveHigh(bool) }); ok {
+		p.SetEnActiveHigh(activeHigh)
+	}
+}
+
 // IsEnabled delegates to the wrapped Connection.
 func (s *SMBusConnection) IsEnabled() bool { return s.c.IsEnabled() }
 

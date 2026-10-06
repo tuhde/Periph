@@ -26,6 +26,7 @@
  * @param de_pin_num GPIO line number for RS-485 DE (active high); -1 disables.
  * @param intPin     Optional InputPin for INT-line delivery.
  * @param enPin      Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class UARTConnectionLinux : public Connection {
 public:
@@ -37,7 +38,7 @@ public:
                         int timeout_ms  = 1000,
                         int de_pin_num  = -1,
                         InputPin* intPin = nullptr,
-                        OutputPin* enPin = nullptr);
+                        OutputPin* enPin = nullptr, bool enActiveHigh = true);
     ~UARTConnectionLinux();
 
     /** @brief Number of bytes currently buffered in the kernel RX buffer,

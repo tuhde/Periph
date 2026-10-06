@@ -12,8 +12,8 @@
 SPIConnectionLinux::SPIConnectionLinux(int bus_num, int device_num,
                                        uint8_t mode, uint32_t max_speed_hz,
                                        uint8_t readBit, uint8_t multiByteBit,
-                                       InputPin* intPin, OutputPin* enPin)
-    : RegisterConnection(intPin, enPin), _speed_hz(max_speed_hz),
+                                       InputPin* intPin, OutputPin* enPin, bool enActiveHigh)
+    : RegisterConnection(intPin, enPin, 1, enActiveHigh), _speed_hz(max_speed_hz),
       _readBit(readBit), _multiByteBit(multiByteBit)
 {
     char path[32];

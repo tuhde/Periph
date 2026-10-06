@@ -10,8 +10,8 @@
 #include <string>
 
 NeoPixelConnectionLinux::NeoPixelConnectionLinux(int bus_num, int device_num,
-                                                  InputPin* intPin, OutputPin* enPin)
-    : Connection(intPin, enPin), _speed_hz(2400000)
+                                                  InputPin* intPin, OutputPin* enPin, bool enActiveHigh)
+    : Connection(intPin, enPin, enActiveHigh), _speed_hz(2400000)
 {
     char path[32];
     snprintf(path, sizeof(path), "/dev/spidev%d.%d", bus_num, device_num);

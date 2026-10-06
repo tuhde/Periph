@@ -27,12 +27,13 @@ class UARTConnection(Connection):
             high). Enables RS-485 mode when set; default None.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
     def __init__(self, port, baudrate=9600, data_bits=8, stop_bits=1,
                  parity='N', timeout_s=1.0, de_pin_num=None,
-                 int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+                 int_pin=None, en_pin=None, en_active_high=True):
+        super().__init__(int_pin, en_pin, en_active_high=en_active_high)
         stopbits_map = {1: serial.STOPBITS_ONE, 1.5: serial.STOPBITS_ONE_POINT_FIVE,
                         2: serial.STOPBITS_TWO}
         parity_map = {'N': serial.PARITY_NONE, 'E': serial.PARITY_EVEN,

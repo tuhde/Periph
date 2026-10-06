@@ -11,7 +11,7 @@ try:
     from machine import I2C as _MachineI2C
     from .smbus_micropython import SMBusConnection as _SMBusConnection
 
-    def SMBusConnection(addr, bus=0, pec=False, freq=400_000, int_pin=None, en_pin=None):
+    def SMBusConnection(addr, bus=0, pec=False, freq=400_000, int_pin=None, en_pin=None, en_active_high=True):
         """Create an SMBus connection for MicroPython.
 
         Args:
@@ -21,10 +21,11 @@ try:
             freq: Bus frequency in Hz (default 400_000).
             int_pin: Optional InputPin for INT-line delivery.
             en_pin: Optional OutputPin for hardware enable/power control.
+            en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
         _validate(addr)
         return _SMBusConnection(_MachineI2C(bus, freq=freq), addr, pec=pec,
-                                int_pin=int_pin, en_pin=en_pin)
+                                int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -32,7 +33,7 @@ except ImportError:
         import busio as _busio
         from .smbus_circuitpython import SMBusConnection as _SMBusConnection
 
-        def SMBusConnection(addr, bus=None, pec=False, freq=400_000, int_pin=None, en_pin=None):
+        def SMBusConnection(addr, bus=None, pec=False, freq=400_000, int_pin=None, en_pin=None, en_active_high=True):
             """Create an SMBus connection for CircuitPython.
 
             Args:
@@ -42,11 +43,12 @@ except ImportError:
                 freq: Bus frequency in Hz (default 400_000); ignored if bus is provided.
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             _validate(addr)
             if bus is None:
                 bus = _busio.I2C(_board.SCL, _board.SDA, frequency=freq)
-            return _SMBusConnection(bus, addr, pec=pec, int_pin=int_pin, en_pin=en_pin)
+            return _SMBusConnection(bus, addr, pec=pec, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -55,7 +57,7 @@ except ImportError:
             from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'smbus2', 'smbus2', 'SMBus on Linux')
 
-        def SMBusConnection(addr, bus=None, pec=False, freq=None, int_pin=None, en_pin=None):
+        def SMBusConnection(addr, bus=None, pec=False, freq=None, int_pin=None, en_pin=None, en_active_high=True):
             """Create an SMBus connection for Linux.
 
             Args:
@@ -65,8 +67,9 @@ except ImportError:
                 freq: Ignored (kernel-controlled).
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             _validate(addr)
             if bus is None:
                 bus = int(os.environ.get('LINUX_I2C_BUS', '1'))
-            return _SMBusConnection(bus, addr, pec=pec, int_pin=int_pin, en_pin=en_pin)
+            return _SMBusConnection(bus, addr, pec=pec, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
