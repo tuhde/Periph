@@ -157,6 +157,18 @@
       "datasheet": "datasheets/adc_dac/cat5171.pdf"
     },
     {
+      "id": "ds1881",
+      "name": "DS1881",
+      "category": "adc_dac",
+      "addresses": [
+        "0x28..0x2F"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/adc_dac/ds1881.pdf"
+    },
+    {
       "id": "ads1013",
       "name": "ADS1013",
       "category": "adc_dac",
