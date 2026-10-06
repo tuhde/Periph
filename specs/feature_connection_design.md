@@ -122,13 +122,37 @@ These live on the chip driver and delegate to `Connection`:
 | Turn chip off | `disable` | `disable` / `disable` |
 | Query state | `is_enabled` | `is_enabled` / `isEnabled` |
 
-**`enable()`** — resumes bus access; drives the hardware EN pin high (or asserts it,
-respecting polarity) if one is wired.
+**`enable()`** — resumes bus access; asserts the hardware EN pin if one is wired
+(drives it high when `en_active_high` is true, low when false — see §3.3).
 
 **`disable()`** — gates all subsequent bus reads and writes (they silently become
-no-ops returning zeros); drives the hardware EN pin low (or de-asserts it) if wired.
+no-ops returning zeros); de-asserts the hardware EN pin if wired (low when
+`en_active_high` is true, high when false).
 
 **`is_enabled()`** — returns the current software-gate state.
+
+### 3.3 EN pin polarity
+
+Chips differ: most EN / CE / PWDN pins are active-high (VL53L0X XSHUT is "high = enabled"),
+but many are active-low (`SHDN`, `PD`, `G`, `OE`, `STANDBY`). Every `Connection`
+therefore takes an optional **`en_active_high`** argument, default `true`, directly after
+`en_pin`:
+
+| Language | Form |
+|----------|------|
+| Python | `en_active_high: bool = True` (keyword, after `en_pin`) |
+| C++ | `bool enActiveHigh = true` (after `OutputPin* enPin`) |
+| Node.js | `enActiveHigh = true` (after `enPin`) |
+| JVM | overload with `boolean enActiveHigh`; existing constructors delegate with `true` |
+| Go | `EnActiveLow bool` field on `connectionBase` (zero value = active-high); constructors take `enActiveHigh bool` after `enPin` |
+| Rust | n/a — callers drive the pin directly (see §4.5) |
+
+`enable()` drives the pin to the *asserted* level (`en_active_high`), `disable()` to the
+opposite. The pin is not driven until `enable()`/`disable()` is first called, so the
+caller (or the chip's init sequence) is responsible for the initial level; polarity never
+affects the software gate. Chip specs must state the pin's **native** polarity in
+`## Pin Configuration` and use `en_pin` for it regardless — they must not say an active-low
+enable "cannot be processed"; the user sets `en_active_high=False` at construction.
 
 ---
 
@@ -222,20 +246,22 @@ class Connection(ABC):
     """Base class for all bus connections. One instance represents one device
     on a bus, plus its optional INT pin, EN pin, and software enable gate."""
 
-    def __init__(self, int_pin: InputPin | None = None, en_pin: OutputPin | None = None):
+    def __init__(self, int_pin: InputPin | None = None, en_pin: OutputPin | None = None,
+                 en_active_high: bool = True):
         self.int_pin = int_pin
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
 
     def enable(self):
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self) -> bool:
         return self._enabled
@@ -273,8 +299,8 @@ from smbus2 import SMBus, i2c_msg
 from .base import Connection
 
 class I2CConnection(Connection):     # was: class I2CTransport(Transport)
-    def __init__(self, bus, addr, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+    def __init__(self, bus, addr, int_pin=None, en_pin=None, en_active_high=True):
+        super().__init__(int_pin, en_pin, en_active_high)
         if isinstance(bus, int):
             self._bus = SMBus(bus)
             self._owns_bus = True
@@ -302,7 +328,7 @@ conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOu
 imu  = MPU6050Full(conn)
 
 conn.disable()   # gates all I²C access; drives EN low if wired
-conn.enable()    # resumes access; drives EN high if wired
+conn.enable()    # resumes access; asserts EN (high, or low if en_active_high=False) if wired
 ```
 
 Chip constructors are unchanged in shape — only the parameter name/type moves:
@@ -332,17 +358,18 @@ class Connection {
 public:
     virtual ~Connection() = default;
 
-    explicit Connection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : _intPin(intPin), _enPin(enPin), _enabled(true) {}
+    explicit Connection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                        bool enActiveHigh = true)
+        : _intPin(intPin), _enPin(enPin), _enActiveHigh(enActiveHigh), _enabled(true) {}
 
     void enable() {
         _enabled = true;
-        if (_enPin) _enPin->set(true);
+        if (_enPin) _enPin->set(_enActiveHigh);
     }
 
     void disable() {
         _enabled = false;
-        if (_enPin) _enPin->set(false);
+        if (_enPin) _enPin->set(!_enActiveHigh);
     }
 
     bool isEnabled() const { return _enabled; }
@@ -373,6 +400,7 @@ protected:
 private:
     InputPin*  _intPin;
     OutputPin* _enPin;
+    bool       _enActiveHigh;
     bool       _enabled;
 };
 ```
@@ -386,8 +414,9 @@ Concrete example (`cpp/src/connection/I2CConnection.h`, was `transport/I2CTransp
 
 class I2CConnection : public Connection {     // was: class I2CTransport : public Transport
 public:
-    I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _bus(bus), _addr(addr) {}
+    I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
+                  bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _bus(bus), _addr(addr) {}
 
 protected:
     void _read(uint8_t* buf, size_t len) override;         // was: public read() override
@@ -428,20 +457,21 @@ renamed concrete class now extends.
 ```js
 // connection.js — new file
 class Connection {
-    constructor(intPin = null, enPin = null) {
+    constructor(intPin = null, enPin = null, enActiveHigh = true) {
         this._intPin  = intPin;
         this._enPin   = enPin;
+        this._enActiveHigh = enActiveHigh;
         this._enabled = true;
     }
 
     async enable() {
         this._enabled = true;
-        if (this._enPin) await this._enPin.set(true);
+        if (this._enPin) await this._enPin.set(this._enActiveHigh);
     }
 
     async disable() {
         this._enabled = false;
-        if (this._enPin) await this._enPin.set(false);
+        if (this._enPin) await this._enPin.set(!this._enActiveHigh);
     }
 
     isEnabled() { return this._enabled; }
@@ -468,8 +498,8 @@ const { Connection } = require('./connection');
 const i2c = require('i2c-bus');
 
 class I2CConnection extends Connection {       // was: class I2CTransport
-    constructor(busNumber, addr, intPin = null, enPin = null) {
-        super(intPin, enPin);
+    constructor(busNumber, addr, intPin = null, enPin = null, enActiveHigh = true) {
+        super(intPin, enPin, enActiveHigh);
         this._bus  = i2c.openSync(busNumber);
         this._addr = addr;
     }
@@ -532,7 +562,7 @@ For hardware EN pin control in Rust, callers use `embedded_hal::digital::OutputP
 directly before constructing the chip:
 
 ```rust
-en_pin.set_high().unwrap();    // power up the chip
+en_pin.set_high().unwrap();    // power up the chip (use set_low() for an active-low EN pin)
 let conn = Connection::new(i2c);
 let imu  = MPU6050Minimal::new(conn);
 ```
@@ -603,15 +633,17 @@ package it.uhde.periph.connection;
 public abstract class AbstractConnection implements Connection {
     private final InputPin  intPin;
     private final OutputPin enPin;
+    private final boolean enActiveHigh;
     private volatile boolean enabled = true;
 
-    protected AbstractConnection(InputPin intPin, OutputPin enPin) {
+    protected AbstractConnection(InputPin intPin, OutputPin enPin, boolean enActiveHigh) {
         this.intPin = intPin;
         this.enPin  = enPin;
+        this.enActiveHigh = enActiveHigh;
     }
 
-    @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(true);  }
-    @Override public void disable() { enabled = false; if (enPin != null) enPin.set(false); }
+    @Override public void enable()  { enabled = true;  if (enPin != null) enPin.set(enActiveHigh);  }
+    @Override public void disable() { enabled = false; if (enPin != null) enPin.set(!enActiveHigh); }
     @Override public boolean isEnabled() { return enabled; }
     @Override public InputPin  intPin() { return intPin; }
     @Override public OutputPin enPin()  { return enPin;  }
@@ -637,8 +669,8 @@ Concrete example (`I2CConnection.java`, was `I2CTransport.java`):
 package it.uhde.periph.connection;
 
 public final class I2CConnection extends AbstractConnection {   // was: implements Transport
-    public I2CConnection(int bus, int addr, InputPin intPin, OutputPin enPin) {
-        super(intPin, enPin);
+    public I2CConnection(int bus, int addr, InputPin intPin, OutputPin enPin, boolean enActiveHigh) {
+        super(intPin, enPin, enActiveHigh);
         // ... open /dev/i2c-<bus> via FFM, as today
     }
 
@@ -675,20 +707,21 @@ type Connection interface {    // was: type Transport interface
 type connectionBase struct {
     IntPin   InputPin  // nil if unused
     EnPin    OutputPin // nil if unused
+    EnActiveLow bool   // zero value = active-high EN
     disabled bool       // zero value = enabled
 }
 
 func (b *connectionBase) Enable() {
     b.disabled = false
     if b.EnPin != nil {
-        b.EnPin.Set(true)
+        b.EnPin.Set(!b.EnActiveLow)
     }
 }
 
 func (b *connectionBase) Disable() {
     b.disabled = true
     if b.EnPin != nil {
-        b.EnPin.Set(false)
+        b.EnPin.Set(b.EnActiveLow)
     }
 }
 
@@ -704,9 +737,9 @@ type I2CConnection struct {    // was: type I2CTransport struct
     addr uint8
 }
 
-func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin) (*I2CConnection, error) {
+func NewI2CConnection(bus int, addr uint8, intPin InputPin, enPin OutputPin, enActiveHigh bool) (*I2CConnection, error) {
     // was: func NewI2CTransport(bus int, addr uint8) (*I2CTransport, error)
-    c := &I2CConnection{connectionBase: connectionBase{IntPin: intPin, EnPin: enPin}, addr: addr}
+    c := &I2CConnection{connectionBase: connectionBase{IntPin: intPin, EnPin: enPin, EnActiveLow: !enActiveHigh}, addr: addr}
     // ... open /dev/i2c-<bus>, as today
     return c, nil
 }
@@ -1276,7 +1309,7 @@ Add an `## Interrupt` section after `## Pin Configuration`. Remove it for Level-
 The `## Pin Configuration` section should also document the EN pin if the chip has one:
 
 ```markdown
-| EN | active-high enable; float or drive high to power chip |
+| EN | active-high enable (or active-low — state the native polarity; the user sets `en_active_high`); float or drive to the asserted level to power chip |
 ```
 
 ### 11.2 IO Expander template (`specs/_template_chip_io_expander.md`)
