@@ -178,6 +178,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SH1106 | OLED display (132×64) |  |  |  |  |  |  |  |  |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
