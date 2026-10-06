@@ -575,6 +575,18 @@
       "datasheet": "datasheets/io_expander/pca6408a.pdf"
     },
     {
+      "id": "pca9536",
+      "name": "PCA9536",
+      "category": "io_expander",
+      "addresses": [
+        "0x41"
+      ],
+      "id_probe": null,
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/io_expander/pca9536.pdf"
+    },
+    {
       "id": "pcf8574",
       "name": "PCF8574 / PCF8574A",
       "category": "io_expander",
