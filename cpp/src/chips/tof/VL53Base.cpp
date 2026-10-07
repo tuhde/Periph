@@ -18,6 +18,10 @@ static uint32_t _millis() { return (uint32_t)k_uptime_get(); }
 #include <freertos/task.h>
 static void periph_delay_ms(unsigned ms) { vTaskDelay(pdMS_TO_TICKS(ms) ? pdMS_TO_TICKS(ms) : 1); }
 static uint32_t _millis() { return (uint32_t)(xTaskGetTickCount() * portTICK_PERIOD_MS); }
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+static void periph_delay_ms(unsigned ms) { HAL_Delay(ms); }
+static uint32_t _millis() { return HAL_GetTick(); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 static void periph_delay_ms(unsigned ms) { sleep_ms(ms); }
