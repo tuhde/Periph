@@ -20,11 +20,13 @@ class HX711Connection {
      * @param {object} dout   - opengpio Input instance (boolean `.value`).
      * @param {object} pdSck  - opengpio Output instance (boolean `.value`).
      * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      */
-    constructor(dout, pdSck, enPin = null) {
+    constructor(dout, pdSck, enPin = null, enActiveHigh = true) {
         this._dout = dout;
         this._sck  = pdSck;
         this.enPin = enPin;
+        this.enActiveHigh = enActiveHigh;
         this._enabled = true;
         this._sck.value = false;
     }
@@ -34,7 +36,7 @@ class HX711Connection {
      */
     async enable() {
         this._enabled = true;
-        if (this.enPin) await this.enPin.set(true);
+        if (this.enPin) await this.enPin.set(this.enActiveHigh);
     }
 
     /** Gate readRaw(); drives the hardware EN pin low if wired.
@@ -42,7 +44,7 @@ class HX711Connection {
      */
     async disable() {
         this._enabled = false;
-        if (this.enPin) await this.enPin.set(false);
+        if (this.enPin) await this.enPin.set(!this.enActiveHigh);
     }
 
     /** @returns {boolean} The current software-gate state. */

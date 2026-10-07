@@ -16,26 +16,28 @@ class HX711Connection:
         dout:   machine.Pin configured as input (the data-out pin from the chip).
         pd_sck: machine.Pin configured as output (the clock / power-down pin).
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
-    def __init__(self, dout, pd_sck, en_pin=None):
+    def __init__(self, dout, pd_sck, en_pin=None, en_active_high=True):
         self._dout = dout
         self._sck = pd_sck
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
         self._sck.value(0)
 
     def enable(self):
-        """Resume conversions; drives the hardware EN pin high if wired."""
+        """Resume conversions; asserts the hardware EN pin if wired."""
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
-        """Gate read_raw(); drives the hardware EN pin low if wired."""
+        """Gate read_raw(); de-asserts the hardware EN pin if wired."""
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self):
         """Return the current software-gate state.

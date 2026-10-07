@@ -10,12 +10,13 @@
  * @param freq_hz SPI clock frequency (default 2 400 000).
  * @param intPin  Optional InputPin (unused by NeoPixel; kept for API uniformity).
  * @param enPin   Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class NeoPixelConnectionZephyr : public Connection {
 public:
     NeoPixelConnectionZephyr(const struct device* dev, uint32_t freq_hz = 2400000,
-                             InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _dev(dev)
+                             InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _dev(dev)
     {
         _config.frequency = freq_hz;
         _config.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER;

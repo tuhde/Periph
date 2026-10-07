@@ -34,12 +34,13 @@
  *               RS-485 mode.
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class UARTConnectionESPIDF : public Connection {
 public:
     UARTConnectionESPIDF(uart_port_t port, int de_pin = -1,
-                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _port(port), _de_pin(static_cast<gpio_num_t>(de_pin))
+                         InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _port(port), _de_pin(static_cast<gpio_num_t>(de_pin))
     {
         if (_de_pin != GPIO_NUM_NC) {
             gpio_reset_pin(_de_pin);

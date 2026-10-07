@@ -102,7 +102,9 @@ class DiscoveryTest {
             {"adxl345", 0x00, 0xE5, 0x53}, {"vl53l0x", 0xC0, 0xEE, 0x29}, {"mfrc522", 0x37, 0x92, 0x28},
         };
         for (Object[] row : table) {
-            var d = one((int) row[3], (int) row[1], (int) row[2]);
+            // 0x28-0x2F also hosts the write-sensitive DS1881, so those need active probing.
+            int addr = (int) row[3];
+            var d = only(new FakeBus().with(addr, (int) row[1], (int) row[2]), addr == 0x28 || addr == 0x29);
             assertEquals(row[0], d.identified(), (String) row[0]);
         }
         assertEquals("bme280", one(0x76, 0xD0, 0x60).driver());
@@ -114,10 +116,27 @@ class DiscoveryTest {
         assertEquals("ina226", one(0x40, 0xFF, 0x22, 0x100, 0x60).identified());
         assertEquals("ina3221", one(0x40, 0xFF, 0x32, 0x100, 0x20).identified());
         assertEquals("mcp9808", one(0x18, 0x07, 0x04, 0x08, 0x01).identified());
-        assertEquals("hmc5883l", one(0x1E, 0x0A, 0x48, 0x0B, 0x34, 0x0C, 0x33).identified());
         var bus = new FakeBus().with(0x29, 0x010F, 0xEA, 0x0110, 0xCC);
-        assertEquals("vl53l1x", only(bus, false).identified());
+        assertEquals("vl53l1x", only(bus, true).identified());
         assertTrue(bus.registerReads.stream().anyMatch(r -> r[2] == 2), "register address sent as two bytes");
+    }
+
+    @Test
+    void ds1881WriteSensitiveBlocksProbeAt0x29() throws IOException {
+        var bus = new FakeBus().with(0x29, 0xC0, 0xEE);
+        var d = only(bus, false);
+        assertNull(d.identified());
+        assertEquals(ProbeSkipReason.WRITE_SENSITIVE_CANDIDATE, d.probeSkippedReason());
+        assertTrue(d.candidates().contains("ds1881"));
+        assertTrue(bus.registerReads.isEmpty());
+    }
+
+    @Test
+    void hmc5883lAndLsm303MagAreAmbiguous() throws IOException {
+        // Both report the identity 0x483433 (registry/known_ambiguities.json).
+        var d = one(0x1E, 0x0A, 0x48, 0x0B, 0x34, 0x0C, 0x33);
+        assertNull(d.identified());
+        assertEquals(List.of("hmc5883l", "lsm303-mag"), d.candidates());
     }
 
     @Test
@@ -206,7 +225,7 @@ class DiscoveryTest {
         var devs = Discovery.discover(bus, DiscoveryRegistry.CHIPS, false);
         assertEquals(1, devs.size());
         assertEquals(0x50, devs.get(0).address());
-        assertEquals(List.of("24aa025uid", "24aa02uid"), devs.get(0).candidates());
+        assertEquals(List.of("24aa025uid", "24aa02uid", "mb85rc"), devs.get(0).candidates());
         assertEquals(List.of(0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57), devs.get(0).aliases());
         devs = Discovery.discover(new FakeBus().with(0x50).with(0x51), DiscoveryRegistry.CHIPS, false);
         assertEquals(List.of(0x50, 0x51), devs.stream().map(DiscoveredDevice::address).toList());

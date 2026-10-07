@@ -36,10 +36,12 @@ class DHTxxConnection {
     /**
      * @param {number} dataPin - GPIO pin number for the DATA line.
      * @param {import('./output_pin').OutputPin|null} [enPin=null] - Optional EN-pin OutputPin.
+     * @param {boolean} [enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      */
-    constructor(dataPin, enPin = null) {
+    constructor(dataPin, enPin = null, enActiveHigh = true) {
         this._pin = new Gpio(dataPin, 'in', 'both', { reconfigureDirection: true });
         this.enPin = enPin;
+        this.enActiveHigh = enActiveHigh;
         this._enabled = true;
     }
 
@@ -48,7 +50,7 @@ class DHTxxConnection {
      */
     async enable() {
         this._enabled = true;
-        if (this.enPin) await this.enPin.set(true);
+        if (this.enPin) await this.enPin.set(this.enActiveHigh);
     }
 
     /** Gate read(); drives the hardware EN pin low if wired.
@@ -56,7 +58,7 @@ class DHTxxConnection {
      */
     async disable() {
         this._enabled = false;
-        if (this.enPin) await this.enPin.set(false);
+        if (this.enPin) await this.enPin.set(!this.enActiveHigh);
     }
 
     /** @returns {boolean} The current software-gate state. */

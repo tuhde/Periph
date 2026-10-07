@@ -5,7 +5,7 @@ try:
     from .spi_micropython import SPIConnection as _SPIConnection
 
     def SPIConnection(bus=1, cs_pin=5, baudrate=1_000_000, polarity=0, phase=0,
-                      int_pin=None, en_pin=None):
+                      int_pin=None, en_pin=None, en_active_high=True):
         """Create an SPI connection for MicroPython.
 
         Args:
@@ -16,10 +16,11 @@ try:
             phase:    CPHA — 0 or 1 (default 0).
             int_pin: Optional InputPin for INT-line delivery.
             en_pin: Optional OutputPin for hardware enable/power control.
+            en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
         spi = _machine.SPI(bus, baudrate=baudrate, polarity=polarity, phase=phase)
         cs  = _machine.Pin(cs_pin, _machine.Pin.OUT)
-        return _SPIConnection(spi, cs, int_pin=int_pin, en_pin=en_pin)
+        return _SPIConnection(spi, cs, int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -29,7 +30,7 @@ except ImportError:
         from .spi_circuitpython import SPIConnection as _SPIConnection
 
         def SPIConnection(bus=None, cs_pin=None, baudrate=1_000_000, polarity=0, phase=0,
-                          int_pin=None, en_pin=None):
+                          int_pin=None, en_pin=None, en_active_high=True):
             """Create an SPI connection for CircuitPython.
 
             Args:
@@ -40,6 +41,7 @@ except ImportError:
                 phase:    CPHA — 0 or 1 (default 0).
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             spi = _busio.SPI(_board.SCK, MOSI=_board.MOSI, MISO=_board.MISO)
             if cs_pin is None:
@@ -51,7 +53,7 @@ except ImportError:
             cs_pin_obj.direction = _digitalio.Direction.OUTPUT
             return _SPIConnection(spi, cs_pin_obj, baudrate=baudrate,
                                   polarity=polarity, phase=phase,
-                                  int_pin=int_pin, en_pin=en_pin)
+                                  int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -61,7 +63,7 @@ except ImportError:
             linux_pip_hint(exc, 'spidev', 'spidev', 'SPI on Linux')
 
         def SPIConnection(bus=None, device=None, cs_pin=None, baudrate=1_000_000,
-                          polarity=0, phase=0, int_pin=None, en_pin=None):
+                          polarity=0, phase=0, int_pin=None, en_pin=None, en_active_high=True):
             """Create an SPI connection for Linux (spidev).
 
             Args:
@@ -73,6 +75,7 @@ except ImportError:
                 phase:    CPHA — 0 or 1.
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             if bus is None:
                 bus = int(os.environ.get('LINUX_SPI_BUS', '0'))
@@ -80,4 +83,4 @@ except ImportError:
                 device = int(os.environ.get('LINUX_SPI_DEVICE', '0'))
             mode = (polarity << 1) | phase
             return _SPIConnection(bus, device, mode=mode, max_speed_hz=baudrate,
-                                  int_pin=int_pin, en_pin=en_pin)
+                                  int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)

@@ -11,13 +11,14 @@
  * @param addr      7-bit I²C device address.
  * @param intPin    Optional InputPin for INT-line delivery.
  * @param enPin     Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  * @param regBytes  Register address width in bytes, big-endian (default 1).
  */
 class I2CConnection : public RegisterConnection {
 public:
     I2CConnection(TwoWire& bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                  uint8_t regBytes = 1)
-        : RegisterConnection(intPin, enPin, regBytes), _bus(bus), _addr(addr) {}
+                  uint8_t regBytes = 1, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _bus(bus), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device.

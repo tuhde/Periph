@@ -19,19 +19,21 @@ class Connection {
     /**
      * @param {InputPin|null} [intPin=null] - Optional InputPin for INT-line delivery.
      * @param {OutputPin|null} [enPin=null] - Optional OutputPin for hardware enable/power control.
+     * @param {boolean} [enActiveHigh=true] - True if the EN pin is active-high (default); false for active-low.
      */
-    constructor(intPin = null, enPin = null) {
+    constructor(intPin = null, enPin = null, enActiveHigh = true) {
         this._intPin = intPin;
         this._enPin = enPin;
+        this._enActiveHigh = enActiveHigh;
         this._enabled = true;
     }
 
-    /** Resume bus access; drives the hardware EN pin high if wired.
+    /** Resume bus access; asserts the hardware EN pin if wired.
      * @returns {Promise<void>}
      */
     async enable() {
         this._enabled = true;
-        if (this._enPin) await this._enPin.set(true);
+        if (this._enPin) await this._enPin.set(this._enActiveHigh);
     }
 
     /**
@@ -42,7 +44,7 @@ class Connection {
      */
     async disable() {
         this._enabled = false;
-        if (this._enPin) await this._enPin.set(false);
+        if (this._enPin) await this._enPin.set(!this._enActiveHigh);
     }
 
     /** @returns {boolean} The current software-gate state. */

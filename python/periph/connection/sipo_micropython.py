@@ -19,14 +19,16 @@ class SiPoConnection:
         srclr: machine.Pin configured as output for SRCLR; None (default) disables it.
         g: machine.Pin configured as output for G (output enable); None (default) disables it.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
-    def __init__(self, spi, rck, srclr=None, g=None, en_pin=None):
+    def __init__(self, spi, rck, srclr=None, g=None, en_pin=None, en_active_high=True):
         self._spi = spi
         self._rck = rck
         self._srclr = srclr
         self._g = g
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
         self._rck.value(0)
         if self._srclr is not None:
@@ -35,16 +37,16 @@ class SiPoConnection:
             self._g.value(0)
 
     def enable(self):
-        """Resume writes; drives the hardware EN pin high if wired."""
+        """Resume writes; asserts the hardware EN pin if wired."""
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
-        """Gate write(); drives the hardware EN pin low if wired."""
+        """Gate write(); de-asserts the hardware EN pin if wired."""
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self):
         """Return the current software-gate state.

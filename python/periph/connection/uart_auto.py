@@ -5,7 +5,7 @@ try:
     from .uart_micropython import UARTConnection as _UARTConnection
 
     def UARTConnection(port=1, baudrate=9600, tx=None, rx=None, de_pin=None,
-                       int_pin=None, en_pin=None):
+                       int_pin=None, en_pin=None, en_active_high=True):
         """Create a UART connection for MicroPython.
 
         Args:
@@ -16,6 +16,7 @@ try:
             de_pin:   RS-485 DE pin number (optional).
             int_pin: Optional InputPin for INT-line delivery.
             en_pin: Optional OutputPin for hardware enable/power control.
+            en_active_high: True if the EN pin is active-high (default); False for active-low.
         """
         kwargs = {'baudrate': baudrate}
         if tx is not None:
@@ -25,7 +26,7 @@ try:
         uart = _UART(port, **kwargs)
         de = _Pin(de_pin, _Pin.OUT) if de_pin is not None else None
         return _UARTConnection(uart, baudrate=baudrate, de_pin=de,
-                               int_pin=int_pin, en_pin=en_pin)
+                               int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
 except ImportError:
     try:
@@ -34,7 +35,7 @@ except ImportError:
         from .uart_circuitpython import UARTConnection as _UARTConnection
 
         def UARTConnection(port=None, baudrate=9600, tx=None, rx=None, de_pin=None,
-                           int_pin=None, en_pin=None):
+                           int_pin=None, en_pin=None, en_active_high=True):
             """Create a UART connection for CircuitPython.
 
             Args:
@@ -45,12 +46,13 @@ except ImportError:
                 de_pin:   RS-485 DE pin (digitalio.DigitalInOut, optional).
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
             """
             tx_pin = tx if tx is not None else _board.TX
             rx_pin = rx if rx is not None else _board.RX
             uart = _busio.UART(tx_pin, rx_pin, baudrate=baudrate)
             return _UARTConnection(uart, baudrate=baudrate, de_pin=de_pin,
-                                   int_pin=int_pin, en_pin=en_pin)
+                                   int_pin=int_pin, en_pin=en_pin, en_active_high=en_active_high)
 
     except ImportError:
         try:
@@ -59,7 +61,7 @@ except ImportError:
             from .pip_hint_linux import linux_pip_hint
             linux_pip_hint(exc, 'serial', 'pyserial', 'UART on Linux')
 
-        def UARTConnection(port=None, baudrate=9600, int_pin=None, en_pin=None, **kwargs):
+        def UARTConnection(port=None, baudrate=9600, int_pin=None, en_pin=None, en_active_high=True, **kwargs):
             """Create a UART connection for Linux (pyserial).
 
             Args:
@@ -69,6 +71,7 @@ except ImportError:
                 baudrate: Baud rate (default 9600).
                 int_pin: Optional InputPin for INT-line delivery.
                 en_pin: Optional OutputPin for hardware enable/power control.
+                en_active_high: True if the EN pin is active-high (default); False for active-low.
                 **kwargs: Forwarded to UARTConnection (data_bits, stop_bits, parity,
                           rs485, de_pin_num).
             """
@@ -77,4 +80,4 @@ except ImportError:
             if isinstance(port, int):
                 port = f'/dev/ttyS{port}'
             return _UARTConnection(port, baudrate=baudrate, int_pin=int_pin,
-                                   en_pin=en_pin, **kwargs)
+                                   en_pin=en_pin, en_active_high=en_active_high, **kwargs)

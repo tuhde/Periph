@@ -9,25 +9,26 @@ class Connection:
     it themselves.
     """
 
-    def __init__(self, int_pin=None, en_pin=None):
+    def __init__(self, int_pin=None, en_pin=None, en_active_high=True):
         self.int_pin = int_pin
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
 
     def enable(self):
-        """Resume bus access; drives the hardware EN pin high if wired."""
+        """Resume bus access; asserts the hardware EN pin if wired."""
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
-        """Gate all subsequent bus reads and writes; drives EN pin low if wired.
+        """Gate all subsequent bus reads and writes; de-asserts the EN pin if wired.
 
         Reads silently return zero bytes; writes silently become no-ops.
         """
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self):
         """Return the current software-gate state.

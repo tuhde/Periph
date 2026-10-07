@@ -22,12 +22,13 @@
  * @param addr   7-bit device address.
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class I2CConnectionPicoSDK : public RegisterConnection {
 public:
     I2CConnectionPicoSDK(i2c_inst_t* i2c, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                         uint8_t regBytes = 1)
-        : RegisterConnection(intPin, enPin, regBytes), _i2c(i2c), _addr(addr) {}
+                         uint8_t regBytes = 1, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _i2c(i2c), _addr(addr) {}
 
 protected:
     /** @brief Send bytes to the device.

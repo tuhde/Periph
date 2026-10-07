@@ -20,10 +20,11 @@ class UARTConnection(Connection):
             None (default) for plain UART mode.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
-    def __init__(self, uart, baudrate, de_pin=None, int_pin=None, en_pin=None):
-        super().__init__(int_pin, en_pin)
+    def __init__(self, uart, baudrate, de_pin=None, int_pin=None, en_pin=None, en_active_high=True):
+        super().__init__(int_pin, en_pin, en_active_high=en_active_high)
         self._uart = uart
         self._baudrate = baudrate
         self._de = de_pin

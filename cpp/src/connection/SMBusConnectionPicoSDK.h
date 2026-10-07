@@ -21,13 +21,14 @@
  * @param pec    Enable Packet Error Code (CRC-8) checking (default false).
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SMBusConnectionPicoSDK : public I2CConnectionPicoSDK {
 public:
     SMBusConnectionPicoSDK(i2c_inst_t* i2c, uint8_t addr, bool pec = false,
                            InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                           uint8_t regBytes = 1)
-        : I2CConnectionPicoSDK(i2c, addr, intPin, enPin, regBytes), _addr(addr), _pec(pec) {
+                           uint8_t regBytes = 1, bool enActiveHigh = true)
+        : I2CConnectionPicoSDK(i2c, addr, intPin, enPin, regBytes, enActiveHigh), _addr(addr), _pec(pec) {
         if (addr < 0x08 || addr > 0x77) _valid = false;
     }
 

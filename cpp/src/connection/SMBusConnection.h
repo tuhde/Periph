@@ -13,12 +13,13 @@
  * @param pec    Enable Packet Error Code (CRC-8) checking (default false).
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SMBusConnection : public RegisterConnection {
 public:
     SMBusConnection(TwoWire& bus, uint8_t addr, bool pec = false,
                     InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                    uint8_t regBytes = 1);
+                    uint8_t regBytes = 1, bool enActiveHigh = true);
 
     /** @brief Returns false if the last read or write_read produced a PEC mismatch. */
     bool valid() const { return _valid; }

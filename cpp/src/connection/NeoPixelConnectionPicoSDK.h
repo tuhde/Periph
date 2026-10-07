@@ -28,11 +28,12 @@
  *               already configured it for 2.4 MHz, mode 0, MSB-first.
  * @param intPin Optional InputPin (unused by NeoPixel; kept for API uniformity).
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class NeoPixelConnectionPicoSDK : public Connection {
 public:
-    NeoPixelConnectionPicoSDK(spi_inst_t* spi, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _spi(spi) {}
+    NeoPixelConnectionPicoSDK(spi_inst_t* spi, InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _spi(spi) {}
 
 protected:
     /** @brief Encode and transmit pixel data, then hold MOSI low for reset.

@@ -99,6 +99,12 @@ fn one(addr: u8, regs: &[(u32, u8)]) -> DiscoveredDevice {
     only(&mut FakeI2c::with(&[(addr, regs)]), false)
 }
 
+/// Like `one`, but with active probing — needed at 0x28-0x2F, which also hosts the
+/// write-sensitive DS1881.
+fn one_active(addr: u8, regs: &[(u32, u8)]) -> DiscoveredDevice {
+    only(&mut FakeI2c::with(&[(addr, regs)]), true)
+}
+
 #[test]
 fn scan_finds_all_and_picks_probe_method() {
     let mut bus = FakeI2c::with(&[(0x76, &[]), (0x50, &[]), (0x1B, &[])]);
@@ -148,10 +154,10 @@ fn identifies_chips_by_single_byte_register() {
         ("adxl345", 0x00, 0xE5, 0x53), ("vl53l0x", 0xC0, 0xEE, 0x29),
     ];
     for (id, reg, value, addr) in table {
-        let d = one(addr, &[(reg, value)]);
+        let d = one_active(addr, &[(reg, value)]);
         assert_eq!(d.identified, Some(id), "{id}");
     }
-    assert_eq!(one(0x28, &[(0x37, 0x92)]).identified, Some("mfrc522"));
+    assert_eq!(one_active(0x28, &[(0x37, 0x92)]).identified, Some("mfrc522"));
     assert_eq!(one(0x76, &[(0xD0, 0x60)]).driver, Some("bme280"));
 }
 
@@ -161,10 +167,27 @@ fn identifies_multi_byte_and_masked_identity_registers() {
     assert_eq!(one(0x40, &[(0xFF, 0x22), (0x100, 0x60)]).identified, Some("ina226"));
     assert_eq!(one(0x40, &[(0xFF, 0x32), (0x100, 0x20)]).identified, Some("ina3221"));
     assert_eq!(one(0x18, &[(0x07, 0x04), (0x08, 0x01)]).identified, Some("mcp9808"));
-    assert_eq!(one(0x1E, &[(0x0A, 0x48), (0x0B, 0x34), (0x0C, 0x33)]).identified, Some("hmc5883l"));
     let mut bus = FakeI2c::with(&[(0x29, &[(0x010F, 0xEA), (0x0110, 0xCC)])]);
-    assert_eq!(only(&mut bus, false).identified, Some("vl53l1x"));
+    assert_eq!(only(&mut bus, true).identified, Some("vl53l1x"));
     assert!(bus.writes.contains(&(0x29, vec![0x01, 0x0F])));
+}
+
+#[test]
+fn ds1881_write_sensitive_blocks_probe_at_0x29() {
+    let mut bus = FakeI2c::with(&[(0x29, &[(0xC0, 0xEE)])]);
+    let d = only(&mut bus, false);
+    assert_eq!(d.identified, None);
+    assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
+    assert!(d.candidates.contains(&"ds1881"));
+    assert!(bus.writes.is_empty());
+}
+
+#[test]
+fn hmc5883l_and_lsm303_mag_are_ambiguous() {
+    // Both report the identity 0x483433 (registry/known_ambiguities.json).
+    let d = one(0x1E, &[(0x0A, 0x48), (0x0B, 0x34), (0x0C, 0x33)]);
+    assert_eq!(d.identified, None);
+    assert_eq!(d.candidates, vec!["hmc5883l", "lsm303-mag"]);
 }
 
 #[test]
@@ -252,7 +275,7 @@ fn aliased_24aa02uid_block_is_merged_only_when_complete() {
     let all: Vec<(u8, &[(u32, u8)])> = (0x50u8..=0x57).map(|a| (a, &[][..])).collect();
     let devs = discover(&mut FakeI2c::with(&all), false).unwrap();
     assert_eq!(devs.len(), 1);
-    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa025uid", "24aa02uid"]));
+    assert_eq!((devs[0].address, devs[0].candidates.clone()), (0x50, vec!["24aa025uid", "24aa02uid", "mb85rc"]));
     assert_eq!(devs[0].aliases, (0x51u8..=0x57).collect::<Vec<_>>());
     let devs = discover(&mut FakeI2c::with(&[(0x50, &[]), (0x51, &[])]), false).unwrap();
     assert_eq!(devs.iter().map(|d| d.address).collect::<Vec<_>>(), vec![0x50, 0x51]);

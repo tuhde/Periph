@@ -34,6 +34,7 @@
  *                     auto-increments. Default 0.
  * @param intPin       Optional InputPin for INT-line delivery.
  * @param enPin        Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class SPIConnectionESPIDF : public RegisterConnection {
 public:
@@ -45,8 +46,8 @@ public:
     using RegisterConnection::write;
 
     SPIConnectionESPIDF(spi_device_handle_t dev, uint8_t readBit = 0x80, uint8_t multiByteBit = 0,
-                        InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : RegisterConnection(intPin, enPin), _dev(dev), _readBit(readBit), _multiByteBit(multiByteBit) {}
+                        InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : RegisterConnection(intPin, enPin, 1, enActiveHigh), _dev(dev), _readBit(readBit), _multiByteBit(multiByteBit) {}
 
     /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */
     void read(uint32_t reg, uint8_t* buf, size_t len) override {

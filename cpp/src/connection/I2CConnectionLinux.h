@@ -10,11 +10,12 @@
  * @param addr   7-bit device address (set via I2C_SLAVE ioctl).
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class I2CConnectionLinux : public RegisterConnection {
 public:
     I2CConnectionLinux(int bus, uint8_t addr, InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                       uint8_t regBytes = 1);
+                       uint8_t regBytes = 1, bool enActiveHigh = true);
     ~I2CConnectionLinux();
 
 protected:

@@ -15,11 +15,12 @@ class I2CConnection(RegisterConnection):
         addr: 7-bit device address.
         int_pin: Optional InputPin for INT-line delivery.
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
         reg_bytes: Register address width in bytes, big-endian (default 1).
     """
 
-    def __init__(self, bus, addr, int_pin=None, en_pin=None, reg_bytes=1):
-        super().__init__(int_pin, en_pin, reg_bytes)
+    def __init__(self, bus, addr, int_pin=None, en_pin=None, reg_bytes=1, en_active_high=True):
+        super().__init__(int_pin, en_pin, reg_bytes, en_active_high)
         if isinstance(bus, int):
             self._bus = SMBus(bus)
             self._owns_bus = True

@@ -12,11 +12,12 @@
  * @param device_num Chip-select line on the bus.
  * @param intPin     Optional InputPin (unused by NeoPixel; kept for API uniformity).
  * @param enPin      Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class NeoPixelConnectionLinux : public Connection {
 public:
     NeoPixelConnectionLinux(int bus_num, int device_num,
-                            InputPin* intPin = nullptr, OutputPin* enPin = nullptr);
+                            InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true);
     ~NeoPixelConnectionLinux();
 
 protected:

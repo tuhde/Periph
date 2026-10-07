@@ -35,12 +35,13 @@
  * @param de_pin RS-485 DE GPIO pin number; `-1` disables RS-485 mode.
  * @param intPin Optional InputPin for INT-line delivery.
  * @param enPin  Optional OutputPin for hardware enable/power control.
+ * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
 class UARTConnectionPicoSDK : public Connection {
 public:
     UARTConnectionPicoSDK(uart_inst_t* uart, uint baud, int de_pin = -1,
-                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _uart(uart), _baud(baud), _de_pin(de_pin)
+                          InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _uart(uart), _baud(baud), _de_pin(de_pin)
     {
         if (_de_pin >= 0) {
             gpio_init(_de_pin);

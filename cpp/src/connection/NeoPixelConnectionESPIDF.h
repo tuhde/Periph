@@ -53,9 +53,10 @@ public:
      *             `spi_bus_add_device()` at 2.4 MHz, mode 0, MSB-first.
      *  @param intPin Optional InputPin (unused by NeoPixel; kept for API uniformity).
      *  @param enPin  Optional OutputPin for hardware enable/power control.
+     *  @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
      */
-    NeoPixelConnectionESPIDF(spi_device_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _mode(Mode::SPI), _spi(dev), _rmt_chan(nullptr), _encoder(nullptr) {}
+    NeoPixelConnectionESPIDF(spi_device_handle_t dev, InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _mode(Mode::SPI), _spi(dev), _rmt_chan(nullptr), _encoder(nullptr) {}
 
     /** @brief RMT mode constructor.
      *
@@ -65,10 +66,11 @@ public:
      *                  code symbol of ≥50 µs low.
      *  @param intPin   Optional InputPin (unused by NeoPixel; kept for API uniformity).
      *  @param enPin    Optional OutputPin for hardware enable/power control.
+     *  @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
      */
     NeoPixelConnectionESPIDF(rmt_channel_handle_t rmt_chan, rmt_encoder_handle_t encoder,
-                             InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : Connection(intPin, enPin), _mode(Mode::RMT), _spi(nullptr), _rmt_chan(rmt_chan), _encoder(encoder) {}
+                             InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _mode(Mode::RMT), _spi(nullptr), _rmt_chan(rmt_chan), _encoder(encoder) {}
 
 protected:
     /** @brief Encode and transmit pixel data, then hold the line low for reset.

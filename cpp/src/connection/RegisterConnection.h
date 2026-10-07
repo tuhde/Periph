@@ -29,11 +29,12 @@ public:
     /** @brief Construct with optional INT/EN pins and register address width.
      *  @param intPin    Optional InputPin for INT-line delivery.
      *  @param enPin     Optional OutputPin for hardware enable/power control.
+     *  @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
      *  @param regBytes  Register address width in bytes, big-endian (default 1, max 4).
      */
     explicit RegisterConnection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr,
-                                 uint8_t regBytes = 1)
-        : Connection(intPin, enPin), _regBytes(regBytes) {}
+                                 uint8_t regBytes = 1, bool enActiveHigh = true)
+        : Connection(intPin, enPin, enActiveHigh), _regBytes(regBytes) {}
 
     /** @brief Read @p len bytes starting at register @p reg.
      *  @param reg Register address.

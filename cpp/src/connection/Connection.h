@@ -22,23 +22,24 @@ public:
     /** @brief Construct with optional INT pin and EN pin.
      *  @param intPin Optional InputPin for INT-line delivery.
      *  @param enPin  Optional OutputPin for hardware enable/power control.
+     *  @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
      */
-    explicit Connection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr)
-        : _intPin(intPin), _enPin(enPin), _enabled(true) {}
+    explicit Connection(InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
+        : _intPin(intPin), _enPin(enPin), _enActiveHigh(enActiveHigh), _enabled(true) {}
 
-    /** @brief Resume bus access; drives the hardware EN pin high if wired. */
+    /** @brief Resume bus access; asserts the hardware EN pin if wired. */
     void enable() {
         _enabled = true;
-        if (_enPin) _enPin->set(true);
+        if (_enPin) _enPin->set(_enActiveHigh);
     }
 
-    /** @brief Gate all subsequent bus reads and writes; drives EN pin low if wired.
+    /** @brief Gate all subsequent bus reads and writes; de-asserts the EN pin if wired.
      *
      *  Reads silently return zero bytes; writes silently become no-ops.
      */
     void disable() {
         _enabled = false;
-        if (_enPin) _enPin->set(false);
+        if (_enPin) _enPin->set(!_enActiveHigh);
     }
 
     /** @brief Return the current software-gate state. */
@@ -110,5 +111,6 @@ protected:
 private:
     InputPin*  _intPin;
     OutputPin* _enPin;
+    bool       _enActiveHigh;
     bool       _enabled;
 };

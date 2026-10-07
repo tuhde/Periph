@@ -101,6 +101,7 @@ public class DHTxxConnection implements AutoCloseable, DHTxxConn {
     private final int    lineOffset;
     private final int    lineOffsetOut;
     private final OutputPin enPin;
+    private volatile boolean enActiveHigh = true;
     private int    chipFd      = -1;
     private int    inputFd     = -1;
     private int    outputFd    = -1;
@@ -147,16 +148,28 @@ public class DHTxxConnection implements AutoCloseable, DHTxxConn {
         }
     }
 
-    /** Resume reads; drives the hardware EN pin high if wired. */
-    public void enable() {
-        enabled = true;
-        if (enPin != null) enPin.set(true);
+    /**
+     * Select the EN-pin polarity: {@code true} (the default) for an active-high
+     * enable, {@code false} for an active-low one. Call once after construction.
+     *
+     * @param activeHigh true if the EN pin is active-high
+     * @return this connection, for chaining
+     */
+    public DHTxxConnection setEnActiveHigh(boolean activeHigh) {
+        this.enActiveHigh = activeHigh;
+        return this;
     }
 
-    /** Gate {@link #read}; drives the hardware EN pin low if wired. */
+    /** Resume reads; asserts the hardware EN pin if wired. */
+    public void enable() {
+        enabled = true;
+        if (enPin != null) enPin.set(enActiveHigh);
+    }
+
+    /** Gate {@link #read}; de-asserts the hardware EN pin if wired. */
     public void disable() {
         enabled = false;
-        if (enPin != null) enPin.set(false);
+        if (enPin != null) enPin.set(!enActiveHigh);
     }
 
     /** @return the current software-gate state. */

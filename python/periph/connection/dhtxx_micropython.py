@@ -32,6 +32,7 @@ class DHTxxConnection:
         data_pin: machine.Pin instance (the connection reconfigures its
                   direction internally — do not bind it to a fixed direction).
         en_pin: Optional OutputPin for hardware enable/power control.
+        en_active_high: True if the EN pin is active-high (default); False for active-low.
     """
 
     _START_LOW_MS       = 20
@@ -39,23 +40,24 @@ class DHTxxConnection:
     _BIT_TIMEOUT_US     = 200
     _BIT_THRESHOLD_US   = 40
 
-    def __init__(self, data_pin, en_pin=None):
+    def __init__(self, data_pin, en_pin=None, en_active_high=True):
         self._pin = data_pin
         self.en_pin = en_pin
+        self.en_active_high = en_active_high
         self._enabled = True
         self._pin.init(self._pin.IN)
 
     def enable(self):
-        """Resume reads; drives the hardware EN pin high if wired."""
+        """Resume reads; asserts the hardware EN pin if wired."""
         self._enabled = True
         if self.en_pin:
-            self.en_pin.set(True)
+            self.en_pin.set(self.en_active_high)
 
     def disable(self):
-        """Gate read(); drives the hardware EN pin low if wired."""
+        """Gate read(); de-asserts the hardware EN pin if wired."""
         self._enabled = False
         if self.en_pin:
-            self.en_pin.set(False)
+            self.en_pin.set(not self.en_active_high)
 
     def is_enabled(self):
         """Return the current software-gate state.
