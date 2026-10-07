@@ -166,7 +166,10 @@ source zephyr/zephyr-env.sh
 ```sh
 sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi g++ ccache
 
-git clone --depth 1 -b v1.28.3 https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
+# Sparse + blobless: only Drivers/CMSIS and the HAL driver are needed (~145 MB instead of ~1 GB).
+git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
+  https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
+git -C ~/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver
 git -C ~/STM32CubeF4 submodule update --init --depth 1 \
   Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
 echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc
@@ -178,7 +181,7 @@ cpp/scripts/build-all.sh stm32cube
 The clone alone is **not enough**: the CMSIS device headers and the HAL
 driver are git submodules, and without them CMake fails with
 `Cannot find source file: .../system_stm32f4xx.c`. Only those two are
-needed; the other submodules (BSP, middlewares) are large and unused.
+needed; everything else in the repo (docs, example projects, middlewares, BSP) is large and unused.
 
 To flash and run on a NUCLEO-F411RE (on-board ST-LINK), install
 `stlink-tools` and use `cpp/test_stm32cube.sh`; it builds, flashes with

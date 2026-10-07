@@ -78,7 +78,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <!-- 3.13.0 fails under Maven 3.10.0 on JDK 25 with "Unsupported class file
+                         major version 69" (runner image ubuntu24/20261004.327 moved from Maven 3.9.16 to
+                         3.10.0); 3.14.1 builds on both. -->
+                    <version>3.14.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
