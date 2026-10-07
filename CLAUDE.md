@@ -8,7 +8,7 @@ A multi-language library for peripheral chips (sensors, actuators, etc.) connect
 
 Implementations:
 - **Python** — three supported targets: MicroPython (primary, embedded), CircuitPython (embedded), Linux kernel (host, via `smbus2` / `/dev/i2c-N`); M5Stack Blockly custom blocks wrap the MicroPython drivers rather than adding a fourth target — `python/uiflow1/` for UiFlow 1's `.m5b` format (generated), `python/uiflow2/` for UiFlow 2's native `.m5b2` format (hand-built in the UiFlow 2 Block Designer, no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md`); the two formats don't interoperate, so both are mandatory per chip
-- **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry Pi Pico SDK
+- **C++** — Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, Raspberry Pi Pico SDK, and STM32Cube (bare-metal HAL, NUCLEO-F411RE reference board)
 - **Node.js / Node-RED** — plain JS drivers (`periph` npm package) + per-category Node-RED node packages (`node-red-contrib-periph-<category>`)
 - **Rust** — two targets: Linux host (via `linux-embedded-hal`) and ESP32-S3 bare-metal (via `esp-hal`); generic over `embedded-hal` 1.0
 - **Java / Kotlin / Groovy** — JVM target: Linux host via i2c-dev / FFM (no native libraries); connections in Java (shared by all three); drivers in Java, Kotlin, and Groovy
@@ -104,7 +104,7 @@ cpp/
   zephyr/
     module.yml           # Zephyr module manifest (name: periph); consumed via ZEPHYR_EXTRA_MODULES, not west manifest discovery
   src/
-    connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK variants), plus InputPin/OutputPin
+    connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, STM32Cube variants), plus InputPin/OutputPin
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
@@ -136,6 +136,12 @@ cpp/
       <category>/
         <Chip>/
           minimal/      # CMakeLists.txt, src/main.cpp
+          complete/
+          demo/
+    stm32cube/
+      <category>/
+        <Chip>/
+          minimal/      # CMakeLists.txt, Core/Src/main.cpp  (bare-metal STM32Cube HAL, NUCLEO-F411RE)
           complete/
           demo/
   library.properties    # Arduino library metadata; published to tuhde/Periph-Arduino on release (see ARDUINO_LM.md)

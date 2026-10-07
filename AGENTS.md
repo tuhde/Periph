@@ -86,6 +86,7 @@ Every chip is implemented across all six languages and every supported platform 
 | C++ Zephyr examples | `cpp/examples/zephyr/<category>/<Chip>/{minimal,complete,demo}/{main.cpp,CMakeLists.txt,prj.conf}` |
 | C++ ESP-IDF examples | `cpp/examples/espidf/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | C++ Pico SDK examples | `cpp/examples/picosdk/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,src/main.cpp}` |
+| C++ STM32Cube examples | `cpp/examples/stm32cube/<category>/<Chip>/{minimal,complete,demo}/{CMakeLists.txt,Core/Src/main.cpp}` |
 | Node.js driver | `nodejs/packages/periph/src/chips/<category>/<chip>.js` |
 | Node.js examples | `nodejs/packages/periph/examples/<category>/<chip>/{minimal,complete,demo}.js` |
 | Node-RED node | `nodejs/packages/node-red-contrib-periph-<category>/nodes/<chip>/{<chip>.js,<chip>.html}` |
@@ -127,7 +128,7 @@ connection.write_reg(reg: int, data: bytes | int)      # register-addressed, any
 ```
 
 ```cpp
-// C++ — same signatures on Arduino, Linux, Zephyr, ESP-IDF, and Pico SDK
+// C++ — same signatures on Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, and STM32Cube
 connection.read(uint8_t reg, uint8_t* buf, size_t len);
 connection.write(uint8_t reg, const uint8_t* data, size_t len);
 ```
@@ -369,7 +370,7 @@ public:
 };
 ```
 
-The same `IOExpanderPin` class compiles on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
+The same `IOExpanderPin` class compiles on Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube. Use `#ifdef __linux__` or `#ifdef CONFIG_GPIO` only where interrupt delivery differs (Linux: `poll()` thread; Zephyr: `gpio_add_callback()`).
 
 Full adds `attachInterrupt(void (*handler)(void), uint8_t mode)` / `detachInterrupt()` to `IOExpanderPin`. `mode` uses Arduino constants: `RISING`, `FALLING`, `CHANGE`, `HIGH`, `LOW`.
 
@@ -482,7 +483,7 @@ conn = I2CConnection(bus=1, addr=0x68, en_pin=LinuxOutputPin(18))               
 conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
-**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
+**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube):
 ```cpp
 I2CConnection conn(bus, addr);                        // bus only
 I2CConnection conn(bus, addr, &gpioPin);              // with INT pin
@@ -557,7 +558,7 @@ Multiple chips may share one `InputPin`; each registers its own `_int_handler` i
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
 
 **C++**
-Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` / `InputPinESPIDF.h` / `InputPinPicoSDK.h` — never in the chip driver.
+Use `conn.intPin()` to access the `InputPin*`. Call `onEdge(&_intHandler)` to register and `offEdge(&_intHandler)` to deregister. Platform `#ifdef` guards belong exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` / `InputPinESPIDF.h` / `InputPinPicoSDK.h` / `InputPinSTM32Cube.h` — never in the chip driver.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(this._intHandler, …)`. `offInterrupt` calls `this._conn.intPin.offEdge(this._intHandler)`. `pollInterrupt` is `async`.
@@ -616,7 +617,7 @@ from periph.connection.i2c_linux import I2CConnection          # Linux
 
 ## C++ conventions
 
-Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.3, CI builds with v6.1; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all five; each target has its own connection implementation.
+Six supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** (driver-ng driver/i2c_master.h, driver/spi_master.h, driver/uart.h, driver/gpio.h; ESP-IDF ≥5.3, CI builds with v6.1; bare-metal, no Arduino core, no RTOS), **Raspberry Pi Pico SDK** (bare-metal, no Arduino core, no RTOS), **STM32Cube** (bare-metal STM32 HAL for STM32F4, reference board NUCLEO-F411RE, built with `arm-none-eabi-gcc` against `STM32CUBE_FW_PATH`; polling-only, no DMA/interrupts, no RTOS). The chip driver (`cpp/src/chips/<category>/<Chip>.{h,cpp}`) is shared across all six; each target has its own connection implementation.
 
 ### Chip drivers
 
@@ -636,42 +637,51 @@ Five supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF**
 | `I2CConnectionZephyr.h` | Zephyr RTOS | `const struct device*` from devicetree, header-only |
 | `I2CConnectionESPIDF.h` | ESP-IDF | `i2c_master_dev_handle_t` (driver-ng `driver/i2c_master.h`, ESP-IDF ≥5.3), header-only |
 | `I2CConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `i2c_inst_t*` from `hardware_i2c`, header-only |
+| `I2CConnectionSTM32Cube.h` | STM32Cube | `I2C_HandleTypeDef*` (HAL, blocking); write-then-read is STOP/START, not repeated START; records HAL status in `last_status()`/`error_count()`, header-only |
 | `SMBusConnection.h/.cpp` | Arduino | PEC-capable variant of `I2CConnection` |
 | `SMBusConnectionLinux.h/.cpp` | Linux GCC | PEC-capable variant of `I2CConnectionLinux` |
 | `SMBusConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `i2c` driver API, address validation + PEC, header-only |
 | `SMBusConnectionESPIDF.h` | ESP-IDF | wraps `I2CConnectionESPIDF` + software CRC-8, header-only |
 | `SMBusConnectionPicoSDK.h` | Raspberry Pi Pico SDK | wraps `I2CConnectionPicoSDK` + software CRC-8, header-only |
+| `SMBusConnectionSTM32Cube.h` | STM32Cube | wraps `I2CConnectionSTM32Cube` + software CRC-8, header-only |
 | `SPIConnection.h/.cpp` | Arduino | `SPIClass&` (or any compatible object) |
 | `SPIConnectionLinux.h/.cpp` | Linux GCC | `/dev/spidevBUS.DEVICE` via `spidev`, CS owned by the kernel driver |
 | `SPIConnectionZephyr.h` | Zephyr RTOS | wraps the Zephyr `spi` driver API, header-only |
 | `SPIConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (driver-ng `driver/spi_master.h`), CS owned by driver, header-only |
 | `SPIConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` from `hardware_spi` + manual CS GPIO |
+| `SPIConnectionSTM32Cube.h` | STM32Cube | `SPI_HandleTypeDef*` + manual CS GPIO (port, pin), header-only |
 | `UARTConnection.h/.cpp` | Arduino | `HardwareSerial&` |
 | `UARTConnectionLinux.h/.cpp` | Linux GCC | POSIX `termios` + `libgpiod` for RS-485 |
 | `UARTConnectionZephyr.h` | Zephyr RTOS | interrupt-driven UART API |
 | `UARTConnectionESPIDF.h` | ESP-IDF | `uart_port_t` installed via `uart_driver_install()`, `gpio_num_t` DE pin for RS-485, header-only |
 | `UARTConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `uart_inst_t*` from `hardware_uart` (1-or-0 `available()`) |
+| `UARTConnectionSTM32Cube.h` | STM32Cube | `UART_HandleTypeDef*`, optional `GPIO` DE pin for RS-485, polling only (`available()` stays unknown), header-only |
 | `NeoPixelConnection.h/.cpp` | Arduino | SPI bit-encoding on `SPIClass&` |
 | `NeoPixelConnectionLinux.h/.cpp` | Linux GCC | SPI bit-encoding via `spidev` |
 | `NeoPixelConnectionZephyr.h` | Zephyr RTOS | SPI bit-encoding on `struct device*` |
 | `NeoPixelConnectionESPIDF.h` | ESP-IDF | SPI bit-encoding on `spi_device_handle_t` (2.4 MHz, mode 0), header-only |
 | `NeoPixelConnectionPicoSDK.h` | Raspberry Pi Pico SDK | SPI bit-encoding on `spi_inst_t*` (no PIO) |
+| `NeoPixelConnectionSTM32Cube.h` | STM32Cube | SPI bit-encoding on `SPI_HandleTypeDef*` (2.4 MHz, mode 0), header-only |
 | `HX711Connection.h/.cpp` | Arduino | `digitalRead`/`digitalWrite` bit-bang |
 | `HX711ConnectionLinux.h/.cpp` | Linux GCC | bit-bang via `GpiodLineLinux` (libgpiod v2), `(chip_path, dout_line, pd_sck_line)` |
 | `HX711ConnectionZephyr.h` | Zephyr RTOS | `gpio_pin_get_dt`/`_set_dt` bit-bang |
 | `HX711ConnectionESPIDF.h` | ESP-IDF | `gpio_num_t` DOUT/PD_SCK pins, `gpio_set_level`/`gpio_get_level` bit-bang, header-only |
 | `HX711ConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_get`/`gpio_put` bit-bang |
+| `HX711ConnectionSTM32Cube.h` | STM32Cube | `HAL_GPIO_ReadPin`/`WritePin` bit-bang, DWT cycle counter for µs delays, header-only |
 | `SiPoConnection.h/.cpp` | Arduino | hardware SPI or bit-bang SER IN/SRCK |
 | `SiPoConnectionLinux.h/.cpp` | Linux GCC | hardware SPI or bit-bang lines via `GpiodLineLinux` (libgpiod v2); `-1` disables SRCLR/G |
 | `SiPoConnectionZephyr.h` | Zephyr RTOS | hardware SPI or `spi-bitbang` devicetree node |
 | `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
+| `SiPoConnectionSTM32Cube.h` | STM32Cube | hardware SPI (`SPI_HandleTypeDef*`) or bit-bang `HAL_GPIO_WritePin`, header-only |
 | `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
 | `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
 | `GpiodLineLinux.h/.cpp` | Linux GCC | one libgpiod v2 line request (chip path + offset); shared by `InputPinLinux`, `OutputPinLinux`, `HX711ConnectionLinux`, `SiPoConnectionLinux` |
 | `DHTxxConnectionZephyr.h` | Zephyr RTOS | single-wire bit-bang on a `gpio_dt_spec`, header-only |
 | `DHTxxConnectionESPIDF.h` | ESP-IDF | single-wire bit-bang on a `gpio_num_t` pin, header-only |
 | `DHTxxConnectionPicoSDK.h` | Raspberry Pi Pico SDK | single-wire bit-bang on a GPIO pin number, header-only |
+| `DHTxxConnectionSTM32Cube.h` | STM32Cube | single-wire bit-bang on a GPIO port/pin, DWT cycle counter for µs delays, header-only |
+| `InputPinSTM32Cube.h` / `OutputPinSTM32Cube.h` | STM32Cube | `GPIO_TypeDef*` + pin; `InputPinSTM32Cube` arms an EXTI line in `onEdge()` and needs the project's `EXTIx_IRQHandler` to call `HAL_GPIO_EXTI_IRQHandler()`, header-only |
 
 Linux-only connection classes are guarded with `#ifdef __linux__` so the Arduino library compiles cleanly.
 
@@ -789,6 +799,43 @@ pico_add_extra_outputs(<chip>_minimal_picosdk)
 Each example configures its own bus at file scope (e.g. `i2c_init(i2c0, 100 * 1000)` and `gpio_set_function(4, GPIO_FUNC_I2C)` for the SDA pin) before constructing the chip driver. The example is built with `cmake -S … -B build` and produces a UF2 in `build/`; flash it with `picotool load -x`.
 
 The default I²C pins are the pico-sdk documented defaults (`GP4` SDA, `GP5` SCL on `i2c0`). Override the pins by editing the file-scope `i2c_init` / `gpio_set_function` block at the top of `main.cpp`.
+
+### STM32Cube examples
+
+Each STM32Cube example is a standalone bare-metal CMake project under `cpp/examples/stm32cube/<category>/<Chip>/<tier>/`, containing `Core/Src/main.cpp` and `CMakeLists.txt`. It uses the shared toolchain file and NUCLEO-F411RE board files in `cpp/boards/stm32cube/` (linker script, startup file, clock config, `stm32f4xx_hal_conf.h`) and the HAL sources from `$STM32CUBE_FW_PATH` (see `TOOLCHAINS.md`). `CPP_DIR` is five levels up and `BOARD_DIR` is `cpp/boards/stm32cube`:
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+
+set(BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../boards/stm32cube)
+set(CPP_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/../../../../..)
+
+include(${BOARD_DIR}/toolchain-arm-none-eabi.cmake)
+
+project(<chip>_minimal_stm32cube C CXX ASM)
+
+if(NOT DEFINED ENV{STM32CUBE_FW_PATH})
+    message(FATAL_ERROR "STM32CUBE_FW_PATH is not set — see TOOLCHAINS.md")
+endif()
+set(FW_DIR $ENV{STM32CUBE_FW_PATH})
+
+add_executable(<chip>_minimal_stm32cube
+    Core/Src/main.cpp
+    ${BOARD_DIR}/nucleo-f411re/startup_stm32f411xe.s
+    ${BOARD_DIR}/nucleo-f411re/Core/Src/system_clock_config.c
+    ${CPP_DIR}/src/chips/<category>/<Chip>.cpp
+    ${FW_DIR}/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
+    ${FW_DIR}/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
+    # ... the HAL modules the example needs: _cortex, _rcc, _rcc_ex, _gpio, _dma, _pwr, _pwr_ex,
+    #     _flash*, _exti, plus _i2c/_i2c_ex, _spi or _uart for the bus in use
+)
+# target_include_directories(...) adds board Core/Inc, src/connection, src/chips/<category>,
+# and the CMSIS + HAL Inc dirs; copy the full block from an existing example.
+```
+
+Copy `cpp/examples/stm32cube/accelerometer/ADXL345/minimal/CMakeLists.txt` for the complete source and include list. Each example configures its own clocks and bus at file scope (`HAL_Init()`, `SystemClock_Config()`, then `__HAL_RCC_*_CLK_ENABLE()`, GPIO alternate-function setup and `HAL_I2C_Init()`/`HAL_SPI_Init()`/`HAL_UART_Init()`) before constructing the connection and chip driver. The connection classes only wrap an already-initialised handle. `printf` output goes over USART2 (PA2/PA3, the ST-LINK virtual COM port, 115200 baud) through a `_write()` override, and `SysTick_Handler` must call `HAL_IncTick()` so `HAL_Delay()` works.
+
+Default I²C is I2C1 on PB8 (SCL) / PB9 (SDA), the Arduino header D15/D14. Build with `cmake -S . -B build && cmake --build build`; flash `build/<chip>_<tier>_stm32cube.bin` to `0x8000000` with `st-flash --reset write` (on-board ST-LINK). The F4 HAL has no repeated-START primitive for arbitrary-length writes, so `I2CConnectionSTM32Cube` issues STOP/START between the write and read phases; the HAL return codes are available through `last_status()`/`error_count()` rather than the `Connection` interface.
 
 ## Node.js connection interface
 
@@ -1406,6 +1453,7 @@ Every chip needs hardware tests for **every** supported platform:
 | Zephyr | `cpp/tests/<category>/<chip>_test_zephyr/{src/main.cpp,CMakeLists.txt,prj.conf}` |
 | ESP-IDF | `cpp/tests/<category>/<chip>_test_espidf/{CMakeLists.txt,sdkconfig.defaults,main/CMakeLists.txt,main/main.cpp}` |
 | Pico SDK | `cpp/tests/<category>/<chip>_test_picosdk/{src/main.cpp,CMakeLists.txt}` |
+| STM32Cube | `cpp/tests/<category>/<chip>_test_stm32cube/{Core/Src/main.cpp,CMakeLists.txt}` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -1607,6 +1655,7 @@ Use these platform labels consistently:
 | C++ Zephyr | `C++/Zephyr` |
 | C++ ESP-IDF | `C++/ESP-IDF` |
 | C++ Pico SDK | `C++/PicoSDK` |
+| C++ STM32Cube | `C++/STM32Cube` |
 | Node.js | `Node.js` |
 | Node-RED | `Node-RED` |
 | Rust Linux | `Rust/Linux` |

@@ -104,6 +104,8 @@ On Linux, `read_raw` must insert a short sleep (≥1 ms) between DOUT polls to a
 | `pdSck` | Go TinyGo | `machine.Pin` | Clock / power-down output pin |
 | `dout` | Pico SDK | `uint` (GPIO pin number) | Data input pin; `gpio_set_dir(dout, GPIO_IN)` in `init` |
 | `pd_sck` | Pico SDK | `uint` (GPIO pin number) | Clock / power-down output pin; `gpio_set_dir(pd_sck, GPIO_OUT)` in `init` |
+| `doutPort`, `doutPin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | Data input; configured as input at construction |
+| `sckPort`, `sckPin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | Clock / power-down output; configured as push-pull output at construction |
 
 | `dout` | ESP-IDF | `int` (`gpio_num_t`) | Data input pin; `gpio_set_direction(dout, GPIO_MODE_INPUT)` in `init` |
 | `pd_sck` | ESP-IDF | `int` (`gpio_num_t`) | Clock / power-down output pin; `gpio_set_direction(pd_sck, GPIO_MODE_OUTPUT)` in `init` |
@@ -165,6 +167,14 @@ Direct port of the Zephyr bit-bang loop onto `hardware_gpio` (bare-metal `pico-s
 Use `gpio_get(dout)` and `gpio_put(pd_sck, 0/1)`. No explicit delay is needed between clock edges — `gpio_put`/`gpio_get` call overhead exceeds the 0.2 µs T3/T4 minimums, the same reasoning as the Arduino HX711 connection. There is no scheduler to yield to on bare metal, so the DOUT-ready wait in `read_raw` is a tight `gpio_get(dout)` poll loop (same as Arduino), timed against the 1 s timeout via `time_us_64()`.
 
 File: `cpp/src/connection/HX711ConnectionPicoSDK.h` (header-only)
+
+### STM32Cube
+
+Direct port of the bit-bang loop onto `HAL_GPIO_ReadPin()`/`HAL_GPIO_WritePin()` (bare-metal STM32 HAL). Constructor accepts GPIO port/pin pairs for DOUT and PD_SCK and configures them with `HAL_GPIO_Init()`; the caller owns GPIO port clock enable.
+
+The STM32 HAL has no microsecond delay (`HAL_Delay()` is millisecond-granular), so the ~1 µs delay between clock edges, which meets the HX711's 200 ns T3/T4 minimums with margin, uses a busy-wait on the Cortex-M4 DWT cycle counter. The DOUT-ready wait in `read_raw` polls at 1 ms intervals with `HAL_Delay()` against the 1 s timeout.
+
+File: `cpp/src/connection/HX711ConnectionSTM32Cube.h` (header-only)
 
 ### Node.js
 
@@ -246,6 +256,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/HX711ConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/connection/hx711.js` — JSDoc on class and every exported method

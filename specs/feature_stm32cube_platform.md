@@ -226,7 +226,7 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 - [ ] New compile-only job in `.github/workflows/ci.yml` (§7)
 
 ### Docs
-- [ ] `CLAUDE.md`, `AGENTS.md`, `TESTING.md`, `TOOLCHAINS.md`, `README.md`, `EXAMPLES.md`,
+- [x] `CLAUDE.md`, `AGENTS.md`, `TESTING.md`, `TOOLCHAINS.md`, `README.md`, `EXAMPLES.md`,
       `specs/hil_conformance_checklist.md`, the seven `specs/transport_*.md` files (§8)
 
 ### Pilot chip (ADXL345)

@@ -46,6 +46,8 @@ SPI is full-duplex: every byte sent has a simultaneous byte received. For `write
 | `cs` | Go TinyGo | `machine.Pin` | CS pin, driven manually — TinyGo's `machine.SPI` has no automatic CS the way Zephyr's devicetree does |
 | `spi` | Pico SDK | `spi_inst_t*` | SPI controller (`spi0` or `spi1`), already configured via `spi_init()`/`spi_set_format()` |
 | `cs` | Pico SDK | `uint` (GPIO pin number) | CS pin, driven manually — pico-sdk has no automatic CS the way Zephyr's devicetree `cs-gpios` does |
+| `hspi` | STM32Cube | `SPI_HandleTypeDef*` | SPI peripheral, already initialised via `HAL_SPI_Init()` |
+| `csPort`, `csPin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | CS pin, driven manually via `HAL_GPIO_WritePin()` — the HAL has no automatic CS in software-NSS mode |
 
 | `dev` | ESP-IDF | `spi_device_handle_t` | SPI device, already added to a bus via `spi_bus_add_device()` with CS configured in `spi_device_interface_config_t.spics_io_num` |
 
@@ -181,6 +183,20 @@ Wraps `hardware_spi` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Construc
 
 File: `cpp/src/connection/SPIConnectionPicoSDK.h` (header-only)
 
+### STM32Cube
+
+Wraps the STM32 HAL (`stm32f4xx_hal_spi.h`, bare-metal, no RTOS). Constructor accepts an `SPI_HandleTypeDef*` already initialised via `HAL_SPI_Init()` (caller owns clock enable, GPIO alternate-function setup, and the SPI mode/clock settings), plus a GPIO port and pin for CS, and the same `readBit`/`multiByteBit` command-byte parameters as the other SPI connections. CS is a plain GPIO the connection drives itself, the same convention as `SPIConnectionPicoSDK`/`SPIConnectionLinux`.
+
+| Contract | STM32 HAL |
+|----------|-----------|
+| `write` | CS low → `HAL_SPI_Transmit(hspi, data, len, 1000)` → CS high |
+| `read` | CS low → `HAL_SPI_Receive(hspi, buf, n, 1000)` → CS high |
+| `write_read` | CS low → `HAL_SPI_Transmit(...)` → `HAL_SPI_Receive(...)` → CS high |
+
+CS stays asserted across both phases of `write_read`. Polling only: no DMA or interrupt-driven transfers.
+
+File: `cpp/src/connection/SPIConnectionSTM32Cube.h` (header-only)
+
 ### Rust
 
 #### Embedded (embedded-hal `SpiDevice`)
@@ -277,6 +293,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Tests (Linux GCC)
 - [x] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/SPIConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/connection/spi.js` — JSDoc on class and every exported method

@@ -109,6 +109,24 @@ Requires the `PICO_SDK_PATH` environment variable and `pico_sdk_init()` in the c
 
 File: `cpp/src/connection/I2CConnectionPicoSDK.h` (header-only)
 
+### STM32Cube
+
+Wraps the STM32 HAL (`stm32f4xx_hal_i2c.h`, bare-metal, no RTOS, no devicetree). Constructor accepts an `I2C_HandleTypeDef*` already initialised via `HAL_I2C_Init()` (caller owns clock enable and GPIO alternate-function setup), plus the 7-bit address. The address is shifted left by one for the HAL, which takes the 8-bit form.
+
+| Contract | STM32 HAL |
+|----------|-----------|
+| `write` | `HAL_I2C_Master_Transmit(hi2c, addr << 1, data, len, 1000)` |
+| `read` | `HAL_I2C_Master_Receive(hi2c, addr << 1, buf, n, 1000)` |
+| `write_read` | `HAL_I2C_Master_Transmit(...)` → `HAL_I2C_Master_Receive(...)` |
+
+**Deviation from the repeated-start contract:** the blocking HAL has no primitive for an arbitrary-length write phase followed by a repeated START (`HAL_I2C_Mem_Read` only handles a 1- or 2-byte register address), so `write_read` issues a STOP and a new START between the two phases. Chip drivers in this repo re-send the register address before every read, so this has not caused a failure; a future chip that relies on a held bus would need a different approach.
+
+**Error reporting:** as on every embedded C++ connection, HAL return codes are not propagated through the `Connection` interface. This connection records them: `last_status()` returns the most recent `HAL_StatusTypeDef` and `error_count()` the number of non-`HAL_OK` transfers (NACK, bus error, timeout) since construction. Tests should check `error_count() == 0` and read the chip's identity register, since a missing device otherwise reads as zeros.
+
+Requires `STM32CUBE_FW_PATH` (see `TOOLCHAINS.md`) and `HAL_I2C_MODULE_ENABLED` in `stm32f4xx_hal_conf.h`.
+
+File: `cpp/src/connection/I2CConnectionSTM32Cube.h` (header-only)
+
 ### Go — Linux
 
 No cgo: uses `golang.org/x/sys/unix` for the raw `ioctl()` call plus hand-built structs mirroring `linux/i2c-dev.h`'s `struct i2c_msg` / `struct i2c_rdwr_ioctl_data` — Go's `unsafe.Pointer` plays the same role the JVM connection's manual FFM struct layout plays; neither needs a native library.
@@ -182,6 +200,8 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
 - [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/I2CConnectionSTM32Cube.h` — Doxygen (header-only)
+- [x] Tests (STM32Cube)
 
 ### Node.js
 - [x] `nodejs/packages/periph/src/connection/i2c.js` — JSDoc on class and every exported method
