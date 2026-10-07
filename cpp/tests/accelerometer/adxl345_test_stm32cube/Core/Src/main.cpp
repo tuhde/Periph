@@ -84,6 +84,11 @@ int main(void) {
     HAL_Delay(100);
 
     I2CConnectionSTM32Cube connection(&hi2c1, 0x53);
+    uint8_t devid = 0;
+    connection.read(0x00, &devid, 1);                       // Read DEVID register, (reg, buf, len) → 0xE5
+    check_true(connection.error_count() == 0, "i2c_no_hal_errors_on_devid_read");
+    check_true(devid == 0xE5, "devid_is_0xE5");
+
     ADXL345Minimal accel(connection);                       // Create ADXL345 driver, (connection)
 
     float x, y, z;
@@ -96,6 +101,8 @@ int main(void) {
     accel_full.set_range(4);                                // Set measurement range, (range_g) → g
     accel_full.read(x, y, z);                               // Read 3-axis acceleration, (x, y, z) → g, g, g
     check_true(x == x && y == y && z == z, "read_after_set_range_4g");
+
+    check_true(connection.error_count() == 0, "i2c_no_hal_errors_overall");
 
     printf("===DONE: %d passed, %d failed===\r\n", passed, failed);
     while (true) HAL_Delay(1000);

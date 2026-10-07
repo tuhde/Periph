@@ -24,6 +24,10 @@
  * real difference from Zephyr/ESP-IDF/Pico SDK's true repeated start,
  * worth knowing if a future chip needs one.
  *
+ * HAL return codes are not propagated through the `Connection` interface (as on every
+ * other embedded connection in this repo); they are recorded and exposed via
+ * `last_status()` / `error_count()`.
+ *
  * Requires an STM32Cube HAL project (`STM32CUBE_FW_PATH`, see
  * `TOOLCHAINS.md`) with `HAL_I2C_MODULE_ENABLED` in `stm32f4xx_hal_conf.h`.
  *
@@ -40,14 +44,21 @@ public:
                            OutputPin* enPin = nullptr, uint8_t regBytes = 1, bool enActiveHigh = true)
         : RegisterConnection(intPin, enPin, regBytes, enActiveHigh), _hi2c(hi2c), _addr(addr) {}
 
+    /** @brief HAL status of the most recent transfer (`HAL_OK` if none failed yet). */
+    HAL_StatusTypeDef last_status() const { return _lastStatus; }
+    /** @brief Number of transfers that returned a non-`HAL_OK` status since construction
+     *         (NACK, bus error, timeout). The `Connection` interface cannot propagate
+     *         errors, so callers that care (tests) poll this instead. */
+    uint32_t error_count() const { return _errorCount; }
+
 protected:
     /** @brief Send bytes to the device via `HAL_I2C_Master_Transmit`.
      *  @param data Pointer to the data buffer.
      *  @param len  Number of bytes to send.
      */
     void _write(const uint8_t* data, size_t len) override {
-        HAL_I2C_Master_Transmit(_hi2c, static_cast<uint16_t>(_addr << 1),
-                                const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS);
+        _record(HAL_I2C_Master_Transmit(_hi2c, static_cast<uint16_t>(_addr << 1),
+                                        const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS));
     }
 
     /** @brief Read bytes from the device via `HAL_I2C_Master_Receive`.
@@ -55,8 +66,8 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        HAL_I2C_Master_Receive(_hi2c, static_cast<uint16_t>(_addr << 1),
-                               buf, static_cast<uint16_t>(len), _TIMEOUT_MS);
+        _record(HAL_I2C_Master_Receive(_hi2c, static_cast<uint16_t>(_addr << 1),
+                                       buf, static_cast<uint16_t>(len), _TIMEOUT_MS));
     }
 
     /** @brief Write then read; see the class comment for why this is a
@@ -81,6 +92,14 @@ protected:
 
 private:
     static constexpr uint32_t _TIMEOUT_MS = 1000;
+
+    void _record(HAL_StatusTypeDef status) {
+        _lastStatus = status;
+        if (status != HAL_OK) _errorCount++;
+    }
+
+    HAL_StatusTypeDef _lastStatus = HAL_OK;
+    uint32_t          _errorCount = 0;
 
     I2C_HandleTypeDef* _hi2c;
     uint8_t             _addr;
