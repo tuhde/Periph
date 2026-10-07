@@ -5,7 +5,7 @@
 **Scope:** C++ only — a sixth platform target (connection layer, chip-driver delay branch,
 examples, tests, docs, CI) alongside Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry
 Pi Pico SDK. No other language is affected.
-**Origin:** Direct request (no GitHub issue filed yet — see §12)
+**Origin:** GitHub issue #426 ("STM32Cube platform integration")
 
 ---
 
@@ -243,7 +243,5 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 
 ## 12. Open Follow-Up
 
-No GitHub issue has been filed for this feature yet. If a traceable record is wanted before
-Phase 1 implementation starts, file one and backfill this spec's header with the issue number,
-consistent with how `feature_register_access_design.md` and `feature_i2c_discovery.md` record
-their origin.
+Tracked as GitHub issue #426 (https://github.com/tuhde/Periph/issues/426). Phase 1 implementation
+can proceed against this spec.
