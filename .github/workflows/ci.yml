@@ -195,40 +195,61 @@ jobs:
           key: ${{ steps.ccache.outputs.cache-primary-key }}
 
   # -----------------------------------------------------------------------
-  # STM32Cube — every example and test app, compile-only. Single shard for
-  # now (one pilot chip, specs/feature_stm32cube_platform.md Phase 1);
-  # shard like Pico SDK once the full chip retrofit (Phase 3) lands.
+  # STM32Cube — every example and test app, compile-only, split across
+  # parallel shards (Phase 3 of specs/feature_stm32cube_platform.md takes it
+  # past 100 apps).
   #
   # Ubuntu's gcc-arm-none-eabi package needs libnewlib-arm-none-eabi and
   # libstdc++-arm-none-eabi-newlib alongside it for <stdio.h> etc. to
   # resolve — unlike pico-sdk/esp-idf, there's no bundled toolchain here.
+  #
+  # Setup is bounded on purpose: a stalled apt mirror once hung this job for
+  # 29 minutes (no output after "Get:3 ... ccache"), so apt gets download
+  # timeouts and retries and the job gets a hard timeout. STM32CubeF4 is
+  # ~1 GB with docs, example projects and middlewares we never use; a sparse,
+  # blobless clone of just Drivers/CMSIS and the HAL driver is ~145 MB.
   # -----------------------------------------------------------------------
   stm32cube:
-    name: STM32Cube compile
+    name: STM32Cube compile (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install arm-none-eabi toolchain and STM32CubeF4
+      - name: Install arm-none-eabi toolchain
+        timeout-minutes: 8
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+          $APT update
+          $APT install -y --no-install-recommends \
             cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache
-          git clone --depth 1 -b v1.28.3 https://github.com/STMicroelectronics/STM32CubeF4.git /opt/STM32CubeF4
+
+      - name: Fetch STM32CubeF4 (Drivers/CMSIS + HAL driver only)
+        timeout-minutes: 5
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
+            https://github.com/STMicroelectronics/STM32CubeF4.git /opt/STM32CubeF4
+          git -C /opt/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver
           git -C /opt/STM32CubeF4 submodule update --init --depth 1 \
             Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
           echo "STM32CUBE_FW_PATH=/opt/STM32CubeF4" >> $GITHUB_ENV
 
+      # ccache persists across runs, one cache per shard. Only main saves
+      # it (PRs restore main's), so PR runs can't evict the large caches.
       - name: Restore ccache
         id: ccache
         uses: actions/cache/restore@v5
         with:
           path: .ccache
-          key: ccache-stm32cube-${{ github.sha }}
-          restore-keys: ccache-stm32cube-
+          key: ccache-stm32cube-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: ccache-stm32cube-${{ matrix.shard }}-
 
       - name: Build all apps
-        run: cpp/scripts/build-all.sh stm32cube
+        run: cpp/scripts/build-all.sh stm32cube --shard ${{ matrix.shard }}/4
         env:
           CCACHE_DIR: ${{ github.workspace }}/.ccache
           CCACHE_MAXSIZE: 400M
