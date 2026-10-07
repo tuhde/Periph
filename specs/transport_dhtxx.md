@@ -31,6 +31,9 @@ All transport implementations must provide these operations:
 | `chip` | Linux GCC | `gpiod_chip *` | Open gpiod chip handle |
 | `line_num` | Linux GCC | `int` | gpiod line offset |
 | `spec` | Zephyr | `gpio_dt_spec` | GPIO devicetree spec; connection calls `gpio_pin_configure_dt` |
+| `data_pin` | ESP-IDF | `gpio_num_t` | GPIO pin; connection switches direction with `gpio_set_direction` |
+| `data_pin` | Pico SDK | `uint` | GPIO pin number; connection switches direction with `gpio_set_dir` |
+| `port`, `pin` | STM32Cube | `GPIO_TypeDef*`, `uint16_t` | GPIO port and pin (e.g. `GPIOA`, `GPIO_PIN_8`); connection reconfigures the pin via `HAL_GPIO_Init()` |
 | `data_pin` | Node.js | `number` | GPIO pin number; connection switches direction internally via `onoff` |
 | `P` | Rust | platform-specific | See Rust platform notes |
 | `chipPath` | JVM | `String` | gpiochip device path (e.g. `/dev/gpiochip0`) |
@@ -148,6 +151,32 @@ Uses `zephyr/drivers/gpio.h`. Direction switching: `gpio_pin_configure_dt(&spec,
 
 File: `cpp/src/connection/DHTxxConnectionZephyr.h`
 
+### ESP-IDF
+
+Uses `driver/gpio.h` (bare-metal ESP-IDF ≥5.1, no Arduino core). Constructor takes a `gpio_num_t` and resets the pin to input with `gpio_reset_pin()`/`gpio_set_direction()`. Direction switching: `gpio_set_direction(pin, GPIO_MODE_OUTPUT)` / `GPIO_MODE_INPUT`. Timing: `esp_rom_delay_us()` for the 20 ms start pulse; `esp_timer_get_time()` with a busy-poll on `gpio_get_level()` for pulse-width measurement. GPIO read latency on ESP32 is well below 1 µs, so the 40 µs bit threshold separates the 26–28 µs "0" pulse from the ~70 µs "1" pulse. Interrupts are not masked during the frame.
+
+The consuming project must list the GPIO driver component (`esp_driver_gpio` on ESP-IDF ≥6.0, `driver` before) and `esp_timer` in `REQUIRES`. Does not extend the shared `Connection` base (custom protocol); carries its own `enable()`/`disable()`/`isEnabled()` gate.
+
+File: `cpp/src/connection/DHTxxConnectionESPIDF.h` (header-only)
+
+### Raspberry Pi Pico SDK
+
+Uses `hardware_gpio` (bare-metal `pico-sdk`, no Arduino core, no RTOS). Constructor takes a GPIO pin number and calls `gpio_init()` / `gpio_set_dir(pin, GPIO_IN)`. Direction switching: `gpio_set_dir(pin, GPIO_OUT)` / `GPIO_IN`; the start pulse is driven with `gpio_put(pin, 0)`. Timing: `sleep_us()` for the 20 ms start pulse; `time_us_32()` with a busy-poll on `gpio_get()` for pulse-width measurement. Interrupts are not masked during the frame.
+
+Link against `pico_stdlib` and `hardware_gpio`. Does not extend the shared `Connection` base (custom protocol); carries its own `enable()`/`disable()`/`isEnabled()` gate.
+
+File: `cpp/src/connection/DHTxxConnectionPicoSDK.h` (header-only)
+
+### STM32Cube
+
+Uses the STM32 HAL (`HAL_GPIO_Init()`, `HAL_GPIO_ReadPin()`, `HAL_GPIO_WritePin()`; bare-metal, no RTOS). Constructor takes the GPIO port and pin of the DATA line; the caller owns GPIO port clock enable. Direction switching: `HAL_GPIO_Init()` with `GPIO_MODE_OUTPUT_PP` / `GPIO_MODE_INPUT`. The DATA line needs the external 4.7 kΩ pull-up to VCC.
+
+Timing: the 20 ms start pulse uses `HAL_Delay()`. The STM32 HAL has no microsecond delay, so pulse-width measurement uses a free-running microsecond counter derived from the Cortex-M4 DWT cycle counter (`DWT->CYCCNT / (SystemCoreClock / 1 000 000)`), the same approach as `HX711ConnectionSTM32Cube`. Pulses are polled with `HAL_GPIO_ReadPin()` and a high pulse longer than 40 µs decodes as a 1 bit. Interrupts are not masked during the frame, so a long interrupt handler can corrupt a read; callers retry on `false`.
+
+Does not extend the shared `Connection` base (custom protocol); carries its own `enable()`/`disable()`/`isEnabled()` gate that makes `read()` return `false` without touching the bus.
+
+File: `cpp/src/connection/DHTxxConnectionSTM32Cube.h` (header-only)
+
 ### Node.js
 
 Uses the `onoff` package (legacy sysfs GPIO, `/sys/class/gpio`). Direction switching: destroy and recreate the `Gpio` instance with the new direction, or construct with `{ reconfigureDirection: true }` and call `unexport()`/re-instantiate — `onoff` does not expose an in-place direction change on an already-open instance. Timing: `process.hrtime.bigint()` with busy-wait loops; V8's non-deterministic GC pauses make this the least timing-reliable of the Linux targets. Same non-RTOS reliability caveats as the other Linux connections apply, more acutely.
@@ -212,6 +241,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests (Arduino)
 - [ ] Tests (Linux GCC)
 - [ ] Tests (Zephyr)
+- [x] `cpp/src/connection/DHTxxConnectionESPIDF.h` — Doxygen (header-only)
+- [x] Tests (ESP-IDF)
+- [x] `cpp/src/connection/DHTxxConnectionPicoSDK.h` — Doxygen (header-only)
+- [x] Tests (Pico SDK)
+- [x] `cpp/src/connection/DHTxxConnectionSTM32Cube.h` — Doxygen (header-only)
+- [ ] Tests (STM32Cube)
 
 ### Node.js
 - [ ] `nodejs/packages/periph/src/connection/dhtxx.js` — JSDoc on class and every exported method

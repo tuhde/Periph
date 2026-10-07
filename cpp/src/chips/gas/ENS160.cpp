@@ -11,6 +11,9 @@ static inline void delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static inline void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+static inline void delay(unsigned long ms) { HAL_Delay(ms); }
 #elif __has_include(<pico/time.h>)
 #include <pico/time.h>
 static inline void delay(unsigned long ms) { sleep_ms(ms); }

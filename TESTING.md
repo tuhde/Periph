@@ -14,7 +14,7 @@ Every platform script auto-detects the deepest level the environment actually su
 
 Detection: sigrok configured **and** hardware present → conformance; hardware present → hil; neither → unit. Override with `--level unit|hil|conformance` on any script that supports it — e.g. force `unit` on a machine with a stale `/dev/i2c-1` node, or skip conformance deliberately even with the analyzer attached.
 
-**Unit only exists on each language's native host script** (`test_linux.sh`, or the JVM's `test_linux_<lang>.sh`). Arduino/Zephyr/ESP-IDF/Pico SDK/TinyGo/CircuitPython/MicroPython/Rust-ESP32-S3 run the exact same chip-driver source as their language's host platform, so a mocked run there would duplicate the host script's unit coverage with zero added signal — those scripts support `hil` and `conformance` only, and error out asking for a board if neither is present.
+**Unit only exists on each language's native host script** (`test_linux.sh`, or the JVM's `test_linux_<lang>.sh`). Arduino/Zephyr/ESP-IDF/Pico SDK/STM32Cube/TinyGo/CircuitPython/MicroPython/Rust-ESP32-S3 run the exact same chip-driver source as their language's host platform, so a mocked run there would duplicate the host script's unit coverage with zero added signal — those scripts support `hil` and `conformance` only, and error out asking for a board if neither is present.
 
 **Unit + conformance are not implemented for every chip yet.** Rollout is incremental, chip by chip (see `specs/testing_framework.md`, "Rollout Scope") — ENS160 and AHT21 are the reference implementations as of this writing. A chip without a unit test file falls straight through to `hil`, behaving exactly as it always did. A chip without a `conformance/<category>/<chip>_conformance.py` fails fast with a clear "conformance checker not found" error if `--level conformance` is forced or auto-detected.
 
@@ -28,6 +28,7 @@ Full design rationale lives in `specs/testing_framework.md`; this file is the da
    cp cpp/testconfig_zephyr.example  cpp/testconfig_zephyr
    cp cpp/testconfig_espidf.example  cpp/testconfig_espidf
    cp cpp/testconfig_picosdk.example cpp/testconfig_picosdk
+   cp cpp/testconfig_stm32cube.example cpp/testconfig_stm32cube
    cp cpp/testconfig_wiring.example  cpp/testconfig_wiring   # optional - multi-chip bench / sigrok only
 
    cp python/testconfig.example      python/testconfig
@@ -52,6 +53,7 @@ Full design rationale lives in `specs/testing_framework.md`; this file is the da
    cpp/test_zephyr.sh     power/ina226
    cpp/test_espidf.sh     power/ina226
    cpp/test_picosdk.sh    power/ina226
+   cpp/test_stm32cube.sh  accelerometer/adxl345
 
    python/test_mp.sh      power/ina226
    python/test_cp.sh      power/ina226
@@ -82,7 +84,7 @@ Two different people reach for these scripts, with two different sources of wiri
   cpp/test_espidf.sh --board esp32s3-sensor-devkit                 # self-test every chip on that board
   cpp/test_espidf.sh --board esp32s3-sensor-devkit gas/ens160       # just one chip on it
   ```
-  With no `<category>/<chip>` argument, `--board` tests every chip listed in that board's `BOARD_CHIPS`. `--board` is supported on every flashable platform script (Arduino, Zephyr, ESP-IDF, Pico SDK, MicroPython, CircuitPython, Rust ESP32-S3, TinyGo) — not on the host-only scripts (`test_linux.sh`, Node.js, JVM), where a fixed-peripheral scenario doesn't come up in practice.
+  With no `<category>/<chip>` argument, `--board` tests every chip listed in that board's `BOARD_CHIPS`. `--board` is supported on every flashable platform script (Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube, MicroPython, CircuitPython, Rust ESP32-S3, TinyGo) — not on the host-only scripts (`test_linux.sh`, Node.js, JVM), where a fixed-peripheral scenario doesn't come up in practice.
 
 See `specs/testing_framework.md`, "Test Scenarios: Fixed Board vs Free-Wire Bench" for the full design, and `cpp/boards/esp32s3-sensor-devkit.conf` for a worked example.
 
@@ -121,6 +123,7 @@ CI compiles every C++ example and test app on every platform; the per-platform s
 |---|---|---|
 | Linux GCC | `cpp/scripts/build-all.sh linux` | `cpp/examples/linux`, `*_test_linux`, `*_test_unit` (unit tests are also run). Needs `g++` and libgpiod v2. |
 | Pico SDK | `cpp/scripts/build-all.sh picosdk` | `cpp/examples/picosdk`, `*_test_picosdk`. Needs `PICO_SDK_PATH`. |
+| STM32Cube | `cpp/scripts/build-all.sh stm32cube` | `cpp/examples/stm32cube`, `*_test_stm32cube`, built for the NUCLEO-F411RE. Needs `arm-none-eabi-gcc` and `STM32CUBE_FW_PATH`. |
 | ESP-IDF | `cpp/scripts/build-all.sh espidf` | `cpp/examples/espidf`, `*_test_espidf`. Needs an active ESP-IDF environment. |
 | Zephyr | `cpp/scripts/build-all.sh zephyr` | `cpp/examples/zephyr`, `*_test_zephyr`, built for `rpi_pico2/rp2350a/m33` with `cpp/boards/zephyr/rpi_pico2_rp2350a_m33.overlay`. Run from a west workspace with `zephyr-env.sh` sourced. |
 | Arduino | `cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests` and `--fqbn arduino:avr:mega` | All examples on both; test sketches (`--tests`) only on the ESP32-S3 rig board. |
@@ -307,6 +310,31 @@ Pins: each chip's test app hard-codes its default I²C pins (`GP4` SDA / `GP5` S
 
 ---
 
+### STM32Cube (`cpp/test_stm32cube.sh`)
+
+**Prerequisites:** `arm-none-eabi-gcc`, `cmake`, a local STM32CubeF4 checkout with its CMSIS-device and HAL-driver submodules (`STM32CUBE_FW_PATH`, see `TOOLCHAINS.md` section 2f), `st-flash` from `stlink-tools`, `pyserial` (`pip install pyserial`), a NUCLEO-F411RE connected by USB (on-board ST-LINK)
+
+**Config:** `cpp/testconfig_stm32cube` (or `--board nucleo-f411re`)
+
+| Variable | Description |
+|----------|-------------|
+| `STM32CUBE_FW_PATH` | Path to your local STM32CubeF4 checkout (or export it in the environment) |
+| `STM32CUBE_PORT` | ST-LINK virtual COM port, e.g. `/dev/ttyACM0` (Linux) |
+| `I2C_ADDR` | Device I²C address (hex) |
+| `SERIAL_TIMEOUT` | Seconds to wait for output (default 20) |
+
+Levels: **hil, conformance**. Builds each test as a standalone bare-metal CMake project, flashes the `.bin` to `0x8000000` with `st-flash` (which also resets the board), and reads the ST-LINK virtual COM port at 115200 baud. Supports `--compile-only`:
+```
+cpp/test_stm32cube.sh --compile-only accelerometer/adxl345
+cpp/test_stm32cube.sh --board nucleo-f411re            # every chip in the board profile's BOARD_CHIPS
+```
+
+Pins: each chip's test app hard-codes I2C1 on `PB8` (SCL) / `PB9` (SDA), the Arduino header D15/D14, and prints on USART2 (`PA2`/`PA3`, wired to the ST-LINK). To override, edit `i2c1_init()` at the top of the per-chip `main.cpp`.
+
+**Note:** the F4 HAL has no repeated-START primitive for an arbitrary-length write, so `I2CConnectionSTM32Cube` sends STOP/START between the register-address write and the read. HAL return codes are not propagated through the `Connection` interface; tests should check `connection.error_count()`.
+
+---
+
 ### Rust Linux (`rust/test_linux.sh`)
 
 **Prerequisites:** `cargo` (stable), `linux/i2c-dev.h` kernel driver (`i2c-dev` module)
@@ -441,6 +469,7 @@ Add one test file per platform following the naming convention:
 | Zephyr RTOS | `cpp/tests/<category>/<chip>_test_zephyr/src/main.cpp` + `CMakeLists.txt` + `prj.conf` |
 | ESP-IDF | `cpp/tests/<category>/<chip>_test_espidf/main/main.cpp` + `main/CMakeLists.txt` + `CMakeLists.txt` |
 | Pico SDK | `cpp/tests/<category>/<chip>_test_picosdk/src/main.cpp` + `CMakeLists.txt` |
+| STM32Cube | `cpp/tests/<category>/<chip>_test_stm32cube/Core/Src/main.cpp` + `CMakeLists.txt` |
 | MicroPython | `python/tests/<category>/<chip>_test.py` |
 | CircuitPython | `python/tests/<category>/<chip>_test_cp.py` |
 | Linux kernel (Python) | `python/tests/<category>/<chip>_test_linux.py` |
@@ -855,6 +884,61 @@ int main(void) {
 ```
 
 The default I²C pins (`GP4`/`GP5` on `i2c0`) match pico-sdk's documented defaults — wire your device to those and the test will work without further configuration. Call the chip driver's real API (e.g. `status()`/`read_tvoc()`/`read_eco2()` for ENS160) rather than guessing method names — a test app that never compiles against the real header is easy to leave broken indefinitely.
+
+### STM32Cube test template (NUCLEO-F411RE)
+
+`CMakeLists.txt`: copy `cpp/tests/accelerometer/adxl345_test_stm32cube/CMakeLists.txt` and change the project/target name, the chip source path (`${CPP_DIR}/src/chips/<category>/<Chip>.cpp`) and the chip include directory; add the HAL module for the bus the chip uses (`stm32f4xx_hal_i2c.c` + `_i2c_ex.c`, `stm32f4xx_hal_spi.c`, or `stm32f4xx_hal_uart.c`). It includes `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake` and needs `STM32CUBE_FW_PATH` (see `TOOLCHAINS.md`).
+
+`Core/Src/main.cpp`:
+```cpp
+#include <stdio.h>
+#include <stm32f4xx_hal.h>
+#include "system_clock_config.h"
+#include "I2CConnectionSTM32Cube.h"   // or SPIConnectionSTM32Cube.h / UARTConnectionSTM32Cube.h
+#include "<Chip>.h"
+
+static I2C_HandleTypeDef hi2c1;
+static UART_HandleTypeDef huart2;
+static int passed = 0, failed = 0;
+
+extern "C" void SysTick_Handler(void) { HAL_IncTick(); }
+
+// printf -> USART2 (PA2/PA3), the ST-LINK virtual COM port
+extern "C" int _write(int file, char* ptr, int len) {
+    (void)file;
+    HAL_UART_Transmit(&huart2, reinterpret_cast<uint8_t*>(ptr), static_cast<uint16_t>(len), HAL_MAX_DELAY);
+    return len;
+}
+
+static void check_true(bool cond, const char* label) {
+    if (cond) { printf("PASS %s\r\n", label); passed++; }
+    else       { printf("FAIL %s\r\n", label); failed++; }
+}
+
+// uart2_init(): USART2 on PA2/PA3, AF7, 115200 8N1; i2c1_init(): I2C1 on PB8 (SCL) / PB9 (SDA),
+// AF4 open-drain with pull-ups, 100 kHz. Copy both from the ADXL345 test's main.cpp.
+
+int main(void) {
+    HAL_Init();
+    SystemClock_Config();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    uart2_init();
+    i2c1_init();
+    HAL_Delay(100);
+
+    I2CConnectionSTM32Cube connection(&hi2c1, 0x40);  // 7-bit address
+    <Chip>Full chip(connection);
+
+    // ... checks using chip.<method>() ...
+    check_true(connection.error_count() == 0, "i2c_no_hal_errors");  // HAL status is not propagated, poll it
+
+    printf("===DONE: %d passed, %d failed===\r\n", passed, failed);
+    while (true) HAL_Delay(1000);
+}
+```
+
+Print `\r\n`, not `\n`: the ST-LINK serial port does no newline translation. Read the chip's identity register (e.g. ADXL345 `DEVID` = 0xE5) and check `connection.error_count() == 0`: `I2CConnectionSTM32Cube` can't report a NACK through the `Connection` interface, so a test that only checks sensor values can pass against a missing device. The default wiring (I2C1, PB8/PB9, D15/D14 on the Arduino header) needs no configuration. Call the chip driver's real API, as with the other platforms.
 
 ### Rust Linux test template (hil)
 

@@ -18,6 +18,9 @@
 #            cpp/tests/*/*_test_zephyr, built for ZEPHYR_BOARD
 #            (default rpi_pico2/rp2350a/m33) with the matching overlay from
 #            cpp/boards/zephyr/ if there is one
+#   stm32cube  arm-none-eabi-gcc + STM32CUBE_FW_PATH set: cpp/examples/stm32cube,
+#            cpp/tests/*/*_test_stm32cube, built for NUCLEO-F411RE via
+#            cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake
 #   Arduino has its own script: cpp/test_arduino_examples.sh.
 #
 # --shard I/N  build only every N-th app starting at the I-th (1-based), so
@@ -57,8 +60,11 @@ list_apps() {
         zephyr)
             find "$CPP_DIR/examples/zephyr" -mindepth 3 -maxdepth 3 -type d
             find "$CPP_DIR/tests" -mindepth 2 -maxdepth 2 -type d -name '*_test_zephyr' ;;
+        stm32cube)
+            find "$CPP_DIR/examples/stm32cube" -mindepth 3 -maxdepth 3 -type d
+            find "$CPP_DIR/tests" -mindepth 2 -maxdepth 2 -type d -name '*_test_stm32cube' ;;
         *)
-            echo "Usage: $0 <linux|picosdk|espidf|zephyr> [--shard I/N] [filter]" >&2
+            echo "Usage: $0 <linux|picosdk|espidf|zephyr|stm32cube> [--shard I/N] [filter]" >&2
             exit 2 ;;
     esac
 }
@@ -105,6 +111,13 @@ build_zephyr() {
     local app="$1" out="$2" extra=()
     [ -f "$ZEPHYR_OVERLAY" ] && extra=(-- -DEXTRA_DTC_OVERLAY_FILE="$ZEPHYR_OVERLAY")
     west build -p always -b "$ZEPHYR_BOARD" -d "$out/b" "$app" "${extra[@]}"
+}
+
+build_stm32cube() {
+    local app="$1" out="$2"
+    cmake -S "$app" -B "$out/b" \
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache &&
+    cmake --build "$out/b" -- -j"$(nproc)"
 }
 
 WORK="$(mktemp -d)"

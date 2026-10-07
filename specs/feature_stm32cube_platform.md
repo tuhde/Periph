@@ -170,7 +170,7 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 - `README.md` — C++ row's platform list
 - `EXAMPLES.md`, `specs/hil_conformance_checklist.md` — add STM32Cube rows
 - `specs/transport_i2c.md`, `transport_spi.md`, `transport_smbus.md`, `transport_uart.md`,
-  `transport_neopixel.md`, `transport_hx711.md`, `transport_sipo.md` — add an STM32Cube
+  `transport_neopixel.md`, `transport_hx711.md`, `transport_sipo.md`, `transport_dhtxx.md` — add an STM32Cube
   platform-notes subsection to each
 - Wiki — no page-by-page edits required; `<ChipName>.md` platform matrices only need a new column
   once that chip's STM32Cube support actually lands (handled per-chip during Phase 3, not here)
@@ -226,8 +226,8 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 - [ ] New compile-only job in `.github/workflows/ci.yml` (§7)
 
 ### Docs
-- [ ] `CLAUDE.md`, `AGENTS.md`, `TESTING.md`, `TOOLCHAINS.md`, `README.md`, `EXAMPLES.md`,
-      `specs/hil_conformance_checklist.md`, the seven `specs/transport_*.md` files (§8)
+- [x] `CLAUDE.md`, `AGENTS.md`, `TESTING.md`, `TOOLCHAINS.md`, `README.md`, `EXAMPLES.md`,
+      `specs/hil_conformance_checklist.md`, the eight `specs/transport_*.md` files (§8)
 
 ### Pilot chip (ADXL345)
 - [ ] `cpp/examples/stm32cube/accelerometer/ADXL345/{minimal,complete,demo}/`

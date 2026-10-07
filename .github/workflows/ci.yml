@@ -195,6 +195,58 @@ jobs:
           key: ${{ steps.ccache.outputs.cache-primary-key }}
 
   # -----------------------------------------------------------------------
+  # STM32Cube — every example and test app, compile-only. Single shard for
+  # now (one pilot chip, specs/feature_stm32cube_platform.md Phase 1);
+  # shard like Pico SDK once the full chip retrofit (Phase 3) lands.
+  #
+  # Ubuntu's gcc-arm-none-eabi package needs libnewlib-arm-none-eabi and
+  # libstdc++-arm-none-eabi-newlib alongside it for <stdio.h> etc. to
+  # resolve — unlike pico-sdk/esp-idf, there's no bundled toolchain here.
+  # -----------------------------------------------------------------------
+  stm32cube:
+    name: STM32Cube compile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install arm-none-eabi toolchain and STM32CubeF4
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache
+          git clone --depth 1 -b v1.28.3 https://github.com/STMicroelectronics/STM32CubeF4.git /opt/STM32CubeF4
+          git -C /opt/STM32CubeF4 submodule update --init --depth 1 \
+            Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
+          echo "STM32CUBE_FW_PATH=/opt/STM32CubeF4" >> $GITHUB_ENV
+
+      - name: Restore ccache
+        id: ccache
+        uses: actions/cache/restore@v5
+        with:
+          path: .ccache
+          key: ccache-stm32cube-${{ github.sha }}
+          restore-keys: ccache-stm32cube-
+
+      - name: Build all apps
+        run: cpp/scripts/build-all.sh stm32cube
+        env:
+          CCACHE_DIR: ${{ github.workspace }}/.ccache
+          CCACHE_MAXSIZE: 400M
+          CCACHE_BASEDIR: /tmp
+          CCACHE_NOHASHDIR: "1"
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Save ccache
+        if: github.ref == 'refs/heads/main' && !cancelled()
+        uses: actions/cache/save@v5
+        with:
+          path: .ccache
+          key: ${{ steps.ccache.outputs.cache-primary-key }}
+
+  # -----------------------------------------------------------------------
   # Python — syntax check across all chip drivers and tests
   # -----------------------------------------------------------------------
   python:
