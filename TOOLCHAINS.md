@@ -161,6 +161,30 @@ source zephyr/zephyr-env.sh
 "$OLDPWD/cpp/scripts/build-all.sh" zephyr   # run from the Periph checkout, or pass its absolute path
 ```
 
+### 2f. STM32Cube (STM32CubeF4 v1.28.3, NUCLEO-F411RE)
+
+```sh
+sudo apt-get install -y --no-install-recommends cmake gcc-arm-none-eabi libnewlib-arm-none-eabi g++ ccache
+
+git clone --depth 1 -b v1.28.3 https://github.com/STMicroelectronics/STM32CubeF4.git ~/STM32CubeF4
+git -C ~/STM32CubeF4 submodule update --init --depth 1 \
+  Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
+echo 'export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"' >> ~/.bashrc
+export STM32CUBE_FW_PATH="$HOME/STM32CubeF4"
+
+cpp/scripts/build-all.sh stm32cube
+```
+
+The clone alone is **not enough**: the CMSIS device headers and the HAL
+driver are git submodules, and without them CMake fails with
+`Cannot find source file: .../system_stm32f4xx.c`. Only those two are
+needed; the other submodules (BSP, middlewares) are large and unused.
+
+To flash and run on a NUCLEO-F411RE (on-board ST-LINK), install
+`stlink-tools` and use `cpp/test_stm32cube.sh`; it builds, flashes with
+`st-flash` and reads the ST-LINK virtual COM port (`/dev/ttyACM0`, 115200
+baud).
+
 ---
 
 ## 3. Node.js / Node-RED
@@ -292,6 +316,7 @@ cpp/scripts/build-all.sh linux
 cpp/scripts/build-all.sh picosdk
 cpp/scripts/build-all.sh espidf     # after sourcing esp-idf/export.sh
 cpp/scripts/build-all.sh zephyr     # from inside ~/zephyrproject, after sourcing zephyr-env.sh
+cpp/scripts/build-all.sh stm32cube  # needs STM32CUBE_FW_PATH
 cpp/test_arduino_examples.sh --fqbn esp32:esp32:esp32s3 --tests
 cpp/test_arduino_examples.sh --fqbn arduino:avr:mega
 
