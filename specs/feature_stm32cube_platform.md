@@ -47,14 +47,14 @@ examples already use).
 
 ## 3. Reference Board & Toolchain
 
-- **Board:** NUCLEO-F411RE (STM32F411CEU6, Cortex-M4 @ 100 MHz, hardware FPU, on-board ST-LINK).
+- **Board:** NUCLEO-F411RE (STM32F411RET6, Cortex-M4 @ 100 MHz, hardware FPU, on-board ST-LINK).
   Cheapest, most ubiquitous Nucleo-64 board, well-trodden HAL package (STM32CubeF4) — same
   "cheap, available, well-documented" reasoning behind the Pico and ESP32-S3-devkit picks.
 - **HAL source:** a new `STM32CUBE_FW_PATH` env var points at a locally cloned `STM32CubeF4`
   firmware repo (HAL drivers + CMSIS device headers + startup files), exactly mirroring
   `PICO_SDK_PATH` / `ZEPHYR_BASE` / `IDF_PATH`. Not vendored into this repo.
 - **Toolchain:** `arm-none-eabi-gcc` + a project-local CMake toolchain file,
-  `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake`, plus a linker script (`STM32F411CEUx_FLASH.ld`)
+  `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake`, plus a linker script (`STM32F411RETX_FLASH.ld`)
   and startup file (`startup_stm32f411xe.s`) checked into `cpp/boards/stm32cube/nucleo-f411re/`
   (pulled from the CubeF4 package's board example at first use, then committed — same reasoning
   as Zephyr's committed board overlay).
@@ -133,7 +133,7 @@ connections (no compiled sources beyond what each example already builds).
 
 - `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake` — standard ARM GCC CMake toolchain file
   (compiler paths, `-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard`, etc.)
-- `cpp/boards/stm32cube/nucleo-f411re/{STM32F411CEUx_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
+- `cpp/boards/stm32cube/nucleo-f411re/{STM32F411RETX_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
 - `cpp/examples/stm32cube/<category>/<Chip>/<tier>/{CMakeLists.txt,Core/Src/main.cpp}` — one
   standalone CMake project per example, same `CPP_DIR` relative-path convention as Pico SDK's
   example `CMakeLists.txt`
@@ -206,7 +206,7 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 
 ### Toolchain & board files
 - [ ] `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake`
-- [ ] `cpp/boards/stm32cube/nucleo-f411re/{STM32F411CEUx_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
+- [ ] `cpp/boards/stm32cube/nucleo-f411re/{STM32F411RETX_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
 
 ### Platform detection
 - [ ] `__has_include(<stm32f4xx_hal.h>)` delay branch added to all 30 chip `.cpp` files currently
