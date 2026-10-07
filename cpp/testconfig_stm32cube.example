@@ -1,0 +1,35 @@
+# Periph STM32Cube test configuration
+# Copy this file to testconfig_stm32cube and fill in your values.
+# testconfig_stm32cube is gitignored — never commit it.
+
+# ------------------------------------------------------------------
+# STM32Cube firmware package
+# ------------------------------------------------------------------
+# Path to your local STM32CubeF4 checkout (HAL + CMSIS). If unset here,
+# the STM32CUBE_FW_PATH environment variable must already be exported —
+# see TOOLCHAINS.md.
+# STM32CUBE_FW_PATH=/opt/STM32CubeF4
+
+# ------------------------------------------------------------------
+# Flashing / serial
+# ------------------------------------------------------------------
+# Serial port exposed by the NUCLEO-F411RE's on-board ST-LINK virtual COM
+# port. On Linux this is typically /dev/ttyACM0.
+STM32CUBE_PORT=/dev/ttyACM0
+
+# ------------------------------------------------------------------
+# I²C / SPI / GPIO defaults
+# ------------------------------------------------------------------
+# I²C bus used by tests that take an address: I2C1 on PB8 (SCL) / PB9 (SDA)
+# — the Arduino-shield-compatible pins on every Nucleo-64 board.
+# I2C_SDA=PB9
+# I2C_SCL=PB8
+
+# I²C address of the device under test (hex). Per-chip defaults live in
+# chip_defaults at the repo root.
+# I2C_ADDR=0x53
+
+# ------------------------------------------------------------------
+# Test timeouts
+# ------------------------------------------------------------------
+SERIAL_TIMEOUT=20
