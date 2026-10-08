@@ -1,7 +1,23 @@
 #include "ADE7953.h"
 
-#if __has_include(<stm32f4xx_hal.h>)
+#ifdef ARDUINO
+#include <Arduino.h>
+#elif defined(__ZEPHYR__)
+#include <zephyr/kernel.h>
+static inline void delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
+#elif defined(ESP_PLATFORM)
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+static inline void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
+#elif __has_include(<stm32f4xx_hal.h>)
 #include <stm32f4xx_hal.h>
+static inline void delay(unsigned long ms) { HAL_Delay(ms); }
+#elif __has_include(<pico/time.h>)
+#include <pico/time.h>
+static inline void delay(unsigned long ms) { sleep_ms(ms); }
+#else
+#include <unistd.h>
+static inline void delay(unsigned long ms) { usleep(ms * 1000UL); }
 #endif
 
 namespace {
@@ -36,14 +52,7 @@ namespace {
 
 void ADE7953Minimal::_delayMs(uint32_t ms) {
     if (ms == 0) return;
-#if __has_include(<stm32f4xx_hal.h>)
-    HAL_Delay(ms);   // real wall-clock delay (SysTick), unlike the NOP loop below
-#else
-    // Busy-wait ~ms milliseconds; portable across bare-metal targets.
-    // 1 ms at >=1 MHz clock with no optimisation: ~1000 iterations.
-    volatile uint32_t count = ms * 1000u;
-    while (count != 0) { count = count - 1; __asm__ volatile("nop"); }
-#endif
+    delay(ms);
 }
 
 

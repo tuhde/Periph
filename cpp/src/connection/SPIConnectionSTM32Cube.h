@@ -10,7 +10,9 @@
  * `HAL_SPI_Init()` (typically CubeMX's `MX_SPI1_Init()`). CS is a plain
  * GPIO driven directly by this connection — same manual-CS convention as
  * `SPIConnectionPicoSDK`/`SPIConnectionLinux`, unlike Zephyr/ESP-IDF where
- * the driver owns CS.
+ * the driver owns CS. The constructor configures the CS pin as a push-pull
+ * output and drives it high (deasserted); the caller only has to enable the
+ * clock of the CS GPIO port, as for `OutputPinSTM32Cube`.
  *
  * @param hspi         SPI handle, already initialised via `HAL_SPI_Init()`.
  * @param csPort       GPIO port for the CS line.
@@ -35,7 +37,13 @@ public:
                            InputPin* intPin = nullptr, OutputPin* enPin = nullptr, bool enActiveHigh = true)
         : RegisterConnection(intPin, enPin, 1, enActiveHigh), _hspi(hspi), _csPort(csPort), _csPin(csPin),
           _readBit(readBit), _multiByteBit(multiByteBit) {
-        HAL_GPIO_WritePin(_csPort, _csPin, GPIO_PIN_SET);  // CS idle HIGH (deasserted)
+        HAL_GPIO_WritePin(_csPort, _csPin, GPIO_PIN_SET);  // CS idle HIGH (deasserted) before the pin drives
+        GPIO_InitTypeDef gpioInit = {};
+        gpioInit.Pin   = _csPin;
+        gpioInit.Mode  = GPIO_MODE_OUTPUT_PP;
+        gpioInit.Pull  = GPIO_NOPULL;
+        gpioInit.Speed = GPIO_SPEED_FREQ_HIGH;
+        HAL_GPIO_Init(_csPort, &gpioInit);
     }
 
     /** @brief Read @p len bytes starting at register @p reg, building the SPI command byte. */

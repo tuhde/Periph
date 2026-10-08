@@ -201,13 +201,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/espidf/memory/MB85RC/complete/main/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/espidf/memory/MB85RC/demo/main/main.cpp` — Tier-1 + Tier-3
 - [ ] Examples `cpp/examples/picosdk/memory/MB85RC/minimal/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/stm32cube/memory/MB85RC/minimal/Core/Src/main.cpp` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/memory/MB85RC/complete/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/stm32cube/memory/MB85RC/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/memory/MB85RC/demo/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/stm32cube/memory/MB85RC/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/memory/mb85rc_test/mb85rc_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/memory/mb85rc_test_linux/mb85rc_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/memory/mb85rc_test_zephyr/src/main.cpp` (Zephyr)
 - [ ] Tests `cpp/tests/memory/mb85rc_test_espidf/main/main.cpp` (ESP-IDF)
 - [ ] Tests `cpp/tests/memory/mb85rc_test_picosdk/src/main.cpp` (Pico SDK)
+- [ ] Tests `cpp/tests/memory/mb85rc_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Unit test `cpp/tests/memory/mb85rc_test_unit/mb85rc_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js

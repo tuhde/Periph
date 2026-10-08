@@ -1,6 +1,6 @@
 # Feature Design: STM32Cube Platform
 
-**Status:** Spec — awaiting implementation
+**Status:** Implemented — Phases 1–3 merged (PRs #427, #485, #487, #488); Phase 4 done in this change
 **Branch:** `feature/stm32cube`
 **Scope:** C++ only — a sixth platform target (connection layer, chip-driver delay branch,
 examples, tests, docs, CI) alongside Arduino, Linux GCC, Zephyr RTOS, ESP-IDF, and Raspberry
@@ -189,7 +189,9 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
    issues) once Phases 1-2 are merged — not enumerated chip-by-chip in this spec.
 4. **Phase 4 — Make it required.** Once Phase 3 lands, the CI job moves from informational to a
    required check, and every new chip spec lists STM32Cube under Stages/Checklist like the other
-   five platforms, no separate tracking needed.
+   five platforms, no separate tracking needed. *Done:* the chip spec templates now list the
+   STM32Cube examples and test. `main` has no branch protection, so no CI job is a *required*
+   GitHub check; the `STM32Cube compile (n/4)` shards simply run in CI like every other platform's.
 
 ## 10. Design Decisions
 
@@ -205,43 +207,64 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 ## 11. Implementation Checklist
 
 ### Toolchain & board files
-- [ ] `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake`
-- [ ] `cpp/boards/stm32cube/nucleo-f411re/{STM32F411RETX_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
+- [x] `cpp/boards/stm32cube/toolchain-arm-none-eabi.cmake`
+- [x] `cpp/boards/stm32cube/nucleo-f411re/{STM32F411RETX_FLASH.ld,startup_stm32f411xe.s,Core/Inc/stm32f4xx_hal_conf.h}`
 
 ### Platform detection
-- [ ] `__has_include(<stm32f4xx_hal.h>)` delay branch added to all 30 chip `.cpp` files currently
-      carrying the Arduino/Zephyr/ESP-IDF/Pico SDK chain (§4)
+- [x] `__has_include(<stm32f4xx_hal.h>)` delay branch added to all 30 chip `.cpp` files currently
+      carrying the Arduino/Zephyr/ESP-IDF/Pico SDK chain (§4). Three more drivers carried their own
+      time helpers and got a branch in Phase 3: MCP2515, RFM9x, ADE7953
 
 ### Connection layer
-- [ ] `I2CConnectionSTM32Cube.h`, `SMBusConnectionSTM32Cube.h`, `SPIConnectionSTM32Cube.h`,
+- [x] `I2CConnectionSTM32Cube.h`, `SMBusConnectionSTM32Cube.h`, `SPIConnectionSTM32Cube.h`,
       `UARTConnectionSTM32Cube.h`, `NeoPixelConnectionSTM32Cube.h`, `HX711ConnectionSTM32Cube.h`,
       `SiPoConnectionSTM32Cube.h`, `DHTxxConnectionSTM32Cube.h`, `InputPinSTM32Cube.h`,
       `OutputPinSTM32Cube.h` (§5)
 
 ### Build & test scripts
-- [ ] `cpp/test_stm32cube.sh`, `cpp/testconfig_stm32cube.example`
-- [ ] `cpp/scripts/build-all.sh` `stm32cube` case
+- [x] `cpp/test_stm32cube.sh`, `cpp/testconfig_stm32cube.example`
+- [x] `cpp/scripts/build-all.sh` `stm32cube` case
 
 ### CI
-- [ ] New compile-only job in `.github/workflows/ci.yml` (§7)
+- [x] New compile-only job in `.github/workflows/ci.yml` (§7); now sharded 4 ways with a bounded setup (PR #486)
 
 ### Docs
 - [x] `CLAUDE.md`, `AGENTS.md`, `TESTING.md`, `TOOLCHAINS.md`, `README.md`, `EXAMPLES.md`,
       `specs/hil_conformance_checklist.md`, the eight `specs/transport_*.md` files (§8)
 
 ### Pilot chip (ADXL345)
-- [ ] `cpp/examples/stm32cube/accelerometer/ADXL345/{minimal,complete,demo}/`
-- [ ] `cpp/tests/accelerometer/adxl345_test_stm32cube/`
-- [ ] Compiles clean locally against a real `STM32CubeF4` checkout with `arm-none-eabi-gcc`
+- [x] `cpp/examples/stm32cube/accelerometer/ADXL345/{minimal,complete,demo}/`
+- [x] `cpp/tests/accelerometer/adxl345_test_stm32cube/`
+- [x] Compiles clean locally against a real `STM32CubeF4` checkout with `arm-none-eabi-gcc`
 
 ### Hardware-in-loop
-- [ ] ADXL345 minimal example flashed to a real NUCLEO-F411RE via ST-LINK, confirmed reading
-      plausible acceleration values over the on-board I²C pins
+- [x] ADXL345 flashed to a real NUCLEO-F411RE via ST-LINK and confirmed reading plausible
+      acceleration values over the on-board I²C pins (the HIL test, which also checks DEVID and HAL
+      errors, passed 6/6 and the demo streamed ~1.00 g at rest; the minimal example itself was not
+      separately flashed)
 
 ### Full retrofit (Phase 3 — tracked separately, not part of this spec's checklist)
-- [ ] Examples + tests for the remaining ~58 existing C++ chips
+- [x] Examples + tests for the remaining 57 existing C++ chips (58 with the pilot), done as sub-issues
+      #428–#484 in three batches (PRs #485, #487, #488)
 
 ## 12. Open Follow-Up
 
-Tracked as GitHub issue #426 (https://github.com/tuhde/Periph/issues/426). Phase 1 implementation
-can proceed against this spec.
+Tracked as GitHub issue #426 (https://github.com/tuhde/Periph/issues/426). All four phases are done.
+
+Known follow-ups (not yet verified or fixed):
+- Only the I²C connection has run on real hardware with a sensor attached (ADXL345). The SPI, UART,
+  NeoPixel, HX711, SiPo, DHTxx and SMBus STM32Cube connections are compile-checked and boot-checked
+  (their tests run on the NUCLEO-F411RE with nothing wired), not verified against real chips.
+- NeoPixel runs SPI1 at 3.125 MHz (APB2 / 32), not the specified 2.4 MHz: SPI1 cannot produce 2.4 MHz
+  from the 100 MHz APB2 clock. Bit timing is slightly off the WS2812B datasheet and the 16-byte reset
+  pad is ~41 µs rather than >50 µs.
+- The Pico SDK HX711, HX710A/B, DHT11, NEO6, WS2812B, SK6812RGBW and WS2814 tests are stubs that only
+  print `PASS probe`. The STM32Cube versions of those tests are ported from the Zephyr tests instead
+  and run real checks; the Pico SDK stubs themselves are unchanged.
+
+Fixed after the first Phase 3 pass:
+- `SPIConnectionSTM32Cube` now configures its CS pin (push-pull output, idle high) in the constructor;
+  the examples and tests no longer set it up themselves.
+- `ADE7953::_delayMs` uses a real per-platform delay (Arduino `delay`, Zephyr `k_sleep`, FreeRTOS
+  `vTaskDelay`, Pico `sleep_ms`, STM32 `HAL_Delay`, `usleep` on Linux) instead of a NOP busy-loop that
+  was far too short on fast MCUs.

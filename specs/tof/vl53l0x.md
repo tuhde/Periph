@@ -629,13 +629,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `cpp/examples/espidf/tof/VL53L0X/complete/main/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/espidf/tof/VL53L0X/demo/main/main.cpp` — Tier-1 + Tier-3
 - [x] Examples `cpp/examples/picosdk/tof/VL53L0X/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/tof/VL53L0X/minimal/Core/Src/main.cpp` — Tier-1
 - [x] Examples `cpp/examples/picosdk/tof/VL53L0X/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/tof/VL53L0X/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/picosdk/tof/VL53L0X/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/tof/VL53L0X/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [x] Tests `cpp/tests/tof/vl53l0x_test/vl53l0x_test.ino` (Arduino)
 - [x] Tests `cpp/tests/tof/vl53l0x_test_linux/vl53l0x_test_linux.cpp` (Linux GCC)
 - [x] Tests `cpp/tests/tof/vl53l0x_test_zephyr/src/main.cpp` (Zephyr)
 - [x] Tests `cpp/tests/tof/vl53l0x_test_espidf/main/main.cpp` (ESP-IDF)
 - [x] Tests `cpp/tests/tof/vl53l0x_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/tof/vl53l0x_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [x] Unit test `cpp/tests/tof/vl53l0x_test_unit/vl53l0x_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js

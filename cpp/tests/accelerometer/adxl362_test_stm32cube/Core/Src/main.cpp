@@ -51,8 +51,6 @@ static void uart2_init(void) {
 
 // SPI1 on the Arduino header: PA5=SCK (D13), PA6=MISO (D12), PA7=MOSI (D11).
 // SPI1 is on APB2 (100 MHz), so the baud rate is 100 MHz / prescaler.
-// CS is a plain GPIO on PB6 (D10), idle high; SPIConnectionSTM32Cube drives it
-// but does not configure it, so it is set up here.
 static void spi1_init(uint32_t prescaler, uint32_t polarity, uint32_t phase) {
     __HAL_RCC_SPI1_CLK_ENABLE();
 
@@ -63,13 +61,6 @@ static void spi1_init(uint32_t prescaler, uint32_t polarity, uint32_t phase) {
     gpioInit.Speed     = GPIO_SPEED_FREQ_HIGH;
     gpioInit.Alternate = GPIO_AF5_SPI1;
     HAL_GPIO_Init(GPIOA, &gpioInit);
-
-    gpioInit.Pin   = GPIO_PIN_6;
-    gpioInit.Mode  = GPIO_MODE_OUTPUT_PP;
-    gpioInit.Pull  = GPIO_NOPULL;
-    gpioInit.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-    HAL_GPIO_Init(GPIOB, &gpioInit);
 
     hspi1.Instance               = SPI1;
     hspi1.Init.Mode              = SPI_MODE_MASTER;
@@ -161,5 +152,4 @@ int main(void) {
 
     printf("===DONE: %d passed, %d failed===\r\n", passed, failed);
     while (1) HAL_Delay(1000);
-    while (true) HAL_Delay(1000);
 }
