@@ -185,7 +185,7 @@ File: `cpp/src/connection/SPIConnectionPicoSDK.h` (header-only)
 
 ### STM32Cube
 
-Wraps the STM32 HAL (`stm32f4xx_hal_spi.h`, bare-metal, no RTOS). Constructor accepts an `SPI_HandleTypeDef*` already initialised via `HAL_SPI_Init()` (caller owns clock enable, GPIO alternate-function setup, and the SPI mode/clock settings), plus a GPIO port and pin for CS, and the same `readBit`/`multiByteBit` command-byte parameters as the other SPI connections. CS is a plain GPIO the connection drives itself, the same convention as `SPIConnectionPicoSDK`/`SPIConnectionLinux`.
+Wraps the STM32 HAL (`stm32f4xx_hal_spi.h`, bare-metal, no RTOS). Constructor accepts an `SPI_HandleTypeDef*` already initialised via `HAL_SPI_Init()` (caller owns clock enable, GPIO alternate-function setup, and the SPI mode/clock settings), plus a GPIO port and pin for CS, and the same `readBit`/`multiByteBit` command-byte parameters as the other SPI connections. CS is a plain GPIO the connection drives itself, the same convention as `SPIConnectionPicoSDK`/`SPIConnectionLinux`; the constructor configures it as a push-pull output and drives it high (deasserted), so the caller only enables the clock of the CS GPIO port (as for `OutputPinSTM32Cube`).
 
 | Contract | STM32 HAL |
 |----------|-----------|
