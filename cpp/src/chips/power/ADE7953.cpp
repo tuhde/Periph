@@ -1,5 +1,9 @@
 #include "ADE7953.h"
 
+#if __has_include(<stm32f4xx_hal.h>)
+#include <stm32f4xx_hal.h>
+#endif
+
 namespace {
     constexpr uint8_t  UART_CMD_READ  = 0x35;
     constexpr uint8_t  UART_CMD_WRITE = 0xCA;
@@ -32,10 +36,14 @@ namespace {
 
 void ADE7953Minimal::_delayMs(uint32_t ms) {
     if (ms == 0) return;
+#if __has_include(<stm32f4xx_hal.h>)
+    HAL_Delay(ms);   // real wall-clock delay (SysTick), unlike the NOP loop below
+#else
     // Busy-wait ~ms milliseconds; portable across bare-metal targets.
     // 1 ms at >=1 MHz clock with no optimisation: ~1000 iterations.
     volatile uint32_t count = ms * 1000u;
     while (count != 0) { count = count - 1; __asm__ volatile("nop"); }
+#endif
 }
 
 
