@@ -252,14 +252,19 @@ Mechanical updates, following exactly how the Pico SDK rollout touched these sam
 Tracked as GitHub issue #426 (https://github.com/tuhde/Periph/issues/426). All four phases are done.
 
 Known follow-ups (not yet verified or fixed):
-- Only the I²C connection has run on real hardware (ADXL345); the SPI, UART, NeoPixel, HX711, SiPo,
-  DHTxx and SMBus STM32Cube connections are compile-checked and, for some tests, boot-checked only.
+- Only the I²C connection has run on real hardware with a sensor attached (ADXL345). The SPI, UART,
+  NeoPixel, HX711, SiPo, DHTxx and SMBus STM32Cube connections are compile-checked and boot-checked
+  (their tests run on the NUCLEO-F411RE with nothing wired), not verified against real chips.
 - NeoPixel runs SPI1 at 3.125 MHz (APB2 / 32), not the specified 2.4 MHz: SPI1 cannot produce 2.4 MHz
   from the 100 MHz APB2 clock. Bit timing is slightly off the WS2812B datasheet and the 16-byte reset
   pad is ~41 µs rather than >50 µs.
-- `SPIConnectionSTM32Cube` writes its CS pin but never configures it, so every SPI example sets CS up
-  itself.
-- Several Pico SDK tests the STM32Cube ones were ported from are stubs that only print `PASS probe`
-  (HX711, HX710A/B, DHT11, NEO6, WS2812B, SK6812RGBW, WS2814).
-- The NOP busy-loop in `ADE7953::_delayMs` still serves the non-STM32Cube platforms and is not
-  wall-clock accurate.
+- The Pico SDK HX711, HX710A/B, DHT11, NEO6, WS2812B, SK6812RGBW and WS2814 tests are stubs that only
+  print `PASS probe`. The STM32Cube versions of those tests are ported from the Zephyr tests instead
+  and run real checks; the Pico SDK stubs themselves are unchanged.
+
+Fixed after the first Phase 3 pass:
+- `SPIConnectionSTM32Cube` now configures its CS pin (push-pull output, idle high) in the constructor;
+  the examples and tests no longer set it up themselves.
+- `ADE7953::_delayMs` uses a real per-platform delay (Arduino `delay`, Zephyr `k_sleep`, FreeRTOS
+  `vTaskDelay`, Pico `sleep_ms`, STM32 `HAL_Delay`, `usleep` on Linux) instead of a NOP busy-loop that
+  was far too short on fast MCUs.

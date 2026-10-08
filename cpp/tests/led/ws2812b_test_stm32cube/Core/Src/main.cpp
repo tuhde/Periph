@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stm32f4xx_hal.h>
 #include "system_clock_config.h"
+#include "NeoPixelConnectionSTM32Cube.h"
+#include "WS2812B.h"
 
 static UART_HandleTypeDef huart2;
 static SPI_HandleTypeDef hspi1;
@@ -73,6 +75,20 @@ static void spi1_init(uint32_t prescaler, uint32_t polarity, uint32_t phase) {
     hspi1.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     HAL_SPI_Init(&hspi1);
 }
+
+static int passed = 0;
+static int failed = 0;
+
+static void check_true(bool cond, const char *label) {
+    if (cond) { printf("PASS %s\r\n", label); passed++; }
+    else       { printf("FAIL %s\r\n", label); failed++; }
+}
+
+static void check_eq_u8(const char *label, uint8_t got, uint8_t expected) {
+    if (got == expected) { printf("PASS %s\r\n", label); passed++; }
+    else { printf("FAIL %s: got %u, expected %u\r\n", label, got, expected); failed++; }
+}
+
 int main(void) {
     HAL_Init();
     SystemClock_Config();
@@ -83,8 +99,50 @@ int main(void) {
     // WS2812B datasheet values and are unverified on hardware.
     // NeoPixel DIN connects to MOSI (PA7, D11); SCK, MISO and CS are unused by the strip.
     spi1_init(SPI_BAUDRATEPRESCALER_32, SPI_POLARITY_LOW, SPI_PHASE_1EDGE);
-    HAL_Delay(2000);
-    printf("PASS probe\r\n");
-    printf("===DONE: 1 passed, 0 failed===\r\n");
+    NeoPixelConnectionSTM32Cube connection(&hspi1);
+
+    // --- WS2812BMinimal ---
+    {
+        WS2812BMinimal strip(connection, 8);
+
+        strip.fill(255, 0, 0);
+        check_true(true, "fill(255,0,0) accepted");
+
+        strip.fill(0, 255, 0);
+        check_true(true, "fill(0,255,0) accepted");
+
+        strip.off();
+        check_true(true, "off() accepted");
+    }
+
+    // --- WS2812BFull ---
+    {
+        WS2812BFull strip(connection, 8);
+
+        check_eq_u8("default brightness is 255", strip.get_brightness(), 255);
+
+        strip.set_pixel(0, 255, 0, 0);
+        strip.show();
+        check_true(true, "set_pixel + show accepted");
+
+        strip.set_brightness(128);
+        check_eq_u8("brightness setter", strip.get_brightness(), 128);
+        strip.show();
+        check_true(true, "show() with brightness=128 accepted");
+
+        strip.set_brightness(255);
+
+        strip.rotate(1);
+        strip.show();
+        check_true(true, "rotate + show accepted");
+
+        strip.fill_hsv(0.0f, 1.0f, 1.0f);
+        check_true(true, "fill_hsv accepted");
+
+        strip.off();
+        check_true(true, "off() on Full accepted");
+    }
+
+    printf("===DONE: %d passed, %d failed===\r\n", passed, failed);
     while (true) HAL_Delay(1000);
 }
