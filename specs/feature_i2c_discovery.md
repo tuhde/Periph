@@ -2,7 +2,7 @@
 
 **Issue:** #128
 **Status:** Spec — awaiting implementation
-**Scope:** Host targets only — Python (Linux/smbus2), C++ (Linux GCC), Node.js, Rust (Linux host), JVM (Java), Go (Linux). MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Pico SDK and TinyGo are out of scope (firmware knows its wiring at build time; the registry would cost flash/RAM for nothing).
+**Scope:** Host targets only — Python (Linux/smbus2), C++ (Linux GCC), Node.js, Rust (Linux host), JVM (Java), Go (Linux). MicroPython, CircuitPython, Arduino, Zephyr, ESP-IDF, Pico SDK, STM32Cube and TinyGo are out of scope (firmware knows its wiring at build time; the registry would cost flash/RAM for nothing).
 
 ---
 
@@ -434,7 +434,7 @@ Additional decisions made while writing this spec:
 - [x] Example `python/examples/discovery/discover.py` (minimal/complete/demo tiers per `CLAUDE.md`)
 
 ### C++ (Linux GCC)
-- [x] `Discovery.h/.cpp`, `DiscoveryRegistry.h` (generated); unit tests against a mock bus; excluded from the Arduino/Zephyr/ESP-IDF/Pico SDK builds (`#ifdef __linux__` guards; Arduino staging and `keywords.txt` skip `src/discovery`). Only `build-all.sh linux` was run — the other four platforms' toolchains were not exercised, see §12
+- [x] `Discovery.h/.cpp`, `DiscoveryRegistry.h` (generated); unit tests against a mock bus; excluded from the Arduino/Zephyr/ESP-IDF/Pico SDK builds, and from STM32Cube, which was added later and does not compile `src/discovery` (`#ifdef __linux__` guards; Arduino staging and `keywords.txt` skip `src/discovery`). Only `build-all.sh linux` was run — the other four platforms' toolchains were not exercised, see §12
 - [x] Linux examples (minimal/complete/demo)
 
 ### Node.js

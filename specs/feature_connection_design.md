@@ -852,9 +852,10 @@ public:
 | `InputPinZephyr` | `InputPinZephyr.h` | Zephyr | `gpio_add_callback()` |
 | `InputPinESPIDF` | `InputPinESPIDF.h` | ESP-IDF | `gpio_install_isr_service()` + `gpio_isr_handler_add()` |
 | `InputPinPicoSDK` | `InputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_set_irq_enabled_with_callback()` |
+| `InputPinSTM32Cube` | `InputPinSTM32Cube.h` | STM32Cube | EXTI line via `HAL_GPIO_Init(GPIO_MODE_IT_*)` + `HAL_GPIO_EXTI_Callback()`; the project routes `EXTIx_IRQHandler` to `HAL_GPIO_EXTI_IRQHandler()` |
 
 Class names follow the same `<Base>ESPIDF` / `<Base>PicoSDK` suffix convention already used by
-every C++ transport (`I2CTransportESPIDF`, `I2CTransportPicoSDK`, …).
+every C++ transport (`I2CTransportESPIDF`, `I2CTransportPicoSDK`, …; the STM32Cube connections are named `<Base>STM32Cube`).
 
 ### 5.3 Node.js (`nodejs/packages/periph/src/connection/input_pin.js`)
 
@@ -973,6 +974,7 @@ public:
 | `OutputPinZephyr` | `OutputPinZephyr.h` | Zephyr | `gpio_pin_set()` |
 | `OutputPinESPIDF` | `OutputPinESPIDF.h` | ESP-IDF | `gpio_set_level()` |
 | `OutputPinPicoSDK` | `OutputPinPicoSDK.h` | Raspberry Pi Pico SDK | `gpio_put()` |
+| `OutputPinSTM32Cube` | `OutputPinSTM32Cube.h` | STM32Cube | `HAL_GPIO_WritePin()` |
 
 ### 6.3 Node.js (`nodejs/packages/periph/src/connection/output_pin.js`)
 
@@ -1107,6 +1109,7 @@ imu.on_interrupt(handler)
 | Zephyr | `gpio_add_callback()` | |
 | ESP-IDF | Hardware IRQ via `InputPinESPIDF` | `gpio_install_isr_service()` + `gpio_isr_handler_add()` |
 | Pico SDK | Hardware IRQ via `InputPinPicoSDK` | `gpio_set_irq_enabled_with_callback()` |
+| STM32Cube | Hardware IRQ via `InputPinSTM32Cube` | EXTI line; only one port per pin number can be an interrupt source at a time |
 | Node.js (epoll) | `EpollInputPin` | Requires native `epoll` dependency |
 | Node.js (polling) | `PollingInputPin` | Fallback |
 | Rust | None (user-managed) | Call `poll_interrupt()` from own ISR or polling loop |
@@ -1215,18 +1218,18 @@ IO-expander per-pin `watch` / `unwatch` is an additional layer above Level 1 or 
 
 ### 10.1 Feature parity matrix
 
-| Capability | Py MicroPy | Py CP | Py Linux | C++ Arduino | C++ Linux | C++ Zephyr | C++ ESP-IDF | C++ Pico SDK | Node.js | Rust | JVM | Go Linux | Go TinyGo |
-|-----------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| `Connection` object | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓ | ✓ | ✓ |
-| `enable` / `disable` (software gate) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `en_pin` (hardware) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗† | ✓ | ✓ | ✓ |
-| `on_interrupt` / `off_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
-| `poll_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `enable_interrupt` / `disable_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Hardware-edge delivery | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ |
-| Polling-thread delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | ✗ |
-| `epoll` / sysfs / gpiochip delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
-| `pin.watch` / `unwatch` *(IO expanders)* | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
+| Capability | Py MicroPy | Py CP | Py Linux | C++ Arduino | C++ Linux | C++ Zephyr | C++ ESP-IDF | C++ Pico SDK | C++ STM32Cube | Node.js | Rust | JVM | Go Linux | Go TinyGo |
+|-----------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `Connection` object | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓* | ✓ | ✓ | ✓ |
+| `enable` / `disable` (software gate) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `en_pin` (hardware) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗† | ✓ | ✓ | ✓ |
+| `on_interrupt` / `off_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
+| `poll_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `enable_interrupt` / `disable_interrupt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Hardware-edge delivery | ✓ | ✓ | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Polling-thread delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | ✗ |
+| `epoll` / sysfs / gpiochip delivery | ✗ | ✗ | ✓ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✓ | ✗ |
+| `pin.watch` / `unwatch` *(IO expanders)* | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
 
 ✓ = supported after this feature, ✗ = not supported (by design)  
 \* Rust `Connection` carries bus + enabled state only; no pin fields.  
@@ -1350,7 +1353,7 @@ EN pin (`OutputPin`). See `specs/feature_connection_design.md` for the full desi
 conn = I2CConnection(bus=1, addr=0x68, int_pin=LinuxSysfsPin(17), en_pin=LinuxOutputPin(18))
 ```
 
-**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, and Pico SDK):
+**C++** (identical on Arduino, Linux GCC, Zephyr, ESP-IDF, Pico SDK, and STM32Cube):
 ```cpp
 I2CConnection conn(bus, addr, &gpioPin, &enPin);
 ```
@@ -1419,7 +1422,7 @@ Expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency; default to
 **C++**
 Use `conn.intPin()` to access the `InputPin*`. Platform `#ifdef` guards belong
 exclusively in `InputPinLinux.h` / `InputPinArduino.h` / `InputPinZephyr.h` /
-`InputPinESPIDF.h` / `InputPinPicoSDK.h` — never in the chip driver.
+`InputPinESPIDF.h` / `InputPinPicoSDK.h` / `InputPinSTM32Cube.h` — never in the chip driver.
 
 **Node.js**
 `onInterrupt` calls `this._conn.intPin.onEdge(…)`. `pollInterrupt` is `async`.
@@ -1511,6 +1514,7 @@ see §4.1 for the rename pattern and blast radius.
 | `cpp/src/connection/InputPinZephyr.h` | C++ | `gpio_add_callback` implementation |
 | `cpp/src/connection/InputPinESPIDF.h` | C++ | `gpio_install_isr_service` / `gpio_isr_handler_add` implementation |
 | `cpp/src/connection/InputPinPicoSDK.h` | C++ | `gpio_set_irq_enabled_with_callback` implementation |
+| `cpp/src/connection/InputPinSTM32Cube.h` | C++ | EXTI-line implementation (`HAL_GPIO_EXTI_Callback`) |
 | `cpp/src/connection/OutputPin.h` | C++ | `OutputPin` base class |
 | `cpp/src/connection/OutputPinArduino.h` | C++ | `digitalWrite` implementation |
 | `cpp/src/connection/OutputPinLinux.h` | C++ | libgpiod v2 implementation |
@@ -1518,6 +1522,7 @@ see §4.1 for the rename pattern and blast radius.
 | `cpp/src/connection/OutputPinZephyr.h` | C++ | `gpio_pin_set` implementation |
 | `cpp/src/connection/OutputPinESPIDF.h` | C++ | `gpio_set_level` implementation |
 | `cpp/src/connection/OutputPinPicoSDK.h` | C++ | `gpio_put` implementation |
+| `cpp/src/connection/OutputPinSTM32Cube.h` | C++ | `HAL_GPIO_WritePin` implementation |
 | `nodejs/packages/periph/src/connection/connection.js` | Node.js | `Connection` base class (new — JS had no prior shared `Transport` base) |
 | `nodejs/packages/periph/src/connection/input_pin.js` | Node.js | `InputPin`, `EpollInputPin`, `PollingInputPin` |
 | `nodejs/packages/periph/src/connection/output_pin.js` | Node.js | `OutputPin`, `GpioOutputPin` |

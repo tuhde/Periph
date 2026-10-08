@@ -395,8 +395,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `cpp/examples/espidf/pressure/Lps33hw/complete/{...}` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/espidf/pressure/Lps33hw/demo/{...}` — Tier-1 + Tier-3
 - [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/minimal/{CMakeLists.txt,src/main.cpp}` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/pressure/Lps33hw/minimal/{CMakeLists.txt,Core/Src/main.cpp}` — Tier-1
 - [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/complete/{...}` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/pressure/Lps33hw/complete/{...}` — Tier-1 + Tier-2
 - [ ] Examples `cpp/examples/picosdk/pressure/Lps33hw/demo/{...}` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/pressure/Lps33hw/demo/{...}` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/pressure/lps33hw_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [ ] Tests `cpp/tests/pressure/lps33hw_test/lps33hw_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/pressure/lps33hw_test_linux/lps33hw_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/pressure/lps33hw_test_zephyr/src/main.cpp` (Zephyr)

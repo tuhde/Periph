@@ -196,13 +196,17 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [x] Examples `cpp/examples/espidf/led/SK6812RGBW/complete/main/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/espidf/led/SK6812RGBW/demo/main/main.cpp` — Tier-1 + Tier-3
 - [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/stm32cube/led/SK6812RGBW/minimal/Core/Src/main.cpp` — Tier-1
 - [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/stm32cube/led/SK6812RGBW/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
 - [x] Examples `cpp/examples/picosdk/led/SK6812RGBW/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/stm32cube/led/SK6812RGBW/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [x] Tests `cpp/tests/led/sk6812rgbw_test/sk6812rgbw_test.ino` (Arduino)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_linux/sk6812rgbw_test_linux.cpp` (Linux GCC)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_zephyr/src/main.cpp` (Zephyr)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_espidf/main/main.cpp` (ESP-IDF)
 - [x] Tests `cpp/tests/led/sk6812rgbw_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Tests `cpp/tests/led/sk6812rgbw_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
 - [x] Unit test `cpp/tests/led/sk6812rgbw_test_unit/sk6812rgbw_test_unit.cpp` — write-only, reuse `I2CConnectionMock`, run via `test_linux.sh`
 
 ### Node.js

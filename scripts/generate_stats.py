@@ -197,6 +197,7 @@ def gather_cpp():
         "Linux": "Linux GCC",
         "Zephyr": "Zephyr",
         "PicoSDK": "Pico SDK",
+        "STM32Cube": "STM32Cube",
         "Mock": "Mocks (unit tests)",
         "Arduino": "Arduino",
     }
@@ -217,6 +218,7 @@ def gather_cpp():
         "zephyr": "Zephyr",
         "espidf": "ESP-IDF",
         "picosdk": "Pico SDK",
+        "stm32cube": "STM32Cube",
     }
     for plat_dir in (ROOT / "cpp/examples").glob("*"):
         platform = example_platform.get(plat_dir.name, plat_dir.name)
@@ -232,6 +234,7 @@ def gather_cpp():
         "zephyr": "Zephyr",
         "espidf": "ESP-IDF",
         "picosdk": "Pico SDK",
+        "stm32cube": "STM32Cube",
         "unit": "Linux GCC",
     }
     for cat_dir in sorted((ROOT / "cpp/tests").glob("*")):
