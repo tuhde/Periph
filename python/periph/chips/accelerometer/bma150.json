@@ -5,14 +5,6 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
-      "periph/chips/accelerometer/adxl345.py",
-      "github:tuhde/Periph/python/periph/chips/accelerometer/adxl345.py"
-    ],
-    [
-      "periph/chips/accelerometer/adxl362.py",
-      "github:tuhde/Periph/python/periph/chips/accelerometer/adxl362.py"
-    ],
-    [
       "periph/chips/accelerometer/bma150.py",
       "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
     ],
@@ -47,14 +39,6 @@
     [
       "periph/connection/register_connection.py",
       "github:tuhde/Periph/python/periph/connection/register_connection.py"
-    ],
-    [
-      "periph/connection/spi_auto.py",
-      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
-    ],
-    [
-      "periph/connection/spi_micropython.py",
-      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
     ]
   ],
   "deps": [
