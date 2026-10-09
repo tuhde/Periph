@@ -1,6 +1,6 @@
-@CompileStatic
 package it.uhde.periph.chips.accelerometer
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.RegisterConnection
 
 /**
@@ -8,6 +8,7 @@ import it.uhde.periph.connection.RegisterConnection
  * sources, low-g / high-g / any-motion / alert logic, sleep, soft reset, and
  * self-test.
  */
+@CompileStatic
 class Bma150Full extends Bma150Minimal {
 
     // Interrupt source bits.
@@ -167,7 +168,7 @@ class Bma150Full extends Bma150Minimal {
             default:   pauseCode = 0x00; break
         }
         int cfg = readReg(REG_CONFIG)
-        int out = (cfg & 0xF9) | pauseCode | (enabled ? 0x01 : 0x00)
+        int out = (cfg & 0xF8) | pauseCode | (enabled ? 0x01 : 0x00)
         writeReg(REG_CONFIG, out)
     }
 

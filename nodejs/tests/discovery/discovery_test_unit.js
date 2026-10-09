@@ -151,7 +151,7 @@ async function main() {
     bus = new FakeBus({ 0x38: {} });
     d = await only(bus);
     checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht21', 'bma150', 'pcf8574', 'pcf8576']));
-    checkTrue('no_probe_when_nothing_to_probe', d.probeSkippedReason === null && bus.writes.length === 0);
+    checkTrue('no_probe_when_write_sensitive_candidate', d.probeSkippedReason === 'write_sensitive_candidate' && bus.writes.length === 0);
 
     const custom = [
         { id: 'pcf-like', driver: null, writeSensitive: true, aliased: false, addresses: [0x20], probe: null },

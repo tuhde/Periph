@@ -2,10 +2,10 @@ package it.uhde.periph.chips.accelerometer
 
 import it.uhde.periph.connection.MockConnection
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.Assertions.assertThrows
 import java.io.IOException
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 
 class Bma150Test {
 
@@ -44,7 +44,7 @@ class Bma150Test {
     fun constructionBadChipIdThrows() {
         val connection = MockConnection()
         connection.setRegister(Bma150Minimal.REG_CHIP_ID, 0xFF)
-        assertThrows<IOException> { Bma150Minimal(connection) }
+        assertThrows(IOException::class.java) { Bma150Minimal(connection) }
     }
 
     @Test

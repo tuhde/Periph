@@ -59,9 +59,9 @@ open class Bma150Minimal @JvmOverloads constructor(
         const val BW_750   = 0x05
         const val BW_1500  = 0x06
 
-        const val FULL_SCALE_2G = 256.0f
-        const val FULL_SCALE_4G = 128.0f
-        const val FULL_SCALE_8G = 64.0f
+        const val FULL_SCALE_2G = 256.0
+        const val FULL_SCALE_4G = 128.0
+        const val FULL_SCALE_8G = 64.0
     }
 
     protected var rangeG: Int = 2

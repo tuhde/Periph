@@ -123,6 +123,13 @@ Run these locally before pushing a chip branch; each has failed a chip PR before
 - **ESP-IDF:** using `esp_timer_get_time()` needs both `#include "esp_timer.h"` and `esp_timer` in `main/CMakeLists.txt` `REQUIRES`.
 - **Java:** import `it.uhde.periph.connection.Register` when using `Register.toSigned`. Build with `mvn -o -pl periph-connection,periph-java compile`.
 - **Embedded builds are mandatory, not optional:** run `cpp/scripts/build-all.sh {picosdk,stm32cube,espidf} <Chip>` (filter is case-sensitive; use the `BMA150` form to catch examples as well as `bma150` tests). Toolchain setup: see the local-SDK notes in the maintainer docs/TOOLCHAINS.md.
+- **Run every language's own full test suite, not just the one you edited:** `mvn -o test` (builds Java + Kotlin + Groovy; a Java-only compile misses Kotlin/Groovy breakage), `go test ./...`, `cargo test -p periph --features std`, the `nodejs/` and `python/` `*_test_unit` files. Previous rounds failed in languages that were never run.
+- **Also generated:** `node cpp/scripts/generate-keywords.js`, `node cpp/scripts/generate-periph-header.js`.
+- **Port register bit-masks exactly:** read-modify-write masks must match the C++ reference (e.g. wake-up enable is bit 0, so mask `0xF8` or clear it explicitly; `0xF9` leaves it set). Copy the C++ reference mask logic, then port the C++ unit test's expectations too.
+- **Group Spock/JUnit assertions per action:** after `sleep(); wake();` the last write reflects only `wake()`. Use separate `when:`/`then:` blocks.
+- **Kotlin:** one `companion object` per class; Float vs Double constants must match their users; use `org.junit.jupiter.api.Assertions.*` like sibling tests.
+- **Groovy:** `@CompileStatic` needs `import groovy.transform.CompileStatic` and goes on the class, not before `package`.
+- **Disk:** `rust/target` can grow past 10 GB; delete it after a local workspace build (it is gitignored).
 - **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
 
 ## Connection interface

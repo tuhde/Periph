@@ -180,9 +180,9 @@ func (c *BMA150Minimal) Read() (float32, float32, float32, error) {
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	rx := int16(connection.ToSigned(uint32(raw[1])<<8|uint32(raw[0]&0xC0)>>6, 10))
-	ry := int16(connection.ToSigned(uint32(raw[3])<<8|uint32(raw[2]&0xC0)>>6, 10))
-	rz := int16(connection.ToSigned(uint32(raw[5])<<8|uint32(raw[4]&0xC0)>>6, 10))
+	rx := int16(connection.ToSigned(uint32(raw[1])<<2|uint32(raw[0]&0xC0)>>6, 10))
+	ry := int16(connection.ToSigned(uint32(raw[3])<<2|uint32(raw[2]&0xC0)>>6, 10))
+	rz := int16(connection.ToSigned(uint32(raw[5])<<2|uint32(raw[4]&0xC0)>>6, 10))
 	var scale float32
 	switch c.range_g {
 	case 4:
@@ -250,9 +250,9 @@ func (c *BMA150Full) ReadRaw() (int16, int16, int16, error) {
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	rx := int16(connection.ToSigned(uint32(raw[1])<<8|uint32(raw[0]&0xC0)>>6, 10))
-	ry := int16(connection.ToSigned(uint32(raw[3])<<8|uint32(raw[2]&0xC0)>>6, 10))
-	rz := int16(connection.ToSigned(uint32(raw[5])<<8|uint32(raw[4]&0xC0)>>6, 10))
+	rx := int16(connection.ToSigned(uint32(raw[1])<<2|uint32(raw[0]&0xC0)>>6, 10))
+	ry := int16(connection.ToSigned(uint32(raw[3])<<2|uint32(raw[2]&0xC0)>>6, 10))
+	rz := int16(connection.ToSigned(uint32(raw[5])<<2|uint32(raw[4]&0xC0)>>6, 10))
 	return rx, ry, rz, nil
 }
 
@@ -471,7 +471,7 @@ func (c *BMA150Full) SetWakeUp(enabled bool, pauseMs uint16) error {
 	if err != nil {
 		return err
 	}
-	out := (cfg & 0xF9) | pauseCode
+	out := (cfg & 0xF8) | pauseCode
 	if enabled {
 		out |= 0x01
 	} else {

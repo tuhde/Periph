@@ -354,7 +354,7 @@ impl<I2C: I2c> Bma150Full<I2C> {
             _ => 0x00,
         };
         let cfg = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_CONFIG)?;
-        let out = (cfg & 0xF9) | pause_code | if enabled { 0x01 } else { 0x00 };
+        let out = (cfg & 0xF8) | pause_code | if enabled { 0x01 } else { 0x00 };
         write_reg(&mut self.inner.i2c, self.inner.addr, REG_CONFIG, out)
     }
 
@@ -507,7 +507,7 @@ mod tests {
     #[test]
     fn construction_and_read() {
         let mut accel = new_accel(&[
-            I2cTransaction::write_read(ADDR, vec![REG_ACC_X_LSB], vec![0x00, 0x80]),
+            I2cTransaction::write_read(ADDR, vec![REG_ACC_X_LSB], vec![0x00, 0x80, 0x00, 0x00, 0x00, 0x40]),
             I2cTransaction::write_read(ADDR, vec![REG_ACC_X_LSB], vec![0x00, 0x80, 0x00, 0x00, 0x00, 0x40]),
         ]);
         let (x, y, z) = accel.read().unwrap();
@@ -524,11 +524,11 @@ mod tests {
     #[test]
     fn range_and_bandwidth() {
         let mut accel = new_accel(&[
-            // set_range(4): read 0x00, write (0x00 & 0xE0) | 0x08 | (0x02 & 0x07) = 0x0A.
+            // set_range(4): read 0x00, write (0x00 & 0xE0) | 0x08 | (0x00 & 0x07) = 0x08.
             I2cTransaction::write_read(ADDR, vec![REG_RANGE_BW], vec![0x00]),
-            I2cTransaction::write(ADDR, vec![REG_RANGE_BW, 0x0A]),
-            // set_bandwidth(190): read 0x0A, write (0x0A & 0xF8) | 0x03 = 0x0B.
-            I2cTransaction::write_read(ADDR, vec![REG_RANGE_BW], vec![0x0A]),
+            I2cTransaction::write(ADDR, vec![REG_RANGE_BW, 0x08]),
+            // set_bandwidth(190): read 0x08, write (0x08 & 0xF8) | 0x03 = 0x0B.
+            I2cTransaction::write_read(ADDR, vec![REG_RANGE_BW], vec![0x08]),
             I2cTransaction::write(ADDR, vec![REG_RANGE_BW, 0x0B]),
         ]);
         accel.set_range(4).unwrap();
@@ -553,10 +553,11 @@ mod tests {
             I2cTransaction::write(ADDR, vec![REG_HG_DUR, 2]),
             I2cTransaction::write_read(ADDR, vec![REG_HYST_DUR], vec![0x00]),
             I2cTransaction::write(ADDR, vec![REG_HYST_DUR, 0x00]),
+            // Low-g is already enabled (0x01); the counter write and enable preserve it.
             I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x01]),
-            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x00]),
-            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x00]),
-            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x02]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x01]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x01]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x03]),
         ]);
         accel.set_low_g(0.4, 40, 0.0, 0).unwrap();
         accel.set_high_g(4.0, 2, 0.0, 0).unwrap();

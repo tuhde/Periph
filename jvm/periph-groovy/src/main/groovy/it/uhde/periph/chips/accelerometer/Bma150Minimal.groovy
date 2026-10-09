@@ -1,6 +1,6 @@
-@CompileStatic
 package it.uhde.periph.chips.accelerometer
 
+import groovy.transform.CompileStatic
 import it.uhde.periph.connection.Register
 import it.uhde.periph.connection.RegisterConnection
 
@@ -17,6 +17,7 @@ import it.uhde.periph.connection.RegisterConnection
  * - Calibration bits 7:5 of `RANGE_BW` (0x14) preserved
  * - `shadow_dis` = 0 (LSB-then-MSB ordering enforced)
  */
+@CompileStatic
 class Bma150Minimal {
 
     // Register map (0x00..0x15).

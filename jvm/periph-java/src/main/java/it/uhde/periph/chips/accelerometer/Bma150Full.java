@@ -200,7 +200,7 @@ public class Bma150Full extends Bma150Minimal {
             default:   pauseCode = 0x00; break;
         }
         int cfg = readReg(REG_CONFIG);
-        int out = (cfg & 0xF9) | pauseCode | (enabled ? 0x01 : 0x00);
+        int out = (cfg & 0xF8) | pauseCode | (enabled ? 0x01 : 0x00);
         writeReg(REG_CONFIG, out);
     }
 

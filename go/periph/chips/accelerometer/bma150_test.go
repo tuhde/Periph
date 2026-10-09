@@ -237,8 +237,8 @@ func TestBMA150FullAnyMotion(t *testing.T) {
 	if v, _ := lastWriteToBMA150(conn, bma150RegConfig); v&0x40 == 0 {
 		t.Errorf("CONFIG write = %#x, want bit 6 (enable_adv_INT) set", v)
 	}
-	if v, _ := lastWriteToBMA150(conn, bma150RegIntCtrl); v&BMA150SourceAnyMotion == 0 {
-		t.Errorf("INT_CTRL write = %#x, want SOURCE_ANY_MOTION set", v)
+	if v, _ := lastWriteToBMA150(conn, bma150RegIntCtrl); v&0x40 == 0 {
+		t.Errorf("INT_CTRL write = %#x, want bit 6 (any-motion enable) set", v)
 	}
 }
 
@@ -284,7 +284,7 @@ func TestBMA150FullSleepWakeAndWakeUp(t *testing.T) {
 	if err := full.SetWakeUp(true, 80); err != nil {
 		t.Fatalf("SetWakeUp: %v", err)
 	}
-	// (0x00 & 0xF9) | 0x02 | 0x01 = 0x03
+	// (0x00 & 0xF8) | 0x02 | 0x01 = 0x03
 	if v, _ := lastWriteToBMA150(conn, bma150RegConfig); (v&0x03) != 0x03 || (v&0x06) != 0x02 {
 		t.Errorf("SetWakeUp(80) CONFIG write = %#x, want bits 0,1,2 = 0x03 with 0x02 pause", v)
 	}

@@ -151,10 +151,14 @@ class Bma150Spec extends Specification {
 
         when:
         full.sleep()
-        full.wake()
 
         then:
         (lastWriteTo(connection, Bma150Minimal.REG_CTRL) & 0x01) != 0
+
+        when:
+        full.wake()
+
+        then:
         (lastWriteTo(connection, Bma150Minimal.REG_CTRL) & 0x01) == 0
     }
 

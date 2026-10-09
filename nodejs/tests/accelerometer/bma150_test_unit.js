@@ -3,6 +3,11 @@
 const { I2CConnectionMock } = require('../../packages/periph/src/connection/i2c_mock');
 const { BMA150Minimal, BMA150Full } = require('../../packages/periph/src/chips/accelerometer/bma150');
 
+// Mock writes accumulate; "off" checks must look at the most recent write to the register.
+function lastWriteTo(mock, reg) {
+    return [...mock.writes].reverse().find(w => w.length === 2 && w[0] === reg);
+}
+
 let passed = 0, failed = 0;
 function checkTrue(label, condition) {
     if (condition) { console.log('PASS', label); passed++; }
@@ -115,7 +120,7 @@ async function main() {
     checkTrue('set_wake_up_80ms', !!wu);
 
     await accelFull.setWakeUp(false);
-    const wuOff = !mock2.writes.find(w => w.length === 2 && w[0] === 0x15 && (w[1] & 0x01));
+    const wuOff = !(lastWriteTo(mock2, 0x15)[1] & 0x01);
     checkTrue('set_wake_up_false', wuOff);
 
     mock2.setRegister(0x0A, [0x00]);
@@ -124,7 +129,7 @@ async function main() {
     checkTrue('sleep_writes_sleep_bit', !!sleepW);
 
     await accelFull.wake();
-    const wakeW = !mock2.writes.find(w => w.length === 2 && w[0] === 0x0A && (w[1] & 0x01));
+    const wakeW = !(lastWriteTo(mock2, 0x0A)[1] & 0x01);
     checkTrue('wake_clears_sleep_bit', wakeW);
 
     mock2.setRegister(0x0A, [0x00]);
@@ -154,7 +159,7 @@ async function main() {
     checkTrue('set_shadow_true', !!sh);
 
     await accelFull.setShadow(false);
-    const shOff = !mock2.writes.find(w => w.length === 2 && w[0] === 0x15 && (w[1] & 0x08));
+    const shOff = !(lastWriteTo(mock2, 0x15)[1] & 0x08);
     checkTrue('set_shadow_false', shOff);
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);

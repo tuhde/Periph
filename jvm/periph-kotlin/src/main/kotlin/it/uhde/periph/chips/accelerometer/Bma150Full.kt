@@ -1,5 +1,6 @@
 package it.uhde.periph.chips.accelerometer
 
+import it.uhde.periph.connection.Register
 import it.uhde.periph.connection.RegisterConnection
 import java.io.IOException
 
@@ -23,6 +24,21 @@ open class Bma150Full @JvmOverloads constructor(conn: RegisterConnection) : Bma1
         const val STATUS_HG_LATCHED   = 0x04
         const val STATUS_LG           = 0x02
         const val STATUS_HG           = 0x01
+
+        private fun nearestBandwidth(bwHz: Int): Int {
+            val hz = intArrayOf(25, 50, 100, 190, 375, 750, 1500)
+            val bw = intArrayOf(BW_25, BW_50, BW_100, BW_190, BW_375, BW_750, BW_1500)
+            var bestIdx = 2
+            var bestDiff = Math.abs(hz[2] - bwHz)
+            for (i in hz.indices) {
+                val diff = Math.abs(hz[i] - bwHz)
+                if (diff < bestDiff) {
+                    bestIdx = i
+                    bestDiff = diff
+                }
+            }
+            return bw[bestIdx]
+        }
     }
 
     private var enabledSources = 0
@@ -69,7 +85,7 @@ open class Bma150Full @JvmOverloads constructor(conn: RegisterConnection) : Bma1
 
     fun setShadow(enabled: Boolean) {
         val cfg = readReg(REG_CONFIG)
-        writeReg(REG_CONFIG, if (enabled) cfg or 0x08 else cfg and 0x07.inv() and 0xFF)
+        writeReg(REG_CONFIG, if (enabled) cfg or 0x08 else cfg and 0x08.inv() and 0xFF)
     }
 
     fun setLowG(thresholdG: Double, durationMs: Int, hysteresisG: Double = 0.0, counter: Int = 0) {
@@ -159,7 +175,7 @@ open class Bma150Full @JvmOverloads constructor(conn: RegisterConnection) : Bma1
             else -> 0x00
         }
         val cfg = readReg(REG_CONFIG)
-        val out = (cfg and 0xF9) or pauseCode or (if (enabled) 0x01 else 0x00)
+        val out = (cfg and 0xF8) or pauseCode or (if (enabled) 0x01 else 0x00)
         writeReg(REG_CONFIG, out)
     }
 
@@ -266,22 +282,5 @@ open class Bma150Full @JvmOverloads constructor(conn: RegisterConnection) : Bma1
         if (source == SOURCE_ANY_MOTION) out = out and 0x40.inv() and 0xFF
         if (source == SOURCE_ALERT)     out = out and 0x80.inv() and 0xFF
         writeReg(REG_INT_CTRL, out)
-    }
-
-    companion object {
-        private fun nearestBandwidth(bwHz: Int): Int {
-            val hz = intArrayOf(25, 50, 100, 190, 375, 750, 1500)
-            val bw = intArrayOf(BW_25, BW_50, BW_100, BW_190, BW_375, BW_750, BW_1500)
-            var bestIdx = 2
-            var bestDiff = Math.abs(hz[2] - bwHz)
-            for (i in hz.indices) {
-                val diff = Math.abs(hz[i] - bwHz)
-                if (diff < bestDiff) {
-                    bestIdx = i
-                    bestDiff = diff
-                }
-            }
-            return bw[bestIdx]
-        }
     }
 }

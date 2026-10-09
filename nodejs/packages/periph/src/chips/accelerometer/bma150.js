@@ -286,7 +286,7 @@ class BMA150Full extends BMA150Minimal {
             throw new Error('pauseMs must be 20, 80, 320, or 2560');
         }
         const cfg = await this._readReg(_REG_CONFIG);
-        const out = (cfg & 0xF9) | _WAKEUP_PAUSE_CODES[pauseMs] | (enabled ? 0x01 : 0x00);
+        const out = (cfg & 0xF8) | _WAKEUP_PAUSE_CODES[pauseMs] | (enabled ? 0x01 : 0x00);
         await this._writeReg(_REG_CONFIG, out);
     }
 
