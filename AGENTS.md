@@ -111,6 +111,19 @@ Remove `.gitkeep` from a target directory when adding the first real file.
 
 For chips with I²C or SMBus transport, add the chip's default I²C address to `chip_defaults`.
 
+## Pre-push CI checklist (recurring failures)
+
+Run these locally before pushing a chip branch; each has failed a chip PR before (BMA150, PR #494).
+
+- **Generated files — regenerate, never hand-edit, then `--check`:** `node registry/scripts/generate.js` (also rewrites `cpp/src/discovery/DiscoveryRegistry.h`), `node {python,rust,cpp}/scripts/generate-readme.js`, `node nodejs/scripts/generate-readmes.js`, `python3 python/scripts/generate-mip-packages.py` (new `<chip>.json` + `package.json` files), `python/uiflow1/generate.sh`.
+- **Discovery tests:** adding a chip to `registry/chips.json` changes the candidate list at its I²C address. Update the expected candidates in all four `discovery` unit tests (C++, Go, Rust, Python). If another chip at that address is write-sensitive, probing is skipped (`write_sensitive_candidate`); assert that instead of "nothing to probe".
+- **Unit-test mocks accumulate writes:** a mock's `writes()` holds every write since construction. For "set X false/off" checks look at the *last* write to the register, not "any write has the bit set".
+- **CMake relative paths differ by depth:** `cpp/tests/<cat>/<chip>_test_*` is 3 levels below `cpp/` (`../../..`); `cpp/examples/<platform>/<cat>/<Chip>/<tier>` is 5. Copy from a sibling of the *same kind* (test vs example), never across.
+- **Pico SDK:** `project(<name> C CXX ASM)`, not `CXX` only.
+- **ESP-IDF:** include `esp_timer.h` for `esp_timer_get_time()`.
+- **Java:** import `it.uhde.periph.connection.Register` when using `Register.toSigned`. Build with `mvn -o -pl periph-connection,periph-java compile`.
+- **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
+
 ## Connection interface
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.
