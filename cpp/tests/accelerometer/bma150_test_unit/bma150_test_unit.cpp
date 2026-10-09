@@ -102,6 +102,18 @@ int main() {
     check_true(dur_ok, "set_low_g_duration");
     check_true(ic_ok, "set_low_g_enables_int");
 
+    // Debounce counters: counter_LG = INT_CTRL bits 3:2, counter_HG = bits 5:4.
+    mock2.setRegister(REG_INT_CTRL, {0x00});
+    accel_full.set_low_g(0.4f, 40, 0.0f, 2);
+    uint8_t lg_ic = 0xFF;
+    for (const auto& w : mock2.writes()) if (w.size() == 2 && w[0] == REG_INT_CTRL) lg_ic = w[1];
+    check_true(lg_ic == 0x09, "set_low_g_counter_bits_3_2");   // counter 2 << 2 | enable_LG
+    mock2.setRegister(REG_INT_CTRL, {0x00});
+    accel_full.set_high_g(2.0f, 2, 0.0f, 2);
+    uint8_t hg_ic = 0xFF;
+    for (const auto& w : mock2.writes()) if (w.size() == 2 && w[0] == REG_INT_CTRL) hg_ic = w[1];
+    check_true(hg_ic == 0x22, "set_high_g_counter_bits_5_4");  // counter 2 << 4 | enable_HG
+
     // set_high_g(4.0, 2): with range=4 the formula is round(4.0 * 255 / 4) = 255.
     mock2.setRegister(REG_INT_CTRL, {0x00});
     accel_full.set_high_g(4.0f, 2);

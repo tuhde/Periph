@@ -245,7 +245,7 @@ open class Bma150Full @JvmOverloads constructor(conn: RegisterConnection) : Bma1
 
     private fun writeIntCounter(kind: String, counter: Int) {
         if (counter < 0 || counter > 3) return
-        val code = (counter and 0x03) shl 4
+        val code = (counter and 0x03) shl 2  // LG bits 3:2; HG shifts 2 more (bits 5:4)
         val ic = readReg(REG_INT_CTRL)
         val out = if (kind == "lg") (ic and 0xF3) or code else (ic and 0xCF) or (code shl 2)
         writeReg(REG_INT_CTRL, out)

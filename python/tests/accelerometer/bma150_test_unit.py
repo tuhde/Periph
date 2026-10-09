@@ -94,6 +94,16 @@ check_true('set_low_g_threshold', thres and thres[-1][1] == 26)
 check_true('set_low_g_duration', dur and dur[-1][1] == 40)
 check_true('set_low_g_enables_int', ic and (ic[-1][1] & 0x01))
 
+# Debounce counters: counter_LG = INT_CTRL bits 3:2, counter_HG = bits 5:4.
+mock2.set_register(BMA150Minimal._REG_INT_CTRL, 0x00)
+accel_full.set_low_g(0.4, 40, counter=2)
+lg_ic = [w for w in mock2.writes if len(w) == 2 and w[0] == BMA150Minimal._REG_INT_CTRL][-1][1]
+check_true('set_low_g_counter_bits_3_2', lg_ic == 0x09)    # counter 2 << 2 | enable_LG
+mock2.set_register(BMA150Minimal._REG_INT_CTRL, 0x00)
+accel_full.set_high_g(2.0, 2, counter=2)
+hg_ic = [w for w in mock2.writes if len(w) == 2 and w[0] == BMA150Minimal._REG_INT_CTRL][-1][1]
+check_true('set_high_g_counter_bits_5_4', hg_ic == 0x22)   # counter 2 << 4 | enable_HG
+
 # set_high_g(4.0, 2): HG_THRES = round(4.0/2 * 255) = 510 -> clamped to 255;
 #   HG_DUR = 2; HG_hyst = 0; counter_HG = 0; INT_CTRL |= 0x02.
 mock2.set_register(BMA150Minimal._REG_INT_CTRL, 0x00)

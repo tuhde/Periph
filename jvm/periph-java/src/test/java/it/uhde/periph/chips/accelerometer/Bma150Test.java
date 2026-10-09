@@ -177,4 +177,17 @@ class Bma150Test {
         full.setShadow(false);
         assertEquals(0, lastWriteTo(connection, Bma150Minimal.REG_CONFIG) & 0x08);
     }
+
+    @Test
+    void debounceCounterBits() throws IOException {
+        MockConnection connection = newConnection();
+        Bma150Full full = new Bma150Full(connection);
+        // counter_LG is INT_CTRL bits 3:2, counter_HG is bits 5:4.
+        connection.setRegister(Bma150Minimal.REG_INT_CTRL, 0x00);
+        full.setLowG(0.4, 40, 0, 2);
+        assertEquals(0x09, lastWriteTo(connection, Bma150Minimal.REG_INT_CTRL));
+        connection.setRegister(Bma150Minimal.REG_INT_CTRL, 0x00);
+        full.setHighG(2.0, 2, 0, 2);
+        assertEquals(0x22, lastWriteTo(connection, Bma150Minimal.REG_INT_CTRL));
+    }
 }

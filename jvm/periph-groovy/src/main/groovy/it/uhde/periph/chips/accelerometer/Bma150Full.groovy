@@ -243,7 +243,7 @@ class Bma150Full extends Bma150Minimal {
 
     private void writeIntCounter(String kind, int counter) {
         if (counter < 0 || counter > 3) return
-        int code = (counter & 0x03) << 4
+        int code = (counter & 0x03) << 2  // LG bits 3:2; HG shifts 2 more (bits 5:4)
         int ic = readReg(REG_INT_CTRL)
         int out = kind == 'lg' ? (ic & 0xF3) | code : (ic & 0xCF) | (code << 2)
         writeReg(REG_INT_CTRL, out)

@@ -368,7 +368,7 @@ class BMA150Full extends BMA150Minimal {
 
     async _writeIntCounter(kind, counter) {
         if (counter < 0 || counter > 3) return;
-        const code = (counter & 0x03) << 4;
+        const code = (counter & 0x03) << 2;  // LG bits 3:2; HG shifts 2 more (bits 5:4)
         const ic = await this._readReg(_REG_INT_CTRL);
         const out = kind === 'lg'
             ? (ic & 0xF3) | code

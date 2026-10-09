@@ -444,7 +444,7 @@ impl<I2C: I2c> Bma150Full<I2C> {
 
     fn write_int_counter(&mut self, kind: u8, counter: u8) -> Result<(), I2C::Error> {
         if counter > 3 { return Ok(()); }
-        let code = (counter & 0x03) << 4;
+        let code = (counter & 0x03) << 2;  // LG bits 3:2; HG shifts 2 more (bits 5:4)
         let ic = read_reg8(&mut self.inner.i2c, self.inner.addr, REG_INT_CTRL)?;
         let out = if kind == b'l' {  // counter_LG: bits 3:2
             (ic & 0xF3) | code
@@ -561,6 +561,34 @@ mod tests {
         ]);
         accel.set_low_g(0.4, 40, 0.0, 0).unwrap();
         accel.set_high_g(4.0, 2, 0.0, 0).unwrap();
+        accel.inner.i2c.done();
+    }
+
+    #[test]
+    fn debounce_counter_bits() {
+        // counter_LG is INT_CTRL bits 3:2, counter_HG is bits 5:4.
+        let mut accel = new_accel(&[
+            // set_low_g(0.4, 40, 0.0, 2): counter write 0x08, then enable_LG -> 0x09.
+            I2cTransaction::write(ADDR, vec![REG_LG_THRES, 51]),
+            I2cTransaction::write(ADDR, vec![REG_LG_DUR, 40]),
+            I2cTransaction::write_read(ADDR, vec![REG_HYST_DUR], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_HYST_DUR, 0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x08]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x08]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x09]),
+            // set_high_g(2.0, 2, 0.0, 2): counter write keeps 0x09 and adds 0x20, then enable_HG.
+            I2cTransaction::write(ADDR, vec![REG_HG_THRES, 255]),
+            I2cTransaction::write(ADDR, vec![REG_HG_DUR, 2]),
+            I2cTransaction::write_read(ADDR, vec![REG_HYST_DUR], vec![0x00]),
+            I2cTransaction::write(ADDR, vec![REG_HYST_DUR, 0x00]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x09]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x29]),
+            I2cTransaction::write_read(ADDR, vec![REG_INT_CTRL], vec![0x29]),
+            I2cTransaction::write(ADDR, vec![REG_INT_CTRL, 0x2B]),
+        ]);
+        accel.set_low_g(0.4, 40, 0.0, 2).unwrap();
+        accel.set_high_g(2.0, 2, 0.0, 2).unwrap();
         accel.inner.i2c.done();
     }
 

@@ -184,7 +184,7 @@ void BMA150Full::_write_hyst(const char* kind, float hysteresis_g) {
 }
 
 void BMA150Full::_write_int_counter(const char* kind, uint8_t counter) {
-    uint8_t code = (counter & 0x03) << 4;  // 00=reset, 10=1, 20=2, 30=3 per ms
+    uint8_t code = (counter & 0x03) << 2;  // counter_LG position (bits 3:2); HG shifts by 2 more (bits 5:4)
     if (counter > 3) return;
     uint8_t ic = _read_reg(REG_INT_CTRL);
     if (kind[0] == 'l') {

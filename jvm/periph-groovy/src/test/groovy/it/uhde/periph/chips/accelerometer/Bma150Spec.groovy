@@ -199,4 +199,24 @@ class Bma150Spec extends Specification {
         v[1] == 0x0B
         lastWriteTo(connection, Bma150Minimal.REG_CUSTOMER_2) == 0x5A
     }
+
+    def "debounce counters use INT_CTRL bits 3:2 (LG) and 5:4 (HG)"() {
+        given:
+        def connection = newConnection()
+        def full = new Bma150Full(connection)
+
+        when:
+        connection.setRegister(Bma150Minimal.REG_INT_CTRL, 0x00)
+        full.setLowG(0.4d, 40, 0.0d, 2)
+
+        then:
+        lastWriteTo(connection, Bma150Minimal.REG_INT_CTRL) == 0x09
+
+        when:
+        connection.setRegister(Bma150Minimal.REG_INT_CTRL, 0x00)
+        full.setHighG(2.0d, 2, 0.0d, 2)
+
+        then:
+        lastWriteTo(connection, Bma150Minimal.REG_INT_CTRL) == 0x22
+    }
 }

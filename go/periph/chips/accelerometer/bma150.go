@@ -634,7 +634,7 @@ func (c *BMA150Full) writeIntCounter(kind byte, counter uint8) error {
 	if counter > 3 {
 		return nil
 	}
-	code := (counter & 0x03) << 4
+	code := (counter & 0x03) << 2 // LG bits 3:2; HG shifts 2 more (bits 5:4)
 	ic, err := c.readReg8(bma150RegIntCtrl)
 	if err != nil {
 		return err

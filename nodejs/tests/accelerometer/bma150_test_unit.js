@@ -74,6 +74,15 @@ async function main() {
     checkTrue('set_low_g_duration', !!lgDur);
     checkTrue('set_low_g_enables_int', !!lgIc);
 
+    // Debounce counters: counter_LG = INT_CTRL bits 3:2, counter_HG = bits 5:4.
+    const lastIc = () => mock2.writes.filter(w => w.length === 2 && w[0] === 0x0B).pop()[1];
+    mock2.setRegister(0x0B, [0x00]);
+    await accelFull.setLowG(0.4, 40, 0, 2);
+    checkTrue('set_low_g_counter_bits_3_2', lastIc() === 0x09);   // counter 2 << 2 | enable_LG
+    mock2.setRegister(0x0B, [0x00]);
+    await accelFull.setHighG(2.0, 2, 0, 2);
+    checkTrue('set_high_g_counter_bits_5_4', lastIc() === 0x22);  // counter 2 << 4 | enable_HG
+
     // setHighG(4.0, 2): clamped to 255.
     mock2.setRegister(0x0B, [0x00]);
     await accelFull.setHighG(4.0, 2);

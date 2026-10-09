@@ -45,9 +45,9 @@ _WAKEUP_PAUSE_CODES = {20: 0x00, 80: 0x02, 320: 0x04, 2560: 0x06}
 # Any-motion duration codes (HYST_DUR 0x11 bits 7:6).
 _ANY_MOTION_DUR_CODES = {1: 0x00, 3: 0x40, 5: 0x80, 7: 0xC0}
 
-# Debounce counter codes for LG/HG (INT_CTRL 0x0B bits 5:4 and 3:2).
-# 00 = reset, 01/10/11 = count down 1/2/3 per ms.
-_DEBOUNCE_CODES = {0: 0x00, 1: 0x10, 2: 0x20, 3: 0x30}
+# Debounce counter codes in the counter_LG position (INT_CTRL 0x0B bits 3:2);
+# counter_HG (bits 5:4) shifts these left by 2. 00 = reset, 01/10/11 = count down 1/2/3 per ms.
+_DEBOUNCE_CODES = {0: 0x00, 1: 0x04, 2: 0x08, 3: 0x0C}
 
 
 def _delay_ms(ms):

@@ -370,3 +370,26 @@ func TestBMA150FullSetShadow(t *testing.T) {
 // Avoid an "imported and not used" error for math in case all uses are stripped.
 var _ = math.Pi
 var _ = abs32BMA150i
+
+// counter_LG is INT_CTRL bits 3:2, counter_HG is bits 5:4.
+func TestBMA150FullDebounceCounterBits(t *testing.T) {
+	conn := newBMA150Connection()
+	full, err := NewBMA150Full(conn)
+	if err != nil {
+		t.Fatalf("NewBMA150Full: %v", err)
+	}
+	conn.setRegister(bma150RegIntCtrl, 0x00)
+	if err := full.SetLowG(0.4, 40, 0, 2); err != nil {
+		t.Fatalf("SetLowG: %v", err)
+	}
+	if v, _ := lastWriteToBMA150(conn, bma150RegIntCtrl); v != 0x09 {
+		t.Errorf("INT_CTRL after SetLowG(counter=2) = %#x, want 0x09", v)
+	}
+	conn.setRegister(bma150RegIntCtrl, 0x00)
+	if err := full.SetHighG(2.0, 2, 0, 2); err != nil {
+		t.Fatalf("SetHighG: %v", err)
+	}
+	if v, _ := lastWriteToBMA150(conn, bma150RegIntCtrl); v != 0x22 {
+		t.Errorf("INT_CTRL after SetHighG(counter=2) = %#x, want 0x22", v)
+	}
+}
