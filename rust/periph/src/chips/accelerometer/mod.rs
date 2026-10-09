@@ -7,6 +7,13 @@ pub use adxl345::{
     WAKEUP_8_HZ, WAKEUP_4_HZ, WAKEUP_2_HZ, WAKEUP_1_HZ,
 };
 
+pub mod bma150;
+pub use bma150::{
+    Bma150Minimal, Bma150Full,
+    SOURCE_LOW_G, SOURCE_HIGH_G, SOURCE_ANY_MOTION, SOURCE_ALERT, SOURCE_NEW_DATA,
+    STATUS_LG_LATCHED, STATUS_HG_LATCHED,
+};
+
 pub mod adxl362;
 pub use adxl362::{
     Adxl362Minimal, Adxl362Full,
