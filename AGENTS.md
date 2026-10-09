@@ -55,6 +55,19 @@ Check out the base feature branch, rebase it to main, create your implementation
 
 If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `feature/<chip>` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
 
+## Pre-push checklist (CI failures seen in practice)
+
+CI runs far more than compilation, and the embedded jobs (Pico SDK, ESP-IDF, STM32Cube) take 10+ minutes each. Run these locally before every push; PR #494 (BMA150) failed 10 jobs by skipping them.
+
+1. **Regenerated files must be committed.** Run each generator without `--check`, then commit the result:
+   - `node registry/scripts/validate.js --check` and `node registry/scripts/generate.js` (regenerates `cpp/src/discovery/DiscoveryRegistry.h` and the other language tables)
+   - `node python/scripts/generate-readme.js`, `node rust/scripts/generate-readme.js`, `node cpp/scripts/generate-readme.js`, `node nodejs/scripts/generate-readmes.js`
+   - `python/uiflow1/generate.sh`
+2. **A new or changed registry entry needs the discovery tests updated in every language** (C++, Go, Rust, Node.js, Python, Java). Listing the chip as a candidate is not enough: decide whether the address now has an identity probe and whether a write-sensitive candidate sharing the address (e.g. PCF8574 at 0x38) makes the probe get skipped, and adjust the `no probes` / `ProbeSkipped` expectations. Run `go test ./periph/discovery/`, `cargo test --manifest-path rust/Cargo.toml -p periph --features std discovery`, and `cpp/scripts/build-all.sh linux`.
+3. **Compile every language you touched.** For the JVM run `mvn -q compile` in `jvm/` (Java, Kotlin, Groovy). Check imports of helpers such as `it.uhde.periph.connection.Register`; compare with a sibling driver (e.g. `Adxl345Full`). Never rely on CI to find a missing import.
+4. **C++ unit tests must not assert on the mock's whole write log.** Earlier writes (e.g. enabling a bit) make "bit not set" checks fail. Clear the log before the call under test, or assert on the last write.
+5. **Never rewrite `specs/<category>/<chip>_timing.conf` wholesale.** The sigrok conformance checker reads its keys (e.g. `wake_up_max_ms`, `wake_up_samplerate`, `wake_up_capture_ms`); dropping them silently disables the check. Keep every existing key and put prose in comments.
+
 ## Issue label workflow
 
 OpenCode is responsible for keeping the labels on its issue in sync with reality. Use `gh issue edit <num> --add-label X --remove-label Y`.
