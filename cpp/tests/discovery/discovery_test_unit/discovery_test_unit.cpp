@@ -160,7 +160,7 @@ int main() {
         check_true(d.candidates.empty() && d.identified.empty(), "unknown_device");
         FakeBus bus; bus.with(0x38);
         d = only(bus);
-        check_true(d.candidates == Ids({"ade7953", "aht21", "pcf8574", "pcf8576"}), "aht21_cands");
+        check_true(d.candidates == Ids({"ade7953", "aht21", "bma150", "pcf8574", "pcf8576"}), "aht21_cands");
         check_true(d.probeSkipped == ProbeSkipReason::None && bus.registerReads.empty(), "no_probe_when_nothing_to_probe");
     }
 

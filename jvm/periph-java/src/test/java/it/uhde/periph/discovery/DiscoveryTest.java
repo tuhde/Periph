@@ -175,7 +175,7 @@ class DiscoveryTest {
         assertNull(d.identified());
         var bus = new FakeBus().with(0x38);
         d = only(bus, false);
-        assertEquals(List.of("ade7953", "aht21", "pcf8574", "pcf8576"), d.candidates());
+        assertEquals(List.of("ade7953", "aht21", "bma150", "pcf8574", "pcf8576"), d.candidates());
         assertNull(d.probeSkippedReason());
         assertTrue(bus.registerReads.isEmpty());
     }
