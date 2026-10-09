@@ -6,5 +6,5 @@ idf_component_register(
     INCLUDE_DIRS "."
         ${CPP_DIR}/src/connection
         ${CPP_DIR}/src/chips/accelerometer
-    REQUIRES esp_driver_i2c
+    REQUIRES esp_driver_i2c esp_timer
 )

@@ -120,8 +120,9 @@ Run these locally before pushing a chip branch; each has failed a chip PR before
 - **Unit-test mocks accumulate writes:** a mock's `writes()` holds every write since construction. For "set X false/off" checks look at the *last* write to the register, not "any write has the bit set".
 - **CMake relative paths differ by depth:** `cpp/tests/<cat>/<chip>_test_*` is 3 levels below `cpp/` (`../../..`); `cpp/examples/<platform>/<cat>/<Chip>/<tier>` is 5. Copy from a sibling of the *same kind* (test vs example), never across.
 - **Pico SDK:** `project(<name> C CXX ASM)`, not `CXX` only.
-- **ESP-IDF:** include `esp_timer.h` for `esp_timer_get_time()`.
+- **ESP-IDF:** using `esp_timer_get_time()` needs both `#include "esp_timer.h"` and `esp_timer` in `main/CMakeLists.txt` `REQUIRES`.
 - **Java:** import `it.uhde.periph.connection.Register` when using `Register.toSigned`. Build with `mvn -o -pl periph-connection,periph-java compile`.
+- **Embedded builds are mandatory, not optional:** run `cpp/scripts/build-all.sh {picosdk,stm32cube,espidf} <Chip>` (filter is case-sensitive; use the `BMA150` form to catch examples as well as `bma150` tests). Toolchain setup: see the local-SDK notes in the maintainer docs/TOOLCHAINS.md.
 - **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
 
 ## Connection interface
