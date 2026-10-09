@@ -157,8 +157,8 @@ check_true('unknown_device', d.candidates == [] and d.identified is None)
 # --- write-sensitive gating ---
 bus = FakeBus({0x38: {}})
 d = discover(bus)[0]
-check_true('aht21_cands', d.candidates == ['ade7953', 'aht21', 'pcf8574', 'pcf8576'])
-check_true('no_probe_when_nothing_to_probe', d.probe_skipped_reason is None and not bus.writes)
+check_true('aht21_cands', d.candidates == ['ade7953', 'aht21', 'bma150', 'pcf8574', 'pcf8576'])
+check_true('no_probe_when_write_sensitive_candidate', d.probe_skipped_reason == 'write_sensitive_candidate' and not bus.writes)
 
 custom = [
     {'id': 'pcf-like', 'driver': None, 'write_sensitive': True, 'aliased': False, 'addresses': (0x20,), 'probe': None},

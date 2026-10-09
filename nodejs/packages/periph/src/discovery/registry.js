@@ -6,6 +6,7 @@ const SCHEMA_VERSION = 1;
 
 const CHIPS = [
     {"id":"adxl345","driver":"adxl345","writeSensitive":false,"aliased":false,"addresses":[29,83],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[229]}},
+    {"id":"bma150","driver":"bma150","writeSensitive":false,"aliased":false,"addresses":[56],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":7,"expected":[2]}},
     {"id":"bma180","driver":null,"writeSensitive":false,"aliased":false,"addresses":[64,65],"probe":{"register":0,"regBytes":1,"length":1,"order":"big","mask":7,"expected":[3]}},
     {"id":"lis3dh","driver":null,"writeSensitive":false,"aliased":false,"addresses":[24,25],"probe":{"register":15,"regBytes":1,"length":1,"order":"big","mask":255,"expected":[51]}},
     {"id":"lsm303-accel","driver":null,"writeSensitive":false,"aliased":false,"addresses":[25],"probe":null},

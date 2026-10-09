@@ -124,6 +124,27 @@ Remove `.gitkeep` from a target directory when adding the first real file.
 
 For chips with I²C or SMBus transport, add the chip's default I²C address to `chip_defaults`.
 
+## Pre-push CI checklist (recurring failures)
+
+Run these locally before pushing a chip branch; each has failed a chip PR before (BMA150, PR #494).
+
+- **Generated files — regenerate, never hand-edit, then `--check`:** `node registry/scripts/generate.js` (also rewrites `cpp/src/discovery/DiscoveryRegistry.h`), `node {python,rust,cpp}/scripts/generate-readme.js`, `node nodejs/scripts/generate-readmes.js`, `python3 python/scripts/generate-mip-packages.py` (new `<chip>.json` + `package.json` files), `python/uiflow1/generate.sh`.
+- **Discovery tests:** adding a chip to `registry/chips.json` changes the candidate list at its I²C address. Update the expected candidates in all four `discovery` unit tests (C++, Go, Rust, Python). If another chip at that address is write-sensitive, probing is skipped (`write_sensitive_candidate`); assert that instead of "nothing to probe".
+- **Unit-test mocks accumulate writes:** a mock's `writes()` holds every write since construction. For "set X false/off" checks look at the *last* write to the register, not "any write has the bit set".
+- **CMake relative paths differ by depth:** `cpp/tests/<cat>/<chip>_test_*` is 3 levels below `cpp/` (`../../..`); `cpp/examples/<platform>/<cat>/<Chip>/<tier>` is 5. Copy from a sibling of the *same kind* (test vs example), never across.
+- **Pico SDK:** `project(<name> C CXX ASM)`, not `CXX` only.
+- **ESP-IDF:** using `esp_timer_get_time()` needs both `#include "esp_timer.h"` and `esp_timer` in `main/CMakeLists.txt` `REQUIRES`.
+- **Java:** import `it.uhde.periph.connection.Register` when using `Register.toSigned`. Build with `mvn -o -pl periph-connection,periph-java compile`.
+- **Embedded builds are mandatory, not optional:** run `cpp/scripts/build-all.sh {picosdk,stm32cube,espidf} <Chip>` (filter is case-sensitive; use the `BMA150` form to catch examples as well as `bma150` tests). Toolchain setup: see the local-SDK notes in the maintainer docs/TOOLCHAINS.md.
+- **Run every language's own full test suite, not just the one you edited:** `mvn -o test` (builds Java + Kotlin + Groovy; a Java-only compile misses Kotlin/Groovy breakage), `go test ./...`, `cargo test -p periph --features std`, the `nodejs/` and `python/` `*_test_unit` files. Previous rounds failed in languages that were never run.
+- **Also generated:** `node cpp/scripts/generate-keywords.js`, `node cpp/scripts/generate-periph-header.js`.
+- **Port register bit-masks exactly:** read-modify-write masks must match the C++ reference (e.g. wake-up enable is bit 0, so mask `0xF8` or clear it explicitly; `0xF9` leaves it set). Copy the C++ reference mask logic, then port the C++ unit test's expectations too. Test multi-bit fields with a non-zero value (e.g. debounce counters: LG = INT_CTRL bits 3:2, HG = bits 5:4); tests that only use the default 0 hide shift bugs.
+- **Group Spock/JUnit assertions per action:** after `sleep(); wake();` the last write reflects only `wake()`. Use separate `when:`/`then:` blocks.
+- **Kotlin:** one `companion object` per class; Float vs Double constants must match their users; use `org.junit.jupiter.api.Assertions.*` like sibling tests.
+- **Groovy:** `@CompileStatic` needs `import groovy.transform.CompileStatic` and goes on the class, not before `package`.
+- **Disk:** `rust/target` can grow past 10 GB; delete it after a local workspace build (it is gitignored).
+- **C++ end-to-end:** `cpp/scripts/build-all.sh linux <chip>` and `... discovery`; also `go test ./periph/discovery/` and `cargo test -p periph --features std discovery`. Revert any `rust/Cargo.lock` churn.
+
 ## Connection interface
 
 > **When implementing a transport:** open `specs/transport_<name>.md` first and work through its `## Implementation Checklist` top-to-bottom. Every platform listed there must be delivered before the PR is opened.

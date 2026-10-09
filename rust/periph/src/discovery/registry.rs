@@ -24,6 +24,7 @@ pub struct ChipEntry {
 
 pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "adxl345", driver: Some("adxl345"), write_sensitive: false, aliased: false, addresses: &[0x1D, 0x53], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xE5] }) },
+    ChipEntry { id: "bma150", driver: Some("bma150"), write_sensitive: false, aliased: false, addresses: &[0x38], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0x07, expected: &[0x02] }) },
     ChipEntry { id: "bma180", driver: None, write_sensitive: false, aliased: false, addresses: &[0x40, 0x41], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0x07, expected: &[0x03] }) },
     ChipEntry { id: "lis3dh", driver: None, write_sensitive: false, aliased: false, addresses: &[0x18, 0x19], probe: Some(IdProbe { register: 0x0F, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x33] }) },
     ChipEntry { id: "lsm303-accel", driver: None, write_sensitive: false, aliased: false, addresses: &[0x19], probe: None },
