@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
-# BOARD_DIR / CPP_DIR: six levels up from cpp/tests/accelerometer/bma150_test_stm32cube/
-set(BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../boards/stm32cube)
-set(CPP_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/../../../..)
+# BOARD_DIR / CPP_DIR: relative to cpp/tests/<category>/<chip>_test_stm32cube/
+set(BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../boards/stm32cube)
+set(CPP_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 include(${BOARD_DIR}/toolchain-arm-none-eabi.cmake)
 

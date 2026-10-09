@@ -1,5 +1,6 @@
 package it.uhde.periph.chips.accelerometer;
 
+import it.uhde.periph.connection.Register;
 import it.uhde.periph.connection.RegisterConnection;
 
 import java.io.IOException;

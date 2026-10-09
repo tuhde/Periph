@@ -59,6 +59,7 @@ Each chip exposes two classes:
 | APDS-9930 | Light sensor | Ambient light and proximity sensor |
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
+| BMA150 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance. |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor |

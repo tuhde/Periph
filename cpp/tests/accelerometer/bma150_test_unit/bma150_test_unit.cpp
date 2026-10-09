@@ -140,7 +140,7 @@ int main() {
     accel_full.set_latch(false);
     latch_ok = true;
     for (const auto& w : mock2.writes()) {
-        if (w.size() == 2 && w[0] == REG_CONFIG && (w[1] & 0x10)) latch_ok = false;
+        if (w.size() == 2 && w[0] == REG_CONFIG) latch_ok = !(w[1] & 0x10);  // last write wins
     }
     check_true(latch_ok, "set_latch_false");
 
@@ -175,7 +175,7 @@ int main() {
     accel_full.set_wake_up(false);
     bool wu_off_ok = true;
     for (const auto& w : mock2.writes()) {
-        if (w.size() == 2 && w[0] == REG_CONFIG && (w[1] & 0x01)) wu_off_ok = false;
+        if (w.size() == 2 && w[0] == REG_CONFIG) wu_off_ok = !(w[1] & 0x01);  // last write wins
     }
     check_true(wu_off_ok, "set_wake_up_false");
 
@@ -191,7 +191,7 @@ int main() {
     accel_full.wake();
     bool wake_ok = true;
     for (const auto& w : mock2.writes()) {
-        if (w.size() == 2 && w[0] == REG_CTRL && (w[1] & 0x01)) wake_ok = false;
+        if (w.size() == 2 && w[0] == REG_CTRL) wake_ok = !(w[1] & 0x01);  // last write wins
     }
     check_true(wake_ok, "wake_clears_sleep_bit");
 
@@ -235,7 +235,7 @@ int main() {
     accel_full.set_shadow(false);
     sh_ok = true;
     for (const auto& w : mock2.writes()) {
-        if (w.size() == 2 && w[0] == REG_CONFIG && (w[1] & 0x08)) sh_ok = false;
+        if (w.size() == 2 && w[0] == REG_CONFIG) sh_ok = !(w[1] & 0x08);  // last write wins
     }
     check_true(sh_ok, "set_shadow_false");
 

@@ -224,8 +224,9 @@ fn falls_back_to_id_less_candidates() {
     assert!(d.candidates.is_empty() && d.identified.is_none());
     let mut bus = FakeI2c::with(&[(0x38, &[])]);
     let d = only(&mut bus, false);
-    assert_eq!(d.candidates, vec!["ade7953", "aht21", "pcf8574", "pcf8576"]);
-    assert!(d.probe_skipped_reason.is_none() && bus.writes.is_empty());
+    assert_eq!(d.candidates, vec!["ade7953", "aht21", "bma150", "pcf8574", "pcf8576"]);
+    assert_eq!(d.probe_skipped_reason, Some(ProbeSkipReason::WriteSensitiveCandidate));
+    assert!(bus.writes.is_empty());
 }
 
 #[test]

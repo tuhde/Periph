@@ -221,18 +221,19 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		addr     uint8
 		want     []string
 		noProbes bool // nothing at this address has an identity register
+		skip     ProbeSkipReason
 	}{
-		{0x68, []string{"drv8830", "ds3231", "pcf8523"}, false},
-		{0x40, []string{"ina219"}, false},
-		{0x36, []string{"as5600"}, true},
-		{0x0B, nil, true},
-		{0x38, []string{"ade7953", "aht21", "bma150", "pcf8574", "pcf8576"}, true},
+		{0x68, []string{"drv8830", "ds3231", "pcf8523"}, false, SkipNone},
+		{0x40, []string{"ina219"}, false, SkipNone},
+		{0x36, []string{"as5600"}, true, SkipNone},
+		{0x0B, nil, true, SkipNone},
+		{0x38, []string{"ade7953", "aht21", "bma150", "pcf8574", "pcf8576"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
 		got, _ := DiscoverBus(b, registry, false)
 		d := got[0]
-		if d.Identified != "" || !reflect.DeepEqual(d.Candidates, tc.want) || d.ProbeSkipped != SkipNone || (tc.noProbes && len(b.registerOps) != 0) {
+		if d.Identified != "" || !reflect.DeepEqual(d.Candidates, tc.want) || d.ProbeSkipped != tc.skip || (tc.noProbes && len(b.registerOps) != 0) {
 			t.Errorf("%#x: %+v", tc.addr, d)
 		}
 	}
