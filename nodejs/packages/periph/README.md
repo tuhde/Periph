@@ -42,6 +42,7 @@ Each chip exposes two classes:
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | BMA150 | Accelerometer | `periph/src/chips/accelerometer/bma150` |
+| BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
 | BMP085 | Pressure sensor | `periph/src/chips/pressure/bmp085` |

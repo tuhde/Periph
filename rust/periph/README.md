@@ -54,6 +54,7 @@ Each chip exposes two structs:
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
 | BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
+| BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
