@@ -14,7 +14,7 @@ public final class DiscoveryRegistry {
     public static final Chip[] CHIPS = {
         new Chip("adxl345", "adxl345", false, false, new int[] {0x1D, 0x53}, new IdProbe(0x00, 1, 1, false, 0xFFL, new long[] {0xE5L})),
         new Chip("bma150", "bma150", false, false, new int[] {0x38}, new IdProbe(0x00, 1, 1, false, 0x07L, new long[] {0x02L})),
-        new Chip("bma180", null, false, false, new int[] {0x40, 0x41}, new IdProbe(0x00, 1, 1, false, 0x07L, new long[] {0x03L})),
+        new Chip("bma180", "bma180", false, false, new int[] {0x40, 0x41}, new IdProbe(0x00, 1, 1, false, 0x07L, new long[] {0x03L})),
         new Chip("lis3dh", null, false, false, new int[] {0x18, 0x19}, new IdProbe(0x0F, 1, 1, false, 0xFFL, new long[] {0x33L})),
         new Chip("lsm303-accel", null, false, false, new int[] {0x19}, null),
         new Chip("lsm303-mag", null, false, false, new int[] {0x1E}, new IdProbe(0x0A, 1, 3, false, 0xFFFFFFL, new long[] {0x483433L})),

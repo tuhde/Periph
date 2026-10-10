@@ -62,7 +62,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "bma180",
       "datasheet": "datasheets/accelerometer/bma180.pdf"
     },
     {
