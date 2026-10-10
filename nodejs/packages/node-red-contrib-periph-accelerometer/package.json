@@ -1,24 +1,25 @@
 {
-  "name": "node-red-contrib-periph-accelerometer",
-  "version": "1.2.1",
-  "description": "Node-RED nodes for accelerometer chips",
-  "keywords": [
-    "node-red",
-    "accelerometer",
-    "i2c",
-    "spi",
-    "sensor",
-    "peripheral"
-  ],
-  "node-red": {
-    "nodes": {
-      "adxl345": "nodes/adxl345/adxl345.js",
-      "adxl362": "nodes/adxl362/adxl362.js",
-      "bma150": "nodes/bma150/bma150.js"
-    }
-  },
-  "dependencies": {
-    "periph": "*"
-  },
-  "license": "MIT"
+    "name": "node-red-contrib-periph-accelerometer",
+    "version": "1.2.1",
+    "description": "Node-RED nodes for accelerometer chips",
+    "keywords": [
+        "node-red",
+        "accelerometer",
+        "i2c",
+        "spi",
+        "sensor",
+        "peripheral"
+    ],
+    "node-red": {
+        "nodes": {
+            "adxl345": "nodes/adxl345/adxl345.js",
+            "adxl362": "nodes/adxl362/adxl362.js",
+            "bma150": "nodes/bma150/bma150.js",
+            "bma180": "nodes/bma180/bma180.js"
+        }
+    },
+    "dependencies": {
+        "periph": "*"
+    },
+    "license": "MIT"
 }
