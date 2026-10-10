@@ -16,8 +16,8 @@ fn main() {
     // --- Calibrate zero-g while the board sits level ---
     chip.calibrate_offset(0x07, 1).expect("calibrate offset");                   // Calibrate offset, (axes, mode) → ()
     // --- Arm tap and free-fall detection with latching so we never miss an event ---
-    chip.set_tap(0.5, 250).expect("set tap");                                    // Configure tap, (threshold_g, window_ms) → ()
-    chip.set_low_g(0.3, 40).expect("set low-g");                                 // Configure low-g, (threshold_g, duration_ms) → ()
+    chip.set_tap(0.5, 250, 0x07, true).expect("set tap");                            // Configure tap, (threshold_g, window_ms, axes, filtered) → ()
+    chip.set_low_g(0.3, 40, 0.05, 0x07, 0, true).expect("set low-g");                  // Configure low-g, (threshold_g, duration_ms, hysteresis_g, axes, counter, filtered) → ()
     chip.set_latch(true).expect("set latch");                                    // Set latch, (enabled=True) → ()
 
     // --- Print tilt + temperature every 100 ms; poll interrupts for tap/free-fall ---
