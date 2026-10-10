@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Conformance checker for BMA180 (accelerometer category). See
+specs/testing_framework.md, "Conformance Implementation", and
+specs/accelerometer/bma180_timing.conf.
+
+CHECKS is intentionally minimal: of the BMA180's documented timing
+constraints (see specs/accelerometer/bma180.md, Timing Constraints),
+only the wake-up latency (<= 2 ms from clearing CTRL_REG0.sleep until
+stable data, see the chip's Wake-up Timing Constraint) maps to a
+sigrok-observable annotation pair (wake_start / wake_done, per the
+spec's Sigrok Decoder section). Everything else is either a plain
+I²C-level bus timing parameter the underlying I²C decoder already
+verifies, or a millisecond/second-scale power-on-and-settle window
+with no fixed before/after annotation pair to bound.
+
+This one check is deferred until a calibrated hardware capture is
+available: measuring it requires a synchronized trigger that fires a
+data-register read during capture, same constraint noted in the
+AD7705/AD7706 conformance checkers.
+
+This script still exists (rather than being omitted) so the
+run_conformance()-style platform-script wiring is uniform across every
+chip.
+
+Usage (invoked by each language's platform script's run_conformance(),
+not directly): see build_trigger() below for the --lang-specific flags.
+"""
+import argparse
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(REPO_ROOT / 'conformance'))
+import _sigrok_conformance as sc  # noqa: E402
+
+TIMING_CONF = REPO_ROOT / 'specs' / 'accelerometer' / 'bma180_timing.conf'
+DECODER_ID = 'bma180'
+
+CHECKS = {}
+
+
+def build_trigger(args):
+    """Return trigger(check_name) -> None. Present for interface parity
+    with other chips' conformance scripts; not invoked since CHECKS is empty.
+    """
+    if args.binary:
+        return lambda name: subprocess.run([args.binary], check=False)
+    if args.port:
+        import serial
+        s = serial.Serial(args.port, 115200, timeout=0.1)
+        s.dtr = False
+        s.rts = True
+        time.sleep(0.1)
+        s.rts = False
+        s.close()
+        return lambda name: None
+    if args.mp_test:
+        return lambda name: subprocess.run(
+            [sys.executable, str(args.mp_test)], check=False)
+    if args.cp_test:
+        return lambda name: subprocess.run(
+            ['mpremote', 'run', str(args.cp_test)], check=False)
+    if args.jbang_test:
+        return lambda name: subprocess.run(
+            ['jbang', args.jbang_test], check=False)
+    if args.lang == 'python':
+        test_file = REPO_ROOT / 'python' / 'tests' / 'accelerometer' / 'bma180_test_linux.py'
+        return lambda name: subprocess.run(
+            [sys.executable, str(test_file)], check=False, cwd=str(REPO_ROOT / 'python'))
+    if args.lang == 'nodejs':
+        test_file = REPO_ROOT / 'nodejs' / 'tests' / 'accelerometer' / 'bma180_test.js'
+        return lambda name: subprocess.run(['node', str(test_file)], check=False)
+    if args.lang == 'cpp':
+        return lambda name: subprocess.run(
+            [str(REPO_ROOT / 'cpp' / 'test_linux.sh'), 'accelerometer/bma180_test_linux'],
+            check=False, cwd=str(REPO_ROOT / 'cpp'))
+    if args.lang == 'go':
+        return lambda name: subprocess.run(
+            ['go', 'run', './main.go'], check=False,
+            cwd=str(REPO_ROOT / 'go' / 'tests' / 'accelerometer' / 'bma180_test'))
+    if args.lang == 'java':
+        return lambda name: subprocess.run(
+            ['jbang', str(REPO_ROOT / 'jvm' / 'tests' / 'accelerometer' / 'bma180' / 'Bma180Test.java')],
+            check=False)
+    if args.lang == 'rust':
+        return lambda name: subprocess.run(
+            ['cargo', 'run', '--release'], check=False,
+            cwd=str(REPO_ROOT / 'rust' / 'tests' / 'accelerometer' / 'bma180_test'))
+    raise SystemExit(f"ERROR: don't know how to trigger a transaction for --lang {args.lang}")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lang', required=True)
+    parser.add_argument('--binary')
+    parser.add_argument('--port')
+    parser.add_argument('--serial-timeout', type=float, default=20)
+    parser.add_argument('--mp-port')
+    parser.add_argument('--mp-mount')
+    parser.add_argument('--mp-test')
+    parser.add_argument('--cp-port')
+    parser.add_argument('--cp-test')
+    parser.add_argument('--jbang-test')
+    args = parser.parse_args()
+
+    sigrok_driver = os.environ.get('SIGROK_DRIVER')
+    sigrok_channels = os.environ.get('SIGROK_CHANNELS')
+    if not sigrok_driver or not sigrok_channels:
+        print("ERROR: SIGROK_DRIVER and SIGROK_CHANNELS must be set "
+              "(testconfig_wiring's per-chip case block for accelerometer/bma180) "
+              "to run conformance checks.", file=sys.stderr)
+        sys.exit(2)
+    sigrok_conn = os.environ.get('SIGROK_CONN') or None
+
+    trigger = build_trigger(args)
+    rc = sc.run_checks('BMA180', DECODER_ID, sigrok_channels, CHECKS, trigger,
+                        str(TIMING_CONF), sigrok_driver, sigrok_conn)
+    sys.exit(rc)
+
+
+if __name__ == '__main__':
+    main()
