@@ -9,7 +9,7 @@ CHIPS = (
     {"id": "bma150", "driver": "bma150", "write_sensitive": False, "aliased": False,
      "addresses": (0x38,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0x07, "expected": (0x02,)}},
-    {"id": "bma180", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "bma180", "driver": "bma180", "write_sensitive": False, "aliased": False,
      "addresses": (0x40, 0x41,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0x07, "expected": (0x03,)}},
     {"id": "lis3dh", "driver": None, "write_sensitive": False, "aliased": False,

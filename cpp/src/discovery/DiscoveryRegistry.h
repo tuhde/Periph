@@ -174,7 +174,7 @@ static constexpr IdProbe kProbe_vl53l1x = {0x10F, 2, 2, false, 0xFFFF, kExp_vl53
 static constexpr ChipEntry kChips[] = {
     {"adxl345", "adxl345", false, false, kAddr_adxl345, 2, &kProbe_adxl345},
     {"bma150", "bma150", false, false, kAddr_bma150, 1, &kProbe_bma150},
-    {"bma180", nullptr, false, false, kAddr_bma180, 2, &kProbe_bma180},
+    {"bma180", "bma180", false, false, kAddr_bma180, 2, &kProbe_bma180},
     {"lis3dh", nullptr, false, false, kAddr_lis3dh, 2, &kProbe_lis3dh},
     {"lsm303-accel", nullptr, false, false, kAddr_lsm303_accel, 1, nullptr},
     {"lsm303-mag", nullptr, false, false, kAddr_lsm303_mag, 1, &kProbe_lsm303_mag},

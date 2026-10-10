@@ -25,7 +25,7 @@ type Chip struct {
 var registry = []Chip{
 	{ID: "adxl345", Driver: "adxl345", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1D, 0x53}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0xE5}}},
 	{ID: "bma150", Driver: "bma150", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x38}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x07, Expected: []uint32{0x02}}},
-	{ID: "bma180", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x07, Expected: []uint32{0x03}}},
+	{ID: "bma180", Driver: "bma180", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x40, 0x41}, Probe: &IdProbe{Register: 0x00, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0x07, Expected: []uint32{0x03}}},
 	{ID: "lis3dh", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x18, 0x19}, Probe: &IdProbe{Register: 0x0F, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x33}}},
 	{ID: "lsm303-accel", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x19}, Probe: nil},
 	{ID: "lsm303-mag", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1E}, Probe: &IdProbe{Register: 0x0A, RegBytes: 1, Length: 3, LittleEndian: false, Mask: 0xFFFFFF, Expected: []uint32{0x483433}}},

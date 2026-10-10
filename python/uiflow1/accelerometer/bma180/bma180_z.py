@@ -1,0 +1,1 @@
+_periph_bma180.read()[2]
