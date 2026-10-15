@@ -24,15 +24,16 @@ async function main() {
     checkTrue('init: reset then wait BUSY (active low)',
         conn.events[0].type === 'reset' && conn.events[1].type === 'waitBusy'
         && conn.events[1].busyActiveHigh === false && conn.events[1].timeoutMs === 30000);
-    checkTrue('init: BTST, PON, PSR 0x1F, TRES 104x212, CDI 0x97',
-        conn.commands.length === 5 && isCmd(conn, 0, 0x06, [0x17, 0x17, 0x17]) && isCmd(conn, 1, 0x04, [])
-        && isCmd(conn, 2, 0x00, [0x1F]) && isCmd(conn, 3, 0x61, [0x68, 0x00, 0xD4]) && isCmd(conn, 4, 0x50, [0x97]));
-    checkTrue('init: waits BUSY after PON', conn.events[4].type === 'waitBusy');
+    checkTrue('init: PWR, BTST, PON, PSR 0x1F, TRES 104x212, CDI 0x97',
+        conn.commands.length === 6 && isCmd(conn, 0, 0x01, [0x03, 0x00, 0x2B, 0x2B, 0x03])
+        && isCmd(conn, 1, 0x06, [0x17, 0x17, 0x17]) && isCmd(conn, 2, 0x04, [])
+        && isCmd(conn, 3, 0x00, [0x1F]) && isCmd(conn, 4, 0x61, [0x68, 0x00, 0xD4]) && isCmd(conn, 5, 0x50, [0x97]));
+    checkTrue('init: PON settles 200 ms', conn.events[5].type === 'waitBusy' && conn.events[5].timeoutMs === 200);
     checkTrue('default size', d.width === 104 && d.height === 212);
 
     conn = new DisplayConnectionMock();
     await new IL0373Minimal(conn, { width: 160, height: 296 }).ready();
-    checkTrue('init: TRES for the largest panel', isCmd(conn, 3, 0x61, [0xA0, 0x01, 0x28]));
+    checkTrue('init: TRES for the largest panel', isCmd(conn, 4, 0x61, [0xA0, 0x01, 0x28]));
 
     checkTrue('width not a multiple of 8', throwsSync(() => new IL0373Minimal(new DisplayConnectionMock(), { width: 101 })));
     checkTrue('width above 160', throwsSync(() => new IL0373Minimal(new DisplayConnectionMock(), { width: 168 })));

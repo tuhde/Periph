@@ -169,14 +169,21 @@ class IL0373Minimal:
         if not self._connection.wait_busy(False, timeout_ms):
             raise TimeoutError('IL0373: BUSY did not go high within %s ms' % timeout_ms)
 
+    def _settle(self):
+        # Let PON settle: wait up to 200 ms for BUSY high, ignoring a timeout. On the
+        # Waveshare 2.13inch (D) module BUSY shows no clean ready after PON (it stays low or
+        # toggles until the first refresh; the vendor demo waits a fixed 200 ms).
+        self._connection.wait_busy(False, 200)
+
     def _init_sequence(self):
-        # Vendor OTP reference flow: reset, booster soft start, power on, panel
+        # Vendor OTP reference flow: reset, power setting, booster soft start, power on, panel
         # setting, resolution, VCOM and data interval.
         self._connection.reset()
         self._wait_ready()
+        self._connection.send_command(self._CMD_PWR, b'\x03\x00\x2b\x2b\x03')
         self._connection.send_command(self._CMD_BTST, b'\x17\x17\x17')
         self._connection.send_command(self._CMD_PON)
-        self._wait_ready()
+        self._settle()
         self._powered = True
         self._connection.send_command(self._CMD_PSR, bytes((self._psr,)))
         self._connection.send_command(self._CMD_TRES, bytes((
@@ -192,7 +199,7 @@ class IL0373Minimal:
         if self._powered:
             return
         self._connection.send_command(self._CMD_PON)
-        self._wait_ready()
+        self._settle()
         self._powered = True
         self._connection.send_command(self._CMD_CDI, b'\x97')
 

@@ -30,13 +30,14 @@ class Il0373Test {
         Il0373Minimal d = new Il0373Minimal(m);
         assertEquals("reset", m.events().get(0));
         assertEquals("waitBusy:false:30000", m.events().get(1));
-        assertEquals(5, m.commands().size());
-        assertCommand(m, 0, 0x06, 0x17, 0x17, 0x17);
-        assertCommand(m, 1, 0x04);
-        assertCommand(m, 2, 0x00, 0x1F);
-        assertCommand(m, 3, 0x61, 0x68, 0x00, 0xD4);
-        assertCommand(m, 4, 0x50, 0x97);
-        assertEquals("waitBusy:false:30000", m.events().get(4));
+        assertEquals(6, m.commands().size());
+        assertCommand(m, 0, 0x01, 0x03, 0x00, 0x2B, 0x2B, 0x03);
+        assertCommand(m, 1, 0x06, 0x17, 0x17, 0x17);
+        assertCommand(m, 2, 0x04);
+        assertCommand(m, 3, 0x00, 0x1F);
+        assertCommand(m, 4, 0x61, 0x68, 0x00, 0xD4);
+        assertCommand(m, 5, 0x50, 0x97);
+        assertEquals("waitBusy:false:200", m.events().get(5));
         assertEquals(104, d.width());
         assertEquals(212, d.height());
     }
@@ -45,7 +46,7 @@ class Il0373Test {
     void initTresForLargestPanel() throws IOException {
         MockDisplayConnection m = new MockDisplayConnection();
         new Il0373Minimal(m, 160, 296, 0);
-        assertCommand(m, 3, 0x61, 0xA0, 0x01, 0x28);
+        assertCommand(m, 4, 0x61, 0xA0, 0x01, 0x28);
         assertEquals("waitBusy:false:0", m.events().get(1));
     }
 
@@ -97,7 +98,7 @@ class Il0373Test {
         d.show();
         tail = m.events().subList(n, m.events().size());
         assertEquals("command:04:", tail.get(0));
-        assertEquals("waitBusy:false:1000", tail.get(1));
+        assertEquals("waitBusy:false:200", tail.get(1));
         assertEquals("command:50:97", tail.get(2));
         assertEquals("command:10:", tail.get(3));
     }

@@ -80,7 +80,7 @@ public:
     /**
      * @brief Construct the driver and run the initialisation sequence.
      *
-     * Hardware reset, wait for BUSY, `BTST` `17 17 17`, `PON`, wait, `PSR`
+     * Hardware reset, wait for BUSY, `PWR` `03 00 2B 2B 03`, `BTST` `17 17 17`, `PON`, settle (200 ms), `PSR`
      * `0x1F` (KW, LUT from OTP, scan up, shift right, booster on), `TRES`
      * with the panel size and `CDI` `0x97`. The picture on the panel is left
      * unchanged until show(). The framebuffer is cleared to white.
@@ -186,14 +186,27 @@ protected:
         return true;
     }
 
+    /**
+     * @brief Let `PON` settle: wait up to 200 ms for BUSY to go high, ignoring a timeout.
+     *
+     * On the Waveshare 2.13inch (D) module BUSY does not show a clean "ready" after `PON`
+     * (measured: it stays low, or toggles, until the first refresh; the vendor demo just waits
+     * 200 ms). Only `DRF` and `POF` are waited on for real.
+     */
+    void _settle() {
+        _connection.waitBusy(false, 200);
+    }
+
     /** @brief Hardware reset and the initialisation commands (vendor OTP flow). */
     bool _init_sequence() {
         _connection.reset();
         if (!_wait_ready()) return false;
+        uint8_t pwr[5] = {0x03, 0x00, 0x2B, 0x2B, 0x03};   // vendor power setting (OTP is not trusted)
+        _connection.sendCommand(CMD_PWR, pwr, 5);
         uint8_t btst[3] = {0x17, 0x17, 0x17};
         _connection.sendCommand(CMD_BTST, btst, 3);
         _connection.sendCommand(CMD_PON);
-        if (!_wait_ready()) return false;
+        _settle();
         _powered = true;
         _connection.sendCommand(CMD_PSR, &_psr, 1);
         uint8_t tres[3] = {
@@ -218,7 +231,7 @@ protected:
     bool _ensure_power() {
         if (_powered) return true;
         _connection.sendCommand(CMD_PON);
-        if (!_wait_ready()) return false;
+        _settle();
         _powered = true;
         uint8_t cdi = 0x97;
         _connection.sendCommand(CMD_CDI, &cdi, 1);

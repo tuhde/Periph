@@ -26,13 +26,14 @@ class Il0373Spec extends Specification {
         then:
         m.events()[0] == 'reset'
         m.events()[1] == 'waitBusy:false:30000'
-        m.events()[4] == 'waitBusy:false:30000'
-        m.commands().size() == 5
-        cmdIs(m, 0, 0x06, 0x17, 0x17, 0x17)
-        cmdIs(m, 1, 0x04)
-        cmdIs(m, 2, 0x00, 0x1F)
-        cmdIs(m, 3, 0x61, 0x68, 0x00, 0xD4)
-        cmdIs(m, 4, 0x50, 0x97)
+        m.events()[5] == 'waitBusy:false:200'
+        m.commands().size() == 6
+        cmdIs(m, 0, 0x01, 0x03, 0x00, 0x2B, 0x2B, 0x03)
+        cmdIs(m, 1, 0x06, 0x17, 0x17, 0x17)
+        cmdIs(m, 2, 0x04)
+        cmdIs(m, 3, 0x00, 0x1F)
+        cmdIs(m, 4, 0x61, 0x68, 0x00, 0xD4)
+        cmdIs(m, 5, 0x50, 0x97)
         d.width() == 104
         d.height() == 212
     }
@@ -45,7 +46,7 @@ class Il0373Spec extends Specification {
         new Il0373Minimal(m, 160, 296, 0L)
 
         then:
-        cmdIs(m, 3, 0x61, 0xA0, 0x01, 0x28)
+        cmdIs(m, 4, 0x61, 0xA0, 0x01, 0x28)
     }
 
     def "invalid sizes and a BUSY timeout are rejected"() {
@@ -124,7 +125,7 @@ class Il0373Spec extends Specification {
 
         then:
         tail[0] == 'command:04:'
-        tail[1] == 'waitBusy:false:1000'
+        tail[1] == 'waitBusy:false:200'
         tail[2] == 'command:50:97'
         tail[3] == 'command:10:'
     }

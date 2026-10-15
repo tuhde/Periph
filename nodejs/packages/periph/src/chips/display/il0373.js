@@ -175,15 +175,23 @@ class IL0373Minimal {
         }
     }
 
+    // Let PON settle: wait up to 200 ms for BUSY high, ignoring a timeout. On the Waveshare
+    // 2.13inch (D) module BUSY shows no clean ready after PON (it stays low or toggles until
+    // the first refresh; the vendor demo waits a fixed 200 ms).
+    async _settle() {
+        await this._conn.waitBusy(false, 200);
+    }
+
     async _initSequence() {
         if (typeof this._conn.ready === 'function') await this._conn.ready();
         // Vendor OTP reference flow: reset, booster soft start, power on, panel
         // setting, resolution, VCOM and data interval.
         await this._conn.reset();
         await this._waitReady();
+        await this._conn.sendCommand(_CMD_PWR, [0x03, 0x00, 0x2B, 0x2B, 0x03]);
         await this._conn.sendCommand(_CMD_BTST, [0x17, 0x17, 0x17]);
         await this._conn.sendCommand(_CMD_PON);
-        await this._waitReady();
+        await this._settle();
         this._powered = true;
         await this._conn.sendCommand(_CMD_PSR, [this._psr]);
         await this._conn.sendCommand(_CMD_TRES, [
@@ -201,7 +209,7 @@ class IL0373Minimal {
     async _ensurePower() {
         if (this._powered) return;
         await this._conn.sendCommand(_CMD_PON);
-        await this._waitReady();
+        await this._settle();
         this._powered = true;
         await this._conn.sendCommand(_CMD_CDI, [0x97]);
     }

@@ -118,7 +118,7 @@ type IL0373Minimal struct {
 }
 
 // NewIL0373Minimal runs the initialisation sequence (vendor OTP reference
-// flow): hardware reset, wait for BUSY, BTST 17 17 17, PON, wait, PSR 0x1F
+// flow): hardware reset, wait for BUSY, PWR 03 00 2B 2B 03, BTST 17 17 17, PON, settle (200 ms), PSR 0x1F
 // (KW, LUT from OTP, scan up, shift right, booster on), TRES and CDI 0x97. The
 // panel picture is left unchanged until Show().
 //
@@ -230,11 +230,23 @@ func (d *IL0373Minimal) waitReady() error {
 	return nil
 }
 
+// settle lets PON settle: it waits up to 200 ms for BUSY to go high and ignores
+// a timeout. On the Waveshare 2.13inch (D) module BUSY shows no clean ready after
+// PON (it stays low or toggles until the first refresh; the vendor demo waits a
+// fixed 200 ms).
+func (d *IL0373Minimal) settle() error {
+	_, err := d.conn.WaitBusy(false, 200*time.Millisecond)
+	return err
+}
+
 func (d *IL0373Minimal) initSequence() error {
 	if err := d.conn.Reset(); err != nil {
 		return err
 	}
 	if err := d.waitReady(); err != nil {
+		return err
+	}
+	if err := d.conn.SendCommand(il0373CmdPWR, []byte{0x03, 0x00, 0x2B, 0x2B, 0x03}); err != nil {
 		return err
 	}
 	if err := d.conn.SendCommand(il0373CmdBTST, []byte{0x17, 0x17, 0x17}); err != nil {
@@ -243,7 +255,7 @@ func (d *IL0373Minimal) initSequence() error {
 	if err := d.conn.SendCommand(il0373CmdPON, nil); err != nil {
 		return err
 	}
-	if err := d.waitReady(); err != nil {
+	if err := d.settle(); err != nil {
 		return err
 	}
 	d.powered = true
@@ -270,7 +282,7 @@ func (d *IL0373Minimal) ensurePower() error {
 	if err := d.conn.SendCommand(il0373CmdPON, nil); err != nil {
 		return err
 	}
-	if err := d.waitReady(); err != nil {
+	if err := d.settle(); err != nil {
 		return err
 	}
 	d.powered = true

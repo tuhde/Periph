@@ -133,7 +133,7 @@ impl<'a, B: DisplayBus> Il0373Minimal<'a, B> {
 
     /// Create the driver and run the initialisation sequence.
     ///
-    /// Hardware reset, wait for BUSY, `BTST` `17 17 17`, `PON`, wait, `PSR`
+    /// Hardware reset, wait for BUSY, `PWR` `03 00 2B 2B 03`, `BTST` `17 17 17`, `PON`, settle (200 ms), `PSR`
     /// `0x1F` (KW, LUT from OTP, scan up, shift right, booster on), `TRES` with
     /// the panel size and `CDI` `0x97`. The picture on the panel is left
     /// unchanged until [`show`](Self::show). The framebuffer is cleared to white.
@@ -259,14 +259,23 @@ impl<'a, B: DisplayBus> Il0373Minimal<'a, B> {
         }
     }
 
+    /// Let `PON` settle: wait up to 200 ms for BUSY high, ignoring a timeout. On the
+    /// Waveshare 2.13inch (D) module BUSY shows no clean ready after `PON` (it stays low
+    /// or toggles until the first refresh; the vendor demo waits a fixed 200 ms).
+    fn settle(&mut self) -> Result<(), Error<B::Error>> {
+        self.bus.wait_busy(false, Some(200))?;
+        Ok(())
+    }
+
     fn init_sequence(&mut self) -> Result<(), Error<B::Error>> {
         // Vendor OTP reference flow: reset, booster soft start, power on, panel
         // setting, resolution, VCOM and data interval.
         self.bus.reset()?;
         self.wait_ready()?;
+        self.bus.send_command(CMD_PWR, &[0x03, 0x00, 0x2B, 0x2B, 0x03])?;
         self.bus.send_command(CMD_BTST, &[0x17, 0x17, 0x17])?;
         self.bus.send_command(CMD_PON, &[])?;
-        self.wait_ready()?;
+        self.settle()?;
         self.powered = true;
         self.bus.send_command(CMD_PSR, &[self.psr])?;
         let tres = [
@@ -290,7 +299,7 @@ impl<'a, B: DisplayBus> Il0373Minimal<'a, B> {
             return Ok(());
         }
         self.bus.send_command(CMD_PON, &[])?;
-        self.wait_ready()?;
+        self.settle()?;
         self.powered = true;
         self.bus.send_command(CMD_CDI, &[0x97])?;
         Ok(())
@@ -771,6 +780,7 @@ mod tests {
         assert_eq!(
             bus.commands(),
             vec![
+                (0x01, vec![0x03, 0x00, 0x2B, 0x2B, 0x03]),
                 (0x06, vec![0x17, 0x17, 0x17]),
                 (0x04, vec![]),
                 (0x00, vec![0x1F]),
@@ -778,7 +788,7 @@ mod tests {
                 (0x50, vec![0x97]),
             ]
         );
-        assert_eq!(bus.events[4], Ev::Wait(false, Some(30000)));
+        assert_eq!(bus.events[5], Ev::Wait(false, Some(200)));
     }
 
     #[test]
@@ -846,7 +856,7 @@ mod tests {
         let mut fb = [0u8; 4];
         let mut d = Il0373Minimal::new(MockBus::new(), &mut fb, 16, 2, Some(1)).unwrap();
         d.set_pixel(0, 0, BLACK);
-        let n = 8; // reset, wait, BTST, PON, wait, PSR, TRES, CDI
+        let n = 9; // reset, wait, PWR, BTST, PON, settle, PSR, TRES, CDI
         d.show().unwrap();
         let bus = d.release();
         let tail = &bus.events[n..];

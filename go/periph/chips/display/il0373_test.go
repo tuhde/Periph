@@ -39,8 +39,8 @@ func TestIL0373Init(t *testing.T) {
 		t.Fatalf("events = %+v", m.Events[:2])
 	}
 	c := m.Commands()
-	wantCmd := []uint8{0x06, 0x04, 0x00, 0x61, 0x50}
-	wantData := [][]byte{{0x17, 0x17, 0x17}, nil, {0x1F}, {0x68, 0x00, 0xD4}, {0x97}}
+	wantCmd := []uint8{0x01, 0x06, 0x04, 0x00, 0x61, 0x50}
+	wantData := [][]byte{{0x03, 0x00, 0x2B, 0x2B, 0x03}, {0x17, 0x17, 0x17}, nil, {0x1F}, {0x68, 0x00, 0xD4}, {0x97}}
 	if len(c) != len(wantCmd) {
 		t.Fatalf("commands = %+v", c)
 	}
@@ -49,8 +49,8 @@ func TestIL0373Init(t *testing.T) {
 			t.Errorf("command %d = %#x % x", i, c[i].Cmd, c[i].Data)
 		}
 	}
-	if m.Events[4].Kind != "waitBusy" {
-		t.Fatal("no BUSY wait after PON")
+	if m.Events[5].Kind != "waitBusy" || m.Events[5].Timeout != 200*time.Millisecond {
+		t.Fatal("PON must settle for 200 ms")
 	}
 	if d.Width() != 104 || d.Height() != 212 {
 		t.Fatal("geometry")

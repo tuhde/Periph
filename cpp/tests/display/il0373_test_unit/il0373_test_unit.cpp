@@ -60,12 +60,14 @@ int main() {
         DisplayConnectionMock m;
         Mini chip(m, fb);
         check_true(chip.valid(), "init_valid");
-        check_true(trace(m) == "R W0 C06 C04 W0 C00 C61 C50", "init_sequence_vendor_otp_flow");
-        check_true(bytesEq(m.events()[2].bytes, {0x17, 0x17, 0x17}), "init_btst_17_17_17");
-        check_true(bytesEq(m.events()[5].bytes, {0x1F}), "init_psr_0x1F");
-        check_true(bytesEq(m.events()[6].bytes, {0x68, 0x00, 0xD4}), "init_tres_104x212");
-        check_true(bytesEq(m.events()[7].bytes, {0x97}), "init_cdi_0x97");
+        check_true(trace(m) == "R W0 C01 C06 C04 W0 C00 C61 C50", "init_sequence_vendor_otp_flow");
+        check_true(bytesEq(m.events()[2].bytes, {0x03, 0x00, 0x2B, 0x2B, 0x03}), "init_pwr_vendor");
+        check_true(bytesEq(m.events()[3].bytes, {0x17, 0x17, 0x17}), "init_btst_17_17_17");
+        check_true(bytesEq(m.events()[6].bytes, {0x1F}), "init_psr_0x1F");
+        check_true(bytesEq(m.events()[7].bytes, {0x68, 0x00, 0xD4}), "init_tres_104x212");
+        check_true(bytesEq(m.events()[8].bytes, {0x97}), "init_cdi_0x97");
         check_true(m.events()[1].timeoutMs == 30000 && !m.events()[1].busyActiveHigh, "init_busy_wait_active_low");
+        check_true(m.events()[5].timeoutMs == 200, "pon_settles_200ms_without_failing");
         check_true(chip.width() == 104 && chip.height() == 212, "init_geometry");
         check_true(fb[0] == 0xFF && fb[2755] == 0xFF, "init_clears_to_white");
         check_true(Mini::buffer_size(104, 212) == 2756, "buffer_size_104x212");
@@ -154,11 +156,11 @@ int main() {
         check_true(bytesEq(m.events()[from + 3].bytes, {0xA5}), "sleep_check_code_a5");
         from = m.events().size();
         check_true(chip.show(), "show_after_sleep");
-        check_true(trace(m, from).rfind("R W0 C06", 0) == 0, "show_after_sleep_wakes_first");
+        check_true(trace(m, from).rfind("R W0 C01", 0) == 0, "show_after_sleep_wakes_first");
         chip.sleep();
         from = m.events().size();
         check_true(chip.wake(), "wake_true");
-        check_true(trace(m, from).find("R W0 C06 C04 W0 C00 C61 C50") == 0, "wake_resets_and_reinitialises");
+        check_true(trace(m, from).find("R W0 C01 C06 C04 W0 C00 C61 C50") == 0, "wake_resets_and_reinitialises");
     }
     // ---- data chunking --------------------------------------------------------------------------------
     {

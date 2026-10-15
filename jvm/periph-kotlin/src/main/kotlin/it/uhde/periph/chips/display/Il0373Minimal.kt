@@ -150,12 +150,22 @@ open class Il0373Minimal @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Let `PON` settle: wait up to 200 ms for BUSY high, ignoring a timeout. On the Waveshare
+     * 2.13inch (D) module BUSY shows no clean ready after `PON` (it stays low or toggles until
+     * the first refresh; the vendor demo waits a fixed 200 ms).
+     */
+    protected fun settle() {
+        connection.waitBusy(false, 200L)
+    }
+
     protected fun initSequence() {
         connection.reset()
         waitReady()
+        connection.sendCommand(CMD_PWR, byteArrayOf(0x03, 0x00, 0x2B, 0x2B, 0x03))
         connection.sendCommand(CMD_BTST, byteArrayOf(0x17, 0x17, 0x17))
         connection.sendCommand(CMD_PON, ByteArray(0))
-        waitReady()
+        settle()
         powered = true
         connection.sendCommand(CMD_PSR, byteArrayOf(psr.toByte()))
         connection.sendCommand(
@@ -174,7 +184,7 @@ open class Il0373Minimal @JvmOverloads constructor(
     protected fun ensurePower() {
         if (powered) return
         connection.sendCommand(CMD_PON, ByteArray(0))
-        waitReady()
+        settle()
         powered = true
         connection.sendCommand(CMD_CDI, byteArrayOf(0x97.toByte()))
     }

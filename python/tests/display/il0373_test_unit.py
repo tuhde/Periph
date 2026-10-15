@@ -38,10 +38,11 @@ conn = DisplayConnectionMock()
 d = IL0373Minimal(conn)
 check_true('init: reset then wait BUSY (active low)',
            conn.events[0] == ('reset',) and conn.events[1] == ('wait_busy', False, 30000))
-check_true('init: BTST, PON, PSR 0x1F, TRES 104x212, CDI 0x97',
-           conn.commands == [(0x06, b'\x17\x17\x17'), (0x04, b''), (0x00, b'\x1f'),
+check_true('init: PWR, BTST, PON, PSR 0x1F, TRES 104x212, CDI 0x97',
+           conn.commands == [(0x01, b'\x03\x00\x2b\x2b\x03'), (0x06, b'\x17\x17\x17'),
+                             (0x04, b''), (0x00, b'\x1f'),
                              (0x61, b'\x68\x00\xd4'), (0x50, b'\x97')])
-check_true('init: waits BUSY after PON', conn.events[4] == ('wait_busy', False, 30000))
+check_true('init: PON settles 200 ms', conn.events[5] == ('wait_busy', False, 200))
 check_true('default size', d.width == 104 and d.height == 212)
 
 conn = DisplayConnectionMock()

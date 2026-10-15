@@ -180,12 +180,22 @@ public class Il0373Minimal {
         }
     }
 
+    /**
+     * Let {@code PON} settle: wait up to 200 ms for BUSY high, ignoring a timeout. On the
+     * Waveshare 2.13inch (D) module BUSY shows no clean ready after {@code PON} (it stays low
+     * or toggles until the first refresh; the vendor demo waits a fixed 200 ms).
+     */
+    protected void settle() throws IOException {
+        connection.waitBusy(false, 200L);
+    }
+
     protected void initSequence() throws IOException {
         connection.reset();
         waitReady();
+        connection.sendCommand(CMD_PWR, new byte[] {0x03, 0x00, 0x2B, 0x2B, 0x03});
         connection.sendCommand(CMD_BTST, new byte[] {0x17, 0x17, 0x17});
         connection.sendCommand(CMD_PON, new byte[0]);
-        waitReady();
+        settle();
         powered = true;
         connection.sendCommand(CMD_PSR, new byte[] {(byte) psr});
         connection.sendCommand(CMD_TRES, new byte[] {
@@ -202,7 +212,7 @@ public class Il0373Minimal {
     protected void ensurePower() throws IOException {
         if (powered) return;
         connection.sendCommand(CMD_PON, new byte[0]);
-        waitReady();
+        settle();
         powered = true;
         connection.sendCommand(CMD_CDI, new byte[] {(byte) 0x97});
     }
