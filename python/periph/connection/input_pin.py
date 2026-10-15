@@ -2,12 +2,16 @@ from abc import ABC, abstractmethod
 
 
 class InputPin(ABC):
-    """Delivers edge notifications from a chip's INT line.
+    """Delivers edge notifications from a chip's INT line, and reads its level.
 
-    Intentionally minimal: it only signals that *an* edge occurred. The chip
-    driver always calls poll_interrupt() to determine the cause. Multiple
-    handlers may be registered on the same InputPin instance — the common
-    pattern for chips with open-drain INT outputs wired to a single GPIO.
+    Edge delivery is intentionally minimal: it only signals that *an* edge
+    occurred. The chip driver always calls poll_interrupt() to determine the
+    cause. Multiple handlers may be registered on the same InputPin instance —
+    the common pattern for chips with open-drain INT outputs wired to a single
+    GPIO.
+
+    Level signals that a driver samples at a moment of its own choosing (a
+    BUSY output, a data-ready line) use is_high() instead of an edge handler.
     """
 
     RISING = 1
@@ -30,6 +34,19 @@ class InputPin(ABC):
 
         Args:
             handler: The exact callable previously passed to on_edge().
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def is_high(self):
+        """Read the electrical level of the line now.
+
+        The raw level: no inversion and no debounce. Active-low signals are
+        interpreted by the chip driver. A level read does not disturb a
+        registered edge handler.
+
+        Returns:
+            bool: True when the line is at logic high.
         """
         raise NotImplementedError
 
@@ -75,6 +92,9 @@ class MicroPythonPin(InputPin):
             self._pin.irq(handler=None)
             self._armed = False
 
+    def is_high(self):
+        return bool(self._pin.value())
+
     def _dispatch(self, pin):
         for handler in self._handlers:
             handler()
@@ -112,6 +132,9 @@ class CircuitPythonPin(InputPin):
             self._handlers.remove(handler)
         if not self._handlers:
             self._running = False
+
+    def is_high(self):
+        return bool(self._pin.value)
 
     def _start(self):
         try:
@@ -173,6 +196,9 @@ class LinuxPollingPin(InputPin):
         if not self._handlers:
             self._running = False
 
+    def is_high(self):
+        return bool(self._read_value())
+
     def _loop(self):
         import time
 
@@ -207,8 +233,20 @@ class LinuxSysfsPin(InputPin):
         self._handlers = []
         self._trigger = InputPin.FALLING
         self._request = None
+        self._level_request = None
         self._thread = None
         self._running = False
+
+    def is_high(self):
+        """Read the line level, using the edge request if open, else a plain input request."""
+        from gpiod.line import Value
+
+        request = self._request
+        if request is None:
+            if self._level_request is None:
+                self._level_request = self._request_input(edge=None)
+            request = self._level_request
+        return request.get_value(self._line_offset) == Value.ACTIVE
 
     def on_edge(self, handler, trigger=InputPin.FALLING):
         import threading
@@ -231,18 +269,29 @@ class LinuxSysfsPin(InputPin):
                 self._request = None
 
     def _open_request(self):
-        import gpiod
-        from gpiod.line import Direction, Edge
+        from gpiod.line import Edge
 
         edge_map = {
             InputPin.RISING: Edge.RISING,
             InputPin.FALLING: Edge.FALLING,
             InputPin.CHANGE: Edge.BOTH,
         }
-        settings = gpiod.LineSettings(
-            direction=Direction.INPUT, edge_detection=edge_map[self._trigger])
+        # gpiod allows one request per line: hand the line over from a level-only request.
+        if self._level_request is not None:
+            self._level_request.release()
+            self._level_request = None
+        self._request = self._request_input(edge_map[self._trigger])
+
+    def _request_input(self, edge):
+        import gpiod
+        from gpiod.line import Direction
+
+        if edge is None:
+            settings = gpiod.LineSettings(direction=Direction.INPUT)
+        else:
+            settings = gpiod.LineSettings(direction=Direction.INPUT, edge_detection=edge)
         chip = gpiod.Chip(self._chip_path)
-        self._request = chip.request_lines(
+        return chip.request_lines(
             consumer="periph-int", line_config={self._line_offset: settings})
 
     def _loop(self):

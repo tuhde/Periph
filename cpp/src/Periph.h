@@ -7,6 +7,8 @@
 // Connections
 #include "connection/Connection.h"
 #include "connection/DHTxxConnection.h"
+#include "connection/DisplayConnection.h"
+#include "connection/DisplayConnectionBase.h"
 #include "connection/HX711Connection.h"
 #include "connection/I2CConnection.h"
 #include "connection/InputPin.h"
@@ -19,6 +21,7 @@
 #include "connection/SMBusConnection.h"
 #include "connection/SPIConnection.h"
 #include "connection/SiPoConnection.h"
+#include "connection/SoftSPI.h"
 #include "connection/UARTConnection.h"
 
 // Chip drivers
@@ -36,7 +39,10 @@
 #include "chips/comms/MCP2515.h"
 #include "chips/comms/RDA5807M.h"
 #include "chips/comms/RFM9x.h"
+#include "chips/display/IL0373.h"
 #include "chips/display/PCF8576.h"
+#include "chips/display/UC8159.h"
+#include "chips/display/UC8276C.h"
 #include "chips/environmental/AHT21.h"
 #include "chips/environmental/BME280.h"
 #include "chips/environmental/BME680.h"

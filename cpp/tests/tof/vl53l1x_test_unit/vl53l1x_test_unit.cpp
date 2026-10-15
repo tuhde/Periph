@@ -78,8 +78,10 @@ protected:
 class FakePin : public InputPin {
 public:
     Handler handler = nullptr;
+    bool level = false;
     bool onEdge(Handler h, uint8_t = kFalling) override { handler = h; return true; }
     void offEdge(Handler) override { handler = nullptr; }
+    bool isHigh() override { return level; }
 };
 
 static std::vector<uint8_t> g_got;

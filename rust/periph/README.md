@@ -69,6 +69,7 @@ Each chip exposes two structs:
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
+| IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
@@ -98,6 +99,8 @@ Each chip exposes two structs:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
+| UC8159 | Display driver | Seven-colour e-paper controller (600 x 448 panels such as the |
+| UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | VL53L1X | Time-of-flight | Long-distance Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |

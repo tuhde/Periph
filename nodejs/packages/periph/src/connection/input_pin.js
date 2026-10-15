@@ -1,12 +1,16 @@
 'use strict';
 
 /**
- * Delivers edge notifications from a chip's INT line.
+ * Delivers edge notifications from a chip's INT line, and reads its level.
  *
- * Intentionally minimal: it only signals that *an* edge occurred. The chip
- * driver always calls pollInterrupt() to determine the cause. Multiple
- * handlers may be registered on the same InputPin instance — the common
- * pattern for chips with open-drain INT outputs wired to a single GPIO.
+ * Edge delivery is intentionally minimal: it only signals that *an* edge
+ * occurred. The chip driver always calls pollInterrupt() to determine the
+ * cause. Multiple handlers may be registered on the same InputPin instance —
+ * the common pattern for chips with open-drain INT outputs wired to a single
+ * GPIO.
+ *
+ * Level signals that a driver samples at a moment of its own choosing (a
+ * BUSY output, a data-ready line) use isHigh() instead of an edge handler.
  */
 class InputPin {
     /**
@@ -25,6 +29,17 @@ class InputPin {
      * @abstract
      */
     async offEdge(_callback) { throw new Error('abstract'); }
+
+    /**
+     * Read the electrical level of the line now (synchronous).
+     *
+     * The raw level: no inversion and no debounce. Active-low signals are
+     * interpreted by the chip driver. A level read does not disturb a
+     * registered edge handler. There is no default body.
+     * @returns {boolean} true when the line is at logic high.
+     * @abstract
+     */
+    isHigh() { throw new Error('abstract'); }
 }
 
 /**
@@ -89,6 +104,17 @@ class EpollInputPin extends InputPin {
         return buf[0] === 0x31 ? 1 : 0; // ASCII '1' vs '0'
     }
 
+    /**
+     * Read the level from the sysfs value file (the armed descriptor when edges
+     * are registered, otherwise a one-off read).
+     * @returns {boolean}
+     */
+    isHigh() {
+        if (this._fd !== null) return this._readValue() === 1;
+        const fs = require('fs');
+        return fs.readFileSync(this._valuePath)[0] === 0x31;
+    }
+
     async offEdge(callback) {
         this._handlers = this._handlers.filter(h => h !== callback);
         if (this._handlers.length === 0 && this._armed) {
@@ -129,6 +155,11 @@ class PollingInputPin extends InputPin {
         if (!this._timer) {
             this._timer = setInterval(() => this._tick(), this._pollIntervalMs);
         }
+    }
+
+    /** @returns {boolean} The level returned by the readValue function. */
+    isHigh() {
+        return Number(this._readValue()) === 1;
     }
 
     async offEdge(callback) {

@@ -57,6 +57,7 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
+| IL0373 | Display driver | `periph/src/chips/display/il0373` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
@@ -88,6 +89,8 @@ Each chip exposes two classes:
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
+| UC8159 | Display driver | `periph/src/chips/display/uc8159` |
+| UC8276C | Display driver | `periph/src/chips/display/uc8276c` |
 | VL53L0X | Time-of-flight | `periph/src/chips/tof/vl53l0x` |
 | VL53L1X | Time-of-flight | `periph/src/chips/tof/vl53l1x` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |
