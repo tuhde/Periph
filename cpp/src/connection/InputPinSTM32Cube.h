@@ -54,6 +54,13 @@ public:
         removeHandler(_handlers, handler);
     }
 
+    /** @brief Raw level via HAL_GPIO_ReadPin(). The pin is read as configured:
+     *  it must be a GPIO input (the reset default, or set up with HAL_GPIO_Init /
+     *  CubeMX — add a pull there if the line needs one). */
+    bool isHigh() override {
+        return HAL_GPIO_ReadPin(_port, _pin) == GPIO_PIN_SET;
+    }
+
     /** @brief Call from `HAL_GPIO_EXTI_Callback()` (directly, or after
      *  confirming `GPIO_Pin` matches, if the project also handles other
      *  EXTI sources there). Dispatches every handler registered on

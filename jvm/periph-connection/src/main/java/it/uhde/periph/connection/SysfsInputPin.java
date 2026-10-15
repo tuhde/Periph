@@ -57,6 +57,7 @@ public final class SysfsInputPin implements InputPin {
             FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_INT));
     }
 
+    private final Object readLock = new Object();
     private final Path valuePath;
     private final Path edgePath;
     private final int valueFd;
@@ -131,16 +132,34 @@ public final class SysfsInputPin implements InputPin {
 
     private int readValue() {
         try {
-            lseekMH.invoke(valueFd, 0L, 0); // SEEK_SET
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment buf = arena.allocate(1);
-                long n = (long) readMH.invoke(valueFd, buf, 1L);
-                if (n <= 0) return 0;
-                return (buf.get(ValueLayout.JAVA_BYTE, 0) == '1') ? 1 : 0;
-            }
-        } catch (Throwable t) {
+            return readLevel();
+        } catch (IOException e) {
             return 0;
         }
+    }
+
+    // The edge loop and isHigh() share valueFd, so lseek+read is one critical section.
+    private int readLevel() throws IOException {
+        synchronized (readLock) {
+            try {
+                lseekMH.invoke(valueFd, 0L, 0); // SEEK_SET
+                try (Arena arena = Arena.ofConfined()) {
+                    MemorySegment buf = arena.allocate(1);
+                    long n = (long) readMH.invoke(valueFd, buf, 1L);
+                    if (n <= 0) throw new IOException("read(" + valuePath + ") failed");
+                    return (buf.get(ValueLayout.JAVA_BYTE, 0) == '1') ? 1 : 0;
+                }
+            } catch (IOException e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new IOException(t);
+            }
+        }
+    }
+
+    @Override
+    public boolean isHigh() throws IOException {
+        return readLevel() != 0;
     }
 
     @Override

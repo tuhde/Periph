@@ -34,6 +34,8 @@ const (
 	gpioV2LineEventFallingEdge = 2
 
 	gpioV2GetLineIoctl = 0xc250b407
+	// GPIO_V2_LINE_GET_VALUES_IOCTL = _IOWR(0xB4, 0x0E, sizeof(struct gpio_v2_line_values))
+	gpioV2LineGetValuesIoctl = 0xc010b40e
 
 	sizeofGpioV2LineEvent = 48
 )
@@ -73,6 +75,13 @@ type gpioV2LineRequest struct {
 	eventBufferSize uint32
 	padding         [5]uint32
 	fd              int32
+}
+
+// gpioV2LineValues mirrors struct gpio_v2_line_values (bit i of bits is
+// the level of requested line i, selected by bit i of mask).
+type gpioV2LineValues struct {
+	bits uint64
+	mask uint64
 }
 
 // gpioV2LineEvent mirrors struct gpio_v2_line_event (48 bytes).
@@ -139,6 +148,16 @@ func (p *GpioInputPin) OnEdge(trigger Trigger, handler func()) (unsubscribe func
 		delete(p.handlers, id)
 		p.mu.Unlock()
 	}
+}
+
+// IsHigh reads the line level through the same line fd that delivers edge
+// events; a level read does not disturb registered handlers.
+func (p *GpioInputPin) IsHigh() (bool, error) {
+	v := gpioV2LineValues{mask: 1}
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, uintptr(p.lineFd), uintptr(gpioV2LineGetValuesIoctl), uintptr(unsafe.Pointer(&v))); errno != 0 {
+		return false, fmt.Errorf("ioctl(GPIO_V2_LINE_GET_VALUES_IOCTL): %v", errno)
+	}
+	return v.bits&1 == 1, nil
 }
 
 // loop blocks reading edge events from the line fd until it is closed,

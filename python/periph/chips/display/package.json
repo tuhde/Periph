@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
     ],
     [
+      "periph/chips/display/uc8276c.py",
+      "github:tuhde/Periph/python/periph/chips/display/uc8276c.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -39,6 +43,14 @@
     [
       "periph/connection/register_connection.py",
       "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
     ]
   ],
   "deps": [

@@ -587,6 +587,7 @@ Adapt capitalisation to the language convention (snake_case Python/Rust, camelCa
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
 Keep the handler short — no I/O beyond the register read.
 Multiple chips may share one `InputPin`; each registers its own `_int_handler` independently.
+Level signals the driver samples at a moment of its own choosing (a BUSY output, a data-ready line) are not interrupts: read them with `is_high()` / `isHigh()` / `IsHigh()` (Rust: `embedded_hal::digital::InputPin::is_high()`), interpret the polarity in the chip driver, and keep edge handlers for INT lines (see `specs/feature_inputpin_level_read.md`).
 
 **Python (Linux)**
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
@@ -708,6 +709,13 @@ Six supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** 
 | `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
 | `SiPoConnectionSTM32Cube.h` | STM32Cube | hardware SPI (`SPI_HandleTypeDef*`) or bit-bang `HAL_GPIO_WritePin`, header-only |
+| `DisplayConnectionBase.h` / `SoftSPI.h` | all | shared display-connection logic (framing, reset, BUSY wait, wire modes) and a bit-banged SPI over `OutputPin`/`InputPin`; header-only, no exceptions, `valid()` instead of throwing (`specs/transport_display.md`) |
+| `DisplayConnection.h` | Arduino | `SPIClass&` or `SoftSPI&`, CS# as `OutputPin*`, header-only |
+| `DisplayConnectionLinux.h` | Linux GCC | `/dev/spidevBUS.DEVICE` (`SPI_3WIRE` for hardware half-duplex) or `SoftSPI&`, header-only |
+| `DisplayConnectionZephyr.h` | Zephyr RTOS | Zephyr `spi` API (`SPI_HALF_DUPLEX`) or `SoftSPI&`, header-only |
+| `DisplayConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (`SPI_DEVICE_3WIRE`) or `SoftSPI&`, header-only |
+| `DisplayConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` (full-duplex only) or `SoftSPI&`, header-only |
+| `DisplayConnectionSTM32Cube.h` | STM32Cube | `SPI_HandleTypeDef*` (`SPI_DIRECTION_1LINE` for hardware half-duplex) or `SoftSPI&`, header-only |
 | `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
 | `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
 | `GpiodLineLinux.h/.cpp` | Linux GCC | one libgpiod v2 line request (chip path + offset); shared by `InputPinLinux`, `OutputPinLinux`, `HX711ConnectionLinux`, `SiPoConnectionLinux` |

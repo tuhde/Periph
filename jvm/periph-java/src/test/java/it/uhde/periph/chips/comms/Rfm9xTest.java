@@ -33,6 +33,7 @@ class Rfm9xTest {
         final List<EdgeHandler> handlers = new CopyOnWriteArrayList<>();
         @Override public void onEdge(EdgeHandler handler, EdgeTrigger trigger) { handlers.add(handler); }
         @Override public void offEdge(EdgeHandler handler) { handlers.remove(handler); }
+        @Override public boolean isHigh() { return false; }
         @Override public void close() {}
         void fire() { for (EdgeHandler h : handlers) h.onEdge(); }
     }

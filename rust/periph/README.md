@@ -98,6 +98,7 @@ Each chip exposes two structs:
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
+| UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | VL53L1X | Time-of-flight | Long-distance Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |

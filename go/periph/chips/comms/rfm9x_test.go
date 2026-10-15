@@ -95,6 +95,8 @@ func (p *fakeInputPinRFM9x) OnEdge(trigger connection.Trigger, handler func()) f
 	return func() {}
 }
 
+func (p *fakeInputPinRFM9x) IsHigh() (bool, error) { return false, nil }
+
 const rfm9xRegVersionTest = 0x42
 const rfm9xExpectedVersionTest = 0x12
 
