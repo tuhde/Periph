@@ -1,0 +1,303 @@
+{
+  "category": "UC8159",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_UC8159_LANGUAGES = {\n  \"CUSTOM_UC8159_INIT\": {\n    \"en\": \"%1 init SCK %2 MOSI %3 CS %4 DC %5 RES %6 BUSY %7\"\n  },\n  \"CUSTOM_UC8159_CLEAR\": {\n    \"en\": \"%1 clear framebuffer color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %2\"\n  },\n  \"CUSTOM_UC8159_SET_PIXEL\": {\n    \"en\": \"%1 set pixel x %2 y %3 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %4\"\n  },\n  \"CUSTOM_UC8159_DRAW_LINE\": {\n    \"en\": \"%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6\"\n  },\n  \"CUSTOM_UC8159_DRAW_RECT\": {\n    \"en\": \"%1 draw rectangle x %2 y %3 width %4 height %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6 fill (0/1) %7\"\n  },\n  \"CUSTOM_UC8159_SHOW\": {\n    \"en\": \"%1 refresh panel (blocks about 30 s)\"\n  },\n  \"CUSTOM_UC8159_SLEEP\": {\n    \"en\": \"%1 deep sleep\"\n  }\n};\n\nconst initType = 'custom_uc8159_init';\nBlockly.BlockRegExpList['custom_uc8159'] = {\n  regexp: new RegExp(/^custom_uc8159_/),\n  code: \"from UC8159 import UC8159\",\n  initBlockType: initType,\n  categoryId: 'custom_uc8159',\n}\nBlockly.utils.registerLanguages(CUSTOM_UC8159_LANGUAGES)\n\nBlockly.Msg.CUSTOM_UC8159_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_UC8159 = 'UC8159'\n\nBlockly.utils.getcustom_uc8159Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['uc8159_0', 'uc8159_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_uc8159_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_uc8159Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'uc8159_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sck'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mosi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs'\n        },\n        {\n          'type': 'input_value',\n          'name': 'dc'\n        },\n        {\n          'type': 'input_value',\n          'name': 'res'\n        },\n        {\n          'type': 'input_value',\n          'name': 'busy'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sck = Blockly.Python.valueToCode(block, 'sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mosi = Blockly.Python.valueToCode(block, 'mosi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs = Blockly.Python.valueToCode(block, 'cs', Blockly.Python.ORDER_FUNCTION_CALL);\n  var dc = Blockly.Python.valueToCode(block, 'dc', Blockly.Python.ORDER_FUNCTION_CALL);\n  var res = Blockly.Python.valueToCode(block, 'res', Blockly.Python.ORDER_FUNCTION_CALL);\n  var busy = Blockly.Python.valueToCode(block, 'busy', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = UC8159(${sck}, ${mosi}, ${cs}, ${dc}, ${res}, ${busy})\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'color'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var color = Blockly.Python.valueToCode(block, 'color', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.clear(${color})\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'color'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var color = Blockly.Python.valueToCode(block, 'color', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${x}, ${y}, ${color})\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_draw_line\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_DRAW_LINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'x1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'color'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_draw_line\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x0 = Blockly.Python.valueToCode(block, 'x0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y0 = Blockly.Python.valueToCode(block, 'y0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var x1 = Blockly.Python.valueToCode(block, 'x1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y1 = Blockly.Python.valueToCode(block, 'y1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var color = Blockly.Python.valueToCode(block, 'color', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_line(${x0}, ${y0}, ${x1}, ${y1}, ${color})\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_draw_rect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_DRAW_RECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'w'\n        },\n        {\n          'type': 'input_value',\n          'name': 'h'\n        },\n        {\n          'type': 'input_value',\n          'name': 'color'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fill'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_draw_rect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var w = Blockly.Python.valueToCode(block, 'w', Blockly.Python.ORDER_FUNCTION_CALL);\n  var h = Blockly.Python.valueToCode(block, 'h', Blockly.Python.ORDER_FUNCTION_CALL);\n  var color = Blockly.Python.valueToCode(block, 'color', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fill = Blockly.Python.valueToCode(block, 'fill', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_rect(${x}, ${y}, ${w}, ${h}, ${color}, ${fill})\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_show\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_SHOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_show\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.show()\\n`\n}\n\nBlockly.Blocks[\"custom_uc8159_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC8159_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc8159Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc8159_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.sleep()\\n`\n}\n",
+    "toolbox": "\n<category name=\"UC8159\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_uc8159\">\n<title text=\"UC8159\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_uc8159_init\">\n  <value name=\"sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">18</field>\n    </shadow>\n  </value>\n  <value name=\"mosi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">19</field>\n    </shadow>\n  </value>\n  <value name=\"cs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">17</field>\n    </shadow>\n  </value>\n  <value name=\"dc\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n  <value name=\"res\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">21</field>\n    </shadow>\n  </value>\n  <value name=\"busy\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">22</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc8159_clear\">\n  <value name=\"color\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc8159_set_pixel\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"color\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc8159_draw_line\">\n  <value name=\"x0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"x1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"y1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"color\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc8159_draw_rect\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"w\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"h\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"color\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"fill\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc8159_show\"/><block type=\"custom_uc8159_sleep\"/>\n</category>\n",
+    "toolboxitemid": "custom_uc8159",
+    "block_type": [
+      "custom_uc8159___init__",
+      "custom_uc8159_clear",
+      "custom_uc8159_set_pixel",
+      "custom_uc8159_draw_line",
+      "custom_uc8159_draw_rect",
+      "custom_uc8159_show",
+      "custom_uc8159_sleep"
+    ]
+  },
+  "data": {
+    "name": "UC8159",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "UC8159",
+      "time": "2026-10-15",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.connection.input_pin import MicroPythonPin\nfrom periph.chips.display.uc8159 import UC8159Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SCK %2 MOSI %3 CS %4 DC %5 RES %6 BUSY %7"
+        },
+        "params": [
+          {
+            "name": "sck",
+            "type": "int",
+            "default": "18",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mosi",
+            "type": "int",
+            "default": "19",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs",
+            "type": "int",
+            "default": "17",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "dc",
+            "type": "int",
+            "default": "20",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "res",
+            "type": "int",
+            "default": "21",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "busy",
+            "type": "int",
+            "default": "22",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        spi = SPI(2, baudrate=4000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(dc),\n                                       MicroPythonOutputPin(res), MicroPythonPin(Pin(busy, Pin.IN)))\n        self._driver = UC8159Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear framebuffer color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %2"
+        },
+        "params": [
+          {
+            "name": "color",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.clear(color)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel x %2 y %3 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %4"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "color",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(x, y, color)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_line",
+        "note": {},
+        "label": {
+          "en": "%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6"
+        },
+        "params": [
+          {
+            "name": "x0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "x1",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y1",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "color",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_line(x0, y0, x1, y1, color)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_rect",
+        "note": {},
+        "label": {
+          "en": "%1 draw rectangle x %2 y %3 width %4 height %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6 fill (0/1) %7"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "w",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "h",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "color",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fill",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_rect(x, y, w, h, color, bool(fill))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show",
+        "note": {},
+        "label": {
+          "en": "%1 refresh panel (blocks about 30 s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.show()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep",
+        "note": {},
+        "label": {
+          "en": "%1 deep sleep"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.sleep()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "uc8159"
+  },
+  "pyCode": "\"\"\"\nfile     UC8159\ntime     2026-10-15\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.connection.input_pin import MicroPythonPin\nfrom periph.chips.display.uc8159 import UC8159Full\n\n\nclass UC8159:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, sck: int = 18, mosi: int = 19, cs: int = 17, dc: int = 20, res: int = 21, busy: int = 22):\n        \"\"\"\n        label:\n            en: '%1 init SCK %2 MOSI %3 CS %4 DC %5 RES %6 BUSY %7'\n        params:\n            sck:\n                name: sck\n                type: int\n                default: '18'\n                field: number\n            mosi:\n                name: mosi\n                type: int\n                default: '19'\n                field: number\n            cs:\n                name: cs\n                type: int\n                default: '17'\n                field: number\n            dc:\n                name: dc\n                type: int\n                default: '20'\n                field: number\n            res:\n                name: res\n                type: int\n                default: '21'\n                field: number\n            busy:\n                name: busy\n                type: int\n                default: '22'\n                field: number\n        \"\"\"\n        spi = SPI(2, baudrate=4000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(dc),\n                                       MicroPythonOutputPin(res), MicroPythonPin(Pin(busy, Pin.IN)))\n        self._driver = UC8159Full(connection)\n\n    def clear(self, color: int):\n        \"\"\"\n        label:\n            en: '%1 clear framebuffer color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %2'\n        params:\n            color:\n                name: color\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.clear(color)\n\n    def set_pixel(self, x: int, y: int, color: int):\n        \"\"\"\n        label:\n            en: '%1 set pixel x %2 y %3 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %4'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n            color:\n                name: color\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_pixel(x, y, color)\n\n    def draw_line(self, x0: int, y0: int, x1: int, y1: int, color: int):\n        \"\"\"\n        label:\n            en: '%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6'\n        params:\n            x0:\n                name: x0\n                type: int\n                default: '0'\n                field: number\n            y0:\n                name: y0\n                type: int\n                default: '0'\n                field: number\n            x1:\n                name: x1\n                type: int\n                default: '10'\n                field: number\n            y1:\n                name: y1\n                type: int\n                default: '10'\n                field: number\n            color:\n                name: color\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.draw_line(x0, y0, x1, y1, color)\n\n    def draw_rect(self, x: int, y: int, w: int, h: int, color: int, fill: int):\n        \"\"\"\n        label:\n            en: '%1 draw rectangle x %2 y %3 width %4 height %5 color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange) %6 fill (0/1) %7'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n            w:\n                name: w\n                type: int\n                default: '10'\n                field: number\n            h:\n                name: h\n                type: int\n                default: '10'\n                field: number\n            color:\n                name: color\n                type: int\n                default: '0'\n                field: number\n            fill:\n                name: fill\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.draw_rect(x, y, w, h, color, bool(fill))\n\n    def show(self):\n        \"\"\"\n        label:\n            en: '%1 refresh panel (blocks about 30 s)'\n        \"\"\"\n        self._driver.show()\n\n    def sleep(self):\n        \"\"\"\n        label:\n            en: '%1 deep sleep'\n        \"\"\"\n        self._driver.sleep()\n",
+  "version": "alpha2"
+}

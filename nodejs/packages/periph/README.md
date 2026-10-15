@@ -89,6 +89,7 @@ Each chip exposes two classes:
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
+| UC8159 | Display driver | `periph/src/chips/display/uc8159` |
 | UC8276C | Display driver | `periph/src/chips/display/uc8276c` |
 | VL53L0X | Time-of-flight | `periph/src/chips/tof/vl53l0x` |
 | VL53L1X | Time-of-flight | `periph/src/chips/tof/vl53l1x` |

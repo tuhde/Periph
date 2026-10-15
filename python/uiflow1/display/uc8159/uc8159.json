@@ -1,0 +1,88 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "uc8159_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init UC8159 e-paper, SCK", "type": "label" },
+        { "name": "_sck", "type": "number" },
+        { "name": "MOSI", "type": "label" },
+        { "name": "_mosi", "type": "number" },
+        { "name": "CS", "type": "label" },
+        { "name": "_cs", "type": "number" },
+        { "name": "D/C", "type": "label" },
+        { "name": "_dc", "type": "number" },
+        { "name": "RES", "type": "label" },
+        { "name": "_res", "type": "number" },
+        { "name": "BUSY", "type": "label" },
+        { "name": "_busy", "type": "number" }
+      ]
+    },
+    {
+      "name": "uc8159_clear",
+      "type": "execute",
+      "params": [
+        { "name": "UC8159 clear framebuffer (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange)", "type": "label" },
+        { "name": "_color", "type": "number" }
+      ]
+    },
+    {
+      "name": "uc8159_set_pixel",
+      "type": "execute",
+      "params": [
+        { "name": "UC8159 set pixel x", "type": "label" },
+        { "name": "_x", "type": "number" },
+        { "name": "y", "type": "label" },
+        { "name": "_y", "type": "number" },
+        { "name": "color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange)", "type": "label" },
+        { "name": "_color", "type": "number" }
+      ]
+    },
+    {
+      "name": "uc8159_draw_line",
+      "type": "execute",
+      "params": [
+        { "name": "UC8159 draw line x0", "type": "label" },
+        { "name": "_x0", "type": "number" },
+        { "name": "y0", "type": "label" },
+        { "name": "_y0", "type": "number" },
+        { "name": "x1", "type": "label" },
+        { "name": "_x1", "type": "number" },
+        { "name": "y1", "type": "label" },
+        { "name": "_y1", "type": "number" },
+        { "name": "color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange)", "type": "label" },
+        { "name": "_color", "type": "number" }
+      ]
+    },
+    {
+      "name": "uc8159_draw_rect",
+      "type": "execute",
+      "params": [
+        { "name": "UC8159 draw rectangle x", "type": "label" },
+        { "name": "_x", "type": "number" },
+        { "name": "y", "type": "label" },
+        { "name": "_y", "type": "number" },
+        { "name": "width", "type": "label" },
+        { "name": "_w", "type": "number" },
+        { "name": "height", "type": "label" },
+        { "name": "_h", "type": "number" },
+        { "name": "color (0 black, 1 white, 2 green, 3 blue, 4 red, 5 yellow, 6 orange)", "type": "label" },
+        { "name": "_color", "type": "number" },
+        { "name": "fill (0/1)", "type": "label" },
+        { "name": "_fill", "type": "number" }
+      ]
+    },
+    {
+      "name": "uc8159_show",
+      "type": "execute",
+      "params": [{ "name": "UC8159 refresh panel (blocks about 30 s)", "type": "label" }]
+    },
+    {
+      "name": "uc8159_sleep",
+      "type": "execute",
+      "params": [{ "name": "UC8159 deep sleep", "type": "label" }]
+    }
+  ]
+}

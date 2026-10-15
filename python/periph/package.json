@@ -69,6 +69,10 @@
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
     ],
     [
+      "periph/chips/display/uc8159.py",
+      "github:tuhde/Periph/python/periph/chips/display/uc8159.py"
+    ],
+    [
       "periph/chips/display/uc8276c.py",
       "github:tuhde/Periph/python/periph/chips/display/uc8276c.py"
     ],
