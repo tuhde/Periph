@@ -9,6 +9,7 @@ import it.uhde.periph.connection.PollingInputPin
 import it.uhde.periph.connection.SysfsOutputPin
 import it.uhde.periph.connection.WireMode
 import it.uhde.periph.chips.display.Uc8276cFull
+import it.uhde.periph.chips.display.Uc8276cMinimal
 
 // UC8276C demo example: Waveshare 4.2inch e-Paper (B) on a Raspberry Pi.
 // Wiring: DIN=GPIO10 (SPI0 MOSI), CLK=GPIO11, CS=GPIO8 (CE0), DC=GPIO25, RST=GPIO17, BUSY=GPIO24.
@@ -25,18 +26,18 @@ fun main() {
     // --- Compose the status card in the framebuffer ---
     // White page, a one-pixel black border inset by 4 px (a frame on the very edge is
     // hidden by the panel bezel) and a red header bar across the top 40 rows.
-    epd.clear(Uc8276cFull.WHITE)                                                                 // fill framebuffer, (color=WHITE) → void
-    epd.drawRect(4, 4, 392, 292, Uc8276cFull.BLACK, false)                                       // draw rectangle, (x, y, w, h, color, fill) → void
-    epd.drawRect(5, 5, 390, 40, Uc8276cFull.RED, true)                                           // draw rectangle, (x, y, w, h, color, fill) → void
+    epd.clear(Uc8276cMinimal.WHITE)                                                                 // fill framebuffer, (color=WHITE) → void
+    epd.drawRect(4, 4, 392, 292, Uc8276cMinimal.BLACK, false)                                       // draw rectangle, (x, y, w, h, color, fill) → void
+    epd.drawRect(5, 5, 390, 40, Uc8276cMinimal.RED, true)                                           // draw rectangle, (x, y, w, h, color, fill) → void
 
     // --- Bar chart of eight readings ---
     // Axes first, then one filled bar per value; the tallest bar is red to flag the peak.
-    epd.drawLine(30, 270, 370, 270, Uc8276cFull.BLACK)                                           // draw line, (x0, y0, x1, y1, color) → void
-    epd.drawLine(30, 70, 30, 270, Uc8276cFull.BLACK)                                             // draw line, (x0, y0, x1, y1, color) → void
+    epd.drawLine(30, 270, 370, 270, Uc8276cMinimal.BLACK)                                           // draw line, (x0, y0, x1, y1, color) → void
+    epd.drawLine(30, 70, 30, 270, Uc8276cMinimal.BLACK)                                             // draw line, (x0, y0, x1, y1, color) → void
     val values = intArrayOf(30, 55, 80, 45, 120, 90, 60, 100)
     val peak = values.max()
     for (i in values.indices) {
-        epd.drawRect(45 + i * 40, 270 - values[i], 28, values[i], if (values[i] == peak) Uc8276cFull.RED else Uc8276cFull.BLACK, true) // draw rectangle, (x, y, w, h, color, fill) → void
+        epd.drawRect(45 + i * 40, 270 - values[i], 28, values[i], if (values[i] == peak) Uc8276cMinimal.RED else Uc8276cMinimal.BLACK, true) // draw rectangle, (x, y, w, h, color, fill) → void
     }
 
     // --- Refresh and time it ---

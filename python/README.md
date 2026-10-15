@@ -75,6 +75,7 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |
+| IL0373 | Display driver | Black/white e-paper controller |
 | INA219 | Power monitor | 26V, 12-bit current/voltage/power monitor |
 | INA226 | Power monitor | 36V, 16-bit current/voltage/power monitor |
 | INA3221 | Power monitor | Three-channel 26V current/voltage/power monitor |

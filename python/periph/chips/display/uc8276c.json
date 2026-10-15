@@ -17,6 +17,14 @@
       "github:tuhde/Periph/python/periph/connection/base.py"
     ],
     [
+      "periph/connection/display_base.py",
+      "github:tuhde/Periph/python/periph/connection/display_base.py"
+    ],
+    [
+      "periph/connection/display_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/display_micropython.py"
+    ],
+    [
       "periph/connection/input_pin.py",
       "github:tuhde/Periph/python/periph/connection/input_pin.py"
     ],

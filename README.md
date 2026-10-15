@@ -4,6 +4,7 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 ## Implementations
 
+| IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | - |
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 + UIFlow 2 (Blockly custom blocks) | Active |

@@ -39,6 +39,7 @@
 #include "chips/comms/MCP2515.h"
 #include "chips/comms/RDA5807M.h"
 #include "chips/comms/RFM9x.h"
+#include "chips/display/IL0373.h"
 #include "chips/display/PCF8576.h"
 #include "chips/display/UC8276C.h"
 #include "chips/environmental/AHT21.h"

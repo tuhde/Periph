@@ -9,6 +9,7 @@ import it.uhde.periph.connection.PollingInputPin
 import it.uhde.periph.connection.SysfsOutputPin
 import it.uhde.periph.connection.WireMode
 import it.uhde.periph.chips.display.Uc8276cFull
+import it.uhde.periph.chips.display.Uc8276cMinimal
 
 // UC8276C complete example: Waveshare 4.2inch e-Paper (B) on a Raspberry Pi.
 // Wiring: DIN=GPIO10 (SPI0 MOSI), CLK=GPIO11, CS=GPIO8 (CE0), DC=GPIO25, RST=GPIO17, BUSY=GPIO24.
@@ -21,19 +22,19 @@ fun main() {
     val busy = PollingInputPin("/dev/gpiochip0", 24)                                             // create BUSY_N pin, (chip, line=24) → InputPin
     val connection = DisplayConnection.hardware(0, 0, 1000000, dc, res, busy, WireMode.HALF_DUPLEX_PIN) // open display connection, (bus, device, speedHz, dc, res, busy, wireMode)
     val epd = Uc8276cFull(connection)                                                            // construct driver, (connection) → Uc8276cFull
-    epd.clear(Uc8276cFull.WHITE)                                                                 // fill framebuffer, (color=WHITE) → void
+    epd.clear(Uc8276cMinimal.WHITE)                                                                 // fill framebuffer, (color=WHITE) → void
                                                                                                  // both planes set to white
-    epd.setPixel(5, 5, Uc8276cFull.BLACK)                                                        // set one pixel, (x, y, color=BLACK) → void
+    epd.setPixel(5, 5, Uc8276cMinimal.BLACK)                                                        // set one pixel, (x, y, color=BLACK) → void
                                                                                                  // clears the B/W bit for that pixel
-    epd.drawRect(20, 20, 100, 60, Uc8276cFull.RED, true)                                         // draw rectangle, (x, y, w, h, color, fill) → void
+    epd.drawRect(20, 20, 100, 60, Uc8276cMinimal.RED, true)                                         // draw rectangle, (x, y, w, h, color, fill) → void
                                                                                                  // filled red block
-    epd.drawLine(0, 0, 399, 299, Uc8276cFull.BLACK)                                              // draw line, (x0, y0, x1, y1, color) → void
+    epd.drawLine(0, 0, 399, 299, Uc8276cMinimal.BLACK)                                              // draw line, (x0, y0, x1, y1, color) → void
                                                                                                  // Bresenham diagonal
-    epd.blit(150, 20, byteArrayOf(0xff.toByte(), 0x81.toByte(), 0x81.toByte(), 0xff.toByte()), 8, 4, Uc8276cFull.BLACK) // copy 1-bpp bitmap, (x, y, data, w, h, color) → void
+    epd.blit(150, 20, byteArrayOf(0xff.toByte(), 0x81.toByte(), 0x81.toByte(), 0xff.toByte()), 8, 4, Uc8276cMinimal.BLACK) // copy 1-bpp bitmap, (x, y, data, w, h, color) → void
                                                                                                  // 8 x 4 box, MSB first
     val colour = epd.getPixel(30, 30)                                                            // read framebuffer pixel, (x, y) → int colour
                                                                                                  // RED here
-    epd.setMode(Uc8276cFull.MODE_KWR)                                                            // select pixel mode, (mode) → void
+    epd.setMode(Uc8276cMinimal.MODE_KWR)                                                            // select pixel mode, (mode) → void
                                                                                                  // PSR.KW/R cleared: black/white/red
     epd.setFlip(false, false)                                                                    // mirror output, (horizontal, vertical) → void
                                                                                                  // PSR.SHL / UD at power-on values
@@ -55,7 +56,7 @@ fun main() {
                                                                                                  // panel form: chipRev is -1
     epd.show()                                                                                   // refresh panel, () → void
                                                                                                  // DTM1, DTM2, PON, DRF, POF; takes ~17 s
-    epd.drawRect(40, 100, 80, 40, Uc8276cFull.BLACK, true)                                       // draw rectangle, (x, y, w, h, color, fill) → void
+    epd.drawRect(40, 100, 80, 40, Uc8276cMinimal.BLACK, true)                                       // draw rectangle, (x, y, w, h, color, fill) → void
     epd.showRegion(40, 100, 80, 40)                                                              // refresh a window, (x, y, w, h) → void
                                                                                                  // sends only the window's rows (RAM saving)
     val ready = epd.waitBusy(1000)                                                               // wait for BUSY_N high, (timeoutMs) → boolean

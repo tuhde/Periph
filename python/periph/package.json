@@ -61,6 +61,10 @@
       "github:tuhde/Periph/python/periph/chips/comms/rfm9x.py"
     ],
     [
+      "periph/chips/display/il0373.py",
+      "github:tuhde/Periph/python/periph/chips/display/il0373.py"
+    ],
+    [
       "periph/chips/display/pcf8576.py",
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
     ],
