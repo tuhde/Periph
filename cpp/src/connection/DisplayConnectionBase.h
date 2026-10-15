@@ -109,6 +109,9 @@ public:
         delayMs(_resetSettleMs);
     }
 
+    /** @brief Block for @p ms milliseconds (for chips without a BUSY pin, e.g. a power-up wait). */
+    void delay(uint32_t ms) { delayMs(ms); }
+
     /** @brief Raw level of the BUSY line; false when no BUSY pin was given. */
     bool busyLevel() const {
         return _busy != nullptr && _busy->isHigh();
