@@ -18,8 +18,8 @@
  *   controller's DIN/DOUT line (MOSI joined through a series resistor).
  * A mismatch makes valid() false.
  *
- * Microsecond delays are rounded up to whole milliseconds (the HAL has no
- * microsecond delay): a longer RES# pulse is harmless.
+ * Delays below 1 ms busy-wait on the Cortex-M4 DWT cycle counter (the HAL has
+ * no microsecond delay); longer ones use HAL_Delay().
  *
  * @param hspi Initialised SPI handle.
  */
@@ -90,7 +90,15 @@ protected:
     }
 
     void delayUs(uint32_t us) override {
-        if (us > 0) HAL_Delay((us + 999) / 1000);
+        if (us >= 1000) { HAL_Delay((us + 999) / 1000); return; }
+        if (!(CoreDebug->DEMCR & CoreDebug_DEMCR_TRCENA_Msk)) {
+            CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+            DWT->CYCCNT = 0;
+            DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+        }
+        uint32_t cycles = (SystemCoreClock / 1000000U) * us;
+        uint32_t start = DWT->CYCCNT;
+        while ((DWT->CYCCNT - start) < cycles) {}
     }
     void delayMs(uint32_t ms) override { HAL_Delay(ms); }
     uint32_t nowMs() override { return HAL_GetTick(); }
