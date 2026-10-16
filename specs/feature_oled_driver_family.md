@@ -9,7 +9,7 @@
 | Chip | File | Revision / source |
 |------|------|-------------------|
 | SSD1306 | `datasheets/display/ssd1306.pdf` | Solomon Systech, via Adafruit CDN |
-| SSD1315 | `datasheets/display/ssd1315.pdf` | Rev 0.10 "Product Preview", Oct 2016 (no command table) |
+| SSD1315 | `datasheets/display/ssd1315.pdf` | Rev 1.1, Apr 2017, via cursedhardware.github.io/epd-driver-ic (replaces the Rev 0.10 preview, which had no command table) |
 | SSD1309 | `datasheets/display/ssd1309.pdf` | via hpinfotech.ro |
 | SSD1305 | `datasheets/display/ssd1305.pdf` | via Adafruit CDN |
 | SH1106 | `datasheets/display/sh1106.pdf` | V0.1 preliminary (already present) |
@@ -24,7 +24,7 @@
 | Chip | Vendor | RAM / panel | Pixel format | Interfaces | Charge pump | Scroll engine |
 |------|--------|-------------|--------------|------------|-------------|---------------|
 | SSD1306 | Solomon | 128×64 | 1 bpp, page-packed | I²C, 3/4-wire SPI, parallel | `8Dh` | yes |
-| SSD1315 | Solomon | 128×64 | 1 bpp, page-packed | I²C, 3/4-wire SPI, parallel | `8Dh`; IREF select `ADh` | yes (+ infinite content scroll) |
+| SSD1315 | Solomon | 128×64 | 1 bpp, page-packed | I²C, 3/4-wire SPI, parallel | `8Dh` (7.5/8.5/9.0 V); IREF select `ADh` | yes (+ `2C/2D` content scroll) |
 | SSD1309 | Solomon | 128×64 | 1 bpp, page-packed | I²C, SPI, parallel | none (external VCC) | yes (+ `2C/2D` content scroll) |
 | SSD1305 | Solomon | 132×64 | 1 bpp, page-packed, area colour | I²C, SPI, parallel | none | yes |
 | SH1106 | Sino Wealth | 132×64 | 1 bpp, page-packed | I²C, SPI, parallel | DC-DC `ADh`+`8Ah/8Bh`, `30–33` pump voltage | no |
@@ -42,7 +42,12 @@ Shared opcodes: `00–0F`/`10–1F` column nibbles, `20` memory addressing mode,
 
 Deltas against SSD1306:
 
-- **SSD1315:** adds `ADh` (internal/external IREF, 150/240 µA), infinite content scroll. Otherwise an SSD1306 init sequence applies. *(Rev 0.10 has no command table — see Confidence.)*
+- **SSD1315** (verified against Rev 1.1 command table): same fundamental commands as the SSD1306 (`20/21/22` modes, `8Dh` charge pump), so an SSD1306 init sequence applies. Differences:
+  - `ADh` + `A[5:4]`: external IREF (POR) or internal IREF 19 µA (ISEG max 150 µA) / 30 µA (240 µA).
+  - `8Dh` charge-pump data: `14h` 7.5 V (POR value of the voltage field), `94h` 8.5 V, `95h` 9.0 V (SSD1306 only documents `10h`/`14h`).
+  - `10–17h` higher column nibble (not `10–1Fh`; 128 columns need only 3 bits).
+  - `2C/2D` content scroll (shared with SSD1309), `23h` fade-out/blinking, `D6h` zoom-in (needs `DAh` A[4]=1, i.e. alternative COM config).
+  - I²C 7-bit address `0111 10 SA0` = `0x3C/0x3D`; no status read in serial mode.
 - **SSD1309:** no charge pump (`8Dh` has no effect; panel needs external VCC); adds `DCh` GPIO, `FDh` command lock (must be unlocked, `FDh 12h`), `2C/2D` content scroll.
 - **SSD1305:** 132 columns; adds `82` area-colour brightness, `91` LUT, `92/93` bank colours, `AB` dim mode, `AD` master configuration, `AC` display-on-dim, `D8` area-colour / low-power mode, `E0/EE` read-modify-write; `AA` reserved; no charge pump.
 
@@ -104,11 +109,11 @@ Guidelines:
 - Parameterise constant-only differences (`columns`, `rows`, `column_offset`, `has_charge_pump`, `needs_unlock`, `supports_addressing_modes`, `scroll_engine`) rather than subclassing.
 - Minimal/Full staging (see `CLAUDE.md`): Minimal = init + framebuffer blit + contrast/flip; Full = scroll engine, addressing modes, dim/area-colour, GPIO, draw engine.
 - Specs: one per chip under `specs/display/`, each stating only deltas against its parent in the tree above; a shared mono-OLED family core can reference this document.
-- Suggested order: SSD1306 (family base) → SSD1309, SSD1315 → SH1107 (extends the existing SH1106 spec) → colour chips as a separate batch.
+- Suggested order: SSD1306 (family base) → SSD1315, SSD1309 → SH1107 (extends the existing SH1106 spec) → colour chips as a separate batch.
 
 ## Confidence
 
-- **Verified from datasheet text:** SSD1306, SSD1309, SSD1305, SH1106, SH1107, SSD1327, SSD1331, SSD1351 command lists and RAM geometry.
-- **SSD1315:** only Rev 0.10 (preview) could be obtained; it has no command table. Compatibility with the SSD1306 is inferred from the feature list, the `8Dh`/`ADh` references in the text and the Zephyr `solomon,ssd1315` binding. Re-check against a released (≥ 1.0) datasheet before writing the spec.
+- **Verified from datasheet text:** SSD1306, SSD1315, SSD1309, SSD1305, SH1106, SH1107, SSD1327, SSD1331, SSD1351 command lists and RAM geometry.
+- **SSD1315:** verified against the Rev 1.1 datasheet (Apr 2017, full command table). The earlier Rev 0.10 preview was replaced. Some appendix footers in Rev 1.1 still read "Rev 1.0", i.e. the document is a point release rather than a fully re-typeset one.
 - **SSD1357:** command table text was only partly extractable (`15/75`, `5D`, `A0`, `B1`, `B3`, `B6`, `B8/BC/BD`, `B9`, `BB`, `BE`, `C1`, `C7`, `CA`, `FD`); the `5C` write command and remaining entries should be confirmed from the PDF.
 - The "SH1106 vs SSD1306" and "SSD1309 pin/command compatible" statements are cross-checked against third-party sources (zbotic.in, GCBASIC) in addition to the datasheets.
