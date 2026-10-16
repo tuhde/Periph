@@ -39,6 +39,8 @@ var (
 type DisplayConn interface {
 	// Reset pulses RES# low then waits for the controller; it does not wait for BUSY.
 	Reset() error
+	// Delay blocks for d (for chips without a BUSY pin, e.g. a power-up wait).
+	Delay(d time.Duration)
 	// BusyLevel returns the raw BUSY level (false when no BUSY pin is wired).
 	BusyLevel() (bool, error)
 	// WaitBusy polls BUSY until it is no longer active. busyActiveHigh is the
@@ -188,6 +190,9 @@ func (c *DisplayConnection) Reset() error {
 	time.Sleep(c.resetSettle)
 	return nil
 }
+
+// Delay blocks for d.
+func (c *DisplayConnection) Delay(d time.Duration) { time.Sleep(d) }
 
 // BusyLevel returns the raw BUSY level; false when no BUSY pin is wired.
 func (c *DisplayConnection) BusyLevel() (bool, error) {
