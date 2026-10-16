@@ -8,3 +8,5 @@ pub mod uc8276c;
 pub use uc8276c::{Uc8276cMinimal, Uc8276cFull};
 pub mod ssd1331;
 pub use ssd1331::{Ssd1331Minimal, Ssd1331Full};
+pub mod st7036;
+pub use st7036::{St7036Minimal, St7036Full};
