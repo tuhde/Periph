@@ -17,7 +17,8 @@
 | SSD1327 | `datasheets/display/ssd1327.pdf` | Rev 1.8, via luma-oled docs |
 | SSD1331 | `datasheets/display/ssd1331.pdf` | Rev 1.2, via Adafruit CDN |
 | SSD1351 | `datasheets/display/ssd1351.pdf` | Rev 1.5, via Newhaven |
-| SSD1357 | `datasheets/display/ssd1357.pdf` | Rev 1.1 (Apr 2019), via Waveshare |
+| SSD1357 | `datasheets/display/ssd1357.pdf` | Rev 1.1 (Apr 2019), via Waveshare (main datasheet) |
+| SSD1357 commands | `datasheets/display/ssd1357_commands.pdf` | Rev 1.0 Appendix III "Command Table and Command Description" (Nov 2016, Wisechip copy via SparkFun) — full command table with bit fields |
 
 ## Chip summary
 
@@ -69,8 +70,8 @@ Per-chip differences:
 |---|---|---|---|---|
 | Contrast | `81` (one register) | `81/82/83` per colour + `87` master | `C1` per colour + `C7` master | `C1` + `C7` |
 | Multiplex | `A8` | `A8` | `CA` | `CA` |
-| Pixel stream | data after window | data after window | `5C` write / `5D` read | `5D` read; write stream (verify) |
-| Extras | `26/27/2E/2F` scroll | `21–26` line/rect/copy/dim/clear/fill, `27/2E/2F` scroll, `B0` power save | `B2` display enhancement, `B5` GPIO | `A0` also sets colour depth |
+| Pixel stream | data after window | data after window | `5C` write / `5D` read | `5C` write / `5D` read (same as SSD1351) |
+| Extras | `26/27/2E/2F` scroll | `21–26` line/rect/copy/dim/clear/fill, `27/2E/2F` scroll, `B0` power save | `B2` display enhancement, `B5` GPIO | own scroll `96/9E/9F`; separate LUTs per colour `BC/BD`; no `AB`/`B2`/`B5` |
 
 ## Compatibility and precedence
 
@@ -100,7 +101,7 @@ DisplayConnection / I²C control-byte transport                  (exists: specs/
        ├─ Ssd1327 (4-bpp gray)
        ├─ Ssd1331 (RGB565 + draw engine)
        ├─ Ssd1351 (RGB565/666, 5C/5D)
-       └─ Ssd1357 (65k/256 colour; verify)
+       └─ Ssd1357 (65k/262k/256-colour, 5C/5D, own scroll)
 ```
 
 Guidelines:
@@ -113,7 +114,14 @@ Guidelines:
 
 ## Confidence
 
-- **Verified from datasheet text:** SSD1306, SSD1315, SSD1309, SSD1305, SH1106, SH1107, SSD1327, SSD1331, SSD1351 command lists and RAM geometry.
+- **Verified from datasheet text:** SSD1306, SSD1315, SSD1357, SSD1309, SSD1305, SH1106, SH1107, SSD1327, SSD1331, SSD1351 command lists and RAM geometry.
 - **SSD1315:** verified against the Rev 1.1 datasheet (Apr 2017, full command table). The earlier Rev 0.10 preview was replaced. Some appendix footers in Rev 1.1 still read "Rev 1.0", i.e. the document is a point release rather than a fully re-typeset one.
-- **SSD1357:** command table text was only partly extractable (`15/75`, `5D`, `A0`, `B1`, `B3`, `B6`, `B8/BC/BD`, `B9`, `BB`, `BE`, `C1`, `C7`, `CA`, `FD`); the `5C` write command and remaining entries should be confirmed from the PDF.
+- **SSD1357:** verified against the Rev 1.0 command appendix (full table). It is an SSD1351 relative, not a clone:
+  - Same: `15/75` windows (0–127), `5C`/`5D` RAM write/read, `A1` start line, `A2` offset, `A4–A7`, `AE/AF`, `B1`, `B3`, `B6`, `B8/B9`, `BB`, `BE`, `C1`, `C7`, `CA` (MUX 4–128), `FD`.
+  - `A0` is a **two-data-byte** command (`A[7:0]`, then `0x00`). Bits: A0 vertical increment, A1 column mirror, A2 colour order swap, A4 COM scan direction, A5 COM split odd/even (POR 1), A[7:6] colour depth (`00` 256 colour, `01` 65k [POR], `10` 262k, `11` pseudo-262k 16-bit).
+  - `B8` master LUT has 63 entries; `BC`/`BD` define separate 31-entry LUTs for colours A and C (call `B8` first).
+  - Own scroll engine `96` (horizontal, left/right by column offset, start/end row, interval) with `9E` stop / `9F` start. Stopping requires rewriting RAM.
+  - Absent compared with the SSD1351: `AB` function select, `B2` enhancement, `B5` GPIO, `A8`.
+  - `BE` VCOMH is 3 bits (0.72–0.86 × VCC, POR `05h`); `BB` pre-charge 5 bits (0.10–0.51 × VCC, POR `1Eh`).
+  - Command-lock `FDh`: `12h` unlock (POR), `16h` lock.
 - The "SH1106 vs SSD1306" and "SSD1309 pin/command compatible" statements are cross-checked against third-party sources (zbotic.in, GCBASIC) in addition to the datasheets.
