@@ -24,6 +24,14 @@ public interface DisplayConn extends AutoCloseable {
     void reset() throws IOException;
 
     /**
+     * Block for the given time (for chips without a BUSY pin, e.g. a power-up wait).
+     *
+     * @param ms time in milliseconds
+     * @throws IOException if the wait is interrupted
+     */
+    void delay(long ms) throws IOException;
+
+    /**
      * Raw level of the BUSY line.
      *
      * @return the level, or {@code false} when no BUSY pin is wired

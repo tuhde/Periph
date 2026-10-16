@@ -183,6 +183,11 @@ public final class DisplayConnection implements DisplayConn {
     }
 
     @Override
+    public void delay(long ms) throws IOException {
+        sleepMs(ms);
+    }
+
+    @Override
     public boolean busyLevel() throws IOException {
         return busy != null && busy.isHigh();
     }
