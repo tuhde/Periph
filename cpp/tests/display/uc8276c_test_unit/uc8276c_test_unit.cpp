@@ -30,6 +30,7 @@ static std::string trace(const DisplayConnectionMock& m, size_t from = 0) {
             case Event::kData:    s += "D" + std::to_string(e.bytes.size()); break;
             case Event::kWaitBusy: s += e.busyActiveHigh ? "W1" : "W0"; break;
             case Event::kRead:    s += "r" + std::to_string(e.length); break;
+            case Event::kDelay:   s += "d" + std::to_string(e.timeoutMs); break;
         }
     }
     return s;
