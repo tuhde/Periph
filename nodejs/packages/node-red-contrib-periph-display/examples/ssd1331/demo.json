@@ -1,0 +1,81 @@
+[
+    {
+        "id": "ssd1331_tab",
+        "type": "tab",
+        "label": "SSD1331 test card",
+        "disabled": false,
+        "info": "Draws a colour test card (eight colour bars, a gray ramp, a frame) on a Waveshare 0.95inch RGB OLED on SPI0 with DC = GPIO25, RST = GPIO17 (no BUSY), sends it once and starts the controller's hardware scroll."
+    },
+    {
+        "id": "ssd1331_inject",
+        "type": "inject",
+        "z": "ssd1331_tab",
+        "name": "draw test card",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "once": true,
+        "onceDelay": "1",
+        "payload": "{}",
+        "payloadType": "json",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "ssd1331_card"
+            ]
+        ]
+    },
+    {
+        "id": "ssd1331_card",
+        "type": "function",
+        "z": "ssd1331_tab",
+        "name": "build test card",
+        "func": "const out = [{ payload: { clear: 'black' } }];\nconst bars = ['white', 'yellow', 'cyan', 'green', 'magenta', 'red', 'blue', 'black'];\nbars.forEach((c, i) => out.push({ payload: { rect: { x: i * 12, y: 2, w: 12, h: 30, color: c, fill: true } } }));\nfor (let x = 0; x < 96; x++) { const g = Math.round(x * 255 / 95); out.push({ payload: { rect: { x, y: 34, w: 1, h: 26, color: [g, g, g], fill: true } } }); }\nout.push({ payload: { rect: { x: 0, y: 0, w: 96, h: 64, color: 'white' } } });\nout.push({ payload: { show: true } });\nout.push({ payload: { scroll: { horizontal: 1, startRow: 0, rows: 64, vertical: 0, interval: 0 } } });\nreturn [out];",
+        "outputs": 1,
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "ssd1331_node"
+            ]
+        ]
+    },
+    {
+        "id": "ssd1331_node",
+        "type": "periph-ssd1331",
+        "z": "ssd1331_tab",
+        "name": "OLED",
+        "spiBus": "0",
+        "spiDevice": "0",
+        "gpioChip": "0",
+        "dcPin": "25",
+        "resPin": "17",
+        "autoShow": false,
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "ssd1331_debug"
+            ]
+        ]
+    },
+    {
+        "id": "ssd1331_debug",
+        "type": "debug",
+        "z": "ssd1331_tab",
+        "name": "updated",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 700,
+        "y": 100,
+        "wires": []
+    }
+]

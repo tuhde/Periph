@@ -150,6 +150,13 @@ class DisplayConnection {
         await sleepMs(this._resetSettleMs);
     }
 
+    /**
+     * Wait @p ms milliseconds (for chips without a BUSY pin, e.g. a power-up wait).
+     * @param {number} ms - Time in milliseconds.
+     * @returns {Promise<void>}
+     */
+    async delayMs(ms) { await sleepMs(ms); }
+
     /** @returns {boolean} Raw level of the BUSY line; false when no BUSY pin was given. */
     busyLevel() {
         return this._busy !== null && this._busy.isHigh();

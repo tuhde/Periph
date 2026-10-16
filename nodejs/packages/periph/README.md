@@ -87,6 +87,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
 | UC8159 | Display driver | `periph/src/chips/display/uc8159` |
