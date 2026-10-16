@@ -23,7 +23,8 @@ public:
         std::vector<uint8_t>  bytes;                 // kCommand parameters / kData payload
         size_t                length = 0;            // kRead
         bool                  busyActiveHigh = false; // kWaitBusy
-        uint32_t              timeoutMs = 0;         // kWaitBusy, kDelay (milliseconds)
+        uint32_t              timeoutMs = 0;         // kWaitBusy, kDelay (milliseconds, or microseconds when delayMicro)
+        bool                  delayMicro = false;    // kDelay recorded by delayMicros()
     };
 
     explicit DisplayConnectionMock(DisplayWireMode wireMode = DisplayWireMode::kSimplex)
@@ -44,6 +45,11 @@ public:
 
     void delay(uint32_t ms) {
         Event e; e.kind = Event::kDelay; e.timeoutMs = ms;
+        _events.push_back(e);
+    }
+
+    void delayMicros(uint32_t us) {
+        Event e; e.kind = Event::kDelay; e.timeoutMs = us; e.delayMicro = true;
         _events.push_back(e);
     }
 
