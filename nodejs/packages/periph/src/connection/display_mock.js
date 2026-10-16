@@ -9,7 +9,7 @@ const { WireMode } = require('./display');
  * readData, reset, waitBusy, busyLevel, enable/disable) and records every call
  * in order in `events`: {type:'reset'}, {type:'command', cmd, data},
  * {type:'data', data}, {type:'read', length}, {type:'waitBusy',
- * busyActiveHigh, timeoutMs}, {type:'delay', ms}.
+ * busyActiveHigh, timeoutMs}, {type:'delay', ms}, {type:'delayUs', us}.
  */
 class DisplayConnectionMock {
     /**
@@ -42,6 +42,7 @@ class DisplayConnectionMock {
 
     async reset() { if (this._enabled) this.events.push({ type: 'reset' }); }
     async delayMs(ms) { this.events.push({ type: 'delay', ms }); }
+    async delayUs(us) { this.events.push({ type: 'delayUs', us }); }
     busyLevel() { return this.busyHigh; }
 
     async waitBusy(busyActiveHigh, timeoutMs = null) {

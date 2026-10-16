@@ -104,6 +104,7 @@ Each chip exposes two classes:
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
+| ST7036 | Display driver | Character LCD controller |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
 | UC8159 | Display driver | Seven-colour e-paper controller |

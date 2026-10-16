@@ -20,6 +20,7 @@ npm install node-red-contrib-periph-display
 | `pcf8576-device` | config | I²C bus and address for a PCF8576 |
 | `periph-pcf8576` | input | Writes 7-segment digits or raw data to a PCF8576 40x4 universal LCD segment driver over I²C. The chip is write-only; any incoming message triggers a single write to display RAM. |
 | `periph-ssd1331` | input | Draws on an SSD1331 96 x 64 RGB OLED (e.g. Waveshare 0.95inch RGB OLED) over SPI. The chip has no BUSY line. Drawing messages change the framebuffer only; show sends it to the display. The hw* messages use the controller's own drawing engine on the display RAM. |
+| `periph-st7036` | output | Writes text on an ST7036 character LCD (EA DOGM081 / DOGM162 / DOGM163) in 4-wire serial mode over SPI. The serial mode is write-only; the chip has no BUSY line. Strapping: PSB = GND, E = 3V3, booster capacitors for 3.3 V. |
 | `periph-uc8159` | input | Draws on a UC8159 seven-colour e-paper panel (600 x 448, e.g. Waveshare 5.65inch e-Paper (F)) over SPI. Drawing messages change the framebuffer only; show sends it and refreshes the panel, which blocks the node for about 30 seconds. |
 | `periph-uc8276c` | input | Draws on a UC8276C black/white/red e-paper panel (400 x 300, e.g. Waveshare 4.2inch e-Paper (B)) over SPI. Drawing messages change the framebuffer only; show sends it and refreshes the panel, which blocks the node for about 17 seconds. |
 

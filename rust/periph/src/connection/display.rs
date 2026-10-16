@@ -234,6 +234,13 @@ where
         self.delay.delay_ms(ms);
     }
 
+    /// Block for at least `us` microseconds (for chips that need a gap between
+    /// bytes, e.g. the ST7036's 30 us). Where the delay provider cannot be that
+    /// precise the wait is longer, which is harmless.
+    pub fn delay_us(&mut self, us: u32) {
+        self.delay.delay_us(us);
+    }
+
     /// Poll BUSY (every millisecond) until it is no longer active.
     ///
     /// # Arguments
@@ -344,6 +351,13 @@ pub trait DisplayBus {
         Ok(())
     }
 
+    /// Block for `us` microseconds (gaps between bytes of chips that need one).
+    ///
+    /// The default does nothing; [`DisplayConnection`] waits for real.
+    fn delay_us(&mut self, _us: u32) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
     /// Poll BUSY until it is no longer active; `Ok(false)` on timeout.
     fn wait_busy(
         &mut self,
@@ -377,6 +391,11 @@ where
 
     fn delay_ms(&mut self, ms: u32) -> Result<(), Self::Error> {
         DisplayConnection::delay_ms(self, ms);
+        Ok(())
+    }
+
+    fn delay_us(&mut self, us: u32) -> Result<(), Self::Error> {
+        DisplayConnection::delay_us(self, us);
         Ok(())
     }
 

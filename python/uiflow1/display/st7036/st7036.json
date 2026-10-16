@@ -1,0 +1,188 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "st7036_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ST7036 LCD, SCK",
+          "type": "label"
+        },
+        {
+          "name": "_sck",
+          "type": "number"
+        },
+        {
+          "name": "MOSI",
+          "type": "label"
+        },
+        {
+          "name": "_mosi",
+          "type": "number"
+        },
+        {
+          "name": "CS",
+          "type": "label"
+        },
+        {
+          "name": "_cs",
+          "type": "number"
+        },
+        {
+          "name": "RS",
+          "type": "label"
+        },
+        {
+          "name": "_rs",
+          "type": "number"
+        },
+        {
+          "name": "RES",
+          "type": "label"
+        },
+        {
+          "name": "_res",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st7036_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 clear display",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st7036_home",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 return home",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "st7036_set_cursor",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 set cursor col",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        },
+        {
+          "name": "row",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st7036_write",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 write text",
+          "type": "label"
+        },
+        {
+          "name": "_text",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "st7036_print_at",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 print col",
+          "type": "label"
+        },
+        {
+          "name": "_col",
+          "type": "number"
+        },
+        {
+          "name": "row",
+          "type": "label"
+        },
+        {
+          "name": "_row",
+          "type": "number"
+        },
+        {
+          "name": "text",
+          "type": "label"
+        },
+        {
+          "name": "_text",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "st7036_set_contrast",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 set contrast (0..63)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st7036_cursor",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 cursor on (1) / off (0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        },
+        {
+          "name": "blink (1/0)",
+          "type": "label"
+        },
+        {
+          "name": "_blink",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "st7036_display",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ST7036 display on (1) / off (0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

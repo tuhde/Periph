@@ -10,7 +10,8 @@ class DisplayConnectionMock:
     command stream and the reset/BUSY handling.
 
     `events` holds tuples: ('reset',), ('command', cmd, bytes), ('data', bytes),
-    ('read', length), ('wait_busy', busy_active_high, timeout_ms), ('delay', ms).
+    ('read', length), ('wait_busy', busy_active_high, timeout_ms), ('delay', ms),
+    ('delay_us', us).
 
     Args:
         wire_mode: A WireMode value (default SIMPLEX). read_data() raises in SIMPLEX,
@@ -63,6 +64,10 @@ class DisplayConnectionMock:
     def delay_ms(self, ms):
         """Record a delay (no real wait)."""
         self.events.append(('delay', ms))
+
+    def delay_us(self, us):
+        """Record a microsecond delay (no real wait)."""
+        self.events.append(('delay_us', us))
 
     def busy_level(self):
         """Return the configured raw BUSY level."""

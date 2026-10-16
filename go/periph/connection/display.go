@@ -41,6 +41,10 @@ type DisplayConn interface {
 	Reset() error
 	// Delay blocks for d (for chips without a BUSY pin, e.g. a power-up wait).
 	Delay(d time.Duration)
+	// DelayMicros blocks for at least us microseconds (for chips that need a gap
+	// between bytes, e.g. the ST7036's 30 us). Where the host cannot sleep that
+	// precisely the wait is longer, which is harmless.
+	DelayMicros(us int)
 	// BusyLevel returns the raw BUSY level (false when no BUSY pin is wired).
 	BusyLevel() (bool, error)
 	// WaitBusy polls BUSY until it is no longer active. busyActiveHigh is the
@@ -193,6 +197,9 @@ func (c *DisplayConnection) Reset() error {
 
 // Delay blocks for d.
 func (c *DisplayConnection) Delay(d time.Duration) { time.Sleep(d) }
+
+// DelayMicros blocks for at least us microseconds.
+func (c *DisplayConnection) DelayMicros(us int) { time.Sleep(time.Duration(us) * time.Microsecond) }
 
 // BusyLevel returns the raw BUSY level; false when no BUSY pin is wired.
 func (c *DisplayConnection) BusyLevel() (bool, error) {

@@ -112,6 +112,9 @@ public:
     /** @brief Block for @p ms milliseconds (for chips without a BUSY pin, e.g. a power-up wait). */
     void delay(uint32_t ms) { delayMs(ms); }
 
+    /** @brief Block for @p us microseconds (for controllers that need a short gap between bytes). */
+    void delayMicros(uint32_t us) { delayUs(us); }
+
     /** @brief Raw level of the BUSY line; false when no BUSY pin was given. */
     bool busyLevel() const {
         return _busy != nullptr && _busy->isHigh();

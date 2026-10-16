@@ -114,6 +114,7 @@ On a platform where `HALF_DUPLEX_HW` is not supported, selecting it must fail at
 | `init` | SPI object or pin set, `dc`, `res`, `busy`, `wire_mode`, `reset_pulse_us`, `reset_settle_ms` | — | Configure SPI (mode 0, MSB first) or SoftSPI per wire mode; D/C low-idle, RES high-idle; BUSY as input |
 | `reset` | — | — | Hardware reset sequence as above |
 | `delay_ms` | `ms` | - | Block for `ms` milliseconds; for controllers without a BUSY pin (SSD1331 power-up waits). C++ `delay(ms)`, Node.js `delayMs(ms)`, Rust `delay_ms(ms)`, Go `Delay(d)`, JVM `delay(ms)` |
+| `delay_us` | `us` | - | Block for at least `us` microseconds; for controllers that need a gap between bytes (ST7036 30 µs). Python `delay_us(us)`, C++ `delayMicros(us)`, Node.js `delayUs(us)`, Rust `delay_us(us)`, Go `DelayMicros(us)`, JVM `delayUs(us)`; where the host cannot sleep that precisely the wait is longer |
 | `wait_busy` | `busy_active_high: bool`, `timeout_ms` | `bool` | True when BUSY went inactive within the timeout; the polarity comes from the chip driver |
 | `busy_level` | — | `bool` | Raw BUSY pin level |
 | `send_command` | `cmd: byte`, `data: bytes = []` | — | D/C low for `cmd`, D/C high for `data` |
