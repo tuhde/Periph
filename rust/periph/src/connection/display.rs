@@ -229,6 +229,11 @@ where
         }
     }
 
+    /// Block for `ms` milliseconds (for chips without a BUSY pin, e.g. a power-up wait).
+    pub fn delay_ms(&mut self, ms: u32) {
+        self.delay.delay_ms(ms);
+    }
+
     /// Poll BUSY (every millisecond) until it is no longer active.
     ///
     /// # Arguments
@@ -332,6 +337,13 @@ pub trait DisplayBus {
     /// Hardware reset (RES# low pulse, then settle). Does not wait for BUSY.
     fn reset(&mut self) -> Result<(), Self::Error>;
 
+    /// Block for `ms` milliseconds (power-up waits of chips without a BUSY pin).
+    ///
+    /// The default does nothing; [`DisplayConnection`] waits for real.
+    fn delay_ms(&mut self, _ms: u32) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
     /// Poll BUSY until it is no longer active; `Ok(false)` on timeout.
     fn wait_busy(
         &mut self,
@@ -361,6 +373,11 @@ where
 
     fn reset(&mut self) -> Result<(), Self::Error> {
         DisplayConnection::reset(self)
+    }
+
+    fn delay_ms(&mut self, ms: u32) -> Result<(), Self::Error> {
+        DisplayConnection::delay_ms(self, ms);
+        Ok(())
     }
 
     fn wait_busy(

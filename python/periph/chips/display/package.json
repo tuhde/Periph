@@ -13,6 +13,10 @@
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
     ],
     [
+      "periph/chips/display/ssd1331.py",
+      "github:tuhde/Periph/python/periph/chips/display/ssd1331.py"
+    ],
+    [
       "periph/chips/display/uc8159.py",
       "github:tuhde/Periph/python/periph/chips/display/uc8159.py"
     ],

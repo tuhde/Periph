@@ -18,12 +18,12 @@
 class DisplayConnectionMock {
 public:
     struct Event {
-        enum Kind { kReset, kCommand, kData, kRead, kWaitBusy } kind;
+        enum Kind { kReset, kCommand, kData, kRead, kWaitBusy, kDelay } kind;
         uint8_t               cmd = 0;               // kCommand
         std::vector<uint8_t>  bytes;                 // kCommand parameters / kData payload
         size_t                length = 0;            // kRead
         bool                  busyActiveHigh = false; // kWaitBusy
-        uint32_t              timeoutMs = 0;         // kWaitBusy
+        uint32_t              timeoutMs = 0;         // kWaitBusy, kDelay (milliseconds)
     };
 
     explicit DisplayConnectionMock(DisplayWireMode wireMode = DisplayWireMode::kSimplex)
@@ -39,6 +39,11 @@ public:
     void reset() {
         if (!_enabled) return;
         Event e; e.kind = Event::kReset;
+        _events.push_back(e);
+    }
+
+    void delay(uint32_t ms) {
+        Event e; e.kind = Event::kDelay; e.timeoutMs = ms;
         _events.push_back(e);
     }
 

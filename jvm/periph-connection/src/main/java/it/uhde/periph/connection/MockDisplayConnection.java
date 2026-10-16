@@ -9,7 +9,7 @@ import java.util.List;
  *
  * <p>Records every call in {@link #events()} in order, as strings:
  * {@code reset}, {@code command:<hex>:<hex bytes>}, {@code data:<hex bytes>},
- * {@code read:<n>}, {@code waitBusy:<activeHigh>:<timeoutMs>}.
+ * {@code read:<n>}, {@code waitBusy:<activeHigh>:<timeoutMs>}, {@code delay:<ms>}.
  */
 public class MockDisplayConnection implements DisplayConn {
 
@@ -53,6 +53,7 @@ public class MockDisplayConnection implements DisplayConn {
     @Override public boolean isEnabled() { return enabled; }
 
     @Override public void reset() { if (enabled) events.add("reset"); }
+    @Override public void delay(long ms) { events.add("delay:" + ms); }
     @Override public boolean busyLevel() { return busyHigh; }
 
     @Override
