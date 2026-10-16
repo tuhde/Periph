@@ -127,6 +127,14 @@ class DisplayConnectionBase:
         self._res.set(True)
         time.sleep(self._reset_settle_ms / 1000.0)
 
+    def delay_ms(self, ms):
+        """Block for `ms` milliseconds (for chips without a BUSY pin, e.g. a power-up wait).
+
+        Args:
+            ms: Time in milliseconds.
+        """
+        time.sleep(ms / 1000.0)
+
     def busy_level(self):
         """Read the raw level of the BUSY line.
 

@@ -1,0 +1,220 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ssd1331_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SSD1331 OLED, SCK",
+          "type": "label"
+        },
+        {
+          "name": "_sck",
+          "type": "number"
+        },
+        {
+          "name": "MOSI",
+          "type": "label"
+        },
+        {
+          "name": "_mosi",
+          "type": "number"
+        },
+        {
+          "name": "CS",
+          "type": "label"
+        },
+        {
+          "name": "_cs",
+          "type": "number"
+        },
+        {
+          "name": "D/C",
+          "type": "label"
+        },
+        {
+          "name": "_dc",
+          "type": "number"
+        },
+        {
+          "name": "RES",
+          "type": "label"
+        },
+        {
+          "name": "_res",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 clear framebuffer color (0xRRGGBB)",
+          "type": "label"
+        },
+        {
+          "name": "_color",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_set_pixel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 set pixel x",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "y",
+          "type": "label"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        },
+        {
+          "name": "color (0xRRGGBB)",
+          "type": "label"
+        },
+        {
+          "name": "_color",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_draw_line",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 draw line x0",
+          "type": "label"
+        },
+        {
+          "name": "_x0",
+          "type": "number"
+        },
+        {
+          "name": "y0",
+          "type": "label"
+        },
+        {
+          "name": "_y0",
+          "type": "number"
+        },
+        {
+          "name": "x1",
+          "type": "label"
+        },
+        {
+          "name": "_x1",
+          "type": "number"
+        },
+        {
+          "name": "y1",
+          "type": "label"
+        },
+        {
+          "name": "_y1",
+          "type": "number"
+        },
+        {
+          "name": "color (0xRRGGBB)",
+          "type": "label"
+        },
+        {
+          "name": "_color",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_draw_rect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 draw rectangle x",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "y",
+          "type": "label"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        },
+        {
+          "name": "width",
+          "type": "label"
+        },
+        {
+          "name": "_w",
+          "type": "number"
+        },
+        {
+          "name": "height",
+          "type": "label"
+        },
+        {
+          "name": "_h",
+          "type": "number"
+        },
+        {
+          "name": "color (0xRRGGBB)",
+          "type": "label"
+        },
+        {
+          "name": "_color",
+          "type": "number"
+        },
+        {
+          "name": "fill (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_fill",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_show",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 show framebuffer",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ssd1331_display",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SSD1331 display on (1) / off (0)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

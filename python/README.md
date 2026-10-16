@@ -103,6 +103,7 @@ Each chip exposes two classes:
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
+| SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
 | UC8159 | Display driver | Seven-colour e-paper controller |
