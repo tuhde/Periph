@@ -183,6 +183,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SH1106 | OLED display (132×64) |  |  |  |  |  |  |  |  |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
