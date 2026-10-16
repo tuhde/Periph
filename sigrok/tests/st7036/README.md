@@ -12,5 +12,6 @@ sigrok-cli -i st7036_demo.sr \
   -P display_spi:clk=SCLK:mosi=MOSI:cs=CS:dc=D/C:res=Reset,st7036 -A st7036
 ```
 
-Capture without a trigger: with `--triggers` the fx2lafw driver writes 16-bit units and the decoder timing
-comes out at half the real value.
+Capture without a trigger: runs with `--triggers ... :captureratio=1` on this 16-channel fx2lafw analyser
+came out at half the real time base (RESET-to-first-byte 25 ms instead of 51 ms, SPI clock doubled), at 4 and
+8 MHz alike. The same capture untriggered, with 8 or 16 channels enabled, has correct timing.
