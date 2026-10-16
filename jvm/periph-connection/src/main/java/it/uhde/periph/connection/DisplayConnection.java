@@ -188,6 +188,16 @@ public final class DisplayConnection implements DisplayConn {
     }
 
     @Override
+    public void delayUs(long us) throws IOException {
+        if (us >= 1000) {
+            sleepMs((us + 999) / 1000);
+            return;
+        }
+        long end = System.nanoTime() + us * 1000L;
+        while (System.nanoTime() < end) { /* spin: sub-ms wait */ }
+    }
+
+    @Override
     public boolean busyLevel() throws IOException {
         return busy != null && busy.isHigh();
     }
