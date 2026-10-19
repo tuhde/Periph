@@ -32,6 +32,16 @@ public interface DisplayConn extends AutoCloseable {
     void delay(long ms) throws IOException;
 
     /**
+     * Block for at least the given time in microseconds (for chips that need
+     * a gap between bytes, e.g. the ST7036's 30 us). Where the host cannot
+     * wait that precisely the wait is longer, which is harmless.
+     *
+     * @param us time in microseconds
+     * @throws IOException if the wait is interrupted
+     */
+    void delayUs(long us) throws IOException;
+
+    /**
      * Raw level of the BUSY line.
      *
      * @return the level, or {@code false} when no BUSY pin is wired

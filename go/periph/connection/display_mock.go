@@ -3,7 +3,7 @@ package connection
 import "time"
 
 // DisplayEvent is one recorded call on a DisplayConnectionMock. Kind is one
-// of "reset", "command", "data", "read", "waitBusy", "delay" (Timeout holds the delay).
+// of "reset", "command", "data", "read", "waitBusy", "delay" (Timeout holds the delay), "delayMicros" (Timeout holds the delay).
 type DisplayEvent struct {
 	Kind           string
 	Cmd            byte
@@ -55,6 +55,11 @@ func (m *DisplayConnectionMock) Reset() error {
 // Delay records the delay without waiting.
 func (m *DisplayConnectionMock) Delay(d time.Duration) {
 	m.Events = append(m.Events, DisplayEvent{Kind: "delay", Timeout: d})
+}
+
+// DelayMicros records the microsecond delay without waiting.
+func (m *DisplayConnectionMock) DelayMicros(us int) {
+	m.Events = append(m.Events, DisplayEvent{Kind: "delayMicros", Timeout: time.Duration(us) * time.Microsecond})
 }
 
 func (m *DisplayConnectionMock) BusyLevel() (bool, error) { return m.BusyHigh, nil }

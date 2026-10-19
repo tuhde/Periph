@@ -135,6 +135,20 @@ class DisplayConnectionBase:
         """
         time.sleep(ms / 1000.0)
 
+    def delay_us(self, us):
+        """Block for at least `us` microseconds (for chips that need a gap between bytes).
+
+        Uses time.sleep_us() where it exists (MicroPython); elsewhere the wait is
+        whatever time.sleep() manages, which can be longer than requested.
+
+        Args:
+            us: Time in microseconds.
+        """
+        try:
+            time.sleep_us(us)
+        except AttributeError:
+            time.sleep(us / 1000000.0)
+
     def busy_level(self):
         """Read the raw level of the BUSY line.
 

@@ -157,6 +157,19 @@ class DisplayConnection {
      */
     async delayMs(ms) { await sleepMs(ms); }
 
+    /**
+     * Wait at least `us` microseconds (for chips that need a gap between bytes, e.g. the ST7036's 30 us).
+     * Sub-millisecond waits spin on process.hrtime for under 1 ms and use a timer beyond; where the
+     * host cannot be that precise the wait is longer, which is harmless.
+     * @param {number} us - Time in microseconds.
+     * @returns {Promise<void>}
+     */
+    async delayUs(us) {
+        if (us >= 1000) { await sleepMs(Math.ceil(us / 1000)); return; }
+        const end = process.hrtime.bigint() + BigInt(Math.ceil(us)) * 1000n;
+        while (process.hrtime.bigint() < end) { /* busy wait */ }
+    }
+
     /** @returns {boolean} Raw level of the BUSY line; false when no BUSY pin was given. */
     busyLevel() {
         return this._busy !== null && this._busy.isHigh();

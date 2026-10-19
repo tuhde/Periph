@@ -73,6 +73,10 @@
       "github:tuhde/Periph/python/periph/chips/display/ssd1331.py"
     ],
     [
+      "periph/chips/display/st7036.py",
+      "github:tuhde/Periph/python/periph/chips/display/st7036.py"
+    ],
+    [
       "periph/chips/display/uc8159.py",
       "github:tuhde/Periph/python/periph/chips/display/uc8159.py"
     ],
