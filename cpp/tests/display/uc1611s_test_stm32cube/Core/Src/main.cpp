@@ -63,7 +63,7 @@ static void i2c1_init(void) {
     HAL_GPIO_Init(GPIOB, &gpioInit);
 
     hi2c1.Instance             = I2C1;
-    hi2c1.Init.ClockSpeed      = 100000;  // internal pull-ups only: 100 kHz
+    hi2c1.Init.ClockSpeed      = 400000;  // external pull-ups on SDA/SCL: 400 kHz
     hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c1.Init.OwnAddress1     = 0;
     hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
