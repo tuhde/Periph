@@ -7,7 +7,7 @@
       "type": "execute",
       "params": [
         {
-          "name": "Init UC1611s LCD, I2C bus",
+          "name": "Init UC1611s LCD (I2C), I2C bus",
           "type": "label"
         },
         {
@@ -20,6 +20,52 @@
         },
         {
           "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "uc1611s_init_spi",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init UC1611s LCD (4-wire SPI), SCK",
+          "type": "label"
+        },
+        {
+          "name": "_sck",
+          "type": "number"
+        },
+        {
+          "name": "MOSI",
+          "type": "label"
+        },
+        {
+          "name": "_mosi",
+          "type": "number"
+        },
+        {
+          "name": "CS",
+          "type": "label"
+        },
+        {
+          "name": "_cs",
+          "type": "number"
+        },
+        {
+          "name": "CD",
+          "type": "label"
+        },
+        {
+          "name": "_cd",
+          "type": "number"
+        },
+        {
+          "name": "RST",
+          "type": "label"
+        },
+        {
+          "name": "_rst",
           "type": "number"
         }
       ]
@@ -305,7 +351,7 @@
       "type": "value",
       "params": [
         {
-          "name": "UC1611s status byte 1 (Ver MX MY WA DE WS MD MS)",
+          "name": "UC1611s status byte 1 (I2C only; Ver MX MY WA DE WS MD MS)",
           "type": "label"
         }
       ]

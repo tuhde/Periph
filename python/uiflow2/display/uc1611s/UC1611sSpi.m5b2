@@ -1,0 +1,479 @@
+{
+  "category": "UC1611sSpi",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_UC1611SSPI_LANGUAGES = {\n  \"CUSTOM_UC1611SSPI_INIT\": {\n    \"en\": \"%1 init (4-wire SPI) SCK %2 MOSI %3 CS %4 CD %5 RST %6\"\n  },\n  \"CUSTOM_UC1611SSPI_CLEAR\": {\n    \"en\": \"%1 clear framebuffer\"\n  },\n  \"CUSTOM_UC1611SSPI_FILL\": {\n    \"en\": \"%1 fill all pixels on (1) / off (0) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_PIXEL\": {\n    \"en\": \"%1 set pixel x %2 y %3 on (1/0) %4\"\n  },\n  \"CUSTOM_UC1611SSPI_DRAW_LINE\": {\n    \"en\": \"%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 on (1/0) %6\"\n  },\n  \"CUSTOM_UC1611SSPI_DRAW_RECT\": {\n    \"en\": \"%1 draw rectangle x %2 y %3 w %4 h %5 on (1/0) %6 filled (1/0) %7\"\n  },\n  \"CUSTOM_UC1611SSPI_SHOW\": {\n    \"en\": \"%1 show framebuffer\"\n  },\n  \"CUSTOM_UC1611SSPI_SHOW_PAGE\": {\n    \"en\": \"%1 show page (0..15) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_CONTRAST\": {\n    \"en\": \"%1 set contrast (0..255) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_DISPLAY\": {\n    \"en\": \"%1 display on (1) / sleep (0) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_INVERT\": {\n    \"en\": \"%1 invert on (1) / off (0) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_FLIP\": {\n    \"en\": \"%1 mirror x (1/0) %2 mirror y (1/0) %3\"\n  },\n  \"CUSTOM_UC1611SSPI_SET_SCROLL_LINE\": {\n    \"en\": \"%1 scroll line (0..159) %2\"\n  },\n  \"CUSTOM_UC1611SSPI_SLEEP\": {\n    \"en\": \"%1 sleep\"\n  },\n  \"CUSTOM_UC1611SSPI_WAKE\": {\n    \"en\": \"%1 wake\"\n  }\n};\n\nconst initType = 'custom_uc1611sspi_init';\nBlockly.BlockRegExpList['custom_uc1611sspi'] = {\n  regexp: new RegExp(/^custom_uc1611sspi_/),\n  code: \"from UC1611sSpi import UC1611sSpi\",\n  initBlockType: initType,\n  categoryId: 'custom_uc1611sspi',\n}\nBlockly.utils.registerLanguages(CUSTOM_UC1611SSPI_LANGUAGES)\n\nBlockly.Msg.CUSTOM_UC1611SSPI_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_UC1611SSPI = 'UC1611sSpi'\n\nBlockly.utils.getcustom_uc1611sspiOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['uc1611sspi_0', 'uc1611sspi_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_uc1611sspiOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'uc1611sspi_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sck'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mosi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cd'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rst'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sck = Blockly.Python.valueToCode(block, 'sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mosi = Blockly.Python.valueToCode(block, 'mosi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs = Blockly.Python.valueToCode(block, 'cs', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cd = Blockly.Python.valueToCode(block, 'cd', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rst = Blockly.Python.valueToCode(block, 'rst', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = UC1611sSpi(${sck}, ${mosi}, ${cs}, ${cd}, ${rst})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_fill\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_FILL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_fill\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.fill(${state})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_pixel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_PIXEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_pixel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_pixel(${x}, ${y}, ${state})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_draw_line\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_DRAW_LINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'x0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'x1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y1'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_draw_line\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x0 = Blockly.Python.valueToCode(block, 'x0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y0 = Blockly.Python.valueToCode(block, 'y0', Blockly.Python.ORDER_FUNCTION_CALL);\n  var x1 = Blockly.Python.valueToCode(block, 'x1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y1 = Blockly.Python.valueToCode(block, 'y1', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_line(${x0}, ${y0}, ${x1}, ${y1}, ${state})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_draw_rect\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_DRAW_RECT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'y'\n        },\n        {\n          'type': 'input_value',\n          'name': 'w'\n        },\n        {\n          'type': 'input_value',\n          'name': 'h'\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n        {\n          'type': 'input_value',\n          'name': 'fill'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_draw_rect\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var x = Blockly.Python.valueToCode(block, 'x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var y = Blockly.Python.valueToCode(block, 'y', Blockly.Python.ORDER_FUNCTION_CALL);\n  var w = Blockly.Python.valueToCode(block, 'w', Blockly.Python.ORDER_FUNCTION_CALL);\n  var h = Blockly.Python.valueToCode(block, 'h', Blockly.Python.ORDER_FUNCTION_CALL);\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  var fill = Blockly.Python.valueToCode(block, 'fill', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.draw_rect(${x}, ${y}, ${w}, ${h}, ${state}, ${fill})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_show\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SHOW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_show\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.show()\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_show_page\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SHOW_PAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'page'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_show_page\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var page = Blockly.Python.valueToCode(block, 'page', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.show_page(${page})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_contrast\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_CONTRAST,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_contrast\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_contrast(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_display\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_DISPLAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_display\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_display(${state})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_invert\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_INVERT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'state'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_invert\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var state = Blockly.Python.valueToCode(block, 'state', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_invert(${state})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_flip\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_FLIP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'mirror_x'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mirror_y'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_flip\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mirror_x = Blockly.Python.valueToCode(block, 'mirror_x', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mirror_y = Blockly.Python.valueToCode(block, 'mirror_y', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_flip(${mirror_x}, ${mirror_y})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_set_scroll_line\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SET_SCROLL_LINE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'line'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_set_scroll_line\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var line = Blockly.Python.valueToCode(block, 'line', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_scroll_line(${line})\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.sleep()\\n`\n}\n\nBlockly.Blocks[\"custom_uc1611sspi_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_UC1611SSPI_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_uc1611sspiOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_uc1611sspi_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n",
+    "toolbox": "\n<category name=\"UC1611sSpi\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_uc1611sspi\">\n<title text=\"UC1611sSpi\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_uc1611sspi_init\">\n  <value name=\"sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">18</field>\n    </shadow>\n  </value>\n  <value name=\"mosi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">19</field>\n    </shadow>\n  </value>\n  <value name=\"cs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">17</field>\n    </shadow>\n  </value>\n  <value name=\"cd\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n  <value name=\"rst\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">21</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_clear\"/><block type=\"custom_uc1611sspi_fill\">\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_pixel\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_draw_line\">\n  <value name=\"x0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y0\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"x1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">239</field>\n    </shadow>\n  </value>\n  <value name=\"y1\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">127</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_draw_rect\">\n  <value name=\"x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"w\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">240</field>\n    </shadow>\n  </value>\n  <value name=\"h\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">128</field>\n    </shadow>\n  </value>\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"fill\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_show\"/><block type=\"custom_uc1611sspi_show_page\">\n  <value name=\"page\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_contrast\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">143</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_display\">\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_invert\">\n  <value name=\"state\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_flip\">\n  <value name=\"mirror_x\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"mirror_y\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_set_scroll_line\">\n  <value name=\"line\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_uc1611sspi_sleep\"/><block type=\"custom_uc1611sspi_wake\"/>\n</category>\n",
+    "toolboxitemid": "custom_uc1611sspi",
+    "block_type": [
+      "custom_uc1611sspi___init__",
+      "custom_uc1611sspi_clear",
+      "custom_uc1611sspi_fill",
+      "custom_uc1611sspi_set_pixel",
+      "custom_uc1611sspi_draw_line",
+      "custom_uc1611sspi_draw_rect",
+      "custom_uc1611sspi_show",
+      "custom_uc1611sspi_show_page",
+      "custom_uc1611sspi_set_contrast",
+      "custom_uc1611sspi_set_display",
+      "custom_uc1611sspi_set_invert",
+      "custom_uc1611sspi_set_flip",
+      "custom_uc1611sspi_set_scroll_line",
+      "custom_uc1611sspi_sleep",
+      "custom_uc1611sspi_wake"
+    ]
+  },
+  "data": {
+    "name": "UC1611sSpi",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "UC1611sSpi",
+      "time": "2026-10-20",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.display.uc1611s import UC1611sSpiFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init (4-wire SPI) SCK %2 MOSI %3 CS %4 CD %5 RST %6"
+        },
+        "params": [
+          {
+            "name": "sck",
+            "type": "int",
+            "default": "18",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mosi",
+            "type": "int",
+            "default": "19",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs",
+            "type": "int",
+            "default": "17",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cd",
+            "type": "int",
+            "default": "20",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rst",
+            "type": "int",
+            "default": "21",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        spi = SPI(2, baudrate=4000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(cd),\n                                       MicroPythonOutputPin(rst), None)\n        self._driver = UC1611sSpiFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear framebuffer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fill",
+        "note": {},
+        "label": {
+          "en": "%1 fill all pixels on (1) / off (0) %2"
+        },
+        "params": [
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.fill(bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_pixel",
+        "note": {},
+        "label": {
+          "en": "%1 set pixel x %2 y %3 on (1/0) %4"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_pixel(x, y, bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_line",
+        "note": {},
+        "label": {
+          "en": "%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 on (1/0) %6"
+        },
+        "params": [
+          {
+            "name": "x0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y0",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "x1",
+            "type": "int",
+            "default": "239",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y1",
+            "type": "int",
+            "default": "127",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_line(x0, y0, x1, y1, bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "draw_rect",
+        "note": {},
+        "label": {
+          "en": "%1 draw rectangle x %2 y %3 w %4 h %5 on (1/0) %6 filled (1/0) %7"
+        },
+        "params": [
+          {
+            "name": "x",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "w",
+            "type": "int",
+            "default": "240",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "h",
+            "type": "int",
+            "default": "128",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "fill",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.draw_rect(x, y, w, h, bool(state), bool(fill))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show",
+        "note": {},
+        "label": {
+          "en": "%1 show framebuffer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.show()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "show_page",
+        "note": {},
+        "label": {
+          "en": "%1 show page (0..15) %2"
+        },
+        "params": [
+          {
+            "name": "page",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.show_page(page)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_contrast",
+        "note": {},
+        "label": {
+          "en": "%1 set contrast (0..255) %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "143",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_contrast(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_display",
+        "note": {},
+        "label": {
+          "en": "%1 display on (1) / sleep (0) %2"
+        },
+        "params": [
+          {
+            "name": "state",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_display(bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_invert",
+        "note": {},
+        "label": {
+          "en": "%1 invert on (1) / off (0) %2"
+        },
+        "params": [
+          {
+            "name": "state",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_invert(bool(state))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_flip",
+        "note": {},
+        "label": {
+          "en": "%1 mirror x (1/0) %2 mirror y (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "mirror_x",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mirror_y",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_flip(bool(mirror_x), bool(mirror_y))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_scroll_line",
+        "note": {},
+        "label": {
+          "en": "%1 scroll line (0..159) %2"
+        },
+        "params": [
+          {
+            "name": "line",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_scroll_line(line)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "sleep",
+        "note": {},
+        "label": {
+          "en": "%1 sleep"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.sleep()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.wake()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "uc1611sspi"
+  },
+  "pyCode": "\"\"\"\nfile     UC1611sSpi\ntime     2026-10-20\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.display.uc1611s import UC1611sSpiFull\n\n\nclass UC1611sSpi:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, sck: int = 18, mosi: int = 19, cs: int = 17, cd: int = 20, rst: int = 21):\n        \"\"\"\n        label:\n            en: '%1 init (4-wire SPI) SCK %2 MOSI %3 CS %4 CD %5 RST %6'\n        params:\n            sck:\n                name: sck\n                type: int\n                default: '18'\n                field: number\n            mosi:\n                name: mosi\n                type: int\n                default: '19'\n                field: number\n            cs:\n                name: cs\n                type: int\n                default: '17'\n                field: number\n            cd:\n                name: cd\n                type: int\n                default: '20'\n                field: number\n            rst:\n                name: rst\n                type: int\n                default: '21'\n                field: number\n        \"\"\"\n        # EA DOGXL240-7 (240 x 128, 3.3 V), 4-wire SPI (BM0 = D13 = VSS), SPI mode 0 at 4 MHz.\n        spi = SPI(2, baudrate=4000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(cd),\n                                       MicroPythonOutputPin(rst), None)\n        self._driver = UC1611sSpiFull(connection)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear framebuffer'\n        \"\"\"\n        self._driver.clear()\n\n    def fill(self, state: int = 1):\n        \"\"\"\n        label:\n            en: '%1 fill all pixels on (1) / off (0) %2'\n        params:\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.fill(bool(state))\n\n    def set_pixel(self, x: int = 0, y: int = 0, state: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set pixel x %2 y %3 on (1/0) %4'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_pixel(x, y, bool(state))\n\n    def draw_line(self, x0: int = 0, y0: int = 0, x1: int = 239, y1: int = 127, state: int = 1):\n        \"\"\"\n        label:\n            en: '%1 draw line x0 %2 y0 %3 x1 %4 y1 %5 on (1/0) %6'\n        params:\n            x0:\n                name: x0\n                type: int\n                default: '0'\n                field: number\n            y0:\n                name: y0\n                type: int\n                default: '0'\n                field: number\n            x1:\n                name: x1\n                type: int\n                default: '239'\n                field: number\n            y1:\n                name: y1\n                type: int\n                default: '127'\n                field: number\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.draw_line(x0, y0, x1, y1, bool(state))\n\n    def draw_rect(self, x: int = 0, y: int = 0, w: int = 240, h: int = 128, state: int = 1, fill: int = 0):\n        \"\"\"\n        label:\n            en: '%1 draw rectangle x %2 y %3 w %4 h %5 on (1/0) %6 filled (1/0) %7'\n        params:\n            x:\n                name: x\n                type: int\n                default: '0'\n                field: number\n            y:\n                name: y\n                type: int\n                default: '0'\n                field: number\n            w:\n                name: w\n                type: int\n                default: '240'\n                field: number\n            h:\n                name: h\n                type: int\n                default: '128'\n                field: number\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n            fill:\n                name: fill\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.draw_rect(x, y, w, h, bool(state), bool(fill))\n\n    def show(self):\n        \"\"\"\n        label:\n            en: '%1 show framebuffer'\n        \"\"\"\n        self._driver.show()\n\n    def show_page(self, page: int = 0):\n        \"\"\"\n        label:\n            en: '%1 show page (0..15) %2'\n        params:\n            page:\n                name: page\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.show_page(page)\n\n    def set_contrast(self, value: int = 143):\n        \"\"\"\n        label:\n            en: '%1 set contrast (0..255) %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '143'\n                field: number\n        \"\"\"\n        self._driver.set_contrast(value)\n\n    def set_display(self, state: int = 1):\n        \"\"\"\n        label:\n            en: '%1 display on (1) / sleep (0) %2'\n        params:\n            state:\n                name: state\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.set_display(bool(state))\n\n    def set_invert(self, state: int = 0):\n        \"\"\"\n        label:\n            en: '%1 invert on (1) / off (0) %2'\n        params:\n            state:\n                name: state\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_invert(bool(state))\n\n    def set_flip(self, mirror_x: int = 1, mirror_y: int = 0):\n        \"\"\"\n        label:\n            en: '%1 mirror x (1/0) %2 mirror y (1/0) %3'\n        params:\n            mirror_x:\n                name: mirror_x\n                type: int\n                default: '1'\n                field: number\n            mirror_y:\n                name: mirror_y\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_flip(bool(mirror_x), bool(mirror_y))\n\n    def set_scroll_line(self, line: int = 0):\n        \"\"\"\n        label:\n            en: '%1 scroll line (0..159) %2'\n        params:\n            line:\n                name: line\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_scroll_line(line)\n\n    def sleep(self):\n        \"\"\"\n        label:\n            en: '%1 sleep'\n        \"\"\"\n        self._driver.sleep()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake'\n        \"\"\"\n        self._driver.wake()\n",
+  "version": "alpha2"
+}
