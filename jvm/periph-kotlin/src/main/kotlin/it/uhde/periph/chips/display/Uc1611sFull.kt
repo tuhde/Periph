@@ -18,14 +18,22 @@ import java.io.IOException
  * @param topView true for the 12:00 viewing direction (MY = 1, MX = 0)
  * @param contrast potentiometer PM 0..255 (the DOG example value is 0x8F)
  */
-class Uc1611sFull(
-    command: Connection,
-    data: Connection,
-    width: Int = WIDTH,
-    height: Int = HEIGHT,
-    topView: Boolean = false,
-    contrast: Int = 0x8F,
-) : Uc1611sMinimal(command, data, width, height, topView, contrast) {
+open class Uc1611sFull protected constructor(
+    bus: Uc1611sBus,
+    width: Int,
+    height: Int,
+    topView: Boolean,
+    contrast: Int,
+) : Uc1611sMinimal(bus, width, height, topView, contrast) {
+
+    constructor(
+        command: Connection,
+        data: Connection,
+        width: Int = WIDTH,
+        height: Int = HEIGHT,
+        topView: Boolean = false,
+        contrast: Int = 0x8F,
+    ) : this(Uc1611sI2cBus(command, data), width, height, topView, contrast)
 
     // ---- framebuffer ----------------------------------------------------------------------
 
@@ -242,11 +250,11 @@ class Uc1611sFull(
      * @throws IOException if address or read fail after all attempts
      */
     fun readRam(page: Int, column: Int, n: Int): ByteArray {
-        val raw = retry {
-            cmd.write(addressBytes(page, column))
-            data.read(n + 1)
+        if (!bus.canRead()) throw UnsupportedOperationException("the SPI interface of the module is write-only")
+        return retry {
+            bus.writeCommand(addressBytes(page, column))
+            bus.readRam(n)
         }
-        return raw.copyOfRange(1, n + 1)
     }
 
     /** System Reset and reconfigure with the cached contrast and mapping (RAM is kept). */

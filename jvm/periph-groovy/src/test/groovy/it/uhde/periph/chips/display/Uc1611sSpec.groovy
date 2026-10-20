@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.display
 
 import it.uhde.periph.connection.MockConnection
+import it.uhde.periph.connection.MockDisplayConnection
 import spock.lang.Specification
 
 class Uc1611sSpec extends Specification {
@@ -411,5 +412,81 @@ class Uc1611sSpec extends Specification {
         then:
         ram == bytes(0x0A, 0x0B)
         cmd.writes().size() - k == 2
+    }
+
+    private static int countEvents(MockDisplayConnection dc, int from, String prefix) {
+        dc.events().subList(from, dc.events().size()).count { it.startsWith(prefix) } as int
+    }
+
+    def "SPI init sequence"() {
+        given:
+        def dc = new MockDisplayConnection()
+
+        when:
+        def lcd = new Uc1611sSpiMinimal(dc)
+
+        then: "hardware reset first, one command per byte, 20 cleared pages, no retries"
+        lcd.width() == 240
+        lcd.height() == 128
+        dc.events()[0] == 'reset'
+        dc.commands().subList(0, 13) == [0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F]
+        (0..<dc.commands().size()).every { dc.commandData(it).length == 0 }
+        countEvents(dc, 0, 'data:') == 20
+        lcd.retryCount() == 0
+        lcd.ok()
+    }
+
+    def "SPI show sends sixteen pages of 240 bytes"() {
+        given:
+        def dc = new MockDisplayConnection()
+        def lcd = new Uc1611sSpiMinimal(dc)
+        int n = dc.events().size()
+
+        when:
+        lcd.setPixel(0, 0, true)
+        lcd.show()
+
+        then:
+        countEvents(dc, n, 'data:') == 16
+        dc.events()[n + 4].startsWith('data:01')
+    }
+
+    def "SPI reads are unsupported"() {
+        given:
+        def c = new Uc1611sSpiFull(new MockDisplayConnection())
+
+        when:
+        c.readStatus()
+
+        then:
+        thrown(UnsupportedOperationException)
+
+        when:
+        c.readRam(0, 0, 2)
+
+        then:
+        thrown(UnsupportedOperationException)
+        c.ok()
+        c.errorCount() == 0
+    }
+
+    def "SPI contrast is two commands and wake is one"() {
+        given:
+        def dc = new MockDisplayConnection()
+        def c = new Uc1611sSpiFull(dc)
+        int n = dc.commands().size()
+
+        when:
+        c.setContrast(0x50)
+
+        then:
+        dc.commands().subList(n, dc.commands().size()) == [0x81, 0x50]
+
+        when:
+        n = dc.commands().size()
+        c.wake()
+
+        then:
+        dc.commands().subList(n, dc.commands().size()) == [0xA9]
     }
 }

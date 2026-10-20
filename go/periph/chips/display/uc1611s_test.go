@@ -404,3 +404,101 @@ func TestUC1611sReadRetries(t *testing.T) {
 		t.Errorf("address commands = %d, want 2", len(cmd.writes)-k)
 	}
 }
+
+// ---- SPI (4-wire) via the display connection ----------------------------------------------
+
+func TestUC1611sSpiInit(t *testing.T) {
+	dc := connection.NewDisplayConnectionMock(connection.WireModeSimplex)
+	chip, err := NewUC1611sSpiMinimal(dc, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if chip.Width() != 240 || chip.Height() != 128 {
+		t.Errorf("geometry %dx%d", chip.Width(), chip.Height())
+	}
+	resets := 0
+	for _, e := range dc.Events {
+		if e.Kind == "reset" {
+			resets++
+		}
+	}
+	if resets != 1 || dc.Events[0].Kind != "reset" {
+		t.Errorf("hardware reset first: resets=%d", resets)
+	}
+	var cmds []byte
+	var datas [][]byte
+	for _, e := range dc.Events {
+		switch e.Kind {
+		case "command":
+			if len(e.Data) != 0 {
+				t.Errorf("command 0x%02X carries parameter bytes", e.Cmd)
+			}
+			cmds = append(cmds, e.Cmd)
+		case "data":
+			datas = append(datas, e.Data)
+		}
+	}
+	if !bytes.Equal(cmds[:13], []byte{0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F}) {
+		t.Errorf("init stream % X", cmds[:13])
+	}
+	if len(datas) != 20 {
+		t.Errorf("clear transfers = %d, want 20", len(datas))
+	}
+	for _, d := range datas {
+		if len(d) != 240 {
+			t.Errorf("clear transfer of %d bytes", len(d))
+		}
+	}
+	if !chip.OK() || chip.RetryCount() != 0 {
+		t.Errorf("ok %v retries %d", chip.OK(), chip.RetryCount())
+	}
+}
+
+func TestUC1611sSpiShowAndUnsupportedReads(t *testing.T) {
+	dc := connection.NewDisplayConnectionMock(connection.WireModeSimplex)
+	chip, err := NewUC1611sSpiFull(dc, 0, 0, false, 0x8F)
+	if err != nil {
+		t.Fatal(err)
+	}
+	n := len(dc.Events)
+	chip.SetPixel(0, 0, true)
+	if err := chip.Show(); err != nil {
+		t.Fatal(err)
+	}
+	var shown [][]byte
+	for _, e := range dc.Events[n:] {
+		if e.Kind == "data" {
+			shown = append(shown, e.Data)
+		}
+	}
+	if len(shown) != 16 || len(shown[0]) != 240 || shown[0][0] != 1 {
+		t.Errorf("show: %d pages", len(shown))
+	}
+	if _, err := chip.ReadStatus(); !errors.Is(err, ErrUC1611sUnsupported) {
+		t.Errorf("ReadStatus err %v", err)
+	}
+	if _, err := chip.ReadRAM(0, 0, 4); !errors.Is(err, ErrUC1611sUnsupported) {
+		t.Errorf("ReadRAM err %v", err)
+	}
+	if !chip.OK() || chip.ErrorCount() != 0 {
+		t.Errorf("unsupported read counted as error")
+	}
+	n = len(dc.Events)
+	if err := chip.SetContrast(0x50); err != nil {
+		t.Fatal(err)
+	}
+	var c []byte
+	for _, e := range dc.Events[n:] {
+		c = append(c, e.Cmd)
+	}
+	if !bytes.Equal(c, []byte{0x81, 0x50}) {
+		t.Errorf("contrast commands % X", c)
+	}
+	n = len(dc.Events)
+	if err := chip.Wake(); err != nil {
+		t.Fatal(err)
+	}
+	if len(dc.Events)-n != 1 || dc.Events[n].Cmd != 0xA9 {
+		t.Errorf("wake events %v", dc.Events[n:])
+	}
+}

@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.display
 
 import it.uhde.periph.connection.MockConnection
+import it.uhde.periph.connection.MockDisplayConnection
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -279,5 +280,58 @@ class Uc1611sTest {
         val k = cmd.writes().size
         assertArrayEquals(bytes(0x0A, 0x0B), c.readRam(1, 4, 2))
         assertEquals(2, cmd.writes().size - k)
+    }
+
+    // ---- SPI (4-wire) via the display connection ------------------------------------------
+
+    private fun countEvents(dc: MockDisplayConnection, from: Int, prefix: String): Int =
+        dc.events().subList(from, dc.events().size).count { it.startsWith(prefix) }
+
+    @Test
+    fun spiInitSequence() {
+        val dc = MockDisplayConnection()
+        val lcd = Uc1611sSpiMinimal(dc)
+        assertEquals(240, lcd.width())
+        assertEquals(128, lcd.height())
+        assertEquals("reset", dc.events()[0])
+        val cmds = dc.commands()
+        assertEquals(listOf(0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F), cmds.subList(0, 13))
+        for (i in cmds.indices) assertEquals(0, dc.commandData(i).size, "arguments are commands too")
+        assertEquals(20, countEvents(dc, 0, "data:"))
+        assertEquals(0, lcd.retryCount())
+        assertTrue(lcd.ok())
+    }
+
+    @Test
+    fun spiShowSendsSixteenPagesOfTwoHundredForty() {
+        val dc = MockDisplayConnection()
+        val lcd = Uc1611sSpiMinimal(dc)
+        val n = dc.events().size
+        lcd.setPixel(0, 0, true)
+        lcd.show()
+        assertEquals(16, countEvents(dc, n, "data:"))
+        assertTrue(dc.events()[n + 4].startsWith("data:01"), dc.events()[n + 4])
+    }
+
+    @Test
+    fun spiReadsAreUnsupported() {
+        val dc = MockDisplayConnection()
+        val c = Uc1611sSpiFull(dc)
+        assertThrows(UnsupportedOperationException::class.java) { c.readStatus() }
+        assertThrows(UnsupportedOperationException::class.java) { c.readRam(0, 0, 2) }
+        assertTrue(c.ok())
+        assertEquals(0, c.errorCount())
+    }
+
+    @Test
+    fun spiContrastAndWake() {
+        val dc = MockDisplayConnection()
+        val c = Uc1611sSpiFull(dc)
+        var n = dc.commands().size
+        c.setContrast(0x50)
+        assertEquals(listOf(0x81, 0x50), dc.commands().subList(n, dc.commands().size))
+        n = dc.commands().size
+        c.wake()
+        assertEquals(listOf(0xA9), dc.commands().subList(n, dc.commands().size))
     }
 }

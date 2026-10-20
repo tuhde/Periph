@@ -1,6 +1,7 @@
 package it.uhde.periph.chips.display;
 
 import it.uhde.periph.connection.MockConnection;
+import it.uhde.periph.connection.MockDisplayConnection;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -287,5 +288,60 @@ class Uc1611sTest {
         int k = cmd.writes().size();
         assertArrayEquals(bytes(0x0A, 0x0B), c.readRam(1, 4, 2));
         assertEquals(2, cmd.writes().size() - k);
+    }
+
+    // ---- SPI (4-wire) via the display connection ------------------------------------------
+
+    private static long countEvents(MockDisplayConnection dc, int from, String prefix) {
+        return dc.events().subList(from, dc.events().size()).stream().filter(e -> e.startsWith(prefix)).count();
+    }
+
+    @Test
+    void spiInitSequence() throws Exception {
+        MockDisplayConnection dc = new MockDisplayConnection();
+        Uc1611sSpiMinimal lcd = new Uc1611sSpiMinimal(dc);
+        assertEquals(240, lcd.width());
+        assertEquals(128, lcd.height());
+        assertEquals("reset", dc.events().get(0));
+        java.util.List<Integer> cmds = dc.commands();
+        assertEquals(java.util.List.of(0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F),
+                cmds.subList(0, 13));
+        for (int i = 0; i < cmds.size(); i++) assertEquals(0, dc.commandData(i).length, "arguments are commands too");
+        assertEquals(20, countEvents(dc, 0, "data:"));
+        assertEquals(0, lcd.retryCount());
+        assertTrue(lcd.ok());
+    }
+
+    @Test
+    void spiShowSendsSixteenPagesOfTwoHundredForty() throws Exception {
+        MockDisplayConnection dc = new MockDisplayConnection();
+        Uc1611sSpiMinimal lcd = new Uc1611sSpiMinimal(dc);
+        int n = dc.events().size();
+        lcd.setPixel(0, 0, true);
+        lcd.show();
+        assertEquals(16, countEvents(dc, n, "data:"));
+        assertTrue(dc.events().get(n + 4).startsWith("data:01"), dc.events().get(n + 4));
+    }
+
+    @Test
+    void spiReadsAreUnsupported() throws Exception {
+        MockDisplayConnection dc = new MockDisplayConnection();
+        Uc1611sSpiFull c = new Uc1611sSpiFull(dc);
+        assertThrows(UnsupportedOperationException.class, c::readStatus);
+        assertThrows(UnsupportedOperationException.class, () -> c.readRam(0, 0, 2));
+        assertTrue(c.ok());
+        assertEquals(0, c.errorCount());
+    }
+
+    @Test
+    void spiContrastAndWake() throws Exception {
+        MockDisplayConnection dc = new MockDisplayConnection();
+        Uc1611sSpiFull c = new Uc1611sSpiFull(dc);
+        int n = dc.commands().size();
+        c.setContrast(0x50);
+        assertEquals(java.util.List.of(0x81, 0x50), dc.commands().subList(n, dc.commands().size()));
+        n = dc.commands().size();
+        c.wake();
+        assertEquals(java.util.List.of(0xA9), dc.commands().subList(n, dc.commands().size()));
     }
 }

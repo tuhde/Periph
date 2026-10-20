@@ -30,8 +30,7 @@ import java.io.IOException
  * @throws IOException if the chip does not acknowledge the System Reset
  */
 open class Uc1611sMinimal protected constructor(
-    protected val cmd: Connection,
-    protected val data: Connection,
+    protected val bus: Uc1611sBus,
     protected val width: Int,
     protected val height: Int,
     topView: Boolean,
@@ -39,7 +38,11 @@ open class Uc1611sMinimal protected constructor(
 ) {
 
     constructor(command: Connection, data: Connection, width: Int = WIDTH, height: Int = HEIGHT) :
-        this(command, data, width, height, false, 0x8F)
+        this(Uc1611sI2cBus(command, data), width, height, false, 0x8F)
+
+    /** Construct with explicit orientation and contrast (used by [Uc1611sFull]). */
+    protected constructor(command: Connection, data: Connection, width: Int, height: Int, topView: Boolean, contrast: Int) :
+        this(Uc1611sI2cBus(command, data), width, height, topView, contrast)
 
     companion object {
         const val WIDTH = 240
@@ -180,17 +183,12 @@ open class Uc1611sMinimal protected constructor(
     /** Send bytes as one command transaction on the command address, retried on failure. */
     protected fun command(vararg values: Int) {
         val bytes = ByteArray(values.size) { values[it].toByte() }
-        retry { cmd.write(bytes) }
+        retry { bus.writeCommand(bytes) }
     }
 
-    /** One pass over the data in chunks of at most I2C_CHUNK bytes (throws on a NACK). */
+    /** One pass over the data in transport-sized chunks (throws on a NACK). */
     protected fun writeChunks(buf: ByteArray, off: Int, len: Int) {
-        var i = 0
-        while (i < len) {
-            val n = minOf(I2C_CHUNK, len - i)
-            data.write(buf.copyOfRange(off + i, off + i + n))
-            i += n
-        }
+        bus.writeData(buf, off, len)
     }
 
     protected fun addressBytes(page: Int, column: Int): ByteArray {
@@ -204,7 +202,7 @@ open class Uc1611sMinimal protected constructor(
     /** Write one page: address command, then the data; a failure repeats both. */
     protected fun writePage(page: Int, buf: ByteArray, off: Int, len: Int) {
         retry {
-            cmd.write(addressBytes(page, 0))
+            bus.writeCommand(addressBytes(page, 0))
             writeChunks(buf, off, len)
         }
     }
@@ -214,18 +212,24 @@ open class Uc1611sMinimal protected constructor(
     }
 
     /** Read Status1..3; a NOP write first restarts the chip's status cycle (it advances by n + 1 per read). */
-    protected fun readStatus0(): ByteArray = retry {
-        cmd.write(byteArrayOf(CMD_NOP.toByte()))
-        cmd.read(3)
+    protected fun readStatus0(): ByteArray {
+        if (!bus.canRead()) throw UnsupportedOperationException("the SPI interface of the module is write-only")
+        return retry { bus.readStatus() }
     }
 
-    /** Poll Status1.DE until the pump is up; NACKs while it starts are expected and not counted. */
+    /**
+     * Poll Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms instead); NACKs while it starts
+     * are expected and not counted.
+     */
     protected fun waitDisplayEnabled(timeoutMs: Int) {
+        if (!bus.canRead()) {
+            sleepMs(minOf(timeoutMs, 10).toLong())
+            return
+        }
         var waited = 0
         while (waited <= timeoutMs) {
             try {
-                cmd.write(byteArrayOf(CMD_NOP.toByte()))
-                val s = cmd.read(3)
+                val s = bus.readStatus()
                 if ((s[0].toInt() and 0x08) != 0) return
             } catch (e: IOException) {
                 // expected while the charge pump restarts
@@ -265,6 +269,7 @@ open class Uc1611sMinimal protected constructor(
 
     private fun initSequence() {
         sleepMs(150)
+        bus.hardwareReset()
         resetChip()
         configure()
         val zeros = ByteArray(width)

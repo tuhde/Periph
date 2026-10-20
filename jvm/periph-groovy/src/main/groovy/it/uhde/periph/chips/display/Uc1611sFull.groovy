@@ -37,6 +37,11 @@ class Uc1611sFull extends Uc1611sMinimal {
         super(command, data, WIDTH, HEIGHT, false, 0x8F)
     }
 
+    /** Construct on an explicit transport (used by {@link Uc1611sSpiFull}). */
+    protected Uc1611sFull(Uc1611sBus bus, int width, int height, boolean topView, int contrast) throws IOException {
+        super(bus, width, height, topView, contrast)
+    }
+
     // ---- framebuffer ----------------------------------------------------------------------
 
     /** Return a framebuffer pixel; out-of-range coordinates read as false. */
@@ -256,13 +261,20 @@ class Uc1611sFull extends Uc1611sMinimal {
      * @throws IOException if address or read fail after all attempts
      */
     byte[] readRam(int page, int column, int n) throws IOException {
-        byte[] raw = retry {
-            cmd.write(addressBytes(page, column))
-            data.read(n + 1)
-        } as byte[]
-        byte[] out = new byte[n]
-        System.arraycopy(raw, 1, out, 0, n)
-        out
+        if (!bus.canRead()) throw new UnsupportedOperationException('the SPI interface of the module is write-only')
+        IOException last = null
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            try {
+                bus.writeCommand(addressBytes(page, column))
+                return bus.readRam(n)
+            } catch (IOException e) {
+                last = e
+                noteRetry()
+                sleepMs(RETRY_DELAY_MS)
+            }
+        }
+        incrementErrors()
+        throw last
     }
 
     /** System Reset and reconfigure with the cached contrast and mapping (RAM is kept). */

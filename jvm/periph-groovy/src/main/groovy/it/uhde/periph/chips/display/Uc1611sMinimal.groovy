@@ -63,8 +63,7 @@ class Uc1611sMinimal {
     protected static final int CMD_PART_START = 0xF2
     protected static final int CMD_PART_END = 0xF3
 
-    protected final Connection cmd
-    protected final Connection data
+    protected final Uc1611sBus bus
     protected final int width
     protected final int height
     protected final int pages
@@ -97,12 +96,17 @@ class Uc1611sMinimal {
 
     protected Uc1611sMinimal(Connection command, Connection data, int width, int height, boolean topView,
                              int contrast) throws IOException {
+        this(new Uc1611sI2cBus(command, data), width, height, topView, contrast)
+    }
+
+    /** Construct on an explicit transport (used by the SPI classes). */
+    protected Uc1611sMinimal(Uc1611sBus bus, int width, int height, boolean topView, int contrast)
+            throws IOException {
         if (width < 1 || width > WIDTH) throw new IllegalArgumentException('width must be 1..240')
         if (height < 8 || height > HEIGHT || height % 8 != 0) {
             throw new IllegalArgumentException('height must be a multiple of 8, 8..128')
         }
-        this.cmd = command
-        this.data = data
+        this.bus = bus
         this.width = width
         this.height = height
         this.pages = height.intdiv(8)
@@ -132,6 +136,11 @@ class Uc1611sMinimal {
     void clearErrors() {
         retries = 0
         errors = 0
+    }
+
+    /** Count one repeated attempt (used by the RAM read of {@link Uc1611sFull}). */
+    protected void noteRetry() {
+        retries++
     }
 
     /** Count one failed transfer (used by the raw data write of {@link Uc1611sFull}). */
@@ -200,17 +209,12 @@ class Uc1611sMinimal {
     protected void command(int... values) throws IOException {
         byte[] bytes = new byte[values.length]
         for (int i = 0; i < values.length; i++) bytes[i] = (byte) values[i]
-        retry { cmd.write(bytes) }
+        retry { bus.writeCommand(bytes) }
     }
 
-    /** One pass over the data in chunks of at most I2C_CHUNK bytes (throws on a NACK). */
+    /** One pass over the data in transport-sized chunks (throws on a NACK). */
     protected void writeChunks(byte[] buf, int off, int len) throws IOException {
-        for (int i = 0; i < len; i += I2C_CHUNK) {
-            int n = Math.min(I2C_CHUNK, len - i)
-            byte[] chunk = new byte[n]
-            System.arraycopy(buf, off + i, chunk, 0, n)
-            data.write(chunk)
-        }
+        bus.writeData(buf, off, len)
     }
 
     protected byte[] addressBytes(int page, int column) {
@@ -228,7 +232,7 @@ class Uc1611sMinimal {
         IOException last = null
         for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
             try {
-                cmd.write(addressBytes(page, 0))
+                bus.writeCommand(addressBytes(page, 0))
                 writeChunks(buf, off, len)
                 return
             } catch (IOException e) {
@@ -247,18 +251,22 @@ class Uc1611sMinimal {
 
     /** Read Status1..3; a NOP write first restarts the chip's status cycle (it advances by n + 1 per read). */
     protected byte[] readStatus0() throws IOException {
-        retry {
-            cmd.write([CMD_NOP] as byte[])
-            cmd.read(3)
-        } as byte[]
+        if (!bus.canRead()) throw new UnsupportedOperationException('the SPI interface of the module is write-only')
+        retry { bus.readStatus() } as byte[]
     }
 
-    /** Poll Status1.DE until the pump is up; NACKs while it starts are expected and not counted. */
+    /**
+     * Poll Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms instead); NACKs while it
+     * starts are expected and not counted.
+     */
     protected void waitDisplayEnabled(int timeoutMs) throws IOException {
+        if (!bus.canRead()) {
+            sleepMs(Math.min(timeoutMs, 10))
+            return
+        }
         for (int waited = 0; waited <= timeoutMs; waited += RETRY_DELAY_MS) {
             try {
-                cmd.write([CMD_NOP] as byte[])
-                byte[] s = cmd.read(3)
+                byte[] s = bus.readStatus()
                 if ((s[0] & 0x08) != 0) return
             } catch (IOException ignored) {
                 // expected while the charge pump restarts
@@ -297,6 +305,7 @@ class Uc1611sMinimal {
 
     private void initSequence() throws IOException {
         sleepMs(150)
+        bus.hardwareReset()
         resetChip()
         configure()
         byte[] zeros = new byte[width]

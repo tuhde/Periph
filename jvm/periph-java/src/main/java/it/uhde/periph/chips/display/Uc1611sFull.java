@@ -35,6 +35,11 @@ public class Uc1611sFull extends Uc1611sMinimal {
         super(command, data, WIDTH, HEIGHT, false, 0x8F);
     }
 
+    /** Construct on an explicit transport (used by {@link Uc1611sSpiFull}). */
+    protected Uc1611sFull(Uc1611sBus bus, int width, int height, boolean topView, int contrast) throws IOException {
+        super(bus, width, height, topView, contrast);
+    }
+
     // ---- framebuffer ----------------------------------------------------------------------
 
     /**
@@ -361,13 +366,11 @@ public class Uc1611sFull extends Uc1611sMinimal {
      * @throws IOException if address or read fail after all attempts
      */
     public byte[] readRam(int page, int column, int n) throws IOException {
-        byte[] raw = retry(() -> {
-            cmd.write(addressBytes(page, column));
-            return data.read(n + 1);
+        if (!bus.canRead()) throw new UnsupportedOperationException("the SPI interface of the module is write-only");
+        return retry(() -> {
+            bus.writeCommand(addressBytes(page, column));
+            return bus.readRam(n);
         });
-        byte[] out = new byte[n];
-        System.arraycopy(raw, 1, out, 0, n);
-        return out;
     }
 
     /**

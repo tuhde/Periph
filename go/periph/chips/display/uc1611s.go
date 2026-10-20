@@ -23,6 +23,91 @@ const (
 // ErrUC1611sArgument is returned for a size, position or buffer argument that is out of range.
 var ErrUC1611sArgument = errors.New("uc1611s: argument out of range")
 
+// ErrUC1611sUnsupported is returned by ReadStatus and ReadRAM on the 4-wire SPI interface, which is write-only.
+var ErrUC1611sUnsupported = errors.New("uc1611s: the SPI interface of the module is write-only")
+
+// UC1611sSPIChunk is the largest data write in bytes on the SPI transport (one page).
+const UC1611sSPIChunk = 240
+
+// uc1611sBus is the transport of the driver: one attempt per call, no retry (the driver retries).
+type uc1611sBus interface {
+	writeCommand(b []byte) error
+	writeData(b []byte) error
+	canRead() bool
+	readStatus() ([]byte, error)
+	readRAM(n int) ([]byte, error)
+	hardwareReset() error
+}
+
+// uc1611sI2C is the I2C transport: commands on the command address, RAM data on the data address (chunked).
+type uc1611sI2C struct{ cmd, data connection.Connection }
+
+func (t *uc1611sI2C) writeCommand(b []byte) error { return t.cmd.Write(b) }
+
+func (t *uc1611sI2C) writeData(b []byte) error {
+	for len(b) > 0 {
+		n := len(b)
+		if n > UC1611sI2CChunk {
+			n = UC1611sI2CChunk
+		}
+		if err := t.data.Write(b[:n]); err != nil {
+			return err
+		}
+		b = b[n:]
+	}
+	return nil
+}
+
+func (t *uc1611sI2C) canRead() bool { return true }
+
+func (t *uc1611sI2C) readStatus() ([]byte, error) {
+	if err := t.cmd.Write([]byte{uc1611sCmdNop}); err != nil {
+		return nil, err
+	}
+	return t.cmd.Read(3)
+}
+
+func (t *uc1611sI2C) readRAM(n int) ([]byte, error) {
+	b, err := t.data.Read(n + 1)
+	if err != nil {
+		return nil, err
+	}
+	return append([]byte(nil), b[1:]...), nil
+}
+
+func (t *uc1611sI2C) hardwareReset() error { return nil }
+
+// uc1611sSPI is the 4-wire SPI transport: D/C# low for every command byte (own CS window), high for RAM data.
+type uc1611sSPI struct{ conn connection.DisplayConn }
+
+func (t *uc1611sSPI) writeCommand(b []byte) error {
+	for _, c := range b {
+		if err := t.conn.SendCommand(c, nil); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (t *uc1611sSPI) writeData(b []byte) error {
+	for len(b) > 0 {
+		n := len(b)
+		if n > UC1611sSPIChunk {
+			n = UC1611sSPIChunk
+		}
+		if err := t.conn.SendData(b[:n]); err != nil {
+			return err
+		}
+		b = b[n:]
+	}
+	return nil
+}
+
+func (t *uc1611sSPI) canRead() bool                 { return false }
+func (t *uc1611sSPI) readStatus() ([]byte, error)   { return nil, ErrUC1611sUnsupported }
+func (t *uc1611sSPI) readRAM(n int) ([]byte, error) { return nil, ErrUC1611sUnsupported }
+func (t *uc1611sSPI) hardwareReset() error          { return t.conn.Reset() }
+
 const (
 	uc1611sPagesRAM         = 20 // RAM pages cleared at init (160 rows / 8)
 	uc1611sCmdTemp          = 0x24
@@ -70,16 +155,16 @@ const (
 // command (a partial write cannot be continued). Repeated attempts are counted (RetryCount); a
 // transfer that still fails returns its error and is counted in ErrorCount.
 type UC1611sMinimal struct {
-	cmd, data connection.Connection
-	width     int
-	height    int
-	pages     int
-	mx, my    uint8
-	pattern   uint8
-	contrast  uint8
-	retries   uint32
-	errors    uint32
-	fb        []byte
+	bus      uc1611sBus
+	width    int
+	height   int
+	pages    int
+	mx, my   uint8
+	pattern  uint8
+	contrast uint8
+	retries  uint32
+	errors   uint32
+	fb       []byte
 }
 
 // NewUC1611sMinimal creates the driver and runs the initialisation sequence (about 400 ms).
@@ -89,10 +174,23 @@ type UC1611sMinimal struct {
 // for the defaults 240 and 128). It returns ErrUC1611sArgument for a bad size and the bus error when
 // the chip does not acknowledge the System Reset.
 func NewUC1611sMinimal(command, data connection.Connection, width, height int) (*UC1611sMinimal, error) {
-	return newUC1611s(command, data, width, height, false, 0x8F)
+	return newUC1611s(&uc1611sI2C{command, data}, width, height, false, 0x8F)
 }
 
-func newUC1611s(command, data connection.Connection, width, height int, topView bool, contrast uint8) (*UC1611sMinimal, error) {
+// NewUC1611sSpiMinimal creates the driver on a 4-wire SPI display connection and runs the initialisation
+// sequence (about 400 ms): hardware reset (if RES# is wired), System Reset, configuration, RAM clear,
+// display on, a fixed 10 ms wait for the pump.
+//
+// The module must be strapped for 4-wire SPI (BM0 = D13 = VSS); the connection provides CS#, D/C# = CD
+// and RES# = RST (optional), SPI mode 0, up to 8 MHz. Every command byte, including the arguments of
+// two- and three-byte commands, is sent with D/C# low as its own CS window; RAM data goes out with D/C#
+// high. There is no read-back and no acknowledge: nothing is retried, and ReadStatus / ReadRAM of the
+// full driver return ErrUC1611sUnsupported. width and height as for NewUC1611sMinimal.
+func NewUC1611sSpiMinimal(conn connection.DisplayConn, width, height int) (*UC1611sMinimal, error) {
+	return newUC1611s(&uc1611sSPI{conn}, width, height, false, 0x8F)
+}
+
+func newUC1611s(bus uc1611sBus, width, height int, topView bool, contrast uint8) (*UC1611sMinimal, error) {
 	if width == 0 {
 		width = UC1611sWidth
 	}
@@ -103,7 +201,7 @@ func newUC1611s(command, data connection.Connection, width, height int, topView 
 		return nil, ErrUC1611sArgument
 	}
 	d := &UC1611sMinimal{
-		cmd: command, data: data, width: width, height: height, pages: height / 8,
+		bus: bus, width: width, height: height, pages: height / 8,
 		contrast: contrast, fb: make([]byte, width*(height/8)),
 	}
 	if topView {
@@ -187,23 +285,11 @@ func (d *UC1611sMinimal) retry(fn func() error) error {
 
 // command sends bytes as one command transaction on the command address, retried on failure.
 func (d *UC1611sMinimal) command(b ...byte) error {
-	return d.retry(func() error { return d.cmd.Write(b) })
+	return d.retry(func() error { return d.bus.writeCommand(b) })
 }
 
-// writeChunks is one pass over the data in chunks of at most UC1611sI2CChunk bytes.
-func (d *UC1611sMinimal) writeChunks(b []byte) error {
-	for len(b) > 0 {
-		n := len(b)
-		if n > UC1611sI2CChunk {
-			n = UC1611sI2CChunk
-		}
-		if err := d.data.Write(b[:n]); err != nil {
-			return err
-		}
-		b = b[n:]
-	}
-	return nil
-}
+// writeChunks is one pass over the data in transport-sized chunks.
+func (d *UC1611sMinimal) writeChunks(b []byte) error { return d.bus.writeData(b) }
 
 func (d *UC1611sMinimal) addressBytes(page, column int) []byte {
 	pa := int(d.pattern)<<5 | page&0x1F
@@ -213,7 +299,7 @@ func (d *UC1611sMinimal) addressBytes(page, column int) []byte {
 // writePage writes one page: address command, then the data; a failure repeats both.
 func (d *UC1611sMinimal) writePage(page int, b []byte) error {
 	return d.retry(func() error {
-		if err := d.cmd.Write(d.addressBytes(page, 0)); err != nil {
+		if err := d.bus.writeCommand(d.addressBytes(page, 0)); err != nil {
 			return err
 		}
 		return d.writeChunks(b)
@@ -228,12 +314,12 @@ func (d *UC1611sMinimal) showPage(page int) error {
 // readStatus reads Status1..3; a NOP write first restarts the chip's status cycle (it advances by
 // n + 1 per read).
 func (d *UC1611sMinimal) readStatus() ([]byte, error) {
+	if !d.bus.canRead() {
+		return nil, ErrUC1611sUnsupported
+	}
 	var out []byte
 	err := d.retry(func() error {
-		if err := d.cmd.Write([]byte{uc1611sCmdNop}); err != nil {
-			return err
-		}
-		b, err := d.cmd.Read(3)
+		b, err := d.bus.readStatus()
 		if err != nil {
 			return err
 		}
@@ -243,14 +329,19 @@ func (d *UC1611sMinimal) readStatus() ([]byte, error) {
 	return out, err
 }
 
-// waitDisplayEnabled polls Status1.DE until the pump is up; NACKs while it starts are expected and not
-// counted.
+// waitDisplayEnabled polls Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms);
+// NACKs while it starts are expected and not counted.
 func (d *UC1611sMinimal) waitDisplayEnabled(timeout time.Duration) {
+	if !d.bus.canRead() {
+		if timeout > 10*time.Millisecond {
+			timeout = 10 * time.Millisecond
+		}
+		time.Sleep(timeout)
+		return
+	}
 	for waited := time.Duration(0); waited <= timeout; waited += UC1611sRetryDelay {
-		if err := d.cmd.Write([]byte{uc1611sCmdNop}); err == nil {
-			if b, err := d.cmd.Read(3); err == nil && len(b) == 3 && b[0]&0x08 != 0 {
-				return
-			}
+		if b, err := d.bus.readStatus(); err == nil && len(b) == 3 && b[0]&0x08 != 0 {
+			return
 		}
 		time.Sleep(UC1611sRetryDelay)
 	}
@@ -287,6 +378,9 @@ func (d *UC1611sMinimal) enable() error { return d.command(uc1611sCmdDisplay | 1
 
 func (d *UC1611sMinimal) initSequence() error {
 	time.Sleep(150 * time.Millisecond)
+	if err := d.bus.hardwareReset(); err != nil {
+		return err
+	}
 	if err := d.resetChip(); err != nil {
 		return err
 	}
@@ -323,7 +417,17 @@ type UC1611sFull struct {
 // defaults); topView selects the 12:00 viewing direction (MY = 1, MX = 0); contrast is the
 // potentiometer PM 0..255 (the DOG example value is 0x8F).
 func NewUC1611sFull(command, data connection.Connection, width, height int, topView bool, contrast uint8) (*UC1611sFull, error) {
-	m, err := newUC1611s(command, data, width, height, topView, contrast)
+	m, err := newUC1611s(&uc1611sI2C{command, data}, width, height, topView, contrast)
+	if err != nil {
+		return nil, err
+	}
+	return &UC1611sFull{m}, nil
+}
+
+// NewUC1611sSpiFull creates the full driver on a 4-wire SPI display connection (see
+// NewUC1611sSpiMinimal); width, height, topView and contrast as for NewUC1611sFull.
+func NewUC1611sSpiFull(conn connection.DisplayConn, width, height int, topView bool, contrast uint8) (*UC1611sFull, error) {
+	m, err := newUC1611s(&uc1611sSPI{conn}, width, height, topView, contrast)
 	if err != nil {
 		return nil, err
 	}
@@ -553,16 +657,19 @@ func (d *UC1611sFull) ReadRAM(page, column, n int) ([]byte, error) {
 	if n < 0 || n > 255 {
 		return nil, ErrUC1611sArgument
 	}
+	if !d.bus.canRead() {
+		return nil, ErrUC1611sUnsupported
+	}
 	var out []byte
 	err := d.retry(func() error {
-		if err := d.cmd.Write(d.addressBytes(page, column)); err != nil {
+		if err := d.bus.writeCommand(d.addressBytes(page, column)); err != nil {
 			return err
 		}
-		b, err := d.data.Read(n + 1)
+		b, err := d.bus.readRAM(n)
 		if err != nil {
 			return err
 		}
-		out = append([]byte(nil), b[1:]...)
+		out = b
 		return nil
 	})
 	return out, err
