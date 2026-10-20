@@ -1,0 +1,97 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-uc1611s', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            i2cBus:   { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '0x38', required: true },
+            width:    { value: '240', required: true, validate: RED.validators.number() },
+            height:   { value: '128', required: true, validate: RED.validators.number() },
+            topView:  { value: false },
+            contrast: { value: '143', required: true, validate: RED.validators.number() },
+            autoShow: { value: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'UC1611s'; },
+        paletteLabel: 'UC1611s'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-uc1611s">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="UC1611s">
+    </div>
+    <div class="form-row">
+        <label for="node-input-i2cBus"><i class="fa fa-microchip"></i> I2C bus</label>
+        <input type="number" id="node-input-i2cBus" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Command address</label>
+        <select id="node-input-address" style="width:auto">
+            <option value="0x38">0x38 (A3 = A2 = low, data 0x39)</option>
+            <option value="0x3A">0x3A (A2 high, data 0x3B)</option>
+            <option value="0x3C">0x3C (A3 high, data 0x3D)</option>
+            <option value="0x3E">0x3E (A3 = A2 = high, data 0x3F)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-width">Size</label>
+        <input type="number" id="node-input-width" min="1" max="240" style="width:70px"> x
+        <input type="number" id="node-input-height" min="8" max="128" step="8" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-contrast">Contrast (PM)</label>
+        <input type="number" id="node-input-contrast" min="0" max="255" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-topView">Top view</label>
+        <input type="checkbox" id="node-input-topView" style="width:auto; vertical-align:top">
+    </div>
+    <div class="form-row">
+        <label for="node-input-autoShow">Auto-show</label>
+        <input type="checkbox" id="node-input-autoShow" style="width:auto; vertical-align:top">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-uc1611s">
+    <p>Draws on a UC1611s graphic LCD (EA DOGXL240-7, 240 x 128, black/white) over I2C. The chip has two I2C addresses, command (<code>0x38 + 2n</code>) and data (one higher); the node opens both. The module runs from 3.3 V only.</p>
+    <p>Drawing commands change a framebuffer; with <em>Auto-show</em> the framebuffer is sent after every message that draws, otherwise send <code>{ show: true }</code>. NACKs of the chip are retried by the driver.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> clears the framebuffer.</dd>
+        <dt>payload.pixel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, on }</code>: set or clear one pixel.</dd>
+        <dt>payload.line <span class="property-type">object</span></dt>
+        <dd><code>{ x0, y0, x1, y1, on }</code>: a line.</dd>
+        <dt>payload.rect <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, w, h, on, fill }</code>: a rectangle outline or filled.</dd>
+        <dt>payload.bitmap <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, columns: [..], heightPages }</code>: column bytes, 8 pixels per byte, bit 0 = top; <code>y</code> a multiple of 8.</dd>
+        <dt>payload.contrast <span class="property-type">number</span></dt>
+        <dd>Contrast (potentiometer) 0..255.</dd>
+        <dt>payload.invert <span class="property-type">boolean</span></dt>
+        <dd>Invert the displayed image.</dd>
+        <dt>payload.display <span class="property-type">boolean</span></dt>
+        <dd>Display on, or sleep.</dd>
+        <dt>payload.scroll <span class="property-type">number</span></dt>
+        <dd>Hardware scroll line (rows the image is moved up).</dd>
+        <dt>payload.flip <span class="property-type">object</span></dt>
+        <dd><code>{ x, y }</code>: mirror columns / rows.</dd>
+        <dt>payload.show <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> sends the framebuffer to the display.</dd>
+        <dt>payload.status <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> reads the three status bytes and sends them as <code>payload.status</code>.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <p>Only for <code>payload.status</code>: <code>msg.payload.status</code> = <code>[Status1, Status2, Status3]</code>.</p>
+
+    <h3>Details</h3>
+    <p>Use pull-ups of 2-4.7 k to 3.3 V on SDA and SCL. 4 x 4.7 uF capacitors on the charge-pump pins and 470 nF on VLCD are required on the module.</p>
+</script>
