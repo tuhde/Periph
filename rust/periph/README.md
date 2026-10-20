@@ -101,6 +101,7 @@ Each chip exposes two structs:
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
+| UC1611S | Display driver | 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7. |
 | UC8159 | Display driver | Seven-colour e-paper controller (600 x 448 panels such as the |
 | UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |

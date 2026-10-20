@@ -43,6 +43,7 @@
 #include "chips/display/PCF8576.h"
 #include "chips/display/SSD1331.h"
 #include "chips/display/ST7036.h"
+#include "chips/display/UC1611s.h"
 #include "chips/display/UC8159.h"
 #include "chips/display/UC8276C.h"
 #include "chips/environmental/AHT21.h"

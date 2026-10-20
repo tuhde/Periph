@@ -37,6 +37,32 @@ public class MockConnection implements RegisterConnection {
     private final List<byte[]> writes = new ArrayList<>();
     private final Deque<byte[]> readQueue = new ArrayDeque<>();
     private int addressWidth = 1;
+    private int failWrites = 0;
+    private int failSkip = 0;
+    private int failReads = 0;
+
+    /**
+     * Make {@code n} {@code write()} / {@code writeRead()} calls throw an {@link IOException} (a NACK) after
+     * letting the next {@code after} succeed; the failing calls are still logged in {@link #writes()}.
+     */
+    public void failNextWrites(int n, int after) {
+        this.failWrites = n;
+        this.failSkip = after;
+    }
+
+    /** Make the next {@code n} {@code read()} calls throw an {@link IOException}; the read queue is not consumed. */
+    public void failNextReads(int n) {
+        this.failReads = n;
+    }
+
+    private void maybeFailWrite() throws IOException {
+        if (failSkip > 0) {
+            failSkip--;
+        } else if (failWrites > 0) {
+            failWrites--;
+            throw new IOException("I2C NACK (mock)");
+        }
+    }
 
     /** Set the register address width in bytes (default 1). */
     public void setAddressWidth(int addressWidth) {
@@ -100,6 +126,7 @@ public class MockConnection implements RegisterConnection {
     @Override
     public void write(byte[] data) throws IOException {
         writes.add(data.clone());
+        maybeFailWrite();
         if (data.length > addressWidth) {
             int reg = readAddress(data);
             for (int i = addressWidth; i < data.length; i++) {
@@ -110,6 +137,10 @@ public class MockConnection implements RegisterConnection {
 
     @Override
     public byte[] read(int n) throws IOException {
+        if (failReads > 0) {
+            failReads--;
+            throw new IOException("I2C NACK (mock)");
+        }
         if (!readQueue.isEmpty()) {
             byte[] front = readQueue.pollFirst();
             byte[] out = new byte[n];
@@ -122,6 +153,7 @@ public class MockConnection implements RegisterConnection {
     @Override
     public byte[] writeRead(byte[] data, int n) throws IOException {
         writes.add(data.clone());
+        maybeFailWrite();
         int reg = readAddress(data);
         byte[] out = new byte[n];
         for (int i = 0; i < n; i++) {

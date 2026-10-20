@@ -68,6 +68,7 @@ static constexpr uint8_t kAddr_pcf8576[] = {0x38, 0x39};
 static constexpr uint8_t kAddr_pcf8578[] = {0x3C, 0x3D};
 static constexpr uint8_t kAddr_pcf8579[] = {0x3C, 0x3D};
 static constexpr uint8_t kAddr_sh1106[] = {0x3C, 0x3D};
+static constexpr uint8_t kAddr_uc1611s[] = {0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F};
 static constexpr uint8_t kAddr_aht21[] = {0x38};
 static constexpr uint8_t kAddr_bme280[] = {0x76, 0x77};
 static constexpr uint32_t kExp_bme280[] = {0x60};
@@ -199,6 +200,7 @@ static constexpr ChipEntry kChips[] = {
     {"pcf8578", nullptr, true, false, kAddr_pcf8578, 2, nullptr},
     {"pcf8579", nullptr, true, false, kAddr_pcf8579, 2, nullptr},
     {"sh1106", nullptr, true, false, kAddr_sh1106, 2, nullptr},
+    {"uc1611s", "uc1611s", true, false, kAddr_uc1611s, 8, nullptr},
     {"aht21", "aht21", true, false, kAddr_aht21, 1, nullptr},
     {"bme280", "bme280", false, false, kAddr_bme280, 2, &kProbe_bme280},
     {"bme680", "bme680", false, false, kAddr_bme680, 2, &kProbe_bme680},
@@ -246,7 +248,7 @@ static constexpr ChipEntry kChips[] = {
     {"vl53l0x", "vl53l0x", false, false, kAddr_vl53l0x, 1, &kProbe_vl53l0x},
     {"vl53l1x", "vl53l1x", false, false, kAddr_vl53l1x, 1, &kProbe_vl53l1x},
 };
-static constexpr size_t kChipCount = 73;
+static constexpr size_t kChipCount = 74;
 
 }  // namespace discovery
 }  // namespace periph

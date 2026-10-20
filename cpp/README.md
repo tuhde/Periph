@@ -97,6 +97,7 @@ Each chip exposes two classes:
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
+| UC1611s | Display driver | `chips/display/UC1611s.h` |
 | VL53L0X | Time-of-flight | `chips/tof/VL53L0X.h` |
 | VL53L1X | Time-of-flight | `chips/tof/VL53L1X.h` |
 | WS2812B | LED driver | `chips/led/WS2812B.h` |

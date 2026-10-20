@@ -26,6 +26,32 @@ class I2CConnectionMock {
         this.writes = [];
         this._readQueue = [];
         this._addressWidth = 1;
+        this._failWrites = 0;
+        this._failSkip = 0;
+        this._failReads = 0;
+    }
+
+    /**
+     * Make `n` write() / writeRead() calls reject (a NACK) after letting the next `after` succeed;
+     * the failing calls are still logged in `writes`.
+     */
+    failNextWrites(n, after = 0) {
+        this._failWrites = n;
+        this._failSkip = after;
+    }
+
+    /** Make the next `n` read() calls reject; the read queue is not consumed. */
+    failNextReads(n) {
+        this._failReads = n;
+    }
+
+    _maybeFailWrite() {
+        if (this._failSkip > 0) {
+            this._failSkip--;
+        } else if (this._failWrites > 0) {
+            this._failWrites--;
+            throw new Error('I2C NACK (mock)');
+        }
     }
 
     /** Set the register address width in bytes (default 1). */
@@ -56,6 +82,7 @@ class I2CConnectionMock {
     async write(data) {
         const buf = Buffer.from(data);
         this.writes.push(buf);
+        this._maybeFailWrite();
         if (buf.length > this._addressWidth) {
             const reg = this._readAddress(buf);
             for (let i = this._addressWidth; i < buf.length; i++) {
@@ -65,6 +92,10 @@ class I2CConnectionMock {
     }
 
     async read(n) {
+        if (this._failReads > 0) {
+            this._failReads--;
+            throw new Error('I2C NACK (mock)');
+        }
         if (this._readQueue.length > 0) {
             const front = this._readQueue.shift();
             const out = Buffer.alloc(n);
@@ -77,6 +108,7 @@ class I2CConnectionMock {
     async writeRead(data, n) {
         const buf = Buffer.from(data);
         this.writes.push(buf);
+        this._maybeFailWrite();
         const reg = this._readAddress(buf);
         const out = Buffer.alloc(n);
         for (let i = 0; i < n; i++) {

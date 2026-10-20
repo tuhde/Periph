@@ -16,6 +16,7 @@
       "pcf8576": "nodes/pcf8576/pcf8576.js",
       "ssd1331": "nodes/ssd1331/ssd1331.js",
       "st7036": "nodes/st7036/st7036.js",
+      "uc1611s": "nodes/uc1611s/uc1611s.js",
       "uc8159": "nodes/uc8159/uc8159.js",
       "uc8276c": "nodes/uc8276c/uc8276c.js"
     }

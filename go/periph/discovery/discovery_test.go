@@ -227,7 +227,7 @@ func TestFallsBackToIDLessCandidates(t *testing.T) {
 		{0x40, []string{"ina219"}, false, SkipNone},
 		{0x36, []string{"as5600"}, true, SkipNone},
 		{0x0B, nil, true, SkipNone},
-		{0x38, []string{"ade7953", "aht21", "bma150", "pcf8574", "pcf8576"}, true, SkipWriteSensitive},
+		{0x38, []string{"ade7953", "aht21", "bma150", "pcf8574", "pcf8576", "uc1611s"}, true, SkipWriteSensitive},
 	}
 	for _, tc := range cases {
 		b := newBus(single(tc.addr, map[uint32]byte{}))
