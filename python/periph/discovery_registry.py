@@ -84,7 +84,7 @@ CHIPS = (
     {"id": "sh1106", "driver": None, "write_sensitive": True, "aliased": False,
      "addresses": (0x3C, 0x3D,),
      "probe": None},
-    {"id": "uc1611s", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "uc1611s", "driver": "uc1611s", "write_sensitive": True, "aliased": False,
      "addresses": (0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,),
      "probe": None},
     {"id": "aht21", "driver": "aht21", "write_sensitive": True, "aliased": False,

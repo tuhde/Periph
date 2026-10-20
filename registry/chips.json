@@ -399,7 +399,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "uc1611s",
       "datasheet": "datasheets/display/uc1611s.pdf"
     },
     {
