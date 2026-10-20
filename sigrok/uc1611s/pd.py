@@ -180,6 +180,7 @@ class Decoder(srd.Decoder):
         self.run_pos = None        # (pattern, page, column) at the start of the run
         self.status_bytes = bytearray()
         self.status_ss = None
+        self.status_pos = 0         # position in the Status1/2/3 cycle
         self.dummy = False
         self.page = 0
         self.col = 0
@@ -380,28 +381,36 @@ class Decoder(srd.Decoder):
             self._flush_cmd(self.pend[3] if self.pend else es, es)
 
     def _flush_status(self, es):
+        """Annotate a status read. The chip's status cycle (Status1, Status2, Status3) advances by n + 1 per read
+        transaction and restarts at Status1 after any other transaction, so the labels follow that position."""
         b = bytes(self.status_bytes)
         self.status_bytes = bytearray()
+        pos = self.status_pos
         parts = []
-        if len(b) >= 1:
-            s = b[0]
-            parts.append('Status1 0x%02X (Ver=%d MX=%d MY=%d WA=%d DE=%d WS=%d MD=%d MS=%d)' % (
-                s, s >> 7, (s >> 6) & 1, (s >> 5) & 1, (s >> 4) & 1, (s >> 3) & 1, (s >> 2) & 1, (s >> 1) & 1, s & 1))
-            self.display_on = bool(s & 8)
-            self.mx = bool(s & 0x40)
-            self.my = bool(s & 0x20)
-        if len(b) >= 2:
-            s = b[1]
-            parts.append('Status2 0x%02X (ID=%d PMO=0x%02X)' % (s, s >> 6, s & 0x3F))
-        if len(b) >= 3:
-            s = b[2]
-            parts.append('Status3 0x%02X (product %d, ESD=%d)' % (s, s >> 4, s & 1))
-        self._ann(self.status_ss, es, ANN_READ, 'Read status: ' + '; '.join(parts), 'Status %s' % ' '.join('%02X' % x for x in b), 'Status')
-        self._py(self.status_ss, es, 'STATUS', tuple(b[:3]))
-        if len(b) >= 1:
+        status1 = None
+        decoded = {}
+        for i, s in enumerate(b):
+            idx = (pos + i) % 3
+            if idx == 0:
+                parts.append('Status1 0x%02X (Ver=%d MX=%d MY=%d WA=%d DE=%d WS=%d MD=%d MS=%d)' % (
+                    s, s >> 7, (s >> 6) & 1, (s >> 5) & 1, (s >> 4) & 1, (s >> 3) & 1, (s >> 2) & 1, (s >> 1) & 1, s & 1))
+                self.display_on = bool(s & 8)
+                self.mx = bool(s & 0x40)
+                self.my = bool(s & 0x20)
+                status1 = s
+            elif idx == 1:
+                parts.append('Status2 0x%02X (ID=%d PMO=0x%02X)' % (s, s >> 6, s & 0x3F))
+            else:
+                parts.append('Status3 0x%02X (product %d, ESD=%d)' % (s, s >> 4, s & 1))
+            decoded[idx] = s
+        self.status_pos = (pos + len(b) + 1) % 3
+        short = ' '.join('%02X' % x for x in b)
+        self._ann(self.status_ss, es, ANN_READ, 'Read status: ' + '; '.join(parts), 'Status %s' % short, 'Status')
+        self._py(self.status_ss, es, 'STATUS', tuple(decoded.get(i) for i in range(3)))
+        if status1 is not None:
             self._ann(self.status_ss, es, ANN_STATUS,
-                      'Display %s, MX=%d MY=%d' % ('on' if b[0] & 8 else 'sleep', (b[0] >> 6) & 1, (b[0] >> 5) & 1),
-                      'DE=%d' % ((b[0] >> 3) & 1), 'DE')
+                      'Display %s, MX=%d MY=%d' % ('on' if status1 & 8 else 'sleep', (status1 >> 6) & 1, (status1 >> 5) & 1),
+                      'DE=%d' % ((status1 >> 3) & 1), 'DE')
 
     def decode(self, ss, es, data):
         ptype, pdata = data
@@ -424,6 +433,8 @@ class Decoder(srd.Decoder):
             self.addr = pdata
             self.is_read = ptype == 'ADDRESS READ'
             self.is_cd = bool(pdata & 1)
+            if not (self.is_read and not self.is_cd):
+                self.status_pos = 0      # any transaction but a status read restarts the cycle
             self.state = 'DATA'
             self.run_pos = None
             return

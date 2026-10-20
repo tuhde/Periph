@@ -106,6 +106,7 @@ void uc1611sChecks(CHIP& chip, REPORT report) {
     chip.reset();
     chip.read_status(s);
     report("reset_restores_display_enable", (s[0] & 0x08) != 0);
+    report("no_unrecovered_transfer_errors", chip.ok());
 }
 
 void setup() {

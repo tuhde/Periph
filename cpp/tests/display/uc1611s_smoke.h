@@ -3,6 +3,7 @@
 //
 // Over I²C the chip can be read back, so the checks go beyond "accepted": the status bytes
 // (version, display enable, mirror bits, product code) and a RAM read-back of what show() wrote.
+// Transfers the chip NACKs are retried by the driver; chip.ok() reports whether any failed for good.
 // The picture itself is verified by eye (see the demo example).
 #include <stdint.h>
 
@@ -90,4 +91,5 @@ void uc1611sChecks(CHIP& chip, REPORT report) {
     chip.reset();
     chip.read_status(s);
     report("reset_restores_display_enable", (s[0] & 0x08) != 0);
+    report("no_unrecovered_transfer_errors", chip.ok());
 }

@@ -80,7 +80,9 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _write(data, data_len);
+        bool wrote = ok();
         _read(buf, buf_len);
+        _setOk(wrote && ok());
     }
 
     /** @brief Underlying I²C handle, exposed so derived connections
@@ -95,6 +97,7 @@ private:
 
     void _record(HAL_StatusTypeDef status) {
         _lastStatus = status;
+        _setOk(status == HAL_OK);
         if (status != HAL_OK) _errorCount++;
     }
 

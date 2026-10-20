@@ -159,8 +159,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN"
-      binary: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN"
+      source: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u"
+      binary: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u"
     cmakeVariables:
       CMAKE_C_FLAGS: "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections"
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -169,13 +169,13 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN'
+        Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c2955/fast
-        /usr/bin/gmake  -f CMakeFiles/cmTC_c2955.dir/build.make CMakeFiles/cmTC_c2955.dir/build
-        gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN'
-        Building C object CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj
-        /usr/bin/arm-none-eabi-gcc   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_dd104/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_dd104.dir/build.make CMakeFiles/cmTC_dd104.dir/build
+        gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u'
+        Building C object CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj
+        /usr/bin/arm-none-eabi-gcc   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c
         Using built-in specs.
         COLLECT_GCC=/usr/bin/arm-none-eabi-gcc
         Target: arm-none-eabi
@@ -183,8 +183,8 @@ events:
         Thread model: single
         Supported LTO compression algorithms: zlib
         gcc version 14.2.1 20241119 (15:14.2.rel1-1) 
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/'
-         /usr/lib/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_c2955.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -o /tmp/ccaXV77k.s
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/'
+         /usr/lib/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_dd104.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -o /tmp/ccmgyIGe.s
         GNU C17 (15:14.2.rel1-1) version 14.2.1 20241119 (arm-none-eabi)
         	compiled by GNU C version 14.2.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.27-GMP
         
@@ -198,18 +198,18 @@ events:
          /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/include
         End of search list.
         Compiler executable checksum: 029c2815ac4af9b96d4231469fcafb5b
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/'
-         /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj /tmp/ccaXV77k.s
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/'
+         /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj /tmp/ccmgyIGe.s
         GNU assembler version 2.44 (arm-none-eabi) using BFD version (2.44-3+23+b1) 2.44
         COMPILER_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/
         LIBRARY_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.'
-        Linking C static library libcmTC_c2955.a
-        /usr/bin/cmake -P CMakeFiles/cmTC_c2955.dir/cmake_clean_target.cmake
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c2955.dir/link.txt --verbose=1
-        /usr/bin/arm-none-eabi-ar qc libcmTC_c2955.a CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj
-        /usr/bin/arm-none-eabi-ranlib libcmTC_c2955.a
-        gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN'
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.'
+        Linking C static library libcmTC_dd104.a
+        /usr/bin/cmake -P CMakeFiles/cmTC_dd104.dir/cmake_clean_target.cmake
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dd104.dir/link.txt --verbose=1
+        /usr/bin/arm-none-eabi-ar qc libcmTC_dd104.a CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj
+        /usr/bin/arm-none-eabi-ranlib libcmTC_dd104.a
+        gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u'
         
       exitCode: 0
   -
@@ -242,13 +242,13 @@ events:
       Parsed C implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
-        ignore line: [Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN']
+        ignore line: [Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u']
         ignore line: []
-        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_c2955/fast]
-        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_c2955.dir/build.make CMakeFiles/cmTC_c2955.dir/build]
-        ignore line: [gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN']
-        ignore line: [Building C object CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj]
-        ignore line: [/usr/bin/arm-none-eabi-gcc   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c]
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_dd104/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_dd104.dir/build.make CMakeFiles/cmTC_dd104.dir/build]
+        ignore line: [gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u']
+        ignore line: [Building C object CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj]
+        ignore line: [/usr/bin/arm-none-eabi-gcc   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections    -v -o CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c]
         ignore line: [Using built-in specs.]
         ignore line: [COLLECT_GCC=/usr/bin/arm-none-eabi-gcc]
         ignore line: [Target: arm-none-eabi]
@@ -256,8 +256,8 @@ events:
         ignore line: [Thread model: single]
         ignore line: [Supported LTO compression algorithms: zlib]
         ignore line: [gcc version 14.2.1 20241119 (15:14.2.rel1-1) ]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/']
-        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_c2955.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -o /tmp/ccaXV77k.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/']
+        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_dd104.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -o /tmp/ccmgyIGe.s]
         ignore line: [GNU C17 (15:14.2.rel1-1) version 14.2.1 20241119 (arm-none-eabi)]
         ignore line: [	compiled by GNU C version 14.2.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.27-GMP]
         ignore line: []
@@ -271,18 +271,18 @@ events:
         ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/include]
         ignore line: [End of search list.]
         ignore line: [Compiler executable checksum: 029c2815ac4af9b96d4231469fcafb5b]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/']
-        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj /tmp/ccaXV77k.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/']
+        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj /tmp/ccmgyIGe.s]
         ignore line: [GNU assembler version 2.44 (arm-none-eabi) using BFD version (2.44-3+23+b1) 2.44]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.']
-        ignore line: [Linking C static library libcmTC_c2955.a]
-        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_c2955.dir/cmake_clean_target.cmake]
-        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c2955.dir/link.txt --verbose=1]
-        ignore line: [/usr/bin/arm-none-eabi-ar qc libcmTC_c2955.a CMakeFiles/cmTC_c2955.dir/CMakeCCompilerABI.c.obj]
-        ignore line: [/usr/bin/arm-none-eabi-ranlib libcmTC_c2955.a]
-        ignore line: [gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-sctXLN']
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-v' '-o' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C static library libcmTC_dd104.a]
+        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_dd104.dir/cmake_clean_target.cmake]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dd104.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/arm-none-eabi-ar qc libcmTC_dd104.a CMakeFiles/cmTC_dd104.dir/CMakeCCompilerABI.c.obj]
+        ignore line: [/usr/bin/arm-none-eabi-ranlib libcmTC_dd104.a]
+        ignore line: [gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-X1H86u']
         ignore line: []
         ignore line: []
         implicit libs: []
@@ -300,8 +300,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa"
-      binary: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa"
+      source: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516"
+      binary: "/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti"
       CMAKE_CXX_FLAGS_DEBUG: "-g"
@@ -311,13 +311,13 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa'
+        Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bcbe9/fast
-        /usr/bin/gmake  -f CMakeFiles/cmTC_bcbe9.dir/build.make CMakeFiles/cmTC_bcbe9.dir/build
-        gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa'
-        Building CXX object CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj
-        /usr/bin/arm-none-eabi-g++   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti    -v -o CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_012ea/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_012ea.dir/build.make CMakeFiles/cmTC_012ea.dir/build
+        gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516'
+        Building CXX object CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj
+        /usr/bin/arm-none-eabi-g++   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti    -v -o CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
         Using built-in specs.
         COLLECT_GCC=/usr/bin/arm-none-eabi-g++
         Target: arm-none-eabi
@@ -325,8 +325,8 @@ events:
         Thread model: single
         Supported LTO compression algorithms: zlib
         gcc version 14.2.1 20241119 (15:14.2.rel1-1) 
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/'
-         /usr/lib/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_bcbe9.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -o /tmp/ccBtGBes.s
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/'
+         /usr/lib/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_012ea.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -o /tmp/ccZQoq5t.s
         GNU C++17 (15:14.2.rel1-1) version 14.2.1 20241119 (arm-none-eabi)
         	compiled by GNU C version 14.2.0, GMP version 6.3.0, MPFR version 4.2.1, MPC version 1.3.1, isl version isl-0.27-GMP
         
@@ -343,18 +343,18 @@ events:
          /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/include
         End of search list.
         Compiler executable checksum: bcb7fcca8026193ca020c74bc7587d65
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/'
-         /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccBtGBes.s
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/'
+         /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccZQoq5t.s
         GNU assembler version 2.44 (arm-none-eabi) using BFD version (2.44-3+23+b1) 2.44
         COMPILER_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/
         LIBRARY_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/
-        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.'
-        Linking CXX static library libcmTC_bcbe9.a
-        /usr/bin/cmake -P CMakeFiles/cmTC_bcbe9.dir/cmake_clean_target.cmake
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bcbe9.dir/link.txt --verbose=1
-        /usr/bin/arm-none-eabi-ar qc libcmTC_bcbe9.a CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj
-        /usr/bin/arm-none-eabi-ranlib libcmTC_bcbe9.a
-        gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa'
+        COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX static library libcmTC_012ea.a
+        /usr/bin/cmake -P CMakeFiles/cmTC_012ea.dir/cmake_clean_target.cmake
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_012ea.dir/link.txt --verbose=1
+        /usr/bin/arm-none-eabi-ar qc libcmTC_012ea.a CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj
+        /usr/bin/arm-none-eabi-ranlib libcmTC_012ea.a
+        gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516'
         
       exitCode: 0
   -
@@ -393,13 +393,13 @@ events:
       Parsed CXX implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
-        ignore line: [Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa']
+        ignore line: [Change Dir: '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516']
         ignore line: []
-        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_bcbe9/fast]
-        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_bcbe9.dir/build.make CMakeFiles/cmTC_bcbe9.dir/build]
-        ignore line: [gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa']
-        ignore line: [Building CXX object CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj]
-        ignore line: [/usr/bin/arm-none-eabi-g++   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti    -v -o CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_012ea/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_012ea.dir/build.make CMakeFiles/cmTC_012ea.dir/build]
+        ignore line: [gmake[1]: Entering directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516']
+        ignore line: [Building CXX object CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj]
+        ignore line: [/usr/bin/arm-none-eabi-g++   -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -DUSE_HAL_DRIVER -DSTM32F411xE -Wall -Wextra -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti    -v -o CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
         ignore line: [Using built-in specs.]
         ignore line: [COLLECT_GCC=/usr/bin/arm-none-eabi-g++]
         ignore line: [Target: arm-none-eabi]
@@ -407,8 +407,8 @@ events:
         ignore line: [Thread model: single]
         ignore line: [Supported LTO compression algorithms: zlib]
         ignore line: [gcc version 14.2.1 20241119 (15:14.2.rel1-1) ]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/']
-        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_bcbe9.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -o /tmp/ccBtGBes.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/']
+        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -imultilib thumb/v7e-m+fp/hard -D__USES_INITFINI__ -D USE_HAL_DRIVER -D STM32F411xE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_012ea.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -mlibarch=armv7e-m+fp -march=armv7e-m+fp -Wall -Wextra -version -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -o /tmp/ccZQoq5t.s]
         ignore line: [GNU C++17 (15:14.2.rel1-1) version 14.2.1 20241119 (arm-none-eabi)]
         ignore line: [	compiled by GNU C version 14.2.0  GMP version 6.3.0  MPFR version 4.2.1  MPC version 1.3.1  isl version isl-0.27-GMP]
         ignore line: []
@@ -425,18 +425,18 @@ events:
         ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/include]
         ignore line: [End of search list.]
         ignore line: [Compiler executable checksum: bcb7fcca8026193ca020c74bc7587d65]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/']
-        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccBtGBes.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/']
+        ignore line: [ /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/as -v -march=armv7e-m+fp -mfloat-abi=hard -mfpu=fpv4-sp-d16 -meabi=5 -o CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccZQoq5t.s]
         ignore line: [GNU assembler version 2.44 (arm-none-eabi) using BFD version (2.44-3+23+b1) 2.44]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/bin/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/:/usr/lib/gcc/arm-none-eabi/14.2.1/:/usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.']
-        ignore line: [Linking CXX static library libcmTC_bcbe9.a]
-        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_bcbe9.dir/cmake_clean_target.cmake]
-        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bcbe9.dir/link.txt --verbose=1]
-        ignore line: [/usr/bin/arm-none-eabi-ar qc libcmTC_bcbe9.a CMakeFiles/cmTC_bcbe9.dir/CMakeCXXCompilerABI.cpp.obj]
-        ignore line: [/usr/bin/arm-none-eabi-ranlib libcmTC_bcbe9.a]
-        ignore line: [gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-oOnGGa']
+        ignore line: [COLLECT_GCC_OPTIONS='-mcpu=cortex-m4' '-mfpu=fpv4-sp-d16' '-mfloat-abi=hard' '-mthumb' '-D' 'USE_HAL_DRIVER' '-D' 'STM32F411xE' '-Wall' '-Wextra' '-ffunction-sections' '-fdata-sections' '-fno-exceptions' '-fno-rtti' '-v' '-o' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mlibarch=armv7e-m+fp' '-march=armv7e-m+fp' '-dumpdir' 'CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX static library libcmTC_012ea.a]
+        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_012ea.dir/cmake_clean_target.cmake]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_012ea.dir/link.txt --verbose=1]
+        ignore line: [/usr/bin/arm-none-eabi-ar qc libcmTC_012ea.a CMakeFiles/cmTC_012ea.dir/CMakeCXXCompilerABI.cpp.obj]
+        ignore line: [/usr/bin/arm-none-eabi-ranlib libcmTC_012ea.a]
+        ignore line: [gmake[1]: Leaving directory '/var/projects/Periph/cpp/tests/display/uc1611s_test_stm32cube/build/CMakeFiles/CMakeScratch/TryCompile-OQR516']
         ignore line: []
         ignore line: []
         implicit libs: []

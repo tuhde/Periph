@@ -28,55 +28,111 @@ UC1611sMinimal::UC1611sMinimal(Connection& command, Connection& data, uint16_t w
                                bool topView, uint8_t contrast)
     : _cmd_conn(command), _data_conn(data), _valid(true), _width(width), _height(height),
       _pages(static_cast<uint8_t>(height / 8)), _mx(topView ? 0 : 1), _my(topView ? 1 : 0),
-      _pattern(0), _contrast(contrast), _rx{}, _fb{} {
+      _pattern(0), _contrast(contrast), _retries(0), _errors(0), _rx{}, _fb{} {
     if (width < 1 || width > WIDTH || height < 8 || height > HEIGHT || (height % 8) != 0) {
         _valid = false;
         return;
     }
     // Power-up wait, System Reset, configuration, RAM clear, display on.
     _sleep_ms(150);
-    _reset_chip();
-    _configure();
-    static const uint8_t ZEROS[I2C_CHUNK] = {0};
-    for (uint8_t page = 0; page < PAGES_RAM; page++) {
-        _set_address(page);
-        for (size_t left = _width; left > 0;) {
-            size_t n = left > I2C_CHUNK ? I2C_CHUNK : left;
-            _data_conn.write(ZEROS, n);
-            left -= n;
-        }
+    if (!_command1(CMD_RESET)) {        // own transaction, ended with STOP; no answer at all = no chip
+        _valid = false;
+        return;
     }
+    _sleep_ms(150);
+    _configure();
+    for (uint8_t page = 0; page < PAGES_RAM; page++) _write_page(page, nullptr, _width);
     _enable();
-    _sleep_ms(100);
+    _wait_display_enabled(200);
 }
 
 void UC1611sMinimal::_sleep_ms(uint32_t ms) {
     delay(ms);
 }
 
-void UC1611sMinimal::_command(const uint8_t* bytes, size_t len) {
-    _cmd_conn.write(bytes, len);
+bool UC1611sMinimal::_command(const uint8_t* bytes, size_t len) {
+    for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        _cmd_conn.write(bytes, len);
+        if (_cmd_conn.ok()) return true;
+        _retries++;
+        _sleep_ms(RETRY_DELAY_MS);
+    }
+    _errors++;
+    return false;
 }
 
-void UC1611sMinimal::_command1(uint8_t a) {
-    _command(&a, 1);
+bool UC1611sMinimal::_command1(uint8_t a) {
+    return _command(&a, 1);
 }
 
-void UC1611sMinimal::_command2(uint8_t a, uint8_t b) {
+bool UC1611sMinimal::_command2(uint8_t a, uint8_t b) {
     const uint8_t buf[2] = {a, b};
-    _command(buf, 2);
+    return _command(buf, 2);
 }
 
-void UC1611sMinimal::_write_data(const uint8_t* data, size_t len) {
+/** One pass over `len` data bytes in I2C_CHUNK pieces; `data == nullptr` writes zeros. Stops at the first failed chunk. */
+bool UC1611sMinimal::_write_chunks(const uint8_t* data, size_t len) {
+    static const uint8_t ZEROS[I2C_CHUNK] = {0};
     while (len > 0) {
         size_t n = len > I2C_CHUNK ? I2C_CHUNK : len;
-        _data_conn.write(data, n);
-        data += n;
+        _data_conn.write(data ? data : ZEROS, n);
+        if (!_data_conn.ok()) return false;
+        if (data) data += n;
         len -= n;
+    }
+    return true;
+}
+
+bool UC1611sMinimal::_write_data(const uint8_t* data, size_t len) {
+    if (_write_chunks(data, len)) return true;
+    _errors++;
+    return false;
+}
+
+/** Write one page: address command, then the data. A partial write cannot be continued, so a failure repeats both. */
+bool UC1611sMinimal::_write_page(uint8_t page, const uint8_t* data, size_t len) {
+    for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        if (_set_address(page) && _write_chunks(data, len)) return true;
+        _retries++;
+        _sleep_ms(RETRY_DELAY_MS);
+    }
+    _errors++;
+    return false;
+}
+
+/** The chip's status pointer advances by n + 1 per read transaction (the byte after the NACKed one is consumed too)
+ *  and any other transaction resets it to Status1, so a NOP write before every read makes the three bytes come
+ *  out as Status1, Status2, Status3. */
+bool UC1611sMinimal::_read_status(uint8_t status[3]) {
+    const uint8_t nop = CMD_NOP;
+    for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        _cmd_conn.write(&nop, 1);
+        if (_cmd_conn.ok()) {
+            _cmd_conn.read(status, 3);
+            if (_cmd_conn.ok()) return true;
+        }
+        _retries++;
+        _sleep_ms(RETRY_DELAY_MS);
+    }
+    status[0] = status[1] = status[2] = 0;
+    _errors++;
+    return false;
+}
+
+/** Poll Status1.DE (bit 3) until the pump is up and the display is enabled, or the timeout expires. */
+void UC1611sMinimal::_wait_display_enabled(uint32_t timeout_ms) {
+    uint8_t s[3];
+    for (uint32_t waited = 0; waited <= timeout_ms; waited += RETRY_DELAY_MS) {
+        uint32_t keep_retries = _retries, keep_errors = _errors;
+        bool got = _read_status(s);
+        if (got && (s[0] & 0x08)) return;
+        _retries = keep_retries;         // a NACK while the pump starts is expected, not an error
+        _errors = keep_errors;
+        _sleep_ms(RETRY_DELAY_MS);
     }
 }
 
-void UC1611sMinimal::_set_address(uint8_t page, uint8_t column) {
+bool UC1611sMinimal::_set_address(uint8_t page, uint8_t column) {
     uint8_t pa = static_cast<uint8_t>((_pattern << 5) | (page & 0x1F));
     const uint8_t buf[4] = {
         static_cast<uint8_t>(CMD_PAGE_LO | (pa & 0x0F)),
@@ -84,7 +140,7 @@ void UC1611sMinimal::_set_address(uint8_t page, uint8_t column) {
         static_cast<uint8_t>(column & 0x0F),
         static_cast<uint8_t>(0x10 | (column >> 4)),
     };
-    _command(buf, 4);
+    return _command(buf, 4);
 }
 
 uint8_t UC1611sMinimal::_mapping() const {
@@ -117,8 +173,7 @@ void UC1611sMinimal::_enable() {
 }
 
 void UC1611sMinimal::_show_page(uint8_t page) {
-    _set_address(page);
-    _write_data(&_fb[static_cast<size_t>(page) * _width], _width);
+    _write_page(page, &_fb[static_cast<size_t>(page) * _width], _width);
 }
 
 void UC1611sMinimal::clear() {
@@ -209,7 +264,7 @@ void UC1611sFull::sleep() {
 
 void UC1611sFull::wake() {
     set_display(true);
-    _sleep_ms(10);          // the chip NACKs and DE stays 0 for about 6 ms while the pump restarts
+    _wait_display_enabled(50);      // the chip NACKs and DE stays 0 for about 6 ms while the pump restarts
 }
 
 void UC1611sFull::set_invert(bool on) {
@@ -291,28 +346,39 @@ void UC1611sFull::set_write_pattern(uint8_t pattern) {
     _pattern = pattern & 3;
 }
 
-void UC1611sFull::read_status(uint8_t status[3]) {
-    _cmd_conn.read(status, 3);
+bool UC1611sFull::read_status(uint8_t status[3]) {
+    return _read_status(status);
 }
 
-void UC1611sFull::read_ram(uint8_t page, uint8_t column, uint8_t* buf, uint8_t n) {
+bool UC1611sFull::read_ram(uint8_t page, uint8_t column, uint8_t* buf, uint8_t n) {
     if (n > I2C_CHUNK) n = static_cast<uint8_t>(I2C_CHUNK);
-    _set_address(page, column);
-    _data_conn.read(_rx, static_cast<size_t>(n) + 1);
-    for (uint8_t i = 0; i < n; i++) buf[i] = _rx[i + 1];
+    for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+        if (_set_address(page, column)) {
+            _data_conn.read(_rx, static_cast<size_t>(n) + 1);
+            if (_data_conn.ok()) {
+                for (uint8_t i = 0; i < n; i++) buf[i] = _rx[i + 1];
+                return true;
+            }
+        }
+        _retries++;
+        _sleep_ms(RETRY_DELAY_MS);
+    }
+    for (uint8_t i = 0; i < n; i++) buf[i] = 0;
+    _errors++;
+    return false;
 }
 
 void UC1611sFull::reset() {
     _reset_chip();
     _configure();
     _enable();
-    _sleep_ms(10);          // DE (and the chip's ACK) return after about 6 ms
+    _wait_display_enabled(50);
 }
 
-void UC1611sFull::send_command(const uint8_t* bytes, size_t len) {
-    _command(bytes, len);
+bool UC1611sFull::send_command(const uint8_t* bytes, size_t len) {
+    return _command(bytes, len);
 }
 
-void UC1611sFull::send_data(const uint8_t* bytes, size_t len) {
-    _write_data(bytes, len);
+bool UC1611sFull::send_data(const uint8_t* bytes, size_t len) {
+    return _write_data(bytes, len);
 }

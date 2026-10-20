@@ -22,16 +22,17 @@ static size_t mark(const I2CConnectionMock& c) { return c.writes().size(); }
 int main() {
     // ---- Minimal: initialization ----------------------------------------------------
     I2CConnectionMock cmd, dat;
+    cmd.queueRead({0xDA, 0x80, 0x10});   // Status1.DE set: init does not wait for the pump
     UC1611sMinimal lcd(cmd, dat);
     check_true(lcd.valid() && lcd.width() == 240 && lcd.height() == 128, "geometry_240x128");
-    // 1 System Reset + 1 configuration stream + 20 page addresses + 1 display enable
-    check_true(cmd.writes().size() == 23, "init_command_transactions");
+    // 1 System Reset + 1 configuration stream + 20 page addresses + 1 display enable + 1 NOP before the status poll
+    check_true(cmd.writes().size() == 24, "init_command_transactions");
     check_true(eq(cmd.writes()[0], {0xE2}), "init_system_reset_own_transaction");
     check_true(eq(cmd.writes()[1], {0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F,
                                      0x81, 0x8F, 0x89, 0xD1}), "init_configuration_stream");
     check_true(eq(cmd.writes()[2], {0x60, 0x70, 0x00, 0x10}), "init_clear_page0_address");
     check_true(eq(cmd.writes()[21], {0x63, 0x71, 0x00, 0x10}), "init_clear_page19_address");
-    check_true(eq(cmd.writes()[22], {0xA9}), "init_display_enable_last");
+    check_true(eq(cmd.writes()[22], {0xA9}) && eq(cmd.writes()[23], {0xE3}), "init_display_enable_then_status_poll");
     check_true(dat.writes().size() == 160, "init_clear_data_chunks_20_pages_x_8");
     bool chunks_ok = true, zeros_ok = true;
     for (size_t i = 0; i < dat.writes().size(); i++) {
@@ -73,6 +74,7 @@ int main() {
 
     // ---- Full ------------------------------------------------------------------------
     I2CConnectionMock fc, fd;
+    fc.queueRead({0xDA, 0x80, 0x10});
     UC1611sFull full(fc, fd);
     check_true(full.valid(), "full_valid");
 
@@ -80,8 +82,9 @@ int main() {
     check_true(eq(fc.writes().back(), {0x81, 0x55}), "set_contrast");
     full.set_display(false);
     check_true(eq(fc.writes().back(), {0xA8}), "display_off_sleep");
+    fc.queueRead({0xDA, 0x80, 0x10});
     full.wake();
-    check_true(eq(fc.writes().back(), {0xA9}), "wake_display_on");
+    check_true(eq(fc.writes()[fc.writes().size() - 2], {0xA9}), "wake_display_on");
     full.sleep();
     check_true(eq(fc.writes().back(), {0xA8}), "sleep");
     full.set_invert(true);
@@ -154,8 +157,9 @@ int main() {
 
     // reset: System Reset in its own transaction, configuration, enable
     k = mark(fc);
+    fc.queueRead({0xDA, 0x80, 0x10});
     full.reset();
-    check_true(fc.writes().size() - k == 3 && eq(fc.writes()[k], {0xE2}) && eq(fc.writes()[k + 2], {0xA9}), "reset_sequence");
+    check_true(fc.writes().size() - k == 4 && eq(fc.writes()[k], {0xE2}) && eq(fc.writes()[k + 2], {0xA9}), "reset_sequence");
     check_true(eq(fc.writes()[k + 1], {0x25, 0xC0, 0x04, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F,
                                         0x81, 0x55, 0x89, 0xD1}), "reset_keeps_contrast_and_mapping");
 
@@ -185,6 +189,7 @@ int main() {
 
     // reads
     I2CConnectionMock rc, rd;
+    rc.queueRead({0xDA, 0x80, 0x10});
     UC1611sFull rd_chip(rc, rd);
     rc.queueRead({0x80 | 0x40, 0x20 | 0x05, 0x10});
     uint8_t status[3] = {0, 0, 0};
@@ -199,15 +204,89 @@ int main() {
 
     // top view and contrast options
     I2CConnectionMock tc, td;
+    tc.queueRead({0xDA, 0x80, 0x10});
     UC1611sFull top(tc, td, 240, 128, true, 0x60);
     check_true(eq(tc.writes()[1], {0x25, 0xC0, 0x04, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F,
                                     0x81, 0x60, 0x89, 0xD1}), "top_view_and_contrast_option");
 
     // smaller panel
     I2CConnectionMock sc, sd;
+    sc.queueRead({0xDA, 0x80, 0x10});
     UC1611sMinimal small(sc, sd, 100, 64);
     check_true(small.valid() && eq(sc.writes()[1], {0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x3F, 0xF2, 0x00, 0xF3, 0x3F,
                                                     0x81, 0x8F, 0x89, 0xD1}), "custom_height_com_end");
+
+    // ---- error handling: NACK detection and retry ------------------------------------
+    I2CConnectionMock ec, ed;
+    ec.queueRead({0xDA, 0x80, 0x10});
+    UC1611sFull err(ec, ed);
+    check_true(err.ok() && err.retry_count() == 0 && err.error_count() == 0, "clean_start_no_errors");
+    size_t e0 = mark(ec);
+    ec.failNextWrites(2);
+    err.set_contrast(0x66);
+    check_true(ec.writes().size() - e0 == 3 && eq(ec.writes().back(), {0x81, 0x66}) && eq(ec.writes()[e0], {0x81, 0x66}),
+               "command_retried_until_acknowledged");
+    check_true(err.retry_count() == 2 && err.ok(), "retries_counted_and_ok_after_recovery");
+    ec.failNextWrites(100);
+    e0 = mark(ec);
+    err.set_invert(true);
+    check_true(ec.writes().size() - e0 == UC1611sMinimal::MAX_ATTEMPTS, "command_gives_up_after_max_attempts");
+    check_true(!err.ok() && err.error_count() == 1 && err.retry_count() == 2 + UC1611sMinimal::MAX_ATTEMPTS, "unrecovered_error_counted");
+    ec.failNextWrites(0);
+    err.clear_errors();
+    check_true(err.ok() && err.retry_count() == 0, "clear_errors");
+
+    // a failed data chunk repeats the page: address command again, then all chunks
+    e0 = mark(ec);
+    size_t ed0 = mark(ed);
+    ed.failNextWrites(1);
+    err.show_page(1);
+    check_true(ec.writes().size() - e0 == 2 && eq(ec.writes()[e0], {0x61, 0x70, 0x00, 0x10}) && eq(ec.writes()[e0 + 1], {0x61, 0x70, 0x00, 0x10}),
+               "page_retry_resends_address");
+    check_true(ed.writes().size() - ed0 == 1 + 8 && err.retry_count() == 1 && err.ok(), "page_retry_rewrites_all_chunks");
+
+    // failure in the middle of a page (third chunk) also restarts from the address
+    e0 = mark(ec);
+    ed0 = mark(ed);
+    ed.failNextWrites(1, 2);
+    err.show_page(2);
+    check_true(ec.writes().size() - e0 == 2 && ed.writes().size() - ed0 == 3 + 8, "page_retry_after_partial_write");
+
+    // dead chip: System Reset is not acknowledged, init stops, no RAM data is sent
+    I2CConnectionMock dc, dd;
+    dc.failNextWrites(1000);
+    UC1611sMinimal dead(dc, dd);
+    check_true(!dead.valid() && dc.writes().size() == UC1611sMinimal::MAX_ATTEMPTS && dd.writes().empty() && !dead.ok(),
+               "dead_chip_invalid_after_reset_fails");
+
+    // reads are retried too; failed reads do not consume queued data
+    I2CConnectionMock qc, qd;
+    qc.queueRead({0xDA, 0x80, 0x10});
+    UC1611sFull rq(qc, qd);
+    qc.failNextReads(2);
+    qc.queueRead({0xDA, 0x80, 0x10});
+    uint8_t st[3] = {1, 1, 1};
+    bool got = rq.read_status(st);
+    check_true(got && st[0] == 0xDA && st[1] == 0x80 && st[2] == 0x10 && rq.retry_count() >= 2, "read_status_retried");
+    check_true(eq(qc.writes().back(), {0xE3}), "read_status_sends_nop_first_to_restart_status_cycle");
+    qc.failNextReads(100);
+    got = rq.read_status(st);
+    check_true(!got && st[0] == 0 && st[2] == 0 && !rq.ok(), "read_status_fails_after_max_attempts");
+    rq.clear_errors();
+    qc.failNextReads(0);
+    qd.failNextReads(1);
+    qd.queueRead({0xEE, 0x0A, 0x0B});
+    size_t q0 = mark(qc);
+    uint8_t ram2[2] = {0, 0};
+    got = rq.read_ram(1, 4, ram2, 2);
+    check_true(got && ram2[0] == 0x0A && ram2[1] == 0x0B && qc.writes().size() - q0 == 2, "read_ram_retry_resets_address");
+
+    // sleep / wake: wake polls Status1.DE and returns as soon as it is set
+    rq.clear_errors();
+    qc.queueRead({0xD2, 0x80, 0x10});
+    qc.queueRead({0xDA, 0x80, 0x10});
+    rq.wake();
+    check_true(rq.ok() && eq(qc.writes()[qc.writes().size() - 3], {0xA9}) && eq(qc.writes().back(), {0xE3}), "wake_polls_display_enable");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed ? 1 : 0;

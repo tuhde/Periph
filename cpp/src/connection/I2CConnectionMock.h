@@ -47,6 +47,12 @@ public:
         _readQueue.emplace_back(data.begin(), data.end());
     }
 
+    /** @brief Make @p n write() / write_read() calls fail (NACK) after letting the next @p after succeed:
+     *  the failing calls are logged, then ok() is false. */
+    void failNextWrites(size_t n, size_t after = 0) { _failWrites = n; _failSkip = after; }
+    /** @brief Make the next @p n read() calls fail: zero bytes are returned (the read queue is not consumed) and ok() is false. */
+    void failNextReads(size_t n) { _failReads = n; }
+
     /** @brief Log of every write()/write_read() write phase, in call order. */
     const std::vector<std::vector<uint8_t>>& writes() const { return _writes; }
 
@@ -56,6 +62,8 @@ public:
 protected:
     void _write(const uint8_t* data, size_t len) override {
         _writes.emplace_back(data, data + len);
+        if (_failSkip > 0) _failSkip--;
+        else if (_failWrites > 0) { _failWrites--; _setOk(false); return; }
         if (len > _addressWidth) {
             uint16_t reg = readAddress(data);
             for (size_t i = _addressWidth; i < len; i++) {
@@ -65,6 +73,12 @@ protected:
     }
 
     void _read(uint8_t* buf, size_t len) override {
+        if (_failReads > 0) {
+            _failReads--;
+            _setOk(false);
+            for (size_t i = 0; i < len; i++) buf[i] = 0;
+            return;
+        }
         if (!_readQueue.empty()) {
             const auto& front = _readQueue.front();
             for (size_t i = 0; i < len; i++) {
@@ -79,6 +93,14 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                       uint8_t* buf, size_t buf_len) override {
         _writes.emplace_back(data, data + data_len);
+        if (_failSkip > 0) {
+            _failSkip--;
+        } else if (_failWrites > 0) {
+            _failWrites--;
+            _setOk(false);
+            for (size_t i = 0; i < buf_len; i++) buf[i] = 0;
+            return;
+        }
         uint16_t reg = readAddress(data);
         for (size_t i = 0; i < buf_len; i++) {
             auto it = _registers.find(static_cast<uint16_t>(reg + i));
@@ -99,4 +121,7 @@ private:
     std::vector<std::vector<uint8_t>>   _writes;
     std::deque<std::vector<uint8_t>>    _readQueue;
     uint8_t                             _addressWidth = 1;
+    size_t                              _failWrites = 0;
+    size_t                              _failSkip = 0;
+    size_t                              _failReads = 0;
 };

@@ -17,7 +17,15 @@
  *  example: System Reset, temperature compensation -0.10 %/degC, COM end 127,
  *  potentiometer (contrast) 0x8F, 1 bit per pixel, RAM cleared, display on.
  *
- *  No heap allocation, no exceptions; invalid arguments are reported through valid().
+ *  No heap allocation, no exceptions; invalid arguments, or a chip that does not answer at all,
+ *  are reported through valid().
+ *
+ *  Error handling: the chip occasionally NACKs a transfer (seen on long cables and while the pump
+ *  restarts). Every transfer is checked through Connection::ok() and retried up to MAX_ATTEMPTS
+ *  times, RETRY_DELAY_MS apart; a command stream is simply repeated and a RAM page is rewritten
+ *  from its address command (a partial write cannot be continued). Retries and failures that
+ *  survive all attempts are counted (retry_count(), error_count(), ok()). Connections that cannot
+ *  detect failures (ok() always true) behave as before.
  *
  *  @param command Connection at the command address (0x38, 0x3A, 0x3C or 0x3E).
  *  @param data    Connection at the data address (command address + 1).
@@ -51,6 +59,7 @@ public:
     static constexpr uint8_t CMD_NLINE         = 0xC8;
     static constexpr uint8_t CMD_PATTERN       = 0xD0;   // | DC[7:5]
     static constexpr uint8_t CMD_RESET         = 0xE2;
+    static constexpr uint8_t CMD_NOP           = 0xE3;
     static constexpr uint8_t CMD_BIAS          = 0xE8;   // | BR[1:0]
     static constexpr uint8_t CMD_COM_END       = 0xF1;
     static constexpr uint8_t CMD_PART_START    = 0xF2;
@@ -60,8 +69,22 @@ public:
     UC1611sMinimal(Connection& command, Connection& data, uint16_t width = WIDTH, uint16_t height = HEIGHT)
         : UC1611sMinimal(command, data, width, height, false, 0x8F) {}
 
-    /** @brief True when the arguments were valid and the chip was initialised. */
+    /** @brief Attempts per transfer before it is counted as failed. */
+    static constexpr uint8_t  MAX_ATTEMPTS   = 8;
+    /** @brief Wait between two attempts in milliseconds. */
+    static constexpr uint32_t RETRY_DELAY_MS = 2;
+
+    /** @brief True when the arguments were valid and the chip answered during initialisation. */
     bool valid() const { return _valid; }
+
+    /** @brief True if no transfer has failed after all retries since construction or clear_errors(). */
+    bool ok() const { return _errors == 0; }
+    /** @brief Number of transfer attempts that had to be repeated (each retry counts once). */
+    uint32_t retry_count() const { return _retries; }
+    /** @brief Number of transfers that still failed after MAX_ATTEMPTS attempts. */
+    uint32_t error_count() const { return _errors; }
+    /** @brief Reset the retry and error counters. */
+    void clear_errors() { _retries = 0; _errors = 0; }
 
     /** @brief Columns of the framebuffer. */
     uint16_t width() const { return _width; }
@@ -87,11 +110,15 @@ protected:
                    bool topView, uint8_t contrast);
 
     static void _sleep_ms(uint32_t ms);
-    void _command(const uint8_t* bytes, size_t len);
-    void _command1(uint8_t a);
-    void _command2(uint8_t a, uint8_t b);
-    void _write_data(const uint8_t* data, size_t len);
-    void _set_address(uint8_t page, uint8_t column = 0);
+    bool _command(const uint8_t* bytes, size_t len);
+    bool _command1(uint8_t a);
+    bool _command2(uint8_t a, uint8_t b);
+    bool _write_chunks(const uint8_t* data, size_t len);
+    bool _write_data(const uint8_t* data, size_t len);
+    bool _write_page(uint8_t page, const uint8_t* data, size_t len);
+    bool _read_status(uint8_t status[3]);
+    void _wait_display_enabled(uint32_t timeout_ms);
+    bool _set_address(uint8_t page, uint8_t column = 0);
     uint8_t _mapping() const;
     void _reset_chip();
     void _configure();
@@ -111,6 +138,8 @@ protected:
     uint8_t  _my;
     uint8_t  _pattern;
     uint8_t  _contrast;
+    uint32_t _retries;
+    uint32_t _errors;
     uint8_t  _rx[I2C_CHUNK + 1];
     uint8_t  _fb[FB_SIZE];
 };
@@ -229,21 +258,28 @@ public:
     /** @brief Select the RAM screen (0..3) that show() / show_page() write to (PA[6:5]). */
     void set_write_pattern(uint8_t pattern);
 
-    /** @brief Read the three status bytes from the command address.
+    /** @brief Read the three status bytes from the command address (a NOP is sent first to restart the chip's
+     *  status cycle; retried like every transfer).
      *  @param status Output: Status1 (Ver, MX, MY, WA, DE, WS, MD, MS), Status2 (ID[1:0], PMO[5:0]),
      *                Status3 (product code 1 in bits 7..4, ESD flag in bit 0).
+     *  @return True if the read succeeded; on false @p status is zero.
      */
-    void read_status(uint8_t status[3]);
+    bool read_status(uint8_t status[3]);
 
-    /** @brief Read @p n bytes (at most I2C_CHUNK = 32, larger values are clipped) of display RAM; the dummy byte after the address change is discarded. */
-    void read_ram(uint8_t page, uint8_t column, uint8_t* buf, uint8_t n);
+    /** @brief Read @p n bytes (at most I2C_CHUNK = 32, larger values are clipped) of display RAM; the dummy byte after the address change is discarded.
+     *  @return True if the read succeeded (address set and data read, retried together).
+     */
+    bool read_ram(uint8_t page, uint8_t column, uint8_t* buf, uint8_t n);
 
     /** @brief System Reset, then reconfigure with the cached contrast and mapping (RAM is kept). */
     void reset();
 
-    /** @brief Send raw bytes as one command transaction. */
-    void send_command(const uint8_t* bytes, size_t len);
+    /** @brief Send raw bytes as one command transaction (retried on NACK). @return True on success. */
+    bool send_command(const uint8_t* bytes, size_t len);
 
-    /** @brief Send raw bytes to the display RAM (chunked) at the current RAM address. */
-    void send_data(const uint8_t* bytes, size_t len);
+    /** @brief Send raw bytes to the display RAM (chunked) at the current RAM address.
+     *  A failed chunk is not retried (the partial write cannot be continued); the failure is counted.
+     *  @return True if every chunk was acknowledged.
+     */
+    bool send_data(const uint8_t* bytes, size_t len);
 };

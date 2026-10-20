@@ -114,7 +114,8 @@ int main(void) {
     I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);
     static UC1611sFull chip(cmdConn, dataConn);
     uc1611sChecks(chip, report);
-    report("i2c_no_hal_errors", cmdConn.error_count() == 0 && dataConn.error_count() == 0);
+    printf("INFO driver retries %lu, unrecovered %lu; HAL errors cmd/data %lu/%lu\r\n", (unsigned long)chip.retry_count(),
+           (unsigned long)chip.error_count(), (unsigned long)cmdConn.error_count(), (unsigned long)dataConn.error_count());
 
     printf("===DONE: %d passed, %d failed===\r\n", passed, failed);
     while (true) HAL_Delay(1000);

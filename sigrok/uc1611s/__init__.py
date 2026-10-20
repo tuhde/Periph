@@ -11,7 +11,7 @@ page address nibbles combined, potentiometer, mapping MX/MY, display enable, dis
 window registers, System Reset ...); double- and triple-byte commands consume their argument
 bytes. Writes to the data address are shown per transaction with the tracked page, column and
 RAM pattern and the bytes written (each byte is 8 vertical pixels, bit 0 on top). Reads are
-shown as the three status bytes (Ver, MX, MY, WA, DE, ID, PMO, product code, ESD) or as RAM
+shown as the status bytes (Ver, MX, MY, WA, DE, ID, PMO, product code, ESD; the labels follow the chip's status cycle, which advances by n + 1 per read and restarts after any other transaction) or as RAM
 data with the first byte marked as the dummy read.
 
 Options: `width` (columns, default 240) for the column wrap of the tracked RAM address.

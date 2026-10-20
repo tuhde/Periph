@@ -199,11 +199,11 @@ static void run(UC1611sFull& lcd) {
     
     // Read back over I2C.
     uint8_t status[3];
-    lcd.read_status(status);                        // Read status bytes, (status[3])
-                                                    // Status1 = Ver MX MY WA DE WS MD MS, Status3 high nibble = product code 1
+    lcd.read_status(status);                        // Read status bytes, (status[3]) → bool
+                                                    // retried on NACK; Status1 = Ver MX MY WA DE WS MD MS, Status3 high nibble = product code 1
     PRINT("status %02X %02X %02X\r\n", status[0], status[1], status[2]);
     uint8_t ram[8];
-    lcd.read_ram(0, 0, ram, 8);                     // Read display RAM, (page, column, buf, n <= 32)
+    lcd.read_ram(0, 0, ram, 8);                     // Read display RAM, (page, column, buf, n <= 32) → bool
                                                     // the dummy byte after the address change is discarded
     PRINT("ram %02X %02X %02X %02X\r\n", ram[0], ram[1], ram[2], ram[3]);
     

@@ -227,6 +227,8 @@ Discarded input sections
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000       0x14 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
@@ -236,6 +238,9 @@ Discarded input sections
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .group         0x00000000        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
@@ -261,25 +266,30 @@ Discarded input sections
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+ .group         0x00000000        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text          0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .data          0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .bss           0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN10Connection5writeEPKhj
-                0x00000000       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x00000000       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+ .text._ZNK10Connection2okEv
+                0x00000000       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .rodata._ZN14UC1611sMinimal5WIDTHE
                 0x00000000        0x2 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .rodata._ZN14UC1611sMinimal6HEIGHTE
                 0x00000000        0x2 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .rodata._ZN14UC1611sMinimal9I2C_CHUNKE
                 0x00000000        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+ .text._ZN14UC1611sMinimal11_write_dataEPKhj
+                0x00000000       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN14UC1611sMinimal5clearEv
                 0x00000000       0x36 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN11UC1611sFull4blitEssPKhjh
                 0x00000000       0xf0 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN11UC1611sFull12send_commandEPKhj
-                0x00000000       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x00000000       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN11UC1611sFull9send_dataEPKhj
-                0x00000000       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x00000000       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text          0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
  .data          0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
  .bss           0x00000000        0x0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
@@ -1478,7 +1488,7 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x08000000                g_pfnVectors
                 0x08000198                        . = ALIGN (0x4)
 
-.text           0x080001c0     0xd318
+.text           0x080001c0     0xd65c
                 0x080001c0                        . = ALIGN (0x4)
  *(.text)
  .text          0x080001c0       0x88 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
@@ -1763,967 +1773,990 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x080080fc                _exit
  *(.text*)
  .text._ZN10ConnectionC2EP8InputPinP9OutputPinb
-                0x08008100       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008100       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
                 0x08008100                Connection::Connection(InputPin*, OutputPin*, bool)
                 0x08008100                Connection::Connection(InputPin*, OutputPin*, bool)
  .text._ZN10Connection5writeEPKhj
-                0x08008140       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008140                Connection::write(unsigned char const*, unsigned int)
+                0x08008144       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008144                Connection::write(unsigned char const*, unsigned int)
  .text._ZN10Connection10write_readEPKhjPhj
-                0x08008174       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008174                Connection::write_read(unsigned char const*, unsigned int, unsigned char*, unsigned int)
+                0x0800817e       0x4a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800817e                Connection::write_read(unsigned char const*, unsigned int, unsigned char*, unsigned int)
+ .text._ZNK10Connection2okEv
+                0x080081c8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080081c8                Connection::ok() const
  .text._ZNK10Connection9availableEv
-                0x080081b8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080081b8                Connection::available() const
+                0x080081e0       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080081e0                Connection::available() const
+ .text._ZN10Connection6_setOkEb
+                0x080081f8       0x1e CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080081f8                Connection::_setOk(bool)
+ *fill*         0x08008216        0x2 
  .text._ZN10ConnectionD2Ev
-                0x080081d0       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080081d0                Connection::~Connection()
-                0x080081d0                Connection::~Connection()
+                0x08008218       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008218                Connection::~Connection()
+                0x08008218                Connection::~Connection()
  .text._ZN10ConnectionD0Ev
-                0x080081f0       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080081f0                Connection::~Connection()
+                0x08008238       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008238                Connection::~Connection()
  .text._ZN18RegisterConnectionC2EP8InputPinP9OutputPinhb
-                0x08008210       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008210                RegisterConnection::RegisterConnection(InputPin*, OutputPin*, unsigned char, bool)
-                0x08008210                RegisterConnection::RegisterConnection(InputPin*, OutputPin*, unsigned char, bool)
+                0x08008258       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008258                RegisterConnection::RegisterConnection(InputPin*, OutputPin*, unsigned char, bool)
+                0x08008258                RegisterConnection::RegisterConnection(InputPin*, OutputPin*, unsigned char, bool)
  .text._ZN18RegisterConnection4readEmPhj
-                0x08008244       0x5e CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008244                RegisterConnection::read(unsigned long, unsigned char*, unsigned int)
+                0x0800828c       0x5e CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800828c                RegisterConnection::read(unsigned long, unsigned char*, unsigned int)
  .text._ZN18RegisterConnection5writeEmPKhj
-                0x080082a2       0x80 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080082a2                RegisterConnection::write(unsigned long, unsigned char const*, unsigned int)
- *fill*         0x08008322        0x2 
+                0x080082ea       0x80 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080082ea                RegisterConnection::write(unsigned long, unsigned char const*, unsigned int)
+ *fill*         0x0800836a        0x2 
  .text._ZN18RegisterConnectionD2Ev
-                0x08008324       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008324                RegisterConnection::~RegisterConnection()
-                0x08008324                RegisterConnection::~RegisterConnection()
+                0x0800836c       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800836c                RegisterConnection::~RegisterConnection()
+                0x0800836c                RegisterConnection::~RegisterConnection()
  .text._ZN18RegisterConnectionD0Ev
-                0x08008348       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008348                RegisterConnection::~RegisterConnection()
+                0x08008390       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008390                RegisterConnection::~RegisterConnection()
  .text._ZN22I2CConnectionSTM32CubeC2EP17I2C_HandleTypeDefhP8InputPinP9OutputPinhb
-                0x08008368       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008368                I2CConnectionSTM32Cube::I2CConnectionSTM32Cube(I2C_HandleTypeDef*, unsigned char, InputPin*, OutputPin*, unsigned char, bool)
-                0x08008368                I2CConnectionSTM32Cube::I2CConnectionSTM32Cube(I2C_HandleTypeDef*, unsigned char, InputPin*, OutputPin*, unsigned char, bool)
+                0x080083b0       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080083b0                I2CConnectionSTM32Cube::I2CConnectionSTM32Cube(I2C_HandleTypeDef*, unsigned char, InputPin*, OutputPin*, unsigned char, bool)
+                0x080083b0                I2CConnectionSTM32Cube::I2CConnectionSTM32Cube(I2C_HandleTypeDef*, unsigned char, InputPin*, OutputPin*, unsigned char, bool)
  .text._ZNK22I2CConnectionSTM32Cube11error_countEv
-                0x080083b8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080083b8                I2CConnectionSTM32Cube::error_count() const
+                0x08008400       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008400                I2CConnectionSTM32Cube::error_count() const
  .text._ZN22I2CConnectionSTM32Cube6_writeEPKhj
-                0x080083d0       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080083d0                I2CConnectionSTM32Cube::_write(unsigned char const*, unsigned int)
+                0x08008418       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008418                I2CConnectionSTM32Cube::_write(unsigned char const*, unsigned int)
  .text._ZN22I2CConnectionSTM32Cube5_readEPhj
-                0x0800840a       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800840a                I2CConnectionSTM32Cube::_read(unsigned char*, unsigned int)
+                0x08008452       0x3a CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008452                I2CConnectionSTM32Cube::_read(unsigned char*, unsigned int)
  .text._ZN22I2CConnectionSTM32Cube11_write_readEPKhjPhj
-                0x08008444       0x36 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008444                I2CConnectionSTM32Cube::_write_read(unsigned char const*, unsigned int, unsigned char*, unsigned int)
+                0x0800848c       0x66 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800848c                I2CConnectionSTM32Cube::_write_read(unsigned char const*, unsigned int, unsigned char*, unsigned int)
  .text._ZN22I2CConnectionSTM32Cube7_recordE17HAL_StatusTypeDef
-                0x0800847a       0x2e CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800847a                I2CConnectionSTM32Cube::_record(HAL_StatusTypeDef)
+                0x080084f2       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080084f2                I2CConnectionSTM32Cube::_record(HAL_StatusTypeDef)
  .text._ZNK14UC1611sMinimal5validEv
-                0x080084a8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080084a8                UC1611sMinimal::valid() const
+                0x08008532       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008532                UC1611sMinimal::valid() const
+ .text._ZNK14UC1611sMinimal2okEv
+                0x0800854a       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800854a                UC1611sMinimal::ok() const
+ .text._ZNK14UC1611sMinimal11retry_countEv
+                0x0800856c       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800856c                UC1611sMinimal::retry_count() const
+ .text._ZNK14UC1611sMinimal11error_countEv
+                0x08008584       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008584                UC1611sMinimal::error_count() const
  .text._ZNK14UC1611sMinimal5widthEv
-                0x080084c0       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080084c0                UC1611sMinimal::width() const
+                0x0800859c       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800859c                UC1611sMinimal::width() const
  .text._ZNK14UC1611sMinimal6heightEv
-                0x080084d8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080084d8                UC1611sMinimal::height() const
+                0x080085b4       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080085b4                UC1611sMinimal::height() const
  .text._ZN11UC1611sFullC2ER10ConnectionS1_ttbh
-                0x080084f0       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080084f0                UC1611sFull::UC1611sFull(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
-                0x080084f0                UC1611sFull::UC1611sFull(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
+                0x080085cc       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080085cc                UC1611sFull::UC1611sFull(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
+                0x080085cc                UC1611sFull::UC1611sFull(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
  .text.SysTick_Handler
-                0x08008524        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008524                SysTick_Handler
- .text._write   0x08008530       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x08008530                _write
+                0x08008600        0xc CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008600                SysTick_Handler
+ .text._write   0x0800860c       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800860c                _write
  .text._ZL16gpio_clocks_initv
-                0x0800855c       0x6c CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008638       0x6c CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .text._ZL10uart2_initv
-                0x080085c8       0xa0 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080086a4       0xa0 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .text._ZL9i2c1_initv
-                0x08008668       0xac CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008744       0xac CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .text._ZL16module_pins_initv
-                0x08008714       0x94 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080087f0       0x94 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .text._ZL6reportPKcb
-                0x080087a8       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008884       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .text._ZN22I2CConnectionSTM32CubeD2Ev
-                0x080087f8       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x080087f8                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
-                0x080087f8                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
+                0x080088d4       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080088d4                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
+                0x080088d4                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
  .text._ZN22I2CConnectionSTM32CubeD0Ev
-                0x0800881c       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800881c                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
- .text.main     0x0800883c      0x110 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800883c                main
+                0x080088f8       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x080088f8                I2CConnectionSTM32Cube::~I2CConnectionSTM32Cube()
+ .text.main     0x08008918      0x118 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008918                main
  .text._Z13uc1611sChecksI11UC1611sFullPFvPKcbEEvRT_T0_
-                0x0800894c      0x49c CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800894c                void uc1611sChecks<UC1611sFull, void (*)(char const*, bool)>(UC1611sFull&, void (*)(char const*, bool))
+                0x08008a30      0x4b4 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x08008a30                void uc1611sChecks<UC1611sFull, void (*)(char const*, bool)>(UC1611sFull&, void (*)(char const*, bool))
  .text.Reset_Handler
-                0x08008de8       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/startup_stm32f411xe.s.obj
-                0x08008de8                Reset_Handler
+                0x08008ee4       0x50 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/startup_stm32f411xe.s.obj
+                0x08008ee4                Reset_Handler
  .text.Default_Handler
-                0x08008e38        0x2 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/startup_stm32f411xe.s.obj
-                0x08008e38                RTC_Alarm_IRQHandler
-                0x08008e38                EXTI2_IRQHandler
-                0x08008e38                DebugMon_Handler
-                0x08008e38                SPI4_IRQHandler
-                0x08008e38                TIM1_CC_IRQHandler
-                0x08008e38                DMA2_Stream5_IRQHandler
-                0x08008e38                HardFault_Handler
-                0x08008e38                DMA1_Stream5_IRQHandler
-                0x08008e38                PVD_IRQHandler
-                0x08008e38                SDIO_IRQHandler
-                0x08008e38                TAMP_STAMP_IRQHandler
-                0x08008e38                PendSV_Handler
-                0x08008e38                NMI_Handler
-                0x08008e38                EXTI3_IRQHandler
-                0x08008e38                TIM1_UP_TIM10_IRQHandler
-                0x08008e38                I2C3_ER_IRQHandler
-                0x08008e38                EXTI0_IRQHandler
-                0x08008e38                I2C2_EV_IRQHandler
-                0x08008e38                DMA1_Stream2_IRQHandler
-                0x08008e38                FPU_IRQHandler
-                0x08008e38                UsageFault_Handler
-                0x08008e38                DMA2_Stream2_IRQHandler
-                0x08008e38                SPI1_IRQHandler
-                0x08008e38                TIM1_BRK_TIM9_IRQHandler
-                0x08008e38                DMA2_Stream3_IRQHandler
-                0x08008e38                USART6_IRQHandler
-                0x08008e38                DMA2_Stream0_IRQHandler
-                0x08008e38                TIM4_IRQHandler
-                0x08008e38                I2C1_EV_IRQHandler
-                0x08008e38                DMA1_Stream6_IRQHandler
-                0x08008e38                DMA1_Stream1_IRQHandler
-                0x08008e38                TIM3_IRQHandler
-                0x08008e38                RCC_IRQHandler
-                0x08008e38                Default_Handler
-                0x08008e38                EXTI15_10_IRQHandler
-                0x08008e38                ADC_IRQHandler
-                0x08008e38                DMA1_Stream7_IRQHandler
-                0x08008e38                SPI5_IRQHandler
-                0x08008e38                TIM5_IRQHandler
-                0x08008e38                DMA2_Stream7_IRQHandler
-                0x08008e38                I2C3_EV_IRQHandler
-                0x08008e38                EXTI9_5_IRQHandler
-                0x08008e38                RTC_WKUP_IRQHandler
-                0x08008e38                SPI2_IRQHandler
-                0x08008e38                MemManage_Handler
-                0x08008e38                DMA1_Stream0_IRQHandler
-                0x08008e38                SVC_Handler
-                0x08008e38                EXTI4_IRQHandler
-                0x08008e38                WWDG_IRQHandler
-                0x08008e38                TIM2_IRQHandler
-                0x08008e38                OTG_FS_WKUP_IRQHandler
-                0x08008e38                TIM1_TRG_COM_TIM11_IRQHandler
-                0x08008e38                EXTI1_IRQHandler
-                0x08008e38                USART2_IRQHandler
-                0x08008e38                I2C2_ER_IRQHandler
-                0x08008e38                DMA2_Stream1_IRQHandler
-                0x08008e38                FLASH_IRQHandler
-                0x08008e38                DMA2_Stream4_IRQHandler
-                0x08008e38                BusFault_Handler
-                0x08008e38                USART1_IRQHandler
-                0x08008e38                OTG_FS_IRQHandler
-                0x08008e38                SPI3_IRQHandler
-                0x08008e38                DMA1_Stream4_IRQHandler
-                0x08008e38                I2C1_ER_IRQHandler
-                0x08008e38                DMA2_Stream6_IRQHandler
-                0x08008e38                DMA1_Stream3_IRQHandler
- *fill*         0x08008e3a        0x2 
+                0x08008f34        0x2 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/startup_stm32f411xe.s.obj
+                0x08008f34                RTC_Alarm_IRQHandler
+                0x08008f34                EXTI2_IRQHandler
+                0x08008f34                DebugMon_Handler
+                0x08008f34                SPI4_IRQHandler
+                0x08008f34                TIM1_CC_IRQHandler
+                0x08008f34                DMA2_Stream5_IRQHandler
+                0x08008f34                HardFault_Handler
+                0x08008f34                DMA1_Stream5_IRQHandler
+                0x08008f34                PVD_IRQHandler
+                0x08008f34                SDIO_IRQHandler
+                0x08008f34                TAMP_STAMP_IRQHandler
+                0x08008f34                PendSV_Handler
+                0x08008f34                NMI_Handler
+                0x08008f34                EXTI3_IRQHandler
+                0x08008f34                TIM1_UP_TIM10_IRQHandler
+                0x08008f34                I2C3_ER_IRQHandler
+                0x08008f34                EXTI0_IRQHandler
+                0x08008f34                I2C2_EV_IRQHandler
+                0x08008f34                DMA1_Stream2_IRQHandler
+                0x08008f34                FPU_IRQHandler
+                0x08008f34                UsageFault_Handler
+                0x08008f34                DMA2_Stream2_IRQHandler
+                0x08008f34                SPI1_IRQHandler
+                0x08008f34                TIM1_BRK_TIM9_IRQHandler
+                0x08008f34                DMA2_Stream3_IRQHandler
+                0x08008f34                USART6_IRQHandler
+                0x08008f34                DMA2_Stream0_IRQHandler
+                0x08008f34                TIM4_IRQHandler
+                0x08008f34                I2C1_EV_IRQHandler
+                0x08008f34                DMA1_Stream6_IRQHandler
+                0x08008f34                DMA1_Stream1_IRQHandler
+                0x08008f34                TIM3_IRQHandler
+                0x08008f34                RCC_IRQHandler
+                0x08008f34                Default_Handler
+                0x08008f34                EXTI15_10_IRQHandler
+                0x08008f34                ADC_IRQHandler
+                0x08008f34                DMA1_Stream7_IRQHandler
+                0x08008f34                SPI5_IRQHandler
+                0x08008f34                TIM5_IRQHandler
+                0x08008f34                DMA2_Stream7_IRQHandler
+                0x08008f34                I2C3_EV_IRQHandler
+                0x08008f34                EXTI9_5_IRQHandler
+                0x08008f34                RTC_WKUP_IRQHandler
+                0x08008f34                SPI2_IRQHandler
+                0x08008f34                MemManage_Handler
+                0x08008f34                DMA1_Stream0_IRQHandler
+                0x08008f34                SVC_Handler
+                0x08008f34                EXTI4_IRQHandler
+                0x08008f34                WWDG_IRQHandler
+                0x08008f34                TIM2_IRQHandler
+                0x08008f34                OTG_FS_WKUP_IRQHandler
+                0x08008f34                TIM1_TRG_COM_TIM11_IRQHandler
+                0x08008f34                EXTI1_IRQHandler
+                0x08008f34                USART2_IRQHandler
+                0x08008f34                I2C2_ER_IRQHandler
+                0x08008f34                DMA2_Stream1_IRQHandler
+                0x08008f34                FLASH_IRQHandler
+                0x08008f34                DMA2_Stream4_IRQHandler
+                0x08008f34                BusFault_Handler
+                0x08008f34                USART1_IRQHandler
+                0x08008f34                OTG_FS_IRQHandler
+                0x08008f34                SPI3_IRQHandler
+                0x08008f34                DMA1_Stream4_IRQHandler
+                0x08008f34                I2C1_ER_IRQHandler
+                0x08008f34                DMA2_Stream6_IRQHandler
+                0x08008f34                DMA1_Stream3_IRQHandler
+ *fill*         0x08008f36        0x2 
  .text.SystemClock_Config
-                0x08008e3c       0xd4 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/Core/Src/system_clock_config.c.obj
-                0x08008e3c                SystemClock_Config
+                0x08008f38       0xd4 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/Core/Src/system_clock_config.c.obj
+                0x08008f38                SystemClock_Config
  .text.Error_Handler
-                0x08008f10        0xc CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/Core/Src/system_clock_config.c.obj
-                0x08008f10                Error_Handler
+                0x0800900c        0xc CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/boards/stm32cube/nucleo-f411re/Core/Src/system_clock_config.c.obj
+                0x0800900c                Error_Handler
  .text._ZN10Connection4readEPhj
-                0x08008f1c       0x3c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08008f1c                Connection::read(unsigned char*, unsigned int)
+                0x08009018       0x42 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009018                Connection::read(unsigned char*, unsigned int)
  .text._ZL5delaym
-                0x08008f58       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
- *fill*         0x08008f6e        0x2 
+                0x0800905a       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .text._ZN14UC1611sMinimalC2ER10ConnectionS1_ttbh
-                0x08008f70      0x134 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08008f70                UC1611sMinimal::UC1611sMinimal(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
-                0x08008f70                UC1611sMinimal::UC1611sMinimal(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
+                0x08009070      0x128 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009070                UC1611sMinimal::UC1611sMinimal(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
+                0x08009070                UC1611sMinimal::UC1611sMinimal(Connection&, Connection&, unsigned short, unsigned short, bool, unsigned char)
  .text._ZN14UC1611sMinimal9_sleep_msEm
-                0x080090a4       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080090a4                UC1611sMinimal::_sleep_ms(unsigned long)
+                0x08009198       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009198                UC1611sMinimal::_sleep_ms(unsigned long)
  .text._ZN14UC1611sMinimal8_commandEPKhj
-                0x080090ba       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080090ba                UC1611sMinimal::_command(unsigned char const*, unsigned int)
+                0x080091ae       0x64 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080091ae                UC1611sMinimal::_command(unsigned char const*, unsigned int)
  .text._ZN14UC1611sMinimal9_command1Eh
-                0x080090dc       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080090dc                UC1611sMinimal::_command1(unsigned char)
+                0x08009212       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009212                UC1611sMinimal::_command1(unsigned char)
  .text._ZN14UC1611sMinimal9_command2Ehh
-                0x080090fc       0x2e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080090fc                UC1611sMinimal::_command2(unsigned char, unsigned char)
- .text._ZN14UC1611sMinimal11_write_dataEPKhj
-                0x0800912a       0x4c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800912a                UC1611sMinimal::_write_data(unsigned char const*, unsigned int)
+                0x08009234       0x30 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009234                UC1611sMinimal::_command2(unsigned char, unsigned char)
+ .text._ZN14UC1611sMinimal13_write_chunksEPKhj
+                0x08009264       0x7c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009264                UC1611sMinimal::_write_chunks(unsigned char const*, unsigned int)
+ .text._ZN14UC1611sMinimal11_write_pageEhPKhj
+                0x080092e0       0x76 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080092e0                UC1611sMinimal::_write_page(unsigned char, unsigned char const*, unsigned int)
+ .text._ZN14UC1611sMinimal12_read_statusEPh
+                0x08009356       0x9c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009356                UC1611sMinimal::_read_status(unsigned char*)
+ .text._ZN14UC1611sMinimal21_wait_display_enabledEm
+                0x080093f2       0x66 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080093f2                UC1611sMinimal::_wait_display_enabled(unsigned long)
  .text._ZN14UC1611sMinimal12_set_addressEhh
-                0x08009176       0x7c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009176                UC1611sMinimal::_set_address(unsigned char, unsigned char)
+                0x08009458       0x7e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009458                UC1611sMinimal::_set_address(unsigned char, unsigned char)
  .text._ZNK14UC1611sMinimal8_mappingEv
-                0x080091f2       0x2e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080091f2                UC1611sMinimal::_mapping() const
+                0x080094d6       0x2e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080094d6                UC1611sMinimal::_mapping() const
  .text._ZN14UC1611sMinimal11_reset_chipEv
-                0x08009220       0x1e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009220                UC1611sMinimal::_reset_chip()
+                0x08009504       0x1e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009504                UC1611sMinimal::_reset_chip()
  .text._ZN14UC1611sMinimal10_configureEv
-                0x0800923e       0x72 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800923e                UC1611sMinimal::_configure()
+                0x08009522       0x72 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009522                UC1611sMinimal::_configure()
  .text._ZN14UC1611sMinimal7_enableEv
-                0x080092b0       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080092b0                UC1611sMinimal::_enable()
+                0x08009594       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009594                UC1611sMinimal::_enable()
  .text._ZN14UC1611sMinimal10_show_pageEh
-                0x080092c8       0x3e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080092c8                UC1611sMinimal::_show_page(unsigned char)
+                0x080095ac       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080095ac                UC1611sMinimal::_show_page(unsigned char)
  .text._ZN14UC1611sMinimal9set_pixelEssb
-                0x08009306       0xc6 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009306                UC1611sMinimal::set_pixel(short, short, bool)
+                0x080095de       0xc6 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080095de                UC1611sMinimal::set_pixel(short, short, bool)
  .text._ZN14UC1611sMinimal4showEv
-                0x080093cc       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080093cc                UC1611sMinimal::show()
+                0x080096a4       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080096a4                UC1611sMinimal::show()
  .text._ZNK11UC1611sFull9get_pixelEss
-                0x0800940c       0x82 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800940c                UC1611sFull::get_pixel(short, short) const
+                0x080096e4       0x82 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080096e4                UC1611sFull::get_pixel(short, short) const
  .text._ZN11UC1611sFull4fillEb
-                0x0800948e       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800948e                UC1611sFull::fill(bool)
+                0x08009766       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009766                UC1611sFull::fill(bool)
  .text._ZN11UC1611sFull9draw_lineEssssb
-                0x080094d6      0x116 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080094d6                UC1611sFull::draw_line(short, short, short, short, bool)
+                0x080097ae      0x116 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080097ae                UC1611sFull::draw_line(short, short, short, short, bool)
  .text._ZN11UC1611sFull9draw_rectEssssbb
-                0x080095ec      0x172 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080095ec                UC1611sFull::draw_rect(short, short, short, short, bool, bool)
+                0x080098c4      0x172 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x080098c4                UC1611sFull::draw_rect(short, short, short, short, bool, bool)
  .text._ZN11UC1611sFull9show_pageEh
-                0x0800975e       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800975e                UC1611sFull::show_page(unsigned char)
+                0x08009a36       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009a36                UC1611sFull::show_page(unsigned char)
  .text._ZN11UC1611sFull12set_contrastEh
-                0x08009790       0x26 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009790                UC1611sFull::set_contrast(unsigned char)
+                0x08009a68       0x26 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009a68                UC1611sFull::set_contrast(unsigned char)
  .text._ZN11UC1611sFull11set_displayEb
-                0x080097b6       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080097b6                UC1611sFull::set_display(bool)
+                0x08009a8e       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009a8e                UC1611sFull::set_display(bool)
  .text._ZN11UC1611sFull5sleepEv
-                0x080097e0       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080097e0                UC1611sFull::sleep()
+                0x08009ab8       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009ab8                UC1611sFull::sleep()
  .text._ZN11UC1611sFull4wakeEv
-                0x080097f8       0x1e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080097f8                UC1611sFull::wake()
+                0x08009ad0       0x22 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009ad0                UC1611sFull::wake()
  .text._ZN11UC1611sFull10set_invertEb
-                0x08009816       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009816                UC1611sFull::set_invert(bool)
+                0x08009af2       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009af2                UC1611sFull::set_invert(bool)
  .text._ZN11UC1611sFull10set_all_onEb
-                0x08009840       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009840                UC1611sFull::set_all_on(bool)
+                0x08009b1c       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009b1c                UC1611sFull::set_all_on(bool)
  .text._ZN11UC1611sFull8set_flipEbb
-                0x0800986a       0x4e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800986a                UC1611sFull::set_flip(bool, bool)
+                0x08009b46       0x4e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009b46                UC1611sFull::set_flip(bool, bool)
  .text._ZN11UC1611sFull15set_scroll_lineEh
-                0x080098b8       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080098b8                UC1611sFull::set_scroll_line(unsigned char)
+                0x08009b94       0x40 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009b94                UC1611sFull::set_scroll_line(unsigned char)
  .text._ZN11UC1611sFull15set_fixed_linesEh
-                0x080098f8       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080098f8                UC1611sFull::set_fixed_lines(unsigned char)
+                0x08009bd4       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009bd4                UC1611sFull::set_fixed_lines(unsigned char)
  .text._ZN11UC1611sFull14set_bias_ratioEh
-                0x08009924       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009924                UC1611sFull::set_bias_ratio(unsigned char)
+                0x08009c00       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009c00                UC1611sFull::set_bias_ratio(unsigned char)
  .text._ZN11UC1611sFull28set_temperature_compensationEh
-                0x08009950       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009950                UC1611sFull::set_temperature_compensation(unsigned char)
+                0x08009c2c       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009c2c                UC1611sFull::set_temperature_compensation(unsigned char)
  .text._ZN11UC1611sFull13set_line_rateEh
-                0x0800997c       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x0800997c                UC1611sFull::set_line_rate(unsigned char)
+                0x08009c58       0x2c CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009c58                UC1611sFull::set_line_rate(unsigned char)
  .text._ZN11UC1611sFull8set_pumpEb
-                0x080099a8       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080099a8                UC1611sFull::set_pump(bool)
+                0x08009c84       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009c84                UC1611sFull::set_pump(bool)
  .text._ZN11UC1611sFull17set_panel_loadingEb
-                0x080099d2       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080099d2                UC1611sFull::set_panel_loading(bool)
+                0x08009cae       0x2a CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009cae                UC1611sFull::set_panel_loading(bool)
  .text._ZN11UC1611sFull19set_partial_displayEbht
-                0x080099fc       0x80 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x080099fc                UC1611sFull::set_partial_display(bool, unsigned char, unsigned short)
+                0x08009cd8       0x80 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009cd8                UC1611sFull::set_partial_display(bool, unsigned char, unsigned short)
  .text._ZN11UC1611sFull19set_nline_inversionEhb
-                0x08009a7c       0x3e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009a7c                UC1611sFull::set_nline_inversion(unsigned char, bool)
+                0x08009d58       0x3e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009d58                UC1611sFull::set_nline_inversion(unsigned char, bool)
  .text._ZN11UC1611sFull19set_isolation_clockEhh
-                0x08009aba       0x74 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009aba                UC1611sFull::set_isolation_clock(unsigned char, unsigned char)
+                0x08009d96       0x74 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009d96                UC1611sFull::set_isolation_clock(unsigned char, unsigned char)
  .text._ZN11UC1611sFull19set_display_patternEh
-                0x08009b2e       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009b2e                UC1611sFull::set_display_pattern(unsigned char)
+                0x08009e0a       0x34 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009e0a                UC1611sFull::set_display_pattern(unsigned char)
  .text._ZN11UC1611sFull17set_write_patternEh
-                0x08009b62       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009b62                UC1611sFull::set_write_pattern(unsigned char)
+                0x08009e3e       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009e3e                UC1611sFull::set_write_pattern(unsigned char)
  .text._ZN11UC1611sFull11read_statusEPh
-                0x08009b86       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009b86                UC1611sFull::read_status(unsigned char*)
+                0x08009e62       0x1e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009e62                UC1611sFull::read_status(unsigned char*)
  .text._ZN11UC1611sFull8read_ramEhhPhh
-                0x08009ba6       0x74 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009ba6                UC1611sFull::read_ram(unsigned char, unsigned char, unsigned char*, unsigned char)
+                0x08009e80       0xda CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009e80                UC1611sFull::read_ram(unsigned char, unsigned char, unsigned char*, unsigned char)
  .text._ZN11UC1611sFull5resetEv
-                0x08009c1a       0x2e CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
-                0x08009c1a                UC1611sFull::reset()
+                0x08009f5a       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x08009f5a                UC1611sFull::reset()
  .text.SystemInit
-                0x08009c48       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
-                0x08009c48                SystemInit
+                0x08009f8c       0x24 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
+                0x08009f8c                SystemInit
  .text.HAL_Init
-                0x08009c6c       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009c6c                HAL_Init
+                0x08009fb0       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x08009fb0                HAL_Init
  .text.HAL_MspInit
-                0x08009cb0        0xe CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009cb0                HAL_MspInit
- *fill*         0x08009cbe        0x2 
+                0x08009ff4        0xe CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x08009ff4                HAL_MspInit
+ *fill*         0x0800a002        0x2 
  .text.HAL_InitTick
-                0x08009cc0       0x60 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009cc0                HAL_InitTick
+                0x0800a004       0x60 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x0800a004                HAL_InitTick
  .text.HAL_IncTick
-                0x08009d20       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009d20                HAL_IncTick
+                0x0800a064       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x0800a064                HAL_IncTick
  .text.HAL_GetTick
-                0x08009d48       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009d48                HAL_GetTick
+                0x0800a08c       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x0800a08c                HAL_GetTick
  .text.HAL_Delay
-                0x08009d60       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x08009d60                HAL_Delay
+                0x0800a0a4       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x0800a0a4                HAL_Delay
  .text.__NVIC_SetPriorityGrouping
-                0x08009da8       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a0ec       0x48 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
  .text.__NVIC_GetPriorityGrouping
-                0x08009df0       0x1c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a134       0x1c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
  .text.__NVIC_SetPriority
-                0x08009e0c       0x54 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a150       0x54 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
  .text.NVIC_EncodePriority
-                0x08009e60       0x66 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
- *fill*         0x08009ec6        0x2 
+                0x0800a1a4       0x66 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+ *fill*         0x0800a20a        0x2 
  .text.SysTick_Config
-                0x08009ec8       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a20c       0x44 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
  .text.HAL_NVIC_SetPriorityGrouping
-                0x08009f0c       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
-                0x08009f0c                HAL_NVIC_SetPriorityGrouping
+                0x0800a250       0x16 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a250                HAL_NVIC_SetPriorityGrouping
  .text.HAL_NVIC_SetPriority
-                0x08009f22       0x38 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
-                0x08009f22                HAL_NVIC_SetPriority
+                0x0800a266       0x38 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a266                HAL_NVIC_SetPriority
  .text.HAL_SYSTICK_Config
-                0x08009f5a       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
-                0x08009f5a                HAL_SYSTICK_Config
- *fill*         0x08009f72        0x2 
+                0x0800a29e       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.obj
+                0x0800a29e                HAL_SYSTICK_Config
+ *fill*         0x0800a2b6        0x2 
  .text.HAL_RCC_OscConfig
-                0x08009f74      0x4f0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x08009f74                HAL_RCC_OscConfig
+                0x0800a2b8      0x4f0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800a2b8                HAL_RCC_OscConfig
  .text.HAL_RCC_ClockConfig
-                0x0800a464      0x1cc CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x0800a464                HAL_RCC_ClockConfig
+                0x0800a7a8      0x1cc CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800a7a8                HAL_RCC_ClockConfig
  .text.HAL_RCC_GetSysClockFreq
-                0x0800a630      0x20c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x0800a630                HAL_RCC_GetSysClockFreq
+                0x0800a974      0x20c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800a974                HAL_RCC_GetSysClockFreq
  .text.HAL_RCC_GetHCLKFreq
-                0x0800a83c       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x0800a83c                HAL_RCC_GetHCLKFreq
+                0x0800ab80       0x18 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800ab80                HAL_RCC_GetHCLKFreq
  .text.HAL_RCC_GetPCLK1Freq
-                0x0800a854       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x0800a854                HAL_RCC_GetPCLK1Freq
+                0x0800ab98       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800ab98                HAL_RCC_GetPCLK1Freq
  .text.HAL_RCC_GetPCLK2Freq
-                0x0800a87c       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
-                0x0800a87c                HAL_RCC_GetPCLK2Freq
+                0x0800abc0       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c.obj
+                0x0800abc0                HAL_RCC_GetPCLK2Freq
  .text.HAL_GPIO_Init
-                0x0800a8a4      0x308 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c.obj
-                0x0800a8a4                HAL_GPIO_Init
+                0x0800abe8      0x308 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c.obj
+                0x0800abe8                HAL_GPIO_Init
  .text.HAL_GPIO_WritePin
-                0x0800abac       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c.obj
-                0x0800abac                HAL_GPIO_WritePin
- *fill*         0x0800abde        0x2 
+                0x0800aef0       0x32 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c.obj
+                0x0800aef0                HAL_GPIO_WritePin
+ *fill*         0x0800af22        0x2 
  .text.HAL_I2C_Init
-                0x0800abe0      0x288 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
-                0x0800abe0                HAL_I2C_Init
+                0x0800af24      0x288 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800af24                HAL_I2C_Init
  .text.HAL_I2C_MspInit
-                0x0800ae68       0x14 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
-                0x0800ae68                HAL_I2C_MspInit
+                0x0800b1ac       0x14 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800b1ac                HAL_I2C_MspInit
  .text.HAL_I2C_Master_Transmit
-                0x0800ae7c      0x1fc CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
-                0x0800ae7c                HAL_I2C_Master_Transmit
+                0x0800b1c0      0x1fc CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800b1c0                HAL_I2C_Master_Transmit
  .text.HAL_I2C_Master_Receive
-                0x0800b078      0x464 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
-                0x0800b078                HAL_I2C_Master_Receive
+                0x0800b3bc      0x464 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800b3bc                HAL_I2C_Master_Receive
  .text.I2C_MasterRequestWrite
-                0x0800b4dc      0x104 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800b820      0x104 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_MasterRequestRead
-                0x0800b5e0      0x19c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800b924      0x19c CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_WaitOnFlagUntilTimeout
-                0x0800b77c       0xf4 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800bac0       0xf4 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_WaitOnMasterAddressFlagUntilTimeout
-                0x0800b870      0x140 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800bbb4      0x140 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_WaitOnTXEFlagUntilTimeout
-                0x0800b9b0       0x90 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800bcf4       0x90 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_WaitOnBTFFlagUntilTimeout
-                0x0800ba40       0x90 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800bd84       0x90 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_WaitOnRXNEFlagUntilTimeout
-                0x0800bad0       0xba CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800be14       0xba CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.I2C_IsAcknowledgeFailed
-                0x0800bb8a       0x5e CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
+                0x0800bece       0x5e CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c.obj
  .text.HAL_UART_Init
-                0x0800bbe8       0xa0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
-                0x0800bbe8                HAL_UART_Init
+                0x0800bf2c       0xa0 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+                0x0800bf2c                HAL_UART_Init
  .text.HAL_UART_MspInit
-                0x0800bc88       0x14 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
-                0x0800bc88                HAL_UART_MspInit
+                0x0800bfcc       0x14 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+                0x0800bfcc                HAL_UART_MspInit
  .text.HAL_UART_Transmit
-                0x0800bc9c      0x116 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
-                0x0800bc9c                HAL_UART_Transmit
+                0x0800bfe0      0x116 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+                0x0800bfe0                HAL_UART_Transmit
  .text.UART_WaitOnFlagUntilTimeout
-                0x0800bdb2       0xb2 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+                0x0800c0f6       0xb2 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
  .text.UART_EndRxTransfer
-                0x0800be64       0xc6 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
- *fill*         0x0800bf2a        0x2 
+                0x0800c1a8       0xc6 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+ *fill*         0x0800c26e        0x2 
  .text.UART_SetConfig
-                0x0800bf2c      0x4e8 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
- .text._ZdlPvj  0x0800c414        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_ops.o)
-                0x0800c414                operator delete(void*, unsigned int)
+                0x0800c270      0x4e8 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.obj
+ .text._ZdlPvj  0x0800c758        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_ops.o)
+                0x0800c758                operator delete(void*, unsigned int)
  .text.__cxa_guard_acquire
-                0x0800c418       0x38 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
-                0x0800c418                __cxa_guard_acquire
+                0x0800c75c       0x38 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
+                0x0800c75c                __cxa_guard_acquire
  .text.__cxa_guard_release
-                0x0800c450        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
-                0x0800c450                __cxa_guard_release
+                0x0800c794        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
+                0x0800c794                __cxa_guard_release
  .text._ZN9__gnu_cxx20recursive_init_errorD2Ev
-                0x0800c458       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800c458                __gnu_cxx::recursive_init_error::~recursive_init_error()
-                0x0800c458                __gnu_cxx::recursive_init_error::~recursive_init_error()
+                0x0800c79c       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800c79c                __gnu_cxx::recursive_init_error::~recursive_init_error()
+                0x0800c79c                __gnu_cxx::recursive_init_error::~recursive_init_error()
  .text._ZN9__gnu_cxx20recursive_init_errorD0Ev
-                0x0800c46c       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800c46c                __gnu_cxx::recursive_init_error::~recursive_init_error()
+                0x0800c7b0       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800c7b0                __gnu_cxx::recursive_init_error::~recursive_init_error()
  .text._ZN9__gnu_cxx20recursive_init_errorC2Ev
-                0x0800c488        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800c488                __gnu_cxx::recursive_init_error::recursive_init_error()
-                0x0800c488                __gnu_cxx::recursive_init_error::recursive_init_error()
+                0x0800c7cc        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800c7cc                __gnu_cxx::recursive_init_error::recursive_init_error()
+                0x0800c7cc                __gnu_cxx::recursive_init_error::recursive_init_error()
  .text._ZN10__cxxabiv120__si_class_type_infoD2Ev
-                0x0800c494       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800c494                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
-                0x0800c494                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
+                0x0800c7d8       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800c7d8                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
+                0x0800c7d8                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
  .text._ZN10__cxxabiv120__si_class_type_infoD0Ev
-                0x0800c4a8       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800c4a8                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
+                0x0800c7ec       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800c7ec                __cxxabiv1::__si_class_type_info::~__si_class_type_info()
  .text._ZNK10__cxxabiv120__si_class_type_info20__do_find_public_srcEiPKvPKNS_17__class_type_infoES2_
-                0x0800c4c4       0x3c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800c4c4                __cxxabiv1::__si_class_type_info::__do_find_public_src(int, void const*, __cxxabiv1::__class_type_info const*, void const*) const
+                0x0800c808       0x3c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800c808                __cxxabiv1::__si_class_type_info::__do_find_public_src(int, void const*, __cxxabiv1::__class_type_info const*, void const*) const
  .text._ZNK10__cxxabiv120__si_class_type_info12__do_dyncastEiNS_17__class_type_info10__sub_kindEPKS1_PKvS4_S6_RNS1_16__dyncast_resultE
-                0x0800c500       0x84 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800c500                __cxxabiv1::__si_class_type_info::__do_dyncast(int, __cxxabiv1::__class_type_info::__sub_kind, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__dyncast_result&) const
+                0x0800c844       0x84 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800c844                __cxxabiv1::__si_class_type_info::__do_dyncast(int, __cxxabiv1::__class_type_info::__sub_kind, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__dyncast_result&) const
  .text._ZNK10__cxxabiv120__si_class_type_info11__do_upcastEPKNS_17__class_type_infoEPKvRNS1_15__upcast_resultE
-                0x0800c584       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800c584                __cxxabiv1::__si_class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__upcast_result&) const
+                0x0800c8c8       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800c8c8                __cxxabiv1::__si_class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__upcast_result&) const
  .text._ZNSt9type_infoD2Ev
-                0x0800c5b0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
-                0x0800c5b0                std::type_info::~type_info()
-                0x0800c5b0                std::type_info::~type_info()
+                0x0800c8f4        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800c8f4                std::type_info::~type_info()
+                0x0800c8f4                std::type_info::~type_info()
  .text._ZNKSt9type_info14__is_pointer_pEv
-                0x0800c5b4        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
-                0x0800c5b4                std::type_info::__is_function_p() const
-                0x0800c5b4                std::type_info::__is_pointer_p() const
+                0x0800c8f8        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800c8f8                std::type_info::__is_function_p() const
+                0x0800c8f8                std::type_info::__is_pointer_p() const
  .text._ZNKSt9type_infoeqERKS_
-                0x0800c5b8       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
-                0x0800c5b8                std::type_info::__equal(std::type_info const&) const
-                0x0800c5b8                std::type_info::operator==(std::type_info const&) const
+                0x0800c8fc       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800c8fc                std::type_info::__equal(std::type_info const&) const
+                0x0800c8fc                std::type_info::operator==(std::type_info const&) const
  .text._ZNK10__cxxabiv117__class_type_info11__do_upcastEPKS0_PPv
-                0x0800c5e4       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c5e4                __cxxabiv1::__class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void**) const
+                0x0800c928       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c928                __cxxabiv1::__class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void**) const
  .text._ZNK10__cxxabiv117__class_type_info20__do_find_public_srcEiPKvPKS0_S2_
-                0x0800c618        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c618                __cxxabiv1::__class_type_info::__do_find_public_src(int, void const*, __cxxabiv1::__class_type_info const*, void const*) const
+                0x0800c95c        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c95c                __cxxabiv1::__class_type_info::__do_find_public_src(int, void const*, __cxxabiv1::__class_type_info const*, void const*) const
  .text._ZN10__cxxabiv117__class_type_infoD2Ev
-                0x0800c624       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c624                __cxxabiv1::__class_type_info::~__class_type_info()
-                0x0800c624                __cxxabiv1::__class_type_info::~__class_type_info()
+                0x0800c968       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c968                __cxxabiv1::__class_type_info::~__class_type_info()
+                0x0800c968                __cxxabiv1::__class_type_info::~__class_type_info()
  .text._ZN10__cxxabiv117__class_type_infoD0Ev
-                0x0800c638       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c638                __cxxabiv1::__class_type_info::~__class_type_info()
+                0x0800c97c       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c97c                __cxxabiv1::__class_type_info::~__class_type_info()
  .text._ZNK10__cxxabiv117__class_type_info12__do_dyncastEiNS0_10__sub_kindEPKS0_PKvS3_S5_RNS0_16__dyncast_resultE
-                0x0800c654       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c654                __cxxabiv1::__class_type_info::__do_dyncast(int, __cxxabiv1::__class_type_info::__sub_kind, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__dyncast_result&) const
+                0x0800c998       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c998                __cxxabiv1::__class_type_info::__do_dyncast(int, __cxxabiv1::__class_type_info::__sub_kind, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__dyncast_result&) const
  .text._ZNK10__cxxabiv117__class_type_info11__do_upcastEPKS0_PKvRNS0_15__upcast_resultE
-                0x0800c698       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c698                __cxxabiv1::__class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__upcast_result&) const
+                0x0800c9dc       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c9dc                __cxxabiv1::__class_type_info::__do_upcast(__cxxabiv1::__class_type_info const*, void const*, __cxxabiv1::__class_type_info::__upcast_result&) const
  .text._ZNK10__cxxabiv117__class_type_info10__do_catchEPKSt9type_infoPPvj
-                0x0800c6b4       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800c6b4                __cxxabiv1::__class_type_info::__do_catch(std::type_info const*, void**, unsigned int) const
- .text._ZdlPv   0x0800c6e0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_op.o)
-                0x0800c6e0                operator delete(void*)
+                0x0800c9f8       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800c9f8                __cxxabiv1::__class_type_info::__do_catch(std::type_info const*, void**, unsigned int) const
+ .text._ZdlPv   0x0800ca24        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_op.o)
+                0x0800ca24                operator delete(void*)
  .text._ZN12_GLOBAL__N_14pool4freeEPv.constprop.0
-                0x0800c6e4       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800ca28       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
  .text._ZN12_GLOBAL__N_14pool8allocateEj.constprop.0
-                0x0800c770       0x5c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800cab4       0x5c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
  .text.__cxa_allocate_exception
-                0x0800c7cc       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
-                0x0800c7cc                __cxa_allocate_exception
+                0x0800cb10       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800cb10                __cxa_allocate_exception
  .text.__cxa_free_exception
-                0x0800c7fc       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
-                0x0800c7fc                __cxa_free_exception
+                0x0800cb40       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800cb40                __cxa_free_exception
  .text.startup._GLOBAL__sub_I__ZN9__gnu_cxx9__freeresEv
-                0x0800c81c       0xf0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800cb60       0xf0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
  .text._ZNSt9exceptionD2Ev
-                0x0800c90c        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800c90c                std::exception::~exception()
-                0x0800c90c                std::exception::~exception()
+                0x0800cc50        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800cc50                std::exception::~exception()
+                0x0800cc50                std::exception::~exception()
  .text._ZNSt13bad_exceptionD2Ev
-                0x0800c910        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800c910                std::bad_exception::~bad_exception()
-                0x0800c910                std::bad_exception::~bad_exception()
+                0x0800cc54        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800cc54                std::bad_exception::~bad_exception()
+                0x0800cc54                std::bad_exception::~bad_exception()
  .text._ZNKSt9exception4whatEv
-                0x0800c914        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800c914                transaction clone for std::exception::what() const
-                0x0800c914                std::exception::what() const
+                0x0800cc58        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800cc58                transaction clone for std::exception::what() const
+                0x0800cc58                std::exception::what() const
  .text._ZNKSt13bad_exception4whatEv
-                0x0800c91c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800c91c                transaction clone for std::bad_exception::what() const
-                0x0800c91c                std::bad_exception::what() const
+                0x0800cc60        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800cc60                transaction clone for std::bad_exception::what() const
+                0x0800cc60                std::bad_exception::what() const
  .text._ZNSt13bad_exceptionD0Ev
-                0x0800c924       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800c924                std::bad_exception::~bad_exception()
+                0x0800cc68       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800cc68                std::bad_exception::~bad_exception()
  .text._ZN10__cxxabiv111__terminateEPFvvE
-                0x0800c934       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c934                __cxxabiv1::__terminate(void (*)())
+                0x0800cc78       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800cc78                __cxxabiv1::__terminate(void (*)())
  .text.unlikely._ZSt9terminatev
-                0x0800c944       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c944                std::terminate()
+                0x0800cc88       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800cc88                std::terminate()
  .text._ZN10__cxxabiv112__unexpectedEPFvvE
-                0x0800c958        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c958                __cxxabiv1::__unexpected(void (*)())
+                0x0800cc9c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800cc9c                __cxxabiv1::__unexpected(void (*)())
  .text.unlikely._ZSt10unexpectedv
-                0x0800c960       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c960                std::unexpected()
+                0x0800cca4       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800cca4                std::unexpected()
  .text._ZSt13get_terminatev
-                0x0800c974       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c974                std::get_terminate()
+                0x0800ccb8       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800ccb8                std::get_terminate()
  .text._ZSt14get_unexpectedv
-                0x0800c984       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
-                0x0800c984                std::get_unexpected()
+                0x0800ccc8       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800ccc8                std::get_unexpected()
  .text._ZL23__gxx_exception_cleanup19_Unwind_Reason_CodeP21_Unwind_Control_Block
-                0x0800c994       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800ccd8       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
  .text.__cxa_init_primary_exception
-                0x0800c9d8       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
-                0x0800c9d8                __cxa_init_primary_exception
+                0x0800cd1c       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800cd1c                __cxa_init_primary_exception
  .text.__cxa_throw
-                0x0800ca1c       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
-                0x0800ca1c                __cxa_throw
+                0x0800cd60       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800cd60                __cxa_throw
  .text.__cxa_rethrow
-                0x0800ca50       0x70 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
-                0x0800ca50                __cxa_rethrow
+                0x0800cd94       0x70 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800cd94                __cxa_rethrow
  .text.__cxa_begin_catch
-                0x0800cac0       0x7c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
-                0x0800cac0                __cxa_begin_catch
+                0x0800ce04       0x7c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
+                0x0800ce04                __cxa_begin_catch
  .text.__cxa_end_catch
-                0x0800cb3c       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
-                0x0800cb3c                __cxa_end_catch
+                0x0800ce80       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
+                0x0800ce80                __cxa_end_catch
  .text.__cxa_get_globals_fast
-                0x0800cbc8        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
-                0x0800cbc8                __cxa_get_globals_fast
+                0x0800cf0c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
+                0x0800cf0c                __cxa_get_globals_fast
  .text.__cxa_get_globals
-                0x0800cbd0        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
-                0x0800cbd0                __cxa_get_globals
+                0x0800cf14        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
+                0x0800cf14                __cxa_get_globals
  .text._ZL28read_encoded_value_with_basehjPKhPj
-                0x0800cbd8       0xc0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800cf1c       0xc0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .text._ZL21base_of_encoded_valuehP15_Unwind_Context
-                0x0800cc98       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800cfdc       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .text._ZL17parse_lsda_headerP15_Unwind_ContextPKhP16lsda_header_info
-                0x0800ccdc       0x90 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800d020       0x90 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .text.__gxx_personality_v0
-                0x0800cd6c      0x474 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
-                0x0800cd6c                __gxx_personality_v0
+                0x0800d0b0      0x474 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800d0b0                __gxx_personality_v0
  .text.__cxa_end_cleanup
-                0x0800d1e0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
-                0x0800d1e0                __cxa_end_cleanup
+                0x0800d524        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800d524                __cxa_end_cleanup
  .text.__cxa_type_match
-                0x0800d1ec       0xb0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
-                0x0800d1ec                __cxa_type_match
+                0x0800d530       0xb0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800d530                __cxa_type_match
  .text.__cxa_begin_cleanup
-                0x0800d29c       0x64 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
-                0x0800d29c                __cxa_begin_cleanup
+                0x0800d5e0       0x64 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800d5e0                __cxa_begin_cleanup
  .text.__gnu_end_cleanup
-                0x0800d300       0x70 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
-                0x0800d300                __gnu_end_cleanup
+                0x0800d644       0x70 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800d644                __gnu_end_cleanup
  .text.unlikely._ZN10__cxxabiv1L24__is_gxx_exception_classEPc
-                0x0800d370       0x3a /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800d6b4       0x3a /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
  .text.unlikely.__cxa_call_terminate
-                0x0800d3aa       0x1e /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
-                0x0800d3aa                __cxa_call_terminate
+                0x0800d6ee       0x1e /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800d6ee                __cxa_call_terminate
  .text.unlikely.__cxa_call_unexpected
-                0x0800d3c8       0xd8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
-                0x0800d3c8                __cxa_call_unexpected
+                0x0800d70c       0xd8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800d70c                __cxa_call_unexpected
  .text.unlikely
-                0x0800d4a0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
-                0x0800d4a0                _Unwind_GetDataRelBase
-                0x0800d4a6                _Unwind_GetTextRelBase
- .text.startup  0x0800d4ac       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-__call_atexit.o)
+                0x0800d7e4        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
+                0x0800d7e4                _Unwind_GetDataRelBase
+                0x0800d7ea                _Unwind_GetTextRelBase
+ .text.startup  0x0800d7f0       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-__call_atexit.o)
  *(.glue_7)
- .glue_7        0x0800d4c0        0x0 linker stubs
+ .glue_7        0x0800d804        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0800d4c0        0x0 linker stubs
+ .glue_7t       0x0800d804        0x0 linker stubs
  *(.eh_frame)
- .eh_frame      0x0800d4c0        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
+ .eh_frame      0x0800d804        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
  *(.init)
- .init          0x0800d4c0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
-                0x0800d4c0                _init
- .init          0x0800d4c4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
+ .init          0x0800d804        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
+                0x0800d804                _init
+ .init          0x0800d808        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
  *(.fini)
- .fini          0x0800d4cc        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
-                0x0800d4cc                _fini
- .fini          0x0800d4d0        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
-                0x0800d4d8                        . = ALIGN (0x4)
-                0x0800d4d8                        _etext = .
+ .fini          0x0800d810        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
+                0x0800d810                _fini
+ .fini          0x0800d814        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
+                0x0800d81c                        . = ALIGN (0x4)
+                0x0800d81c                        _etext = .
 
-.vfp11_veneer   0x0800d4d8        0x0
- .vfp11_veneer  0x0800d4d8        0x0 linker stubs
+.vfp11_veneer   0x0800d81c        0x0
+ .vfp11_veneer  0x0800d81c        0x0 linker stubs
 
-.v4_bx          0x0800d4d8        0x0
- .v4_bx         0x0800d4d8        0x0 linker stubs
+.v4_bx          0x0800d81c        0x0
+ .v4_bx         0x0800d81c        0x0 linker stubs
 
-.iplt           0x0800d4d8        0x0
- .iplt          0x0800d4d8        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
+.iplt           0x0800d81c        0x0
+ .iplt          0x0800d81c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
 
-.rodata         0x0800d4d8      0x7cc
-                0x0800d4d8                        . = ALIGN (0x4)
+.rodata         0x0800d820      0x81c
+                0x0800d820                        . = ALIGN (0x4)
  *(.rodata)
- .rodata        0x0800d4d8      0x186 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
- *fill*         0x0800d65e        0x2 
- .rodata        0x0800d660      0x101 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-ctype_.o)
-                0x0800d660                _ctype_
- *fill*         0x0800d761        0x3 
- .rodata        0x0800d764       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfprintf.o)
- *fill*         0x0800d784        0x4 
- .rodata        0x0800d788      0x128 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-mprec.o)
-                0x0800d798                __mprec_tens
-                0x0800d860                __mprec_tinytens
-                0x0800d888                __mprec_bigtens
- .rodata        0x0800d8b0       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfiprintf.o)
+ .rodata        0x0800d820      0x1db CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ *fill*         0x0800d9fb        0x1 
+ .rodata        0x0800d9fc      0x101 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-ctype_.o)
+                0x0800d9fc                _ctype_
+ *fill*         0x0800dafd        0x3 
+ .rodata        0x0800db00       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfprintf.o)
+ .rodata        0x0800db20      0x128 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-mprec.o)
+                0x0800db30                __mprec_tens
+                0x0800dbf8                __mprec_tinytens
+                0x0800dc20                __mprec_bigtens
+ .rodata        0x0800dc48       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfiprintf.o)
  *(.rodata*)
  .rodata._ZTV22I2CConnectionSTM32Cube
-                0x0800d8d0       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800d8d0                vtable for I2CConnectionSTM32Cube
+                0x0800dc68       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800dc68                vtable for I2CConnectionSTM32Cube
  .rodata._ZTV18RegisterConnection
-                0x0800d8f8       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800d8f8                vtable for RegisterConnection
+                0x0800dc90       0x28 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800dc90                vtable for RegisterConnection
  .rodata._ZTV10Connection
-                0x0800d920       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
-                0x0800d920                vtable for Connection
- .rodata._ZZN14UC1611sMinimalC4ER10ConnectionS1_ttbhE5ZEROS
-                0x0800d940       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
+                0x0800dcb8       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x0800dcb8                vtable for Connection
+ .rodata._ZZN14UC1611sMinimal13_write_chunksEPKhjE5ZEROS
+                0x0800dcd8       0x20 CMakeFiles/uc1611s_test_stm32cube.dir/var/projects/Periph/cpp/src/chips/display/UC1611s.cpp.obj
  .rodata.AHBPrescTable
-                0x0800d960       0x10 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
-                0x0800d960                AHBPrescTable
+                0x0800dcf8       0x10 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
+                0x0800dcf8                AHBPrescTable
  .rodata.APBPrescTable
-                0x0800d970        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
-                0x0800d970                APBPrescTable
+                0x0800dd08        0x8 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c.obj
+                0x0800dd08                APBPrescTable
  .rodata._ZTSN9__gnu_cxx20recursive_init_errorE
-                0x0800d978       0x23 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800d978                typeinfo name for __gnu_cxx::recursive_init_error
- *fill*         0x0800d99b        0x1 
+                0x0800dd10       0x23 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800dd10                typeinfo name for __gnu_cxx::recursive_init_error
+ *fill*         0x0800dd33        0x1 
  .rodata._ZTIN9__gnu_cxx20recursive_init_errorE
-                0x0800d99c        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800d99c                typeinfo for __gnu_cxx::recursive_init_error
+                0x0800dd34        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800dd34                typeinfo for __gnu_cxx::recursive_init_error
  .rodata._ZTVN9__gnu_cxx20recursive_init_errorE
-                0x0800d9a8       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
-                0x0800d9a8                vtable for __gnu_cxx::recursive_init_error
+                0x0800dd40       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800dd40                vtable for __gnu_cxx::recursive_init_error
  .rodata._ZTSN10__cxxabiv120__si_class_type_infoE
-                0x0800d9bc       0x25 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800d9bc                typeinfo name for __cxxabiv1::__si_class_type_info
- *fill*         0x0800d9e1        0x3 
+                0x0800dd54       0x25 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800dd54                typeinfo name for __cxxabiv1::__si_class_type_info
+ *fill*         0x0800dd79        0x3 
  .rodata._ZTIN10__cxxabiv120__si_class_type_infoE
-                0x0800d9e4        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800d9e4                typeinfo for __cxxabiv1::__si_class_type_info
+                0x0800dd7c        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800dd7c                typeinfo for __cxxabiv1::__si_class_type_info
  .rodata._ZTVN10__cxxabiv120__si_class_type_infoE
-                0x0800d9f0       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
-                0x0800d9f0                vtable for __cxxabiv1::__si_class_type_info
+                0x0800dd88       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800dd88                vtable for __cxxabiv1::__si_class_type_info
  .rodata._ZTSSt9type_info
-                0x0800da1c        0xd /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
-                0x0800da1c                typeinfo name for std::type_info
- *fill*         0x0800da29        0x3 
+                0x0800ddb4        0xd /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800ddb4                typeinfo name for std::type_info
+ *fill*         0x0800ddc1        0x3 
  .rodata._ZTISt9type_info
-                0x0800da2c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
-                0x0800da2c                typeinfo for std::type_info
+                0x0800ddc4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800ddc4                typeinfo for std::type_info
  .rodata._ZTSN10__cxxabiv117__class_type_infoE
-                0x0800da34       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800da34                typeinfo name for __cxxabiv1::__class_type_info
- *fill*         0x0800da56        0x2 
+                0x0800ddcc       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800ddcc                typeinfo name for __cxxabiv1::__class_type_info
+ *fill*         0x0800ddee        0x2 
  .rodata._ZTIN10__cxxabiv117__class_type_infoE
-                0x0800da58        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800da58                typeinfo for __cxxabiv1::__class_type_info
+                0x0800ddf0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800ddf0                typeinfo for __cxxabiv1::__class_type_info
  .rodata._ZTVN10__cxxabiv117__class_type_infoE
-                0x0800da64       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
-                0x0800da64                vtable for __cxxabiv1::__class_type_info
+                0x0800ddfc       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800ddfc                vtable for __cxxabiv1::__class_type_info
  .rodata._GLOBAL__sub_I__ZN9__gnu_cxx9__freeresEv.str1.4
-                0x0800da90      0x172 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800de28      0x172 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                  0x3c (size before relaxing)
  .rodata._ZNKSt9exception4whatEv.str1.4
-                0x0800dc02        0xf /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800df9a        0xf /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
  .rodata._ZNKSt13bad_exception4whatEv.str1.4
-                0x0800dc02       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
- *fill*         0x0800dc02        0x2 
+                0x0800df9a       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+ *fill*         0x0800df9a        0x2 
  .rodata._ZTSSt9exception
-                0x0800dc04        0xd /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc04                typeinfo name for std::exception
- *fill*         0x0800dc11        0x3 
+                0x0800df9c        0xd /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800df9c                typeinfo name for std::exception
+ *fill*         0x0800dfa9        0x3 
  .rodata._ZTISt9exception
-                0x0800dc14        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc14                typeinfo for std::exception
+                0x0800dfac        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dfac                typeinfo for std::exception
  .rodata._ZTSSt13bad_exception
-                0x0800dc1c       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc1c                typeinfo name for std::bad_exception
- *fill*         0x0800dc2e        0x2 
+                0x0800dfb4       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dfb4                typeinfo name for std::bad_exception
+ *fill*         0x0800dfc6        0x2 
  .rodata._ZTISt13bad_exception
-                0x0800dc30        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc30                typeinfo for std::bad_exception
+                0x0800dfc8        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dfc8                typeinfo for std::bad_exception
  .rodata._ZTSN10__cxxabiv115__forced_unwindE
-                0x0800dc3c       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc3c                typeinfo name for __cxxabiv1::__forced_unwind
+                0x0800dfd4       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dfd4                typeinfo name for __cxxabiv1::__forced_unwind
  .rodata._ZTIN10__cxxabiv115__forced_unwindE
-                0x0800dc5c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc5c                typeinfo for __cxxabiv1::__forced_unwind
+                0x0800dff4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dff4                typeinfo for __cxxabiv1::__forced_unwind
  .rodata._ZTSN10__cxxabiv119__foreign_exceptionE
-                0x0800dc64       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc64                typeinfo name for __cxxabiv1::__foreign_exception
+                0x0800dffc       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800dffc                typeinfo name for __cxxabiv1::__foreign_exception
  .rodata._ZTIN10__cxxabiv119__foreign_exceptionE
-                0x0800dc88        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc88                typeinfo for __cxxabiv1::__foreign_exception
+                0x0800e020        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e020                typeinfo for __cxxabiv1::__foreign_exception
  .rodata._ZTVSt13bad_exception
-                0x0800dc90       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
-                0x0800dc90                vtable for std::bad_exception
+                0x0800e028       0x14 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e028                vtable for std::bad_exception
  .rodata.str1.4
-                0x0800dca4       0x42 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfprintf.o)
+                0x0800e03c       0x42 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfprintf.o)
  .rodata.str1.4
-                0x0800dca4       0x54 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-dtoa.o)
+                0x0800e03c       0x54 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-dtoa.o)
  .rodata.str1.4
-                0x0800dca4       0x43 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-assert.o)
+                0x0800e03c       0x43 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-assert.o)
  .rodata.str1.4
-                0x0800dca4       0x41 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-mprec.o)
+                0x0800e03c       0x41 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-mprec.o)
  .rodata.str1.4
-                0x0800dca4       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-locale.o)
+                0x0800e03c       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-locale.o)
  .rodata.str1.4
-                0x0800dca4       0x2f /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfiprintf.o)
-                0x0800dcf8                        . = ALIGN (0x4)
+                0x0800e03c       0x2f /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-vfiprintf.o)
+                0x0800e090                        . = ALIGN (0x4)
 
-.ARM.extab      0x0800dca4       0xb8
-                0x0800dca4                        . = ALIGN (0x4)
+.ARM.extab      0x0800e03c       0xb8
+                0x0800e03c                        . = ALIGN (0x4)
  *(.ARM.extab* .gnu.linkonce.armextab.*)
  .ARM.extab.text._ZN10__cxxabiv111__terminateEPFvvE
-                0x0800dca4       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e03c       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.extab.text._ZN10__cxxabiv112__unexpectedEPFvvE
-                0x0800dcc0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e058        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.extab.text.unlikely._ZSt10unexpectedv
-                0x0800dccc        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e064        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.extab.text.__cxa_begin_catch
-                0x0800dcd8        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
+                0x0800e070        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
  .ARM.extab.text._ZL21base_of_encoded_valuehP15_Unwind_Context
-                0x0800dce4        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e07c        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .ARM.extab.text.__gxx_personality_v0
-                0x0800dcf0       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e088       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .ARM.extab.text.unlikely.__cxa_call_unexpected
-                0x0800dd14       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
- .ARM.extab     0x0800dd38        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(unwind-arm.o)
- .ARM.extab     0x0800dd44       0x18 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
-                0x0800dd5c                        . = ALIGN (0x4)
+                0x0800e0ac       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+ .ARM.extab     0x0800e0d0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(unwind-arm.o)
+ .ARM.extab     0x0800e0dc       0x18 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
+                0x0800e0f4                        . = ALIGN (0x4)
 
-.ARM            0x0800dd5c      0x190
-                0x0800dd5c                        . = ALIGN (0x4)
-                0x0800dd5c                        __exidx_start = .
+.ARM            0x0800e0f4      0x190
+                0x0800e0f4                        . = ALIGN (0x4)
+                0x0800e0f4                        __exidx_start = .
  *(.ARM.exidx*)
- .ARM.exidx     0x0800dd5c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_udivmoddi4.o)
- .ARM.exidx     0x0800dd64       0x80 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(unwind-arm.o)
+ .ARM.exidx     0x0800e0f4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_udivmoddi4.o)
+ .ARM.exidx     0x0800e0fc       0x80 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(unwind-arm.o)
                                  0xd0 (size before relaxing)
- .ARM.exidx     0x0800dde4       0x38 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
- .ARM.exidx     0x0800de1c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-memcpy.o)
+ .ARM.exidx     0x0800e17c       0x38 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
+ .ARM.exidx     0x0800e1b4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-memcpy.o)
                                   0x8 (size before relaxing)
- .ARM.exidx     0x0800de1c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-strcmp.o)
+ .ARM.exidx     0x0800e1b4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-strcmp.o)
                                   0x8 (size before relaxing)
- .ARM.exidx     0x0800de1c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-strlen.o)
+ .ARM.exidx     0x0800e1b4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-strlen.o)
                                   0x8 (size before relaxing)
- .ARM.exidx     0x0800de1c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-memchr.o)
+ .ARM.exidx     0x0800e1b4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-memchr.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZdlPvj
-                0x0800de1c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_ops.o)
+                0x0800e1b4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_ops.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.__cxa_guard_acquire
-                0x0800de1c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
+                0x0800e1b4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
  .ARM.exidx.text.__cxa_guard_release
-                0x0800de24        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
+                0x0800e1bc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard.o)
  .ARM.exidx.text._ZN9__gnu_cxx20recursive_init_errorD2Ev
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN9__gnu_cxx20recursive_init_errorD0Ev
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN9__gnu_cxx20recursive_init_errorC2Ev
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(guard_error.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN10__cxxabiv120__si_class_type_infoD2Ev
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN10__cxxabiv120__si_class_type_infoD0Ev
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv120__si_class_type_info20__do_find_public_srcEiPKvPKNS_17__class_type_infoES2_
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv120__si_class_type_info12__do_dyncastEiNS_17__class_type_info10__sub_kindEPKS1_PKvS4_S6_RNS1_16__dyncast_resultE
-                0x0800de2c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800e1c4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv120__si_class_type_info11__do_upcastEPKNS_17__class_type_infoEPKvRNS1_15__upcast_resultE
-                0x0800de2c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
+                0x0800e1c4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(si_class_type_info.o)
  .ARM.exidx.text._ZNSt9type_infoD2Ev
-                0x0800de34        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800e1cc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
  .ARM.exidx.text._ZNKSt9type_info14__is_pointer_pEv
-                0x0800de3c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800e1d4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNKSt9type_infoeqERKS_
-                0x0800de3c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
+                0x0800e1d4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(tinfo.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv117__class_type_info11__do_upcastEPKS0_PPv
-                0x0800de3c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1d4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
  .ARM.exidx.text._ZNK10__cxxabiv117__class_type_info20__do_find_public_srcEiPKvPKS0_S2_
-                0x0800de44        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1dc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
  .ARM.exidx.text._ZN10__cxxabiv117__class_type_infoD2Ev
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN10__cxxabiv117__class_type_infoD0Ev
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv117__class_type_info12__do_dyncastEiNS0_10__sub_kindEPKS0_PKvS3_S5_RNS0_16__dyncast_resultE
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv117__class_type_info11__do_upcastEPKS0_PKvRNS0_15__upcast_resultE
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNK10__cxxabiv117__class_type_info10__do_catchEPKSt9type_infoPPvj
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(class_type_info.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZdlPv
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_op.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(del_op.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN12_GLOBAL__N_14pool4freeEPv.constprop.0
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN12_GLOBAL__N_14pool8allocateEj.constprop.0
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.__cxa_allocate_exception
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.__cxa_free_exception
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.startup._GLOBAL__sub_I__ZN9__gnu_cxx9__freeresEv
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNSt9exceptionD2Ev
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNSt13bad_exceptionD2Ev
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNKSt9exception4whatEv
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNKSt13bad_exception4whatEv
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZNSt13bad_exceptionD0Ev
-                0x0800de4c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
+                0x0800e1e4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_exception.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZN10__cxxabiv111__terminateEPFvvE
-                0x0800de4c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e1e4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.exidx.text.unlikely._ZSt9terminatev
-                0x0800de54        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e1ec        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.exidx.text._ZN10__cxxabiv112__unexpectedEPFvvE
-                0x0800de5c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e1f4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.exidx.text.unlikely._ZSt10unexpectedv
-                0x0800de64        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e1fc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.exidx.text._ZSt13get_terminatev
-                0x0800de6c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e204        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
  .ARM.exidx.text._ZSt14get_unexpectedv
-                0x0800de74        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
+                0x0800e20c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_terminate.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZL23__gxx_exception_cleanup19_Unwind_Reason_CodeP21_Unwind_Control_Block
-                0x0800de74        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800e20c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
  .ARM.exidx.text.__cxa_init_primary_exception
-                0x0800de7c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800e214        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
  .ARM.exidx.text.__cxa_throw
-                0x0800de84        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800e21c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
  .ARM.exidx.text.__cxa_rethrow
-                0x0800de8c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
+                0x0800e224        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_throw.o)
  .ARM.exidx.text.__cxa_begin_catch
-                0x0800de94        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
+                0x0800e22c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
  .ARM.exidx.text.__cxa_end_catch
-                0x0800de9c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
+                0x0800e234        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_catch.o)
  .ARM.exidx.text.__cxa_get_globals_fast
-                0x0800dea4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
+                0x0800e23c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.__cxa_get_globals
-                0x0800dea4        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
+                0x0800e23c        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text._ZL28read_encoded_value_with_basehjPKhPj
-                0x0800dea4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e23c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .ARM.exidx.text._ZL21base_of_encoded_valuehP15_Unwind_Context
-                0x0800deac        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e244        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .ARM.exidx.text._ZL17parse_lsda_headerP15_Unwind_ContextPKhP16lsda_header_info
-                0x0800deb4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e24c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
  .ARM.exidx.text.__gxx_personality_v0
-                0x0800debc       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
+                0x0800e254       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_personality.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.__cxa_type_match
-                0x0800decc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800e264        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
  .ARM.exidx.text.__cxa_begin_cleanup
-                0x0800ded4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800e26c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
  .ARM.exidx.text.__gnu_end_cleanup
-                0x0800dedc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
+                0x0800e274        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_arm.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.unlikely._ZN10__cxxabiv1L24__is_gxx_exception_classEPc
-                0x0800dedc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800e274        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.unlikely.__cxa_call_terminate
-                0x0800dedc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800e274        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
                                   0x8 (size before relaxing)
  .ARM.exidx.text.unlikely.__cxa_call_unexpected
-                0x0800dedc        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
+                0x0800e274        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_call.o)
  .ARM.exidx.text.unlikely
-                0x0800dee4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
+                0x0800e27c        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(pr-support.o)
                                  0x10 (size before relaxing)
-                0x0800deec                        __exidx_end = .
-                0x0800deec                        . = ALIGN (0x4)
+                0x0800e284                        __exidx_end = .
+                0x0800e284                        . = ALIGN (0x4)
 
-.preinit_array  0x0800deec        0x0
-                0x0800deec                        . = ALIGN (0x4)
-                0x0800deec                        PROVIDE (__preinit_array_start = .)
+.preinit_array  0x0800e284        0x0
+                0x0800e284                        . = ALIGN (0x4)
+                0x0800e284                        PROVIDE (__preinit_array_start = .)
  *(.preinit_array*)
-                0x0800deec                        PROVIDE (__preinit_array_end = .)
-                0x0800deec                        . = ALIGN (0x4)
+                0x0800e284                        PROVIDE (__preinit_array_end = .)
+                0x0800e284                        . = ALIGN (0x4)
 
-.init_array     0x0800deec        0xc
-                0x0800deec                        . = ALIGN (0x4)
-                0x0800deec                        PROVIDE (__init_array_start = .)
+.init_array     0x0800e284        0xc
+                0x0800e284                        . = ALIGN (0x4)
+                0x0800e284                        PROVIDE (__init_array_start = .)
  *(SORT_BY_NAME(.init_array.*))
  .init_array.00000
-                0x0800deec        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-__call_atexit.o)
+                0x0800e284        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc.a(libc_a-__call_atexit.o)
  *(.init_array*)
- .init_array    0x0800def0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
- .init_array    0x0800def4        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
-                0x0800def8                        PROVIDE (__init_array_end = .)
-                0x0800def8                        . = ALIGN (0x4)
+ .init_array    0x0800e288        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
+ .init_array    0x0800e28c        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x0800e290                        PROVIDE (__init_array_end = .)
+                0x0800e290                        . = ALIGN (0x4)
 
-.fini_array     0x0800def8        0x4
-                0x0800def8                        . = ALIGN (0x4)
-                0x0800def8                        PROVIDE (__fini_array_start = .)
+.fini_array     0x0800e290        0x4
+                0x0800e290                        . = ALIGN (0x4)
+                0x0800e290                        PROVIDE (__fini_array_start = .)
  *(SORT_BY_NAME(.fini_array.*))
  *(.fini_array*)
- .fini_array    0x0800def8        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
-                0x0800defc                        PROVIDE (__fini_array_end = .)
-                0x0800defc                        . = ALIGN (0x4)
-                0x0800defc                        _sidata = LOADADDR (.data)
+ .fini_array    0x0800e290        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
+                0x0800e294                        PROVIDE (__fini_array_end = .)
+                0x0800e294                        . = ALIGN (0x4)
+                0x0800e294                        _sidata = LOADADDR (.data)
 
-.rel.dyn        0x0800defc        0x0
- .rel.iplt      0x0800defc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
+.rel.dyn        0x0800e294        0x0
+ .rel.iplt      0x0800e294        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
 
-.data           0x20000000      0x6ec load address 0x0800defc
+.data           0x20000000      0x6ec load address 0x0800e294
                 0x20000000                        . = ALIGN (0x4)
                 0x20000000                        _sdata = .
  *(.data)
@@ -2764,17 +2797,17 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x200006ec                        _edata = .
 
 .tm_clone_table
-                0x200006ec        0x0 load address 0x0800e5e8
+                0x200006ec        0x0 load address 0x0800e980
  .tm_clone_table
                 0x200006ec        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
  .tm_clone_table
                 0x200006ec        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtend.o
 
-.igot.plt       0x200006ec        0x0 load address 0x0800e5e8
+.igot.plt       0x200006ec        0x0 load address 0x0800e980
  .igot.plt      0x200006ec        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtbegin.o
                 0x200006ec                        . = ALIGN (0x4)
 
-.bss            0x200006f0     0x132c load address 0x0800e5e8
+.bss            0x200006f0     0x1334 load address 0x0800e980
                 0x200006f0                        _sbss = .
                 0x200006f0                        __bss_start__ = _sbss
  *(.bss)
@@ -2805,32 +2838,31 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
  .bss._ZL6failed
                 0x20000abc        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .bss._ZZ4mainE4chip
-                0x20000ac0      0xf34 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+                0x20000ac0      0xf40 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
  .bss._ZGVZ4mainE4chip
-                0x200019f4        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
- .bss.uwTick    0x200019f8        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
-                0x200019f8                uwTick
- *fill*         0x200019fc        0x4 
+                0x20001a00        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/Core/Src/main.cpp.obj
+ .bss.uwTick    0x20001a04        0x4 CMakeFiles/uc1611s_test_stm32cube.dir/home/till/STM32CubeF4/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.obj
+                0x20001a04                uwTick
  .bss._ZN12_GLOBAL__N_114emergency_poolE
-                0x20001a00       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
+                0x20001a08       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_alloc.o)
  .bss._ZN12_GLOBAL__N_110eh_globalsE
-                0x20001a10        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
+                0x20001a18        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libstdc++.a(eh_globals.o)
  *(COMMON)
-                0x20001a1c                        . = ALIGN (0x4)
-                0x20001a1c                        _ebss = .
-                0x20001a1c                        __bss_end__ = _ebss
+                0x20001a24                        . = ALIGN (0x4)
+                0x20001a24                        _ebss = .
+                0x20001a24                        __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x20001a1c      0x604 load address 0x0800e5e8
-                0x20001a20                        . = ALIGN (0x8)
- *fill*         0x20001a1c        0x4 
-                0x20001a20                        PROVIDE (end = .)
+                0x20001a24      0x604 load address 0x0800e980
+                0x20001a28                        . = ALIGN (0x8)
+ *fill*         0x20001a24        0x4 
+                0x20001a28                        PROVIDE (end = .)
                 [!provide]                        PROVIDE (_end = .)
-                0x20001c20                        . = (. + _Min_Heap_Size)
- *fill*         0x20001a20      0x200 
-                0x20002020                        . = (. + _Min_Stack_Size)
- *fill*         0x20001c20      0x400 
-                0x20002020                        . = ALIGN (0x8)
+                0x20001c28                        . = (. + _Min_Heap_Size)
+ *fill*         0x20001a28      0x200 
+                0x20002028                        . = (. + _Min_Stack_Size)
+ *fill*         0x20001c28      0x400 
+                0x20002028                        . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
