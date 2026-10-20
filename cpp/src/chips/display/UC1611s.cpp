@@ -24,17 +24,57 @@ constexpr uint16_t UC1611sMinimal::WIDTH;
 constexpr uint16_t UC1611sMinimal::HEIGHT;
 constexpr size_t   UC1611sMinimal::I2C_CHUNK;
 
-UC1611sMinimal::UC1611sMinimal(Connection& command, Connection& data, uint16_t width, uint16_t height,
-                               bool topView, uint8_t contrast)
-    : _cmd_conn(command), _data_conn(data), _valid(true), _width(width), _height(height),
+constexpr size_t   UC1611sI2CBus::CHUNK;
+
+bool UC1611sI2CBus::write_command(const uint8_t* bytes, size_t len) {
+    _cmd->write(bytes, len);
+    return _cmd->ok();
+}
+
+/** One pass over `len` data bytes in CHUNK pieces; `bytes == nullptr` writes zeros. Stops at the first failed chunk. */
+bool UC1611sI2CBus::write_data(const uint8_t* bytes, size_t len) {
+    static const uint8_t ZEROS[CHUNK] = {0};
+    while (len > 0) {
+        size_t n = len > CHUNK ? CHUNK : len;
+        _data->write(bytes ? bytes : ZEROS, n);
+        if (!_data->ok()) return false;
+        if (bytes) bytes += n;
+        len -= n;
+    }
+    return true;
+}
+
+/** The chip's status pointer advances by n + 1 per read transaction (the byte after the NACKed one is consumed too)
+ *  and any other transaction resets it to Status1, so a NOP write before every read makes the three bytes come
+ *  out as Status1, Status2, Status3. */
+bool UC1611sI2CBus::read_status(uint8_t status[3]) {
+    const uint8_t nop = UC1611sMinimal::CMD_NOP;
+    _cmd->write(&nop, 1);
+    if (!_cmd->ok()) return false;
+    _cmd->read(status, 3);
+    return _cmd->ok();
+}
+
+bool UC1611sI2CBus::read_ram(uint8_t* buf, size_t n) {
+    if (n > CHUNK) n = CHUNK;
+    _data->read(_rx, n + 1);
+    if (!_data->ok()) return false;
+    for (size_t i = 0; i < n; i++) buf[i] = _rx[i + 1];
+    return true;
+}
+
+UC1611sMinimal::UC1611sMinimal(UC1611sBus* bus, Connection* command, Connection* data, uint16_t width,
+                               uint16_t height, bool topView, uint8_t contrast)
+    : _i2c(command, data), _bus(bus ? *bus : static_cast<UC1611sBus&>(_i2c)), _valid(true), _width(width), _height(height),
       _pages(static_cast<uint8_t>(height / 8)), _mx(topView ? 0 : 1), _my(topView ? 1 : 0),
-      _pattern(0), _contrast(contrast), _retries(0), _errors(0), _rx{}, _fb{} {
+      _pattern(0), _contrast(contrast), _retries(0), _errors(0), _fb{} {
     if (width < 1 || width > WIDTH || height < 8 || height > HEIGHT || (height % 8) != 0) {
         _valid = false;
         return;
     }
-    // Power-up wait, System Reset, configuration, RAM clear, display on.
+    // Power-up wait, hardware reset (SPI), System Reset, configuration, RAM clear, display on.
     _sleep_ms(150);
+    _bus.hardware_reset();
     if (!_command1(CMD_RESET)) {        // own transaction, ended with STOP; no answer at all = no chip
         _valid = false;
         return;
@@ -52,8 +92,7 @@ void UC1611sMinimal::_sleep_ms(uint32_t ms) {
 
 bool UC1611sMinimal::_command(const uint8_t* bytes, size_t len) {
     for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-        _cmd_conn.write(bytes, len);
-        if (_cmd_conn.ok()) return true;
+        if (_bus.write_command(bytes, len)) return true;
         _retries++;
         _sleep_ms(RETRY_DELAY_MS);
     }
@@ -70,17 +109,8 @@ bool UC1611sMinimal::_command2(uint8_t a, uint8_t b) {
     return _command(buf, 2);
 }
 
-/** One pass over `len` data bytes in I2C_CHUNK pieces; `data == nullptr` writes zeros. Stops at the first failed chunk. */
 bool UC1611sMinimal::_write_chunks(const uint8_t* data, size_t len) {
-    static const uint8_t ZEROS[I2C_CHUNK] = {0};
-    while (len > 0) {
-        size_t n = len > I2C_CHUNK ? I2C_CHUNK : len;
-        _data_conn.write(data ? data : ZEROS, n);
-        if (!_data_conn.ok()) return false;
-        if (data) data += n;
-        len -= n;
-    }
-    return true;
+    return _bus.write_data(data, len);
 }
 
 bool UC1611sMinimal::_write_data(const uint8_t* data, size_t len) {
@@ -100,17 +130,11 @@ bool UC1611sMinimal::_write_page(uint8_t page, const uint8_t* data, size_t len) 
     return false;
 }
 
-/** The chip's status pointer advances by n + 1 per read transaction (the byte after the NACKed one is consumed too)
- *  and any other transaction resets it to Status1, so a NOP write before every read makes the three bytes come
- *  out as Status1, Status2, Status3. */
 bool UC1611sMinimal::_read_status(uint8_t status[3]) {
-    const uint8_t nop = CMD_NOP;
+    status[0] = status[1] = status[2] = 0;
+    if (!_bus.can_read()) return false;
     for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-        _cmd_conn.write(&nop, 1);
-        if (_cmd_conn.ok()) {
-            _cmd_conn.read(status, 3);
-            if (_cmd_conn.ok()) return true;
-        }
+        if (_bus.read_status(status)) return true;
         _retries++;
         _sleep_ms(RETRY_DELAY_MS);
     }
@@ -121,6 +145,10 @@ bool UC1611sMinimal::_read_status(uint8_t status[3]) {
 
 /** Poll Status1.DE (bit 3) until the pump is up and the display is enabled, or the timeout expires. */
 void UC1611sMinimal::_wait_display_enabled(uint32_t timeout_ms) {
+    if (!_bus.can_read()) {         // SPI cannot read DE: wait the measured pump restart time with margin
+        _sleep_ms(timeout_ms < 10 ? timeout_ms : 10);
+        return;
+    }
     uint8_t s[3];
     for (uint32_t waited = 0; waited <= timeout_ms; waited += RETRY_DELAY_MS) {
         uint32_t keep_retries = _retries, keep_errors = _errors;
@@ -352,14 +380,10 @@ bool UC1611sFull::read_status(uint8_t status[3]) {
 
 bool UC1611sFull::read_ram(uint8_t page, uint8_t column, uint8_t* buf, uint8_t n) {
     if (n > I2C_CHUNK) n = static_cast<uint8_t>(I2C_CHUNK);
+    for (uint8_t i = 0; i < n; i++) buf[i] = 0;
+    if (!_bus.can_read()) return false;
     for (uint8_t attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-        if (_set_address(page, column)) {
-            _data_conn.read(_rx, static_cast<size_t>(n) + 1);
-            if (_data_conn.ok()) {
-                for (uint8_t i = 0; i < n; i++) buf[i] = _rx[i + 1];
-                return true;
-            }
-        }
+        if (_set_address(page, column) && _bus.read_ram(buf, n)) return true;
         _retries++;
         _sleep_ms(RETRY_DELAY_MS);
     }

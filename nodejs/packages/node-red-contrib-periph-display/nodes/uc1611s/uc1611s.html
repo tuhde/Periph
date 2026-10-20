@@ -4,8 +4,14 @@
         color:    '#C084FC',
         defaults: {
             name:     { value: '' },
-            i2cBus:   { value: '1', required: true, validate: RED.validators.number() },
-            address:  { value: '0x38', required: true },
+            transport: { value: 'i2c' },
+            i2cBus:   { value: '1', validate: RED.validators.number() },
+            address:  { value: '0x38' },
+            spiBus:   { value: '0', validate: RED.validators.number() },
+            spiDevice: { value: '0', validate: RED.validators.number() },
+            gpioChip: { value: '0', validate: RED.validators.number() },
+            cdPin:    { value: '25', validate: RED.validators.number() },
+            resPin:   { value: '17', validate: RED.validators.number() },
             width:    { value: '240', required: true, validate: RED.validators.number() },
             height:   { value: '128', required: true, validate: RED.validators.number() },
             topView:  { value: false },
@@ -16,7 +22,16 @@
         outputs: 1,
         icon:    'font-awesome/fa-television',
         label:   function() { return this.name || 'UC1611s'; },
-        paletteLabel: 'UC1611s'
+        paletteLabel: 'UC1611s',
+        oneditprepare: function() {
+            function show() {
+                const spi = $('#node-input-transport').val() === 'spi';
+                $('.uc1611s-i2c').toggle(!spi);
+                $('.uc1611s-spi').toggle(spi);
+            }
+            $('#node-input-transport').on('change', show);
+            show();
+        }
     });
 </script>
 
@@ -26,10 +41,34 @@
         <input type="text" id="node-input-name" placeholder="UC1611s">
     </div>
     <div class="form-row">
+        <label for="node-input-transport"><i class="fa fa-exchange"></i> Interface</label>
+        <select id="node-input-transport" style="width:auto">
+            <option value="i2c">I2C</option>
+            <option value="spi">4-wire SPI</option>
+        </select>
+    </div>
+    <div class="form-row uc1611s-spi">
+        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus / device</label>
+        <input type="number" id="node-input-spiBus" min="0" style="width:70px"> /
+        <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row uc1611s-spi">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row uc1611s-spi">
+        <label for="node-input-cdPin">CD (D/C) line</label>
+        <input type="number" id="node-input-cdPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row uc1611s-spi">
+        <label for="node-input-resPin">RST line</label>
+        <input type="number" id="node-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row uc1611s-i2c">
         <label for="node-input-i2cBus"><i class="fa fa-microchip"></i> I2C bus</label>
         <input type="number" id="node-input-i2cBus" min="0" style="width:70px">
     </div>
-    <div class="form-row">
+    <div class="form-row uc1611s-i2c">
         <label for="node-input-address">Command address</label>
         <select id="node-input-address" style="width:auto">
             <option value="0x38">0x38 (A3 = A2 = low, data 0x39)</option>
@@ -58,7 +97,7 @@
 </script>
 
 <script type="text/html" data-help-name="periph-uc1611s">
-    <p>Draws on a UC1611s graphic LCD (EA DOGXL240-7, 240 x 128, black/white) over I2C. The chip has two I2C addresses, command (<code>0x38 + 2n</code>) and data (one higher); the node opens both. The module runs from 3.3 V only.</p>
+    <p>Draws on a UC1611s graphic LCD (EA DOGXL240-7, 240 x 128, black/white) over I2C or 4-wire SPI. On I2C the chip has two addresses, command (<code>0x38 + 2n</code>) and data (one higher); the node opens both. On SPI the node needs the SPI bus / chip-select device and the GPIO lines for CD (D/C) and RST; the module must be strapped for 4-wire SPI (BM0 = D13 = VSS), and <code>payload.status</code> is not available. The module runs from 3.3 V only.</p>
     <p>Drawing commands change a framebuffer; with <em>Auto-show</em> the framebuffer is sent after every message that draws, otherwise send <code>{ show: true }</code>. NACKs of the chip are retried by the driver.</p>
 
     <h3>Inputs</h3>

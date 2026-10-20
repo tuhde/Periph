@@ -2,6 +2,7 @@
 // Unit test for the UC1611s driver — mocked I²C connections, no hardware.
 const { I2CConnectionMock } = require('../../packages/periph/src/connection/i2c_mock');
 const U = require('../../packages/periph/src/chips/display/uc1611s');
+const { DisplayConnectionMock } = require('../../packages/periph/src/connection/display_mock');
 
 let passed = 0;
 let failed = 0;
@@ -243,6 +244,40 @@ async function main() {
     qc.queueRead([0xDA, 0x80, 0x10]);
     await rq.wake();
     checkTrue('wake_polls_display_enable', rq.ok() && eq(qc.writes[qc.writes.length - 3], [0xA9]) && eq(last(qc), [0xE3]));
+
+    // ---- SPI (4-wire) via the display connection ----------------------------------------
+    {
+        const dc = new DisplayConnectionMock();
+        const sp = new U.UC1611sSpiMinimal(dc);
+        await sp.ready();
+        const cmds = dc.events.filter((e) => e.type === 'command').map((e) => e.cmd);
+        const datas = dc.events.filter((e) => e.type === 'data');
+        checkTrue('spi_geometry', sp.width === 240 && sp.height === 128);
+        checkTrue('spi_hardware_reset_first', dc.events[0].type === 'reset' && dc.resetCount === 1);
+        checkTrue('spi_init_stream_one_command_per_byte',
+            JSON.stringify(cmds.slice(0, 13)) === JSON.stringify([0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F]));
+        checkTrue('spi_arguments_sent_as_commands', dc.events.filter((e) => e.type === 'command').every((e) => e.data.length === 0));
+        checkTrue('spi_init_clears_20_pages_one_transfer_each', datas.length === 20 && datas.every((e) => e.data.length === 240));
+        checkTrue('spi_no_retries', sp.retryCount() === 0 && sp.ok());
+        const n = dc.events.length;
+        sp.setPixel(0, 0);
+        await sp.show();
+        const shown = dc.events.slice(n).filter((e) => e.type === 'data');
+        checkTrue('spi_show_16_pages_of_240', shown.length === 16 && shown.every((e) => e.data.length === 240) && shown[0].data[0] === 1);
+
+        const dc2 = new DisplayConnectionMock();
+        const fu = new U.UC1611sSpiFull(dc2);
+        await fu.ready();
+        checkTrue('spi_read_status_unsupported', await rejects(() => fu.readStatus()));
+        checkTrue('spi_read_ram_unsupported', await rejects(() => fu.readRam(0, 0, 2)));
+        checkTrue('spi_unsupported_read_not_an_error', fu.ok() && fu.errorCount() === 0);
+        let m = dc2.events.length;
+        await fu.setContrast(0x50);
+        checkTrue('spi_full_contrast_two_commands', JSON.stringify(dc2.events.slice(m).map((e) => e.cmd)) === JSON.stringify([0x81, 0x50]));
+        m = dc2.events.length;
+        await fu.wake();
+        checkTrue('spi_wake_sends_display_on', JSON.stringify(dc2.events.slice(m).filter((e) => e.type === 'command').map((e) => e.cmd)) === JSON.stringify([0xA9]));
+    }
 
     console.log(`===DONE: ${passed} passed, ${failed} failed===`);
     process.exit(failed === 0 ? 0 : 1);

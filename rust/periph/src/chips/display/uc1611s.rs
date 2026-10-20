@@ -1,9 +1,23 @@
 //! UC1611s — 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7.
 //!
-//! Drives a 240 x 128 black/white STN/FSTN module in 1 bit per pixel mode over I²C. The chip carries the
+//! Drives a 240 x 128 black/white STN/FSTN module in 1 bit per pixel mode over I²C or 4-wire SPI.
+//!
+//! ## I²C
+//!
+//! The chip carries the
 //! command/data bit in its I²C address, so it answers on two consecutive 7-bit addresses: `0x38 + 2n` for
 //! commands and `0x39 + 2n` for display RAM data (n = A3 << 1 | A2, the two address pins). One bus is enough:
-//! the driver takes the command address and uses address + 1 for data.
+//! the driver takes the command address and uses address + 1 for data ([`Uc1611sMinimal::new`]).
+//!
+//! ## 4-wire SPI
+//!
+//! [`Uc1611sMinimal::new_spi`] / [`Uc1611sFull::new_spi`] drive the module through a
+//! [`DisplayBus`](crate::connection::display::DisplayBus) (CS#, D/C# = CD, RES# = RST, optional): the module must be
+//! strapped for 4-wire SPI (BM0 = D13 = VSS), SPI mode 0, up to 8 MHz. Every command byte, including the arguments
+//! of two- and three-byte commands, is sent with D/C# low as its own CS window; RAM data is sent with D/C# high.
+//! There is no read-back and no acknowledge: nothing is retried, the driver waits a fixed 10 ms for the charge
+//! pump after reset or wake instead of polling, and `read_status` / `read_ram` return [`Error::Unsupported`].
+//! [`Uc1611sSpiMinimal`] and [`Uc1611sSpiFull`] are the aliases for these types.
 //!
 //! All drawing goes into a framebuffer inside the driver (`width * height / 8` bytes, page-major, bit 0 = top
 //! pixel of the page, 3840 bytes at 240 x 128, no heap); `show` sends it to the display RAM. The
@@ -21,12 +35,17 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::i2c::I2c;
 
+use crate::connection::display::DisplayBus;
+
 /// Columns of the EA DOGXL240-7.
 pub const WIDTH: usize = 240;
 /// Rows of the EA DOGXL240-7.
 pub const HEIGHT: usize = 128;
 /// Largest data write in bytes (the 32-byte limit of some I²C layers).
 pub const I2C_CHUNK: usize = 32;
+
+/// Largest data write in bytes on the SPI transport (one page).
+pub const SPI_CHUNK: usize = 240;
 /// Attempts per transfer before it is counted as failed.
 pub const MAX_ATTEMPTS: u8 = 8;
 /// Wait between two attempts in milliseconds.
@@ -68,16 +87,126 @@ pub enum Error<E> {
     Bus(E),
     /// A size, position or buffer argument was out of range.
     InvalidArgument,
+    /// The operation needs read-back, which the 4-wire SPI interface of the module does not have.
+    Unsupported,
+}
+
+/// Transport of the UC1611s drivers: one attempt per call, no retry (the driver retries).
+///
+/// Implemented by [`I2cBus`] (command and data address on one I²C bus) and [`SpiBus`] (a display connection).
+pub trait Transport {
+    /// Error type of the transfers.
+    type Error;
+    /// `true` if status and RAM can be read back (I²C); the SPI interface is write-only.
+    const CAN_READ: bool;
+    /// Send bytes as one command transfer.
+    fn write_command(&mut self, bytes: &[u8]) -> Result<(), Self::Error>;
+    /// Send RAM data bytes (in chunks if the transport needs it).
+    fn write_data(&mut self, bytes: &[u8]) -> Result<(), Self::Error>;
+    /// Write a NOP, then read Status1..3.
+    fn read_status(&mut self) -> Result<[u8; 3], Self::Error>;
+    /// Read `buf.len() + 1` RAM bytes and return the bytes after the dummy byte.
+    fn read_ram(&mut self, buf: &mut [u8]) -> Result<(), Self::Error>;
+    /// Pulse the hardware reset line, if any.
+    fn hardware_reset(&mut self) -> Result<(), Self::Error>;
+    /// Block for `ms` milliseconds.
+    fn delay_ms(&mut self, ms: u32);
+}
+
+/// I²C transport: commands on the command address, RAM data (chunks of [`I2C_CHUNK`]) on the data address.
+pub struct I2cBus<I2C, D> {
+    i2c: I2C,
+    delay: D,
+    cmd_addr: u8,
+    data_addr: u8,
+}
+
+impl<I2C: I2c, D: DelayNs> Transport for I2cBus<I2C, D> {
+    type Error = I2C::Error;
+    const CAN_READ: bool = true;
+
+    fn write_command(&mut self, bytes: &[u8]) -> Result<(), Self::Error> {
+        self.i2c.write(self.cmd_addr, bytes)
+    }
+
+    fn write_data(&mut self, bytes: &[u8]) -> Result<(), Self::Error> {
+        for chunk in bytes.chunks(I2C_CHUNK) {
+            self.i2c.write(self.data_addr, chunk)?;
+        }
+        Ok(())
+    }
+
+    fn read_status(&mut self) -> Result<[u8; 3], Self::Error> {
+        let mut s = [0u8; 3];
+        self.i2c.write(self.cmd_addr, &[CMD_NOP])?;
+        self.i2c.read(self.cmd_addr, &mut s)?;
+        Ok(s)
+    }
+
+    fn read_ram(&mut self, buf: &mut [u8]) -> Result<(), Self::Error> {
+        let mut raw = [0u8; 256];
+        let n = buf.len();
+        self.i2c.read(self.data_addr, &mut raw[..n + 1])?;
+        buf.copy_from_slice(&raw[1..n + 1]);
+        Ok(())
+    }
+
+    fn hardware_reset(&mut self) -> Result<(), Self::Error> {
+        Ok(())
+    }
+
+    fn delay_ms(&mut self, ms: u32) {
+        self.delay.delay_ms(ms);
+    }
+}
+
+/// 4-wire SPI transport on a [`DisplayBus`]: D/C# low for every command byte (own CS window), high for RAM data.
+pub struct SpiBus<B> {
+    conn: B,
+}
+
+impl<B: DisplayBus> Transport for SpiBus<B> {
+    type Error = B::Error;
+    const CAN_READ: bool = false;
+
+    fn write_command(&mut self, bytes: &[u8]) -> Result<(), Self::Error> {
+        for &b in bytes {
+            self.conn.send_command(b, &[])?;
+        }
+        Ok(())
+    }
+
+    fn write_data(&mut self, bytes: &[u8]) -> Result<(), Self::Error> {
+        for chunk in bytes.chunks(SPI_CHUNK) {
+            self.conn.send_data(chunk)?;
+        }
+        Ok(())
+    }
+
+    fn read_status(&mut self) -> Result<[u8; 3], Self::Error> {
+        let mut s = [0u8; 3];
+        self.conn.read_data(&mut s)?;
+        Ok(s)
+    }
+
+    fn read_ram(&mut self, buf: &mut [u8]) -> Result<(), Self::Error> {
+        self.conn.read_data(buf)
+    }
+
+    fn hardware_reset(&mut self) -> Result<(), Self::Error> {
+        self.conn.reset()
+    }
+
+    fn delay_ms(&mut self, ms: u32) {
+        let _ = self.conn.delay_ms(ms);
+    }
 }
 
 /// UC1611s minimal driver — a 240 x 128 black/white framebuffer display.
 ///
 /// See the [module documentation](self).
-pub struct Uc1611sMinimal<I2C, D> {
-    i2c: I2C,
-    delay: D,
-    cmd_addr: u8,
-    data_addr: u8,
+pub struct Uc1611sMinimal<B> {
+    bus: B,
     width: usize,
     height: usize,
     pages: u8,
@@ -90,9 +219,9 @@ pub struct Uc1611sMinimal<I2C, D> {
     fb: [u8; FB_SIZE],
 }
 
-impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
-    /// Create the driver and run the initialisation sequence (about 400 ms): wait 150 ms, System Reset, wait
-    /// 150 ms, configuration, RAM clear, display on, poll Status1.DE.
+impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2cBus<I2C, D>> {
+    /// Create the driver on an I²C bus and run the initialisation sequence (about 400 ms): wait 150 ms, System Reset,
+    /// wait 150 ms, configuration, RAM clear, display on, poll Status1.DE.
     ///
     /// # Arguments
     ///
@@ -106,26 +235,51 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
     ///
     /// [`Error::InvalidArgument`] for a bad size, [`Error::Bus`] when the chip does not acknowledge the System Reset.
     pub fn new(i2c: I2C, cmd_addr: u8, delay: D, width: usize, height: usize) -> Result<Self, Error<I2C::Error>> {
-        Self::with_options(i2c, cmd_addr, delay, width, height, false, 0x8F)
+        Self::with_options(I2cBus { i2c, delay, cmd_addr, data_addr: cmd_addr + 1 }, width, height, false, 0x8F)
     }
 
+    /// Release the I²C bus and the delay provider.
+    pub fn release(self) -> (I2C, D) {
+        (self.bus.i2c, self.bus.delay)
+    }
+}
+
+impl<DB: DisplayBus> Uc1611sMinimal<SpiBus<DB>> {
+    /// Create the driver on a 4-wire SPI display connection and run the initialisation sequence (about 400 ms):
+    /// wait 150 ms, hardware reset, System Reset, wait 150 ms, configuration, RAM clear, display on, wait 10 ms.
+    ///
+    /// # Arguments
+    ///
+    /// * `connection` – [`DisplayBus`] (CS#, D/C# = CD, RES# = RST optional, no BUSY).
+    /// * `width`      – Columns, 1..=240 (default [`WIDTH`]).
+    /// * `height`     – Rows, a multiple of 8, 8..=128 (default [`HEIGHT`]).
+    ///
+    /// # Errors
+    ///
+    /// [`Error::InvalidArgument`] for a bad size, [`Error::Bus`] when a transfer fails.
+    pub fn new_spi(connection: DB, width: usize, height: usize) -> Result<Self, Error<DB::Error>> {
+        Self::with_options(SpiBus { conn: connection }, width, height, false, 0x8F)
+    }
+
+    /// Release the display connection.
+    pub fn release_spi(self) -> DB {
+        self.bus.conn
+    }
+}
+
+impl<B: Transport> Uc1611sMinimal<B> {
     fn with_options(
-        i2c: I2C,
-        cmd_addr: u8,
-        delay: D,
+        bus: B,
         width: usize,
         height: usize,
         top_view: bool,
         contrast: u8,
-    ) -> Result<Self, Error<I2C::Error>> {
+    ) -> Result<Self, Error<B::Error>> {
         if !(1..=WIDTH).contains(&width) || !(8..=HEIGHT).contains(&height) || height % 8 != 0 {
             return Err(Error::InvalidArgument);
         }
         let mut d = Self {
-            i2c,
-            delay,
-            cmd_addr,
-            data_addr: cmd_addr + 1,
+            bus,
             width,
             height,
             pages: (height / 8) as u8,
@@ -139,11 +293,6 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
         };
         d.init_sequence()?;
         Ok(d)
-    }
-
-    /// Release the I²C bus and the delay provider.
-    pub fn release(self) -> (I2C, D) {
-        (self.i2c, self.delay)
     }
 
     /// Columns of the framebuffer.
@@ -206,7 +355,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
     /// # Errors
     ///
     /// [`Error::Bus`] if a page still fails after all attempts.
-    pub fn show(&mut self) -> Result<(), Error<I2C::Error>> {
+    pub fn show(&mut self) -> Result<(), Error<B::Error>> {
         for page in 0..self.pages {
             self.show_page_inner(page)?;
         }
@@ -215,15 +364,15 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
 
     // ---- internals ------------------------------------------------------------------------
 
-    fn command(&mut self, bytes: &[u8]) -> Result<(), Error<I2C::Error>> {
+    fn command(&mut self, bytes: &[u8]) -> Result<(), Error<B::Error>> {
         let mut last = None;
         for _ in 0..MAX_ATTEMPTS {
-            match self.i2c.write(self.cmd_addr, bytes) {
+            match self.bus.write_command(bytes) {
                 Ok(()) => return Ok(()),
                 Err(e) => {
                     last = Some(e);
                     self.retries += 1;
-                    self.delay.delay_ms(RETRY_DELAY_MS);
+                    self.bus.delay_ms(RETRY_DELAY_MS);
                 }
             }
         }
@@ -231,12 +380,9 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
         Err(Error::Bus(last.unwrap()))
     }
 
-    /// One pass over the data in chunks of at most [`I2C_CHUNK`] bytes.
-    fn write_chunks(&mut self, data: &[u8]) -> Result<(), I2C::Error> {
-        for chunk in data.chunks(I2C_CHUNK) {
-            self.i2c.write(self.data_addr, chunk)?;
-        }
-        Ok(())
+    /// One pass over the data in transport-sized chunks.
+    fn write_chunks(&mut self, data: &[u8]) -> Result<(), B::Error> {
+        self.bus.write_data(data)
     }
 
     fn address_bytes(&self, page: u8, column: u8) -> [u8; 4] {
@@ -245,11 +391,11 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
     }
 
     /// Write one page: address command, then the data; a failure repeats both.
-    fn write_page(&mut self, page: u8, data: &[u8]) -> Result<(), Error<I2C::Error>> {
+    fn write_page(&mut self, page: u8, data: &[u8]) -> Result<(), Error<B::Error>> {
         let mut last = None;
         for _ in 0..MAX_ATTEMPTS {
             let addr = self.address_bytes(page, 0);
-            let r = match self.i2c.write(self.cmd_addr, &addr) {
+            let r = match self.bus.write_command(&addr) {
                 Ok(()) => self.write_chunks(data),
                 Err(e) => Err(e),
             };
@@ -258,7 +404,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
                 Err(e) => {
                     last = Some(e);
                     self.retries += 1;
-                    self.delay.delay_ms(RETRY_DELAY_MS);
+                    self.bus.delay_ms(RETRY_DELAY_MS);
                 }
             }
         }
@@ -266,7 +412,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
         Err(Error::Bus(last.unwrap()))
     }
 
-    fn show_page_inner(&mut self, page: u8) -> Result<(), Error<I2C::Error>> {
+    fn show_page_inner(&mut self, page: u8) -> Result<(), Error<B::Error>> {
         let start = page as usize * self.width;
         let mut buf = [0u8; WIDTH];
         buf[..self.width].copy_from_slice(&self.fb[start..start + self.width]);
@@ -275,20 +421,18 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
     }
 
     /// Read Status1..3; a NOP write first restarts the chip's status cycle (it advances by n + 1 per read).
-    fn read_status_inner(&mut self) -> Result<[u8; 3], Error<I2C::Error>> {
+    fn read_status_inner(&mut self) -> Result<[u8; 3], Error<B::Error>> {
+        if !B::CAN_READ {
+            return Err(Error::Unsupported);
+        }
         let mut last = None;
         for _ in 0..MAX_ATTEMPTS {
-            let mut s = [0u8; 3];
-            let r = match self.i2c.write(self.cmd_addr, &[CMD_NOP]) {
-                Ok(()) => self.i2c.read(self.cmd_addr, &mut s),
-                Err(e) => Err(e),
-            };
-            match r {
-                Ok(()) => return Ok(s),
+            match self.bus.read_status() {
+                Ok(s) => return Ok(s),
                 Err(e) => {
                     last = Some(e);
                     self.retries += 1;
-                    self.delay.delay_ms(RETRY_DELAY_MS);
+                    self.bus.delay_ms(RETRY_DELAY_MS);
                 }
             }
         }
@@ -296,18 +440,20 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
         Err(Error::Bus(last.unwrap()))
     }
 
-    /// Poll Status1.DE until the pump is up; NACKs while it starts are expected and not counted.
+    /// Poll Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms); NACKs while it starts are not counted.
     fn wait_display_enabled(&mut self, timeout_ms: u32) {
+        if !B::CAN_READ {
+            self.bus.delay_ms(timeout_ms.min(10));
+            return;
+        }
         let mut waited = 0;
         while waited <= timeout_ms {
-            let mut s = [0u8; 3];
-            if self.i2c.write(self.cmd_addr, &[CMD_NOP]).is_ok()
-                && self.i2c.read(self.cmd_addr, &mut s).is_ok()
-                && s[0] & 0x08 != 0
-            {
-                return;
+            if let Ok(s) = self.bus.read_status() {
+                if s[0] & 0x08 != 0 {
+                    return;
+                }
             }
-            self.delay.delay_ms(RETRY_DELAY_MS);
+            self.bus.delay_ms(RETRY_DELAY_MS);
             waited += RETRY_DELAY_MS;
         }
     }
@@ -317,14 +463,14 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
     }
 
     /// System Reset in its own transaction, then the conservative 150 ms wait.
-    fn reset_chip(&mut self) -> Result<(), Error<I2C::Error>> {
+    fn reset_chip(&mut self) -> Result<(), Error<B::Error>> {
         self.command(&[CMD_RESET])?;
-        self.delay.delay_ms(150);
+        self.bus.delay_ms(150);
         Ok(())
     }
 
     /// Configuration stream of the DOG bottom-view example (the display stays off).
-    fn configure(&mut self) -> Result<(), Error<I2C::Error>> {
+    fn configure(&mut self) -> Result<(), Error<B::Error>> {
         let last = (self.height - 1) as u8;
         let stream = [
             CMD_TEMP | 1,
@@ -345,12 +491,13 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
         self.command(&stream)
     }
 
-    fn enable(&mut self) -> Result<(), Error<I2C::Error>> {
+    fn enable(&mut self) -> Result<(), Error<B::Error>> {
         self.command(&[CMD_DISPLAY | 1])
     }
 
-    fn init_sequence(&mut self) -> Result<(), Error<I2C::Error>> {
-        self.delay.delay_ms(150);
+    fn init_sequence(&mut self) -> Result<(), Error<B::Error>> {
+        self.bus.delay_ms(150);
+        self.bus.hardware_reset().map_err(Error::Bus)?;
         self.reset_chip()?;
         self.configure()?;
         let zeros = [0u8; WIDTH];
@@ -368,25 +515,31 @@ impl<I2C: I2c, D: DelayNs> Uc1611sMinimal<I2C, D> {
 /// contrast, sleep, invert, flip / top view, hardware scroll with fixed lines, bias ratio, temperature
 /// compensation, line rate, charge pump / external VLCD, panel loading, partial display, N-line inversion,
 /// isolation clock, the four RAM patterns, status and RAM reads, and raw commands.
-pub struct Uc1611sFull<I2C, D> {
-    inner: Uc1611sMinimal<I2C, D>,
+pub struct Uc1611sFull<B> {
+    inner: Uc1611sMinimal<B>,
 }
 
-impl<I2C, D> core::ops::Deref for Uc1611sFull<I2C, D> {
-    type Target = Uc1611sMinimal<I2C, D>;
+impl<B> core::ops::Deref for Uc1611sFull<B> {
+    type Target = Uc1611sMinimal<B>;
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl<I2C, D> core::ops::DerefMut for Uc1611sFull<I2C, D> {
+impl<B> core::ops::DerefMut for Uc1611sFull<B> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
-    /// Create the driver and run the initialisation sequence.
+/// UC1611s over 4-wire SPI — minimal driver ([`Uc1611sMinimal`] on a [`SpiBus`]; create it with `new_spi`).
+pub type Uc1611sSpiMinimal<DB> = Uc1611sMinimal<SpiBus<DB>>;
+
+/// UC1611s over 4-wire SPI — full driver ([`Uc1611sFull`] on a [`SpiBus`]; create it with `new_spi`).
+pub type Uc1611sSpiFull<DB> = Uc1611sFull<SpiBus<DB>>;
+
+impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2cBus<I2C, D>> {
+    /// Create the driver on an I²C bus and run the initialisation sequence.
     ///
     /// # Arguments
     ///
@@ -410,9 +563,38 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
         top_view: bool,
         contrast: u8,
     ) -> Result<Self, Error<I2C::Error>> {
-        Ok(Self { inner: Uc1611sMinimal::with_options(i2c, cmd_addr, delay, width, height, top_view, contrast)? })
+        let bus = I2cBus { i2c, delay, cmd_addr, data_addr: cmd_addr + 1 };
+        Ok(Self { inner: Uc1611sMinimal::with_options(bus, width, height, top_view, contrast)? })
     }
+}
 
+impl<DB: DisplayBus> Uc1611sFull<SpiBus<DB>> {
+    /// Create the driver on a 4-wire SPI display connection and run the initialisation sequence.
+    ///
+    /// # Arguments
+    ///
+    /// * `connection` – [`DisplayBus`] (CS#, D/C# = CD, RES# = RST optional, no BUSY).
+    /// * `width`      – Columns, 1..=240.
+    /// * `height`     – Rows, a multiple of 8, 8..=128.
+    /// * `top_view`   – `true` for the 12:00 viewing direction (MY = 1, MX = 0).
+    /// * `contrast`   – Potentiometer PM 0..=255 (the DOG example value is `0x8F`).
+    ///
+    /// # Errors
+    ///
+    /// [`Error::InvalidArgument`] for a bad size, [`Error::Bus`] when a transfer fails.
+    pub fn new_spi(
+        connection: DB,
+        width: usize,
+        height: usize,
+        top_view: bool,
+        contrast: u8,
+    ) -> Result<Self, Error<DB::Error>> {
+        let bus = SpiBus { conn: connection };
+        Ok(Self { inner: Uc1611sMinimal::with_options(bus, width, height, top_view, contrast)? })
+    }
+}
+
+impl<B: Transport> Uc1611sFull<B> {
     // ---- framebuffer ----------------------------------------------------------------------
 
     /// Return a framebuffer pixel; out-of-range coordinates read as `false`.
@@ -481,7 +663,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     /// # Errors
     ///
     /// [`Error::InvalidArgument`] if `y` is not a multiple of 8 or `height_pages` is 0.
-    pub fn blit(&mut self, x: i32, y: i32, columns: &[u8], height_pages: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn blit(&mut self, x: i32, y: i32, columns: &[u8], height_pages: u8) -> Result<(), Error<B::Error>> {
         if y % 8 != 0 || height_pages == 0 {
             return Err(Error::InvalidArgument);
         }
@@ -502,7 +684,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     }
 
     /// Write one framebuffer page to the display RAM (cheaper partial update). Out-of-range pages are ignored.
-    pub fn show_page(&mut self, page: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn show_page(&mut self, page: u8) -> Result<(), Error<B::Error>> {
         if page < self.inner.pages {
             self.inner.show_page_inner(page)?;
         }
@@ -512,42 +694,42 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     // ---- display control ------------------------------------------------------------------
 
     /// Set the potentiometer PM that adjusts VLCD (contrast), 0..=255.
-    pub fn set_contrast(&mut self, value: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_contrast(&mut self, value: u8) -> Result<(), Error<B::Error>> {
         self.inner.contrast = value;
         self.inner.command(&[CMD_POTENTIOMETER, value])
     }
 
     /// Switch the display on, or into sleep (registers and RAM kept, below 1 uA).
-    pub fn set_display(&mut self, on: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_display(&mut self, on: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_DISPLAY | on as u8])
     }
 
     /// Enter sleep mode: drivers, charge pump and clock stop; the host interface stays active.
-    pub fn sleep(&mut self) -> Result<(), Error<I2C::Error>> {
+    pub fn sleep(&mut self) -> Result<(), Error<B::Error>> {
         self.set_display(false)
     }
 
     /// Leave sleep mode. The chip NACKs and Status1.DE stays 0 for about 6 ms while the charge pump restarts,
     /// so the driver polls DE (at most 50 ms) instead of sleeping.
-    pub fn wake(&mut self) -> Result<(), Error<I2C::Error>> {
+    pub fn wake(&mut self) -> Result<(), Error<B::Error>> {
         self.set_display(true)?;
         self.inner.wait_display_enabled(50);
         Ok(())
     }
 
     /// Invert the displayed image without changing RAM.
-    pub fn set_invert(&mut self, on: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_invert(&mut self, on: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_INVERSE | on as u8])
     }
 
     /// Force all pixels on (test mode, RAM unchanged).
-    pub fn set_all_on(&mut self, on: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_all_on(&mut self, on: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_ALL_ON | on as u8])
     }
 
     /// Mirror columns (MX) and/or rows (MY). MY acts at once; MX is applied to RAM writes, so call
     /// [`Uc1611sMinimal::show`] afterwards to re-send the framebuffer.
-    pub fn set_flip(&mut self, mirror_x: bool, mirror_y: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_flip(&mut self, mirror_x: bool, mirror_y: bool) -> Result<(), Error<B::Error>> {
         self.inner.mx = mirror_x as u8;
         self.inner.my = mirror_y as u8;
         let m = self.inner.mapping();
@@ -555,42 +737,42 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     }
 
     /// Scroll the image up by `line` rows (hardware scroll, wraps at 160 rows); 0 ..= 159 - 2 * fixed lines.
-    pub fn set_scroll_line(&mut self, line: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_scroll_line(&mut self, line: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_SCROLL_LO | (line & 0x0F), CMD_SCROLL_HI | ((line >> 4) & 0x0F)])
     }
 
     /// Keep the first `2 * lines` rows out of the scroll (FL, 0..=15).
-    pub fn set_fixed_lines(&mut self, lines: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_fixed_lines(&mut self, lines: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_FIXED | (lines & 0x0F)])
     }
 
     /// Bias ratio: 0 = 1/5, 1 = 1/10, 2 = 1/11 (reset), 3 = 1/12.
-    pub fn set_bias_ratio(&mut self, ratio: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_bias_ratio(&mut self, ratio: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_BIAS | (ratio & 3)])
     }
 
     /// Temperature compensation: 0 = -0.05, 1 = -0.10, 2 = -0.15, 3 = 0.00 %/degC.
-    pub fn set_temperature_compensation(&mut self, curve: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_temperature_compensation(&mut self, curve: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_TEMP | (curve & 3)])
     }
 
     /// Line rate (On/Off mode): 0 = 5.9, 1 = 7.1, 2 = 8.2, 3 = 9.4 kilo-lines per second.
-    pub fn set_line_rate(&mut self, rate: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_line_rate(&mut self, rate: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_LINE_RATE | (rate & 3)])
     }
 
     /// Internal 11x charge pump (`true`, reset) or an external VLCD supply (`false`).
-    pub fn set_pump(&mut self, internal: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_pump(&mut self, internal: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_PUMP | if internal { 3 } else { 0 }])
     }
 
     /// Panel capacitance: `true` = 33..55 nF (reset), `false` = up to 33 nF.
-    pub fn set_panel_loading(&mut self, high: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_panel_loading(&mut self, high: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_PANEL | if high { 3 } else { 0 }])
     }
 
     /// Scan only rows `start..=end` (the rest sleeps), or return to full scan. `end = None` selects `height - 1`.
-    pub fn set_partial_display(&mut self, on: bool, start: u8, end: Option<u8>) -> Result<(), Error<I2C::Error>> {
+    pub fn set_partial_display(&mut self, on: bool, start: u8, end: Option<u8>) -> Result<(), Error<B::Error>> {
         if !on {
             return self.inner.command(&[CMD_PARTIAL]);
         }
@@ -599,18 +781,18 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     }
 
     /// N-line inversion (cross-talk tuning): `lines` 0 (off) ..= 63, optional XOR mode.
-    pub fn set_nline_inversion(&mut self, lines: u8, xor: bool) -> Result<(), Error<I2C::Error>> {
+    pub fn set_nline_inversion(&mut self, lines: u8, xor: bool) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_NLINE, if xor { 0x40 } else { 0 } | (lines & 0x3F)])
     }
 
     /// Isolation clock before (`front`) and after (`back`) the COM pulse, 0..=15 each.
-    pub fn set_isolation_clock(&mut self, front: u8, back: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_isolation_clock(&mut self, front: u8, back: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_ISOLATION, 0x13, front & 0x0F])?;
         self.inner.command(&[CMD_ISOLATION, 0x14, back & 0x0F])
     }
 
     /// Select which of the four RAM screens (patterns, 0..=3) is displayed.
-    pub fn set_display_pattern(&mut self, pattern: u8) -> Result<(), Error<I2C::Error>> {
+    pub fn set_display_pattern(&mut self, pattern: u8) -> Result<(), Error<B::Error>> {
         self.inner.command(&[CMD_PATTERN | ((pattern & 3) << 1) | 1])
     }
 
@@ -625,33 +807,31 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     ///
     /// Returns Status1 (Ver, MX, MY, WA, DE, WS, MD, MS), Status2 (ID[1:0], PMO[5:0]) and Status3 (product code
     /// 1 in bits 7..4, ESD flag in bit 0).
-    pub fn read_status(&mut self) -> Result<[u8; 3], Error<I2C::Error>> {
+    pub fn read_status(&mut self) -> Result<[u8; 3], Error<B::Error>> {
         self.inner.read_status_inner()
     }
 
     /// Read `buf.len()` (at most 255) bytes of display RAM; the dummy byte after the address change is discarded.
-    pub fn read_ram(&mut self, page: u8, column: u8, buf: &mut [u8]) -> Result<(), Error<I2C::Error>> {
+    pub fn read_ram(&mut self, page: u8, column: u8, buf: &mut [u8]) -> Result<(), Error<B::Error>> {
+        if !B::CAN_READ {
+            return Err(Error::Unsupported);
+        }
         if buf.len() > 255 {
             return Err(Error::InvalidArgument);
         }
-        let mut raw = [0u8; 256];
-        let n = buf.len();
         let mut last = None;
         for _ in 0..MAX_ATTEMPTS {
             let addr = self.inner.address_bytes(page, column);
-            let r = match self.inner.i2c.write(self.inner.cmd_addr, &addr) {
-                Ok(()) => self.inner.i2c.read(self.inner.data_addr, &mut raw[..n + 1]),
+            let r = match self.inner.bus.write_command(&addr) {
+                Ok(()) => self.inner.bus.read_ram(buf),
                 Err(e) => Err(e),
             };
             match r {
-                Ok(()) => {
-                    buf.copy_from_slice(&raw[1..n + 1]);
-                    return Ok(());
-                }
+                Ok(()) => return Ok(()),
                 Err(e) => {
                     last = Some(e);
                     self.inner.retries += 1;
-                    self.inner.delay.delay_ms(RETRY_DELAY_MS);
+                    self.inner.bus.delay_ms(RETRY_DELAY_MS);
                 }
             }
         }
@@ -660,7 +840,7 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     }
 
     /// System Reset and reconfigure with the cached contrast and mapping (RAM is kept).
-    pub fn reset(&mut self) -> Result<(), Error<I2C::Error>> {
+    pub fn reset(&mut self) -> Result<(), Error<B::Error>> {
         self.inner.reset_chip()?;
         self.inner.configure()?;
         self.inner.enable()?;
@@ -669,13 +849,13 @@ impl<I2C: I2c, D: DelayNs> Uc1611sFull<I2C, D> {
     }
 
     /// Send raw bytes as one command transaction (retried on NACK).
-    pub fn send_command(&mut self, bytes: &[u8]) -> Result<(), Error<I2C::Error>> {
+    pub fn send_command(&mut self, bytes: &[u8]) -> Result<(), Error<B::Error>> {
         self.inner.command(bytes)
     }
 
     /// Send raw bytes to the display RAM (chunked) at the current RAM address. A failed chunk is not retried
     /// (the partial write cannot be continued); the failure is counted.
-    pub fn send_data(&mut self, bytes: &[u8]) -> Result<(), Error<I2C::Error>> {
+    pub fn send_data(&mut self, bytes: &[u8]) -> Result<(), Error<B::Error>> {
         match self.inner.write_chunks(bytes) {
             Ok(()) => Ok(()),
             Err(e) => {
@@ -727,13 +907,13 @@ mod tests {
         v
     }
 
-    fn full(extra: Vec<Tx>) -> (Uc1611sFull<I2cMock, NoopDelay>, ()) {
+    fn full(extra: Vec<Tx>) -> (Uc1611sFull<I2cBus<I2cMock, NoopDelay>>, ()) {
         let mut tx = init_tx();
         tx.extend(extra);
         (Uc1611sFull::new(I2cMock::new(&tx), C, NoopDelay::new(), 240, 128, false, 0x8F).unwrap(), ())
     }
 
-    fn finish(chip: Uc1611sFull<I2cMock, NoopDelay>) {
+    fn finish(chip: Uc1611sFull<I2cBus<I2cMock, NoopDelay>>) {
         let (mut i2c, _) = chip.inner.release();
         i2c.done();
     }
@@ -1016,5 +1196,91 @@ mod tests {
         assert_eq!(ram, [0x0A, 0x0B]);
         assert_eq!(chip.retry_count(), 2);
         finish(chip);
+    }
+
+    // ---- SPI (4-wire) via a display bus ---------------------------------------------------
+
+    use crate::connection::display::{DisplayBus, DisplayError};
+
+    #[derive(Debug, PartialEq)]
+    enum Ev {
+        Reset,
+        Cmd(u8, Vec<u8>),
+        Data(Vec<u8>),
+    }
+
+    struct MockBus {
+        events: Vec<Ev>,
+    }
+
+    impl DisplayBus for MockBus {
+        type Error = DisplayError<(), (), (), ()>;
+        fn reset(&mut self) -> Result<(), Self::Error> {
+            self.events.push(Ev::Reset);
+            Ok(())
+        }
+        fn wait_busy(&mut self, _: bool, _: Option<u32>) -> Result<bool, Self::Error> {
+            Ok(true)
+        }
+        fn send_command(&mut self, cmd: u8, data: &[u8]) -> Result<(), Self::Error> {
+            self.events.push(Ev::Cmd(cmd, data.to_vec()));
+            Ok(())
+        }
+        fn send_data(&mut self, data: &[u8]) -> Result<(), Self::Error> {
+            self.events.push(Ev::Data(data.to_vec()));
+            Ok(())
+        }
+        fn read_data(&mut self, _: &mut [u8]) -> Result<(), Self::Error> {
+            Err(DisplayError::ReadUnavailable)
+        }
+    }
+
+    fn spi_events(chip: &Uc1611sMinimal<SpiBus<MockBus>>) -> &Vec<Ev> {
+        &chip.bus.conn.events
+    }
+
+    #[test]
+    fn spi_init_stream_and_clear() {
+        let chip = Uc1611sSpiMinimal::new_spi(MockBus { events: vec![] }, 240, 128).unwrap();
+        let ev = spi_events(&chip);
+        assert_eq!(ev[0], Ev::Reset);
+        let cmds: Vec<u8> = ev.iter().filter_map(|e| if let Ev::Cmd(c, d) = e { assert!(d.is_empty()); Some(*c) } else { None }).collect();
+        assert_eq!(&cmds[..13], &[0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F]);
+        let data: Vec<&Vec<u8>> = ev.iter().filter_map(|e| if let Ev::Data(d) = e { Some(d) } else { None }).collect();
+        assert_eq!(data.len(), 20);
+        assert!(data.iter().all(|d| d.len() == 240 && d.iter().all(|&b| b == 0)));
+        assert!(chip.ok() && chip.retry_count() == 0);
+    }
+
+    #[test]
+    fn spi_show_sends_16_pages_of_240() {
+        let mut chip = Uc1611sSpiMinimal::new_spi(MockBus { events: vec![] }, 240, 128).unwrap();
+        let n = spi_events(&chip).len();
+        chip.set_pixel(0, 0, true);
+        chip.show().unwrap();
+        let shown: Vec<&Vec<u8>> = spi_events(&chip)[n..].iter().filter_map(|e| if let Ev::Data(d) = e { Some(d) } else { None }).collect();
+        assert_eq!(shown.len(), 16);
+        assert!(shown.iter().all(|d| d.len() == 240));
+        assert_eq!(shown[0][0], 1);
+    }
+
+    #[test]
+    fn spi_reads_are_unsupported() {
+        let mut chip = Uc1611sSpiFull::new_spi(MockBus { events: vec![] }, 240, 128, false, 0x8F).unwrap();
+        assert!(matches!(chip.read_status(), Err(Error::Unsupported)));
+        let mut buf = [0u8; 4];
+        assert!(matches!(chip.read_ram(0, 0, &mut buf), Err(Error::Unsupported)));
+        assert!(chip.ok() && chip.error_count() == 0);
+    }
+
+    #[test]
+    fn spi_contrast_is_two_commands_and_wake_is_one() {
+        let mut chip = Uc1611sSpiFull::new_spi(MockBus { events: vec![] }, 240, 128, false, 0x8F).unwrap();
+        let n = chip.bus.conn.events.len();
+        chip.set_contrast(0x50).unwrap();
+        assert_eq!(&chip.bus.conn.events[n..], &[Ev::Cmd(0x81, vec![]), Ev::Cmd(0x50, vec![])]);
+        let n = chip.bus.conn.events.len();
+        chip.wake().unwrap();
+        assert_eq!(&chip.bus.conn.events[n..], &[Ev::Cmd(0xA9, vec![])]);
     }
 }

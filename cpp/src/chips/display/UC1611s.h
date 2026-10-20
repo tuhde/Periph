@@ -3,6 +3,44 @@
 #include <stddef.h>
 #include "../../connection/Connection.h"
 
+/** @brief Transport hooks of the UC1611s drivers: one attempt per call, no retry (the driver retries).
+ *
+ *  Implemented by UC1611sI2CBus (two I²C connections) and UC1611sSpiBus (a display connection).
+ */
+class UC1611sBus {
+public:
+    virtual ~UC1611sBus() = default;
+    /** @brief Send bytes as one command transfer. @return False if the transfer was not acknowledged. */
+    virtual bool write_command(const uint8_t* bytes, size_t len) = 0;
+    /** @brief Send RAM data bytes (nullptr = zeros) in chunks. @return False if a chunk was not acknowledged. */
+    virtual bool write_data(const uint8_t* bytes, size_t len) = 0;
+    /** @brief True if the transport can read back (I²C); SPI is write-only on the module. */
+    virtual bool can_read() const = 0;
+    /** @brief NOP, then read Status1..3. @return False on failure or when the transport cannot read. */
+    virtual bool read_status(uint8_t status[3]) { (void)status; return false; }
+    /** @brief Read @p n RAM bytes after the dummy byte. @return False on failure or when the transport cannot read. */
+    virtual bool read_ram(uint8_t* buf, size_t n) { (void)buf; (void)n; return false; }
+    /** @brief Pulse the hardware reset line, if any (no-op for I²C). */
+    virtual void hardware_reset() {}
+};
+
+/** @brief I²C transport: commands on the command address, RAM data (32-byte chunks) on the data address. */
+class UC1611sI2CBus : public UC1611sBus {
+public:
+    /** @brief Largest data write in bytes (the 32-byte limit of some I²C layers). */
+    static constexpr size_t CHUNK = 32;
+    UC1611sI2CBus(Connection* command = nullptr, Connection* data = nullptr) : _cmd(command), _data(data) {}
+    bool write_command(const uint8_t* bytes, size_t len) override;
+    bool write_data(const uint8_t* bytes, size_t len) override;
+    bool can_read() const override { return true; }
+    bool read_status(uint8_t status[3]) override;
+    bool read_ram(uint8_t* buf, size_t n) override;
+private:
+    Connection* _cmd;
+    Connection* _data;
+    uint8_t     _rx[CHUNK + 1];
+};
+
 /** @brief UC1611s graphic LCD controller-driver — minimal interface.
  *
  *  Drives an EA DOGXL240-7 (240 x 128 dots, 3.3 V) in 1 bit per pixel black/white mode
@@ -37,7 +75,7 @@ public:
     static constexpr uint16_t WIDTH  = 240;
     static constexpr uint16_t HEIGHT = 128;
     /** @brief Largest data write in bytes (the 32-byte limit of some I²C layers). */
-    static constexpr size_t I2C_CHUNK = 32;
+    static constexpr size_t I2C_CHUNK = UC1611sI2CBus::CHUNK;
 
     static constexpr uint8_t CMD_TEMP          = 0x24;   // | TC[1:0]
     static constexpr uint8_t CMD_PANEL         = 0x28;   // | PC[1:0]
@@ -67,7 +105,7 @@ public:
 
     /** @brief Construct the driver and run the initialization sequence (about 400 ms). */
     UC1611sMinimal(Connection& command, Connection& data, uint16_t width = WIDTH, uint16_t height = HEIGHT)
-        : UC1611sMinimal(command, data, width, height, false, 0x8F) {}
+        : UC1611sMinimal(nullptr, &command, &data, width, height, false, 0x8F) {}
 
     /** @brief Attempts per transfer before it is counted as failed. */
     static constexpr uint8_t  MAX_ATTEMPTS   = 8;
@@ -107,6 +145,14 @@ public:
 protected:
     /** @brief Construct with explicit orientation and contrast (UC1611sFull passes its options). */
     UC1611sMinimal(Connection& command, Connection& data, uint16_t width, uint16_t height,
+                   bool topView, uint8_t contrast)
+        : UC1611sMinimal(nullptr, &command, &data, width, height, topView, contrast) {}
+
+    /** @brief Construct on an explicit transport (used by the SPI classes). */
+    UC1611sMinimal(UC1611sBus& bus, uint16_t width, uint16_t height, bool topView, uint8_t contrast)
+        : UC1611sMinimal(&bus, nullptr, nullptr, width, height, topView, contrast) {}
+
+    UC1611sMinimal(UC1611sBus* bus, Connection* command, Connection* data, uint16_t width, uint16_t height,
                    bool topView, uint8_t contrast);
 
     static void _sleep_ms(uint32_t ms);
@@ -128,8 +174,8 @@ protected:
     static constexpr size_t   FB_SIZE   = (size_t)WIDTH * (HEIGHT / 8);
     static constexpr uint8_t  PAGES_RAM = 20;   // RAM pages cleared at init (160 rows / 8)
 
-    Connection& _cmd_conn;
-    Connection& _data_conn;
+    UC1611sI2CBus _i2c;
+    UC1611sBus&   _bus;
     bool     _valid;
     uint16_t _width;
     uint16_t _height;
@@ -140,7 +186,6 @@ protected:
     uint8_t  _contrast;
     uint32_t _retries;
     uint32_t _errors;
-    uint8_t  _rx[I2C_CHUNK + 1];
     uint8_t  _fb[FB_SIZE];
 };
 
@@ -163,6 +208,10 @@ public:
     UC1611sFull(Connection& command, Connection& data, uint16_t width = WIDTH, uint16_t height = HEIGHT,
                 bool topView = false, uint8_t contrast = 0x8F)
         : UC1611sMinimal(command, data, width, height, topView, contrast) {}
+
+    /** @brief Construct on an explicit transport (used by UC1611sSpiFull). */
+    UC1611sFull(UC1611sBus& bus, uint16_t width, uint16_t height, bool topView, uint8_t contrast)
+        : UC1611sMinimal(bus, width, height, topView, contrast) {}
 
     /** @brief Return a framebuffer pixel; out-of-range coordinates read as false. */
     bool get_pixel(int16_t x, int16_t y) const;
@@ -282,4 +331,77 @@ public:
      *  @return True if every chunk was acknowledged.
      */
     bool send_data(const uint8_t* bytes, size_t len);
+};
+
+/** @brief SPI transport on a display connection (4-wire, S8): D/C# low for commands, high for RAM data.
+ *
+ *  Every command byte (including the arguments of two- and three-byte commands) is sent with D/C# low
+ *  as its own CS window; RAM data goes out in chunks of SPI_CHUNK bytes with D/C# high. The module's
+ *  SPI is write-only and there is no acknowledge, so nothing is detected or retried.
+ *
+ *  @tparam CONN Display connection class (CS#, D/C# = CD, RES# = RST; no BUSY).
+ */
+template <typename CONN>
+class UC1611sSpiBus : public UC1611sBus {
+public:
+    static constexpr size_t SPI_CHUNK = 240;
+    explicit UC1611sSpiBus(CONN& connection) : _conn(connection) {}
+    bool write_command(const uint8_t* bytes, size_t len) override {
+        for (size_t i = 0; i < len; i++) _conn.sendCommand(bytes[i]);
+        return true;
+    }
+    bool write_data(const uint8_t* bytes, size_t len) override {
+        static const uint8_t ZEROS[SPI_CHUNK] = {0};
+        while (len > 0) {
+            size_t n = len > SPI_CHUNK ? SPI_CHUNK : len;
+            _conn.sendData(bytes ? bytes : ZEROS, n);
+            if (bytes) bytes += n;
+            len -= n;
+        }
+        return true;
+    }
+    bool can_read() const override { return false; }
+    void hardware_reset() override { _conn.reset(); }
+private:
+    CONN& _conn;
+};
+
+namespace uc1611s_detail {
+/** Base-from-member: the transport must exist before the driver base class runs its initialisation. */
+template <typename CONN>
+struct SpiBusHolder {
+    explicit SpiBusHolder(CONN& connection) : spi_bus(connection) {}
+    UC1611sSpiBus<CONN> spi_bus;
+};
+}  // namespace uc1611s_detail
+
+/** @brief UC1611s over 4-wire SPI — minimal interface.
+ *
+ *  Same framebuffer, drawing and initialisation as UC1611sMinimal, but the module is driven through a
+ *  display connection (`DisplayConnectionBase` family): CS# = CS0, D/C# = CD, RES# = RST (optional).
+ *  The module must be strapped for 4-wire SPI (BM0 = L, D13 = L). SPI mode 0, up to 8 MHz.
+ *  There is no read-back and no acknowledge: nothing is retried (retry_count() stays 0), and
+ *  after reset or wake the driver waits a fixed 10 ms for the charge pump instead of polling.
+ *
+ *  @tparam CONN Display connection class.
+ */
+template <typename CONN>
+class UC1611sSpiMinimal : private uc1611s_detail::SpiBusHolder<CONN>, public UC1611sMinimal {
+public:
+    explicit UC1611sSpiMinimal(CONN& connection, uint16_t width = WIDTH, uint16_t height = HEIGHT)
+        : uc1611s_detail::SpiBusHolder<CONN>(connection),
+          UC1611sMinimal(this->spi_bus, width, height, false, 0x8F) {}
+};
+
+/** @brief UC1611s over 4-wire SPI — full interface (see UC1611sFull; read_status() and read_ram() return false).
+ *
+ *  @tparam CONN Display connection class.
+ */
+template <typename CONN>
+class UC1611sSpiFull : private uc1611s_detail::SpiBusHolder<CONN>, public UC1611sFull {
+public:
+    explicit UC1611sSpiFull(CONN& connection, uint16_t width = WIDTH, uint16_t height = HEIGHT,
+                            bool topView = false, uint8_t contrast = 0x8F)
+        : uc1611s_detail::SpiBusHolder<CONN>(connection),
+          UC1611sFull(this->spi_bus, width, height, topView, contrast) {}
 };

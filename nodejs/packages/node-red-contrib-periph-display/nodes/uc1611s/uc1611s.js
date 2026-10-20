@@ -2,6 +2,8 @@
 
 module.exports = function(RED) {
     const { I2CConnection } = require('periph/src/connection/i2c');
+    const { DisplayConnection } = require('periph/src/connection/display');
+    const { GpioOutputPin } = require('periph/src/connection/output_pin');
     const U = require('periph/src/chips/display/uc1611s');
 
     function UC1611sNode(config) {
@@ -10,14 +12,28 @@ module.exports = function(RED) {
         const autoShow = config.autoShow !== false && config.autoShow !== 'false';
 
         try {
-            const bus = parseInt(config.i2cBus || 1, 10);
-            const addr = parseInt(config.address || '0x38', 16);
-            node.command = new I2CConnection(bus, addr);
-            node.data = new I2CConnection(bus, addr + 1);
-            node.driver = new U.UC1611sFull(node.command, node.data,
-                parseInt(config.width || 240, 10), parseInt(config.height || 128, 10),
-                config.topView === true || config.topView === 'true',
-                parseInt(config.contrast === undefined || config.contrast === '' ? 143 : config.contrast, 10));
+            const width = parseInt(config.width || 240, 10);
+            const height = parseInt(config.height || 128, 10);
+            const topView = config.topView === true || config.topView === 'true';
+            const contrast = parseInt(config.contrast === undefined || config.contrast === '' ? 143 : config.contrast, 10);
+            if (config.transport === 'spi') {
+                const { Default } = require('opengpio');
+                const chip = parseInt(config.gpioChip || 0, 10);
+                const dc = new GpioOutputPin(Default.output({ chip, line: parseInt(config.cdPin || 25, 10) }));
+                const res = new GpioOutputPin(Default.output({ chip, line: parseInt(config.resPin || 17, 10) }));
+                node.connection = new DisplayConnection({
+                    busNumber: parseInt(config.spiBus || 0, 10),
+                    deviceNumber: parseInt(config.spiDevice || 0, 10),
+                    dc, res, maxSpeedHz: 4000000,
+                });
+                node.driver = new U.UC1611sSpiFull(node.connection, width, height, topView, contrast);
+            } else {
+                const bus = parseInt(config.i2cBus || 1, 10);
+                const addr = parseInt(config.address || '0x38', 16);
+                node.command = new I2CConnection(bus, addr);
+                node.data = new I2CConnection(bus, addr + 1);
+                node.driver = new U.UC1611sFull(node.command, node.data, width, height, topView, contrast);
+            }
             node.driver.ready().then(() => node.status({ fill: 'green', shape: 'dot', text: 'ready' }))
                 .catch((e) => node.error('UC1611s init failed: ' + e.message));
         } catch (e) {
@@ -50,6 +66,7 @@ module.exports = function(RED) {
                 if (p.flip) await d.setFlip(!!p.flip.x, !!p.flip.y);
                 if (p.show || (draw && autoShow)) await d.show();
                 if (p.status) {
+                    if (config.transport === 'spi') throw new Error('status read is not available over SPI');
                     const s = await d.readStatus();
                     send({ payload: { status: [s[0], s[1], s[2]] } });
                 }
@@ -64,6 +81,7 @@ module.exports = function(RED) {
         node.on('close', function() {
             if (node.command) node.command.close();
             if (node.data) node.data.close();
+            if (node.connection) node.connection.close();
         });
     }
     RED.nodes.registerType('periph-uc1611s', UC1611sNode);

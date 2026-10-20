@@ -1,6 +1,57 @@
 import time
 
 
+class _I2CBus:
+    """I²C transport: commands on the command address, RAM data on the data address (chunked)."""
+
+    can_read = True
+
+    def __init__(self, command_connection, data_connection, chunk):
+        self._cmd = command_connection
+        self._data = data_connection
+        self._chunk = chunk
+
+    def write_command(self, data):
+        self._cmd.write(data)
+
+    def write_data(self, data):
+        view = memoryview(data)
+        for i in range(0, len(view), self._chunk):
+            self._data.write(bytes(view[i:i + self._chunk]))
+
+    def read_status(self, nop):
+        self._cmd.write(bytes((nop,)))
+        return bytes(self._cmd.read(3))
+
+    def read_ram(self, n):
+        return bytes(self._data.read(n + 1))[1:]
+
+    def hardware_reset(self):
+        pass
+
+
+class _SpiBus:
+    """4-wire SPI transport on a DisplayConnection: D/C low for every command byte, high for RAM data."""
+
+    can_read = False
+    SPI_CHUNK = 240
+
+    def __init__(self, connection):
+        self._conn = connection
+
+    def write_command(self, data):
+        for b in data:
+            self._conn.send_command(b)
+
+    def write_data(self, data):
+        view = memoryview(data)
+        for i in range(0, len(view), self.SPI_CHUNK):
+            self._conn.send_data(bytes(view[i:i + self.SPI_CHUNK]))
+
+    def hardware_reset(self):
+        self._conn.reset()
+
+
 class UC1611sMinimal:
     """UC1611s graphic LCD controller-driver — minimal interface.
 
@@ -76,12 +127,14 @@ class UC1611sMinimal:
     _contrast = 0x8F
 
     def __init__(self, command_connection, data_connection, width=240, height=128):
+        self._setup(_I2CBus(command_connection, data_connection, self.I2C_CHUNK), width, height)
+
+    def _setup(self, bus, width, height):
         if not 1 <= width <= self.WIDTH:
             raise ValueError('width must be 1..240')
         if not 8 <= height <= self.HEIGHT or height % 8:
             raise ValueError('height must be a multiple of 8, 8..128')
-        self._cmd_conn = command_connection
-        self._data_conn = data_connection
+        self._bus = bus
         self.width = width
         self.height = height
         self._pages = height // 8
@@ -104,7 +157,7 @@ class UC1611sMinimal:
         data = bytes(values)
         for attempt in range(self.MAX_ATTEMPTS):
             try:
-                self._cmd_conn.write(data)
+                self._bus.write_command(data)
                 return
             except OSError as e:
                 err = e
@@ -114,10 +167,8 @@ class UC1611sMinimal:
         raise err
 
     def _write_chunks(self, data):
-        """One pass over the data in chunks of at most I2C_CHUNK bytes (raises OSError on a NACK)."""
-        view = memoryview(data)
-        for i in range(0, len(view), self.I2C_CHUNK):
-            self._data_conn.write(bytes(view[i:i + self.I2C_CHUNK]))
+        """One pass over the data in transport-sized chunks (raises OSError on a NACK)."""
+        self._bus.write_data(data)
 
     def _write_data(self, data):
         """Send RAM data without retry (the write position of a partial write is unknown)."""
@@ -140,7 +191,7 @@ class UC1611sMinimal:
         """Write one page: address command, then the data; a failure repeats both."""
         for attempt in range(self.MAX_ATTEMPTS):
             try:
-                self._cmd_conn.write(self._address_bytes(page, 0))
+                self._bus.write_command(self._address_bytes(page, 0))
                 self._write_chunks(data)
                 return
             except OSError as e:
@@ -152,10 +203,11 @@ class UC1611sMinimal:
 
     def _read_status(self):
         """Read Status1..3. A NOP write first restarts the chip's status cycle (it advances by n + 1 per read)."""
+        if not self._bus.can_read:
+            raise NotImplementedError('the SPI interface of the module is write-only')
         for attempt in range(self.MAX_ATTEMPTS):
             try:
-                self._cmd_conn.write(bytes((self._CMD_NOP,)))
-                return bytes(self._cmd_conn.read(3))
+                return self._bus.read_status(self._CMD_NOP)
             except OSError as e:
                 err = e
                 self._retries += 1
@@ -164,12 +216,17 @@ class UC1611sMinimal:
         raise err
 
     def _wait_display_enabled(self, timeout_ms):
-        """Poll Status1.DE until the pump is up; NACKs while it starts are expected and not counted."""
+        """Poll Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms instead).
+
+        NACKs while the pump starts are expected and not counted.
+        """
+        if not self._bus.can_read:
+            self._sleep_ms(min(timeout_ms, 10))
+            return
         waited = 0
         while waited <= timeout_ms:
             try:
-                self._cmd_conn.write(bytes((self._CMD_NOP,)))
-                if self._cmd_conn.read(3)[0] & 0x08:
+                if self._bus.read_status(self._CMD_NOP)[0] & 0x08:
                     return
             except OSError:
                 pass
@@ -204,6 +261,7 @@ class UC1611sMinimal:
     def _init_sequence(self):
         """Power-up wait, System Reset, configuration, RAM clear, display on."""
         self._sleep_ms(150)
+        self._bus.hardware_reset()
         self._reset_chip()
         self._configure()
         blank = bytes(self.width)
@@ -281,11 +339,14 @@ class UC1611sFull(UC1611sMinimal):
     """
 
     def __init__(self, command_connection, data_connection, width=240, height=128, top_view=False, contrast=0x8F):
+        self._check_options(top_view, contrast)
+        super().__init__(command_connection, data_connection, width, height)
+
+    def _check_options(self, top_view, contrast):
         if not 0 <= contrast <= 255:
             raise ValueError('contrast must be 0..255')
         self._top_view = top_view
         self._contrast = contrast
-        super().__init__(command_connection, data_connection, width, height)
 
     # ---- framebuffer ---------------------------------------------------------------------
 
@@ -596,10 +657,12 @@ class UC1611sFull(UC1611sMinimal):
         Raises:
             OSError: If address or read fail after all attempts.
         """
+        if not self._bus.can_read:
+            raise NotImplementedError('the SPI interface of the module is write-only')
         for attempt in range(self.MAX_ATTEMPTS):
             try:
-                self._cmd_conn.write(self._address_bytes(page, column))
-                return bytes(self._data_conn.read(n + 1))[1:]
+                self._bus.write_command(self._address_bytes(page, column))
+                return self._bus.read_ram(n)
             except OSError as e:
                 err = e
                 self._retries += 1
@@ -629,3 +692,43 @@ class UC1611sFull(UC1611sMinimal):
             data: Bytes to write.
         """
         self._write_data(data)
+
+
+class UC1611sSpiMinimal(UC1611sMinimal):
+    """UC1611s over 4-wire SPI — minimal interface.
+
+    Same framebuffer, drawing and initialization as ``UC1611sMinimal``, but the module is driven through a
+    ``DisplayConnection`` (CS#, D/C# = CD, RES# = RST, optional). The module must be strapped for 4-wire
+    SPI (BM0 = D13 = VSS). SPI mode 0, up to 8 MHz. Every command byte, including the arguments of
+    two- and three-byte commands, is sent with D/C# low as its own CS window; RAM data is sent with D/C# high.
+    There is no read-back and no acknowledge: nothing is retried (``retry_count`` stays 0), the driver waits a
+    fixed 10 ms for the charge pump after reset or wake instead of polling, and ``read_status`` /
+    ``read_ram`` of the full class raise NotImplementedError.
+
+    Args:
+        connection: DisplayConnection (4-wire, D/C# required, RES# optional, no BUSY).
+        width: Columns, 1..240 (default 240).
+        height: Rows, a multiple of 8 and at most 128 (default 128).
+
+    Raises:
+        ValueError: If width or height is out of range.
+    """
+
+    def __init__(self, connection, width=240, height=128):
+        self._setup(_SpiBus(connection), width, height)
+
+
+class UC1611sSpiFull(UC1611sFull):
+    """UC1611s over 4-wire SPI — full interface (see ``UC1611sFull``; the reads raise NotImplementedError).
+
+    Args:
+        connection: DisplayConnection (4-wire, D/C# required, RES# optional, no BUSY).
+        width: Columns, 1..240 (default 240).
+        height: Rows, a multiple of 8 and at most 128 (default 128).
+        top_view: True for the 12:00 viewing direction (MY = 1, MX = 0).
+        contrast: Potentiometer PM 0..255 (default 0x8F, the DOG example).
+    """
+
+    def __init__(self, connection, width=240, height=128, top_view=False, contrast=0x8F):
+        self._check_options(top_view, contrast)
+        self._setup(_SpiBus(connection), width, height)

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 #include "I2CConnectionMock.h"
+#include "DisplayConnectionMock.h"
 #include "UC1611s.h"
 
 static int passed = 0, failed = 0;
@@ -287,6 +288,49 @@ int main() {
     qc.queueRead({0xDA, 0x80, 0x10});
     rq.wake();
     check_true(rq.ok() && eq(qc.writes()[qc.writes().size() - 3], {0xA9}) && eq(qc.writes().back(), {0xE3}), "wake_polls_display_enable");
+
+    // ---- SPI (4-wire) via the display connection ------------------------------------
+    {
+        DisplayConnectionMock dc;
+        UC1611sSpiMinimal<DisplayConnectionMock> sp(dc);
+        const std::vector<DisplayConnectionMock::Event>& ev = dc.events();
+        // Commands only: every byte its own sendCommand (D/C low), data in 240-byte chunks.
+        Bytes cmds; size_t data_bytes = 0, data_calls = 0; bool all_args_as_commands = true;
+        for (size_t i = 0; i < ev.size(); i++) {
+            if (ev[i].kind == DisplayConnectionMock::Event::kCommand) {
+                cmds.push_back(ev[i].cmd);
+                if (!ev[i].bytes.empty()) all_args_as_commands = false;
+            } else if (ev[i].kind == DisplayConnectionMock::Event::kData) { data_bytes += ev[i].bytes.size(); data_calls++; }
+        }
+        check_true(sp.valid() && sp.width() == 240 && sp.height() == 128, "spi_geometry");
+        check_true(dc.resetCount() == 1 && ev[0].kind == DisplayConnectionMock::Event::kReset, "spi_hardware_reset_first");
+        check_true(cmds.size() > 14 && cmds[0] == 0xE2 && cmds[1] == 0x25 && cmds[2] == 0xC0 && cmds[3] == 0x02 &&
+                   cmds[11] == 0x81 && cmds[12] == 0x8F, "spi_init_stream_one_command_per_byte");
+        check_true(all_args_as_commands, "spi_arguments_sent_as_commands");
+        check_true(data_bytes == 20u * 240u && data_calls == 20, "spi_init_clears_20_pages_one_transfer_each");
+        check_true(sp.retry_count() == 0 && sp.ok(), "spi_no_retries");
+        size_t e0 = ev.size();
+        sp.set_pixel(0, 0);
+        sp.show();
+        size_t d1 = 0; bool first_ok = false;
+        for (size_t i = e0; i < ev.size(); i++)
+            if (ev[i].kind == DisplayConnectionMock::Event::kData) { if (d1++ == 0) first_ok = ev[i].bytes.size() == 240 && ev[i].bytes[0] == 0x01; }
+        check_true(d1 == 16 && first_ok, "spi_show_16_pages_of_240");
+
+        DisplayConnectionMock dc2;
+        UC1611sSpiFull<DisplayConnectionMock> fu(dc2);
+        uint8_t st[3] = {1, 2, 3}, ram[2] = {9, 9};
+        check_true(!fu.read_status(st) && st[0] == 0 && !fu.read_ram(0, 0, ram, 2) && ram[0] == 0, "spi_reads_unsupported");
+        check_true(fu.ok() && fu.error_count() == 0, "spi_unsupported_read_not_an_error");
+        size_t c0 = dc2.events().size();
+        fu.set_contrast(0x50);
+        const DisplayConnectionMock::Event& a = dc2.events()[c0];
+        const DisplayConnectionMock::Event& b = dc2.events()[c0 + 1];
+        check_true(a.kind == DisplayConnectionMock::Event::kCommand && a.cmd == 0x81 && b.cmd == 0x50 && dc2.events().size() == c0 + 2, "spi_full_contrast_two_commands");
+        c0 = dc2.events().size();
+        fu.wake();
+        check_true(dc2.events().size() == c0 + 1 && dc2.events()[c0].cmd == 0xA9, "spi_wake_sends_display_on");
+    }
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
     return failed ? 1 : 0;

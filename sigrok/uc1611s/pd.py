@@ -135,10 +135,11 @@ class Decoder(srd.Decoder):
     id = 'uc1611s'
     name = 'UC1611s'
     longname = 'UltraChip UC1611s graphic LCD controller-driver'
-    desc = ('Decode the I2C command, data and read transactions of a UC1611s '
-            '(e.g. EA DOGXL240-7, command address 0x38 + 2n, data address one higher).')
+    desc = ('Decode the commands, display data and (I2C only) status reads of a UC1611s '
+            '(e.g. EA DOGXL240-7): stacked on i2c (command address 0x38 + 2n, data address one higher) '
+            'or on display_spi (4-wire SPI, D/C# = CD).')
     license = 'gplv2+'
-    inputs = ['i2c']
+    inputs = ['i2c', 'display_spi']
     outputs = ['uc1611s']
     tags = ['Display', 'IC']
 
@@ -190,6 +191,7 @@ class Decoder(srd.Decoder):
         self.mx = None
         self.my = None
         self.read_first = True
+        self.res_ss = None
 
     def start(self):
         self.out_ann = self.register(srd.OUTPUT_ANN)
@@ -412,8 +414,38 @@ class Decoder(srd.Decoder):
                       'Display %s, MX=%d MY=%d' % ('on' if status1 & 8 else 'sleep', (status1 >> 6) & 1, (status1 >> 5) & 1),
                       'DE=%d' % ((status1 >> 3) & 1), 'DE')
 
+    def _decode_spi(self, ss, es, ptype, pdata):
+        """Packets of display_spi: every byte is its own CS window; D/C# low = command byte (arguments of
+        two- and three-byte commands are command bytes too), high = display RAM data."""
+        if ptype == 'BYTE':
+            dc, value, _miso = pdata
+            self.state = 'DATA'
+            self.is_read = False
+            self.is_cd = bool(dc)
+            self.status_pos = 0
+            self.reset_seen = False
+            if self.is_cd:
+                if self.pend is not None:
+                    self._flush_cmd(self.pend[3], ss)
+            elif self.run:
+                self._flush_run()
+            self.decode(ss, es, ('DATA WRITE', value))
+        elif ptype == 'IDLE':
+            if self.pend is not None:
+                self._flush_cmd(self.pend[3], ss)
+            self._flush_run()
+        elif ptype == 'RESET':
+            if pdata:
+                self.res_ss = ss
+            elif self.res_ss is not None:
+                self._ann(self.res_ss, ss, ANN_STATUS, 'RST low', 'RST')
+                self.res_ss = None
+
     def decode(self, ss, es, data):
         ptype, pdata = data
+        if ptype in ('BYTE', 'IDLE', 'RESET', 'CS', 'BUSY'):
+            self._decode_spi(ss, es, ptype, pdata)
+            return
 
         if ptype in ('START', 'START REPEAT'):
             self._finish(ss)

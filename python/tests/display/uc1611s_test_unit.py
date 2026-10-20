@@ -1,6 +1,7 @@
 """Unit test for the UC1611s driver — mocked I²C connections, no hardware."""
 
-from periph.chips.display.uc1611s import UC1611sFull, UC1611sMinimal
+from periph.chips.display.uc1611s import UC1611sFull, UC1611sMinimal, UC1611sSpiFull, UC1611sSpiMinimal
+from periph.connection.display_mock import DisplayConnectionMock
 from periph.connection.i2c_mock import I2CConnectionMock
 
 passed = 0
@@ -261,5 +262,43 @@ qc.queue_read(bytes((0xD2, 0x80, 0x10)))
 qc.queue_read(bytes((0xDA, 0x80, 0x10)))
 rq.wake()
 check_true('wake_polls_display_enable', rq.ok() and qc.writes[-3] == b'\xA9' and qc.writes[-1] == b'\xE3')
+
+# ---- SPI (4-wire) via the display connection ----------------------------------------
+dc = DisplayConnectionMock()
+sp = UC1611sSpiMinimal(dc)
+cmds = [e[1] for e in dc.events if e[0] == 'command']
+data_events = [e[1] for e in dc.events if e[0] == 'data']
+check_true('spi_geometry', sp.width == 240 and sp.height == 128)
+check_true('spi_hardware_reset_first', dc.events[0] == ('reset',) and dc.reset_count == 1)
+check_true('spi_init_stream_one_command_per_byte',
+           cmds[:13] == [0xE2, 0x25, 0xC0, 0x02, 0xA3, 0xF1, 0x7F, 0xF2, 0x00, 0xF3, 0x7F, 0x81, 0x8F])
+check_true('spi_arguments_sent_as_commands', all(e[2] == b'' for e in dc.events if e[0] == 'command'))
+check_true('spi_init_clears_20_pages_one_transfer_each', len(data_events) == 20 and all(len(d) == 240 for d in data_events))
+check_true('spi_no_retries', sp.retry_count() == 0 and sp.ok())
+n = len(dc.events)
+sp.set_pixel(0, 0)
+sp.show()
+shown = [e[1] for e in dc.events[n:] if e[0] == 'data']
+check_true('spi_show_16_pages_of_240', len(shown) == 16 and all(len(d) == 240 for d in shown) and shown[0][0] == 1)
+
+dc2 = DisplayConnectionMock()
+fu = UC1611sSpiFull(dc2)
+try:
+    fu.read_status()
+    check_true('spi_read_status_unsupported', False)
+except NotImplementedError:
+    check_true('spi_read_status_unsupported', True)
+try:
+    fu.read_ram(0, 0, 2)
+    check_true('spi_read_ram_unsupported', False)
+except NotImplementedError:
+    check_true('spi_read_ram_unsupported', True)
+check_true('spi_unsupported_read_not_an_error', fu.ok() and fu.error_count() == 0)
+n = len(dc2.events)
+fu.set_contrast(0x50)
+check_true('spi_full_contrast_two_commands', [e[1] for e in dc2.events[n:]] == [0x81, 0x50])
+n = len(dc2.events)
+fu.wake()
+check_true('spi_wake_sends_display_on', [e[1] for e in dc2.events[n:] if e[0] == 'command'] == [0xA9])
 
 print('===DONE: {} passed, {} failed==='.format(passed, failed))

@@ -3,6 +3,7 @@
 const WIDTH = 240;
 const HEIGHT = 128;
 const I2C_CHUNK = 32;
+const SPI_CHUNK = 240;
 const MAX_ATTEMPTS = 8;
 const RETRY_DELAY_MS = 2;
 
@@ -34,6 +35,54 @@ const _CMD_PART_START = 0xF2;
 const _CMD_PART_END = 0xF3;
 
 const sleepMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** I²C transport: commands on the command address, RAM data on the data address (chunked). */
+class I2CBus {
+    constructor(command, data) {
+        this._cmd = command;
+        this._data = data;
+        this.canRead = true;
+    }
+
+    writeCommand(bytes) { return this._cmd.write(bytes); }
+
+    async writeData(data) {
+        for (let i = 0; i < data.length; i += I2C_CHUNK) {
+            await this._data.write(data.subarray(i, i + I2C_CHUNK));
+        }
+    }
+
+    async readStatus() {
+        await this._cmd.write(Buffer.from([_CMD_NOP]));
+        return Buffer.from(await this._cmd.read(3));
+    }
+
+    async readRam(n) {
+        return Buffer.from(await this._data.read(n + 1)).subarray(1);
+    }
+
+    async hardwareReset() {}
+}
+
+/** 4-wire SPI transport on a display connection: D/C# low for every command byte, high for RAM data. */
+class SpiBus {
+    constructor(connection) {
+        this._conn = connection;
+        this.canRead = false;
+    }
+
+    async writeCommand(bytes) {
+        for (const b of bytes) await this._conn.sendCommand(b);
+    }
+
+    async writeData(data) {
+        for (let i = 0; i < data.length; i += SPI_CHUNK) {
+            await this._conn.sendData(data.subarray(i, i + SPI_CHUNK));
+        }
+    }
+
+    hardwareReset() { return this._conn.reset(); }
+}
 
 /**
  * UC1611s graphic LCD controller-driver — minimal interface.
@@ -67,8 +116,7 @@ class UC1611sMinimal {
     constructor(command, data, width = WIDTH, height = HEIGHT, options = {}) {
         if (!(width >= 1 && width <= WIDTH)) throw new RangeError('width must be 1..240');
         if (!(height >= 8 && height <= HEIGHT && height % 8 === 0)) throw new RangeError('height must be a multiple of 8, 8..128');
-        this._cmd = command;
-        this._data = data;
+        this._bus = options.bus || new I2CBus(command, data);
         this.width = width;
         this.height = height;
         this._pages = height / 8;
@@ -127,14 +175,12 @@ class UC1611sMinimal {
     /** Send bytes as one command transaction on the command address, retried on failure. */
     _command(...values) {
         const bytes = Buffer.from(values);
-        return this._retry(() => this._cmd.write(bytes));
+        return this._retry(() => this._bus.writeCommand(bytes));
     }
 
-    /** One pass over the data in chunks of at most I2C_CHUNK bytes (rejects on a NACK). */
-    async _writeChunks(data) {
-        for (let i = 0; i < data.length; i += I2C_CHUNK) {
-            await this._data.write(data.subarray(i, i + I2C_CHUNK));
-        }
+    /** One pass over the data in transport-sized chunks (rejects on a NACK). */
+    _writeChunks(data) {
+        return this._bus.writeData(data);
     }
 
     /** Send RAM data without retry (the write position of a partial write is unknown). */
@@ -155,25 +201,26 @@ class UC1611sMinimal {
     /** Write one page: address command, then the data; a failure repeats both. */
     _writePage(page, data) {
         return this._retry(async () => {
-            await this._cmd.write(this._addressBytes(page, 0));
+            await this._bus.writeCommand(this._addressBytes(page, 0));
             await this._writeChunks(data);
         });
     }
 
     /** Read Status1..3; a NOP write first restarts the chip's status cycle (it advances by n + 1 per read). */
     _readStatus() {
-        return this._retry(async () => {
-            await this._cmd.write(Buffer.from([_CMD_NOP]));
-            return Buffer.from(await this._cmd.read(3));
-        });
+        if (!this._bus.canRead) return Promise.reject(new Error('the SPI interface of the module is write-only'));
+        return this._retry(() => this._bus.readStatus());
     }
 
-    /** Poll Status1.DE until the pump is up; NACKs while it starts are expected and not counted. */
+    /** Poll Status1.DE until the pump is up (SPI cannot read it: wait a fixed 10 ms); NACKs while it starts are not counted. */
     async _waitDisplayEnabled(timeoutMs) {
+        if (!this._bus.canRead) {
+            await sleepMs(Math.min(timeoutMs, 10));
+            return;
+        }
         for (let waited = 0; waited <= timeoutMs; waited += RETRY_DELAY_MS) {
             try {
-                await this._cmd.write(Buffer.from([_CMD_NOP]));
-                const s = await this._cmd.read(3);
+                const s = await this._bus.readStatus();
                 if (s[0] & 0x08) return;
             } catch (e) {
                 // expected while the charge pump restarts
@@ -214,6 +261,7 @@ class UC1611sMinimal {
     /** Power-up wait, System Reset, configuration, RAM clear, display on. */
     async _initSequence() {
         await sleepMs(150);
+        await this._bus.hardwareReset();
         await this._resetChip();
         await this._configure();
         const blank = Buffer.alloc(this.width);
@@ -273,9 +321,9 @@ class UC1611sMinimal {
  * @param {number} [contrast=0x8F] - Potentiometer PM 0..255 (the DOG example value).
  */
 class UC1611sFull extends UC1611sMinimal {
-    constructor(command, data, width = WIDTH, height = HEIGHT, topView = false, contrast = 0x8F) {
+    constructor(command, data, width = WIDTH, height = HEIGHT, topView = false, contrast = 0x8F, bus = null) {
         if (!(contrast >= 0 && contrast <= 255)) throw new RangeError('contrast must be 0..255');
-        super(command, data, width, height, { topView, contrast });
+        super(command, data, width, height, { topView, contrast, bus });
     }
 
     // ---- framebuffer -----------------------------------------------------------------------
@@ -531,11 +579,11 @@ class UC1611sFull extends UC1611sMinimal {
      */
     async readRam(page, column, n) {
         await this._ready;
-        const raw = await this._retry(async () => {
-            await this._cmd.write(this._addressBytes(page, column));
-            return Buffer.from(await this._data.read(n + 1));
+        if (!this._bus.canRead) throw new Error('the SPI interface of the module is write-only');
+        return this._retry(async () => {
+            await this._bus.writeCommand(this._addressBytes(page, column));
+            return this._bus.readRam(n);
         });
-        return raw.subarray(1);
     }
 
     /** System Reset and reconfigure with the cached contrast and mapping (RAM is kept). @returns {Promise<void>} */
@@ -560,4 +608,41 @@ class UC1611sFull extends UC1611sMinimal {
     }
 }
 
-module.exports = { UC1611sMinimal, UC1611sFull, WIDTH, HEIGHT, I2C_CHUNK, MAX_ATTEMPTS, RETRY_DELAY_MS };
+/**
+ * UC1611s over 4-wire SPI — minimal interface.
+ *
+ * Same framebuffer, drawing and initialization as UC1611sMinimal, but the module is driven through
+ * a display connection (CS#, D/C# = CD, RES# = RST, optional). The module must be strapped for
+ * 4-wire SPI (BM0 = D13 = VSS). SPI mode 0, up to 8 MHz. Every command byte, including the arguments
+ * of two- and three-byte commands, is sent with D/C# low as its own CS window; RAM data goes out
+ * with D/C# high. There is no read-back and no acknowledge: nothing is retried (`retryCount()` stays
+ * 0), the driver waits a fixed 10 ms for the charge pump after reset or wake instead of polling, and
+ * `readStatus()` / `readRam()` of the full class reject.
+ *
+ * @param {object} connection - DisplayConnection (4-wire, D/C# required, RES# optional, no BUSY).
+ * @param {number} [width=240] - Columns, 1..240.
+ * @param {number} [height=128] - Rows, a multiple of 8 and at most 128.
+ * @param {object} [options] - Used by UC1611sSpiFull: `{ topView, contrast }`.
+ */
+class UC1611sSpiMinimal extends UC1611sMinimal {
+    constructor(connection, width = WIDTH, height = HEIGHT, options = {}) {
+        super(null, null, width, height, { ...options, bus: new SpiBus(connection) });
+    }
+}
+
+/**
+ * UC1611s over 4-wire SPI — full interface (see UC1611sFull; `readStatus()` and `readRam()` reject).
+ *
+ * @param {object} connection - DisplayConnection (4-wire, D/C# required, RES# optional, no BUSY).
+ * @param {number} [width=240] - Columns, 1..240.
+ * @param {number} [height=128] - Rows, a multiple of 8 and at most 128.
+ * @param {boolean} [topView=false] - True for the 12:00 viewing direction (MY = 1, MX = 0).
+ * @param {number} [contrast=0x8F] - Potentiometer PM 0..255 (the DOG example value).
+ */
+class UC1611sSpiFull extends UC1611sFull {
+    constructor(connection, width = WIDTH, height = HEIGHT, topView = false, contrast = 0x8F) {
+        super(null, null, width, height, topView, contrast, new SpiBus(connection));
+    }
+}
+
+module.exports = { UC1611sMinimal, UC1611sFull, UC1611sSpiMinimal, UC1611sSpiFull, WIDTH, HEIGHT, I2C_CHUNK, SPI_CHUNK, MAX_ATTEMPTS, RETRY_DELAY_MS };
