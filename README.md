@@ -187,7 +187,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |
+| UC1611s | LCD graphic display controller (240×128, B/W, EA DOGXL240-7) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8159 | E-paper display controller (600×448, 7-colour) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | UC8276C | E-paper display controller (400×300, B/W/R) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | VL53L0X | Time-of-flight distance sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
