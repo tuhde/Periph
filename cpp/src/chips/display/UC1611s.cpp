@@ -209,7 +209,7 @@ void UC1611sFull::sleep() {
 
 void UC1611sFull::wake() {
     set_display(true);
-    _sleep_ms(1);
+    _sleep_ms(10);          // the chip NACKs and DE stays 0 for about 6 ms while the pump restarts
 }
 
 void UC1611sFull::set_invert(bool on) {
@@ -306,6 +306,7 @@ void UC1611sFull::reset() {
     _reset_chip();
     _configure();
     _enable();
+    _sleep_ms(10);          // DE (and the chip's ACK) return after about 6 ms
 }
 
 void UC1611sFull::send_command(const uint8_t* bytes, size_t len) {

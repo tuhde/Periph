@@ -1,5 +1,5 @@
 // UC1611s demo example: EA DOGXL240-7, STM32Cube HAL (NUCLEO-F411RE, I2C1)
-// Wiring: SCL=PB8 (D15), SDA=PB9 (D14); VDD = 3V3 (never 5 V)
+// Wiring: SCL=PB8 (D15), SDA=PB9 (D14), A2=PB6, CD=PC7 (low), RST=PA9; A3 tied high -> 0x3C/0x3D; VDD = 3V3
 // Module: EA DOGXL240-7 (240 x 128, 3.3 V only), I2C: BM0 = D13 = VDD, CD = A2 = A3 = VSS -> command 0x38 / data 0x39.
 // Capacitors: 4 x 4.7 uF/5 V (VA0, VA1, VB0, VB1 pairs), 470 nF/25 V on VLCD; pull-ups 4.7 k to 3.3 V.
 // Demo: a bouncing ball with partial page updates, a contrast sweep, inverse flashes, hardware scroll, a second RAM screen and sleep.
@@ -67,7 +67,7 @@ static void i2c1_init(void) {
     HAL_GPIO_Init(GPIOB, &gpioInit);
 
     hi2c1.Instance             = I2C1;
-    hi2c1.Init.ClockSpeed      = 400000;
+    hi2c1.Init.ClockSpeed      = 100000;  // internal pull-ups only: 100 kHz
     hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c1.Init.OwnAddress1     = 0;
     hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -76,6 +76,26 @@ static void i2c1_init(void) {
     hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c1.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     HAL_I2C_Init(&hi2c1);
+}
+
+// Module control pins (NUCLEO-F411RE): A2 = PB6, CD = PC7 (unused in I2C mode, held low), RST = PA9.
+// A3 is tied high on the module, so A2 low selects command address 0x3C / data address 0x3D (A2 high: 0x3E / 0x3F).
+static void module_pins_init(void) {
+    GPIO_InitTypeDef gpioInit = {};
+    gpioInit.Mode  = GPIO_MODE_OUTPUT_PP;
+    gpioInit.Pull  = GPIO_NOPULL;
+    gpioInit.Speed = GPIO_SPEED_FREQ_LOW;
+    gpioInit.Pin = GPIO_PIN_6;                          // A2
+    HAL_GPIO_Init(GPIOB, &gpioInit);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+    gpioInit.Pin = GPIO_PIN_7;                          // CD
+    HAL_GPIO_Init(GPIOC, &gpioInit);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+    gpioInit.Pin = GPIO_PIN_9;                          // RST (active low): pulse, then release
+    HAL_GPIO_Init(GPIOA, &gpioInit);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+    HAL_Delay(2);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 }
 
 #define PRINT(...) printf(__VA_ARGS__)
@@ -164,9 +184,10 @@ int main(void) {
     gpio_clocks_init();
     uart2_init();
     i2c1_init();
+    module_pins_init();
 
-    I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x38);          // Create command connection, (hi2c, addr=0x38)
-    I2CConnectionSTM32Cube dataConn(&hi2c1, 0x39);         // Create data connection, (hi2c, addr=0x39)
+    I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x3C);          // Create command connection, (hi2c, addr=0x3C)
+    I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);         // Create data connection, (hi2c, addr=0x3D)
     static UC1611sFull lcd(cmdConn, dataConn);  // Create UC1611s driver, (command, data, width=240, height=128)
     if (!lcd.valid()) {
         printf("UC1611s init failed\r\n");

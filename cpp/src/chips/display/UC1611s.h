@@ -177,7 +177,7 @@ public:
     /** @brief Enter sleep mode: drivers, charge pump and clock stop; the host interface stays active. */
     void sleep();
 
-    /** @brief Leave sleep mode; the chip restores VLCD itself (the driver waits 1 ms). */
+    /** @brief Leave sleep mode; the chip restores VLCD itself (the driver waits 10 ms; the display-enable flag was measured to return after about 6 ms). */
     void wake();
 
     /** @brief Invert the displayed image without changing RAM. */

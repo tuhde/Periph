@@ -63,7 +63,7 @@ static void i2c1_init(void) {
     HAL_GPIO_Init(GPIOB, &gpioInit);
 
     hi2c1.Instance             = I2C1;
-    hi2c1.Init.ClockSpeed      = 400000;
+    hi2c1.Init.ClockSpeed      = 100000;  // internal pull-ups only: 100 kHz
     hi2c1.Init.DutyCycle       = I2C_DUTYCYCLE_2;
     hi2c1.Init.OwnAddress1     = 0;
     hi2c1.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
@@ -72,6 +72,26 @@ static void i2c1_init(void) {
     hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c1.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     HAL_I2C_Init(&hi2c1);
+}
+
+// Module control pins (NUCLEO-F411RE): A2 = PB6, CD = PC7 (unused in I2C mode, held low), RST = PA9.
+// A3 is tied high on the module, so A2 low selects command address 0x3C / data address 0x3D (A2 high: 0x3E / 0x3F).
+static void module_pins_init(void) {
+    GPIO_InitTypeDef gpioInit = {};
+    gpioInit.Mode  = GPIO_MODE_OUTPUT_PP;
+    gpioInit.Pull  = GPIO_NOPULL;
+    gpioInit.Speed = GPIO_SPEED_FREQ_LOW;
+    gpioInit.Pin = GPIO_PIN_6;                          // A2
+    HAL_GPIO_Init(GPIOB, &gpioInit);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
+    gpioInit.Pin = GPIO_PIN_7;                          // CD
+    HAL_GPIO_Init(GPIOC, &gpioInit);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_7, GPIO_PIN_RESET);
+    gpioInit.Pin = GPIO_PIN_9;                          // RST (active low): pulse, then release
+    HAL_GPIO_Init(GPIOA, &gpioInit);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+    HAL_Delay(2);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
 }
 
 static int passed = 0;
@@ -88,9 +108,10 @@ int main(void) {
     gpio_clocks_init();
     uart2_init();
     i2c1_init();
+    module_pins_init();
 
-    I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x38);
-    I2CConnectionSTM32Cube dataConn(&hi2c1, 0x39);
+    I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x3C);
+    I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);
     static UC1611sFull chip(cmdConn, dataConn);
     uc1611sChecks(chip, report);
     report("i2c_no_hal_errors", cmdConn.error_count() == 0 && dataConn.error_count() == 0);
