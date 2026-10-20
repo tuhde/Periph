@@ -10,3 +10,5 @@ pub mod ssd1331;
 pub use ssd1331::{Ssd1331Minimal, Ssd1331Full};
 pub mod st7036;
 pub use st7036::{St7036Minimal, St7036Full};
+pub mod uc1611s;
+pub use uc1611s::{Uc1611sMinimal, Uc1611sFull};
