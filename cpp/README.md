@@ -40,6 +40,7 @@ Each chip exposes two classes:
 
 | Chip | Category | Header |
 |------|----------|--------|
+| 23X1024 | Memory | `chips/memory/23X1024.h` |
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
 | AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
