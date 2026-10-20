@@ -87,7 +87,7 @@ static void run(UC1611sFull& lcd) {
     // --- Power down ---
     // Sleep stops the charge pump and the drivers (below 1 uA); RAM and registers are kept.
     lcd.sleep();                                    // Enter sleep, ()
-    PRINT("done\n");
+    PRINT("done (I2C retries %lu, unrecovered %lu)\n", static_cast<unsigned long>(lcd.retry_count()), static_cast<unsigned long>(lcd.error_count()));
 }
 
 extern "C" void app_main(void) {

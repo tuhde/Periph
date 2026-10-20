@@ -112,6 +112,8 @@ int main(void) {
 
     I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x3C);
     I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);
+    cmdConn.setTimeout(50);
+    dataConn.setTimeout(50);
     static UC1611sFull chip(cmdConn, dataConn);
     uc1611sChecks(chip, report);
     printf("INFO driver retries %lu, unrecovered %lu; HAL errors cmd/data %lu/%lu\r\n", (unsigned long)chip.retry_count(),

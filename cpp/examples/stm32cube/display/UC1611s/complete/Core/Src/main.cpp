@@ -236,6 +236,8 @@ int main(void) {
 
     I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x3C);          // Create command connection, (hi2c, addr=0x3C)
     I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);         // Create data connection, (hi2c, addr=0x3D)
+    cmdConn.setTimeout(50);                                // HAL timeout, (ms=50): give up quickly, the driver retries
+    dataConn.setTimeout(50);
     static UC1611sFull lcd(cmdConn, dataConn);  // Create UC1611s driver, (command, data, width=240, height=128)
     if (!lcd.valid()) {
         printf("UC1611s init failed\r\n");

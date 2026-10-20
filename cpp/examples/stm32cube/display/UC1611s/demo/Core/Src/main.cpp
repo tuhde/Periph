@@ -175,7 +175,7 @@ static void run(UC1611sFull& lcd) {
     // --- Power down ---
     // Sleep stops the charge pump and the drivers (below 1 uA); RAM and registers are kept.
     lcd.sleep();                                    // Enter sleep, ()
-    PRINT("done\r\n");
+    PRINT("done (I2C retries %lu, unrecovered %lu)\r\n", static_cast<unsigned long>(lcd.retry_count()), static_cast<unsigned long>(lcd.error_count()));
 }
 
 int main(void) {
@@ -188,6 +188,8 @@ int main(void) {
 
     I2CConnectionSTM32Cube cmdConn(&hi2c1, 0x3C);          // Create command connection, (hi2c, addr=0x3C)
     I2CConnectionSTM32Cube dataConn(&hi2c1, 0x3D);         // Create data connection, (hi2c, addr=0x3D)
+    cmdConn.setTimeout(50);                                // HAL timeout, (ms=50): give up quickly, the driver retries
+    dataConn.setTimeout(50);
     static UC1611sFull lcd(cmdConn, dataConn);  // Create UC1611s driver, (command, data, width=240, height=128)
     if (!lcd.valid()) {
         printf("UC1611s init failed\r\n");
