@@ -19,6 +19,43 @@ Identical to the I²C contract — chip drivers use the same three operations re
 
 SPI is full-duplex: every byte sent has a simultaneous byte received. For `write_read`, the implementation must send `len(data) + n` bytes total and discard the first `len(data)` received bytes (the chip's response during the command phase).
 
+## Optional Extensions
+
+Three operations beyond the base contract, required by SD / SD NAND (SPI mode) and useful for any
+bulk-transfer chip (see `specs/feature_block_device.md`). They exist on **SPI connections only**
+(not on `Connection`, not on I²C). Chips that do not need them never call them.
+
+| Operation | Parameters | Returns | Notes |
+|-----------|------------|---------|-------|
+| `idle_clocks` | `n: int` | — | Clock `n` bits of `0xFF` with CS **deasserted** (high). `n` is rounded up to whole bytes. Required for the SD init sequence (≥ 74 clocks before CMD0) |
+| `set_speed` | `hz: int` | — | Change SCK frequency at run time. Takes effect on the next operation. Platforms that cannot change speed on a live handle reconfigure the bus (see table); an unsupported platform raises/returns an error, it never silently ignores |
+| `read_into` | `buf: writable buffer` | — | Fill `buf` (`len(buf)` bytes) like `read(len(buf))` without allocating. Python: `readinto(buf)`; C++: `read(uint8_t* buf, size_t n)` already allocation-free, so only a doc note; Node.js: `readInto(buf)`; Java: `readInto(byte[] buf)`; Go: `ReadInto(buf []byte) error`; Rust: n/a |
+
+Sample ordering for SD init: `set_speed(400_000)` → `idle_clocks(80)` → CMD0 … → `set_speed(25_000_000)`.
+
+### Per-platform mapping
+
+| Platform | `idle_clocks(n)` | `set_speed(hz)` |
+|----------|------------------|-----------------|
+| MicroPython | `cs(1)` → `spi.write(b"\xff" * ceil(n/8))` | `spi.init(baudrate=hz)` (keeps pins, polarity, phase) |
+| CircuitPython | lock → `configure(...)` → `spi.write(b"\xff"*k)` with CS left high → unlock | store `baudrate`, applied by the per-operation `configure()` |
+| Linux (spidev) | `xfer2` of `0xFF` bytes with `spi.no_cs = True` (SPI_NO_CS); controllers without it need the optional `cs_gpio` fallback (below) | `spi.max_speed_hz = hz` |
+| Arduino | `SPI.beginTransaction` → `transfer(0xFF)` × k with `digitalWrite(cs, HIGH)` | rebuild `SPISettings` with the new clock (held by the connection) |
+| Zephyr | `spi_transceive` with a config whose `cs` is `NULL` (CS untouched) | `config.frequency = hz` |
+| ESP-IDF | `gpio_set_level(cs, 1)` with the device added with `spics_io_num = -1` (connection then drives CS manually for every operation) → `spi_device_polling_transmit` of `0xFF` bytes | `spi_bus_remove_device` + `spi_bus_add_device` with the new `clock_speed_hz` |
+| Pico SDK | `gpio_put(cs, 1)` → `spi_write_blocking(0xFF…)` | `spi_set_baudrate(spi, hz)` |
+| STM32Cube | `HAL_GPIO_WritePin(cs, SET)` → `HAL_SPI_Transmit(0xFF…)` | `__HAL_SPI_DISABLE` → change `BaudRatePrescaler` (nearest ≤ `hz`) → `HAL_SPI_Init` |
+| Go Linux | `SPI_IOC_MESSAGE` with `cs_change` / `SPI_NO_CS` mode bit | `SPI_IOC_WR_MAX_SPEED_HZ` |
+| Go TinyGo | CS high → `spi.Tx(0xFF…)` | `spi.Configure(Frequency: hz)` |
+| Node.js | spi-device message with `chipSelectChange`/`mode: NO_CS` | `device.setOptions({maxSpeedHz})` |
+| Java (FFM) | `SPI_IOC_MESSAGE` with `SPI_NO_CS` | `SPI_IOC_WR_MAX_SPEED_HZ` |
+| Rust | **Not expressible** through `embedded_hal::spi::SpiDevice` (HAL owns CS, no clock-with-CS-high, no run-time speed). SD / SD NAND Rust drivers are generic over `SpiBus` + `OutputPin` (manual CS) and take a `set_speed` closure/trait (`SpiSpeed`); all other chips stay on `SpiDevice` | |
+
+Linux CS-less clocking depends on `SPI_NO_CS` support in the controller driver. When it is unsupported, the
+Linux connection accepts an optional `cs_gpio` (a `GpiodLineLinux`-style line) and drives CS itself. The
+ESP-IDF connection must therefore own CS for chips that call `idle_clocks`. The per-platform mechanics above
+are the starting point; the implementing PR confirms each against hardware.
+
 ## Configuration Parameters
 
 | Parameter | Platform | Type | Description |
@@ -267,6 +304,15 @@ File: `go/periph/connection/spi_tinygo.go`
 ## Implementation Checklist
 
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+
+### Optional extensions (`idle_clocks`, `set_speed`, `read_into`)
+- [ ] Python: MicroPython, CircuitPython, Linux, SoftSPI, mock (records calls)
+- [ ] C++: Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, STM32Cube, SoftSPI, mock
+- [ ] Node.js: `spi.js`, `spi_mock.js`
+- [ ] Rust: `SpiSpeed` trait + manual-CS bus wrapper in `rust/periph/src/connection/spi.rs`
+- [ ] JVM: `SPIConnection`, `MockConnection`, `SoftSpi`
+- [ ] Go: Linux, TinyGo, SoftSPI
+- [ ] Tests (unit, per language) — plus one hardware check that SD init reaches idle state with `idle_clocks`
 
 ### Python
 - [x] `python/periph/connection/spi_micropython.py` — Google-style docstring on class and every public method

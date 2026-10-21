@@ -294,6 +294,14 @@ func NewIna226Full(conn connection.Connection, rShunt, maxCurrent float64) (*Ina
 // Full-only methods only — f.Voltage() is already promoted from the embedded Ina226Minimal
 ```
 
+## Block devices
+
+Storage chips (SD, SD NAND, SPI NOR, SPI NAND) follow `specs/feature_block_device.md`. Only the **Full**
+class implements `BlockDevice`; the Minimal class stays the raw chip API. `BlockDevice` lives in a
+`storage/` directory next to `connection/` in each language; chips never implement a filesystem.
+Use the SPI optional extensions (`idle_clocks`, `set_speed`, `read_into`, `specs/transport_spi.md`) rather
+than chip-private bit-banging. Every storage chip must pass the shared contract suite using the RAM mock.
+
 ## IO Expander drivers
 
 IO expander chips follow the same two-stage pattern as other chips, but their primary API is a **GPIO facade**: the driver exposes individual `Pin` proxy objects that implement each platform's native GPIO interface. Users interact with pins exactly as they would with hardware GPIO.
