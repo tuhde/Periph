@@ -1,0 +1,103 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('23x1024-device', {
+        category: 'config',
+        defaults: {
+            name:   { value: '' },
+            bus:    { value: '0', required: true, validate: RED.validators.number() },
+            device: { value: '0', required: true, validate: RED.validators.number() },
+            speed:  { value: '1000000', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('23X1024 @ spidev' + this.bus + '.' + this.device);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="23x1024-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="23X1024">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevB.D)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-device">Chip select</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px"> &nbsp;device number D
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-speed">Clock (Hz)</label>
+        <input type="number" id="node-config-input-speed" min="1000" max="20000000" style="width:120px"> &nbsp;default: 1000000 (max 20 MHz)
+    </div>
+</script>
+
+<!-- Operation node: trigger → read / write / fill / mode -->
+<script type="text/javascript">
+    RED.nodes.registerType('23x1024', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: '23x1024-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-database',
+        label:   function() { return this.name || '23X1024'; },
+        paletteLabel: '23X1024'
+    });
+</script>
+
+<script type="text/html" data-template-name="23x1024">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="23X1024">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="23x1024">
+    <p>Reads, writes and fills a 23LC1024 / 23A1024 1-Mbit (128 KiB) SPI serial SRAM,
+    and selects its operating mode.</p>
+    <p>Any input message triggers an operation. The device is configured via a
+    <b>23x1024-device</b> config node. The SRAM is volatile: its contents are lost
+    when power is removed.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>op <span class="property-type">string</span></dt>
+        <dd>Operation: <code>read</code> (default), <code>write</code>, <code>fill</code> or
+        <code>mode</code>. May be passed in <code>msg.op</code>.</dd>
+        <dt>address <span class="property-type">number</span></dt>
+        <dd>Start address 0–131071 for read / write / fill.</dd>
+        <dt>length <span class="property-type">number</span></dt>
+        <dd>Number of bytes (<code>read</code>, <code>fill</code>).</dd>
+        <dt>data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes to write (<code>write</code> only).</dd>
+        <dt>value <span class="property-type">number</span></dt>
+        <dd>Fill byte, default 0 (<code>fill</code> only).</dd>
+        <dt>mode <span class="property-type">string</span></dt>
+        <dd><code>byte</code>, <code>page</code> or <code>sequential</code> (<code>mode</code> only).
+        Omit it to just report the current mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes read from the chip. <code>read</code> only.</dd>
+        <dt>payload.ok <span class="property-type">boolean</span></dt>
+        <dd>True on a successful write or fill.</dd>
+        <dt>payload.mode <span class="property-type">string</span></dt>
+        <dd>Current operating mode. <code>mode</code> only.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus number, the chip-select (device) number and the clock in the
+    device config node. The SRAM runs in SPI Mode 0 at up to 20 MHz. Tie the chip's
+    HOLD pin high and do not leave SIO2 floating.</p>
+</script>

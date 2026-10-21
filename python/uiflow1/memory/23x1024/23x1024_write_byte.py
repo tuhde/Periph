@@ -1,0 +1,1 @@
+_periph_23x1024.write_byte(${_address}, ${_value})

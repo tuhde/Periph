@@ -13,6 +13,7 @@
   ],
   "node-red": {
     "nodes": {
+      "23x1024": "nodes/23x1024/23x1024.js",
       "24aa02uid": "nodes/24aa02uid/24aa02uid.js"
     }
   },

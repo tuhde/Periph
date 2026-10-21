@@ -104,7 +104,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 
 | Chip | Category | Python | C++ | Node.js | Node-RED | Rust | Go | JVM | Sigrok |
 |------|----------|--------|-----|---------|----------|------|----|-----|--------|
-| 23X1024 | Serial SRAM (1 Mbit) |  |  |  |  |  |  |  |  |
+| 23X1024 | Serial SRAM (1 Mbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD5243 | Dual digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
 | AD5248 | Dual digital rheostat (256-pos) |  |  |  |  |  |  |  |  |
