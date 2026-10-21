@@ -2,7 +2,12 @@
 #include <string.h>
 #include <driver/spi_master.h>
 #include <hal/spi_types.h>
+// The manual chip-select feature (setManualCS / idle_clocks, needed by SD cards) uses the GPIO driver,
+// which only apps that list `esp_driver_gpio` in REQUIRES can see; other apps keep working without it.
+#if __has_include(<driver/gpio.h>)
 #include <driver/gpio.h>
+#define PERIPH_ESPIDF_MANUAL_CS 1
+#endif
 #include "RegisterConnection.h"
 #include "SPIExtensions.h"
 
@@ -75,10 +80,14 @@ public:
      * been added with `spics_io_num = -1`. @p cs is configured as an output,
      * idle high.
      */
-    void setManualCS(gpio_num_t cs) {
+    void setManualCS(int cs) {
+#ifdef PERIPH_ESPIDF_MANUAL_CS
         _cs = cs;
-        gpio_set_direction(_cs, GPIO_MODE_OUTPUT);
-        gpio_set_level(_cs, 1);
+        gpio_set_direction(static_cast<gpio_num_t>(_cs), GPIO_MODE_OUTPUT);
+        gpio_set_level(static_cast<gpio_num_t>(_cs), 1);
+#else
+        (void)cs;   // needs `esp_driver_gpio` in REQUIRES
+#endif
     }
 
     /** @brief Allow `set_speed()`: re-adds the device to @p host with a new `clock_speed_hz`.
@@ -95,8 +104,10 @@ public:
 
     /** @brief Clock @p n bits of 0xFF with CS high; needs setManualCS(). */
     void idle_clocks(uint32_t n) override {
-        if (_cs == GPIO_NUM_NC) return;
-        gpio_set_level(_cs, 1);
+        if (_cs < 0) return;
+#ifdef PERIPH_ESPIDF_MANUAL_CS
+        gpio_set_level(static_cast<gpio_num_t>(_cs), 1);
+#endif
         uint8_t ff[16];
         memset(ff, 0xFF, sizeof(ff));
         uint32_t bytes = (n + 7) / 8;
@@ -126,13 +137,13 @@ public:
     /** @brief Assert CS (manual GPIO, or SPI_TRANS_CS_KEEP_ACTIVE on every transfer). */
     void select() override {
         _held = true;
-        if (_cs != GPIO_NUM_NC) gpio_set_level(_cs, 0);
+        _csSet(0);
     }
 
     /** @brief Release CS. */
     void deselect() override {
         _held = false;
-        if (_cs != GPIO_NUM_NC) gpio_set_level(_cs, 1);
+        _csSet(1);
     }
 
 protected:
@@ -194,14 +205,21 @@ protected:
 private:
     // With a manual CS GPIO the peripheral never touches CS; otherwise a held
     // select() keeps the hardware CS active across transfers.
-    uint32_t _keepFlags() const { return (_held && _cs == GPIO_NUM_NC) ? SPI_TRANS_CS_KEEP_ACTIVE : 0; }
-    void _csLow()  { if (_cs != GPIO_NUM_NC && !_held) gpio_set_level(_cs, 0); }
-    void _csHigh() { if (_cs != GPIO_NUM_NC && !_held) gpio_set_level(_cs, 1); }
+    uint32_t _keepFlags() const { return (_held && _cs < 0) ? SPI_TRANS_CS_KEEP_ACTIVE : 0; }
+    void _csSet(int level) {
+#ifdef PERIPH_ESPIDF_MANUAL_CS
+        if (_cs >= 0) gpio_set_level(static_cast<gpio_num_t>(_cs), level);
+#else
+        (void)level;
+#endif
+    }
+    void _csLow()  { if (_cs >= 0 && !_held) _csSet(0); }
+    void _csHigh() { if (_cs >= 0 && !_held) _csSet(1); }
 
     spi_device_handle_t _dev;
     uint8_t              _readBit;
     uint8_t              _multiByteBit;   // 0 = chip has no such bit
-    gpio_num_t           _cs = GPIO_NUM_NC;   // manual CS, see setManualCS()
+    int                  _cs = -1;            // manual CS GPIO, -1 = peripheral CS; see setManualCS()
     bool                 _held = false;       // select() active
     spi_host_device_t    _host = SPI2_HOST;
     spi_device_interface_config_t _devCfg = {};
