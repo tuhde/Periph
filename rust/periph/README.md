@@ -42,6 +42,7 @@ Each chip exposes two structs:
 
 | Chip | Category | Description |
 |------|----------|-------------|
+| 23X1024 | Memory | 1-Mbit SPI serial SRAM (Microchip 23LC1024 / 23A1024). |
 | 24AA02UID | Memory | 2 Kbit I²C EEPROM with 32-bit unique serial number. |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
