@@ -5,3 +5,4 @@
 ws2812b  neopixel  0  0  4
 23x1024  spi  0  0
 sd_spi  spi  0  0
+mx25l12845e  spi  0  0
