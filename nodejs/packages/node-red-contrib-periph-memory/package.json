@@ -17,7 +17,8 @@
     "nodes": {
       "23x1024": "nodes/23x1024/23x1024.js",
       "24aa02uid": "nodes/24aa02uid/24aa02uid.js",
-      "sd_spi": "nodes/sd_spi/sd_spi.js"
+      "sd_spi": "nodes/sd_spi/sd_spi.js",
+      "mx25l12845e": "nodes/mx25l12845e/mx25l12845e.js"
     }
   },
   "dependencies": {

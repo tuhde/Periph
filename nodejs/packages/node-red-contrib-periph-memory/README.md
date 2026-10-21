@@ -20,6 +20,8 @@ npm install node-red-contrib-periph-memory
 | `23x1024` | input | Reads, writes and fills a 23LC1024 / 23A1024 1-Mbit (128 KiB) SPI serial SRAM, and selects its operating mode. |
 | `24aa02uid-device` | config | I²C bus and address for a 24AA02UID |
 | `24aa02uid` | input | Reads the factory-programmed 32-bit unique serial number from a 24AA02UID EEPROM, or reads / writes user EEPROM bytes, over I²C. |
+| `mx25l12845e-device` | config | Bus configuration for a MX25L12845E |
+| `mx25l12845e` | input | Reads, writes and erases the 16 MiB Macronix MX25L12845E SPI NOR flash by byte address. Writes are erase-aware: the node erases a 4 KiB sector itself when bits must go from 0 to 1, and keeps the other bytes of that sector. There is no filesystem. |
 | `sd-spi-device` | config | Bus configuration for a SD-SPI |
 | `sd-spi` | input | Reads and writes raw 512-byte blocks of an SD / SDHC / SDXC / microSD card in SPI mode. There is no filesystem: blocks are addressed by number. |
 
