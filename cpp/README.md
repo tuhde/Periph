@@ -86,6 +86,7 @@ Each chip exposes two classes:
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |
 | MPU9255 | IMU | `chips/imu/MPU9255.h` |
+| MX25L12845E | Memory | `chips/memory/MX25L12845E.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |
@@ -96,6 +97,7 @@ Each chip exposes two classes:
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
+| SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
 | UC1611s | Display driver | `chips/display/UC1611s.h` |

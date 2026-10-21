@@ -93,6 +93,7 @@ if [ -d "$TEST_DIR" ]; then
     mapfile -t APP_SRCS < <(python3 "$SCRIPT_DIR/scripts/linux-sources.py" "$TEST_DIR")
 fi
 CHIP_INCLUDES=()
+CHIP_INCLUDES+=(-I"$SRC_DIR/storage")
 for d in "$SRC_DIR"/chips/*/; do CHIP_INCLUDES+=(-I"$d"); done
 
 find_tool() {
@@ -219,6 +220,7 @@ run_unit() {
     [ -n "$CHIP_SRC" ] && extra_srcs+=("$CHIP_SRC")
     extra_srcs+=("${CHIP_BASE_SRCS[@]}")
     g++ -std=c++17 \
+        -I"$SRC_DIR/storage" \
         -I"$SRC_DIR/connection" \
         -I"$SRC_DIR/discovery" \
         -I"$SRC_DIR/chips/$CATEGORY" \

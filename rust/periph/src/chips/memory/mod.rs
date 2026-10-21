@@ -6,3 +6,9 @@ pub use _23x1024::{
     Sram23x1024Minimal, Sram23x1024Full,
     SRAM23X1024_MODE_BYTE, SRAM23X1024_MODE_PAGE, SRAM23X1024_MODE_SEQUENTIAL,
 };
+
+pub mod sd_spi;
+pub use sd_spi::{SdSpiMinimal, SdSpiFull, SdSpiOptions, SdCardType, SD_BLOCK_SIZE};
+
+pub mod mx25l12845e;
+pub use mx25l12845e::{Mx25l12845eFull, Mx25l12845eMinimal, Mx25l12845eOptions};

@@ -89,6 +89,7 @@ Each chip exposes two structs:
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
+| MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
@@ -97,6 +98,7 @@ Each chip exposes two structs:
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
+| SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |

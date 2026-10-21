@@ -1,0 +1,213 @@
+{
+  "category": "MX25L12845E",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_MX25L12845E_LANGUAGES = {\n  \"CUSTOM_MX25L12845E_INIT\": {\n    \"en\": \"%1 init bus %2 CS pin %3\"\n  },\n  \"CUSTOM_MX25L12845E_SIZE\": {\n    \"en\": \"%1 capacity (bytes)\"\n  },\n  \"CUSTOM_MX25L12845E_JEDEC_ID\": {\n    \"en\": \"%1 JEDEC ID (hex)\"\n  },\n  \"CUSTOM_MX25L12845E_READ_BYTE\": {\n    \"en\": \"%1 read byte address %2\"\n  },\n  \"CUSTOM_MX25L12845E_WRITE_BYTE\": {\n    \"en\": \"%1 write byte address %2 value %3 (erases the sector if needed)\"\n  },\n  \"CUSTOM_MX25L12845E_ERASE_SECTOR\": {\n    \"en\": \"%1 erase 4 KiB sector at address %2\"\n  },\n  \"CUSTOM_MX25L12845E_DEEP_POWER_DOWN\": {\n    \"en\": \"%1 deep power-down\"\n  },\n  \"CUSTOM_MX25L12845E_WAKE\": {\n    \"en\": \"%1 wake up (release deep power-down)\"\n  }\n};\n\nconst initType = 'custom_mx25l12845e_init';\nBlockly.BlockRegExpList['custom_mx25l12845e'] = {\n  regexp: new RegExp(/^custom_mx25l12845e_/),\n  code: \"from MX25L12845E import MX25L12845E\",\n  initBlockType: initType,\n  categoryId: 'custom_mx25l12845e',\n}\nBlockly.utils.registerLanguages(CUSTOM_MX25L12845E_LANGUAGES)\n\nBlockly.Msg.CUSTOM_MX25L12845E_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_MX25L12845E = 'MX25L12845E'\n\nBlockly.utils.getcustom_mx25l12845eOptions = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['mx25l12845e_0', 'mx25l12845e_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_mx25l12845eOptions },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'mx25l12845e_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = MX25L12845E(${bus}, ${cs_pin})\\n`\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_size\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_SIZE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_size\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.size()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_jedec_id\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_JEDEC_ID,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_jedec_id\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.jedec_id()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_read_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_READ_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_read_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_byte(${address})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_write_byte\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_WRITE_BYTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_write_byte\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write_byte(${address}, ${value})\\n`\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_erase_sector\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_ERASE_SECTOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_erase_sector\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.erase_sector(${address})\\n`\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_deep_power_down\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_DEEP_POWER_DOWN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_deep_power_down\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.deep_power_down()\\n`\n}\n\nBlockly.Blocks[\"custom_mx25l12845e_wake\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_MX25L12845E_WAKE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_mx25l12845eOptions\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_mx25l12845e_wake\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.wake()\\n`\n}\n",
+    "toolbox": "\n<category name=\"MX25L12845E\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_mx25l12845e\">\n<title text=\"MX25L12845E\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_mx25l12845e_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mx25l12845e_size\"/><block type=\"custom_mx25l12845e_jedec_id\"/><block type=\"custom_mx25l12845e_read_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mx25l12845e_write_byte\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mx25l12845e_erase_sector\">\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_mx25l12845e_deep_power_down\"/><block type=\"custom_mx25l12845e_wake\"/>\n</category>\n",
+    "toolboxitemid": "custom_mx25l12845e",
+    "block_type": [
+      "custom_mx25l12845e___init__",
+      "custom_mx25l12845e_size",
+      "custom_mx25l12845e_jedec_id",
+      "custom_mx25l12845e_read_byte",
+      "custom_mx25l12845e_write_byte",
+      "custom_mx25l12845e_erase_sector",
+      "custom_mx25l12845e_deep_power_down",
+      "custom_mx25l12845e_wake"
+    ]
+  },
+  "data": {
+    "name": "MX25L12845E",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "MX25L12845E",
+      "time": "2026-10-21",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.memory.mx25l12845e import MX25L12845EFull",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 CS pin %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = MX25L12845EFull(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "size",
+        "note": {},
+        "label": {
+          "en": "%1 capacity (bytes)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.size()",
+        "ast_return": {
+          "code": "self._driver.size()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "jedec_id",
+        "note": {},
+        "label": {
+          "en": "%1 JEDEC ID (hex)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.jedec_id().hex()",
+        "ast_return": {
+          "code": "self._driver.jedec_id().hex()",
+          "id": "str"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_byte",
+        "note": {},
+        "label": {
+          "en": "%1 read byte address %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_bytes(address, 1)[0]",
+        "ast_return": {
+          "code": "self._driver.read_bytes(address, 1)[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write_byte",
+        "note": {},
+        "label": {
+          "en": "%1 write byte address %2 value %3 (erases the sector if needed)"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "value",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write_bytes(address, bytes([value]))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "erase_sector",
+        "note": {},
+        "label": {
+          "en": "%1 erase 4 KiB sector at address %2"
+        },
+        "params": [
+          {
+            "name": "address",
+            "type": "int",
+            "default": "",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.erase_sector(address)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "deep_power_down",
+        "note": {},
+        "label": {
+          "en": "%1 deep power-down"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.deep_power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "wake",
+        "note": {},
+        "label": {
+          "en": "%1 wake up (release deep power-down)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.release_deep_power_down()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "mx25l12845e"
+  },
+  "pyCode": "\"\"\"\nfile     MX25L12845E\ntime     2026-10-21\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.memory.mx25l12845e import MX25L12845EFull\n\n\nclass MX25L12845E:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 2, cs_pin: int = 5):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 CS pin %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '2'\n                field: number\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin)\n        self._driver = MX25L12845EFull(connection)\n\n    def size(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 capacity (bytes)'\n        \"\"\"\n        return self._driver.size()\n\n    def jedec_id(self) -> str:\n        \"\"\"\n        label:\n            en: '%1 JEDEC ID (hex)'\n        \"\"\"\n        return self._driver.jedec_id().hex()\n\n    def read_byte(self, address: int) -> int:\n        \"\"\"\n        label:\n            en: '%1 read byte address %2'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n        \"\"\"\n        return self._driver.read_bytes(address, 1)[0]\n\n    def write_byte(self, address: int, value: int):\n        \"\"\"\n        label:\n            en: '%1 write byte address %2 value %3 (erases the sector if needed)'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n            value:\n                name: value\n                type: int\n                field: number\n        \"\"\"\n        self._driver.write_bytes(address, bytes([value]))\n\n    def erase_sector(self, address: int):\n        \"\"\"\n        label:\n            en: '%1 erase 4 KiB sector at address %2'\n        params:\n            address:\n                name: address\n                type: int\n                field: number\n        \"\"\"\n        self._driver.erase_sector(address)\n\n    def deep_power_down(self):\n        \"\"\"\n        label:\n            en: '%1 deep power-down'\n        \"\"\"\n        self._driver.deep_power_down()\n\n    def wake(self):\n        \"\"\"\n        label:\n            en: '%1 wake up (release deep power-down)'\n        \"\"\"\n        self._driver.release_deep_power_down()",
+  "version": "alpha2"
+}

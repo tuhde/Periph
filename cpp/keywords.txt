@@ -51,7 +51,11 @@ BMP384Minimal	KEYWORD1
 BMP581Full	KEYWORD1
 BMP581Minimal	KEYWORD1
 BatteryMode	KEYWORD1
+BlockDevice	KEYWORD1
+BlockError	KEYWORD1
+BlockInfo	KEYWORD1
 CanFrame	KEYWORD1
+CardType	KEYWORD1
 ChannelState	KEYWORD1
 Config	KEYWORD1
 Connection	KEYWORD1
@@ -124,6 +128,9 @@ MPU9250Full	KEYWORD1
 MPU9250Minimal	KEYWORD1
 MPU9255Full	KEYWORD1
 MPU9255Minimal	KEYWORD1
+MX25L12845EFull	KEYWORD1
+MX25L12845EMinimal	KEYWORD1
+MX25L12845EOptions	KEYWORD1
 Measurement	KEYWORD1
 Mode	KEYWORD1
 NEO6BusType	KEYWORD1
@@ -159,12 +166,17 @@ RFM97Full	KEYWORD1
 RFM97Minimal	KEYWORD1
 RFM98Full	KEYWORD1
 RFM98Minimal	KEYWORD1
+RamBlockDevice	KEYWORD1
 ReadResult	KEYWORD1
 RegisterConnection	KEYWORD1
+SDSPIFull	KEYWORD1
+SDSPIMinimal	KEYWORD1
+SDSPIOptions	KEYWORD1
 SK6812RGBWFull	KEYWORD1
 SK6812RGBWMinimal	KEYWORD1
 SMBusConnection	KEYWORD1
 SPIConnection	KEYWORD1
+SPIExtensions	KEYWORD1
 SRAM23X1024Full	KEYWORD1
 SRAM23X1024Minimal	KEYWORD1
 SSD1331Full	KEYWORD1
@@ -175,12 +187,14 @@ SiPoConnection	KEYWORD1
 SoftSPI	KEYWORD1
 SourceClock	KEYWORD1
 SpiBusHolder	KEYWORD1
+Stats	KEYWORD1
 Supply	KEYWORD1
 TMP117Full	KEYWORD1
 TMP117Minimal	KEYWORD1
 TPIC6B595Full	KEYWORD1
 TPIC6B595Minimal	KEYWORD1
 TimerAMode	KEYWORD1
+TracingBlockDevice	KEYWORD1
 UARTConnection	KEYWORD1
 UC1611sBus	KEYWORD1
 UC1611sFull	KEYWORD1
@@ -235,7 +249,10 @@ autozero	KEYWORD2
 available	KEYWORD2
 awake	KEYWORD2
 baseline	KEYWORD2
+begin	KEYWORD2
 blit	KEYWORD2
+block_count	KEYWORD2
+block_size	KEYWORD2
 both	KEYWORD2
 brake	KEYWORD2
 buffer_size	KEYWORD2
@@ -248,11 +265,14 @@ calibrateOffset	KEYWORD2
 calibrate_offset	KEYWORD2
 canRead	KEYWORD2
 can_read	KEYWORD2
+card_type	KEYWORD2
 ch0	KEYWORD2
 ch1	KEYWORD2
 channel_enabled	KEYWORD2
 checksum	KEYWORD2
+chip_erase	KEYWORD2
 chip_id	KEYWORD2
+cid	KEYWORD2
 clear	KEYWORD2
 clearBatterySwitchover	KEYWORD2
 clearFault	KEYWORD2
@@ -263,6 +283,7 @@ clear_als_interrupt	KEYWORD2
 clear_autorifp	KEYWORD2
 clear_autozero	KEYWORD2
 clear_errors	KEYWORD2
+clear_fail_flags	KEYWORD2
 clear_gesture_fifo	KEYWORD2
 clear_interrupt	KEYWORD2
 clear_overcurrent	KEYWORD2
@@ -308,19 +329,25 @@ configure_sampling	KEYWORD2
 configure_thresholds	KEYWORD2
 configure_wait	KEYWORD2
 configure_wake_on_motion	KEYWORD2
+connection	KEYWORD2
 conversion_ready	KEYWORD2
 course	KEYWORD2
 create_char	KEYWORD2
 crosstalkCompensation	KEYWORD2
+csd	KEYWORD2
 current	KEYWORD2
 currentB	KEYWORD2
 cursor	KEYWORD2
 dataReady	KEYWORD2
 data_ready	KEYWORD2
 decrement_value	KEYWORD2
+deep_power_down	KEYWORD2
+defaults	KEYWORD2
 delay	KEYWORD2
 delayMicros	KEYWORD2
+deselect	KEYWORD2
 device_id	KEYWORD2
+device_ids	KEYWORD2
 device_select	KEYWORD2
 dew_point	KEYWORD2
 die_id	KEYWORD2
@@ -339,6 +366,11 @@ disable_fifo	KEYWORD2
 disable_highpass	KEYWORD2
 disable_interrupt	KEYWORD2
 disable_wait	KEYWORD2
+disk_initialize	KEYWORD2
+disk_ioctl	KEYWORD2
+disk_read	KEYWORD2
+disk_status	KEYWORD2
+disk_write	KEYWORD2
 display	KEYWORD2
 display_off	KEYWORD2
 display_on	KEYWORD2
@@ -348,6 +380,7 @@ draw_line	KEYWORD2
 draw_rect	KEYWORD2
 drive	KEYWORD2
 effective_osr	KEYWORD2
+electronic_id	KEYWORD2
 enPin	KEYWORD2
 enable	KEYWORD2
 enable32kHzOutput	KEYWORD2
@@ -375,7 +408,15 @@ enable_proximity	KEYWORD2
 enable_proximity_interrupt	KEYWORD2
 enable_rds	KEYWORD2
 enable_wait	KEYWORD2
+erase	KEYWORD2
+erase_block_32k	KEYWORD2
+erase_block_64k	KEYWORD2
+erase_sector	KEYWORD2
+erase_size	KEYWORD2
 error_count	KEYWORD2
+fast_read	KEYWORD2
+fatfs_attach	KEYWORD2
+fatfs_dev	KEYWORD2
 fifo_configure	KEYWORD2
 fifo_count	KEYWORD2
 fifo_entries	KEYWORD2
@@ -440,7 +481,9 @@ hw_line	KEYWORD2
 hw_rect	KEYWORD2
 icon	KEYWORD2
 identify	KEYWORD2
+idle_clocks	KEYWORD2
 increment_value	KEYWORD2
+info	KEYWORD2
 init	KEYWORD2
 intPin	KEYWORD2
 interMeasurement	KEYWORD2
@@ -460,6 +503,7 @@ isShutdown	KEYWORD2
 isWindowLimitsLocked	KEYWORD2
 is_als_saturated	KEYWORD2
 is_als_valid	KEYWORD2
+is_bad	KEYWORD2
 is_busy	KEYWORD2
 is_calibrated	KEYWORD2
 is_card_present	KEYWORD2
@@ -468,12 +512,14 @@ is_eeprom_ready	KEYWORD2
 is_magnet_detected	KEYWORD2
 is_magnet_too_strong	KEYWORD2
 is_magnet_too_weak	KEYWORD2
+is_present	KEYWORD2
 is_proximity_saturated	KEYWORD2
 is_proximity_valid	KEYWORD2
 is_ready	KEYWORD2
 is_station	KEYWORD2
 is_stereo	KEYWORD2
 is_touched	KEYWORD2
+jedec_id	KEYWORD2
 last_packet_rssi	KEYWORD2
 last_packet_snr	KEYWORD2
 latitude	KEYWORD2
@@ -482,6 +528,7 @@ linePeriod	KEYWORD2
 lockCriticalLimit	KEYWORD2
 lockEeprom	KEYWORD2
 lockWindowLimits	KEYWORD2
+lock_otp	KEYWORD2
 longitude	KEYWORD2
 low	KEYWORD2
 lux	KEYWORD2
@@ -490,6 +537,7 @@ mag_raw	KEYWORD2
 magnetic_field	KEYWORD2
 magnitude	KEYWORD2
 manufacturer_id	KEYWORD2
+mark_bad	KEYWORD2
 max_angle	KEYWORD2
 max_chunk	KEYWORD2
 max_position	KEYWORD2
@@ -498,10 +546,12 @@ modelId	KEYWORD2
 moduleType	KEYWORD2
 motion_detected	KEYWORD2
 mute	KEYWORD2
+needs_erase	KEYWORD2
 neopixel_hsv_to_rgb	KEYWORD2
 new_data_available	KEYWORD2
 nvm_read	KEYWORD2
 nvm_write	KEYWORD2
+ocr	KEYWORD2
 odr_is_valid	KEYWORD2
 off	KEYWORD2
 offEdge	KEYWORD2
@@ -518,6 +568,7 @@ opticalCenter	KEYWORD2
 oscillatorStopped	KEYWORD2
 overflow	KEYWORD2
 oversampling	KEYWORD2
+page_program	KEYWORD2
 pin	KEYWORD2
 pollInterrupt	KEYWORD2
 pollUbx	KEYWORD2
@@ -529,6 +580,8 @@ power_up	KEYWORD2
 power_valid	KEYWORD2
 pressure	KEYWORD2
 print_at	KEYWORD2
+program_otp	KEYWORD2
+protection	KEYWORD2
 proximity	KEYWORD2
 proximity_threshold	KEYWORD2
 proximity_touched	KEYWORD2
@@ -559,6 +612,7 @@ read_aqi	KEYWORD2
 read_average	KEYWORD2
 read_block	KEYWORD2
 read_byte	KEYWORD2
+read_bytes	KEYWORD2
 read_capture	KEYWORD2
 read_channel	KEYWORD2
 read_channel_voltage	KEYWORD2
@@ -589,6 +643,8 @@ read_raw_with_retry	KEYWORD2
 read_rds_group	KEYWORD2
 read_retry	KEYWORD2
 read_revision	KEYWORD2
+read_security	KEYWORD2
+read_sfdp	KEYWORD2
 read_status	KEYWORD2
 read_supply_diff_raw	KEYWORD2
 read_temperature	KEYWORD2
@@ -608,6 +664,7 @@ receive_continuous	KEYWORD2
 recv	KEYWORD2
 reference_pressure	KEYWORD2
 refresh_auto	KEYWORD2
+release_deep_power_down	KEYWORD2
 reset	KEYWORD2
 reset_fifo	KEYWORD2
 reset_io	KEYWORD2
@@ -629,7 +686,9 @@ saveConfig	KEYWORD2
 scroll	KEYWORD2
 scroll_stop	KEYWORD2
 sea_level_pressure	KEYWORD2
+sector_count	KEYWORD2
 seek	KEYWORD2
+select	KEYWORD2
 select_card	KEYWORD2
 select_heater_profile	KEYWORD2
 self_calibrate	KEYWORD2
@@ -641,6 +700,7 @@ sendUbx	KEYWORD2
 send_buffered	KEYWORD2
 send_command	KEYWORD2
 send_data	KEYWORD2
+serial_number	KEYWORD2
 set	KEYWORD2
 setActiveEnergyMode	KEYWORD2
 setAddress	KEYWORD2
@@ -676,6 +736,7 @@ setSigmaThreshold	KEYWORD2
 setSignalRateLimit	KEYWORD2
 setTemperatureOffset	KEYWORD2
 setTimingBudget	KEYWORD2
+setTrace	KEYWORD2
 setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
 set_activity	KEYWORD2
@@ -704,6 +765,7 @@ set_booster	KEYWORD2
 set_brightness	KEYWORD2
 set_compensation	KEYWORD2
 set_contrast	KEYWORD2
+set_crc	KEYWORD2
 set_critical_alert	KEYWORD2
 set_cursor	KEYWORD2
 set_dac	KEYWORD2
@@ -785,6 +847,7 @@ set_power_save	KEYWORD2
 set_power_valid_limits	KEYWORD2
 set_pressure_offset	KEYWORD2
 set_pressure_threshold	KEYWORD2
+set_protection	KEYWORD2
 set_proximity_mask	KEYWORD2
 set_proximity_offset	KEYWORD2
 set_proximity_thresholds	KEYWORD2
@@ -801,6 +864,7 @@ set_shadow	KEYWORD2
 set_sleep	KEYWORD2
 set_soft_start	KEYWORD2
 set_softmute	KEYWORD2
+set_speed	KEYWORD2
 set_standby	KEYWORD2
 set_summation_channels	KEYWORD2
 set_tap_detection	KEYWORD2
@@ -841,6 +905,7 @@ speed	KEYWORD2
 standby	KEYWORD2
 start	KEYWORD2
 startContinuous	KEYWORD2
+stats	KEYWORD2
 status	KEYWORD2
 status_byte	KEYWORD2
 stop	KEYWORD2
@@ -848,6 +913,7 @@ stopContinuous	KEYWORD2
 stop_crypto	KEYWORD2
 stop_receive	KEYWORD2
 summation_value	KEYWORD2
+sync	KEYWORD2
 system_calibrate_full	KEYWORD2
 system_calibrate_zero	KEYWORD2
 tare	KEYWORD2
@@ -859,6 +925,7 @@ touched	KEYWORD2
 transfer_value	KEYWORD2
 trigger	KEYWORD2
 triggerOneShot	KEYWORD2
+uint32_t	KEYWORD2
 unlockEeprom	KEYWORD2
 unwatch	KEYWORD2
 update	KEYWORD2
@@ -867,9 +934,11 @@ utcTime	KEYWORD2
 valid	KEYWORD2
 vcselPulsePeriod	KEYWORD2
 version	KEYWORD2
+void	KEYWORD2
 voltage	KEYWORD2
 waitBusy	KEYWORD2
 wait_busy	KEYWORD2
+wait_ready	KEYWORD2
 wake	KEYWORD2
 wake_up	KEYWORD2
 wakeup	KEYWORD2
@@ -883,6 +952,7 @@ writeEepromScratch	KEYWORD2
 write_all	KEYWORD2
 write_block	KEYWORD2
 write_byte	KEYWORD2
+write_bytes	KEYWORD2
 write_char	KEYWORD2
 write_command	KEYWORD2
 write_customer	KEYWORD2
@@ -893,6 +963,7 @@ write_page	KEYWORD2
 write_port	KEYWORD2
 write_raw	KEYWORD2
 write_read	KEYWORD2
+write_status	KEYWORD2
 write_ultralight_page	KEYWORD2
 zero_position	KEYWORD2
 
@@ -954,6 +1025,7 @@ BLINK_0_5_HZ	LITERAL1
 BLINK_1_HZ	LITERAL1
 BLINK_2_HZ	LITERAL1
 BLINK_OFF	LITERAL1
+BLOCK_SIZE	LITERAL1
 BLUE	LITERAL1
 BOL	LITERAL1
 BRNG_16V	LITERAL1
@@ -1287,6 +1359,7 @@ OSS_ULTRA_HIGH_RES	LITERAL1
 OUTS_ANALOG	LITERAL1
 OUTS_ANALOG2	LITERAL1
 OUTS_PWM	LITERAL1
+PAGE_SIZE	LITERAL1
 PD_100K_GND	LITERAL1
 PD_1K_GND	LITERAL1
 PD_500K_GND	LITERAL1
@@ -1314,6 +1387,7 @@ RX_GAIN_33_DB	LITERAL1
 RX_GAIN_38_DB	LITERAL1
 RX_GAIN_43_DB	LITERAL1
 RX_GAIN_48_DB	LITERAL1
+SECTOR_SIZE	LITERAL1
 SENSOR_ID	LITERAL1
 SEVEN_SEG	LITERAL1
 SF	LITERAL1

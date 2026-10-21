@@ -95,6 +95,7 @@ Each chip exposes two classes:
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
+| MX25L12845E | Memory | — minimal driver: byte-addressed read, erase-aware write. |
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
 | PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
@@ -103,6 +104,7 @@ Each chip exposes two classes:
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
+| SD_SPI | Memory | SD card in SPI mode |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller |
 | ST7036 | Display driver | Character LCD controller |

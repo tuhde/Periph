@@ -1,0 +1,55 @@
+{
+  "urls": [
+    [
+      "periph/__init__.py",
+      "github:tuhde/Periph/python/periph/__init__.py"
+    ],
+    [
+      "periph/chips/memory/mx25l12845e.py",
+      "github:tuhde/Periph/python/periph/chips/memory/mx25l12845e.py"
+    ],
+    [
+      "periph/connection/__init__.py",
+      "github:tuhde/Periph/python/periph/connection/__init__.py"
+    ],
+    [
+      "periph/connection/base.py",
+      "github:tuhde/Periph/python/periph/connection/base.py"
+    ],
+    [
+      "periph/connection/input_pin.py",
+      "github:tuhde/Periph/python/periph/connection/input_pin.py"
+    ],
+    [
+      "periph/connection/output_pin.py",
+      "github:tuhde/Periph/python/periph/connection/output_pin.py"
+    ],
+    [
+      "periph/connection/register.py",
+      "github:tuhde/Periph/python/periph/connection/register.py"
+    ],
+    [
+      "periph/connection/register_connection.py",
+      "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
+    ],
+    [
+      "periph/storage/block_device.py",
+      "github:tuhde/Periph/python/periph/storage/block_device.py"
+    ]
+  ],
+  "deps": [
+    [
+      "abc",
+      "latest"
+    ]
+  ],
+  "version": "1.2.1"
+}

@@ -1,0 +1,3 @@
+/var/projects/Periph/cpp/tests/memory/mx25l12845e_test_stm32cube/b/CMakeFiles/mx25l12845e_test_stm32cube.dir
+/var/projects/Periph/cpp/tests/memory/mx25l12845e_test_stm32cube/b/CMakeFiles/edit_cache.dir
+/var/projects/Periph/cpp/tests/memory/mx25l12845e_test_stm32cube/b/CMakeFiles/rebuild_cache.dir

@@ -31,7 +31,7 @@ import java.util.Map;
  * address width are also applied to the register map so a later {@code writeRead}
  * sees them.
  */
-public class MockConnection implements RegisterConnection {
+public class MockConnection implements RegisterConnection, SPIExtensions {
 
     private final Map<Integer, Integer> registers = new HashMap<>();
     private final List<byte[]> writes = new ArrayList<>();
@@ -40,6 +40,22 @@ public class MockConnection implements RegisterConnection {
     private int failWrites = 0;
     private int failSkip = 0;
     private int failReads = 0;
+    private final List<String> events = new ArrayList<>();
+
+    /** SPI extension calls recorded in order ({@code idleClocks 80}, {@code setSpeed 400000}, {@code select}, {@code deselect}). */
+    public List<String> events() { return events; }
+
+    @Override public void idleClocks(int n) { events.add("idleClocks " + n); }
+    @Override public void setSpeed(int hz) { events.add("setSpeed " + hz); }
+    @Override public void select() { events.add("select"); }
+    @Override public void deselect() { events.add("deselect"); }
+
+    /** Fill {@code buf} like {@code read(buf.length)}. */
+    @Override
+    public void readInto(byte[] buf) throws IOException {
+        byte[] r = read(buf.length);
+        System.arraycopy(r, 0, buf, 0, buf.length);
+    }
 
     /**
      * Make {@code n} {@code write()} / {@code writeRead()} calls throw an {@link IOException} (a NACK) after
