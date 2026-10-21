@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
     ],
     [
+      "periph/chips/accelerometer/lis3dh.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/lis3dh.py"
+    ],
+    [
       "periph/chips/adc_dac/ad7705.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7705.py"
     ],
