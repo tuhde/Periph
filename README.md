@@ -170,6 +170,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9255 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| MX25L12845E | NOR flash (128 Mbit, SPI) |  |  |  |  |  |  |  |  |
 | NEO-6 | GNSS / GPS receiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCA6408A | IO expander (8-bit, low-voltage) |  |  |  |  |  |  |  |  |
 | PCA9536 | IO expander (4-bit) |  |  |  |  |  |  |  |  |
