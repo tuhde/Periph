@@ -214,27 +214,27 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Exported `python/uiflow2/memory/sd_spi/SDSPI.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/memory/SDSPI.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/memory/SDSPI.cpp`
-- [ ] Examples `cpp/examples/arduino/memory/SDSPI/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/memory/SDSPI/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/memory/SDSPI/demo/demo.ino` — Tier-1 + Tier-3
+- [ ] Driver `cpp/src/chips/memory/SD_SPI.h` — Doxygen `/** @brief */` on every class and public method
+- [ ] Driver `cpp/src/chips/memory/SD_SPI.cpp`
+- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/minimal/minimal.ino` — Tier-1
+- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/complete/complete.ino` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/demo/demo.ino` — Tier-1 + Tier-3
 - [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/memory/SDSPI/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/memory/SDSPI/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/memory/SDSPI/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/memory/SDSPI/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/memory/SDSPI/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/memory/SDSPI/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/memory/SDSPI/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/memory/SDSPI/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/memory/SDSPI/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/memory/SDSPI/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/memory/SDSPI/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/memory/SDSPI/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/memory/SDSPI/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/memory/SDSPI/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/memory/SDSPI/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/linux/memory/SD_SPI/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/linux/memory/SD_SPI/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/linux/memory/SD_SPI/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/minimal/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/complete/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/demo/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/minimal/main/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/complete/main/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/demo/main/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/minimal/src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/complete/src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/demo/src/main.cpp` — Tier-1 + Tier-3
+- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/minimal/Core/Src/main.cpp` — Tier-1
+- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
+- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
 - [ ] Tests `cpp/tests/memory/sd_spi_test/sd_spi_test.ino` (Arduino)
 - [ ] Tests `cpp/tests/memory/sd_spi_test_linux/sd_spi_test_linux.cpp` (Linux GCC)
 - [ ] Tests `cpp/tests/memory/sd_spi_test_zephyr/src/main.cpp` (Zephyr)
@@ -278,12 +278,12 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Unit test `go/periph/chips/memory/sd_spi_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SDSPIMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SDSPIFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SDSPIMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SDSPIFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SDSPIMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SDSPIFull.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SD_SPIMinimal.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SD_SPIFull.java` — Javadoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SD_SPIMinimal.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SD_SPIFull.kt` — KDoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SD_SPIMinimal.groovy` — Groovydoc on every class and public method
+- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SD_SPIFull.groovy` — Groovydoc on every class and public method
 - [ ] Examples `jvm/examples/java/memory/sd_spi/Minimal.java` — Tier-1
 - [ ] Examples `jvm/examples/java/memory/sd_spi/Complete.java` — Tier-1 + Tier-2
 - [ ] Examples `jvm/examples/java/memory/sd_spi/Demo.java` — Tier-1 + Tier-3
@@ -294,9 +294,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Examples `jvm/examples/groovy/memory/sd_spi/Complete.groovy` — Tier-1 + Tier-2
 - [ ] Examples `jvm/examples/groovy/memory/sd_spi/Demo.groovy` — Tier-1 + Tier-3
 - [ ] Tests `jvm/tests/memory/sd_spi/SDSPITest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/memory/SDSPITest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/memory/SDSPITest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/memory/SDSPISpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/memory/SD_SPITest.java` (JUnit)
+- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/memory/SD_SPITest.kt` (Kotest/JUnit5)
+- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/memory/SD_SPISpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
 - [ ] Decoder `sigrok/sd_spi/__init__.py` — module docstring describing transport input, addresses, and what is annotated

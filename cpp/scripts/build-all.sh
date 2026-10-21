@@ -70,7 +70,7 @@ list_apps() {
 }
 
 # Linux apps have no build files; linux-sources.py works out what to compile.
-LINUX_INCLUDES=(-I"$CPP_DIR/src/connection" -I"$CPP_DIR/src/discovery")
+LINUX_INCLUDES=(-I"$CPP_DIR/src/connection" -I"$CPP_DIR/src/discovery" -I"$CPP_DIR/src/storage")
 for d in "$CPP_DIR"/src/chips/*/; do LINUX_INCLUDES+=(-I"$d"); done
 
 build_linux() {

@@ -96,6 +96,7 @@ Each chip exposes two classes:
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |
+| SD_SPI | Memory | `chips/memory/SD_SPI.h` |
 | SK6812RGBW | LED driver | `chips/led/SK6812RGBW.h` |
 | TMP117 | Temperature sensor | `chips/temperature/TMP117.h` |
 | UC1611s | Display driver | `chips/display/UC1611s.h` |
