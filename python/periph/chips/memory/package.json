@@ -13,6 +13,10 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/memory/sd_spi.py",
+      "github:tuhde/Periph/python/periph/chips/memory/sd_spi.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
@@ -51,6 +55,10 @@
     [
       "periph/connection/spi_micropython.py",
       "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
+    ],
+    [
+      "periph/storage/block_device.py",
+      "github:tuhde/Periph/python/periph/storage/block_device.py"
     ]
   ],
   "deps": [

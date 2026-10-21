@@ -201,6 +201,10 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/memory/sd_spi.py",
+      "github:tuhde/Periph/python/periph/chips/memory/sd_spi.py"
+    ],
+    [
       "periph/chips/motor/drv8830.py",
       "github:tuhde/Periph/python/periph/chips/motor/drv8830.py"
     ],
@@ -383,6 +387,18 @@
     [
       "periph/connection/uart_micropython.py",
       "github:tuhde/Periph/python/periph/connection/uart_micropython.py"
+    ],
+    [
+      "periph/storage/__init__.py",
+      "github:tuhde/Periph/python/periph/storage/__init__.py"
+    ],
+    [
+      "periph/storage/block_device.py",
+      "github:tuhde/Periph/python/periph/storage/block_device.py"
+    ],
+    [
+      "periph/storage/ram_block_device.py",
+      "github:tuhde/Periph/python/periph/storage/ram_block_device.py"
     ]
   ],
   "deps": [
