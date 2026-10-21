@@ -1,7 +1,7 @@
 # Chip Spec: SD card (SPI mode)
 
 **Manufacturer:** SD Association (generic; any SD / SDHC / SDXC card or microSD in a socket / breakout)  
-**Datasheet:** `datasheets/memory/sd_spi.pdf` (SD Physical Layer Simplified Specification, Part 1; **to be supplied by the maintainer** — the SD Association download is behind a click-through licence)  
+**Datasheet:** `datasheets/memory/sd_spi.pdf` (SD Physical Layer Specification; SPI mode is §7)  
 **Category:** memory  
 **Transports:** SPI
 
