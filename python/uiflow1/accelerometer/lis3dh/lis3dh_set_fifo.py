@@ -1,0 +1,1 @@
+_periph_lis3dh.set_fifo(mode=int(${_mode}), watermark=int(${_watermark}), trigger_int2=bool(${_trigger_int2}))

@@ -1,0 +1,1 @@
+_periph_lis3dh.set_axes(x=bool(${_x}), y=bool(${_y}), z=bool(${_z}))
