@@ -47,7 +47,7 @@ func main() {
 		panic(err)
 	}
 	check, _ := chip.Read(0x00000, len(table)) // Block read, (address, length) → ([]byte, error)
-	peak, _ := chip.ReadByte(64)               // Read one byte, (address) → (byte, error)
+	peak, _ := chip.ReadByteAt(64)             // Read one byte, (address) → (byte, error)
 	println("sine table:", okStr(bytes.Equal(check, table)), "sin(64/256 turn) =", peak)
 
 	// --- Wipe the whole array and spot-check it ---
@@ -56,9 +56,9 @@ func main() {
 	if err := chip.Fill(0x00000, int(chip.Size()), 0xA5); err != nil { // Fill a range, (address, length, value) → error
 		panic(err)
 	}
-	first, _ := chip.ReadByte(0x00000) // Read one byte, (address) → (byte, error)
-	mid, _ := chip.ReadByte(0x10000)
-	last, _ := chip.ReadByte(0x1FFFF)
+	first, _ := chip.ReadByteAt(0x00000) // Read one byte, (address) → (byte, error)
+	mid, _ := chip.ReadByteAt(0x10000)
+	last, _ := chip.ReadByteAt(0x1FFFF)
 	println("fill spot check:", strconv.FormatInt(int64(first), 16), strconv.FormatInt(int64(mid), 16), strconv.FormatInt(int64(last), 16))
 
 	// --- Page mode: a write that crosses a 32-byte page boundary ---

@@ -94,8 +94,8 @@ func (d *SRAM23X1024Minimal) writeRaw(address uint32, data []byte) error {
 	return d.connection.Write(append(sram23x1024Header(sram23x1024CmdWrite, address), data...))
 }
 
-// ReadByte reads one byte (READ, 0x03) from address 0–131071.
-func (d *SRAM23X1024Minimal) ReadByte(address uint32) (byte, error) {
+// ReadByteAt reads one byte (READ, 0x03) from address 0–131071.
+func (d *SRAM23X1024Minimal) ReadByteAt(address uint32) (byte, error) {
 	if address >= SRAM23X1024Size {
 		return 0, ErrSRAM23X1024Range
 	}
@@ -106,9 +106,9 @@ func (d *SRAM23X1024Minimal) ReadByte(address uint32) (byte, error) {
 	return buf[0], nil
 }
 
-// WriteByte writes one byte (WRITE, 0x02) to address 0–131071; the write is
+// WriteByteAt writes one byte (WRITE, 0x02) to address 0–131071; the write is
 // complete when CS is released.
-func (d *SRAM23X1024Minimal) WriteByte(address uint32, value byte) error {
+func (d *SRAM23X1024Minimal) WriteByteAt(address uint32, value byte) error {
 	if address >= SRAM23X1024Size {
 		return ErrSRAM23X1024Range
 	}

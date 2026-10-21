@@ -40,10 +40,10 @@ func main() {
 	fmt.Printf("size: %d bytes\n", chip.Size())
 	// Array size, () → uint32 bytes — always 131072
 
-	if err := chip.WriteByte(0x00010, 0xA5); err != nil { // Write one byte, (address 0–131071, value 0–255) → error
+	if err := chip.WriteByteAt(0x00010, 0xA5); err != nil { // Write one byte, (address 0–131071, value 0–255) → error
 		panic(err) // WRITE 0x02 + 24-bit address + data
 	}
-	b, _ := chip.ReadByte(0x00010) // Read one byte, (address 0–131071) → (byte, error)
+	b, _ := chip.ReadByteAt(0x00010) // Read one byte, (address 0–131071) → (byte, error)
 	// READ 0x03 + 24-bit address
 	fmt.Printf("byte @0x10: 0x%02X\n", b)
 
@@ -61,7 +61,7 @@ func main() {
 	if err := chip.Fill(0x00200, 64, 0xFF); err != nil { // Fill a range, (address, length, value) → error
 		panic(err) // writes value over the range, chunked
 	}
-	f, _ := chip.ReadByte(0x00200)
+	f, _ := chip.ReadByteAt(0x00200)
 	fmt.Printf("fill @0x200: 0x%02X\n", f)
 
 	chip.SetMaxChunk(64) // Limit bytes per transaction, (n 1–256) → error

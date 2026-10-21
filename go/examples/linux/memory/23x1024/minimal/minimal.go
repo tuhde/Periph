@@ -37,11 +37,11 @@ func main() {
 	}
 
 	for counter := byte(0); ; counter++ {
-		if err := chip.WriteByte(0x00000, counter); err != nil { // Write one byte, (address 0–131071, value 0–255) → error
+		if err := chip.WriteByteAt(0x00000, counter); err != nil { // Write one byte, (address 0–131071, value 0–255) → error
 			fmt.Fprintln(os.Stderr, "sram:", err)
 			continue
 		}
-		value, err := chip.ReadByte(0x00000) // Read one byte, (address 0–131071) → (byte, error)
+		value, err := chip.ReadByteAt(0x00000) // Read one byte, (address 0–131071) → (byte, error)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "sram:", err)
 			continue

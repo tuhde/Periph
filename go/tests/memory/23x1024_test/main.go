@@ -53,15 +53,15 @@ func main() {
 	m, err := chip.GetMode()
 	check("default_mode_sequential", err == nil && m == memory.SRAM23X1024ModeSequential)
 
-	check("write_first", chip.WriteByte(0x00000, 0xA5) == nil)
-	v, err := chip.ReadByte(0x00000)
+	check("write_first", chip.WriteByteAt(0x00000, 0xA5) == nil)
+	v, err := chip.ReadByteAt(0x00000)
 	check("byte_roundtrip_first", err == nil && v == 0xA5)
-	check("write_last", chip.WriteByte(0x1FFFF, 0x5A) == nil)
-	v, err = chip.ReadByte(0x1FFFF)
+	check("write_last", chip.WriteByteAt(0x1FFFF, 0x5A) == nil)
+	v, err = chip.ReadByteAt(0x1FFFF)
 	check("byte_roundtrip_last", err == nil && v == 0x5A)
-	check("write_bit16", chip.WriteByte(0x10000, 0x3C) == nil)
-	v1, _ := chip.ReadByte(0x10000)
-	v0, _ := chip.ReadByte(0x00000)
+	check("write_bit16", chip.WriteByteAt(0x10000, 0x3C) == nil)
+	v1, _ := chip.ReadByteAt(0x10000)
+	v0, _ := chip.ReadByteAt(0x00000)
 	check("address_bit16_distinct", v1 == 0x3C && v0 == 0xA5)
 
 	pattern := make([]byte, 1000)
@@ -74,7 +74,7 @@ func main() {
 
 	check("fill", chip.Fill(0x02000, 100, 0xC3) == nil)
 	filled, _ := chip.Read(0x02000, 100)
-	after, _ := chip.ReadByte(0x02064)
+	after, _ := chip.ReadByteAt(0x02064)
 	check("fill_range", bytes.Equal(filled, bytes.Repeat([]byte{0xC3}, 100)) && after != 0xC3)
 
 	check("write_end", chip.Write(0x1FFF0, pattern[:16]) == nil)
@@ -102,7 +102,7 @@ func main() {
 	check("reset_io", chip.ResetIO() == nil)
 	m, _ = chip.GetMode()
 	check("reset_io_stays_spi", m == memory.SRAM23X1024ModeSequential)
-	v, _ = chip.ReadByte(0x00000)
+	v, _ = chip.ReadByteAt(0x00000)
 	check("data_survives_reset_io", v == 0xA5)
 
 	fmt.Printf("===DONE: %d passed, %d failed===\n", passed, failed)

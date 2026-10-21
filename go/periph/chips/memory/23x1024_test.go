@@ -96,20 +96,20 @@ func Test23X1024Init(t *testing.T) {
 func Test23X1024ByteAccess(t *testing.T) {
 	conn := newSram23x1024Model()
 	chip, _ := NewSRAM23X1024Minimal(conn)
-	if err := chip.WriteByte(0x1ABCD, 0x5A); err != nil {
+	if err := chip.WriteByteAt(0x1ABCD, 0x5A); err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(conn.frames[len(conn.frames)-1], []byte{0x02, 0x01, 0xAB, 0xCD, 0x5A}) || conn.mem[0x1ABCD] != 0x5A {
 		t.Fatalf("write frame = %x", conn.frames[len(conn.frames)-1])
 	}
-	v, err := chip.ReadByte(0x1ABCD)
+	v, err := chip.ReadByteAt(0x1ABCD)
 	if err != nil || v != 0x5A {
-		t.Fatalf("ReadByte = %x, %v", v, err)
+		t.Fatalf("ReadByteAt = %x, %v", v, err)
 	}
 	if !bytes.Equal(conn.frames[len(conn.frames)-1], []byte{0x03, 0x01, 0xAB, 0xCD}) {
 		t.Fatalf("read frame = %x", conn.frames[len(conn.frames)-1])
 	}
-	if _, err := chip.ReadByte(0x20000); !errors.Is(err, ErrSRAM23X1024Range) {
+	if _, err := chip.ReadByteAt(0x20000); !errors.Is(err, ErrSRAM23X1024Range) {
 		t.Fatalf("expected range error, got %v", err)
 	}
 }
