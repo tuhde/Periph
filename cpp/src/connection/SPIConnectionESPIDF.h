@@ -2,7 +2,9 @@
 #include <string.h>
 #include <driver/spi_master.h>
 #include <hal/spi_types.h>
+#include <driver/gpio.h>
 #include "RegisterConnection.h"
+#include "SPIExtensions.h"
 
 /** @brief SPI connection for ESP-IDF (`driver/spi_master.h`).
  *
@@ -36,7 +38,7 @@
  * @param enPin        Optional OutputPin for hardware enable/power control.
  * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
-class SPIConnectionESPIDF : public RegisterConnection {
+class SPIConnectionESPIDF : public RegisterConnection, public SPIExtensions {
 public:
     // See RegisterConnection.h's using declaration for why this is
     // needed: overriding read()/write() below would otherwise hide
@@ -65,62 +67,143 @@ public:
         Connection::write(payload, len + 1);
     }
 
-protected:
-    /** @brief Send bytes to the device via `spi_device_polling_transmit`.
-     *  @param data Pointer to the data buffer.
-     *  @param len  Number of bytes to send.
+    // --- SPIExtensions (specs/transport_spi.md "Optional Extensions") ---
+
+    /** @brief Drive CS from a GPIO instead of the SPI peripheral.
+     *
+     * Required for `idle_clocks()` (clocks with CS high). The device must have
+     * been added with `spics_io_num = -1`. @p cs is configured as an output,
+     * idle high.
      */
+    void setManualCS(gpio_num_t cs) {
+        _cs = cs;
+        gpio_set_direction(_cs, GPIO_MODE_OUTPUT);
+        gpio_set_level(_cs, 1);
+    }
+
+    /** @brief Allow `set_speed()`: re-adds the device to @p host with a new `clock_speed_hz`.
+     *  @param host SPI host the device lives on.
+     *  @param cfg  The `spi_device_interface_config_t` the device was added with.
+     */
+    void enableSpeedChange(spi_host_device_t host, const spi_device_interface_config_t& cfg) {
+        _host = host;
+        _devCfg = cfg;
+        _canReinit = true;
+    }
+
+    Connection& connection() override { return *this; }
+
+    /** @brief Clock @p n bits of 0xFF with CS high; needs setManualCS(). */
+    void idle_clocks(uint32_t n) override {
+        if (_cs == GPIO_NUM_NC) return;
+        gpio_set_level(_cs, 1);
+        uint8_t ff[16];
+        memset(ff, 0xFF, sizeof(ff));
+        uint32_t bytes = (n + 7) / 8;
+        while (bytes) {
+            size_t chunk = bytes > sizeof(ff) ? sizeof(ff) : bytes;
+            spi_transaction_t t = {};
+            t.tx_buffer = ff;
+            t.length    = chunk * 8;
+            spi_device_polling_transmit(_dev, &t);
+            bytes -= chunk;
+        }
+    }
+
+    /** @brief Re-add the device at @p hz; needs enableSpeedChange(). */
+    bool set_speed(uint32_t hz) override {
+        if (!_canReinit) return false;
+        spi_device_handle_t newDev = nullptr;
+        spi_device_interface_config_t cfg = _devCfg;
+        cfg.clock_speed_hz = static_cast<int>(hz);
+        if (spi_bus_remove_device(_dev) != ESP_OK) return false;
+        if (spi_bus_add_device(_host, &cfg, &newDev) != ESP_OK) return false;
+        _dev = newDev;
+        _devCfg = cfg;
+        return true;
+    }
+
+    /** @brief Assert CS (manual GPIO, or SPI_TRANS_CS_KEEP_ACTIVE on every transfer). */
+    void select() override {
+        _held = true;
+        if (_cs != GPIO_NUM_NC) gpio_set_level(_cs, 0);
+    }
+
+    /** @brief Release CS. */
+    void deselect() override {
+        _held = false;
+        if (_cs != GPIO_NUM_NC) gpio_set_level(_cs, 1);
+    }
+
+protected:
     void _write(const uint8_t* data, size_t len) override {
         spi_transaction_t t = {};
         t.tx_buffer = data;
         t.length    = static_cast<size_t>(len) * 8;
+        t.flags     = _keepFlags();
+        _csLow();
         spi_device_polling_transmit(_dev, &t);
+        _csHigh();
     }
 
-    /** @brief Read bytes from the device via `spi_device_polling_transmit`.
-     *
-     *  `t.tx_buffer = NULL` clocks out zero bits, matching the
-     *  dummy-byte convention every other platform's `read` uses.
-     *
-     *  @param buf Destination buffer; must be at least @p len bytes.
-     *  @param len Number of bytes to read.
-     */
+    // Reads clock 0xFF on MOSI (SD cards read other levels as commands).
     void _read(uint8_t* buf, size_t len) override {
-        spi_transaction_t t = {};
-        t.rx_buffer = buf;
-        t.length    = static_cast<size_t>(len) * 8;
-        spi_device_polling_transmit(_dev, &t);
+        _csLow();
+        while (len) {
+            size_t chunk = len > 64 ? 64 : len;
+            uint8_t ff[64];
+            memset(ff, 0xFF, chunk);
+            spi_transaction_t t = {};
+            t.tx_buffer = ff;
+            t.rx_buffer = buf;
+            t.length    = chunk * 8;
+            t.flags     = (chunk == len) ? _keepFlags() : SPI_TRANS_CS_KEEP_ACTIVE;
+            spi_device_polling_transmit(_dev, &t);
+            buf += chunk;
+            len -= chunk;
+        }
+        _csHigh();
     }
 
-    /** @brief Write then read with CS held across both phases.
-     *
-     *  Two `spi_device_polling_transmit()` calls share one CS assertion:
-     *  the first sends `data` with `SPI_TRANS_CS_KEEP_ACTIVE` set to
-     *  hold CS low after it completes, the second clocks in `buf_len`
-     *  bytes and lets CS deassert normally. This is the native
-     *  equivalent of Zephyr's two-segment `spi_transceive` buffer set.
-     *
-     *  @param data     Command bytes to send.
-     *  @param data_len Number of bytes in @p data.
-     *  @param buf      Destination buffer for the read phase.
-     *  @param buf_len  Number of bytes to read.
-     */
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
+        _csLow();
         spi_transaction_t t1 = {};
         t1.tx_buffer = data;
         t1.length    = static_cast<size_t>(data_len) * 8;
         t1.flags     = SPI_TRANS_CS_KEEP_ACTIVE;
         spi_device_polling_transmit(_dev, &t1);
 
-        spi_transaction_t t2 = {};
-        t2.rx_buffer = buf;
-        t2.length    = static_cast<size_t>(buf_len) * 8;
-        spi_device_polling_transmit(_dev, &t2);
+        // The remaining bytes are read in 0xFF-padded chunks, like _read().
+        while (buf_len) {
+            size_t chunk = buf_len > 64 ? 64 : buf_len;
+            uint8_t ff[64];
+            memset(ff, 0xFF, chunk);
+            spi_transaction_t t2 = {};
+            t2.tx_buffer = ff;
+            t2.rx_buffer = buf;
+            t2.length    = chunk * 8;
+            t2.flags     = (chunk == buf_len) ? _keepFlags() : SPI_TRANS_CS_KEEP_ACTIVE;
+            spi_device_polling_transmit(_dev, &t2);
+            buf += chunk;
+            buf_len -= chunk;
+        }
+        _csHigh();
     }
 
 private:
+    // With a manual CS GPIO the peripheral never touches CS; otherwise a held
+    // select() keeps the hardware CS active across transfers.
+    uint32_t _keepFlags() const { return (_held && _cs == GPIO_NUM_NC) ? SPI_TRANS_CS_KEEP_ACTIVE : 0; }
+    void _csLow()  { if (_cs != GPIO_NUM_NC && !_held) gpio_set_level(_cs, 0); }
+    void _csHigh() { if (_cs != GPIO_NUM_NC && !_held) gpio_set_level(_cs, 1); }
+
     spi_device_handle_t _dev;
     uint8_t              _readBit;
     uint8_t              _multiByteBit;   // 0 = chip has no such bit
+    gpio_num_t           _cs = GPIO_NUM_NC;   // manual CS, see setManualCS()
+    bool                 _held = false;       // select() active
+    spi_host_device_t    _host = SPI2_HOST;
+    spi_device_interface_config_t _devCfg = {};
+    bool                 _canReinit = false;
 };

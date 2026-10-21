@@ -2,6 +2,7 @@
 #include <hardware/spi.h>
 #include <hardware/gpio.h>
 #include "RegisterConnection.h"
+#include "SPIExtensions.h"
 
 /** @brief SPI connection for the Raspberry Pi Pico SDK (wraps `hardware_spi`).
  *
@@ -34,7 +35,7 @@
  * @param enPin        Optional OutputPin for hardware enable/power control.
  * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
-class SPIConnectionPicoSDK : public RegisterConnection {
+class SPIConnectionPicoSDK : public RegisterConnection, public SPIExtensions {
 public:
     // See RegisterConnection.h's using declaration for why this is
     // needed: overriding read()/write() below would otherwise hide
@@ -69,15 +70,44 @@ public:
         Connection::write(payload, len + 1);
     }
 
+    // --- SPIExtensions (specs/transport_spi.md "Optional Extensions") ---
+
+    Connection& connection() override { return *this; }
+
+    /** @brief Clock @p n bits of 0xFF with CS high. */
+    void idle_clocks(uint32_t n) override {
+        gpio_put(_cs, 1);
+        uint8_t ff[16];
+        for (size_t i = 0; i < sizeof(ff); i++) ff[i] = 0xFF;
+        uint32_t bytes = (n + 7) / 8;
+        while (bytes) {
+            size_t chunk = bytes > sizeof(ff) ? sizeof(ff) : bytes;
+            spi_write_blocking(_spi, ff, chunk);
+            bytes -= chunk;
+        }
+    }
+
+    /** @brief `spi_set_baudrate()`; the SDK picks the closest rate not above @p hz. */
+    bool set_speed(uint32_t hz) override {
+        spi_set_baudrate(_spi, hz);
+        return true;
+    }
+
+    /** @brief Assert CS; following transfers keep it low until deselect(). */
+    void select() override { gpio_put(_cs, 0); _held = true; }
+
+    /** @brief Release CS. */
+    void deselect() override { _held = false; gpio_put(_cs, 1); }
+
 protected:
     /** @brief Send bytes to the device.
      *  @param data Pointer to the data buffer.
      *  @param len  Number of bytes to send.
      */
     void _write(const uint8_t* data, size_t len) override {
-        gpio_put(_cs, 0);
+        if (!_held) gpio_put(_cs, 0);
         spi_write_blocking(_spi, data, len);
-        gpio_put(_cs, 1);
+        if (!_held) gpio_put(_cs, 1);
     }
 
     /** @brief Read bytes from the device (dummy `0x00` clocked out on MOSI).
@@ -85,9 +115,9 @@ protected:
      *  @param len Number of bytes to read.
      */
     void _read(uint8_t* buf, size_t len) override {
-        gpio_put(_cs, 0);
-        spi_read_blocking(_spi, 0x00, buf, len);
-        gpio_put(_cs, 1);
+        if (!_held) gpio_put(_cs, 0);
+        spi_read_blocking(_spi, 0xFF, buf, len);   // MOSI idles high (SD cards read other levels as commands)
+        if (!_held) gpio_put(_cs, 1);
     }
 
     /** @brief Write then read with CS held across both phases.
@@ -113,9 +143,9 @@ protected:
         // tx_buf[data_len .. data_len+buf_len-1] stays zero — dummy bytes
         // clocked out on MOSI during the read phase.
         uint8_t rx_buf[256];
-        gpio_put(_cs, 0);
+        if (!_held) gpio_put(_cs, 0);
         spi_write_read_blocking(_spi, tx_buf, rx_buf, data_len + buf_len);
-        gpio_put(_cs, 1);
+        if (!_held) gpio_put(_cs, 1);
         for (size_t i = 0; i < buf_len; i++) buf[i] = rx_buf[data_len + i];
     }
 
@@ -124,4 +154,5 @@ private:
     uint        _cs;
     uint8_t     _readBit;
     uint8_t     _multiByteBit;   // 0 = chip has no such bit
+    bool        _held = false;   // select() active: CS low across calls
 };
