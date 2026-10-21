@@ -18,7 +18,7 @@ static void on_int(uint16_t status) {
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(LIS3DH_I2C_NODE);
     I2CConnectionZephyr connection(dev, LIS3DH_ADDR);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Range, mode, data rate, axes ---
     accel.set_range(8);                                      // Set full-scale range, (range_g) → g
                                                             // reprograms FS in CTRL_REG4; sensitivity becomes 4 mg/LSB
@@ -136,14 +136,14 @@ int main(void) {
                                                             // BOOT = 1, then the Initialization Sequence runs again
     bool st = accel.self_test(1);                            // Run self-test, (mode) → bool
                                                             // electrostatic self-test 0; true when every axis shows 17-360 LSb
-    printf("self-test: %s\n", st ? "PASS" : "FAIL");
-    printf("accel: x=%.3f y=%.3f z=%.3f g\n", x, y, z);
-    printf("raw: %d %d %d LSB\n", rx, ry, rz);
-    printf("ready=%d status=0x%02X\n", ready ? 1 : 0, status);
-    printf("adc: %.3f %.3f %.3f V  temp=%d C\n", v1, v2, v3, temp);
-    printf("reference=0x%02X\n", ref);
-    printf("fifo: level=%d wm=%d ov=%d empty=%d read=%d\n",
+    printk("self-test: %s\n", st ? "PASS" : "FAIL");
+    printk("accel: x=%.3f y=%.3f z=%.3f g\n", x, y, z);
+    printk("raw: %d %d %d LSB\n", rx, ry, rz);
+    printk("ready=%d status=0x%02X\n", ready ? 1 : 0, status);
+    printk("adc: %.3f %.3f %.3f V  temp=%d C\n", v1, v2, v3, temp);
+    printk("reference=0x%02X\n", ref);
+    printk("fifo: level=%d wm=%d ov=%d empty=%d read=%d\n",
            level, wm ? 1 : 0, ov ? 1 : 0, empty ? 1 : 0, n);
-    printf("int1_src=0x%02X click_src=0x%02X isr=0x%04X\n", src1, click, isr);
+    printk("int1_src=0x%02X click_src=0x%02X isr=0x%04X\n", src1, click, isr);
     return 0;
 }

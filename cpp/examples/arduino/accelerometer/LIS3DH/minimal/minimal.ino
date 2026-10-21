@@ -10,7 +10,7 @@
 #endif
 
 I2CConnection connection(Wire, 0x18);
-LIS3DHMinimal accel(connection);                                 // Create LIS3DH driver, (connection)
+LIS3DHMinimal accel(connection);                     // Create LIS3DH driver, (connection)
 
 static void lis3dh_sleep_ms(uint32_t ms) { delay(ms); }
 

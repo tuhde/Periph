@@ -95,7 +95,7 @@ int main(void) {
     HAL_Delay(100);
 
     I2CConnectionSTM32Cube connection(&hi2c1, 0x18);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Configure ±2 g / 50 Hz high-resolution and verify the part ---
     // The self-test only passes on healthy silicon, so run it before
     // arming anything; 50 Hz keeps the self-test window short (2 samples).

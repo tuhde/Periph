@@ -74,6 +74,8 @@ static void i2c1_init(void) {
 
 static int passed = 0, failed = 0;
 
+#define LIS3DH_WAIT() HAL_Delay(20)
+
 static void check_true(bool cond, const char* label) {
     if (cond) { printf("PASS %s\r\n", label); passed++; }
     else       { printf("FAIL %s\r\n", label); failed++; }

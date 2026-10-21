@@ -10,7 +10,7 @@
 #endif
 
 I2CConnectionLinux connection(TEST_I2C_BUS, 0x18);
-LIS3DHFull accel(connection);                                // Create LIS3DH driver, (connection)
+LIS3DHFull accel(connection);                        // Create LIS3DH driver, (connection)
 static void on_int(uint16_t status) {
     printf("interrupt status: 0x%04X\n", status);
 }

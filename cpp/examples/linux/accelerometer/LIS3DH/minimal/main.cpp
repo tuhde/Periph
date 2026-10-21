@@ -10,7 +10,7 @@
 #endif
 
 I2CConnectionLinux connection(TEST_I2C_BUS, 0x18);
-LIS3DHMinimal accel(connection);                                // Create LIS3DH driver, (connection)
+LIS3DHMinimal accel(connection);                        // Create LIS3DH driver, (connection)
 static void lis3dh_sleep_ms(uint32_t ms) {
     struct timespec ts = {ms / 1000, (ms % 1000) * 1000000};
     nanosleep(&ts, nullptr);

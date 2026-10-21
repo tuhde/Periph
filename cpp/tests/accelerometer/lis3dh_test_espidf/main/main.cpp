@@ -8,6 +8,8 @@
 
 static int passed = 0, failed = 0;
 
+#define LIS3DH_WAIT() vTaskDelay(pdMS_TO_TICKS(20))
+
 static void check_true(bool cond, const char *label) {
     if (cond) { printf("PASS %s\n", label); passed++; }
     else       { printf("FAIL %s\n", label); failed++; }

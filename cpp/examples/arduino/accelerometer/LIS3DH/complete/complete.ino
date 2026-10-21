@@ -10,7 +10,7 @@
 #endif
 
 I2CConnection connection(Wire, 0x18);
-LIS3DHFull accel(connection);                                 // Create LIS3DH driver, (connection)
+LIS3DHFull accel(connection);                     // Create LIS3DH driver, (connection)
 
 static void on_int(uint16_t status) {
     Serial.print("interrupt status: 0x");

@@ -10,7 +10,7 @@
 #endif
 
 I2CConnection connection(Wire, 0x18);
-LIS3DHFull accel(connection);                                 // Create LIS3DH driver, (connection)
+LIS3DHFull accel(connection);                     // Create LIS3DH driver, (connection)
 
 static void lis3dh_report(float pitch, float roll, float mag, int16_t temp, uint8_t level) {
     Serial.print("pitch=");

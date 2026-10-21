@@ -10,7 +10,7 @@
 #endif
 
 I2CConnectionLinux connection(TEST_I2C_BUS, 0x18);
-LIS3DHFull accel(connection);                                // Create LIS3DH driver, (connection)
+LIS3DHFull accel(connection);                        // Create LIS3DH driver, (connection)
 static void lis3dh_report(float pitch, float roll, float mag, int16_t temp, uint8_t level) {
     printf("pitch=%+.1f roll=%+.1f |a|=%.3f g  T=%d C  fifo=%d\n",
            pitch, roll, mag, temp, level);

@@ -11,7 +11,7 @@
 static void on_int(uint16_t status) {
     printf("interrupt status: 0x%04X\n", status);
 }
-int main(void) {
+extern "C" void app_main(void) {
     i2c_master_bus_config_t bus_cfg = {};
     bus_cfg.i2c_port = I2C_NUM_0;
     bus_cfg.sda_io_num = static_cast<gpio_num_t>(21);
@@ -30,7 +30,7 @@ int main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Range, mode, data rate, axes ---
     accel.set_range(8);                                      // Set full-scale range, (range_g) → g
                                                             // reprograms FS in CTRL_REG4; sensitivity becomes 4 mg/LSB
@@ -157,5 +157,4 @@ int main(void) {
     printf("fifo: level=%d wm=%d ov=%d empty=%d read=%d\n",
            level, wm ? 1 : 0, ov ? 1 : 0, empty ? 1 : 0, n);
     printf("int1_src=0x%02X click_src=0x%02X isr=0x%04X\n", src1, click, isr);
-    return 0;
 }

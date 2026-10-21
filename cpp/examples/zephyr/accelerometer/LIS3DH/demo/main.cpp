@@ -28,7 +28,7 @@ static void lis3dh_sleep_ms(uint32_t ms) { k_sleep(K_MSEC(ms)); }
 int main(void) {
     const struct device *dev = DEVICE_DT_GET(LIS3DH_I2C_NODE);
     I2CConnectionZephyr connection(dev, LIS3DH_ADDR);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Configure ±2 g / 50 Hz high-resolution and verify the part ---
     // The self-test only passes on healthy silicon, so run it before
     // arming anything; 50 Hz keeps the self-test window short (2 samples).
@@ -36,7 +36,7 @@ int main(void) {
     accel.set_range(2);                                      // Set full-scale range, (range_g) → g
     accel.set_mode(2);                                       // Set operating mode, (mode) → None
     bool st = accel.self_test(1);                            // Run self-test, (mode) → bool
-    printf("self-test: %s\n", st ? "PASS" : "FAIL");
+    printk("self-test: %s\n", st ? "PASS" : "FAIL");
 
     // --- Arm the double-tap and free-fall detectors on INT1 ---
     // Both sources are latched so a transient cannot slip past the 100 ms
@@ -87,6 +87,6 @@ int main(void) {
 
         lis3dh_sleep_ms(10);
     }
-    printf("done\n");
+    printk("done\n");
     return 0;
 }

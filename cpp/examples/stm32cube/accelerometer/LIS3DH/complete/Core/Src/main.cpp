@@ -85,7 +85,7 @@ int main(void) {
     HAL_Delay(100);
 
     I2CConnectionSTM32Cube connection(&hi2c1, 0x18);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Range, mode, data rate, axes ---
     accel.set_range(8);                                      // Set full-scale range, (range_g) → g
                                                             // reprograms FS in CTRL_REG4; sensitivity becomes 4 mg/LSB

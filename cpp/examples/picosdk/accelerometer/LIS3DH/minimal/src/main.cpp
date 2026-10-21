@@ -16,7 +16,7 @@ int main(void) {
     stdio_init_all();
 
     I2CConnectionPicoSDK connection(i2c0, 0x18);
-    LIS3DHMinimal accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHMinimal accel(connection);                    // Create LIS3DH driver, (connection)
     for (int i = 0; i < 10; i++) {
         float x, y, z;
         accel.read(x, y, z);                                // Read 3-axis acceleration, (x, y, z) → g, g, g

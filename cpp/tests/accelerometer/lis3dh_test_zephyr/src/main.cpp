@@ -14,6 +14,8 @@
 
 static int passed = 0, failed = 0;
 
+#define LIS3DH_WAIT() k_sleep(K_MSEC(20))
+
 static void check_true(bool cond, const char *label) {
     if (cond) { printk("PASS %s\n", label); passed++; }
     else       { printk("FAIL %s\n", label); failed++; }

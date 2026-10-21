@@ -21,7 +21,7 @@ static uint32_t lis3dh_now_ms() { return (uint32_t)(esp_timer_get_time() / 1000)
 
 static void lis3dh_sleep_ms(uint32_t ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 
-int main(void) {
+extern "C" void app_main(void) {
     i2c_master_bus_config_t bus_cfg = {};
     bus_cfg.i2c_port = I2C_NUM_0;
     bus_cfg.sda_io_num = static_cast<gpio_num_t>(21);
@@ -40,7 +40,7 @@ int main(void) {
     i2c_master_bus_add_device(bus, &dev_cfg, &dev);
 
     I2CConnectionESPIDF connection(dev);
-    LIS3DHFull accel(connection);                            // Create LIS3DH driver, (connection)
+    LIS3DHFull accel(connection);                    // Create LIS3DH driver, (connection)
     // --- Configure ±2 g / 50 Hz high-resolution and verify the part ---
     // The self-test only passes on healthy silicon, so run it before
     // arming anything; 50 Hz keeps the self-test window short (2 samples).
@@ -100,5 +100,4 @@ int main(void) {
         lis3dh_sleep_ms(10);
     }
     printf("done\n");
-    return 0;
 }
