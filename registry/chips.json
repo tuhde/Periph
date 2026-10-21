@@ -83,7 +83,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "lis3dh",
       "datasheet": "datasheets/accelerometer/lis3dh.pdf"
     },
     {

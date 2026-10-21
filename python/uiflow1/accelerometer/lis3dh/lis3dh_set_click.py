@@ -1,0 +1,1 @@
+_periph_lis3dh.set_click(single=int(${_single}), double=int(${_double}), threshold_g=float(${_threshold_g}), time_limit_ms=float(${_time_limit_ms}), latency_ms=float(${_latency_ms}), window_ms=float(${_window_ms}), latch=bool(${_latch}))

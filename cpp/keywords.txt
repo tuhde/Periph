@@ -102,6 +102,8 @@ L3G4200DFull	KEYWORD1
 L3G4200DMinimal	KEYWORD1
 L3gd20hFull	KEYWORD1
 L3gd20hMinimal	KEYWORD1
+LIS3DHFull	KEYWORD1
+LIS3DHMinimal	KEYWORD1
 LPS22DFFull	KEYWORD1
 LPS22DFMinimal	KEYWORD1
 LPS28DFWFull	KEYWORD1
@@ -390,6 +392,7 @@ enableChecksum	KEYWORD2
 enableInterrupt	KEYWORD2
 enableSquareWave	KEYWORD2
 enable_activity_detection	KEYWORD2
+enable_adc	KEYWORD2
 enable_als_interrupt	KEYWORD2
 enable_axes	KEYWORD2
 enable_channel	KEYWORD2
@@ -556,11 +559,13 @@ odr_is_valid	KEYWORD2
 off	KEYWORD2
 offEdge	KEYWORD2
 offInterrupt	KEYWORD2
+off_interrupt	KEYWORD2
 offset	KEYWORD2
 offsetCalibration	KEYWORD2
 ok	KEYWORD2
 onEdge	KEYWORD2
 onInterrupt	KEYWORD2
+on_interrupt	KEYWORD2
 one_shot	KEYWORD2
 oneshot	KEYWORD2
 oor_status	KEYWORD2
@@ -605,6 +610,7 @@ readTemperature	KEYWORD2
 readTimerA	KEYWORD2
 readTimerB	KEYWORD2
 read_8bit	KEYWORD2
+read_adc	KEYWORD2
 read_air_quality	KEYWORD2
 read_all	KEYWORD2
 read_all_voltage	KEYWORD2
@@ -616,6 +622,7 @@ read_bytes	KEYWORD2
 read_capture	KEYWORD2
 read_channel	KEYWORD2
 read_channel_voltage	KEYWORD2
+read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_customer	KEYWORD2
 read_device_code	KEYWORD2
@@ -624,6 +631,7 @@ read_eco2	KEYWORD2
 read_errors	KEYWORD2
 read_ethanol	KEYWORD2
 read_fifo	KEYWORD2
+read_fifo_status	KEYWORD2
 read_forced	KEYWORD2
 read_gesture_fifo	KEYWORD2
 read_humidity	KEYWORD2
@@ -648,6 +656,7 @@ read_sfdp	KEYWORD2
 read_status	KEYWORD2
 read_supply_diff_raw	KEYWORD2
 read_temperature	KEYWORD2
+read_temperature_delta	KEYWORD2
 read_temperature_raw	KEYWORD2
 read_tvoc	KEYWORD2
 read_uid	KEYWORD2
@@ -667,6 +676,7 @@ refresh_auto	KEYWORD2
 release_deep_power_down	KEYWORD2
 reset	KEYWORD2
 reset_fifo	KEYWORD2
+reset_high_pass	KEYWORD2
 reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
@@ -754,6 +764,7 @@ set_auto_sleep	KEYWORD2
 set_autorifp	KEYWORD2
 set_autosleep	KEYWORD2
 set_autozero	KEYWORD2
+set_axes	KEYWORD2
 set_bandwidth	KEYWORD2
 set_bank	KEYWORD2
 set_baseline	KEYWORD2
@@ -763,6 +774,7 @@ set_bias_ratio	KEYWORD2
 set_blink	KEYWORD2
 set_booster	KEYWORD2
 set_brightness	KEYWORD2
+set_click	KEYWORD2
 set_compensation	KEYWORD2
 set_contrast	KEYWORD2
 set_crc	KEYWORD2
@@ -785,6 +797,7 @@ set_duration	KEYWORD2
 set_entry_mode	KEYWORD2
 set_external_clock	KEYWORD2
 set_external_sample_trigger	KEYWORD2
+set_fifo	KEYWORD2
 set_fifo_mode	KEYWORD2
 set_fifo_watermark	KEYWORD2
 set_filter	KEYWORD2
@@ -803,6 +816,7 @@ set_heater	KEYWORD2
 set_heater_off	KEYWORD2
 set_heater_profile	KEYWORD2
 set_high_g	KEYWORD2
+set_high_pass	KEYWORD2
 set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
@@ -826,6 +840,7 @@ set_max_chunk	KEYWORD2
 set_max_position	KEYWORD2
 set_mode	KEYWORD2
 set_mono	KEYWORD2
+set_motion_interrupt	KEYWORD2
 set_nline_inversion	KEYWORD2
 set_noise_mode	KEYWORD2
 set_odr	KEYWORD2
@@ -833,6 +848,7 @@ set_offset	KEYWORD2
 set_offset_calibration	KEYWORD2
 set_one_shot	KEYWORD2
 set_oor_threshold	KEYWORD2
+set_orientation	KEYWORD2
 set_output_enable	KEYWORD2
 set_oversampling	KEYWORD2
 set_panel_loading	KEYWORD2
@@ -856,10 +872,12 @@ set_range	KEYWORD2
 set_rate	KEYWORD2
 set_raw	KEYWORD2
 set_raw_eeprom	KEYWORD2
+set_reference	KEYWORD2
 set_remap	KEYWORD2
 set_rx_mode	KEYWORD2
 set_scale	KEYWORD2
 set_scroll_line	KEYWORD2
+set_sdo_pullup	KEYWORD2
 set_shadow	KEYWORD2
 set_sleep	KEYWORD2
 set_soft_start	KEYWORD2
@@ -1232,6 +1250,8 @@ GAIN_64	LITERAL1
 GAIN_8	LITERAL1
 GAIN_X1	LITERAL1
 GAIN_X2	LITERAL1
+GENERATOR_1	LITERAL1
+GENERATOR_2	LITERAL1
 GREEN	LITERAL1
 HEIGHT	LITERAL1
 HPM_AUTORESET	LITERAL1
@@ -1395,15 +1415,19 @@ SIZE	LITERAL1
 SOL	LITERAL1
 SOURCE_ACF	LITERAL1
 SOURCE_ACT	LITERAL1
+SOURCE_ACTIVITY	LITERAL1
 SOURCE_ALARM	LITERAL1
 SOURCE_ALARM1	LITERAL1
 SOURCE_ALARM2	LITERAL1
 SOURCE_ALERT	LITERAL1
 SOURCE_ANY_MOTION	LITERAL1
 SOURCE_ARF	LITERAL1
+SOURCE_AUX_DATA_READY	LITERAL1
 SOURCE_AWAKE	LITERAL1
 SOURCE_BATTERY_LOW	LITERAL1
 SOURCE_BATTERY_SWITCH	LITERAL1
+SOURCE_BOOT	LITERAL1
+SOURCE_CLICK	LITERAL1
 SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
 SOURCE_FIFO_OVERRUN	LITERAL1
@@ -1411,6 +1435,8 @@ SOURCE_FIFO_READY	LITERAL1
 SOURCE_FIFO_WATERMARK	LITERAL1
 SOURCE_HIGH	LITERAL1
 SOURCE_HIGH_G	LITERAL1
+SOURCE_IA1	LITERAL1
+SOURCE_IA2	LITERAL1
 SOURCE_INACT	LITERAL1
 SOURCE_IN_WINDOW	LITERAL1
 SOURCE_LEVEL_HIGH	LITERAL1
@@ -1422,10 +1448,12 @@ SOURCE_NEW_DATA	LITERAL1
 SOURCE_NEW_SAMPLE_READY	LITERAL1
 SOURCE_OOR	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
+SOURCE_OVERRUN	LITERAL1
 SOURCE_SECOND	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
 SOURCE_UPPER	LITERAL1
+SOURCE_WATERMARK	LITERAL1
 SPACE_100K	LITERAL1
 SPACE_200K	LITERAL1
 SPACE_25K	LITERAL1

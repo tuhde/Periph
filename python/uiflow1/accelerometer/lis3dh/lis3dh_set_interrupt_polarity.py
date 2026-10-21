@@ -1,0 +1,1 @@
+_periph_lis3dh.set_interrupt_polarity(bool(${_active_low}))

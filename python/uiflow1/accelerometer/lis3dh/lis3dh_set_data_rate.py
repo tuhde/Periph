@@ -1,0 +1,1 @@
+_periph_lis3dh.set_data_rate(int(${_rate_hz}))

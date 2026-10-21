@@ -1,0 +1,1 @@
+_periph_lis3dh.read_interrupt_source(int(${_generator}))

@@ -12,7 +12,7 @@ CHIPS = (
     {"id": "bma180", "driver": None, "write_sensitive": False, "aliased": False,
      "addresses": (0x40, 0x41,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0x07, "expected": (0x03,)}},
-    {"id": "lis3dh", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "lis3dh", "driver": "lis3dh", "write_sensitive": False, "aliased": False,
      "addresses": (0x18, 0x19,),
      "probe": {"register": 0x0F, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x33,)}},
     {"id": "lsm303-accel", "driver": None, "write_sensitive": False, "aliased": False,

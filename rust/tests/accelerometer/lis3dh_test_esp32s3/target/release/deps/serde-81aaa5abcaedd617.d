@@ -1,0 +1,14 @@
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/serde-81aaa5abcaedd617.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/build/serde-393e1766d7a37939/out/private.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/libserde-81aaa5abcaedd617.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/build/serde-393e1766d7a37939/out/private.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/libserde-81aaa5abcaedd617.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/build/serde-393e1766d7a37939/out/private.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs:
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/build/serde-393e1766d7a37939/out/private.rs:
+
+# env-dep:OUT_DIR=/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/build/serde-393e1766d7a37939/out

@@ -1,0 +1,11 @@
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/somni_expr-7a6d7b1d1323832e.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/error.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/function.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/value.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/visitor.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/libsomni_expr-7a6d7b1d1323832e.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/error.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/function.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/value.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/visitor.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/release/deps/libsomni_expr-7a6d7b1d1323832e.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/error.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/function.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/value.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/visitor.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/error.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/function.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/value.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/somni-expr-0.2.0/src/visitor.rs:
