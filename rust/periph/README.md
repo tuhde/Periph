@@ -97,6 +97,7 @@ Each chip exposes two structs:
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
+| SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
 | SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
 | ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
