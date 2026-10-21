@@ -1,0 +1,130 @@
+[
+    {
+        "id": "tab-23x1024-demo",
+        "type": "tab",
+        "label": "23X1024 scratch buffer",
+        "disabled": false,
+        "info": "Demonstrates the 23X1024 serial SRAM as a fast scratch buffer. Every 2 seconds a function node writes a 256-byte ramp pattern at address 0, then reads it back and compares it, and a debug node shows whether the round trip matched. The data lives in volatile SRAM, so it does not survive a power cycle."
+    },
+    {
+        "id": "cfg-23x1024",
+        "type": "23x1024-device",
+        "name": "23X1024",
+        "bus": "0",
+        "device": "0",
+        "speed": "1000000"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 2 s",
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-23x1024-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "make-write"
+            ]
+        ]
+    },
+    {
+        "id": "make-write",
+        "type": "function",
+        "name": "Write ramp",
+        "func": "msg.op      = 'write';\nmsg.address = 0;\nmsg.data    = Array.from({ length: 256 }, (_, i) => i);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-23x1024-demo",
+        "x": 300,
+        "y": 120,
+        "wires": [
+            [
+                "sram-write"
+            ]
+        ]
+    },
+    {
+        "id": "sram-write",
+        "type": "23x1024",
+        "name": "Write",
+        "device": "cfg-23x1024",
+        "z": "tab-23x1024-demo",
+        "x": 470,
+        "y": 120,
+        "wires": [
+            [
+                "make-read"
+            ]
+        ]
+    },
+    {
+        "id": "make-read",
+        "type": "function",
+        "name": "Read back",
+        "func": "msg.op      = 'read';\nmsg.address = 0;\nmsg.length  = 256;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-23x1024-demo",
+        "x": 630,
+        "y": 120,
+        "wires": [
+            [
+                "sram-read"
+            ]
+        ]
+    },
+    {
+        "id": "sram-read",
+        "type": "23x1024",
+        "name": "Read",
+        "device": "cfg-23x1024",
+        "z": "tab-23x1024-demo",
+        "x": 790,
+        "y": 120,
+        "wires": [
+            [
+                "compare"
+            ]
+        ]
+    },
+    {
+        "id": "compare",
+        "type": "function",
+        "name": "Compare",
+        "func": "const d = msg.payload.data;\nmsg.payload = { match: d.length === 256 && d.every((v, i) => v === i) };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-23x1024-demo",
+        "x": 940,
+        "y": 120,
+        "wires": [
+            [
+                "dbg-match"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-match",
+        "type": "debug",
+        "name": "Round trip",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.match",
+        "statusType": "auto",
+        "z": "tab-23x1024-demo",
+        "x": 1110,
+        "y": 120,
+        "wires": []
+    }
+]

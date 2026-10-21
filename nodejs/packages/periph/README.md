@@ -30,6 +30,7 @@ Each chip exposes two classes:
 
 | Chip | Category | Require path |
 |------|----------|-------------|
+| 23X1024 | Memory | `periph/src/chips/memory/_23x1024` |
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
