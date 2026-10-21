@@ -64,6 +64,7 @@ Each chip exposes two classes:
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
 | L3G4200D | Gyroscope | `periph/src/chips/gyroscope/l3g4200d` |
 | L3GD20H | Gyroscope | `periph/src/chips/gyroscope/l3gd20h` |
+| LIS3DH | Accelerometer | `periph/src/chips/accelerometer/lis3dh` |
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
