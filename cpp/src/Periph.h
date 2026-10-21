@@ -75,6 +75,7 @@
 #include "chips/magnetometer/HMC5883L.h"
 #include "chips/memory/23X1024.h"
 #include "chips/memory/24AA02UID.h"
+#include "chips/memory/MX25L12845E.h"
 #include "chips/memory/SD_SPI.h"
 #include "chips/motor/DRV8830.h"
 #include "chips/other/Mpr121.h"

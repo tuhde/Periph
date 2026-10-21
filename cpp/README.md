@@ -86,6 +86,7 @@ Each chip exposes two classes:
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |
 | MPU9255 | IMU | `chips/imu/MPU9255.h` |
+| MX25L12845E | Memory | `chips/memory/MX25L12845E.h` |
 | NEO6 | GNSS/GPS | `chips/gnss/NEO6.h` |
 | NeoPixelRGBBase | LED driver | `chips/led/NeoPixelRGBBase.h` |
 | NeoPixelRGBWBase | LED driver | `chips/led/NeoPixelRGBWBase.h` |
