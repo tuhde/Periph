@@ -193,6 +193,10 @@
       "github:tuhde/Periph/python/periph/chips/magnetometer/hmc5883l.py"
     ],
     [
+      "periph/chips/memory/_23x1024.py",
+      "github:tuhde/Periph/python/periph/chips/memory/_23x1024.py"
+    ],
+    [
       "periph/chips/memory/_24aa02uid.py",
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],

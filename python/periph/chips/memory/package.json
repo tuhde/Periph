@@ -5,6 +5,10 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/memory/_23x1024.py",
+      "github:tuhde/Periph/python/periph/chips/memory/_23x1024.py"
+    ],
+    [
       "periph/chips/memory/_24aa02uid.py",
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
@@ -39,6 +43,14 @@
     [
       "periph/connection/register_connection.py",
       "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
     ]
   ],
   "deps": [

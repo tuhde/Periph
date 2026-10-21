@@ -120,7 +120,7 @@ int main(void) {
     sram.set_mode(SRAM23X1024Full::MODE_SEQUENTIAL);                         // Select operating mode, (mode=MODE_SEQUENTIAL=0x40)
 
     // --- Measure throughput for a 4 KiB transfer ---
-    // Sequential mode streams 4096 bytes in 16 transactions; HAL_GetTick()
+    // Sequential mode streams the block in 256-byte transactions; HAL_GetTick()
     // times them in milliseconds.
     static uint8_t block[4096];
     for (int i = 0; i < 4096; i++) block[i] = (uint8_t)i;
