@@ -6,6 +6,7 @@
 package connection
 
 import (
+	"bytes"
 	"fmt"
 	"unsafe"
 
@@ -15,6 +16,7 @@ import (
 // SPI ioctl numbers from <linux/spi/spidev.h>.
 const (
 	spiIocMessage1 = 0x40206b00
+	spiNoCS        = 0x40 // SPI_NO_CS mode bit
 )
 
 // spiIocTransfer mirrors struct spi_ioc_transfer from <linux/spi/spidev.h>.
@@ -42,6 +44,8 @@ type SPIConnection struct {
 	mode          uint8
 	readBit       byte
 	multiByteBit  byte // 0 = chip has no such bit
+	cs            OutputPin // GPIO chip select (SPI_NO_CS); nil = kernel-managed CS
+	held          bool      // Select() active: CS low across calls
 }
 
 // NewSPIConnection opens /dev/spidevBUS.DEVICE and configures it for the
@@ -99,6 +103,110 @@ func NewSPIConnectionWithConvention(busNum, deviceNum int, mode uint8, maxSpeedH
 	}, nil
 }
 
+// NewSPIConnectionGPIOCS is like NewSPIConnection but disables the kernel's
+// chip select (SPI_NO_CS) and drives cs itself, which enables the
+// SPIExtensions (IdleClocks, Select/Deselect) needed by SD cards. cs must be
+// an output wired to the device's CS and is driven high immediately.
+func NewSPIConnectionGPIOCS(busNum, deviceNum int, mode uint8, maxSpeedHz uint32, cs OutputPin,
+	intPin InputPin, enPin OutputPin) (*SPIConnection, error) {
+	t, err := NewSPIConnection(busNum, deviceNum, mode, maxSpeedHz, intPin, enPin)
+	if err != nil {
+		return nil, err
+	}
+	noCS := t.mode | spiNoCS
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, uintptr(t.fd), 0x40216b01, uintptr(unsafe.Pointer(&noCS))); errno != 0 { // SPI_IOC_WR_MODE
+		_ = t.Close()
+		return nil, fmt.Errorf("ioctl(SPI_IOC_WR_MODE, SPI_NO_CS): %w", errno)
+	}
+	t.mode = noCS
+	t.cs = cs
+	if err := cs.Set(true); err != nil {
+		_ = t.Close()
+		return nil, err
+	}
+	return t, nil
+}
+
+// IdleClocks clocks n bits of 0xFF with CS deasserted. It needs a GPIO chip
+// select (NewSPIConnectionGPIOCS); otherwise it returns ErrSPIExtensionUnsupported.
+func (t *SPIConnection) IdleClocks(n int) error {
+	if t.cs == nil {
+		return ErrSPIExtensionUnsupported
+	}
+	if err := t.cs.Set(true); err != nil {
+		return err
+	}
+	tx := bytes.Repeat([]byte{0xFF}, (n+7)/8)
+	err := t.xfer(tx, make([]byte, len(tx)))
+	if t.held {
+		if e := t.cs.Set(false); err == nil {
+			err = e
+		}
+	}
+	return err
+}
+
+// SetSpeed changes the spidev clock (SPI_IOC_WR_MAX_SPEED_HZ).
+func (t *SPIConnection) SetSpeed(hz uint32) error {
+	if _, _, errno := unix.Syscall(unix.SYS_IOCTL, uintptr(t.fd), 0x40046b04, uintptr(unsafe.Pointer(&hz))); errno != 0 {
+		return fmt.Errorf("ioctl(SPI_IOC_WR_MAX_SPEED_HZ): %w", errno)
+	}
+	return nil
+}
+
+// Select asserts the GPIO chip select and holds it low until Deselect.
+// It needs NewSPIConnectionGPIOCS; otherwise it returns ErrSPIExtensionUnsupported.
+func (t *SPIConnection) Select() error {
+	if t.cs == nil {
+		return ErrSPIExtensionUnsupported
+	}
+	if err := t.cs.Set(false); err != nil {
+		return err
+	}
+	t.held = true
+	return nil
+}
+
+// Deselect releases the chip select asserted by Select.
+func (t *SPIConnection) Deselect() error {
+	t.held = false
+	if t.cs == nil {
+		return nil
+	}
+	return t.cs.Set(true)
+}
+
+// ReadInto fills buf with len(buf) bytes read from the device, clocking 0xFF on MOSI.
+func (t *SPIConnection) ReadInto(buf []byte) error {
+	if !t.IsEnabled() {
+		for i := range buf {
+			buf[i] = 0
+		}
+		return nil
+	}
+	if len(buf) == 0 {
+		return nil
+	}
+	tx := bytes.Repeat([]byte{0xFF}, len(buf))
+	return t.xferCS(tx, buf)
+}
+
+// xferCS runs xfer with the GPIO chip select (if any) asserted around it.
+func (t *SPIConnection) xferCS(tx, rx []byte) error {
+	if t.cs != nil && !t.held {
+		if err := t.cs.Set(false); err != nil {
+			return err
+		}
+	}
+	err := t.xfer(tx, rx)
+	if t.cs != nil && !t.held {
+		if e := t.cs.Set(true); err == nil {
+			err = e
+		}
+	}
+	return err
+}
+
 // Close releases the underlying /dev/spidevB.D file descriptor.
 func (t *SPIConnection) Close() error {
 	if t.fd < 0 {
@@ -145,7 +253,7 @@ func (t *SPIConnection) Write(data []byte) error {
 		return nil
 	}
 	dummy := make([]byte, len(data))
-	return t.xfer(data, dummy)
+	return t.xferCS(data, dummy)
 }
 
 // Read clocks out n bytes from the device, sending dummy 0x00 bytes
@@ -157,9 +265,9 @@ func (t *SPIConnection) Read(n int) ([]byte, error) {
 	if n == 0 {
 		return []byte{}, nil
 	}
-	tx := make([]byte, n)
+	tx := bytes.Repeat([]byte{0xFF}, n) // MOSI idles high (SD cards read other levels as commands)
 	rx := make([]byte, n)
-	if err := t.xfer(tx, rx); err != nil {
+	if err := t.xferCS(tx, rx); err != nil {
 		return nil, err
 	}
 	return rx, nil
@@ -175,10 +283,10 @@ func (t *SPIConnection) WriteRead(data []byte, n int) ([]byte, error) {
 	if n == 0 {
 		return nil, nil
 	}
-	tx := make([]byte, len(data)+n)
+	tx := bytes.Repeat([]byte{0xFF}, len(data)+n)
 	copy(tx, data)
 	rx := make([]byte, len(data)+n)
-	if err := t.xfer(tx, rx); err != nil {
+	if err := t.xferCS(tx, rx); err != nil {
 		return nil, err
 	}
 	return rx[len(data):], nil
