@@ -14,24 +14,24 @@ Chip driver code is shared across a language's platforms (e.g. C++'s `chips/` is
 
 | Scope | Lines |
 |---|---:|
-| Source (drivers + connection + blocks/nodes/decoders) | 274,743 |
-| Tests | 143,301 |
-| Examples | 162,811 |
-| **Total** | **580,855** |
+| Source (drivers + connection + blocks/nodes/decoders) | 279,607 |
+| Tests | 149,530 |
+| Examples | 165,985 |
+| **Total** | **595,122** |
 
 ## By language
 
 | Language | Source | Tests | Examples | Total |
 |---|---:|---:|---:|---:|
-| C++ | 33,027 | 35,561 | 70,253 | **138,841** |
-| JVM | 76,797 | 33,091 | 26,040 | **135,928** |
-| Go | 31,911 | 28,123 | 31,231 | **91,265** |
-| Python | 36,728 | 22,755 | 7,142 | **66,625** |
-| Rust | 36,728 | 9,878 | 13,602 | **60,208** |
-| Node.js | 25,004 | 13,893 | 7,621 | **46,518** |
-| Sigrok | 24,090 | 0 | 0 | **24,090** |
-| Node-RED | 10,458 | 0 | 6,922 | **17,380** |
-| **Total** | 274,743 | 143,301 | 162,811 | **580,855** |
+| C++ | 33,544 | 38,904 | 71,877 | **144,325** |
+| JVM | 78,246 | 34,115 | 26,488 | **138,849** |
+| Go | 32,522 | 28,835 | 31,697 | **93,054** |
+| Python | 37,226 | 23,322 | 7,281 | **67,829** |
+| Rust | 37,578 | 10,090 | 13,815 | **61,483** |
+| Node.js | 25,409 | 14,264 | 7,761 | **47,434** |
+| Sigrok | 24,467 | 0 | 0 | **24,467** |
+| Node-RED | 10,615 | 0 | 7,066 | **17,681** |
+| **Total** | 279,607 | 149,530 | 165,985 | **595,122** |
 
 ## By platform
 
@@ -39,31 +39,31 @@ Only counts what's actually platform-specific (connection/transport code, block/
 
 | Language | Platform | Source | Tests | Examples | Total |
 |---|---|---:|---:|---:|---:|
-| C++ | STM32Cube | 1,157 | 6,803 | 22,074 | **30,034** |
-| C++ | Linux GCC | 1,694 | 14,438 | 7,824 | **23,956** |
-| C++ | Arduino | 1,441 | 4,835 | 10,217 | **16,493** |
-| C++ | ESP-IDF | 1,148 | 3,372 | 10,606 | **15,126** |
-| C++ | Zephyr | 915 | 3,673 | 9,351 | **13,939** |
-| C++ | Pico SDK | 1,015 | 2,440 | 10,181 | **13,636** |
+| C++ | STM32Cube | 1,157 | 9,156 | 22,465 | **32,778** |
+| C++ | Linux GCC | 1,694 | 14,868 | 8,061 | **24,623** |
+| C++ | Arduino | 1,441 | 4,975 | 10,466 | **16,882** |
+| C++ | ESP-IDF | 1,166 | 3,518 | 10,873 | **15,557** |
+| C++ | Zephyr | 915 | 3,812 | 9,597 | **14,324** |
+| C++ | Pico SDK | 1,015 | 2,575 | 10,415 | **14,005** |
 | C++ | Mocks (unit tests) | 546 | 0 | 0 | **546** |
 | C++ | Generic (base interface) | 116 | 0 | 0 | **116** |
-| Go | Linux | 1,541 | 22,745 | 17,211 | **41,497** |
-| Go | TinyGo | 820 | 5,378 | 14,020 | **20,218** |
+| Go | Linux | 1,541 | 23,328 | 17,456 | **42,325** |
+| Go | TinyGo | 820 | 5,507 | 14,241 | **20,568** |
 | Go | Generic | 1,145 | 0 | 0 | **1,145** |
-| JVM | Java | 27,427 | 13,461 | 9,113 | **50,001** |
-| JVM | Groovy | 23,945 | 10,626 | 8,531 | **43,102** |
-| JVM | Kotlin | 21,810 | 9,004 | 8,396 | **39,210** |
+| JVM | Java | 27,927 | 13,875 | 9,270 | **51,072** |
+| JVM | Groovy | 24,444 | 10,968 | 8,672 | **44,084** |
+| JVM | Kotlin | 22,260 | 9,272 | 8,546 | **40,078** |
 | JVM | Linux (shared connection) | 3,615 | 0 | 0 | **3,615** |
-| Node-RED | Node-RED | 10,458 | 0 | 6,922 | **17,380** |
-| Python | Linux | 971 | 14,128 | 0 | **15,099** |
-| Python | UIFlow 2 | 8,816 | 0 | 0 | **8,816** |
-| Python | MicroPython | 682 | 4,522 | 0 | **5,204** |
-| Python | CircuitPython | 813 | 4,105 | 0 | **4,918** |
+| Node-RED | Node-RED | 10,615 | 0 | 7,066 | **17,681** |
+| Python | Linux | 971 | 14,516 | 0 | **15,487** |
+| Python | UIFlow 2 | 8,915 | 0 | 0 | **8,915** |
+| Python | MicroPython | 682 | 4,610 | 0 | **5,292** |
+| Python | CircuitPython | 813 | 4,196 | 0 | **5,009** |
 | Python | Generic (auto-dispatch) | 1,188 | 0 | 0 | **1,188** |
-| Python | UIFlow 1 | 810 | 0 | 0 | **810** |
+| Python | UIFlow 1 | 820 | 0 | 0 | **820** |
 | Python | Mocks (unit tests) | 415 | 0 | 0 | **415** |
-| Rust | Linux | 66 | 4,908 | 8,822 | **13,796** |
-| Rust | ESP32-S3 | 0 | 4,970 | 4,780 | **9,750** |
+| Rust | Linux | 66 | 5,018 | 9,035 | **14,119** |
+| Rust | ESP32-S3 | 0 | 5,072 | 4,780 | **9,852** |
 | Rust | Generic (embedded-hal) | 1,980 | 0 | 0 | **1,980** |
 
 ## By category
@@ -75,6 +75,7 @@ Totals here are lower than the Global/By-language source figures because generic
 | `display` | 8 | 33,379 | 16,807 | 24,204 | **74,390** |
 | `pressure` | 8 | 27,934 | 14,808 | 16,609 | **59,351** |
 | `adc_dac` | 8 | 19,052 | 13,349 | 14,345 | **46,746** |
+| `memory` | 4 | 14,122 | 11,627 | 10,759 | **36,508** |
 | `comms` | 3 | 15,697 | 8,560 | 7,328 | **31,585** |
 | `tof` | 2 | 14,889 | 6,529 | 7,631 | **29,049** |
 | `io_expander` | 4 | 11,270 | 7,334 | 9,378 | **27,982** |
@@ -82,7 +83,6 @@ Totals here are lower than the Global/By-language source figures because generic
 | `accelerometer` | 3 | 13,438 | 6,600 | 6,514 | **26,552** |
 | `led` | 4 | 6,413 | 7,483 | 11,720 | **25,616** |
 | `imu` | 3 | 10,292 | 7,728 | 7,017 | **25,037** |
-| `memory` | 3 | 9,278 | 6,796 | 7,585 | **23,659** |
 | `environmental` | 3 | 11,497 | 4,664 | 7,117 | **23,278** |
 | `temperature` | 2 | 8,740 | 5,065 | 5,618 | **19,423** |
 | `rtc` | 2 | 10,379 | 3,421 | 4,949 | **18,749** |
@@ -95,7 +95,7 @@ Totals here are lower than the Global/By-language source figures because generic
 | `gas` | 1 | 2,762 | 1,509 | 2,505 | **6,776** |
 | `motor` | 1 | 2,477 | 1,396 | 2,116 | **5,989** |
 | `humidity` | 1 | 1,419 | 1,858 | 1,427 | **4,704** |
-| **Total** | 69 | 247,010 | 138,273 | 162,460 | **547,743** |
+| **Total** | 70 | 251,854 | 143,104 | 165,634 | **560,592** |
 
 ## By chip
 
@@ -148,6 +148,7 @@ Totals here are lower than the Global/By-language source figures because generic
 | HMC5883L | `magnetometer` | 2,568 | 1,578 | 987 | **5,133** |
 | 23X1024 | `memory` | 1,779 | 1,717 | 2,427 | **5,923** |
 | 24AA02UID | `memory` | 1,419 | 1,320 | 2,231 | **4,970** |
+| MX25L12845E | `memory` | 4,844 | 4,831 | 3,174 | **12,849** |
 | SD_SPI | `memory` | 4,869 | 3,047 | 2,927 | **10,843** |
 | DRV8830 | `motor` | 2,477 | 1,396 | 2,116 | **5,989** |
 | MPR121 | `other` | 3,653 | 1,739 | 1,947 | **7,339** |
