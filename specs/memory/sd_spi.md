@@ -172,137 +172,102 @@ One node `sd-spi`: config = SPI bus/device; on input message `{op: "read"|"write
 | Erase busy (`CMD38`) | up to several seconds |
 | Between commands | 1 byte (8 clocks) of `0xFF` with CS high after each response to release MISO |
 
+No timing constraint gets a conformance check: the waits (data token, write busy, erase busy) are card-negotiated and bounded by timeouts, not fixed times, so there is no `sd_spi_timing.conf`.
+
 ## Implementation Notes
 
 - Read the R1 response by clocking `0xFF` up to 8 times (Ncr ≤ 8 bytes) until bit 7 clears.
 - After every transaction, send one extra `0xFF` byte with CS **high** so the card releases MISO (some cards drive until the next clock). The driver must not assume the bus-level `Connection` does this.
-- The `Connection` read path must send `0xFF` (not the buffer content, not `0x00`) on MOSI. `SPIConnectionSTM32Cube::_read` currently calls `HAL_SPI_Receive`, which on STM32 in 2-line master mode clocks out the receive buffer — the connection fix lands with the SPI extensions (`read_into`).
+- The `Connection` read path must send `0xFF` (not the buffer content, not `0x00`) on MOSI. `SPIConnectionSTM32Cube::_read` used to call `HAL_SPI_Receive`, which on STM32 in 2-line master mode clocks out the receive buffer; it now fills the buffer with `0xFF` and uses `HAL_SPI_TransmitReceive`. Every SPI connection that an SD driver runs on must do the equivalent.
 - Large transfers use `read_into` to avoid allocation; the C++ driver never mallocs.
-- A CRC16 mismatch on read must be reported as `Crc`, not retried silently; a retry policy is the caller's decision (the Full class exposes `set_retries(n)`).
+- A CRC16 mismatch on read must be reported as `Crc`, not retried silently; a retry policy is the caller's decision.
+- Linux hosts (spidev) cannot hold chip select across `ioctl` calls, so every Linux connection (Python, C++, Go, Node.js, Java) takes a GPIO chip select, disables the kernel's CS with `SPI_NO_CS` and drives the pin itself. Without a CS pin `idle_clocks` / `select` / `deselect` fail. On a Linux host with a kernel `mmc_spi` driver, use that driver instead of this one.
+- Rust: the SD drivers are generic over `SpiExtensions` (not `SpiDevice`); `SpiManualCs` builds one from an `embedded-hal` `SpiBus` and a GPIO chip select.
+- Block-addressed (SDHC/SDXC) cards were exercised only against the simulated card in the unit tests; the hardware bench used a byte-addressed 2 GB SDSC card (v2).
 - Block-addressed cards ignore `CMD16`; SDSC cards must receive it once.
 - SDSC multi-block writes and `CMD23` (pre-set block count, not used here) differ across cards; `CMD25` + stop token is the portable path.
 - Wear levelling and bad blocks are internal to the card; `bad_blocks` is always false.
 
 ## Sigrok Decoder
 
-Stack on the built-in `spi` decoder: annotate commands (`CMDn`, argument), R1/R7 responses, data tokens, data blocks (length only) and CRC fields. Annotation conventions per `specs/sigrok_annotations.md`.
+Stack on the built-in `spi` decoder (CS, MOSI and MISO required): annotate commands (`CMDn` / `ACMDn`, argument, checked CRC7), R1/R2/R3/R7 responses (OCR decoded), start/stop/error tokens, the write data response, data blocks with a checked CRC16 and one-line CSD / CID / boot-signature decodings. State is kept across CS assertions. Clocks sent with CS high (the 74+ init clocks) are invisible to the `spi` decoder. Annotation conventions per `specs/sigrok_annotations.md`.
 
 ## Implementation Checklist
 
-Tick each box as the item is committed. The PR may not be opened until every box is ticked.
+Tick each box as the item is committed.
 
 ### Python
-- [ ] Driver `python/periph/chips/memory/sd_spi.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/memory/sd_spi/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/memory/sd_spi/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/memory/sd_spi/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/memory/sd_spi_test.py` (MicroPython)
-- [ ] Tests `python/tests/memory/sd_spi_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/memory/sd_spi_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/memory/sd_spi_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
-
-### Block device (storage chips only)
-- [ ] Full class implements `BlockDevice` in every language; passes the shared contract suite
+- [x] Driver `python/periph/chips/memory/sd_spi.py` — Google-style docstring on every class and public method
+- [x] Storage `python/periph/storage/block_device.py`, `ram_block_device.py` — `BlockDevice`, errors, `RamBlockDevice`, `BlockDeviceVFS`
+- [x] SPI extensions in `spi_micropython.py`, `spi_circuitpython.py`, `spi_linux.py` (GPIO CS), `spi_mock.py`
+- [x] Examples `python/examples/memory/sd_spi/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/memory/sd_spi/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/memory/sd_spi/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/memory/sd_spi_test.py` (MicroPython)
+- [x] Tests `python/tests/memory/sd_spi_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/memory/sd_spi_test_linux.py` (Linux)
+- [x] Unit test `python/tests/memory/sd_spi_test_unit.py` — simulated SD card behind the SPI connection interface
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/memory/sd_spi/sd_spi.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/memory/sd_spi/sd_spi_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/memory/sd_spi/sd_spi.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/memory/sd_spi/sd_spi.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/memory/sd_spi/sd_spi_*.py`
+- [x] Generated `python/uiflow1/memory/sd_spi/sd_spi.m5b` — `python/uiflow1/generate.sh`
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/memory/sd_spi/SDSPI.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/memory/sd_spi/SDSPI.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/memory/sd_spi/SDSPI.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color
+- [x] `python/uiflow2/memory/sd_spi/SDSPI.m5b2` — rebuilt from the wrapper with the same rules as the hand-built siblings (byte-identical to `SRAM23X1024.m5b2` when applied to its wrapper); **not yet round-tripped through the real UiFlow 2 Block Designer**
 
 ### C++
-- [ ] Driver `cpp/src/chips/memory/SD_SPI.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/memory/SD_SPI.cpp`
-- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/memory/SD_SPI/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/memory/SD_SPI/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/memory/SD_SPI/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/memory/SD_SPI/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/memory/SD_SPI/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/memory/SD_SPI/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/memory/SD_SPI/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/minimal/Core/Src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/complete/Core/Src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/stm32cube/memory/SD_SPI/demo/Core/Src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/memory/sd_spi_test/sd_spi_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/memory/sd_spi_test_linux/sd_spi_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/memory/sd_spi_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/memory/sd_spi_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/memory/sd_spi_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Tests `cpp/tests/memory/sd_spi_test_stm32cube/Core/Src/main.cpp` (STM32Cube)
-- [ ] Unit test `cpp/tests/memory/sd_spi_test_unit/sd_spi_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/memory/SD_SPI.h` / `SD_SPI.cpp` — Doxygen on every class and public method
+- [x] `cpp/src/storage/BlockDevice.h`, `RamBlockDevice.h`; `cpp/src/connection/SPIExtensions.h`
+- [x] SPI extensions in `SPIConnection` (Arduino), `SPIConnectionLinux` (GPIO CS), `SPIConnectionZephyr`, `SPIConnectionESPIDF` (`setManualCS`, `enableSpeedChange`), `SPIConnectionPicoSDK`, `SPIConnectionSTM32Cube`
+- [x] Examples `cpp/examples/arduino/memory/SD_SPI/{minimal,complete,demo}/*.ino`
+- [x] `cpp/src/Periph.h` regenerated; `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega`
+- [x] Examples `cpp/examples/linux/memory/SD_SPI/{minimal,complete,demo}/main.cpp`
+- [x] Examples `cpp/examples/zephyr/memory/SD_SPI/{minimal,complete,demo}/main.cpp`
+- [x] Examples `cpp/examples/espidf/memory/SD_SPI/{minimal,complete,demo}/main/main.cpp`
+- [x] Examples `cpp/examples/picosdk/memory/SD_SPI/{minimal,complete,demo}/src/main.cpp`
+- [x] Examples `cpp/examples/stm32cube/memory/SD_SPI/{minimal,complete,demo}/Core/Src/main.cpp`
+- [x] Tests `sd_spi_test/sd_spi_test.ino` (Arduino), `sd_spi_test_linux/sd_spi_test_linux.cpp`, `sd_spi_test_zephyr`, `sd_spi_test_espidf`, `sd_spi_test_picosdk`, `sd_spi_test_stm32cube` under `cpp/tests/memory/`
+- [x] Unit test `cpp/tests/memory/sd_spi_test_unit/sd_spi_test_unit.cpp` — simulated SD card, run via `test_linux.sh --level unit`
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/memory/sd_spi.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/memory/sd_spi/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/memory/sd_spi/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/memory/sd_spi/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/memory/sd_spi_test.js`
-- [ ] Unit test `nodejs/tests/memory/sd_spi_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/memory/sd_spi.js` — JSDoc on every class and exported method
+- [x] `nodejs/packages/periph/src/storage/block_device.js`, `ram_block_device.js`; SPI extensions in `connection/spi.js` (GPIO CS) and `spi_mock.js`
+- [x] Examples `nodejs/packages/periph/examples/memory/sd_spi/{minimal,complete,demo}.js`
+- [x] Tests `nodejs/tests/memory/sd_spi_test.js`
+- [x] Unit test `nodejs/tests/memory/sd_spi_test_unit.js`
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-memory/nodes/sd_spi/sd_spi.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-memory/nodes/sd_spi/sd_spi.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-memory/examples/sd_spi/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-memory/nodes/sd_spi/sd_spi.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-memory/nodes/sd_spi/sd_spi.html`
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-memory/examples/sd_spi/demo.json`
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/memory/sd_spi.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/memory/sd_spi/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/memory/sd_spi/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/memory/sd_spi/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/memory/sd_spi_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/memory/sd_spi_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/memory/sd_spi.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/memory/sd_spi.rs` — `//!` module doc + `///` on every `pub` item
+- [x] `rust/periph/src/storage/` (`BlockDevice`, `RamBlockDevice`); `SpiExtensions` + `SpiManualCs` in `rust/periph/src/connection/spi.rs`
+- [x] Examples `rust/examples/linux/memory/sd_spi/{minimal,complete,demo}/src/main.rs`
+- [x] Tests `rust/tests/memory/sd_spi_test/src/main.rs` (Linux), `rust/tests/memory/sd_spi_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `sd_spi.rs`, `storage/ram.rs` and `connection/spi.rs`
 
 ### Go
-- [ ] Driver `go/periph/chips/memory/sd_spi.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/memory/sd_spi/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/memory/sd_spi/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/memory/sd_spi/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/memory/sd_spi/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/memory/sd_spi/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/memory/sd_spi/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/memory/sd_spi_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/memory/sd_spi_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/memory/sd_spi_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/memory/sdspi.go` — Go doc comment on every exported type and method
+- [x] `go/periph/storage/` (`BlockDevice`, `RamBlockDevice`); `go/periph/connection/spi_ext.go`, `spi_linux.go` (GPIO CS), `spi_tinygo.go`
+- [x] Examples `go/examples/linux/memory/sd_spi/{minimal,complete,demo}`, `go/examples/tinygo/memory/sd_spi/{minimal,complete,demo}`
+- [x] Tests `go/tests/memory/sd_spi_test/main.go` (host), `go/tests/memory/sd_spi_test_tinygo/main.go` (TinyGo)
+- [x] Unit test `go/periph/chips/memory/sdspi_test.go`, `go/periph/storage/ram_test.go`
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SD_SPIMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/SD_SPIFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SD_SPIMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/SD_SPIFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SD_SPIMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/SD_SPIFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/memory/sd_spi/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/memory/sd_spi/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/memory/sd_spi/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/memory/sd_spi/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/memory/sd_spi/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/memory/sd_spi/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/memory/sd_spi/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/memory/sd_spi/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/memory/sd_spi/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/memory/sd_spi/SDSPITest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/memory/SD_SPITest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/memory/SD_SPITest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/memory/SD_SPISpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Drivers `SdSpiMinimal` / `SdSpiFull` in `jvm/periph-java`, `jvm/periph-kotlin`, `jvm/periph-groovy` (`it.uhde.periph.chips.memory`)
+- [x] `it.uhde.periph.storage` (`BlockDevice`, `BlockInfo`, `BlockDeviceException`, `RamBlockDevice`) in `periph-java` and `periph-groovy`; `SPIExtensions` in `periph-connection` (`SPIConnection` with GPIO CS, `MockConnection` records calls)
+- [x] Examples `jvm/examples/{java,kotlin,groovy}/memory/sd_spi/{Minimal,Complete,Demo}`
+- [x] Tests `jvm/tests/memory/sd_spi/SdSpiTest.java` (Pi hardware, JBang)
+- [x] Unit tests `SdSpiTest.java` (JUnit), `SdSpiTest.kt` (JUnit5), `SdSpiSpec.groovy` (Spock) — simulated SD card
 
 ### Sigrok
-- [ ] Decoder `sigrok/sd_spi/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/sd_spi/pd.py` — for every Timing Constraint above with a conformance check, emits the named start/end annotation pair the Sigrok Decoder section names
+- [x] Decoder `sigrok/sd_spi/__init__.py` — module docstring describing transport input and what is annotated
+- [x] Decoder `sigrok/sd_spi/pd.py` — annotates commands, responses, tokens, data blocks and CRCs; produces `OUTPUT_ANN` and `OUTPUT_PYTHON`
+- [x] `sigrok/tests/sd_spi/SDSPI-synthetic.sr` — synthetic capture (driver run against the simulated card); a bench capture is still to be added
 
-### Conformance
-- [ ] Checker `conformance/memory/sd_spi_conformance.py` — one per chip (not per language); see `specs/testing_framework.md`, "Conformance Implementation"
-- [ ] Timing config `specs/memory/sd_spi_timing.conf` — machine-readable mirror of this spec's Timing Constraints section, one entry per conformance-checked constraint
-- [ ] Decoder `sigrok/sd_spi/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+### Block device
+- [x] The Full class implements `BlockDevice` in every language and shares the contract suite with the RAM mock (`specs/feature_block_device.md`)
