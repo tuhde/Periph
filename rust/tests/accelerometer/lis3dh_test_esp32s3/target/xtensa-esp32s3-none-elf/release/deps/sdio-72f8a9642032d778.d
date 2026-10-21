@@ -1,0 +1,12 @@
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/sdio-72f8a9642032d778.d: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libsdio-72f8a9642032d778.rlib: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/home/till/Periph/rust/tests/accelerometer/lis3dh_test_esp32s3/target/xtensa-esp32s3-none-elf/release/deps/libsdio-72f8a9642032d778.rmeta: /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs /home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs
+
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/lib.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/common.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/emmc.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sd.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/sdio.rs:
+/home/till/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/sdio-0.5.3/src/spi.rs:
