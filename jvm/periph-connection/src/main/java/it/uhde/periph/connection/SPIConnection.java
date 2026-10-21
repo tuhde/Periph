@@ -23,11 +23,12 @@ import java.lang.invoke.*;
  * <p>Backed by raw {@code ioctl()}/{@code read()}/{@code write()} syscalls via
  * the Java 22+ Foreign Function & Memory API — no JNI, no native libraries.
  */
-public final class SPIConnection implements RegisterConnection {
+public final class SPIConnection implements RegisterConnection, SPIExtensions {
 
     private static final int O_RDWR = 2;
 
     private static final long SPI_IOC_WR_MODE         = 0x40016b01L;
+    private static final int  SPI_NO_CS               = 0x40;
     private static final long SPI_IOC_MESSAGE_1       = 0x40206b00L;
     private static final long SPI_IOC_MESSAGE_2       = 0x40206b02L;
     private static final int  SPI_IOC_XFER_SIZE       = 32;
@@ -54,9 +55,11 @@ public final class SPIConnection implements RegisterConnection {
 
     private final int _fd;
     private final int _mode;
-    private final int _speedHz;
+    private volatile int _speedHz;
     private final int _readBit;
     private final Integer _multiByteBit;
+    private final OutputPin _cs;     // GPIO chip select (SPI_NO_CS); null = kernel-managed CS
+    private boolean _held;           // select() active: CS low across calls
 
     /**
      * Open an SPI device.
@@ -74,6 +77,29 @@ public final class SPIConnection implements RegisterConnection {
      */
     public SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz,
                           int readBit, Integer multiByteBit) throws IOException {
+        this(busNum, deviceNum, mode, maxSpeedHz, readBit, multiByteBit, null);
+    }
+
+    /**
+     * Open {@code /dev/spidevBUS.DEVICE} and drive chip select from a GPIO.
+     *
+     * <p>The kernel's chip select is disabled ({@code SPI_NO_CS}) and {@code csPin} is driven
+     * high immediately. This enables the {@link SPIExtensions} operations that need CS control
+     * ({@code idleClocks}, {@code select}/{@code deselect}), as SD cards require.
+     *
+     * @param busNum      SPI bus number
+     * @param deviceNum   chip-select line on the bus (unused by the kernel once {@code SPI_NO_CS} is set)
+     * @param mode        SPI mode 0..3
+     * @param maxSpeedHz  clock frequency in Hz
+     * @param csPin       output wired to the device's CS
+     * @throws IOException if the device cannot be opened or configured
+     */
+    public SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz, OutputPin csPin) throws IOException {
+        this(busNum, deviceNum, mode, maxSpeedHz, 0x80, null, csPin);
+    }
+
+    private SPIConnection(int busNum, int deviceNum, int mode, int maxSpeedHz,
+                          int readBit, Integer multiByteBit, OutputPin csPin) throws IOException {
         if (mode < 0 || mode > 3) {
             throw new IOException("SPI mode must be 0..3 (got " + mode + ")");
         }
@@ -81,7 +107,9 @@ public final class SPIConnection implements RegisterConnection {
         this._speedHz       = maxSpeedHz;
         this._readBit       = readBit;
         this._multiByteBit  = multiByteBit;
-        this._fd            = openDevice(busNum, deviceNum, mode, maxSpeedHz);
+        this._cs            = csPin;
+        this._fd            = openDevice(busNum, deviceNum, mode | (csPin != null ? SPI_NO_CS : 0), maxSpeedHz);
+        if (csPin != null) csPin.set(true);
     }
 
     /** Open with an explicit mode/clock, default register-addressing convention (readBit 0x80, no multi-byte bit). */
@@ -163,44 +191,33 @@ public final class SPIConnection implements RegisterConnection {
      * @param data bytes to send
      * @throws IOException on SPI error
      */
-    @Override
-    public void write(byte[] data) throws IOException {
-        if (data == null || data.length == 0) return;
-        try (var arena = Arena.ofConfined()) {
-            var txBuf = arena.allocate(data.length);
-            txBuf.copyFrom(MemorySegment.ofArray(data));
-            var xfer = arena.allocate(SPI_IOC_XFER_SIZE);
-            xfer.set(ValueLayout.JAVA_LONG, 0, txBuf.address());   // tx_buf
-            xfer.set(ValueLayout.JAVA_LONG, 8, 0L);                // rx_buf
-            xfer.set(ValueLayout.JAVA_INT,  16, data.length);      // len
-            xfer.set(ValueLayout.JAVA_INT,  20, _speedHz);         // speed_hz
-            int rc = (int) ioctlPtrMH.invoke(_fd, SPI_IOC_MESSAGE_1, xfer);
-            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE write failed: " + rc);
-        } catch (IOException e) {
-            throw e;
-        } catch (Throwable t) {
-            throw new IOException(t);
-        }
+    private void csLow() {
+        if (_cs != null && !_held) _cs.set(false);
     }
 
-    /**
-     * Read bytes from the device.
-     *
-     * @param n number of bytes to read
-     * @return bytes received
-     * @throws IOException on SPI error
-     */
-    @Override
-    public byte[] read(int n) throws IOException {
+    private void csHigh() {
+        if (_cs != null && !_held) _cs.set(true);
+    }
+
+    /** One full-duplex transfer of {@code tx.length} bytes; returns the received bytes. */
+    private byte[] transfer(byte[] tx) throws IOException {
         try (var arena = Arena.ofConfined()) {
-            var rxBuf = arena.allocate(n);
+            int total = tx.length;
+            var txBuf = arena.allocate(Math.max(total, 1));
+            var rxBuf = arena.allocate(Math.max(total, 1));
+            txBuf.copyFrom(MemorySegment.ofArray(tx));
             var xfer = arena.allocate(SPI_IOC_XFER_SIZE);
-            xfer.set(ValueLayout.JAVA_LONG, 0, 0L);                 // tx_buf
-            xfer.set(ValueLayout.JAVA_LONG, 8, rxBuf.address());    // rx_buf
-            xfer.set(ValueLayout.JAVA_INT,  16, n);                 // len
-            xfer.set(ValueLayout.JAVA_INT,  20, _speedHz);          // speed_hz
-            int rc = (int) ioctlPtrMH.invoke(_fd, SPI_IOC_MESSAGE_1, xfer);
-            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE read failed: " + rc);
+            xfer.set(ValueLayout.JAVA_LONG, 0, txBuf.address());   // tx_buf
+            xfer.set(ValueLayout.JAVA_LONG, 8, rxBuf.address());   // rx_buf
+            xfer.set(ValueLayout.JAVA_INT,  16, total);            // len
+            xfer.set(ValueLayout.JAVA_INT,  20, _speedHz);         // speed_hz
+            csLow();
+            try {
+                int rc = (int) ioctlPtrMH.invoke(_fd, SPI_IOC_MESSAGE_1, xfer);
+                if (rc < 0) throw new IOException("SPI_IOC_MESSAGE failed: " + rc);
+            } finally {
+                csHigh();
+            }
             return rxBuf.toArray(ValueLayout.JAVA_BYTE);
         } catch (IOException e) {
             throw e;
@@ -209,42 +226,64 @@ public final class SPIConnection implements RegisterConnection {
         }
     }
 
-    /**
-     * Write then read in a single {@code SPI_IOC_MESSAGE(2)} transfer (CS held).
-     *
-     * <p>Sends {@code data.length + n} bytes total; the first {@code data.length}
-     * sent bytes are the command/address phase, the trailing {@code n} bytes are
-     * dummy bytes that clock the response out. The {@code n} bytes received
-     * during the read phase are returned.
-     *
-     * @param data command bytes to send
-     * @param n    number of response bytes expected
-     * @return the n response bytes
-     * @throws IOException on SPI error
-     */
+    private static byte[] ones(int n) {
+        byte[] b = new byte[n];
+        java.util.Arrays.fill(b, (byte) 0xFF);   // MOSI idles high (SD cards read other levels as commands)
+        return b;
+    }
+
+    @Override
+    public void write(byte[] data) throws IOException {
+        if (data == null || data.length == 0) return;
+        transfer(data);
+    }
+
+    @Override
+    public byte[] read(int n) throws IOException {
+        if (n == 0) return new byte[0];
+        byte[] full = transfer(ones(n));
+        return java.util.Arrays.copyOf(full, n);
+    }
+
     @Override
     public byte[] writeRead(byte[] data, int n) throws IOException {
         int cmdLen = data == null ? 0 : data.length;
-        int total  = cmdLen + n;
+        byte[] tx = ones(cmdLen + n);
+        if (cmdLen > 0) System.arraycopy(data, 0, tx, 0, cmdLen);
+        byte[] full = transfer(tx);
+        byte[] resp = new byte[n];
+        System.arraycopy(full, cmdLen, resp, 0, n);
+        return resp;
+    }
+
+    @Override
+    public void readInto(byte[] buf) throws IOException {
+        if (buf.length == 0) return;
+        System.arraycopy(transfer(ones(buf.length)), 0, buf, 0, buf.length);
+    }
+
+    @Override
+    public void idleClocks(int n) throws IOException {
+        if (_cs == null) throw new UnsupportedOperationException("idleClocks needs a GPIO chip select (SPI_NO_CS)");
+        _cs.set(true);
+        boolean held = _held;
+        _held = true;                       // make csLow()/csHigh() no-ops: CS stays high for these clocks
+        try {
+            transfer(ones((n + 7) / 8));
+        } finally {
+            _held = held;
+        }
+        if (held) _cs.set(false);
+    }
+
+    @Override
+    public void setSpeed(int hz) throws IOException {
         try (var arena = Arena.ofConfined()) {
-            var txBuf = arena.allocate(Math.max(total, 1));
-            var rxBuf = arena.allocate(Math.max(total, 1));
-            if (cmdLen > 0) txBuf.asSlice(0, cmdLen).copyFrom(MemorySegment.ofArray(data));
-            // Remaining bytes (the dummy read-phase TX) are already zero.
-
-            var txSet = arena.allocate(SPI_IOC_XFER_SIZE);
-            txSet.set(ValueLayout.JAVA_LONG, 0, txBuf.address());
-            txSet.set(ValueLayout.JAVA_LONG, 8, rxBuf.address());
-            txSet.set(ValueLayout.JAVA_INT,  16, total);
-            txSet.set(ValueLayout.JAVA_INT,  20, _speedHz);
-
-            int rc = (int) ioctlPtrMH.invoke(_fd, SPI_IOC_MESSAGE_2, txSet);
-            if (rc < 0) throw new IOException("SPI_IOC_MESSAGE(2) failed: " + rc);
-
-            byte[] full = rxBuf.toArray(ValueLayout.JAVA_BYTE);
-            byte[] resp = new byte[n];
-            System.arraycopy(full, cmdLen, resp, 0, n);
-            return resp;
+            var u32 = arena.allocate(ValueLayout.JAVA_INT);
+            u32.set(ValueLayout.JAVA_INT, 0, hz);
+            int rc = (int) ioctlPtrMH.invoke(_fd, 0x40046b04L /* SPI_IOC_WR_MAX_SPEED_HZ */, u32);
+            if (rc < 0) throw new IOException("SPI_IOC_WR_MAX_SPEED_HZ ioctl failed: " + rc);
+            _speedHz = hz;
         } catch (IOException e) {
             throw e;
         } catch (Throwable t) {
@@ -252,7 +291,19 @@ public final class SPIConnection implements RegisterConnection {
         }
     }
 
-    /** Close the SPI device. */
+    @Override
+    public void select() throws IOException {
+        if (_cs == null) throw new UnsupportedOperationException("select needs a GPIO chip select (SPI_NO_CS)");
+        _cs.set(false);
+        _held = true;
+    }
+
+    @Override
+    public void deselect() throws IOException {
+        _held = false;
+        if (_cs != null) _cs.set(true);
+    }
+
     @Override
     public void close() throws IOException {
         try {
