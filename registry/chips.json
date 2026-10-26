@@ -66,6 +66,28 @@
       "datasheet": "datasheets/accelerometer/bma180.pdf"
     },
     {
+      "id": "fxos8700",
+      "name": "FXOS8700CQ",
+      "category": "accelerometer",
+      "addresses": [
+        "0x1C..0x1F"
+      ],
+      "id_probe": {
+        "register": "0x0D",
+        "reg_bytes": 1,
+        "length": 1,
+        "byte_order": "big",
+        "mask": "0xFF",
+        "expected": [
+          "0xC7",
+          "0xC4"
+        ]
+      },
+      "probe_safety": "register_pointer",
+      "driver": null,
+      "datasheet": "datasheets/accelerometer/fxos8700.pdf"
+    },
+    {
       "id": "lis3dh",
       "name": "LIS3DH",
       "category": "accelerometer",
