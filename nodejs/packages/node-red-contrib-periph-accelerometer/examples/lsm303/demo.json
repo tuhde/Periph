@@ -1,0 +1,87 @@
+[
+    {
+        "id": "tab-lsm303-demo",
+        "type": "tab",
+        "label": "LSM303 Compass",
+        "disabled": false,
+        "info": "Reads acceleration, magnetic flux density, tilt-compensated heading and relative temperature from an LSM303 e-compass once a second. A function node formats the heading as a 16-point compass name and computes pitch and roll from the acceleration; a debug node shows the values. Demonstrates a tilt-compensated electronic compass. Adjust the accelerometer range / data rate and the magnetometer range / data rate in the device config node to match the application."
+    },
+    {
+        "id": "cfg-lsm303",
+        "type": "lsm303-device",
+        "name": "LSM303",
+        "bus": "1",
+        "accelRange": "2",
+        "accelDataRate": "100",
+        "magRange": "130",
+        "magDataRate": "15"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lsm303-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-lsm303"]]
+    },
+    {
+        "id": "read-lsm303",
+        "type": "periph-lsm303",
+        "name": "LSM303 read",
+        "device": "cfg-lsm303",
+        "z": "tab-lsm303-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-compass", "dbg-raw"]]
+    },
+    {
+        "id": "fn-compass",
+        "type": "function",
+        "name": "compass name + tilt",
+        "func": "const names = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst a = msg.payload.acceleration;\nconst h = msg.payload.heading;\nconst name = names[Math.floor((h + 11.25) / 22.5) % 16];\nconst pitch = Math.atan2(-a.x, Math.sqrt(a.y*a.y + a.z*a.z)) * 180 / Math.PI;\nconst roll = Math.atan2(a.y, a.z) * 180 / Math.PI;\nmsg.payload = { acceleration: a, magnetic: msg.payload.magnetic, heading: h, heading_name: name, pitch, roll, temperature_delta: msg.payload.temperature_delta };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-lsm303-demo",
+        "x": 560,
+        "y": 100,
+        "wires": [["dbg-compass"]]
+    },
+    {
+        "id": "dbg-raw",
+        "type": "debug",
+        "name": "a, m, heading, T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 540,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-compass",
+        "type": "debug",
+        "name": "compass",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 780,
+        "y": 100,
+        "wires": []
+    }
+]
