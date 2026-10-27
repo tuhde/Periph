@@ -67,6 +67,7 @@ Each chip exposes two classes:
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
+| LSM303 | Accelerometer | `periph/src/chips/accelerometer/lsm303` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
