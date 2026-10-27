@@ -1,0 +1,564 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lsm303_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init LSM303 (I2C bus — accel 0x19, mag 0x1E)",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_accel_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 acceleration X (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_accel_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 acceleration Y (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_accel_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 acceleration Z (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_mag_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 magnetic X (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_mag_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 magnetic Y (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_mag_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 magnetic Z (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_heading",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 compass heading (deg)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 temperature delta (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_status",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 status register (raw)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_new_data",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 new data available (1/0)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_fifo_level",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 FIFO level (sample sets)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_reset_high_pass",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 reset high-pass, returns reference",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_read_interrupt_source",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 read interrupt source (generator)",
+          "type": "label"
+        },
+        {
+          "name": "_generator",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_read_click_source",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 read click source (raw)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_mag_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 magnetometer data ready (1/0)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "LSM303 interrupt status (mask)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_read_acceleration",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 read acceleration (x, y, z)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_read_magnetic",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 read magnetic field (x, y, z)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_read_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 read the FIFO samples",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set range (g) — 2, 4, 8 or 16",
+          "type": "label"
+        },
+        {
+          "name": "_range_g",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set data rate (Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_rate_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set mode — 0 low-power, 1 normal, 2 high-res",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_axes",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 enable axes (1 = on)",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        },
+        {
+          "name": "_z",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_power_down",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 power down the accelerometer",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_high_pass",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set high-pass (mode 0-3, cutoff 0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        },
+        {
+          "name": "_cutoff",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_reference",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set the high-pass reference (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set FIFO (mode 0-3, watermark 0-31)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        },
+        {
+          "name": "_watermark",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_motion_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set motion interrupt (generator, events, threshold g, duration ms)",
+          "type": "label"
+        },
+        {
+          "name": "_generator",
+          "type": "number"
+        },
+        {
+          "name": "_events",
+          "type": "number"
+        },
+        {
+          "name": "_threshold_g",
+          "type": "number"
+        },
+        {
+          "name": "_duration_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_free_fall",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set free-fall (generator, threshold g, duration ms)",
+          "type": "label"
+        },
+        {
+          "name": "_generator",
+          "type": "number"
+        },
+        {
+          "name": "_threshold_g",
+          "type": "number"
+        },
+        {
+          "name": "_duration_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_orientation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set orientation (generator, position, four_d)",
+          "type": "label"
+        },
+        {
+          "name": "_generator",
+          "type": "number"
+        },
+        {
+          "name": "_position",
+          "type": "number"
+        },
+        {
+          "name": "_four_d",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_latch",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 latch the interrupt (generator, 1 = latch)",
+          "type": "label"
+        },
+        {
+          "name": "_generator",
+          "type": "number"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_click",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set click (single mask, double mask, threshold g)",
+          "type": "label"
+        },
+        {
+          "name": "_single",
+          "type": "number"
+        },
+        {
+          "name": "_double",
+          "type": "number"
+        },
+        {
+          "name": "_threshold_g",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_interrupt_polarity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set interrupt polarity (1 = active low)",
+          "type": "label"
+        },
+        {
+          "name": "_active_low",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_mag_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set magnetometer range (µT)",
+          "type": "label"
+        },
+        {
+          "name": "_range_ut",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_mag_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set magnetometer data rate (Hz)",
+          "type": "label"
+        },
+        {
+          "name": "_rate_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_set_mag_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 set magnetometer mode — 0 continuous, 1 single, 2 sleep",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_enable_temperature",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 enable the temperature sensor (1 = on)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 enable an interrupt source (source, pin)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 disable an interrupt source (source, pin)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "lsm303_reboot",
+      "type": "execute",
+      "params": [
+        {
+          "name": "LSM303 reboot the accelerometer",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
