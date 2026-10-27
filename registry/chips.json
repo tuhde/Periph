@@ -117,7 +117,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "lsm303",
       "datasheet": "datasheets/accelerometer/lsm303.pdf"
     },
     {
@@ -138,7 +138,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "lsm303",
       "datasheet": "datasheets/accelerometer/lsm303.pdf"
     },
     {
