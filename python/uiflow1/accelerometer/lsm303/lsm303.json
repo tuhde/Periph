@@ -1,0 +1,55 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lsm303_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LSM303 (accel 0x19 + mag 0x1E)", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" }
+      ]
+    },
+    {
+      "name": "lsm303_accel_x",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_accel_y",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_accel_z",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_x",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic X (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_y",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic Y (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_z",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic Z (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_heading",
+      "type": "value",
+      "params": [{ "name": "LSM303 compass heading (°)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_temperature",
+      "type": "value",
+      "params": [{ "name": "LSM303 temperature delta (°C)", "type": "label" }]
+    }
+  ]
+}

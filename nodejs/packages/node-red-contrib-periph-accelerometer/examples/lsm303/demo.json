@@ -1,0 +1,81 @@
+[
+    {
+        "id": "tab-lsm303-demo",
+        "type": "tab",
+        "label": "LSM303 Tilt-Compensated Electronic Compass",
+        "disabled": false,
+        "info": "Tilt-compensated electronic compass demo for the LSM303DLHC e-compass module. An inject node triggers the periph-lsm303 node once a second; each message carries the 3-axis acceleration (g), the 3-axis magnetic flux density (µT), the tilt-compensated heading (degrees, 0–360), and the relative temperature (°C). A function node formats the heading as a 16-point compass name (N, NNE, NE, …) and derives pitch and roll from the acceleration vector. A debug node shows the values. Rotate and tilt the board: the compass name tracks magnetic north in the horizontal plane while pitch / roll show the board's attitude. Adjust the accelerometer range (±2/±4/±8/±16 g), accelerometer data rate (1 Hz – 5.376 kHz), magnetometer range (±130 – ±810 µT) and magnetometer data rate (0.75 – 220 Hz) in the node configuration to match the application; both I²C addresses (0x19 and 0x1E) are fixed by the module."
+    },
+    {
+        "id": "inj-lsm303-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lsm303-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["lsm303-read"]]
+    },
+    {
+        "id": "lsm303-read",
+        "type": "periph-lsm303",
+        "name": "LSM303 e-compass",
+        "bus": "1",
+        "accelRange": "2",
+        "accelRate": "100",
+        "magRange": "130",
+        "magRate": "15",
+        "z": "tab-lsm303-demo",
+        "x": 330,
+        "y": 100,
+        "wires": [["fn-compass", "dbg-raw"]]
+    },
+    {
+        "id": "fn-compass",
+        "type": "function",
+        "name": "heading name + pitch/roll",
+        "func": "const p = msg.payload;\nconst points = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];\nconst a = p.acceleration;\nconst pitch = Math.atan2(-a.x, Math.sqrt(a.y * a.y + a.z * a.z)) * 180 / Math.PI;\nconst roll = Math.atan2(a.y, a.z) * 180 / Math.PI;\nmsg.payload = {\n    heading_deg: p.heading,\n    compass: points[Math.round(((p.heading % 360) + 360) % 360 / 22.5) % 16],\n    pitch_deg: pitch,\n    roll_deg: roll,\n    temperature_delta_C: p.temperature_delta\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-lsm303-demo",
+        "x": 550,
+        "y": 100,
+        "wires": [["dbg-compass"]]
+    },
+    {
+        "id": "dbg-raw",
+        "type": "debug",
+        "name": "accel + mag + heading",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 530,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-compass",
+        "type": "debug",
+        "name": "compass + tilt",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 760,
+        "y": 100,
+        "wires": []
+    }
+]

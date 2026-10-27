@@ -1,0 +1,193 @@
+{
+  "category": "LSM303",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_LSM303_LANGUAGES = {\n  \"CUSTOM_LSM303_INIT\": {\n    \"en\": \"%1 init I2C bus %2 (accel 0x19 + mag 0x1E)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_X\": {\n    \"en\": \"%1 acceleration X (g)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_Y\": {\n    \"en\": \"%1 acceleration Y (g)\"\n  },\n  \"CUSTOM_LSM303_ACCEL_Z\": {\n    \"en\": \"%1 acceleration Z (g)\"\n  },\n  \"CUSTOM_LSM303_MAG_X\": {\n    \"en\": \"%1 magnetic X (uT)\"\n  },\n  \"CUSTOM_LSM303_MAG_Y\": {\n    \"en\": \"%1 magnetic Y (uT)\"\n  },\n  \"CUSTOM_LSM303_MAG_Z\": {\n    \"en\": \"%1 magnetic Z (uT)\"\n  },\n  \"CUSTOM_LSM303_HEADING\": {\n    \"en\": \"%1 compass heading (deg)\"\n  },\n  \"CUSTOM_LSM303_TEMPERATURE\": {\n    \"en\": \"%1 temperature delta (C)\"\n  }\n};\n\nconst initType = 'custom_lsm303_init';\nBlockly.BlockRegExpList['custom_lsm303'] = {\n  regexp: new RegExp(/^custom_lsm303_/),\n  code: \"from LSM303 import LSM303\",\n  initBlockType: initType,\n  categoryId: 'custom_lsm303',\n}\nBlockly.utils.registerLanguages(CUSTOM_LSM303_LANGUAGES)\n\nBlockly.Msg.CUSTOM_LSM303_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_LSM303 = 'LSM303'\n\nBlockly.utils.getlsm303Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['lsm303_0', 'lsm303_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_lsm303_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_INIT,\n      'args0': [\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'lsm303_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = LSM303(${bus})\\n`\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_mag_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_MAG_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_mag_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_heading\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_HEADING,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_heading\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.heading()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_lsm303_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_LSM303_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getlsm303Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_lsm303_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}",
+    "toolbox": "\n<category name=\"LSM303\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_lsm303\">\n<title text=\"LSM303\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_lsm303_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_lsm303_accel_x\"/><block type=\"custom_lsm303_accel_y\"/><block type=\"custom_lsm303_accel_z\"/><block type=\"custom_lsm303_mag_x\"/><block type=\"custom_lsm303_mag_y\"/><block type=\"custom_lsm303_mag_z\"/><block type=\"custom_lsm303_heading\"/><block type=\"custom_lsm303_temperature\"/>\n</category>\n",
+    "toolboxitemid": "custom_lsm303",
+    "block_type": [
+      "custom_lsm303___init__",
+      "custom_lsm303_accel_x",
+      "custom_lsm303_accel_y",
+      "custom_lsm303_accel_z",
+      "custom_lsm303_mag_x",
+      "custom_lsm303_mag_y",
+      "custom_lsm303_mag_z",
+      "custom_lsm303_heading",
+      "custom_lsm303_temperature"
+    ]
+  },
+  "data": {
+    "name": "LSM303",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "LSM303",
+      "time": "2026-10-27",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.lsm303 import LSM303Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init I2C bus %2 (accel 0x19 + mag 0x1E)"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "min": "0",
+            "max": "7"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver = LSM303Full(I2CConnection(0x19, bus=bus), I2CConnection(0x1E, bus=bus))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[0]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[1]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (g)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_acceleration()[2]",
+        "ast_return": {
+          "code": "self._driver.read_acceleration()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_x",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic X (uT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[0]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_y",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic Y (uT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[1]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_z",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic Z (uT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_magnetic()[2]",
+        "ast_return": {
+          "code": "self._driver.read_magnetic()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "heading",
+        "note": {},
+        "label": {
+          "en": "%1 compass heading (deg)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.heading()",
+        "ast_return": {
+          "code": "self._driver.heading()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature delta (C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_delta()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_delta()",
+          "id": "float"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "lsm303"
+  },
+  "pyCode": "\"\"\"\nfile     LSM303\ntime     2026-10-27\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.accelerometer.lsm303 import LSM303Full\n\n\nclass LSM303:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0):\n        \"\"\"\n        label:\n            en: '%1 init I2C bus %2 (accel 0x19 + mag 0x1E)'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n        \"\"\"\n        self._driver = LSM303Full(I2CConnection(0x19, bus=bus), I2CConnection(0x1E, bus=bus))\n\n    def accel_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[0]\n\n    def accel_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[1]\n\n    def accel_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (g)'\n        \"\"\"\n        return self._driver.read_acceleration()[2]\n\n    def mag_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic X (uT)'\n        \"\"\"\n        return self._driver.read_magnetic()[0]\n\n    def mag_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic Y (uT)'\n        \"\"\"\n        return self._driver.read_magnetic()[1]\n\n    def mag_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic Z (uT)'\n        \"\"\"\n        return self._driver.read_magnetic()[2]\n\n    def heading(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 compass heading (deg)'\n        \"\"\"\n        return self._driver.heading()\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature delta (C)'\n        \"\"\"\n        return self._driver.read_temperature_delta()\n",
+  "version": "alpha2"
+}

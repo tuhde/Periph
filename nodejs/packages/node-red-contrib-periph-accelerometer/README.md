@@ -22,6 +22,7 @@ npm install node-red-contrib-periph-accelerometer
 | `adxl362` | input | Reads 3-axis acceleration from an ADXL362 3-axis ultralow-power accelerometer over SPI. |
 | `bma150-device` | config | I²C bus and address for a BMA150 |
 | `bma150` | input | Reads 3-axis acceleration and on-chip temperature from a BMA150 3-axis accelerometer over I²C. |
+| `periph-lsm303` | input | Reads 3-axis acceleration, 3-axis magnetic flux density, the computed tilt-compensated compass heading, and the relative temperature from an LSM303DLHC e-compass module over I²C. |
 
 ## Links
 
