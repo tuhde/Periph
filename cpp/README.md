@@ -76,6 +76,7 @@ Each chip exposes two classes:
 | LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
+| LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
