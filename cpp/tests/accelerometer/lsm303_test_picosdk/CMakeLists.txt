@@ -12,7 +12,7 @@ set(CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 add_executable(lsm303_test_picosdk
     src/main.cpp
-    ${CPP_DIR}/src/chips/accelerometer/BMA150.cpp
+    ${CPP_DIR}/src/chips/accelerometer/LSM303.cpp
 )
 target_include_directories(lsm303_test_picosdk PRIVATE
     ${CPP_DIR}/src/connection
