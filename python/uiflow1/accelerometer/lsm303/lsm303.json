@@ -1,0 +1,87 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lsm303_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LSM303", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" }
+      ]
+    },
+    {
+      "name": "lsm303_accel_x",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_accel_y",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_accel_z",
+      "type": "value",
+      "params": [{ "name": "LSM303 acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_x",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic field X (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_y",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic field Y (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_mag_z",
+      "type": "value",
+      "params": [{ "name": "LSM303 magnetic field Z (µT)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_heading",
+      "type": "value",
+      "params": [{ "name": "LSM303 tilt-compensated heading (°)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_temperature",
+      "type": "value",
+      "params": [{ "name": "LSM303 temperature delta (°C, relative)", "type": "label" }]
+    },
+    {
+      "name": "lsm303_set_range",
+      "type": "execute",
+      "params": [
+        { "name": "LSM303 set accelerometer range (g)", "type": "label" },
+        { "name": "_range_g", "type": "number" }
+      ]
+    },
+    {
+      "name": "lsm303_set_data_rate",
+      "type": "execute",
+      "params": [
+        { "name": "LSM303 set accelerometer data rate (Hz)", "type": "label" },
+        { "name": "_rate_hz", "type": "number" }
+      ]
+    },
+    {
+      "name": "lsm303_set_mag_range",
+      "type": "execute",
+      "params": [
+        { "name": "LSM303 set magnetometer range (µT)", "type": "label" },
+        { "name": "_range_ut", "type": "number" }
+      ]
+    },
+    {
+      "name": "lsm303_set_mag_data_rate",
+      "type": "execute",
+      "params": [
+        { "name": "LSM303 set magnetometer data rate (Hz)", "type": "label" },
+        { "name": "_rate_hz", "type": "number" }
+      ]
+    }
+  ]
+}

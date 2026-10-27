@@ -1,0 +1,69 @@
+[
+    {
+        "id": "tab-lsm303-demo",
+        "type": "tab",
+        "label": "LSM303 Tilt-Compensated Compass",
+        "disabled": false,
+        "info": "Once a second, reads the LSM303 accelerometer and magnetometer through the periph-lsm303 node. The node returns acceleration in g, magnetic flux density in µT, a tilt-compensated heading and a relative temperature. A function node converts the acceleration into pitch and roll (degrees), maps the heading to a 16-point compass name (N, NNE, ...), and computes the magnetic field magnitude. The debug output shows the result.\n\nWhat to observe: rotate the board while keeping it level and the heading should change with the magnetic field, while pitch and roll stay near 0. Tilting the board changes pitch and roll, and the tilt-compensated heading should stay steady.\n\nAdjust the accelerometer range and data rate, and the magnetometer range and data rate, in the periph-lsm303 node. Keep the board away from motors, speakers and steel. Heading is computed in software; the datasheet does not document the axis alignment between the accelerometer and magnetometer dies or a magnetic declination, so verify on hardware before relying on the value."
+    },
+    {
+        "id": "cfg-lsm303-compass",
+        "type": "periph-lsm303",
+        "name": "LSM303",
+        "bus": "1",
+        "accelRange": "2",
+        "accelRate": "100",
+        "magRange": "130",
+        "magRate": "15",
+        "z": "tab-lsm303-demo",
+        "x": 320,
+        "y": 140,
+        "wires": [["fn-compass"]]
+    },
+    {
+        "id": "inj-lsm303-tick",
+        "type": "inject",
+        "name": "every 1 s",
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lsm303-demo",
+        "x": 120,
+        "y": 140,
+        "wires": [["cfg-lsm303-compass"]]
+    },
+    {
+        "id": "fn-compass",
+        "type": "function",
+        "name": "heading, pitch, roll",
+        "func": "const a = msg.payload.acceleration;\nconst m = msg.payload.magnetic;\nconst h = msg.payload.heading;\n\n// Roll and pitch from the gravity vector (same convention as the tilt-compensated heading).\nconst roll  = Math.atan2(a.y, a.z);\nconst pitch = Math.atan2(-a.x, a.y * Math.sin(roll) + a.z * Math.cos(roll));\n\nconst names = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst point = names[Math.round(h / 22.5) % 16];\n\nconst field = Math.sqrt(m.x * m.x + m.y * m.y + m.z * m.z);\n\nmsg.payload = {\n    heading_deg: Math.round(h * 10) / 10,\n    compass: point,\n    pitch_deg: Math.round(pitch * 180 / Math.PI * 10) / 10,\n    roll_deg: Math.round(roll * 180 / Math.PI * 10) / 10,\n    field_uT: Math.round(field * 10) / 10,\n    temperature_delta_C: msg.payload.temperature_delta\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-lsm303-demo",
+        "x": 520,
+        "y": 140,
+        "wires": [["dbg-lsm303-compass"]]
+    },
+    {
+        "id": "dbg-lsm303-compass",
+        "type": "debug",
+        "name": "compass values",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lsm303-demo",
+        "x": 740,
+        "y": 140,
+        "wires": []
+    }
+]
