@@ -1,0 +1,110 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lsm303', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            bus:         { value: '1', required: true, validate: RED.validators.number() },
+            accelRange:  { value: '2', required: true, validate: RED.validators.number() },
+            accelRate:   { value: '100', required: true, validate: RED.validators.number() },
+            magRange:    { value: '130', required: true, validate: RED.validators.number() },
+            magRate:     { value: '15', required: true, validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-compass',
+        label:   function() { return this.name || ('LSM303 (bus ' + this.bus + ')'); },
+        paletteLabel: 'LSM303'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lsm303">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LSM303">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-accel-range">Accel range</label>
+        <select id="node-input-accel-range" style="width:150px">
+            <option value="2">±2 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+            <option value="16">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-accel-rate">Accel data rate</label>
+        <select id="node-input-accel-rate" style="width:150px">
+            <option value="1">1 Hz</option>
+            <option value="10">10 Hz</option>
+            <option value="25">25 Hz</option>
+            <option value="50">50 Hz</option>
+            <option value="100">100 Hz</option>
+            <option value="200">200 Hz</option>
+            <option value="400">400 Hz</option>
+            <option value="1344">1.344 kHz</option>
+            <option value="1620">1.620 kHz (low-power)</option>
+            <option value="5376">5.376 kHz (low-power)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mag-range">Mag range</label>
+        <select id="node-input-mag-range" style="width:150px">
+            <option value="130">±130 µT</option>
+            <option value="190">±190 µT</option>
+            <option value="250">±250 µT</option>
+            <option value="400">±400 µT</option>
+            <option value="470">±470 µT</option>
+            <option value="560">±560 µT</option>
+            <option value="810">±810 µT</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mag-rate">Mag data rate</label>
+        <select id="node-input-mag-rate" style="width:150px">
+            <option value="0.75">0.75 Hz</option>
+            <option value="1.5">1.5 Hz</option>
+            <option value="3">3 Hz</option>
+            <option value="7.5">7.5 Hz</option>
+            <option value="15">15 Hz</option>
+            <option value="30">30 Hz</option>
+            <option value="75">75 Hz</option>
+            <option value="220">220 Hz</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lsm303">
+    <p>Reads 3-axis acceleration, 3-axis magnetic flux density, the computed tilt-compensated
+    compass heading, and the relative temperature from an LSM303DLHC e-compass module over I²C.</p>
+    <p>Any input message triggers a measurement. The module combines an accelerometer
+    (fixed address <code>0x19</code>) and a magnetometer (fixed address <code>0x1E</code>) on the
+    same bus — both connections are opened by the node; there is no address field.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.acceleration.x / .y / .z <span class="property-type">number</span></dt>
+        <dd>Acceleration in *g*.</dd>
+        <dt>payload.magnetic.x / .y / .z <span class="property-type">number</span></dt>
+        <dd>Magnetic flux density in µT.</dd>
+        <dt>payload.heading <span class="property-type">number</span></dt>
+        <dd>Tilt-compensated compass heading in degrees, 0–360 (magnetic north, atan2(y, x) convention).</dd>
+        <dt>payload.temperature_delta <span class="property-type">number</span></dt>
+        <dd>Relative temperature in °C (8 LSB/°C, no absolute reference), or <code>null</code> if the read failed.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the accelerometer range (±2/±4/±8/±16 *g*), the accelerometer data
+    rate (1 Hz – 5.376 kHz), the magnetometer range (±130 – ±810 µT), and the magnetometer data
+    rate (0.75 – 220 Hz). Both I²C addresses are fixed by the module.</p>
+</script>
