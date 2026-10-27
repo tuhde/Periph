@@ -108,6 +108,8 @@ LPS28DFWFull	KEYWORD1
 LPS28DFWMinimal	KEYWORD1
 LPS33HWFull	KEYWORD1
 LPS33HWMinimal	KEYWORD1
+LSM303Full	KEYWORD1
+LSM303Minimal	KEYWORD1
 MCP23017Full	KEYWORD1
 MCP23017Minimal	KEYWORD1
 MCP2515Full	KEYWORD1
@@ -407,6 +409,7 @@ enable_oor_interrupt	KEYWORD2
 enable_proximity	KEYWORD2
 enable_proximity_interrupt	KEYWORD2
 enable_rds	KEYWORD2
+enable_temperature	KEYWORD2
 enable_wait	KEYWORD2
 erase	KEYWORD2
 erase_block_32k	KEYWORD2
@@ -469,6 +472,7 @@ halt_card	KEYWORD2
 hardware_reset	KEYWORD2
 has_red	KEYWORD2
 hdop	KEYWORD2
+heading	KEYWORD2
 heater_stable	KEYWORD2
 height	KEYWORD2
 high	KEYWORD2
@@ -533,6 +537,7 @@ longitude	KEYWORD2
 low	KEYWORD2
 lux	KEYWORD2
 mag	KEYWORD2
+mag_data_ready	KEYWORD2
 mag_raw	KEYWORD2
 magnetic_field	KEYWORD2
 magnitude	KEYWORD2
@@ -556,11 +561,13 @@ odr_is_valid	KEYWORD2
 off	KEYWORD2
 offEdge	KEYWORD2
 offInterrupt	KEYWORD2
+off_interrupt	KEYWORD2
 offset	KEYWORD2
 offsetCalibration	KEYWORD2
 ok	KEYWORD2
 onEdge	KEYWORD2
 onInterrupt	KEYWORD2
+on_interrupt	KEYWORD2
 one_shot	KEYWORD2
 oneshot	KEYWORD2
 oor_status	KEYWORD2
@@ -605,6 +612,8 @@ readTemperature	KEYWORD2
 readTimerA	KEYWORD2
 readTimerB	KEYWORD2
 read_8bit	KEYWORD2
+read_acceleration	KEYWORD2
+read_acceleration_raw	KEYWORD2
 read_air_quality	KEYWORD2
 read_all	KEYWORD2
 read_all_voltage	KEYWORD2
@@ -616,6 +625,7 @@ read_bytes	KEYWORD2
 read_capture	KEYWORD2
 read_channel	KEYWORD2
 read_channel_voltage	KEYWORD2
+read_click_source	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_customer	KEYWORD2
 read_device_code	KEYWORD2
@@ -624,12 +634,17 @@ read_eco2	KEYWORD2
 read_errors	KEYWORD2
 read_ethanol	KEYWORD2
 read_fifo	KEYWORD2
+read_fifo_status	KEYWORD2
 read_forced	KEYWORD2
 read_gesture_fifo	KEYWORD2
 read_humidity	KEYWORD2
 read_int_source	KEYWORD2
 read_interrupt_source	KEYWORD2
 read_low_power	KEYWORD2
+read_mag_identity	KEYWORD2
+read_mag_status	KEYWORD2
+read_magnetic	KEYWORD2
+read_magnetic_raw	KEYWORD2
 read_manufacturer_code	KEYWORD2
 read_oneshot	KEYWORD2
 read_otp	KEYWORD2
@@ -648,6 +663,7 @@ read_sfdp	KEYWORD2
 read_status	KEYWORD2
 read_supply_diff_raw	KEYWORD2
 read_temperature	KEYWORD2
+read_temperature_delta	KEYWORD2
 read_temperature_raw	KEYWORD2
 read_tvoc	KEYWORD2
 read_uid	KEYWORD2
@@ -667,6 +683,7 @@ refresh_auto	KEYWORD2
 release_deep_power_down	KEYWORD2
 reset	KEYWORD2
 reset_fifo	KEYWORD2
+reset_high_pass	KEYWORD2
 reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
@@ -754,6 +771,7 @@ set_auto_sleep	KEYWORD2
 set_autorifp	KEYWORD2
 set_autosleep	KEYWORD2
 set_autozero	KEYWORD2
+set_axes	KEYWORD2
 set_bandwidth	KEYWORD2
 set_bank	KEYWORD2
 set_baseline	KEYWORD2
@@ -763,6 +781,7 @@ set_bias_ratio	KEYWORD2
 set_blink	KEYWORD2
 set_booster	KEYWORD2
 set_brightness	KEYWORD2
+set_click	KEYWORD2
 set_compensation	KEYWORD2
 set_contrast	KEYWORD2
 set_crc	KEYWORD2
@@ -785,6 +804,7 @@ set_duration	KEYWORD2
 set_entry_mode	KEYWORD2
 set_external_clock	KEYWORD2
 set_external_sample_trigger	KEYWORD2
+set_fifo	KEYWORD2
 set_fifo_mode	KEYWORD2
 set_fifo_watermark	KEYWORD2
 set_filter	KEYWORD2
@@ -803,6 +823,7 @@ set_heater	KEYWORD2
 set_heater_off	KEYWORD2
 set_heater_profile	KEYWORD2
 set_high_g	KEYWORD2
+set_high_pass	KEYWORD2
 set_iir_filter	KEYWORD2
 set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
@@ -819,6 +840,9 @@ set_link_loop_mode	KEYWORD2
 set_link_mode	KEYWORD2
 set_low_g	KEYWORD2
 set_low_power	KEYWORD2
+set_mag_data_rate	KEYWORD2
+set_mag_mode	KEYWORD2
+set_mag_range	KEYWORD2
 set_mask	KEYWORD2
 set_master_current	KEYWORD2
 set_max_angle	KEYWORD2
@@ -826,6 +850,7 @@ set_max_chunk	KEYWORD2
 set_max_position	KEYWORD2
 set_mode	KEYWORD2
 set_mono	KEYWORD2
+set_motion_interrupt	KEYWORD2
 set_nline_inversion	KEYWORD2
 set_noise_mode	KEYWORD2
 set_odr	KEYWORD2
@@ -833,6 +858,7 @@ set_offset	KEYWORD2
 set_offset_calibration	KEYWORD2
 set_one_shot	KEYWORD2
 set_oor_threshold	KEYWORD2
+set_orientation	KEYWORD2
 set_output_enable	KEYWORD2
 set_oversampling	KEYWORD2
 set_panel_loading	KEYWORD2
@@ -856,6 +882,7 @@ set_range	KEYWORD2
 set_rate	KEYWORD2
 set_raw	KEYWORD2
 set_raw_eeprom	KEYWORD2
+set_reference	KEYWORD2
 set_remap	KEYWORD2
 set_rx_mode	KEYWORD2
 set_scale	KEYWORD2
@@ -971,6 +998,7 @@ zero_position	KEYWORD2
 # Constants (LITERAL1)
 #######################################
 
+ACCEL_I2C_ADDRESS	LITERAL1
 ADC_10BIT	LITERAL1
 ADC_11BIT	LITERAL1
 ADC_12BIT	LITERAL1
@@ -1028,6 +1056,7 @@ BLINK_OFF	LITERAL1
 BLOCK_SIZE	LITERAL1
 BLUE	LITERAL1
 BOL	LITERAL1
+BOOT_I1	LITERAL1
 BRNG_16V	LITERAL1
 BRNG_32V	LITERAL1
 BUFFER_SIZE	LITERAL1
@@ -1238,8 +1267,17 @@ HPM_AUTORESET	LITERAL1
 HPM_NORMAL	LITERAL1
 HPM_NORMAL_ALT	LITERAL1
 HPM_REFERENCE	LITERAL1
+I1_AOI1	LITERAL1
+I1_AOI2	LITERAL1
+I1_CLICK	LITERAL1
+I1_DRDY1	LITERAL1
+I1_OVERRUN	LITERAL1
+I1_WTM	LITERAL1
 I2C_ADDRESS	LITERAL1
 I2C_CHUNK	LITERAL1
+I2_CLICK	LITERAL1
+I2_INT1	LITERAL1
+I2_INT2	LITERAL1
 IIR_BYPASS	LITERAL1
 IIR_COEFF_1	LITERAL1
 IIR_COEFF_127	LITERAL1
@@ -1278,6 +1316,7 @@ LINKLOOP_LOOP	LITERAL1
 LPFP_BW_ODR_20	LITERAL1
 LPFP_BW_ODR_9	LITERAL1
 MAGENTA	LITERAL1
+MAG_I2C_ADDRESS	LITERAL1
 MANUFACTURER_ID	LITERAL1
 MAX_ATTEMPTS	LITERAL1
 MAX_DEVICES	LITERAL1
@@ -1404,6 +1443,8 @@ SOURCE_ARF	LITERAL1
 SOURCE_AWAKE	LITERAL1
 SOURCE_BATTERY_LOW	LITERAL1
 SOURCE_BATTERY_SWITCH	LITERAL1
+SOURCE_BOOT	LITERAL1
+SOURCE_CLICK	LITERAL1
 SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
 SOURCE_FIFO_OVERRUN	LITERAL1
@@ -1411,6 +1452,8 @@ SOURCE_FIFO_READY	LITERAL1
 SOURCE_FIFO_WATERMARK	LITERAL1
 SOURCE_HIGH	LITERAL1
 SOURCE_HIGH_G	LITERAL1
+SOURCE_IA1	LITERAL1
+SOURCE_IA2	LITERAL1
 SOURCE_INACT	LITERAL1
 SOURCE_IN_WINDOW	LITERAL1
 SOURCE_LEVEL_HIGH	LITERAL1
@@ -1418,14 +1461,17 @@ SOURCE_LEVEL_LOW	LITERAL1
 SOURCE_LOW	LITERAL1
 SOURCE_LOWER	LITERAL1
 SOURCE_LOW_G	LITERAL1
+SOURCE_MAG_DATA_READY	LITERAL1
 SOURCE_NEW_DATA	LITERAL1
 SOURCE_NEW_SAMPLE_READY	LITERAL1
 SOURCE_OOR	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
+SOURCE_OVERRUN	LITERAL1
 SOURCE_SECOND	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
 SOURCE_UPPER	LITERAL1
+SOURCE_WATERMARK	LITERAL1
 SPACE_100K	LITERAL1
 SPACE_200K	LITERAL1
 SPACE_25K	LITERAL1

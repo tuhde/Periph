@@ -29,6 +29,7 @@
 #include "chips/accelerometer/ADXL345.h"
 #include "chips/accelerometer/ADXL362.h"
 #include "chips/accelerometer/BMA150.h"
+#include "chips/accelerometer/LSM303.h"
 #include "chips/adc_dac/AD7705.h"
 #include "chips/adc_dac/AD7706.h"
 #include "chips/adc_dac/HX710A.h"
