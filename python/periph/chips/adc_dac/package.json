@@ -25,6 +25,10 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/hx711.py"
     ],
     [
+      "periph/chips/adc_dac/hy3131.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/hy3131.py"
+    ],
+    [
       "periph/chips/adc_dac/mcp4725.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/mcp4725.py"
     ],

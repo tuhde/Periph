@@ -1,0 +1,204 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "hy3131_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init HY3131", "type": "label" },
+        { "name": "SPI bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "CS pin", "type": "label" },
+        { "name": "_cs", "type": "number" },
+        { "name": "REFO voltage (V)", "type": "label" },
+        { "name": "_vref", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_raw",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read AD1 raw code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_read_voltage",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read AD1 voltage V", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_data_ready",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 AD1 data ready", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_configure_ad1",
+      "type": "execute",
+      "params": [
+        { "name": "Configure HY3131 AD1", "type": "label" },
+        { "name": "osr (0-7)", "type": "label" },
+        { "name": "_osr", "type": "number" },
+        { "name": "chop (0-3)", "type": "label" },
+        { "name": "_chop", "type": "number" },
+        { "name": "input gain (0-3)", "type": "label" },
+        { "name": "_input_gain", "type": "number" },
+        { "name": "ref gain (0-1)", "type": "label" },
+        { "name": "_ref_gain", "type": "number" },
+        { "name": "offset (0-7)", "type": "label" },
+        { "name": "_offset", "type": "number" },
+        { "name": "buffers (0-15)", "type": "label" },
+        { "name": "_buffers", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_set_ad1_input",
+      "type": "execute",
+      "params": [
+        { "name": "Set HY3131 AD1 input", "type": "label" },
+        { "name": "pos (0-15)", "type": "label" },
+        { "name": "_pos", "type": "number" },
+        { "name": "neg (0-7)", "type": "label" },
+        { "name": "_neg", "type": "number" },
+        { "name": "filter R (0-3)", "type": "label" },
+        { "name": "_filter_r", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_set_ad1_reference",
+      "type": "execute",
+      "params": [
+        { "name": "Set HY3131 AD1 reference", "type": "label" },
+        { "name": "high (0-6)", "type": "label" },
+        { "name": "_high", "type": "number" },
+        { "name": "low (0-6)", "type": "label" },
+        { "name": "_low", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_temperature_code",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read temperature code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_read_temperature",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read temperature C", "type": "label" },
+        { "name": "code at 25 C", "type": "label" },
+        { "name": "_tcode_25", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_enable_ad2",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HY3131 AD2", "type": "label" },
+        { "name": "osr (0-7)", "type": "label" },
+        { "name": "_osr", "type": "number" },
+        { "name": "input gain (0-3)", "type": "label" },
+        { "name": "_input_gain", "type": "number" },
+        { "name": "source (0-3)", "type": "label" },
+        { "name": "_source", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_ad2_raw",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read AD2 raw code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_enable_lpf",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HY3131 low-pass filter", "type": "label" },
+        { "name": "bw (0-7)", "type": "label" },
+        { "name": "_bw", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_lpf_raw",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read LPF raw code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_enable_rms",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HY3131 RMS converter", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_read_rms",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read RMS (LSB)", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_enable_peak_hold",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HY3131 peak hold", "type": "label" },
+        { "name": "source (0-3)", "type": "label" },
+        { "name": "_source", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_peak_min",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read peak minimum code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_read_peak_max",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read peak maximum code", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_start_counter",
+      "type": "execute",
+      "params": [
+        { "name": "Start HY3131 frequency counter", "type": "label" },
+        { "name": "gate preload (0-65535)", "type": "label" },
+        { "name": "_gate_preload", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_read_flags",
+      "type": "value",
+      "params": [
+        { "name": "HY3131 read INTF flags", "type": "label" }
+      ]
+    },
+    {
+      "name": "hy3131_enable_interrupts",
+      "type": "execute",
+      "params": [
+        { "name": "Enable HY3131 interrupts", "type": "label" },
+        { "name": "mask (0-31)", "type": "label" },
+        { "name": "_mask", "type": "number" }
+      ]
+    },
+    {
+      "name": "hy3131_reset",
+      "type": "execute",
+      "params": [
+        { "name": "Reset HY3131", "type": "label" }
+      ]
+    }
+  ]
+}
