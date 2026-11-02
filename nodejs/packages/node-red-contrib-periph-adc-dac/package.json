@@ -19,7 +19,8 @@
       "mcp4728": "nodes/mcp4728/mcp4728.js",
       "pcf8591": "nodes/pcf8591/pcf8591.js",
       "ad7705": "nodes/ad7705/ad7705.js",
-      "ad7706": "nodes/ad7706/ad7706.js"
+      "ad7706": "nodes/ad7706/ad7706.js",
+      "hy3131": "nodes/hy3131/hy3131.js"
     }
   },
   "dependencies": {
