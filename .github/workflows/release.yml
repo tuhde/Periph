@@ -257,6 +257,7 @@ jobs:
   jvm-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: maven-central
     steps:
       - uses: actions/checkout@v6
 
@@ -296,6 +297,7 @@ jobs:
   arduino-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: arduino-library
     steps:
       - uses: actions/checkout@v6
 
