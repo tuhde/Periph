@@ -147,7 +147,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| HY3131 | DMM analog front end (24-bit ADC) |  |  |  |  |  |  |  |  |
+| HY3131 | DMM analog front end (24-bit ADC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ICM-20948 | IMU (9-axis) |  |  |  |  |  |  |  |  |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
