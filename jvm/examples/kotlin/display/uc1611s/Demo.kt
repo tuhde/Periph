@@ -1,8 +1,8 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA 22+
 //JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
-//DEPS it.uhde:periph-connection:1.3.0
-//DEPS it.uhde:periph-kotlin:1.3.0
+//DEPS it.uhde:periph-connection:1.3.1
+//DEPS it.uhde:periph-kotlin:1.3.1
 // UC1611s demo example: EA DOGXL240-7 (240 x 128, 3.3 V only) over I2C on a Raspberry Pi (JVM).
 // Wiring: SDA=GPIO2, SCL=GPIO3 (/dev/i2c-1), VDD = 3V3; module pins BM0 = D13 = VDD, CD = A2 = A3 = VSS -> command 0x38 / data 0x39.
 // Capacitors: 4 x 4.7 uF/5 V (VA0, VA1, VB0, VB1 pairs), 470 nF/25 V on VLCD; pull-ups 2-4.7 k to 3.3 V. Demo: a bouncing ball with partial page updates, a contrast sweep, inverse flashes, hardware scroll, a second RAM screen and sleep.
