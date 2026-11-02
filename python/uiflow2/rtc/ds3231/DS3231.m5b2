@@ -1,0 +1,612 @@
+{
+  "category": "DS3231",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_DS3231_LANGUAGES = {\n  \"CUSTOM_DS3231_INIT\": {\n    \"en\": \"%1 init bus %2 address %3\"\n  },\n  \"CUSTOM_DS3231_SET_DATETIME\": {\n    \"en\": \"%1 set date/time year %2 month %3 day %4 weekday %5 hour %6 minute %7 second %8\"\n  },\n  \"CUSTOM_DS3231_YEAR\": {\n    \"en\": \"%1 year\"\n  },\n  \"CUSTOM_DS3231_MONTH\": {\n    \"en\": \"%1 month\"\n  },\n  \"CUSTOM_DS3231_DAY\": {\n    \"en\": \"%1 day\"\n  },\n  \"CUSTOM_DS3231_WEEKDAY\": {\n    \"en\": \"%1 weekday (1=Mon..7=Sun)\"\n  },\n  \"CUSTOM_DS3231_HOUR\": {\n    \"en\": \"%1 hour\"\n  },\n  \"CUSTOM_DS3231_MINUTE\": {\n    \"en\": \"%1 minute\"\n  },\n  \"CUSTOM_DS3231_SECOND\": {\n    \"en\": \"%1 second\"\n  },\n  \"CUSTOM_DS3231_READ_TEMPERATURE\": {\n    \"en\": \"%1 read temperature (°C)\"\n  },\n  \"CUSTOM_DS3231_FORCE_TEMPERATURE_CONVERSION\": {\n    \"en\": \"%1 force temperature conversion\"\n  },\n  \"CUSTOM_DS3231_SET_ALARM1\": {\n    \"en\": \"%1 set alarm 1 second %2 minute %3 hour %4 day/date %5 is day of week %6 match mode %7\"\n  },\n  \"CUSTOM_DS3231_SET_ALARM2\": {\n    \"en\": \"%1 set alarm 2 minute %2 hour %3 day/date %4 is day of week %5 match mode %6\"\n  },\n  \"CUSTOM_DS3231_ENABLE_SQUARE_WAVE\": {\n    \"en\": \"%1 enable square wave rate %2 Hz battery backed %3\"\n  },\n  \"CUSTOM_DS3231_DISABLE_SQUARE_WAVE\": {\n    \"en\": \"%1 disable square wave\"\n  },\n  \"CUSTOM_DS3231_ENABLE_32KHZ_OUTPUT\": {\n    \"en\": \"%1 enable 32kHz output\"\n  },\n  \"CUSTOM_DS3231_DISABLE_32KHZ_OUTPUT\": {\n    \"en\": \"%1 disable 32kHz output\"\n  },\n  \"CUSTOM_DS3231_OSCILLATOR_STOPPED\": {\n    \"en\": \"%1 oscillator stopped?\"\n  },\n  \"CUSTOM_DS3231_CLEAR_OSCILLATOR_STOPPED\": {\n    \"en\": \"%1 clear oscillator stop flag\"\n  },\n  \"CUSTOM_DS3231_GET_AGING_OFFSET\": {\n    \"en\": \"%1 aging offset\"\n  },\n  \"CUSTOM_DS3231_SET_AGING_OFFSET\": {\n    \"en\": \"%1 set aging offset %2\"\n  },\n  \"CUSTOM_DS3231_ENABLE_INTERRUPT\": {\n    \"en\": \"%1 enable interrupt source %2\"\n  },\n  \"CUSTOM_DS3231_DISABLE_INTERRUPT\": {\n    \"en\": \"%1 disable interrupt source %2\"\n  },\n  \"CUSTOM_DS3231_POLL_INTERRUPT\": {\n    \"en\": \"%1 poll interrupt status\"\n  }\n};\n\nconst initType = 'custom_ds3231_init';\nBlockly.BlockRegExpList['custom_ds3231'] = {\n  regexp: new RegExp(/^custom_ds3231_/),\n  code: \"from DS3231 import DS3231\",\n  initBlockType: initType,\n  categoryId: 'custom_ds3231',\n}\nBlockly.utils.registerLanguages(CUSTOM_DS3231_LANGUAGES)\n\nBlockly.Msg.CUSTOM_DS3231_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_DS3231 = 'DS3231'\n\nBlockly.utils.getcustom_ds3231Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['ds3231_0', 'ds3231_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_ds3231_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_ds3231Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'ds3231_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = DS3231(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_set_datetime\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_SET_DATETIME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'year'\n        },\n        {\n          'type': 'input_value',\n          'name': 'month'\n        },\n        {\n          'type': 'input_value',\n          'name': 'day'\n        },\n        {\n          'type': 'input_value',\n          'name': 'weekday'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hour'\n        },\n        {\n          'type': 'input_value',\n          'name': 'minute'\n        },\n        {\n          'type': 'input_value',\n          'name': 'second'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_set_datetime\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var year = Blockly.Python.valueToCode(block, 'year', Blockly.Python.ORDER_FUNCTION_CALL);\n  var month = Blockly.Python.valueToCode(block, 'month', Blockly.Python.ORDER_FUNCTION_CALL);\n  var day = Blockly.Python.valueToCode(block, 'day', Blockly.Python.ORDER_FUNCTION_CALL);\n  var weekday = Blockly.Python.valueToCode(block, 'weekday', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hour = Blockly.Python.valueToCode(block, 'hour', Blockly.Python.ORDER_FUNCTION_CALL);\n  var minute = Blockly.Python.valueToCode(block, 'minute', Blockly.Python.ORDER_FUNCTION_CALL);\n  var second = Blockly.Python.valueToCode(block, 'second', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_datetime(${year}, ${month}, ${day}, ${weekday}, ${hour}, ${minute}, ${second})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_year\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_YEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_year\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.year()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_month\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_MONTH,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_month\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.month()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_day\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_DAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_day\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.day()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_weekday\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_WEEKDAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_weekday\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.weekday()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_hour\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_HOUR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_hour\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.hour()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_minute\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_MINUTE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_minute\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.minute()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_second\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_SECOND,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_second\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.second()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_READ_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_force_temperature_conversion\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_FORCE_TEMPERATURE_CONVERSION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_force_temperature_conversion\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.force_temperature_conversion()\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_set_alarm1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_SET_ALARM1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'second'\n        },\n        {\n          'type': 'input_value',\n          'name': 'minute'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hour'\n        },\n        {\n          'type': 'input_value',\n          'name': 'day_or_date'\n        },\n        {\n          'type': 'input_value',\n          'name': 'is_day_of_week'\n        },\n        {\n          'type': 'input_value',\n          'name': 'match_mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_set_alarm1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var second = Blockly.Python.valueToCode(block, 'second', Blockly.Python.ORDER_FUNCTION_CALL);\n  var minute = Blockly.Python.valueToCode(block, 'minute', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hour = Blockly.Python.valueToCode(block, 'hour', Blockly.Python.ORDER_FUNCTION_CALL);\n  var day_or_date = Blockly.Python.valueToCode(block, 'day_or_date', Blockly.Python.ORDER_FUNCTION_CALL);\n  var is_day_of_week = Blockly.Python.valueToCode(block, 'is_day_of_week', Blockly.Python.ORDER_FUNCTION_CALL);\n  var match_mode = Blockly.Python.valueToCode(block, 'match_mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_alarm1(${second}, ${minute}, ${hour}, ${day_or_date}, ${is_day_of_week}, ${match_mode})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_set_alarm2\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_SET_ALARM2,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'minute'\n        },\n        {\n          'type': 'input_value',\n          'name': 'hour'\n        },\n        {\n          'type': 'input_value',\n          'name': 'day_or_date'\n        },\n        {\n          'type': 'input_value',\n          'name': 'is_day_of_week'\n        },\n        {\n          'type': 'input_value',\n          'name': 'match_mode'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_set_alarm2\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var minute = Blockly.Python.valueToCode(block, 'minute', Blockly.Python.ORDER_FUNCTION_CALL);\n  var hour = Blockly.Python.valueToCode(block, 'hour', Blockly.Python.ORDER_FUNCTION_CALL);\n  var day_or_date = Blockly.Python.valueToCode(block, 'day_or_date', Blockly.Python.ORDER_FUNCTION_CALL);\n  var is_day_of_week = Blockly.Python.valueToCode(block, 'is_day_of_week', Blockly.Python.ORDER_FUNCTION_CALL);\n  var match_mode = Blockly.Python.valueToCode(block, 'match_mode', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_alarm2(${minute}, ${hour}, ${day_or_date}, ${is_day_of_week}, ${match_mode})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_enable_square_wave\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_ENABLE_SQUARE_WAVE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'rate_hz'\n        },\n        {\n          'type': 'input_value',\n          'name': 'battery_backed'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_enable_square_wave\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var rate_hz = Blockly.Python.valueToCode(block, 'rate_hz', Blockly.Python.ORDER_FUNCTION_CALL);\n  var battery_backed = Blockly.Python.valueToCode(block, 'battery_backed', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_square_wave(${rate_hz}, ${battery_backed})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_disable_square_wave\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_DISABLE_SQUARE_WAVE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_disable_square_wave\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_square_wave()\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_enable_32khz_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_ENABLE_32KHZ_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_enable_32khz_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_32khz_output()\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_disable_32khz_output\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_DISABLE_32KHZ_OUTPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_disable_32khz_output\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.disable_32khz_output()\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_oscillator_stopped\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_OSCILLATOR_STOPPED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_oscillator_stopped\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.oscillator_stopped()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_clear_oscillator_stopped\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_CLEAR_OSCILLATOR_STOPPED,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_clear_oscillator_stopped\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear_oscillator_stopped()\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_get_aging_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_GET_AGING_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_get_aging_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.get_aging_offset()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_ds3231_set_aging_offset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_SET_AGING_OFFSET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_set_aging_offset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var offset = Blockly.Python.valueToCode(block, 'offset', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_aging_offset(${offset})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_enable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_ENABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_enable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_disable_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_DISABLE_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_disable_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.disable_interrupt(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_ds3231_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_DS3231_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_ds3231Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_ds3231_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n",
+    "toolbox": "\n<category name=\"DS3231\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_ds3231\">\n<title text=\"DS3231\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_ds3231_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">104</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_set_datetime\">\n  <value name=\"year\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2026</field>\n    </shadow>\n  </value>\n  <value name=\"month\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"day\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"weekday\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"hour\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"minute\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"second\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_year\"/><block type=\"custom_ds3231_month\"/><block type=\"custom_ds3231_day\"/><block type=\"custom_ds3231_weekday\"/><block type=\"custom_ds3231_hour\"/><block type=\"custom_ds3231_minute\"/><block type=\"custom_ds3231_second\"/><block type=\"custom_ds3231_read_temperature\"/><block type=\"custom_ds3231_force_temperature_conversion\"/><block type=\"custom_ds3231_set_alarm1\">\n  <value name=\"second\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"minute\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"hour\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"day_or_date\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"is_day_of_week\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"match_mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_set_alarm2\">\n  <value name=\"minute\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"hour\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"day_or_date\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"is_day_of_week\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"match_mode\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_enable_square_wave\">\n  <value name=\"rate_hz\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">8192</field>\n    </shadow>\n  </value>\n  <value name=\"battery_backed\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_disable_square_wave\"/><block type=\"custom_ds3231_enable_32khz_output\"/><block type=\"custom_ds3231_disable_32khz_output\"/><block type=\"custom_ds3231_oscillator_stopped\"/><block type=\"custom_ds3231_clear_oscillator_stopped\"/><block type=\"custom_ds3231_get_aging_offset\"/><block type=\"custom_ds3231_set_aging_offset\">\n  <value name=\"offset\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_enable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_disable_interrupt\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_ds3231_poll_interrupt\"/>\n</category>\n",
+    "toolboxitemid": "custom_ds3231",
+    "block_type": [
+      "custom_ds3231___init__",
+      "custom_ds3231_set_datetime",
+      "custom_ds3231_year",
+      "custom_ds3231_month",
+      "custom_ds3231_day",
+      "custom_ds3231_weekday",
+      "custom_ds3231_hour",
+      "custom_ds3231_minute",
+      "custom_ds3231_second",
+      "custom_ds3231_read_temperature",
+      "custom_ds3231_force_temperature_conversion",
+      "custom_ds3231_set_alarm1",
+      "custom_ds3231_set_alarm2",
+      "custom_ds3231_enable_square_wave",
+      "custom_ds3231_disable_square_wave",
+      "custom_ds3231_enable_32khz_output",
+      "custom_ds3231_disable_32khz_output",
+      "custom_ds3231_oscillator_stopped",
+      "custom_ds3231_clear_oscillator_stopped",
+      "custom_ds3231_get_aging_offset",
+      "custom_ds3231_set_aging_offset",
+      "custom_ds3231_enable_interrupt",
+      "custom_ds3231_disable_interrupt",
+      "custom_ds3231_poll_interrupt"
+    ]
+  },
+  "data": {
+    "name": "DS3231",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "DS3231",
+      "time": "2026-09-22",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rtc.ds3231 import DS3231Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "104",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = DS3231Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_datetime",
+        "note": {},
+        "label": {
+          "en": "%1 set date/time year %2 month %3 day %4 weekday %5 hour %6 minute %7 second %8"
+        },
+        "params": [
+          {
+            "name": "year",
+            "type": "int",
+            "default": "2026",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "month",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "day",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "weekday",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hour",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "minute",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "second",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_datetime(year, month, day, weekday, hour, minute, second)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "year",
+        "note": {},
+        "label": {
+          "en": "%1 year"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[0]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "month",
+        "note": {},
+        "label": {
+          "en": "%1 month"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[1]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "day",
+        "note": {},
+        "label": {
+          "en": "%1 day"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[2]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[2]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "weekday",
+        "note": {},
+        "label": {
+          "en": "%1 weekday (1=Mon..7=Sun)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[3]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[3]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "hour",
+        "note": {},
+        "label": {
+          "en": "%1 hour"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[4]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[4]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "minute",
+        "note": {},
+        "label": {
+          "en": "%1 minute"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[5]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[5]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "second",
+        "note": {},
+        "label": {
+          "en": "%1 second"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_datetime()[6]",
+        "ast_return": {
+          "code": "self._driver.get_datetime()[6]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 read temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature()",
+        "ast_return": {
+          "code": "self._driver.read_temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "force_temperature_conversion",
+        "note": {},
+        "label": {
+          "en": "%1 force temperature conversion"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.force_temperature_conversion()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_alarm1",
+        "note": {},
+        "label": {
+          "en": "%1 set alarm 1 second %2 minute %3 hour %4 day/date %5 is day of week %6 match mode %7"
+        },
+        "params": [
+          {
+            "name": "second",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "minute",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hour",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "day_or_date",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "is_day_of_week",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "match_mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "5",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_alarm1(second, minute, hour, day_or_date,\n                                 bool(is_day_of_week), match_mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_alarm2",
+        "note": {},
+        "label": {
+          "en": "%1 set alarm 2 minute %2 hour %3 day/date %4 is day of week %5 match mode %6"
+        },
+        "params": [
+          {
+            "name": "minute",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "hour",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "day_or_date",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "is_day_of_week",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "match_mode",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "4",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_alarm2(minute, hour, day_or_date, bool(is_day_of_week), match_mode)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_square_wave",
+        "note": {},
+        "label": {
+          "en": "%1 enable square wave rate %2 Hz battery backed %3"
+        },
+        "params": [
+          {
+            "name": "rate_hz",
+            "type": "int",
+            "default": "8192",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "battery_backed",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_square_wave(rate_hz, bool(battery_backed))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_square_wave",
+        "note": {},
+        "label": {
+          "en": "%1 disable square wave"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_square_wave()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_32khz_output",
+        "note": {},
+        "label": {
+          "en": "%1 enable 32kHz output"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_32khz_output()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_32khz_output",
+        "note": {},
+        "label": {
+          "en": "%1 disable 32kHz output"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.disable_32khz_output()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "oscillator_stopped",
+        "note": {},
+        "label": {
+          "en": "%1 oscillator stopped?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.oscillator_stopped()",
+        "ast_return": {
+          "code": "self._driver.oscillator_stopped()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear_oscillator_stopped",
+        "note": {},
+        "label": {
+          "en": "%1 clear oscillator stop flag"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear_oscillator_stopped()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "get_aging_offset",
+        "note": {},
+        "label": {
+          "en": "%1 aging offset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.get_aging_offset()",
+        "ast_return": {
+          "code": "self._driver.get_aging_offset()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_aging_offset",
+        "note": {},
+        "label": {
+          "en": "%1 set aging offset %2"
+        },
+        "params": [
+          {
+            "name": "offset",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "127",
+            "min": "-128"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_aging_offset(offset)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupt source %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "disable_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 disable interrupt source %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.disable_interrupt(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 poll interrupt status"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "ds3231"
+  },
+  "pyCode": "\"\"\"\nfile     DS3231\ntime     2026-09-22\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.rtc.ds3231 import DS3231Full\n\n\nclass DS3231:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 104):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '104'\n                field: number\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = DS3231Full(connection)\n\n    def set_datetime(self, year: int, month: int, day: int, weekday: int,\n                      hour: int, minute: int, second: int):\n        \"\"\"\n        label:\n            en: '%1 set date/time year %2 month %3 day %4 weekday %5 hour %6 minute %7 second %8'\n        params:\n            year:\n                name: year\n                type: int\n                default: '2026'\n                field: number\n            month:\n                name: month\n                type: int\n                default: '1'\n                field: number\n            day:\n                name: day\n                type: int\n                default: '1'\n                field: number\n            weekday:\n                name: weekday\n                type: int\n                default: '1'\n                field: number\n            hour:\n                name: hour\n                type: int\n                default: '0'\n                field: number\n            minute:\n                name: minute\n                type: int\n                default: '0'\n                field: number\n            second:\n                name: second\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_datetime(year, month, day, weekday, hour, minute, second)\n\n    def year(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 year'\n        \"\"\"\n        return self._driver.get_datetime()[0]\n\n    def month(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 month'\n        \"\"\"\n        return self._driver.get_datetime()[1]\n\n    def day(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 day'\n        \"\"\"\n        return self._driver.get_datetime()[2]\n\n    def weekday(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 weekday (1=Mon..7=Sun)'\n        \"\"\"\n        return self._driver.get_datetime()[3]\n\n    def hour(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 hour'\n        \"\"\"\n        return self._driver.get_datetime()[4]\n\n    def minute(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 minute'\n        \"\"\"\n        return self._driver.get_datetime()[5]\n\n    def second(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 second'\n        \"\"\"\n        return self._driver.get_datetime()[6]\n\n    def read_temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read temperature (°C)'\n        \"\"\"\n        return self._driver.read_temperature()\n\n    def force_temperature_conversion(self):\n        \"\"\"\n        label:\n            en: '%1 force temperature conversion'\n        \"\"\"\n        self._driver.force_temperature_conversion()\n\n    def set_alarm1(self, second: int, minute: int, hour: int, day_or_date: int,\n                    is_day_of_week: int, match_mode: int):\n        \"\"\"\n        label:\n            en: '%1 set alarm 1 second %2 minute %3 hour %4 day/date %5 is day of week %6 match mode %7'\n        params:\n            second:\n                name: second\n                type: int\n                default: '0'\n                field: number\n            minute:\n                name: minute\n                type: int\n                default: '0'\n                field: number\n            hour:\n                name: hour\n                type: int\n                default: '0'\n                field: number\n            day_or_date:\n                name: day_or_date\n                type: int\n                default: '1'\n                field: number\n            is_day_of_week:\n                name: is_day_of_week\n                type: int\n                default: '0'\n                field: number\n            match_mode:\n                name: match_mode\n                type: int\n                default: '0'\n                field: number\n                max: '5'\n                min: '0'\n        \"\"\"\n        self._driver.set_alarm1(second, minute, hour, day_or_date,\n                                 bool(is_day_of_week), match_mode)\n\n    def set_alarm2(self, minute: int, hour: int, day_or_date: int,\n                    is_day_of_week: int, match_mode: int):\n        \"\"\"\n        label:\n            en: '%1 set alarm 2 minute %2 hour %3 day/date %4 is day of week %5 match mode %6'\n        params:\n            minute:\n                name: minute\n                type: int\n                default: '0'\n                field: number\n            hour:\n                name: hour\n                type: int\n                default: '0'\n                field: number\n            day_or_date:\n                name: day_or_date\n                type: int\n                default: '1'\n                field: number\n            is_day_of_week:\n                name: is_day_of_week\n                type: int\n                default: '0'\n                field: number\n            match_mode:\n                name: match_mode\n                type: int\n                default: '0'\n                field: number\n                max: '4'\n                min: '0'\n        \"\"\"\n        self._driver.set_alarm2(minute, hour, day_or_date, bool(is_day_of_week), match_mode)\n\n    def enable_square_wave(self, rate_hz: int = 8192, battery_backed: int = 0):\n        \"\"\"\n        label:\n            en: '%1 enable square wave rate %2 Hz battery backed %3'\n        params:\n            rate_hz:\n                name: rate_hz\n                type: int\n                default: '8192'\n                field: number\n            battery_backed:\n                name: battery_backed\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.enable_square_wave(rate_hz, bool(battery_backed))\n\n    def disable_square_wave(self):\n        \"\"\"\n        label:\n            en: '%1 disable square wave'\n        \"\"\"\n        self._driver.disable_square_wave()\n\n    def enable_32khz_output(self):\n        \"\"\"\n        label:\n            en: '%1 enable 32kHz output'\n        \"\"\"\n        self._driver.enable_32khz_output()\n\n    def disable_32khz_output(self):\n        \"\"\"\n        label:\n            en: '%1 disable 32kHz output'\n        \"\"\"\n        self._driver.disable_32khz_output()\n\n    def oscillator_stopped(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 oscillator stopped?'\n        \"\"\"\n        return self._driver.oscillator_stopped()\n\n    def clear_oscillator_stopped(self):\n        \"\"\"\n        label:\n            en: '%1 clear oscillator stop flag'\n        \"\"\"\n        self._driver.clear_oscillator_stopped()\n\n    def get_aging_offset(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 aging offset'\n        \"\"\"\n        return self._driver.get_aging_offset()\n\n    def set_aging_offset(self, offset: int):\n        \"\"\"\n        label:\n            en: '%1 set aging offset %2'\n        params:\n            offset:\n                name: offset\n                type: int\n                default: '0'\n                field: number\n                max: '127'\n                min: '-128'\n        \"\"\"\n        self._driver.set_aging_offset(offset)\n\n    def enable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 enable interrupt source %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.enable_interrupt(source)\n\n    def disable_interrupt(self, source: int):\n        \"\"\"\n        label:\n            en: '%1 disable interrupt source %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.disable_interrupt(source)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 poll interrupt status'\n        \"\"\"\n        return self._driver.poll_interrupt()\n",
+  "version": "alpha2"
+}
