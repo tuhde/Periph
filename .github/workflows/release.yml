@@ -257,6 +257,7 @@ jobs:
   jvm-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: maven-central
     steps:
       - uses: actions/checkout@v6
 
@@ -286,6 +287,22 @@ jobs:
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
+      # Central's validation message only names the problem, not the bundle's
+      # contents. Keep the bundle it rejected so the layout can be inspected.
+      - name: Inspect rejected bundle
+        if: failure()
+        run: |
+          unzip -l target/central-publishing/central-bundle.zip || true
+        working-directory: jvm
+
+      - name: Upload rejected bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-bundle
+          path: jvm/target/central-publishing/central-bundle.zip
+          if-no-files-found: ignore
+
   # -----------------------------------------------------------------------
   # Arduino — publish the Library Manager layout to tuhde/Periph-Arduino
   # The Library Manager needs library.properties at a repository root and
@@ -296,6 +313,7 @@ jobs:
   arduino-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: arduino-library
     steps:
       - uses: actions/checkout@v6
 
