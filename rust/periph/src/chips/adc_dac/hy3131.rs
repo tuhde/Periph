@@ -365,7 +365,7 @@ impl<SPI: SpiDevice, D: DelayNs> Hy3131Full<SPI, D> {
         let raw = b[0] as i64 | ((b[1] as i64) << 8) | ((b[2] as i64) << 16)
             | ((b[3] as i64) << 24) | ((b[4] as i64) << 32);
         let v = sext(raw, 40).max(0);
-        Ok((v as f64).sqrt() as f32)
+        Ok(libm::sqrt(v as f64) as f32)
     }
 
     /// Enable peak hold; `source` 0–3 → AD2, AD1<23:5>, LPF, LPF. Re-enabling resets min/max.
