@@ -340,11 +340,34 @@ async function main() {
     checkTrue('read_fifo_status_count', fstatus.count === 5);
     checkTrue('fifo_level', (await full.fifoLevel()) === 5);
 
-    // FIFO read: one sample per transaction at 0x01.
+    // FIFO read: one sample per transaction at 0x01. The FIFO level is
+    // polled after every sample, so the mock must report the remaining
+    // samples for the drain to continue.
     mock2.setRegister(0x01, [0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
+    mock2.setRegister(0x00, [0x02]);   // F_CNT = 2
     const fifo = await full.readFifo(2);
     checkTrue('read_fifo_returns_requested_count', fifo.length === 2);
     checkTrue('read_fifo_values_in_g', Math.abs(fifo[0][2] - 1.0) < 1e-9);
+
+    // Without an explicit count the drain stops when the FIFO runs dry.
+    // The mock decrements F_CNT on every FIFO sample read, like the chip.
+    const mockFifo = newMock();
+    mockFifo.setRegister(0x01, [0x00, 0x00, 0x00, 0x00, 0x40, 0x00]);
+    mockFifo.setRegister(0x00, [0x03]);   // F_CNT = 3
+    const fifoRead = mockFifo.readReg.bind(mockFifo);
+    mockFifo.readReg = async (reg, len) => {
+        const out = await fifoRead(reg, len);
+        if (reg === 0x01 && len === 6) {
+            const level = mockFifo.registers.get(0x00) & 0x3F;
+            mockFifo.registers.set(0x00, level > 0 ? level - 1 : 0);
+        }
+        return out;
+    };
+    const fullFifo = new MMA8451QFull(mockFifo);
+    await fullFifo.init();
+    mockFifo.setRegister(0x00, [0x03]);
+    const fifoAll = await fullFifo.readFifo();
+    checkTrue('read_fifo_drains_until_empty', fifoAll.length === 3);
 
     threw = false;
     try { await full.setFifo(4); } catch (e) { threw = true; }

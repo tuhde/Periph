@@ -766,7 +766,9 @@ class MMA8451QFull extends MMA8451QMinimal {
      * Drain the FIFO.
      *
      * Each sample is read in its own transaction starting at register 0x01,
-     * which is what the datasheet prescribes for FIFO reads.
+     * which is what the datasheet prescribes for FIFO reads. The FIFO level
+     * is polled after every sample so the drain stops as soon as the FIFO
+     * runs dry.
      *
      * @param {number} [count=null] - Number of samples to read (default: all).
      * @returns {Promise<number[][]>} Array of [x, y, z] samples in *g*.
@@ -774,8 +776,10 @@ class MMA8451QFull extends MMA8451QMinimal {
     async readFifo(count = null) {
         const samples = [];
         const bytesPerSample = this._fastRead ? 3 : 6;
-        const max = count === null ? 32 : count;
-        for (let i = 0; i < max; i++) {
+        // The FIFO holds at most 32 samples; that also bounds the drain.
+        const max = count === null ? 32 : Math.min(count, 32);
+        for (;;) {
+            if (samples.length >= max) break;
             const raw = await this._conn.readReg(_REG_OUT_X_MSB, bytesPerSample);
             if (this._fastRead) {
                 samples.push([
@@ -791,6 +795,9 @@ class MMA8451QFull extends MMA8451QMinimal {
                 }
                 samples.push(s);
             }
+            // Stop when the FIFO runs dry.
+            const level = await this.fifoLevel();
+            if (level === 0) break;
         }
         const scale = this._fastRead
             ? _RANGE_COUNTS_PER_G_8BIT[this._rangeG]
