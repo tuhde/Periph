@@ -139,5 +139,4 @@ extern "C" void app_main(void) {
     check_true(heading >= 0.0f && heading <= 360.0f, "heading_in_range");
 
     printf("===DONE: %d passed, %d failed===\n", passed, failed);
-    return failed == 0 ? 0 : 1;
 }

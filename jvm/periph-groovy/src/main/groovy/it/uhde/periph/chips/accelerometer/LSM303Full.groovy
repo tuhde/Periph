@@ -227,7 +227,7 @@ class LSM303Full extends LSM303Minimal {
         }
         accelWrite(REG_CTRL1_A, ctrl1)
         accelWrite(REG_CTRL4_A, ctrl4)
-        this.mode = mode
+        this.@mode = mode
     }
 
     /**

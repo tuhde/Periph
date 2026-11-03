@@ -6,6 +6,7 @@
 
 import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.accelerometer.LSM303Full
+import it.uhde.periph.chips.accelerometer.LSM303Minimal
 
 fun main() {
     val bus = System.getenv("I2C_BUS")?.toInt() ?: 1
@@ -29,7 +30,7 @@ fun main() {
             // --- Accelerometer configuration ---
             compass.setRange(4)                               // Set full-scale range, (range_g=4) → None
             compass.setDataRate(50)                           // Set output data rate, (rate_hz=50) → None
-            compass.setMode(LSM303Full.MODE_HIGH_RESOLUTION)  // Set operating mode, (mode=MODE_HIGH_RESOLUTION=2) → None
+            compass.setMode(LSM303Minimal.MODE_HIGH_RESOLUTION)  // Set operating mode, (mode=MODE_HIGH_RESOLUTION=2) → None
             compass.setAxes(true, true, true)                 // Enable axes, (x=true, y=true, z=true) → None
 
             // --- High-pass filter ---

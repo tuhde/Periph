@@ -22,7 +22,7 @@ target_include_directories(lsm303_test_picosdk PRIVATE
 
 target_link_libraries(lsm303_test_picosdk PRIVATE
     pico_stdlib
-    hardware_spi)
+    hardware_i2c)
 
 pico_enable_stdio_usb(lsm303_test_picosdk 1)
 pico_enable_stdio_uart(lsm303_test_picosdk 0)

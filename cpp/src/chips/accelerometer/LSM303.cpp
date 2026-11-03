@@ -1,6 +1,8 @@
 #include "LSM303.h"
 #include <stdlib.h>
 #include <math.h>
+
+static const double kPi = 3.14159265358979323846;
 #include <string.h>
 
 #ifdef ARDUINO
@@ -561,7 +563,7 @@ float LSM303Full::heading(bool tiltCompensate) {
     float mx, my, mz;
     readMagnetic(mx, my, mz);
     if (!tiltCompensate) {
-        return _wrapDegrees((float)(atan2((double)my, (double)mx) * 180.0 / M_PI));
+        return _wrapDegrees((float)(atan2((double)my, (double)mx) * 180.0 / kPi));
     }
     float ax, ay, az;
     readAcceleration(ax, ay, az);
@@ -571,7 +573,7 @@ float LSM303Full::heading(bool tiltCompensate) {
     double xh = (double)mx * cos(pitch) + (double)mz * sin(pitch);
     double yh = (double)mx * sin(roll) * sin(pitch) + (double)my * cos(roll)
                 - (double)mz * sin(roll) * cos(pitch);
-    return _wrapDegrees((float)(atan2(yh, xh) * 180.0 / M_PI));
+    return _wrapDegrees((float)(atan2(yh, xh) * 180.0 / kPi));
 }
 
 void LSM303Full::_sourceBits(uint8_t source, uint8_t& ctrl3, uint8_t& ctrl6) const {

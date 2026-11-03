@@ -63,9 +63,9 @@ int main(void) {
         // --- Compute the heading and the tilt ---
         float heading = accel.heading();         // Read the compass heading, (tilt_compensate=true) → float °
                                                  // tilt-compensated with the accelerometer
-        float roll = (float)atan2((double)ay, (double)az) * 180.0 / M_PI;
+        float roll = (float)atan2((double)ay, (double)az) * 180.0 / 3.14159265358979;
         float pitch = (float)atan2((double)-ax,
-                                    sqrt((double)ay * ay + (double)az * az)) * 180.0 / M_PI;
+                                    sqrt((double)ay * ay + (double)az * az)) * 180.0 / 3.14159265358979;
         float mx, my, mz;
         accel.readMagnetic(mx, my, mz);            // Read magnetic field, (x, y, z) → uT, uT, uT
         float magnitude = (float)sqrt((double)mx * mx + (double)my * my + (double)mz * mz);

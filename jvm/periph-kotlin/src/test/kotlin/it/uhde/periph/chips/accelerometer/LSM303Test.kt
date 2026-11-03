@@ -132,7 +132,7 @@ class LSM303Test {
 
         accel.setRegister(LSM303Minimal.REG_CTRL1_A, 0x57)
         accel.setRegister(LSM303Minimal.REG_CTRL4_A, 0x88)
-        compass.setMode(LSM303Full.MODE_LOW_POWER)
+        compass.setMode(LSM303Minimal.MODE_LOW_POWER)
         assertEquals(0x5F, lastWriteTo(accel, LSM303Minimal.REG_CTRL1_A))
         assertEquals(0x80, lastWriteTo(accel, LSM303Minimal.REG_CTRL4_A))
         assertThrows(IOException::class.java) { compass.setMode(9) }

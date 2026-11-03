@@ -6,6 +6,7 @@
 
 import it.uhde.periph.connection.I2CConnection
 import it.uhde.periph.chips.accelerometer.LSM303Full
+import it.uhde.periph.chips.accelerometer.LSM303Minimal
 import kotlin.math.atan2
 import kotlin.math.floor
 import kotlin.math.sqrt
@@ -26,7 +27,7 @@ fun main() {
             // the high-resolution mode keeps 1 mg/LSB so the tilt compensation stays
             // precise.
             compass.setDataRate(50)                           // Set output data rate, (rate_hz=50) → None
-            compass.setMode(LSM303Full.MODE_HIGH_RESOLUTION)  // Set operating mode, (mode=MODE_HIGH_RESOLUTION=2) → None
+            compass.setMode(LSM303Minimal.MODE_HIGH_RESOLUTION)  // Set operating mode, (mode=MODE_HIGH_RESOLUTION=2) → None
             compass.setMagRange(130)                          // Set magnetometer range, (range_ut=130) → None
             compass.setMagDataRate(15.0)                        // Set magnetometer data rate, (rate_hz=15) → None
 
