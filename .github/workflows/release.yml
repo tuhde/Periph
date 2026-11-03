@@ -257,6 +257,7 @@ jobs:
   jvm-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: maven-central
     steps:
       - uses: actions/checkout@v6
 
@@ -270,6 +271,22 @@ jobs:
           server-password: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
+
+      # The runner image's Maven 3.10.0 leaves local-repository bookkeeping
+      # (_remote.repositories, maven-metadata-local.xml) in the Central staging
+      # directory, which Central rejects with "Bundle has content that does NOT
+      # have a .pom file". Maven 3.9.9 produces a clean bundle, so use that.
+      - name: Install Maven 3.9.9
+        run: |
+          V=3.9.9
+          curl -fsSL -o "$RUNNER_TEMP/maven.tgz" \
+            "https://archive.apache.org/dist/maven/maven-3/$V/binaries/apache-maven-$V-bin.tar.gz"
+          echo "a555254d6b53d267965a3404ecb14e53c3827c09c3b94b5678835887ab404556bfaf78dcfe03ba76fa2508649dca8531c74bca4d5846513522404d48e8c4ac8b  $RUNNER_TEMP/maven.tgz" | sha512sum -c -
+          tar -xzf "$RUNNER_TEMP/maven.tgz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/apache-maven-$V/bin" >> "$GITHUB_PATH"
+
+      - name: Check Maven version
+        run: mvn -v
 
       - name: Stamp version
         run: |
@@ -286,6 +303,22 @@ jobs:
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
+      # Central's validation message only names the problem, not the bundle's
+      # contents. Keep the bundle it rejected so the layout can be inspected.
+      - name: Inspect rejected bundle
+        if: failure()
+        run: |
+          unzip -l target/central-publishing/central-bundle.zip || true
+        working-directory: jvm
+
+      - name: Upload rejected bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-bundle
+          path: jvm/target/central-publishing/central-bundle.zip
+          if-no-files-found: ignore
+
   # -----------------------------------------------------------------------
   # Arduino — publish the Library Manager layout to tuhde/Periph-Arduino
   # The Library Manager needs library.properties at a repository root and
@@ -296,6 +329,7 @@ jobs:
   arduino-publish:
     needs: meta
     runs-on: ubuntu-latest
+    environment: arduino-library
     steps:
       - uses: actions/checkout@v6
 

@@ -1,0 +1,113 @@
+<script type="text/javascript">
+    RED.nodes.registerType('hy3131-device', {
+        category: 'config',
+        defaults: {
+            name:      { value: '' },
+            bus:       { value: '0', required: true, validate: RED.validators.number() },
+            device:    { value: '0', required: true, validate: RED.validators.number() },
+            vref:      { value: '1.2', required: true },
+            osr:       { value: '7', required: true },
+            chop:      { value: '0', required: true },
+            inputGain: { value: '0', required: true }
+        },
+        label: function() {
+            return this.name || ('HY3131 @ SPI ' + this.bus + '.' + this.device);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="hy3131-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="HY3131">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-device"><i class="fa fa-microchip"></i> SPI device (CS)</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-vref">REFO (V)</label>
+        <input type="number" id="node-config-input-vref" step="0.01" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-osr">AD1 OSR</label>
+        <select id="node-config-input-osr" style="width:160px">
+            <option value="0">256 (640 Hz)</option>
+            <option value="1">512 (320 Hz)</option>
+            <option value="2">1024 (160 Hz)</option>
+            <option value="3">2048 (80 Hz)</option>
+            <option value="4">4096 (40 Hz)</option>
+            <option value="5">8192 (20 Hz)</option>
+            <option value="6">16384 (10 Hz)</option>
+            <option value="7">32768 (5 Hz)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-chop">AD1 chopper</label>
+        <select id="node-config-input-chop" style="width:160px">
+            <option value="0">Off</option>
+            <option value="2">On (offset cancelled)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-inputGain">AD1 input gain</label>
+        <select id="node-config-input-inputGain" style="width:160px">
+            <option value="0">0.9</option>
+            <option value="1">1.8</option>
+            <option value="2">2.7</option>
+            <option value="3">3.6</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('periph-hy3131', {
+        category: 'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'hy3131-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-wave-square',
+        label:   function() { return this.name || 'HY3131'; },
+        paletteLabel: 'HY3131'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-hy3131">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="HY3131">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-hy3131">
+    <p>Reads the AD1 differential input (PB2 vs AGND) of an HY3131 DMM analog front end over SPI. Data-ready is polled via the INTF register, so only CK/DI/DO/CS are needed.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a read (blocks until the next AD1 conversion, up to 2 s).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Differential input voltage in V.</dd>
+        <dt>payload.raw <span class="property-type">number</span></dt>
+        <dd>Signed 24-bit AD1 code.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus and CS line (Linux <code>/dev/spidevBUS.DEVICE</code>), the REFO voltage (default 1.2 V, internal bandgap), the AD1 oversampling ratio (output rate), chopper and input gain. SPI Mode 0 at 1 MHz is used; the chip needs 3.3–3.6 V logic.</p>
+</script>

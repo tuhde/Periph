@@ -16,7 +16,7 @@ Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "1.2.1"
+periph = "1.3.2"
 ```
 
 ## Example
@@ -70,6 +70,7 @@ Each chip exposes two structs:
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
+| HY3131 | ADC/DAC | HYCON HY3131 50,000-count DMM analog front end driver (SPI). |
 | IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |

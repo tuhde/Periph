@@ -25,3 +25,6 @@ pub use ad7705::{
 // constants above rather than re-exporting AD7706's identical copies.
 pub mod ad7706;
 pub use ad7706::{AD7706Minimal, AD7706Full};
+
+pub mod hy3131;
+pub use hy3131::{Hy3131Minimal, Hy3131Full, Hy3131Error};

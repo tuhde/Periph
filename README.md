@@ -4,7 +4,6 @@ A multi-language library of drivers for peripheral chips — sensors, actuators,
 
 ## Implementations
 
-| IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Language | Platforms | Status |
 |----------|-----------|--------|
 | Python | MicroPython, CircuitPython, Linux kernel (`/dev/i2c-N` via `smbus2`), M5Stack UIFlow 1 + UIFlow 2 (Blockly custom blocks) | Active |
@@ -147,6 +146,8 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| HY3131 | DMM analog front end (24-bit ADC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ICM-20948 | IMU (9-axis) |  |  |  |  |  |  |  |  |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -188,6 +189,7 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | SH1106 | OLED display (132×64) |  |  |  |  |  |  |  |  |
 | SK6812RGBW | LED (addressable RGBW) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | SSD1331 | OLED display (96×64, RGB) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| SSD1683 | E-paper display controller (400×300, B/W/R) |  |  |  |  |  |  |  |  |
 | ST7036 | LCD character display controller (16×2, DOG series) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TMP117 | Temperature sensor (high-accuracy) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | TPIC6B595 | Power shift register (8-bit, open-drain) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -225,7 +227,7 @@ after an edit: [python/uiflow1/README.md](python/uiflow1/README.md).
 This targets **UIFlow 1**'s `.m5b` format. UIFlow 1 and the current
 [UIFlow 2](https://uiflow2.m5stack.com/) web IDE don't interoperate — a `.m5b` doesn't import into UIFlow 2
 and vice versa — so every chip also needs a native UIFlow 2 `.m5b2`, hand-built in the UIFlow 2 Block
-Designer (no generator exists for this format). All 27 chips are implemented, but only AHT21 has
+Designer (no generator exists for this format). Every chip has a `.m5b2`, but only AHT21 has
 actually been round-tripped through the real Block Designer — the rest extend that verified template
 to new parameter combinations and are unverified until checked; see
 [python/uiflow2/README.md](python/uiflow2/README.md) for the chip list, verification status, and
