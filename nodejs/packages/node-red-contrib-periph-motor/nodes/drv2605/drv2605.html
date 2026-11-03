@@ -1,0 +1,79 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-drv2605', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            actuator: { value: 'erm', required: true },
+            library:  { value: 'A', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-cog',
+        label:   function() { return this.name || 'DRV2605'; },
+        paletteLabel: 'DRV2605'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-drv2605">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="DRV2605">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-actuator"><i class="fa fa-bolt"></i> Actuator</label>
+        <select id="node-input-actuator" style="width:120px">
+            <option value="erm">ERM</option>
+            <option value="lra">LRA</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-library"><i class="fa fa-book"></i> Library</label>
+        <select id="node-input-library" style="width:120px">
+            <option value="A">A (ERM)</option>
+            <option value="B">B (ERM)</option>
+            <option value="C">C (ERM)</option>
+            <option value="D">D (ERM)</option>
+            <option value="E">E (ERM)</option>
+            <option value="LRA">LRA</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-drv2605">
+    <p>Plays haptic effects on an ERM or LRA vibration motor through a DRV2605 haptic driver over I²C (fixed address 0x5A). The EN pin must be high.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.effect <span class="property-type">number</span></dt>
+        <dd>Plays one ROM effect (1–123). A bare number <code>msg.payload</code> does the same.</dd>
+        <dt>payload.sequence <span class="property-type">array</span></dt>
+        <dd>Plays up to 8 steps: a number is a ROM effect, <code>["wait", ms]</code> is a delay of 0–1270 ms (10 ms steps), e.g. <code>[1, ["wait", 100], 10]</code>.</dd>
+        <dt>payload.rtp <span class="property-type">number</span></dt>
+        <dd>Real-time amplitude 0.0–1.0; stays on until stopped.</dd>
+        <dt>payload.stop <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> stops playback (also leaves real-time playback).</dd>
+        <dt>payload.status <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> reads the chip status. Note this clears the latched diagnostic and over-temperature flags.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.ok <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> after an effect, sequence, rtp or stop command.</dd>
+        <dt>payload.device_id <span class="property-type">number</span></dt>
+        <dd>DEVICE_ID (3 for the DRV2605) — status replies only.</dd>
+        <dt>payload.over_temp / over_current <span class="property-type">boolean</span></dt>
+        <dd>Latched overtemperature / overcurrent flags — status replies only.</dd>
+        <dt>payload.supply_voltage <span class="property-type">number</span></dt>
+        <dd>Supply voltage in V; only valid while an effect is playing — status replies only.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number, the actuator type (ERM or LRA) and the ROM library (A–E for an ERM, LRA for an LRA). The I²C address is fixed at 0x5A. Playback is stopped when the node is closed.</p>
+</script>
