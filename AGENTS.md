@@ -29,14 +29,13 @@ The spec in `specs/<category>/<chip>.md` is the single source of truth. Implemen
 When given an issue number, find the "Ready for implementation" comment on that issue. It contains:
 
 - **Spec** — path to the spec file (e.g. `specs/power/ina226.md`)
-- **Branch** — the base feature branch (e.g. `feature/ina226`)
 - **Stages** — which stages (Minimal, Full) are requested
 
 Only pick up issues labelled `needs-implementation`. An issue labelled `needs-spec` is still waiting on Claude Code; do not start coding against it. An issue labelled `in-progress` is already being worked on.
 
 ## Branch naming
 
-Do **not** commit directly to the feature branch. Create your own implementation branch from it:
+Do **not** commit directly to `main`. There is no `feature/<chip>` branch; the spec is already on `main`. Create your own implementation branch from `main`:
 
 ```
 impl/<chip>/OC-<model>
@@ -47,13 +46,13 @@ impl/<chip>/OC-<model>
 
 Example: `impl/ina226/OC-gpt-4o`
 
-Check out the base feature branch, rebase it to main, create your implementation branch from it, and open a PR targeting the main branch when done. The feature branch stays untouched for later reimplementation by another model.
+Create your implementation branch from the current `main` and open a PR targeting `main` (with CI enabled) when done. Implementation branches stay untouched for later reimplementation by another model.
 
 **Label the PR itself**, not just the issue: `gh pr edit <num> --add-label chip` (or `transport`), plus any `transport:*` labels the issue carries. GitHub's release-notes generator (`.github/release.yml`) groups the changelog by PR label, not issue label, so an unlabeled PR falls into the catch-all "Other Changes" section of the next release.
 
 ### Reimplementation by a different model
 
-If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `feature/<chip>` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
+If the issue has already been implemented by another model, it may be reopened and its labels reset to `needs-implementation`. In that case, treat it as a fresh implementation: create a new `impl/<chip>/OC-<model>` branch from `main` using your own model name. Do not modify or build on the existing `impl/` branch from the previous model — leave it untouched.
 
 ## Pre-push checklist (CI failures seen in practice)
 
