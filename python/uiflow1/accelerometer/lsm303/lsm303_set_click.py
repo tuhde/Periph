@@ -1,0 +1,1 @@
+_periph_lsm303.set_click(int(${_single}), int(${_double}), float(${_threshold_g}))
