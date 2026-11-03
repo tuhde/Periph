@@ -61,6 +61,7 @@ Each chip exposes two classes:
 | APDS9960 | Light sensor | APDS-9960 digital proximity, ambient light, RGB and gesture sensor |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor |
 | BMA150 | Accelerometer | 3-axis accelerometer |
+| BMA180 | Accelerometer | 3-axis accelerometer |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance. |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor |
@@ -76,15 +77,18 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |
+| HY3131 | ADC/DAC | — minimal interface: AD1 differential voltage. |
 | IL0373 | Display driver | Black/white e-paper controller |
 | INA219 | Power monitor | 26V, 12-bit current/voltage/power monitor |
 | INA226 | Power monitor | 36V, 16-bit current/voltage/power monitor |
 | INA3221 | Power monitor | Three-channel 26V current/voltage/power monitor |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope |
 | L3GD20H | Gyroscope | (and L3GD20) three-axis MEMS gyroscope |
+| LIS3DH | Accelerometer | 3-axis accelerometer |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
+| LSM303 | Accelerometer | Acceleration and magnetic field. |
 | MCP23017 | IO expander | 16-bit I/O port expander |
 | MCP2515 | Comms | Send/recv with default configuration. |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |

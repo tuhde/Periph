@@ -1,0 +1,348 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "lis3dh_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init LIS3DH", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_x",
+      "type": "value",
+      "params": [{ "name": "LIS3DH acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_y",
+      "type": "value",
+      "params": [{ "name": "LIS3DH acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_z",
+      "type": "value",
+      "params": [{ "name": "LIS3DH acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_set_range",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH set range (g): 2, 4, 8 or 16", "type": "label" },
+        { "name": "range (g)", "type": "label" },
+        { "name": "_range_g", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_data_rate",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH set data rate (Hz): 0=power-down, 1, 10, 25, 50, 100, 200, 400, 1344, 1620, 5376", "type": "label" },
+        { "name": "rate (Hz)", "type": "label" },
+        { "name": "_rate_hz", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_mode",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH set mode: 0=low-power (8-bit), 1=normal (10-bit), 2=high-resolution (12-bit)", "type": "label" },
+        { "name": "mode", "type": "label" },
+        { "name": "_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_axes",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH enable measurement axes", "type": "label" },
+        { "name": "X (1/0)", "type": "label" },
+        { "name": "_x", "type": "number" },
+        { "name": "Y (1/0)", "type": "label" },
+        { "name": "_y", "type": "number" },
+        { "name": "Z (1/0)", "type": "label" },
+        { "name": "_z", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_power_down",
+      "type": "execute",
+      "params": [{ "name": "LIS3DH power down (stop conversions)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_read_raw",
+      "type": "value",
+      "params": [{ "name": "LIS3DH raw acceleration (x, y, z counts)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_new_data_available",
+      "type": "value",
+      "params": [{ "name": "LIS3DH new data available?", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_read_status",
+      "type": "value",
+      "params": [{ "name": "LIS3DH STATUS_REG (overrun and data-ready flags)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_read_temperature_delta",
+      "type": "value",
+      "params": [{ "name": "LIS3DH relative temperature (°C)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_read_adc",
+      "type": "value",
+      "params": [
+        { "name": "LIS3DH auxiliary ADC voltage (V)", "type": "label" },
+        { "name": "channel (1-3)", "type": "label" },
+        { "name": "_channel", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_enable_adc",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH enable auxiliary ADC (1) / disable (0)", "type": "label" },
+        { "name": "enabled", "type": "label" },
+        { "name": "_enabled", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_high_pass",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure high-pass filter", "type": "label" },
+        { "name": "mode (0-3)", "type": "label" },
+        { "name": "_mode", "type": "number" },
+        { "name": "cutoff (0-3)", "type": "label" },
+        { "name": "_cutoff", "type": "number" },
+        { "name": "filter output (1/0)", "type": "label" },
+        { "name": "_filter_output", "type": "number" },
+        { "name": "on generator 1 (1/0)", "type": "label" },
+        { "name": "_on_ia1", "type": "number" },
+        { "name": "on generator 2 (1/0)", "type": "label" },
+        { "name": "_on_ia2", "type": "number" },
+        { "name": "on click (1/0)", "type": "label" },
+        { "name": "_on_click", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_reset_high_pass",
+      "type": "value",
+      "params": [{ "name": "LIS3DH REFERENCE (high-pass reset)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_set_reference",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH set high-pass reference (0-255)", "type": "label" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_fifo",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure FIFO: 0=bypass, 1=FIFO, 2=stream, 3=stream-to-FIFO", "type": "label" },
+        { "name": "mode", "type": "label" },
+        { "name": "_mode", "type": "number" },
+        { "name": "watermark (0-31)", "type": "label" },
+        { "name": "_watermark", "type": "number" },
+        { "name": "trigger on INT2 (1/0)", "type": "label" },
+        { "name": "_trigger_int2", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_fifo_level",
+      "type": "value",
+      "params": [{ "name": "LIS3DH FIFO level (unread sample sets)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_read_fifo",
+      "type": "value",
+      "params": [
+        { "name": "LIS3DH read FIFO samples (x, y, z in g), count 0 = all", "type": "label" },
+        { "name": "count", "type": "label" },
+        { "name": "_count", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_read_fifo_status",
+      "type": "value",
+      "params": [{ "name": "LIS3DH FIFO status (watermark, overrun, empty, level)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_set_motion_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure inertial interrupt generator", "type": "label" },
+        { "name": "generator (1-2)", "type": "label" },
+        { "name": "_generator", "type": "number" },
+        { "name": "events mask (0-63)", "type": "label" },
+        { "name": "_events", "type": "number" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "number" },
+        { "name": "duration (ms)", "type": "label" },
+        { "name": "_duration_ms", "type": "number" },
+        { "name": "AND mode (1/0)", "type": "label" },
+        { "name": "_and_mode", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_free_fall",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure free-fall detector", "type": "label" },
+        { "name": "generator (1-2)", "type": "label" },
+        { "name": "_generator", "type": "number" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "number" },
+        { "name": "duration (ms)", "type": "label" },
+        { "name": "_duration_ms", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_orientation",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure 6D/4D orientation detection", "type": "label" },
+        { "name": "generator (1-2)", "type": "label" },
+        { "name": "_generator", "type": "number" },
+        { "name": "position recognition (1/0)", "type": "label" },
+        { "name": "_position", "type": "number" },
+        { "name": "4D detection (1/0)", "type": "label" },
+        { "name": "_four_d", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_latch",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH latch generator interrupt until INTx_SRC is read", "type": "label" },
+        { "name": "generator (1-2)", "type": "label" },
+        { "name": "_generator", "type": "number" },
+        { "name": "enabled (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_read_interrupt_source",
+      "type": "value",
+      "params": [
+        { "name": "LIS3DH INTx_SRC (reading clears the interrupt)", "type": "label" },
+        { "name": "generator (1-2)", "type": "label" },
+        { "name": "_generator", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_click",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure click detection", "type": "label" },
+        { "name": "single-click axes (X=1, Y=2, Z=4)", "type": "label" },
+        { "name": "_single", "type": "number" },
+        { "name": "double-click axes (X=1, Y=2, Z=4)", "type": "label" },
+        { "name": "_double", "type": "number" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "number" },
+        { "name": "time limit (ms)", "type": "label" },
+        { "name": "_time_limit_ms", "type": "number" },
+        { "name": "latency (ms)", "type": "label" },
+        { "name": "_latency_ms", "type": "number" },
+        { "name": "window (ms)", "type": "label" },
+        { "name": "_window_ms", "type": "number" },
+        { "name": "latch (1/0)", "type": "label" },
+        { "name": "_latch", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_read_click_source",
+      "type": "value",
+      "params": [{ "name": "LIS3DH CLICK_SRC (reading clears the interrupt)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_set_activity",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH configure sleep-to-wake activity function", "type": "label" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "number" },
+        { "name": "duration (ms)", "type": "label" },
+        { "name": "_duration_ms", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_set_interrupt_polarity",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH interrupt polarity: active-low (1) / active-high (0)", "type": "label" },
+        { "name": "active low", "type": "label" },
+        { "name": "_active_low", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_enable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH route an interrupt source to INT1/INT2", "type": "label" },
+        { "name": "source (1, 2, 4, 8, 16, 32, 64, 128, 256)", "type": "label" },
+        { "name": "_source", "type": "number" },
+        { "name": "pin (1-2)", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_disable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH remove an interrupt source from INT1/INT2", "type": "label" },
+        { "name": "source (1, 2, 4, 8, 16, 32, 64, 128, 256)", "type": "label" },
+        { "name": "_source", "type": "number" },
+        { "name": "pin (1-2)", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_off_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH unsubscribe from INT1/INT2 interrupts", "type": "label" },
+        { "name": "pin (1-2)", "type": "label" },
+        { "name": "_pin", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_poll_interrupt",
+      "type": "value",
+      "params": [{ "name": "LIS3DH interrupt status (bitmask)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_reboot",
+      "type": "execute",
+      "params": [{ "name": "LIS3DH reboot (reload factory trim)", "type": "label" }]
+    },
+    {
+      "name": "lis3dh_set_sdo_pullup",
+      "type": "execute",
+      "params": [
+        { "name": "LIS3DH connect (1) / disconnect (0) the SDO/SA0 pull-up", "type": "label" },
+        { "name": "connected", "type": "label" },
+        { "name": "_connected", "type": "number" }
+      ]
+    },
+    {
+      "name": "lis3dh_self_test",
+      "type": "value",
+      "params": [
+        { "name": "LIS3DH self-test passed?", "type": "label" },
+        { "name": "mode (1=self-test 0, 2=self-test 1)", "type": "label" },
+        { "name": "_mode", "type": "number" }
+      ]
+    }
+  ]
+}

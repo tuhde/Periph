@@ -53,6 +53,7 @@ Each chip exposes two classes:
 | APDS9960 | Light sensor | `chips/light/APDS9960.h` |
 | AS5600 | Magnetometer | `chips/magnetometer/AS5600.h` |
 | BMA150 | Accelerometer | `chips/accelerometer/BMA150.h` |
+| BMA180 | Accelerometer | `chips/accelerometer/BMA180.h` |
 | BME280 | Environmental sensor | `chips/environmental/BME280.h` |
 | BME680 | Environmental sensor | `chips/environmental/BME680.h` |
 | BMP085 | Pressure sensor | `chips/pressure/BMP085.h` |
@@ -68,14 +69,17 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
 | HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
+| HY3131 | ADC/DAC | `chips/adc_dac/HY3131.h` |
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
 | L3G4200D | Gyroscope | `chips/gyroscope/L3G4200D.h` |
 | L3gd20h | Gyroscope | `chips/gyroscope/L3gd20h.h` |
+| LIS3DH | Accelerometer | `chips/accelerometer/LIS3DH.h` |
 | LPS22DF | Pressure sensor | `chips/pressure/LPS22DF.h` |
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
+| LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |

@@ -1,0 +1,1 @@
+_periph_lis3dh.enable_adc(bool(${_enabled}))

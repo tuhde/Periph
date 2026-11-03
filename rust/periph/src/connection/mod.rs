@@ -1,4 +1,5 @@
 pub mod connection;
+pub use connection::Connection;
 pub mod register;
 pub mod dhtxx;
 pub mod display;

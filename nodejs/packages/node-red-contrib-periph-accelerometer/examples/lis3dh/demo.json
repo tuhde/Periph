@@ -1,0 +1,87 @@
+[
+    {
+        "id": "tab-lis3dh-demo",
+        "type": "tab",
+        "label": "LIS3DH Tilt Logger",
+        "disabled": false,
+        "info": "Reads 3-axis acceleration and the relative on-chip temperature from a LIS3DH every 100 ms. A function node computes the magnitude √(x²+y²+z²) plus the pitch and roll angles with atan2(), showing how the total vector stays near 1 g even as the static gravity component shifts between the X, Y and Z axes when the sensor is tilted. The relative die temperature (1 digit/°C, referenced to the power-on value) is included in the payload. Demonstrates continuous tilt/orientation monitoring with a 12-bit (1 mg/LSB) sensor. Adjust the measurement range (±2/±4/±8/±16 g), the output data rate and the operating mode (low-power 8-bit, normal 10-bit, high-resolution 12-bit) in the device config node to match the application's dynamic range and power budget."
+    },
+    {
+        "id": "cfg-lis3dh",
+        "type": "lis3dh-device",
+        "name": "LIS3DH",
+        "bus": "1",
+        "address": "0x18",
+        "range": "2",
+        "dataRate": "100",
+        "mode": "2"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 100 ms",
+        "repeat": "0.1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-lis3dh-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-lis3dh"]]
+    },
+    {
+        "id": "read-lis3dh",
+        "type": "periph-lis3dh",
+        "name": "LIS3DH read",
+        "device": "cfg-lis3dh",
+        "z": "tab-lis3dh-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-tilt", "dbg-axes"]]
+    },
+    {
+        "id": "fn-tilt",
+        "type": "function",
+        "name": "magnitude + pitch/roll",
+        "func": "const {x, y, z, temperature_delta} = msg.payload;\nconst magnitude = Math.sqrt(x*x + y*y + z*z);\nconst pitch = Math.atan2(x, z) * 180 / Math.PI;\nconst roll = Math.atan2(y, Math.sqrt(x*x + z*z)) * 180 / Math.PI;\nmsg.payload = { x, y, z, temperature_delta, magnitude, pitch, roll };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-lis3dh-demo",
+        "x": 560,
+        "y": 100,
+        "wires": [["dbg-tilt"]]
+    },
+    {
+        "id": "dbg-axes",
+        "type": "debug",
+        "name": "x, y, z, T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lis3dh-demo",
+        "x": 540,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-tilt",
+        "type": "debug",
+        "name": "magnitude + pitch/roll + T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-lis3dh-demo",
+        "x": 800,
+        "y": 100,
+        "wires": []
+    }
+]

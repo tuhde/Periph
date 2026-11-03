@@ -1,0 +1,90 @@
+[
+    {
+        "id": "tab-bma180-demo",
+        "type": "tab",
+        "label": "BMA180 tilt/tap demo",
+        "info": "Tilt sensor demo using the BMA180 3-axis accelerometer.\n\nAn inject node triggers every 100 ms into the BMA180 read node; a function node computes the vector magnitude (sqrt(x^2+y^2+z^2)) and pitch/roll in degrees (atan2); a debug node shows the values plus temperature. Demonstrates a high-resolution (0.25 mg/LSB at ±2 g) tilt sensor with 14-bit readout."
+    },
+    {
+        "id": "cfg-bma180",
+        "type": "bma180-device",
+        "name": "BMA180",
+        "bus": "1",
+        "address": "40",
+        "range": "2",
+        "bandwidth": "150"
+    },
+    {
+        "id": "inject-100ms",
+        "type": "inject",
+        "z": "tab-bma180-demo",
+        "name": "every 100 ms",
+        "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }],
+        "repeat": "0.1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 140,
+        "wires": [["read-bma180"]]
+    },
+    {
+        "id": "read-bma180",
+        "type": "bma180",
+        "z": "tab-bma180-demo",
+        "name": "BMA180",
+        "device": "cfg-bma180",
+        "x": 380,
+        "y": 140,
+        "wires": [["compute-tilt"], ["debug-raw"]]
+    },
+    {
+        "id": "compute-tilt",
+        "type": "function",
+        "z": "tab-bma180-demo",
+        "name": "compute magnitude + tilt",
+        "func": "const p = msg.payload;\nconst mag = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);\nconst pitch = Math.atan2(p.x, Math.sqrt(p.y*p.y + p.z*p.z)) * 180 / Math.PI;\nconst roll  = Math.atan2(p.y, Math.sqrt(p.x*p.x + p.z*p.z)) * 180 / Math.PI;\nmsg.payload = { mag, pitch, roll, temperature: p.temperature };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 620,
+        "y": 140,
+        "wires": [["debug-tilt"]]
+    },
+    {
+        "id": "debug-raw",
+        "type": "debug",
+        "z": "tab-bma180-demo",
+        "name": "raw xyz + temperature",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "debug-tilt",
+        "type": "debug",
+        "z": "tab-bma180-demo",
+        "name": "mag + pitch + roll + T",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 870,
+        "y": 140,
+        "wires": []
+    }
+]

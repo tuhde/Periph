@@ -418,6 +418,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "bma180_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "bme280_complete"
 version = "0.1.0"
 dependencies = [
@@ -1158,6 +1190,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "hy3131_complete"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "hy3131_demo"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
+name = "hy3131_minimal"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-bus",
+ "linux-embedded-hal",
+ "periph",
+ "spidev",
+]
+
+[[package]]
 name = "i2cdev"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1430,6 +1495,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "lis3dh_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lis3dh_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lis3dh_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lis3dh_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "lps22df_complete"
 version = "0.1.0"
 dependencies = [
@@ -1519,6 +1616,38 @@ dependencies = [
 
 [[package]]
 name = "lps33hw_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lsm303_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lsm303_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lsm303_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "lsm303_test"
 version = "0.1.0"
 dependencies = [
  "linux-embedded-hal",
@@ -2314,7 +2443,7 @@ dependencies = [
 
 [[package]]
 name = "periph"
-version = "1.2.1"
+version = "1.3.2"
 dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-mock",

@@ -1,0 +1,595 @@
+{
+  "category": "HY3131",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_HY3131_LANGUAGES = {\n  \"CUSTOM_HY3131_INIT\": {\n    \"en\": \"%1 init SPI bus %2 CS pin %3 REFO (V) %4\"\n  },\n  \"CUSTOM_HY3131_READ_RAW\": {\n    \"en\": \"%1 read AD1 raw code\"\n  },\n  \"CUSTOM_HY3131_READ_VOLTAGE\": {\n    \"en\": \"%1 read AD1 voltage (V)\"\n  },\n  \"CUSTOM_HY3131_DATA_READY\": {\n    \"en\": \"%1 AD1 data ready?\"\n  },\n  \"CUSTOM_HY3131_CONFIGURE_AD1\": {\n    \"en\": \"%1 configure AD1 osr (0-7) %2 chop (0-3) %3 input gain (0-3) %4 ref gain (0-1) %5 offset (0-7) %6 buffers (0-15) %7\"\n  },\n  \"CUSTOM_HY3131_SET_AD1_INPUT\": {\n    \"en\": \"%1 set AD1 input pos (0-15) %2 neg (0-7) %3 filter R (0-3) %4\"\n  },\n  \"CUSTOM_HY3131_SET_AD1_REFERENCE\": {\n    \"en\": \"%1 set AD1 reference high (0-6) %2 low (0-6) %3\"\n  },\n  \"CUSTOM_HY3131_READ_TEMPERATURE_CODE\": {\n    \"en\": \"%1 read temperature code\"\n  },\n  \"CUSTOM_HY3131_READ_TEMPERATURE\": {\n    \"en\": \"%1 temperature (°C) from code at 25 °C %2\"\n  },\n  \"CUSTOM_HY3131_ENABLE_AD2\": {\n    \"en\": \"%1 enable AD2 osr (0-7) %2 input gain (0-3) %3 source (0-3) %4\"\n  },\n  \"CUSTOM_HY3131_READ_AD2_RAW\": {\n    \"en\": \"%1 read AD2 raw code\"\n  },\n  \"CUSTOM_HY3131_ENABLE_LPF\": {\n    \"en\": \"%1 enable low-pass filter bw (0-7) %2\"\n  },\n  \"CUSTOM_HY3131_READ_LPF_RAW\": {\n    \"en\": \"%1 read LPF raw code\"\n  },\n  \"CUSTOM_HY3131_ENABLE_RMS\": {\n    \"en\": \"%1 enable RMS converter\"\n  },\n  \"CUSTOM_HY3131_READ_RMS\": {\n    \"en\": \"%1 read RMS (LSB)\"\n  },\n  \"CUSTOM_HY3131_ENABLE_PEAK_HOLD\": {\n    \"en\": \"%1 enable peak hold source (0-3) %2\"\n  },\n  \"CUSTOM_HY3131_READ_PEAK_MIN\": {\n    \"en\": \"%1 peak minimum code\"\n  },\n  \"CUSTOM_HY3131_READ_PEAK_MAX\": {\n    \"en\": \"%1 peak maximum code\"\n  },\n  \"CUSTOM_HY3131_START_COUNTER\": {\n    \"en\": \"%1 start frequency counter gate preload (0-65535) %2\"\n  },\n  \"CUSTOM_HY3131_READ_FLAGS\": {\n    \"en\": \"%1 read INTF flags\"\n  },\n  \"CUSTOM_HY3131_ENABLE_INTERRUPTS\": {\n    \"en\": \"%1 enable interrupts mask (0-31) %2\"\n  },\n  \"CUSTOM_HY3131_RESET\": {\n    \"en\": \"%1 reset\"\n  }\n};\n\nconst initType = 'custom_hy3131_init';\nBlockly.BlockRegExpList['custom_hy3131'] = {\n  regexp: new RegExp(/^custom_hy3131_/),\n  code: \"from HY3131 import HY3131\",\n  initBlockType: initType,\n  categoryId: 'custom_hy3131',\n}\nBlockly.utils.registerLanguages(CUSTOM_HY3131_LANGUAGES)\n\nBlockly.Msg.CUSTOM_HY3131_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_HY3131 = 'HY3131'\n\nBlockly.utils.getcustom_hy3131Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['hy3131_0', 'hy3131_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_hy3131_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_hy3131Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'hy3131_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs_pin'\n        },\n        {\n          'type': 'input_value',\n          'name': 'vref'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs_pin = Blockly.Python.valueToCode(block, 'cs_pin', Blockly.Python.ORDER_FUNCTION_CALL);\n  var vref = Blockly.Python.valueToCode(block, 'vref', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = HY3131(${bus}, ${cs_pin}, ${vref})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_read_voltage\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_VOLTAGE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_voltage\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_voltage()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_configure_ad1\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_CONFIGURE_AD1,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'osr'\n        },\n        {\n          'type': 'input_value',\n          'name': 'chop'\n        },\n        {\n          'type': 'input_value',\n          'name': 'input_gain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'ref_gain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'offset'\n        },\n        {\n          'type': 'input_value',\n          'name': 'buffers'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_configure_ad1\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var osr = Blockly.Python.valueToCode(block, 'osr', Blockly.Python.ORDER_FUNCTION_CALL);\n  var chop = Blockly.Python.valueToCode(block, 'chop', Blockly.Python.ORDER_FUNCTION_CALL);\n  var input_gain = Blockly.Python.valueToCode(block, 'input_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var ref_gain = Blockly.Python.valueToCode(block, 'ref_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var offset = Blockly.Python.valueToCode(block, 'offset', Blockly.Python.ORDER_FUNCTION_CALL);\n  var buffers = Blockly.Python.valueToCode(block, 'buffers', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_ad1(${osr}, ${chop}, ${input_gain}, ${ref_gain}, ${offset}, ${buffers})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_set_ad1_input\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_SET_AD1_INPUT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'pos'\n        },\n        {\n          'type': 'input_value',\n          'name': 'neg'\n        },\n        {\n          'type': 'input_value',\n          'name': 'filter_r'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_set_ad1_input\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var pos = Blockly.Python.valueToCode(block, 'pos', Blockly.Python.ORDER_FUNCTION_CALL);\n  var neg = Blockly.Python.valueToCode(block, 'neg', Blockly.Python.ORDER_FUNCTION_CALL);\n  var filter_r = Blockly.Python.valueToCode(block, 'filter_r', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ad1_input(${pos}, ${neg}, ${filter_r})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_set_ad1_reference\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_SET_AD1_REFERENCE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'high'\n        },\n        {\n          'type': 'input_value',\n          'name': 'low'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_set_ad1_reference\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var high = Blockly.Python.valueToCode(block, 'high', Blockly.Python.ORDER_FUNCTION_CALL);\n  var low = Blockly.Python.valueToCode(block, 'low', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_ad1_reference(${high}, ${low})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_temperature_code\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_TEMPERATURE_CODE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_temperature_code\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_temperature_code()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_read_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'tcode_25'\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var tcode_25 = Blockly.Python.valueToCode(block, 'tcode_25', Blockly.Python.ORDER_FUNCTION_CALL);\n\n  return [`${varname}.read_temperature(${tcode_25})`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_enable_ad2\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_ENABLE_AD2,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'osr'\n        },\n        {\n          'type': 'input_value',\n          'name': 'input_gain'\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_enable_ad2\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var osr = Blockly.Python.valueToCode(block, 'osr', Blockly.Python.ORDER_FUNCTION_CALL);\n  var input_gain = Blockly.Python.valueToCode(block, 'input_gain', Blockly.Python.ORDER_FUNCTION_CALL);\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_ad2(${osr}, ${input_gain}, ${source})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_ad2_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_AD2_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_ad2_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_ad2_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_enable_lpf\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_ENABLE_LPF,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'bw'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_enable_lpf\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bw = Blockly.Python.valueToCode(block, 'bw', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_lpf(${bw})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_lpf_raw\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_LPF_RAW,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_lpf_raw\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_lpf_raw()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_enable_rms\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_ENABLE_RMS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_enable_rms\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_rms()\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_rms\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_RMS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_rms\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_rms()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_enable_peak_hold\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_ENABLE_PEAK_HOLD,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'source'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_enable_peak_hold\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var source = Blockly.Python.valueToCode(block, 'source', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_peak_hold(${source})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_peak_min\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_PEAK_MIN,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_peak_min\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_peak_min()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_read_peak_max\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_PEAK_MAX,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_peak_max\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_peak_max()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_start_counter\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_START_COUNTER,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gate_preload'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_start_counter\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gate_preload = Blockly.Python.valueToCode(block, 'gate_preload', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.start_counter(${gate_preload})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_read_flags\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_READ_FLAGS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_read_flags\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.read_flags()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_hy3131_enable_interrupts\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_ENABLE_INTERRUPTS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'mask'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_enable_interrupts\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var mask = Blockly.Python.valueToCode(block, 'mask', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.enable_interrupts(${mask})\\n`\n}\n\nBlockly.Blocks[\"custom_hy3131_reset\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_HY3131_RESET,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_hy3131Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_hy3131_reset\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset()\\n`\n}\n",
+    "toolbox": "\n<category name=\"HY3131\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_hy3131\">\n<title text=\"HY3131\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_hy3131_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"cs_pin\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n  <value name=\"vref\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1.2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_raw\"/><block type=\"custom_hy3131_read_voltage\"/><block type=\"custom_hy3131_data_ready\"/><block type=\"custom_hy3131_configure_ad1\">\n  <value name=\"osr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">7</field>\n    </shadow>\n  </value>\n  <value name=\"chop\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"input_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"ref_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"offset\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"buffers\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_set_ad1_input\">\n  <value name=\"pos\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"neg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n  <value name=\"filter_r\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">2</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_set_ad1_reference\">\n  <value name=\"high\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"low\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_temperature_code\"/><block type=\"custom_hy3131_read_temperature\">\n  <value name=\"tcode_25\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_enable_ad2\">\n  <value name=\"osr\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">5</field>\n    </shadow>\n  </value>\n  <value name=\"input_gain\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_ad2_raw\"/><block type=\"custom_hy3131_enable_lpf\">\n  <value name=\"bw\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_lpf_raw\"/><block type=\"custom_hy3131_enable_rms\"/><block type=\"custom_hy3131_read_rms\"/><block type=\"custom_hy3131_enable_peak_hold\">\n  <value name=\"source\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_peak_min\"/><block type=\"custom_hy3131_read_peak_max\"/><block type=\"custom_hy3131_start_counter\">\n  <value name=\"gate_preload\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_read_flags\"/><block type=\"custom_hy3131_enable_interrupts\">\n  <value name=\"mask\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">4</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_hy3131_reset\"/>\n</category>\n",
+    "toolboxitemid": "custom_hy3131",
+    "block_type": [
+      "custom_hy3131___init__",
+      "custom_hy3131_read_raw",
+      "custom_hy3131_read_voltage",
+      "custom_hy3131_data_ready",
+      "custom_hy3131_configure_ad1",
+      "custom_hy3131_set_ad1_input",
+      "custom_hy3131_set_ad1_reference",
+      "custom_hy3131_read_temperature_code",
+      "custom_hy3131_read_temperature",
+      "custom_hy3131_enable_ad2",
+      "custom_hy3131_read_ad2_raw",
+      "custom_hy3131_enable_lpf",
+      "custom_hy3131_read_lpf_raw",
+      "custom_hy3131_enable_rms",
+      "custom_hy3131_read_rms",
+      "custom_hy3131_enable_peak_hold",
+      "custom_hy3131_read_peak_min",
+      "custom_hy3131_read_peak_max",
+      "custom_hy3131_start_counter",
+      "custom_hy3131_read_flags",
+      "custom_hy3131_enable_interrupts",
+      "custom_hy3131_reset"
+    ]
+  },
+  "data": {
+    "name": "HY3131",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "HY3131",
+      "time": "2026-11-02",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.spi_auto import SPIConnection\nfrom periph.chips.adc_dac.hy3131 import HY3131Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SPI bus %2 CS pin %3 REFO (V) %4"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "cs_pin",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "vref",
+            "type": "float",
+            "default": "1.2",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=0, phase=0)\n        self._driver = HY3131Full(connection, vref)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read AD1 raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_raw()",
+        "ast_return": {
+          "code": "self._driver.read_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_voltage",
+        "note": {},
+        "label": {
+          "en": "%1 read AD1 voltage (V)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_voltage()",
+        "ast_return": {
+          "code": "self._driver.read_voltage()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 AD1 data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_ad1",
+        "note": {},
+        "label": {
+          "en": "%1 configure AD1 osr (0-7) %2 chop (0-3) %3 input gain (0-3) %4 ref gain (0-1) %5 offset (0-7) %6 buffers (0-15) %7"
+        },
+        "params": [
+          {
+            "name": "osr",
+            "type": "int",
+            "default": "7",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "chop",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "input_gain",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "ref_gain",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          },
+          {
+            "name": "offset",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "buffers",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_ad1(osr=osr, chop=chop, input_gain=input_gain, ref_gain=ref_gain, offset=offset, buffers=buffers)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ad1_input",
+        "note": {},
+        "label": {
+          "en": "%1 set AD1 input pos (0-15) %2 neg (0-7) %3 filter R (0-3) %4"
+        },
+        "params": [
+          {
+            "name": "pos",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "max": "15",
+            "min": "0"
+          },
+          {
+            "name": "neg",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "filter_r",
+            "type": "int",
+            "default": "2",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ad1_input(pos, neg, filter_r)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_ad1_reference",
+        "note": {},
+        "label": {
+          "en": "%1 set AD1 reference high (0-6) %2 low (0-6) %3"
+        },
+        "params": [
+          {
+            "name": "high",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "0"
+          },
+          {
+            "name": "low",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "6",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_ad1_reference(high, low)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature_code",
+        "note": {},
+        "label": {
+          "en": "%1 read temperature code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_temperature_code()",
+        "ast_return": {
+          "code": "self._driver.read_temperature_code()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_temperature",
+        "note": {},
+        "label": {
+          "en": "%1 temperature (°C) from code at 25 °C %2"
+        },
+        "params": [
+          {
+            "name": "tcode_25",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        return self._driver.read_temperature(tcode_25)",
+        "ast_return": {
+          "code": "self._driver.read_temperature(tcode_25)",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_ad2",
+        "note": {},
+        "label": {
+          "en": "%1 enable AD2 osr (0-7) %2 input gain (0-3) %3 source (0-3) %4"
+        },
+        "params": [
+          {
+            "name": "osr",
+            "type": "int",
+            "default": "5",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "input_gain",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          },
+          {
+            "name": "source",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_ad2(osr=osr, input_gain=input_gain, source=source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_ad2_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read AD2 raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_ad2_raw()",
+        "ast_return": {
+          "code": "self._driver.read_ad2_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_lpf",
+        "note": {},
+        "label": {
+          "en": "%1 enable low-pass filter bw (0-7) %2"
+        },
+        "params": [
+          {
+            "name": "bw",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_lpf(bw)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_lpf_raw",
+        "note": {},
+        "label": {
+          "en": "%1 read LPF raw code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_lpf_raw()",
+        "ast_return": {
+          "code": "self._driver.read_lpf_raw()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_rms",
+        "note": {},
+        "label": {
+          "en": "%1 enable RMS converter"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_rms()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_rms",
+        "note": {},
+        "label": {
+          "en": "%1 read RMS (LSB)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_rms()",
+        "ast_return": {
+          "code": "self._driver.read_rms()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_peak_hold",
+        "note": {},
+        "label": {
+          "en": "%1 enable peak hold source (0-3) %2"
+        },
+        "params": [
+          {
+            "name": "source",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_peak_hold(source)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_peak_min",
+        "note": {},
+        "label": {
+          "en": "%1 peak minimum code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_peak()[0]",
+        "ast_return": {
+          "code": "self._driver.read_peak()[0]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_peak_max",
+        "note": {},
+        "label": {
+          "en": "%1 peak maximum code"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_peak()[1]",
+        "ast_return": {
+          "code": "self._driver.read_peak()[1]",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "start_counter",
+        "note": {},
+        "label": {
+          "en": "%1 start frequency counter gate preload (0-65535) %2"
+        },
+        "params": [
+          {
+            "name": "gate_preload",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "65535",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.start_counter(gate_preload)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "read_flags",
+        "note": {},
+        "label": {
+          "en": "%1 read INTF flags"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.read_flags()",
+        "ast_return": {
+          "code": "self._driver.read_flags()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_interrupts",
+        "note": {},
+        "label": {
+          "en": "%1 enable interrupts mask (0-31) %2"
+        },
+        "params": [
+          {
+            "name": "mask",
+            "type": "int",
+            "default": "4",
+            "note": {},
+            "field": "number",
+            "max": "31",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.enable_interrupts(mask)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset",
+        "note": {},
+        "label": {
+          "en": "%1 reset"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "hy3131"
+  },
+  "pyCode": "\"\"\"\nfile     HY3131\ntime     2026-11-02\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.spi_auto import SPIConnection\nfrom periph.chips.adc_dac.hy3131 import HY3131Full\n\n\nclass HY3131:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, cs_pin: int = 5, vref: float = 1.2):\n        \"\"\"\n        label:\n            en: '%1 init SPI bus %2 CS pin %3 REFO (V) %4'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            cs_pin:\n                name: cs_pin\n                type: int\n                default: '5'\n                field: number\n                min: '0'\n                max: '255'\n            vref:\n                name: vref\n                type: float\n                default: '1.2'\n                field: number\n        \"\"\"\n        connection = SPIConnection(bus=bus, cs_pin=cs_pin, polarity=0, phase=0)\n        self._driver = HY3131Full(connection, vref)\n\n    def read_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read AD1 raw code'\n        \"\"\"\n        return self._driver.read_raw()\n\n    def read_voltage(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read AD1 voltage (V)'\n        \"\"\"\n        return self._driver.read_voltage()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 AD1 data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def configure_ad1(self, osr: int = 7, chop: int = 0, input_gain: int = 0, ref_gain: int = 0, offset: int = 0, buffers: int = 0):\n        \"\"\"\n        label:\n            en: '%1 configure AD1 osr (0-7) %2 chop (0-3) %3 input gain (0-3) %4 ref gain (0-1) %5 offset (0-7) %6 buffers (0-15) %7'\n        params:\n            osr:\n                name: osr\n                type: int\n                default: '7'\n                field: number\n                min: '0'\n                max: '7'\n            chop:\n                name: chop\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            input_gain:\n                name: input_gain\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n            ref_gain:\n                name: ref_gain\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n            offset:\n                name: offset\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n            buffers:\n                name: buffers\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '15'\n        \"\"\"\n        self._driver.configure_ad1(osr=osr, chop=chop, input_gain=input_gain, ref_gain=ref_gain, offset=offset, buffers=buffers)\n\n    def set_ad1_input(self, pos: int = 10, neg: int = 3, filter_r: int = 2):\n        \"\"\"\n        label:\n            en: '%1 set AD1 input pos (0-15) %2 neg (0-7) %3 filter R (0-3) %4'\n        params:\n            pos:\n                name: pos\n                type: int\n                default: '10'\n                field: number\n                min: '0'\n                max: '15'\n            neg:\n                name: neg\n                type: int\n                default: '3'\n                field: number\n                min: '0'\n                max: '7'\n            filter_r:\n                name: filter_r\n                type: int\n                default: '2'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.set_ad1_input(pos, neg, filter_r)\n\n    def set_ad1_reference(self, high: int = 1, low: int = 1):\n        \"\"\"\n        label:\n            en: '%1 set AD1 reference high (0-6) %2 low (0-6) %3'\n        params:\n            high:\n                name: high\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '6'\n            low:\n                name: low\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '6'\n        \"\"\"\n        self._driver.set_ad1_reference(high, low)\n\n    def read_temperature_code(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read temperature code'\n        \"\"\"\n        return self._driver.read_temperature_code()\n\n    def read_temperature(self, tcode_25: int = 0) -> float:\n        \"\"\"\n        label:\n            en: '%1 temperature (°C) from code at 25 °C %2'\n        params:\n            tcode_25:\n                name: tcode_25\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        return self._driver.read_temperature(tcode_25)\n\n    def enable_ad2(self, osr: int = 5, input_gain: int = 1, source: int = 0):\n        \"\"\"\n        label:\n            en: '%1 enable AD2 osr (0-7) %2 input gain (0-3) %3 source (0-3) %4'\n        params:\n            osr:\n                name: osr\n                type: int\n                default: '5'\n                field: number\n                min: '0'\n                max: '7'\n            input_gain:\n                name: input_gain\n                type: int\n                default: '1'\n                field: number\n                min: '0'\n                max: '3'\n            source:\n                name: source\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.enable_ad2(osr=osr, input_gain=input_gain, source=source)\n\n    def read_ad2_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read AD2 raw code'\n        \"\"\"\n        return self._driver.read_ad2_raw()\n\n    def enable_lpf(self, bw: int = 0):\n        \"\"\"\n        label:\n            en: '%1 enable low-pass filter bw (0-7) %2'\n        params:\n            bw:\n                name: bw\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '7'\n        \"\"\"\n        self._driver.enable_lpf(bw)\n\n    def read_lpf_raw(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read LPF raw code'\n        \"\"\"\n        return self._driver.read_lpf_raw()\n\n    def enable_rms(self):\n        \"\"\"\n        label:\n            en: '%1 enable RMS converter'\n        \"\"\"\n        self._driver.enable_rms()\n\n    def read_rms(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 read RMS (LSB)'\n        \"\"\"\n        return self._driver.read_rms()\n\n    def enable_peak_hold(self, source: int = 0):\n        \"\"\"\n        label:\n            en: '%1 enable peak hold source (0-3) %2'\n        params:\n            source:\n                name: source\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.enable_peak_hold(source)\n\n    def read_peak_min(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 peak minimum code'\n        \"\"\"\n        return self._driver.read_peak()[0]\n\n    def read_peak_max(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 peak maximum code'\n        \"\"\"\n        return self._driver.read_peak()[1]\n\n    def start_counter(self, gate_preload: int = 0):\n        \"\"\"\n        label:\n            en: '%1 start frequency counter gate preload (0-65535) %2'\n        params:\n            gate_preload:\n                name: gate_preload\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '65535'\n        \"\"\"\n        self._driver.start_counter(gate_preload)\n\n    def read_flags(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 read INTF flags'\n        \"\"\"\n        return self._driver.read_flags()\n\n    def enable_interrupts(self, mask: int = 4):\n        \"\"\"\n        label:\n            en: '%1 enable interrupts mask (0-31) %2'\n        params:\n            mask:\n                name: mask\n                type: int\n                default: '4'\n                field: number\n                min: '0'\n                max: '31'\n        \"\"\"\n        self._driver.enable_interrupts(mask)\n\n    def reset(self):\n        \"\"\"\n        label:\n            en: '%1 reset'\n        \"\"\"\n        self._driver.reset()\n",
+  "version": "alpha2"
+}

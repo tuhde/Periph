@@ -43,6 +43,7 @@ Each chip exposes two classes:
 | APDS9960 | Light sensor | `periph/src/chips/light/apds9960` |
 | AS5600 | Magnetometer | `periph/src/chips/magnetometer/as5600` |
 | BMA150 | Accelerometer | `periph/src/chips/accelerometer/bma150` |
+| BMA180 | Accelerometer | `periph/src/chips/accelerometer/bma180` |
 | BME280 | Environmental sensor | `periph/src/chips/environmental/bme280` |
 | BME680 | Environmental sensor | `periph/src/chips/environmental/bme680` |
 | BMP085 | Pressure sensor | `periph/src/chips/pressure/bmp085` |
@@ -58,15 +59,18 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
+| HY3131 | ADC/DAC | `periph/src/chips/adc_dac/hy3131` |
 | IL0373 | Display driver | `periph/src/chips/display/il0373` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
 | L3G4200D | Gyroscope | `periph/src/chips/gyroscope/l3g4200d` |
 | L3GD20H | Gyroscope | `periph/src/chips/gyroscope/l3gd20h` |
+| LIS3DH | Accelerometer | `periph/src/chips/accelerometer/lis3dh` |
 | LPS22DF | Pressure sensor | `periph/src/chips/pressure/lps22df` |
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
+| LSM303 | Accelerometer | `periph/src/chips/accelerometer/lsm303` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |

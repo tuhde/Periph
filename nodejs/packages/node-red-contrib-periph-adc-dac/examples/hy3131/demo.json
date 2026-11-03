@@ -1,0 +1,94 @@
+[
+    {
+        "id": "tab-hy3131-demo",
+        "type": "tab",
+        "label": "HY3131 Voltmeter Demo",
+        "disabled": false,
+        "info": "Bench voltmeter demo for the HY3131 DMM analog front end. An inject node fires every second and triggers an AD1 read of the 0–1.2 V source wired between PB2 and AGND (40 Hz output rate, chopper on). The payload {voltage, raw} goes to a debug node and a chart-ready function that extracts the voltage."
+    },
+    {
+        "id": "cfg-hy3131",
+        "type": "hy3131-device",
+        "name": "HY3131",
+        "bus": "0",
+        "device": "0",
+        "vref": "1.2",
+        "osr": "4",
+        "chop": "2",
+        "inputGain": "0"
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "read every 1s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-hy3131-demo",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            [
+                "hy3131"
+            ]
+        ]
+    },
+    {
+        "id": "hy3131",
+        "type": "periph-hy3131",
+        "name": "HY3131",
+        "device": "cfg-hy3131",
+        "z": "tab-hy3131-demo",
+        "x": 340,
+        "y": 120,
+        "wires": [
+            [
+                "fn-voltage",
+                "dbg-all"
+            ]
+        ]
+    },
+    {
+        "id": "fn-voltage",
+        "type": "function",
+        "name": "voltage",
+        "func": "return { topic: 'voltage', payload: msg.payload.voltage };",
+        "outputs": 1,
+        "z": "tab-hy3131-demo",
+        "x": 540,
+        "y": 80,
+        "wires": [
+            [
+                "dbg-voltage"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-voltage",
+        "type": "debug",
+        "name": "voltage (V)",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "z": "tab-hy3131-demo",
+        "x": 740,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "dbg-all",
+        "type": "debug",
+        "name": "HY3131 reading",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "z": "tab-hy3131-demo",
+        "x": 740,
+        "y": 160,
+        "wires": []
+    }
+]

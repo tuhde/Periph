@@ -17,6 +17,18 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
     ],
     [
+      "periph/chips/accelerometer/bma180.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/bma180.py"
+    ],
+    [
+      "periph/chips/accelerometer/lis3dh.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/lis3dh.py"
+    ],
+    [
+      "periph/chips/accelerometer/lsm303.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/lsm303.py"
+    ],
+    [
       "periph/chips/accelerometer/mma8451q.py",
       "github:tuhde/Periph/python/periph/chips/accelerometer/mma8451q.py"
     ],
