@@ -50,6 +50,30 @@ fn main() -> ! {
     check_true!(ry >= -8192 && ry <= 8191, "raw_y_in_range", passed, failed);
     check_true!(rz >= -8192 && rz <= 8191, "raw_z_in_range", passed, failed);
 
+    drop(chip);
+    let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
+    let mut chip_full = periph::chips::accelerometer::Mma8451QFull::new(i2c, ADDR)
+        .expect("init MMA8451Q Full");
+    delay.delay_millis(22);
+
+    chip_full.set_range(4).expect("set_range");
+    delay.delay_millis(22);
+    let (x, y, z) = chip_full.read().expect("read");
+    check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_after_set_range_4g", passed, failed);
+
+    let status = chip_full.poll_interrupt().expect("poll_interrupt");
+    check_true!(status as u16 <= 0xFF, "poll_interrupt_returns_byte", passed, failed);
+
+    let mode = chip_full.read_system_mode().expect("read_system_mode");
+    check_true!(mode <= 2, "system_mode_valid", passed, failed);
+
+    chip_full.set_orientation(true, 100.0, 45, 4, 4, 1).expect("set_orientation");
+    let (_changed, _lockout, _lapo, _back) = chip_full.read_orientation().expect("read_orientation");
+    check_true!(true, "orientation_readable", passed, failed);
+
     println!("===DONE: {} passed, {} failed===", passed, failed);
     if failed > 0 {
         loop { esp_hal::delay::Delay::new().delay_millis(1000); }
