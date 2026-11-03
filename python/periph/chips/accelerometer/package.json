@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
     ],
     [
+      "periph/chips/accelerometer/mma8451q.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/mma8451q.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
