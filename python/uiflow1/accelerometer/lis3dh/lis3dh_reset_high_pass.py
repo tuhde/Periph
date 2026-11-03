@@ -1,0 +1,1 @@
+_periph_lis3dh.reset_high_pass()

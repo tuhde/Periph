@@ -1,0 +1,126 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('lis3dh-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '1', required: true, validate: RED.validators.number() },
+            address:  { value: '0x18', required: true },
+            range:    { value: '2', required: true, validate: RED.validators.number() },
+            dataRate: { value: '100', required: true, validate: RED.validators.number() },
+            mode:     { value: '2', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('LIS3DH @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lis3dh-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="LIS3DH">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="0x18" selected>0x18 (SA0=GND)</option>
+            <option value="0x19">0x19 (SA0=VDD_IO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:150px">
+            <option value="2" selected>±2 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+            <option value="16">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-dataRate">Data rate (Hz)</label>
+        <select id="node-config-input-dataRate" style="width:180px">
+            <option value="1">1 Hz</option>
+            <option value="10">10 Hz</option>
+            <option value="25">25 Hz</option>
+            <option value="50">50 Hz</option>
+            <option value="100" selected>100 Hz</option>
+            <option value="200">200 Hz</option>
+            <option value="400">400 Hz</option>
+            <option value="1344">1.344 kHz (normal / high-resolution)</option>
+            <option value="1620">1.620 kHz (low-power)</option>
+            <option value="5376">5.376 kHz (low-power)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mode">Mode</label>
+        <select id="node-config-input-mode" style="width:180px">
+            <option value="0">low-power (8-bit)</option>
+            <option value="1">normal (10-bit)</option>
+            <option value="2" selected>high-resolution (12-bit)</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-lis3dh', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'lis3dh-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'LIS3DH'; },
+        paletteLabel: 'LIS3DH'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-lis3dh">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="LIS3DH">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-lis3dh">
+    <p>Reads 3-axis acceleration and the relative on-chip temperature from a LIS3DH 3-axis accelerometer over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via a <b>lis3dh-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+        <dt>payload.temperature_delta <span class="property-type">number</span></dt>
+        <dd>Relative on-chip temperature in °C (1 digit/°C, or <code>null</code> if the read failed).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (<code>0x18</code> with SA0 = GND or
+    <code>0x19</code> with SA0 = VDD_IO), the full-scale range (±2/±4/±8/±16 g), the output
+    data rate (1 Hz … 5.376 kHz) and the operating mode (low-power 8-bit, normal 10-bit or
+    high-resolution 12-bit) in the device config node. The data rate and the mode have to
+    match: 1.62 kHz and 5.376 kHz exist in low-power mode only, 1.344 kHz is not available in
+    low-power mode.</p>
+</script>

@@ -1,0 +1,1 @@
+_periph_lis3dh.set_motion_interrupt(generator=int(${_generator}), events=int(${_events}), threshold_g=float(${_threshold_g}), duration_ms=float(${_duration_ms}), and_mode=bool(${_and_mode}))

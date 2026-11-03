@@ -55,6 +55,7 @@ Each chip exposes two structs:
 | APDS9960 | Light sensor | Digital proximity, ambient light, RGB and gesture sensor (Broadcom/Avago). |
 | AS5600 | Magnetometer | 12-bit programmable contactless rotary position sensor (AMS OSRAM). |
 | BMA150 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
+| BMA180 | Accelerometer | 3-axis MEMS accelerometer (Bosch Sensortec). |
 | BME280 | Environmental sensor | Combined humidity + pressure + temperature sensor (Bosch Sensortec). |
 | BME680 | Environmental sensor | 4-in-1 environmental sensor: temperature, pressure, humidity, gas resistance (Bosch Sensortec). |
 | BMP085 | Pressure sensor | Piezo-resistive pressure + temperature sensor (Bosch Sensortec). |
@@ -77,9 +78,11 @@ Each chip exposes two structs:
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
 | L3G4200D | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
 | L3GD20H | Gyroscope | Three-axis MEMS gyroscope (STMicroelectronics). |
+| LIS3DH | Accelerometer | 3-axis ultra-low-power MEMS accelerometer (STMicroelectronics). |
 | LPS22DF | Pressure sensor | Absolute pressure and temperature sensor (STMicroelectronics). |
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
+| LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
