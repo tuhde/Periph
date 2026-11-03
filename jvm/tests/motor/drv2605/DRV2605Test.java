@@ -42,6 +42,8 @@ public class DRV2605Test {
 
             haptic.diagnose();
             checkTrue(true, "diagnose_runs");
+            haptic.calibrate(false, 3.0, 3.0);
+            checkTrue(!haptic.isPlaying(), "calibrate_completes");
             var status = haptic.readStatus();
             checkTrue(!status.overTemp(), "no_overtemp");
             checkTrue(!status.overCurrent(), "no_overcurrent");

@@ -60,6 +60,10 @@ func main() {
 
 	_, err = full.Diagnose() // Run actuator diagnostics, () → (bool, error)
 	check("diagnose_runs", err == nil)
+	_, err = full.Calibrate(false, 3.0, 3.0, 0) // Run auto-calibration, (lra, ratedVoltage V, overdriveVoltage V, lraFreqHz Hz) → (DRV2605Calibration, error)
+	check("calibrate_runs", err == nil)
+	playing, err = full.IsPlaying()
+	check("calibrate_completes", err == nil && !playing)
 	st, err := full.ReadStatus() // Read status flags, () → (DRV2605Status, error)
 	check("no_overtemp", err == nil && !st.OverTemp)
 	check("no_overcurrent", err == nil && !st.OverCurrent)

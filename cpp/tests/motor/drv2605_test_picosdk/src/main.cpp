@@ -39,6 +39,8 @@ int main(void) {
     full.stop();                                           // Cancel playback, () → void
     check_true(!full.isPlaying(), "stop_clears_go");
     full.diagnose();                                       // Run actuator diagnostics, () → bool
+    full.calibrate(false, 3.0f, 3.0f);                      // Run auto-calibration, (lra, ratedVoltage V, overdriveVoltage V, lraFreqHz Hz) → Calibration
+    check_true(!full.isPlaying(), "calibrate_completes");
     DRV2605Full::Status st = full.readStatus();            // Read status flags, () → Status
     check_true(!st.overTemp, "no_overtemp");
     check_true(!st.overCurrent, "no_overcurrent");

@@ -39,6 +39,9 @@ async function main() {
     checkTrue('stop_clears_go', !(await haptic.isPlaying()));
 
     checkTrue('diagnose_runs', typeof (await haptic.diagnose()) === 'boolean');
+    const cal = await haptic.calibrate(false, 3.0, 3.0);
+    checkTrue('calibrate_runs', typeof cal.ok === 'boolean');
+    checkTrue('calibrate_completes', !(await haptic.isPlaying()));
     const status = await haptic.readStatus();
     checkTrue('no_overtemp', !status.overTemp);
     checkTrue('no_overcurrent', !status.overCurrent);

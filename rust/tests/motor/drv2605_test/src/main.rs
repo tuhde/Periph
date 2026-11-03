@@ -40,6 +40,8 @@ fn main() {
 
     let _ = haptic.diagnose(&mut delay).expect("diagnose");
     check_true!(true, "diagnose_runs", passed, failed);
+    let _ = haptic.calibrate(&mut delay, false, 3.0, 3.0, None).expect("calibrate");
+    check_true!(!haptic.is_playing().expect("is_playing"), "calibrate_completes", passed, failed);
     let status = haptic.read_status().expect("status");
     check_true!(!status.over_temp, "no_overtemp", passed, failed);
     check_true!(!status.over_current, "no_overcurrent", passed, failed);

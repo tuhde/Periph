@@ -16,7 +16,7 @@ npm install node-red-contrib-periph-motor
 
 | Node | Kind | Description |
 |------|------|-------------|
-| `periph-drv2605` | input | Plays haptic effects on an ERM or LRA vibration motor through a DRV2605 haptic driver over I²C: ROM effects, effect sequences, real-time amplitude and stop, and reports the chip status. |
+| `periph-drv2605` | input | Plays haptic effects on an ERM or LRA vibration motor through a DRV2605 haptic driver over I²C (fixed address 0x5A). The EN pin must be high. |
 | `periph-drv8830` | input | Drives a brushed DC motor through a DRV8830 low-voltage H-bridge over I²C, and reports its fault status. The chip regulates the commanded voltage across the motor, so speed stays constant as the supply sags. |
 
 ## Links
