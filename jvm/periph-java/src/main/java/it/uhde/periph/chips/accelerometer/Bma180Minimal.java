@@ -1,0 +1,164 @@
+package it.uhde.periph.chips.accelerometer;
+
+import it.uhde.periph.connection.Register;
+import it.uhde.periph.connection.RegisterConnection;
+
+import java.io.IOException;
+
+/**
+ * BMA180 — 3-axis MEMS accelerometer (Bosch Sensortec) — minimal interface.
+ *
+ * <p>Triaxial low-g accelerometer with 14-bit digital output and seven
+ * selectable full-scale ranges (±1 to ±16 *g*). Communicates over I²C at
+ * address 0x40 (SDO = GND) or 0x41 (SDO = VDDIO).
+ *
+ * <p>Default configuration (baked in at construction):
+ * <ul>
+ *   <li>Range ±2 *g* (4096 LSB/g)</li>
+ *   <li>Bandwidth 150 Hz low-pass</li>
+ *   <li>{@code mode_config} = 00 (low-noise, factory-calibrated)</li>
+ *   <li>14-bit readout, {@code shadow_dis} = 0</li>
+ *   <li>Calibration bits preserved everywhere</li>
+ * </ul>
+ */
+public class Bma180Minimal {
+
+    // Register map (0x00..0x3A).
+    protected static final int REG_CHIP_ID          = 0x00;
+    protected static final int REG_VERSION          = 0x01;
+    protected static final int REG_ACC_X_LSB        = 0x02;
+    protected static final int REG_ACC_X_MSB        = 0x03;
+    protected static final int REG_ACC_Y_LSB        = 0x04;
+    protected static final int REG_ACC_Y_MSB        = 0x05;
+    protected static final int REG_ACC_Z_LSB        = 0x06;
+    protected static final int REG_ACC_Z_MSB        = 0x07;
+    protected static final int REG_TEMP             = 0x08;
+    protected static final int REG_STATUS_REG1      = 0x09;
+    protected static final int REG_STATUS_REG2      = 0x0A;
+    protected static final int REG_STATUS_REG3      = 0x0B;
+    protected static final int REG_STATUS_REG4      = 0x0C;
+    protected static final int REG_CTRL_REG0        = 0x0D;
+    protected static final int REG_CTRL_REG1        = 0x0E;
+    protected static final int REG_CTRL_REG2        = 0x0F;
+    protected static final int REG_RESET            = 0x10;
+    protected static final int REG_BW_TCS           = 0x20;
+    protected static final int REG_CTRL_REG3        = 0x21;
+    protected static final int REG_CTRL_REG4        = 0x22;
+    protected static final int REG_HY               = 0x23;
+    protected static final int REG_SLOPE_TAPSENS    = 0x24;
+    protected static final int REG_HIGH_LOW_INFO    = 0x25;
+    protected static final int REG_LOW_DUR          = 0x26;
+    protected static final int REG_HIGH_DUR         = 0x27;
+    protected static final int REG_TAPSENS_TH       = 0x28;
+    protected static final int REG_LOW_TH           = 0x29;
+    protected static final int REG_HIGH_TH          = 0x2A;
+    protected static final int REG_SLOPE_TH         = 0x2B;
+    protected static final int REG_CD1              = 0x2C;
+    protected static final int REG_CD2              = 0x2D;
+    protected static final int REG_TCO_X            = 0x2E;
+    protected static final int REG_TCO_Y            = 0x2F;
+    protected static final int REG_TCO_Z            = 0x30;
+    protected static final int REG_GAIN_T           = 0x31;
+    protected static final int REG_GAIN_X           = 0x32;
+    protected static final int REG_GAIN_Y           = 0x33;
+    protected static final int REG_GAIN_Z           = 0x34;
+    protected static final int REG_OFFSET_LSB1      = 0x35;
+    protected static final int REG_OFFSET_LSB2      = 0x36;
+    protected static final int REG_OFFSET_T         = 0x37;
+    protected static final int REG_OFFSET_X         = 0x38;
+    protected static final int REG_OFFSET_Y         = 0x39;
+    protected static final int REG_OFFSET_Z         = 0x3A;
+
+    /** CHIP_ID bits 2:0 = 0b011 (0x03). */
+    protected static final int CHIP_ID_VALUE = 0x03;
+    protected static final int CHIP_ID_MASK  = 0x07;
+
+    /** CTRL_REG0 bits. */
+    protected static final int CTRL_REG0_EE_W       = 0x10;
+    protected static final int CTRL_REG0_RESET_INT  = 0x40;
+    protected static final int CTRL_REG0_UPDATE_IMG = 0x20;
+    protected static final int CTRL_REG0_ST0          = 0x04;
+    protected static final int CTRL_REG0_SLEEP      = 0x02;
+
+    /** Soft-reset code. */
+    protected static final int SOFT_RESET_CMD = 0xB6;
+
+    /** OFFSET_LSB1 (0x35) bits 3:1 — 111 not authorised. */
+    protected static final int RANGE_1G_MASK   = 0x00;
+    protected static final int RANGE_1_5G_MASK = 0x02;
+    protected static final int RANGE_2G_MASK   = 0x04;
+    protected static final int RANGE_3G_MASK   = 0x06;
+    protected static final int RANGE_4G_MASK   = 0x08;
+    protected static final int RANGE_8G_MASK   = 0x0A;
+    protected static final int RANGE_16G_MASK  = 0x0C;
+
+    /** Sensitivity (LSB/g) by range. */
+    protected static final float FULL_SCALE_1G   = 8192.0f;
+    protected static final float FULL_SCALE_1_5G = 5460.0f;
+    protected static final float FULL_SCALE_2G   = 4096.0f;
+    protected static final float FULL_SCALE_3G   = 2730.0f;
+    protected static final float FULL_SCALE_4G   = 2048.0f;
+    protected static final float FULL_SCALE_8G   = 1024.0f;
+    protected static final float FULL_SCALE_16G  = 512.0f;
+
+    protected final RegisterConnection connection;
+    protected float rangeG = 2.0f;
+    protected int rangeBits = RANGE_2G_MASK;
+
+    /**
+     * Construct the driver.
+     *
+     * @param connection configured I²C, SMBus, or SPI register connection
+     * @throws IOException on bus error or wrong CHIP_ID
+     */
+    public Bma180Minimal(RegisterConnection connection) throws IOException {
+        this.connection = connection;
+        // First transaction must NOT be an acc LSB read (returns MSB=0 on first power-up read).
+        int id = readReg(REG_CHIP_ID);
+        if ((id & CHIP_ID_MASK) != CHIP_ID_VALUE) {
+            throw new IOException(String.format(
+                "BMA180 CHIP_ID: expected 0x%02X, got 0x%02X",
+                CHIP_ID_VALUE, id & CHIP_ID_MASK));
+        }
+        // Unlock image registers (0x20-0x3B) by setting ee_w = 1.
+        int ctrl0 = readReg(REG_CTRL_REG0);
+        writeReg(REG_CTRL_REG0, ctrl0 | CTRL_REG0_EE_W);
+        // Set range = ±2 g via OFFSET_LSB1 bits 3:1, preserving cal/smp_skip.
+        int olsb1 = readReg(REG_OFFSET_LSB1);
+        writeReg(REG_OFFSET_LSB1, (olsb1 & 0xF1) | RANGE_2G_MASK);
+        // Set bw = 150 Hz via BW_TCS bits 7:4, preserving tcs.
+        int bw = readReg(REG_BW_TCS);
+        writeReg(REG_BW_TCS, (bw & 0x0F) | 0x40);
+    }
+
+    /**
+     * Read 3-axis linear acceleration.
+     *
+     * @return float[3] { x, y, z } in *g*
+     * @throws IOException on bus error
+     */
+    public float[] read() throws IOException {
+        byte[] raw = connection.read(REG_ACC_X_LSB, 6);
+        int rx = Register.toSigned(((raw[1] & 0xFF) << 6) | ((raw[0] & 0xFF) >> 2), 14);
+        int ry = Register.toSigned(((raw[3] & 0xFF) << 6) | ((raw[2] & 0xFF) >> 2), 14);
+        int rz = Register.toSigned(((raw[5] & 0xFF) << 6) | ((raw[4] & 0xFF) >> 2), 14);
+        float scale;
+        if      (rangeG == 1.0f)   scale = FULL_SCALE_1G;
+        else if (rangeG == 1.5f) scale = FULL_SCALE_1_5G;
+        else if (rangeG == 2.0f) scale = FULL_SCALE_2G;
+        else if (rangeG == 3.0f) scale = FULL_SCALE_3G;
+        else if (rangeG == 4.0f) scale = FULL_SCALE_4G;
+        else if (rangeG == 8.0f) scale = FULL_SCALE_8G;
+        else if (rangeG == 16.0f) scale = FULL_SCALE_16G;
+        else                      scale = FULL_SCALE_2G;
+        return new float[] { rx / scale, ry / scale, rz / scale };
+    }
+
+    protected void writeReg(int reg, int value) throws IOException {
+        connection.write(reg, new byte[] { (byte) (value & 0xFF) });
+    }
+
+    protected int readReg(int reg) throws IOException {
+        return connection.read(reg, 1)[0] & 0xFF;
+    }
+}

@@ -14,6 +14,14 @@ pub use bma150::{
     STATUS_LG_LATCHED, STATUS_HG_LATCHED,
 };
 
+pub mod bma180;
+pub use bma180::{
+    Bma180Minimal, Bma180Full,
+    SOURCE_SLOPE, SOURCE_TAP,
+    STATUS_HIGH_G, STATUS_LOW_G, STATUS_SLOPE, STATUS_TAP,
+    STATUS_X_FIRST, STATUS_Y_FIRST, STATUS_Z_FIRST,
+};
+
 pub mod adxl362;
 pub use adxl362::{
     Adxl362Minimal, Adxl362Full,

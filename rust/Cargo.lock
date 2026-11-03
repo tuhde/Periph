@@ -418,6 +418,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "bma180_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "bma180_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "bme280_complete"
 version = "0.1.0"
 dependencies = [
@@ -2326,7 +2358,7 @@ dependencies = [
 
 [[package]]
 name = "periph"
-version = "1.2.1"
+version = "1.3.2"
 dependencies = [
  "embedded-hal 1.0.0",
  "embedded-hal-mock",

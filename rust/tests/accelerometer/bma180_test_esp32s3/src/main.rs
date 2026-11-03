@@ -1,0 +1,67 @@
+#![no_std]
+#![no_main]
+
+use esp_backtrace as _;
+use esp_bootloader_esp_idf::esp_app_desc;
+use esp_hal::delay::Delay;
+use esp_hal::i2c::master::{Config, I2c};
+use esp_hal::main;
+use esp_println::println;
+use periph::chips::accelerometer::Bma180Minimal;
+
+esp_app_desc!();
+
+macro_rules! check_true {
+    ($cond:expr, $label:expr, $passed:expr, $failed:expr) => {
+        if $cond { println!("PASS {}", $label); $passed += 1; }
+        else      { println!("FAIL {}", $label); $failed += 1; }
+    };
+}
+
+const SDA_PIN: u8 = 1;
+const SCL_PIN: u8 = 2;
+const ADDR: u8 = 0x40;
+
+#[main]
+fn main() -> ! {
+    let peripherals = esp_hal::init(esp_hal::Config::default());
+
+    let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
+
+    let mut delay = Delay::new();
+    let mut chip = Bma180Minimal::new(i2c, ADDR).expect("init BMA180");
+
+    let mut passed = 0i32;
+    let mut failed = 0i32;
+
+    let (x, y, z) = chip.read().expect("read");
+    check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_returns_floats", passed, failed);
+    let mag = libm::sqrtf(x * x + y * y + z * z);
+    check_true!(mag >= 0.5 && mag <= 1.5, "magnitude_near_1g", passed, failed);
+
+    drop(chip);
+    let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
+        .unwrap()
+        .with_sda(peripherals.GPIO1.reborrow())
+        .with_scl(peripherals.GPIO2.reborrow());
+    let mut chip_full = periph::chips::accelerometer::Bma180Full::new(i2c, ADDR).expect("init BMA180 Full");
+    chip_full.set_range(4.0).expect("set_range");
+    let (x, y, z) = chip_full.read().expect("read");
+    check_true!(x.is_finite() && y.is_finite() && z.is_finite(), "read_after_set_range_4g", passed, failed);
+
+    let temp = chip_full.read_temperature().expect("read_temperature");
+    check_true!(temp >= -40.0 && temp <= 87.5, "temperature_in_range", passed, failed);
+
+    let (al, ml) = chip_full.read_version().expect("read_version");
+    check_true!(al <= 0x0F && ml <= 0x0F, "read_version_ok", passed, failed);
+
+    println!("===DONE: {} passed, {} failed===", passed, failed);
+    if failed == 0 {
+        loop { delay.delay_millis(1000); }
+    } else {
+        loop {}
+    }
+}
