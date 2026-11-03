@@ -1,0 +1,73 @@
+[
+    {
+        "id": "tab-mma8451q-demo",
+        "type": "tab",
+        "label": "MMA8451Q Tilt + Orientation Monitor",
+        "disabled": false,
+        "info": "Reads 3-axis acceleration from an MMA8451Q every 200 ms. A function node computes the pitch and roll angles from the acceleration vector and derives a screen-rotation label (\"portrait up\", \"landscape left\", …) from the chip's hardware orientation detector, which reports portrait/landscape and back/front without any host-side filtering. The pitch/roll values show the static gravity component shifting between the axes as the board is tilted, while the hardware label flips only when the device really passes the 45° trip angle — the contrast between the two is the point of the flow. Demonstrates a 14-bit tilt sensor with on-chip orientation detection. Adjust the measurement range (±2/±4/±8 g) and the output data rate (1.56 Hz – 800 Hz) in the device config node to match the application's dynamic range and bandwidth."
+    },
+    {
+        "id": "cfg-mma8451q",
+        "type": "mma8451q-device",
+        "name": "MMA8451Q",
+        "bus": "1",
+        "address": "0x1C",
+        "range": "2",
+        "rate": "100",
+        "oversampling": "0",
+        "orientation": "true"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 200 ms",
+        "repeat": "0.2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.2,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-mma8451q-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [["read-mma8451q"]]
+    },
+    {
+        "id": "read-mma8451q",
+        "type": "periph-mma8451q",
+        "name": "MMA8451Q read",
+        "device": "cfg-mma8451q",
+        "z": "tab-mma8451q-demo",
+        "x": 320,
+        "y": 100,
+        "wires": [["fn-tilt"]]
+    },
+    {
+        "id": "fn-tilt",
+        "type": "function",
+        "name": "pitch / roll + screen rotation",
+        "func": "const {x, y, z, orientation} = msg.payload;\nconst pitch = Math.atan2(-x, Math.sqrt(y * y + z * z)) * 180 / Math.PI;\nconst roll  = Math.atan2(y, z) * 180 / Math.PI;\nconst LAPO = ['portrait up', 'portrait down', 'landscape right', 'landscape left'];\nlet screen = 'unknown';\nif (orientation) {\n    screen = LAPO[orientation.portrait_landscape];\n    if (orientation.back) { screen += ', back'; } else { screen += ', front'; }\n}\nmsg.payload = { x, y, z, pitch, roll, screen, orientation };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-mma8451q-demo",
+        "x": 560,
+        "y": 100,
+        "wires": [["dbg-tilt"]]
+    },
+    {
+        "id": "dbg-tilt",
+        "type": "debug",
+        "name": "pitch / roll / screen",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-mma8451q-demo",
+        "x": 810,
+        "y": 100,
+        "wires": []
+    }
+]
