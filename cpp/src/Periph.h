@@ -63,6 +63,7 @@
 #include "chips/magnetometer/AS5600.h"
 #include "chips/magnetometer/HMC5883L.h"
 #include "chips/memory/24AA02UID.h"
+#include "chips/memory/MB85RC.h"
 #include "chips/motor/DRV8830.h"
 #include "chips/other/Mpr121.h"
 #include "chips/power/ADE7953.h"

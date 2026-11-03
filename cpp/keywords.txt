@@ -97,6 +97,8 @@ LPS28DFWFull	KEYWORD1
 LPS28DFWMinimal	KEYWORD1
 LPS33HWFull	KEYWORD1
 LPS33HWMinimal	KEYWORD1
+MB85RCFull	KEYWORD1
+MB85RCMinimal	KEYWORD1
 MCP23017Full	KEYWORD1
 MCP23017Minimal	KEYWORD1
 MCP2515Full	KEYWORD1
@@ -433,6 +435,7 @@ magnetic_field	KEYWORD2
 magnitude	KEYWORD2
 manufacturer_id	KEYWORD2
 max_angle	KEYWORD2
+max_chunk	KEYWORD2
 max_position	KEYWORD2
 mode	KEYWORD2
 modelId	KEYWORD2
@@ -500,6 +503,7 @@ read_channel	KEYWORD2
 read_channel_voltage	KEYWORD2
 read_compensation_actuals	KEYWORD2
 read_device_code	KEYWORD2
+read_device_id	KEYWORD2
 read_differential	KEYWORD2
 read_eco2	KEYWORD2
 read_errors	KEYWORD2
@@ -649,6 +653,7 @@ set_link_mode	KEYWORD2
 set_low_power	KEYWORD2
 set_mask	KEYWORD2
 set_max_angle	KEYWORD2
+set_max_chunk	KEYWORD2
 set_max_position	KEYWORD2
 set_mode	KEYWORD2
 set_mono	KEYWORD2
@@ -698,6 +703,7 @@ sigmaThreshold	KEYWORD2
 signalRateLimit	KEYWORD2
 signal_strength	KEYWORD2
 single_measurement	KEYWORD2
+size	KEYWORD2
 sleep	KEYWORD2
 sleep_after_interrupt	KEYWORD2
 soft_reset	KEYWORD2
