@@ -24,6 +24,8 @@ npm install node-red-contrib-periph-accelerometer
 | `bma150` | input | Reads 3-axis acceleration and on-chip temperature from a BMA150 3-axis accelerometer over I²C. |
 | `bma180-device` | config | I²C bus and address for a BMA180 |
 | `bma180` | input | Reads 3-axis acceleration and on-chip temperature from a BMA180 3-axis accelerometer over I²C. |
+| `lis3dh-device` | config | I²C bus and address for a LIS3DH |
+| `periph-lis3dh` | input | Reads 3-axis acceleration and the relative on-chip temperature from a LIS3DH 3-axis accelerometer over I²C. |
 
 ## Links
 

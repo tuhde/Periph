@@ -1,0 +1,1 @@
+_periph_lis3dh.set_orientation(generator=int(${_generator}), position=bool(${_position}), four_d=bool(${_four_d}))
