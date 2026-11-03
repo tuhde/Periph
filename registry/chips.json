@@ -413,6 +413,18 @@
       "datasheet": "datasheets/display/sh1106.pdf"
     },
     {
+      "id": "ssd1305",
+      "name": "SSD1305",
+      "category": "display",
+      "addresses": [
+        "0x3C..0x3D"
+      ],
+      "id_probe": null,
+      "probe_safety": "write_sensitive",
+      "driver": null,
+      "datasheet": "datasheets/display/ssd1305.pdf"
+    },
+    {
       "id": "uc1611s",
       "name": "UC1611s",
       "category": "display",
