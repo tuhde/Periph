@@ -16,7 +16,7 @@ Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
-periph = "1.2.1"
+periph = "1.3.2"
 ```
 
 ## Example
@@ -42,6 +42,7 @@ Each chip exposes two structs:
 
 | Chip | Category | Description |
 |------|----------|-------------|
+| 23X1024 | Memory | 1-Mbit SPI serial SRAM (Microchip 23LC1024 / 23A1024). |
 | 24AA02UID | Memory | 2 Kbit I²C EEPROM with 32-bit unique serial number. |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
@@ -70,6 +71,8 @@ Each chip exposes two structs:
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
+| HY3131 | ADC/DAC | HYCON HY3131 50,000-count DMM analog front end driver (SPI). |
+| IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |
 | INA3221 | Power monitor | Three-channel 26 V current/voltage/power monitor (Texas Instruments). |
@@ -88,6 +91,7 @@ Each chip exposes two structs:
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
+| MX25L12845E | Memory | Macronix 128-Mbit (16 MiB) serial NOR flash (`specs/memory/mx25l12845e.md`). |
 | NEO-6 | GNSS/GPS | U-blox 6 GNSS/GPS receiver. |
 | PCF8523 | RTC | Low-power I²C real-time clock and calendar (NXP). |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
@@ -96,9 +100,15 @@ Each chip exposes two structs:
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |
+| SD_SPI | Memory | SD / SDHC / SDXC / microSD card in SPI mode (`specs/memory/sd_spi.md`). |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip driver. |
+| SSD1331 | Display driver | 96 x 64 RGB OLED controller (Waveshare 0.95inch RGB OLED). |
+| ST7036 | Display driver | Character LCD controller (EA DOGM081 / DOGM162 / DOGM163). |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy, low-power digital temperature sensor (Texas Instruments). |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register driver. |
+| UC1611S | Display driver | 160 COM x 256 SEG graphic LCD controller-driver (UltraChip), as used on the EA DOGXL240-7. |
+| UC8159 | Display driver | Seven-colour e-paper controller (600 x 448 panels such as the |
+| UC8276C | Display driver | Black/white/red e-paper controller (400 x 300 panels such as the |
 | VL53L0X | Time-of-flight | Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | VL53L1X | Time-of-flight | Long-distance Time-of-Flight laser-ranging sensor (STMicroelectronics). |
 | WS2812B | LED driver | Addressable RGB LED strip driver (Worldsemi). |

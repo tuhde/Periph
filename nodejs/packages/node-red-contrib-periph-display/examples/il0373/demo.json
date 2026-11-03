@@ -1,0 +1,115 @@
+[
+    {
+        "id": "il0373_tab",
+        "type": "tab",
+        "label": "IL0373 status card",
+        "disabled": false,
+        "info": "Every 10 minutes: wake the panel, draw a status card (black header bar, black border, bar chart) and refresh it, then put the controller into deep sleep once the node reports { updated: true }. The refresh blocks the node for about 17 s. Needs a Waveshare 2.13inch e-Paper (D) on SPI0 with DC = GPIO25, RST = GPIO17, BUSY = GPIO24."
+    },
+    {
+        "id": "il0373_inject",
+        "type": "inject",
+        "z": "il0373_tab",
+        "name": "every 10 min",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "600",
+        "once": true,
+        "onceDelay": "1",
+        "payload": "{}",
+        "payloadType": "json",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "il0373_card"
+            ]
+        ]
+    },
+    {
+        "id": "il0373_card",
+        "type": "function",
+        "z": "il0373_tab",
+        "name": "wake and build status card",
+        "func": "const values = [30, 55, 80, 45, 120, 90, 60, 100];\nconst peak = Math.max(...values);\nconst out = [\n  { payload: { wake: true } },\n  { payload: { clear: 'white' } },\n  { payload: { rect: { x: 2, y: 2, w: 100, h: 208, color: 'black', fill: false } } },\n  { payload: { rect: { x: 3, y: 3, w: 98, h: 24, color: 'black', fill: true } } },\n  { payload: { line: { x0: 10, y0: 190, x1: 95, y1: 190, color: 'black' } } },\n  { payload: { line: { x0: 10, y0: 60, x1: 10, y1: 190, color: 'black' } } },\n];\nvalues.forEach((v, i) => out.push({ payload: { rect: { x: 14 + i * 10, y: 190 - v, w: 8, h: v, color: 'black', fill: v === peak } } }));\nout.push({ payload: { show: true } });\nreturn [out];",
+        "outputs": 1,
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "il0373_node"
+            ]
+        ]
+    },
+    {
+        "id": "il0373_node",
+        "type": "periph-il0373",
+        "z": "il0373_tab",
+        "name": "",
+        "spiBus": "0",
+        "spiDevice": "0",
+        "gpioChip": "0",
+        "dcPin": "25",
+        "resPin": "17",
+        "busyPin": "24",
+        "wireMode": "simplex",
+        "width": "400",
+        "height": "300",
+        "busyTimeout": "30000",
+        "autoShow": false,
+        "x": 590,
+        "y": 100,
+        "wires": [
+            [
+                "il0373_updated"
+            ]
+        ]
+    },
+    {
+        "id": "il0373_updated",
+        "type": "switch",
+        "z": "il0373_tab",
+        "name": "updated?",
+        "property": "payload.updated",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 780,
+        "y": 100,
+        "wires": [
+            [
+                "il0373_sleep"
+            ]
+        ]
+    },
+    {
+        "id": "il0373_sleep",
+        "type": "change",
+        "z": "il0373_tab",
+        "name": "sleep",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"sleep\":true}",
+                "tot": "json"
+            }
+        ],
+        "x": 930,
+        "y": 100,
+        "wires": [
+            [
+                "il0373_node"
+            ]
+        ]
+    }
+]

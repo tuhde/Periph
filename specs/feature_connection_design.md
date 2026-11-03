@@ -816,6 +816,12 @@ class InputPin(ABC):
     @abstractmethod
     def off_edge(self, handler):
         """Remove a specific handler from the list. No-op if not registered."""
+
+    @abstractmethod
+    def is_high(self):
+        """Level read: True when the line is at logic high now. Raw electrical level
+        (no inversion, no debounce); does not disturb registered edge handlers.
+        Used for level signals such as BUSY (see specs/feature_inputpin_level_read.md)."""
 ```
 
 | Class | Platform | Mechanism |
@@ -863,6 +869,7 @@ every C++ transport (`I2CTransportESPIDF`, `I2CTransportPicoSDK`, …; the STM32
 class InputPin {
     async onEdge(callback, trigger = 'falling') { throw new Error('abstract'); }
     async offEdge(callback) { throw new Error('abstract'); }
+    isHigh() { throw new Error('abstract'); }   // synchronous level read, raw electrical level
 }
 ```
 
@@ -885,6 +892,7 @@ public interface EdgeHandler { void onEdge(); }
 public interface InputPin extends AutoCloseable {
     void onEdge(EdgeHandler handler, EdgeTrigger trigger);
     void offEdge(EdgeHandler handler);
+    boolean isHigh() throws IOException;   // level read, raw electrical level
 }
 
 public enum EdgeTrigger { RISING, FALLING, CHANGE }
@@ -919,6 +927,9 @@ type InputPin interface {
     // returns a function that removes it. Multiple handlers may be
     // registered concurrently — e.g. several chips sharing one INT line.
     OnEdge(trigger Trigger, handler func()) (unsubscribe func())
+
+    // IsHigh reads the raw electrical level now; does not disturb handlers.
+    IsHigh() (bool, error)
 }
 ```
 

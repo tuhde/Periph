@@ -5,6 +5,7 @@
 package connection
 
 import (
+	"errors"
 	"sync"
 	"time"
 )
@@ -27,6 +28,10 @@ type PollingInputPin struct {
 	nextID   int
 
 	stop chan struct{}
+
+	// level reads the underlying line for IsHigh; nil when the pin has no
+	// signal to sample.
+	level func() (bool, error)
 }
 
 // NewPollingInputPin starts a goroutine that fires all registered handlers
@@ -38,6 +43,14 @@ func NewPollingInputPin(interval time.Duration) *PollingInputPin {
 		stop:     make(chan struct{}),
 	}
 	go p.loop()
+	return p
+}
+
+// NewPollingInputPinWithLevel is NewPollingInputPin for a pin that can also
+// be read: level is the function IsHigh() calls to read the underlying line.
+func NewPollingInputPinWithLevel(interval time.Duration, level func() (bool, error)) *PollingInputPin {
+	p := NewPollingInputPin(interval)
+	p.level = level
 	return p
 }
 
@@ -84,6 +97,16 @@ func (p *PollingInputPin) OnEdge(trigger Trigger, handler func()) (unsubscribe f
 		delete(p.handlers, id)
 		p.mu.Unlock()
 	}
+}
+
+// IsHigh returns the level read by the function given to
+// NewPollingInputPinWithLevel. A PollingInputPin without one has no signal
+// to sample and returns an error.
+func (p *PollingInputPin) IsHigh() (bool, error) {
+	if p.level == nil {
+		return false, errors.New("polling input pin has no level source")
+	}
+	return p.level()
 }
 
 // Close stops the polling goroutine.

@@ -5,8 +5,20 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/memory/_23x1024.py",
+      "github:tuhde/Periph/python/periph/chips/memory/_23x1024.py"
+    ],
+    [
       "periph/chips/memory/_24aa02uid.py",
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
+    ],
+    [
+      "periph/chips/memory/mx25l12845e.py",
+      "github:tuhde/Periph/python/periph/chips/memory/mx25l12845e.py"
+    ],
+    [
+      "periph/chips/memory/sd_spi.py",
+      "github:tuhde/Periph/python/periph/chips/memory/sd_spi.py"
     ],
     [
       "periph/connection/__init__.py",
@@ -39,6 +51,18 @@
     [
       "periph/connection/register_connection.py",
       "github:tuhde/Periph/python/periph/connection/register_connection.py"
+    ],
+    [
+      "periph/connection/spi_auto.py",
+      "github:tuhde/Periph/python/periph/connection/spi_auto.py"
+    ],
+    [
+      "periph/connection/spi_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/spi_micropython.py"
+    ],
+    [
+      "periph/storage/block_device.py",
+      "github:tuhde/Periph/python/periph/storage/block_device.py"
     ]
   ],
   "deps": [
@@ -47,5 +71,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.3.2"
 }

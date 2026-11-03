@@ -17,7 +17,7 @@ Designer. There is no generator for this format, unlike [`python/uiflow1/`](../u
 > exercised: **methods with parameters** (AHT21 only had no-arg getters plus an init with
 > params) and **execute-type blocks with parameters** (AHT21's only execute block was
 > `__init__`). Extending the args0/`valueToCode` machinery from "no params" to "N params" is
-> low-risk — it's the same mechanism at a different array length — but none of these 26
+> low-risk — it's the same mechanism at a different array length — but none of the other
 > `.m5b2` files have been imported into the real Block Designer and checked. Treat every
 > chip except AHT21 as **unverified** until you've done that; if the Designer produces
 > something different for one, fix that file and note the correction (mirroring how AHT21's

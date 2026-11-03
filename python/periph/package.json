@@ -17,6 +17,10 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/bma150.py"
     ],
     [
+      "periph/chips/accelerometer/bma180.py",
+      "github:tuhde/Periph/python/periph/chips/accelerometer/bma180.py"
+    ],
+    [
       "periph/chips/adc_dac/ad7705.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7705.py"
     ],
@@ -35,6 +39,10 @@
     [
       "periph/chips/adc_dac/hx711.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/hx711.py"
+    ],
+    [
+      "periph/chips/adc_dac/hy3131.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/hy3131.py"
     ],
     [
       "periph/chips/adc_dac/mcp4725.py",
@@ -61,8 +69,32 @@
       "github:tuhde/Periph/python/periph/chips/comms/rfm9x.py"
     ],
     [
+      "periph/chips/display/il0373.py",
+      "github:tuhde/Periph/python/periph/chips/display/il0373.py"
+    ],
+    [
       "periph/chips/display/pcf8576.py",
       "github:tuhde/Periph/python/periph/chips/display/pcf8576.py"
+    ],
+    [
+      "periph/chips/display/ssd1331.py",
+      "github:tuhde/Periph/python/periph/chips/display/ssd1331.py"
+    ],
+    [
+      "periph/chips/display/st7036.py",
+      "github:tuhde/Periph/python/periph/chips/display/st7036.py"
+    ],
+    [
+      "periph/chips/display/uc1611s.py",
+      "github:tuhde/Periph/python/periph/chips/display/uc1611s.py"
+    ],
+    [
+      "periph/chips/display/uc8159.py",
+      "github:tuhde/Periph/python/periph/chips/display/uc8159.py"
+    ],
+    [
+      "periph/chips/display/uc8276c.py",
+      "github:tuhde/Periph/python/periph/chips/display/uc8276c.py"
     ],
     [
       "periph/chips/environmental/aht21.py",
@@ -169,8 +201,20 @@
       "github:tuhde/Periph/python/periph/chips/magnetometer/hmc5883l.py"
     ],
     [
+      "periph/chips/memory/_23x1024.py",
+      "github:tuhde/Periph/python/periph/chips/memory/_23x1024.py"
+    ],
+    [
       "periph/chips/memory/_24aa02uid.py",
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
+    ],
+    [
+      "periph/chips/memory/mx25l12845e.py",
+      "github:tuhde/Periph/python/periph/chips/memory/mx25l12845e.py"
+    ],
+    [
+      "periph/chips/memory/sd_spi.py",
+      "github:tuhde/Periph/python/periph/chips/memory/sd_spi.py"
     ],
     [
       "periph/chips/motor/drv8830.py",
@@ -277,6 +321,14 @@
       "github:tuhde/Periph/python/periph/connection/dhtxx_micropython.py"
     ],
     [
+      "periph/connection/display_base.py",
+      "github:tuhde/Periph/python/periph/connection/display_base.py"
+    ],
+    [
+      "periph/connection/display_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/display_micropython.py"
+    ],
+    [
       "periph/connection/hx711_auto.py",
       "github:tuhde/Periph/python/periph/connection/hx711_auto.py"
     ],
@@ -329,6 +381,10 @@
       "github:tuhde/Periph/python/periph/connection/smbus_micropython.py"
     ],
     [
+      "periph/connection/softspi.py",
+      "github:tuhde/Periph/python/periph/connection/softspi.py"
+    ],
+    [
       "periph/connection/spi_auto.py",
       "github:tuhde/Periph/python/periph/connection/spi_auto.py"
     ],
@@ -343,6 +399,18 @@
     [
       "periph/connection/uart_micropython.py",
       "github:tuhde/Periph/python/periph/connection/uart_micropython.py"
+    ],
+    [
+      "periph/storage/__init__.py",
+      "github:tuhde/Periph/python/periph/storage/__init__.py"
+    ],
+    [
+      "periph/storage/block_device.py",
+      "github:tuhde/Periph/python/periph/storage/block_device.py"
+    ],
+    [
+      "periph/storage/ram_block_device.py",
+      "github:tuhde/Periph/python/periph/storage/ram_block_device.py"
     ]
   ],
   "deps": [
@@ -351,5 +419,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.3.2"
 }

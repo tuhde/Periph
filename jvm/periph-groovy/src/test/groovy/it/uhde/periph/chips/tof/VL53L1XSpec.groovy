@@ -89,6 +89,9 @@ class VL53L1XSpec extends Specification {
         void offEdge(EdgeHandler handler) { this.handler = null }
 
         @Override
+        boolean isHigh() { return false }
+
+        @Override
         void close() {}
     }
 

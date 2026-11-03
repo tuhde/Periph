@@ -150,7 +150,7 @@ async function main() {
     // --- write-sensitive gating ---
     bus = new FakeBus({ 0x38: {} });
     d = await only(bus);
-    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht21', 'bma150', 'pcf8574', 'pcf8576']));
+    checkTrue('aht21_cands', same(d.candidates, ['ade7953', 'aht21', 'bma150', 'pcf8574', 'pcf8576', 'uc1611s']));
     checkTrue('no_probe_when_write_sensitive_candidate', d.probeSkippedReason === 'write_sensitive_candidate' && bus.writes.length === 0);
 
     const custom = [

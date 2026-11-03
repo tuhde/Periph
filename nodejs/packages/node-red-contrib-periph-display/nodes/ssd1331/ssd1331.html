@@ -1,0 +1,83 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ssd1331', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            spiBus:      { value: '0', required: true, validate: RED.validators.number() },
+            spiDevice:   { value: '0', required: true, validate: RED.validators.number() },
+            gpioChip:    { value: '0', required: true, validate: RED.validators.number() },
+            dcPin:       { value: '25', required: true, validate: RED.validators.number() },
+            resPin:      { value: '17', required: true, validate: RED.validators.number() },
+            autoShow:    { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'SSD1331'; },
+        paletteLabel: 'SSD1331'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ssd1331">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SSD1331">
+    </div>
+    <div class="form-row">
+        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-spiBus" min="0" style="width:70px">
+        &nbsp;chip select <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dcPin">D/C# line</label>
+        <input type="number" id="node-input-dcPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resPin">RES# line</label>
+        <input type="number" id="node-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-autoShow">Auto-show</label>
+        <input type="checkbox" id="node-input-autoShow" style="width:auto"> send the framebuffer after every drawing message
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ssd1331">
+    <p>Draws on an SSD1331 96 x 64 RGB OLED (e.g. Waveshare 0.95inch RGB OLED) over SPI. The chip has no BUSY line. Drawing messages change the framebuffer only; <code>show</code> sends it to the display. The <code>hw*</code> messages use the controller's own drawing engine on the display RAM.</p>
+    <p>A colour is a name (<code>black</code>, <code>white</code>, <code>red</code>, <code>green</code>, <code>blue</code>, <code>yellow</code>, <code>cyan</code>, <code>magenta</code>), an RGB565 number, or <code>[r, g, b]</code> with 0..255 components.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">colour</span></dt>
+        <dd>Fill the framebuffer.</dd>
+        <dt>payload.pixel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, color }</code>: set one pixel.</dd>
+        <dt>payload.line / payload.rect <span class="property-type">object</span></dt>
+        <dd><code>{ x0, y0, x1, y1, color }</code> / <code>{ x, y, w, h, color, fill }</code>: draw primitives into the framebuffer.</dd>
+        <dt>payload.bitmap <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, w, h, data: [..] }</code>: copy a row-major array of RGB565 values.</dd>
+        <dt>payload.show <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> sends the whole framebuffer.</dd>
+        <dt>payload.hwLine / payload.hwRect <span class="property-type">object</span></dt>
+        <dd>Hardware drawing: <code>{ x0, y0, x1, y1, color }</code> / <code>{ x, y, w, h, color, fillColor, fill }</code>. The framebuffer is not changed.</dd>
+        <dt>payload.scroll / payload.scrollStop</dt>
+        <dd><code>{ horizontal, startRow, rows, vertical, interval }</code> starts continuous scrolling; <code>true</code> stops it.</dd>
+        <dt>payload.contrast <span class="property-type">array</span></dt>
+        <dd><code>[a, b, c]</code> channel contrast 0..255.</dd>
+        <dt>payload.mode <span class="property-type">string</span></dt>
+        <dd><code>"normal"</code>, <code>"on"</code>, <code>"off"</code> or <code>"inverse"</code>.</dd>
+        <dt>payload.on <span class="property-type">boolean</span></dt>
+        <dd>Display on or off (the picture is kept).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.updated <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> when the framebuffer has been sent.</dd>
+    </dl>
+</script>

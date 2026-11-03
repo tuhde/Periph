@@ -1,0 +1,95 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-st7036', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            spiBus:      { value: '0', required: true, validate: RED.validators.number() },
+            spiDevice:   { value: '0', required: true, validate: RED.validators.number() },
+            gpioChip:    { value: '0', required: true, validate: RED.validators.number() },
+            rsPin:       { value: '25', required: true, validate: RED.validators.number() },
+            resPin:      { value: '17', required: true, validate: RED.validators.number() },
+            lines:       { value: '2' },
+            supply:      { value: '3v3' }
+        },
+        inputs:  1,
+        outputs: 0,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'ST7036'; },
+        paletteLabel: 'ST7036'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-st7036">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ST7036">
+    </div>
+    <div class="form-row">
+        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-spiBus" min="0" style="width:70px">
+        &nbsp;chip select <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-rsPin">RS (C/D) line</label>
+        <input type="number" id="node-input-rsPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resPin">RESET line</label>
+        <input type="number" id="node-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-lines">Module</label>
+        <select id="node-input-lines" style="width:auto">
+            <option value="1">DOGM081 (1 x 8)</option>
+            <option value="2">DOGM162 (2 x 16)</option>
+            <option value="3">DOGM163 (3 x 16)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-supply">Supply</label>
+        <select id="node-input-supply" style="width:auto">
+            <option value="3v3">3.3 V (booster on)</option>
+            <option value="5v">5 V</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-st7036">
+    <p>Writes text on an ST7036 character LCD (EA DOGM081 / DOGM162 / DOGM163) in 4-wire serial mode over SPI. The serial mode is write-only; the chip has no BUSY line. Strapping: PSB = GND, E = 3V3, booster capacitors for 3.3 V.</p>
+    <p>A string payload is written at the current cursor position. Characters other than ASCII <code>0x20..0x7D</code> become <code>?</code>.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt>
+        <dd>Text written at the cursor.</dd>
+        <dt>payload.clear <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> clears the display.</dd>
+        <dt>payload.home <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> returns the cursor and a shifted display to the home position.</dd>
+        <dt>payload.text <span class="property-type">string</span></dt>
+        <dd>Text to write; with <code>payload.col</code> and <code>payload.row</code> the cursor is moved first.</dd>
+        <dt>payload.cursor <span class="property-type">object</span></dt>
+        <dd><code>{ on, blink, col, row }</code>: show or hide the cursor and blink block; with <code>col</code> / <code>row</code> the cursor is moved.</dd>
+        <dt>payload.contrast <span class="property-type">number</span></dt>
+        <dd>Contrast 0..63.</dd>
+        <dt>payload.display <span class="property-type">boolean</span></dt>
+        <dd>Display on or off (the text is kept).</dd>
+        <dt>payload.shift <span class="property-type">string</span></dt>
+        <dd><code>"left"</code> or <code>"right"</code>: shift the whole display one position.</dd>
+        <dt>payload.char <span class="property-type">object</span></dt>
+        <dd><code>{ index, rows }</code>: define custom character 0..7 from 8 row patterns of 5 bits (bit 4 = leftmost pixel). Write it with <code>payload.chars</code>.</dd>
+        <dt>payload.chars <span class="property-type">array</span></dt>
+        <dd>Raw character codes written at the cursor (use 0..7 for custom characters).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <p>None.</p>
+
+    <h3>Details</h3>
+    <p>SPI mode 0 at 1 MHz. Needs <code>opengpio</code> for the RS and RESET lines.</p>
+</script>

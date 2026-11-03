@@ -294,6 +294,14 @@ func NewIna226Full(conn connection.Connection, rShunt, maxCurrent float64) (*Ina
 // Full-only methods only — f.Voltage() is already promoted from the embedded Ina226Minimal
 ```
 
+## Block devices
+
+Storage chips (SD, SD NAND, SPI NOR, SPI NAND) follow `specs/feature_block_device.md`. Only the **Full**
+class implements `BlockDevice`; the Minimal class stays the raw chip API. `BlockDevice` lives in a
+`storage/` directory next to `connection/` in each language; chips never implement a filesystem.
+Use the SPI optional extensions (`idle_clocks`, `set_speed`, `read_into`, `specs/transport_spi.md`) rather
+than chip-private bit-banging. Every storage chip must pass the shared contract suite using the RAM mock.
+
 ## IO Expander drivers
 
 IO expander chips follow the same two-stage pattern as other chips, but their primary API is a **GPIO facade**: the driver exposes individual `Pin` proxy objects that implement each platform's native GPIO interface. Users interact with pins exactly as they would with hardware GPIO.
@@ -587,6 +595,7 @@ Adapt capitalisation to the language convention (snake_case Python/Rust, camelCa
 If `self._conn.int_pin is None`, start a 5 ms polling `Thread` as fallback.
 Keep the handler short — no I/O beyond the register read.
 Multiple chips may share one `InputPin`; each registers its own `_int_handler` independently.
+Level signals the driver samples at a moment of its own choosing (a BUSY output, a data-ready line) are not interrupts: read them with `is_high()` / `isHigh()` / `IsHigh()` (Rust: `embedded_hal::digital::InputPin::is_high()`), interpret the polarity in the chip driver, and keep edge handlers for INT lines (see `specs/feature_inputpin_level_read.md`).
 
 **Python (Linux)**
 Default to `LinuxPollingPin` (5 ms thread) when `int_pin` is `None`; expose `LinuxSysfsPin(gpio_num)` as opt-in for lower latency.
@@ -708,6 +717,13 @@ Six supported targets: **Arduino**, **Linux GCC**, **Zephyr RTOS**, **ESP-IDF** 
 | `SiPoConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (1 MHz, mode 0) or bit-bang GPIO, header-only |
 | `SiPoConnectionPicoSDK.h` | Raspberry Pi Pico SDK | hardware SPI or bit-bang `gpio_put` |
 | `SiPoConnectionSTM32Cube.h` | STM32Cube | hardware SPI (`SPI_HandleTypeDef*`) or bit-bang `HAL_GPIO_WritePin`, header-only |
+| `DisplayConnectionBase.h` / `SoftSPI.h` | all | shared display-connection logic (framing, reset, BUSY wait, wire modes) and a bit-banged SPI over `OutputPin`/`InputPin`; header-only, no exceptions, `valid()` instead of throwing (`specs/transport_display.md`) |
+| `DisplayConnection.h` | Arduino | `SPIClass&` or `SoftSPI&`, CS# as `OutputPin*`, header-only |
+| `DisplayConnectionLinux.h` | Linux GCC | `/dev/spidevBUS.DEVICE` (`SPI_3WIRE` for hardware half-duplex) or `SoftSPI&`, header-only |
+| `DisplayConnectionZephyr.h` | Zephyr RTOS | Zephyr `spi` API (`SPI_HALF_DUPLEX`) or `SoftSPI&`, header-only |
+| `DisplayConnectionESPIDF.h` | ESP-IDF | `spi_device_handle_t` (`SPI_DEVICE_3WIRE`) or `SoftSPI&`, header-only |
+| `DisplayConnectionPicoSDK.h` | Raspberry Pi Pico SDK | `spi_inst_t*` (full-duplex only) or `SoftSPI&`, header-only |
+| `DisplayConnectionSTM32Cube.h` | STM32Cube | `SPI_HandleTypeDef*` (`SPI_DIRECTION_1LINE` for hardware half-duplex) or `SoftSPI&`, header-only |
 | `DHTxxConnection.h/.cpp` | Arduino | single-wire bit-bang on a `uint8_t` data pin |
 | `DHTxxConnectionLinux.h/.cpp` | Linux GCC | single-wire bit-bang via `libgpiod` v2 |
 | `GpiodLineLinux.h/.cpp` | Linux GCC | one libgpiod v2 line request (chip path + offset); shared by `InputPinLinux`, `OutputPinLinux`, `HX711ConnectionLinux`, `SiPoConnectionLinux` |

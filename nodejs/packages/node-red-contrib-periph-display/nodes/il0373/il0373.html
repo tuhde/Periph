@@ -1,0 +1,103 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-il0373', {
+        category: 'Peripheral',
+        color:    '#C084FC',
+        defaults: {
+            name:        { value: '' },
+            spiBus:      { value: '0', required: true, validate: RED.validators.number() },
+            spiDevice:   { value: '0', required: true, validate: RED.validators.number() },
+            gpioChip:    { value: '0', required: true, validate: RED.validators.number() },
+            dcPin:       { value: '25', required: true, validate: RED.validators.number() },
+            resPin:      { value: '17', required: true, validate: RED.validators.number() },
+            busyPin:     { value: '24', required: true, validate: RED.validators.number() },
+            wireMode:    { value: 'simplex' },
+            width:       { value: '104', required: true, validate: RED.validators.number() },
+            height:      { value: '212', required: true, validate: RED.validators.number() },
+            busyTimeout: { value: '30000', required: true, validate: RED.validators.number() },
+            autoShow:    { value: false }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-television',
+        label:   function() { return this.name || 'IL0373'; },
+        paletteLabel: 'IL0373'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-il0373">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="IL0373">
+    </div>
+    <div class="form-row">
+        <label for="node-input-spiBus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-input-spiBus" min="0" style="width:70px">
+        &nbsp;chip select <input type="number" id="node-input-spiDevice" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dcPin">D/C# line</label>
+        <input type="number" id="node-input-dcPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resPin">RES# line</label>
+        <input type="number" id="node-input-resPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-busyPin">BUSY line</label>
+        <input type="number" id="node-input-busyPin" min="0" style="width:70px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-wireMode">Wire mode</label>
+        <select id="node-input-wireMode" style="width:260px">
+            <option value="simplex">Simplex (MOSI to DIN, write only)</option>
+            <option value="pin">Half-duplex pin (MOSI-resistor-MISO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-width">Size</label>
+        <input type="number" id="node-input-width" min="8" max="160" step="8" style="width:70px"> x
+        <input type="number" id="node-input-height" min="1" max="296" style="width:70px"> px
+    </div>
+    <div class="form-row">
+        <label for="node-input-busyTimeout">BUSY timeout (ms)</label>
+        <input type="number" id="node-input-busyTimeout" min="0" style="width:100px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-autoShow">Auto-show</label>
+        <input type="checkbox" id="node-input-autoShow" style="width:auto"> refresh after every drawing message
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-il0373">
+    <p>Draws on an IL0373 black/white e-paper panel (104 x 212, e.g. Waveshare 2.13inch e-Paper (D)) over SPI. Drawing messages change the framebuffer only; <code>show</code> sends it and refreshes the panel, which blocks the node until the controller is ready again.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">string</span></dt>
+        <dd><code>"white"</code> or <code>"black"</code>: fill the framebuffer.</dd>
+        <dt>payload.pixel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, color }</code>: set one pixel.</dd>
+        <dt>payload.line / payload.rect <span class="property-type">object</span></dt>
+        <dd><code>{ x0, y0, x1, y1, color }</code> / <code>{ x, y, w, h, color, fill }</code>: draw primitives.</dd>
+        <dt>payload.bitmap <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, w, h, data: [..], color }</code>: copy a 1-bit row-major MSB-first bitmap; set bits are drawn in <code>color</code>.</dd>
+        <dt>payload.show <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> writes both planes, runs DRF/POF and waits for BUSY.</dd>
+        <dt>payload.sleep / payload.wake <span class="property-type">boolean</span></dt>
+        <dd>Deep sleep, or hardware-reset wake (the framebuffer is kept).</dd>
+        <dt>payload.read <span class="property-type">string</span></dt>
+        <dd><code>"temperature"</code>, <code>"status"</code> or <code>"revision"</code>. Needs the half-duplex pin wire mode.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.updated <span class="property-type">boolean</span></dt>
+        <dd><code>true</code> when a refresh has finished.</dd>
+        <dt>payload.temperature / status / revision</dt>
+        <dd>The result of a <code>read</code> request.</dd>
+    </dl>
+</script>

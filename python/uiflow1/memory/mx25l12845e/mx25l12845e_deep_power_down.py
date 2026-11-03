@@ -1,0 +1,1 @@
+_periph_mx25l12845e.deep_power_down()

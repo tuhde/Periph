@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "RegisterConnection.h"
+#include "SPIExtensions.h"
 
 /** @brief SPI connection for Arduino (wraps SPIClass).
  *
@@ -20,7 +21,7 @@
  * @param enPin         Optional OutputPin for hardware enable/power control.
  * @param enActiveHigh True if the EN pin is active-high (default); false for active-low.
  */
-class SPIConnection : public RegisterConnection {
+class SPIConnection : public RegisterConnection, public SPIExtensions {
 public:
     // See RegisterConnection.h's using declaration for why this is
     // needed: overriding read()/write() below would otherwise hide
@@ -43,6 +44,25 @@ public:
 
     /** @brief Write @p len bytes of @p data to register @p reg, building the SPI command byte. */
     void write(uint32_t reg, const uint8_t* data, size_t len) override;
+
+    // --- SPIExtensions (specs/transport_spi.md "Optional Extensions") ---
+
+    Connection& connection() override { return *this; }
+
+    /** @brief Clock @p n bits of 0xFF with CS high. */
+    void idle_clocks(uint32_t n) override;
+
+    /** @brief Rebuild the SPISettings with clock @p hz (mode 0, MSB first, as SD requires). */
+    bool set_speed(uint32_t hz) override {
+        _settings = SPISettings(hz, MSBFIRST, SPI_MODE0);
+        return true;
+    }
+
+    /** @brief Assert CS inside one SPI transaction held until deselect(). */
+    void select() override;
+
+    /** @brief Release CS and end the held transaction. */
+    void deselect() override;
 
 protected:
     /** @brief Assert CS, send bytes, deassert CS.
@@ -76,4 +96,5 @@ private:
     SPISettings _settings;
     uint8_t     _readBit;
     uint8_t     _multiByteBit;   // 0 = chip has no such bit
+    bool        _held = false;   // select() active: CS low across calls
 };

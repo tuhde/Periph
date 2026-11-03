@@ -1,0 +1,1 @@
+_periph_mx25l12845e.write_bytes(${_address}, bytes([${_value}]))

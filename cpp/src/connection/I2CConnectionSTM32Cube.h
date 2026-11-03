@@ -46,6 +46,12 @@ public:
 
     /** @brief HAL status of the most recent transfer (`HAL_OK` if none failed yet). */
     HAL_StatusTypeDef last_status() const { return _lastStatus; }
+    /** @brief Timeout of one HAL transfer in milliseconds (default 1000). Chips that answer in microseconds
+     *         (and drivers that retry) can shorten it so a wedged bus is given up on quickly. */
+    void setTimeout(uint32_t ms) { _timeoutMs = ms; }
+    /** @brief Number of times the I²C peripheral was reset (`HAL_I2C_DeInit` + `HAL_I2C_Init`) after a
+     *         timeout, bus error or arbitration loss. */
+    uint32_t reset_count() const { return _resetCount; }
     /** @brief Number of transfers that returned a non-`HAL_OK` status since construction
      *         (NACK, bus error, timeout). The `Connection` interface cannot propagate
      *         errors, so callers that care (tests) poll this instead. */
@@ -58,7 +64,7 @@ protected:
      */
     void _write(const uint8_t* data, size_t len) override {
         _record(HAL_I2C_Master_Transmit(_hi2c, static_cast<uint16_t>(_addr << 1),
-                                        const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _TIMEOUT_MS));
+                                        const_cast<uint8_t*>(data), static_cast<uint16_t>(len), _timeoutMs));
     }
 
     /** @brief Read bytes from the device via `HAL_I2C_Master_Receive`.
@@ -67,7 +73,7 @@ protected:
      */
     void _read(uint8_t* buf, size_t len) override {
         _record(HAL_I2C_Master_Receive(_hi2c, static_cast<uint16_t>(_addr << 1),
-                                       buf, static_cast<uint16_t>(len), _TIMEOUT_MS));
+                                       buf, static_cast<uint16_t>(len), _timeoutMs));
     }
 
     /** @brief Write then read; see the class comment for why this is a
@@ -80,7 +86,9 @@ protected:
     void _write_read(const uint8_t* data, size_t data_len,
                      uint8_t* buf, size_t buf_len) override {
         _write(data, data_len);
+        bool wrote = ok();
         _read(buf, buf_len);
+        _setOk(wrote && ok());
     }
 
     /** @brief Underlying I²C handle, exposed so derived connections
@@ -91,15 +99,27 @@ protected:
     uint8_t i2c_address() const { return _addr; }
 
 private:
-    static constexpr uint32_t _TIMEOUT_MS = 1000;
+    static constexpr uint32_t _DEFAULT_TIMEOUT_MS = 1000;
 
     void _record(HAL_StatusTypeDef status) {
         _lastStatus = status;
-        if (status != HAL_OK) _errorCount++;
+        _setOk(status == HAL_OK);
+        if (status != HAL_OK) {
+            _errorCount++;
+            // A plain NACK (AF) leaves the peripheral usable; a timeout, bus error or arbitration loss can
+            // wedge it (no more clocks, every later call waits out its timeout), so reset it.
+            if (status != HAL_ERROR || HAL_I2C_GetError(_hi2c) != HAL_I2C_ERROR_AF) {
+                HAL_I2C_DeInit(_hi2c);
+                HAL_I2C_Init(_hi2c);
+                _resetCount++;
+            }
+        }
     }
 
     HAL_StatusTypeDef _lastStatus = HAL_OK;
     uint32_t          _errorCount = 0;
+    uint32_t          _resetCount = 0;
+    uint32_t          _timeoutMs = _DEFAULT_TIMEOUT_MS;
 
     I2C_HandleTypeDef* _hi2c;
     uint8_t             _addr;

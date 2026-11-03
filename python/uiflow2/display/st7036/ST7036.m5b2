@@ -1,0 +1,291 @@
+{
+  "category": "ST7036",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ST7036_LANGUAGES = {\n  \"CUSTOM_ST7036_INIT\": {\n    \"en\": \"%1 init SCK %2 MOSI %3 CS %4 RS %5 RES %6\"\n  },\n  \"CUSTOM_ST7036_CLEAR\": {\n    \"en\": \"%1 clear display\"\n  },\n  \"CUSTOM_ST7036_HOME\": {\n    \"en\": \"%1 return home\"\n  },\n  \"CUSTOM_ST7036_SET_CURSOR\": {\n    \"en\": \"%1 set cursor col %2 row %3\"\n  },\n  \"CUSTOM_ST7036_WRITE\": {\n    \"en\": \"%1 write text %2\"\n  },\n  \"CUSTOM_ST7036_PRINT_AT\": {\n    \"en\": \"%1 print text %2 at col %3 row %4\"\n  },\n  \"CUSTOM_ST7036_SET_CONTRAST\": {\n    \"en\": \"%1 set contrast (0..63) %2\"\n  },\n  \"CUSTOM_ST7036_CURSOR\": {\n    \"en\": \"%1 cursor on (1) / off (0) %2 blink (1/0) %3\"\n  },\n  \"CUSTOM_ST7036_DISPLAY\": {\n    \"en\": \"%1 display on (1) / off (0) %2\"\n  }\n};\n\nconst initType = 'custom_st7036_init';\nBlockly.BlockRegExpList['custom_st7036'] = {\n  regexp: new RegExp(/^custom_st7036_/),\n  code: \"from ST7036 import ST7036\",\n  initBlockType: initType,\n  categoryId: 'custom_st7036',\n}\nBlockly.utils.registerLanguages(CUSTOM_ST7036_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ST7036_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ST7036 = 'ST7036'\n\nBlockly.utils.getcustom_st7036Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['st7036_0', 'st7036_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_st7036_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_st7036Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'st7036_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'sck'\n        },\n        {\n          'type': 'input_value',\n          'name': 'mosi'\n        },\n        {\n          'type': 'input_value',\n          'name': 'cs'\n        },\n        {\n          'type': 'input_value',\n          'name': 'rs'\n        },\n        {\n          'type': 'input_value',\n          'name': 'res'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sck = Blockly.Python.valueToCode(block, 'sck', Blockly.Python.ORDER_FUNCTION_CALL);\n  var mosi = Blockly.Python.valueToCode(block, 'mosi', Blockly.Python.ORDER_FUNCTION_CALL);\n  var cs = Blockly.Python.valueToCode(block, 'cs', Blockly.Python.ORDER_FUNCTION_CALL);\n  var rs = Blockly.Python.valueToCode(block, 'rs', Blockly.Python.ORDER_FUNCTION_CALL);\n  var res = Blockly.Python.valueToCode(block, 'res', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ST7036(${sck}, ${mosi}, ${cs}, ${rs}, ${res})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_clear\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_CLEAR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_clear\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.clear()\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_home\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_HOME,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_home\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.home()\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_set_cursor\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_SET_CURSOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_set_cursor\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_cursor(${col}, ${row})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_write\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_WRITE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'text'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_write\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var text = Blockly.Python.valueToCode(block, 'text', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.write(${text})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_print_at\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_PRINT_AT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'text'\n        },\n        {\n          'type': 'input_value',\n          'name': 'col'\n        },\n        {\n          'type': 'input_value',\n          'name': 'row'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_print_at\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var text = Blockly.Python.valueToCode(block, 'text', Blockly.Python.ORDER_FUNCTION_CALL);\n  var col = Blockly.Python.valueToCode(block, 'col', Blockly.Python.ORDER_FUNCTION_CALL);\n  var row = Blockly.Python.valueToCode(block, 'row', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.print_at(${text}, ${col}, ${row})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_set_contrast\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_SET_CONTRAST,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'value'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_set_contrast\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var value = Blockly.Python.valueToCode(block, 'value', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_contrast(${value})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_cursor\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_CURSOR,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'show'\n        },\n        {\n          'type': 'input_value',\n          'name': 'blink'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_cursor\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var show = Blockly.Python.valueToCode(block, 'show', Blockly.Python.ORDER_FUNCTION_CALL);\n  var blink = Blockly.Python.valueToCode(block, 'blink', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.cursor(${show}, ${blink})\\n`\n}\n\nBlockly.Blocks[\"custom_st7036_display\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ST7036_DISPLAY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_st7036Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'enable'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_st7036_display\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var enable = Blockly.Python.valueToCode(block, 'enable', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.display(${enable})\\n`\n}\n",
+    "toolbox": "\n<category name=\"ST7036\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_st7036\">\n<title text=\"ST7036\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_st7036_init\">\n  <value name=\"sck\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">18</field>\n    </shadow>\n  </value>\n  <value name=\"mosi\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">19</field>\n    </shadow>\n  </value>\n  <value name=\"cs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">17</field>\n    </shadow>\n  </value>\n  <value name=\"rs\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">20</field>\n    </shadow>\n  </value>\n  <value name=\"res\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">21</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_clear\"/><block type=\"custom_st7036_home\"/><block type=\"custom_st7036_set_cursor\">\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_write\">\n  <value name=\"text\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_print_at\">\n  <value name=\"text\">\n    <shadow type=\"text\">\n      <field name=\"TEXT\"></field>\n    </shadow>\n  </value>\n  <value name=\"col\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"row\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_set_contrast\">\n  <value name=\"value\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">24</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_cursor\">\n  <value name=\"show\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"blink\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_st7036_display\">\n  <value name=\"enable\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">1</field>\n    </shadow>\n  </value>\n</block>\n</category>\n",
+    "toolboxitemid": "custom_st7036",
+    "block_type": [
+      "custom_st7036___init__",
+      "custom_st7036_clear",
+      "custom_st7036_home",
+      "custom_st7036_set_cursor",
+      "custom_st7036_write",
+      "custom_st7036_print_at",
+      "custom_st7036_set_contrast",
+      "custom_st7036_cursor",
+      "custom_st7036_display"
+    ]
+  },
+  "data": {
+    "name": "ST7036",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ST7036",
+      "time": "2026-10-16",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.display.st7036 import ST7036Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init SCK %2 MOSI %3 CS %4 RS %5 RES %6"
+        },
+        "params": [
+          {
+            "name": "sck",
+            "type": "int",
+            "default": "18",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "mosi",
+            "type": "int",
+            "default": "19",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "cs",
+            "type": "int",
+            "default": "17",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "rs",
+            "type": "int",
+            "default": "20",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "res",
+            "type": "int",
+            "default": "21",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        spi = SPI(2, baudrate=1000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(rs),\n                                       MicroPythonOutputPin(res), None)\n        self._driver = ST7036Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "clear",
+        "note": {},
+        "label": {
+          "en": "%1 clear display"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.clear()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "home",
+        "note": {},
+        "label": {
+          "en": "%1 return home"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.home()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_cursor",
+        "note": {},
+        "label": {
+          "en": "%1 set cursor col %2 row %3"
+        },
+        "params": [
+          {
+            "name": "col",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "row",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_cursor(col, row)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "write",
+        "note": {},
+        "label": {
+          "en": "%1 write text %2"
+        },
+        "params": [
+          {
+            "name": "text",
+            "type": "str",
+            "note": {}
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.write(text)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "print_at",
+        "note": {},
+        "label": {
+          "en": "%1 print text %2 at col %3 row %4"
+        },
+        "params": [
+          {
+            "name": "text",
+            "type": "str",
+            "note": {}
+          },
+          {
+            "name": "col",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "row",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.print_at(col, row, text)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_contrast",
+        "note": {},
+        "label": {
+          "en": "%1 set contrast (0..63) %2"
+        },
+        "params": [
+          {
+            "name": "value",
+            "type": "int",
+            "default": "24",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_contrast(value)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "cursor",
+        "note": {},
+        "label": {
+          "en": "%1 cursor on (1) / off (0) %2 blink (1/0) %3"
+        },
+        "params": [
+          {
+            "name": "show",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "blink",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.cursor(bool(show), bool(blink))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "display",
+        "note": {},
+        "label": {
+          "en": "%1 display on (1) / off (0) %2"
+        },
+        "params": [
+          {
+            "name": "enable",
+            "type": "int",
+            "default": "1",
+            "note": {},
+            "field": "number"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.display(bool(enable))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "st7036"
+  },
+  "pyCode": "\"\"\"\nfile     ST7036\ntime     2026-10-16\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom machine import SPI, Pin\nfrom periph.connection.display_micropython import DisplayConnection\nfrom periph.connection.output_pin import MicroPythonOutputPin\nfrom periph.chips.display.st7036 import ST7036Full\n\n\nclass ST7036:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, sck: int = 18, mosi: int = 19, cs: int = 17, rs: int = 20, res: int = 21):\n        \"\"\"\n        label:\n            en: '%1 init SCK %2 MOSI %3 CS %4 RS %5 RES %6'\n        params:\n            sck:\n                name: sck\n                type: int\n                default: '18'\n                field: number\n            mosi:\n                name: mosi\n                type: int\n                default: '19'\n                field: number\n            cs:\n                name: cs\n                type: int\n                default: '17'\n                field: number\n            rs:\n                name: rs\n                type: int\n                default: '20'\n                field: number\n            res:\n                name: res\n                type: int\n                default: '21'\n                field: number\n        \"\"\"\n        # EA DOGM162W-A (2 x 16, 3.3 V), 4-wire serial, SPI mode 0 at 1 MHz.\n        spi = SPI(2, baudrate=1000000, polarity=0, phase=0, sck=Pin(sck), mosi=Pin(mosi))\n        connection = DisplayConnection(spi, MicroPythonOutputPin(cs), MicroPythonOutputPin(rs),\n                                       MicroPythonOutputPin(res), None)\n        self._driver = ST7036Full(connection)\n\n    def clear(self):\n        \"\"\"\n        label:\n            en: '%1 clear display'\n        \"\"\"\n        self._driver.clear()\n\n    def home(self):\n        \"\"\"\n        label:\n            en: '%1 return home'\n        \"\"\"\n        self._driver.home()\n\n    def set_cursor(self, col: int = 0, row: int = 0):\n        \"\"\"\n        label:\n            en: '%1 set cursor col %2 row %3'\n        params:\n            col:\n                name: col\n                type: int\n                default: '0'\n                field: number\n            row:\n                name: row\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.set_cursor(col, row)\n\n    def write(self, text: str):\n        \"\"\"\n        label:\n            en: '%1 write text %2'\n        params:\n            text:\n                name: text\n                type: str\n        \"\"\"\n        self._driver.write(text)\n\n    def print_at(self, text: str, col: int = 0, row: int = 0):\n        \"\"\"\n        label:\n            en: '%1 print text %2 at col %3 row %4'\n        params:\n            text:\n                name: text\n                type: str\n            col:\n                name: col\n                type: int\n                default: '0'\n                field: number\n            row:\n                name: row\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.print_at(col, row, text)\n\n    def set_contrast(self, value: int = 24):\n        \"\"\"\n        label:\n            en: '%1 set contrast (0..63) %2'\n        params:\n            value:\n                name: value\n                type: int\n                default: '24'\n                field: number\n        \"\"\"\n        self._driver.set_contrast(value)\n\n    def cursor(self, show: int = 0, blink: int = 0):\n        \"\"\"\n        label:\n            en: '%1 cursor on (1) / off (0) %2 blink (1/0) %3'\n        params:\n            show:\n                name: show\n                type: int\n                default: '0'\n                field: number\n            blink:\n                name: blink\n                type: int\n                default: '0'\n                field: number\n        \"\"\"\n        self._driver.cursor(bool(show), bool(blink))\n\n    def display(self, enable: int = 1):\n        \"\"\"\n        label:\n            en: '%1 display on (1) / off (0) %2'\n        params:\n            enable:\n                name: enable\n                type: int\n                default: '1'\n                field: number\n        \"\"\"\n        self._driver.display(bool(enable))\n",
+  "version": "alpha2"
+}

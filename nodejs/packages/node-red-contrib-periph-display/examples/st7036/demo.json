@@ -1,0 +1,116 @@
+[
+    {
+        "id": "st7036_tab",
+        "type": "tab",
+        "label": "info",
+        "disabled": false,
+        "info": "Shows a two-line status on an EA DOGM162W-A (2 x 16, 3.3 V) on SPI0 with RS = GPIO25, RESET = GPIO17: line 1 the CPU load, line 2 a bar graph built from five custom characters. The bar is refreshed every 10 s with a random value; replace the function node 'random load' with a real source (e.g. a sensor flow)."
+    },
+    {
+        "id": "st7036_glyphs_inject",
+        "type": "inject",
+        "z": "st7036_tab",
+        "name": "define glyphs",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "once": true,
+        "onceDelay": "1",
+        "payload": "{}",
+        "payloadType": "json",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "st7036_glyphs"
+            ]
+        ]
+    },
+    {
+        "id": "st7036_glyphs",
+        "type": "function",
+        "z": "st7036_tab",
+        "name": "bar glyphs",
+        "func": "const out = [];\nfor (let g = 0; g < 5; g++) {\n    const pattern = (0x1F << (4 - g)) & 0x1F;\n    out.push({ payload: { char: { index: g, rows: [0, pattern, pattern, pattern, pattern, pattern, pattern, 0] } } });\n}\nout.push({ payload: { clear: true } });\nreturn [out];",
+        "outputs": 1,
+        "x": 310,
+        "y": 80,
+        "wires": [
+            [
+                "st7036_node"
+            ]
+        ]
+    },
+    {
+        "id": "st7036_tick",
+        "type": "inject",
+        "z": "st7036_tab",
+        "name": "every 10 s",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "once": true,
+        "onceDelay": "3",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "st7036_load"
+            ]
+        ]
+    },
+    {
+        "id": "st7036_load",
+        "type": "function",
+        "z": "st7036_tab",
+        "name": "random load",
+        "func": "msg.payload = Math.round(Math.random() * 100);\nreturn msg;",
+        "outputs": 1,
+        "x": 300,
+        "y": 160,
+        "wires": [
+            [
+                "st7036_status"
+            ]
+        ]
+    },
+    {
+        "id": "st7036_status",
+        "type": "function",
+        "z": "st7036_tab",
+        "name": "status text + bar",
+        "func": "const bar = Math.round(Number(msg.payload) / 100 * 16 * 5);\nconst cells = [];\nfor (let col = 0; col < 16; col++) {\n    const fill = bar - col * 5;\n    cells.push(fill >= 5 ? 4 : fill > 0 ? fill - 1 : 0x20);\n}\nreturn [\n    { payload: { text: 'CPU load ' + Math.round(Number(msg.payload)) + '%   ', col: 0, row: 0 } },\n    { payload: { cursor: { on: false, blink: false, col: 0, row: 1 } } },\n    { payload: { chars: cells } }\n];",
+        "outputs": 1,
+        "x": 490,
+        "y": 160,
+        "wires": [
+            [
+                "st7036_node"
+            ]
+        ]
+    },
+    {
+        "id": "st7036_node",
+        "type": "periph-st7036",
+        "z": "st7036_tab",
+        "name": "DOGM162W",
+        "spiBus": "0",
+        "spiDevice": "0",
+        "gpioChip": "0",
+        "rsPin": "25",
+        "resPin": "17",
+        "lines": "2",
+        "supply": "3v3",
+        "x": 700,
+        "y": 120,
+        "wires": []
+    }
+]

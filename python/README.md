@@ -48,6 +48,7 @@ Each chip exposes two classes:
 
 | Chip | Category | Description |
 |------|----------|-------------|
+| 23X1024 | Memory | 23LC1024 / 23A1024 1-Mbit SPI serial SRAM |
 | 24AA02UID | Memory | 2K I2C EEPROM with 32-bit unique serial number |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC |
@@ -76,6 +77,8 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |
+| HY3131 | ADC/DAC | — minimal interface: AD1 differential voltage. |
+| IL0373 | Display driver | Black/white e-paper controller |
 | INA219 | Power monitor | 26V, 12-bit current/voltage/power monitor |
 | INA226 | Power monitor | 36V, 16-bit current/voltage/power monitor |
 | INA3221 | Power monitor | Three-channel 26V current/voltage/power monitor |
@@ -94,6 +97,7 @@ Each chip exposes two classes:
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9255 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
+| MX25L12845E | Memory | — minimal driver: byte-addressed read, erase-aware write. |
 | NEO-6 | GNSS/GPS | U-blox NEO-6 GNSS receiver: NMEA position, altitude, and fix status. |
 | PCF8523 | RTC | Low-power I2C real-time clock |
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
@@ -102,9 +106,15 @@ Each chip exposes two classes:
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
+| SD_SPI | Memory | SD card in SPI mode |
 | SK6812RGBW | LED driver | Addressable RGBW LED strip |
+| SSD1331 | Display driver | 96 x 64 RGB OLED controller |
+| ST7036 | Display driver | Character LCD controller |
 | TMP117 | Temperature sensor | ±0.1°C high-accuracy digital temperature sensor |
 | TPIC6B595 | IO expander | 8-bit power SIPO shift register |
+| UC1611S | Display driver | Graphic LCD controller-driver |
+| UC8159 | Display driver | Seven-colour e-paper controller |
+| UC8276C | Display driver | Black/white/red e-paper controller |
 | VL53L0X | Time-of-flight | Time-of-Flight ranging sensor |
 | VL53L1X | Time-of-flight | Time-of-Flight ranging sensor |
 | WS2812B | LED driver | Addressable RGB LED strip |

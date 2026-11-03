@@ -26,8 +26,8 @@ func main() {
 		panic(err)
 	}
 
-	conn := connection.NewI2CConnection(i2c, 0x50, nil, nil)                    // Create I2C connection, (i2c, addr=0x50) → (*I2CConnection)
-	chip, err := memory.NewEEPROM24AA02UIDMinimal(conn)            // Create 24AA02UID driver, (connection) → (*EEPROM24AA02UIDMinimal, error)
+	conn := connection.NewI2CConnection(i2c, 0x50, nil, nil) // Create I2C connection, (i2c, addr=0x50) → (*I2CConnection)
+	chip, err := memory.NewEEPROM24AA02UIDMinimal(conn)      // Create 24AA02UID driver, (connection) → (*EEPROM24AA02UIDMinimal, error)
 	if err != nil {
 		panic(err)
 	}

@@ -26,6 +26,7 @@ class Rfm9xSpec extends Specification {
             }
         }
         void offEdge(EdgeHandler handler) {}
+        boolean isHigh() { false }
         void close() {}
     }
 

@@ -56,6 +56,7 @@ public:
      *  @param len  Number of bytes to send.
      */
     void write(const uint8_t* data, size_t len) {
+        _ok = true;
         if (!_enabled) return;
         _write(data, len);
     }
@@ -65,6 +66,7 @@ public:
      *  @param len Number of bytes to read.
      */
     void read(uint8_t* buf, size_t len) {
+        _ok = true;
         if (!_enabled) { memset(buf, 0, len); return; }
         _read(buf, len);
     }
@@ -81,9 +83,18 @@ public:
      *  @param buf_len  Number of bytes to read.
      */
     void write_read(const uint8_t* data, size_t data_len, uint8_t* buf, size_t buf_len) {
+        _ok = true;
         if (!_enabled) { memset(buf, 0, buf_len); return; }
         _write_read(data, data_len, buf, buf_len);
     }
+
+    /** @brief True if the most recent write(), read() or write_read() was acknowledged / completed.
+     *
+     *  Connections whose platform reports bus errors (a NACK, a timeout) set this to false for the
+     *  failed transfer; drivers that need to survive an occasional NACK check it after each call and
+     *  retry. Connections that cannot detect failures, and disabled connections, always report true.
+     */
+    bool ok() const { return _ok; }
 
     /** @brief Number of bytes available to read() without blocking.
      *
@@ -100,6 +111,9 @@ public:
     virtual size_t available() const { return SIZE_MAX; }
 
 protected:
+    /** @brief Subclass hook helper: record whether the transfer in progress succeeded (see ok()). */
+    void _setOk(bool ok) { _ok = ok; }
+
     /** @brief Subclass hook: send bytes to the device. */
     virtual void _write(const uint8_t* data, size_t len) = 0;
     /** @brief Subclass hook: read bytes from the device. */
@@ -113,4 +127,5 @@ private:
     OutputPin* _enPin;
     bool       _enActiveHigh;
     bool       _enabled;
+    bool       _ok = true;
 };

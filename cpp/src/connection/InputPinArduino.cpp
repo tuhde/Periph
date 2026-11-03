@@ -30,6 +30,10 @@ void InputPinArduino::offEdge(Handler handler) {
     removeHandler(_handlers, handler);
 }
 
+bool InputPinArduino::isHigh() {
+    return digitalRead(_pin) == HIGH;
+}
+
 int InputPinArduino::claimSlot(InputPinArduino* self) {
     for (uint8_t i = 0; i < kMaxInstances; ++i) {
         if (_instances[i] == nullptr) {

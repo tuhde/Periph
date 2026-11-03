@@ -1,0 +1,1 @@
+_periph_sd_spi.read_block(${_block})[${_offset}]

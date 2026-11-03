@@ -27,6 +27,7 @@ private class FakeInputPin : InputPin {
     val handlers = CopyOnWriteArrayList<EdgeHandler>()
     override fun onEdge(handler: EdgeHandler, trigger: EdgeTrigger) { handlers.add(handler) }
     override fun offEdge(handler: EdgeHandler) { handlers.remove(handler) }
+    override fun isHigh(): Boolean = false
     override fun close() {}
     fun fire() { handlers.forEach { it.onEdge() } }
 }

@@ -228,12 +228,12 @@ jobs:
           $APT install -y --no-install-recommends \
             cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache
 
-      - name: Fetch STM32CubeF4 (Drivers/CMSIS + HAL driver only)
+      - name: Fetch STM32CubeF4 (Drivers/CMSIS + HAL driver + FatFs)
         timeout-minutes: 5
         run: |
           git clone --depth 1 --filter=blob:none --sparse -b v1.28.3 \
             https://github.com/STMicroelectronics/STM32CubeF4.git /opt/STM32CubeF4
-          git -C /opt/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver
+          git -C /opt/STM32CubeF4 sparse-checkout set --skip-checks Drivers/CMSIS Drivers/STM32F4xx_HAL_Driver Middlewares/Third_Party/FatFs
           git -C /opt/STM32CubeF4 submodule update --init --depth 1 \
             Drivers/CMSIS/Device/ST/STM32F4xx Drivers/STM32F4xx_HAL_Driver
           echo "STM32CUBE_FW_PATH=/opt/STM32CubeF4" >> $GITHUB_ENV

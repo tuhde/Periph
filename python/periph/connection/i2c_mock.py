@@ -19,6 +19,26 @@ class I2CConnectionMock:
         self.registers = dict(registers or {})
         self.writes = []
         self._read_queue = []
+        self._fail_writes = 0
+        self._fail_skip = 0
+        self._fail_reads = 0
+
+    def fail_next_writes(self, n, after=0):
+        """Make ``n`` write() / write_read() calls raise OSError (a NACK) after letting the next ``after``
+        succeed; the failing calls are still logged in ``writes``."""
+        self._fail_writes = n
+        self._fail_skip = after
+
+    def fail_next_reads(self, n):
+        """Make the next ``n`` read() calls raise OSError; the read queue is not consumed."""
+        self._fail_reads = n
+
+    def _maybe_fail_write(self):
+        if self._fail_skip > 0:
+            self._fail_skip -= 1
+        elif self._fail_writes > 0:
+            self._fail_writes -= 1
+            raise OSError(5, 'I2C NACK (mock)')
 
     def set_register(self, reg, *values):
         """Preload consecutive register bytes starting at ``reg``."""
@@ -32,18 +52,23 @@ class I2CConnectionMock:
     def write(self, data):
         data = bytes(data)
         self.writes.append(data)
+        self._maybe_fail_write()
         if len(data) >= 2:
             reg = data[0]
             for i, value in enumerate(data[1:]):
                 self.registers[reg + i] = value
 
     def read(self, n):
+        if self._fail_reads > 0:
+            self._fail_reads -= 1
+            raise OSError(5, 'I2C NACK (mock)')
         if self._read_queue:
             return self._read_queue.pop(0)
         return bytes(n)
 
     def write_read(self, data, n):
         self.writes.append(bytes(data))
+        self._maybe_fail_write()
         # Treat the leading two bytes as a big-endian 16-bit register
         # address when they are both present; fall back to a single-byte
         # 8-bit address otherwise.

@@ -1,6 +1,7 @@
 pub mod connection;
 pub mod register;
 pub mod dhtxx;
+pub mod display;
 pub mod hx711;
 pub mod i2c;
 pub mod smbus;

@@ -30,6 +30,7 @@ Each chip exposes two classes:
 
 | Chip | Category | Require path |
 |------|----------|-------------|
+| 23X1024 | Memory | `periph/src/chips/memory/_23x1024` |
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
@@ -58,6 +59,8 @@ Each chip exposes two classes:
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
+| HY3131 | ADC/DAC | `periph/src/chips/adc_dac/hy3131` |
+| IL0373 | Display driver | `periph/src/chips/display/il0373` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
 | INA3221 | Power monitor | `periph/src/chips/power/ina3221` |
@@ -76,6 +79,7 @@ Each chip exposes two classes:
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
 | MPU9255 | IMU | `periph/src/chips/imu/mpu9255` |
+| MX25L12845E | Memory | `periph/src/chips/memory/mx25l12845e` |
 | NEO6 | GNSS/GPS | `periph/src/chips/gnss/neo6` |
 | NEOPIXELRGBBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBBase` |
 | NEOPIXELRGBWBASE | LED driver | `periph/src/chips/led/_NeoPixelRGBWBase` |
@@ -86,9 +90,15 @@ Each chip exposes two classes:
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |
+| SD_SPI | Memory | `periph/src/chips/memory/sd_spi` |
 | SK6812RGBW | LED driver | `periph/src/chips/led/sk6812rgbw` |
+| SSD1331 | Display driver | `periph/src/chips/display/ssd1331` |
+| ST7036 | Display driver | `periph/src/chips/display/st7036` |
 | TMP117 | Temperature sensor | `periph/src/chips/temperature/tmp117` |
 | TPIC6B595 | IO expander | `periph/src/chips/io_expander/tpic6b595` |
+| UC1611S | Display driver | `periph/src/chips/display/uc1611s` |
+| UC8159 | Display driver | `periph/src/chips/display/uc8159` |
+| UC8276C | Display driver | `periph/src/chips/display/uc8276c` |
 | VL53L0X | Time-of-flight | `periph/src/chips/tof/vl53l0x` |
 | VL53L1X | Time-of-flight | `periph/src/chips/tof/vl53l1x` |
 | WS2812B | LED driver | `periph/src/chips/led/ws2812b` |

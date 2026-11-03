@@ -17,6 +17,7 @@ public:
 
     bool onEdge(Handler handler, uint8_t trigger = kFalling) override;
     void offEdge(Handler handler) override;
+    bool isHigh() override;
 
 private:
     static constexpr uint8_t kMaxInstances = 8;

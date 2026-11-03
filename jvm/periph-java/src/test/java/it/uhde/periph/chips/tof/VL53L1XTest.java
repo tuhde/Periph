@@ -111,6 +111,9 @@ class VL53L1XTest {
         }
 
         @Override
+        public boolean isHigh() { return false; }
+
+        @Override
         public void close() {}
     }
 

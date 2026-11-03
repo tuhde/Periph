@@ -1,0 +1,104 @@
+<!-- Config node: one instance per physical card -->
+<script type="text/javascript">
+    RED.nodes.registerType('sd-spi-device', {
+        category: 'config',
+        defaults: {
+            name:     { value: '' },
+            bus:      { value: '0', required: true, validate: RED.validators.number() },
+            device:   { value: '0', required: true, validate: RED.validators.number() },
+            gpiochip: { value: '/dev/gpiochip0', required: true },
+            csLine:   { value: '25', required: true, validate: RED.validators.number() },
+            speed:    { value: '12000000', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('SD card @ spidev' + this.bus + '.' + this.device);
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="sd-spi-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="SD card">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> SPI bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/spidevB.D)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-device">Device</label>
+        <input type="number" id="node-config-input-device" min="0" style="width:80px"> &nbsp;device number D (its kernel chip select is disabled)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-gpiochip">GPIO chip</label>
+        <input type="text" id="node-config-input-gpiochip" style="width:200px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-csLine">CS line</label>
+        <input type="number" id="node-config-input-csLine" min="0" style="width:80px"> &nbsp;GPIO wired to the card's CS (driven by the connection)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-speed">Clock (Hz)</label>
+        <input type="number" id="node-config-input-speed" min="100000" max="25000000" style="width:120px"> &nbsp;after init (init runs at 400 kHz); default 12000000
+    </div>
+</script>
+
+<!-- Operation node: trigger → info / read / write / erase / sync -->
+<script type="text/javascript">
+    RED.nodes.registerType('sd-spi', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'sd-spi-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-hdd-o',
+        label:   function() { return this.name || 'SD card'; },
+        paletteLabel: 'SD card (SPI)'
+    });
+</script>
+
+<script type="text/html" data-template-name="sd-spi">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="SD card">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="sd-spi">
+    <p>Reads and writes raw 512-byte blocks of an SD / SDHC / SDXC / microSD card in SPI mode.
+    There is no filesystem: blocks are addressed by number.</p>
+    <p>Any input message triggers an operation. The card is configured via an
+    <b>sd-spi-device</b> config node. Writing a block that holds a filesystem destroys it.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>op <span class="property-type">string</span></dt>
+        <dd>Operation: <code>read</code> (default), <code>write</code>, <code>erase</code>,
+        <code>sync</code> or <code>info</code>. May be passed in <code>msg.op</code>.</dd>
+        <dt>block <span class="property-type">number</span></dt>
+        <dd>First block index (default 0).</dd>
+        <dt>count <span class="property-type">number</span></dt>
+        <dd>Number of blocks (<code>read</code>, <code>erase</code>; default 1).</dd>
+        <dt>payload <span class="property-type">Buffer</span></dt>
+        <dd>Data to write, a multiple of 512 bytes (<code>write</code> only; alternatively
+        <code>msg.data</code> as an array of numbers).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">Buffer | object</span></dt>
+        <dd><code>read</code>: the blocks as a Buffer. <code>info</code>: block size, count, name.
+        Other operations: <code>{ ok: true }</code>.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the SPI bus and device number, the GPIO line that drives the card's chip select and
+    the clock in the device config node. Cards are 3.3 V only.</p>
+</script>

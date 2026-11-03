@@ -10,7 +10,8 @@ const (
 	Change
 )
 
-// InputPin delivers edge notifications from a chip's INT line.
+// InputPin delivers edge notifications from a chip's INT line and reads its
+// level.
 //
 // Go function values are not comparable, so there is no way to implement an
 // OffEdge(handler) that matches a stored handler against the one passed in —
@@ -22,6 +23,13 @@ type InputPin interface {
 	// returns a function that removes it. Multiple handlers may be
 	// registered concurrently — e.g. several chips sharing one INT line.
 	OnEdge(trigger Trigger, handler func()) (unsubscribe func())
+
+	// IsHigh reads the electrical level of the line now. It is the raw
+	// level — no inversion, no debounce; active-low signals are interpreted
+	// by the chip driver — and does not disturb registered edge handlers.
+	// Used for level signals a driver samples at a moment of its own choosing
+	// (a BUSY output, a data-ready line).
+	IsHigh() (bool, error)
 }
 
 // edgeHandlerEntry is the bookkeeping record shared by every InputPin

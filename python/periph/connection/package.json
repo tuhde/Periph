@@ -21,6 +21,14 @@
       "github:tuhde/Periph/python/periph/connection/dhtxx_micropython.py"
     ],
     [
+      "periph/connection/display_base.py",
+      "github:tuhde/Periph/python/periph/connection/display_base.py"
+    ],
+    [
+      "periph/connection/display_micropython.py",
+      "github:tuhde/Periph/python/periph/connection/display_micropython.py"
+    ],
+    [
       "periph/connection/hx711_auto.py",
       "github:tuhde/Periph/python/periph/connection/hx711_auto.py"
     ],
@@ -73,6 +81,10 @@
       "github:tuhde/Periph/python/periph/connection/smbus_micropython.py"
     ],
     [
+      "periph/connection/softspi.py",
+      "github:tuhde/Periph/python/periph/connection/softspi.py"
+    ],
+    [
       "periph/connection/spi_auto.py",
       "github:tuhde/Periph/python/periph/connection/spi_auto.py"
     ],
@@ -95,5 +107,5 @@
       "latest"
     ]
   ],
-  "version": "1.2.1"
+  "version": "1.3.2"
 }

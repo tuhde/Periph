@@ -1,0 +1,115 @@
+[
+    {
+        "id": "uc8159_tab",
+        "type": "tab",
+        "label": "UC8159 status card",
+        "disabled": false,
+        "info": "Every 10 minutes: wake the panel, draw a status card (seven colour bars with a black frame) and refresh it, then put the controller into deep sleep once the node reports { updated: true }. The refresh blocks the node for about 17 s. Needs a Waveshare 5.65inch e-Paper (F) on SPI0 with DC = GPIO25, RST = GPIO17, BUSY = GPIO24."
+    },
+    {
+        "id": "uc8159_inject",
+        "type": "inject",
+        "z": "uc8159_tab",
+        "name": "every 10 min",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "600",
+        "once": true,
+        "onceDelay": "1",
+        "payload": "{}",
+        "payloadType": "json",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "uc8159_card"
+            ]
+        ]
+    },
+    {
+        "id": "uc8159_card",
+        "type": "function",
+        "z": "uc8159_tab",
+        "name": "wake and build status card",
+        "func": "const out = [\n  { payload: { wake: true } },\n  { payload: { clear: 'white' } },\n];\nconst colours = ['black', 'white', 'green', 'blue', 'red', 'yellow', 'orange'];\ncolours.forEach((c, i) => out.push({ payload: { rect: { x: 20 + i * 80, y: 40, w: 80, h: 368, color: c, fill: true } } }));\nout.push({ payload: { rect: { x: 4, y: 4, w: 592, h: 440, color: 'black', fill: false } } });\nout.push({ payload: { show: true } });\nreturn [out];",
+        "outputs": 1,
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "uc8159_node"
+            ]
+        ]
+    },
+    {
+        "id": "uc8159_node",
+        "type": "periph-uc8159",
+        "z": "uc8159_tab",
+        "name": "",
+        "spiBus": "0",
+        "spiDevice": "0",
+        "gpioChip": "0",
+        "dcPin": "25",
+        "resPin": "17",
+        "busyPin": "24",
+        "wireMode": "simplex",
+        "width": "400",
+        "height": "300",
+        "busyTimeout": "30000",
+        "autoShow": false,
+        "x": 590,
+        "y": 100,
+        "wires": [
+            [
+                "uc8159_updated"
+            ]
+        ]
+    },
+    {
+        "id": "uc8159_updated",
+        "type": "switch",
+        "z": "uc8159_tab",
+        "name": "updated?",
+        "property": "payload.updated",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 780,
+        "y": 100,
+        "wires": [
+            [
+                "uc8159_sleep"
+            ]
+        ]
+    },
+    {
+        "id": "uc8159_sleep",
+        "type": "change",
+        "z": "uc8159_tab",
+        "name": "sleep",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"sleep\":true}",
+                "tot": "json"
+            }
+        ],
+        "x": 930,
+        "y": 100,
+        "wires": [
+            [
+                "uc8159_node"
+            ]
+        ]
+    }
+]

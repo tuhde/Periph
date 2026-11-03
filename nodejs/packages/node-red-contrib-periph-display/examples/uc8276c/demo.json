@@ -1,0 +1,115 @@
+[
+  {
+    "id": "uc8276c_tab",
+    "type": "tab",
+    "label": "UC8276C status card",
+    "disabled": false,
+    "info": "Every 10 minutes: wake the panel, draw a status card (red header bar, black border, bar chart) and refresh it, then put the controller into deep sleep once the node reports { updated: true }. The refresh blocks the node for about 17 s. Needs a Waveshare 4.2inch e-Paper (B) on SPI0 with DC = GPIO25, RST = GPIO17, BUSY = GPIO24."
+  },
+  {
+    "id": "uc8276c_inject",
+    "type": "inject",
+    "z": "uc8276c_tab",
+    "name": "every 10 min",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "600",
+    "once": true,
+    "onceDelay": "1",
+    "payload": "{}",
+    "payloadType": "json",
+    "x": 130,
+    "y": 100,
+    "wires": [
+      [
+        "uc8276c_card"
+      ]
+    ]
+  },
+  {
+    "id": "uc8276c_card",
+    "type": "function",
+    "z": "uc8276c_tab",
+    "name": "wake and build status card",
+    "func": "const values = [30, 55, 80, 45, 120, 90, 60, 100];\nconst peak = Math.max(...values);\nconst out = [\n  { payload: { wake: true } },\n  { payload: { clear: 'white' } },\n  { payload: { rect: { x: 4, y: 4, w: 392, h: 292, color: 'black', fill: false } } },\n  { payload: { rect: { x: 5, y: 5, w: 390, h: 40, color: 'red', fill: true } } },\n  { payload: { line: { x0: 30, y0: 270, x1: 370, y1: 270, color: 'black' } } },\n  { payload: { line: { x0: 30, y0: 70, x1: 30, y1: 270, color: 'black' } } },\n];\nvalues.forEach((v, i) => out.push({ payload: { rect: { x: 45 + i * 40, y: 270 - v, w: 28, h: v, color: v === peak ? 'red' : 'black', fill: true } } }));\nout.push({ payload: { show: true } });\nreturn [out];",
+    "outputs": 1,
+    "x": 340,
+    "y": 100,
+    "wires": [
+      [
+        "uc8276c_node"
+      ]
+    ]
+  },
+  {
+    "id": "uc8276c_node",
+    "type": "periph-uc8276c",
+    "z": "uc8276c_tab",
+    "name": "",
+    "spiBus": "0",
+    "spiDevice": "0",
+    "gpioChip": "0",
+    "dcPin": "25",
+    "resPin": "17",
+    "busyPin": "24",
+    "wireMode": "simplex",
+    "width": "400",
+    "height": "300",
+    "busyTimeout": "30000",
+    "autoShow": false,
+    "x": 590,
+    "y": 100,
+    "wires": [
+      [
+        "uc8276c_updated"
+      ]
+    ]
+  },
+  {
+    "id": "uc8276c_updated",
+    "type": "switch",
+    "z": "uc8276c_tab",
+    "name": "updated?",
+    "property": "payload.updated",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "outputs": 1,
+    "x": 780,
+    "y": 100,
+    "wires": [
+      [
+        "uc8276c_sleep"
+      ]
+    ]
+  },
+  {
+    "id": "uc8276c_sleep",
+    "type": "change",
+    "z": "uc8276c_tab",
+    "name": "sleep",
+    "rules": [
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "{\"sleep\":true}",
+        "tot": "json"
+      }
+    ],
+    "x": 930,
+    "y": 100,
+    "wires": [
+      [
+        "uc8276c_node"
+      ]
+    ]
+  }
+]

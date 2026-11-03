@@ -119,6 +119,17 @@ Goal: expose complete chip functionality. Extends Minimal.
 
 **Additional configuration options:** <!-- List all settings exposed in Full -->
 
+## Block device
+
+*(Only for storage chips: SD, SD NAND, SPI NOR, SPI NAND. Delete otherwise.)*
+The Full class implements `BlockDevice` (`specs/feature_block_device.md`).
+
+| `block_size` | `block_count` | `erase_size` | `needs_erase` | `bad_blocks` |
+|--------------|---------------|--------------|---------------|--------------|
+|  |  |  |  |  |
+
+Describe geometry discovery (SFDP / ID / CSD), `auto_erase` behaviour, and bad-block handling.
+
 ## Data Conversion
 
 <!-- Formulas mapping raw register values to real-world units. -->
@@ -202,6 +213,9 @@ Tick each box as the item is committed. The PR may not be opened until every box
 - [ ] Tests `python/tests/<category>/<chip>_test_cp.py` (CircuitPython)
 - [ ] Tests `python/tests/<category>/<chip>_test_linux.py` (Linux)
 - [ ] Unit test `python/tests/<category>/<chip>_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+
+### Block device (storage chips only)
+- [ ] Full class implements `BlockDevice` in every language; passes the shared contract suite
 
 ### UIFlow 1
 - [ ] Manifest `python/uiflow1/<category>/<chip>/<chip>.json` — `Periph` category, `#C084FC` color

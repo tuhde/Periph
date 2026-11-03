@@ -24,6 +24,13 @@ from .output_pin import OutputPin
 #   from periph.connection.neopixel_circuitpython import NeoPixelConnection (busio.SPI)
 #   from periph.connection.neopixel_linux import NeoPixelConnection         (spidev / /dev/spidevB.D)
 
+# Display connections (SPI + D/C, RES, BUSY: OLED, e-paper, ...) are platform-specific:
+#   from periph.connection.display_micropython import DisplayConnection   (machine.SPI / SoftSPI)
+#   from periph.connection.display_circuitpython import DisplayConnection (busio.SPI / bitbangio.SPI)
+#   from periph.connection.display_linux import DisplayConnection         (spidev, or SoftSPI over gpiod pins)
+# WireMode (SIMPLEX / HALF_DUPLEX_HW / HALF_DUPLEX_PIN) is in periph.connection.display_base;
+# periph.connection.softspi.SoftSPI is a bit-banged SPI over OutputPin/InputPin for hosts without one.
+
 # UART connections are platform-specific — import the one matching your target:
 #   from periph.connection.uart_micropython import UARTConnection   (machine.UART)
 #   from periph.connection.uart_circuitpython import UARTConnection (busio.UART)

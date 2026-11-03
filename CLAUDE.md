@@ -85,6 +85,7 @@ datasheets/
 python/
   periph/
     connection/         # Connection base + platform bus implementations (i2c_micropython.py, i2c_circuitpython.py, i2c_linux.py), plus InputPin/OutputPin
+    storage/            # BlockDevice protocol + RAM mock + MicroPython VFS shim (specs/feature_block_device.md)
     chips/
       <category>/       # One module per chip, grouped by category
   examples/
@@ -105,6 +106,7 @@ cpp/
     module.yml           # Zephyr module manifest (name: periph); consumed via ZEPHYR_EXTRA_MODULES, not west manifest discovery
   src/
     connection/         # Pure virtual Connection base + SPI/I2C/NeoPixel implementations (Arduino, Linux, Zephyr, ESP-IDF, Pico SDK, STM32Cube variants), plus InputPin/OutputPin
+    storage/           # BlockDevice + RamBlockDevice (specs/feature_block_device.md)
     chips/
       <category>/       # One header+source per chip, grouped by category
   examples/
@@ -151,6 +153,7 @@ nodejs/
     periph/             # Single plain JS driver package (name: "periph")
       src/
         connection/     # I2C, SPI, NeoPixel connection implementations, plus InputPin/OutputPin
+        storage/        # BlockDevice + RamBlockDevice
         chips/
           <category>/   # One module per chip, grouped by category
       examples/
@@ -170,6 +173,7 @@ rust/
   periph/
     src/
       connection/       # Connection<BUS> wrapper (generic over embedded-hal I2C/SPI) + periph-owned custom-protocol connections (neopixel, etc.)
+      storage/          # BlockDevice trait + RamBlockDevice
       chips/
         <category>/     # One module per chip; no_std, generic over embedded-hal traits
   examples/
@@ -236,6 +240,7 @@ go/
   go.mod                # Module github.com/tuhde/Periph/go
   periph/
     connection/         # Connection interface + <protocol>_linux.go / <protocol>_tinygo.go pairs, selected by build tags, plus InputPin/OutputPin
+    storage/          # BlockDevice interface + RamBlockDevice
     chips/
       <category>/       # One file per chip, grouped by category; package name drops underscores (adc_dac/ -> package adcdac)
   examples/

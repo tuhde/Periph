@@ -1,0 +1,152 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "sd_spi_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init SD card",
+          "type": "label"
+        },
+        {
+          "name": "SPI bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "CS pin",
+          "type": "label"
+        },
+        {
+          "name": "_cs_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_block_count",
+      "type": "value",
+      "params": [
+        {
+          "name": "SD card capacity (512-byte blocks)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_card_type",
+      "type": "value",
+      "params": [
+        {
+          "name": "SD card type (1 SDv1, 2 SDv2, 3 SDHC)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_read_byte",
+      "type": "value",
+      "params": [
+        {
+          "name": "SD read byte",
+          "type": "label"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "offset",
+          "type": "label"
+        },
+        {
+          "name": "_offset",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_write_byte",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SD write byte",
+          "type": "label"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "offset",
+          "type": "label"
+        },
+        {
+          "name": "_offset",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_fill_block",
+      "type": "execute",
+      "params": [
+        {
+          "name": "SD fill block",
+          "type": "label"
+        },
+        {
+          "name": "block",
+          "type": "label"
+        },
+        {
+          "name": "_block",
+          "type": "number"
+        },
+        {
+          "name": "value",
+          "type": "label"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "sd_spi_mount",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Mount SD card as FAT at",
+          "type": "label"
+        },
+        {
+          "name": "_path",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}
