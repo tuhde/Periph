@@ -85,6 +85,7 @@ Each chip exposes two structs:
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor (Microchip). |
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
+| MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
 | MPR121 | Other | Proximity capacitive touch sensor controller (Freescale/NXP). |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
