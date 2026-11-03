@@ -847,13 +847,13 @@ func (c *MMA8451QFull) ReadFIFOStatus() (bool, bool, uint8, error) {
 // ReadFIFO drains the FIFO and returns the samples as (x, y, z) triples in
 // *g*.
 //
-// count limits the number of samples read; a negative value (or 0) reads
-// every sample currently in the FIFO. Each sample is read with its own
-// transaction starting at 0x01.
+// count limits the number of samples read; a count of 0 (or less) reads every
+// sample currently in the FIFO. Each sample is read with its own transaction
+// starting at 0x01.
 func (c *MMA8451QFull) ReadFIFO(count int) ([][]float32, error) {
 	out := make([][]float32, 0, 8)
 	for {
-		if count >= 0 && len(out) >= count {
+		if count > 0 && len(out) >= count {
 			break
 		}
 		x, y, z, err := c.readCounts()
@@ -1438,10 +1438,11 @@ func (c *MMA8451QFull) SelfTest() (bool, int32, int32, int32, error) {
 		_ = c.writeReg(mma8451qRegXYZDataCfg, xyzCfg)
 		_ = c.writeReg(mma8451qRegCtrlReg2, ctrl2&^mma8451qCtrl2ST)
 		_ = c.writeReg(mma8451qRegCtrlReg1, ctrl1)
+		c.waitTurnOn()
 	}
 
-	// STANDBY, ±4 g, 100 Hz, normal oversampling.
-	testCtrl1 := uint8(mma8451qCtrl1Active) | 0x18 // DR = 011 (100 Hz)
+	// STANDBY, ±4 g, 100 Hz, 14-bit, normal oversampling.
+	testCtrl1 := uint8(mma8451qCtrl1Active) | 0x18 // DR = 011 (100 Hz), F_READ = 0
 	if err := c.writeReg(mma8451qRegCtrlReg1, testCtrl1&^mma8451qCtrl1Active); err != nil {
 		return false, 0, 0, 0, err
 	}

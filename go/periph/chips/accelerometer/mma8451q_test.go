@@ -938,5 +938,25 @@ func TestMMA8451QFullReadFIFO(t *testing.T) {
 	}
 }
 
+func TestMMA8451QFullReadFIFOCountLimit(t *testing.T) {
+	conn := newMMA8451QConnection()
+	full, err := NewMMA8451QFull(conn)
+	if err != nil {
+		t.Fatalf("NewMMA8451QFull: %v", err)
+	}
+	if err := full.SetFIFO(1, 8); err != nil {
+		t.Fatalf("SetFIFO: %v", err)
+	}
+	// Four samples in the FIFO.
+	conn.setRegister(mma8451qRegStatus, 0x04)
+	samples, err := full.ReadFIFO(2)
+	if err != nil {
+		t.Fatalf("ReadFIFO(2): %v", err)
+	}
+	if len(samples) != 2 {
+		t.Errorf("ReadFIFO(2) returned %d samples, want 2", len(samples))
+	}
+}
+
 // Avoid an "imported and not used" error for math in case all uses are stripped.
 var _ = math.Pi
