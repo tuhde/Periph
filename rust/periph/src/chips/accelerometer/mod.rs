@@ -14,6 +14,20 @@ pub use bma150::{
     STATUS_LG_LATCHED, STATUS_HG_LATCHED,
 };
 
+pub mod mma8451q;
+// The MMA8451Q source constants are prefixed because `SOURCE_DATA_READY` is
+// already exported by the ADXL362 driver in this module.
+pub use mma8451q::{
+    Mma8451QMinimal, Mma8451QFull,
+    SOURCE_DATA_READY as MMA8451Q_SOURCE_DATA_READY,
+    SOURCE_FF_MT as MMA8451Q_SOURCE_FF_MT,
+    SOURCE_PULSE as MMA8451Q_SOURCE_PULSE,
+    SOURCE_ORIENTATION as MMA8451Q_SOURCE_ORIENTATION,
+    SOURCE_TRANSIENT as MMA8451Q_SOURCE_TRANSIENT,
+    SOURCE_FIFO as MMA8451Q_SOURCE_FIFO,
+    SOURCE_AUTO_SLEEP as MMA8451Q_SOURCE_AUTO_SLEEP,
+};
+
 pub mod adxl362;
 pub use adxl362::{
     Adxl362Minimal, Adxl362Full,
