@@ -166,105 +166,105 @@ Decoder id `mb85rc`, input `['i2c']`. Matches I²C addresses `0x50`–`0x57` (A2
 Tick each box as the item is committed. The PR may not be opened until every box is ticked.
 
 ### Python
-- [ ] Driver `python/periph/chips/memory/mb85rc.py` — Google-style docstring on every class and public method
-- [ ] Examples `python/examples/memory/mb85rc/minimal.py` — Tier-1 signature comment on every call
-- [ ] Examples `python/examples/memory/mb85rc/complete.py` — Tier-1 + Tier-2
-- [ ] Examples `python/examples/memory/mb85rc/demo.py` — Tier-1 + Tier-3
-- [ ] Tests `python/tests/memory/mb85rc_test.py` (MicroPython)
-- [ ] Tests `python/tests/memory/mb85rc_test_cp.py` (CircuitPython)
-- [ ] Tests `python/tests/memory/mb85rc_test_linux.py` (Linux)
-- [ ] Unit test `python/tests/memory/mb85rc_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `python/periph/chips/memory/mb85rc.py` — Google-style docstring on every class and public method
+- [x] Examples `python/examples/memory/mb85rc/minimal.py` — Tier-1 signature comment on every call
+- [x] Examples `python/examples/memory/mb85rc/complete.py` — Tier-1 + Tier-2
+- [x] Examples `python/examples/memory/mb85rc/demo.py` — Tier-1 + Tier-3
+- [x] Tests `python/tests/memory/mb85rc_test.py` (MicroPython)
+- [x] Tests `python/tests/memory/mb85rc_test_cp.py` (CircuitPython)
+- [x] Tests `python/tests/memory/mb85rc_test_linux.py` (Linux)
+- [x] Unit test `python/tests/memory/mb85rc_test_unit.py` — mocked via `python/periph/connection/i2c_mock.py`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### UIFlow 1
-- [ ] Manifest `python/uiflow1/memory/mb85rc/mb85rc.json` — `Periph` category, `#C084FC` color
-- [ ] Blocks `python/uiflow1/memory/mb85rc/mb85rc_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
-- [ ] Generated `python/uiflow1/memory/mb85rc/mb85rc.m5b` — run `python/uiflow1/generate.sh`, commit the output
+- [x] Manifest `python/uiflow1/memory/mb85rc/mb85rc.json` — `Periph` category, `#C084FC` color
+- [x] Blocks `python/uiflow1/memory/mb85rc/mb85rc_*.py` — one execute block for `init`, one value/execute block per other `Full`-class method wrapped
+- [x] Generated `python/uiflow1/memory/mb85rc/mb85rc.m5b` — run `python/uiflow1/generate.sh`, commit the output
 
 ### UIFlow 2
-- [ ] Wrapper class `python/uiflow2/memory/mb85rc/MB85RC.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
-- [ ] Exported `python/uiflow2/memory/mb85rc/MB85RC.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
+- [x] Wrapper class `python/uiflow2/memory/mb85rc/MB85RC.py` — YAML docstrings per `python/uiflow2/UIFLOW2_BLOCKS.md`, `Periph` category, `#C084FC` color; one method for `init`, one method per other `Full`-class method wrapped, with a return annotation only on methods that return a value
+- [x] Exported `python/uiflow2/memory/mb85rc/MB85RC.m5b2` — built by hand in the UiFlow 2 web IDE's Block Designer (no generator — see `python/uiflow2/UIFLOW2_BLOCKS.md` § Workflow), commit the output alongside the wrapper class
 
 ### C++
-- [ ] Driver `cpp/src/chips/memory/MB85RC.h` — Doxygen `/** @brief */` on every class and public method
-- [ ] Driver `cpp/src/chips/memory/MB85RC.cpp`
-- [ ] Examples `cpp/examples/arduino/memory/MB85RC/minimal/minimal.ino` — Tier-1
-- [ ] Examples `cpp/examples/arduino/memory/MB85RC/complete/complete.ino` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/arduino/memory/MB85RC/demo/demo.ino` — Tier-1 + Tier-3
-- [ ] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
-- [ ] Examples `cpp/examples/linux/memory/MB85RC/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/linux/memory/MB85RC/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/linux/memory/MB85RC/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/zephyr/memory/MB85RC/minimal/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/zephyr/memory/MB85RC/complete/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/zephyr/memory/MB85RC/demo/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/espidf/memory/MB85RC/minimal/main/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/espidf/memory/MB85RC/complete/main/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/espidf/memory/MB85RC/demo/main/main.cpp` — Tier-1 + Tier-3
-- [ ] Examples `cpp/examples/picosdk/memory/MB85RC/minimal/src/main.cpp` — Tier-1
-- [ ] Examples `cpp/examples/picosdk/memory/MB85RC/complete/src/main.cpp` — Tier-1 + Tier-2
-- [ ] Examples `cpp/examples/picosdk/memory/MB85RC/demo/src/main.cpp` — Tier-1 + Tier-3
-- [ ] Tests `cpp/tests/memory/mb85rc_test/mb85rc_test.ino` (Arduino)
-- [ ] Tests `cpp/tests/memory/mb85rc_test_linux/mb85rc_test_linux.cpp` (Linux GCC)
-- [ ] Tests `cpp/tests/memory/mb85rc_test_zephyr/src/main.cpp` (Zephyr)
-- [ ] Tests `cpp/tests/memory/mb85rc_test_espidf/main/main.cpp` (ESP-IDF)
-- [ ] Tests `cpp/tests/memory/mb85rc_test_picosdk/src/main.cpp` (Pico SDK)
-- [ ] Unit test `cpp/tests/memory/mb85rc_test_unit/mb85rc_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `cpp/src/chips/memory/MB85RC.h` — Doxygen `/** @brief */` on every class and public method
+- [x] Driver `cpp/src/chips/memory/MB85RC.cpp`
+- [x] Examples `cpp/examples/arduino/memory/MB85RC/minimal/minimal.ino` — Tier-1
+- [x] Examples `cpp/examples/arduino/memory/MB85RC/complete/complete.ino` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/arduino/memory/MB85RC/demo/demo.ino` — Tier-1 + Tier-3
+- [x] Arduino sketches use `#include <Periph.h>`; `cpp/src/Periph.h` regenerated (`node cpp/scripts/generate-periph-header.js`); `cpp/test_arduino_examples.sh` passes for `esp32:esp32:esp32s3` and `arduino:avr:mega` (see AGENTS.md)
+- [x] Examples `cpp/examples/linux/memory/MB85RC/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/linux/memory/MB85RC/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/linux/memory/MB85RC/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/zephyr/memory/MB85RC/minimal/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/zephyr/memory/MB85RC/complete/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/zephyr/memory/MB85RC/demo/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/espidf/memory/MB85RC/minimal/main/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/espidf/memory/MB85RC/complete/main/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/espidf/memory/MB85RC/demo/main/main.cpp` — Tier-1 + Tier-3
+- [x] Examples `cpp/examples/picosdk/memory/MB85RC/minimal/src/main.cpp` — Tier-1
+- [x] Examples `cpp/examples/picosdk/memory/MB85RC/complete/src/main.cpp` — Tier-1 + Tier-2
+- [x] Examples `cpp/examples/picosdk/memory/MB85RC/demo/src/main.cpp` — Tier-1 + Tier-3
+- [x] Tests `cpp/tests/memory/mb85rc_test/mb85rc_test.ino` (Arduino)
+- [x] Tests `cpp/tests/memory/mb85rc_test_linux/mb85rc_test_linux.cpp` (Linux GCC)
+- [x] Tests `cpp/tests/memory/mb85rc_test_zephyr/src/main.cpp` (Zephyr)
+- [x] Tests `cpp/tests/memory/mb85rc_test_espidf/main/main.cpp` (ESP-IDF)
+- [x] Tests `cpp/tests/memory/mb85rc_test_picosdk/src/main.cpp` (Pico SDK)
+- [x] Unit test `cpp/tests/memory/mb85rc_test_unit/mb85rc_test_unit.cpp` — mocked via `cpp/src/connection/I2CConnectionMock.h/.cpp`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node.js
-- [ ] Driver `nodejs/packages/periph/src/chips/memory/mb85rc.js` — JSDoc on every class and exported method
-- [ ] Examples `nodejs/packages/periph/examples/memory/mb85rc/minimal.js` — Tier-1
-- [ ] Examples `nodejs/packages/periph/examples/memory/mb85rc/complete.js` — Tier-1 + Tier-2
-- [ ] Examples `nodejs/packages/periph/examples/memory/mb85rc/demo.js` — Tier-1 + Tier-3
-- [ ] Tests `nodejs/tests/memory/mb85rc_test.js`
-- [ ] Unit test `nodejs/tests/memory/mb85rc_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `nodejs/packages/periph/src/chips/memory/mb85rc.js` — JSDoc on every class and exported method
+- [x] Examples `nodejs/packages/periph/examples/memory/mb85rc/minimal.js` — Tier-1
+- [x] Examples `nodejs/packages/periph/examples/memory/mb85rc/complete.js` — Tier-1 + Tier-2
+- [x] Examples `nodejs/packages/periph/examples/memory/mb85rc/demo.js` — Tier-1 + Tier-3
+- [x] Tests `nodejs/tests/memory/mb85rc_test.js`
+- [x] Unit test `nodejs/tests/memory/mb85rc_test_unit.js` — mocked via `nodejs/packages/periph/src/connection/i2c_mock.js`, run via `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Node-RED
-- [ ] Node runtime `nodejs/packages/node-red-contrib-periph-memory/nodes/mb85rc/mb85rc.js`
-- [ ] Node editor `nodejs/packages/node-red-contrib-periph-memory/nodes/mb85rc/mb85rc.html` — `data-help-name` section with inputs, outputs, and config description
-- [ ] Demo flow `nodejs/packages/node-red-contrib-periph-memory/examples/mb85rc/demo.json` — tab `info` field describes the scenario
+- [x] Node runtime `nodejs/packages/node-red-contrib-periph-memory/nodes/mb85rc/mb85rc.js`
+- [x] Node editor `nodejs/packages/node-red-contrib-periph-memory/nodes/mb85rc/mb85rc.html` — `data-help-name` section with inputs, outputs, and config description
+- [x] Demo flow `nodejs/packages/node-red-contrib-periph-memory/examples/mb85rc/demo.json` — tab `info` field describes the scenario
 
 ### Rust
-- [ ] Driver `rust/periph/src/chips/memory/mb85rc.rs` — `//!` module doc + `///` on every `pub` item
-- [ ] Examples `rust/examples/linux/memory/mb85rc/minimal/src/main.rs` — Tier-1
-- [ ] Examples `rust/examples/linux/memory/mb85rc/complete/src/main.rs` — Tier-1 + Tier-2
-- [ ] Examples `rust/examples/linux/memory/mb85rc/demo/src/main.rs` — Tier-1 + Tier-3
-- [ ] Tests `rust/tests/memory/mb85rc_test/src/main.rs` (Linux)
-- [ ] Tests `rust/tests/memory/mb85rc_test_esp32s3/src/main.rs` (ESP32-S3)
-- [ ] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/memory/mb85rc.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `rust/periph/src/chips/memory/mb85rc.rs` — `//!` module doc + `///` on every `pub` item
+- [x] Examples `rust/examples/linux/memory/mb85rc/minimal/src/main.rs` — Tier-1
+- [x] Examples `rust/examples/linux/memory/mb85rc/complete/src/main.rs` — Tier-1 + Tier-2
+- [x] Examples `rust/examples/linux/memory/mb85rc/demo/src/main.rs` — Tier-1 + Tier-3
+- [x] Tests `rust/tests/memory/mb85rc_test/src/main.rs` (Linux)
+- [x] Tests `rust/tests/memory/mb85rc_test_esp32s3/src/main.rs` (ESP32-S3)
+- [x] Unit tests `#[cfg(test)] mod tests` colocated in `rust/periph/src/chips/memory/mb85rc.rs` — `embedded-hal-mock`, run via `cargo test -p periph --features std`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### Go
-- [ ] Driver `go/periph/chips/memory/mb85rc.go` — Go doc comment on every exported type and method
-- [ ] Examples `go/examples/linux/memory/mb85rc/minimal/minimal.go` — Tier-1 signature comment on every call
-- [ ] Examples `go/examples/linux/memory/mb85rc/complete/complete.go` — Tier-1 + Tier-2
-- [ ] Examples `go/examples/linux/memory/mb85rc/demo/demo.go` — Tier-1 + Tier-3
-- [ ] Examples `go/examples/tinygo/memory/mb85rc/minimal/minimal.go` — Tier-1 (TinyGo)
-- [ ] Examples `go/examples/tinygo/memory/mb85rc/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
-- [ ] Examples `go/examples/tinygo/memory/mb85rc/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
-- [ ] Tests `go/tests/memory/mb85rc_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
-- [ ] Tests `go/tests/memory/mb85rc_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
-- [ ] Unit test `go/periph/chips/memory/mb85rc_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
+- [x] Driver `go/periph/chips/memory/mb85rc.go` — Go doc comment on every exported type and method
+- [x] Examples `go/examples/linux/memory/mb85rc/minimal/minimal.go` — Tier-1 signature comment on every call
+- [x] Examples `go/examples/linux/memory/mb85rc/complete/complete.go` — Tier-1 + Tier-2
+- [x] Examples `go/examples/linux/memory/mb85rc/demo/demo.go` — Tier-1 + Tier-3
+- [x] Examples `go/examples/tinygo/memory/mb85rc/minimal/minimal.go` — Tier-1 (TinyGo)
+- [x] Examples `go/examples/tinygo/memory/mb85rc/complete/complete.go` — Tier-1 + Tier-2 (TinyGo)
+- [x] Examples `go/examples/tinygo/memory/mb85rc/demo/demo.go` — Tier-1 + Tier-3 (TinyGo)
+- [x] Tests `go/tests/memory/mb85rc_test/main.go` — PASS/FAIL/===DONE=== protocol (host)
+- [x] Tests `go/tests/memory/mb85rc_test_tinygo/main.go` — PASS/FAIL/===DONE=== protocol (TinyGo)
+- [x] Unit test `go/periph/chips/memory/mb85rc_test.go` — struct literal implementing `Connection`, run via `go test ./periph/chips/...`, wrapped by `test_linux.sh` (see `specs/testing_framework.md`)
 
 ### JVM
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/MB85RCMinimal.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/MB85RCFull.java` — Javadoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/MB85RCMinimal.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/MB85RCFull.kt` — KDoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/MB85RCMinimal.groovy` — Groovydoc on every class and public method
-- [ ] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/MB85RCFull.groovy` — Groovydoc on every class and public method
-- [ ] Examples `jvm/examples/java/memory/mb85rc/Minimal.java` — Tier-1
-- [ ] Examples `jvm/examples/java/memory/mb85rc/Complete.java` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/java/memory/mb85rc/Demo.java` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/kotlin/memory/mb85rc/Minimal.kt` — Tier-1
-- [ ] Examples `jvm/examples/kotlin/memory/mb85rc/Complete.kt` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/kotlin/memory/mb85rc/Demo.kt` — Tier-1 + Tier-3
-- [ ] Examples `jvm/examples/groovy/memory/mb85rc/Minimal.groovy` — Tier-1
-- [ ] Examples `jvm/examples/groovy/memory/mb85rc/Complete.groovy` — Tier-1 + Tier-2
-- [ ] Examples `jvm/examples/groovy/memory/mb85rc/Demo.groovy` — Tier-1 + Tier-3
-- [ ] Tests `jvm/tests/memory/mb85rc/MB85RCTest.java` (Pi hardware, JBang)
-- [ ] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/memory/MB85RCTest.java` (JUnit)
-- [ ] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/memory/MB85RCTest.kt` (Kotest/JUnit5)
-- [ ] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/memory/MB85RCSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/MB85RCMinimal.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-java/src/main/java/it/uhde/periph/chips/memory/MB85RCFull.java` — Javadoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/MB85RCMinimal.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-kotlin/src/main/kotlin/it/uhde/periph/chips/memory/MB85RCFull.kt` — KDoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/MB85RCMinimal.groovy` — Groovydoc on every class and public method
+- [x] Driver `jvm/periph-groovy/src/main/groovy/it/uhde/periph/chips/memory/MB85RCFull.groovy` — Groovydoc on every class and public method
+- [x] Examples `jvm/examples/java/memory/mb85rc/Minimal.java` — Tier-1
+- [x] Examples `jvm/examples/java/memory/mb85rc/Complete.java` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/java/memory/mb85rc/Demo.java` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/kotlin/memory/mb85rc/Minimal.kt` — Tier-1
+- [x] Examples `jvm/examples/kotlin/memory/mb85rc/Complete.kt` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/kotlin/memory/mb85rc/Demo.kt` — Tier-1 + Tier-3
+- [x] Examples `jvm/examples/groovy/memory/mb85rc/Minimal.groovy` — Tier-1
+- [x] Examples `jvm/examples/groovy/memory/mb85rc/Complete.groovy` — Tier-1 + Tier-2
+- [x] Examples `jvm/examples/groovy/memory/mb85rc/Demo.groovy` — Tier-1 + Tier-3
+- [x] Tests `jvm/tests/memory/mb85rc/MB85RCTest.java` (Pi hardware, JBang)
+- [x] Unit test `jvm/periph-java/src/test/java/it/uhde/periph/chips/memory/MB85RCTest.java` (JUnit)
+- [x] Unit test `jvm/periph-kotlin/src/test/kotlin/it/uhde/periph/chips/memory/MB85RCTest.kt` (Kotest/JUnit5)
+- [x] Unit test `jvm/periph-groovy/src/test/groovy/it/uhde/periph/chips/memory/MB85RCSpec.groovy` (Spock) — all three reuse `MockConnection` from `periph-connection`'s test scope, run via `mvn test` per module, wrapped by `test_linux_<lang>.sh` (see `specs/testing_framework.md`)
 
 ### Sigrok
-- [ ] Decoder `sigrok/mb85rc/__init__.py` — module docstring describing transport input, addresses, and what is annotated
-- [ ] Decoder `sigrok/mb85rc/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
+- [x] Decoder `sigrok/mb85rc/__init__.py` — module docstring describing transport input, addresses, and what is annotated
+- [x] Decoder `sigrok/mb85rc/pd.py` — annotates all named registers / fields; produces `OUTPUT_ANN` and `OUTPUT_PYTHON` (see `specs/sigrok_annotations.md`)
