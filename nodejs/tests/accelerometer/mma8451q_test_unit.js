@@ -1,6 +1,7 @@
 'use strict';
 
 const { I2CConnectionMock } = require('../../packages/periph/src/connection/i2c_mock');
+const { PollingInputPin } = require('../../packages/periph/src/connection/input_pin');
 const {
     MMA8451QMinimal,
     MMA8451QFull,
@@ -461,6 +462,35 @@ async function main() {
     await full.pollInterrupt();
     checkTrue('poll_interrupt_reads_sysmod_to_clear_auto_sleep',
         mock2.writes.some(w => w.length === 1 && w[0] === 0x0B));
+
+    // --- interrupt delivery ------------------------------------------------
+    // Edge-triggered delivery: the INT line idles high and pulls low on an
+    // event (the chip's interrupt pins are active-low by default).
+    const mockEdge = newMock();
+    mockEdge.setRegister(0x0C, [0x00]);
+    let intLevel = 1;
+    mockEdge.intPin = new PollingInputPin(() => intLevel, 5);
+    const edgeChip = new MMA8451QFull(mockEdge);
+    await edgeChip.init();
+    let fired = null;
+    await edgeChip.onInterrupt((status) => { fired = status; }, 1);
+    mockEdge.setRegister(0x0C, [SOURCE_ORIENTATION]);
+    intLevel = 0;   // falling edge
+    await new Promise(r => setTimeout(r, 60));
+    checkTrue('on_interrupt_edge_delivery', fired === SOURCE_ORIENTATION);
+    await edgeChip.offInterrupt();
+
+    // Polling fallback: without an INT pin the driver samples every 5 ms.
+    const mockPoll = newMock();
+    mockPoll.setRegister(0x0C, [0x00]);
+    const pollChip = new MMA8451QFull(mockPoll);
+    await pollChip.init();
+    let pollFired = null;
+    await pollChip.onInterrupt((status) => { pollFired = status; }, 1);
+    mockPoll.setRegister(0x0C, [SOURCE_FIFO]);
+    await new Promise(r => setTimeout(r, 60));
+    checkTrue('on_interrupt_polling_fallback', pollFired === SOURCE_FIFO);
+    await pollChip.offInterrupt();
 
     // --- readRaw / status / system mode ----------------------------------
     mock2.setRegister(0x01, [0xE0, 0x00, 0x00, 0x00, 0x40, 0x00]);
