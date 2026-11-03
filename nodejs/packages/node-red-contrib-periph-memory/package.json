@@ -13,7 +13,8 @@
   ],
   "node-red": {
     "nodes": {
-      "24aa02uid": "nodes/24aa02uid/24aa02uid.js"
+      "24aa02uid": "nodes/24aa02uid/24aa02uid.js",
+      "mb85rc": "nodes/mb85rc/mb85rc.js"
     }
   },
   "dependencies": {

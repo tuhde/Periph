@@ -18,6 +18,8 @@ npm install node-red-contrib-periph-memory
 |------|------|-------------|
 | `24aa02uid-device` | config | I²C bus and address for a 24AA02UID |
 | `24aa02uid` | input | Reads the factory-programmed 32-bit unique serial number from a 24AA02UID EEPROM, or reads / writes user EEPROM bytes, over I²C. |
+| `mb85rc-device` | config | I²C bus and address (0x50–0x57) for an MB85RC FRAM |
+| `periph-mb85rc` | input | Reads, writes or fills the 32 KiB MB85RC256V FRAM over I²C (no write delay). |
 
 ## Links
 
