@@ -96,7 +96,7 @@ class Bma180Test {
         // bit 0 preserved.
         assertEquals(0x01, lastWriteTo(c, Bma180Minimal.REG_LOW_DUR) & 0x01);
         // axes bits 3:1 set; low_filt bit 0 set.
-        assertEquals(0x0E, lastWriteTo(c, Bma180Minimal.REG_HIGH_LOW_INFO) & 0x0F);
+        assertEquals(0x0F, lastWriteTo(c, Bma180Minimal.REG_HIGH_LOW_INFO) & 0x0F);
     }
 
     @Test

@@ -9,7 +9,7 @@
 #include <zephyr/kernel.h>
 static inline void delay(unsigned long ms) { k_sleep(K_MSEC(ms)); }
 #elif defined(ESP_PLATFORM)
-#include <freertos/Freeertos.h>
+#include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 static inline void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 #elif __has_include(<stm32f4xx_hal.h>)

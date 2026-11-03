@@ -1,6 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
+#include <math.h>
 #include "I2CConnectionZephyr.h"
 #include "BMA180.h"
 

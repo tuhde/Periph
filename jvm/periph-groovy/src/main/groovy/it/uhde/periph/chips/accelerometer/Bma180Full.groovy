@@ -1,3 +1,9 @@
+package it.uhde.periph.chips.accelerometer
+
+import groovy.transform.CompileStatic
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
+
 @CompileStatic
 class Bma180Full extends Bma180Minimal {
 
@@ -361,21 +367,21 @@ class Bma180Full extends Bma180Minimal {
     }
 
     private void writeThreshold(int reg, float thresholdG) throws IOException {
-        int code = Math.round(thresholdG / rangeG * 255.0f)
+        int code = (int) Math.round(thresholdG / rangeG * 255.0f)
         if (code < 0)   code = 0
         if (code > 255) code = 255
         writeReg(reg, code)
     }
 
     private void writeSlopeThreshold(int reg, float thresholdG) throws IOException {
-        int code = Math.round(thresholdG / (0.0156f * rangeG / 2.0f))
+        int code = (int) Math.round(thresholdG / (0.0156f * rangeG / 2.0f))
         if (code < 0)   code = 0
         if (code > 255) code = 255
         writeReg(reg, code)
     }
 
     private void writeLowDur(int durationMs) throws IOException {
-        int code = Math.round(durationMs / DUR_LSB_MS)
+        int code = (int) Math.round(durationMs / DUR_LSB_MS)
         if (code < 0)   code = 0
         if (code > 127) code = 127
         int ld = readReg(REG_LOW_DUR)
@@ -383,7 +389,7 @@ class Bma180Full extends Bma180Minimal {
     }
 
     private void writeHighDur(int durationMs) throws IOException {
-        int code = Math.round(durationMs / DUR_LSB_MS)
+        int code = (int) Math.round(durationMs / DUR_LSB_MS)
         if (code < 0)   code = 0
         if (code > 127) code = 127
         int hd = readReg(REG_HIGH_DUR)
@@ -391,7 +397,7 @@ class Bma180Full extends Bma180Minimal {
     }
 
     private void writeLowHy(float hysteresisG) throws IOException {
-        int code = Math.round(hysteresisG / rangeG * 255.0f / 32.0f)
+        int code = (int) Math.round(hysteresisG / rangeG * 255.0f / 32.0f)
         if (code < 0)  code = 0
         if (code > 31) code = 31
         int hy = readReg(REG_HY)
@@ -401,7 +407,7 @@ class Bma180Full extends Bma180Minimal {
     }
 
     private void writeHighHy(float hysteresisG) throws IOException {
-        int code = Math.round(hysteresisG / rangeG * 255.0f / 32.0f)
+        int code = (int) Math.round(hysteresisG / rangeG * 255.0f / 32.0f)
         if (code < 0)  code = 0
         if (code > 31) code = 31
         int hy = readReg(REG_HY)

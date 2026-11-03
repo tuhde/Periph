@@ -1,3 +1,9 @@
+package it.uhde.periph.chips.accelerometer
+
+import groovy.transform.CompileStatic
+import it.uhde.periph.connection.Register
+import it.uhde.periph.connection.RegisterConnection
+
 @CompileStatic
 class Bma180Minimal {
 
