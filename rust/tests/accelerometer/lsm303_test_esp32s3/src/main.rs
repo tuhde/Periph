@@ -54,7 +54,7 @@ fn main() -> ! {
     let magnitude_ok = chip
         .read_acceleration()
         .map(|(x, y, z)| {
-            let m = (x * x + y * y + z * z).sqrt();
+            let m = libm::sqrtf(x * x + y * y + z * z);
             m >= 0.5 && m <= 1.5
         })
         .unwrap_or(false);

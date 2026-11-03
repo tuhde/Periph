@@ -24,7 +24,7 @@ const ADDR: u8 = 0x40;
 
 #[main]
 fn main() -> ! {
-    let peripherals = esp_hal::init(esp_hal::Config::default());
+    let mut peripherals = esp_hal::init(esp_hal::Config::default());
 
     let i2c = I2c::new(peripherals.I2C0.reborrow(), Config::default())
         .unwrap()

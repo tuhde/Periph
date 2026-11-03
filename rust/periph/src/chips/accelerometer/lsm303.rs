@@ -794,14 +794,15 @@ impl<I2C: I2c> Lsm303Full<I2C> {
     pub fn heading(&mut self, tilt_compensate: bool) -> Result<f32, I2C::Error> {
         let (mx, my, mz) = self.read_magnetic()?;
         if !tilt_compensate {
-            return Ok(wrap_degrees(my.atan2(mx) * 180.0 / core::f32::consts::PI));
+            return Ok(wrap_degrees(libm::atan2f(my, mx) * 180.0 / core::f32::consts::PI));
         }
         let (ax, ay, az) = self.read_acceleration()?;
-        let roll = ay.atan2(az);
-        let pitch = (-ax).atan2(ay * roll.sin() + az * roll.cos());
-        let xh = mx * pitch.cos() + mz * pitch.sin();
-        let yh = mx * roll.sin() * pitch.sin() + my * roll.cos() - mz * roll.sin() * pitch.cos();
-        Ok(wrap_degrees(yh.atan2(xh) * 180.0 / core::f32::consts::PI))
+        let roll = libm::atan2f(ay, az);
+        let pitch = libm::atan2f(-ax, ay * libm::sinf(roll) + az * libm::cosf(roll));
+        let xh = mx * libm::cosf(pitch) + mz * libm::sinf(pitch);
+        let yh = mx * libm::sinf(roll) * libm::sinf(pitch) + my * libm::cosf(roll)
+            - mz * libm::sinf(roll) * libm::cosf(pitch);
+        Ok(wrap_degrees(libm::atan2f(yh, xh) * 180.0 / core::f32::consts::PI))
     }
 
     /// Route one interrupt source to INT1 or INT2.
