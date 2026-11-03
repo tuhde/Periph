@@ -63,6 +63,7 @@ uiflow2/
 | [APDS9960](light/apds9960/) | light | init, `color_clear`, `color_red`, `color_green`, `color_blue`, `enable_proximity`, `proximity` |
 | [AS5600](magnetometer/as5600/) | magnetometer | init, `angle`, `angle_raw`, `is_magnet_detected`, `is_magnet_too_strong`, `is_magnet_too_weak` |
 | [EEPROM24AA02UID](memory/24aa02uid/) | memory | init, `read_uid`, `read_byte`, `write_byte` |
+| [MB85RC](memory/mb85rc/) | memory | init, `read_byte`, `write_byte`, `read`, `write`, `fill`, `size`, `read_device_id` |
 | [INA219](power/ina219/) | power | init, `voltage`, `shunt_voltage`, `current`, `power` |
 | [INA226](power/ina226/) | power | init, `read_voltage`, `read_current`, `read_power` |
 | [INA3221](power/ina3221/) | power | init, `read_voltage`, `read_current`, `read_power` (each takes a `channel` param) |

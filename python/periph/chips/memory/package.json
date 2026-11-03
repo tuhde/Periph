@@ -9,6 +9,10 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/memory/mb85rc.py",
+      "github:tuhde/Periph/python/periph/chips/memory/mb85rc.py"
+    ],
+    [
       "periph/connection/__init__.py",
       "github:tuhde/Periph/python/periph/connection/__init__.py"
     ],
