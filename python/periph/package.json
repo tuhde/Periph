@@ -169,6 +169,10 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/motor/drv2605.py",
+      "github:tuhde/Periph/python/periph/chips/motor/drv2605.py"
+    ],
+    [
       "periph/chips/motor/drv8830.py",
       "github:tuhde/Periph/python/periph/chips/motor/drv8830.py"
     ],

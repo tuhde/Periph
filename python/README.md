@@ -67,6 +67,7 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
+| DRV2605 | Motor driver | Haptic driver for ERM/LRA actuators |
 | DRV8830 | Motor driver | Low-voltage motor driver |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
