@@ -46,6 +46,7 @@
 #include "chips/comms/RFM9x.h"
 #include "chips/display/IL0373.h"
 #include "chips/display/PCF8576.h"
+#include "chips/display/PCF8578.h"
 #include "chips/display/SSD1331.h"
 #include "chips/display/ST7036.h"
 #include "chips/display/UC1611s.h"
