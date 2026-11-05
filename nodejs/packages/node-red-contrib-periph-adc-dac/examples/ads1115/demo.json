@@ -1,0 +1,119 @@
+[
+    {
+        "id": "tab-ads1115-demo",
+        "type": "tab",
+        "label": "ADS1115 Demo",
+        "disabled": false,
+        "info": "Reads AIN0 of the ADS1115 once per second at ±4.096 V; a second inject node sends msg.differential = \"2-3\" to show a differential (bridge sensor) read. A function node converts the AIN0 reading of a 1:2 divider back to the battery voltage."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read every 1 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ads1115-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "ads1115"
+            ]
+        ]
+    },
+    {
+        "id": "ads1115",
+        "type": "periph-ads1115",
+        "name": "ADS1115",
+        "bus": "1",
+        "address": "48",
+        "dataRate": "4",
+        "z": "tab-ads1115-demo",
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "fn-scale"
+            ]
+        ],
+        "gain": "1",
+        "channel": "0"
+    },
+    {
+        "id": "fn-scale",
+        "type": "function",
+        "name": "divider to battery volts",
+        "func": "msg.payload.battery = msg.payload.voltage * 2;\nreturn msg;",
+        "outputs": 1,
+        "z": "tab-ads1115-demo",
+        "x": 620,
+        "y": 100,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "inj-diff",
+        "type": "inject",
+        "name": "differential 2-3",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ads1115-demo",
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "set-diff"
+            ]
+        ]
+    },
+    {
+        "id": "set-diff",
+        "type": "change",
+        "name": "msg.differential = 2-3",
+        "rules": [
+            {
+                "t": "set",
+                "p": "differential",
+                "pt": "msg",
+                "to": "2-3",
+                "tot": "str"
+            }
+        ],
+        "z": "tab-ads1115-demo",
+        "x": 380,
+        "y": 180,
+        "wires": [
+            [
+                "ads1115"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "voltage",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ads1115-demo",
+        "x": 850,
+        "y": 100,
+        "wires": []
+    }
+]
