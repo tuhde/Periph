@@ -70,6 +70,7 @@ Each chip exposes two classes:
 | HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
 | HY3131 | ADC/DAC | `chips/adc_dac/HY3131.h` |
+| ICM20948 | IMU | `chips/imu/ICM20948.h` |
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |

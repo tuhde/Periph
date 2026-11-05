@@ -605,7 +605,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "icm20948",
       "datasheet": "datasheets/imu/icm20948.pdf"
     },
     {
