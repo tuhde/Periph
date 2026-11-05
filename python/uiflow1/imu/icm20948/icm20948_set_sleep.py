@@ -1,0 +1,1 @@
+_periph_icm20948.set_sleep(bool(${_sleep}))
