@@ -659,7 +659,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mcp23008",
       "datasheet": "datasheets/io_expander/mcp23008.pdf"
     },
     {

@@ -55,6 +55,7 @@ uiflow2/
 | [NEO6](gnss/neo6/) | gnss | init, `update`, `latitude`, `longitude`, `altitude` |
 | [DHT11](humidity/dht11/) | humidity | init, `read_temperature`, `read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | init, `accel_x`, `accel_y`, `accel_z`, `gyro_x`, `gyro_y`, `gyro_z`, `temperature`, `data_ready` |
+| [MCP23008](io_expander/mcp23008/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_pullup`, `configure_polarity`, `set_default_value`, `enable_pin_interrupt`, `poll_interrupt`, `read_capture`, `reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |

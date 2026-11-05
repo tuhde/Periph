@@ -64,7 +64,7 @@ pub const CHIPS: &[ChipEntry] = &[
     ChipEntry { id: "icm20948", driver: None, write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x00, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0xEA] }) },
     ChipEntry { id: "mpu9250", driver: Some("mpu9250"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x75, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x71] }) },
     ChipEntry { id: "mpu9255", driver: Some("mpu9255"), write_sensitive: false, aliased: false, addresses: &[0x68, 0x69], probe: Some(IdProbe { register: 0x75, reg_bytes: 1, length: 1, little_endian: false, mask: 0xFF, expected: &[0x73] }) },
-    ChipEntry { id: "mcp23008", driver: None, write_sensitive: false, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27], probe: None },
+    ChipEntry { id: "mcp23008", driver: Some("mcp23008"), write_sensitive: false, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27], probe: None },
     ChipEntry { id: "mcp23017", driver: Some("mcp23017"), write_sensitive: false, aliased: false, addresses: &[0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27], probe: None },
     ChipEntry { id: "pca6408a", driver: None, write_sensitive: false, aliased: false, addresses: &[0x20, 0x21], probe: None },
     ChipEntry { id: "pca9536", driver: None, write_sensitive: false, aliased: false, addresses: &[0x41], probe: None },
