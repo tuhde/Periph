@@ -1,0 +1,192 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mcp23008_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init MCP23008",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_set_pin_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 set pin (0-7) mode: IN=0, OUT=1",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_write_pin",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 write pin (0-7) value (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_read_pin",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP23008 read pin (0-7)",
+          "type": "label"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_read_port",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP23008 read port (8 pins)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_write_port",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 write port mask (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_configure_pullup",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 pull-up mask (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_configure_polarity",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 input polarity mask (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_set_default_value",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 interrupt default value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_enable_pin_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 interrupt-enable mask (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_mask",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP23008 poll interrupt flags (clears INT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_read_capture",
+      "type": "value",
+      "params": [
+        {
+          "name": "MCP23008 read interrupt capture (clears INT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "mcp23008_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "MCP23008 reset registers to defaults",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
