@@ -32,7 +32,7 @@ var registry = []Chip{
 	{ID: "lsm303-mag", Driver: "lsm303", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1E}, Probe: &IdProbe{Register: 0x0A, RegBytes: 1, Length: 3, LittleEndian: false, Mask: 0xFFFFFF, Expected: []uint32{0x483433}}},
 	{ID: "mma8451q", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1C, 0x1D}, Probe: &IdProbe{Register: 0x0D, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x1A}}},
 	{ID: "ad5243", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2F}, Probe: nil},
-	{ID: "ad5248", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},
+	{ID: "ad5248", Driver: "ad5248", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},
 	{ID: "cat5171", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2C, 0x2D}, Probe: nil},
 	{ID: "ds1881", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},
 	{ID: "cs43l22", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x4A, 0x4B}, Probe: &IdProbe{Register: 0x01, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xF8, Expected: []uint32{0xE0}}},
