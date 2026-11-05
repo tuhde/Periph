@@ -16,6 +16,8 @@ npm install node-red-contrib-periph-adc-dac
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `ad5248-device` | config | I²C bus and address for an AD5248 |
+| `periph-ad5248` | input | Sets or reads the two 256-position wipers of an AD5248 dual digital rheostat over I²C. The device is configured via an ad5248-device config node. |
 | `ad7705-device` | config | Bus configuration for an AD7705 |
 | `periph-ad7705` | input | Reads voltage from a 2-channel, 16-bit sigma-delta AD7705 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO). |
 | `ad7706-device` | config | Bus configuration for an AD7706 |
