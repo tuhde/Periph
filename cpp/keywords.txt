@@ -91,6 +91,8 @@ HX711Minimal	KEYWORD1
 HY3131Full	KEYWORD1
 HY3131Minimal	KEYWORD1
 I2CConnection	KEYWORD1
+ICM20948Full	KEYWORD1
+ICM20948Minimal	KEYWORD1
 IL0373Full	KEYWORD1
 IL0373Minimal	KEYWORD1
 INA219Full	KEYWORD1
@@ -254,6 +256,8 @@ apparentPowerB	KEYWORD2
 authenticate	KEYWORD2
 autorefp	KEYWORD2
 autozero	KEYWORD2
+aux_read_byte	KEYWORD2
+aux_write_byte	KEYWORD2
 available	KEYWORD2
 awake	KEYWORD2
 baseline	KEYWORD2
@@ -322,6 +326,7 @@ configure_baseline_filter	KEYWORD2
 configure_debounce	KEYWORD2
 configure_dlpf	KEYWORD2
 configure_fifo	KEYWORD2
+configure_filters	KEYWORD2
 configure_gesture	KEYWORD2
 configure_gyro	KEYWORD2
 configure_hp_filter	KEYWORD2
@@ -471,6 +476,7 @@ getOffset	KEYWORD2
 getResolution	KEYWORD2
 getTemperatureOffset	KEYWORD2
 getUpperLimit	KEYWORD2
+get_accel_offset	KEYWORD2
 get_brightness	KEYWORD2
 get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
@@ -552,7 +558,9 @@ low	KEYWORD2
 lux	KEYWORD2
 mag	KEYWORD2
 magDataReady	KEYWORD2
+mag_data_ready	KEYWORD2
 mag_raw	KEYWORD2
+mag_set_mode	KEYWORD2
 magnetic_field	KEYWORD2
 magnitude	KEYWORD2
 manufacturer_id	KEYWORD2
@@ -696,6 +704,7 @@ read_temperature	KEYWORD2
 read_temperature_code	KEYWORD2
 read_temperature_delta	KEYWORD2
 read_temperature_raw	KEYWORD2
+read_timebase_correction	KEYWORD2
 read_tvoc	KEYWORD2
 read_uid	KEYWORD2
 read_ultralight_page	KEYWORD2
@@ -804,6 +813,7 @@ setTimingBudget	KEYWORD2
 setTrace	KEYWORD2
 setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
+set_accel_offset	KEYWORD2
 set_activity	KEYWORD2
 set_activity_threshold	KEYWORD2
 set_activity_time	KEYWORD2
@@ -869,6 +879,7 @@ set_full_scale	KEYWORD2
 set_gain	KEYWORD2
 set_gain_calibration	KEYWORD2
 set_gas_enabled	KEYWORD2
+set_gyro_offset	KEYWORD2
 set_half_bandwidth	KEYWORD2
 set_heater	KEYWORD2
 set_heater_off	KEYWORD2
@@ -880,6 +891,7 @@ set_inactivity	KEYWORD2
 set_inactivity_threshold	KEYWORD2
 set_inactivity_time	KEYWORD2
 set_interrupt	KEYWORD2
+set_interrupt_pin	KEYWORD2
 set_interrupt_polarity	KEYWORD2
 set_interval	KEYWORD2
 set_invert	KEYWORD2
@@ -938,6 +950,7 @@ set_sample_skip	KEYWORD2
 set_scale	KEYWORD2
 set_scroll_line	KEYWORD2
 set_sdo_pullup	KEYWORD2
+set_sensors	KEYWORD2
 set_shadow	KEYWORD2
 set_sleep	KEYWORD2
 set_slope	KEYWORD2
@@ -957,6 +970,7 @@ set_voltage	KEYWORD2
 set_voltage_eeprom	KEYWORD2
 set_volume	KEYWORD2
 set_vref	KEYWORD2
+set_wake_on_motion	KEYWORD2
 set_wake_up	KEYWORD2
 set_wakeup_mode	KEYWORD2
 set_warning_alert	KEYWORD2
@@ -1538,11 +1552,13 @@ SOURCE_BOOT	LITERAL1
 SOURCE_CLICK	LITERAL1
 SOURCE_CRITICAL	LITERAL1
 SOURCE_DATA_READY	LITERAL1
+SOURCE_FIFO_OVERFLOW	LITERAL1
 SOURCE_FIFO_OVERRUN	LITERAL1
 SOURCE_FIFO_READY	LITERAL1
 SOURCE_FIFO_WATERMARK	LITERAL1
 SOURCE_HIGH	LITERAL1
 SOURCE_HIGH_G	LITERAL1
+SOURCE_I2C_MASTER	LITERAL1
 SOURCE_IA1	LITERAL1
 SOURCE_IA2	LITERAL1
 SOURCE_INACT	LITERAL1
@@ -1558,12 +1574,14 @@ SOURCE_NEW_SAMPLE_READY	LITERAL1
 SOURCE_OOR	LITERAL1
 SOURCE_OUT_OF_WINDOW	LITERAL1
 SOURCE_OVERRUN	LITERAL1
+SOURCE_PLL_READY	LITERAL1
 SOURCE_SECOND	LITERAL1
 SOURCE_SLOPE	LITERAL1
 SOURCE_TAP	LITERAL1
 SOURCE_TIMER_A	LITERAL1
 SOURCE_TIMER_B	LITERAL1
 SOURCE_UPPER	LITERAL1
+SOURCE_WAKE_ON_MOTION	LITERAL1
 SOURCE_WATERMARK	LITERAL1
 SPACE_100K	LITERAL1
 SPACE_200K	LITERAL1
