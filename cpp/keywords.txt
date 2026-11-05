@@ -7,6 +7,8 @@
 # Datatypes (KEYWORD1)
 #######################################
 
+AD5248Full	KEYWORD1
+AD5248Minimal	KEYWORD1
 AD7705Full	KEYWORD1
 AD7705Minimal	KEYWORD1
 AD7706Full	KEYWORD1
@@ -478,7 +480,10 @@ get_mode	KEYWORD2
 get_offset	KEYWORD2
 get_offset_calibration	KEYWORD2
 get_pixel	KEYWORD2
+get_ratio	KEYWORD2
+get_resistance	KEYWORD2
 get_scale	KEYWORD2
+get_wiper	KEYWORD2
 gray_linear	KEYWORD2
 gyro	KEYWORD2
 gyro_raw	KEYWORD2
@@ -500,6 +505,7 @@ hw_rect	KEYWORD2
 icon	KEYWORD2
 identify	KEYWORD2
 idle_clocks	KEYWORD2
+increment	KEYWORD2
 increment_value	KEYWORD2
 info	KEYWORD2
 init	KEYWORD2
@@ -534,6 +540,7 @@ is_present	KEYWORD2
 is_proximity_saturated	KEYWORD2
 is_proximity_valid	KEYWORD2
 is_ready	KEYWORD2
+is_shutdown	KEYWORD2
 is_station	KEYWORD2
 is_stereo	KEYWORD2
 is_touched	KEYWORD2
@@ -720,6 +727,7 @@ reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
 restore_value	KEYWORD2
+resume	KEYWORD2
 retry_count	KEYWORD2
 return_home	KEYWORD2
 rev_id	KEYWORD2
@@ -830,6 +838,7 @@ set_bias	KEYWORD2
 set_bias_ratio	KEYWORD2
 set_blink	KEYWORD2
 set_booster	KEYWORD2
+set_both	KEYWORD2
 set_brightness	KEYWORD2
 set_click	KEYWORD2
 set_compensation	KEYWORD2
@@ -926,12 +935,15 @@ set_proximity_mask	KEYWORD2
 set_proximity_offset	KEYWORD2
 set_proximity_thresholds	KEYWORD2
 set_pump	KEYWORD2
+set_rab	KEYWORD2
 set_range	KEYWORD2
 set_rate	KEYWORD2
+set_ratio	KEYWORD2
 set_raw	KEYWORD2
 set_raw_eeprom	KEYWORD2
 set_reference	KEYWORD2
 set_remap	KEYWORD2
+set_resistance	KEYWORD2
 set_resolution	KEYWORD2
 set_rx_mode	KEYWORD2
 set_sample_skip	KEYWORD2
@@ -960,6 +972,7 @@ set_vref	KEYWORD2
 set_wake_up	KEYWORD2
 set_wakeup_mode	KEYWORD2
 set_warning_alert	KEYWORD2
+set_wiper	KEYWORD2
 set_write_pattern	KEYWORD2
 set_zero_position	KEYWORD2
 shift_cursor	KEYWORD2
