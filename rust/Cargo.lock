@@ -3,6 +3,39 @@
 version = 4
 
 [[package]]
+name = "ad5248_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ad5248_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ad5248_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "ad5248_test"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
 name = "ad7705_complete"
 version = "0.1.0"
 dependencies = [
