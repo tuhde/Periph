@@ -1,0 +1,1 @@
+_periph_fxos8700.read_system_mode()

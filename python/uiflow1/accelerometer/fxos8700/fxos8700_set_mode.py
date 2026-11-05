@@ -1,0 +1,1 @@
+_periph_fxos8700.set_mode(int(${_mode}))
