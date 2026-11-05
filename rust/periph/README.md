@@ -99,6 +99,7 @@ Each chip exposes two structs:
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver (NXP). |
+| PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |

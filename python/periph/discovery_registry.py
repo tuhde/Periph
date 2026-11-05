@@ -78,7 +78,7 @@ CHIPS = (
     {"id": "pcf8576", "driver": "pcf8576", "write_sensitive": True, "aliased": False,
      "addresses": (0x38, 0x39,),
      "probe": None},
-    {"id": "pcf8578", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "pcf8578", "driver": "pcf8578", "write_sensitive": True, "aliased": False,
      "addresses": (0x3C, 0x3D,),
      "probe": None},
     {"id": "pcf8579", "driver": None, "write_sensitive": True, "aliased": False,
