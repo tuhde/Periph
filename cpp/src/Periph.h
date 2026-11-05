@@ -30,6 +30,7 @@
 #include "chips/accelerometer/ADXL362.h"
 #include "chips/accelerometer/BMA150.h"
 #include "chips/accelerometer/BMA180.h"
+#include "chips/accelerometer/FXOS8700.h"
 #include "chips/accelerometer/LIS3DH.h"
 #include "chips/accelerometer/LSM303.h"
 #include "chips/adc_dac/AD7705.h"
