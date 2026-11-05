@@ -25,9 +25,9 @@ static void periph_delay_ms(unsigned ms) { delay(ms); }
 namespace {
 const float FULL_SCALE[6] = { 6.144f, 4.096f, 2.048f, 1.024f, 0.512f, 0.256f };
 const uint16_t SPS[7] = { 128, 250, 490, 920, 1600, 2400, 3300 };
-const uint16_t CONFIG_RESET = 0x8583;
-const uint16_t LO_RESET = 0x8000;
-const uint16_t HI_RESET = 0x7FFF;
+const uint16_t RESET_CONFIG_WORD = 0x8583;
+const uint16_t RESET_LO_WORD = 0x8000;
+const uint16_t RESET_HI_WORD = 0x7FFF;
 }  // namespace
 
 // ADS1014Minimal
@@ -132,9 +132,9 @@ bool ADS1014Full::isConverting() { return (_readReg(REG_CONFIG) & CFG_OS) == 0; 
 uint16_t ADS1014Full::readConfig() { return _readReg(REG_CONFIG); }
 
 void ADS1014Full::reset() {
-    _writeReg(REG_CONFIG, CONFIG_RESET);
-    _writeReg(REG_LO_THRESH, LO_RESET);
-    _writeReg(REG_HI_THRESH, HI_RESET);
+    _writeReg(REG_CONFIG, RESET_CONFIG_WORD);
+    _writeReg(REG_LO_THRESH, RESET_LO_WORD);
+    _writeReg(REG_HI_THRESH, RESET_HI_WORD);
     _pga = PGA_2_048;
     _dr = DR_1600;
     _continuous = false;

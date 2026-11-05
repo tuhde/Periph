@@ -35,6 +35,8 @@ Each chip exposes two classes:
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
 | ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
+| ADS1013 | ADC/DAC | `periph/src/chips/adc_dac/ads1013` |
+| ADS1014 | ADC/DAC | `periph/src/chips/adc_dac/ads1014` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |

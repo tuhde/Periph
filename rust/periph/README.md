@@ -47,6 +47,8 @@ Each chip exposes two structs:
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | ADE7953 | Power monitor | Single-phase multifunction metering IC (Analog Devices). |
+| ADS1013 | ADC/DAC | 12-bit I²C ADC with a fixed ±2.048 V range (Texas Instruments). |
+| ADS1014 | ADC/DAC | 12-bit I²C ADC with PGA and programmable comparator (Texas Instruments). |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |

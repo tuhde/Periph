@@ -34,6 +34,8 @@
 #include "chips/accelerometer/LSM303.h"
 #include "chips/adc_dac/AD7705.h"
 #include "chips/adc_dac/AD7706.h"
+#include "chips/adc_dac/ADS1013.h"
+#include "chips/adc_dac/ADS1014.h"
 #include "chips/adc_dac/HX710A.h"
 #include "chips/adc_dac/HX710B.h"
 #include "chips/adc_dac/HX711.h"

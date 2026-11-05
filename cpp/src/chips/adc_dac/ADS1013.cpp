@@ -24,7 +24,7 @@ static void periph_delay_ms(unsigned ms) { delay(ms); }
 
 namespace {
 const uint16_t SPS[7] = { 128, 250, 490, 920, 1600, 2400, 3300 };
-const uint16_t CONFIG_RESET = 0x8583;
+const uint16_t RESET_CONFIG_WORD = 0x8583;
 }  // namespace
 
 // ADS1013Minimal
@@ -105,7 +105,7 @@ bool ADS1013Full::isConverting() { return (_readReg(REG_CONFIG) & CFG_OS) == 0; 
 uint16_t ADS1013Full::readConfig() { return _readReg(REG_CONFIG); }
 
 void ADS1013Full::reset() {
-    _writeReg(REG_CONFIG, CONFIG_RESET);
+    _writeReg(REG_CONFIG, RESET_CONFIG_WORD);
     _dr = DR_1600;
     _continuous = false;
 }

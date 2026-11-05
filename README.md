@@ -110,8 +110,8 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | AD7705 | 16-bit sigma-delta ADC (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD7706 | 16-bit sigma-delta ADC (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADE7953 | Energy meter (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| ADS1013 | 12-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1014 | 12-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
+| ADS1013 | 12-bit ADC (1-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1014 | 12-bit ADC (1-ch, PGA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADS1015 | 12-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
 | ADS1113 | 16-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
 | ADS1114 | 16-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |

@@ -53,6 +53,8 @@ Each chip exposes two classes:
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC |
 | ADE7953 | Power monitor | Single-phase metering IC |
+| ADS1013 | ADC/DAC | 12-bit ADC |
+| ADS1014 | ADC/DAC | 12-bit ADC |
 | ADXL345 | Accelerometer | 3-axis accelerometer |
 | ADXL362 | Accelerometer | Read X, Y, Z acceleration in *g*. |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |
