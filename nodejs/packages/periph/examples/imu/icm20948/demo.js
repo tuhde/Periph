@@ -1,7 +1,7 @@
 'use strict';
 
-const { I2CConnection } = require('../../packages/periph/src/connection/i2c');
-const { ICM20948Full } = require('../../packages/periph/src/chips/imu/icm20948');
+const { I2CConnection } = require('../../../src/connection/i2c');
+const { ICM20948Full } = require('../../../src/chips/imu/icm20948');
 
 const I2C_BUS  = parseInt(process.env.I2C_BUS  || '1', 10);
 const I2C_ADDR = parseInt(process.env.I2C_ADDR || '0x68', 16);
