@@ -16,6 +16,7 @@ npm install node-red-contrib-periph-adc-dac
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `periph-ad5243` | input | Sets and reads the two 256-position wipers of an AD5243 dual I²C digital potentiometer. Wiper values are volatile: both channels power up at midscale (128). |
 | `ad7705-device` | config | Bus configuration for an AD7705 |
 | `periph-ad7705` | input | Reads voltage from a 2-channel, 16-bit sigma-delta AD7705 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO). |
 | `ad7706-device` | config | Bus configuration for an AD7706 |

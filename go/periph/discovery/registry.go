@@ -31,7 +31,7 @@ var registry = []Chip{
 	{ID: "lsm303-accel", Driver: "lsm303", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x19}, Probe: nil},
 	{ID: "lsm303-mag", Driver: "lsm303", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1E}, Probe: &IdProbe{Register: 0x0A, RegBytes: 1, Length: 3, LittleEndian: false, Mask: 0xFFFFFF, Expected: []uint32{0x483433}}},
 	{ID: "mma8451q", Driver: "", WriteSensitive: false, Aliased: false, Addresses: []uint8{0x1C, 0x1D}, Probe: &IdProbe{Register: 0x0D, RegBytes: 1, Length: 1, LittleEndian: false, Mask: 0xFF, Expected: []uint32{0x1A}}},
-	{ID: "ad5243", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2F}, Probe: nil},
+	{ID: "ad5243", Driver: "ad5243", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2F}, Probe: nil},
 	{ID: "ad5248", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},
 	{ID: "cat5171", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x2C, 0x2D}, Probe: nil},
 	{ID: "ds1881", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F}, Probe: nil},

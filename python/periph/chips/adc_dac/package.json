@@ -5,6 +5,10 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/adc_dac/ad5243.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ad5243.py"
+    ],
+    [
       "periph/chips/adc_dac/ad7705.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7705.py"
     ],

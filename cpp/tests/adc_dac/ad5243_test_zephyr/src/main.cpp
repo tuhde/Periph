@@ -2,6 +2,7 @@
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
 #include "I2CConnectionZephyr.h"
+#include <math.h>
 #include "AD5243.h"
 
 #define I2C_NODE DT_NODELABEL(i2c0)
