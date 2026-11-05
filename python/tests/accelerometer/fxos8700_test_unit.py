@@ -80,7 +80,7 @@ check_true('pre-production WHO_AM_I accepted', True)
 check_true('wrong WHO_AM_I raises', raises(lambda: FXOS8700Minimal(I2CConnectionMock({0x0D: 0x1A}))))
 
 mock = I2CConnectionMock({0x0D: 0xC7})
-mock.fail_next_writes(1)
+mock.fail_next_writes(1, after=1)  # skip the first WHO_AM_I read, fail the reset write
 FXOS8700Minimal(mock)
 check_true('NACK on reset write is tolerated', True)
 

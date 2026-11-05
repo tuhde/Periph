@@ -87,7 +87,7 @@ async function main() {
 
     c = new I2CConnectionMock();
     c.setRegister(0x0D, [0xC7]);
-    c.failNextWrites(1);
+    c.failNextWrites(1, 1);  // skip the first WHO_AM_I read, fail the reset write
     await new FXOS8700Minimal(c).init();
     checkTrue('nack_on_reset_tolerated', true);
 

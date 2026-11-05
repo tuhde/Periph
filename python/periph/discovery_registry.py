@@ -12,7 +12,7 @@ CHIPS = (
     {"id": "bma180", "driver": "bma180", "write_sensitive": False, "aliased": False,
      "addresses": (0x40, 0x41,),
      "probe": {"register": 0x00, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0x07, "expected": (0x03,)}},
-    {"id": "fxos8700", "driver": None, "write_sensitive": False, "aliased": False,
+    {"id": "fxos8700", "driver": "fxos8700", "write_sensitive": False, "aliased": False,
      "addresses": (0x1C, 0x1D, 0x1E, 0x1F,),
      "probe": {"register": 0x0D, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0xC7, 0xC4,)}},
     {"id": "lis3dh", "driver": "lis3dh", "write_sensitive": False, "aliased": False,
