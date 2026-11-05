@@ -28,3 +28,12 @@ pub use ad7706::{AD7706Minimal, AD7706Full};
 
 pub mod hy3131;
 pub use hy3131::{Hy3131Minimal, Hy3131Full, Hy3131Error};
+
+mod ads111x;
+pub use ads111x::Ads111xError;
+pub mod ads1113;
+pub use ads1113::{Ads1113Minimal, Ads1113Full};
+pub mod ads1114;
+pub use ads1114::{Ads1114Minimal, Ads1114Full};
+pub mod ads1115;
+pub use ads1115::{Ads1115Minimal, Ads1115Full};
