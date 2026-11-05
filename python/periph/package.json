@@ -29,12 +29,28 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/lsm303.py"
     ],
     [
+      "periph/chips/adc_dac/_ads111x_base.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/_ads111x_base.py"
+    ],
+    [
       "periph/chips/adc_dac/ad7705.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7705.py"
     ],
     [
       "periph/chips/adc_dac/ad7706.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7706.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1113.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1113.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1114.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1114.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1115.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1115.py"
     ],
     [
       "periph/chips/adc_dac/hx710a.py",

@@ -1,0 +1,314 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ads1115_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ADS1115",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x48-0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 raw code channel (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 voltage (V) channel (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_differential",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 differential voltage (V) pair (0=0-1 1=0-3 2=1-3 3=2-3)",
+          "type": "label"
+        },
+        {
+          "name": "_pair",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_differential_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 differential raw code pair (0=0-1 1=0-3 2=1-3 3=2-3)",
+          "type": "label"
+        },
+        {
+          "name": "_pair",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_set_gain",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 set gain (0=6.144V 1=4.096V 2=2.048V 3=1.024V 4=0.512V 5=0.256V)",
+          "type": "label"
+        },
+        {
+          "name": "_pga",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_get_gain",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 gain code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_full_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 full scale (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_lsb",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 LSB (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_set_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 set data rate (0=8 1=16 2=32 3=64 4=128 5=250 6=475 7=860 SPS)",
+          "type": "label"
+        },
+        {
+          "name": "_dr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_get_data_rate",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 data rate code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_data_rate_sps",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 data rate (SPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 start continuous mux (0-7, 4=AIN0-GND)",
+          "type": "label"
+        },
+        {
+          "name": "_mux",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_continuous_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 continuous raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 continuous voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_is_converting",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 is converting",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_read_config",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 CONFIG register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_configure_comparator",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 configure comparator mode (0=traditional 1=window) polarity (0=low 1=high) latch (0/1) queue (0=1 1=2 2=4)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        },
+        {
+          "name": "_polarity",
+          "type": "number"
+        },
+        {
+          "name": "_latch",
+          "type": "number"
+        },
+        {
+          "name": "_queue",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_disable_comparator",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 disable comparator",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_set_thresholds",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 set thresholds low (V) high (V)",
+          "type": "label"
+        },
+        {
+          "name": "_low",
+          "type": "number"
+        },
+        {
+          "name": "_high",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_clear_alert",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 clear alert",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1115 poll interrupt (0=none 1=conv ready 2=comparator)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1115_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1115 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
