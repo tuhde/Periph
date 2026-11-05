@@ -20,7 +20,9 @@
       "pcf8591": "nodes/pcf8591/pcf8591.js",
       "ad7705": "nodes/ad7705/ad7705.js",
       "ad7706": "nodes/ad7706/ad7706.js",
-      "hy3131": "nodes/hy3131/hy3131.js"
+      "hy3131": "nodes/hy3131/hy3131.js",
+      "ads1013": "nodes/ads1013/ads1013.js",
+      "ads1014": "nodes/ads1014/ads1014.js"
     }
   },
   "dependencies": {
