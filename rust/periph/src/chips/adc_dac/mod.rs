@@ -28,3 +28,6 @@ pub use ad7706::{AD7706Minimal, AD7706Full};
 
 pub mod hy3131;
 pub use hy3131::{Hy3131Minimal, Hy3131Full, Hy3131Error};
+
+pub mod ad5243;
+pub use ad5243::{AD5243Minimal, AD5243Full, AD5243Error, AD5243_I2C_ADDRESS};
