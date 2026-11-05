@@ -113,9 +113,9 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | ADS1013 | 12-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
 | ADS1014 | 12-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
 | ADS1015 | 12-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
-| ADS1113 | 16-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1114 | 16-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
-| ADS1115 | 16-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
+| ADS1113 | 16-bit ADC (1-ch) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1114 | 16-bit ADC (1-ch, PGA) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1115 | 16-bit ADC (4-ch) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADS7828 | 12-bit ADC (8-ch) |  |  |  |  |  |  |  |  |
 | ADXL345 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL362 | Accelerometer (3-axis, ultra-low power) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
