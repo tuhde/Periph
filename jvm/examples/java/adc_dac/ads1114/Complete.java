@@ -1,0 +1,81 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.3.2
+//DEPS it.uhde:periph-java:1.3.2
+
+import it.uhde.periph.connection.I2CConnection;
+import it.uhde.periph.chips.adc_dac.ADS1114Full;
+
+public class Complete {
+    public static void main(String[] args) throws Exception {
+        int bus = Integer.parseInt(System.getenv().getOrDefault("I2C_BUS", "1"));
+
+        try (var connection = new I2CConnection(bus, ADS1114Full.DEFAULT_ADDRESS)) {    // open I²C bus, device address, (bus, address=0x48) → I2CConnection
+            var adc = new ADS1114Full(connection);                                          // construct driver, (connection) → ADS1114Full
+                                                                                            // no bus traffic; Config word is rebuilt per conversion
+            var raw = adc.readRaw();                                                        // Read raw code, () → int
+                                                                                            // single-shot conversion, signed 16-bit
+            var v = adc.readVoltage();                                                      // Read voltage, () → double V
+                                                                                            // raw × lsb()
+            System.out.printf("raw %d, %.5f V%n", raw, v);
+            adc.setGain(ADS1114Full.PGA_4_096);                                             // Set gain, (pga 0–5) → void
+                                                                                            // ±4.096 V full scale
+            System.out.printf("gain %d%n", adc.getGain());
+            var fs = adc.fullScale();                                                       // Full scale, () → double V
+                                                                                            // ±FSR of the current gain
+            var lsb = adc.lsb();                                                            // LSB, () → double V
+                                                                                            // fullScale() / 32768
+            System.out.printf("full scale %.3f V, lsb %.7f V%n", fs, lsb);
+            adc.setDataRate(ADS1114Full.DR_250);                                            // Set data rate, (dr 0–7) → void
+                                                                                            // DR field of the Config word
+            var sps = adc.dataRateSps();                                                    // Data rate, () → int SPS
+                                                                                            // samples per second of the current setting
+            System.out.printf("rate %d SPS%n", sps);
+            adc.startContinuous();                                                          // Start continuous, () → void
+                                                                                            // MODE ← 0
+            Thread.sleep(50);
+            var craw = adc.readContinuousRaw();                                             // Read continuous raw, () → int
+                                                                                            // CONVERSION without touching Config
+            var cv = adc.readContinuous();                                                  // Read continuous, () → double V
+                                                                                            // readContinuousRaw() × lsb()
+            System.out.printf("continuous %d, %.5f V%n", craw, cv);
+            adc.stopContinuous();                                                           // Stop continuous, () → void
+                                                                                            // MODE ← 1
+            var busy = adc.isConverting();                                                  // Check conversion, () → boolean
+                                                                                            // CONFIG.OS == 0
+            var cfg = adc.readConfig();                                                     // Read CONFIG, () → int
+                                                                                            // raw 16-bit register
+            System.out.printf("converting %b, config 0x%04X%n", busy, cfg);
+            adc.setThresholds(0.5, 3.0);                                                    // Set thresholds, (low V, high V) → void
+                                                                                            // converted with the current lsb(), clamped
+            adc.setLowThresholdRaw(4000);                                                   // Set low threshold, (raw) → void
+                                                                                            // LO_THRESH ← raw & 0xFFFF
+            adc.setHighThresholdRaw(20000);                                                 // Set high threshold, (raw) → void
+                                                                                            // HI_THRESH ← raw & 0xFFFF
+            var th = adc.getThresholdsRaw();                                                // Get thresholds, () → int[] {low, high}
+                                                                                            // read back, sign-extended
+            System.out.printf("thresholds %d %d%n", th[0], th[1]);
+            adc.configureComparator(ADS1114Full.COMP_WINDOW, ADS1114Full.ACTIVE_LOW, true, ADS1114Full.QUEUE_2);// Configure comparator, (mode, polarity, latch=false, queue=QUEUE_1) → void
+                                                                                            // window mode, latching, 2-sample queue
+            adc.clearAlert();                                                               // Clear alert, () → void
+                                                                                            // reads CONVERSION to release the latch
+            adc.disableComparator();                                                        // Disable comparator, () → void
+                                                                                            // COMP_QUE ← 11
+            adc.enableInterrupt(ADS1114Full.SOURCE_CONVERSION_READY);                       // Enable interrupt, (source) → void
+                                                                                            // ALERT/RDY signals conversion-ready
+            var status = adc.pollInterrupt();                                               // Poll interrupt, () → int source
+                                                                                            // enabled source if ALERT/RDY is asserted
+            System.out.printf("poll %d%n", status);
+            adc.onInterrupt(s -> System.out.println("alert " + s));                         // Subscribe, (callback) → void
+                                                                                            // pin edge, or a polling thread without an InputPin
+            Thread.sleep(1000);
+            adc.offInterrupt();                                                             // Unsubscribe, () → void
+                                                                                            // stops delivery
+            adc.disableInterrupt(ADS1114Full.SOURCE_CONVERSION_READY);                      // Disable interrupt, (source) → void
+                                                                                            // releases ALERT/RDY
+            adc.reset();                                                                    // Reset, () → void
+                                                                                            // writes the reset values back
+        }
+    }
+}

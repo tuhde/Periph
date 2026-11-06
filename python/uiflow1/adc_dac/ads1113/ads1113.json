@@ -1,0 +1,176 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ads1113_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ADS1113",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address (0x48-0x4B)",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_read_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_read_voltage",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_full_scale",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 full scale (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_lsb",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 LSB (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_set_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1113 set data rate (0=8 1=16 2=32 3=64 4=128 5=250 6=475 7=860 SPS)",
+          "type": "label"
+        },
+        {
+          "name": "_dr",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_get_data_rate",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 data rate code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_data_rate_sps",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 data rate (SPS)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_start_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1113 start continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_read_continuous_raw",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 continuous raw code",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_read_continuous",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 continuous voltage (V)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_stop_continuous",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1113 stop continuous",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_is_converting",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 is converting",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_read_config",
+      "type": "value",
+      "params": [
+        {
+          "name": "ADS1113 CONFIG register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ads1113_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ADS1113 reset",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

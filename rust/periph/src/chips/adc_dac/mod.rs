@@ -50,3 +50,11 @@ pub use ads1014::{
 };
 pub mod ad5248;
 pub use ad5248::{Ad5248Minimal, Ad5248Full};
+mod ads111x;
+pub use ads111x::Ads111xError;
+pub mod ads1113;
+pub use ads1113::{Ads1113Minimal, Ads1113Full};
+pub mod ads1114;
+pub use ads1114::{Ads1114Minimal, Ads1114Full};
+pub mod ads1115;
+pub use ads1115::{Ads1115Minimal, Ads1115Full};

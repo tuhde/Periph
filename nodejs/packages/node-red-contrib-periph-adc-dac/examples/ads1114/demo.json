@@ -1,0 +1,61 @@
+[
+    {
+        "id": "tab-ads1114-demo",
+        "type": "tab",
+        "label": "ADS1114 Demo",
+        "disabled": false,
+        "info": "Reads the ADS1114 once per second and shows the voltage in the debug panel."
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read every 1 s",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ads1114-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "ads1114"
+            ]
+        ]
+    },
+    {
+        "id": "ads1114",
+        "type": "periph-ads1114",
+        "name": "ADS1114",
+        "bus": "1",
+        "address": "48",
+        "dataRate": "4",
+        "z": "tab-ads1114-demo",
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ],
+        "gain": "2"
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "voltage",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ads1114-demo",
+        "x": 850,
+        "y": 100,
+        "wires": []
+    }
+]

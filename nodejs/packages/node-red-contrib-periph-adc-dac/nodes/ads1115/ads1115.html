@@ -1,0 +1,91 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ads1115', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '48', required: true },
+            gain:    { value: '2' },
+            dataRate: { value: '4' },
+            channel: { value: '0' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() { return this.name || 'ADS1115'; },
+        paletteLabel: 'ADS1115'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ads1115">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ADS1115">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="48" style="width:80px"> &nbsp;48–4B (ADDR strap), default 48
+    </div>
+    <div class="form-row">
+        <label for="node-input-gain"><i class="fa fa-cog"></i> Gain</label>
+        <select id="node-input-gain" style="width:140px">
+            <option value="0">±6.144 V</option>
+            <option value="1">±4.096 V</option>
+            <option value="2">±2.048 V</option>
+            <option value="3">±1.024 V</option>
+            <option value="4">±0.512 V</option>
+            <option value="5">±0.256 V</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-dataRate"><i class="fa fa-clock-o"></i> Data rate</label>
+        <select id="node-input-dataRate" style="width:140px">
+            <option value="0">8 SPS</option>
+            <option value="1">16 SPS</option>
+            <option value="2">32 SPS</option>
+            <option value="3">64 SPS</option>
+            <option value="4">128 SPS</option>
+            <option value="5">250 SPS</option>
+            <option value="6">475 SPS</option>
+            <option value="7">860 SPS</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-channel">Default channel</label>
+        <select id="node-input-channel" style="width:80px">
+            <option value="0">AIN0</option><option value="1">AIN1</option><option value="2">AIN2</option><option value="3">AIN3</option>
+        </select>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ads1115">
+    <p>Reads the ADS1115 16-bit ΔΣ ADC (four single-ended or two differential inputs with programmable gain) over I²C. Default address is <code>0x48</code>; <code>0x48</code>–<code>0x4B</code> are valid depending on the ADDR strap.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a single-shot conversion.</dd>
+        <dt>msg.channel <span class="property-type">number</span> (optional)</dt>
+        <dd>Single-ended input 0–3; overrides the configured default channel.</dd>
+        <dt>msg.differential <span class="property-type">string</span> (optional)</dt>
+        <dd><code>"0-1"</code>, <code>"0-3"</code>, <code>"1-3"</code> or <code>"2-3"</code>: a differential conversion instead of a single-ended one.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel <span class="property-type">number</span></dt>
+        <dd>Single-ended input that was read (absent for differential reads, which carry <code>payload.pair</code> instead).</dd>
+        <dt>payload.raw <span class="property-type">number</span></dt>
+        <dd>Signed 16-bit conversion code.</dd>
+        <dt>payload.voltage <span class="property-type">number</span></dt>
+        <dd>Input voltage in volts (raw × LSB of the configured range).</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>I²C bus and address, gain (full-scale range), data rate, and the default channel.</p>
+</script>
