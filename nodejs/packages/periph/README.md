@@ -62,6 +62,7 @@ Each chip exposes two classes:
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | HY3131 | ADC/DAC | `periph/src/chips/adc_dac/hy3131` |
+| ICM20948 | IMU | `periph/src/chips/imu/icm20948` |
 | IL0373 | Display driver | `periph/src/chips/display/il0373` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |

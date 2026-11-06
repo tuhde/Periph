@@ -1,0 +1,88 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-icm20948', {
+        category:  'Peripheral',
+        color: '#C084FC',
+        defaults: {
+            name:       { value: '' },
+            bus:        { value: '1', required: true, validate: RED.validators.number() },
+            address:    { value: '0x68', required: true },
+            accelRange: { value: '0', required: true, validate: RED.validators.number() },
+            gyroRange:  { value: '0', required: true, validate: RED.validators.number() },
+            mag:        { value: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'bridge.svg',
+        label: function() {
+            return this.name || ('ICM-20948 @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-icm20948">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="ICM-20948">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-input-address" style="width:160px">
+            <option value="0x68" selected>0x68 (AD0 = GND)</option>
+            <option value="0x69">0x69 (AD0 = VDDIO)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-accelRange"><i class="fa fa-cog"></i> Accelerometer range</label>
+        <select id="node-input-accelRange" style="width:120px">
+            <option value="0" selected>±2 g</option>
+            <option value="1">±4 g</option>
+            <option value="2">±8 g</option>
+            <option value="3">±16 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-gyroRange"><i class="fa fa-cog"></i> Gyroscope range</label>
+        <select id="node-input-gyroRange" style="width:120px">
+            <option value="0" selected>±250 dps</option>
+            <option value="1">±500 dps</option>
+            <option value="2">±1000 dps</option>
+            <option value="3">±2000 dps</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-mag"><i class="fa fa-magnet"></i> Magnetometer</label>
+        <input type="checkbox" id="node-input-mag" style="width:auto">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-icm20948">
+    <p>Reads acceleration, angular rate, die temperature and (optionally) the magnetic field from a TDK InvenSense
+    ICM-20948 9-axis MotionTracking device over I²C. The AK09916 magnetometer is read through the chip's own
+    I²C master, so only one I²C address is needed. VDDIO must be 1.71–1.95 V.</p>
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers one coherent measurement.</dd>
+    </dl>
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.accel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, z }</code> acceleration in m/s².</dd>
+        <dt>payload.gyro <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, z }</code> angular rate in rad/s.</dd>
+        <dt>payload.mag <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, z }</code> magnetic field in µT, as the chip reports it. Present only when the magnetometer
+        is enabled. The magnetometer frame is rotated 180° about X relative to the accelerometer frame; map it with
+        <code>(mx, -my, -mz)</code> before tilt compensation.</dd>
+        <dt>payload.temperature <span class="property-type">number</span></dt>
+        <dd>Die temperature in °C.</dd>
+    </dl>
+    <h3>Configuration</h3>
+    <p>I²C bus number, I²C address (<code>0x68</code> with AD0 = GND, <code>0x69</code> with AD0 = VDDIO),
+    accelerometer range (±2/±4/±8/±16 g), gyroscope range (±250/±500/±1000/±2000 dps) and whether to enable the
+    magnetometer.</p>
+</script>

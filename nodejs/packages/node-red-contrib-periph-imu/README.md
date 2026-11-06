@@ -16,6 +16,7 @@ npm install node-red-contrib-periph-imu
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `periph-icm20948` | input | Reads acceleration, angular rate, die temperature and (optionally) the magnetic field from a TDK InvenSense ICM-20948 9-axis MotionTracking device over I²C. The AK09916 magnetometer is read through the chip's own I²C master, so only one I²C address is needed. VDDIO must be 1.71–1.95 V. |
 | `mpu6050-device` | config | I²C bus and address for a MPU6050 |
 | `mpu6050` | input | Reads 3-axis acceleration and 3-axis angular rate from an MPU6050 IMU over I²C. |
 

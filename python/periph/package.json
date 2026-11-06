@@ -141,6 +141,10 @@
       "github:tuhde/Periph/python/periph/chips/humidity/dht11.py"
     ],
     [
+      "periph/chips/imu/icm20948.py",
+      "github:tuhde/Periph/python/periph/chips/imu/icm20948.py"
+    ],
+    [
       "periph/chips/imu/mpu6050.py",
       "github:tuhde/Periph/python/periph/chips/imu/mpu6050.py"
     ],

@@ -60,6 +60,7 @@
 #include "chips/gyroscope/L3G4200D.h"
 #include "chips/gyroscope/L3gd20h.h"
 #include "chips/humidity/DHT11.h"
+#include "chips/imu/ICM20948.h"
 #include "chips/imu/MPU6050.h"
 #include "chips/imu/MPU9250.h"
 #include "chips/imu/MPU9255.h"

@@ -1,0 +1,1 @@
+_periph_icm20948.mag_data_ready()

@@ -1,0 +1,1 @@
+_periph_icm20948.fifo_count()

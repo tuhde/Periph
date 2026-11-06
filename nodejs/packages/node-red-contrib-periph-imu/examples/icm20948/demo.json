@@ -1,0 +1,87 @@
+[
+  {
+    "id": "icm20948-tab",
+    "type": "tab",
+    "label": "ICM-20948 compass",
+    "disabled": false,
+    "info": "Reads an ICM-20948 every 100 ms and computes roll, pitch and a tilt-compensated heading from the acceleration and magnetic field — a 9-axis compass. The magnetometer frame is rotated 180° about X relative to the accelerometer frame, so (mx, -my, -mz) is used before tilt compensation."
+  },
+  {
+    "id": "icm20948-inject",
+    "type": "inject",
+    "z": "icm20948-tab",
+    "name": "100 ms timer",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "0.1",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 160,
+    "wires": [
+      [
+        "icm20948-node"
+      ]
+    ]
+  },
+  {
+    "id": "icm20948-node",
+    "type": "periph-icm20948",
+    "z": "icm20948-tab",
+    "name": "ICM-20948",
+    "bus": "1",
+    "address": "0x68",
+    "accelRange": "1",
+    "gyroRange": "1",
+    "mag": true,
+    "x": 400,
+    "y": 160,
+    "wires": [
+      [
+        "icm20948-compass"
+      ]
+    ]
+  },
+  {
+    "id": "icm20948-compass",
+    "type": "function",
+    "z": "icm20948-tab",
+    "name": "Roll, pitch, tilt-compensated heading",
+    "func": "const { accel, gyro, mag } = msg.payload;\nconst roll = Math.atan2(accel.y, accel.z);\nconst pitch = Math.atan2(-accel.x, Math.sqrt(accel.y * accel.y + accel.z * accel.z));\n// map the magnetometer frame into the accelerometer frame\nconst bx = mag.x, by = -mag.y, bz = -mag.z;\nconst xh = bx * Math.cos(pitch) + bz * Math.sin(pitch);\nconst yh = bx * Math.sin(roll) * Math.sin(pitch) + by * Math.cos(roll) - bz * Math.sin(roll) * Math.cos(pitch);\nconst heading = (Math.atan2(-yh, xh) * 180 / Math.PI + 360) % 360;\nmsg.payload = {\n    roll: roll * 180 / Math.PI,\n    pitch: pitch * 180 / Math.PI,\n    heading,\n    gyroMagnitude: Math.sqrt(gyro.x * gyro.x + gyro.y * gyro.y + gyro.z * gyro.z)\n};\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 690,
+    "y": 160,
+    "wires": [
+      [
+        "icm20948-debug"
+      ]
+    ]
+  },
+  {
+    "id": "icm20948-debug",
+    "type": "debug",
+    "z": "icm20948-tab",
+    "name": "Compass",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 940,
+    "y": 160,
+    "wires": []
+  }
+]
