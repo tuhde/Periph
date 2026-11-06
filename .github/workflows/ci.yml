@@ -156,13 +156,27 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # Network-bound setup that once hung a shard for 40+ minutes with no
+      # output: every attempt is killed after 5 minutes and retried (falling
+      # back from the runner's azure apt mirror to the main archive).
       - name: Install pico-sdk
+        timeout-minutes: 18
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake gcc-arm-none-eabi gcc g++ python3 ccache
-          git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git /opt/pico-sdk
-          (cd /opt/pico-sdk && git submodule update --init --depth 1)
-          echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
+          APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+          for attempt in 1 2 3; do
+            rm -rf /opt/pico-sdk 2>/dev/null || sudo rm -rf /opt/pico-sdk
+            if timeout 300 bash -c "$APT update && $APT install -y cmake gcc-arm-none-eabi gcc g++ python3 ccache \
+                && git clone --depth 1 -b 2.1.1 https://github.com/raspberrypi/pico-sdk.git /opt/pico-sdk \
+                && (cd /opt/pico-sdk && git submodule update --init --depth 1)"; then
+              echo "PICO_SDK_PATH=/opt/pico-sdk" >> $GITHUB_ENV
+              exit 0
+            fi
+            echo "attempt $attempt failed, retrying"
+            echo "http://archive.ubuntu.com/ubuntu/ priority:1" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+            sudo rm -rf /var/lib/apt/lists/*
+            sleep 5
+          done
+          exit 1
 
       # ccache persists across runs, one cache per shard. Only main saves
       # it (PRs restore main's), so PR runs can't evict the large caches.
