@@ -1,0 +1,1 @@
+_periph_fxos8700.set_orientation(debounce_ms=float(${_debounce_ms}))

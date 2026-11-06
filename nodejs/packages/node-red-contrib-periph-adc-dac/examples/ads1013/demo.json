@@ -1,0 +1,76 @@
+[
+ {
+  "id": "tab-ads1013-demo",
+  "type": "tab",
+  "label": "ADS1013 Battery Voltage Demo",
+  "disabled": false,
+  "info": "An Inject node fires every second, triggering the periph-ads1013 node to run a single-shot conversion at 128 SPS. The cell voltage is wired through a 2:1 resistor divider to AIN0 (AIN1 to GND); a Function node multiplies the divider voltage by 2 to obtain the battery voltage and the Debug sidebar shows it in volts."
+ },
+ {
+  "id": "inj-read",
+  "type": "inject",
+  "name": "Read (1 s)",
+  "topic": "",
+  "payload": "",
+  "payloadType": "date",
+  "repeat": "1",
+  "crontab": "",
+  "once": true,
+  "onceDelay": 1,
+  "z": "tab-ads1013-demo",
+  "x": 160,
+  "y": 100,
+  "wires": [
+   [
+    "ads1013-node"
+   ]
+  ]
+ },
+ {
+  "id": "ads1013-node",
+  "type": "periph-ads1013",
+  "bus": "1",
+  "address": "0x48",
+  "z": "tab-ads1013-demo",
+  "x": 380,
+  "y": 100,
+  "wires": [
+   [
+    "fn-scale"
+   ]
+  ],
+  "name": "Battery ADS1013",
+  "dataRate": "0"
+ },
+ {
+  "id": "fn-scale",
+  "type": "function",
+  "name": "scale divider to battery voltage",
+  "func": "const v = msg.payload.voltage * 2;  // 2:1 divider\nmsg.payload = `battery ${v.toFixed(3)} V (raw ${msg.payload.raw})`;\nreturn msg;",
+  "outputs": 1,
+  "noerr": 0,
+  "z": "tab-ads1013-demo",
+  "x": 620,
+  "y": 100,
+  "wires": [
+   [
+    "debug-out"
+   ]
+  ]
+ },
+ {
+  "id": "debug-out",
+  "type": "debug",
+  "name": "Battery voltage",
+  "active": true,
+  "tosidebar": true,
+  "console": false,
+  "tostatus": false,
+  "complete": "payload",
+  "targetType": "msg",
+  "z": "tab-ads1013-demo",
+  "x": 860,
+  "y": 100,
+  "wires": []
+ }
+]

@@ -1,0 +1,89 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mb85rc-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '50', required: true }
+        },
+        label: function() {
+            return this.name || ('MB85RC @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mb85rc-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MB85RC">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <input type="text" id="node-config-input-address" placeholder="50" style="width:80px"> &nbsp;50–57 (A2:A0 pins), default 50
+    </div>
+</script>
+
+<!-- FRAM node: trigger → read / write / fill -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mb85rc', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mb85rc-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-database',
+        label:   function() { return this.name || 'MB85RC'; },
+        paletteLabel: 'MB85RC'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mb85rc">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MB85RC">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mb85rc">
+    <p>Reads, writes and fills the 32 KiB non-volatile FRAM of an MB85RC256V over I²C.
+    FRAM writes complete at bus speed — no write delay, no page limit.</p>
+    <p>The device is configured via an <b>mb85rc-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.op <span class="property-type">string</span></dt>
+        <dd><code>read</code> (default), <code>write</code>, or <code>fill</code>.</dd>
+        <dt>payload.address <span class="property-type">number</span></dt>
+        <dd>Start address 0–32767. Ranges that would pass 0x7FFF are rejected.</dd>
+        <dt>payload.length <span class="property-type">number</span></dt>
+        <dd>Number of bytes (<code>read</code>, <code>fill</code>).</dd>
+        <dt>payload.data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes to write (<code>write</code>).</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Fill byte, default 0 (<code>fill</code>).</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.data <span class="property-type">array of numbers</span></dt>
+        <dd>Bytes read. <code>read</code> only.</dd>
+        <dt>payload.ok <span class="property-type">boolean</span></dt>
+        <dd>True on success. <code>write</code> and <code>fill</code> only.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and the chip address (<code>0x50</code>–<code>0x57</code>,
+    selected by pins A2:A0; default <code>0x50</code>) in the device config node.</p>
+</script>

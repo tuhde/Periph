@@ -1,0 +1,1 @@
+_periph_fxos8700.set_auto_sleep(bool(int(${_enabled})), sleep_rate_hz=float(${_sleep_rate_hz}), timeout_s=float(${_timeout_s}), wake_sources=int(${_wake_sources}))

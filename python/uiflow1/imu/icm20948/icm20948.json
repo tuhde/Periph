@@ -1,0 +1,300 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "icm20948_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init ICM20948",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_accel_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 acceleration X (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_accel_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 acceleration Y (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_accel_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 acceleration Z (m/s²)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_gyro_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 angular rate X (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_gyro_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 angular rate Y (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_gyro_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 angular rate Z (rad/s)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 die temperature (°C)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 new data ready?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_enable_mag",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 enable magnetometer",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_mag_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 magnetic field X (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_mag_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 magnetic field Y (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_mag_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 magnetic field Z (µT)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_mag_data_ready",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 magnetometer data ready?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_configure_gyro",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 set gyro range: 0=±250, 1=±500, 2=±1000, 3=±2000 dps",
+          "type": "label"
+        },
+        {
+          "name": "range code",
+          "type": "label"
+        },
+        {
+          "name": "_full_scale",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_configure_accel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 set accel range: 0=±2, 1=±4, 2=±8, 3=±16 g",
+          "type": "label"
+        },
+        {
+          "name": "range code",
+          "type": "label"
+        },
+        {
+          "name": "_full_scale",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_configure_sample_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 set sample-rate dividers (ODR = 1125 Hz / (1 + divider))",
+          "type": "label"
+        },
+        {
+          "name": "gyro divider",
+          "type": "label"
+        },
+        {
+          "name": "_gyro_div",
+          "type": "number"
+        },
+        {
+          "name": "accel divider",
+          "type": "label"
+        },
+        {
+          "name": "_accel_div",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_set_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 sleep (1) or wake (0)",
+          "type": "label"
+        },
+        {
+          "name": "sleep",
+          "type": "label"
+        },
+        {
+          "name": "_sleep",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_set_wake_on_motion",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 arm wake-on-motion (threshold in mg)",
+          "type": "label"
+        },
+        {
+          "name": "threshold (mg)",
+          "type": "label"
+        },
+        {
+          "name": "_threshold_mg",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 interrupt status (bit0 data, 1 motion, 2 I2C master, 3 PLL, 4 FIFO overflow)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_fifo_count",
+      "type": "value",
+      "params": [
+        {
+          "name": "ICM20948 FIFO byte count",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_reset_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 reset FIFO",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "icm20948_enable_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "ICM20948 enable FIFO (accel + gyro)",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+[
+ {
+  "id": "tab-ads1014-demo",
+  "type": "tab",
+  "label": "ADS1014 Shunt Current Demo",
+  "disabled": false,
+  "info": "An Inject node fires every second, triggering the periph-ads1014 node (gain ±0.256 V, 250 SPS) to read the voltage across a 0.1 ohm shunt. A Function node converts the shunt voltage to a load current (V / 0.1 ohm) and flags an over-current condition above 1 A in the Debug sidebar."
+ },
+ {
+  "id": "inj-read",
+  "type": "inject",
+  "name": "Read (1 s)",
+  "topic": "",
+  "payload": "",
+  "payloadType": "date",
+  "repeat": "1",
+  "crontab": "",
+  "once": true,
+  "onceDelay": 1,
+  "z": "tab-ads1014-demo",
+  "x": 160,
+  "y": 100,
+  "wires": [
+   [
+    "ads1014-node"
+   ]
+  ]
+ },
+ {
+  "id": "ads1014-node",
+  "type": "periph-ads1014",
+  "bus": "1",
+  "address": "0x48",
+  "z": "tab-ads1014-demo",
+  "x": 380,
+  "y": 100,
+  "wires": [
+   [
+    "fn-scale"
+   ]
+  ],
+  "name": "Shunt ADS1014",
+  "gain": "5",
+  "dataRate": "1"
+ },
+ {
+  "id": "fn-scale",
+  "type": "function",
+  "name": "shunt voltage to current",
+  "func": "const amps = msg.payload.voltage / 0.1;  // 0.1 ohm shunt\nmsg.payload = `${amps.toFixed(2)} A` + (amps > 1.0 ? ' OVER-CURRENT' : '');\nreturn msg;",
+  "outputs": 1,
+  "noerr": 0,
+  "z": "tab-ads1014-demo",
+  "x": 620,
+  "y": 100,
+  "wires": [
+   [
+    "debug-out"
+   ]
+  ]
+ },
+ {
+  "id": "debug-out",
+  "type": "debug",
+  "name": "Load current",
+  "active": true,
+  "tosidebar": true,
+  "console": false,
+  "tostatus": false,
+  "complete": "payload",
+  "targetType": "msg",
+  "z": "tab-ads1014-demo",
+  "x": 860,
+  "y": 100,
+  "wires": []
+ }
+]

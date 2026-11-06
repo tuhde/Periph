@@ -1,0 +1,29 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.3.2
+//DEPS it.uhde:periph-groovy:1.3.2
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.io_expander.Mcp23008Minimal
+
+def connection = new I2CConnection(1, 0x20)           // open I²C bus 1, device 0x20, (bus, address) → I2CConnection
+try {
+    def chip = new Mcp23008Minimal(connection, 0x20)                      // construct driver, (connection, addr=0x20) → Mcp23008Minimal
+
+    def p0 = chip.pin(0)                                                  // get pin proxy, (n) → Pin
+    def p7 = chip.pin(7)                                                  // get pin proxy, (n) → Pin
+    p0.setInput()                                                         // set GP0 as input, () → void
+    p7.setOutput()                                                        // set GP7 as output, () → void
+
+    while (true) {
+        int port = chip.readPort(0)                                       // read all 8 pins, (port=0) → int bitmask
+        boolean level = p0.read()                                         // read the actual pin level, () → boolean
+        if (level) p7.setHigh()                                           // drive GP7 high, () → void
+        else       p7.setLow()                                            // drive GP7 low, () → void
+        printf("GPIO=0x%02X  GP0=%b%n", port, level)
+        Thread.sleep(200)
+    }
+} finally {
+    connection.close()
+}

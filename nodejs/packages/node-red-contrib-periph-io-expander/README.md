@@ -16,6 +16,7 @@ npm install node-red-contrib-periph-io-expander
 
 | Node | Kind | Description |
 |------|------|-------------|
+| `periph-mcp23008` | input | Controls and reads an 8-bit MCP23008 (I²C) or MCP23S08 (SPI) I/O expander. Both chips share one register map and one node. |
 | `periph-mcp23017` | input | Controls and reads a 16-bit MCP23017 I/O expander over I²C. |
 | `periph-pcf8574` | input | Controls and reads an 8-bit PCF8574 I/O expander over I²C. |
 | `periph-pcf8575` | input | Controls and reads a 16-bit PCF8575 I/O expander over I²C. |

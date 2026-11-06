@@ -12,6 +12,7 @@
   ],
   "node-red": {
     "nodes": {
+      "drv2605": "nodes/drv2605/drv2605.js",
       "drv8830": "nodes/drv8830/drv8830.js"
     }
   },

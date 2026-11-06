@@ -15,7 +15,11 @@ class I2CConnectionMock:
     applied to ``registers`` so a later ``write_read`` sees them.
     """
 
-    def __init__(self, registers=None):
+    def __init__(self, registers=None, reg_bytes=1):
+        # reg_bytes > 1 forces an exact big-endian register address of that
+        # width on every write/write_read (needed for e.g. the 15-bit
+        # address of the MB85RC); 1 keeps the legacy auto-detection below.
+        self._reg_bytes = reg_bytes
         self.registers = dict(registers or {})
         self.writes = []
         self._read_queue = []
@@ -53,7 +57,12 @@ class I2CConnectionMock:
         data = bytes(data)
         self.writes.append(data)
         self._maybe_fail_write()
-        if len(data) >= 2:
+        if self._reg_bytes > 1:
+            if len(data) > self._reg_bytes:
+                reg = int.from_bytes(data[:self._reg_bytes], 'big')
+                for i, value in enumerate(data[self._reg_bytes:]):
+                    self.registers[reg + i] = value
+        elif len(data) >= 2:
             reg = data[0]
             for i, value in enumerate(data[1:]):
                 self.registers[reg + i] = value
@@ -72,17 +81,19 @@ class I2CConnectionMock:
         # Treat the leading two bytes as a big-endian 16-bit register
         # address when they are both present; fall back to a single-byte
         # 8-bit address otherwise.
-        if len(data) >= 2 and (data[0] != 0 or data[1] >= 0x80):
+        if self._reg_bytes > 1:
+            reg = int.from_bytes(data[:self._reg_bytes], 'big')
+        elif len(data) >= 2 and (data[0] != 0 or data[1] >= 0x80):
             reg = (data[0] << 8) | data[1]
         else:
             reg = data[0]
         return bytes(self.registers.get(reg + i, 0) for i in range(n))
 
     def read_reg(self, reg, length):
-        return self.write_read(bytes([reg]), length)
+        return self.write_read(reg.to_bytes(self._reg_bytes, 'big'), length)
 
     def write_reg(self, reg, data):
-        payload = bytes([reg]) + (bytes([data]) if isinstance(data, int) else bytes(data))
+        payload = reg.to_bytes(self._reg_bytes, 'big') + (bytes([data]) if isinstance(data, int) else bytes(data))
         self.write(payload)
 
     def close(self):

@@ -1,0 +1,84 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA 22+
+//JAVA_OPTIONS --enable-native-access=ALL-UNNAMED
+//DEPS it.uhde:periph-connection:1.3.2
+//DEPS it.uhde:periph-kotlin:1.3.2
+
+import it.uhde.periph.connection.I2CConnection
+import it.uhde.periph.chips.adc_dac.ADS1115Full
+
+fun main() {
+    val bus = System.getenv("I2C_BUS")?.toInt() ?: 1
+
+    I2CConnection(bus, ADS1115Full.DEFAULT_ADDRESS).use { connection ->                 // open I²C bus, device address, (bus, address=0x48) → I2CConnection
+        val adc = ADS1115Full(connection)                                                   // construct driver, (connection) → ADS1115Full
+                                                                                            // no bus traffic; Config word is rebuilt per conversion
+        val raw = adc.readRaw(2)                                                            // Read raw code, (channel=0) → int
+                                                                                            // single-shot conversion, signed 16-bit
+        val v = adc.readVoltage(2)                                                          // Read voltage, (channel=0) → double V
+                                                                                            // raw × lsb()
+        println("raw %d, %.5f V".format(raw, v))
+        adc.setGain(ADS1115Full.PGA_4_096)                                                  // Set gain, (pga 0–5) → void
+                                                                                            // ±4.096 V full scale
+        println("gain %d".format(adc.getGain()))
+        val fs = adc.fullScale()                                                            // Full scale, () → double V
+                                                                                            // ±FSR of the current gain
+        val lsb = adc.lsb()                                                                 // LSB, () → double V
+                                                                                            // fullScale() / 32768
+        println("full scale %.3f V, lsb %.7f V".format(fs, lsb))
+        adc.setDataRate(ADS1115Full.DR_250)                                                 // Set data rate, (dr 0–7) → void
+                                                                                            // DR field of the Config word
+        val sps = adc.dataRateSps()                                                         // Data rate, () → int SPS
+                                                                                            // samples per second of the current setting
+        println("rate %d SPS".format(sps))
+        val d = adc.readDifferential(ADS1115Full.DIFF_2_3)                                  // Read differential, (pair 0–3) → double V
+                                                                                            // single-shot MUX = pair
+        val draw = adc.readDifferentialRaw(ADS1115Full.DIFF_0_1)                            // Read differential raw, (pair 0–3) → int
+                                                                                            // signed 16-bit code
+        println("differential %.6f V, raw %d".format(d, draw))
+        adc.startContinuous(ADS1115Full.MUX_AIN0_GND)                                       // Start continuous, (mux=MUX_AIN0_GND 0–7) → void
+                                                                                            // MODE ← 0
+        Thread.sleep(50)
+        val craw = adc.readContinuousRaw()                                                  // Read continuous raw, () → int
+                                                                                            // CONVERSION without touching Config
+        val cv = adc.readContinuous()                                                       // Read continuous, () → double V
+                                                                                            // readContinuousRaw() × lsb()
+        println("continuous %d, %.5f V".format(craw, cv))
+        adc.stopContinuous()                                                                // Stop continuous, () → void
+                                                                                            // MODE ← 1
+        val busy = adc.isConverting()                                                       // Check conversion, () → boolean
+                                                                                            // CONFIG.OS == 0
+        val cfg = adc.readConfig()                                                          // Read CONFIG, () → int
+                                                                                            // raw 16-bit register
+        println("converting %b, config 0x%04X".format(busy, cfg))
+        adc.setThresholds(0.5, 3.0)                                                         // Set thresholds, (low V, high V) → void
+                                                                                            // converted with the current lsb(), clamped
+        adc.setLowThresholdRaw(4000)                                                        // Set low threshold, (raw) → void
+                                                                                            // LO_THRESH ← raw & 0xFFFF
+        adc.setHighThresholdRaw(20000)                                                      // Set high threshold, (raw) → void
+                                                                                            // HI_THRESH ← raw & 0xFFFF
+        val th = adc.getThresholdsRaw()                                                     // Get thresholds, () → int[] {low, high}
+                                                                                            // read back, sign-extended
+        println("thresholds %d %d".format(th[0], th[1]))
+        adc.configureComparator(ADS1115Full.COMP_WINDOW, ADS1115Full.ACTIVE_LOW, true, ADS1115Full.QUEUE_2)// Configure comparator, (mode, polarity, latch=false, queue=QUEUE_1) → void
+                                                                                            // window mode, latching, 2-sample queue
+        adc.clearAlert()                                                                    // Clear alert, () → void
+                                                                                            // reads CONVERSION to release the latch
+        adc.disableComparator()                                                             // Disable comparator, () → void
+                                                                                            // COMP_QUE ← 11
+        adc.enableInterrupt(ADS1115Full.SOURCE_CONVERSION_READY)                            // Enable interrupt, (source) → void
+                                                                                            // ALERT/RDY signals conversion-ready
+        val status = adc.pollInterrupt()                                                    // Poll interrupt, () → int source
+                                                                                            // enabled source if ALERT/RDY is asserted
+        println("poll %d".format(status))
+        adc.onInterrupt({ s -> println("alert $s") })                                       // Subscribe, (callback) → void
+                                                                                            // pin edge, or a polling thread without an InputPin
+        Thread.sleep(1000)
+        adc.offInterrupt()                                                                  // Unsubscribe, () → void
+                                                                                            // stops delivery
+        adc.disableInterrupt(ADS1115Full.SOURCE_CONVERSION_READY)                           // Disable interrupt, (source) → void
+                                                                                            // releases ALERT/RDY
+        adc.reset()                                                                         // Reset, () → void
+                                                                                            // writes the reset values back
+    }
+}

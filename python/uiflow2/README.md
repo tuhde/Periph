@@ -44,10 +44,13 @@ uiflow2/
 |------|----------|--------|
 | [HX711](adc_dac/hx711/) | adc_dac | init, `tare`, `set_scale`, `read_weight`, `read_raw` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | init, `set_voltage`, `set_raw` |
+| [AD5248](adc_dac/ad5248/) | adc_dac | init, `set_wiper`, `get_wiper`, `set_resistance`, `get_resistance`, `set_both`, `set_ratio`, `get_ratio`, `increment`, `shutdown`, `resume`, `is_shutdown`, `reset` |
 | [MCP4728](adc_dac/mcp4728/) | adc_dac | init, `set_voltage`, `set_raw`, `set_all` |
 | [PCF8591](adc_dac/pcf8591/) | adc_dac | init, `read_channel`, `read_channel_voltage`, `set_dac_voltage` |
 | [RDA5807M](comms/rda5807m/) | comms | init, `set_frequency`, `frequency`, `set_volume`, `mute`, `seek` |
 | [PCF8576](display/pcf8576/) | display | init, `clear`, `set_digit` |
+| [PCF8578](display/pcf8578/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `device_select`, `reset` |
+| [PCF8579](display/pcf8579/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `reset` |
 | [AHT21](environmental/aht21/) | environmental | init, `read_temperature`, `read_humidity` |
 | [BME280](environmental/bme280/) | environmental | init, `temperature`, `pressure`, `humidity` |
 | [BME680](environmental/bme680/) | environmental | init, `temperature`, `pressure`, `humidity`, `gas_resistance` |
@@ -55,6 +58,7 @@ uiflow2/
 | [NEO6](gnss/neo6/) | gnss | init, `update`, `latitude`, `longitude`, `altitude` |
 | [DHT11](humidity/dht11/) | humidity | init, `read_temperature`, `read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | init, `accel_x`, `accel_y`, `accel_z`, `gyro_x`, `gyro_y`, `gyro_z`, `temperature`, `data_ready` |
+| [MCP23008](io_expander/mcp23008/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin`, `read_port`, `write_port`, `configure_pullup`, `configure_polarity`, `set_default_value`, `enable_pin_interrupt`, `poll_interrupt`, `read_capture`, `reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | init, `set_pin_mode`, `write_pin`, `read_pin` |
@@ -63,6 +67,7 @@ uiflow2/
 | [APDS9960](light/apds9960/) | light | init, `color_clear`, `color_red`, `color_green`, `color_blue`, `enable_proximity`, `proximity` |
 | [AS5600](magnetometer/as5600/) | magnetometer | init, `angle`, `angle_raw`, `is_magnet_detected`, `is_magnet_too_strong`, `is_magnet_too_weak` |
 | [EEPROM24AA02UID](memory/24aa02uid/) | memory | init, `read_uid`, `read_byte`, `write_byte` |
+| [MB85RC](memory/mb85rc/) | memory | init, `read_byte`, `write_byte`, `read`, `write`, `fill`, `size`, `read_device_id` |
 | [INA219](power/ina219/) | power | init, `voltage`, `shunt_voltage`, `current`, `power` |
 | [INA226](power/ina226/) | power | init, `read_voltage`, `read_current`, `read_power` |
 | [INA3221](power/ina3221/) | power | init, `read_voltage`, `read_current`, `read_power` (each takes a `channel` param) |

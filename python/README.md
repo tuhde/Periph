@@ -50,9 +50,16 @@ Each chip exposes two classes:
 |------|----------|-------------|
 | 23X1024 | Memory | 23LC1024 / 23A1024 1-Mbit SPI serial SRAM |
 | 24AA02UID | Memory | 2K I2C EEPROM with 32-bit unique serial number |
+| AD5243 | ADC/DAC | Dual digital potentiometer |
+| AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC |
 | ADE7953 | Power monitor | Single-phase metering IC |
+| ADS1013 | ADC/DAC | 12-bit ADC |
+| ADS1014 | ADC/DAC | 12-bit ADC |
+| ADS1113 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
+| ADS1114 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
+| ADS1115 | ADC/DAC | Single-shot single-ended reads at ±2.048 V, 128 SPS. |
 | ADXL345 | Accelerometer | 3-axis accelerometer |
 | ADXL362 | Accelerometer | Read X, Y, Z acceleration in *g*. |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |
@@ -70,14 +77,17 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor |
+| DRV2605 | Motor driver | Haptic driver |
 | DRV8830 | Motor driver | Low-voltage motor driver |
 | DS3231 | RTC | Extremely accurate I2C RTC/TCXO/crystal |
 | ENS160 | Gas sensor | Digital multi-gas sensor |
+| FXOS8700 | Accelerometer | Acceleration and magnetic field. |
 | HMC5883L | Magnetometer | 3-axis magnetometer |
 | HX710A | ADC/DAC | 24-bit ADC |
 | HX710B | ADC/DAC | 24-bit ADC |
 | HX711 | ADC/DAC | 24-bit ADC |
 | HY3131 | ADC/DAC | — minimal interface: AD1 differential voltage. |
+| ICM20948 | IMU | Acceleration and angular rate. |
 | IL0373 | Display driver | Black/white e-paper controller |
 | INA219 | Power monitor | 26V, 12-bit current/voltage/power monitor |
 | INA226 | Power monitor | 36V, 16-bit current/voltage/power monitor |
@@ -89,12 +99,15 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
 | LSM303 | Accelerometer | Acceleration and magnetic field. |
+| MB85RC | Memory | MB85RC256V 256 Kbit (32 KiB) I2C FRAM |
+| MCP23008 | IO expander | 8-bit I/O port expander (I²C) |
 | MCP23017 | IO expander | 16-bit I/O port expander |
 | MCP2515 | Comms | Send/recv with default configuration. |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor |
 | MFRC522 | RFID/NFC | 13.56 MHz RFID/NFC reader |
+| MMA8451Q | Accelerometer | 3-axis accelerometer |
 | MPR121 | Other | Capacitive touch controller |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope) |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope) |
@@ -105,6 +118,8 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver |
+| PCF8578 | Display driver | Row/column LCD dot-matrix driver |
+| PCF8579 | Display driver | LCD column driver |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |

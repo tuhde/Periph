@@ -42,9 +42,16 @@ Each chip exposes two classes:
 |------|----------|--------|
 | 23X1024 | Memory | `chips/memory/23X1024.h` |
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
+| AD5243 | ADC/DAC | `chips/adc_dac/AD5243.h` |
+| AD5248 | ADC/DAC | `chips/adc_dac/AD5248.h` |
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
 | AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
+| ADS1013 | ADC/DAC | `chips/adc_dac/ADS1013.h` |
+| ADS1014 | ADC/DAC | `chips/adc_dac/ADS1014.h` |
+| ADS1113 | ADC/DAC | `chips/adc_dac/ADS1113.h` |
+| ADS1114 | ADC/DAC | `chips/adc_dac/ADS1114.h` |
+| ADS1115 | ADC/DAC | `chips/adc_dac/ADS1115.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
@@ -62,14 +69,17 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | `chips/pressure/BMP384.h` |
 | BMP581 | Pressure sensor | `chips/pressure/BMP581.h` |
 | DHT11 | Humidity sensor | `chips/humidity/DHT11.h` |
+| DRV2605 | Motor driver | `chips/motor/DRV2605.h` |
 | DRV8830 | Motor driver | `chips/motor/DRV8830.h` |
 | DS3231 | RTC | `chips/rtc/DS3231.h` |
 | ENS160 | Gas sensor | `chips/gas/ENS160.h` |
+| FXOS8700 | Accelerometer | `chips/accelerometer/FXOS8700.h` |
 | HMC5883L | Magnetometer | `chips/magnetometer/HMC5883L.h` |
 | HX710A | ADC/DAC | `chips/adc_dac/HX710A.h` |
 | HX710B | ADC/DAC | `chips/adc_dac/HX710B.h` |
 | HX711 | ADC/DAC | `chips/adc_dac/HX711.h` |
 | HY3131 | ADC/DAC | `chips/adc_dac/HY3131.h` |
+| ICM20948 | IMU | `chips/imu/ICM20948.h` |
 | INA219 | Power monitor | `chips/power/INA219.h` |
 | INA226 | Power monitor | `chips/power/INA226.h` |
 | INA3221 | Power monitor | `chips/power/INA3221.h` |
@@ -80,12 +90,15 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |
+| MB85RC | Memory | `chips/memory/MB85RC.h` |
+| MCP23008 | IO expander | `chips/io_expander/MCP23008.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
 | MCP4725 | ADC/DAC | `chips/adc_dac/MCP4725.h` |
 | MCP4728 | ADC/DAC | `chips/adc_dac/MCP4728.h` |
 | MCP9808 | Temperature sensor | `chips/temperature/MCP9808.h` |
 | MFRC522 | RFID/NFC | `chips/rfid/MFRC522.h` |
+| MMA8451Q | Accelerometer | `chips/accelerometer/MMA8451Q.h` |
 | Mpr121 | Other | `chips/other/Mpr121.h` |
 | MPU6050 | IMU | `chips/imu/MPU6050.h` |
 | MPU9250 | IMU | `chips/imu/MPU9250.h` |
@@ -98,6 +111,8 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | `chips/io_expander/PCF8574.h` |
 | PCF8575 | IO expander | `chips/io_expander/PCF8575.h` |
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
+| PCF8578 | Display driver | `chips/display/PCF8578.h` |
+| PCF8579 | Display driver | `chips/display/PCF8579.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |

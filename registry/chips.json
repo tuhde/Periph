@@ -84,7 +84,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "fxos8700",
       "datasheet": "datasheets/accelerometer/fxos8700.pdf"
     },
     {
@@ -160,7 +160,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mma8451q",
       "datasheet": "datasheets/accelerometer/mma845x.pdf"
     },
     {
@@ -172,7 +172,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ad5243",
       "datasheet": "datasheets/adc_dac/ad5243.pdf"
     },
     {
@@ -184,7 +184,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "ad5248",
       "datasheet": "datasheets/adc_dac/ad5243.pdf"
     },
     {
@@ -241,7 +241,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1013",
       "datasheet": "datasheets/adc_dac/ads1015.pdf"
     },
     {
@@ -253,7 +253,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1014",
       "datasheet": "datasheets/adc_dac/ads1015.pdf"
     },
     {
@@ -277,7 +277,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1113",
       "datasheet": "datasheets/adc_dac/ads1115.pdf"
     },
     {
@@ -289,7 +289,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1114",
       "datasheet": "datasheets/adc_dac/ads1115.pdf"
     },
     {
@@ -301,7 +301,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1115",
       "datasheet": "datasheets/adc_dac/ads1115.pdf"
     },
     {
@@ -385,7 +385,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "pcf8578",
       "datasheet": "datasheets/display/pcf8578.pdf"
     },
     {
@@ -397,7 +397,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "pcf8579",
       "datasheet": "datasheets/display/pcf8579.pdf"
     },
     {
@@ -605,7 +605,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "icm20948",
       "datasheet": "datasheets/imu/icm20948.pdf"
     },
     {
@@ -659,7 +659,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mcp23008",
       "datasheet": "datasheets/io_expander/mcp23008.pdf"
     },
     {
@@ -831,7 +831,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mb85rc",
       "datasheet": "datasheets/memory/mb85rc.pdf"
     },
     {
@@ -852,7 +852,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "drv2605",
       "datasheet": "datasheets/motor/drv2605.pdf"
     },
     {

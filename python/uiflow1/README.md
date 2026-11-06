@@ -59,11 +59,14 @@ arguments. Every wrapped method already exists on the underlying driver in
 |------|----------|--------|
 | [HX711](adc_dac/hx711/) | adc_dac | `hx711_init`, `hx711_tare`, `hx711_set_scale`, `hx711_read_weight`, `hx711_read_raw` |
 | [MCP4725](adc_dac/mcp4725/) | adc_dac | `mcp4725_init`, `mcp4725_set_voltage`, `mcp4725_set_raw` |
+| [AD5248](adc_dac/ad5248/) | adc_dac | `ad5248_init`, `ad5248_set_wiper`, `ad5248_get_wiper`, `ad5248_set_resistance`, `ad5248_get_resistance`, `ad5248_set_both`, `ad5248_set_ratio`, `ad5248_get_ratio`, `ad5248_increment`, `ad5248_shutdown`, `ad5248_resume`, `ad5248_is_shutdown`, `ad5248_reset` |
 | [MCP4728](adc_dac/mcp4728/) | adc_dac | `mcp4728_init`, `mcp4728_set_voltage`, `mcp4728_set_raw`, `mcp4728_set_all` |
 | [PCF8591](adc_dac/pcf8591/) | adc_dac | `pcf8591_init`, `pcf8591_read_channel`, `pcf8591_read_channel_voltage`, `pcf8591_set_dac_voltage` |
 | [RDA5807M](comms/rda5807m/) | comms | `rda5807m_init`, `rda5807m_set_frequency`, `rda5807m_frequency`, `rda5807m_set_volume`, `rda5807m_mute`, `rda5807m_seek` |
 | [RFM9x](comms/rfm9x/) | comms | `rfm9x_init`, `rfm9x_send`, `rfm9x_receive`, `rfm9x_configure`, `rfm9x_set_tx_power`, `rfm9x_last_packet_rssi`, `rfm9x_last_packet_snr`, `rfm9x_sleep` |
 | [PCF8576](display/pcf8576/) | display | `pcf8576_init`, `pcf8576_clear`, `pcf8576_set_digit` |
+| [PCF8578](display/pcf8578/) | display | `pcf8578_init`, `pcf8578_clear`, `pcf8578_set_pixel`, `pcf8578_get_pixel`, `pcf8578_write_column`, `pcf8578_fill`, `pcf8578_draw_line`, `pcf8578_draw_rect`, `pcf8578_set_display`, `pcf8578_set_mode`, `pcf8578_set_start_bank`, `pcf8578_scroll`, `pcf8578_device_select`, `pcf8578_reset` |
+| [PCF8579](display/pcf8579/) | display | `pcf8579_init`, `pcf8579_clear`, `pcf8579_set_pixel`, `pcf8579_get_pixel`, `pcf8579_write_column`, `pcf8579_fill`, `pcf8579_draw_line`, `pcf8579_draw_rect`, `pcf8579_set_display`, `pcf8579_set_mode`, `pcf8579_set_start_bank`, `pcf8579_scroll`, `pcf8579_reset` |
 | [AHT21](environmental/aht21/) | environmental | `aht21_init`, `aht21_read_temperature`, `aht21_read_humidity` |
 | [BME280](environmental/bme280/) | environmental | `bme280_init`, `bme280_temperature`, `bme280_pressure`, `bme280_humidity` |
 | [BME680](environmental/bme680/) | environmental | `bme680_init`, `bme680_temperature`, `bme680_pressure`, `bme680_humidity`, `bme680_gas_resistance` |
@@ -71,6 +74,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [NEO-6](gnss/neo6/) | gnss | `neo6_init`, `neo6_update`, `neo6_latitude`, `neo6_longitude`, `neo6_altitude` |
 | [DHT11](humidity/dht11/) | humidity | `dht11_init`, `dht11_read_temperature`, `dht11_read_humidity` |
 | [MPU6050](imu/mpu6050/) | imu | `mpu6050_init`, `mpu6050_accel_x`, `mpu6050_accel_y`, `mpu6050_accel_z`, `mpu6050_gyro_x`, `mpu6050_gyro_y`, `mpu6050_gyro_z`, `mpu6050_temperature`, `mpu6050_data_ready` |
+| [MCP23008](io_expander/mcp23008/) | io_expander | `mcp23008_init`, `mcp23008_set_pin_mode`, `mcp23008_write_pin`, `mcp23008_read_pin`, `mcp23008_read_port`, `mcp23008_write_port`, `mcp23008_configure_pullup`, `mcp23008_configure_polarity`, `mcp23008_set_default_value`, `mcp23008_enable_pin_interrupt`, `mcp23008_poll_interrupt`, `mcp23008_read_capture`, `mcp23008_reset` |
 | [MCP23017](io_expander/mcp23017/) | io_expander | `mcp23017_init`, `mcp23017_set_pin_mode`, `mcp23017_write_pin`, `mcp23017_read_pin` |
 | [PCF8574](io_expander/pcf8574/) | io_expander | `pcf8574_init`, `pcf8574_set_pin_mode`, `pcf8574_write_pin`, `pcf8574_read_pin` |
 | [PCF8575](io_expander/pcf8575/) | io_expander | `pcf8575_init`, `pcf8575_set_pin_mode`, `pcf8575_write_pin`, `pcf8575_read_pin` |
@@ -79,6 +83,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [APDS9960](light/apds9960/) | light | `apds9960_init`, `apds9960_color_clear`, `apds9960_color_red`, `apds9960_color_green`, `apds9960_color_blue`, `apds9960_enable_proximity`, `apds9960_proximity` |
 | [AS5600](magnetometer/as5600/) | magnetometer | `as5600_init`, `as5600_angle`, `as5600_angle_raw`, `as5600_is_magnet_detected`, `as5600_is_magnet_too_strong`, `as5600_is_magnet_too_weak` |
 | [24AA02UID](memory/24aa02uid/) | memory | `24aa02uid_init`, `24aa02uid_read_uid`, `24aa02uid_read_byte`, `24aa02uid_write_byte` |
+| [MB85RC](memory/mb85rc/) | memory | `mb85rc_init`, `mb85rc_read_byte`, `mb85rc_write_byte`, `mb85rc_read`, `mb85rc_write`, `mb85rc_fill`, `mb85rc_size`, `mb85rc_read_device_id` |
 | [INA219](power/ina219/) | power | `ina219_init`, `ina219_voltage`, `ina219_shunt_voltage`, `ina219_current`, `ina219_power` |
 | [INA226](power/ina226/) | power | `ina226_init`, `ina226_read_voltage`, `ina226_read_current`, `ina226_read_power` |
 | [INA3221](power/ina3221/) | power | `ina3221_init`, `ina3221_read_voltage`, `ina3221_read_current`, `ina3221_read_power` (each takes a `_channel` param) |

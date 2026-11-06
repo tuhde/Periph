@@ -12,3 +12,5 @@ pub use sd_spi::{SdSpiMinimal, SdSpiFull, SdSpiOptions, SdCardType, SD_BLOCK_SIZ
 
 pub mod mx25l12845e;
 pub use mx25l12845e::{Mx25l12845eFull, Mx25l12845eMinimal, Mx25l12845eOptions};
+pub mod mb85rc;
+pub use mb85rc::{Mb85rcMinimal, Mb85rcFull};

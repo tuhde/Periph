@@ -1,0 +1,125 @@
+[
+    {
+        "id": "tab-ad5248-demo",
+        "type": "tab",
+        "label": "AD5248 Digital Rheostat Demo",
+        "disabled": false,
+        "info": "Sets channel 0 of the AD5248 to a fixed midscale code with one inject node and sweeps the wiper in 16-step increments (0, 16, ... 240) every 500 ms with a second, repeating inject node, showing the resistance staircase. Both paths print the resulting code and W-B resistance in ohms to the debug panel."
+    },
+    {
+        "id": "cfg-ad5248",
+        "type": "ad5248-device",
+        "name": "AD5248",
+        "bus": "1",
+        "address": "2C",
+        "rab": "10000",
+        "rwiper": "160"
+    },
+    {
+        "id": "inj-set",
+        "type": "inject",
+        "name": "set code 128",
+        "topic": "",
+        "payload": "128",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5248-demo",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            [
+                "fn-set"
+            ]
+        ]
+    },
+    {
+        "id": "fn-set",
+        "type": "function",
+        "name": "channel 0 code",
+        "func": "msg.payload = { channel: 0, code: msg.payload };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ad5248-demo",
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "ad5248"
+            ]
+        ]
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "sweep every 500 ms",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5248-demo",
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "next staircase step",
+        "func": "let n = context.get('n') || 0;\nmsg.payload = { channel: 0, code: (n * 16) % 256 };\ncontext.set('n', n + 1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-ad5248-demo",
+        "x": 360,
+        "y": 180,
+        "wires": [
+            [
+                "ad5248"
+            ]
+        ]
+    },
+    {
+        "id": "ad5248",
+        "type": "periph-ad5248",
+        "name": "AD5248",
+        "device": "cfg-ad5248",
+        "z": "tab-ad5248-demo",
+        "x": 580,
+        "y": 140,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "code and resistance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ad5248-demo",
+        "x": 800,
+        "y": 140,
+        "wires": []
+    }
+]

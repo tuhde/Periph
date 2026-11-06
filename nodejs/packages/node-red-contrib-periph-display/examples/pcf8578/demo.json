@@ -1,0 +1,119 @@
+[
+    {
+        "id": "tab-pcf8578-demo",
+        "type": "tab",
+        "label": "PCF8578 Bouncing Pixel",
+        "disabled": false,
+        "info": "Drives a 16-row x 24-column dot-matrix LCD from a PCF8578 over I2C. An inject node fires every 500 ms; a function node computes a bouncing pixel position, first clearing the previous position and then lighting the new one, and sends both to the periph-pcf8578 node. A second inject toggles inverse video on and off every 2 seconds to show the display status control. The RAM contents survive status changes, so the bouncing pixel keeps moving while the panel flips between normal and inverse."
+    },
+    {
+        "id": "cfg-pcf8578",
+        "type": "pcf8578-device",
+        "name": "PCF8578",
+        "bus": "1",
+        "address": "3C",
+        "rows": "16"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 500 ms",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-pcf8578-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "fn-bounce"
+            ]
+        ]
+    },
+    {
+        "id": "fn-bounce",
+        "type": "function",
+        "name": "bouncing pixel",
+        "func": "    const n = context.get('n') || 0;\n    context.set('n', n + 1);\n    const cols = 24, rows = 16;\n    // triangle-wave bounce across the panel\n    const px = Math.abs(((n % (2 * (cols - 1))) - (cols - 1)));\n    const py = Math.abs(((n % (2 * (rows - 1))) - (rows - 1)));\n    const prev = context.get('prev');\n    const out = [];\n    if (prev) out.push({ payload: { pixel: { x: prev.x, y: prev.y, on: false } } });\n    out.push({ payload: { pixel: { x: px, y: py, on: true } } });\n    context.set('prev', { x: px, y: py });\n    return [out];",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-pcf8578-demo",
+        "x": 330,
+        "y": 120,
+        "wires": [
+            [
+                "lcd-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-invert",
+        "type": "inject",
+        "name": "inverse",
+        "repeat": "4",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 2,
+        "topic": "",
+        "payload": "{\"display\":\"inverse\"}",
+        "payloadType": "json",
+        "z": "tab-pcf8578-demo",
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "lcd-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-normal",
+        "type": "inject",
+        "name": "normal",
+        "repeat": "4",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 4,
+        "topic": "",
+        "payload": "{\"display\":\"normal\"}",
+        "payloadType": "json",
+        "z": "tab-pcf8578-demo",
+        "x": 120,
+        "y": 260,
+        "wires": [
+            [
+                "lcd-node"
+            ]
+        ]
+    },
+    {
+        "id": "lcd-node",
+        "type": "periph-pcf8578",
+        "name": "PCF8578",
+        "device": "cfg-pcf8578",
+        "z": "tab-pcf8578-demo",
+        "x": 560,
+        "y": 160,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "result",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "z": "tab-pcf8578-demo",
+        "x": 740,
+        "y": 160,
+        "wires": []
+    }
+]

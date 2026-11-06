@@ -1,0 +1,224 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ad5248_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AD5248",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "RAB (ohms)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 set wiper (channel 0-1, code 0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5248 wiper code (channel 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_set_resistance",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 set W-B resistance (channel 0-1, ohms)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_get_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5248 W-B resistance in ohms (channel 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_set_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 set both wipers (code 1, code 2)",
+          "type": "label"
+        },
+        {
+          "name": "_code1",
+          "type": "number"
+        },
+        {
+          "name": "_code2",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 set wiper ratio (channel 0-1, ratio 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5248 wiper ratio (channel 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_increment",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5248 increment wiper, returns new code (channel 0-1, steps)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 shutdown channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_resume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 resume channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5248 channel in shutdown? (channel 0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5248_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5248 reset both wipers to midscale",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

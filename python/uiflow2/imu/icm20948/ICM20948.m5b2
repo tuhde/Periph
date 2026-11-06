@@ -1,0 +1,518 @@
+{
+  "category": "ICM20948",
+  "color": "#C084FC",
+  "uiflow2": {
+    "jscode": "const CUSTOM_ICM20948_LANGUAGES = {\n  \"CUSTOM_ICM20948_INIT\": {\n    \"en\": \"%1 init bus %2 address (104-105) %3\"\n  },\n  \"CUSTOM_ICM20948_ACCEL_X\": {\n    \"en\": \"%1 acceleration X (m/s²)\"\n  },\n  \"CUSTOM_ICM20948_ACCEL_Y\": {\n    \"en\": \"%1 acceleration Y (m/s²)\"\n  },\n  \"CUSTOM_ICM20948_ACCEL_Z\": {\n    \"en\": \"%1 acceleration Z (m/s²)\"\n  },\n  \"CUSTOM_ICM20948_GYRO_X\": {\n    \"en\": \"%1 angular rate X (rad/s)\"\n  },\n  \"CUSTOM_ICM20948_GYRO_Y\": {\n    \"en\": \"%1 angular rate Y (rad/s)\"\n  },\n  \"CUSTOM_ICM20948_GYRO_Z\": {\n    \"en\": \"%1 angular rate Z (rad/s)\"\n  },\n  \"CUSTOM_ICM20948_TEMPERATURE\": {\n    \"en\": \"%1 die temperature (°C)\"\n  },\n  \"CUSTOM_ICM20948_DATA_READY\": {\n    \"en\": \"%1 new data ready?\"\n  },\n  \"CUSTOM_ICM20948_ENABLE_MAG\": {\n    \"en\": \"%1 enable magnetometer\"\n  },\n  \"CUSTOM_ICM20948_MAG_X\": {\n    \"en\": \"%1 magnetic field X (µT)\"\n  },\n  \"CUSTOM_ICM20948_MAG_Y\": {\n    \"en\": \"%1 magnetic field Y (µT)\"\n  },\n  \"CUSTOM_ICM20948_MAG_Z\": {\n    \"en\": \"%1 magnetic field Z (µT)\"\n  },\n  \"CUSTOM_ICM20948_MAG_DATA_READY\": {\n    \"en\": \"%1 magnetometer data ready?\"\n  },\n  \"CUSTOM_ICM20948_CONFIGURE_GYRO\": {\n    \"en\": \"%1 gyro range (0=±250 1=±500 2=±1000 3=±2000 dps) %2\"\n  },\n  \"CUSTOM_ICM20948_CONFIGURE_ACCEL\": {\n    \"en\": \"%1 accel range (0=±2 1=±4 2=±8 3=±16 g) %2\"\n  },\n  \"CUSTOM_ICM20948_CONFIGURE_FILTERS\": {\n    \"en\": \"%1 filters gyro DLPF (0-7) %2 accel DLPF (0-7) %3\"\n  },\n  \"CUSTOM_ICM20948_CONFIGURE_SAMPLE_RATE\": {\n    \"en\": \"%1 sample rate dividers gyro (0-255) %2 accel (0-4095) %3\"\n  },\n  \"CUSTOM_ICM20948_SET_SLEEP\": {\n    \"en\": \"%1 sleep (0=wake 1=sleep) %2\"\n  },\n  \"CUSTOM_ICM20948_SET_WAKE_ON_MOTION\": {\n    \"en\": \"%1 wake-on-motion threshold (mg) %2\"\n  },\n  \"CUSTOM_ICM20948_POLL_INTERRUPT\": {\n    \"en\": \"%1 interrupt status (1=data 2=motion 4=I2C master 8=PLL 16=FIFO overflow)\"\n  },\n  \"CUSTOM_ICM20948_ENABLE_FIFO\": {\n    \"en\": \"%1 enable FIFO (accel + gyro)\"\n  },\n  \"CUSTOM_ICM20948_FIFO_COUNT\": {\n    \"en\": \"%1 FIFO byte count\"\n  },\n  \"CUSTOM_ICM20948_RESET_FIFO\": {\n    \"en\": \"%1 reset FIFO\"\n  }\n};\n\nconst initType = 'custom_icm20948_init';\nBlockly.BlockRegExpList['custom_icm20948'] = {\n  regexp: new RegExp(/^custom_icm20948_/),\n  code: \"from ICM20948 import ICM20948\",\n  initBlockType: initType,\n  categoryId: 'custom_icm20948',\n}\nBlockly.utils.registerLanguages(CUSTOM_ICM20948_LANGUAGES)\n\nBlockly.Msg.CUSTOM_ICM20948_HUE = '#C084FC'\nBlockly.Msg.CUSTOM_ICM20948 = 'ICM20948'\n\nBlockly.utils.getcustom_icm20948Options = function() {\n  let options = [];\n  let list = Blockly.utils.getCustomNameList(initType);\n  for (let i = 0; i < list.length; i++) {\n    let value = list[i];\n    options.push([String(value), String(value)]);\n  }\n  if (options.length === 0) return [\n    ['icm20948_0', 'icm20948_0']\n  ];\n  return options;\n}\n\nBlockly.Blocks[\"custom_icm20948_init\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_INIT,\n      'args0': [\n        // { 'type': 'field_dropdown', 'name': 'NAME', 'options': Blockly.utils.getcustom_icm20948Options },\n        {\n          'type': 'field_input',\n          'name': 'NAME',\n          'text': 'icm20948_0'\n        },\n        {\n          'type': 'input_value',\n          'name': 'bus'\n        },\n        {\n          'type': 'input_value',\n          'name': 'address'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n      \"tool\": []\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_init\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var bus = Blockly.Python.valueToCode(block, 'bus', Blockly.Python.ORDER_FUNCTION_CALL);\n  var address = Blockly.Python.valueToCode(block, 'address', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname} = ICM20948(${bus}, ${address})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_accel_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_ACCEL_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_accel_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_accel_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_ACCEL_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_accel_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_accel_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_ACCEL_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_accel_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.accel_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_gyro_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_GYRO_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_gyro_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_gyro_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_GYRO_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_gyro_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_gyro_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_GYRO_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_gyro_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.gyro_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_temperature\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_TEMPERATURE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_temperature\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.temperature()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_enable_mag\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_ENABLE_MAG,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_enable_mag\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_mag()\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_mag_x\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_MAG_X,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_mag_x\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_x()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_mag_y\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_MAG_Y,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_mag_y\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_y()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_mag_z\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_MAG_Z,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_mag_z\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_z()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_mag_data_ready\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_MAG_DATA_READY,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_mag_data_ready\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.mag_data_ready()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_configure_gyro\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_CONFIGURE_GYRO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'full_scale'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_configure_gyro\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var full_scale = Blockly.Python.valueToCode(block, 'full_scale', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_gyro(${full_scale})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_configure_accel\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_CONFIGURE_ACCEL,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'full_scale'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_configure_accel\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var full_scale = Blockly.Python.valueToCode(block, 'full_scale', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_accel(${full_scale})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_configure_filters\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_CONFIGURE_FILTERS,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gyro_dlpf'\n        },\n        {\n          'type': 'input_value',\n          'name': 'accel_dlpf'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_configure_filters\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gyro_dlpf = Blockly.Python.valueToCode(block, 'gyro_dlpf', Blockly.Python.ORDER_FUNCTION_CALL);\n  var accel_dlpf = Blockly.Python.valueToCode(block, 'accel_dlpf', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_filters(${gyro_dlpf}, ${accel_dlpf})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_configure_sample_rate\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_CONFIGURE_SAMPLE_RATE,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'gyro_div'\n        },\n        {\n          'type': 'input_value',\n          'name': 'accel_div'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_configure_sample_rate\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var gyro_div = Blockly.Python.valueToCode(block, 'gyro_div', Blockly.Python.ORDER_FUNCTION_CALL);\n  var accel_div = Blockly.Python.valueToCode(block, 'accel_div', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.configure_sample_rate(${gyro_div}, ${accel_div})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_set_sleep\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_SET_SLEEP,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'sleep'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_set_sleep\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var sleep = Blockly.Python.valueToCode(block, 'sleep', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_sleep(${sleep})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_set_wake_on_motion\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_SET_WAKE_ON_MOTION,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n        {\n          'type': 'input_value',\n          'name': 'threshold_mg'\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_set_wake_on_motion\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n  var threshold_mg = Blockly.Python.valueToCode(block, 'threshold_mg', Blockly.Python.ORDER_FUNCTION_CALL);\n  return `${varname}.set_wake_on_motion(${threshold_mg})\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_poll_interrupt\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_POLL_INTERRUPT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_poll_interrupt\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.poll_interrupt()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_enable_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_ENABLE_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_enable_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.enable_fifo()\\n`\n}\n\nBlockly.Blocks[\"custom_icm20948_fifo_count\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_FIFO_COUNT,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'output': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_fifo_count\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return [`${varname}.fifo_count()`, Blockly.Python.ORDER_NONE]\n}\n\nBlockly.Blocks[\"custom_icm20948_reset_fifo\"] = {\n  init: function() {\n    this.jsonInit(this._init());\n  },\n  _init: function() {\n    return {\n      'message0': Blockly.Msg.CUSTOM_ICM20948_RESET_FIFO,\n      'args0': [\n        {\n          'type': 'field_dropdown',\n          'name': 'NAME',\n          'options': Blockly.utils.getcustom_icm20948Options\n        },\n      ],\n      'previousStatement': null,\n      'nextStatement': null,\n      'inputsInline': true,\n      'colour': \"#C084FC\",\n    };\n  }\n}\n\nBlockly.Python[\"custom_icm20948_reset_fifo\"] = function(block) {\n  var varname = block.getFieldValue('NAME') || '_';\n\n  return `${varname}.reset_fifo()\\n`\n}\n",
+    "toolbox": "\n<category name=\"ICM20948\" colour=\"#C084FC\" hidden=\"true\" toolboxitemid=\"custom_icm20948\">\n<title text=\"ICM20948\" docsLink=\"https://github.com/tuhde/Periph\"></title>\n<block type=\"custom_icm20948_init\">\n  <value name=\"bus\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n  <value name=\"address\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">104</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_accel_x\"/><block type=\"custom_icm20948_accel_y\"/><block type=\"custom_icm20948_accel_z\"/><block type=\"custom_icm20948_gyro_x\"/><block type=\"custom_icm20948_gyro_y\"/><block type=\"custom_icm20948_gyro_z\"/><block type=\"custom_icm20948_temperature\"/><block type=\"custom_icm20948_data_ready\"/><block type=\"custom_icm20948_enable_mag\"/><block type=\"custom_icm20948_mag_x\"/><block type=\"custom_icm20948_mag_y\"/><block type=\"custom_icm20948_mag_z\"/><block type=\"custom_icm20948_mag_data_ready\"/><block type=\"custom_icm20948_configure_gyro\">\n  <value name=\"full_scale\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_configure_accel\">\n  <value name=\"full_scale\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_configure_filters\">\n  <value name=\"gyro_dlpf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n  <value name=\"accel_dlpf\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">3</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_configure_sample_rate\">\n  <value name=\"gyro_div\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n  <value name=\"accel_div\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">10</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_set_sleep\">\n  <value name=\"sleep\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_set_wake_on_motion\">\n  <value name=\"threshold_mg\">\n    <shadow type=\"math_number\">\n      <field name=\"NUM\">200.0</field>\n    </shadow>\n  </value>\n</block><block type=\"custom_icm20948_poll_interrupt\"/><block type=\"custom_icm20948_enable_fifo\"/><block type=\"custom_icm20948_fifo_count\"/><block type=\"custom_icm20948_reset_fifo\"/>\n</category>\n",
+    "toolboxitemid": "custom_icm20948",
+    "block_type": [
+      "custom_icm20948___init__",
+      "custom_icm20948_accel_x",
+      "custom_icm20948_accel_y",
+      "custom_icm20948_accel_z",
+      "custom_icm20948_gyro_x",
+      "custom_icm20948_gyro_y",
+      "custom_icm20948_gyro_z",
+      "custom_icm20948_temperature",
+      "custom_icm20948_data_ready",
+      "custom_icm20948_enable_mag",
+      "custom_icm20948_mag_x",
+      "custom_icm20948_mag_y",
+      "custom_icm20948_mag_z",
+      "custom_icm20948_mag_data_ready",
+      "custom_icm20948_configure_gyro",
+      "custom_icm20948_configure_accel",
+      "custom_icm20948_configure_filters",
+      "custom_icm20948_configure_sample_rate",
+      "custom_icm20948_set_sleep",
+      "custom_icm20948_set_wake_on_motion",
+      "custom_icm20948_poll_interrupt",
+      "custom_icm20948_enable_fifo",
+      "custom_icm20948_fifo_count",
+      "custom_icm20948_reset_fifo"
+    ]
+  },
+  "data": {
+    "name": "ICM20948",
+    "note": {
+      "en": ""
+    },
+    "details": {
+      "color": "#C084FC",
+      "link": "https://github.com/tuhde/Periph",
+      "image": "",
+      "category": "Custom"
+    },
+    "header": {
+      "file": "ICM20948",
+      "time": "2026-11-05",
+      "author": "",
+      "email": "",
+      "license": "Apache License 2.0"
+    },
+    "assignments": [],
+    "example": "",
+    "source_internal": "",
+    "source_external": "from periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.icm20948 import ICM20948Full",
+    "members": [
+      {
+        "name": "__init__",
+        "note": {},
+        "label": {
+          "en": "%1 init bus %2 address (104-105) %3"
+        },
+        "params": [
+          {
+            "name": "bus",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number"
+          },
+          {
+            "name": "address",
+            "type": "int",
+            "default": "104",
+            "note": {},
+            "field": "number",
+            "max": "105",
+            "min": "104"
+          }
+        ],
+        "return": "",
+        "source": "        connection = I2CConnection(address, bus=bus)\n        self._driver = ICM20948Full(connection)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_x",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration X (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[0]",
+        "ast_return": {
+          "code": "self._driver.accel()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_y",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Y (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[1]",
+        "ast_return": {
+          "code": "self._driver.accel()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "accel_z",
+        "note": {},
+        "label": {
+          "en": "%1 acceleration Z (m/s²)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.accel()[2]",
+        "ast_return": {
+          "code": "self._driver.accel()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_x",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate X (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[0]",
+        "ast_return": {
+          "code": "self._driver.gyro()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_y",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Y (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[1]",
+        "ast_return": {
+          "code": "self._driver.gyro()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "gyro_z",
+        "note": {},
+        "label": {
+          "en": "%1 angular rate Z (rad/s)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.gyro()[2]",
+        "ast_return": {
+          "code": "self._driver.gyro()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "temperature",
+        "note": {},
+        "label": {
+          "en": "%1 die temperature (°C)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.temperature()",
+        "ast_return": {
+          "code": "self._driver.temperature()",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 new data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.data_ready()",
+        "ast_return": {
+          "code": "self._driver.data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_mag",
+        "note": {},
+        "label": {
+          "en": "%1 enable magnetometer"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_mag()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_x",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field X (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mag()[0]",
+        "ast_return": {
+          "code": "self._driver.mag()[0]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_y",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field Y (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mag()[1]",
+        "ast_return": {
+          "code": "self._driver.mag()[1]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_z",
+        "note": {},
+        "label": {
+          "en": "%1 magnetic field Z (µT)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mag()[2]",
+        "ast_return": {
+          "code": "self._driver.mag()[2]",
+          "id": "float"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "mag_data_ready",
+        "note": {},
+        "label": {
+          "en": "%1 magnetometer data ready?"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.mag_data_ready()",
+        "ast_return": {
+          "code": "self._driver.mag_data_ready()",
+          "id": "bool"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_gyro",
+        "note": {},
+        "label": {
+          "en": "%1 gyro range (0=±250 1=±500 2=±1000 3=±2000 dps) %2"
+        },
+        "params": [
+          {
+            "name": "full_scale",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_gyro(full_scale)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_accel",
+        "note": {},
+        "label": {
+          "en": "%1 accel range (0=±2 1=±4 2=±8 3=±16 g) %2"
+        },
+        "params": [
+          {
+            "name": "full_scale",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "3",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_accel(full_scale)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_filters",
+        "note": {},
+        "label": {
+          "en": "%1 filters gyro DLPF (0-7) %2 accel DLPF (0-7) %3"
+        },
+        "params": [
+          {
+            "name": "gyro_dlpf",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          },
+          {
+            "name": "accel_dlpf",
+            "type": "int",
+            "default": "3",
+            "note": {},
+            "field": "number",
+            "max": "7",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_filters(gyro_dlpf, accel_dlpf)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "configure_sample_rate",
+        "note": {},
+        "label": {
+          "en": "%1 sample rate dividers gyro (0-255) %2 accel (0-4095) %3"
+        },
+        "params": [
+          {
+            "name": "gyro_div",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "max": "255",
+            "min": "0"
+          },
+          {
+            "name": "accel_div",
+            "type": "int",
+            "default": "10",
+            "note": {},
+            "field": "number",
+            "max": "4095",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.configure_sample_rate(gyro_div, accel_div)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_sleep",
+        "note": {},
+        "label": {
+          "en": "%1 sleep (0=wake 1=sleep) %2"
+        },
+        "params": [
+          {
+            "name": "sleep",
+            "type": "int",
+            "default": "0",
+            "note": {},
+            "field": "number",
+            "max": "1",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_sleep(bool(sleep))",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "set_wake_on_motion",
+        "note": {},
+        "label": {
+          "en": "%1 wake-on-motion threshold (mg) %2"
+        },
+        "params": [
+          {
+            "name": "threshold_mg",
+            "type": "float",
+            "default": "200.0",
+            "note": {},
+            "field": "number",
+            "max": "1020",
+            "min": "0"
+          }
+        ],
+        "return": "",
+        "source": "        self._driver.set_wake_on_motion(threshold_mg)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "poll_interrupt",
+        "note": {},
+        "label": {
+          "en": "%1 interrupt status (1=data 2=motion 4=I2C master 8=PLL 16=FIFO overflow)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.poll_interrupt()",
+        "ast_return": {
+          "code": "self._driver.poll_interrupt()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "enable_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 enable FIFO (accel + gyro)"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.enable_fifo(True, True, False)",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      },
+      {
+        "name": "fifo_count",
+        "note": {},
+        "label": {
+          "en": "%1 FIFO byte count"
+        },
+        "params": [],
+        "return": "",
+        "source": "        return self._driver.fifo_count()",
+        "ast_return": {
+          "code": "self._driver.fifo_count()",
+          "id": "int"
+        },
+        "doc_return": null
+      },
+      {
+        "name": "reset_fifo",
+        "note": {},
+        "label": {
+          "en": "%1 reset FIFO"
+        },
+        "params": [],
+        "return": "",
+        "source": "        self._driver.reset_fifo()",
+        "ast_return": {
+          "code": null,
+          "id": null
+        },
+        "doc_return": null
+      }
+    ],
+    "python_file_name": "icm20948"
+  },
+  "pyCode": "\"\"\"\nfile     ICM20948\ntime     2026-11-05\nauthor\nemail\nlicense  Apache License 2.0\n\"\"\"\n\nfrom periph.connection.i2c_auto import I2CConnection\nfrom periph.chips.imu.icm20948 import ICM20948Full\n\n\nclass ICM20948:\n    \"\"\"\n    note:\n        en: ''\n    details:\n        color: '#C084FC'\n        link: https://github.com/tuhde/Periph\n        image: ''\n        category: Custom\n    example: ''\n    \"\"\"\n\n    def __init__(self, bus: int = 0, address: int = 104):\n        \"\"\"\n        label:\n            en: '%1 init bus %2 address (104-105) %3'\n        params:\n            bus:\n                name: bus\n                type: int\n                default: '0'\n                field: number\n            address:\n                name: address\n                type: int\n                default: '104'\n                field: number\n                min: '104'\n                max: '105'\n        \"\"\"\n        connection = I2CConnection(address, bus=bus)\n        self._driver = ICM20948Full(connection)\n\n    def accel_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration X (m/s²)'\n        \"\"\"\n        return self._driver.accel()[0]\n\n    def accel_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Y (m/s²)'\n        \"\"\"\n        return self._driver.accel()[1]\n\n    def accel_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 acceleration Z (m/s²)'\n        \"\"\"\n        return self._driver.accel()[2]\n\n    def gyro_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate X (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[0]\n\n    def gyro_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Y (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[1]\n\n    def gyro_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 angular rate Z (rad/s)'\n        \"\"\"\n        return self._driver.gyro()[2]\n\n    def temperature(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 die temperature (°C)'\n        \"\"\"\n        return self._driver.temperature()\n\n    def data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 new data ready?'\n        \"\"\"\n        return self._driver.data_ready()\n\n    def enable_mag(self):\n        \"\"\"\n        label:\n            en: '%1 enable magnetometer'\n        \"\"\"\n        self._driver.enable_mag()\n\n    def mag_x(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field X (µT)'\n        \"\"\"\n        return self._driver.mag()[0]\n\n    def mag_y(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field Y (µT)'\n        \"\"\"\n        return self._driver.mag()[1]\n\n    def mag_z(self) -> float:\n        \"\"\"\n        label:\n            en: '%1 magnetic field Z (µT)'\n        \"\"\"\n        return self._driver.mag()[2]\n\n    def mag_data_ready(self) -> bool:\n        \"\"\"\n        label:\n            en: '%1 magnetometer data ready?'\n        \"\"\"\n        return self._driver.mag_data_ready()\n\n    def configure_gyro(self, full_scale: int):\n        \"\"\"\n        label:\n            en: '%1 gyro range (0=±250 1=±500 2=±1000 3=±2000 dps) %2'\n        params:\n            full_scale:\n                name: full_scale\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.configure_gyro(full_scale)\n\n    def configure_accel(self, full_scale: int):\n        \"\"\"\n        label:\n            en: '%1 accel range (0=±2 1=±4 2=±8 3=±16 g) %2'\n        params:\n            full_scale:\n                name: full_scale\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '3'\n        \"\"\"\n        self._driver.configure_accel(full_scale)\n\n    def configure_filters(self, gyro_dlpf: int, accel_dlpf: int):\n        \"\"\"\n        label:\n            en: '%1 filters gyro DLPF (0-7) %2 accel DLPF (0-7) %3'\n        params:\n            gyro_dlpf:\n                name: gyro_dlpf\n                type: int\n                default: '3'\n                field: number\n                min: '0'\n                max: '7'\n            accel_dlpf:\n                name: accel_dlpf\n                type: int\n                default: '3'\n                field: number\n                min: '0'\n                max: '7'\n        \"\"\"\n        self._driver.configure_filters(gyro_dlpf, accel_dlpf)\n\n    def configure_sample_rate(self, gyro_div: int, accel_div: int):\n        \"\"\"\n        label:\n            en: '%1 sample rate dividers gyro (0-255) %2 accel (0-4095) %3'\n        params:\n            gyro_div:\n                name: gyro_div\n                type: int\n                default: '10'\n                field: number\n                min: '0'\n                max: '255'\n            accel_div:\n                name: accel_div\n                type: int\n                default: '10'\n                field: number\n                min: '0'\n                max: '4095'\n        \"\"\"\n        self._driver.configure_sample_rate(gyro_div, accel_div)\n\n    def set_sleep(self, sleep: int):\n        \"\"\"\n        label:\n            en: '%1 sleep (0=wake 1=sleep) %2'\n        params:\n            sleep:\n                name: sleep\n                type: int\n                default: '0'\n                field: number\n                min: '0'\n                max: '1'\n        \"\"\"\n        self._driver.set_sleep(bool(sleep))\n\n    def set_wake_on_motion(self, threshold_mg: float):\n        \"\"\"\n        label:\n            en: '%1 wake-on-motion threshold (mg) %2'\n        params:\n            threshold_mg:\n                name: threshold_mg\n                type: float\n                default: '200.0'\n                field: number\n                min: '0'\n                max: '1020'\n        \"\"\"\n        self._driver.set_wake_on_motion(threshold_mg)\n\n    def poll_interrupt(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 interrupt status (1=data 2=motion 4=I2C master 8=PLL 16=FIFO overflow)'\n        \"\"\"\n        return self._driver.poll_interrupt()\n\n    def enable_fifo(self):\n        \"\"\"\n        label:\n            en: '%1 enable FIFO (accel + gyro)'\n        \"\"\"\n        self._driver.enable_fifo(True, True, False)\n\n    def fifo_count(self) -> int:\n        \"\"\"\n        label:\n            en: '%1 FIFO byte count'\n        \"\"\"\n        return self._driver.fifo_count()\n\n    def reset_fifo(self):\n        \"\"\"\n        label:\n            en: '%1 reset FIFO'\n        \"\"\"\n        self._driver.reset_fifo()",
+  "version": "alpha2"
+}

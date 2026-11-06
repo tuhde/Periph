@@ -12,15 +12,22 @@
   ],
   "node-red": {
     "nodes": {
+      "ad5243": "nodes/ad5243/ad5243.js",
+      "ad5248": "nodes/ad5248/ad5248.js",
+      "ad7705": "nodes/ad7705/ad7705.js",
+      "ad7706": "nodes/ad7706/ad7706.js",
+      "ads1013": "nodes/ads1013/ads1013.js",
+      "ads1014": "nodes/ads1014/ads1014.js",
+      "ads1113": "nodes/ads1113/ads1113.js",
+      "ads1114": "nodes/ads1114/ads1114.js",
+      "ads1115": "nodes/ads1115/ads1115.js",
       "hx710a": "nodes/hx710a/hx710a.js",
       "hx710b": "nodes/hx710b/hx710b.js",
       "hx711": "nodes/hx711/hx711.js",
+      "hy3131": "nodes/hy3131/hy3131.js",
       "mcp4725": "nodes/mcp4725/mcp4725.js",
       "mcp4728": "nodes/mcp4728/mcp4728.js",
-      "pcf8591": "nodes/pcf8591/pcf8591.js",
-      "ad7705": "nodes/ad7705/ad7705.js",
-      "ad7706": "nodes/ad7706/ad7706.js",
-      "hy3131": "nodes/hy3131/hy3131.js"
+      "pcf8591": "nodes/pcf8591/pcf8591.js"
     }
   },
   "dependencies": {

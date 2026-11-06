@@ -44,9 +44,16 @@ Each chip exposes two structs:
 |------|----------|-------------|
 | 23X1024 | Memory | 1-Mbit SPI serial SRAM (Microchip 23LC1024 / 23A1024). |
 | 24AA02UID | Memory | 2 Kbit I²C EEPROM with 32-bit unique serial number. |
+| AD5243 | ADC/DAC | Dual 256-position I²C digital potentiometer (Analog Devices). |
+| AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat (Analog Devices). |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | ADE7953 | Power monitor | Single-phase multifunction metering IC (Analog Devices). |
+| ADS1013 | ADC/DAC | 12-bit I²C ADC with a fixed ±2.048 V range (Texas Instruments). |
+| ADS1014 | ADC/DAC | 12-bit I²C ADC with PGA and programmable comparator (Texas Instruments). |
+| ADS1113 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) (Texas Instruments). |
+| ADS1114 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), PGA and comparator) (Texas Instruments). |
+| ADS1115 | ADC/DAC | 16-bit ΔΣ ADC (four-channel multiplexer, PGA and comparator) (Texas Instruments). |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
@@ -64,14 +71,17 @@ Each chip exposes two structs:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor (Bosch Sensortec). |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor (Bosch Sensortec). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
+| DRV2605 | Motor driver | Haptic driver for ERM and LRA actuators with I²C interface (Texas Instruments). |
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |
+| FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX711 | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HY3131 | ADC/DAC | HYCON HY3131 50,000-count DMM analog front end driver (SPI). |
+| ICM20948 | IMU | 9-axis MotionTracking device (TDK InvenSense): gyroscope, accelerometer and |
 | IL0373 | Display driver | Black/white e-paper controller (104 x 212 panels such as the |
 | INA219 | Power monitor | 26 V, 12-bit current/voltage/power monitor (Texas Instruments). |
 | INA226 | Power monitor | 36 V, 16-bit current/voltage/power monitor (Texas Instruments). |
@@ -83,12 +93,15 @@ Each chip exposes two structs:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
 | LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
+| MB85RC | Memory | 256 Kbit (32 KiB) I²C FRAM (ferroelectric RAM). |
+| MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC (Microchip). |
 | MCP4728 | ADC/DAC | Quad-channel 12-bit voltage-output DAC (Microchip). |
 | MCP9808 | Temperature sensor | ±0.5°C maximum accuracy digital temperature sensor (Microchip). |
 | MFRC522 | RFID/NFC | 13.56 MHz contactless reader/writer (NXP). |
+| MMA8451Q | Accelerometer | 3-axis MEMS accelerometer (NXP / Freescale). |
 | MPR121 | Other | Proximity capacitive touch sensor controller (Freescale/NXP). |
 | MPU-6050 | IMU | 6-axis MotionTracking device (accelerometer + gyroscope). |
 | MPU-9250 | IMU | 9-axis MotionTracking device (accelerometer + gyroscope + magnetometer). |
@@ -99,6 +112,8 @@ Each chip exposes two structs:
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander (Texas Instruments). |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver (NXP). |
+| PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
+| PCF8579 | Display driver | LCD column driver (NXP), companion of the PCF8578. |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |

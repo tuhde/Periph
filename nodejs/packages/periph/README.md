@@ -32,9 +32,16 @@ Each chip exposes two classes:
 |------|----------|-------------|
 | 23X1024 | Memory | `periph/src/chips/memory/_23x1024` |
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
+| AD5243 | ADC/DAC | `periph/src/chips/adc_dac/ad5243` |
+| AD5248 | ADC/DAC | `periph/src/chips/adc_dac/ad5248` |
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
 | ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
+| ADS1013 | ADC/DAC | `periph/src/chips/adc_dac/ads1013` |
+| ADS1014 | ADC/DAC | `periph/src/chips/adc_dac/ads1014` |
+| ADS1113 | ADC/DAC | `periph/src/chips/adc_dac/ads1113` |
+| ADS1114 | ADC/DAC | `periph/src/chips/adc_dac/ads1114` |
+| ADS1115 | ADC/DAC | `periph/src/chips/adc_dac/ads1115` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
@@ -52,14 +59,17 @@ Each chip exposes two classes:
 | BMP384 | Pressure sensor | `periph/src/chips/pressure/bmp384` |
 | BMP581 | Pressure sensor | `periph/src/chips/pressure/bmp581` |
 | DHT11 | Humidity sensor | `periph/src/chips/humidity/dht11` |
+| DRV2605 | Motor driver | `periph/src/chips/motor/drv2605` |
 | DRV8830 | Motor driver | `periph/src/chips/motor/drv8830` |
 | DS3231 | RTC | `periph/src/chips/rtc/ds3231` |
 | ENS160 | Gas sensor | `periph/src/chips/gas/ens160` |
+| FXOS8700 | Accelerometer | `periph/src/chips/accelerometer/fxos8700` |
 | HMC5883L | Magnetometer | `periph/src/chips/magnetometer/hmc5883l` |
 | HX710A | ADC/DAC | `periph/src/chips/adc_dac/hx710a` |
 | HX710B | ADC/DAC | `periph/src/chips/adc_dac/hx710b` |
 | HX711 | ADC/DAC | `periph/src/chips/adc_dac/hx711` |
 | HY3131 | ADC/DAC | `periph/src/chips/adc_dac/hy3131` |
+| ICM20948 | IMU | `periph/src/chips/imu/icm20948` |
 | IL0373 | Display driver | `periph/src/chips/display/il0373` |
 | INA219 | Power monitor | `periph/src/chips/power/ina219` |
 | INA226 | Power monitor | `periph/src/chips/power/ina226` |
@@ -71,12 +81,15 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | LSM303 | Accelerometer | `periph/src/chips/accelerometer/lsm303` |
+| MB85RC | Memory | `periph/src/chips/memory/mb85rc` |
+| MCP23008 | IO expander | `periph/src/chips/io_expander/mcp23008` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
 | MCP4725 | ADC/DAC | `periph/src/chips/adc_dac/mcp4725` |
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MCP9808 | Temperature sensor | `periph/src/chips/temperature/mcp9808` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
+| MMA8451Q | Accelerometer | `periph/src/chips/accelerometer/mma8451q` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |
@@ -89,6 +102,8 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
+| PCF8578 | Display driver | `periph/src/chips/display/pcf8578` |
+| PCF8579 | Display driver | `periph/src/chips/display/pcf8579` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |

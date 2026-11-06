@@ -1,0 +1,1 @@
+_periph_ads1013.data_rate_sps()

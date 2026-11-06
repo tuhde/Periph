@@ -1,0 +1,116 @@
+[
+    {
+        "id": "tab-ad5243-demo",
+        "type": "tab",
+        "label": "AD5243 Wiper Sweep Demo",
+        "disabled": false,
+        "info": "Two scenarios on one AD5243 dual digital potentiometer. An Inject node ticks every 500 ms into a Function node that sweeps channel 0 through 16 evenly spaced wiper codes (0, 16, ... 240), producing the staircase; the periph-ad5243 node returns {channel, code, resistance} which a Debug node shows. A second Inject node sets channel 1 to a 2.2 kOhm W-B resistance once and a third reads back both channels."
+    },
+    {
+        "id": "inj-sweep",
+        "type": "inject",
+        "name": "Sweep tick (500 ms)",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "0.5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "z": "tab-ad5243-demo",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "fn-sweep"
+            ]
+        ]
+    },
+    {
+        "id": "fn-sweep",
+        "type": "function",
+        "name": "sweep channel 0",
+        "func": "// 16 steps of 16 codes: 0, 16, ... 240, then wrap.\nlet i = context.get('step') || 0;\ncontext.set('step', (i + 1) % 16);\nmsg.payload = { channel: 0, code: i * 16 };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-ad5243-demo",
+        "x": 350,
+        "y": 100,
+        "wires": [
+            [
+                "ad5243-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-rheo",
+        "type": "inject",
+        "name": "Channel 1 = 2.2 kOhm",
+        "topic": "",
+        "payload": "{\"channel\":1,\"ohms\":2200}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5243-demo",
+        "x": 160,
+        "y": 180,
+        "wires": [
+            [
+                "ad5243-node"
+            ]
+        ]
+    },
+    {
+        "id": "inj-read",
+        "type": "inject",
+        "name": "Read both channels",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "z": "tab-ad5243-demo",
+        "x": 160,
+        "y": 240,
+        "wires": [
+            [
+                "ad5243-node"
+            ]
+        ]
+    },
+    {
+        "id": "ad5243-node",
+        "type": "periph-ad5243",
+        "name": "AD5243",
+        "bus": "1",
+        "rab": "10000",
+        "rwiper": "160",
+        "z": "tab-ad5243-demo",
+        "x": 560,
+        "y": 140,
+        "wires": [
+            [
+                "dbg-ad5243"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-ad5243",
+        "type": "debug",
+        "name": "wiper / resistance",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-ad5243-demo",
+        "x": 780,
+        "y": 140,
+        "wires": []
+    }
+]

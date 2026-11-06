@@ -105,17 +105,19 @@ import it.uhde.periph.chips.power.Ina226Minimal
 |------|----------|--------|-----|---------|----------|------|----|-----|--------|
 | 23X1024 | Serial SRAM (1 Mbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | 24AA02UID | 2 Kbit EEPROM with unique ID | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AD5243 | Dual digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
+| AD5243 | Dual digital potentiometer (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD5248 | Dual digital rheostat (256-pos) |  |  |  |  |  |  |  |  |
+| AD5243 | Dual digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
+| AD5248 | Dual digital rheostat (256-pos) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD7705 | 16-bit sigma-delta ADC (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | AD7706 | 16-bit sigma-delta ADC (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADE7953 | Energy meter (2-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| ADS1013 | 12-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1014 | 12-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
+| ADS1013 | 12-bit ADC (1-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1014 | 12-bit ADC (1-ch, PGA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADS1015 | 12-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
-| ADS1113 | 16-bit ADC (1-ch) |  |  |  |  |  |  |  |  |
-| ADS1114 | 16-bit ADC (1-ch, PGA) |  |  |  |  |  |  |  |  |
-| ADS1115 | 16-bit ADC (4-ch) |  |  |  |  |  |  |  |  |
+| ADS1113 | 16-bit ADC (1-ch) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1114 | 16-bit ADC (1-ch, PGA) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| ADS1115 | 16-bit ADC (4-ch) |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADS7828 | 12-bit ADC (8-ch) |  |  |  |  |  |  |  |  |
 | ADXL345 | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ADXL362 | Accelerometer (3-axis, ultra-low power) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -136,19 +138,19 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | CAT5171 | Digital potentiometer (256-pos) |  |  |  |  |  |  |  |  |
 | CS43L22 | Stereo audio DAC with HP/speaker amps |  |  |  |  |  |  |  |  |
 | DHT11 | Temperature/humidity (single-wire) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| DRV2605 | Haptic driver (ERM/LRA) |  |  |  |  |  |  |  |  |
+| DRV2605 | Haptic driver (ERM/LRA) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DRV8830 | DC motor driver (H-bridge) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DS1881 | Digital potentiometer (dual audio taper) |  |  |  |  |  |  |  |  |
 | DS3231 | Real-time clock (TCXO) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | ENS160 | Gas (multi-gas AQI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| FXOS8700 | Accelerometer (3-axis) + magnetometer (3-axis) |  |  |  |  |  |  |  |  |
+| FXOS8700 | Accelerometer (3-axis) + magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HMC5883L | Magnetometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | HX710A | 24-bit ADC (pressure sensor) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX710B | 24-bit ADC (pressure sensor, temperature) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HX711 | 24-bit ADC (load cell) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
 | HY3131 | DMM analog front end (24-bit ADC) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | IL0373 | E-paper display controller (104×212, B/W) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| ICM-20948 | IMU (9-axis) |  |  |  |  |  |  |  |  |
+| ICM-20948 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA219 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA226 | Power monitor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | INA3221 | Power monitor (3-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -159,15 +161,15 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | LPS22DF | Pressure sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS28DFW | Pressure sensor (water-resistant, dual FS) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | LPS33HW | Pressure sensor (water-resistant) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MB85RC | FRAM (256 Kbit) |  |  |  |  |  |  |  |  |
+| MB85RC | FRAM (256 Kbit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP2515 | CAN controller (SPI) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4725 | 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP4728 | Quad 12-bit DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP9808 | Temperature sensor | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MCP23008 | IO expander (8-bit) |  |  |  |  |  |  |  |  |
+| MCP23008 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MCP23017 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MFRC522 | RFID/NFC reader (13.56 MHz) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| MMA8451Q | Accelerometer (3-axis) |  |  |  |  |  |  |  |  |
+| MMA8451Q | Accelerometer (3-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPR121 | Capacitive touch sensor (12-ch) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-6050 | IMU (6-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | MPU-9250 | IMU (9-axis) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -180,8 +182,10 @@ import it.uhde.periph.chips.power.Ina226Minimal
 | PCF8574 | IO expander (8-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8575 | IO expander (16-bit) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8576 | LCD segment driver (40×4) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| PCF8578 | LCD dot-matrix row/column driver |  |  |  |  |  |  |  |  |
+| PCF8578 | LCD dot-matrix row/column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8579 | LCD dot-matrix column driver |  |  |  |  |  |  |  |  |
+| PCF8578 | LCD dot-matrix row/column driver |  |  |  |  |  |  |  |  |
+| PCF8579 | LCD dot-matrix column driver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | PCF8591 | 8-bit ADC (4-ch) + DAC | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RDA5807M | FM stereo radio tuner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | RFM9x (RFM95/96/97/98W) | LoRa transceiver | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
