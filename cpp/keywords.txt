@@ -7,6 +7,8 @@
 # Datatypes (KEYWORD1)
 #######################################
 
+AD5243Full	KEYWORD1
+AD5243Minimal	KEYWORD1
 AD7705Full	KEYWORD1
 AD7705Minimal	KEYWORD1
 AD7706Full	KEYWORD1
@@ -471,9 +473,13 @@ getHysteresis	KEYWORD2
 getLowLimit	KEYWORD2
 getLowerLimit	KEYWORD2
 getOffset	KEYWORD2
+getRatio	KEYWORD2
+getResistance	KEYWORD2
+getResistanceWa	KEYWORD2
 getResolution	KEYWORD2
 getTemperatureOffset	KEYWORD2
 getUpperLimit	KEYWORD2
+getWiper	KEYWORD2
 get_brightness	KEYWORD2
 get_firmware_version	KEYWORD2
 get_gain_calibration	KEYWORD2
@@ -503,6 +509,7 @@ hw_rect	KEYWORD2
 icon	KEYWORD2
 identify	KEYWORD2
 idle_clocks	KEYWORD2
+increment	KEYWORD2
 increment_value	KEYWORD2
 info	KEYWORD2
 init	KEYWORD2
@@ -728,6 +735,7 @@ reset_io	KEYWORD2
 reset_lpf	KEYWORD2
 reset_reference	KEYWORD2
 restore_value	KEYWORD2
+resume	KEYWORD2
 retry_count	KEYWORD2
 return_home	KEYWORD2
 rev_id	KEYWORD2
@@ -766,6 +774,7 @@ setAlarm	KEYWORD2
 setAlarm1	KEYWORD2
 setAlarm2	KEYWORD2
 setAxes	KEYWORD2
+setBoth	KEYWORD2
 setClick	KEYWORD2
 setClockOutput	KEYWORD2
 setCriticalLimit	KEYWORD2
@@ -798,10 +807,14 @@ setPga	KEYWORD2
 setPhaseCalibration	KEYWORD2
 setPlatform	KEYWORD2
 setProfile	KEYWORD2
+setRab	KEYWORD2
 setRange	KEYWORD2
 setRate	KEYWORD2
+setRatio	KEYWORD2
 setReactiveEnergyMode	KEYWORD2
 setReference	KEYWORD2
+setResistance	KEYWORD2
+setResistanceWa	KEYWORD2
 setResolution	KEYWORD2
 setRoi	KEYWORD2
 setRoiCenter	KEYWORD2
@@ -812,6 +825,7 @@ setTimingBudget	KEYWORD2
 setTrace	KEYWORD2
 setUpperLimit	KEYWORD2
 setVcselPulsePeriod	KEYWORD2
+setWiper	KEYWORD2
 set_activity	KEYWORD2
 set_activity_threshold	KEYWORD2
 set_activity_time	KEYWORD2

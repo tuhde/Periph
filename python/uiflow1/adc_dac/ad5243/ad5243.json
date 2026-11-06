@@ -1,0 +1,350 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "ad5243_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init AD5243",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_wiper",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set wiper",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "code (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_code",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_get_wiper",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 wiper code",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_resistance",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set W-B resistance",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_get_resistance",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 W-B resistance (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_both",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set both wipers",
+          "type": "label"
+        },
+        {
+          "name": "channel 0 code",
+          "type": "label"
+        },
+        {
+          "name": "_code1",
+          "type": "number"
+        },
+        {
+          "name": "channel 1 code",
+          "type": "label"
+        },
+        {
+          "name": "_code2",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_ratio",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set ratio",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ratio (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_get_ratio",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 ratio",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_resistance_wa",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set W-A resistance",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "ohms",
+          "type": "label"
+        },
+        {
+          "name": "_ohms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_get_resistance_wa",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 W-A resistance (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_increment",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 step wiper (returns new code)",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        },
+        {
+          "name": "steps",
+          "type": "label"
+        },
+        {
+          "name": "_steps",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_shutdown",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 shutdown",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_resume",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 resume",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_is_shutdown",
+      "type": "value",
+      "params": [
+        {
+          "name": "AD5243 is shut down",
+          "type": "label"
+        },
+        {
+          "name": "channel (0-1)",
+          "type": "label"
+        },
+        {
+          "name": "_channel",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 reset to midscale",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "ad5243_set_rab",
+      "type": "execute",
+      "params": [
+        {
+          "name": "AD5243 set RAB / RW",
+          "type": "label"
+        },
+        {
+          "name": "RAB (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_ab",
+          "type": "number"
+        },
+        {
+          "name": "RW (ohm)",
+          "type": "label"
+        },
+        {
+          "name": "_r_wiper",
+          "type": "number"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ad5243', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            rab:     { value: '10000', required: true },
+            rwiper:  { value: '160', required: true, validate: RED.validators.number() }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'AD5243'; },
+        paletteLabel: 'AD5243'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ad5243">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AD5243">
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label><i class="fa fa-at"></i> I²C address</label>
+        <span>0x2F (fixed, no address pins)</span>
+    </div>
+    <div class="form-row">
+        <label for="node-input-rab"><i class="fa fa-sliders"></i> RAB</label>
+        <select id="node-input-rab" style="width:120px">
+            <option value="2500">2.5 kΩ</option>
+            <option value="10000">10 kΩ</option>
+            <option value="50000">50 kΩ</option>
+            <option value="100000">100 kΩ</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-rwiper"><i class="fa fa-sliders"></i> Wiper RW</label>
+        <input type="number" id="node-input-rwiper" min="0" style="width:80px"> &nbsp;Ω (typ. 160 Ω)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ad5243">
+    <p>Sets and reads the two 256-position wipers of an AD5243 dual I²C digital potentiometer. Wiper values are volatile: both channels power up at midscale (128).</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel <span class="property-type">number</span></dt>
+        <dd>Channel to act on: <code>0</code> or <code>1</code>.</dd>
+        <dt>payload.code <span class="property-type">number</span></dt>
+        <dd>With <code>channel</code>: wiper position 0–255 (clamped).</dd>
+        <dt>payload.ohms <span class="property-type">number</span></dt>
+        <dd>With <code>channel</code> (and no <code>code</code>): target W–B resistance in ohms, set to the nearest code.</dd>
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any other message reads back both channels.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel, payload.code, payload.resistance <span class="property-type">number</span></dt>
+        <dd>After a set: the channel, the wiper code read back, and the resulting W–B resistance in ohms.</dd>
+        <dt>payload.wiper <span class="property-type">number[2]</span></dt>
+        <dd>After any other message: wiper codes of channels 0 and 1.</dd>
+        <dt>payload.resistance <span class="property-type">number[2]</span></dt>
+        <dd>After any other message: W–B resistances (Ω) of channels 0 and 1.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the Linux I²C bus number, the part's end-to-end resistance RAB (2.5, 10, 50 or 100 kΩ, as ordered) and the wiper resistance RW. The address is fixed at 0x2F. Absolute resistance is only accurate to the part's tolerance (±20 %); ratios are exact.</p>
+</script>

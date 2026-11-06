@@ -27,7 +27,7 @@ CHIPS = (
     {"id": "mma8451q", "driver": "mma8451q", "write_sensitive": False, "aliased": False,
      "addresses": (0x1C, 0x1D,),
      "probe": {"register": 0x0D, "reg_bytes": 1, "length": 1, "byte_order": "big", "mask": 0xFF, "expected": (0x1A,)}},
-    {"id": "ad5243", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ad5243", "driver": "ad5243", "write_sensitive": True, "aliased": False,
      "addresses": (0x2F,),
      "probe": None},
     {"id": "ad5248", "driver": None, "write_sensitive": True, "aliased": False,
