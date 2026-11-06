@@ -224,16 +224,20 @@ jobs:
       # old single 8-minute attempt), so each attempt is killed after 3
       # minutes and retried; the step limit covers all three attempts.
       - name: Install arm-none-eabi toolchain
-        timeout-minutes: 12
+        timeout-minutes: 13
         run: |
           APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
           for attempt in 1 2 3; do
-            if timeout 180 bash -c "$APT update && $APT install -y --no-install-recommends \
+            if timeout 200 bash -c "$APT update && $APT install -y --no-install-recommends \
                 cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache"; then
               exit 0
             fi
             echo "attempt $attempt failed, retrying"
-            sleep 10
+            # the runner's default azure.archive.ubuntu.com mirror is what
+            # stalls; fall back to the main archive for the next attempts
+            echo "http://archive.ubuntu.com/ubuntu/ priority:1" | sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+            sudo rm -rf /var/lib/apt/lists/*
+            sleep 5
           done
           exit 1
 
