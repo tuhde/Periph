@@ -38,7 +38,7 @@ public final class DiscoveryRegistry {
         new Chip("rda5807m", "rda5807m", true, false, new int[] {0x10}, null),
         new Chip("pcf8576", "pcf8576", true, false, new int[] {0x38, 0x39}, null),
         new Chip("pcf8578", null, true, false, new int[] {0x3C, 0x3D}, null),
-        new Chip("pcf8579", null, true, false, new int[] {0x3C, 0x3D}, null),
+        new Chip("pcf8579", "pcf8579", true, false, new int[] {0x3C, 0x3D}, null),
         new Chip("sh1106", null, true, false, new int[] {0x3C, 0x3D}, null),
         new Chip("ssd1305", null, true, false, new int[] {0x3C, 0x3D}, null),
         new Chip("uc1611s", "uc1611s", true, false, new int[] {0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F}, null),
