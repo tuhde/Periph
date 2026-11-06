@@ -64,6 +64,7 @@ Each chip exposes two structs:
 | BMP384 | Pressure sensor | High-precision barometric pressure and temperature sensor (Bosch Sensortec). |
 | BMP581 | Pressure sensor | MEMS barometric pressure + temperature sensor (Bosch Sensortec). |
 | DHT11 | Humidity sensor | Combined temperature and humidity sensor (ASAIR / Aosong). |
+| DRV2605 | Motor driver | Haptic driver for ERM and LRA actuators with I²C interface (Texas Instruments). |
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |

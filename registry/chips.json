@@ -852,7 +852,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "drv2605",
       "datasheet": "datasheets/motor/drv2605.pdf"
     },
     {

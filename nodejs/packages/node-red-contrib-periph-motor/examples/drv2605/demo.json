@@ -1,0 +1,162 @@
+[
+    {
+        "id": "tab-drv2605-demo",
+        "type": "tab",
+        "label": "DRV2605 Haptic Demo",
+        "disabled": false,
+        "info": "Haptic feedback on a vibration motor. The first Inject node sends a button-press effect ({effect: 7}, Soft Bump) on click; the second sends a notification sequence ({sequence: [47, [\"wait\", 200], 47]}, two buzzes 200 ms apart); the third sends {rtp: 0.6} for a constant 60 % buzz and, after 1 s, a Function node sends {stop: true}. Every reply from the periph-drv2605 node is shown in a Debug node. Demonstrates click, notification and constant-buzz haptics."
+    },
+    {
+        "id": "inj-click",
+        "type": "inject",
+        "name": "Button press",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"effect\":7}",
+        "payloadType": "json",
+        "z": "tab-drv2605-demo",
+        "x": 150,
+        "y": 80,
+        "wires": [
+            [
+                "drv"
+            ]
+        ]
+    },
+    {
+        "id": "inj-notify",
+        "type": "inject",
+        "name": "Notification",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"sequence\":[47,[\"wait\",200],47]}",
+        "payloadType": "json",
+        "z": "tab-drv2605-demo",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "drv"
+            ]
+        ]
+    },
+    {
+        "id": "inj-buzz",
+        "type": "inject",
+        "name": "Constant buzz",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"rtp\":0.6}",
+        "payloadType": "json",
+        "z": "tab-drv2605-demo",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "drv",
+                "fn-stop"
+            ]
+        ]
+    },
+    {
+        "id": "fn-stop",
+        "type": "function",
+        "name": "stop after 1 s",
+        "func": "setTimeout(function() {\n    node.send({ payload: { stop: true } });\n}, 1000);\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "z": "tab-drv2605-demo",
+        "x": 400,
+        "y": 240,
+        "wires": [
+            [
+                "drv"
+            ]
+        ]
+    },
+    {
+        "id": "inj-status",
+        "type": "inject",
+        "name": "Read status",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"status\":true}",
+        "payloadType": "json",
+        "z": "tab-drv2605-demo",
+        "x": 150,
+        "y": 280,
+        "wires": [
+            [
+                "drv"
+            ]
+        ]
+    },
+    {
+        "id": "drv",
+        "type": "periph-drv2605",
+        "name": "",
+        "bus": "1",
+        "actuator": "erm",
+        "library": "A",
+        "z": "tab-drv2605-demo",
+        "x": 640,
+        "y": 140,
+        "wires": [
+            [
+                "dbg"
+            ]
+        ]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "reply",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "z": "tab-drv2605-demo",
+        "x": 850,
+        "y": 140,
+        "wires": []
+    }
+]
