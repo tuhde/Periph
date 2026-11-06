@@ -79,6 +79,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [APDS9960](light/apds9960/) | light | `apds9960_init`, `apds9960_color_clear`, `apds9960_color_red`, `apds9960_color_green`, `apds9960_color_blue`, `apds9960_enable_proximity`, `apds9960_proximity` |
 | [AS5600](magnetometer/as5600/) | magnetometer | `as5600_init`, `as5600_angle`, `as5600_angle_raw`, `as5600_is_magnet_detected`, `as5600_is_magnet_too_strong`, `as5600_is_magnet_too_weak` |
 | [24AA02UID](memory/24aa02uid/) | memory | `24aa02uid_init`, `24aa02uid_read_uid`, `24aa02uid_read_byte`, `24aa02uid_write_byte` |
+| [MB85RC](memory/mb85rc/) | memory | `mb85rc_init`, `mb85rc_read_byte`, `mb85rc_write_byte`, `mb85rc_read`, `mb85rc_write`, `mb85rc_fill`, `mb85rc_size`, `mb85rc_read_device_id` |
 | [INA219](power/ina219/) | power | `ina219_init`, `ina219_voltage`, `ina219_shunt_voltage`, `ina219_current`, `ina219_power` |
 | [INA226](power/ina226/) | power | `ina226_init`, `ina226_read_voltage`, `ina226_read_current`, `ina226_read_power` |
 | [INA3221](power/ina3221/) | power | `ina3221_init`, `ina3221_read_voltage`, `ina3221_read_current`, `ina3221_read_power` (each takes a `_channel` param) |

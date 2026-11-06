@@ -1,0 +1,78 @@
+[
+    {
+        "id": "tab-mb85rc-demo",
+        "type": "tab",
+        "label": "MB85RC Boot Counter",
+        "disabled": false,
+        "info": "Demonstrates non-volatile FRAM state. Every 5 seconds a function node reads a 4-byte big-endian counter at address 0x0000 through periph-mb85rc, increments it and writes it back (no write delay needed). The Debug node shows the counter, which survives a Node-RED restart or power loss."
+    },
+    {
+        "id": "cfg-mb85rc",
+        "type": "mb85rc-device",
+        "name": "MB85RC",
+        "bus": "1",
+        "address": "50"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 5 s",
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-mb85rc-demo",
+        "x": 130,
+        "y": 120,
+        "wires": [["rd"]]
+    },
+    {
+        "id": "rd",
+        "type": "periph-mb85rc",
+        "name": "Read counter",
+        "device": "cfg-mb85rc",
+        "z": "tab-mb85rc-demo",
+        "x": 310,
+        "y": 120,
+        "wires": [["inc"]]
+    },
+    {
+        "id": "inc",
+        "type": "function",
+        "name": "increment",
+        "func": "const d = msg.payload.data || [0, 0, 0, 0];\nconst n = (((d[0] << 24) >>> 0) + (d[1] << 16) + (d[2] << 8) + d[3] + 1) >>> 0;\nmsg.count = n;\nmsg.payload = { op: 'write', address: 0, data: [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255] };\nreturn msg;",
+        "outputs": 1,
+        "z": "tab-mb85rc-demo",
+        "x": 490,
+        "y": 120,
+        "wires": [["wr"]]
+    },
+    {
+        "id": "wr",
+        "type": "periph-mb85rc",
+        "name": "Write counter",
+        "device": "cfg-mb85rc",
+        "z": "tab-mb85rc-demo",
+        "x": 670,
+        "y": 120,
+        "wires": [["dbg"]]
+    },
+    {
+        "id": "dbg",
+        "type": "debug",
+        "name": "Counter",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "count",
+        "targetType": "msg",
+        "z": "tab-mb85rc-demo",
+        "x": 850,
+        "y": 120,
+        "wires": []
+    }
+]

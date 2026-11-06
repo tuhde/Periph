@@ -831,7 +831,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mb85rc",
       "datasheet": "datasheets/memory/mb85rc.pdf"
     },
     {

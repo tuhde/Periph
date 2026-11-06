@@ -43,7 +43,7 @@ pub fn write_register<I2C: I2c>(
 ) -> Result<(), I2C::Error> {
     let reg_addr = reg_addr_bytes(reg, reg_bytes);
     let n = reg_bytes as usize;
-    let mut buf = [0u8; 20];  // up to 4 addr bytes + up to 16 data bytes
+    let mut buf = [0u8; 36];  // up to 4 addr bytes + up to 32 data bytes
     buf[..n].copy_from_slice(&reg_addr[..n]);
     buf[n..n + data.len()].copy_from_slice(data);
     i2c.write(addr, &buf[..n + data.len()])

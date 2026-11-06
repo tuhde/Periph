@@ -1,0 +1,82 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mb85rc_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MB85RC", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mb85rc_read_byte",
+      "type": "value",
+      "params": [
+        { "name": "MB85RC read byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mb85rc_write_byte",
+      "type": "execute",
+      "params": [
+        { "name": "MB85RC write byte", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "mb85rc_read",
+      "type": "value",
+      "params": [
+        { "name": "MB85RC read (hex string)", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "length", "type": "label" },
+        { "name": "_length", "type": "number" }
+      ]
+    },
+    {
+      "name": "mb85rc_write",
+      "type": "execute",
+      "params": [
+        { "name": "MB85RC write (data hex)", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "data", "type": "label" },
+        { "name": "_data", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mb85rc_fill",
+      "type": "execute",
+      "params": [
+        { "name": "MB85RC fill", "type": "label" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" },
+        { "name": "length", "type": "label" },
+        { "name": "_length", "type": "number" },
+        { "name": "value", "type": "label" },
+        { "name": "_value", "type": "number" }
+      ]
+    },
+    {
+      "name": "mb85rc_size",
+      "type": "value",
+      "params": [{ "name": "MB85RC size (bytes)", "type": "label" }]
+    },
+    {
+      "name": "mb85rc_read_device_id",
+      "type": "value",
+      "params": [{ "name": "MB85RC device ID (hex, empty if unavailable)", "type": "label" }]
+    }
+  ]
+}
