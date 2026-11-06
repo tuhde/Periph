@@ -1,0 +1,87 @@
+//go:build tinygo
+
+// PCF8579 demo — TinyGo / Raspberry Pi Pico W.
+//
+// Configures machine.I2C1 on the Pico W with GP4 = SDA and GP5 = SCL
+// (100 kHz, the chip's maximum). Border, diagonals, inverse flashes and hardware scrolling on a 16 x 24 panel.
+package main
+
+import (
+	"fmt"
+	"machine"
+	"time"
+
+	"github.com/tuhde/Periph/go/periph/chips/display"
+	"github.com/tuhde/Periph/go/periph/connection"
+)
+
+func main() {
+	i2c := machine.I2C1
+	if err := i2c.Configure(machine.I2CConfig{
+		SDA:       machine.GP4,
+		SCL:       machine.GP5,
+		Frequency: 100_000,
+	}); err != nil {
+		panic(err)
+	}
+
+	conn := connection.NewI2CConnection(i2c, 0x3C, nil, nil) // Create I2C connection, (i2c, addr=0x3C) → (*I2CConnection)
+	// --- Initialise a 16 x 40 column driver ---
+	// 1:16 multiplex gives 16 rows and 24 columns; the constructor clears the RAM
+	// before switching the display on so no random start-up pattern is shown.
+	lcd, err := display.NewPCF8579Full(conn, 0, 16, false) // Create PCF8579 driver, (connection, subaddress=0 0–15, rows=16 8/16/24/32, mixed=false) → (*PCF8579Full, error)
+	if err != nil {
+		panic(err)
+	}
+	must := func(err error) {
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// --- Draw a border and both diagonals ---
+	// Lines and rectangles are rendered in the shadow buffer and sent as one
+	// batch of changed bytes per run of columns.
+	must(lcd.DrawRect(0, 0, 40, 16, true, false)) // Draw rectangle outline, (x, y, w, h, on, fill) → error
+	must(lcd.DrawLine(0, 0, 39, 15, true))        // Draw line, (x0, y0, x1, y1, on) → error
+	must(lcd.DrawLine(0, 15, 39, 0, true))        // Draw line, (x0, y0, x1, y1, on) → error
+
+	// --- Flash the display twice with inverse video ---
+	// Inverse video only changes how the RAM is shown, so the picture is kept.
+	for i := 0; i < 2; i++ {
+		must(lcd.SetDisplay(display.PCF8579DisplayInverse)) // Set display status, (status 0–3) → error
+		time.Sleep(400 * time.Millisecond)
+		must(lcd.SetDisplay(display.PCF8579DisplayNormal)) // Set display status, (status 0–3) → error
+		time.Sleep(400 * time.Millisecond)
+	}
+
+	// --- Fill all four RAM banks with distinct patterns ---
+	// At 1:16 only banks 0 and 1 are visible; banks 2 and 3 act as off-screen
+	// buffers that the start bank can scroll into view.
+	patterns := []byte{0x55, 0x33, 0x0F, 0xFF}
+	for bank, p := range patterns {
+		col := make([]byte, 40)
+		for i := range col {
+			col[i] = p
+		}
+		must(lcd.WriteRAM(0, bank, col, display.PCF8579AccessCharacter)) // Write raw RAM, (x 0–39, bank 0–3, data, access) → error
+	}
+
+	// --- Scroll through the banks with the hardware start bank ---
+	// Stepping the start bank scrolls the display by 8 rows without rewriting RAM.
+	for bank := 0; bank < 4; bank++ {
+		must(lcd.SetStartBank(uint8(bank)))                                   // Set start bank, (bank 0–3) → error
+		first, err := lcd.ReadRAM(0, bank, 1, display.PCF8579AccessCharacter) // Read raw RAM, (x 0–39, bank 0–3, n, access) → ([]byte, error)
+		must(err)
+		fmt.Printf("start bank %d first column byte 0x%02X\n", bank, first[0])
+		time.Sleep(time.Second)
+	}
+
+	// --- Read back the first 8 RAM columns of bank 0 ---
+	// Writing a counting pattern and reading it back verifies the bus path.
+	must(lcd.SetStartBank(0))                                                                // Set start bank, (bank 0–3) → error
+	must(lcd.WriteRAM(0, 0, []byte{1, 2, 3, 4, 5, 6, 7, 8}, display.PCF8579AccessCharacter)) // Write raw RAM, (x 0–39, bank 0–3, data, access) → error
+	back, err := lcd.ReadRAM(0, 0, 8, display.PCF8579AccessCharacter)                        // Read raw RAM, (x 0–39, bank 0–3, n, access) → ([]byte, error)
+	must(err)
+	fmt.Println(back)
+}
