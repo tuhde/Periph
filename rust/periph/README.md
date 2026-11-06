@@ -71,6 +71,7 @@ Each chip exposes two structs:
 | DRV8830 | Motor driver | Low-voltage motor driver with I²C interface (Texas Instruments). |
 | DS3231 | RTC | Extremely accurate I²C-integrated RTC/TCXO/crystal (Analog |
 | ENS160 | Gas sensor | Digital multi-gas sensor driver. |
+| FXOS8700 | Accelerometer | 6-axis e-compass: 14-bit accelerometer + 16-bit magnetometer (NXP). |
 | HMC5883L | Magnetometer | 3-axis anisotropic magnetoresistive magnetometer (Honeywell). |
 | HX710A | ADC/DAC | 24-bit ADC (Avia Semiconductor). |
 | HX710B | ADC/DAC | 24-bit ADC (Avia Semiconductor). |

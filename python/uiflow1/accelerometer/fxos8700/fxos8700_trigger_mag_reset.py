@@ -1,0 +1,1 @@
+_periph_fxos8700.trigger_mag_reset()

@@ -1,0 +1,570 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "fxos8700_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init FXOS8700 (I2C bus, address 0x1C-0x1F, default 0x1E = 30)",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_accel_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 acceleration X (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_accel_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 acceleration Y (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_accel_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 acceleration Z (g)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_mag_x",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 magnetic field X (\u00b5T)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_mag_y",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 magnetic field Y (\u00b5T)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_mag_z",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 magnetic field Z (\u00b5T)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_heading",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 tilt-compensated heading (deg), declination deg (declination_deg)",
+          "type": "label"
+        },
+        {
+          "name": "_declination_deg",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_temperature",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 die temperature (\u00b0C, relative)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_new_accel_data",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 new accelerometer data?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_new_mag_data",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 new magnetometer data?",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_system_mode",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 system mode (0=standby, 1=wake, 2=sleep)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set mode (0=accel only, 1=mag only, 2=hybrid) (mode)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_range",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set accelerometer range g (2, 4 or 8) (range_g)",
+          "type": "label"
+        },
+        {
+          "name": "_range_g",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_data_rate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set system data rate Hz (rate_hz)",
+          "type": "label"
+        },
+        {
+          "name": "_rate_hz",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_accel_oversampling",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set accelerometer oversampling (0=normal, 1=low-noise, 2=high-res, 3=low-power) (mode)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_mag_oversampling",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set magnetometer oversampling ratio code (0-7) (ratio)",
+          "type": "label"
+        },
+        {
+          "name": "_ratio",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_low_noise",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set low-noise mode (1=on, 0=off) (enabled)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_standby",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 enter standby",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_activate",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 activate (leave standby)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 software reset (call init afterwards)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_accel_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set accelerometer offset X Y Z (g) (x_g, y_g, z_g)",
+          "type": "label"
+        },
+        {
+          "name": "_x_g",
+          "type": "number"
+        },
+        {
+          "name": "_y_g",
+          "type": "number"
+        },
+        {
+          "name": "_z_g",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_mag_offset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set hard-iron offset X Y Z (\u00b5T) (x_ut, y_ut, z_ut)",
+          "type": "label"
+        },
+        {
+          "name": "_x_ut",
+          "type": "number"
+        },
+        {
+          "name": "_y_ut",
+          "type": "number"
+        },
+        {
+          "name": "_z_ut",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_mag_auto_calibration",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set hard-iron auto-calibration (1=on, 0=off) (enabled)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_reset_mag_min_max",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 reset magnetic min/max tracker",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_trigger_mag_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 trigger one-shot magnetic reset",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_fifo",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set FIFO mode (0=off, 1=circular, 2=fill, 3=trigger) watermark (mode, watermark)",
+          "type": "label"
+        },
+        {
+          "name": "_mode",
+          "type": "number"
+        },
+        {
+          "name": "_watermark",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_fifo_level",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 FIFO level (samples)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_freefall_motion",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set freefall/motion: motion (1=motion, 0=freefall) threshold g debounce ms latch (motion, threshold_g, debounce_ms, latch)",
+          "type": "label"
+        },
+        {
+          "name": "_motion",
+          "type": "number"
+        },
+        {
+          "name": "_threshold_g",
+          "type": "number"
+        },
+        {
+          "name": "_debounce_ms",
+          "type": "number"
+        },
+        {
+          "name": "_latch",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_read_motion_source",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 freefall/motion source register",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_transient",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set transient detector threshold g debounce ms (threshold_g, debounce_ms)",
+          "type": "label"
+        },
+        {
+          "name": "_threshold_g",
+          "type": "number"
+        },
+        {
+          "name": "_debounce_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_read_transient_source",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 transient source register (clears interrupt)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_pulse",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set tap detection single axes double axes (mask X=1 Y=2 Z=4) (single, double)",
+          "type": "label"
+        },
+        {
+          "name": "_single",
+          "type": "number"
+        },
+        {
+          "name": "_double",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_read_pulse_source",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 tap source register (clears interrupt)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_orientation",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set orientation detection debounce ms (debounce_ms)",
+          "type": "label"
+        },
+        {
+          "name": "_debounce_ms",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_orientation",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 orientation (0=portrait up, 1=down, 2=landscape right, 3=left)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_auto_sleep",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set auto-sleep (1=on) rate Hz timeout s wake sources (enabled, sleep_rate_hz, timeout_s, wake_sources)",
+          "type": "label"
+        },
+        {
+          "name": "_enabled",
+          "type": "number"
+        },
+        {
+          "name": "_sleep_rate_hz",
+          "type": "number"
+        },
+        {
+          "name": "_timeout_s",
+          "type": "number"
+        },
+        {
+          "name": "_wake_sources",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_set_interrupt_pins",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 set INT pins active-high open-drain (1=yes) (active_high, open_drain)",
+          "type": "label"
+        },
+        {
+          "name": "_active_high",
+          "type": "number"
+        },
+        {
+          "name": "_open_drain",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_enable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 enable interrupt source on INT pin (source, pin)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        },
+        {
+          "name": "_pin",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_disable_interrupt",
+      "type": "execute",
+      "params": [
+        {
+          "name": "FXOS8700 disable interrupt source (source)",
+          "type": "label"
+        },
+        {
+          "name": "_source",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_poll_interrupt",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 interrupt status (clears pending sources)",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "fxos8700_self_test",
+      "type": "value",
+      "params": [
+        {
+          "name": "FXOS8700 accelerometer self-test passed?",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}

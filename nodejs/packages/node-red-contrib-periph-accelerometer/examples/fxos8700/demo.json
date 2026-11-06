@@ -1,0 +1,100 @@
+[
+    {
+        "id": "tab-fxos8700-demo",
+        "type": "tab",
+        "label": "FXOS8700 E-Compass",
+        "disabled": false,
+        "info": "An e-compass: an inject node triggers the FXOS8700 every 200 ms. The chip runs in hybrid mode, so one 12-byte burst returns acceleration and magnetic field; the driver computes a tilt-compensated heading. A function node formats the heading as a compass point (N, NE, ...) and reports the board's pitch and roll derived from the acceleration vector, and a debug node shows the result. Rotate and tilt the board and watch the heading follow while the compass point updates. Adjust the I²C bus, address and magnetic declination in the device config node to match the wiring and your location."
+    },
+    {
+        "id": "cfg-fxos8700",
+        "type": "fxos8700-device",
+        "name": "FXOS8700",
+        "bus": "1",
+        "address": "0x1E",
+        "range": "2",
+        "dataRate": "200",
+        "declination": "3"
+    },
+    {
+        "id": "inj-tick",
+        "type": "inject",
+        "name": "every 200 ms",
+        "repeat": "0.2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "z": "tab-fxos8700-demo",
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "read-fxos8700"
+            ]
+        ]
+    },
+    {
+        "id": "read-fxos8700",
+        "type": "periph-fxos8700",
+        "name": "FXOS8700 read",
+        "device": "cfg-fxos8700",
+        "z": "tab-fxos8700-demo",
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "fn-compass",
+                "dbg-raw"
+            ]
+        ]
+    },
+    {
+        "id": "fn-compass",
+        "type": "function",
+        "name": "compass point",
+        "func": "const {accel, mag, heading, temperature} = msg.payload;\nconst points = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];\nconst idx = Math.floor((heading + 11.25) / 22.5) % 16;\nconst roll = Math.atan2(accel.y, accel.z) * 180 / Math.PI;\nconst pitch = Math.atan2(-accel.x, Math.hypot(accel.y, accel.z)) * 180 / Math.PI;\nmsg.payload = {\n    heading: heading,\n    point: points[idx],\n    pitch: pitch,\n    roll: roll,\n    temperature: temperature\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "z": "tab-fxos8700-demo",
+        "x": 550,
+        "y": 100,
+        "wires": [
+            [
+                "dbg-compass"
+            ]
+        ]
+    },
+    {
+        "id": "dbg-raw",
+        "type": "debug",
+        "name": "accel + mag",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-fxos8700-demo",
+        "x": 560,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "dbg-compass",
+        "type": "debug",
+        "name": "heading + tilt",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "z": "tab-fxos8700-demo",
+        "x": 780,
+        "y": 100,
+        "wires": []
+    }
+]

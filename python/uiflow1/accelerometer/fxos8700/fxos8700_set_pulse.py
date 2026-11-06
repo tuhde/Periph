@@ -1,0 +1,1 @@
+_periph_fxos8700.set_pulse(single=int(${_single}), double=int(${_double}))
