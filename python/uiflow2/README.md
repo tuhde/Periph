@@ -50,6 +50,7 @@ uiflow2/
 | [RDA5807M](comms/rda5807m/) | comms | init, `set_frequency`, `frequency`, `set_volume`, `mute`, `seek` |
 | [PCF8576](display/pcf8576/) | display | init, `clear`, `set_digit` |
 | [PCF8578](display/pcf8578/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `device_select`, `reset` |
+| [PCF8579](display/pcf8579/) | display | init, `clear`, `set_pixel`, `get_pixel`, `write_column`, `fill`, `draw_line`, `draw_rect`, `set_display`, `set_mode`, `set_start_bank`, `scroll`, `reset` |
 | [AHT21](environmental/aht21/) | environmental | init, `read_temperature`, `read_humidity` |
 | [BME280](environmental/bme280/) | environmental | init, `temperature`, `pressure`, `humidity` |
 | [BME680](environmental/bme680/) | environmental | init, `temperature`, `pressure`, `humidity`, `gas_resistance` |

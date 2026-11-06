@@ -66,6 +66,7 @@ arguments. Every wrapped method already exists on the underlying driver in
 | [RFM9x](comms/rfm9x/) | comms | `rfm9x_init`, `rfm9x_send`, `rfm9x_receive`, `rfm9x_configure`, `rfm9x_set_tx_power`, `rfm9x_last_packet_rssi`, `rfm9x_last_packet_snr`, `rfm9x_sleep` |
 | [PCF8576](display/pcf8576/) | display | `pcf8576_init`, `pcf8576_clear`, `pcf8576_set_digit` |
 | [PCF8578](display/pcf8578/) | display | `pcf8578_init`, `pcf8578_clear`, `pcf8578_set_pixel`, `pcf8578_get_pixel`, `pcf8578_write_column`, `pcf8578_fill`, `pcf8578_draw_line`, `pcf8578_draw_rect`, `pcf8578_set_display`, `pcf8578_set_mode`, `pcf8578_set_start_bank`, `pcf8578_scroll`, `pcf8578_device_select`, `pcf8578_reset` |
+| [PCF8579](display/pcf8579/) | display | `pcf8579_init`, `pcf8579_clear`, `pcf8579_set_pixel`, `pcf8579_get_pixel`, `pcf8579_write_column`, `pcf8579_fill`, `pcf8579_draw_line`, `pcf8579_draw_rect`, `pcf8579_set_display`, `pcf8579_set_mode`, `pcf8579_set_start_bank`, `pcf8579_scroll`, `pcf8579_reset` |
 | [AHT21](environmental/aht21/) | environmental | `aht21_init`, `aht21_read_temperature`, `aht21_read_humidity` |
 | [BME280](environmental/bme280/) | environmental | `bme280_init`, `bme280_temperature`, `bme280_pressure`, `bme280_humidity` |
 | [BME680](environmental/bme680/) | environmental | `bme680_init`, `bme680_temperature`, `bme680_pressure`, `bme680_humidity`, `bme680_gas_resistance` |

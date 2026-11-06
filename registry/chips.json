@@ -397,7 +397,7 @@
       ],
       "id_probe": null,
       "probe_safety": "write_sensitive",
-      "driver": null,
+      "driver": "pcf8579",
       "datasheet": "datasheets/display/pcf8579.pdf"
     },
     {
