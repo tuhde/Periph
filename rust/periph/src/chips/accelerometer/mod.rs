@@ -83,6 +83,8 @@ pub use mma8451q::{
     SOURCE_TRANSIENT as MMA8451Q_SOURCE_TRANSIENT,
     SOURCE_FIFO as MMA8451Q_SOURCE_FIFO,
     SOURCE_AUTO_SLEEP as MMA8451Q_SOURCE_AUTO_SLEEP,
+};
+
 pub mod fxos8700;
 pub use fxos8700::{
     Fxos8700Minimal, Fxos8700Full, PulseConfig as Fxos8700PulseConfig,
