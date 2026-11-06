@@ -12,3 +12,5 @@ pub mod st7036;
 pub use st7036::{St7036Minimal, St7036Full};
 pub mod uc1611s;
 pub use uc1611s::{Uc1611sMinimal, Uc1611sFull};
+pub mod pcf8579;
+pub use pcf8579::{Pcf8579Minimal, Pcf8579Full};
