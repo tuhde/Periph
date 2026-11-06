@@ -1,6 +1,6 @@
 [package]
 name = "periph"
-version = "1.3.2"
+version = "1.3.3"
 edition = "2021"
 readme = "README.md"
 description = "Multi-language peripheral driver library for SPI, I2C, and other transports"
