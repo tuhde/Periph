@@ -220,13 +220,22 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      # apt mirrors stall intermittently (three PRs failed this step with the
+      # old single 8-minute attempt), so each attempt is killed after 3
+      # minutes and retried; the step limit covers all three attempts.
       - name: Install arm-none-eabi toolchain
-        timeout-minutes: 8
+        timeout-minutes: 12
         run: |
           APT="sudo apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          $APT update
-          $APT install -y --no-install-recommends \
-            cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache
+          for attempt in 1 2 3; do
+            if timeout 180 bash -c "$APT update && $APT install -y --no-install-recommends \
+                cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib ccache"; then
+              exit 0
+            fi
+            echo "attempt $attempt failed, retrying"
+            sleep 10
+          done
+          exit 1
 
       - name: Fetch STM32CubeF4 (Drivers/CMSIS + HAL driver + FatFs)
         timeout-minutes: 5
@@ -469,6 +478,10 @@ jobs:
           key: zephyr-${{ env.ZEPHYR_VERSION }}-rpi-pico2
 
       - name: Set up Zephyr
+        env:
+          # west sdk install queries the GitHub API; unauthenticated calls from
+          # shared runner IPs hit the 60/h rate limit (403).
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           if [ ! -d ~/zephyrproject/.west ]; then
             west init -m https://github.com/zephyrproject-rtos/zephyr --mr "$ZEPHYR_VERSION" ~/zephyrproject
