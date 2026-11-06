@@ -1,0 +1,110 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('pcf8579-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '3C', required: true },
+            subaddress: { value: '0', required: true, validate: RED.validators.number() },
+            rows:    { value: '16', required: true, validate: RED.validators.number() },
+            mixed:   { value: 'false' }
+        },
+        label: function() {
+            return this.name || ('PCF8579 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="pcf8579-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="PCF8579">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">I²C address (hex)</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="3C">0x3C (SA0 = VSS)</option>
+            <option value="3D">0x3D (SA0 = VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-subaddress">Subaddress (A3:A0)</label>
+        <input type="number" id="node-config-input-subaddress" min="0" max="15" style="width:80px">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rows">Rows</label>
+        <select id="node-config-input-rows" style="width:180px">
+            <option value="8">8 rows (1:8)</option>
+            <option value="16" selected>16 rows (1:16)</option>
+            <option value="24">24 rows (1:24)</option>
+            <option value="32">32 rows (1:32)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-mixed">PCF8578 mode</label>
+        <select id="node-config-input-mixed" style="width:180px">
+            <option value="false" selected>Row driver</option>
+            <option value="true">Mixed mode</option>
+        </select>
+    </div>
+</script>
+
+<!-- Input node: message → draw on the display -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-pcf8579', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'pcf8579-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-th',
+        label:   function() { return this.name || 'PCF8579'; },
+        paletteLabel: 'PCF8579'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-pcf8579">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="PCF8579">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-pcf8579">
+    <p>Draws into the display RAM of a PCF8579 LCD column driver over I²C. The PCF8579 cannot run alone: a PCF8578 (or an equivalent source) must supply the clock, frame sync and row waveforms. Any incoming message triggers the writes described below. The device is configured via a <b>pcf8579-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.clear <span class="property-type">boolean</span></dt>
+        <dd>When true, clears this device's display RAM.</dd>
+        <dt>payload.pixel <span class="property-type">object</span></dt>
+        <dd><code>{ x, y, on }</code> sets (<code>on</code> true or omitted) or clears one pixel at column <code>x</code> (0–39), row <code>y</code>.</dd>
+        <dt>payload.columns <span class="property-type">object</span></dt>
+        <dd><code>{ x, bank, data: [b0, b1, …] }</code> writes column bytes in character mode at column <code>x</code> (0–39) of bank <code>bank</code> (bit 0 = top row of the bank).</dd>
+        <dt>payload.display <span class="property-type">string</span></dt>
+        <dd><code>"blank"</code>, <code>"normal"</code>, <code>"all_on"</code> or <code>"inverse"</code>; the RAM is preserved. Affects every device on the I²C address.</dd>
+        <dt>payload.scroll <span class="property-type">number</span></dt>
+        <dd>Adds N (may be negative) to the start bank for hardware vertical scrolling in 8-row steps.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Pass-through of the original incoming message after the writes succeed.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the 7-bit address (0x3C for SA0=VSS or 0x3D for SA0=VDD), the hardware subaddress set on pins A3:A0 (0–15), the number of rows (8, 16, 24 or 32) and the PCF8578 mode (row driver or mixed mode) in the device config node. All devices on one bus must use the same rows and mode. The chip supports 100 kHz at most.</p>
+</script>
