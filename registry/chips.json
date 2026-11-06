@@ -241,7 +241,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1013",
       "datasheet": "datasheets/adc_dac/ads1015.pdf"
     },
     {
@@ -253,7 +253,7 @@
       ],
       "id_probe": null,
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "ads1014",
       "datasheet": "datasheets/adc_dac/ads1015.pdf"
     },
     {

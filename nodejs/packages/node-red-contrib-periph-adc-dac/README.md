@@ -21,6 +21,8 @@ npm install node-red-contrib-periph-adc-dac
 | `periph-ad7705` | input | Reads voltage from a 2-channel, 16-bit sigma-delta AD7705 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO). |
 | `ad7706-device` | config | Bus configuration for an AD7706 |
 | `periph-ad7706` | input | Reads voltage from a 3-channel, 16-bit sigma-delta AD7706 ADC over SPI. The driver uses the chip's two-phase register-access protocol and polls DRDY over SPI, so only SCLK/DIN/DOUT/CS are needed (no dedicated DRDY GPIO). All three channels share a single COMMON reference pin. |
+| `periph-ads1013` | input | Reads the voltage AIN0 − AIN1 from an ADS1013 12-bit ADC over I²C using a single-shot conversion. |
+| `periph-ads1014` | input | Reads the voltage AIN0 − AIN1 from an ADS1014 12-bit ADC over I²C using a single-shot conversion. |
 | `periph-hx710a` | input | Reads weight from an HX710A 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's on-chip temperature sensor as a raw ADC code. |
 | `periph-hx710b` | input | Reads weight from an HX710B 24-bit ADC connected to a load cell via two GPIO pins. Also exposes the chip's DVDD-AVDD supply-voltage-difference channel as a raw ADC code for battery-monitoring applications. |
 | `periph-hx711` | input | Reads weight from an HX711 24-bit ADC connected to a load cell via two GPIO pins. |

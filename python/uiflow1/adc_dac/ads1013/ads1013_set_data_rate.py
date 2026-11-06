@@ -1,0 +1,1 @@
+_periph_ads1013.set_data_rate(${_dr})

@@ -41,6 +41,14 @@
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7706.py"
     ],
     [
+      "periph/chips/adc_dac/ads1013.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1013.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1014.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1014.py"
+    ],
+    [
       "periph/chips/adc_dac/hx710a.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/hx710a.py"
     ],

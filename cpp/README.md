@@ -46,6 +46,8 @@ Each chip exposes two classes:
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
 | AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
+| ADS1013 | ADC/DAC | `chips/adc_dac/ADS1013.h` |
+| ADS1014 | ADC/DAC | `chips/adc_dac/ADS1014.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
