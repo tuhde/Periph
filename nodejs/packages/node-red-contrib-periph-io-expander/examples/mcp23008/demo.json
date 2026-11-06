@@ -1,0 +1,179 @@
+[
+  {
+    "id": "tab_mcp23008_demo",
+    "type": "tab",
+    "label": "MCP23008 Demo",
+    "info": "Output control and input polling on the MCP23008 (I²C) / MCP23S08 (SPI) 8-bit IO expander.\n\nHardware:\n- GP0–GP3: four LEDs (anode through 220 Ω, cathode to GND; active-high)\n- GP4–GP7: push buttons to GND (internal pull-ups enabled in the driver's Full configuration)\n\nHow it works:\n1. An Inject node every 200 ms feeds a Function node that writes a rotating one-hot pattern to the LEDs (GP0→GP3), one pin at a time.\n2. A second Inject node reads the full 8-bit port every second; a Function node formats the hex value for a Debug node.\n3. A third Inject node reads GP4 (a button input); a Debug node shows the 0/1 level.\n\nSwitch the node's transport between I²C and SPI in its config panel; the flow is otherwise identical.\n\nTo observe: watch the LEDs chase and press the buttons; the port value changes in the debug sidebar."
+  },
+  {
+    "id": "inj_rotate",
+    "type": "inject",
+    "z": "tab_mcp23008_demo",
+    "name": "Rotate 200ms",
+    "repeat": "0.2",
+    "payload": "",
+    "payloadType": "date",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 60,
+    "wires": [
+      [
+        "fn_rotate"
+      ]
+    ]
+  },
+  {
+    "id": "fn_rotate",
+    "type": "function",
+    "z": "tab_mcp23008_demo",
+    "name": "One-hot pattern",
+    "func": "const i = Math.floor(Date.now() / 200) % 4;\nconst prev = (i + 3) % 4;\nreturn [[{ payload: { pin: prev, value: 0 } }, { payload: { pin: i, value: 1 } }]];",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 330,
+    "y": 60,
+    "wires": [
+      [
+        "mcp_write"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_write",
+    "type": "periph-mcp23008",
+    "z": "tab_mcp23008_demo",
+    "name": "Write LEDs",
+    "transport": "i2c",
+    "bus": "1",
+    "address": "20",
+    "spiDevice": "0",
+    "spiAddr": "0",
+    "gpioChip": "0",
+    "intPin": "",
+    "intMask": "F0",
+    "x": 560,
+    "y": 60,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "inj_port",
+    "type": "inject",
+    "z": "tab_mcp23008_demo",
+    "name": "Read port 1s",
+    "repeat": "1",
+    "payload": "{\"port\":0}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 160,
+    "wires": [
+      [
+        "mcp_port"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_port",
+    "type": "periph-mcp23008",
+    "z": "tab_mcp23008_demo",
+    "name": "Read port",
+    "transport": "i2c",
+    "bus": "1",
+    "address": "20",
+    "spiDevice": "0",
+    "spiAddr": "0",
+    "gpioChip": "0",
+    "intPin": "",
+    "intMask": "F0",
+    "x": 330,
+    "y": 160,
+    "wires": [
+      [
+        "fn_hex"
+      ]
+    ]
+  },
+  {
+    "id": "fn_hex",
+    "type": "function",
+    "z": "tab_mcp23008_demo",
+    "name": "Format hex",
+    "func": "msg.payload = 'GPIO=0x' + msg.payload.value.toString(16).padStart(2, '0');\nreturn msg;",
+    "outputs": 1,
+    "noerr": 0,
+    "x": 540,
+    "y": 160,
+    "wires": [
+      [
+        "dbg_port"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_port",
+    "type": "debug",
+    "z": "tab_mcp23008_demo",
+    "name": "Port value",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 740,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "inj_btn",
+    "type": "inject",
+    "z": "tab_mcp23008_demo",
+    "name": "Read GP4 500ms",
+    "repeat": "0.5",
+    "payload": "{\"pin\":4}",
+    "payloadType": "json",
+    "topic": "",
+    "once": false,
+    "x": 120,
+    "y": 260,
+    "wires": [
+      [
+        "mcp_btn"
+      ]
+    ]
+  },
+  {
+    "id": "mcp_btn",
+    "type": "periph-mcp23008",
+    "z": "tab_mcp23008_demo",
+    "name": "Read GP4",
+    "transport": "i2c",
+    "bus": "1",
+    "address": "20",
+    "spiDevice": "0",
+    "spiAddr": "0",
+    "gpioChip": "0",
+    "intPin": "",
+    "intMask": "F0",
+    "x": 330,
+    "y": 260,
+    "wires": [
+      [
+        "dbg_btn"
+      ]
+    ]
+  },
+  {
+    "id": "dbg_btn",
+    "type": "debug",
+    "z": "tab_mcp23008_demo",
+    "name": "GP4 level",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "x": 540,
+    "y": 260,
+    "wires": []
+  }
+]

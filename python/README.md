@@ -95,6 +95,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
 | LSM303 | Accelerometer | Acceleration and magnetic field. |
+| MCP23008 | IO expander | 8-bit I/O port expander (I²C) |
 | MCP23017 | IO expander | 16-bit I/O port expander |
 | MCP2515 | Comms | Send/recv with default configuration. |
 | MCP4725 | ADC/DAC | Single-channel 12-bit voltage-output DAC |

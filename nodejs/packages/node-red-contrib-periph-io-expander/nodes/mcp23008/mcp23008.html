@@ -1,0 +1,112 @@
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mcp23008', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:      { value: '' },
+            transport: { value: 'i2c' },
+            bus:       { value: '1',  required: true, validate: RED.validators.number() },
+            address:   { value: '20' },
+            spiDevice: { value: '0' },
+            spiAddr:   { value: '0' },
+            gpioChip:  { value: '0' },
+            intPin:    { value: '' },
+            intMask:   { value: 'F0' }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-microchip',
+        label:   function() {
+            return this.name || (this.transport === 'spi'
+                ? ('MCP23S08 @ ' + this.spiAddr + ' (spi ' + this.bus + '.' + this.spiDevice + ')')
+                : ('MCP23008 @ 0x' + this.address + ' (bus ' + this.bus + ')'));
+        },
+        paletteLabel: 'MCP23008',
+        oneditprepare: function() {
+            function sync() {
+                const spi = $('#node-input-transport').val() === 'spi';
+                $('.mcp-i2c').toggle(!spi);
+                $('.mcp-spi').toggle(spi);
+            }
+            $('#node-input-transport').on('change', sync);
+            sync();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mcp23008">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MCP23008">
+    </div>
+    <div class="form-row">
+        <label for="node-input-transport">Transport</label>
+        <select id="node-input-transport">
+            <option value="i2c">I²C (MCP23008)</option>
+            <option value="spi">SPI (MCP23S08)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-bus"><i class="fa fa-microchip"></i> Bus</label>
+        <input type="number" id="node-input-bus" min="0" style="width:80px"> &nbsp;(<span class="mcp-i2c">/dev/i2c-N</span><span class="mcp-spi">/dev/spidevN.M</span>)
+    </div>
+    <div class="form-row mcp-i2c">
+        <label for="node-input-address">Address (hex)</label>
+        <input type="text" id="node-input-address" placeholder="20" style="width:80px">
+        &nbsp;0x20–0x27
+    </div>
+    <div class="form-row mcp-spi">
+        <label for="node-input-spiDevice">Chip select</label>
+        <input type="number" id="node-input-spiDevice" min="0" style="width:80px"> &nbsp;(spidevN.<i>M</i>)
+    </div>
+    <div class="form-row mcp-spi">
+        <label for="node-input-spiAddr">Device address</label>
+        <input type="number" id="node-input-spiAddr" min="0" max="3" style="width:80px"> &nbsp;A1:A0 pins, 0–3
+    </div>
+    <div class="form-row">
+        <label for="node-input-gpioChip">GPIO chip</label>
+        <input type="number" id="node-input-gpioChip" min="0" style="width:80px"> &nbsp;(for the optional INT line)
+    </div>
+    <div class="form-row">
+        <label for="node-input-intPin">INT GPIO line</label>
+        <input type="number" id="node-input-intPin" min="0" style="width:80px" placeholder="none">
+    </div>
+    <div class="form-row">
+        <label for="node-input-intMask">INT pin mask (hex)</label>
+        <input type="text" id="node-input-intMask" placeholder="F0" style="width:80px"> &nbsp;pins armed for interrupt-on-change (pull-ups enabled)
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mcp23008">
+    <p>Controls and reads an 8-bit MCP23008 (I²C) or MCP23S08 (SPI) I/O expander. Both chips share one register map and one node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">object</span></dt>
+        <dd>
+            <code>{ pin: N, value: 0|1 }</code> — set output pin N (0–7); the pin is switched to output first.<br>
+            <code>{ pin: N }</code> — read pin N; reply sent on output.<br>
+            <code>{ port: 0 }</code> — read all 8 pins; reply sent on output.
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.pin <span class="property-type">number</span></dt>
+        <dd>Pin index (0–7), present when reading a single pin.</dd>
+        <dt>payload.value <span class="property-type">number</span></dt>
+        <dd>Logic level (0 or 1) when reading a pin; 8-bit bitmask when reading the port.</dd>
+        <dt>payload.port <span class="property-type">number</span></dt>
+        <dd>Always 0 (the chip has a single port), present when reading the full port.</dd>
+        <dt>payload.interrupt / payload.capture <span class="property-type">number</span></dt>
+        <dd>Only when an INT GPIO line is configured: the INTF mask of the pins that changed and the INTCAP port snapshot.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p><b>I²C:</b> bus number (Linux <code>/dev/i2c-N</code>) and 7-bit address in hex (default <code>20</code>, range <code>20</code>–<code>27</code>).
+    <b>SPI:</b> bus number, chip-select (<code>/dev/spidevN.M</code>) and the hardware device address 0–3 (A1:A0 pins; up to four devices share one chip select).
+    The optional <b>INT GPIO line</b> (with GPIO chip number) enables interrupt-on-change for the pins in the mask, with pull-ups; the line is sampled every 5 ms.</p>
+
+    <h3>Notes</h3>
+    <p>All eight pins (GP0–GP7) are bidirectional. Pins start as inputs; writing a value switches the pin to output.</p>
+</script>
