@@ -78,6 +78,7 @@ Each chip exposes two classes:
 | MCP4728 | ADC/DAC | `periph/src/chips/adc_dac/mcp4728` |
 | MCP9808 | Temperature sensor | `periph/src/chips/temperature/mcp9808` |
 | MFRC522 | RFID/NFC | `periph/src/chips/rfid/mfrc522` |
+| MMA8451Q | Accelerometer | `periph/src/chips/accelerometer/mma8451q` |
 | MPR121 | Other | `periph/src/chips/other/mpr121` |
 | MPU6050 | IMU | `periph/src/chips/imu/mpu6050` |
 | MPU9250 | IMU | `periph/src/chips/imu/mpu9250` |

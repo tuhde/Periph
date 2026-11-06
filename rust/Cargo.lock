@@ -1223,17 +1223,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "hy3131_test"
-version = "0.1.0"
-dependencies = [
- "embedded-hal 1.0.0",
- "embedded-hal-bus",
- "linux-embedded-hal",
- "periph",
- "spidev",
-]
-
-[[package]]
 name = "i2cdev"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1942,6 +1931,38 @@ dependencies = [
  "linux-embedded-hal",
  "periph",
  "spidev",
+]
+
+[[package]]
+name = "mma8451q_complete"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mma8451q_demo"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mma8451q_minimal"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
+]
+
+[[package]]
+name = "mma8451q_test"
+version = "0.1.0"
+dependencies = [
+ "linux-embedded-hal",
+ "periph",
 ]
 
 [[package]]

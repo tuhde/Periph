@@ -160,7 +160,7 @@
         ]
       },
       "probe_safety": "register_pointer",
-      "driver": null,
+      "driver": "mma8451q",
       "datasheet": "datasheets/accelerometer/mma845x.pdf"
     },
     {

@@ -17,7 +17,8 @@
       "bma150": "nodes/bma150/bma150.js",
       "bma180": "nodes/bma180/bma180.js",
       "lis3dh": "nodes/lis3dh/lis3dh.js",
-      "lsm303": "nodes/lsm303/lsm303.js"
+      "lsm303": "nodes/lsm303/lsm303.js",
+      "mma8451q": "nodes/mma8451q/mma8451q.js"
     }
   },
   "dependencies": {

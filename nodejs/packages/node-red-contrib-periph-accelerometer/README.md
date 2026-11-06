@@ -28,6 +28,8 @@ npm install node-red-contrib-periph-accelerometer
 | `periph-lis3dh` | input | Reads 3-axis acceleration and the relative on-chip temperature from a LIS3DH 3-axis accelerometer over I²C. |
 | `lsm303-device` | config | Bus configuration for a LSM303 |
 | `lsm303` | input | Reads 3-axis acceleration, 3-axis magnetic flux density and the compass heading from an LSM303 3-axis accelerometer + magnetometer e-compass over I²C. |
+| `mma8451q-device` | config | I²C bus and address for a MMA8451Q |
+| `periph-mma8451q` | input | Reads 3-axis acceleration and the hardware orientation detection from an MMA8451Q 3-axis accelerometer over I²C. |
 
 ## Links
 

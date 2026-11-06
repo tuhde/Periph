@@ -1,0 +1,402 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "mma8451q_init",
+      "type": "execute",
+      "params": [
+        { "name": "Init MMA8451Q", "type": "label" },
+        { "name": "I2C bus", "type": "label" },
+        { "name": "_bus", "type": "number" },
+        { "name": "address", "type": "label" },
+        { "name": "_address", "type": "number" }
+      ]
+    },
+    {
+      "name": "mma8451q_x",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_y",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_z",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_raw_x",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q raw X (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_raw_y",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q raw Y (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_raw_z",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q raw Z (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_new_data_available",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q new data available (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_status",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q STATUS byte", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_system_mode",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q system mode (0=standby, 1=wake, 2=sleep)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_get_offset_x",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q X offset (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_get_offset_y",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q Y offset (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_get_offset_z",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q Z offset (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_fifo_level",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO level (0-32)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_status_overflow",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO overflow (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_status_watermark",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO watermark reached (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_status_count",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO sample count (0-32)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_x",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO acceleration X (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_y",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO acceleration Y (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_fifo_z",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q FIFO acceleration Z (g)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_motion_source",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q freefall / motion source byte", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_transient_source",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q transient source byte", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_pulse_source",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q tap source byte", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_orientation_changed",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q orientation changed (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_orientation_lockout",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q orientation lockout (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_orientation_lapo",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q portrait / landscape (0-3)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_read_orientation_back",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q back facing (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_poll_interrupt",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q interrupt status byte", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_self_test_ok",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q self-test passed (1/0)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_self_test_dx",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q self-test X delta (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_self_test_dy",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q self-test Y delta (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_self_test_dz",
+      "type": "value",
+      "params": [{ "name": "MMA8451Q self-test Z delta (counts)", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_set_range",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set range (g) — 2, 4, or 8", "type": "label" },
+        { "name": "_range_g", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_data_rate",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set data rate (Hz) — 800, 400, 200, 100, 50, 12.5, 6.25, 1.56", "type": "label" },
+        { "name": "_rate_hz", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_oversampling",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set oversampling mode (0-3)", "type": "label" },
+        { "name": "_mode", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_low_noise",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set low-noise mode (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_resolution",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set resolution (bits) — 8 or 14", "type": "label" },
+        { "name": "_bits", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_high_pass_output",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set high-pass output (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "variable" },
+        { "name": "cutoff (0-3)", "type": "label" },
+        { "name": "_cutoff", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_offset",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set offsets (g)", "type": "label" },
+        { "name": "X", "type": "label" },
+        { "name": "_x_g", "type": "variable" },
+        { "name": "Y", "type": "label" },
+        { "name": "_y_g", "type": "variable" },
+        { "name": "Z", "type": "label" },
+        { "name": "_z_g", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_fifo",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set FIFO mode (0-3)", "type": "label" },
+        { "name": "_mode", "type": "variable" },
+        { "name": "watermark (0-32)", "type": "label" },
+        { "name": "_watermark", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_fifo_trigger",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set FIFO trigger sources (1/0 each)", "type": "label" },
+        { "name": "transient", "type": "label" },
+        { "name": "_transient", "type": "variable" },
+        { "name": "orientation", "type": "label" },
+        { "name": "_orientation", "type": "variable" },
+        { "name": "pulse", "type": "label" },
+        { "name": "_pulse", "type": "variable" },
+        { "name": "motion", "type": "label" },
+        { "name": "_motion", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_freefall_motion",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set freefall / motion", "type": "label" },
+        { "name": "motion (1/0)", "type": "label" },
+        { "name": "_motion", "type": "variable" },
+        { "name": "axes mask (0-7)", "type": "label" },
+        { "name": "_axes", "type": "variable" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "variable" },
+        { "name": "debounce (ms)", "type": "label" },
+        { "name": "_debounce_ms", "type": "variable" },
+        { "name": "latch (1/0)", "type": "label" },
+        { "name": "_latch", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_transient",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set transient detector", "type": "label" },
+        { "name": "axes mask (0-7)", "type": "label" },
+        { "name": "_axes", "type": "variable" },
+        { "name": "threshold (g)", "type": "label" },
+        { "name": "_threshold_g", "type": "variable" },
+        { "name": "debounce (ms)", "type": "label" },
+        { "name": "_debounce_ms", "type": "variable" },
+        { "name": "bypass HPF (1/0)", "type": "label" },
+        { "name": "_bypass_hpf", "type": "variable" },
+        { "name": "latch (1/0)", "type": "label" },
+        { "name": "_latch", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_pulse",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set tap detector", "type": "label" },
+        { "name": "single mask (0-7)", "type": "label" },
+        { "name": "_single", "type": "variable" },
+        { "name": "double mask (0-7)", "type": "label" },
+        { "name": "_double", "type": "variable" },
+        { "name": "time limit (ms)", "type": "label" },
+        { "name": "_time_limit_ms", "type": "variable" },
+        { "name": "latency (ms)", "type": "label" },
+        { "name": "_latency_ms", "type": "variable" },
+        { "name": "window (ms)", "type": "label" },
+        { "name": "_window_ms", "type": "variable" },
+        { "name": "latch (1/0)", "type": "label" },
+        { "name": "_latch", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_orientation",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set orientation detector", "type": "label" },
+        { "name": "enabled (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "variable" },
+        { "name": "debounce (ms)", "type": "label" },
+        { "name": "_debounce_ms", "type": "variable" },
+        { "name": "threshold (deg)", "type": "label" },
+        { "name": "_threshold_deg", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_auto_sleep",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set auto-sleep", "type": "label" },
+        { "name": "enabled (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "variable" },
+        { "name": "sleep rate (Hz)", "type": "label" },
+        { "name": "_sleep_rate_hz", "type": "variable" },
+        { "name": "timeout (s)", "type": "label" },
+        { "name": "_timeout_s", "type": "variable" },
+        { "name": "wake sources mask", "type": "label" },
+        { "name": "_wake_sources", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_fifo_gate",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set FIFO gate (1/0)", "type": "label" },
+        { "name": "_enabled", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_set_interrupt_pins",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q set interrupt pins", "type": "label" },
+        { "name": "active high (1/0)", "type": "label" },
+        { "name": "_active_high", "type": "variable" },
+        { "name": "open drain (1/0)", "type": "label" },
+        { "name": "_open_drain", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_enable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q enable interrupt source", "type": "label" },
+        { "name": "_source", "type": "variable" },
+        { "name": "pin (1 or 2)", "type": "label" },
+        { "name": "_pin", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_disable_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q disable interrupt source", "type": "label" },
+        { "name": "_source", "type": "variable" }
+      ]
+    },
+    {
+      "name": "mma8451q_standby",
+      "type": "execute",
+      "params": [{ "name": "MMA8451Q standby", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_activate",
+      "type": "execute",
+      "params": [{ "name": "MMA8451Q activate", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_reset",
+      "type": "execute",
+      "params": [{ "name": "MMA8451Q software reset", "type": "label" }]
+    },
+    {
+      "name": "mma8451q_off_interrupt",
+      "type": "execute",
+      "params": [
+        { "name": "MMA8451Q stop interrupt subscription", "type": "label" },
+        { "name": "pin (1 or 2)", "type": "label" },
+        { "name": "_pin", "type": "variable" }
+      ]
+    }
+  ]
+}

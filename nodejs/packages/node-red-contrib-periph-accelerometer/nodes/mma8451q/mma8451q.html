@@ -1,0 +1,133 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('mma8451q-device', {
+        category: 'config',
+        defaults: {
+            name:         { value: '' },
+            bus:          { value: '1', required: true, validate: RED.validators.number() },
+            address:     { value: '0x1C', required: true },
+            range:        { value: '2', required: true, validate: RED.validators.number() },
+            rate:         { value: '100', required: true },
+            oversampling: { value: '0', required: true, validate: RED.validators.number() },
+            orientation:  { value: 'false' }
+        },
+        label: function() {
+            return this.name || ('MMA8451Q @ ' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="mma8451q-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="MMA8451Q">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address"><i class="fa fa-microchip"></i> I²C address</label>
+        <select id="node-config-input-address" style="width:120px">
+            <option value="0x1C">0x1C (SA0=GND)</option>
+            <option value="0x1D">0x1D (SA0=VDD)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-range">Range</label>
+        <select id="node-config-input-range" style="width:120px">
+            <option value="2">±2 g</option>
+            <option value="4">±4 g</option>
+            <option value="8">±8 g</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rate">Data rate (Hz)</label>
+        <select id="node-config-input-rate" style="width:120px">
+            <option value="800">800 Hz</option>
+            <option value="400">400 Hz</option>
+            <option value="200">200 Hz</option>
+            <option value="100" selected>100 Hz</option>
+            <option value="50">50 Hz</option>
+            <option value="12.5">12.5 Hz</option>
+            <option value="6.25">6.25 Hz</option>
+            <option value="1.56">1.56 Hz</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-oversampling">Oversampling</label>
+        <select id="node-config-input-oversampling" style="width:180px">
+            <option value="0">normal</option>
+            <option value="1">low-noise low-power</option>
+            <option value="2">high resolution</option>
+            <option value="3">low power</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-orientation"><i class="fa fa-compass"></i> Orientation</label>
+        <select id="node-config-input-orientation" style="width:120px">
+            <option value="false">off</option>
+            <option value="true">on</option>
+        </select>
+    </div>
+</script>
+
+<!-- Read node: trigger → measurements -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-mma8451q', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'mma8451q-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-arrows-alt',
+        label:   function() { return this.name || 'MMA8451Q'; },
+        paletteLabel: 'MMA8451Q'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-mma8451q">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="MMA8451Q">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-mma8451q">
+    <p>Reads 3-axis acceleration and the hardware orientation detection from an MMA8451Q 3-axis accelerometer over I²C.</p>
+    <p>Any input message triggers a measurement. The device is configured via an <b>mma8451q-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">any</span></dt>
+        <dd>Any incoming message triggers a measurement.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.x <span class="property-type">number</span></dt>
+        <dd>X acceleration in *g*.</dd>
+        <dt>payload.y <span class="property-type">number</span></dt>
+        <dd>Y acceleration in *g*.</dd>
+        <dt>payload.z <span class="property-type">number</span></dt>
+        <dd>Z acceleration in *g*.</dd>
+        <dt>payload.orientation.portrait_landscape <span class="property-type">number</span></dt>
+        <dd>Portrait/landscape state: 0 portrait up, 1 portrait down, 2 landscape right, 3 landscape left. Only present when the orientation detector is enabled in the device config node.</dd>
+        <dt>payload.orientation.back <span class="property-type">boolean</span></dt>
+        <dd>True when the device lies on its back face. Only present when the orientation detector is enabled in the device config node.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number, the chip's 7-bit address (default <code>0x1C</code> for SA0 = GND,
+    <code>0x1D</code> for SA0 = VDDIO), the measurement range (±2/±4/±8 *g*), the output data
+    rate (1.56 Hz – 800 Hz), the oversampling mode (normal, low-noise low-power, high resolution
+    or low power) and whether the hardware orientation detector is enabled in the device
+    config node.</p>
+</script>
