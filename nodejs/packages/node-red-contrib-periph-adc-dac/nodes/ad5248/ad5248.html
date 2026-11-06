@@ -1,0 +1,108 @@
+<!-- Config node: one instance per physical device -->
+<script type="text/javascript">
+    RED.nodes.registerType('ad5248-device', {
+        category: 'config',
+        defaults: {
+            name:    { value: '' },
+            bus:     { value: '1', required: true, validate: RED.validators.number() },
+            address: { value: '2C', required: true },
+            rab:     { value: '10000', required: true, validate: RED.validators.number() },
+            rwiper:  { value: '160', required: true, validate: RED.validators.number() }
+        },
+        label: function() {
+            return this.name || ('AD5248 @ 0x' + this.address + ' (bus ' + this.bus + ')');
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="ad5248-device">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-config-input-name" placeholder="AD5248">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-bus"><i class="fa fa-microchip"></i> I²C bus</label>
+        <input type="number" id="node-config-input-bus" min="0" style="width:80px"> &nbsp;(Linux /dev/i2c-N)
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-address">Address (hex)</label>
+        <select id="node-config-input-address" style="width:100px">
+            <option value="2C">0x2C (AD1=0, AD0=0)</option>
+            <option value="2D">0x2D (AD1=0, AD0=1)</option>
+            <option value="2E">0x2E (AD1=1, AD0=0)</option>
+            <option value="2F">0x2F (AD1=1, AD0=1)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rab">RAB (Ω)</label>
+        <select id="node-config-input-rab" style="width:100px">
+            <option value="2500">2.5 kΩ</option>
+            <option value="10000">10 kΩ</option>
+            <option value="50000">50 kΩ</option>
+            <option value="100000">100 kΩ</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-rwiper">Wiper R (Ω)</label>
+        <input type="number" id="node-config-input-rwiper" min="0" style="width:100px"> &nbsp;typical 160 Ω at 5 V
+    </div>
+</script>
+
+<!-- Node: set or read the wiper -->
+<script type="text/javascript">
+    RED.nodes.registerType('periph-ad5248', {
+        category:  'Peripheral',
+        color:     '#C084FC',
+        defaults: {
+            name:   { value: '' },
+            device: { value: '', type: 'ad5248-device', required: true }
+        },
+        inputs:  1,
+        outputs: 1,
+        icon:    'font-awesome/fa-sliders',
+        label:   function() { return this.name || 'AD5248'; },
+        paletteLabel: 'AD5248'
+    });
+</script>
+
+<script type="text/html" data-template-name="periph-ad5248">
+    <div class="form-row">
+        <label for="node-input-device"><i class="fa fa-microchip"></i> Device</label>
+        <input type="text" id="node-input-device">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="AD5248">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="periph-ad5248">
+    <p>Sets or reads the two 256-position wipers of an AD5248 dual digital rheostat over I²C.
+    The device is configured via an <b>ad5248-device</b> config node.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel <span class="property-type">number</span></dt>
+        <dd>Channel 0 or 1.</dd>
+        <dt>payload.code <span class="property-type">number</span></dt>
+        <dd>Wiper position 0–255. Takes precedence over <code>ohms</code>.</dd>
+        <dt>payload.ohms <span class="property-type">number</span></dt>
+        <dd>Target wiper-to-B resistance in ohms; the nearest reachable code is used.</dd>
+    </dl>
+    <p>Any other message reads both channels back.</p>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload.channel, payload.code, payload.resistance</dt>
+        <dd>After a write: the channel, the resulting wiper code and its W–B resistance (Ω).</dd>
+        <dt>payload.wiper <span class="property-type">array</span></dt>
+        <dd>After a read: <code>[code1, code2]</code>.</dd>
+        <dt>payload.resistance <span class="property-type">array</span></dt>
+        <dd>After a read: <code>[R1, R2]</code> in ohms.</dd>
+    </dl>
+
+    <h3>Configuration</h3>
+    <p>Set the I²C bus number and address (<code>0x2C</code>–<code>0x2F</code>, selected by the AD0/AD1 pins),
+    the end-to-end resistance RAB (2.5 / 10 / 50 / 100 kΩ) and the wiper resistance RW. The wiper
+    values are volatile and return to midscale (128) at every power-up.</p>
+</script>

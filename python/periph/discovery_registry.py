@@ -30,7 +30,7 @@ CHIPS = (
     {"id": "ad5243", "driver": "ad5243", "write_sensitive": True, "aliased": False,
      "addresses": (0x2F,),
      "probe": None},
-    {"id": "ad5248", "driver": None, "write_sensitive": True, "aliased": False,
+    {"id": "ad5248", "driver": "ad5248", "write_sensitive": True, "aliased": False,
      "addresses": (0x2C, 0x2D, 0x2E, 0x2F,),
      "probe": None},
     {"id": "cat5171", "driver": None, "write_sensitive": True, "aliased": False,
