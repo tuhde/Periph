@@ -32,12 +32,16 @@ Each chip exposes two classes:
 |------|----------|-------------|
 | 23X1024 | Memory | `periph/src/chips/memory/_23x1024` |
 | 24AA02UID | Memory | `periph/src/chips/memory/_24aa02uid` |
-| MB85RC | Memory | `periph/src/chips/memory/mb85rc` |
+| AD5243 | ADC/DAC | `periph/src/chips/adc_dac/ad5243` |
+| AD5248 | ADC/DAC | `periph/src/chips/adc_dac/ad5248` |
 | AD7705 | ADC/DAC | `periph/src/chips/adc_dac/ad7705` |
 | AD7706 | ADC/DAC | `periph/src/chips/adc_dac/ad7706` |
 | ADE7953 | Power monitor | `periph/src/chips/power/ade7953` |
 | ADS1013 | ADC/DAC | `periph/src/chips/adc_dac/ads1013` |
 | ADS1014 | ADC/DAC | `periph/src/chips/adc_dac/ads1014` |
+| ADS1113 | ADC/DAC | `periph/src/chips/adc_dac/ads1113` |
+| ADS1114 | ADC/DAC | `periph/src/chips/adc_dac/ads1114` |
+| ADS1115 | ADC/DAC | `periph/src/chips/adc_dac/ads1115` |
 | ADXL345 | Accelerometer | `periph/src/chips/accelerometer/adxl345` |
 | ADXL362 | Accelerometer | `periph/src/chips/accelerometer/adxl362` |
 | AHT21 | Environmental sensor | `periph/src/chips/environmental/aht21` |
@@ -77,6 +81,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `periph/src/chips/pressure/lps28dfw` |
 | LPS33HW | Pressure sensor | `periph/src/chips/pressure/lps33hw` |
 | LSM303 | Accelerometer | `periph/src/chips/accelerometer/lsm303` |
+| MB85RC | Memory | `periph/src/chips/memory/mb85rc` |
 | MCP23008 | IO expander | `periph/src/chips/io_expander/mcp23008` |
 | MCP23017 | IO expander | `periph/src/chips/io_expander/mcp23017` |
 | MCP2515 | Comms | `periph/src/chips/comms/mcp2515` |
@@ -98,6 +103,7 @@ Each chip exposes two classes:
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
 | PCF8578 | Display driver | `periph/src/chips/display/pcf8578` |
+| PCF8579 | Display driver | `periph/src/chips/display/pcf8579` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |

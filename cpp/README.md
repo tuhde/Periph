@@ -43,11 +43,15 @@ Each chip exposes two classes:
 | 23X1024 | Memory | `chips/memory/23X1024.h` |
 | 24AA02UID | Memory | `chips/memory/24AA02UID.h` |
 | AD5243 | ADC/DAC | `chips/adc_dac/AD5243.h` |
+| AD5248 | ADC/DAC | `chips/adc_dac/AD5248.h` |
 | AD7705 | ADC/DAC | `chips/adc_dac/AD7705.h` |
 | AD7706 | ADC/DAC | `chips/adc_dac/AD7706.h` |
 | ADE7953 | Power monitor | `chips/power/ADE7953.h` |
 | ADS1013 | ADC/DAC | `chips/adc_dac/ADS1013.h` |
 | ADS1014 | ADC/DAC | `chips/adc_dac/ADS1014.h` |
+| ADS1113 | ADC/DAC | `chips/adc_dac/ADS1113.h` |
+| ADS1114 | ADC/DAC | `chips/adc_dac/ADS1114.h` |
+| ADS1115 | ADC/DAC | `chips/adc_dac/ADS1115.h` |
 | ADXL345 | Accelerometer | `chips/accelerometer/ADXL345.h` |
 | ADXL362 | Accelerometer | `chips/accelerometer/ADXL362.h` |
 | AHT21 | Environmental sensor | `chips/environmental/AHT21.h` |
@@ -86,6 +90,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | `chips/pressure/LPS28DFW.h` |
 | Lps33hw | Pressure sensor | `chips/pressure/Lps33hw.h` |
 | LSM303 | Accelerometer | `chips/accelerometer/LSM303.h` |
+| MB85RC | Memory | `chips/memory/MB85RC.h` |
 | MCP23008 | IO expander | `chips/io_expander/MCP23008.h` |
 | MCP23017 | IO expander | `chips/io_expander/MCP23017.h` |
 | MCP2515 | Comms | `chips/comms/MCP2515.h` |
@@ -107,6 +112,7 @@ Each chip exposes two classes:
 | PCF8575 | IO expander | `chips/io_expander/PCF8575.h` |
 | PCF8576 | Display driver | `chips/display/PCF8576.h` |
 | PCF8578 | Display driver | `chips/display/PCF8578.h` |
+| PCF8579 | Display driver | `chips/display/PCF8579.h` |
 | PCF8591 | ADC/DAC | `chips/adc_dac/PCF8591.h` |
 | RDA5807M | Comms | `chips/comms/RDA5807M.h` |
 | RFM9x | Comms | `chips/comms/RFM9x.h` |

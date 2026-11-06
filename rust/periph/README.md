@@ -45,11 +45,15 @@ Each chip exposes two structs:
 | 23X1024 | Memory | 1-Mbit SPI serial SRAM (Microchip 23LC1024 / 23A1024). |
 | 24AA02UID | Memory | 2 Kbit I²C EEPROM with 32-bit unique serial number. |
 | AD5243 | ADC/DAC | Dual 256-position I²C digital potentiometer (Analog Devices). |
+| AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat (Analog Devices). |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC driver (Analog Devices). |
 | ADE7953 | Power monitor | Single-phase multifunction metering IC (Analog Devices). |
 | ADS1013 | ADC/DAC | 12-bit I²C ADC with a fixed ±2.048 V range (Texas Instruments). |
 | ADS1014 | ADC/DAC | 12-bit I²C ADC with PGA and programmable comparator (Texas Instruments). |
+| ADS1113 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), fixed ±2.048 V) (Texas Instruments). |
+| ADS1114 | ADC/DAC | 16-bit ΔΣ ADC (one differential input (AIN0 − AIN1), PGA and comparator) (Texas Instruments). |
+| ADS1115 | ADC/DAC | 16-bit ΔΣ ADC (four-channel multiplexer, PGA and comparator) (Texas Instruments). |
 | ADXL345 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | ADXL362 | Accelerometer | 3-axis MEMS accelerometer (Analog Devices). |
 | AHT21 | Environmental sensor | Temperature and humidity sensor (ASAIR). |
@@ -89,6 +93,7 @@ Each chip exposes two structs:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer (STMicroelectronics). |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor (STMicroelectronics). |
 | LSM303 | Accelerometer | 3-axis accelerometer + magnetometer e-compass (STMicroelectronics). |
+| MB85RC | Memory | 256 Kbit (32 KiB) I²C FRAM (ferroelectric RAM). |
 | MCP23008 | IO expander | / MCP23S08 8-bit bidirectional I/O port expander (Microchip). |
 | MCP23017 | IO expander | 16-bit bidirectional I/O port expander (Microchip). |
 | MCP2515 | Comms | Stand-alone CAN 2.0B controller (Microchip). |
@@ -108,6 +113,7 @@ Each chip exposes two structs:
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander (NXP). |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver (NXP). |
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver (NXP). |
+| PCF8579 | Display driver | LCD column driver (NXP), companion of the PCF8578. |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC (NXP). |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner (RDA Microelectronics). |
 | RFM9x | Comms | LoRa transceiver modules (HopeRF). |

@@ -5,8 +5,16 @@
       "github:tuhde/Periph/python/periph/__init__.py"
     ],
     [
+      "periph/chips/adc_dac/_ads111x_base.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/_ads111x_base.py"
+    ],
+    [
       "periph/chips/adc_dac/ad5243.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad5243.py"
+    ],
+    [
+      "periph/chips/adc_dac/ad5248.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ad5248.py"
     ],
     [
       "periph/chips/adc_dac/ad7705.py",
@@ -23,6 +31,18 @@
     [
       "periph/chips/adc_dac/ads1014.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ads1014.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1113.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1113.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1114.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1114.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1115.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1115.py"
     ],
     [
       "periph/chips/adc_dac/hx710a.py",

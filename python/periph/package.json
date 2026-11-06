@@ -37,6 +37,18 @@
       "github:tuhde/Periph/python/periph/chips/accelerometer/mma8451q.py"
     ],
     [
+      "periph/chips/adc_dac/_ads111x_base.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/_ads111x_base.py"
+    ],
+    [
+      "periph/chips/adc_dac/ad5243.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ad5243.py"
+    ],
+    [
+      "periph/chips/adc_dac/ad5248.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ad5248.py"
+    ],
+    [
       "periph/chips/adc_dac/ad7705.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ad7705.py"
     ],
@@ -51,6 +63,18 @@
     [
       "periph/chips/adc_dac/ads1014.py",
       "github:tuhde/Periph/python/periph/chips/adc_dac/ads1014.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1113.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1113.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1114.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1114.py"
+    ],
+    [
+      "periph/chips/adc_dac/ads1115.py",
+      "github:tuhde/Periph/python/periph/chips/adc_dac/ads1115.py"
     ],
     [
       "periph/chips/adc_dac/hx710a.py",
@@ -103,6 +127,10 @@
     [
       "periph/chips/display/pcf8578.py",
       "github:tuhde/Periph/python/periph/chips/display/pcf8578.py"
+    ],
+    [
+      "periph/chips/display/pcf8579.py",
+      "github:tuhde/Periph/python/periph/chips/display/pcf8579.py"
     ],
     [
       "periph/chips/display/ssd1331.py",
@@ -245,12 +273,20 @@
       "github:tuhde/Periph/python/periph/chips/memory/_24aa02uid.py"
     ],
     [
+      "periph/chips/memory/mb85rc.py",
+      "github:tuhde/Periph/python/periph/chips/memory/mb85rc.py"
+    ],
+    [
       "periph/chips/memory/mx25l12845e.py",
       "github:tuhde/Periph/python/periph/chips/memory/mx25l12845e.py"
     ],
     [
       "periph/chips/memory/sd_spi.py",
       "github:tuhde/Periph/python/periph/chips/memory/sd_spi.py"
+    ],
+    [
+      "periph/chips/motor/drv2605.py",
+      "github:tuhde/Periph/python/periph/chips/motor/drv2605.py"
     ],
     [
       "periph/chips/motor/drv8830.py",

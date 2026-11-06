@@ -50,12 +50,16 @@ Each chip exposes two classes:
 |------|----------|-------------|
 | 23X1024 | Memory | 23LC1024 / 23A1024 1-Mbit SPI serial SRAM |
 | 24AA02UID | Memory | 2K I2C EEPROM with 32-bit unique serial number |
-| MB85RC | Memory | 256 Kbit I2C FRAM, no write delay |
+| AD5243 | ADC/DAC | Dual digital potentiometer |
+| AD5248 | ADC/DAC | Dual 256-position I²C digital rheostat |
 | AD7705 | ADC/DAC | 2-channel, 16-bit sigma-delta ADC |
 | AD7706 | ADC/DAC | 3-channel, 16-bit sigma-delta ADC |
 | ADE7953 | Power monitor | Single-phase metering IC |
 | ADS1013 | ADC/DAC | 12-bit ADC |
 | ADS1014 | ADC/DAC | 12-bit ADC |
+| ADS1113 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
+| ADS1114 | ADC/DAC | Single-shot AIN0 − AIN1 at ±2.048 V, 128 SPS. |
+| ADS1115 | ADC/DAC | Single-shot single-ended reads at ±2.048 V, 128 SPS. |
 | ADXL345 | Accelerometer | 3-axis accelerometer |
 | ADXL362 | Accelerometer | Read X, Y, Z acceleration in *g*. |
 | AHT21 | Environmental sensor | Temperature and humidity sensor |
@@ -95,6 +99,7 @@ Each chip exposes two classes:
 | LPS28DFW | Pressure sensor | Dual full-scale digital barometer |
 | LPS33HW | Pressure sensor | Water-resistant MEMS absolute pressure sensor |
 | LSM303 | Accelerometer | Acceleration and magnetic field. |
+| MB85RC | Memory | MB85RC256V 256 Kbit (32 KiB) I2C FRAM |
 | MCP23008 | IO expander | 8-bit I/O port expander (I²C) |
 | MCP23017 | IO expander | 16-bit I/O port expander |
 | MCP2515 | Comms | Send/recv with default configuration. |
@@ -114,6 +119,7 @@ Each chip exposes two classes:
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver |
 | PCF8578 | Display driver | Row/column LCD dot-matrix driver |
+| PCF8579 | Display driver | LCD column driver |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |
