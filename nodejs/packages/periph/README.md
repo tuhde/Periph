@@ -96,6 +96,7 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | `periph/src/chips/io_expander/pcf8574` |
 | PCF8575 | IO expander | `periph/src/chips/io_expander/pcf8575` |
 | PCF8576 | Display driver | `periph/src/chips/display/pcf8576` |
+| PCF8578 | Display driver | `periph/src/chips/display/pcf8578` |
 | PCF8591 | ADC/DAC | `periph/src/chips/adc_dac/pcf8591` |
 | RDA5807M | Comms | `periph/src/chips/comms/rda5807m` |
 | RFM9X | Comms | `periph/src/chips/comms/rfm9x` |

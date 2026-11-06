@@ -48,7 +48,7 @@ var registry = []Chip{
 	{ID: "pcf8591", Driver: "pcf8591", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F}, Probe: nil},
 	{ID: "rda5807m", Driver: "rda5807m", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x10}, Probe: nil},
 	{ID: "pcf8576", Driver: "pcf8576", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x38, 0x39}, Probe: nil},
-	{ID: "pcf8578", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
+	{ID: "pcf8578", Driver: "pcf8578", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
 	{ID: "pcf8579", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
 	{ID: "sh1106", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},
 	{ID: "ssd1305", Driver: "", WriteSensitive: true, Aliased: false, Addresses: []uint8{0x3C, 0x3D}, Probe: nil},

@@ -112,6 +112,7 @@ Each chip exposes two classes:
 | PCF8574 | IO expander | 8-bit quasi-bidirectional I/O port expander |
 | PCF8575 | IO expander | 16-bit quasi-bidirectional I/O port expander |
 | PCF8576 | Display driver | 40x4 universal LCD segment driver |
+| PCF8578 | Display driver | Row/column LCD dot-matrix driver |
 | PCF8591 | ADC/DAC | 8-bit quad ADC + DAC |
 | RDA5807M | Comms | Single-chip FM stereo radio tuner |
 | RFM9x | Comms | 868/915 MHz HF band, max SF=12. |

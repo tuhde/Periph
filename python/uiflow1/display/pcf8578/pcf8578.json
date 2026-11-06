@@ -1,0 +1,274 @@
+{
+  "category": "Periph",
+  "color": "#C084FC",
+  "blocks": [
+    {
+      "name": "pcf8578_init",
+      "type": "execute",
+      "params": [
+        {
+          "name": "Init PCF8578",
+          "type": "label"
+        },
+        {
+          "name": "I2C bus",
+          "type": "label"
+        },
+        {
+          "name": "_bus",
+          "type": "number"
+        },
+        {
+          "name": "address",
+          "type": "label"
+        },
+        {
+          "name": "_address",
+          "type": "number"
+        },
+        {
+          "name": "rows (8/16/24/32)",
+          "type": "label"
+        },
+        {
+          "name": "_rows",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_clear",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 clear display",
+          "type": "label"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_set_pixel",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 set pixel x, y, on (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_get_pixel",
+      "type": "value",
+      "params": [
+        {
+          "name": "PCF8578 pixel set? x, y",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_write_column",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 write column byte x, bank (0-3), value (0-255)",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "_bank",
+          "type": "number"
+        },
+        {
+          "name": "_value",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_fill",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 fill display (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_draw_line",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 draw line x0, y0, x1, y1, on (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_x0",
+          "type": "number"
+        },
+        {
+          "name": "_y0",
+          "type": "number"
+        },
+        {
+          "name": "_x1",
+          "type": "number"
+        },
+        {
+          "name": "_y1",
+          "type": "number"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_draw_rect",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 draw rectangle x, y, w, h, on (0/1), fill (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_x",
+          "type": "number"
+        },
+        {
+          "name": "_y",
+          "type": "number"
+        },
+        {
+          "name": "_w",
+          "type": "number"
+        },
+        {
+          "name": "_h",
+          "type": "number"
+        },
+        {
+          "name": "_on",
+          "type": "number"
+        },
+        {
+          "name": "_fill",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_set_display",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 display status: BLANK=0, NORMAL=1, ALL_ON=2, INVERSE=3",
+          "type": "label"
+        },
+        {
+          "name": "_status",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_set_mode",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 set rows (8/16/24/32), mixed mode (0/1)",
+          "type": "label"
+        },
+        {
+          "name": "_rows",
+          "type": "number"
+        },
+        {
+          "name": "_mixed",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_set_start_bank",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 set start bank (0-3)",
+          "type": "label"
+        },
+        {
+          "name": "_bank",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_scroll",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 scroll by banks",
+          "type": "label"
+        },
+        {
+          "name": "_banks",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_device_select",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 select device subaddress (0-15)",
+          "type": "label"
+        },
+        {
+          "name": "_subaddress",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "pcf8578_reset",
+      "type": "execute",
+      "params": [
+        {
+          "name": "PCF8578 reset display",
+          "type": "label"
+        }
+      ]
+    }
+  ]
+}
